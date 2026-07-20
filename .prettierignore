@@ -1,0 +1,14 @@
+# Arquivos/diretorios ignorados pelo Prettier
+node_modules/
+dist/
+build/
+out/
+.next/
+.turbo/
+coverage/
+skills/
+upload/
+download/
+pnpm-lock.yaml
+package-lock.json
+*.md

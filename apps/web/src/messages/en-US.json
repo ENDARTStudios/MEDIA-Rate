@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "MEDIA Rate",
+    "tagline": "Discover what to watch, play and read",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search"
+  },
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "pricing": "Plans",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "profile": "Profile",
+    "admin": "Admin"
+  },
+  "landing": {
+    "hero": "Unified score for movies, series, games and books",
+    "heroSubtitle": "MEDIA Score™ aggregates ratings from public sources into a single 0-100 indicator.",
+    "cta": "Get started free",
+    "features": "Features",
+    "feature1": "Consolidated MEDIA Score™",
+    "feature1Desc": "Ratings from IMDb, TMDB, IGDB, RAWG and Open Library in one place.",
+    "feature2": "Personalized recommendations",
+    "feature2Desc": "Algorithm that learns your taste as you consume.",
+    "feature3": "Plans for everyone",
+    "feature3Desc": "Free, Plus and Premium — start free and upgrade anytime."
+  },
+  "catalog": {
+    "title": "Catalog",
+    "search": "Search media...",
+    "filterType": "Type",
+    "all": "All",
+    "filme": "Movies",
+    "serie": "Series",
+    "game": "Games",
+    "livro": "Books",
+    "sort": "Sort",
+    "sortTitulo": "Title (A-Z)",
+    "sortAno": "Year (recent)",
+    "noResults": "No results found",
+    "loadMore": "Load more",
+    "mediaScore": "MEDIA Score"
+  },
+  "checkout": {
+    "title": "Plan upgrade",
+    "plus": "Plus",
+    "premium": "Premium",
+    "subscribe": "Subscribe to {plan}",
+    "redirecting": "Redirecting to Stripe...",
+    "success": "Subscription activated!",
+    "canceled": "Payment canceled"
+  },
+  "lgpd": {
+    "banner": "We use cookies to improve your experience. You can export or delete your data anytime.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "privacy": "Privacy",
+    "exportData": "Export my data",
+    "deleteData": "Request deletion",
+    "deleteWarning": "Your data will be deleted in 30 days. You can cancel until then.",
+    "confirmDelete": "Confirm deletion"
+  },
+  "admin": {
+    "title": "Admin panel",
+    "users": "Users",
+    "plans": "Plans",
+    "metrics": "Metrics",
+    "totalUsers": "Total users",
+    "activeSubscriptions": "Active subscriptions",
+    "plusUsers": "Plus users",
+    "premiumUsers": "Premium users"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  }
+}

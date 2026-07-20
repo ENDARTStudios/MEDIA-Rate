@@ -1,0 +1,45 @@
+{
+  "name": "media-rate",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MEDIA Rate — plataforma de descoberta de midia (filmes, series, games, livros) com MEDIA Score unificado. Copyright (c) 2026 END ART Studios. Todos os direitos reservados.",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit -p tsconfig.base.json"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "prettier": "^3.9.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0"
+  },
+  "allowScripts": {
+    "@nestjs/core@10.4.22": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.21.5": true,
+    "@swc/core@1.15.43": true,
+    "argon2@0.41.1": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "@prisma/client@6.19.3": true,
+    "@scarf/scarf@1.4.0": true,
+    "unrs-resolver@1.12.2": true,
+    "sharp@0.33.5": true,
+    "sharp@0.34.5": true,
+    "@parcel/watcher@2.5.6": true
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "MEDIA Rate",
+    "tagline": "Descubre qué ver, jugar y leer",
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "search": "Buscar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "catalog": "Catálogo",
+    "pricing": "Planes",
+    "login": "Entrar",
+    "register": "Registrarse",
+    "logout": "Salir",
+    "profile": "Perfil",
+    "admin": "Admin"
+  },
+  "landing": {
+    "hero": "Puntuación unificada de películas, series, juegos y libros",
+    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único de 0 a 100.",
+    "cta": "Empezar gratis",
+    "features": "Características",
+    "feature1": "MEDIA Score™ consolidado",
+    "feature1Desc": "Calificaciones de IMDb, TMDB, IGDB, RAWG y Open Library en un solo lugar.",
+    "feature2": "Recomendaciones personalizadas",
+    "feature2Desc": "Algoritmo que aprende tu gusto mientras consumes.",
+    "feature3": "Planes para todos",
+    "feature3Desc": "Free, Plus y Premium — empieza gratis y mejora cuando quieras."
+  },
+  "catalog": {
+    "title": "Catálogo",
+    "search": "Buscar contenido...",
+    "filterType": "Tipo",
+    "all": "Todos",
+    "filme": "Películas",
+    "serie": "Series",
+    "game": "Juegos",
+    "livro": "Libros",
+    "sort": "Ordenar",
+    "sortTitulo": "Título (A-Z)",
+    "sortAno": "Año (reciente)",
+    "noResults": "Sin resultados",
+    "loadMore": "Cargar más",
+    "mediaScore": "MEDIA Score"
+  },
+  "checkout": {
+    "title": "Mejora de plan",
+    "plus": "Plus",
+    "premium": "Premium",
+    "subscribe": "Suscribirse a {plan}",
+    "redirecting": "Redirigiendo a Stripe...",
+    "success": "¡Suscripción activada!",
+    "canceled": "Pago cancelado"
+  },
+  "lgpd": {
+    "banner": "Usamos cookies para mejorar tu experiencia. Puedes exportar o eliminar tus datos en cualquier momento.",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "privacy": "Privacidad",
+    "exportData": "Exportar mis datos",
+    "deleteData": "Solicitar eliminación",
+    "deleteWarning": "Tus datos se eliminarán en 30 días. Puedes cancelar hasta entonces.",
+    "confirmDelete": "Confirmar eliminación"
+  },
+  "admin": {
+    "title": "Panel administrativo",
+    "users": "Usuarios",
+    "planes": "Planes",
+    "metrics": "Métricas",
+    "totalUsers": "Total de usuarios",
+    "activeSubscriptions": "Suscripciones activas",
+    "plusUsers": "Usuarios Plus",
+    "premiumUsers": "Usuarios Premium"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "contact": "Contacto"
+  }
+}

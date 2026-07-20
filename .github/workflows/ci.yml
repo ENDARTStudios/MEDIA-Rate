@@ -1,0 +1,146 @@
+# GitHub Actions CI — MEDIA Rate (T9.1/T9.2/T8.3/T8.4/T8.5)
+#
+# Pipeline com stages paralelos: lint+audit | test+coverage | build | CodeQL | ZAP | Stryker
+# Cache de npm para acelerar builds subsequentes.
+# Artefatos: coverage report, build output, test results.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # Job 1: Lint + Audit (rápido, roda primeiro)
+  lint-audit:
+    name: Lint & Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: npm audit (T9.2 — bloqueia merge se houver high/critical)
+        run: npm audit --audit-level=high
+
+  # Job 2: Testes + Coverage (paralelo com lint)
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: API tests with coverage
+        working-directory: apps/api
+        env:
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+          SKIP_DB_CONNECT: "true"
+        run: npx vitest run --coverage
+      - name: Web tests
+        working-directory: apps/web
+        run: npx vitest run
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: apps/api/coverage/
+          retention-days: 30
+
+  # Job 3: Build (paralelo com testes)
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint-audit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Build API
+        working-directory: apps/api
+        run: npx tsc -p tsconfig.json --noEmit
+      - name: Build Web (Next.js)
+        working-directory: apps/web
+        run: npx next build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next/
+          retention-days: 7
+
+  # Job 4: SAST CodeQL (paralelo)
+  codeql:
+    name: CodeQL (SAST)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+
+  # Job 5: DAST ZAP baseline (apenas em PR)
+  zap-baseline:
+    name: ZAP Baseline (DAST)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: "https://preview-${{ github.event.pull_request.number }}.media-rate.example.com"
+          cmd_options: "-a -j"
+          fail_action: true
+          issue_title: "OWASP ZAP: Vulnerabilities in ${{ github.event.pull_request.head.sha }}"
+
+  # Job 6: Stryker mutation testing (opcional, não bloqueia)
+  stryker:
+    name: Stryker Mutation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Stryker run
+        working-directory: apps/api
+        run: npx stryker run
+        continue-on-error: true
+      - name: Upload Stryker report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-report
+          path: apps/api/reports/mutation/
+          retention-days: 30

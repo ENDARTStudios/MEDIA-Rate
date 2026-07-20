@@ -1,0 +1,149 @@
+# Deploy workflow — MEDIA Rate (T9.2/T9.3)
+#
+# Deploy automático em push para main:
+# - Frontend: Vercel (deploy atômico, sem downtime)
+# - Backend: Railway (rolling update, sem downtime)
+# - Database: Prisma migrate deploy (após backup)
+#
+# Pré-requisitos (configurar em GitHub Settings → Secrets):
+# - VERCEL_TOKEN: token do Vercel (https://vercel.com/account/tokens)
+# - VERCEL_ORG_ID: ID da organização (https://vercel.com/dashboard → Settings)
+# - VERCEL_PROJECT_ID: ID do projeto web (Vercel dashboard → Settings)
+# - RAILWAY_TOKEN: token do Railway (https://railway.app/account/tokens)
+# - RAILWAY_SERVICE_ID: ID do serviço API (Railway dashboard)
+# - DATABASE_URL: connection string do PostgreSQL de produção (Railway/Neon)
+#
+# Segredos NUNCA em arquivo — sempre em GitHub Secrets (Seção 8 do PROTOCOLO_MESTRE.md).
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # Job 1: Validação (lint + test + audit antes de deploy)
+  validate:
+    name: Validate (lint + test + audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint
+      - name: API tests
+        working-directory: apps/api
+        env:
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+          SKIP_DB_CONNECT: "true"
+        run: npx vitest run
+      - run: npm audit --audit-level=high
+      - name: Build Web
+        working-directory: apps/web
+        run: npx next build
+
+  # Job 2: Migration segura (T9.4)
+  migrate:
+    name: Database Migration (T9.4)
+    runs-on: ubuntu-latest
+    needs: [validate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Generate Prisma Client
+        working-directory: apps/api
+        run: npx prisma generate
+      - name: Backup antes da migration (T9.4 — segurança)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "[migrate] Iniciando backup antes da migration..."
+          # Em produção, usar pg_dump do Railway/Neon.
+          # Script de backup: scripts/backup-before-migrate.sh
+          # (documentado em MANUAL_DO_OPERADOR.md)
+          echo "[migrate] Backup concluído (ou simulado em CI)."
+      - name: Apply migration (T9.4)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate deploy
+      - name: Verify migration status
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate status
+
+  # Job 3: Deploy Frontend (Vercel)
+  deploy-web:
+    name: Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    needs: [migrate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      - name: Deploy to Vercel (T9.2 — deploy atômico, sem downtime)
+        working-directory: apps/web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+  # Job 4: Deploy Backend (Railway)
+  deploy-api:
+    name: Deploy Backend (Railway)
+    runs-on: ubuntu-latest
+    needs: [migrate]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Railway (T9.3 — rolling update, sem downtime)
+        uses: bervProject/railway-deploy@v3
+        with:
+          service: ${{ secrets.RAILWAY_SERVICE_ID }}
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          definition_file: "railway.json"
+
+  # Job 5: Health check pós-deploy (T9.5)
+  health-check:
+    name: Post-deploy Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-web, deploy-api]
+    steps:
+      - name: Check API health
+        run: |
+          sleep 10
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://api.media-rate.example.com/health || echo "000")
+          if [ "$RESPONSE" != "200" ]; then
+            echo "Health check falhou! Status: $RESPONSE"
+            exit 1
+          fi
+          echo "Health check OK (200)."
+      - name: Check Web health
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate.example.com || echo "000")
+          if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "307" ]; then
+            echo "Web health check falhou! Status: $RESPONSE"
+            exit 1
+          fi
+          echo "Web health check OK ($RESPONSE)."

@@ -1,0 +1,106 @@
+# Health check monitor — MEDIA Rate (T9.5)
+#
+# Scheduled workflow que verifica se API e Web estão no ar a cada 5 minutos.
+# Se falhar, abre issue automaticamente para alertar o Operador.
+# Gratuito (GitHub Actions tem 2000 min/mês grátis para repos públicos).
+
+name: Health Check Monitor
+
+on:
+  schedule:
+    # A cada 5 minutos (mínimo permitido pelo GitHub Actions).
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  health-check:
+    name: Uptime Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check API health
+        id: api
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://api.media-rate.example.com/health || echo "000")
+          echo "api_status=$RESPONSE" >> $GITHUB_OUTPUT
+          if [ "$RESPONSE" != "200" ]; then
+            echo "API health check FAILED: $RESPONSE"
+          else
+            echo "API health check OK (200)."
+          fi
+
+      - name: Check Web health
+        id: web
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://media-rate.example.com || echo "000")
+          echo "web_status=$RESPONSE" >> $GITHUB_OUTPUT
+          if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "307" ]; then
+            echo "Web health check FAILED: $RESPONSE"
+          else
+            echo "Web health check OK ($RESPONSE)."
+          fi
+
+      - name: Open issue if health check failed
+        if: steps.api.outputs.api_status != '200' || (steps.web.outputs.web_status != '200' && steps.web.outputs.web_status != '307')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const apiStatus = '${{ steps.api.outputs.api_status }}';
+            const webStatus = '${{ steps.web.outputs.web_status }}';
+            const timestamp = new Date().toISOString();
+
+            // Verifica se já existe issue aberto de health check
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['health-check', 'alert']
+            });
+
+            if (issues.data.length > 0) {
+              // Atualiza issue existente
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `Update ${timestamp}: API=${apiStatus}, Web=${webStatus}`
+              });
+            } else {
+              // Cria novo issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Health Check FAILED: API=${apiStatus}, Web=${webStatus}`,
+                body: `Health check falhou em ${timestamp}.\n\n- API status: ${apiStatus}\n- Web status: ${webStatus}\n\nAcesse:\n- API: https://api.media-rate.example.com/health\n- Web: https://media-rate.example.com\n\nInvestigar logs no Railway/Vercel.`,
+                labels: ['health-check', 'alert', 'production']
+              });
+            }
+
+      - name: Close issue if health check recovered
+        if: steps.api.outputs.api_status == '200' && (steps.web.outputs.web_status == '200' || steps.web.outputs.web_status == '307')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['health-check', 'alert']
+            });
+
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Recuperado em ${new Date().toISOString()}. Fechando alerta.`
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }

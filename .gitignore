@@ -1,0 +1,51 @@
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Builds
+dist/
+build/
+out/
+.next/
+coverage/
+
+# Ambiente e segredos (NUNCA commitar)
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+.eslintcache
+.cache/
+.parcel-cache/
+.turbo/
+
+# Testes
+.nyc_output/
+
+# Skills locais (do ambiente, nao do projeto)
+skills/
+
+# Uploads de usuario (quando Fase 6 confirmar upload)
+uploads/
+
+# Diretorios de trabalho do agente
+agent-ctx/

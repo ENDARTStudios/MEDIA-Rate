@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Stryker-Mutator/stryker/master/packages/api/schema/stryker-core.json",
+  "_comment": "Stryker Mutation Testing config (T8.5) — roda nos services core do MEDIA Rate",
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress"],
+  "testRunner": "vitest",
+  "coverageAnalysis": "off",
+  "mutate": [
+    "apps/api/src/modules/media-score/media-score.service.ts",
+    "apps/api/src/modules/auth/lockout.service.ts",
+    "apps/api/src/modules/auth/session.service.ts",
+    "apps/api/src/modules/auth/auth.service.ts",
+    "apps/api/src/modules/payment/payment.service.ts",
+    "apps/api/src/modules/lgpd/lgpd.service.ts",
+    "apps/api/src/common/password.service.ts",
+    "apps/api/src/common/column-encryption.service.ts",
+    "apps/api/src/common/pagination.helper.ts"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 40
+  },
+  "timeoutMS": 5000,
+  "timeoutFactor": 1.5,
+  "maxConcurrentTestRunners": 4,
+  "vitest": {
+    "configFile": "apps/api/vitest.config.ts"
+  }
+}

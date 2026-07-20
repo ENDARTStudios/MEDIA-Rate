@@ -1,0 +1,382 @@
+// MEDIA Rate — schema Prisma (Fase 2)
+// PostgreSQL + Prisma 6 (DECIDE-01).
+// Convenção: nomes de modelos em português (Usuario, Sessao, Papel) para
+// alinhar com o PLANO_MESTRE.md. Nomes de campos em snake_case para
+// consistência com SQL.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================================================
+// Enums
+// ===========================================================================
+
+/// Faixa etária brasileira (DJCTQ). Conforme DISCOVERY-02 e T2.7.
+enum ClassificacaoIndicativa {
+  L // Livre para todos os públicos
+  DEZ // 10 anos
+  DOZE // 12 anos
+  CATORZE // 14 anos
+  DEZESSEIS // 16 anos
+  DEZOITO // 18 anos
+}
+
+/// Tipos de mídia suportados pelo MEDIA Rate.
+enum TipoMidia {
+  FILME
+  SERIE
+  GAME
+  LIVRO
+}
+
+/// Planos de assinatura SaaS. Conforme DISCOVERY-02 Q4 e T2.9.
+enum Plano {
+  FREE
+  PLUS
+  PREMIUM
+}
+
+/// Status da assinatura do usuário (sincronizado com Stripe webhook).
+enum StatusAssinatura {
+  ATIVA
+  CANCELADA
+  PAST_DUE
+  TRIALING
+  PAUSADA
+}
+
+/// Tipos de evento de pagamento processados via webhook Stripe (T2.10).
+enum TipoEventoPagamento {
+  CHECKOUT_SESSION_COMPLETED
+  CUSTOMER_SUBSCRIPTION_CREATED
+  CUSTOMER_SUBSCRIPTION_UPDATED
+  CUSTOMER_SUBSCRIPTION_DELETED
+  INVOICE_PAYMENT_SUCCEEDED
+  INVOICE_PAYMENT_FAILED
+  CUSTOMER_SUBSCRIPTION_TRIAL_WILL_END
+}
+
+/// Papéis RBAC (T2.4). ADMIN tem acesso total; USER é o padrão.
+enum PapelNome {
+  USER
+  ADMIN
+  MODERADOR
+}
+
+/// Finalidades de consentimento LGPD (T2.11).
+enum FinalidadeConsentimento {
+  MARKETING
+  RECOMENDACAO_PERSONALIZADA
+  COMPARTILHAMENTO_DADOS
+  COOKIES_ANALITICOS
+}
+
+// ===========================================================================
+// Usuário e autenticação (T2.2, T2.3, T2.4, T2.11)
+// ===========================================================================
+
+/// T2.2 + T2.11: usuário do MEDIA Rate.
+model Usuario {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  email                String                 @unique
+  // T2.5: hash argon2id, nunca plaintext. TEXT para acomodar formato
+  // $argon2id$v=19$m=...$salt$hash sem limite arbitrário.
+  password_hash        String                 @map("password_hash") @db.Text
+  nome                 String?                @db.VarChar(255)
+  // T2.11: soft delete agendado pelo endpoint LGPD T4.9.
+  dados_para_exclusao_at DateTime?            @map("dados_para_exclusao_at")
+  email_verificado_em  DateTime?              @map("email_verificado_em")
+  ultimo_login_em      DateTime?              @map("ultimo_login_em")
+  created_at           DateTime               @default(now()) @map("created_at")
+  updated_at           DateTime               @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  sessoes              Sessao[]
+  papeis               UsuarioPapel[]
+  plano                UsuarioPlano?
+  eventos_pagamento    EventoPagamento[]
+  consentimentos       ConsentimentoUsuario[]
+  interacoes           UsuarioMidiaInteracao[]
+  watchlist            WatchlistEntry[]
+  preferencias         PreferenciaUsuario?
+  scores_vistos        MediaScoreView[]
+
+  @@map("usuario")
+}
+
+/// T2.3: sessão via token opaco (não JWT). Apenas hash armazenado.
+model Sessao {
+  id          String   @id @default(uuid()) @db.Uuid
+  usuario_id  String   @map("usuario_id") @db.Uuid
+  // SHA-256 do token opaco gerado com crypto.randomBytes(32).
+  token_hash  String   @unique @map("token_hash") @db.VarChar(64)
+  // User-Agent para identificação do dispositivo (não PII direto).
+  user_agent  String?  @map("user_agent") @db.Text
+  ip_criacao  String?  @map("ip_criacao") @db.Inet
+  expires_at  DateTime @map("expires_at")
+  revoked_at  DateTime? @map("revoked_at")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@index([expires_at])
+  @@map("sessao")
+}
+
+/// T2.4: RBAC. Papel é imutável (enum); usuario_papel é N:N.
+model Papel {
+  id      Int          @id @default(autoincrement())
+  nome    PapelNome    @unique
+  usuarios UsuarioPapel[]
+
+  @@map("papel")
+}
+
+/// T2.4: N:N entre Usuario e Papel.
+model UsuarioPapel {
+  usuario_id String @map("usuario_id") @db.Uuid
+  papel_id   Int    @map("papel_id")
+  atribuido_em DateTime @default(now()) @map("atribuido_em")
+  atribuido_por String? @map("atribuido_por") @db.Uuid
+
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  papel   Papel   @relation(fields: [papel_id], references: [id], onDelete: Cascade)
+
+  @@id([usuario_id, papel_id])
+  @@map("usuario_papel")
+}
+
+// ===========================================================================
+// Planos via entitlements (T2.9)
+// ===========================================================================
+
+/// T2.9: catálogo de entitlements (características de plano). PK é a chave
+/// textual (ex: 'max_watchlist_items', 'recommendation_tier').
+model Entitlement {
+  chave       String @id @db.VarChar(64)
+  descricao   String @db.Text
+  tipo        String @db.VarChar(32) // 'number' | 'boolean' | 'string'
+  valor_padrao String? @db.Text @map("valor_padrao")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  planos      PlanoEntitlement[]
+
+  @@map("entitlement")
+}
+
+/// T2.9: N:N entre Plano (enum) e Entitlement. Define quais entitlements
+/// cada plano concede e com qual valor.
+model PlanoEntitlement {
+  plano           Plano
+  entitlement_chave String @map("entitlement_chave") @db.VarChar(64)
+  valor           String @db.Text // valor do entitlement para este plano
+  created_at      DateTime @default(now()) @map("created_at")
+
+  entitlement     Entitlement @relation(fields: [entitlement_chave], references: [chave], onDelete: Cascade)
+
+  @@id([plano, entitlement_chave])
+  @@map("plano_entitlement")
+}
+
+/// T2.9: assinatura do usuário. Uma por usuário (1:1).
+model UsuarioPlano {
+  usuario_id           String           @id @map("usuario_id") @db.Uuid
+  plano                Plano            @default(FREE)
+  status               StatusAssinatura @default(ATIVA)
+  // Stripe subscription ID (null para FREE). Permite reativar após
+  // cancelamento sem recriar checkout.
+  stripe_subscription_id String?         @unique @map("stripe_subscription_id") @db.VarChar(255)
+  stripe_customer_id    String?          @map("stripe_customer_id") @db.VarChar(255)
+  current_period_end    DateTime?        @map("current_period_end")
+  cancela_em            DateTime?        @map("cancela_em")
+  created_at            DateTime         @default(now()) @map("created_at")
+  updated_at            DateTime         @updatedAt @map("updated_at")
+
+  usuario               Usuario          @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@map("usuario_plano")
+}
+
+// ===========================================================================
+// Pagamento (T2.10)
+// ===========================================================================
+
+/// T2.10: auditoria de eventos de pagamento Stripe. stripe_event_id UNIQUE
+/// garante idempotência — webhook reenviado não reprocessa.
+model EventoPagamento {
+  id              String              @id @default(uuid()) @db.Uuid
+  usuario_id      String?             @map("usuario_id") @db.Uuid
+  stripe_event_id String              @unique @map("stripe_event_id") @db.VarChar(255)
+  tipo            TipoEventoPagamento
+  // SHA-256 do payload para detecção de tampering.
+  payload_hash    String              @map("payload_hash") @db.VarChar(64)
+  // Payload completo em JSON (para auditoria/replay).
+  payload_raw     Json                @map("payload_raw")
+  processado_em   DateTime            @default(now()) @map("processado_em")
+  // Resultado do processamento (sucesso/erro/ignorado).
+  resultado       String              @db.VarChar(32)
+  erro_mensagem   String?             @map("erro_mensagem") @db.Text
+
+  usuario         Usuario?            @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([usuario_id])
+  @@index([tipo])
+  @@index([processado_em])
+  @@map("evento_pagamento")
+}
+
+// ===========================================================================
+// LGPD (T2.11)
+// ===========================================================================
+
+/// T2.11: consentimento do titular por finalidade. Uma linha por
+/// finalidade ativa; revogação adiciona revogado_em.
+model ConsentimentoUsuario {
+  id            Int                 @id @default(autoincrement())
+  usuario_id    String              @map("usuario_id") @db.Uuid
+  finalidade    FinalidadeConsentimento
+  consentido_em DateTime            @default(now()) @map("consentido_em")
+  revogado_em   DateTime?           @map("revogado_em")
+  // Texto do consentimento no momento do aceite (para auditoria legal).
+  texto_versao  String              @map("texto_versao") @db.VarChar(32)
+  ip_aceite     String?             @map("ip_aceite") @db.Inet
+
+  usuario       Usuario             @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, finalidade])
+  @@index([usuario_id])
+  @@map("consentimento_usuario")
+}
+
+// ===========================================================================
+// Domínio de mídia (T2.7 + extensão justificada pela ordem FASE-2)
+// ===========================================================================
+
+/// Catálogo de mídia. Sincronizado das fontes públicas (OMDb, TMDB, IGDB,
+/// RAWG, Open Library) — não é input do usuário.
+model Midia {
+  id                      String                 @id @default(uuid()) @db.Uuid
+  // ID externo na fonte (ex: 'tt0111161' para IMDb, '12345' para TMDB).
+  fonte_id                String                 @map("fonte_id") @db.VarChar(64)
+  fonte                   String                 @db.VarChar(32) // 'omdb', 'tmdb', 'igdb', 'rawg', 'openlibrary'
+  tipo                    TipoMidia
+  titulo                  String                 @db.Text
+  titulo_original         String?                @map("titulo_original") @db.Text
+  sinopse                 String?                @db.Text
+  ano_lancamento          Int?                   @map("ano_lancamento")
+  // T2.7: enum brasileiro.
+  classificacao_indicativa ClassificacaoIndicativa? @map("classificacao_indicativa")
+  // URL de pôster/capa.
+  imagem_url              String?                @map("imagem_url") @db.Text
+  duracao_minutos         Int?                   @map("duracao_minutos")
+  created_at              DateTime               @default(now()) @map("created_at")
+  updated_at              DateTime               @updatedAt @map("updated_at")
+
+  scores                  MediaScore[]
+  interacoes              UsuarioMidiaInteracao[]
+  watchlist_entries       WatchlistEntry[]
+  score_views             MediaScoreView[]
+
+  @@unique([fonte, fonte_id])
+  @@index([tipo])
+  @@index([titulo])
+  @@map("midia")
+}
+
+/// MEDIA Score™ por mídia. Recalculado por job diário (T4.7).
+model MediaScore {
+  id           String   @id @default(uuid()) @db.Uuid
+  midia_id     String   @map("midia_id") @db.Uuid
+  // Score 0–100 (clipping do algoritmo z-score + pesos).
+  score        Float
+  // Quantidade de fontes que contribuíram para o cálculo.
+  num_fontes   Int      @map("num_fontes")
+  // Pesos usados no cálculo (JSON para auditoria/replay).
+  pesos_usados Json     @map("pesos_usados")
+  calculado_em DateTime @default(now()) @map("calculado_em")
+
+  midia        Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([midia_id])
+  @@index([score])
+  @@map("media_score")
+}
+
+/// Interação do usuário com mídia (assistiu, avaliou, salvou, etc.).
+/// Dado pessoal LGPD (T2.6 — criptografia de coluna aplicável).
+model UsuarioMidiaInteracao {
+  id          String   @id @default(uuid()) @db.Uuid
+  usuario_id  String   @map("usuario_id") @db.Uuid
+  midia_id    String   @map("midia_id") @db.Uuid
+  tipo        String   @db.VarChar(32) // 'assistiu', 'avaliou', 'recomendou_receber'
+  // Avaliação do usuário (1–5 estrelas, opcional).
+  rating      Int?
+  // Comentário livre (criptografado em T2.6 se sensível).
+  comentario  String?  @db.Text
+  created_at  DateTime @default(now()) @map("created_at")
+
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, midia_id, tipo])
+  @@index([usuario_id])
+  @@index([midia_id])
+  @@map("usuario_midia_interacao")
+}
+
+/// Watchlist (lista para assistir depois). Dado pessoal LGPD.
+model WatchlistEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  usuario_id  String   @map("usuario_id") @db.Uuid
+  midia_id    String   @map("midia_id") @db.Uuid
+  prioridade  Int      @default(0)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, midia_id])
+  @@index([usuario_id])
+  @@map("watchlist_entry")
+}
+
+/// Preferências de gosto do usuário para recomendação.
+/// Dado pessoal LGPD — criptografado em T2.6.
+model PreferenciaUsuario {
+  usuario_id          String   @id @map("usuario_id") @db.Uuid
+  // JSON com gêneros preferidos, atores favoritos, etc.
+  // Criptografado em nível de aplicação (T2.6).
+  preferencias_blob   String   @map("preferencias_blob") @db.Text
+  // Versão do esquema de preferências (para migração futura).
+  versao              Int      @default(1)
+  updated_at          DateTime @updatedAt @map("updated_at")
+
+  usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@map("preferencia_usuario")
+}
+
+/// Auditoria de visualizações do MEDIA Score (para métricas T1.9).
+model MediaScoreView {
+  id          String   @id @default(uuid()) @db.Uuid
+  usuario_id  String?  @map("usuario_id") @db.Uuid
+  midia_id    String   @map("midia_id") @db.Uuid
+  score_exibido Float  @map("score_exibido")
+  viewed_at   DateTime @default(now()) @map("viewed_at")
+
+  usuario     Usuario? @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+  midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@index([midia_id])
+  @@index([viewed_at])
+  @@map("media_score_view")
+}
