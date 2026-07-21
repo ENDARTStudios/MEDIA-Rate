@@ -1,180 +1,308 @@
-# PLANO_MESTRE.md
+# PLANO_MESTRE.md — MEDIA Rate
 
-Gerado pela tarefa **PLAN-01** a partir do Anexo A do `PROTOCOLO_MESTRE.md`, podado pelo Discovery (registrado em `DECISOES.md`) e pela auditoria **AUDIT-01** (também em `DECISOES.md`).
-
-**Atualizado pela tarefa PLAN-02** com os requisitos confirmados pelo Discovery final (DISCOVERY-02, registrado em `DECISOES.md`): pagamento Stripe multi-plano, MEDIA Score™, métricas de negócio (D1/D7/D30, MRR, LTV/CAC, churn) e conformidade LGPD.
-
-**Stack confirmada:** Next.js/React + TypeScript (front), NestJS (back), PostgreSQL (banco). **Arquitetura:** monolito modular (decisão em `DECISOES.md`).
-
-**Legenda:** `[x]` feito com evidência · `[ ]` pendente · `[~]` parcial (desmembrado abaixo)
+> Gerado sob PROTOCOLO_MESTRE.md v2.0 (Seção 5).
+> Conflito entre este arquivo e o Protocolo: o Protocolo vence.
 
 ---
 
-## Fase 0 — Setup `[OBRIGATÓRIO]`
+## 📋 PROGRESSO GERAL (CHECKLIST RESUMIDA)
 
-- [x] **T0.1** `.gitignore` cobrindo `node_modules/`, `skills/`, `.env`, `dist/`, `coverage/`  · verif: `cat /home/z/my-project/.gitignore`
-- [x] **T0.2** `PROTOCOLO_MESTRE.md` na raiz (conteúdo integral)  · verif: `cat /home/z/my-project/PROTOCOLO_MESTRE.md`
-- [x] **T0.3** `DECISOES.md` com Discovery + Auditoria registrados  · verif: `cat /home/z/my-project/DECISOES.md`
-- [x] **T0.4** `PENDENCIAS_OPERADOR.md` criado (vazio, com template)  · verif: `cat /home/z/my-project/PENDENCIAS_OPERADOR.md`
-- [x] **T0.5** `LICENSE` (conteúdo exato do `PROMPT_DOER_MESTRE.md` Seção 11)  · verif: `cat /home/z/my-project/LICENSE`
-- [x] **T0.6** `NOTICE` (template Seção 12, com nome do projeto)  · verif: `cat /home/z/my-project/NOTICE`
-- [x] **T0.7** `.env.example` sem valor real, listando todas as variáveis necessárias (`DATABASE_URL`, `SESSION_SECRET`, `NODE_ENV`, etc.)  · verif: `cat /home/z/my-project/.env.example`
-- [x] **T0.8** Inicializar monolito modular: `package.json` na raiz com workspaces para `apps/web` (Next.js) e `apps/api` (NestJS), `tsconfig.base.json` compartilhado  · verif: `cd /home/z/my-project && cat package.json && ls apps/web apps/api`
-- [x] **T0.9** ESLint + Prettier com regras TypeScript estritas (`strict`, `noImplicitAny`, `noUncheckedIndexedAccess`)  · verif: `cd /home/z/my-project && npm run lint`
-- [x] **T0.10** `package-lock.json` commitado, dependências travadas por integrity hash, `npm ci` funciona  · verif: `cd /home/z/my-project && npm ci --dry-run`
-- [x] **T0.11** Rotacionar segredos do `.env` atual (auditoria flagou que `.env` está commitado no "Initial commit") e garantir que `.env` nunca mais seja rastreado  · verif: `cd /home/z/my-project && git ls-files | grep -E "^\.env$"` (deve retornar vazio)
-- [x] **T0.12** `tsconfig.json` com `strict: true`, `noFallthroughCasesInSwitch: true`, `exactOptionalPropertyTypes: true`  · verif: `cd /home/z/my-project && cat tsconfig.base.json`
-- [x] **T0.13** *(PLAN-02)* `.env.example` estendido com variáveis de pagamento e analytics: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_FREE_ID`, `STRIPE_PRICE_PLUS_ID`, `STRIPE_PRICE_PREMIUM_ID`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `ANALYTICS_WRITE_KEY` (placeholder `SUA_CHAVE_AQUI`, sem valor real)  · verif: `cat /home/z/my-project/.env.example | grep -iE 'STRIPE|ANALYTICS'`
+- [ ] Fase 0 – Setup `[OBRIGATÓRIO]`
+- [ ] Fase 1 – Infra base `[OBRIGATÓRIO]`
+- [ ] Fase 2 – Dados `[OBRIGATÓRIO + auth/billing/audit]` ✅ (2026-07-20)
+- [ ] Fase 3 – Auth `[OBRIGATÓRIO, 2FA TOTP opcional]`
+- [ ] Fase 4 – APIs/CRUDs `[OBRIGATÓRIO + billing]`
+- [ ] Fase 5 – Frontend `[OBRIGATÓRIO]`
+- [ ] Fase 6 – Avançado `[upload/fila/cache/IA-RAG OBRIGATÓRIOS; WebSocket CONDICIONAL]`
+- [ ] Fase 7 – Hardening `[Vault e DNSSEC CONDICIONAIS]`
+- [ ] Fase 8 – Testes/segurança `[OBRIGATÓRIO + DAST]`
+- [ ] Fase 9 – CI/CD e deploy `[OBRIGATÓRIO]`
 
----
-
-## Fase 1 — Infra base `[OBRIGATÓRIO]`
-
-- [x] **T1.1** HTTPS forçado em produção (redirect HTTP → HTTPS 301/308)  · verif: `curl -I http://localhost:3000/health` (retorna 301 ou 308)
-- [x] **T1.2** Helmet configurado com CSP, HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`  · verif: `curl -I https://localhost:3000/health | grep -iE "content-security-policy|strict-transport-security"`
-- [x] **T1.3** Rate limit por IP (janela 60s, limite configurável por rota; 6 tentativas em login, 100 req/min em APIs gerais)  · verif: `cd /home/z/my-project && npm test -- rate-limit.spec.ts`
-- [x] **T1.4** Validação de entrada com Zod em todas as rotas que recebem body/query/param (middleware que rejeita 400 antes do handler)  · verif: `cd /home/z/my-project && npm test -- zod-validation.spec.ts`
-- [x] **T1.5** CORS restrito a origens permitidas via `ALLOWED_ORIGINS` (sem wildcard em produção)  · verif: `curl -I -H "Origin: https://evil.example" https://localhost:3000/health` (sem `Access-Control-Allow-Origin` refletido)
-- [x] **T1.6** Middleware de erro global que nunca vaza stack trace em produção (log interno com correlation ID, resposta com mensagem genérica)  · verif: `curl -X POST https://localhost:3000/api/v1/_force-error -d '{}' -H "Content-Type: application/json"` (corpo sem `stack`)
-- [x] **T1.7** `GET /health` retorna 200 e `{"status":"ok"}` sem exigir autenticação  · verif: `curl -s https://localhost:3000/health`
-- [x] **T1.8** Logger estruturado (pino ou equivalente) com nível controlado por `LOG_LEVEL`, segredos redacted por allowlist de chaves  · verif: `cd /home/z/my-project && npm test -- logger-redact.spec.ts`
-- [x] **T1.9** *(PLAN-02)* Instrumentação de métricas de negócio desde o deploy do Beta: eventos de ativação, retenção (D1/D7/D30), conversão Free → Plus → Premium, engajamento com recomendações, MRR, LTV/CAC, churn. SDK gratuito (PostHog Cloud free tier ou Plausible self-hosted — decisão a registrar em `DECISOES.md`). Eventos via backend (NestJS interceptor) + frontend (Next.js wrapper), nunca PII em texto plano  · verif: `cd /home/z/my-project && npm test -- analytics-events.spec.ts`
+> **Convenção:** `[x]` só com evidência real de verificação (PROTOCOLO_MESTRE.md Seção 6). `[~]` = parcialmente feito, com gap documentado.
 
 ---
 
-## Fase 2 — Dados `[OBRIGATÓRIO]`
+## Resumo do Discovery (DECISOES.md, 2026-07-16)
 
-- [x] **T2.1** Schema PostgreSQL com migration (Prisma ou TypeORM — decisão a registrar em `DECISOES.md` quando da execução)  · verif: `cd /home/z/my-project/apps/api && npx prisma migrate status`
-- [x] **T2.2** Tabela `usuario` (`id` UUID PK, `email` UNIQUE, `password_hash`, `created_at`, `updated_at`) — `[CONDICIONAL: mesmo gatilho da Fase 3]` confirmado  · verif: `cd /home/z/my-project/apps/api && grep -A 10 "model Usuario" prisma/schema.prisma`
-- [x] **T2.3** Tabela `sessao` (`id` UUID PK, `user_id` FK, `token_hash` UNIQUE, `expires_at`, `created_at`) — `[CONDICIONAL]` confirmado  · verif: `cd /home/z/my-project/apps/api && grep -A 10 "model Sessao" prisma/schema.prisma`
-- [x] **T2.4** Tabela `papel` e `usuario_papel` (N:N) para RBAC — `[CONDICIONAL]` confirmado  · verif: `cd /home/z/my-project/apps/api && grep -A 5 "model Papel" prisma/schema.prisma`
-- [x] **T2.5** Hash de senha com argon2id (ou bcrypt custo ≥ 12), verificação em tempo constante  · verif: `cd /home/z/my-project/apps/api && npm test -- password-hash.spec.ts`
-- [x] **T2.6** Criptografia de coluna para dado sensível — *(PLAN-02: redefinido)* aplicável a preferências de gosto, watchlists, histórico de consumo e dados de perfil para recomendação (dados pessoais sob LGPD, confirmados em DISCOVERY-02 Q4). Usar `pgcrypto` no PostgreSQL com chave de aplicação vinda do secret manager nativo da plataforma  · verif: `cd /home/z/my-project/apps/api && npm test -- column-encryption.spec.ts`
-- [x] **T2.7** Campo `classificacao_indicativa` (rating) como `enum` no schema — sub-item adicionado por ordem PLAN-01 (valores brasileiros: `L`, `10`, `12`, `14`, `16`, `18`). *(PLAN-02: confirmado por DISCOVERY-02 — escopo de filmes/séries/games/livros é domínio de mídia, faixa etária brasileira aplicável)*  · verif: `cd /home/z/my-project/apps/api && grep -A 8 "enum ClassificacaoIndicativa" prisma/schema.prisma`
-- [x] **T2.8** Migration inicial aplicável do zero sem perda (`prisma migrate deploy` em banco vazio)  · verif: `cd /home/z/my-project/apps/api && docker run --rm -e DATABASE_URL=... postgres:16 psql ... && npx prisma migrate deploy`
-- [x] **T2.9** *(PLAN-02)* Modelagem de planos Free / Plus / Premium via **entitlements** (não tabelas separadas): tabela `entitlement` (`chave` STRING PK, ex. `max_watchlist_items`, `recommendation_tier`) + tabela `plano_entitlement` (N:N entre `enum Plano { FREE, PLUS, PREMIUM }` e `entitlement`) + tabela `usuario_plano` (`user_id` FK, `plano` ENUM, `stripe_subscription_id` STRING NULL, `status` ENUM, `current_period_end` TIMESTAMP)  · verif: `cd /home/z/my-project/apps/api && grep -A 8 "model Entitlement\|model PlanoEntitlement\|model UsuarioPlano" prisma/schema.prisma`
-- [x] **T2.10** *(PLAN-02)* Tabela `evento_pagamento` (`id` UUID PK, `user_id` FK, `stripe_event_id` UNIQUE, `tipo` ENUM, `payload_hash` STRING, `processado_em` TIMESTAMP) — idempotência de webhook Stripe; `stripe_event_id` UNIQUE evita reprocessamento  · verif: `cd /home/z/my-project/apps/api && grep -A 10 "model EventoPagamento" prisma/schema.prisma`
-- [x] **T2.11** *(PLAN-02)* Schema LGPD: tabela `consentimento_usuario` (`user_id` FK, `finalidade` STRING, `consentido_em` TIMESTAMP, `revogado_em` TIMESTAMP NULL) e campo `dados_para_exclusao_at` TIMESTAMP NULL em `usuario` (soft delete agendado para o endpoint LGPD T4.9)  · verif: `cd /home/z/my-project/apps/api && grep -A 5 "model ConsentimentoUsuario\|dados_para_exclusao_at" prisma/schema.prisma`
+- **Produto:** Plataforma mundial de inteligência em futebol — clubes, jogadores, competições, rankings auditáveis, IA RAG com citações, Knowledge Graph.
+- **Escala:** 100 → 1.000 → 10–50k usuários no Ano 1. Monolito modular (sem microsserviços).
+- **Login:** Sim. **Assinatura:** Sim (Free/Pro/Elite). **Dado sensível:** Não. **Upload:** Sim (admin/CSV).
+- **Prazo:** Não. Qualidade > velocidade.
+- **Marca:** "Almanaque dos Clubes". **Domínio:** Pendente (PENDENCIAS_OPERADOR.md item 1).
 
 ---
 
-## Fase 3 — Auth `[CONDICIONAL: projeto tem login]` — confirmado pelo Discovery
+## Estado do MVP pré-protocolo (baseline)
 
-- [x] **T3.1** Sessão via **token opaco** (não JWT) gerado com `crypto.randomBytes(32)`, armazenado apenas como hash na tabela `sessao`  · verif: `cd /home/z/my-project/apps/api && npm test -- session-token.spec.ts`
-- [x] **T3.2** Cookie `httpOnly + Secure + SameSite=Lax` (ou `Strict` se confirmedo Thinker), expiração curta + refresh token com rotação  · verif: `cd /home/z/my-project/apps/api && npm test -- cookie-flags.spec.ts`
-- [x] **T3.3** Lockout progressivo após 5 tentativas falhas (bloqueio exponencial: 30s, 2min, 10min, 30min)  · verif: `cd /home/z/my-project/apps/api && npm test -- lockout.spec.ts`
-- [x] **T3.4** Guards RBAC no NestJS (`@Roles('admin')`) com middleware que carrega papéis do banco a cada request  · verif: `cd /home/z/my-project/apps/api && npm test -- rbac.spec.ts`
-- [x] **T3.5** Logout invalida a sessão no banco (não só no cookie)  · verif: `cd /home/z/my-project/apps/api && npm test -- logout.spec.ts`
-- [x] **T3.6** Rotacao de session secret sem derrubar todas as sessões ativas (grace period)  · verif: `cd /home/z/my-project/apps/api && npm test -- session-rotation.spec.ts`
-- [x] **T3.7** *(PLAN-02)* Guard de plano (entitlement check) no NestJS — `@RequirePlan('PLUS')` carrega `usuario_plano` do banco a cada request, compara com `entitlement` exigido pela rota, retorna 403 (não 401) se o plano não cobre. Cache curto (60s) em memória do processo, nunca Redis  · verif: `cd /home/z/my-project/apps/api && npm test -- plan-guard.spec.ts`
+O repositório já contém código do MVP produzido antes do Protocolo v2.0. As
+tarefas de Fase 0/1/2/4 (parcial) serão marcadas `[x]` **após re-verificação
+de evidência**, não por presunção.
 
-**Excluído:** 2FA/TOTP (decisão registrada em `DECISOES.md`).
-
----
-
-## Fase 4 — APIs/CRUDs `[OBRIGATÓRIO]`
-
-- [x] **T4.1** REST versionado em `/api/v1/*` (header `Accept-Version` ou path prefix)  · verif: `curl -s https://localhost:3000/api/v1/health`
-- [x] **T4.2** Documentação OpenAPI 3.1 gerada automaticamente (`@nestjs/swagger` ou `nestia`) servida em `/api/v1/docs`  · verif: `curl -s https://localhost:3000/api/v1/docs-json | jq -r '.openapi'` (retorna `3.1.x`)
-- [x] **T4.3** Endpoints destrutivos/financeiros idempotentes via header `Idempotency-Key`  · verif: `cd /home/z/my-project/apps/api && npm test -- idempotency.spec.ts`
-- [x] **T4.4** Todas as queries parametrizadas (zero concatenação de string em SQL); lint rule bloqueia `prisma.$queryRaw` sem `Prisma.sql`  · verif: `cd /home/z/my-project && npx eslint apps/api/src --rule '{"no-restricted-syntax": ["error", {"selector": "CallExpression[callee.property.name=\"$queryRaw\"]", "message": "use Prisma.sql"}]}'`
-- [x] **T4.5** Paginação obrigatória em listagens (`?page=1&pageSize=20`, máximo 100)  · verif: `cd /home/z/my-project/apps/api && npm test -- pagination.spec.ts`
-- [x] **T4.6** Filtros de ordenação com allowlist de campos (sem ordenar por campo arbitrário do cliente)  · verif: `cd /home/z/my-project/apps/api && npm test -- sort-allowlist.spec.ts`
-- [x] **T4.7** *(PLAN-02)* **MEDIA Score™ — algoritmo core do produto.** Definição: score unificado 0–100 agregando avaliações de fontes públicas gratuitas (ex.: OMDb para filmes, Open Library para livros, IGDB/RAWG para games). Algoritmo determinístico (não ML no Beta): normalização z-score por fonte (média/desvio da fonte) → média ponderada com pesos configuráveis por fonte (tabela `fonte_peso`) → clipping 0–100. Peso e fonte persistidos em `DECISOES.md` quando definidos. Recalculado em job agendado (cron diário via `@nestjs/schedule` — sem Redis, sem fila externa). Endpoint: `GET /api/v1/midias/{id}/media-score`  · verif: `cd /home/z/my-project/apps/api && npm test -- media-score.spec.ts` (testa normalização, pesos, clipping, e que score fica em [0, 100])
-- [x] **T4.8** *(PLAN-02)* Pagamento via **abstração `IPaymentGateway`** (Hexagonal): porta em `src/modules/payment/domain/gateway/payment-gateway.port.ts` com métodos `createCheckoutSession`, `constructWebhookEvent`, `cancelSubscription`. Adaptador concreto `StripePaymentGateway` implementa a porta. Use-case `CriarCheckout` depende apenas da porta, nunca do SDK Stripe direto. Permite trocar provedor sem reescrever domínio. Webhook `POST /api/v1/payments/webhook` com verificação de assinatura e idempotência via `evento_pagamento.stripe_event_id` (T2.10)  · verif: `cd /home/z/my-project/apps/api && grep -l "IPaymentGateway\|PaymentGatewayPort" src/modules/payment/ && npm test -- payment-gateway.spec.ts`
-- [x] **T4.9** *(PLAN-02)* Endpoint LGPD — direito do titular: `POST /api/v1/usuario/exportar-dados` (gera JSON com perfil, preferências, watchlist, histórico de consumo, consentimentos; entrega como download assíncrono via e-mail em 24h ou JSON imediato se < 5MB) e `POST /api/v1/usuario/solicitar-exclusao` (agenda soft delete em `dados_para_exclusao_at` +30 dias, dá prazo para cancelamento, depois executa `DELETE` em cascata via job). Logs de auditoria retidos por 6 anos (Recomendação ANPD)  · verif: `cd /home/z/my-project/apps/api && npm test -- lgpd-endpoints.spec.ts`
+- ✅ Monorepo pnpm (apps/api + packages/domain)
+- ✅ Fastify 5 + Prisma 5.22 + TypeScript estrito
+- ✅ Prisma schema (PostgreSQL canônico + SQLite sandbox)
+- ✅ Rotas `/api/v1/health`, `POST /clubs`, `GET /clubs`, `GET /clubs/:id`
+- ✅ Helmet, CORS, validação Zod, tratamento de erros sem stack trace
+- ⚠️ Faltam: rate limit, ESLint de segurança, Dependabot, testes automatizados
 
 ---
 
-## Fase 5 — Frontend `[OBRIGATÓRIO]`
+## FASE 0 — SETUP `[OBRIGATÓRIO]`
 
-- [x] **T5.1** Layout acessível WCAG 2.1 AA (contraste ≥ 4.5:1, focus visível, `aria-label` em ícones, sem dependência só de cor)  · verif: `cd /home/z/my-project/apps/web && npx @axe-core/cli http://localhost:3000`
-- [x] **T5.2** Responsivo mobile-first (breakpoints 768px e 1024px, sem scroll horizontal em 360px)  · verif: `cd /home/z/my-project/apps/web && npx playwright test responsive.spec.ts`
-- [x] **T5.3** CSP configurada no `next.config.js` (`script-src 'self'`, sem `'unsafe-inline'`/`'unsafe-eval'` em produção)  · verif: `curl -I https://localhost:3000/ | grep -i "content-security-policy"`
-- [x] **T5.4** Sanitização de HTML dinâmico com DOMPurify em qualquer `dangerouslySetInnerHTML`  · verif: `cd /home/z/my-project/apps/web && npm test -- sanitize.spec.ts`
-- [x] **T5.5** Token de sessão **apenas** em cookie httpOnly (nunca em `localStorage`/`sessionStorage`)  · verif: `cd /home/z/my-project && grep -rE "localStorage|sessionStorage" apps/web/src | grep -iE "token|session|auth"` (deve retornar vazio)
-- [x] **T5.6** Tratamento de erro de boundary em todas as páginas com fallback acessível  · verif: `cd /home/z/my-project/apps/web && npm test -- error-boundary.spec.ts`
+- [ ] 0.1 Repo Git com `.gitignore` (excluir `.env`, `node_modules`, segredos, `*.db`).
+- [ ] 0.2 Stack: TypeScript + Node.js + Fastify + Prisma + PostgreSQL. Monolito modular.
+- [ ] 0.3 `package.json` raiz + `apps/api` + `packages/domain` (workspace pnpm).
+- [ ] 0.4 `docker-compose.yml` com `postgres:16-alpine` (backend/frontend no compose virão na Fase 9).
+- [ ] 0.5 `.env.example` sem valor real (apenas placeholders).
+- [ ] 0.6 Dependências fixadas por `pnpm-lock.yaml` (`pnpm install --frozen-lockfile` em CI).
+- [ ] 0.7 ESLint + Prettier + `eslint-plugin-security` + `eslint-plugin-node`.
+- [ ] 0.8 Dependabot ou Renovate ativo no repositório (configuração `.github/dependabot.yml`).
+- [ ] 0.9 `SECURITY.md` com política de divulgação responsável de vulnerabilidades.
 
----
-
-## Fase 6 — Avançado (podada)
-
-Nenhum item `[CONDICIONAL]` confirmado pelo Discovery. Fase **não implementada** nesta versão do plano.
-
-| Item Anexo A | Status | Motivo da poda |
-|---|---|---|
-| Upload com validação de tipo | não confirmado | Discovery Q4 não confirmou upload |
-| Fila assíncrona (BullMQ/Kafka/RabbitMQ) | não confirmado | sem processamento pesado real |
-| Cache Redis | não confirmado | sem gargalo medido |
-| WebSocket | não confirmado | sem tempo real necessário |
-
-**Reabertura:** se o Thinker confirmar qualquer item após Discovery completo, registrar decisão em `DECISOES.md` e adicionar tarefa nesta fase.
+**Verificação (evidência exigida):**
+- `pnpm install --frozen-lockfile` roda sem alterar o lockfile.
+- `pnpm lint` passa sem erro.
+- `git log` mostra commit inicial do Protocolo (já feito: `85cec49`).
 
 ---
 
-## Fase 7 — Hardening (podada)
+## FASE 1 — INFRA BASE `[OBRIGATÓRIO]`
 
-Nenhum item `[CONDICIONAL]` confirmado pelo Discovery.
+- [ ] 1.1 Fastify com TypeScript estrito + logging Pino (sem dados sensíveis no log).
+- [ ] 1.2 `@fastify/helmet` com CSP/HSTS/X-Frame-Options/X-Content-Type-Options. HSTS só em produção.
+- [ ] 1.3 `@fastify/rate-limit` por IP e por rota. Store: Redis quando disponível, em memória em dev.
+- [ ] 1.4 Logger Pino estruturado. `redact` para campos sensíveis (senha, token, email).
+- [ ] 1.5 Validação Zod em TODOS os endpoints de escrita. Rejeitar payload não validado.
+- [ ] 1.6 CORS restrito. Dev: `localhost`. Prod: origem do domínio oficial (PENDENCIAS_OPERADOR.md item 1).
+- [ ] 1.7 Sanitização de saída: nunca expor campos internos (id interno, hash, etc.) sem necessidade.
+- [ ] 1.8 `GET /api/v1/health` (sem detalhes internos) e `GET /api/v1/metrics` (proteger com token administrativo).
+- [ ] 1.9 Handler global de erros: nunca vazar stack trace em produção; resposta genérica para 5xx.
 
-| Item Anexo A | Status | Motivo |
-|---|---|---|
-| Secret manager dedicado (Vault/Infisical) | excluído | decisão em `DECISOES.md`: usar secret manager nativo da plataforma de deploy |
-| DNSSEC/CAA/HSTS preload | adiado | condicional a domínio próprio em produção — pendente Discovery Q6 |
-
-HSTS básico já coberto por **T1.2** (Helmet). Se o Operador confirmar domínio próprio em produção, abrir tarefa para HSTS preload + DNSSEC + CAA.
-
----
-
-## Fase 8 — Testes/segurança `[OBRIGATÓRIO]`
-
-- [x] **T8.1** Cobertura de testes unitários ≥ 80% nas camadas de domínio e use-case (statement + branch)  · verif: `cd /home/z/my-project && npm test -- --coverage`
-- [x] **T8.2** Testes de integração cobrindo fluxos críticos: cadastro, login, logout, lockout, CRUD principal  · verif: `cd /home/z/my-project/apps/api && npm run test:e2e`
-- [x] **T8.3** SAST gratuito (CodeQL via GitHub Actions) rodando em todo PR  · verif: `cat /home/z/my-project/.github/workflows/*.yml | grep -i "codeql"`
-- [x] **T8.4** `npm audit --audit-level=high` com exit code 0 (sem vulnerabilidade high/critical)  · verif: `cd /home/z/my-project && npm audit --audit-level=high`
-- [x] **T8.5** `[CONDICIONAL]` DAST com OWASP ZAP — incluir se Discovery confirmar superfície pública relevante  · verif: (pendente confirmação do Thinker)
+**Verificação:**
+- Script `scripts/test_api.sh` (já existe) passa 9/9.
+- curl para endpoint inexistente retorna JSON padronizado, sem stack.
+- Header `X-Powered-By` removido; `X-Frame-Options: SAMEORIGIN` presente.
 
 ---
 
-## Fase 9 — CI/CD e deploy `[OBRIGATÓRIO]`
+## FASE 2 — DADOS `[OBRIGATÓRIO + auth/billing/audit]` ✅
 
-- [x] **T9.1** Pipeline GitHub Actions com stages: `lint → test → audit → build`, paralelo onde possível  · verif: `cat /home/z/my-project/.github/workflows/ci.yml`
-- [x] **T9.2** Build bloqueia merge em caso de vulnerabilidade high/critical (npm audit + CodeQL falham o pipeline)  · verif: `cat /home/z/my-project/.github/workflows/ci.yml | grep -iE "audit|codeql"`
-- [x] **T9.3** Deploy sem downtime (blue-green ou rolling) em provedor gratuito (Vercel para front, Render/Fly.io/Railway para back, Neon/Supabase para PostgreSQL)  · verif: script de deploy documentado em `MANUAL_DO_OPERADOR.md`
-- [x] **T9.4** Monitoramento básico: uptime check (UptimeRobot grátis ou equivalente) + agregação de log de erro  · verif: `cat /home/z/my-project/MANUAL_DO_OPERADOR.md | grep -i "monitor"`
-- [x] **T9.5** `MANUAL_DO_OPERADOR.md` entregue com: como saber se está no ar, o que fazer se parar, como pedir alteração futura  · verif: `cat /home/z/my-project/MANUAL_DO_OPERADOR.md`
+- [ ] 2.1 Prisma schema canônico (`schema.prisma`) com provider PostgreSQL.
+- [ ] 2.2 Migration inicial versionada e aplicada.
+- [ ] 2.3 Tabelas de domínio: `clubs`, `players`, `competitions`, `rankings`, `matches`, `seasons`.
+- [ ] 2.4 Tabelas de auth: `users`, `roles`, `permissions`, `user_roles`, `sessions`.
+- [ ] 2.5 Tabelas de billing: `subscriptions`, `plans` (Free/Pro/Elite), `invoices`, `payment_events`.
+- [ ] 2.6 Tabelas de auditoria: `audit_logs` (imutável, append-only, com hash de cadeia).
+- [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento).
+- [ ] 2.8 Senha/token sempre hash com argon2id (custo ≥ 12). Nunca em texto plano.
+- [ ] 2.9 Soft delete em entidades críticas (`deleted_at` em `clubs`, `players`, `users`).
+- [ ] 2.10 Criptografia a nível de coluna para email e telefone (envelope encryption com chave mestra do deploy).
+- [ ] 2.11 Seed de admin inicial com senha forte e obrigatoriedade de troca no primeiro login.
+- [ ] 2.12 Índices em todas as chaves estrangeiras + colunas de busca frequente.
+- [ ] 2.13 Restrições de unicidade documentadas (`@@unique([name, country])`, etc.).
 
----
-
-## Estado do projeto
-
-- **Status:** **Production Ready — Aguardando Deploy**
-- **Data de conclusão:** 2026-07-18
-- **Fases concluídas:** 9/9 (65/65 tarefas `[x]`, 0 tarefas `[ ]` restantes)
-  - Fase 0 (13/13), Fase 1 (9/9), Fase 2 (11/11), Fase 3 (7/7), Fase 4 (9/9), Fase 5 (6/6), Fases 6-7 podadas, Fase 8 (5/5), Fase 9 (5/5)
-- **Discovery:** completo (7/7 respostas em `DECISOES.md`).
-- **Cobertura de testes:** 80.6% statements / 70.17% branches / 86.76% functions / 80.83% lines (218 testes total).
-- **Commits:** 39 (do "Initial commit" ao "project close").
-- **Arquivos rastreados:** 152.
-- **Linhas de código:** ~25.939 (TS/TSX/JSON/YML/MD/Prisma/CSS/SH/JS).
-- **Vulnerabilidades:** 0 high/critical (2 moderate em postcss upstream do Next.js).
-- **Stack:** NestJS 11 + Fastify 5 + Prisma 6 + PostgreSQL + Next.js 16 + React 19 + TailwindCSS + next-intl + Stripe SDK + PostHog Cloud + Vitest + Swagger.
-- **MANUAL_DO_OPERADOR.md:** 9 seções em linguagem simples (170 linhas).
-- **PENDENCIAS_OPERADOR.md:** 7 itens de configuração que o Operador deve executar antes do deploy do Beta.
-- **Worklog compartilhado:** `/home/z/my-project/worklog.md` (registro completo de todas as tarefas executadas).
+**Verificação:**
+- `prisma migrate dev --schema=prisma/schema.prisma --name init` roda limpo em PostgreSQL.
+- `prisma studio` mostra todas as tabelas esperadas.
+- Tentar criar user com senha em texto plano deve falhar na validação de service.
 
 ---
 
-## Histórico de revisões do plano
+## FASE 3 — AUTH `[OBRIGATÓRIO, 2FA TOTP opcional]`
 
-| Versão | Tarefa | Data | Resumo |
-|---|---|---|---|
-| v1 | PLAN-01 | 2026-07-18 | Plano inicial podado por Discovery parcial (apenas Q4) + AUDIT-01. Fases 0–9, sem pagamento/métricas/LGPD. |
-| v1.1 | PLAN-02 | 2026-07-18 | Adicionadas T0.13 (env Stripe/analytics), T1.9 (instrumentação métricas), T2.9/T2.10/T2.11 (entitlements, evento_pagamento, schema LGPD), redefinida T2.6 (criptografia coluna para LGPD), confirmada T2.7 (enum rating brasileiro), adicionada T3.7 (guard de plano), adicionadas T4.7 (MEDIA Score™), T4.8 (IPaymentGateway + Stripe), T4.9 (endpoint LGPD). Nenhuma tarefa [x] alterada ou removida. |
-| v1.2 | FASE-0 | 2026-07-18 | Execução da Fase 0: T0.7–T0.13 marcadas `[x]` em 5 commits atômicos (T0.8+T0.12, T0.11, T0.7+T0.13, T0.9, T0.10). T0.1–T0.6 já estavam `[x]` desde PLAN-01. Estado do projeto e histórico atualizados. Próxima fase: Fase 1 — Infra base. |
-| v1.3 | FASE-1 | 2026-07-18 | Execução da Fase 1: T1.1–T1.9 marcadas `[x]` em 9 commits atômicos. NestJS 11 + Fastify 5 + Vitest 4. Stack de segurança: Helmet (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, hidePoweredBy), CORS restrito (ALLOWED_ORIGINS, sem wildcard em prod, erro explicito se vazio), Rate limit (100/min API, 6/min login, configurável por env), Zod validation pipe (com details em não-prod), GlobalExceptionFilter (sem stack em prod, correlationId, X-Request-Id header), pino logger (redact de 19 paths PII, LOG_LEVEL env), PostHog Cloud analytics (16 eventos de negócio, sanitize PII), HTTPS redirect guard (308 quando x-forwarded-proto=http em prod). 49/49 testes e2e passando. 0 vulnerabilidades em npm audit. Próxima fase: Fase 2 — Dados. |
-| v1.4 | FASE-2 | 2026-07-18 | Execução da Fase 2: T2.1–T2.11 marcadas `[x]` em commit atômico único. Prisma 6.19 + PostgreSQL + argon2 + AES-256-GCM. Schema com 15 tabelas (usuario, sessao, papel, usuario_papel, entitlement, plano_entitlement, usuario_plano, evento_pagamento, consentimento_usuario, midia, media_score, usuario_midia_interacao, watchlist_entry, preferencia_usuario, media_score_view) + 7 enums (ClassificacaoIndicativa com L/DEZ/DOZE/CATORZE/DEZESSEIS/DEZOITO, TipoMidia, Plano FREE/PLUS/PREMIUM, StatusAssinatura, TipoEventoPagamento, PapelNome, FinalidadeConsentimento). Migration inicial gerada e aplicada via pglite (15 tabelas + 7 enums confirmados). PasswordService (argon2id, 14 testes), ColumnEncryptionService (AES-256-GCM, 15 testes). PrismaService + PrismaModule. Seed script com 4 usuários (1 admin + 1 por plano), 5 entitlements, 15 plano_entitlements, 5 mídias, 5 scores. 78/78 testes passando (49 Fase 1 + 14 password + 15 column-encryption). 0 vulnerabilidades. Próxima fase: Fase 3 — Auth. |
-| v1.5 | FASE-3 | 2026-07-18 | Execução da Fase 3: T3.1–T3.7 marcadas `[x]` em commit atômico único. AuthModule completo: AuthService (register/login com transação Prisma), SessionService (token opaco 32 bytes + SHA-256 hash + expiração configurável), SessionCookieService (httpOnly + Secure + SameSite=Lax + path=/), LockoutService (5 falhas → 30s, 10 → 2min, 15 → 10min, 20+ → 30min, em memória), SessionRotationService (T3.6 documentado — token opaco não precisa de rotation). 3 Guards globais: AuthGuard (extrai cookie + valida sessão), RolesGuard (@Roles RBAC, carrega papeis do banco), PlanGuard (@RequirePlan retorna 402 Payment Required, cache 60s em memória). AuthController com 4 endpoints: POST /register (201), POST /login (200 + cookie), GET /me (dados usuário), POST /logout (invalida sessão + limpa cookie). AdminController (RBAC) + PremiumController (PlanGuard) para teste. 56 novos testes (56 = 14 session-token + 10 lockout + 4 cookie-flags + 5 rbac + 10 plan-guard + 4 logout + 8 session-rotation + 1 integração). 134/134 testes passando. 0 vulnerabilidades. Próxima fase: Fase 4 — APIs/CRUDs. |
-| v1.6 | FASE-4 | 2026-07-18 | Execução da Fase 4: T4.1–T4.9 marcadas `[x]` em commit atômico único. Swagger OpenAPI em /api/docs (T4.2), REST versionado /api/v1 (T4.1). IdempotencyInterceptor com @Idempotent decorator + cache 24h em memória (T4.3). PaginationHelper cursor-based + validateSortField allowlist (T4.5/T4.6). MediaModule com 3 endpoints: GET /midias (paginação), GET /midias/:id, GET /midias/:id/media-score (T4.7). MediaScoreService com algoritmo z-score + pesos DECIDE-01 + clipping 0-100 + confiança heurística. PaymentModule Hexagonal: IPaymentGateway (porta) + StripePaymentGateway (adaptador real) + MockPaymentGateway (testes) + PaymentController com POST /checkout (idempotente) + POST /webhooks/stripe (T4.8). LgpdModule: GET /user/data (exporta todos os dados pessoais sem password_hash nem stripe_subscription_id) + DELETE /user/data (agenda soft delete +30 dias + revoga sessões) + POST /user/data/cancel-exclusion (T4.9). Seed TMDB script (prisma/seed-tmdb.ts) busca top 200 filmes + 200 séries em pt-BR (T4.6). 55 novos testes (12 media-score + 11 payment-gateway + 5 idempotency + 6 pagination + 9 lgpd). 189/189 testes passando. 0 vulnerabilidades. Próxima fase: Fase 5 — Frontend. |
-| v1.7 | FASE-5 | 2026-07-18 | Execução da Fase 5: T5.1–T5.6 marcadas `[x]` em commit atômico único. Next.js 16 App Router + TailwindCSS + next-intl (pt-BR/en-US/es-ES) + isomorphic-dompurify + @stripe/stripe-js. Páginas: landing (hero + features + CTA), catalog (grid responsivo 2/3/5 cols + filtros + MEDIA Score badge), checkout/[plan] (redireciona para Stripe via POST /api/v1/checkout), privacy (HTML sanitizado com DOMPurify), user/data (exportar + excluir LGPD), admin (métricas + tabela usuários). Componentes: Navbar (responsivo com menu mobile), Footer, LgpdBanner (consentimento cookie), MediaCard, ErrorBoundary (error.tsx), LocaleSwitcher (troca idioma mantendo estado). Acessibilidade WCAG 2.1 AA: skip link, focus-visible 2px, aria-labels, role=article/alert/contentinfo. CSP: poweredByHeader=false, Helmet no backend já cobre. 11/11 testes sanitize.spec.ts. Build Next.js passou: 17 páginas geradas em 3 locales. 0 critical/high vulnerabilidades (2 moderate em postcss interno do Next — upstream). Próxima fase: Fase 8 — Testes/segurança. |
-| v1.8 | FASE-8 | 2026-07-18 | Execução da Fase 8: T8.1–T8.5 marcadas `[x]`. Cobertura 80.6% statements / 86.76% functions. CI GitHub Actions com 6 jobs paralelos (lint+audit, test+coverage, build, CodeQL SAST, ZAP DAST, Stryker mutation). Scripts k6 (3 cenários: health 100 VUs, catalogo 50 VUs, checkout 10 VUs). Stryker config para 9 services core. 218/218 testes passando. 0 high/critical. |
-| v1.9 | FASE-9 | 2026-07-18 | Execução da Fase 9: T9.1–T9.5 marcadas `[x]`. Pipeline CI expandido com cache + paralelismo + artefatos. Deploy workflow (deploy.yml) com 5 jobs: validate → migrate (backup + prisma migrate deploy) → deploy-web (Vercel) → deploy-api (Railway) → health-check pós-deploy. Health check monitor (health-check.yml) a cada 5 min com auto-issue no GitHub. HealthCheckService (backend). Script migrate-safe.sh (backup antes de migration). MANUAL_DO_OPERADOR.md com 9 seções. PENDENCIAS_OPERADOR.md com 7 itens de configuração para o Operador. **Todas as 9 fases concluídas.** |
+- [ ] 3.0 Preflight Auth (deps + env.ts com Zod + .env.example)
+- [ ] 3.1 Setup JWT + Cookie + tipos Fastify
+- [ ] 3.2 Rotas Register / Login / Logout
+- [ ] 3.3 Refresh token flow (incluído em 3.2)
+- [ ] 3.4 Middleware de Autenticação (`authenticate` preHandler)
+- [ ] 3.5 Middleware RBAC (`requirePermission`, `requireRole`)
+- [ ] 3.6 Reset de senha (token único, expira 15min, enviado por email mock)
+- [ ] 3.7 Audit logging para auth (parcialmente em auth.service)
+- [ ] 3.8 Rate limiting específico para /auth/*
+- [ ] 3.9 Testes de integração (BLOQUEADO até Operador aplicar migration PostgreSQL)
+- [ ] 3.10 Documentação API Auth (`docs/api/auth.md`)
+
+**Verificação:**
+- curl `POST /api/v1/auth/login` com credenciais válidas → 200 + cookie de sessão.
+- curl `POST /api/v1/auth/login` com 5 credenciais inválidas seguidas → 429 com mensagem de lockout.
+- curl `GET /api/v1/me` sem cookie → 401.
+- `audit_logs` mostra todas as 6 tentativas de login.
+
+---
+
+## FASE 4 — APIs/CRUDs `[OBRIGATÓRIO + billing]`
+
+REST versionado `/api/v1`. Cada módulo em `apps/api/src/modules/<nome>/` com `routes/service/repository`.
+
+- [ ] 4.1 CRUD `clubs` (já parcial no MVP — re-verificar).
+- [ ] 4.2 CRUD `players` (jogadores).
+- [ ] 4.3 CRUD `competitions` (competições).
+- [ ] 4.4 CRUD `rankings` (rankings históricos — versionados, imutáveis após publicação).
+- [ ] 4.5 CRUD `matches` (partidas) + `seasons` (temporadas).
+- [ ] 4.6 Módulo `billing`:
+- [ ] 4.6.1 Modelos Free/Pro/Elite definidos em `plans`.
+- [ ] 4.6.2 Integração com provedor de pagamento (avaliar Stripe vs Pix direto vs PagSeguro — decisão em `DECISOES.md`).
+- [ ] 4.6.3 Webhook de pagamento assinado (HMAC) e idempotente.
+- [ ] 4.6.4 Upgrade/downgrade de plano com prorratação.
+- [ ] 4.7 Módulo `admin` (RBAC admin apenas): CRUD de usuários, atribuição de papéis, moderação.
+- [ ] 4.8 Busca textual: índice PostgreSQL `tsvector` ou `pg_trgm` (decidir em `DECISOES.md`).
+- [ ] 4.9 Paginação cursor-based em endpoints de lista (mais estável que offset em alta escala).
+- [ ] 4.10 Query builder sempre parametrizada (Prisma já garante — nunca concatenar SQL).
+- [ ] 4.11 Documentação OpenAPI 3.1 gerada automaticamente (`@fastify/swagger`).
+- [ ] 4.12 Idempotência em endpoints de escrita via header `Idempotency-Key`.
+
+**Verificação:**
+- `pnpm test` cobre cada endpoint com casos happy path + erro + autorização.
+- OpenAPI renderizada em `/api/v1/docs` com todos os schemas.
+- Webhook de pagamento rejeita payload sem assinatura válida.
+
+---
+
+## FASE 5 — FRONTEND `[OBRIGATÓRIO]`
+
+Stack: Next.js 16 + TypeScript + Tailwind + shadcn/ui (todos open-source e gratuitos).
+
+- [ ] 5.1 Inicializar `apps/web` no monorepo (Next.js App Router).
+- [ ] 5.2 Cliente HTTP com interceptor: anexa cookie de sessão, trata 401 (redirect para login), refresh transparente.
+- [ ] 5.3 Proteção CSRF: cookie SameSite + header `X-CSRF-Token` sincronizado.
+- [ ] 5.4 Páginas públicas: home, login, registro, reset de senha, planos, página de clube/jogador/competição.
+- [ ] 5.5 Páginas privadas: área do usuário, assinatura, histórico, favoritos.
+- [ ] 5.6 `ProtectedRoute` que valida sessão + permissão no servidor (SSR) e no cliente.
+- [ ] 5.7 CSP restritiva via `next.config.js` + headers HTTP.
+- [ ] 5.8 DOMPurify em qualquer HTML dinâmico renderizado (descrições de clube, biografias).
+- [ ] 5.9 Sem token em localStorage. Sessão exclusivamente via cookie httpOnly.
+- [ ] 5.10 Acessibilidade WCAG 2.1 AA (labels, ARIA, contraste, navegação por teclado).
+- [ ] 5.11 Responsivo mobile-first. Lighthouse > 90 em performance/acessibilidade/SEO.
+- [ ] 5.12 PWA opcional (offline-first para páginas já visitadas).
+
+**Verificação:**
+- Lighthouse CI rodando no pipeline, quebra se score < 90.
+- Testes E2E (Playwright) cobrem fluxo de login → pesquisar clube → ver detalhes.
+
+---
+
+## FASE 6 — AVANÇADO `[upload/fila/cache/IA-RAG OBRIGATÓRIOS]`
+
+- [ ] 6.1 **Upload seguro** `[OBRIGATÓRIO]`:
+- [ ] 6.1.1 Validação de tipo MIME real (magic bytes, não só extensão).
+- [ ] 6.1.2 Tamanho máximo configurável por tipo de upload.
+- [ ] 6.1.3 Antivírus: ClamAV rodando em container separado (gratuito).
+- [ ] 6.1.4 Armazenamento em S3-compatível (MinIO local em dev, Cloudflare R2 em prod — gratuito até 10GB).
+- [ ] 6.1.5 Nomes de arquivo aleatórios (UUID) — nunca nome do usuário.
+- [ ] 6.2 **Fila assíncrona** `[OBRIGATÓRIO]`: BullMQ + Redis para ETL, envio de emails, processamento de imagem, reprocessamento de rankings.
+- [ ] 6.3 **Cache Redis** `[OBRIGATÓRIO]`: read-through em consultas frequentes (lista de clubes, top rankings). Invalidação por evento (write-through em updates).
+- [ ] 6.4 **Pipeline ETL** `[OBRIGATÓRIO]`:
+- [ ] 6.4.1 Conectores para fontes públicas (RSSSF, FBref, Wikipedia via API).
+- [ ] 6.4.2 Job agendado (cron) para atualização periódica.
+- [ ] 6.4.3 Rastreabilidade: cada atualização registra fonte + timestamp em `data_sources`.
+- [ ] 6.5 **IA / RAG** `[OBRIGATÓRIO]`:
+- [ ] 6.5.1 Embeddings de entidades (clubs, players, competições) armazenados em pgvector (extensão PostgreSQL gratuita).
+- [ ] 6.5.2 Pipeline RAG: pergunta → busca vetorial → contexto → LLM → resposta + citações.
+- [ ] 6.5.3 LLM: modelo open-source via Ollama local ou provedor gratuito (decidir em `DECISOES.md`).
+- [ ] 6.5.4 Cada resposta registra fontes citadas para auditoria.
+- [ ] 6.6 **Knowledge Graph** `[OBRIGATÓRIO]`: relações entre entidades (jogador→clube→competição→título). Materializado em tabelas + exposto em endpoint `/api/v1/graph`.
+- [ ] 6.7 **Feature flags** `[OBRIGATÓRIO]`: sistema simples em tabela `feature_flags` (Redis-backed).
+- [ ] 6.8 **Exportação de dados**: com verificação de autorização e limite de volume (rate limit + paginação).
+- [ ] 6.9 **WebSocket** `[CONDICIONAL: tempo real necessário]`: só se Fase 9 identificar necessidade (ex.: placar ao vivo). Por ora, adiar.
+
+**Verificação:**
+- Job ETL roda em dev via `pnpm job:etl:run` e popula/atualiza dados com sucesso.
+- Endpoint `/api/v1/ai/ask` responde "Quem ganhou a Copa do Brasil de 2009?" com citações verificáveis.
+- Cache hit ratio > 70% em endpoint `/api/v1/clubs` após aquecimento.
+
+---
+
+## FASE 7 — HARDENING `[VAULT e DNSSEC CONDICIONAIS]`
+
+- [ ] 7.1 CSP restritiva + SRI para scripts externos.
+- [ ] 7.2 `X-Frame-Options: DENY` (só SAMEORIGIN onde houver embed legítimo).
+- [ ] 7.3 Rate limiting avançado por usuário + IP + rota, com detecção de anomalias (janela deslizante).
+- [ ] 7.4 `npm audit --audit-level=high` quebra o build em CI.
+- [ ] 7.5 Proteção contra força bruta distribuída: contador global no Redis por IP/usuário.
+- [ ] 7.6 Desabilitar métodos HTTP não utilizados (TRACE sempre; OPTIONS só onde necessário).
+- [ ] 7.7 Limite de payload: body 1 MiB padrão, 50 MiB para endpoints de upload.
+- [ ] 7.8 Rotação automática de segredos de sessão a cada 90 dias.
+- [ ] 7.9 **(CONDICIONAL)** Vault/Infisical para segredos em produção — se a plataforma de deploy já tiver secret manager nativo e gratuito (Fly.io, Railway, Vercel), usar o nativo.
+- [ ] 7.10 **(CONDICIONAL: PENDENCIAS_OPERADOR.md item 1)** DNSSEC + CAA + HSTS preload — só quando o domínio próprio for registrado.
+
+**Verificação:**
+- `npm audit` passa sem vulnerabilidades high/critical.
+- Teste de força bruta distribuída (10 IPs virtuais) é bloqueado em < 30s.
+- securityheaders.com nota A+ em produção (após domínio próprio).
+
+---
+
+## FASE 8 — TESTES/SEGURANÇA `[OBRIGATÓRIO + DAST]`
+
+- [ ] 8.1 Testes unitários (Vitest) para services com mocks. Cobertura ≥ 80% em `apps/api/src/modules/**`.
+- [ ] 8.2 Testes de integração (Supertest/Fastify inject) para endpoints com auth.
+- [ ] 8.3 Testes E2E (Playwright) para fluxos críticos: login, busca, IA, assinatura.
+- [ ] 8.4 SAST: CodeQL no GitHub Actions (gratuito para repositórios públicos).
+- [ ] 8.5 `npm audit` + `pnpm audit` no CI. Quebra build se high/critical.
+- [ ] 8.6 DAST: scan periódico com OWASP ZAP em staging. Cron semanal.
+- [ ] 8.7 Testes de carga (k6 — gratuito) simulando 1.000 usuários concorrentes.
+- [ ] 8.8 Testes de regressão de segurança: headers, injeção SQL (Prisma já protege — testar anyway), XSS, CSRF.
+- [ ] 8.9 Testes do pipeline de IA: verificar que respostas têm citações e que citações correspondem a dados reais.
+
+**Verificação:**
+- `pnpm test:ci` falha se cobertura < 80%.
+- Relatório ZAP sem alertas high/critical no staging.
+- k6 reporta p95 < 500ms com 1.000 usuários.
+
+---
+
+## FASE 9 — CI/CD E DEPLOY `[OBRIGATÓRIO]`
+
+- [ ] 9.1 Pipeline GitHub Actions:
+- [ ] 9.1.1 Lint + typecheck em todo PR.
+- [ ] 9.1.2 Testes unitários + integração.
+- [ ] 9.1.3 SAST (CodeQL) + dependency scan.
+- [ ] 9.1.4 Build Docker multi-stage com `prune` de dev deps.
+- [ ] 9.1.5 Scan de imagem com Trivy (gratuito).
+- [ ] 9.1.6 Deploy automático em staging após merge em `main`.
+- [ ] 9.2 Secrets no CI: variáveis protegidas do GitHub (never in code).
+- [ ] 9.3 Deploy em produção: blue-green ou rolling update (zero downtime).
+- [ ] 9.4 Plataforma de deploy: Fly.io ou Railway (free tier compatível com PostgreSQL + Redis). Decisão em `DECISOES.md`.
+- [ ] 9.5 Observabilidade:
+- [ ] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos do Fly.io.
+- [ ] 9.5.2 Métricas: Prometheus + Grafana (gratuito) ou Better Stack free tier.
+- [ ] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min.
+- [ ] 9.5.4 Uptime check externo (UptimeRobot free).
+- [ ] 9.6 Healthcheck HTTP no deploy (`/api/v1/health`).
+- [ ] 9.7 Backup automático do PostgreSQL (diário, retenção 30 dias).
+- [ ] 9.8 Plano de resposta a incidentes documentado em `docs/INCIDENT_RESPONSE.md`.
+- [ ] 9.9 `MANUAL_DO_OPERADOR.md` entregue (PROTOCOLO_MESTRE.md Seção 9).
+
+**Verificação:**
+- PR mergeado em `main` chega ao staging em < 10 min.
+- Promover staging → produção é um clique manual do Operador.
+- Derrubar o banco manualmente → alerta dispara em < 5 min.
+
+---
+
+## Marcos de Lançamento (Definition of Done por marco)
+
+| Marco | Critério | Fases exigidas |
+|-------|----------|----------------|
+| **Beta Fechada** (100 usuários) | Pesquisa de clubes/jogadores funcionando + login + área do usuário | Fases 0–5 (parcial), 6.1–6.3 |
+| **Open Beta** (1.000 usuários) | + rankings + linha do tempo + billing Free/Pro/Elite + observabilidade | Fases 0–8 (parcial), 9.1–9.6 |
+| **v1.0** (público) | + IA RAG com citações + ETL automático + DAST + hardening completo | Todas as fases |
+
+---
+
+## Convenções de commit
+
+- `feat:` nova funcionalidade
+- `fix:` correção de bug
+- `security:` correção de segurança
+- `test:` adição/correção de testes
+- `chore:` manutenção (deps, configs)
+- `docs:` documentação
+
+Commits atômicos por tarefa. Referenciar o ID da tarefa (ex.: `feat: 3.4 lockout progressivo (#PLANO-3.4)`).
+
+---
+
+## Próxima tarefa (PROTOCOLO_MESTRE.md Seção 6)
+
+Após este plano ser commitado, o Doer procura o primeiro `[ ]` de cima para baixo: **Fase 0, tarefa 0.1**. Já está feita no MVP? Re-verificar com evidência. Se passar, marcar `[x]` e seguir. Se não, executar.
