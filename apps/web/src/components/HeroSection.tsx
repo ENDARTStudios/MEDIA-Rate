@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion, useReducedMotion as useMotionReduced } from "motion/react";
 import Link from "next/link";
 import { gsap, SplitText } from "@/lib/gsap-config";
-import { ParallaxBackground } from "./ParallaxBackground";
+import { LazyParallaxBackground } from "./lazy";
 
 interface HeroSectionProps {
   title: string;
@@ -42,7 +42,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
       className="relative overflow-hidden bg-gradient-to-br from-primary-700 to-primary-900 text-white py-24 px-4"
       aria-labelledby="hero-title"
     >
-      <ParallaxBackground>
+      <LazyParallaxBackground>
         <motion.div
           className="max-w-4xl mx-auto text-center"
           initial={shouldReduce ? false : { opacity: 0, y: 24 }}
@@ -79,7 +79,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
             </Link>
           </motion.div>
         </motion.div>
-      </ParallaxBackground>
+      </LazyParallaxBackground>
     </section>
   );
 }

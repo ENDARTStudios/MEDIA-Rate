@@ -1,8 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import { HeroSection } from "../../components/HeroSection";
-import { AnimatedHeading } from "../../components/AnimatedHeading";
-import { ScrollReveal } from "../../components/ScrollReveal";
+import { LazyAnimatedHeading, LazyScrollReveal } from "../../components/lazy";
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,13 +20,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
       <section className="py-16 px-4" aria-labelledby="features-title">
         <div className="max-w-6xl mx-auto">
-          <AnimatedHeading
+          <LazyAnimatedHeading
             id="features-title"
             className="text-3xl font-bold text-center mb-12 text-gray-100"
           >
             {t("features")}
-          </AnimatedHeading>
-          <ScrollReveal className="grid md:grid-cols-3 gap-8" stagger={0.08}>
+          </LazyAnimatedHeading>
+          <LazyScrollReveal className="grid md:grid-cols-3 gap-8" stagger={0.08}>
             <article className="text-center p-6 bg-surface-card rounded-lg shadow-card">
               <div className="w-12 h-12 mx-auto bg-primary-600 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-primary-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -55,15 +54,15 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               <h3 className="text-lg font-semibold mb-2 text-gray-100">{t("feature3")}</h3>
               <p className="text-sm text-gray-400">{t("feature3Desc")}</p>
             </article>
-          </ScrollReveal>
+          </LazyScrollReveal>
         </div>
       </section>
 
       <section className="py-16 px-4 bg-surface-elevated">
         <div className="max-w-4xl mx-auto text-center">
-          <AnimatedHeading as="h2" className="text-3xl font-bold mb-6 text-gray-100">
+          <LazyAnimatedHeading as="h2" className="text-3xl font-bold mb-6 text-gray-100">
             {t("cta")}
-          </AnimatedHeading>
+          </LazyAnimatedHeading>
           <Link
             href="/register"
             className="inline-block bg-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-accent-700 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2 focus:ring-offset-black"

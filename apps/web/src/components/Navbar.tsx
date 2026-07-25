@@ -5,7 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { Logo } from "./Logo";
+import { LazyLogo } from "./lazy";
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -29,7 +29,7 @@ export function Navbar() {
               className="flex items-center gap-2 text-xl font-bold text-accent-600 hover:text-accent-500 transition-colors"
               aria-label="MEDIA Rate — Página inicial"
             >
-              <Logo className="w-8 h-8" />
+              <LazyLogo className="w-8 h-8" />
               MEDIA Rate
             </Link>
           </motion.div>

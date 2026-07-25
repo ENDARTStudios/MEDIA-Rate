@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { colors } from "@/lib/design-tokens";
-import { MediaScoreBadge } from "./MediaScoreBadge";
+import { LazyMediaScoreBadge } from "./lazy";
 
 export interface MediaItem {
   id: string;
@@ -94,7 +94,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
           )}
           {media.score != null && (
             <div className="absolute top-2 right-2">
-              <MediaScoreBadge score={media.score} />
+              <LazyMediaScoreBadge score={media.score} />
             </div>
           )}
         </div>

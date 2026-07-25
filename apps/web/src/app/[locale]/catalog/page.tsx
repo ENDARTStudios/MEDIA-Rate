@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CatalogGrid } from "../../../components/CatalogGrid";
+import { LazyCatalogGrid } from "../../../components/lazy";
 import type { MediaItem } from "../../../components/MediaCard";
 
 const MOCK_MEDIAS: MediaItem[] = [
@@ -92,7 +92,7 @@ export default async function CatalogPage({
         </select>
       </div>
 
-      <CatalogGrid medias={MOCK_MEDIAS} />
+      <LazyCatalogGrid medias={MOCK_MEDIAS} />
 
       <div className="mt-8 flex justify-center">
         <button className="px-6 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-400">
