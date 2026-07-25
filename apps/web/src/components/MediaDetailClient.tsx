@@ -36,7 +36,7 @@ export function MediaDetailClient({ slug }: { slug: string }) {
     );
   }
 
-  const tipoLabel = media.type === "movie" ? t("filme") : media.type === "series" ? t("serie") : media.type === "game" ? t("game") : t("livro");
+  const tipoLabel = media.type === "movie" ? t("filme") : media.type === "series" ? t("serie") : media.type === "game" ? t("game") : media.type === "comic" ? t("comic") : t("livro");
 
   return (
     <article>

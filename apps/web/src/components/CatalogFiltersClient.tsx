@@ -11,6 +11,8 @@ const TYPES: { value: MediaType; labelKey: string }[] = [
   { value: "series", labelKey: "serie" },
   { value: "game", labelKey: "game" },
   { value: "book", labelKey: "livro" },
+  { value: "anime", labelKey: "anime" },
+  { value: "comic", labelKey: "comic" },
 ];
 
 const SORT_OPTIONS = [

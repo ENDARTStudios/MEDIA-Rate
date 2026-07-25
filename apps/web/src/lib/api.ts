@@ -1,40 +1,75 @@
 import type { CatalogFilters, CatalogResponse, Media, MediaSearchResult, PricingPlan, UserProfile } from "./types";
+import { SEED_MEDIA } from "./seed-data";
 
 function delay(ms = 400): Promise<void> { return new Promise((r) => setTimeout(r, ms + Math.random() * 200)); }
 let errorSimulated = false;
 export function toggleApiError() { errorSimulated = !errorSimulated; }
 function maybeThrow() { if (errorSimulated) throw new Error("Simulated API error"); }
 
-const CAST_MOCK = { cast: [{ name: "Tim Robbins", role: "Andy Dufresne", photoUrl: null }, { name: "Morgan Freeman", role: "Ellis Boyd 'Red' Redding", photoUrl: null }, { name: "Bob Gunton", role: "Warden Samuel Norton", photoUrl: null }], crew: [{ name: "Frank Darabont", role: "Diretor" }, { name: "Stephen King", role: "Autor original" }], reviews: [{ author: "Roger Ebert", rating: 100, text: "Uma obra-prima sobre esperança e redenção.", date: "2024-09-15" }, { author: "Empire", rating: 95, text: "Um dos filmes mais amados de todos os tempos por um motivo.", date: "2024-08-20" }], streaming: [{ name: "Netflix" }, { name: "Prime Video" }, { name: "Max" }] };
+function game(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, conf: "high" | "medium" | "low", platforms: string[]): any {
+  return { id, slug, title, type: "game", year, genres, synopsis, posterUrl: null, backdropUrl: null, score: { consolidated: scoreC, confidence: conf, sources: [{ source: "metacritic", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." }, cast: [], crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }], reviews: [], streaming: platforms.map((p) => ({ name: p })) };
+}
 
-const MOCK_MEDIA: Media[] = [
-  { id: "1", slug: "the-shawshank-redemption", title: "The Shawshank Redemption", type: "movie", year: 1994, genres: ["Drama"], duration: "142 min", synopsis: "Dois homens presos criam um vínculo ao longo dos anos, encontrando consolo e redenção através de atos de decência comum.", posterUrl: "https://image.tmdb.org/t/p/w500/umX3lBhHoTV7Lsci140Yr8VpXyN.jpg", backdropUrl: "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg", score: { consolidated: 92, confidence: "high", sources: [{ source: "imdb", score: 9.3, maxScore: 10 }, { source: "tmdb", score: 8.7, maxScore: 10 }, { source: "metacritic", score: 80, maxScore: 100 }], explanation: "Baseado em 2.9M avaliações. Alta confiança." }, ...CAST_MOCK },
-  { id: "2", slug: "breaking-bad", title: "Breaking Bad", type: "series", year: 2008, genres: ["Drama", "Crime", "Thriller"], duration: "5 temporadas", synopsis: "Um professor de química com câncer terminal começa a fabricar metanfetamina.", posterUrl: "https://image.tmdb.org/t/p/w500/hGwm9Cj3CdbJIqQWNExQqiYmCd4.jpg", backdropUrl: "https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg", score: { consolidated: 95, confidence: "high", sources: [{ source: "imdb", score: 9.5, maxScore: 10 }, { source: "tmdb", score: 8.9, maxScore: 10 }], explanation: "Baseado em 2.2M avaliações. Alta confiança." }, cast: [{ name: "Bryan Cranston", role: "Walter White", photoUrl: null }, { name: "Aaron Paul", role: "Jesse Pinkman", photoUrl: null }], crew: [{ name: "Vince Gilligan", role: "Criador" }], reviews: [{ author: "IMDb Users", rating: 97, text: "A melhor série já feita. Atuação impecável.", date: "2024-10-01" }], streaming: [{ name: "Netflix" }] },
-  { id: "3", slug: "zelda-breath-of-the-wild", title: "The Legend of Zelda: Breath of the Wild", type: "game", year: 2017, genres: ["Action", "Adventure", "RPG"], synopsis: "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.", posterUrl: null, backdropUrl: null, score: { consolidated: 97, confidence: "high", sources: [{ source: "metacritic", score: 97, maxScore: 100 }, { source: "igdb", score: 96, maxScore: 100 }], explanation: "Baseado em 150 avaliações. Alta confiança." }, cast: [{ name: "Nintendo", role: "Desenvolvedora", photoUrl: null }], crew: [{ name: "Hidemaro Fujibayashi", role: "Diretor" }, { name: "Eiji Aonuma", role: "Produtor" }], reviews: [{ author: "GameSpot", rating: 100, text: "Uma reinvenção magistral do gênero.", date: "2024-06-12" }], streaming: [{ name: "Nintendo Switch" }] },
-  { id: "4", slug: "1984", title: "1984", type: "book", year: 1949, genres: ["Ficção Científica", "Distopia", "Clássico"], synopsis: "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade.", posterUrl: null, backdropUrl: null, score: { consolidated: 89, confidence: "medium", sources: [{ source: "openlibrary", score: 4.2, maxScore: 5 }], explanation: "Baseado em avaliações de leitores. Confiança moderada." }, cast: [], crew: [{ name: "George Orwell", role: "Autor" }], reviews: [{ author: "The Guardian", rating: 92, text: "A obra distópica definitiva. Mais relevante do que nunca.", date: "2024-01-30" }, { author: "Goodreads", rating: 89, text: "Uma leitura essencial para entender o século XX.", date: "2023-11-15" }], streaming: [{ name: "Amazon Books" }] },
-  { id: "5", slug: "inception", title: "Inception", type: "movie", year: 2010, genres: ["Ação", "Ficção Científica", "Thriller"], duration: "148 min", synopsis: "Um ladrão especializado em roubar segredos do subconsciente recebe a missão de implantar uma ideia.", posterUrl: "https://image.tmdb.org/t/p/w500/9e3Dz7aCANy5aRUQF745IlNloJ1.jpg", backdropUrl: "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg", score: { consolidated: 88, confidence: "high", sources: [{ source: "imdb", score: 8.8, maxScore: 10 }, { source: "tmdb", score: 8.4, maxScore: 10 }, { source: "metacritic", score: 74, maxScore: 100 }], explanation: "Baseado em 2.6M avaliações. Alta confiança." }, cast: [{ name: "Leonardo DiCaprio", role: "Dom Cobb", photoUrl: null }, { name: "Joseph Gordon-Levitt", role: "Arthur", photoUrl: null }, { name: "Elliot Page", role: "Ariadne", photoUrl: null }], crew: [{ name: "Christopher Nolan", role: "Diretor / Roteirista" }, { name: "Hans Zimmer", role: "Compositor" }], reviews: [{ author: "Variety", rating: 94, text: "Nolan redefine o que um blockbuster pode ser.", date: "2024-07-04" }], streaming: [{ name: "Max" }, { name: "Prime Video" }] },
-  { id: "6", slug: "interstellar", title: "Interstellar", type: "movie", year: 2014, genres: ["Ficção Científica", "Aventura", "Drama"], duration: "169 min", synopsis: "Em um futuro distópico, astronautas viajam por um buraco de minhoca em busca de um novo lar para a humanidade.", posterUrl: "https://image.tmdb.org/t/p/w500/6ricSDD83BClJsFdGB6x7cM0MFQ.jpg", backdropUrl: "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg", score: { consolidated: 90, confidence: "high", sources: [{ source: "imdb", score: 8.7, maxScore: 10 }, { source: "tmdb", score: 8.4, maxScore: 10 }, { source: "metacritic", score: 74, maxScore: 100 }], explanation: "Baseado em 2.2M avaliações. Alta confiança." }, cast: [{ name: "Matthew McConaughey", role: "Cooper", photoUrl: null }, { name: "Anne Hathaway", role: "Dra. Brand", photoUrl: null }], crew: [{ name: "Christopher Nolan", role: "Diretor" }, { name: "Hans Zimmer", role: "Compositor" }], reviews: [{ author: "The Atlantic", rating: 93, text: "Uma experiência cinematográfica transcendental.", date: "2024-05-20" }], streaming: [{ name: "Prime Video" }, { name: "Paramount+" }] },
+function book(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, author: string): any {
+  return { id, slug, title, type: "book", year, genres, synopsis, posterUrl: null, backdropUrl: null, score: { consolidated: scoreC, confidence: "medium", sources: [{ source: "openlibrary", score: Math.round(scoreC / 20), maxScore: 5 }], explanation: "Baseado em avaliações de leitores." }, cast: [], crew: [{ name: author, role: "Autor" }], reviews: [], streaming: [{ name: "Amazon Books" }] };
+}
+
+function comic(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, publisher: string): any {
+  return { id, slug, title, type: "comic", year, genres, synopsis, posterUrl: null, backdropUrl: null, score: { consolidated: scoreC, confidence: "medium", sources: [{ source: "tmdb", score: Math.round(scoreC / 10), maxScore: 10 }], explanation: "Baseado em avaliações de fãs." }, cast: [], crew: [{ name: publisher, role: "Editora" }], reviews: [], streaming: [{ name: "Comixology" }] };
+}
+
+const MANUAL: any[] = [
+  game("g1", "zelda-breath-of-the-wild", "The Legend of Zelda: Breath of the Wild", 2017, ["Action", "Adventure", "RPG"], "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.", 97, "high", ["Nintendo Switch"]),
+  game("g2", "elden-ring", "Elden Ring", 2022, ["Action", "RPG", "Fantasy", "Open World"], "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord.", 96, "high", ["PC", "PlayStation", "Xbox"]),
+  game("g3", "baldurs-gate-3", "Baldur's Gate 3", 2023, ["RPG", "Fantasy", "Strategy"], "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático.", 96, "high", ["PC", "PlayStation", "Xbox"]),
+  game("g4", "god-of-war-ragnarok", "God of War Ragnarök", 2022, ["Action", "Adventure", "Mythology"], "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.", 94, "high", ["PlayStation", "PC"]),
+  game("g5", "red-dead-redemption-2", "Red Dead Redemption 2", 2018, ["Action", "Adventure", "Western", "Open World"], "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.", 97, "high", ["PC", "PlayStation", "Xbox"]),
+  game("g6", "the-witcher-3", "The Witcher 3: Wild Hunt", 2015, ["Action", "RPG", "Fantasy", "Open World"], "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.", 93, "high", ["PC", "PlayStation", "Xbox", "Nintendo Switch"]),
+  game("g7", "minecraft", "Minecraft", 2011, ["Sandbox", "Survival", "Adventure", "Creative"], "Construa, explore e sobreviva em um mundo infinito feito de blocos.", 82, "medium", ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"]),
+  game("g8", "cyberpunk-2077", "Cyberpunk 2077", 2020, ["Action", "RPG", "Sci-Fi", "Open World"], "Em Night City, um mercenário busca um implante que concede a imortalidade.", 86, "medium", ["PC", "PlayStation", "Xbox"]),
+  game("g9", "hades", "Hades", 2020, ["Action", "RPG", "Roguelike", "Mythology"], "Zagreus, filho de Hades, tenta escapar do submundo com a ajuda dos deuses do Olimpo.", 93, "high", ["PC", "Nintendo Switch", "PlayStation", "Xbox"]),
+  game("g10", "stardew-valley", "Stardew Valley", 2016, ["Farming", "Simulation", "RPG", "Indie"], "Herde uma fazenda e transforme-a em um lar próspero enquanto faz amizade com a comunidade.", 89, "high", ["PC", "Nintendo Switch", "PlayStation", "Xbox", "Mobile"]),
+  book("b1", "1984", "1984", 1949, ["Ficção Científica", "Distopia", "Clássico"], "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.", 89, "George Orwell"),
+  book("b2", "duna", "Duna", 1965, ["Ficção Científica", "Aventura", "Épico", "Clássico"], "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.", 92, "Frank Herbert"),
+  book("b3", "neuromancer", "Neuromancer", 1984, ["Ficção Científica", "Cyberpunk", "Clássico"], "Case, um cowboy do ciberespaço, é contratado para um trabalho que pode custar mais do que sua vida.", 87, "William Gibson"),
+  book("b4", "cem-anos-de-solidao", "Cem Anos de Solidão", 1967, ["Realismo Mágico", "Literatura", "Clássico", "Drama"], "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana.", 95, "Gabriel García Márquez"),
+  book("b5", "o-hobbit", "O Hobbit", 1937, ["Fantasia", "Aventura", "Clássico"], "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor.", 88, "J.R.R. Tolkien"),
+  book("b6", "o-guia-do-mochileiro", "O Guia do Mochileiro das Galáxias", 1979, ["Ficção Científica", "Comédia", "Clássico"], "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo.", 90, "Douglas Adams"),
+  comic("c1", "watchmen", "Watchmen", 1986, ["Super-Herói", "Drama", "Mistério", "Clássico"], "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados.", 96, "Alan Moore / Dave Gibbons (DC Comics)"),
+  comic("c2", "sandman", "Sandman", 1989, ["Fantasia", "Horror", "Mito", "Clássico"], "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais.", 94, "Neil Gaiman (DC Vertigo)"),
+  comic("c3", "saga", "Saga", 2012, ["Fantasia", "Ficção Científica", "Romance", "Épico"], "Dois soldados de lados opostos de uma guerra galáctica se apaixonam e fogem para proteger sua filha.", 92, "Brian K. Vaughan (Image Comics)"),
+  comic("c4", "maus", "Maus", 1980, ["Biografia", "História", "Drama", "Clássico"], "Um sobrevivente do Holocausto conta sua história, com judeus como ratos e nazistas como gatos.", 97, "Art Spiegelman (Pantheon)"),
+  comic("c5", "the-boys", "The Boys", 2006, ["Super-Herói", "Sátira", "Ação", "Dark"], "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha.", 84, "Garth Ennis (Dynamite)"),
+  comic("c6", "invincible", "Invincible", 2003, ["Super-Herói", "Ação", "Drama", "Ficção Científica"], "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser.", 90, "Robert Kirkman (Image Comics)"),
 ];
 
+const MOCK_MEDIA: Media[] = [...SEED_MEDIA, ...MANUAL] as Media[];
+
 export async function getCatalog(filters?: CatalogFilters): Promise<CatalogResponse> {
-  await delay(500); maybeThrow();
+  await delay(400); maybeThrow();
+  let items = [...MOCK_MEDIA];
+  if (filters?.type) items = items.filter((m) => m.type === filters.type);
+  if (filters?.search) { const q = filters.search.toLowerCase(); items = items.filter((m) => m.title.toLowerCase().includes(q) || m.synopsis.toLowerCase().includes(q)); }
+  if (filters?.sort === "title") items.sort((a, b) => a.title.localeCompare(b.title));
+  if (filters?.sort === "year") items.sort((a, b) => b.year - a.year);
+  if (filters?.sort === "score") items.sort((a, b) => (b.score?.consolidated ?? 0) - (a.score?.consolidated ?? 0));
   const p = filters?.page ?? 1; const l = filters?.limit ?? 12;
-  const start = (p - 1) * l; const items = MOCK_MEDIA.slice(start, start + l);
-  return { items, total: MOCK_MEDIA.length, page: p, limit: l, hasMore: start + l < MOCK_MEDIA.length };
+  const start = (p - 1) * l; const sliced = items.slice(start, start + l);
+  return { items: sliced, total: items.length, page: p, limit: l, hasMore: start + l < items.length };
 }
 
 export async function getMediaBySlug(slug: string): Promise<Media | null> {
-  await delay(400); maybeThrow();
+  await delay(300); maybeThrow();
   return MOCK_MEDIA.find((m) => m.slug === slug) ?? null;
 }
 
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
-  await delay(300); maybeThrow();
+  await delay(250); maybeThrow();
   const lower = q.toLowerCase();
-  return MOCK_MEDIA.filter((m) => m.title.toLowerCase().includes(lower)).map((m, i) => ({ media: m, relevance: 1 - i * 0.1 }));
+  return MOCK_MEDIA.filter((m) => m.title.toLowerCase().includes(lower)).slice(0, 10).map((m, i) => ({ media: m, relevance: 1 - i * 0.1 }));
 }
 
-export async function getTrending(): Promise<Media[]> { await delay(350); maybeThrow(); return MOCK_MEDIA.slice(0, 4); }
+export async function getTrending(): Promise<Media[]> { await delay(300); maybeThrow(); return MOCK_MEDIA.slice(0, 8); }
 
 export async function getPricingPlans(): Promise<PricingPlan[]> {
   await delay(300);

@@ -19,7 +19,7 @@ export interface MediaItem {
 }
 
 const TIPO_LABEL: Record<string, string> = {
-  FILME: "filme", SERIE: "serie", GAME: "game", LIVRO: "livro",
+  FILME: "filme", SERIE: "serie", GAME: "game", LIVRO: "livro", ANIME: "anime", COMIC: "comic",
 };
 
 const TIPO_ICON: Record<string, string> = {

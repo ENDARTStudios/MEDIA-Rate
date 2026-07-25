@@ -1,7 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "../../../../stores/use-auth-store";
 
 /**
  * Página de checkout Stripe (T5.3).
@@ -16,8 +18,18 @@ export default function CheckoutPage({
 }) {
   const { plan } = use(params);
   const t = useTranslations("checkout");
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace(`/register?callbackUrl=/checkout/${plan}`);
+    }
+  }, [isAuthenticated, router, plan]);
+
+  if (!isAuthenticated) return null;
 
   const isValidPlan = plan === "PLUS" || plan === "PREMIUM";
 

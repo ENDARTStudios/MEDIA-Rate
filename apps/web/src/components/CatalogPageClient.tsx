@@ -16,7 +16,7 @@ function mapToMediaItem(media: any): MediaItem {
   return {
     id: media.id,
     titulo: media.title,
-    tipo: (media.type === "movie" ? "FILME" : media.type === "series" ? "SERIE" : media.type === "game" ? "GAME" : "LIVRO"),
+    tipo: (media.type === "movie" ? "FILME" : media.type === "series" ? "SERIE" : media.type === "game" ? "GAME" : media.type === "anime" ? "ANIME" : media.type === "comic" ? "COMIC" : "LIVRO"),
     ano_lancamento: media.year,
     imagem_url: media.posterUrl,
     score: media.score?.consolidated ?? null,
