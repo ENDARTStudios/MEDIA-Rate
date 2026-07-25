@@ -24,7 +24,7 @@ export function PricingCards() {
     <div className="grid md:grid-cols-3 gap-6 mb-20 items-start">
       {PLANS.map((plan) => {
         const isPlus = plan.id === "plus";
-        const ctaHref = plan.id === "free" ? "/register" : `/checkout/${plan.id}`;
+        const loggedIn = isAuthenticated;
 
         return (
           <div
@@ -46,11 +46,9 @@ export function PricingCards() {
                 <span className="text-4xl font-display font-bold text-gray-100">{formatPrice(plan.price, locale)}</span>
                 <span className="text-sm text-gray-400">/{t("month")}</span>
               </div>
-              {plan.price === 0 ? (
-                <p className="text-xs text-gray-500 mt-1">{t("noCard")}</p>
-              ) : (
-                <p className="text-xs text-gray-500 mt-1">{t("cancelAnyTime")}</p>
-              )}
+              <p className="text-xs text-gray-500 mt-1">
+                {plan.price === 0 ? t("noCard") : t("cancelAnyTime")}
+              </p>
             </div>
 
             <ul className="space-y-3 mb-8 flex-1 text-sm">
@@ -63,11 +61,15 @@ export function PricingCards() {
             </ul>
 
             <Link
-              href={ctaHref}
-              className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-colors ${isPlus ? "bg-accent-600 text-white hover:bg-accent-700" : plan.id === "free" ? "bg-surface-elevated text-gray-300 hover:bg-surface-border/30" : "bg-surface-elevated text-gray-300 hover:bg-surface-border/30"}`}
+              href={plan.price === 0 ? "/register" : `/checkout/${plan.id}`}
+              className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-colors ${isPlus ? "bg-accent-600 text-white hover:bg-accent-700" : "bg-surface-elevated text-gray-300 hover:bg-surface-border/30"}`}
             >
-              {plan.id === "free" ? t("startFree") : t("subscribe")}
+              {plan.price === 0 ? t("startFree") : loggedIn ? t("upgrade") : t("subscribe")}
             </Link>
+
+            {plan.price > 0 && (
+              <p className="text-xs text-gray-600 text-center mt-3">{t("securePayment")}</p>
+            )}
           </div>
         );
       })}
