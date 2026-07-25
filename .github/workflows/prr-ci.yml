@@ -1,0 +1,213 @@
+name: PRR CI/CD Pipeline
+
+on:
+  push:
+    branches: [v1.3.0]
+  pull_request:
+    branches: [v1.3.0]
+  workflow_dispatch:
+
+concurrency:
+  group: prr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+
+  unit-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Pester 5
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -RequiredVersion 5.4.0 -Force -SkipPublisherCheck -Scope CurrentUser -AllowClobber -ErrorAction Stop
+          Import-Module -Name Pester -RequiredVersion 5.4.0 -Force
+      - name: Unit Tests
+        shell: pwsh
+        run: Invoke-Pester tests/unit -Output Detailed
+
+  coverage:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Pester 5
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -RequiredVersion 5.4.0 -Force -SkipPublisherCheck -Scope CurrentUser -AllowClobber -ErrorAction Stop
+          Import-Module -Name Pester -RequiredVersion 5.4.0 -Force
+      - name: Coverage Gate
+        shell: pwsh
+        run: pwsh -File tests/Invoke-Coverage.ps1
+
+  public-api:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Pester 5
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -RequiredVersion 5.4.0 -Force -SkipPublisherCheck -Scope CurrentUser -AllowClobber -ErrorAction Stop
+          Import-Module -Name Pester -RequiredVersion 5.4.0 -Force
+      - name: Public API Contract
+        shell: pwsh
+        run: Invoke-Pester tests/contracts/public-api.Tests.ps1 -Output Detailed
+
+  api-freeze:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: API Freeze
+        shell: pwsh
+        run: pwsh -File scripts/prr/quality/verify-freeze.ps1
+
+  reproducibility:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Reproducibility
+        shell: pwsh
+        run: pwsh -File scripts/prr/quality/verify-reproducibility.ps1
+
+  release:
+    needs:
+      - lint
+      - unit-tests
+      - coverage
+      - public-api
+      - api-freeze
+      - reproducibility
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/v1.3.0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Manifest
+        shell: pwsh
+        run: pwsh -File scripts/prr/aggregate/generate-manifest.ps1
+      - name: Evaluate Policy
+        shell: pwsh
+        run: pwsh -File scripts/prr/policy/evaluate.ps1
+      - name: Read policy decision
+        id: policy
+        shell: pwsh
+        run: |
+          $policyResult = Get-Content artifacts/policy/result.json | ConvertFrom-Json
+          Write-Host "Decision: $($policyResult.decision)"
+          "decision=$($policyResult.decision)" >> $env:GITHUB_OUTPUT
+      - name: Generate Report
+        shell: pwsh
+        run: pwsh -File scripts/prr/report/generate-report.ps1
+      - name: Upload Artifacts
+        if: steps.policy.outputs.decision == 'GO'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prr-artifacts
+          path: |
+            artifacts/manifest/
+            artifacts/policy/
+            docs/production-readiness-review.md
+      - name: Create GitHub Release
+        if: steps.policy.outputs.decision == 'GO'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: Release v1.0.0 — Baseline Estável
+          body: |
+            ## ✅ PRR v1.0.0 — Baseline Estável
+            
+            Todos os gates de qualidade foram aprovados:
+            - API Freeze
+            - Unit Tests (100% coverage)
+            - Public API Contract
+            - Reproducibility
+            
+            Artefatos anexados:
+            - Manifest
+            - Policy Verdict
+            - Production Readiness Report
+          files: |
+            artifacts/manifest/manifest.json
+            artifacts/policy/result.json
+            docs/production-readiness-review.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

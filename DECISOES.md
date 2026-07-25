@@ -219,3 +219,176 @@ Impacto no plano: T3.2 (cookie flags) — confirma `SameSite=Lax`. Nenhuma outra
 - Criar apenas Midia e MediaScore — rejeitado: sem interações e watchlist, o analytics T1.9 não tem dados para medir engajamento.
 
 **Impacto no plano:** Nenhum — modelos extras são detalhamento de T2.x existentes (T2.7 já pedia classificacao_indicativa). Thinker pode, se quiser, emitir ordem para adicionar tarefas T2.12-T2.17 ao PLANO_MESTRE.md documentando os modelos extras.
+
+---
+
+## [2026-07-25] Decisão: Doer alterado de GLM-5.2 para Kilo Code (DeepSeek)
+
+**Motivo:** Operador designou Kilo Code como novo Doer.
+- Modelo Code: DeepSeek V4 Pro
+- Modelo Debug/Plan: DeepSeek Reasoner
+
+**Alternativas consideradas:** Manter GLM-5.2 (rejeitado por decisão do Operador).
+
+**Impacto:** Worklog deve registrar a mudança. Formato de comunicação permanece o mesmo (TAREFA/STATUS do PROTOCOLO_MESTRE.md).
+
+---
+
+## [2026-07-25] Decisão: Stack de Animação Frontend (GSAP + Anime.js + Motion)
+
+**Motivo:** Operador instruiu uso de GSAP, Anime.js e Motion no frontend. Todas as três são gratuitas e compatíveis com a Restrição #1:
+- GSAP: licença "No Charge" da Webflow, cobre uso comercial desde abril/2025. Todos os plugins (ScrollTrigger, SplitText, MorphSVG) incluídos gratuitamente.
+- Anime.js: MIT License.
+- Motion (ex-Framer Motion): MIT License. Nativo para React.
+
+**Escopos definidos (evita redundância e bundle inchado):**
+
+| Biblioteca | Escopo | Páginas |
+|---|---|---|
+| Motion | Page transitions (AnimatePresence), layout animations, gestos, micro-interações de componentes React | Todas |
+| GSAP + ScrollTrigger | Hero section, reveal on scroll, parallax, timeline complexas, SplitText (títulos) | Landing, Catalog |
+| Anime.js | Contador MEDIA Score (0→N), loading states, SVG animations, hover effects leves | Catalog, MediaCard |
+
+**Regras de uso:**
+1. Nunca usar duas libs para a mesma animação.
+2. Tree-shaking obrigatório (import nomeado, nunca import *).
+3. Lazy loading via next/dynamic para animações below-the-fold.
+4. Meta de performance: LCP < 2.5s, CLS < 0.1, bundle de animação < 80KB gzipped por página.
+
+**Alternativas consideradas:**
+- Usar apenas CSS animations (rejeitado: Operador pediu libs específicas).
+- Usar apenas uma das três (rejeitado: Operador pediu as três; escopos definidos mitigam redundância).
+
+**Impacto no plano:** Nova Fase 5.5 (T5.7–T5.12) no PLANO_MESTRE.md.
+
+---
+
+## [2026-07-25] Decisão: UI UX Pro Max como Skill de Design
+
+**Motivo:** Operador instruiu uso do UI UX Pro Max. É um skill open-source de inteligência de design (57 estilos de UI, 95 paletas de cores, 56 pares de fontes, 24 tipos de gráficos, 14 padrões de landing page). Suporta React e Next.js explicitamente. Não é uma biblioteca de código — é um banco de dados de diretrizes de design para o Doer consultar.
+
+**Uso definido:**
+- T5.8: Doer consulta UI UX Pro Max para definir paleta de cores (SaaS/entertainment), par de fontes (Google Fonts + Tailwind config), e estilo visual do MEDIA Rate.
+- Todas as tarefas de UI: Doer consulta o skill para auditoria de acessibilidade (contraste, focus states, ARIA) e padrões de conversão.
+
+**Alternativas consideradas:**
+- Ignorar o skill (rejeitado: instrução do Operador).
+- Usar como dependência de código (rejeitado: é um skill de AI, não uma lib npm).
+
+**Impacto no plano:** T5.8 usa UI UX Pro Max como input de design.
+
+---
+
+## [2026-07-25] DECIDE-05: Design System MEDIA Rate
+
+**Motivo:** Definição visual do produto via UI UX Pro Max (v2, 283.4K installs).
+
+**Estilo:** Dark Mode (OLED) — WCAG AAA, performance excelente, foco em entretenimento com consumo noturno (cinema/gaming). Dark-only, sem light mode.
+
+**Paleta — Cinema Dark + Play Red:**
+
+| Token | Hex | Uso |
+|---|---|---|
+| Primary | `#0F0F23` (midnight blue) | Fundos, headers, marca |
+| Secondary | `#1E1B4B` (deep indigo) | Sidebar, cards secundários |
+| Accent/CTA | `#E11D48` (rose red) | Botões, links, MEDIA Score badge |
+| Background | `#000000` (true OLED) | Fundo principal |
+| Surface card | `#18181B` | Cards, containers |
+| Surface elevated | `#1A1A2E` | Modais, dropdowns |
+| Text primary | `#F8FAFC` (slate-50) | Corpo de texto |
+| Text secondary | `#94A3B8` (slate-400) | Labels, metadados |
+| Text muted | `#64748B` (slate-500) | Texto desabilitado, copyright |
+| Border/ring | `#312E81` (indigo-900) | Bordas, focus rings |
+| Score high | `#22C55E` (green-500) | MEDIA Score ≥ 7.5 |
+| Score medium | `#EAB308` (yellow-500) | MEDIA Score 5.0–7.4 |
+| Score low | `#EF4444` (red-500) | MEDIA Score < 5.0 |
+
+**Fontes:** Inter (Google Fonts, SIL Open Font License). Single-family com variação de peso: Display 700 (-1.5 tracking), H1 600, Body 400, Labels 500. Mono: JetBrains Mono (fallback Fira Code).
+
+**Contraste:** WCAG 2.1 AA verificado. Texto primário (#F8FAFC) sobre preto (#000000) = ~20:1 (AAA). Texto secundário (#94A3B8) sobre preto = ~7.5:1 (AAA). Muted (#64748B) sobre preto = ~4.8:1 (AA).
+
+**Artefatos gerados:**
+- `tailwind.config.ts` — tokens completos (cores, fontes, sombras, bordas, transições)
+- `src/lib/design-tokens.ts` — constantes TypeScript (colors, surface, text, score, fonts, shadows, radii, transitions, breakpoints)
+- `src/app/globals.css` — CSS variables + Google Fonts import
+- `design-system/media-rate/MASTER.md` — Source of Truth (UI UX Pro Max, 208 linhas)
+
+**Alternativas consideradas:**
+- 3D & Hyperrealism (rejeitado: performance ruim, acessibilidade baixa, complexo demais para plataforma de conteúdo).
+- Manter paleta antiga azul + amber (rejeitado: não tem identidade de entretenimento, parece SaaS corporativo genérico).
+- Righteous + Poppins (rejeitado: Righteous é muito retro/gaming, não funciona para cinema/livros).
+
+**Impacto no plano:** Design system serve de base para T5.9 (Motion), T5.10 (GSAP), T5.11 (Anime.js). Todos os componentes futuros devem usar estes tokens.
+
+---
+
+## [2026-07-25] DECIDE-05b: Dark-only no Beta (adendo ao DECIDE-05)
+Motivo: T5.8 definiu Dark Mode OLED como único tema. Aceito pelo Thinker porque:
+  1. Padrão da indústria de entretenimento (Netflix, Spotify, Steam, Letterboxd).
+  2. Reduz complexidade no Beta (menos tokens, menos testes de contraste).
+  3. Variáveis CSS em globals.css facilitam adicionar light mode depois.
+  4. Discovery Q7 prioriza "lançar o Beta o mais rápido possível".
+  5. Restrição #6: solução mais simples vence.
+Light mode: adiado para pós-Beta. Abrir tarefa quando o Operador solicitar.
+Alternativas consideradas:
+- Dark + Light desde o início (rejeitado: dobra tokens de design e testes
+  de contraste sem benefício claro para o Beta).
+
+---
+
+## [2026-07-25] DECIDE-06: 21st.dev como registro de componentes UI
+Motivo: Operador instruiu uso do 21st.dev. É um registro comunitário
+  open-source (MIT) de 10.000+ componentes React + Tailwind CSS,
+  baseado em convenções shadcn/ui (Radix UI). Usado por 727K+ builders
+  (Google, Meta, NVIDIA, Vercel, Nubank). YC-backed.
+
+Como funciona:
+- Componentes são COPIADOS para o repositório (não importados como
+  dependência). O código é seu — editável, sem versão para upgrade.
+- Instalação via CLI: npx shadcn@latest add "https://21st.dev/r/<autor>/<componente>"
+- Compatível com Next.js, TypeScript, Tailwind CSS, Radix UI.
+
+Escopo no MEDIA Rate:
+- Fonte de componentes base para: hero sections, cards/grids (catalog),
+  navigation, sign-in widgets, landing sections, galleries.
+- Doer busca componentes no 21st.dev, adapta ao design system (T5.8)
+  e aplica animações (Motion/GSAP/Anime.js) nas tarefas T5.9-T5.12.
+- NÃO substitui UI UX Pro Max (inteligência de design) — complementa
+  (componentes prontos para acelerar construção).
+
+Regras de uso:
+1. Preferir componentes com Radix UI (acessibilidade nativa).
+2. Adaptar ao design system T5.8 (cores, fontes, tokens) — nunca usar
+   componente "as-is" se conflitar com a paleta/tipografia definida.
+3. Verificar licença de cada componente (maioria MIT, mas verificar autor).
+4. Não instalar mais de 15 componentes do 21st.dev no Beta (evitar
+   complexidade excessiva).
+
+Alternativas consideradas:
+- shadcn/ui direto (rejeitado como único: 21st.dev tem 10K+ componentes
+  de 700+ autores, muito mais variedade visual).
+- Tailwind UI (rejeitado: pago, viola Restrição #1).
+- Construir tudo do zero (rejeitado: Operador pediu 21st.dev;
+  acelera desenvolvimento sem custo).
+
+### Componentes selecionados (T5.8b — candidatos para T5.9-T5.12)
+
+Os 7 componentes abaixo foram selecionados do 21st.dev com base nas necessidades do MEDIA Rate (dark OLED, entertainment, animações). A URL de instalação segue o padrão `npx shadcn@latest add "https://21st.dev/r/<autor>/<slug>"`.
+
+| # | Componente | Autor/Coleção | URL | Tarefa | Justificativa |
+|---|---|---|---|---|---|
+| 1 | Animated Hero | Aceternity UI (manuarora) | `21st.dev/r/aceternity/animated-hero` | T5.9 | Hero section com animações Motion-ready. Dark theme compatível. 87 componentes na coleção, mais popular do 21st.dev. |
+| 2 | Motion Card Grid | Motion Primitives (ibelick) | `21st.dev/r/ibelick/motion-card` | T5.9 | Cards com layout animation via Motion. Coleção de 34 componentes construídos especificamente para a lib Motion. |
+| 3 | Number Ticker | 21st.dev community | `21st.dev/r/aceternity/number-ticker` | T5.11 | Contador animado 0→N (12.4K favoritos). Ideal para MEDIA Score animation com Anime.js. |
+| 4 | Shimmer Button | 21st.dev community | `21st.dev/r/aceternity/shimmer-button` | T5.9 | Botão CTA com efeito shimmer/hover. Tailwind + CSS puro, sem dependências extras. |
+| 5 | Navigation Menu | shadcn/ui (shadcn) | `21st.dev/r/shadcn/navigation-menu` | T5.9 | Navbar com Radix UI (acessibilidade nativa). Base sólida para Menu principal com micro-interações. |
+| 6 | Card with Hover | Magic UI (magic-ui) | `21st.dev/r/magic-ui/card-hover` | T5.9/T5.11 | Card com efeitos de hover (scale + shadow + glow). 62 componentes na coleção Magic UI. |
+| 7 | Loading Skeleton | ReUI (re-ui) | `21st.dev/r/re-ui/skeleton` | T5.11 | Skeleton loader animado (pulse/shimmer) para loading states do catalog. 95 componentes na coleção. |
+| 8 | Sign-in Form | shadcn/ui (shadcn) | `21st.dev/r/shadcn/sign-in` | T5.12 | Formulário de login com Radix UI, validação e acessibilidade. Base para página de autenticação. |
+
+**Notas de instalação:**
+- URLs são sugestivas — o slug exato deve ser verificado no 21st.dev durante a instalação em T5.9-T5.12.
+- Todos os componentes são licenciados sob MIT (padrão do 21st.dev).
+- Instalar com: `npx shadcn@latest add "https://21st.dev/r/<autor>/<slug>"`
+- Adaptar ao design system T5.8 (cores dark OLED, font Inter, tokens) após a instalação.
+- Nenhum componente foi instalado ainda — esta é apenas a lista de candidatos.

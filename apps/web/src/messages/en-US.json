@@ -45,7 +45,8 @@
     "sortAno": "Year (recent)",
     "noResults": "No results found",
     "loadMore": "Load more",
-    "mediaScore": "MEDIA Score"
+    "mediaScore": "MEDIA Score",
+    "mediaScoreAria": "MEDIA Score {score} out of 100"
   },
   "checkout": {
     "title": "Plan upgrade",

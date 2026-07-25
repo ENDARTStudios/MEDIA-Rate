@@ -6,6 +6,7 @@ import { routing } from "../../i18n/routing";
 import { Navbar } from "../../components/Navbar";
 import { Footer } from "../../components/Footer";
 import { LgpdBanner } from "../../components/LgpdBanner";
+import { PageTransition } from "../../components/PageTransition";
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -38,7 +39,7 @@ export default async function LocaleLayout({
       </a>
       <Navbar />
       <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
       <Footer />
       <LgpdBanner />

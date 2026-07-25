@@ -11,14 +11,13 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Transpile next-intl (necessário para App Router).
-  // typedRoutes desativado porque conflita com locale prefix.
-  // Imagens externas (pôsters do TMDB).
   images: {
     remotePatterns: [{ protocol: "https", hostname: "image.tmdb.org" }],
   },
-  // Não expor X-Powered-By (T1.2 já faz no backend, reforçamos aqui).
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["motion", "gsap", "animejs"],
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -1,0 +1,148 @@
+name: PRR Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# DG-04: Zero Trust - permissões globais vazias
+permissions: {}
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Supply Chain Audit (Socket Security)
+        uses: socket-security/action@latest
+        with:
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run Executors (Trivy & ZAP)
+        run: pnpm exec tsx scripts/run-scans.ts
+        env:
+          PRR_TARGET_IMAGE: alpine:latest
+          PRR_TARGET_URL: http://localhost:8080
+      - name: Upload Executor Results (AC-24)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prr-executor-results
+          path: artifacts/executors/
+          retention-days: 1
+          if-no-files-found: error
+
+  evaluate:
+    needs: scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Supply Chain Audit (Socket Security)
+        uses: socket-security/action@latest
+        with:
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Download Executor Results (AC-24)
+        uses: actions/download-artifact@v4
+        with:
+          name: prr-executor-results
+          path: artifacts/executors/
+      - name: Generate Manifest & Evaluate Policy
+        run: pnpm exec tsx scripts/evaluate.ts
+      - name: Upload Verdict (AC-24)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prr-verdict
+          path: artifacts/manifest.json
+          retention-days: 1
+          if-no-files-found: error
+
+  report-pr:
+    needs: evaluate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # AC-27: Permissões isoladas para comentário em PRs
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Supply Chain Audit (Socket Security)
+        uses: socket-security/action@latest
+        with:
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Download Verdict
+        uses: actions/download-artifact@v4
+        with:
+          name: prr-verdict
+          path: artifacts/
+      - name: Generate Markdown Report
+        run: pnpm exec tsx scripts/generate-report.ts
+      - name: Comment on PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: prr-verdict
+          path: artifacts/report.md
+
+  release:
+    needs: evaluate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # DG-04: Escalonamento granular apenas no job de release
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Verdict
+        uses: actions/download-artifact@v4
+        with:
+          name: prr-verdict
+          path: artifacts/
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+      - name: Sign Verdict (Keyless OIDC - ADR-0007)
+        run: |
+          cosign sign-blob \
+            --yes \
+            --output-signature artifacts/verdict.sig \
+            --output-certificate artifacts/verdict.pem \
+            artifacts/verdict.json
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          files: |
+            artifacts/verdict.json
+            artifacts/verdict.sig
+            artifacts/verdict.pem

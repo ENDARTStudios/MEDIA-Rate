@@ -1,0 +1,40 @@
+name: Production Readiness Review (PRR)
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_source:
+        description: 'Fonte dos artefatos (local ou URL)'
+        required: false
+        default: 'artifacts'
+
+jobs:
+  prr-suite:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Manifest
+        run: ./scripts/prr/aggregate/generate-manifest.ps1 -ArtifactRoot artifacts
+
+      - name: Evaluate Policy
+        run: ./scripts/prr/policy/evaluate.ps1 -ArtifactRoot artifacts
+
+      - name: Generate Report
+        run: ./scripts/prr/report/generate-report.ps1 -ArtifactRoot artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prr-artifacts
+          path: |
+            artifacts/manifest.json
+            artifacts/evaluation.json
+            docs/production-readiness-review.md
+          retention-days: 30
+
+      - name: Publish Report Summary
+        if: always()
+        run: cat docs/production-readiness-review.md >> $env:GITHUB_STEP_SUMMARY

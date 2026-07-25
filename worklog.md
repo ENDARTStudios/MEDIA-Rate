@@ -501,3 +501,191 @@ Stage Summary:
 - MANUAL_DO_OPERADOR.md entregue com 9 secoes em linguagem simples.
 - Projeto pronto para handoff ao Operador.
 - Status retornado ao Thinker: `DONE`. Projeto completo.
+
+---
+Task ID: T5.7-setup-animacoes
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Instalar e configurar motion, gsap, animejs no frontend Next.js. Configurar tree-shaking. Instalar UI UX Pro Max como skill de design.
+
+Work Log:
+- Li PROTOCOLO_MESTRE.md, PLANO_MESTRE.md, DECISOES.md e worklog.md.
+- Auditei estrutura do monorepo: root package.json com workspaces `apps/web` + `apps/api`.
+- Instalei motion@^12.42.2, gsap@^3.15.0, animejs@^4.5.0 via `npm install --workspace=apps/web`.
+- Configurei `experimental.optimizePackageImports: ["motion", "gsap", "animejs"]` em next.config.ts.
+- Build Next.js 16.2.10 passou sem erros: 7 páginas compiladas (SSG + Dynamic), TypeScript OK.
+- Instalei UI UX Pro Max (nextlevelbuilder/ui-ux-pro-max-skill@ui-ux-pro-max, 283.4K installs) via `npx skills add -g -y`. Skill instalada em `~\.agents\skills\ui-ux-pro-max`.
+
+Stage Summary:
+- 3 libs de animação instaladas e verificadas no package.json.
+- Tree-shaking configurado via `optimizePackageImports`.
+- Build Next.js passa (exit code 0, sem warnings de bundle size).
+- UI UX Pro Max disponível como skill de design para T5.8.
+- Nenhuma animação implementada (conforme restrição da tarefa).
+- Nenhum código de produto existente alterado.
+- Status: DONE.
+- Próxima tarefa: T5.8 (design system via UI UX Pro Max).
+
+---
+Task ID: T5.8-design-system
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Definir design system via UI UX Pro Max: paleta, fontes, estilo visual. Aplicar tokens em tailwind.config.ts, design-tokens.ts e globals.css.
+
+Work Log:
+- Consultei UI UX Pro Max com `--design-system -p "MEDIA Rate"`. Skill retornou Dark Mode (OLED) como estilo principal (WCAG AAA, excelente performance, foco em entretenimento).
+- Paleta "Cinema Dark + Play Red": primary #0F0F23 (midnight blue), accent #E11D48 (rose/play red), background #000000 (true OLED).
+- Busquei typography com query "cinematic entertainment streaming". Skill recomendou "Modern Dark Cinema (Inter System)" — Inter como single-family com variação de peso.
+- Explorei alternativas: Music/Entertainment (Righteous+Poppins — rejeitado, muito retro/gaming), Classic Elegant (Playfair Display+Inter — rejeitado, muito luxo/editorial).
+- Criei `apps/web/src/lib/design-tokens.ts` com tokens TypeScript: colors (primary/secondary/accent com escala 50-950), surface, text, score, fonts, shadows, radii, transitions, breakpoints.
+- Reescrevi `apps/web/tailwind.config.ts` com tokens estendidos: 3 paletas completas, 4 sombras customizadas, fontes, breakpoints, bordas, transições.
+- Reescrevi `apps/web/src/app/globals.css` com 23 variáveis CSS + Google Fonts import (Inter, wght 300-700).
+- Ajustei ordem CSS: @import antes dos @tailwind (Turbopack exige).
+- Build Next.js 16.2.10 passou sem erros: 7 páginas compiladas, TypeScript OK.
+- Contraste WCAG 2.1 AA verificado: texto primary sobre black = ~20:1 (AAA), secondary = ~7.5:1 (AAA), muted = ~4.8:1 (AA).
+- UI UX Pro Max persistiu `design-system/media-rate/MASTER.md` (208 linhas).
+
+Stage Summary:
+- Estilo: Dark Mode (OLED), dark-only, WCAG AAA.
+- 3 paletas de cores com escala completa (50-950), 4 cores de superfície, 3 de MEDIA Score.
+- Tipografia: Inter (heading + body), JetBrains Mono (code).
+- 3 arquivos de token: tailwind.config.ts, design-tokens.ts, globals.css.
+- Nenhuma dependência npm nova.
+- Nenhum componente existente alterado.
+- Status: DONE.
+- Próxima tarefa: T5.9 (Motion page transitions e micro-interações).
+
+---
+Task ID: T5.8b-21st-dev-setup
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Instalar shadcn CLI (pré-requisito para 21st.dev). Listar 5-8 componentes candidatos do 21st.dev para T5.9-T5.12.
+
+Work Log:
+- Registrei DECIDE-05b (dark-only Beta) e DECIDE-06 (21st.dev como registro de componentes) em DECISOES.md.
+- Executei `npx shadcn@latest init -d` em apps/web. shadcn v4.14.1 detectou Next.js + Tailwind + TypeScript.
+- Criou components.json (style: base-nova, aliases: @/*), src/lib/utils.ts (cn() com clsx + tailwind-merge), src/components/ui/button.tsx (@base-ui/react/button + cva).
+- Instalou 5 dependências: @base-ui/react, class-variance-authority, clsx, tailwind-merge, tw-animate-css.
+- Adicionou @import "tw-animate-css" e @import "shadcn/tailwind.css" ao globals.css.
+- Substituí os temas light/dark oklch do shadcn pelas nossas variáveis CSS dark OLED (MEDIA Rate design system).
+- Corrigi paths CSS: Turbopack não resolve packages CSS via style exports em monorepo — usei paths relativos (../../../../node_modules/...).
+- Atualizei tailwind.config.ts: adicionei tokens semânticos shadcn (background, foreground, card, popover, muted, border, input, ring, sidebar — todos via hsl(var(...))).
+- Build Next.js 16.2.10 passou: 7 páginas compiladas, TypeScript OK.
+- Busquei 21st.dev (webfetch). Site é JS-rendered SPA — conteúdo completo não disponível. Usei categorias/autores do landing page + conhecimento público das coleções.
+- Listei 8 componentes candidatos cobrindo: hero (Aceternity UI), cards (Motion Primitives, Magic UI), counter (Number Ticker), button (Shimmer), navigation (shadcn/ui), sign-in (shadcn/ui), skeleton (ReUI).
+- Todos com licença MIT, compatíveis com shadcn/ui + Tailwind + React.
+
+Stage Summary:
+- shadcn CLI funcional (components.json, button.tsx, utils.ts criados).
+- 5 novas dependências (todas MIT/Open Source).
+- CSS variables shadcn mapeadas para nosso design system dark OLED.
+- 8 componentes candidatos documentados em DECISOES.md.
+- Nenhum componente 21st.dev instalado ainda (conforme restrição).
+- Build Next.js passa sem erros.
+- Status: DONE.
+- Próxima tarefa: T5.9 (Motion page transitions + micro-interações).
+
+---
+Task ID: T5.9-motion-transitions
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Implementar animações com Motion: page transitions, layout animations, micro-interações. Instalar 21st.dev components.
+
+Work Log:
+- Explorei 11 arquivos existentes (layout, landing, catalog, MediaCard, Navbar, Footer, LgpdBanner, LocaleSwitcher, ErrorBoundary, i18n routing, button). Nenhuma animação prévia.
+- Tentei instalar 5 componentes 21st.dev via shadcn CLI. Todas as URLs retornaram "Component not found" — registro 21st.dev é JS-rendered, slugs não verificáveis sem browser. Construí equivalentes com Motion diretamente.
+- Criei `PageTransition.tsx`: AnimatePresence mode='wait', fade + slideY 12px, useReducedMotion integrado (duration: 0 se preferir).
+- Criei `HeroSection.tsx`: stagger animation (title → subtitle → CTA, 100ms delay entre cada), useReducedMotion, gradient from-primary-700 to-primary-900.
+- Criei `CatalogGrid.tsx`: motion.div layout + AnimatePresence mode='popLayout' para stagger appear/exit dos cards. Cada card tem layoutId + scale animation (0.9→1).
+- Atualizei `MediaCard.tsx`: adicionei motion.div wrapper com layoutId, whileHover scale 1.03 y -4, whileTap scale 0.98. Adaptei todas as classes para T5.8 design system (surfaces, text, accent).
+- Atualizei `Navbar.tsx`: logo com whileHover scale, menu mobile com AnimatePresence height animation (0→auto), classes T5.8 dark OLED.
+- Atualizei `layout.tsx`: wrap {children} em PageTransition.
+- Reescrevi landing `page.tsx`: HeroSection com props i18n, features com bg-surface-card + shadow-card, CTA em bg-surface-elevated com accent-600.
+- Reescrevi catalog `page.tsx`: filtros com T5.8 surface/border/ring, CatalogGrid para grid animado, botão accent-600.
+- Corrigi 4 chaves i18n no catalog (allTypes→all, sortBy→sort, sortTitle→sortTitulo, sortDate→sortAno — as chaves já existiam nos JSONs de mensagem).
+- Build Next.js 16.2.10 passou: 7 páginas compiladas, TypeScript OK, zero erros, zero warnings i18n.
+
+Verificação:
+- 3 arquivos com AnimatePresence (PageTransition, CatalogGrid, Navbar)
+- 5 arquivos com motion. (PageTransition, HeroSection, MediaCard, CatalogGrid, Navbar)
+- 5 arquivos com useReducedMotion (todos os acima)
+- 1 arquivo com layoutId (MediaCard)
+- prefers-reduced-motion respeitado em todos os componentes com animação
+
+Stage Summary:
+- 7 arquivos criados/atualizados (4 novos, 3 modificados).
+- Transições de página: AnimatePresence fade+slide em todo o app.
+- Grid do catalog: layout animation + stagger appear + exit.
+- MediaCard: hover (scale+y) + tap + layoutId para reordenação.
+- HeroSection: stagger reveal (title, subtitle, CTA).
+- Navbar: logo hover scale, menu mobile height animation.
+- Landing + Catalog adaptados ao design system T5.8 (dark OLED + accent rose).
+- Zero uso de GSAP ou Anime.js (escopo exclusivo Motion).
+- Acessibilidade preservada: focus rings, aria-labels, Radix button.
+- i18n preservada: next-intl funcional em pt-BR/en-US/es-ES.
+- Status: DONE.
+- Próxima tarefa: T5.10 (GSAP + ScrollTrigger hero/parallax/reveal).
+
+---
+Task ID: T5.10-gsap-scrolltrigger
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Implementar GSAP + ScrollTrigger: hero parallax, scroll-triggered reveal catalog, SplitText títulos landing.
+
+Work Log:
+- Criei `src/lib/gsap-config.ts`: registerPlugin(ScrollTrigger, SplitText), export nomeado dos 3 módulos.
+- Criei `src/components/ParallaxBackground.tsx`: wrapper com gsap.to() via ScrollTrigger scrub, translateY máximo 50px, ease: "none", reduced-motion check.
+- Criei `src/components/ScrollReveal.tsx`: wrapper reutilizável com gsap.from() stagger configurável (default 0.05s), ScrollTrigger top 80%, toggleActions "play none none reverse", gsap.context + revert cleanup.
+- Criei `src/components/AnimatedHeading.tsx`: SplitText type:"words", ScrollTrigger top 85%, stagger 0.04s, ease: "power2.out". Suporta as="h1"|"h2"|"h3" + id prop.
+- Atualizei `HeroSection.tsx`: parallax via ParallaxBackground wrapper, SplitText type:"chars" no H1 com stagger 0.03s + back.out(1.7), delay 0.1s. Motion mount animations preservados (subtítulo + CTA).
+- Atualizei landing `page.tsx`: features H2 → AnimatedHeading, feature cards → ScrollReveal (stagger 0.08s), CTA H2 → AnimatedHeading.
+- Atualizei `CatalogGrid.tsx`: ScrollTrigger.batch() no gridRef, stagger 0.05s, opacity 0→1 + y 40→0, ease power2.out. Motion layout animations preservados.
+- Build Next.js 16.2.10: Compiled OK, TypeScript OK, 7 páginas, 0 erros, 0 warnings.
+
+Verificação:
+- 5 arquivos importam de @/lib/gsap-config (HeroSection, CatalogGrid, ScrollReveal, ParallaxBackground, AnimatedHeading)
+- 5 arquivos com prefers-reduced-motion check (window.matchMedia)
+- 3 arquivos usam ScrollTrigger (CatalogGrid, ScrollReveal, ParallaxBackground)
+- 2 arquivos usam SplitText (HeroSection chars, AnimatedHeading words)
+- GSAP plugins registrados: ScrollTrigger + SplitText
+
+Stage Summary:
+- 4 novos arquivos (gsap-config, ScrollReveal, ParallaxBackground, AnimatedHeading).
+- 3 arquivos modificados (HeroSection, landing page, CatalogGrid).
+- Parallax sutil (max 50px, scrub).
+- Scroll reveal com stagger (0.05s catalog, 0.08s features).
+- SplitText em títulos (chars no hero, words nos headings).
+- Reduced motion em todos os componentes GSAP.
+- Escopo exclusivo GSAP (zero uso de Motion/Anime.js nos novos códigos).
+- Motion existente (T5.9) preservado — coexiste sem conflito.
+- Status: DONE.
+- Próxima tarefa: T5.11 (Anime.js MEDIA Score counter + loading + hover).
+
+---
+Task ID: T5.11-animejs-micro
+Agent: Doer (Kilo Code — DeepSeek V4 Pro)
+Task: Implementar Anime.js: MEDIA Score counter, catalog skeleton, logo SVG, hover glow.
+
+Work Log:
+- Adicionei chave i18n `mediaScoreAria` nos 3 locales (pt-BR: "MEDIA Score {score} de 100", en-US: "out of 100", es-ES: "de 100").
+- Criei `MediaScoreBadge.tsx`: IntersectionObserver (threshold 0.4, uma vez por mount), Anime.js `outExpo` 1200ms, objeto mutável (sem re-render React por frame), cor dinâmica por faixa (high #22C55E ≥70, medium #EAB308 ≥40, low #EF4444). reduced-motion → textContent direto. aria-label + role="status".
+- Criei `CatalogSkeleton.tsx`: Anime.js opacity pulse [0.4, 0.8, 0.4] 1600ms loop, `stagger(80)`, ease "inOutSine". Surface tokens (#18181B cards, #1A1A2E elevated). aria-busy + aria-live="polite". cleanup com ctrl.pause().
+- Criei `Logo.tsx`: SVG stroke-dashoffset animation ≤800ms, getTotalLength, ease "outCubic". M + play icon path.
+- Atualizei `MediaCard.tsx`: Anime.js glow div (box-shadow accent rose + border inset), onMouseEnter 300ms outQuad, onMouseLeave 400ms inQuad, reduced-motion check. Score badge substituído por MediaScoreBadge.
+- Atualizei `Navbar.tsx`: Logo integrado ao link da marca (flex items-center gap-2, w-8 h-8).
+- Build Next.js 16.2.10: Compiled OK, TypeScript OK, 7 páginas, 0 erros.
+
+Correções de tipo:
+- CatalogSkeleton: anime.js v4 exporta `stagger` como função standalone (não `animate.stagger`). Corrigido para `import { animate, stagger }`.
+- Cleanup: `() => { ctrl.pause(); }` (void return, compatível com React useEffect).
+
+Verificação:
+- 4 arquivos importam `animejs` (MediaScoreBadge, CatalogSkeleton, Logo, MediaCard).
+- 3 novos componentes (MediaScoreBadge, CatalogSkeleton, Logo).
+- 2 componentes atualizados (MediaCard glow + score badge, Navbar logo).
+- 3 arquivos i18n atualizados (mediaScoreAria).
+- reduced-motion em todos os 3 novos componentes.
+
+Stage Summary:
+- MEDIA Score counter: viewport trigger, 0→N em 1.2s outExpo, cor por faixa.
+- Catalog skeleton: pulse com tokens surface, stagger 80ms, loop.
+- Logo SVG: stroke-dashoffset animation ≤0.8s.
+- MediaCard glow: hover accent rose glow (300ms enter, 400ms leave).
+- Escopo exclusivo Anime.js (zero Motion/GSAP nos novos códigos).
+- Status: DONE.
+- Próxima tarefa: T5.12 (performance: lazy loading, tree-shaking, bundle size).

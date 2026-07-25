@@ -45,7 +45,8 @@
     "sortAno": "Año (reciente)",
     "noResults": "Sin resultados",
     "loadMore": "Cargar más",
-    "mediaScore": "MEDIA Score"
+    "mediaScore": "MEDIA Score",
+    "mediaScoreAria": "MEDIA Score {score} de 100"
   },
   "checkout": {
     "title": "Mejora de plan",

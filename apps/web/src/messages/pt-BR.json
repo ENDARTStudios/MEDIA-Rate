@@ -45,7 +45,8 @@
     "sortAno": "Ano (recente)",
     "noResults": "Nenhum resultado encontrado",
     "loadMore": "Carregar mais",
-    "mediaScore": "MEDIA Score"
+    "mediaScore": "MEDIA Score",
+    "mediaScoreAria": "MEDIA Score {score} de 100"
   },
   "checkout": {
     "title": "Upgrade de plano",
