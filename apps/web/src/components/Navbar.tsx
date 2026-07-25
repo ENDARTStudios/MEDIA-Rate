@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
@@ -11,14 +11,26 @@ export function Navbar() {
   const t = useTranslations("nav");
   const shouldReduce = useReducedMotion();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <nav
-      className="bg-black border-b border-surface-border"
+      className={`sticky top-0 z-sticky border-b transition-all duration-normal ${
+        scrolled
+          ? "bg-black/90 backdrop-blur-md border-surface-border/50"
+          : "bg-black border-surface-border"
+      }`}
       aria-label="Navegação principal"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className={`flex justify-between transition-all duration-normal ${scrolled ? "h-14" : "h-16"}`}>
           <motion.div
             className="flex items-center"
             whileHover={shouldReduce ? undefined : { scale: 1.02 }}

@@ -40,13 +40,13 @@ export const LazyLogo = dynamic(
 
 function CatalogSkeletonFallback() {
   return (
-    <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" aria-busy="true">
+    <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" aria-busy="true" role="status" aria-label="Carregando catálogo">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="rounded-lg bg-surface-card overflow-hidden">
-          <div className="aspect-[2/3] bg-surface-elevated" />
-          <div className="p-3 space-y-2">
-            <div className="h-4 w-3/4 rounded bg-surface-elevated" />
-            <div className="h-3 w-1/2 rounded bg-surface-elevated" />
+        <div key={i} className="rounded-xl bg-[#0A0A0F] overflow-hidden shadow-surface-1">
+          <div className="aspect-[2/3] bg-[#141420]" />
+          <div className="p-3 space-y-2.5">
+            <div className="h-3.5 w-3/4 rounded-md bg-[#141420]" />
+            <div className="h-3 w-1/2 rounded-md bg-[#141420]" />
           </div>
         </div>
       ))}

@@ -26,36 +26,73 @@
   --font-heading: "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-elevated: 0 4px 6px rgba(0, 0, 0, 0.4),
-    0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-modal: 0 10px 25px rgba(0, 0, 0, 0.6),
-    0 4px 10px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 15px rgba(225, 29, 72, 0.3),
-    0 0 30px rgba(225, 29, 72, 0.15);
+  --shadow-surface-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-surface-2: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-surface-3: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-floating: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-glow-accent: 0 0 30px rgba(225, 29, 72, 0.25), 0 0 8px rgba(225, 29, 72, 0.1);
+  --focus-ring: 2px;
+  --focus-offset: 2px;
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 16px;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  --motion-fast: 150ms;
+  --motion-normal: 250ms;
+  --motion-slow: 400ms;
+  --motion-page: 350ms;
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-drawer: 30;
+  --z-modal: 40;
+  --z-popover: 50;
+  --z-tooltip: 60;
+  --z-toast: 70;
 }
 
 html {
   font-family: var(--font-body);
   background-color: rgb(var(--color-background));
   color: rgb(var(--color-text-primary));
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
 }
 
+::selection {
+  background-color: rgb(var(--color-accent));
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-ring));
+}
+
 *:focus-visible {
-  outline: 2px solid rgb(var(--color-ring));
-  outline-offset: 2px;
+  outline: var(--focus-ring) solid rgb(var(--color-ring));
+  outline-offset: var(--focus-offset);
   border-radius: var(--radius-sm);
 }
 

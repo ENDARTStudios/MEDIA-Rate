@@ -3,13 +3,17 @@
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap-config";
 
-interface ScrollRevealProps {
+export function ScrollReveal({
+  children,
+  stagger = 0.06,
+  distance = 40,
+  className,
+}: {
   children: React.ReactNode;
   stagger?: number;
+  distance?: number;
   className?: string;
-}
-
-export function ScrollReveal({ children, stagger = 0.05, className }: ScrollRevealProps) {
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,23 +24,26 @@ export function ScrollReveal({ children, stagger = 0.05, className }: ScrollReve
       const elements = ref.current?.children;
       if (!elements || elements.length === 0) return;
 
-      gsap.from(elements, {
-        opacity: 0,
-        y: 30,
-        stagger,
-        duration: 0.6,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 80%",
-          end: "bottom 20%",
-          toggleActions: "play none none reverse",
-        },
+      gsap.set(elements, { opacity: 0, y: distance });
+      ScrollTrigger.batch(elements, {
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            stagger,
+            duration: 0.7,
+            ease: "power3.out",
+          }),
+        start: "top 85%",
       });
     }, ref);
 
     return () => ctx.revert();
-  }, [stagger]);
+  }, [stagger, distance]);
 
-  return <div ref={ref} className={className}>{children}</div>;
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  );
 }

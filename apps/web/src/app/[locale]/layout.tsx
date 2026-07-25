@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "../../i18n/routing";
 import { Navbar } from "../../components/Navbar";
-import { Footer } from "../../components/Footer";
+import { MotionFooter } from "../../components/MotionFooter";
 import { LgpdBanner } from "../../components/LgpdBanner";
 import { PageTransition } from "../../components/PageTransition";
 import "../globals.css";
@@ -42,7 +42,7 @@ export default async function LocaleLayout({
       <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
         <PageTransition>{children}</PageTransition>
       </main>
-      <Footer />
+      <MotionFooter />
       <LgpdBanner />
     </NextIntlClientProvider>
   );

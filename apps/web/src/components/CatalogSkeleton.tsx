@@ -3,25 +3,21 @@
 import { useEffect, useRef } from "react";
 import { animate, stagger } from "animejs";
 
-interface CatalogSkeletonProps {
-  count?: number;
-}
+interface CatalogSkeletonProps { count?: number; }
 
 export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced || !ref.current) return;
 
-    const ctrl = animate(ref.current.querySelectorAll(".skeleton-pulse"), {
-      opacity: [0.4, 0.8, 0.4],
-      duration: 1600,
-      delay: stagger(80),
+    const ctrl = animate(ref.current.querySelectorAll(".sk-shimmer"), {
+      backgroundPosition: ["200% 0", "-200% 0"],
+      duration: 2000,
+      delay: stagger(100),
       loop: true,
-      ease: "inOutSine",
+      ease: "linear",
     });
     return () => { ctrl.pause(); };
   }, []);
@@ -30,15 +26,17 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
     <div
       ref={ref}
       className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+      role="status"
       aria-busy="true"
       aria-live="polite"
+      aria-label="Carregando catálogo"
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="skeleton-pulse rounded-lg bg-surface-card overflow-hidden">
-          <div className="aspect-[2/3] bg-surface-elevated" />
-          <div className="p-3 space-y-2">
-            <div className="h-4 w-3/4 rounded bg-surface-elevated" />
-            <div className="h-3 w-1/2 rounded bg-surface-elevated" />
+        <div key={i} className="rounded-xl bg-[#0A0A0F] overflow-hidden shadow-surface-1">
+          <div className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #0A0A0F 40%, #141420 50%, #0A0A0F 60%)" }} />
+          <div className="p-3 space-y-2.5">
+            <div className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #141420 40%, #1C1C2E 50%, #141420 60%)" }} />
+            <div className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #141420 40%, #1C1C2E 50%, #141420 60%)" }} />
           </div>
         </div>
       ))}

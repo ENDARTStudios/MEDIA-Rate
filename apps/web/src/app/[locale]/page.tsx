@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import { HeroSection } from "../../components/HeroSection";
 import { LazyAnimatedHeading, LazyScrollReveal } from "../../components/lazy";
+import { TrendingMarquee } from "../../components/TrendingMarquee";
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -17,6 +18,8 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         cta={t("cta")}
         ctaHref="/register"
       />
+
+      <TrendingMarquee />
 
       <section className="py-16 px-4" aria-labelledby="features-title">
         <div className="max-w-6xl mx-auto">

@@ -2,21 +2,23 @@
 
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
+import { motion as tokens } from "@/lib/design-tokens";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const shouldReduce = useReducedMotion();
+  const preset = tokens.presets.pageEnter;
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={pathname}
-        initial={shouldReduce ? false : { opacity: 0, y: 16, filter: "blur(4px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        exit={shouldReduce ? undefined : { opacity: 0, y: -16, filter: "blur(4px)" }}
+        initial={shouldReduce ? false : preset.initial}
+        animate={preset.animate}
+        exit={shouldReduce ? undefined : preset.exit}
         transition={{
-          duration: shouldReduce ? 0 : 0.35,
-          ease: [0.25, 0.1, 0.25, 1],
+          duration: shouldReduce ? 0 : tokens.duration.page,
+          ease: tokens.easing.default as [number, number, number, number],
         }}
       >
         {children}
