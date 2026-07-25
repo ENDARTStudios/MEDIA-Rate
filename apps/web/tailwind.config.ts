@@ -32,7 +32,7 @@ const config: Config = {
           400: "#FB7185", 500: "#F43F5E", 600: "#E11D48", 700: "#BE123C",
           800: "#9F1239", 900: "#881337", 950: "#4C0519",
         },
-        surface: { bg: "#000000", card: "#12141D", elevated: "#181825", overlay: "rgba(0,0,0,0.85)", ring: "#312E81", border: "#1E2040" },
+        surface: { bg: "#0B0B1E", card: "#131331", elevated: "#1B1B42", overlay: "rgba(11,11,30,0.9)", ring: "#312E81", border: "rgba(148,163,255,0.10)" },
         score: { high: "#22C55E", medium: "#EAB308", low: "#EF4444" },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar))", foreground: "hsl(var(--sidebar-foreground))",
@@ -41,7 +41,7 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))", ring: "hsl(var(--sidebar-ring))",
         },
       },
-      fontFamily: { heading: ["Inter", "sans-serif"], body: ["Inter", "sans-serif"], mono: ["JetBrains Mono", "Fira Code", "monospace"] },
+      fontFamily: { display: ["Space Grotesk", "sans-serif"], heading: ["Inter", "sans-serif"], body: ["Inter", "sans-serif"], sans: ["Inter", "sans-serif"], mono: ["JetBrains Mono", "Fira Code", "monospace"] },
       fontSize: {
         display: ["3.5rem", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
         h1: ["2.5rem", { lineHeight: "1.2", letterSpacing: "-0.015em", fontWeight: "700" }],

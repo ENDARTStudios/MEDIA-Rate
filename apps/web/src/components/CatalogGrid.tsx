@@ -19,6 +19,7 @@ function EmptyState() {
 }
 
 export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
+  const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +55,7 @@ export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
       className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       transition={{ duration: shouldReduce ? 0 : 0.3, ease: "easeInOut" }}
       role="feed"
-      aria-label="Catálogo de mídias"
+      aria-label={t("catalogAria")}
     >
       <AnimatePresence mode="popLayout">
         {medias.map((media) => (

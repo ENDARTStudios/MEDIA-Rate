@@ -5,10 +5,15 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",
+    "notFound": "Page not found",
+    "notFoundCta": "Back to home",
     "cancel": "Cancel",
     "save": "Save",
     "search": "Search",
-    "skipToContent": "Skip to main content"
+    "selectLanguage": "Select language",
+    "skipToContent": "Skip to main content",
+    "loadingCatalog": "Loading catalog",
+    "catalogAria": "Media catalog"
   },
   "nav": {
     "home": "Home",

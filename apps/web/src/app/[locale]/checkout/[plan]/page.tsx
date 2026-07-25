@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { use } from "react";
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { useState, use } from "react";
 
 /**
  * Página de checkout Stripe (T5.3).

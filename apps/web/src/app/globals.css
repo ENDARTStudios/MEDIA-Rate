@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 @import "../../../../node_modules/tw-animate-css/dist/tw-animate.css";
 @import "../../../../node_modules/shadcn/dist/tailwind.css";
 
@@ -7,19 +7,19 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: 15 15 35;
-  --color-primary-light: 29 33 84;
-  --color-secondary: 30 27 75;
+  --color-primary: 11 11 30;
+  --color-primary-light: 19 19 49;
+  --color-secondary: 27 27 66;
   --color-accent: 225 29 72;
-  --color-accent-light: 244 63 94;
-  --color-background: 0 0 0;
-  --color-surface: 24 24 27;
-  --color-surface-elevated: 26 26 46;
+  --color-accent-light: 251 113 133;
+  --color-background: 11 11 30;
+  --color-surface: 19 19 49;
+  --color-surface-elevated: 27 27 66;
   --color-text-primary: 248 250 252;
   --color-text-secondary: 148 163 184;
   --color-text-muted: 100 116 139;
   --color-ring: 49 46 129;
-  --color-border: 49 46 129;
+  --color-border: 148,163,255;
   --color-score-high: 34 197 94;
   --color-score-medium: 234 179 8;
   --color-score-low: 239 68 68;
@@ -113,23 +113,23 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0 0;
+    --background: 11 11 30;
     --foreground: 248 250 252;
-    --card: 24 24 27;
+    --card: 19 19 49;
     --card-foreground: 248 250 252;
-    --popover: 26 26 46;
+    --popover: 27 27 66;
     --popover-foreground: 248 250 252;
-    --primary: 15 15 35;
+    --primary: 11 11 30;
     --primary-foreground: 248 250 252;
-    --secondary: 30 27 75;
+    --secondary: 27 27 66;
     --secondary-foreground: 248 250 252;
-    --muted: 24 24 27;
+    --muted: 19 19 49;
     --muted-foreground: 148 163 184;
     --accent: 225 29 72;
     --accent-foreground: 248 250 252;
     --destructive: 239 68 68;
-    --border: 49 46 129;
-    --input: 49 46 129;
+    --border: 148 163 255;
+    --input: 148 163 255;
     --ring: 49 46 129;
     --chart-1: 34 197 94;
     --chart-2: 234 179 8;
@@ -137,13 +137,13 @@ body {
     --chart-4: 99 102 241;
     --chart-5: 168 85 247;
     --radius: 0.5rem;
-    --sidebar: 15 15 35;
+    --sidebar: 11 11 30;
     --sidebar-foreground: 248 250 252;
     --sidebar-primary: 225 29 72;
     --sidebar-primary-foreground: 248 250 252;
-    --sidebar-accent: 30 27 75;
+    --sidebar-accent: 27 27 66;
     --sidebar-accent-foreground: 248 250 252;
-    --sidebar-border: 49 46 129;
+    --sidebar-border: 148 163 255;
     --sidebar-ring: 49 46 129;
   }
   * {

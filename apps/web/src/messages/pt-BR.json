@@ -5,10 +5,15 @@
     "loading": "Carregando...",
     "error": "Algo deu errado",
     "retry": "Tentar novamente",
+    "notFound": "Página não encontrada",
+    "notFoundCta": "Voltar ao início",
     "cancel": "Cancelar",
     "save": "Salvar",
     "search": "Buscar",
-    "skipToContent": "Pular para conteúdo principal"
+    "selectLanguage": "Selecionar idioma",
+    "skipToContent": "Pular para conteúdo principal",
+    "loadingCatalog": "Carregando catálogo",
+    "catalogAria": "Catálogo de mídias"
   },
   "nav": {
     "home": "Início",

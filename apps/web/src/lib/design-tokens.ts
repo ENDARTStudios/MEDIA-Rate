@@ -86,12 +86,12 @@ export const zIndex = { base: 0, dropdown: 10, sticky: 20, drawer: 30, modal: 40
 
 // ── LEGACY ALIASES (backward compat) ─────────────────────
 export const surface = {
-  background: elevation[0].bg,
-  card: elevation[1].bg,
-  elevated: elevation[3].bg,
-  overlay: elevation.overlay.bg,
+  background: "#0B0B1E",
+  card: "#131331",
+  elevated: "#1B1B42",
+  overlay: "rgba(11, 11, 30, 0.9)",
   ring: focus.color,
-  border: "#312E81",
+  border: "rgba(148,163,255,0.10)",
 } as const;
 
 export const text = { primary: "#F8FAFC", secondary: "#94A3B8", muted: "#64748B", inverse: "#0F0F23" } as const;

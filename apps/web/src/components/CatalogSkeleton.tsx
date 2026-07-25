@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { animate, stagger } from "animejs";
 
 interface CatalogSkeletonProps { count?: number; }
 
 export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
+  const t = useTranslations("common");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
       role="status"
       aria-busy="true"
       aria-live="polite"
-      aria-label="Carregando catálogo"
+      aria-label={t("loadingCatalog")}
     >
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-xl bg-[#0A0A0F] overflow-hidden shadow-surface-1">

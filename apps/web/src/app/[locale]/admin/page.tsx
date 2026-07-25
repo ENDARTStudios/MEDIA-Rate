@@ -1,4 +1,9 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Admin — MEDIA Rate", description: "Painel administrativo do MEDIA Rate." };
+}
 
 /**
  * Painel administrativo (T5.5).

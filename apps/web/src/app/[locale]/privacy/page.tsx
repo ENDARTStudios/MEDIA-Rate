@@ -1,5 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { sanitizeHtml } from "../../../lib/sanitize";
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Privacidade — MEDIA Rate", description: "Política de privacidade do MEDIA Rate." };
+}
 
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

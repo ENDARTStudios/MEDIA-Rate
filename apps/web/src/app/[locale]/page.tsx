@@ -1,8 +1,17 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
 import { LazyAnimatedHeading, LazyScrollReveal } from "../../components/lazy";
 import { TrendingMarquee } from "../../components/TrendingMarquee";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "MEDIA Rate — Descubra o que assistir, jogar e ler",
+    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
+    openGraph: { title: "MEDIA Rate", description: "Score unificado de entretenimento.", siteName: "MEDIA Rate", type: "website" },
+  };
+}
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

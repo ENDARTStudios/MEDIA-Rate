@@ -34,7 +34,7 @@ export function LocaleSwitcher() {
         onChange={(e) => onSelectChange(e.target.value)}
         disabled={isPending}
         className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-md px-2 py-1 pr-8 focus:outline-none focus:ring-2 focus:ring-primary-700"
-        aria-label="Selecionar idioma"
+        aria-label={t("selectLanguage")}
       >
         {LOCALES.map((l) => (
           <option key={l.code} value={l.code}>
