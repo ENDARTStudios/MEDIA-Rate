@@ -1,6 +1,11 @@
 # .agent-log
 # MEDIA Rate — Dependency Registry & Route Count
-# Updated: 2026-07-25 Sprint 1 complemento
+# Updated: 2026-07-25 Sprint 2 complemento
+
+## Sprint 2 Decisions
+- Watchlist columns: 4 (want, watching, completed, dropped). Operator approved "dropped" column (MyAnimeList/Backloggd standard).
+- MEDIA Score gradient: `linear-gradient(135deg,#3B82F6,#8B5CF6)` applied only to functional ring (not headlines).
+- QueryProvider: staleTime 30s, retry 1, refetchOnWindowFocus false.
 
 ## Dependencies (apps/web)
 | Package | Version |

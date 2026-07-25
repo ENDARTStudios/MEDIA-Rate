@@ -21,6 +21,7 @@
     "pricing": "Planes",
     "login": "Entrar",
     "register": "Registrarse",
+    "password": "Contraseña",
     "logout": "Salir",
     "profile": "Perfil",
     "admin": "Admin"
@@ -49,7 +50,13 @@
     "sort": "Ordenar",
     "sortTitulo": "Título (A-Z)",
     "sortAno": "Año (reciente)",
+    "sortScore": "MEDIA Score",
     "noResults": "Sin resultados",
+    "clearFilters": "Limpiar filtros",
+    "error": "Error al cargar catálogo",
+    "retry": "Intentar de nuevo",
+    "synopsis": "Sinopsis",
+    "share": "Compartir",
     "loadMore": "Cargar más",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} de 100"

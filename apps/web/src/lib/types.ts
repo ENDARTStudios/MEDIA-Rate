@@ -31,6 +31,34 @@ export interface Media {
   posterUrl: string | null;
   backdropUrl: string | null;
   score: MediaScore | null;
+  cast: CastMember[];
+  crew: CrewMember[];
+  reviews: Review[];
+  streaming: StreamingService[];
+}
+
+export interface CastMember {
+  name: string;
+  role: string;
+  photoUrl: string | null;
+}
+
+export interface CrewMember {
+  name: string;
+  role: string;
+}
+
+export interface Review {
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}
+
+export interface StreamingService {
+  name: string;
+  url?: string;
+  logoUrl?: string;
 }
 
 export interface MediaSearchResult {

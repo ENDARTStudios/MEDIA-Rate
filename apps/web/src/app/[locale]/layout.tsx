@@ -7,6 +7,8 @@ import { Navbar } from "../../components/Navbar";
 import { MotionFooter } from "../../components/MotionFooter";
 import { LgpdBanner } from "../../components/LgpdBanner";
 import { PageTransition } from "../../components/PageTransition";
+import { QueryProvider } from "../../providers/query-provider";
+import { Toaster } from "sonner";
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +36,8 @@ export default async function LocaleLayout({
   const t = await getTranslations("common");
 
   return (
-    <NextIntlClientProvider>
+    <QueryProvider>
+      <NextIntlClientProvider>
       <a href="#main" className="skip-link">
         {t("skipToContent")}
       </a>
@@ -44,6 +47,8 @@ export default async function LocaleLayout({
       </main>
       <MotionFooter />
       <LgpdBanner />
+      <Toaster theme="dark" position="top-right" />
     </NextIntlClientProvider>
+    </QueryProvider>
   );
 }

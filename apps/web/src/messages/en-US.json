@@ -21,6 +21,7 @@
     "pricing": "Plans",
     "login": "Log in",
     "register": "Sign up",
+    "password": "Password",
     "logout": "Log out",
     "profile": "Profile",
     "admin": "Admin"
@@ -49,7 +50,13 @@
     "sort": "Sort",
     "sortTitulo": "Title (A-Z)",
     "sortAno": "Year (recent)",
+    "sortScore": "MEDIA Score",
     "noResults": "No results found",
+    "clearFilters": "Clear filters",
+    "error": "Error loading catalog",
+    "retry": "Try again",
+    "synopsis": "Synopsis",
+    "share": "Share",
     "loadMore": "Load more",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} out of 100"

@@ -21,6 +21,7 @@
     "pricing": "Planos",
     "login": "Entrar",
     "register": "Cadastrar",
+    "password": "Senha",
     "logout": "Sair",
     "profile": "Perfil",
     "admin": "Admin"
@@ -49,7 +50,13 @@
     "sort": "Ordenar",
     "sortTitulo": "Título (A-Z)",
     "sortAno": "Ano (recente)",
+    "sortScore": "MEDIA Score",
     "noResults": "Nenhum resultado encontrado",
+    "clearFilters": "Limpar filtros",
+    "error": "Erro ao carregar catálogo",
+    "retry": "Tentar novamente",
+    "synopsis": "Sinopse",
+    "share": "Compartilhar",
     "loadMore": "Carregar mais",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} de 100"
