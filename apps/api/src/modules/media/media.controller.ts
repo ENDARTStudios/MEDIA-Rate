@@ -1,9 +1,15 @@
-import { Controller, Get, Param, Query, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Put, Delete, Param, Query, Body, NotFoundException, UseGuards, UsePipes, HttpCode } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
 import { PrismaService } from "../../prisma/prisma.service.js";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- MediaScoreService precisa ser import como valor para NestJS DI
 import { MediaScoreService } from "../media-score/media-score.service.js";
+import { MediaService } from "./media.service.js";
+import { createMediaSchema, updateMediaSchema, type CreateMediaDto, type UpdateMediaDto } from "./dto/media.dto.js";
+import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
+import { AuthGuard } from "../../common/guards/auth.guard.js";
+import { RolesGuard } from "../../common/guards/roles.guard.js";
+import { Roles } from "../../common/decorators/roles.decorator.js";
 import {
   PaginationDto,
   type PaginationDtoType,
@@ -21,6 +27,7 @@ export class MediaController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mediaScoreService: MediaScoreService,
+    private readonly mediaService: MediaService,
   ) {}
 
   @Get()
@@ -156,5 +163,29 @@ export class MediaController {
       pesos_usados: result.pesos_usados,
       calculado_em: new Date().toISOString(),
     };
+  }
+
+  @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @UsePipes(new ZodValidationPipe(createMediaSchema))
+  async create(@Body() body: CreateMediaDto) {
+    return this.mediaService.create(body);
+  }
+
+  @Put(":id")
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @UsePipes(new ZodValidationPipe(updateMediaSchema))
+  async update(@Param("id") id: string, @Body() body: UpdateMediaDto) {
+    return this.mediaService.update(id, body);
+  }
+
+  @Delete(":id")
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @HttpCode(204)
+  async remove(@Param("id") id: string) {
+    await this.mediaService.remove(id);
   }
 }

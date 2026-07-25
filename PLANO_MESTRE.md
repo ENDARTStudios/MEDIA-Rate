@@ -13,7 +13,7 @@
 - [~] Fase 3 – Auth `[PARCIAL — 7/10, 3 gaps]` ⚠️ (2026-07-25 complemento)
 - [~] Fase 4 – APIs `[PARCIAL — 14/22 completos, 3 stubs, 3 ausentes]` ⚠️
 - ✅ Fase 5 – Frontend (17 rotas, 47 páginas SSG, i18n, animações Motion/GSAP/Anime.js) `[CONCLUÍDA]`
-- [ ] Fase 6 – Avançado `[upload/fila/cache/IA-RAG OBRIGATÓRIOS; WebSocket CONDICIONAL]`
+- [~] Fase 6 – Avançado `[PARCIAL — 8/13 completos, 4 ausentes]` ⚠️ (2026-07-25)
 - [ ] Fase 7 – Hardening `[Vault e DNSSEC CONDICIONAIS]`
 - [ ] Fase 8 – Testes/segurança `[OBRIGATÓRIO + DAST]`
 - [ ] Fase 9 – CI/CD e deploy `[OBRIGATÓRIO]`
@@ -246,21 +246,34 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 
 ---
 
-## FASE 6 — AVANÇADO `[upload/fila/cache/IA-RAG OBRIGATÓRIOS]`
+## FASE 6 — AVANÇADO `[PARCIAL — 8/13, 4 gaps, 0 resquícios]`
 
-- [ ] 6.1 **Upload seguro** `[OBRIGATÓRIO]`:
-- [ ] 6.1.1 Validação de tipo MIME real (magic bytes, não só extensão).
-- [ ] 6.1.2 Tamanho máximo configurável por tipo de upload.
-- [ ] 6.1.3 Antivírus: ClamAV rodando em container separado (gratuito).
-- [ ] 6.1.4 Armazenamento em S3-compatível (MinIO local em dev, Cloudflare R2 em prod — gratuito até 10GB).
-- [ ] 6.1.5 Nomes de arquivo aleatórios (UUID) — nunca nome do usuário.
-- [ ] 6.2 **Fila assíncrona** `[OBRIGATÓRIO]`: BullMQ + Redis para ETL, envio de emails, processamento de imagem, reprocessamento de rankings.
-- [ ] 6.3 **Cache Redis** `[OBRIGATÓRIO]`: read-through em consultas frequentes (lista de clubes, top rankings). Invalidação por evento (write-through em updates).
-- [ ] 6.4 **Pipeline ETL** `[OBRIGATÓRIO]`:
-- [ ] 6.4.1 Conectores para fontes públicas (RSSSF, FBref, Wikipedia via API).
-- [ ] 6.4.2 Job agendado (cron) para atualização periódica.
-- [ ] 6.4.3 Rastreabilidade: cada atualização registra fonte + timestamp em `data_sources`.
-- [ ] 6.5 **IA / RAG** `[OBRIGATÓRIO]`:
+### Infraestrutura (✅ implementado)
+
+- [x] 6.0 Rate limiting. · evid: `rate-limit.config.ts` — 100 req/min global, 6 req/min login. E2E testado (429).
+- [x] 6.1 CSP / Helmet. · evid: `security.config.ts` — HSTS 1-ano, nosniff, X-Frame-Options: DENY, CSP directives (Stripe, PostHog).
+- [x] 6.2 CORS. · evid: `cors.config.ts` — allowlist, sem wildcard em prod, credentials.
+- [x] 6.3 HTTPS redirect. · evid: `https-redirect.guard.ts` — 308 redirect em prod via `x-forwarded-proto`.
+- [x] 6.4 Dependabot. · evid: `.github/dependabot.yml` — npm ecosystem, weekly, grupos prod/dev, PR limit 5.
+- [x] 6.5 CI/CD. · evid: `.github/workflows/ci.yml` — lint+audit, test+coverage, build, CodeQL SAST, ZAP DAST, Stryker mutation. + `deploy.yml`, `health-check.yml`, `security.yml`, `release.yml`.
+- [x] 6.6 Logging. · evid: `nestjs-pino` + Pino com redaction (password/token/authorization). `GlobalExceptionFilter` gera correlation IDs UUID v4 no erro. `AuditLogService` append-only SHA-256.
+- [x] 6.7 Health checks. · evid: `GET /health` (status/uptime/version) + `HealthCheckService` (`$queryRaw SELECT 1` com latência).
+
+### Gaps (❌ ausente)
+
+- [ ] 6.8 **Upload seguro**. · evid: ZERO referências a multer, `@fastify/multipart`, S3, Cloudinary. Sem validação MIME, sem ClamAV, sem armazenamento.
+- [ ] 6.9 **Fila assíncrona (BullMQ + Redis)**. · evid: Redis existe em `docker-compose.yml` mas NENHUM código usa. Sem `@nestjs/bull`, sem processadores, sem filas.
+- [ ] 6.10 **Cache Redis**. · evid: Sem `@nestjs/cache-manager`, sem `ioredis`, sem cache em qualquer módulo. Redis é infraestrutura órfã.
+- [ ] 6.11 **Graceful shutdown**. · evid: Sem `enableShutdownHooks()`, sem handlers SIGTERM/SIGINT. Apenas `PrismaService.$disconnect()` no `onModuleDestroy`.
+
+### Code Smells (⚠️ não-bloqueantes)
+
+| Smell | Detalhe |
+|---|---|
+| `HttpsRedirectGuard` | `main.ts` instancia com `Reflector` mas a classe não tem constructor com parâmetros — dead code |
+| `.github/score-config.value-object.ts` | Artefato residual — código TypeScript dentro de here-string PowerShell, referenciando diretório `apps/backend/src/` que não existe |
+| `security.yml` + `dependency-update.yml` | Usam `pnpm` (v9) mas o projeto usa `npm`. Workflows quebrariam se trigados |
+| `docker-compose.yml` | Redis configurado com health check mas zero integração com o código
 - [ ] 6.5.1 Embeddings de entidades (clubs, players, competições) armazenados em pgvector (extensão PostgreSQL gratuita).
 - [ ] 6.5.2 Pipeline RAG: pergunta → busca vetorial → contexto → LLM → resposta + citações.
 - [ ] 6.5.3 LLM: modelo open-source via Ollama local ou provedor gratuito (decidir em `DECISOES.md`).
