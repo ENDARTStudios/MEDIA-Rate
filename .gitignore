@@ -15,6 +15,7 @@ coverage/
 .env.*
 !.env.example
 .env.local
+.kilo/exchange_log.jsonl
 .env.*.local
 
 # Editor / OS

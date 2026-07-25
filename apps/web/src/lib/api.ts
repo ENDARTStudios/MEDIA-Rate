@@ -57,6 +57,7 @@ const MANUAL: any[] = [
 ];
 
 const MOCK_MEDIA: Media[] = [...SEED_MEDIA, ...MANUAL] as Media[];
+export { MOCK_MEDIA };
 
 export async function getCatalog(filters?: CatalogFilters): Promise<CatalogResponse> {
   await delay(400); maybeThrow();
