@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
@@ -18,10 +18,7 @@ export interface MediaItem {
 }
 
 const TIPO_LABEL: Record<string, string> = {
-  FILME: "filme",
-  SERIE: "serie",
-  GAME: "game",
-  LIVRO: "livro",
+  FILME: "filme", SERIE: "serie", GAME: "game", LIVRO: "livro",
 };
 
 const TIPO_ICON: Record<string, string> = {
@@ -36,54 +33,58 @@ export function MediaCard({ media }: { media: MediaItem }) {
   const shouldReduce = useReducedMotion();
   const tipoLabel = TIPO_LABEL[media.tipo] ?? media.tipo;
   const scoreLabel = media.score != null ? `${media.score}/100` : "—";
+  const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const shineRef = useRef<HTMLDivElement>(null);
 
-  const handleEnter = () => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (glowRef.current) {
-      animate(glowRef.current, {
-        opacity: [0, 1],
-        duration: 300,
-        ease: "outQuad",
-      });
-    }
-    if (overlayRef.current) {
-      animate(overlayRef.current, {
-        opacity: [0, 1],
-        duration: 300,
-        ease: "outQuad",
-      });
+  const handleMove = (e: MouseEvent) => {
+    if (shouldReduce || !cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    const rx = (y - 0.5) * 8;
+    const ry = (x - 0.5) * -8;
+    cardRef.current.style.transform = `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+    cardRef.current.style.boxShadow = `${-ry * 2}px ${-rx * 2}px 20px rgba(0,0,0,0.5), 0 0 30px rgba(225,29,72,${0.15 * Math.max(x, y)})`;
+
+    if (shineRef.current) {
+      shineRef.current.style.background = `linear-gradient(${x * 60 + 15}deg, rgba(255,255,255,0.08) 0%, transparent 60%)`;
+      shineRef.current.style.opacity = "1";
     }
   };
 
+  const handleEnter = () => {
+    if (shouldReduce) return;
+    if (cardRef.current) {
+      cardRef.current.style.transition = "transform 0.15s ease-out, box-shadow 0.15s ease-out";
+    }
+    if (glowRef.current) animate(glowRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
+    if (overlayRef.current) animate(overlayRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
+  };
+
   const handleLeave = () => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (glowRef.current) {
-      animate(glowRef.current, {
-        opacity: [1, 0],
-        duration: 400,
-        ease: "inQuad",
-      });
-    }
-    if (overlayRef.current) {
-      animate(overlayRef.current, {
-        opacity: [1, 0],
-        duration: 400,
-        ease: "inQuad",
-      });
-    }
+    if (shouldReduce || !cardRef.current) return;
+    cardRef.current.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)";
+    cardRef.current.style.boxShadow = "";
+    cardRef.current.style.transition = "transform 0.4s ease-out, box-shadow 0.4s ease-out";
+
+    if (glowRef.current) animate(glowRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
+    if (overlayRef.current) animate(overlayRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
+    if (shineRef.current) { shineRef.current.style.opacity = "0"; }
   };
 
   return (
     <motion.div
+      ref={cardRef}
       layoutId={`media-${media.id}`}
-      whileHover={shouldReduce ? undefined : { scale: 1.03, y: -4 }}
-      whileTap={shouldReduce ? undefined : { scale: 0.98 }}
-      transition={{ duration: shouldReduce ? 0 : 0.2, ease: "easeOut" }}
+      whileTap={shouldReduce ? undefined : { scale: 0.97 }}
+      transition={{ duration: shouldReduce ? 0 : 0.15, ease: "easeOut" }}
       onMouseEnter={handleEnter}
+      onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      className="relative group"
+      className="relative group cursor-pointer"
+      style={{ transformStyle: "preserve-3d" }}
     >
       <div
         ref={glowRef}
@@ -94,16 +95,16 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
       <Link
         href={`/midia/${media.id}`}
-        className="relative z-10 block bg-surface-card rounded-xl shadow-card overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-black"
+        className="relative z-10 block bg-surface-card rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-black"
         role="article"
         aria-label={`${media.titulo} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
-        <div className="aspect-[2/3] bg-gray-800 relative">
+        <div className="aspect-[2/3] bg-gray-800 relative overflow-hidden">
           {media.imagem_url ? (
             <img
               src={media.imagem_url}
               alt={`Capa de ${media.titulo}`}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
             />
           ) : (
@@ -114,16 +115,14 @@ export function MediaCard({ media }: { media: MediaItem }) {
             </div>
           )}
 
+          <div ref={shineRef} className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300" aria-hidden="true" />
+
           <div
             ref={overlayRef}
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 flex flex-col justify-end p-4"
+            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-0 flex flex-col justify-end p-4"
           >
-            <span className="text-xs font-medium text-accent-400 uppercase tracking-wider">
-              {t(tipoLabel)}
-            </span>
-            <span className="text-xs text-gray-400 mt-0.5">
-              {media.ano_lancamento ?? "—"}
-            </span>
+            <span className="text-xs font-semibold text-accent-400 uppercase tracking-widest">{t(tipoLabel)}</span>
+            <span className="text-xs text-gray-300 mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
           {media.score != null && (
@@ -134,12 +133,8 @@ export function MediaCard({ media }: { media: MediaItem }) {
         </div>
 
         <div className="p-3">
-          <h3 className="text-sm font-medium text-gray-100 truncate group-hover:text-white transition-colors">
-            {media.titulo}
-          </h3>
-          <p className="text-xs text-gray-400 mt-1">
-            {t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}
-          </p>
+          <h3 className="text-sm font-medium text-gray-100 truncate group-hover:text-white transition-colors">{media.titulo}</h3>
+          <p className="text-xs text-gray-400 mt-1">{t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}</p>
         </div>
       </Link>
     </motion.div>

@@ -4,7 +4,7 @@ import { animate } from "animejs";
 import { useCallback, type MouseEvent } from "react";
 
 export function useRipple() {
-  const createRipple = useCallback((e: MouseEvent<HTMLElement>) => {
+  return useCallback((e: MouseEvent<HTMLElement>) => {
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height) * 2;
@@ -25,6 +25,54 @@ export function useRipple() {
       onComplete: () => ripple.remove(),
     });
   }, []);
+}
 
-  return createRipple;
+export function useHapticHeart() {
+  return useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    animate(el, {
+      scale: [1, 1.25, 0.9, 1.05, 1],
+      duration: 600,
+      ease: "outElastic(1, 0.4)",
+    });
+  }, []);
+}
+
+export function useHapticBookmark() {
+  return useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    animate(el, {
+      y: [0, -4, 2, 0],
+      duration: 500,
+      ease: "outBounce",
+    });
+  }, []);
+}
+
+export function useHapticConfirm() {
+  return useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    const check = document.createElement("span");
+    check.textContent = "✓";
+    check.style.cssText = `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#22C55E;font-size:1.5em;font-weight:bold;opacity:0;`;
+    el.style.position = el.style.position || "relative";
+    el.appendChild(check);
+
+    const tl = animate([el, check], {
+      duration: 800,
+      autoplay: true,
+    });
+
+    animate(el, { scale: [1, 1.15, 1], duration: 400, ease: "outBack" });
+    setTimeout(() => check.remove(), 900);
+  }, []);
 }
