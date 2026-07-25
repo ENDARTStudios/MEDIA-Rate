@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { capturePageErrorOccurred } from "../lib/posthog-actions";
+import { getOrCreateDistinctId } from "../lib/posthog-id";
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };
@@ -22,6 +24,7 @@ export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   useEffect(() => {
     // Loga erro para analytics (PostHog via backend T1.9).
     console.error("[ErrorBoundary]", error);
+    capturePageErrorOccurred(getOrCreateDistinctId(), error.digest);
   }, [error]);
 
   return (
