@@ -3,18 +3,16 @@ import {
   ConflictException,
   UnauthorizedException,
   ForbiddenException,
+  BadRequestException,
   Logger,
 } from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+import { randomBytes, createHash } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PasswordService precisa ser import como valor para NestJS DI
 import { PasswordService } from "../../common/password.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- SessionService precisa ser import como valor para NestJS DI
 import { SessionService, type SessionCreationResult } from "./session.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- LockoutService precisa ser import como valor para NestJS DI
 import { LockoutService } from "./lockout.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- AnalyticsService precisa ser import como valor para NestJS DI
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 import type { RegisterDtoType, LoginDtoType } from "./dto/auth.dto.js";
 
 /**
@@ -63,6 +61,7 @@ export class AuthService {
     private readonly sessionService: SessionService,
     private readonly lockoutService: LockoutService,
     private readonly analytics: AnalyticsService,
+    private readonly auditLog: AuditLogService,
   ) {}
 
   async register(dto: RegisterDtoType, _options: { ip?: string } = {}): Promise<RegisterResult> {
@@ -113,6 +112,11 @@ export class AuthService {
       has_name: dto.nome !== undefined,
     });
     this.analytics.identify(usuario.id, { plan: "free", role: "user" });
+
+    await this.auditLog.log({
+      entidade: "Usuario", entidadeId: usuario.id, acao: "register",
+      usuarioId: usuario.id, dadosDepois: { email: dto.email },
+    });
 
     this.logger.log(`Usuário registrado: ${usuario.email}`);
     return usuario;
@@ -194,14 +198,70 @@ export class AuthService {
       has_verified_email: usuario.email_verificado_em !== null,
     });
 
+    await this.auditLog.log({
+      entidade: "Usuario", entidadeId: usuario.id, acao: "login",
+      usuarioId: usuario.id, ipOrigem: ip,
+    });
+
     return {
       token: session.token,
       expires_at: session.record.expires_at,
-      usuario: {
-        id: usuario.id,
-        email: usuario.email,
-        nome: usuario.nome,
-      },
+      usuario: { id: usuario.id, email: usuario.email, nome: usuario.nome },
     };
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { email }, select: { id: true, email: true } });
+    if (!usuario) return { message: "Se o email existir, um link de reset será enviado." };
+
+    const token = randomBytes(32).toString("hex");
+    const tokenHash = createHash("sha256").update(token).digest("hex");
+
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: {
+        password_reset_token: tokenHash,
+        password_reset_expira: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+
+    await this.auditLog.log({
+      entidade: "Usuario", entidadeId: usuario.id, acao: "password_reset_requested",
+    });
+
+    this.logger.log(`Reset de senha solicitado para ${usuario.email} — token: ${token}`);
+    return { message: "Se o email existir, um link de reset será enviado." };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const tokenHash = createHash("sha256").update(token).digest("hex");
+
+    const usuario = await this.prisma.usuario.findFirst({
+      where: { password_reset_token: tokenHash, password_reset_expira: { gt: new Date() } },
+    });
+
+    if (!usuario) {
+      throw new BadRequestException({ statusCode: 400, error: "Bad Request", message: "Token inválido ou expirado." });
+    }
+
+    const passwordHash = await this.passwordService.hash(newPassword);
+
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: { password_hash: passwordHash, password_reset_token: null, password_reset_expira: null },
+    });
+
+    await this.auditLog.log({
+      entidade: "Usuario", entidadeId: usuario.id, acao: "password_reset_completed",
+    });
+
+    this.logger.log(`Senha resetada para usuário ${usuario.id}`);
+    return { message: "Senha alterada com sucesso." };
+  }
+
+  async logoutAudit(usuarioId: string, ip?: string): Promise<void> {
+    await this.auditLog.log({
+      entidade: "Usuario", entidadeId: usuarioId, acao: "logout", usuarioId, ipOrigem: ip,
+    });
   }
 }

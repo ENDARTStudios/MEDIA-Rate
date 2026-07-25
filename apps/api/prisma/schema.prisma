@@ -34,6 +34,8 @@ enum TipoMidia {
   SERIE
   GAME
   LIVRO
+  ANIME
+  COMIC
 }
 
 /// Planos de assinatura SaaS. Conforme DISCOVERY-02 Q4 e T2.9.
@@ -94,6 +96,9 @@ model Usuario {
   dados_para_exclusao_at DateTime?            @map("dados_para_exclusao_at")
   email_verificado_em  DateTime?              @map("email_verificado_em")
   ultimo_login_em      DateTime?              @map("ultimo_login_em")
+  // Fase 3 complemento: reset de senha
+  password_reset_token   String?               @unique @map("password_reset_token") @db.VarChar(64)
+  password_reset_expira  DateTime?              @map("password_reset_expira")
   created_at           DateTime               @default(now()) @map("created_at")
   updated_at           DateTime               @updatedAt @map("updated_at")
 
@@ -107,6 +112,7 @@ model Usuario {
   watchlist            WatchlistEntry[]
   preferencias         PreferenciaUsuario?
   scores_vistos        MediaScoreView[]
+  faturas              Fatura[]
 
   @@map("usuario")
 }
@@ -284,6 +290,8 @@ model Midia {
   interacoes              UsuarioMidiaInteracao[]
   watchlist_entries       WatchlistEntry[]
   score_views             MediaScoreView[]
+  generos                 MidiaGenero[]
+  streamings              MidiaStreaming[]
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
@@ -332,13 +340,23 @@ model UsuarioMidiaInteracao {
   @@map("usuario_midia_interacao")
 }
 
+/// Colunas do Kanban de Watchlist.
+enum WatchlistColuna {
+  WANT
+  WATCHING
+  COMPLETED
+  DROPPED
+}
+
 /// Watchlist (lista para assistir depois). Dado pessoal LGPD.
 model WatchlistEntry {
-  id          String   @id @default(uuid()) @db.Uuid
-  usuario_id  String   @map("usuario_id") @db.Uuid
-  midia_id    String   @map("midia_id") @db.Uuid
-  prioridade  Int      @default(0)
-  created_at  DateTime @default(now()) @map("created_at")
+  id          String           @id @default(uuid()) @db.Uuid
+  usuario_id  String           @map("usuario_id") @db.Uuid
+  midia_id    String           @map("midia_id") @db.Uuid
+  coluna      WatchlistColuna  @default(WANT)
+  prioridade  Int              @default(0)
+  created_at  DateTime         @default(now()) @map("created_at")
+  updated_at  DateTime         @updatedAt @map("updated_at")
 
   usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
@@ -379,4 +397,97 @@ model MediaScoreView {
   @@index([midia_id])
   @@index([viewed_at])
   @@map("media_score_view")
+}
+
+// ===========================================================================
+// Domínio adicional — gêneros, streaming, auditoria (Fase 2 complemento)
+// ===========================================================================
+
+/// Gênero de mídia (ex: Drama, Ficção Científica, Ação).
+model Genero {
+  id    Int            @id @default(autoincrement())
+  nome  String         @unique @db.VarChar(64)
+  slug  String         @unique @db.VarChar(64)
+  midias MidiaGenero[]
+
+  @@map("genero")
+}
+
+/// N:N entre Midia e Genero.
+model MidiaGenero {
+  midia_id  String @map("midia_id") @db.Uuid
+  genero_id Int    @map("genero_id")
+
+  midia     Midia  @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+  genero    Genero @relation(fields: [genero_id], references: [id], onDelete: Cascade)
+
+  @@id([midia_id, genero_id])
+  @@map("midia_genero")
+}
+
+/// Serviço de streaming (ex: Netflix, Prime Video, Max, Crunchyroll).
+model StreamingService {
+  id   Int    @id @default(autoincrement())
+  nome String @unique @db.VarChar(128)
+  slug String @unique @db.VarChar(128)
+  midias MidiaStreaming[]
+
+  @@map("streaming_service")
+}
+
+/// N:N entre Midia e StreamingService.
+model MidiaStreaming {
+  midia_id    String @map("midia_id") @db.Uuid
+  service_id  Int    @map("service_id")
+  url         String? @db.Text
+
+  midia       Midia  @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+  service     StreamingService @relation(fields: [service_id], references: [id], onDelete: Cascade)
+
+  @@id([midia_id, service_id])
+  @@map("midia_streaming")
+}
+
+/// Auditoria imutável (append-only) para conformidade LGPD e rastreabilidade.
+/// hash_cadeia = SHA-256(hash_cadeia anterior + dados deste evento).
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  entidade    String   @db.VarChar(64)
+  entidade_id String   @db.VarChar(64)
+  acao        String   @db.VarChar(32)
+  usuario_id  String?  @map("usuario_id") @db.Uuid
+  dados_antes Json?    @map("dados_antes")
+  dados_depois Json?   @map("dados_depois")
+  ip_origem   String?  @map("ip_origem") @db.Inet
+  hash_cadeia String   @unique @map("hash_cadeia") @db.VarChar(64)
+  hash_anterior String? @map("hash_anterior") @db.VarChar(64)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  @@index([entidade, entidade_id])
+  @@index([usuario_id])
+  @@index([acao])
+  @@index([created_at])
+  @@map("audit_log")
+}
+
+/// Fatura de assinatura. Uma por período de cobrança.
+model Fatura {
+  id                String   @id @default(uuid()) @db.Uuid
+  usuario_id        String   @map("usuario_id") @db.Uuid
+  plano             Plano
+  valor             Float
+  moeda             String   @default("BRL") @db.VarChar(3)
+  status            String   @default("pending") @db.VarChar(16)
+  stripe_invoice_id String?  @unique @map("stripe_invoice_id") @db.VarChar(255)
+  periodo_inicio    DateTime @map("periodo_inicio")
+  periodo_fim       DateTime @map("periodo_fim")
+  pago_em           DateTime? @map("pago_em")
+  created_at        DateTime @default(now()) @map("created_at")
+
+  usuario           Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@index([status])
+  @@index([created_at])
+  @@map("fatura")
 }

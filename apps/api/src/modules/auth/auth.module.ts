@@ -8,6 +8,7 @@ import { SessionRotationService } from "./session-rotation.service.js";
 import { PasswordService } from "../../common/password.service.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AnalyticsModule } from "../../common/analytics.module.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 
 @Module({
   imports: [PrismaModule, AnalyticsModule],
@@ -19,6 +20,7 @@ import { AnalyticsModule } from "../../common/analytics.module.js";
     LockoutService,
     SessionRotationService,
     PasswordService,
+    AuditLogService,
   ],
   exports: [
     AuthService,

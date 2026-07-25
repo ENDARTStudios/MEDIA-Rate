@@ -114,6 +114,18 @@ export class SessionService {
     if (!result) return null;
     if (result.revoked_at !== null) return null;
     if (result.expires_at < new Date()) return null;
+
+    // Sliding session: estende TTL se faltar menos de 24h para expirar.
+    const msUntilExpiry = result.expires_at.getTime() - Date.now();
+    if (msUntilExpiry < this.REFRESH_THRESHOLD_MS) {
+      const newExpiry = new Date(Date.now() + this.getTtlMs());
+      await this.prisma.sessao.update({
+        where: { id: result.id },
+        data: { expires_at: newExpiry },
+      });
+      result.expires_at = newExpiry;
+    }
+
     return {
       sessao: {
         id: result.id,

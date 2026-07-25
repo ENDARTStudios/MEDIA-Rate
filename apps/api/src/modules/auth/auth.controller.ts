@@ -125,13 +125,31 @@ export class AuthController {
     const token = cookies?.[cookieName];
 
     if (token) {
-      // T3.5: invalida sessão no banco (revoked_at), não só no cookie.
       await this.sessionService.revokeSession(token);
     }
 
-    // T3.2: limpa cookie do cliente.
     this.cookieService.clearSessionCookie(reply);
 
+    const user = (req as FastifyRequest & { user?: AuthenticatedUser }).user;
+    if (user) {
+      await this.authService.logoutAudit(user.id);
+    }
+
     return { message: "Logout realizado com sucesso." };
+  }
+
+  @Post("forgot-password")
+  @HttpCode(200)
+  async forgotPassword(@Body("email") email: string): Promise<{ message: string }> {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Post("reset-password")
+  @HttpCode(200)
+  async resetPassword(
+    @Body("token") token: string,
+    @Body("password") password: string,
+  ): Promise<{ message: string }> {
+    return this.authService.resetPassword(token, password);
   }
 }
