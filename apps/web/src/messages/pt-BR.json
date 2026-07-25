@@ -7,7 +7,8 @@
     "retry": "Tentar novamente",
     "cancel": "Cancelar",
     "save": "Salvar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "skipToContent": "Pular para conteúdo principal"
   },
   "nav": {
     "home": "Início",

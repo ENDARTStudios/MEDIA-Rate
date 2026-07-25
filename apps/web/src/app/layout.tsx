@@ -1,13 +1,11 @@
-import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={cn("font-sans", geist.variable)}>
-      <body>{children}</body>
+    <html lang="pt-BR" className="dark" suppressHydrationWarning>
+      <body className={cn("min-h-screen bg-background text-foreground font-sans antialiased")}>
+        {children}
+      </body>
     </html>
   );
 }

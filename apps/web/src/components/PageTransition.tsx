@@ -11,12 +11,12 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={pathname}
-        initial={shouldReduce ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={shouldReduce ? undefined : { opacity: 0, y: -12 }}
+        initial={shouldReduce ? false : { opacity: 0, y: 16, filter: "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={shouldReduce ? undefined : { opacity: 0, y: -16, filter: "blur(4px)" }}
         transition={{
-          duration: shouldReduce ? 0 : 0.3,
-          ease: "easeInOut",
+          duration: shouldReduce ? 0 : 0.35,
+          ease: [0.25, 0.1, 0.25, 1],
         }}
       >
         {children}

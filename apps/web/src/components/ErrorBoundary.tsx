@@ -2,25 +2,17 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };
   reset: () => void;
-  children?: React.ReactNode;
 }
 
-/**
- * Error boundary de página (T5.6) — App Router error.tsx.
- *
- * - Acessível: role="alert", aria-live="assertive".
- * - Mensagem genérica em produção (não vaza stack).
- * - Botão "Tentar novamente" aciona reset().
- */
 export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   const t = useTranslations("common");
 
   useEffect(() => {
-    // Loga erro para analytics (PostHog via backend T1.9).
     console.error("[ErrorBoundary]", error);
   }, [error]);
 
@@ -32,7 +24,7 @@ export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
     >
       <div className="max-w-md w-full text-center">
         <svg
-          className="mx-auto h-12 w-12 text-red-500"
+          className="mx-auto h-16 w-16 text-red-500/80"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -41,23 +33,23 @@ export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            strokeWidth={1.5}
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
-        <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="mt-6 text-xl font-semibold text-gray-100">
           {t("error")}
         </h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          {error.digest ? `ID: ${error.digest}` : null}
-        </p>
-        <button
-          type="button"
-          onClick={reset}
-          className="mt-6 px-4 py-2 bg-primary-700 text-white rounded-md hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-700"
-        >
-          {t("retry")}
-        </button>
+        {error.digest && (
+          <p className="mt-2 text-sm text-gray-500">
+            ID: {error.digest}
+          </p>
+        )}
+        <div className="mt-6">
+          <Button onClick={reset} size="lg">
+            {t("retry")}
+          </Button>
+        </div>
       </div>
     </div>
   );
