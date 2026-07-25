@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { use } from "react";
 import { useState } from "react";
+import { captureCheckoutInitiated } from "../../../../lib/posthog-actions";
+import { getOrCreateDistinctId } from "../../../../lib/posthog-id";
 
 /**
  * Página de checkout Stripe (T5.3).
@@ -26,6 +28,7 @@ export default function CheckoutPage({
     if (!isValidPlan) return;
     setLoading(true);
     setError(null);
+    captureCheckoutInitiated(plan, getOrCreateDistinctId());
     try {
       const response = await fetch("/api/v1/checkout", {
         method: "POST",

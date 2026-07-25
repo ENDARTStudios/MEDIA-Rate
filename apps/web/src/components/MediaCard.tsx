@@ -7,6 +7,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { colors } from "@/lib/design-tokens";
 import { LazyMediaScoreBadge } from "./lazy";
+import { captureMediaCardClicked } from "../lib/posthog-actions";
+import { getOrCreateDistinctId } from "../lib/posthog-id";
 
 export interface MediaItem {
   id: string;
@@ -73,6 +75,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
       />
       <Link
         href={`/midia/${media.id}`}
+        onClick={() =>
+          captureMediaCardClicked(getOrCreateDistinctId(), media.id, media.tipo, media.titulo)
+        }
         className="block bg-surface-card rounded-lg shadow-card overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-black"
         role="article"
         aria-label={`${media.titulo} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}

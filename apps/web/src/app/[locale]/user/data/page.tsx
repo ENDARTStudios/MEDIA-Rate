@@ -2,6 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import {
+  captureDataExportRequested,
+  captureDataDeletionRequested,
+} from "../../../../lib/posthog-actions";
+import { getOrCreateDistinctId } from "../../../../lib/posthog-id";
 
 /**
  * Página de direitos do titular LGPD (T5.4 + T4.9).
@@ -19,6 +24,7 @@ export default function UserDataPage() {
   async function handleExport() {
     setExporting(true);
     setMessage(null);
+    captureDataExportRequested(getOrCreateDistinctId());
     try {
       const response = await fetch("/api/v1/user/data", {
         credentials: "include",
@@ -37,6 +43,7 @@ export default function UserDataPage() {
     if (!confirm(t("deleteWarning"))) return;
     setDeleting(true);
     setMessage(null);
+    captureDataDeletionRequested(getOrCreateDistinctId());
     try {
       const response = await fetch("/api/v1/user/data", {
         method: "DELETE",

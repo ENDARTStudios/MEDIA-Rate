@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { captureConsentAccepted, captureConsentRejected } from "../lib/posthog-actions";
+import { getOrCreateDistinctId } from "../lib/posthog-id";
 
 const CONSENT_KEY = "lgpd-consent-v1";
 
@@ -22,11 +24,13 @@ export function LgpdBanner() {
   function accept() {
     localStorage.setItem(CONSENT_KEY, "accepted");
     setVisible(false);
+    captureConsentAccepted(getOrCreateDistinctId());
   }
 
   function reject() {
     localStorage.setItem(CONSENT_KEY, "rejected");
     setVisible(false);
+    captureConsentRejected(getOrCreateDistinctId());
   }
 
   if (!mounted || !visible) return null;

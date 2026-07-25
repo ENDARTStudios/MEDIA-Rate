@@ -1,4 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { cookies } from "next/headers";
+import { posthog } from "../../../lib/posthog";
 import { LazyCatalogGrid } from "../../../components/lazy";
 import type { MediaItem } from "../../../components/MediaCard";
 
@@ -61,6 +63,13 @@ export default async function CatalogPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
+
+  if (posthog) {
+    const cookieStore = await cookies();
+    const distinctId = cookieStore.get("ph_distinct_id")?.value ?? "anon";
+    posthog.capture({ distinctId, event: "catalog viewed", properties: { locale } });
+    await posthog.flush();
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
