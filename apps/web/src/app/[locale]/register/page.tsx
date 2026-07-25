@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { RegisterForm } from "../../../components/AuthForm";
 import { LazyLogo } from "../../../components/lazy";
+import { SocialButtons } from "../../../components/SocialButtons";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: "Cadastrar — MEDIA Rate", description: "Crie sua conta gratuita no MEDIA Rate." };
@@ -34,9 +35,14 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
           </div>
 
           <h2 className="text-2xl font-display font-bold text-gray-100 mb-1">Cadastrar</h2>
-          <p className="text-sm text-gray-400 mb-6">
+          <p className="text-sm text-gray-400 mb-4">
             Já tem conta? <Link href="/login" className="text-accent-400 hover:text-accent-300">Entrar</Link>
           </p>
+
+          <SocialButtons />
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-surface-border/30" /><span className="text-xs text-gray-500">ou</span><div className="flex-1 h-px bg-surface-border/30" />
+          </div>
 
           <RegisterForm />
         </div>

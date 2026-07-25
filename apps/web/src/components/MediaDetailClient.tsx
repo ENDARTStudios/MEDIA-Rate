@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import Link from "next/link";
 import * as Tabs from "@radix-ui/react-tabs";
 import { getMediaBySlug } from "@/lib/api";
@@ -41,7 +42,8 @@ export function MediaDetailClient({ slug }: { slug: string }) {
     <article>
       {/* Hero */}
       <div className="relative bg-surface-elevated overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-900 to-black" />
+        {media.backdropUrl && <Image src={media.backdropUrl} alt="" fill className="object-cover opacity-30" priority sizes="100vw" aria-hidden="true" />}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-900/80 to-black/80" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav className="flex items-center gap-2 text-sm text-gray-400 mb-8" aria-label="Breadcrumb">
@@ -51,10 +53,14 @@ export function MediaDetailClient({ slug }: { slug: string }) {
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            <div className="shrink-0">
-              <div className="w-48 aspect-[2/3] bg-surface-card rounded-xl flex items-center justify-center text-gray-600 shadow-floating">
-                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              </div>
+            <div className="shrink-0 relative w-48 aspect-[2/3]">
+              {media.posterUrl ? (
+                <Image src={media.posterUrl} alt={`Poster de ${media.title}`} fill className="object-cover rounded-xl shadow-floating" sizes="192px" />
+              ) : (
+                <div className="w-full h-full bg-surface-card rounded-xl flex items-center justify-center text-gray-600 shadow-floating">
+                  <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0 space-y-4">
               <div>

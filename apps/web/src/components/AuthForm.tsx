@@ -14,14 +14,11 @@ export function LoginForm() {
   const t = useTranslations("nav");
   const router = useRouter();
   const { login } = useAuthStore();
-  const [submitting, setSubmitting] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginData>({ resolver: zodResolver(loginSchema), mode: "onBlur" });
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginData>({ resolver: zodResolver(loginSchema), mode: "onBlur" });
 
   const onSubmit = async (d: LoginData) => {
-    setSubmitting(true);
     const result = await login(d.email, d.password);
-    setSubmitting(false);
     if (result.success) {
       toast.success("Login realizado!");
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
@@ -34,13 +31,18 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="sr-only" aria-live="polite" role="status">
+        {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
+      </div>
       <Field label="Email" error={errors.email?.message} autoComplete="email">
         <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
       </Field>
       <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="current-password">
         <PasswordInput register={register("password")} error={!!errors.password} />
       </Field>
-      <Button type="submit" className="w-full" size="lg" disabled={submitting}>{submitting ? "Entrando..." : t("login")}</Button>
+      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+        {isSubmitting ? "Entrando..." : t("login")}
+      </Button>
     </form>
   );
 }
@@ -49,17 +51,14 @@ export function RegisterForm() {
   const t = useTranslations("nav");
   const router = useRouter();
   const { register: regStore } = useAuthStore();
-  const [submitting, setSubmitting] = useState(false);
   const [pw, setPw] = useState("");
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>({ resolver: zodResolver(registerSchema), mode: "onBlur" });
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterData>({ resolver: zodResolver(registerSchema), mode: "onBlur" });
 
   const strength = getPasswordStrength(pw);
 
   const onSubmit = async (d: RegisterData) => {
-    setSubmitting(true);
     const result = await regStore(d.name, d.email, d.password);
-    setSubmitting(false);
     if (result.success) {
       toast.success("Conta criada! Bem-vindo ao MEDIA Rate.");
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
@@ -72,6 +71,9 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="sr-only" aria-live="polite" role="status">
+        {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
+      </div>
       <Field label="Nome" error={errors.name?.message} autoComplete="name">
         <input {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
       </Field>
@@ -81,10 +83,15 @@ export function RegisterForm() {
       <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="new-password">
         <PasswordInput register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
         {strength && (
-          <div className="flex gap-1 mt-1.5">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ backgroundColor: i < strength.segments ? strength.color : "rgba(148,163,255,0.1)" }} />
-            ))}
+          <div className="mt-1.5">
+            <div className="flex gap-1">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ backgroundColor: i < strength.segments ? strength.color : "rgba(148,163,255,0.1)" }} />
+              ))}
+            </div>
+            <p className="text-xs mt-0.5" style={{ color: strength.color }}>
+              {strength.level === "weak" ? t("passwordWeak") : strength.level === "medium" ? t("passwordMedium") : t("passwordStrong")}
+            </p>
           </div>
         )}
       </Field>
@@ -96,7 +103,9 @@ export function RegisterForm() {
         <span>Concordo com os <a href="/terms" className="text-accent-400 underline" target="_blank">Termos</a> e a <a href="/privacy" className="text-accent-400 underline" target="_blank">Política de Privacidade</a></span>
       </label>
       {errors.acceptTerms && <p className="text-xs text-red-500" role="alert">{errors.acceptTerms.message}</p>}
-      <Button type="submit" className="w-full" size="lg" disabled={submitting}>{submitting ? "Criando conta..." : t("register")}</Button>
+      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+        {isSubmitting ? "Criando conta..." : t("register")}
+      </Button>
     </form>
   );
 }

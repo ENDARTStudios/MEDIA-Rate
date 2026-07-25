@@ -22,6 +22,9 @@
     "login": "Log in",
     "register": "Sign up",
     "password": "Password",
+    "passwordWeak": "Weak",
+    "passwordMedium": "Medium",
+    "passwordStrong": "Strong",
     "logout": "Log out",
     "profile": "Profile",
     "admin": "Admin"

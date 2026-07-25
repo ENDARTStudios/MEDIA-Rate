@@ -22,6 +22,9 @@
     "login": "Entrar",
     "register": "Registrarse",
     "password": "Contraseña",
+    "passwordWeak": "Débil",
+    "passwordMedium": "Media",
+    "passwordStrong": "Fuerte",
     "logout": "Salir",
     "profile": "Perfil",
     "admin": "Admin"
