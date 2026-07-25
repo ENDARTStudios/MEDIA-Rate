@@ -11,7 +11,7 @@
 - [ ] Fase 1 – Infra base `[CONCLUÍDA — NestJS 11 + Fastify 5, 207 testes passando]` ✅ (2026-07-25)
 - [~] Fase 2 – Dados `[PARCIAL — 18/21, 3 gaps restantes]` ⚠️ (2026-07-25 complemento)
 - [~] Fase 3 – Auth `[PARCIAL — 7/10, 3 gaps]` ⚠️ (2026-07-25 complemento)
-- [ ] Fase 4 – APIs/CRUDs `[OBRIGATÓRIO + billing]`
+- [~] Fase 4 – APIs `[PARCIAL — 14/22 completos, 3 stubs, 3 ausentes]` ⚠️
 - ✅ Fase 5 – Frontend (17 rotas, 47 páginas SSG, i18n, animações Motion/GSAP/Anime.js) `[CONCLUÍDA]`
 - [ ] Fase 6 – Avançado `[upload/fila/cache/IA-RAG OBRIGATÓRIOS; WebSocket CONDICIONAL]`
 - [ ] Fase 7 – Hardening `[Vault e DNSSEC CONDICIONAIS]`
@@ -165,31 +165,58 @@ de evidência**, não por presunção.
 
 ---
 
-## FASE 4 — APIs/CRUDs `[OBRIGATÓRIO + billing]`
+## FASE 4 — APIs/CRUDs `[PARCIAL — 14 completos, 3 stubs, 3 ausentes, 0 resquícios]`
 
-REST versionado `/api/v1`. Cada módulo em `apps/api/src/modules/<nome>/` com `routes/service/repository`.
+REST versionado `/api/v1`. 7 módulos em `apps/api/src/modules/<nome>/`. Zero referências ao projeto antigo "Almanaque dos Clubes".
 
-- [ ] 4.1 CRUD `media` (filmes, séries, games, livros, animes, HQs).
-- [ ] 4.2 CRUD `media_scores` (MEDIA Score™ consolidado + fontes).
-- [ ] 4.3 Módulo `recommendations` (IA de recomendação baseada em perfil de gosto).
-- [ ] 4.4 Módulo `watchlist` (Kanban: Quero ver, Assistindo, Completo, Abandonado).
-- [ ] 4.5 Módulo `discover` (busca textual + filtros por tipo, gênero, ano, score).
-- [ ] 4.6 Módulo `billing`:
-- [ ] 4.6.1 Modelos Free/Plus/Premium definidos em `plans`.
-- [ ] 4.6.2 Integração com provedor de pagamento (avaliar Stripe vs Pix direto vs PagSeguro — decisão em `DECISOES.md`).
-- [ ] 4.6.3 Webhook de pagamento assinado (HMAC) e idempotente.
-- [ ] 4.6.4 Upgrade/downgrade de plano com prorratação.
-- [ ] 4.7 Módulo `admin` (RBAC admin apenas): CRUD de usuários, atribuição de papéis, moderação.
-- [ ] 4.8 Busca textual: índice PostgreSQL `tsvector` ou `pg_trgm` (decidir em `DECISOES.md`).
-- [ ] 4.9 Paginação cursor-based em endpoints de lista (mais estável que offset em alta escala).
-- [ ] 4.10 Query builder sempre parametrizada (Prisma já garante — nunca concatenar SQL).
-- [ ] 4.11 Documentação OpenAPI 3.1 gerada automaticamente (`@fastify/swagger`).
-- [ ] 4.12 Idempotência em endpoints de escrita via header `Idempotency-Key`.
+- [x] 4.1 CRUD `media` (GET list + GET por ID). · evid: `MediaController` — `GET /midias` (cursor paginação, filtro tipo, sort) + `GET /midias/:id`. Faltam POST/PUT/DELETE para admin.
+- [x] 4.2 CRUD `media_scores`. · evid: `GET /midias/:id/media-score` via `MediaScoreService` (z-score ponderado, weights por tipo, fontes configuráveis).
+- [ ] 4.3 Módulo `recommendations`. · evid: `PremiumController` — 2 stubs hardcoded (`GET /premium/recommendations` PLUS, `GET /premium/ml-personalized` PREMIUM). Sem algoritmo real.
+- [ ] 4.4 Módulo `watchlist`. · evid: AUSENTE. Prisma schema tem `WatchlistEntry` + `WatchlistColuna` enum (Sprint 2). LGPD export lê a tabela. Sem controller/service para CRUD (add/remove/list).
+- [ ] 4.5 Módulo `discover/search`. · evid: AUSENTE. Media list não tem `?q=` full-text search. Sem endpoint de busca.
+- [x] 4.6 Módulo `billing`. · evid: `PaymentController` — `POST /checkout` (Stripe session, Idempotency-Key) + `POST /webhooks/stripe` (HMAC idempotente). Faltam `GET /plans`, cancelamento user-facing, billing history.
+- [~] 4.7 Módulo `admin`. · evid: `AdminController` — `GET /admin/stats` stub hardcoded. Sem user mgmt, moderação, dashboard metrics.
+- [ ] 4.8 Busca textual PostgreSQL `tsvector`/`pg_trgm`. · evid: AUSENTE. Sem índice de busca nem endpoint.
+- [x] 4.9 Paginação cursor-based. · evid: `GET /midias` usa `?cursor=` com `lastCursorId` no response. Parcial — discover/search não implementados.
+- [x] 4.10 Query parametrizada (Prisma). · evid: Prisma garante. Sem SQL concatenado no código.
+- [x] 4.11 OpenAPI. · evid: Swagger decorators nos controllers, `@fastify/swagger` registrado.
+- [x] 4.12 Idempotência. · evid: `Idempotency-Key` no checkout + `stripe_event_id` UNIQUE no webhook.
 
 **Verificação:**
-- `pnpm test` cobre cada endpoint com casos happy path + erro + autorização.
-- OpenAPI renderizada em `/api/v1/docs` com todos os schemas.
-- Webhook de pagamento rejeita payload sem assinatura válida.
+- `npm run test` → 26 arquivos, 226 testes passando ✅
+- 17 endpoints REST (14 completos + 3 stubs)
+- Zero referências a "clubs", "players", "competitions" (projeto antigo completamente removido) ✅
+
+### Inventário de Endpoints
+
+| # | Método | Path | Módulo | Status |
+|---|---|---|---|---|
+| 1 | GET | `/api/v1/midias` | media | ✅ Completo (cursor, tipo, sort) |
+| 2 | GET | `/api/v1/midias/:id` | media | ✅ Completo |
+| 3 | GET | `/api/v1/midias/:id/media-score` | media | ✅ Completo |
+| 4 | POST | `/api/v1/checkout` | payment | ✅ Completo (idempotent key) |
+| 5 | POST | `/api/v1/webhooks/stripe` | payment | ✅ Completo (HMAC) |
+| 6 | GET | `/api/v1/admin/stats` | admin | ⚠️ Stub |
+| 7 | GET | `/api/v1/user/data` | lgpd | ✅ Completo |
+| 8 | DELETE | `/api/v1/user/data` | lgpd | ✅ Completo |
+| 9 | POST | `/api/v1/user/data/cancel-exclusion` | lgpd | ✅ Completo |
+| 10 | POST | `/api/v1/auth/register` | auth | ✅ Completo |
+| 11 | POST | `/api/v1/auth/login` | auth | ✅ Completo |
+| 12 | GET | `/api/v1/auth/me` | auth | ✅ Completo |
+| 13 | POST | `/api/v1/auth/logout` | auth | ✅ Completo |
+| 14 | POST | `/api/v1/auth/forgot-password` | auth | ✅ Completo |
+| 15 | POST | `/api/v1/auth/reset-password` | auth | ✅ Completo |
+| 16 | GET | `/api/v1/premium/recommendations` | premium | ⚠️ Stub |
+| 17 | GET | `/api/v1/premium/ml-personalized` | premium | ⚠️ Stub |
+| — | — | Watchlist CRUD | watchlist | ❌ Ausente |
+| — | — | Search/Discover | discover | ❌ Ausente |
+| — | — | Recommendations engine | recommendations | ❌ Ausente (stubs only) |
+
+### Destaques Técnicos
+- **MediaScoreService**: Z-score ponderado, customizable weights por `TipoMidia`, confiança nível 1 (high) a 5 (low). Explicabilidade completa via `pesos_usados`.
+- **PaymentService**: Hexagonal ports/adapters. Mock gateway para dev/test, Stripe gateway para prod. Idempotência dupla (header + stripe_event_id UNIQUE).
+- **LgpdService**: Export completo com todas as relações. Exclusão com 30 dias de carência + cancelamento. Revogação de todas as sessões ativas na exclusão.
+- **LockoutService**: Progressivo 5→30s, 10→2min, 15→10min, 20+→30min. Chave composta IP:email. Reset automático após 15min de inatividade.
 
 ---
 

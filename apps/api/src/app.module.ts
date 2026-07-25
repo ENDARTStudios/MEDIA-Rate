@@ -16,6 +16,7 @@ import { MediaModule } from "./modules/media/media.module.js";
 import { MediaScoreModule } from "./modules/media-score/media-score.module.js";
 import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
+import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
     MediaModule,
     PaymentModule,
     LgpdModule,
+    WatchlistModule,
   ],
   providers: [
     // Guards globais (ordem importa: Auth → Roles → Plan)
