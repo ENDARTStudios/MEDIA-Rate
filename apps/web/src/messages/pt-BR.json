@@ -43,6 +43,7 @@
   },
   "catalog": {
     "title": "Catálogo",
+    "count": "{count} títulos",
     "search": "Buscar mídia...",
     "filterType": "Tipo",
     "all": "Todos",

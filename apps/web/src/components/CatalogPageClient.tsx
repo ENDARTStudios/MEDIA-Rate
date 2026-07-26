@@ -65,7 +65,7 @@ function CatalogContent() {
 
   return (
     <>
-      <p className="text-sm text-gray-400 mb-4">{data.total} {t("title")}</p>
+      <p className="text-sm text-gray-400 mb-4">{t("count", { count: data.total })}</p>
       <CatalogGrid medias={data.items.map(mapToMediaItem)} />
     </>
   );

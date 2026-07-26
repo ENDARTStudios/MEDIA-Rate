@@ -43,6 +43,7 @@
   },
   "catalog": {
     "title": "Catalog",
+    "count": "{count} titles",
     "search": "Search media...",
     "filterType": "Type",
     "all": "All",
