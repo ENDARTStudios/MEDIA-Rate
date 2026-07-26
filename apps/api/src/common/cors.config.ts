@@ -68,7 +68,7 @@ export function buildCorsOptions(overrides: Partial<CorsConfigOptions> = {}): Fa
     },
     credentials: overrides.allowCredentials ?? true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "Idempotency-Key"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "Idempotency-Key", "X-CSRF-Token"],
     exposedHeaders: ["X-Request-Id"],
     maxAge: 600,
   };

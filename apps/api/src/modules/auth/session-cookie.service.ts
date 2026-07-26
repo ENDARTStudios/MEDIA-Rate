@@ -1,54 +1,52 @@
 import { Injectable } from "@nestjs/common";
 import type { FastifyReply } from "fastify";
+import { randomBytes } from "node:crypto";
 import "@fastify/cookie";
 
-/**
- * Configuração de cookie de sessão (T3.2).
- *
- * - httpOnly: true (JavaScript não acessa — proteção XSS).
- * - secure: true em produção (só HTTPS), false em dev (localhost HTTP).
- * - sameSite: 'lax' (DECIDE-01 — permite callback Stripe e deep links).
- * - path: '/' (cookie válido para todo o domínio).
- * - signed: false (token opaco já tem 256 bits de entropia + hash no banco).
- *
- * Nome do cookie: 'sess' (curto para reduzir overhead por request).
- */
 const COOKIE_NAME = "sess";
+const CSRF_COOKIE_NAME = "csrf_token";
 
-/**
- * Serviço para gerenciar cookie de sessão opaca (T3.2).
- */
 @Injectable()
 export class SessionCookieService {
-  /**
-   * Seta cookie de sessão na resposta.
-   */
-  setSessionCookie(reply: FastifyReply, token: string, expiresAt: Date): void {
-    const isProduction = process.env.NODE_ENV === "production";
+  private isProd() {
+    return process.env.NODE_ENV === "production";
+  }
+
+  setSessionCookie(reply: FastifyReply, token: string, expiresAt: Date): string {
+    const isProd = this.isProd();
     void reply.setCookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: "lax", // DECIDE-01
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       path: "/",
       expires: expiresAt,
     });
+
+    // T049: CSRF double-submit cookie — não-httpOnly para o JS do frontend ler.
+    const csrf = randomBytes(32).toString("hex");
+    void reply.setCookie(CSRF_COOKIE_NAME, csrf, {
+      httpOnly: false,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+    });
+
+    return csrf;
   }
 
-  /**
-   * Limpa cookie de sessão (logout).
-   */
   clearSessionCookie(reply: FastifyReply): void {
+    const isProd = this.isProd();
     void reply.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+    });
+    void reply.clearCookie(CSRF_COOKIE_NAME, {
       path: "/",
     });
   }
 
-  /**
-   * Nome do cookie (exposto para leitura no controller).
-   */
   getCookieName(): string {
     return COOKIE_NAME;
   }

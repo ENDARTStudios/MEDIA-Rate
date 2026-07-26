@@ -456,3 +456,15 @@ Os 7 componentes abaixo foram selecionados do 21st.dev com base nas necessidades
 - Reavaliar ao abrir para Beta Pública: re-executar auditoria de sinks (grep `dangerouslySetInnerHTML|innerHTML`), verificar se novos componentes introduziram vetores, e reavaliar a viabilidade do nonce (se Turbopack/Next evoluir).
 
 **Decisão:** ACEITO para Beta Fechada. O Operador reconhece o risco residual e as 4 camadas de compensating controls ativas.
+
+---
+
+## [2026-07-25] D-050 — A1 (auth real cross-site) decomposta em subtarefas
+
+A T048 foi bloqueada por SCOPE_OVERFLOW. Decomposta em:
+- T049 (esta): cookie cross-site SameSite=None + csrf_token double-submit + CORS header X-CSRF-Token, backend-only
+- T050: CSRF guard + teste 403 sem token
+- T051: Frontend lib/http.ts — cliente fetch com credentials + CSRF interceptor
+- T052: Frontend use-auth-store.ts — trocar localStorage por chamadas API reais
+- T053: Frontend páginas login/register — ligar formulários às chamadas reais
+- T054: Playwright diag-auth-real.mjs — validação comportamental cross-site

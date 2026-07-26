@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
 import type { FastifyReply } from "fastify";
 
-describe("SessionCookieService (T3.2)", () => {
+describe("SessionCookieService (T3.2 + T049)", () => {
   let svc: SessionCookieService;
   let originalNodeEnv: string | undefined;
 
@@ -29,51 +29,80 @@ describe("SessionCookieService (T3.2)", () => {
   }
 
   describe("setSessionCookie()", () => {
-    it("em dev: httpOnly=true, secure=false, sameSite=lax", () => {
+    it("em dev: httpOnly=true, secure=false, sameSite=lax (sess + csrf)", () => {
       process.env.NODE_ENV = "test";
       const { reply, setCookie } = createMockReply();
       const expires = new Date(Date.now() + 3600 * 1000);
 
-      svc.setSessionCookie(reply, "token-opaco", expires);
+      const csrf = svc.setSessionCookie(reply, "token-opaco", expires);
 
-      expect(setCookie).toHaveBeenCalledOnce();
-      const [name, value, opts] = setCookie.mock.calls[0]!;
-      expect(name).toBe("sess");
-      expect(value).toBe("token-opaco");
-      expect(opts.httpOnly).toBe(true);
-      expect(opts.secure).toBe(false); // dev
-      expect(opts.sameSite).toBe("lax");
-      expect(opts.path).toBe("/");
-      expect(opts.expires).toBe(expires);
+      expect(setCookie).toHaveBeenCalledTimes(2);
+
+      // Cookie sess
+      const [sessName, sessVal, sessOpts] = setCookie.mock.calls[0]!;
+      expect(sessName).toBe("sess");
+      expect(sessVal).toBe("token-opaco");
+      expect(sessOpts.httpOnly).toBe(true);
+      expect(sessOpts.secure).toBe(false);
+      expect(sessOpts.sameSite).toBe("lax");
+      expect(sessOpts.path).toBe("/");
+      expect(sessOpts.expires).toBe(expires);
+
+      // Cookie csrf_token
+      const [csrfName, csrfVal, csrfOpts] = setCookie.mock.calls[1]!;
+      expect(csrfName).toBe("csrf_token");
+      expect(csrfVal).toBe(csrf);
+      expect(csrfOpts.httpOnly).toBe(false); // T049: JS do frontend precisa ler
+      expect(csrfOpts.secure).toBe(false);
+      expect(csrfOpts.sameSite).toBe("lax");
+      expect(csrfOpts.path).toBe("/");
+
+      // csrf_token é hex de 64 chars (32 bytes random)
+      expect(csrf).toHaveLength(64);
+      expect(csrf).toMatch(/^[a-f0-9]{64}$/);
     });
 
-    it("em prod: httpOnly=true, secure=true, sameSite=lax", () => {
+    it("em prod: httpOnly=true, secure=true, sameSite=None (sess + csrf)", () => {
       process.env.NODE_ENV = "production";
       const { reply, setCookie } = createMockReply();
       const expires = new Date(Date.now() + 3600 * 1000);
 
       svc.setSessionCookie(reply, "token-opaco", expires);
 
-      const [, , opts] = setCookie.mock.calls[0]!;
-      expect(opts.secure).toBe(true); // prod
-      expect(opts.httpOnly).toBe(true);
-      expect(opts.sameSite).toBe("lax");
+      expect(setCookie).toHaveBeenCalledTimes(2);
+
+      // sess
+      const [, , sessOpts] = setCookie.mock.calls[0]!;
+      expect(sessOpts.secure).toBe(true);
+      expect(sessOpts.httpOnly).toBe(true);
+      expect(sessOpts.sameSite).toBe("none");
+
+      // csrf_token
+      const [, , csrfOpts] = setCookie.mock.calls[1]!;
+      expect(csrfOpts.secure).toBe(true);
+      expect(csrfOpts.httpOnly).toBe(false);
+      expect(csrfOpts.sameSite).toBe("none");
     });
   });
 
   describe("clearSessionCookie()", () => {
-    it("limpa cookie com mesmas flags (httpOnly, secure, sameSite, path)", () => {
+    it("limpa sess + csrf_token com mesmas flags", () => {
       process.env.NODE_ENV = "test";
       const { reply, clearCookie } = createMockReply();
 
       svc.clearSessionCookie(reply);
 
-      expect(clearCookie).toHaveBeenCalledOnce();
-      const [name, opts] = clearCookie.mock.calls[0]!;
-      expect(name).toBe("sess");
-      expect(opts.httpOnly).toBe(true);
-      expect(opts.sameSite).toBe("lax");
-      expect(opts.path).toBe("/");
+      expect(clearCookie).toHaveBeenCalledTimes(2);
+
+      const [sessName, sessOpts] = clearCookie.mock.calls[0]!;
+      expect(sessName).toBe("sess");
+      expect(sessOpts.httpOnly).toBe(true);
+      expect(sessOpts.sameSite).toBe("lax");
+      expect(sessOpts.path).toBe("/");
+
+      const [csrfName, csrfOpts] = clearCookie.mock.calls[1]!;
+      expect(csrfName).toBe("csrf_token");
+      expect(csrfOpts.path).toBe("/");
     });
   });
 
