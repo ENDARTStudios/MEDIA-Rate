@@ -1,52 +1,39 @@
-# MEDIA Rate — Backend Dockerfile (T026/9.1.4)
-# Multi-stage build com prune de dependências de desenvolvimento.
-# Stage 1: Build
-FROM node:20-alpine AS builder
+# syntax=docker/dockerfile:1
+# ============ BUILD ============
+FROM --platform=linux/amd64 node:20-alpine AS builder
 WORKDIR /app
 
-# Copia arquivos de dependência do monorepo
-COPY package.json package-lock.json ./
-COPY apps/api/package.json ./apps/api/
-COPY packages/domain/package.json ./packages/domain/ 2>/dev/null || true
-
-# Instala apenas deps de produção para o workspace da API
-RUN npm ci --workspace=apps/api --include-workspace-root
-
-# Copia código fonte
-COPY apps/api/tsconfig.json ./apps/api/
-COPY apps/api/src/ ./apps/api/src/
-COPY apps/api/prisma/ ./apps/api/prisma/
+# 1) deps (monorepo: raiz + workspace api + packages)
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
 COPY packages/ ./packages/
+RUN npm ci --workspace=apps/api
 
-# Gera Prisma client
-RUN cd apps/api && npx prisma generate
+# 2) Prisma Client (npm ci nao roda generate sem postinstall; gerar aqui)
+COPY apps/api/prisma ./apps/api/prisma
+RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 
-# Build TypeScript
-RUN cd apps/api && npm run build
+# 3) codigo + build (gera dist/)
+COPY apps/api/ ./apps/api/
+RUN npm run build --workspace=apps/api
 
-# Stage 2: Produção
-FROM node:20-alpine AS runner
+# ============ RUNNER ============
+FROM --platform=linux/amd64 node:20-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Usuário não-root
-RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
+# NON-ROOT: a imagem node:20-alpine JA traz o usuario `node` (uid 1000).
+# PROIBIDO usar addgroup/adduser — crasha no runc do Railway.
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/apps/api/dist ./dist
+COPY --from=builder --chown=node:node /app/apps/api/package.json ./
+COPY --from=builder --chown=node:node /app/apps/api/prisma ./prisma
 
-# Copia apenas artefatos de produção
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./apps/api/dist
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./apps/api/package.json
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
-
-USER nestjs
-
+USER node
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=25s \
+  CMD wget -qO- http://localhost:3000/api/v1/health || exit 1
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:${PORT}/health || exit 1
-
-CMD ["node", "apps/api/dist/main.js"]
+# Aplica migrations pendentes (idempotente) e sobe o app.
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=prisma/schema.prisma && node dist/main.js"]
