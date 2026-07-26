@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 6 * * 1'
   push:
-    branches: [master]
+    branches: [main]
 permissions:
   contents: read
   security-events: write
@@ -13,17 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with: {version: 9}
       - uses: actions/setup-node@v4
-        with: {node-version: 20, cache: 'pnpm'}
-      - run: pnpm install --frozen-lockfile
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
       - name: Audit dependencies
-        run: pnpm audit --audit-level=high
+        run: npm audit --audit-level=high
       - name: CodeQL Analysis
-        uses: github/codeql-action/init@v2
-        with: {languages: typescript}
-      - uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3
       - name: Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:

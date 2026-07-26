@@ -1,16 +1,18 @@
 name: PRR Pipeline
 
+# PRR: desativado — scripts/scans.ts, evaluate.ts, generate-report.ts ausentes.
+# Este workflow usa pnpm + scripts TypeScript que não existem no repositório.
+# Reativar quando a suíte PRR estiver implementada.
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
-# DG-04: Zero Trust - permissões globais vazias
-permissions: {}
-
 jobs:
   scan:
+    if: false  # PRR desativado — scripts ausentes
     runs-on: ubuntu-latest
     permissions:
       contents: read

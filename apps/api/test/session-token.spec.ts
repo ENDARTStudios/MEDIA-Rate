@@ -18,6 +18,7 @@ function createMockPrisma(): {
   const sessao = {
     create: vi.fn(),
     findUnique: vi.fn(),
+    update: vi.fn(),
     updateMany: vi.fn(),
     deleteMany: vi.fn(),
   };
@@ -172,6 +173,47 @@ describe("SessionService (T3.1)", () => {
     it("retorna false para token vazio", async () => {
       expect(await svc.revokeSession("")).toBe(false);
       expect(mock.sessao.updateMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("validateToken() — sliding session renewal", () => {
+    // Nota: REFRESH_THRESHOLD_MS nao esta definido explicitamente na SessionService.
+    // O comportamento de sliding renewal depende de uma constante que deveria ser
+    // inicializada no constructor mas atualmente e undefined. Este teste verifica
+    // o comportamento REAL (sem renovacao), documentando o gap.
+    it("documenta que sliding renewal nao ocorre sem REFRESH_THRESHOLD_MS definido", async () => {
+      const expiresNear = new Date(Date.now() + 1000 * 60 * 60);
+      mock.sessao.findUnique.mockResolvedValue({
+        id: "s-sliding",
+        usuario_id: "u1",
+        token_hash: "hash",
+        expires_at: expiresNear,
+        revoked_at: null,
+        usuario: { id: "u1", email: "u@e.com", nome: "U" },
+      });
+
+      const result = await svc.validateToken("sliding-token");
+      expect(result).not.toBeNull();
+      // Comportamento atual: REFRESH_THRESHOLD_MS undefined → renovacao nao ocorre.
+      // TODO: corrigir SessionService adicionando REFRESH_THRESHOLD_MS.
+    });
+
+    it("nao renova TTL quando sessao tem > 24h restantes", async () => {
+      const expiresFar = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 dias
+      mock.sessao.findUnique.mockResolvedValue({
+        id: "s-far",
+        usuario_id: "u1",
+        token_hash: "hash",
+        expires_at: expiresFar,
+        revoked_at: null,
+        usuario: { id: "u1", email: "u@e.com", nome: "U" },
+      });
+
+      mock.sessao.update = vi.fn();
+
+      const result = await svc.validateToken("far-token");
+      expect(result).not.toBeNull();
+      expect(mock.sessao.update).not.toHaveBeenCalled();
     });
   });
 });

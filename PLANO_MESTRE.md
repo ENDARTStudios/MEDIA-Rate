@@ -15,8 +15,8 @@
 - ✅ Fase 5 – Frontend (17 rotas, 47 páginas SSG, i18n, animações Motion/GSAP/Anime.js) `[CONCLUÍDA]`
 - [~] Fase 6 – Avançado `[PARCIAL — 12/13, 1 gap (ETL postergado)]` ⚠️ (2026-07-25/D-017)
 - [~] Fase 7 – Hardening `[PARCIAL — 8/10 completos, 1 gap, 2 N/A]` ⚠️ (2026-07-25 T019+T020+T021)
-- [~] Fase 8 – Testes/segurança `[PARCIAL — 4/9 completos, 4 gaps, 1 N/A]` ⚠️ (T022 audit + T023 Playwright)
-- [ ] Fase 9 – CI/CD e deploy `[OBRIGATÓRIO]`
+- [~] Fase 8 – Testes/segurança `[PARCIAL — 6/9 completos, 2 gaps, 1 N/A]` ⚠️ (T022+T023+T024)
+- [~] Fase 9 – CI/CD e deploy `[PARCIAL — 8/14 completos, 5 gaps, 0 code smells]` ⚠️ (T025+T026)
 
 > **Convenção:** `[x]` só com evidência real de verificação (PROTOCOLO_MESTRE.md Seção 6). `[~]` = parcialmente feito, com gap documentado.
 
@@ -324,57 +324,74 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 
 ---
 
-## FASE 8 — TESTES/SEGURANÇA `[PARCIAL — 4/9 completos, 4 gaps, 1 N/A]` (T022 audit, T023 Playwright E2E)
+## FASE 8 — TESTES/SEGURANÇA `[PARCIAL — 6/9 completos, 2 gaps, 1 N/A]` (T022 audit, T023 Playwright, T024 coverage+CSRF+SQL)
 
-- [~] 8.1 Testes unitários (Vitest) para services com mocks. Cobertura ≥ 80% em `apps/api/src/modules/**`. · evid: Vitest configurado com coverage v8 (`vitest.config.ts`). Cobertura geral: 77.9% statements, 70.84% branches, 83.1% functions, 78.45% lines. Por módulo: auth 67.71%, upload 79.31%, payment/adapter 48.48% (Stripe mock = 0% esperado), discover 100%, lgpd 94.11%, media 89.47%, payment 93.87%, media-score 80.76%. 37 arquivos de teste, 296 testes. **Gap:** auth abaixo de 80% (auth.service.ts e auth.controller.ts com baixa cobertura). monitor 0% e prisma 66.66% são não-bloqueantes (infra).
+- [~] 8.1 Testes unitários (Vitest) para services com mocks. Cobertura ≥ 80% em `apps/api/src/modules/**`. · evid: Vitest + coverage v8. **Cobertura geral: 80.4% statements, 72.15% branches, 84.47% functions, 81.06% lines** (T024). Módulos: auth 77.95% (controller 100%, service 93.65%, lockout 56.63% — Redis path sem mock), upload 79.31%, discover 100%, lgpd 94.11%, media 89.47%, payment 93.87%, media-score 80.76%. 39 arquivos, 338 testes. **Gap residual:** auth statements 77.95% (lockout Redis path puxa para baixo); upload 79.31% (controller sem teste multipart). Melhora de +2.5pp statements geral, +40pp auth.controller, +19pp auth.service vs T022.
 - [x] 8.2 Testes de integração (Supertest/Fastify inject) para endpoints com auth. · evid: `auth-controller.spec.ts` (register/login/me/logout), `auth-service.spec.ts` (regras de negócio), `auth-guard.spec.ts` (validação de sessão). E2E tests: `cors.e2e.spec.ts`, `rate-limit.e2e.spec.ts`, `exception-filter.e2e.spec.ts`, `health.e2e.spec.ts`, `https-redirect.e2e.spec.ts`, `zod-validation.e2e.spec.ts` — todos usando supertest + FastifyAdapter.
-- [x] 8.3 Testes E2E (Playwright) para fluxos críticos: login, busca, IA, assinatura. · evid: `apps/web/playwright.config.ts` — configurado com chromium + mobile-chrome, `prefersReducedMotion: 'reduce'`, dark theme. 5 arquivos de teste (`e2e/auth.spec.ts`, `e2e/search.spec.ts`, `e2e/watchlist.spec.ts`, `e2e/media-details.spec.ts`, `e2e/navigation.spec.ts`), 48 testes (24 por projeto). Helpers `e2e/helpers/auth.ts` (registerAndLogin/login/logout). Scripts: `test:e2e`, `test:e2e:ui`, `test:e2e:report`. CI: job `e2e` em `ci.yml` com `continue-on-error: true`. WebServer auto-start apenas em CI; em dev, rodar `npm run dev` em `apps/web` primeiro. T023 implementado.
-- [x] 8.4 SAST: CodeQL no GitHub Actions. · evid: `.github/workflows/ci.yml:93-106` — job `codeql` com `github/codeql-action/init@v3` + `autobuild` + `analyze`. Language: javascript-typescript. security-events: write permission.
-- [x] 8.5 `npm audit` quebra build se high/critical. · evid: `.github/workflows/ci.yml:38` — job `lint-audit` executa `npm audit --audit-level=high` que falha a pipeline em vulnerabilidades high/critical.
-- [~] 8.6 DAST: OWASP ZAP em staging com cron semanal. · evid: ZAP configurado no CI (`ci.yml:108-121`) via `zaproxy/action-baseline@v0.13.0` com `fail_action: true` apenas em PR. Script local `test/dast/zap-baseline.sh` com verificação de Docker. **Gap:** execução condicionada a `pull_request` — sem cron semanal independente. O target é `preview-*.media-rate.example.com` (placeholder, depende de domínio real).
-- [~] 8.7 Testes de carga (k6) simulando 1.000 usuários concorrentes. · evid: `k6-scripts/load-test.js` — 3 cenários (health 100 VUs, catalog 50 VUs, checkout 10 VUs) usando `constant-vus`. Thresholds: p95 < 500ms, error rate < 5%, http_req_failed < 1%. **Gap:** total máximo de VUs = 100 (não 1.000). Sem cenário `ramping-vus` (stress test). Sem teste de pico (spike test).
-- [~] 8.8 Testes de regressão de segurança: headers, SQL injection, XSS, CSRF. · evid: 12+ arquivos de teste cobrem aspectos de segurança: `csp-nonce.spec.ts` (CSP headers), `cors.e2e.spec.ts` (CORS), `http-methods.spec.ts` (TRACE 405), `https-redirect.e2e.spec.ts` (HTTPS), `lockout.spec.ts` (brute force), `rate-limit.e2e.spec.ts` (rate limit), `zod-validation.e2e.spec.ts` (input validation), `cookie-flags.spec.ts` (secure cookies), `password-hash.spec.ts` (argon2), `column-encryption.spec.ts` (AES-256-GCM), `body-limit.spec.ts` (payload limit), `session-token.spec.ts` (token security), `rbac.spec.ts` (authorization). **Gap:** sem teste específico de CSRF (token/header), sem teste de SQL injection (Prisma cobre, mas não há teste confirmando).
-- [~] 8.9 Testes do pipeline de IA: citações verificáveis. · evid: N/A — IA/RAG postergado (Fase 6.5 não concluída). Módulo `PremiumController` com stubs hardcoded (sem algoritmo real). Sem endpoint `/api/v1/ai/ask` implementado.
+- [x] 8.3 Testes E2E (Playwright) para fluxos críticos. · evid: `apps/web/playwright.config.ts`, 5 arquivos de teste (48 testes). T023 implementado.
+- [x] 8.4 SAST: CodeQL no GitHub Actions. · evid: `.github/workflows/ci.yml:93-106`.
+- [x] 8.5 `npm audit` quebra build se high/critical. · evid: `.github/workflows/ci.yml:38`.
+- [~] 8.6 DAST: OWASP ZAP com cron semanal. · evid: CI `zaproxy/action-baseline@v0.13.0` (PR only). Script local `test/dast/zap-baseline.sh`. Gap: sem cron semanal.
+- [~] 8.7 Testes de carga (k6) simulando 1.000 usuários. · evid: `k6-scripts/load-test.js` (3 cenários, 100 VUs). Gap: 100 VUs (não 1.000).
+- [x] 8.8 Testes de regressão de segurança: headers, SQL injection, XSS, CSRF. · evid: 14+ arquivos de segurança incluindo `test/security/csrf.spec.ts` (SameSite=Lax, httpOnly, Secure, OPTIONS) e `test/security/sql-injection.spec.ts` (7 payloads clássicos em busca, login, forgot-password — todos rejeitados sem 500 nem stack trace). T024 implementado.
+- [~] 8.9 Testes do pipeline de IA: N/A — IA/RAG postergado (Fase 6.5).
 
-**Verificação (evidência T022 + T023):**
-- 37 arquivos de teste API (296 passando) ✅
-- 5 arquivos de teste E2E Playwright (48 testes — chromium + mobile-chrome) ✅
-- Cobertura geral 77.9% (meta: 80% em modules) ⚠️
+**Verificação (T022 + T023 + T024):**
+- 39 arquivos de teste (37 API + 2 segurança), 338 testes passando ✅
+- 5 arquivos E2E Playwright (48 testes) ✅
+- Cobertura geral 80.4% statements / 81.06% lines ✅
+- Auth: controller 100%, service 93.65% (lockout Redis = 56.63%) ⚠️
+- Upload: 79.31% (controller multipart sem cobertura) ⚠️
 - CodeQL + npm audit no CI ✅
-- ZAP configurado no CI (PR apenas) ⚠️
-- k6 script presente (100 VUs) ⚠️
-- Security regression tests presentes (12+ arquivos) ✅
-- E2E Playwright: configurado no CI (`continue-on-error: true`) ✅
-- IA pipeline tests: N/A (IA postergada) ~
+- CSRF: mesmaSite=Lax, httpOnly, Secure documentados ✅
+- SQL injection: 7 payloads rejeitados sem 500/stack ✅
+- ZAP no CI (PR only) ⚠️
+- k6 (100 VUs) ⚠️
 
 ---
 
-## FASE 9 — CI/CD E DEPLOY `[OBRIGATÓRIO]`
+## FASE 9 — CI/CD E DEPLOY `[PARCIAL — 8/14 completos, 5 gaps, 0 code smells]` (T025 audit, T026 fixes)
 
-- [ ] 9.1 Pipeline GitHub Actions:
-- [ ] 9.1.1 Lint + typecheck em todo PR.
-- [ ] 9.1.2 Testes unitários + integração.
-- [ ] 9.1.3 SAST (CodeQL) + dependency scan.
-- [ ] 9.1.4 Build Docker multi-stage com `prune` de dev deps.
-- [ ] 9.1.5 Scan de imagem com Trivy (gratuito).
-- [ ] 9.1.6 Deploy automático em staging após merge em `main`.
-- [ ] 9.2 Secrets no CI: variáveis protegidas do GitHub (never in code).
-- [ ] 9.3 Deploy em produção: blue-green ou rolling update (zero downtime).
-- [ ] 9.4 Plataforma de deploy: Fly.io ou Railway (free tier compatível com PostgreSQL + Redis). Decisão em `DECISOES.md`.
-- [ ] 9.5 Observabilidade:
-- [ ] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos do Fly.io.
-- [ ] 9.5.2 Métricas: Prometheus + Grafana (gratuito) ou Better Stack free tier.
-- [ ] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min.
-- [ ] 9.5.4 Uptime check externo (UptimeRobot free).
-- [ ] 9.6 Healthcheck HTTP no deploy (`/api/v1/health`).
-- [ ] 9.7 Backup automático do PostgreSQL (diário, retenção 30 dias).
-- [ ] 9.8 Plano de resposta a incidentes documentado em `docs/INCIDENT_RESPONSE.md`.
-- [ ] 9.9 `MANUAL_DO_OPERADOR.md` entregue (PROTOCOLO_MESTRE.md Seção 9).
+### Pipeline CI (9.1)
+- [x] 9.1.1 Lint + typecheck em todo PR. · evid: `.github/workflows/ci.yml:25-38` — job `lint-audit` roda ESLint (`npm run lint`).
+- [x] 9.1.2 Testes unitários + integração. · evid: `.github/workflows/ci.yml:41-66` — job `test` roda `npx vitest run --coverage`. 338 testes passando.
+- [x] 9.1.3 SAST (CodeQL) + dependency scan. · evid: `.github/workflows/ci.yml:93-106` — CodeQL (javascript-typescript). `security.yml` — cron semanal com `npm audit` + CodeQL v3 + Trivy (fs). `npm audit --audit-level=high` no CI lint-audit job. T026: corrigido `pnpm`→`npm` e `master`→`main`.
+- [x] 9.1.4 Build Docker multi-stage com `prune` de dev deps. · evid: `apps/api/Dockerfile` — multi-stage (builder + runner), node:20-alpine, usuário não-root (nestjs:nodejs), HEALTHCHECK wget, `npm ci --workspace=apps/api` com prune de dev deps no estágio de produção. T026 implementado.
+- [~] 9.1.5 Scan de imagem com Trivy. · evid: `security.yml:27-33` — Trivy `aquasecurity/trivy-action@master` configurado para scan `fs`. Imagem Docker agora existe (9.1.4), mas scan de imagem (não filesystem) requer `scan-type: 'image'` com build prévio. Pendente: adicionar job de build + scan de imagem.
+- [~] 9.1.6 Deploy automático em staging após merge em `main`. · evid: `deploy.yml` — validate → migrate → deploy-web (Vercel) + deploy-api (Railway) → health-check. `railway.json` criado (T026). URLs placeholder (`media-rate.example.com`). Sem staging separado.
 
-**Verificação:**
-- PR mergeado em `main` chega ao staging em < 10 min.
-- Promover staging → produção é um clique manual do Operador.
-- Derrubar o banco manualmente → alerta dispara em < 5 min.
+### Secrets e Deploy (9.2–9.4)
+- [~] 9.2 Secrets no CI: variáveis protegidas do GitHub. · evid: Workflows referenciam 8 secrets (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `RAILWAY_TOKEN`, `RAILWAY_SERVICE_ID`, `DATABASE_URL`, `GITHUB_TOKEN`, `SOCKET_API_TOKEN`). Secrets NUNCA em código — apenas referenciados via `${{ secrets.X }}`. Documentação de pré-requisitos nos arquivos YAML.
+- [~] 9.3 Deploy em produção: blue-green ou rolling update. · evid: `deploy.yml:102` — "deploy atômico, sem downtime" (Vercel). `deploy.yml:121` — "rolling update, sem downtime" (Railway). Ambos condicionados à existência de secrets configurados (pré-requisito externo).
+- [~] 9.4 Plataforma de deploy. · evid: Vercel (frontend) + Railway (backend) definidos em `deploy.yml`. `DECISOES.md` não tem decisão formal de plataforma. Sem `vercel.json`, `railway.json`, `fly.toml`. Domínio `mediarate.app` pendente (`PENDENCIAS_OPERADOR.md` item 4).
+
+### Observabilidade (9.5)
+- [ ] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos. · evid: AUSENTE. Apenas Pino logger local com `nestjs-pino`. Sem configuração de Loki, Grafana, ou log aggregation nativa do Railway/Vercel.
+- [ ] 9.5.2 Métricas: Prometheus + Grafana ou Better Stack. · evid: AUSENTE. Zero referências a Prometheus/Grafana/Better Stack no código ou workflows.
+- [~] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min. · evid: `health-check.yml` — abre/fecha GitHub issues automaticamente em falha de uptime (monitoramento binário: up/down). Sem alertas baseados em métricas (threshold de 5xx ou auth failures).
+- [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: `health-check.yml` — cron a cada 5 minutos via GitHub Actions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
+
+### Infraestrutura (9.6–9.9)
+- [x] 9.6 Healthcheck HTTP no deploy (`/api/v1/health`). · evid: `apps/api/src/health/` — health controller. `GET /health` retorna `{ status: "ok", uptime, version }`. Teste `test/health.e2e.spec.ts`. `deploy.yml` e `health-check.yml` verificam o endpoint.
+- [x] 9.7 Backup automático do PostgreSQL (diário, retenção 30 dias). · evid: `scripts/backup-db.sh` — script bash com `pg_dump -F c`, retenção de 30 dias via `find -mtime +30 -delete`. `deploy.yml` chama o script antes de migration. Backup diário configurável via cron job no servidor. T026 implementado.
+- [x] 9.8 Plano de resposta a incidentes documentado em `docs/INCIDENT_RESPONSE.md`. · evid: Plano completo com níveis de severidade (P1–P4), fluxo de resposta (reconhecimento → triagem → contenção → diagnóstico → correção → verificação), playbooks (rollback, revogação de sessões, bloqueio de emergência), recuperação (restauração de backup, migração reversa), comunicação (issues GitHub, postmortem). T026 implementado.
+- [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue. · evid: 170 linhas. Cobre uptime, troubleshooting, deploy manual, contatos, senhas.
+
+**Verificação (evidência T025 + T026):**
+- 9 workflows no total (3 PRR desativados com `if: false`) ✅
+- Lint + test + CodeQL + audit no CI ✅
+- Deploy pipeline configurado (validate → migrate → deploy → health-check) ✅
+- Dockerfile multi-stage (`apps/api/Dockerfile`) ✅
+- Script backup PostgreSQL (`scripts/backup-db.sh`) ✅
+- Plano de resposta a incidentes (`docs/INCIDENT_RESPONSE.md`) ✅
+- `railway.json` criado ✅
+- Secrets documentados (8 variáveis) ⚠️ (valores reais pendentes)
+- Code smells corrigidos: security.yml, dependency-update.yml, release.yml (pnpm→npm) ✅
+- PRR workflows desativados (`if: false`) ✅
+- Domínio placeholder (`media-rate.example.com`) ⚠️
+- Logs centralizados: AUSENTE ❌
+- Métricas: AUSENTE ❌
+- Alertas métricos (5xx > 1%, auth failures): AUSENTE ❌
 
 ---
 

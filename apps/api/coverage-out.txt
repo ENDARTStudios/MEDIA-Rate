@@ -1,0 +1,712 @@
+﻿node.exe : npm notice run media-rate@0.1.0 npx
+No linha:1 caractere:1
++ & "D:\Program Files\nodejs/node.exe" "C:\Users\edina\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run media-rate@0.1.0 npx:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run vitest run --coverage
+
+ RUN  v4.1.10 D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api
+      Coverage enabled with v8
+
+ ❯ test/security/sql-injection.spec.ts (0 test)
+ ❯ test/security/csrf.spec.ts (0 test)
+[31m[Nest] 25044  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39mError: CORS: origem 
+https://evil.example nao permitida
+    at Object.origin (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/common/cors.config.ts:67:10)
+    at D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@fastify\cors[24m\index.js:270:27
+    at addCorsHeadersHandler (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@fastify\cors[24m\index.js:170:3)
+    at Object.handleCors (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@fastify\cors[24m\index.js:65:9)
+    at hookIterator (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4mfastify[24m\lib\hooks.js:408:10)
+    at next (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4mfastify[24m\lib\hooks.js:242:18)
+    at handleResolve (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4mfastify[24m\lib\hooks.js:253:7)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39m[31mUnhandled 
+error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI[39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39mObject(8) {
+  correlationId: [32m'09fff43f-c965-40d9-9b96-0581d5b75db6'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/api/v1/_force-error/internal-error'[39m,
+  statusCode: [33m500[39m,
+  error: [32m'Internal Server Error'[39m,
+  ip: [32m'::ffff:127.0.0.1'[39m,
+  userAgent: [90mundefined[39m,
+  stack: [32m'Error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI\n    at 
+DebugController.forceInternalError (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/debug/debug.controller.ts:24:11)\n  
+  at D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:38:29\n    
+at InterceptorsConsumer.intercept (D:\\PROJETOS\\MEDIA Rate\\MEDIA 
+Rate\\node_modules\\@nestjs\\core\\interceptors\\interceptors-consumer.js:12:20)\n    at D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:64\n    at 
+processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at Object.<anonymous> (D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17)'[39m
+}
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39m[31mNon-Error 
+thrown: [object Object][39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39mObject(8) {
+  correlationId: [32m'2fd85916-5d78-4307-822d-0271f858ece2'[39m,
+  method: [32m'POST'[39m,
+  url: [32m'/api/v1/_force-error'[39m,
+  statusCode: [33m500[39m,
+  error: [32m'Internal Server Error'[39m,
+  ip: [32m'::ffff:127.0.0.1'[39m,
+  userAgent: [90mundefined[39m,
+  stack: [90mundefined[39m
+}
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39m[31mUnhandled 
+error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI[39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39mObject(8) {
+  correlationId: [32m'27807cb1-e3ce-49af-b31a-f68f1812a8a3'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/api/v1/_force-error/internal-error'[39m,
+  statusCode: [33m500[39m,
+  error: [32m'Internal Server Error'[39m,
+  ip: [32m'::ffff:127.0.0.1'[39m,
+  userAgent: [90mundefined[39m,
+  stack: [32m'Error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI\n    at 
+DebugController.forceInternalError (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/debug/debug.controller.ts:24:11)\n  
+  at D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:38:29\n    
+at InterceptorsConsumer.intercept (D:\\PROJETOS\\MEDIA Rate\\MEDIA 
+Rate\\node_modules\\@nestjs\\core\\interceptors\\interceptors-consumer.js:12:20)\n    at D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:64\n    at 
+processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at Object.<anonymous> (D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17)'[39m
+}
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39m[31mUnhandled 
+error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI[39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39mObject(8) {
+  correlationId: [32m'71a47cb1-fe56-4730-9e33-3b764d07b6d0'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/api/v1/_force-error/internal-error'[39m,
+  statusCode: [33m500[39m,
+  error: [32m'Internal Server Error'[39m,
+  ip: [32m'::ffff:127.0.0.1'[39m,
+  userAgent: [90mundefined[39m,
+  stack: [32m'Error: Forced internal error with sensitive context: password=SUA_CHAVE_AQUI\n    at 
+DebugController.forceInternalError (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/debug/debug.controller.ts:24:11)\n  
+  at D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:38:29\n    
+at InterceptorsConsumer.intercept (D:\\PROJETOS\\MEDIA Rate\\MEDIA 
+Rate\\node_modules\\@nestjs\\core\\interceptors\\interceptors-consumer.js:12:20)\n    at D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:64\n    at 
+processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at Object.<anonymous> (D:\\PROJETOS\\MEDIA 
+Rate\\MEDIA Rate\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17)'[39m
+}
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39m[31mNon-Error 
+thrown: [object Object][39m
+[31m[Nest] 3880  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[GlobalExceptionFilter] [39mObject(8) {
+  correlationId: [32m'fa6c1861-6b82-4a5e-90f3-006f64b5eca0'[39m,
+  method: [32m'POST'[39m,
+  url: [32m'/api/v1/_force-error'[39m,
+  statusCode: [33m500[39m,
+  error: [32m'Internal Server Error'[39m,
+  ip: [32m'::ffff:127.0.0.1'[39m,
+  userAgent: [90mundefined[39m,
+  stack: [90mundefined[39m
+}
+[2026-07-25 22:15:57.320 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[2026-07-25 22:15:57.266 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 18
+[2026-07-25 22:15:57.290 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:57.301 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 400
+    }
+    [35mresponseTime[39m: 5
+[2026-07-25 22:15:57.311 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-4",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 400
+    }
+    [35mresponseTime[39m: 3
+[2026-07-25 22:15:57.340 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-5",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 400
+    }
+    [35mresponseTime[39m: 20
+[2026-07-25 22:15:57.348 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-6",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 400
+    }
+    [35mresponseTime[39m: 2
+[2026-07-25 22:15:57.380 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-7",
+      "method": "POST",
+      "url": "/api/v1/echo",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 400
+    }
+    [35mresponseTime[39m: 21
+[2026-07-25 22:15:57.281 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 24
+[2026-07-25 22:15:57.308 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/api/v1/_force-error/http-exception",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 409
+    }
+    [35mresponseTime[39m: 14
+[2026-07-25 22:15:57.336 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/api/v1/_force-error/http-exception",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 409
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:57.344 -0300] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "GET",
+      "url": "/api/v1/_force-error/internal-error",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 500
+    }
+    [35mresponseTime[39m: 3
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:521:24)
+              at onFinish (node:_http_outgoing:1031:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[2026-07-25 22:15:57.361 -0300] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": "req-4",
+      "method": "POST",
+      "url": "/api/v1/_force-error",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 500
+    }
+    [35mresponseTime[39m: 9
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:521:24)
+              at onFinish (node:_http_outgoing:1031:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[2026-07-25 22:15:57.375 -0300] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": "req-5",
+      "method": "GET",
+      "url": "/api/v1/_force-error/internal-error",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 500
+    }
+    [35mresponseTime[39m: 2
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:521:24)
+              at onFinish (node:_http_outgoing:1031:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[31m[Nest] 26944  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[LockoutService] [39m[31mRedis 
+indisponível — LockoutService operando em modo local (degradado).[39m
+[31m[Nest] 14920  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[LockoutService] [39m[31mRedis 
+indisponível — LockoutService operando em modo local (degradado).[39m
+[31m[Nest] 26944  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[ExceptionsHandler] 
+[39mPrismaClientInitializationError: 
+Invalid `this.prisma.usuario.findUnique()` invocation in
+D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.service.ts:143:47
+
+  140 }
+  141 
+  142 // 2. Busca usuário por email.
+→ 143 const usuario = await this.prisma.usuario.findUnique(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:14
+   | 
+13 |   provider = "postgresql"
+14 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at ei.handleRequestError (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:7568)
+    at ei.handleAndLogRequestError (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:6593)
+    at ei.request (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:6300)
+    at a (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:130:9551)
+    at AuthService.login (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.service.ts:143:21)
+    at AuthController.login (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.controller.ts:78:33)
+    at D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:47:62
+    at Object.<anonymous> (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@nestjs\core[24m\router\router-proxy.js:9:17) {
+  clientVersion: [32m'6.19.3'[39m,
+  errorCode: [90mundefined[39m,
+  retryable: [90mundefined[39m
+}
+[2026-07-25 22:15:57.759 -0300] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "POST",
+      "url": "/api/v1/auth/login",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 500
+    }
+    [35mresponseTime[39m: 408
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:521:24)
+              at onFinish (node:_http_outgoing:1031:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[31m[Nest] 14920  - [39m25/07/2026, 22:15:57 [31m  ERROR[39m [38;5;3m[ExceptionsHandler] 
+[39mPrismaClientInitializationError: 
+Invalid `this.prisma.usuario.findUnique()` invocation in
+D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.service.ts:143:47
+
+  140 }
+  141 
+  142 // 2. Busca usuário por email.
+→ 143 const usuario = await this.prisma.usuario.findUnique(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:14
+   | 
+13 |   provider = "postgresql"
+14 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at ei.handleRequestError (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:7568)
+    at ei.handleAndLogRequestError (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:6593)
+    at ei.request (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:121:6300)
+    at a (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@prisma\client[24m\runtime\library.js:130:9551)
+    at AuthService.login (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.service.ts:143:21)
+    at AuthController.login (D:/PROJETOS/MEDIA Rate/MEDIA Rate/apps/api/src/modules/auth/auth.controller.ts:78:33)
+    at D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:47:62
+    at Object.<anonymous> (D:\PROJETOS\MEDIA Rate\MEDIA 
+Rate\node_modules\[4m@nestjs\core[24m\router\router-proxy.js:9:17) {
+  clientVersion: [32m'6.19.3'[39m,
+  errorCode: [90mundefined[39m,
+  retryable: [90mundefined[39m
+}
+[2026-07-25 22:15:57.785 -0300] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "POST",
+      "url": "/api/v1/auth/login",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 500
+    }
+    [35mresponseTime[39m: 418
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\PROJETOS\MEDIA Rate\MEDIA Rate\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:521:24)
+              at onFinish (node:_http_outgoing:1031:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[2026-07-25 22:15:57.815 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "POST",
+      "url": "/api/v1/auth/login",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 413
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:57.830 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "POST",
+      "url": "/api/v1/auth/login",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 413
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:58.852 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 403
+    }
+    [35mresponseTime[39m: 13
+[2026-07-25 22:15:58.873 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[2026-07-25 22:15:58.880 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:58.833 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 22
+[2026-07-25 22:15:58.849 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:58.857 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:58.863 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-4",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:15:58.868 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-5",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0
+[2026-07-25 22:15:58.875 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-6",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0
+[2026-07-25 22:15:58.883 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-7",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mANALYTICS_WRITE_KEY ausente — analytics desabilitado (modo dev/test).[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mANALYTICS_WRITE_KEY ausente — analytics desabilitado (modo dev/test).[39m
+[95m[Nest] 1504  - [39m25/07/2026, 22:15:59 [95m  DEBUG[39m [38;5;3m[AnalyticsService] [39m[95m[analytics:disabled] user_registered for user-123[39m
+[95m[Nest] 1504  - [39m25/07/2026, 22:15:59 [95m  DEBUG[39m [38;5;3m[AnalyticsService] [39mObject(1) {
+  plan: [32m'free'[39m
+}
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mProperty 'email' parece PII — removida do evento de analytics.[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mANALYTICS_WRITE_KEY ausente — analytics desabilitado (modo dev/test).[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mProperty 'cpf' parece PII — removida do evento de analytics.[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mProperty 'phone' parece PII — removida do evento de analytics.[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mProperty 'password' parece PII — removida do evento de analytics.[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mProperty 'token' parece PII — removida do evento de analytics.[39m
+[33m[Nest] 1504  - [39m25/07/2026, 22:15:59 [33m   WARN[39m [38;5;3m[AnalyticsService] [39m[33mANALYTICS_WRITE_KEY ausente — analytics desabilitado (modo dev/test).[39m
+[31m[Nest] 21336  - [39m25/07/2026, 22:16:02 [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39mObject(3) {
+  statusCode: [33m429[39m,
+  error: [32m'Too Many Requests'[39m,
+  message: [32m'Limite de 3 requisicoes por 60s atingido. Tente novamente em breve.'[39m
+}
+[31m[Nest] 21336  - [39m25/07/2026, 22:16:02 [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39mObject(3) {
+  statusCode: [33m429[39m,
+  error: [32m'Too Many Requests'[39m,
+  message: [32m'Limite de 3 requisicoes por 60s atingido. Tente novamente em breve.'[39m
+}
+[2026-07-25 22:16:02.186 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9
+[2026-07-25 22:16:02.207 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[2026-07-25 22:16:02.219 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-3",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0
+[2026-07-25 22:16:02.232 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-4",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 429
+    }
+    [35mresponseTime[39m: 4
+[2026-07-25 22:16:02.244 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-5",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 429
+    }
+    [35mresponseTime[39m: 2
+[2026-07-25 22:16:02.239 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-1",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 8
+[2026-07-25 22:16:02.257 -0300] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": "req-2",
+      "method": "GET",
+      "url": "/health",
+      "remoteAddress": "::ffff:127.0.0.1"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[32m[Nest] 17588  - [39m25/07/2026, 22:16:04 [32m    LOG[39m [38;5;3m[LgpdService] [39m[32mExportação LGPD solicitada por usuário u1[39m
+[32m[Nest] 17588  - [39m25/07/2026, 22:16:04 [32m    LOG[39m [38;5;3m[LgpdService] [39m[32mExportação LGPD solicitada por usuário u1[39m
+[32m[Nest] 17588  - [39m25/07/2026, 22:16:04 [32m    LOG[39m [38;5;3m[LgpdService] [39m[32mExportação LGPD solicitada por usuário u1[39m
+[33m[Nest] 17588  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LgpdService] [39m[33mExclusão LGPD agendada para usuário u1 em 2026-08-25T01:16:04.309Z[39m
+[95m[Nest] 1696  - [39m25/07/2026, 22:16:04 [95m  DEBUG[39m [38;5;3m[SessionService] [39m[95mSessão criada para usuário user-uuid[39m
+[95m[Nest] 1696  - [39m25/07/2026, 22:16:04 [95m  DEBUG[39m [38;5;3m[SessionService] [39m[95mSessão criada para usuário u[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:1.2.3.4:user@example.com: nível 1, 60s[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:1.2.3.4:user@example.com: nível 1, 60s[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:1.2.3.4:user@example.com: nível 1, 60s[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:1.1.1.1:user@example.com: nível 1, 60s[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:1.1.1.1:user1@example.com: nível 1, 60s[39m
+[33m[Nest] 20908  - [39m25/07/2026, 22:16:04 [33m   WARN[39m [38;5;3m[LockoutService] [39m[33mLockout local aplicado para lockout:10.0.0.1:test@example.com: nível 1, 60s[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[MockPaymentGateway] [39m[32mMock checkout criado: cs_test_24070a68-f8bd-49e8-9025-558b9e3218bb para plano PLUS[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mCheckout criado: cs_test_24070a68-f8bd-49e8-9025-558b9e3218bb para usuário user-1 (plano PLUS)[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[MockPaymentGateway] [39m[32mMock checkout criado: cs_test_8d900e17-2a48-4daf-9fc5-e2075009b104 para plano PREMIUM[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mCheckout criado: cs_test_8d900e17-2a48-4daf-9fc5-e2075009b104 para usuário user-1 (plano PREMIUM)[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mAssinatura PLUS ativada para usuário user-1[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mWebhook evt_test_1ffe60ff-09aa-4719-9797-9f50b9ba5bf7 já processado — idempotência.[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mAssinatura cancelada para usuário user-1 (downgrade para FREE)[39m
+[32m[Nest] 25784  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[PaymentService] [39m[32mWebhook invoice.payment_succeeded ignorado (não handler).[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+[32m[Nest] 7032  - [39m25/07/2026, 22:16:05 [32m    LOG[39m [38;5;3m[SessionRotationService] [39m[32mSession secret rotacionado. Previous secret em grace period.[39m
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/security/csrf.spec.ts [ test/security/csrf.spec.ts ]
+Error: Cannot find module '../src/app.module.js' imported from D:/PROJETOS/MEDIA Rate/MEDIA 
+Rate/apps/api/test/security/csrf.spec.ts
+ ❯ test/security/csrf.spec.ts:5:1
+      3| import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/p…
+      4| import request from "supertest";
+      5| import { AppModule } from "../src/app.module.js";
+       | ^
+      6| import { applySecurityToAdapter } from "./helpers/apply-security.js";
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/security/sql-injection.spec.ts [ test/security/sql-injection.spec.ts ]
+Error: Cannot find module '../src/app.module.js' imported from D:/PROJETOS/MEDIA Rate/MEDIA 
+Rate/apps/api/test/security/sql-injection.spec.ts
+ ❯ test/security/sql-injection.spec.ts:5:1
+      3| import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/p…
+      4| import request from "supertest";
+      5| import { AppModule } from "../src/app.module.js";
+       | ^
+      6| import { applySecurityToAdapter } from "./helpers/apply-security.js";
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 37 passed (39)
+      Tests  315 passed (315)
+   Start at  22:15:52
+   Duration  13.62s (transform 4.00s, setup 0ms, import 56.68s, tests 10.73s, environment 7ms)
+

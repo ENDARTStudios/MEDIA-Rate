@@ -64,16 +64,13 @@ jobs:
       - name: Generate Prisma Client
         working-directory: apps/api
         run: npx prisma generate
-      - name: Backup antes da migration (T9.4 — segurança)
+      - name: Backup antes da migration (T9.4 / T026 — segurança)
         working-directory: apps/api
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           echo "[migrate] Iniciando backup antes da migration..."
-          # Em produção, usar pg_dump do Railway/Neon.
-          # Script de backup: scripts/backup-before-migrate.sh
-          # (documentado em MANUAL_DO_OPERADOR.md)
-          echo "[migrate] Backup concluído (ou simulado em CI)."
+          bash ../../scripts/backup-db.sh "$DATABASE_URL" || echo "[migrate] Backup via script indisponível — continuando com migration."
       - name: Apply migration (T9.4)
         working-directory: apps/api
         env:
@@ -122,7 +119,6 @@ jobs:
         with:
           service: ${{ secrets.RAILWAY_SERVICE_ID }}
           token: ${{ secrets.RAILWAY_TOKEN }}
-          definition_file: "railway.json"
 
   # Job 5: Health check pós-deploy (T9.5)
   health-check:

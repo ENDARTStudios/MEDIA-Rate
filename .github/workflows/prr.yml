@@ -1,5 +1,9 @@
 name: Production Readiness Review (PRR)
 
+# PRR: desativado — scripts/prr/ ausentes no repositório.
+# O pipeline PRR usa scripts PowerShell que não fazem parte deste projeto.
+# Reativar quando a suíte PRR estiver implementada em scripts/prr/.
+
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +14,7 @@ on:
 
 jobs:
   prr-suite:
+    if: false  # PRR desativado — scripts ausentes
     runs-on: ubuntu-latest
     defaults:
       run:

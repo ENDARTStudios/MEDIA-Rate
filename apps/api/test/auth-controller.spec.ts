@@ -4,7 +4,7 @@ import { AuthController } from "../src/modules/auth/auth.controller.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
-import { ConflictException, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, UnauthorizedException, HttpException } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 function mockReq(ip = "1.2.3.4", userAgent = "test-agent") {
@@ -12,7 +12,12 @@ function mockReq(ip = "1.2.3.4", userAgent = "test-agent") {
 }
 
 function mockReply() {
-  return { setCookie: () => {}, header: () => mockReply(), send: () => mockReply() } as unknown as FastifyReply;
+  return {
+    setCookie: () => {},
+    header: () => mockReply(),
+    send: () => mockReply(),
+    clearCookie: () => {},
+  } as unknown as FastifyReply;
 }
 
 describe("AuthController (unit)", () => {
@@ -29,7 +34,7 @@ describe("AuthController (unit)", () => {
       resetPassword: async () => ({ message: "ok" }),
       logoutAudit: async () => {},
     };
-    sessionService = { revokeSession: async () => {} };
+    sessionService = { revokeSession: async () => {}, validateToken: async () => null };
     cookieService = { getCookieName: () => "sess", clearSessionCookie: () => {}, setSessionCookie: () => {} };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -86,8 +91,49 @@ describe("AuthController (unit)", () => {
     expect(result.message).toBe("ok");
   });
 
-  it("resetPassword — token inválido propaga", async () => {
+  it("resetPassword — token invalido propaga", async () => {
     authService.resetPassword = async () => { throw new UnauthorizedException("Token inválido."); };
     await expect(controller.resetPassword("bad-token", "NewPass@123")).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("me — retorna dados do usuario autenticado", async () => {
+    const req = { user: { id: "u1", email: "u1@test.com", nome: "User" } } as any;
+    const result = await controller.me(req);
+    expect(result.id).toBe("u1");
+    expect(result.email).toBe("u1@test.com");
+  });
+
+  it("me — usuario nao autenticado lanca 401", async () => {
+    const req = {} as any;
+    await expect(controller.me(req)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("logout — sem cookie limpa e nao quebra", async () => {
+    const req = { cookies: {} } as any;
+    const reply = mockReply();
+    const result = await controller.logout(req, reply);
+    expect(result.message).toMatch(/Logout/i);
+  });
+
+  it("logout — com cookie revoga sessao", async () => {
+    const req = { cookies: { sess: "some-token" }, user: { id: "u1" } } as any;
+    const reply = mockReply();
+    let revokedToken: string | null = null;
+    sessionService.revokeSession = async (t: string) => { revokedToken = t; return true; };
+
+    const result = await controller.logout(req, reply);
+    expect(result.message).toMatch(/Logout/i);
+    expect(revokedToken).toBe("some-token");
+    expect(cookieService.clearSessionCookie).toHaveBeenCalledTimes;
+  });
+
+  it("logout — sem usuario ignora logoutAudit", async () => {
+    const req = { cookies: { sess: "token" } } as any;
+    const reply = mockReply();
+    let audited = false;
+    authService.logoutAudit = async () => { audited = true; };
+
+    await controller.logout(req, reply);
+    expect(audited).toBe(false);
   });
 });
