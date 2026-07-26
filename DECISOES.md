@@ -420,3 +420,39 @@ Os 7 componentes abaixo foram selecionados do 21st.dev com base nas necessidades
 - Nenhum `<script src="https://cdn...">` ou `new URL()` para CDN externa encontrado em `apps/web/src/`.
 
 **Status:** SRI não aplicável. Se scripts CDN forem adicionados no futuro, a checklist relevante é adicionar `integrity="sha384-..."` em cada `<script>` e incluir a origem na CSP.
+
+---
+
+## [2026-07-25] D-041 — `'unsafe-inline'` no `script-src` do frontend é dívida de defesa-em-profundidade (NÃO vulnerabilidade ativa)
+
+**Contexto:** O frontend Next.js 16.2.12 (Turbopack + SSG) usa `script-src 'self' 'unsafe-inline'` na CSP do `headers()` em `next.config.ts`. O Turbopack não suporta propagação de nonce para chunks externos (`_next/static/chunks/*.js`) nem para inline scripts gerados pelo framework.
+
+**Auditoria de sinks XSS (T044 PASSO 1):** 0 vetores de injeção encontrados.
+- `dangerouslySetInnerHTML`: 3 ocorrências, todas seguras:
+  - `media/[slug]/page.tsx:55` — `JSON.stringify(jsonLd)` (structured data, sem HTML do usuário)
+  - `privacy/page.tsx:37` — `sanitizeHtml()` via DOMPurify (T5.4)
+  - `pricing/page.tsx:34` — `JSON.stringify(jsonLd)` (structured data)
+- `innerHTML=` dinâmico: 0 ocorrências
+- `document.write`, `eval`, `new Function`: 0 ocorrências
+
+**Compensating controls (4 camadas):**
+1. **React auto-escape**: JSX escapa strings automaticamente.
+2. **DOMPurify**: `isomorphic-dompurify` em `lib/sanitize.ts` — sanitização de HTML dinâmico antes de qualquer `dangerouslySetInnerHTML`.
+3. **Backend CSP com nonce por request**: `main.ts` hook `onSend` gera nonce aleatório (base64url, 16 bytes) por requisição no backend. `script-src` do backend é SEM `'unsafe-inline'`.
+4. **Validação de entrada**: Zod validation pipes em todas as rotas de entrada de dados.
+
+**Conclusão:** `'unsafe-inline'` no script-src do frontend é risco residual baixo em defesa-em-profundidade. Remover exigiria migrar de Turbopack para webpack (perda de performance) ou matar SSG em 47 páginas (contradiz Fase 2). Revisar quando o Next.js/Turbopack suportar propagação de nonce para chunks + inline scripts.
+
+---
+
+## [2026-07-25] D-042 — Aceite do Operador do risco residual (CSP script-src frontend) para Beta Fechada
+
+**Risco residual:** `'unsafe-inline'` no `script-src` do frontend Next.js. Sem vetores de injeção ativos (auditoria T044). Mitigado por 4 camadas (React escape, DOMPurify, backend nonce CSP, Zod).
+
+**Nível de risco:** Baixo. A superfície de ataque de XSS é inexplorável sem um sink. Nenhum sink foi encontrado na auditoria.
+
+**Condições de aceite:**
+- Beta Fechada (usuários confiáveis, sem conteúdo gerado por usuário anônimo).
+- Reavaliar ao abrir para Beta Pública: re-executar auditoria de sinks (grep `dangerouslySetInnerHTML|innerHTML`), verificar se novos componentes introduziram vetores, e reavaliar a viabilidade do nonce (se Turbopack/Next evoluir).
+
+**Decisão:** ACEITO para Beta Fechada. O Operador reconhece o risco residual e as 4 camadas de compensating controls ativas.

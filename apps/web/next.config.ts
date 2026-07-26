@@ -35,8 +35,9 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' https://app.posthog.com https://js.stripe.com",
-              "connect-src 'self' https://app.posthog.com https://api.stripe.com",
+              "connect-src 'self' https://app.posthog.com https://api.stripe.com https://media-rate-production.up.railway.app",
               "frame-src 'self' https://js.stripe.com",
+              "frame-ancestors 'none'",
               "img-src 'self' data: https:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
