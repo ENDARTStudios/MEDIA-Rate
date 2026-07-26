@@ -13,7 +13,8 @@ import { buildCorsOptions } from "./common/cors.config.js";
 import { buildRateLimitOptions } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
-import { CacheService } from "./common/cache.service.js";
+
+async function bootstrap(): Promise<void> {
 
 async function bootstrap(): Promise<void> {
   const port = Number.parseInt(process.env.PORT ?? "4000", 10);
@@ -34,20 +35,16 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     bufferLogs: true,
   });
+  console.log("module graph built");
 
-  // T021/7.3: Rate limit com store Redis (sliding window via ZSET).
-  let rateLimitRedis: unknown;
-  try {
-    const cacheService = app.get(CacheService);
-    rateLimitRedis = cacheService.getRedisClient();
-  } catch {
-    // CacheModule nao disponivel (ex.: testes) — fallback memoria local.
-  }
+  // T020/7.3 + T1.3: Rate limit com key generator por user+IP+rota.
+  // Store em memoria — Redis distribuido depende de infra conectada (T036).
   await fastifyAdapter.register(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rateLimit as any,
-    buildRateLimitOptions({ redis: rateLimitRedis }),
+    buildRateLimitOptions(),
   );
+  console.log("[boot] rate-limit registered");
 
   // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
   // CSP gerenciada separadamente via hook onSend (T021/7.1).
@@ -63,6 +60,7 @@ async function bootstrap(): Promise<void> {
     cors as any,
     buildCorsOptions(),
   );
+  console.log("[boot] plugins registered (rate-limit, helmet, cors)");
 
   const fastify = fastifyAdapter.getInstance();
 
@@ -100,6 +98,7 @@ async function bootstrap(): Promise<void> {
 
   // T1.6: Exception filter global.
   app.useGlobalFilters(new GlobalExceptionFilter());
+  console.log("[boot] hooks + guards done");
 
   // T4.2: Swagger OpenAPI 3.1 em /api/docs e /api/docs-json.
   const config = new DocumentBuilder()
@@ -113,14 +112,32 @@ async function bootstrap(): Promise<void> {
     .addTag("lgpd", "Direitos do titular de dados")
     .addTag("admin", "Endpoints administrativos")
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/docs", app, document);
+  console.log("[boot] calling app.init + app.listen...");
+  try {
+    await app.listen(port, "0.0.0.0");
+    console.log(`[boot] listening on 0.0.0.0:${port}`);
 
-  await app.listen(port, host);
-  // eslint-disable-next-line no-console
-  console.log(`[media-rate-api] listening on http://${host}:${port}`);
-  // eslint-disable-next-line no-console
+    // Swagger apos listen (rotas resolvidas)
+    try {
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup("api/docs", app, document);
+      console.log("[boot] swagger setup done");
+    } catch (swagErr) {
+      console.warn(`[boot] swagger setup FAILED (non-blocking): ${String(swagErr)}`);
+    }
+  } catch (err) {
+    console.error(`[boot] listen FAILED: ${String(err)}`);
+    throw err;
+  }
+  } catch (err) {
+    clearInterval(hb);
+    console.log(`[boot] listen FAILED: ${String(err)}`);
+    throw err;
+  }
   console.log(`[media-rate-api] Swagger UI: http://${host}:${port}/api/docs`);
 }
 
-void bootstrap();
+void bootstrap().catch((err: unknown) => {
+  process.stderr.write(`[boot] FATAL: ${String(err)}\n`);
+  process.exit(1);
+});

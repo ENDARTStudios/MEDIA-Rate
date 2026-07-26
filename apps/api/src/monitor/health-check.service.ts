@@ -2,14 +2,12 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { PrismaService } from "../prisma/prisma.service.js";
 
 /**
- * Health check service (T9.5 — monitoramento básico).
+ * Health check service (T9.5 / T036 — liveness resiliente).
  *
- * Verifica:
- * - API responde (próprio endpoint /health)
- * - Banco de dados conecta ($queryRaw SELECT 1)
- * - Tempo de resposta < 1000ms (latência aceitável para Beta)
- *
- * Retorna status consolidado para o endpoint /health.
+ * T036: O check de DB usa timeout de 1500ms via Promise.race.
+ * Se o DB nao responder no tempo, retorna "degraded" no body
+ * mas SEMPRE retorna HTTP 200. O Railway usa /health como probe
+ * de liveness — o probe recebe 200 enquanto o processo esta de pe.
  */
 @Injectable()
 export class HealthCheckService {
@@ -18,40 +16,34 @@ export class HealthCheckService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Verifica saúde geral do sistema.
-   */
   async check(): Promise<{
-    status: "ok" | "degraded" | "down";
+    status: "ok" | "degraded";
     uptime: number;
     version: string;
     timestamp: string;
     checks: {
-      database: { status: "ok" | "down"; latency_ms: number | null };
+      database: { status: "ok" | "degraded" | "down"; latency_ms: number | null };
       api: { status: "ok" };
     };
   }> {
     const checks = {
-      database: { status: "down" as "ok" | "down", latency_ms: null as number | null },
+      database: { status: "down" as "ok" | "degraded" | "down", latency_ms: null as number | null },
       api: { status: "ok" as const },
     };
 
-    // Database check
     try {
       const start = Date.now();
-      await this.prisma.$queryRaw`SELECT 1`;
-      const latency = Date.now() - start;
-      checks.database = { status: "ok", latency_ms: latency };
-    } catch (err) {
-      this.logger.error(`Database health check failed: ${(err as Error).message}`);
-      checks.database = { status: "down", latency_ms: null };
+      await Promise.race([
+        this.prisma.$queryRaw`SELECT 1`,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("db check timeout")), 1_500)),
+      ]);
+      checks.database = { status: "ok", latency_ms: Date.now() - start };
+    } catch {
+      checks.database = { status: "degraded", latency_ms: null };
     }
 
-    // Overall status
-    const status: "ok" | "degraded" | "down" = checks.database.status === "ok" ? "ok" : "degraded";
-
     return {
-      status,
+      status: "ok", // Sempre 200 — probe de liveness
       uptime: Math.round((Date.now() - this.startedAt) / 1000),
       version: process.env.npm_package_version ?? "0.1.0",
       timestamp: new Date().toISOString(),

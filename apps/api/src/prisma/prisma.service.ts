@@ -4,21 +4,28 @@ import { PrismaClient } from "@prisma/client";
 /**
  * Wrapper Prisma para NestJS. Singleton injetavel em qualquer modulo.
  *
- * Em ambiente de teste (NODE_ENV=test), NAO chama $connect() no
- * onModuleInit — os testes unitários mockam PrismaService, e os testes
- * e2e que usam AppModule real não tem banco conectado. $connect() só
- * roda em runtime real (dev ou production).
+ * T036: $connect() no onModuleInit e NAO-bloqueante — conecta em background
+ * com timeout de 3s. Se falhar, loga e continua. O app escuta mesmo sem DB
+ * (o /health reporta degraded, mas o processo nao trava o deploy).
  */
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit(): Promise<void> {
-    // Em test ou quando SKIP_DB_CONNECT estiver setado, não tenta conectar.
-    // PrismaService é mockado nos testes que precisam dele; AppModule real
-    // em test só valida DI graph.
     if (process.env.NODE_ENV === "test" || process.env.SKIP_DB_CONNECT === "true") {
       return;
     }
-    await this.$connect();
+    try {
+      await Promise.race([
+        this.$connect(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("connect timeout")), 3_000)),
+      ]);
+      // eslint-disable-next-line no-console
+      console.log("[prisma] connected to database");
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(`[prisma] connection failed (non-blocking): ${(err as Error).message}`);
+      // O app sobe sem DB — o /health reporta degraded ate o Prisma reconectar.
+    }
   }
 
   async onModuleDestroy(): Promise<void> {

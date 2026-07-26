@@ -13,8 +13,13 @@ export class CacheService implements OnModuleDestroy {
 
   constructor(redisUrl?: string) {
     const url = redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379";
+    const isLocal = /localhost|127\.0\.0\.1|::1/.test(url);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    this.redis = new Redis(url, { maxRetriesPerRequest: 3, lazyConnect: true });
+    this.redis = new Redis(url, {
+      maxRetriesPerRequest: 3,
+      lazyConnect: true,
+      ...(!isLocal ? { tls: {} } : {}),
+    });
     this.redis.on("error", (e: Error) => this.logger.warn(`Redis connection error: ${e.message}`));
   }
 
@@ -65,7 +70,7 @@ export class CacheService implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await this.redis.quit();
+    try { await this.redis.quit(); } catch { /* Redis nao conectado — nada a fechar */ }
     this.logger.log("Redis connection closed.");
   }
 }

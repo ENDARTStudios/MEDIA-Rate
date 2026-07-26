@@ -15,7 +15,14 @@ export class QueueService implements OnModuleDestroy {
   private readonly config: QueueConfig;
 
   constructor(config: QueueConfig) {
-    this.config = config;
+    const isLocal = /localhost|127\.0\.0\.1|::1/.test(config.connection.host);
+    this.config = {
+      ...config,
+      connection: {
+        ...config.connection,
+        ...(!isLocal ? { tls: {} as Record<string, unknown> } : {}),
+      },
+    };
   }
 
   getQueue(name: string): Queue {
