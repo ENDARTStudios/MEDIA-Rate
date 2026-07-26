@@ -15,7 +15,7 @@ export class QueueService implements OnModuleDestroy {
   private readonly config: QueueConfig;
 
   constructor(config: QueueConfig) {
-    const isLocal = /localhost|127\.0\.0\.1|::1/.test(config.connection.host);
+    const isLocal = /localhost|127\.0\.0\.1|::1|\.internal/.test(config.connection.host);
     this.config = {
       ...config,
       connection: {

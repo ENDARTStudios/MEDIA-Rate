@@ -4,6 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
@@ -58,7 +59,17 @@ async function bootstrap(): Promise<void> {
     cors as any,
     buildCorsOptions(),
   );
-  console.log("[boot] plugins registered (rate-limit, helmet, cors)");
+
+  // T041: @fastify/cookie — plugin necessario para reply.setCookie/clearCookie.
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cookie as any,
+    {
+      secret: process.env.COOKIE_SECRET ?? "dev-secret-change-me",
+      hook: "onRequest",
+    },
+  );
+  console.log("[boot] plugins registered (rate-limit, helmet, cors, cookie)");
 
   const fastify = fastifyAdapter.getInstance();
 

@@ -13,7 +13,7 @@ export class CacheService implements OnModuleDestroy {
 
   constructor(redisUrl?: string) {
     const url = redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379";
-    const isLocal = /localhost|127\.0\.0\.1|::1/.test(url);
+    const isLocal = /localhost|127\.0\.0\.1|::1|\.internal/.test(url);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.redis = new Redis(url, {
       maxRetriesPerRequest: 3,
