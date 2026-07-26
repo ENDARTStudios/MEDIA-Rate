@@ -480,3 +480,9 @@ A T048 foi bloqueada por SCOPE_OVERFLOW. Decomposta em:
 ## [2026-07-25] D-054 — T050: guard CSRF double-submit com timingSafeEqual
 
 Camada de auth cross-site do backend completa: `CsrfGuard` valida `X-CSRF-Token` header == `csrf_token` cookie via `timingSafeEqual` (timing attack resistant). Aplicado em `POST /auth/logout`. Login/register isentos (públicos, sem sessão). Guard reutilizável para watchlist (A3).
+
+---
+
+## [2026-07-25] D-055 — T051: cliente HTTP real no frontend
+
+Camada de infraestrutura do frontend: `lib/http.ts` implementa fetch wrapper com `credentials: 'include'`, leitura de `csrf_token` do cookie (anexa `X-CSRF-Token` em mutações), interceptor 401 → redirect login (exceto login/register), `ApiError` sem stack trace. Sessão vive exclusivamente no cookie httpOnly (sem localStorage/item 5.9).
