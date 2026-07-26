@@ -1,20 +1,30 @@
 "use client";
 
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
 import { motion as tokens } from "@/lib/design-tokens";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const shouldReduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const preset = tokens.presets.pageEnter;
+
+  // T046: detecta prefers-reduced-motion apos mount para evitar mismatch SSR/cliente.
+  // SSR = sempre false (igual ao servidor). Apos mount, matchMedia decide.
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduce(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
 
   // T045: safety net — se a animacao nao disparar dentro de 800ms,
   // forca visibilidade (conteudo sempre visivel por default).
   useEffect(() => {
-    if (shouldReduce) return;
+    if (reduce) return;
     const t = setTimeout(() => {
       if (ref.current && ref.current.style.opacity !== "1") {
         ref.current.style.opacity = "1";
@@ -23,18 +33,18 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       }
     }, 800);
     return () => clearTimeout(t);
-  }, [pathname, shouldReduce]);
+  }, [pathname, reduce]);
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         ref={ref}
         key={pathname}
-        initial={shouldReduce ? false : preset.initial}
+        initial={reduce ? false : preset.initial}
         animate={preset.animate}
-        exit={shouldReduce ? undefined : preset.exit}
+        exit={reduce ? undefined : preset.exit}
         transition={{
-          duration: shouldReduce ? 0 : tokens.duration.page,
+          duration: reduce ? 0 : tokens.duration.page,
           ease: tokens.easing.default as [number, number, number, number],
         }}
       >
