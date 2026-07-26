@@ -13,8 +13,8 @@
 - [~] Fase 3 – Auth `[PARCIAL — 7/10, 3 gaps]` ⚠️ (2026-07-25 complemento)
 - [~] Fase 4 – APIs `[PARCIAL — 14/22 completos, 3 stubs, 3 ausentes]` ⚠️
 - ✅ Fase 5 – Frontend (17 rotas, 47 páginas SSG, i18n, animações Motion/GSAP/Anime.js) `[CONCLUÍDA]`
-- [~] Fase 6 – Avançado `[PARCIAL — 8/13 completos, 4 ausentes]` ⚠️ (2026-07-25)
-- [ ] Fase 7 – Hardening `[Vault e DNSSEC CONDICIONAIS]`
+- [~] Fase 6 – Avançado `[PARCIAL — 12/13, 1 gap (ETL postergado)]` ⚠️ (2026-07-25/D-017)
+- [~] Fase 7 – Hardening `[PARCIAL — 3/10 completos, 5 gaps, 2 N/A]` ⚠️ (2026-07-25 T019)
 - [ ] Fase 8 – Testes/segurança `[OBRIGATÓRIO + DAST]`
 - [ ] Fase 9 – CI/CD e deploy `[OBRIGATÓRIO]`
 
@@ -290,23 +290,39 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 
 ---
 
-## FASE 7 — HARDENING `[VAULT e DNSSEC CONDICIONAIS]`
+## FASE 7 — HARDENING `[PARCIAL — 3/10 completos, 5 gaps parciais, 2 N/A condicionais]` (auditado 2026-07-25 T019)
 
-- [ ] 7.1 CSP restritiva + SRI para scripts externos.
-- [ ] 7.2 `X-Frame-Options: DENY` (só SAMEORIGIN onde houver embed legítimo).
-- [ ] 7.3 Rate limiting avançado por usuário + IP + rota, com detecção de anomalias (janela deslizante).
-- [ ] 7.4 `npm audit --audit-level=high` quebra o build em CI.
-- [ ] 7.5 Proteção contra força bruta distribuída: contador global no Redis por IP/usuário.
-- [ ] 7.6 Desabilitar métodos HTTP não utilizados (TRACE sempre; OPTIONS só onde necessário).
-- [ ] 7.7 Limite de payload: body 1 MiB padrão, 50 MiB para endpoints de upload.
-- [ ] 7.8 Rotação automática de segredos de sessão a cada 90 dias.
-- [ ] 7.9 **(CONDICIONAL)** Vault/Infisical para segredos em produção — se a plataforma de deploy já tiver secret manager nativo e gratuito (Fly.io, Railway, Vercel), usar o nativo.
-- [ ] 7.10 **(CONDICIONAL: PENDENCIAS_OPERADOR.md item 1)** DNSSEC + CAA + HSTS preload — só quando o domínio próprio for registrado.
+- [~] 7.1 CSP restritiva + SRI. · evid: `security.config.ts` — CSP com diretivas configuradas, mas `'unsafe-inline'` em scripts/styles enfraquece a política; Subresource Integrity (SRI) AUSENTE no frontend e backend. Nenhuma referência a `integrity` em `apps/`.
+- [x] 7.2 X-Frame-Options: DENY. · evid: `security.config.ts:24` — `frameguard: { action: "deny" }`.
+- [~] 7.3 Rate limit avançado (user + IP + rota, janela deslizante). · evid: `rate-limit.config.ts` — IP-only com janela fixa de 1 minuto (não deslizante). Sem tracking por user, sem Redis, sem contador global distribuído. Store em memória (não escala com múltiplas instâncias).
+- [x] 7.4 `npm audit --audit-level=high` quebra build. · evid: `.github/workflows/ci.yml:38` — job `lint-audit` executa `npm audit --audit-level=high`.
+- [~] 7.5 Proteção força bruta distribuída (contador global Redis). · evid: `lockout.service.ts` — lockout progressivo 5 níveis (30s→2min→10min→30min) implementado com chave IP+email, mas em Map local (in-memory) no processo. Sem contador global Redis — múltiplas instâncias não coordenam bloqueios. O próprio código documenta: "Para multi-instância, migrar para Redis".
+- [ ] 7.6 Métodos HTTP não utilizados desabilitados (TRACE). · evid: AUSENTE — sem `allowedMethods`, `disallowedMethods`, ou qualquer referência a TRACE em `apps/api/src/`. FastifyAdapter não configura restrição de métodos.
+- [ ] 7.7 Limite de payload (1 MiB padrão, 50 MiB upload). · evid: AUSENTE — sem `bodyLimit`, `maxParamLength`, ou `maxBodyLength` no `FastifyAdapter` (`main.ts:20-23`). O `GlobalExceptionFilter` mapeia HTTP 413 mas nenhum limite é efetivamente imposto.
+- [~] 7.8 Rotação de segredos de sessão (90 dias). · evid: `session-rotation.service.ts` existe como stub/placeholder (documenta que token opaco não requer rotação de secret). `SessionCookieService` usa cookie unsigned (`signed: false`) — sem secret para rotacionar. Rotação automática de 90 dias não implementada. Conceito coberto pelo design de token opaco, mas o serviço não é funcional.
+- [~] 7.9 Vault/Infisical (CONDICIONAL). · evid: Excluído pelo Discovery (`DECISOES.md:15`). Sem domínio de produção definido (`mediarate.app` pendente — `PENDENCIAS_OPERADOR.md`). O secret manager nativo da plataforma de deploy cobre o requisito (`DECISOES.md:56`). N/A por ora.
+- [~] 7.10 DNSSEC + CAA + HSTS preload (CONDICIONAL). · evid: Excluído pelo Discovery (`DECISOES.md:15`). Sem domínio próprio — depende de registro de domínio + DNS. HSTS com flag `preload: true` já configurado em `security.config.ts:21`, mas submissão à lista de preload exige domínio em produção. N/A por ora.
 
-**Verificação:**
-- `npm audit` passa sem vulnerabilidades high/critical.
-- Teste de força bruta distribuída (10 IPs virtuais) é bloqueado em < 30s.
-- securityheaders.com nota A+ em produção (após domínio próprio).
+**Verificação (evidência de auditoria T019):**
+- `helmet` registrado em `main.ts:31` via `@fastify/helmet` ✅
+- `rateLimit` registrado em `main.ts:37` via `@fastify/rate-limit` ✅
+- `npm audit --audit-level=high` no CI: `ci.yml:38` ✅
+- `bodyLimit`/payload: NENHUMA referência em `apps/api/src/` ❌
+- `allowedMethods`/TRACE: NENHUMA referência em `apps/api/src/` ❌
+- SRI (`integrity`/`subresource`): NENHUMA referência em `apps/` ❌
+- Lockout: `lockout.service.ts` com Map in-memory (código documenta limitação) ⚠️
+- Rotação de segredos: `session-rotation.service.ts` é stub não-funcional ⚠️
+
+### Gaps Fase 7 (classificados por severidade)
+
+| # | Gap | Severidade | Ação recomendada |
+|---|---|---|---|
+| 7.5 | Lockout local (não distribuído Redis) | 🔴 Alto | Migrar de Map para Redis para coordenação multi-instância |
+| 7.1 | SRI ausente + `'unsafe-inline'` na CSP | 🟡 Médio | Implementar SRI para scripts/styles de CDN; migrar `'unsafe-inline'` para nonces hashes via middleware Next.js |
+| 7.7 | Sem limite de payload | 🟡 Médio | Adicionar `bodyLimit: 1048576` (1 MiB) no FastifyAdapter; 50 MiB para rota de upload |
+| 7.3 | Rate limit janela fixa, sem user tracking | 🟡 Médio | Migrar para sliding window com Redis; adicionar dimensão user na key |
+| 7.6 | TRACE não bloqueado | 🟢 Baixo | Restringir métodos no Fastify com `allowedMethods` ou hook `onRoute` |
+| 7.8 | Rotação de segredos não funcional | 🟢 Baixo | Implementar rotação automática de `SESSION_SECRET`/pepper com grace period; ou documentar que design de token opaco dispensa |
 
 ---
 
