@@ -29,11 +29,13 @@ COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/apps/api/dist ./dist
 COPY --from=builder --chown=node:node /app/apps/api/package.json ./
 COPY --from=builder --chown=node:node /app/apps/api/prisma ./prisma
+COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=25s \
   CMD wget -qO- http://localhost:3000/api/v1/health || exit 1
 
-# Aplica migrations pendentes (idempotente) e sobe o app.
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=prisma/schema.prisma && node dist/main.js"]
+# Entrypoint via script executavel — deterministico, sem parsing de aspas/cd.
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
