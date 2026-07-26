@@ -116,7 +116,8 @@ describe("AuthController (unit)", () => {
   });
 
   it("logout — com cookie revoga sessao", async () => {
-    const req = { cookies: { sess: "some-token" }, user: { id: "u1" } } as any;
+    const csrf = "a".repeat(64);
+    const req = { cookies: { sess: "some-token", csrf_token: csrf }, user: { id: "u1" }, headers: { "x-csrf-token": csrf } } as any;
     const reply = mockReply();
     let revokedToken: string | null = null;
     sessionService.revokeSession = async (t: string) => { revokedToken = t; return true; };
@@ -124,7 +125,7 @@ describe("AuthController (unit)", () => {
     const result = await controller.logout(req, reply);
     expect(result.message).toMatch(/Logout/i);
     expect(revokedToken).toBe("some-token");
-    expect(cookieService.clearSessionCookie).toHaveBeenCalledTimes;
+    expect(cookieService.clearSessionCookie).toBeDefined();
   });
 
   it("logout — sem usuario ignora logoutAudit", async () => {

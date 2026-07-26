@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   Post,
   Req,
   Res,
@@ -10,15 +11,13 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- AuthService precisa ser import como valor para NestJS DI
 import { AuthService, type LoginResult } from "./auth.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- SessionService precisa ser import como valor para NestJS DI
 import { SessionService } from "./session.service.js";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- SessionCookieService precisa ser import como valor para NestJS DI
 import { SessionCookieService } from "./session-cookie.service.js";
 import { RegisterDto, LoginDto } from "./dto/auth.dto.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import type { AuthenticatedUser } from "../../common/guards/auth.guard.js";
+import { timingSafeEqual } from "node:crypto";
 
 /**
  * Controller de autenticação (T3.1-T3.7).
@@ -120,6 +119,33 @@ export class AuthController {
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<{ message: string }> {
+    const user = (req as FastifyRequest & { user?: AuthenticatedUser }).user;
+    if (user) {
+      const cookies = (req as unknown as { cookies?: Record<string, string> }).cookies;
+      const cookieToken = cookies?.csrf_token;
+      const headerVal = req.headers["x-csrf-token"] as string | string[] | undefined;
+      const headerToken = Array.isArray(headerVal) ? headerVal[0] : headerVal;
+
+      if (!cookieToken || !headerToken) {
+        throw new HttpException({
+          statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
+        }, 403);
+      }
+      try {
+        const a = Buffer.from(headerToken, "utf-8");
+        const b = Buffer.from(cookieToken, "utf-8");
+        if (a.byteLength !== b.byteLength || !timingSafeEqual(a, b)) {
+          throw new HttpException({
+            statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
+          }, 403);
+        }
+      } catch {
+        throw new HttpException({
+          statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
+        }, 403);
+      }
+    }
+
     const cookieName = this.cookieService.getCookieName();
     const cookies = (req as unknown as { cookies?: Record<string, string> }).cookies;
     const token = cookies?.[cookieName];
@@ -130,7 +156,6 @@ export class AuthController {
 
     this.cookieService.clearSessionCookie(reply);
 
-    const user = (req as FastifyRequest & { user?: AuthenticatedUser }).user;
     if (user) {
       await this.authService.logoutAudit(user.id);
     }

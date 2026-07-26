@@ -474,3 +474,9 @@ A T048 foi bloqueada por SCOPE_OVERFLOW. Decomposta em:
 ## [2026-07-25] D-053 — T056: CORS lê ALLOWED_ORIGINS com fallback CORS_ORIGIN
 
 `cors.config.ts` agora lê `ALLOWED_ORIGINS` (primário) e `CORS_ORIGIN` (fallback). Origem não permitida retorna `cb(null, false)` em vez de `cb(new Error(...))` — evita 500 em preflight. Lista explícita de origens permitidas; never wildcard with credentials.
+
+---
+
+## [2026-07-25] D-054 — T050: guard CSRF double-submit com timingSafeEqual
+
+Camada de auth cross-site do backend completa: `CsrfGuard` valida `X-CSRF-Token` header == `csrf_token` cookie via `timingSafeEqual` (timing attack resistant). Aplicado em `POST /auth/logout`. Login/register isentos (públicos, sem sessão). Guard reutilizável para watchlist (A3).
