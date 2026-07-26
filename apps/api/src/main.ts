@@ -8,44 +8,92 @@ import rateLimit from "@fastify/rate-limit";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
 import { buildHelmetOptions } from "./common/security.config.js";
+import { buildCspHeader, generateRequestNonce } from "./common/security.config.js";
 import { buildCorsOptions } from "./common/cors.config.js";
 import { buildRateLimitOptions } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
+import { CacheService } from "./common/cache.service.js";
 
 async function bootstrap(): Promise<void> {
   const port = Number.parseInt(process.env.PORT ?? "4000", 10);
   const host = process.env.HOST ?? "0.0.0.0";
+  const isProduction = process.env.NODE_ENV === "production";
+  const cspTrustedOrigins = (process.env.CSP_TRUSTED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
+  // T020/7.7: bodyLimit padrao de 1 MiB.
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true,
     logger: false,
+    bodyLimit: 1_048_576, // 1 MiB
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     bufferLogs: true,
   });
 
-  // T1.2: Helmet (CSP, HSTS, X-Frame-Options, X-Content-Type-Options,
-  // X-Powered-By removido).
+  // T021/7.3: Rate limit com store Redis (sliding window via ZSET).
+  let rateLimitRedis: unknown;
+  try {
+    const cacheService = app.get(CacheService);
+    rateLimitRedis = cacheService.getRedisClient();
+  } catch {
+    // CacheModule nao disponivel (ex.: testes) — fallback memoria local.
+  }
+  await fastifyAdapter.register(
+    rateLimit,
+    buildRateLimitOptions({ redis: rateLimitRedis }),
+  );
+
+  // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
+  // CSP gerenciada separadamente via hook onSend (T021/7.1).
   await fastifyAdapter.register(helmet, buildHelmetOptions());
 
   // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
   await fastifyAdapter.register(cors, buildCorsOptions());
 
-  // T1.3: Rate limit por IP (100 req/min APIs gerais, 6 req/min login).
-  await fastifyAdapter.register(rateLimit, buildRateLimitOptions());
+  const fastify = fastifyAdapter.getInstance();
+
+  // T020/7.7: Upload route com bodyLimit de 50 MiB.
+  fastify.addHook("onRoute", (routeOptions) => {
+    if (routeOptions.url === "/api/v1/upload" && routeOptions.method === "POST") {
+      routeOptions.bodyLimit = 52_428_800; // 50 MiB
+    }
+  });
+
+  // T021/7.1: CSP com nonce dinamico por requisicao (script-src sem 'unsafe-inline').
+  fastify.addHook("onSend", (_request, reply, _payload, done) => {
+    const nonce = generateRequestNonce();
+    const csp = buildCspHeader({ nonce, isProduction, cspTrustedOrigins });
+    void reply.header("Content-Security-Policy", csp);
+    done();
+  });
+
+  // T020/7.6: Rejeitar metodos HTTP nao utilizados (TRACE, CONNECT).
+  fastify.addHook("onRequest", (request, reply, done) => {
+    const blockedMethods = ["TRACE", "CONNECT"];
+    if (blockedMethods.includes(request.method.toUpperCase())) {
+      void reply.status(405).send({
+        statusCode: 405,
+        error: "Method Not Allowed",
+        message: `Metodo HTTP ${request.method} nao permitido neste servidor.`,
+      });
+      return;
+    }
+    done();
+  });
 
   // T1.1: HTTPS redirect em producao (308 quando x-forwarded-proto=http).
-  // Implementado como Guard global porque hooks Fastify registrados fora
-  // do Nest sao sobrescritos pelo router do Nest em versoes recentes.
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new HttpsRedirectGuard(reflector));
 
   // T1.6: Exception filter global.
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // T4.2: Swagger OpenAPI 3.1 em /api/v1/docs e /api/v1/docs-json.
+  // T4.2: Swagger OpenAPI 3.1 em /api/docs e /api/docs-json.
   const config = new DocumentBuilder()
     .setTitle("MEDIA Rate API")
     .setDescription("Plataforma de descoberta de mídia com MEDIA Score™ unificado.")
@@ -58,8 +106,6 @@ async function bootstrap(): Promise<void> {
     .addTag("admin", "Endpoints administrativos")
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  // /api/docs (UI) e /api/docs-json (JSON) — sem /v1 prefix para acesso direto.
-  // A ordem FASE-4 pede /api/docs.
   SwaggerModule.setup("api/docs", app, document);
 
   await app.listen(port, host);

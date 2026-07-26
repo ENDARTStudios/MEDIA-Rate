@@ -66,7 +66,8 @@ describe("Rate Limit configuração (T1.3 unit)", () => {
       await import("../src/common/rate-limit.config.js");
     const opts = buildRateLimitOptions();
     expect(opts.max).toBe(100);
-    expect(opts.timeWindow).toBe("1 minute");
+    expect(opts.timeWindow).toBe(60 * 1000);
+    expect(opts.global).toBe(true);
 
     const loginOpts = loginRateLimit();
     expect(loginOpts.max).toBe(6);

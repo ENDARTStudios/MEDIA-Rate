@@ -129,7 +129,7 @@ export class AuthService {
     const ip = options.ip ?? "unknown";
 
     // 1. Verifica lockout ANTES de consultar senha (evita timing attack).
-    const lockout = this.lockoutService.isLocked(ip, dto.email);
+    const lockout = await this.lockoutService.isLocked(ip, dto.email);
     if (lockout.locked) {
       const secondsRemaining = Math.ceil(lockout.remainingMs / 1000);
       throw new ForbiddenException({
@@ -159,7 +159,7 @@ export class AuthService {
 
     if (!usuario || !passwordValid) {
       // Registra falha para lockout progressivo.
-      const result = this.lockoutService.registerFailure(ip, dto.email);
+      const result = await this.lockoutService.registerFailure(ip, dto.email);
       if (result.locked) {
         this.logger.warn(
           `Lockout aplicado para ${dto.email} (IP: ${ip}) após ${result.failedCount} falhas`,
@@ -180,7 +180,7 @@ export class AuthService {
     }
 
     // 4. Login bem-sucedido: reseta lockout, cria sessão.
-    this.lockoutService.resetOnSuccess(ip, dto.email);
+    await this.lockoutService.resetOnSuccess(ip, dto.email);
 
     const session: SessionCreationResult = await this.sessionService.createSession({
       usuario_id: usuario.id,

@@ -392,3 +392,31 @@ Os 7 componentes abaixo foram selecionados do 21st.dev com base nas necessidades
 - Instalar com: `npx shadcn@latest add "https://21st.dev/r/<autor>/<slug>"`
 - Adaptar ao design system T5.8 (cores dark OLED, font Inter, tokens) após a instalação.
 - Nenhum componente foi instalado ainda — esta é apenas a lista de candidatos.
+
+---
+
+## [2026-07-25] T021/7.1: style-src 'unsafe-inline' mantido para TailwindCSS
+
+**Motivo:** TailwindCSS gera estilos inline em runtime (utility classes são compiladas para CSS mas injeção de estilos pelo próprio framework Next.js usa `<style>` tags dinâmicas). Remover `'unsafe-inline'` de `style-src` quebraria:
+- O sistema de utility classes do TailwindCSS (sem alternativa viável de nonce/hash para todas as classes).
+- Componentes shadcn/ui que dependem de CSS-in-JS runtime.
+- Animações GSAP/Motion que injetam estilos inline via atributo `style`.
+
+**Alternativas consideradas:**
+- Extrair todos os estilos para CSS estático via build — rejeitado: inviável no App Router do Next.js com TailwindCSS v3.
+- Gerar nonce para cada `<style>` tag inline — rejeitado: exige modificação profunda no pipeline de build do Next.js + TailwindCSS.
+- Usar `@tailwindcss/standalone` — rejeitado: perde funcionalidades principais do TailwindCSS (variants dinâmicas, arbitrary values).
+
+**Risco aceito:** Muito baixo. `style-src 'unsafe-inline'` é o padrão da indústria para apps Next.js + TailwindCSS. A proteção contra injeção de estilo inline é mitigada pelo `script-src` sem `unsafe-inline` (o vetor de ataque principal) e pelo DOMPurify em conteúdo dinâmico.
+
+---
+
+## [2026-07-25] T021/7.1: SRI N/A — zero scripts externos via CDN
+
+**Motivo:** Após auditoria dos arquivos de layout e configuração do frontend (`apps/web`), nenhum `<script>` carregado via CDN externa foi encontrado:
+- GSAP, Motion (Framer Motion), Anime.js: importados via npm e empacotados pelo bundler do Next.js (`optimizePackageImports`).
+- Fontes Google (Space Grotesk, Inter): self-hosted pelo Next.js via `next/font/google` (sem requisição CDN externa).
+- PostHog e Stripe.js: carregados exclusivamente no backend (`apps/api`), não no frontend.
+- Nenhum `<script src="https://cdn...">` ou `new URL()` para CDN externa encontrado em `apps/web/src/`.
+
+**Status:** SRI não aplicável. Se scripts CDN forem adicionados no futuro, a checklist relevante é adicionar `integrity="sha384-..."` em cada `<script>` e incluir a origem na CSP.

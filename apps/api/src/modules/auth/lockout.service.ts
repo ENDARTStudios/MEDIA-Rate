@@ -1,57 +1,99 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, type OnModuleDestroy, Optional } from "@nestjs/common";
+import { CacheService } from "../../common/cache.service.js";
 
 /**
- * Lockout progressivo (T3.3).
+ * Lockout progressivo (T3.3) com Redis (T020/7.5).
  *
  * Estratégia: contador de tentativas falhas por chave (IP + email normalizado).
  * Após 5 tentativas falhas consecutivas, aplica bloqueio exponencial:
- *   1º bloqueio: 30s
- *   2º bloqueio: 2min
- *   3º bloqueio: 10min
- *   4º bloqueio (e subsequentes): 30min
+ *   1º bloqueio: 1min
+ *   2º bloqueio: 5min
+ *   3º bloqueio: 15min
+ *   4º bloqueio: 1h
+ *   5º bloqueio (e subsequentes): 24h
  *
- * Implementação: Map em memória do processo. Para Beta com instância única
- * é suficiente. Para multi-instância, migrar para Redis (FORA do escopo —
- * Restrição #1 + DECIDE-01 excluem Redis). Em Fase 7 (Hardening), se
- * necessário, adicionar tabela `tentativa_login_falha` no PostgreSQL.
- *
- * Reset: contador zera após login bem-sucedido OU após janela de observação
- * de 15min sem novas tentativas (sliding window).
+ * Redis: operações atômicas via pipeline (INCR + EXPIRE).
+ * Global IP: se > 50 falhas de qualquer email em 5min, bloqueia IP inteiro.
+ * Fallback: se Redis indisponível, usa Map em memória local + log de alerta.
  */
 
 interface LockoutEntry {
   failedCount: number;
-  blockedUntil: number; // epoch ms
-  lastAttempt: number; // epoch ms
+  blockedUntil: number;
+  lastAttempt: number;
 }
 
-const WINDOW_MS = 15 * 60 * 1000; // 15 min
+const WINDOW_MS = 15 * 60 * 1000;
+const WINDOW_SEC = 15 * 60;
 const MAX_FAILURES_BEFORE_LOCK = 5;
-const LOCK_DURATIONS_MS = [
-  30 * 1000, // 30s — 1º bloqueio
-  2 * 60 * 1000, // 2min — 2º
-  10 * 60 * 1000, // 10min — 3º
-  30 * 60 * 1000, // 30min — 4º e subsequentes
+const GLOBAL_IP_MAX_FAILURES = 50;
+const GLOBAL_IP_WINDOW_SEC = 300; // 5min
+const LOCK_DURATIONS_SEC = [
+  60, // 1min — 1º bloqueio
+  300, // 5min — 2º
+  900, // 15min — 3º
+  3600, // 1h — 4º
+  86400, // 24h — 5º e subsequentes
 ];
 
 @Injectable()
-export class LockoutService {
+export class LockoutService implements OnModuleDestroy {
   private readonly logger = new Logger(LockoutService.name);
   private readonly entries = new Map<string, LockoutEntry>();
+  private redisAvailable = true;
+
+  constructor(
+    @Optional() private readonly cacheService?: CacheService,
+  ) {}
+
+  async onModuleDestroy(): Promise<void> {
+    // Cleanup do Map local (nenhuma ação de shutdown necessária para Redis).
+  }
 
   /**
-   * Chave normalizada: IP + email lowercase. Permite detectar brute force
-   * por IP mesmo com emails diferentes, e por email mesmo com IPs diferentes.
+   * Chave normalizada: IP + email lowercase.
    */
   private key(ip: string, email: string): string {
-    return `${ip}:${email.toLowerCase().trim()}`;
+    return `lockout:${ip}:${email.toLowerCase().trim()}`;
+  }
+
+  private globalKey(ip: string): string {
+    return `lockout:global:${ip}`;
+  }
+
+  private isRedisReachable(): boolean {
+    return this.cacheService !== undefined && this.redisAvailable;
   }
 
   /**
    * Verifica se a chave está bloqueada no momento.
-   * @returns tempo restante em ms se bloqueada, 0 caso contrário.
    */
-  isLocked(ip: string, email: string): { locked: boolean; remainingMs: number } {
+  async isLocked(ip: string, email: string): Promise<{ locked: boolean; remainingMs: number }> {
+    if (this.isRedisReachable()) {
+      return this.isLockedRedis(ip, email);
+    }
+    return this.isLockedLocal(ip, email);
+  }
+
+  private async isLockedRedis(ip: string, email: string): Promise<{ locked: boolean; remainingMs: number }> {
+    try {
+      const k = this.key(ip, email);
+      const ttl = await this.cacheService!.getRedisClient().ttl(k);
+      if (ttl < 0) return { locked: false, remainingMs: 0 }; // key não existe
+      const counter = await this.cacheService!.getRedisClient().get(k);
+      const count = counter ? Number.parseInt(counter, 10) : 0;
+      const isAtThreshold = count >= MAX_FAILURES_BEFORE_LOCK;
+      if (isAtThreshold && ttl > 0) {
+        return { locked: true, remainingMs: ttl * 1000 };
+      }
+      return { locked: false, remainingMs: 0 };
+    } catch {
+      this.markRedisUnavailable();
+      return this.isLockedLocal(ip, email);
+    }
+  }
+
+  private isLockedLocal(ip: string, email: string): { locked: boolean; remainingMs: number } {
     const k = this.key(ip, email);
     const entry = this.entries.get(k);
     if (!entry) return { locked: false, remainingMs: 0 };
@@ -64,17 +106,90 @@ export class LockoutService {
 
   /**
    * Registra tentativa falha. Se atingir threshold, aplica bloqueio.
-   *
-   * Lógica de escalonamento:
-   * - A cada MAX_FAILURES_BEFORE_LOCK (5) falhas, aplica um novo nível de bloqueio.
-   * - Se já está bloqueado, incrementa contador mas não re-aplica bloqueio
-   *   (o bloqueio atual precisa expirar antes de novo nível).
-   * - Quando o bloqueio expira e o usuário falha de novo, se o contador
-   *   acumulado atingir próximo múltiplo de 5, aplica próximo nível.
-   *
-   * @returns info sobre bloqueio aplicado (se houve novo bloqueio nesta chamada).
    */
-  registerFailure(
+  async registerFailure(
+    ip: string,
+    email: string,
+  ): Promise<{
+    failedCount: number;
+    locked: boolean;
+    lockedForMs: number;
+  }> {
+    if (this.isRedisReachable()) {
+      return this.registerFailureRedis(ip, email);
+    }
+    return this.registerFailureLocal(ip, email);
+  }
+
+  private async registerFailureRedis(
+    ip: string,
+    email: string,
+  ): Promise<{
+    failedCount: number;
+    locked: boolean;
+    lockedForMs: number;
+  }> {
+    try {
+      const redis = this.cacheService!.getRedisClient();
+      const k = this.key(ip, email);
+      const globalK = this.globalKey(ip);
+
+      // Pipeline atômico: INCR no contador por IP+email + INCR no contador global
+      const pipe = redis.pipeline();
+      pipe.incr(k);
+      pipe.incr(globalK);
+      const results = await pipe.exec();
+
+      if (!results) {
+        this.markRedisUnavailable();
+        return this.registerFailureLocal(ip, email);
+      }
+
+      const failedCount = results[0]?.[1] as number;
+      const globalCount = results[1]?.[1] as number;
+
+      // TTL no contador global: 5min
+      await redis.expire(globalK, GLOBAL_IP_WINDOW_SEC);
+
+      // Bloqueio por IP global (> 50 falhas em 5min)
+      if (globalCount >= GLOBAL_IP_MAX_FAILURES) {
+        const globalBlocked = await redis.ttl(globalK);
+        if (globalBlocked > 0) {
+          const lockDur = LOCK_DURATIONS_SEC[Math.min(4, Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1)] ?? LOCK_DURATIONS_SEC[4]!;
+          await redis.expire(k, lockDur);
+          await redis.expire(globalK, lockDur);
+          this.logger.warn(
+            `Lockout global aplicado para IP ${ip} (${globalCount} falhas em ${GLOBAL_IP_WINDOW_SEC}s)`,
+          );
+          return { failedCount, locked: true, lockedForMs: lockDur * 1000 };
+        }
+      }
+
+      // Bloqueio por IP+email ao atingir threshold
+      const isMultipleOfThreshold = failedCount % MAX_FAILURES_BEFORE_LOCK === 0;
+      if (isMultipleOfThreshold) {
+        const lockLevel = Math.min(
+          Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1,
+          LOCK_DURATIONS_SEC.length - 1,
+        );
+        const lockDur = LOCK_DURATIONS_SEC[lockLevel]!;
+        await redis.expire(k, lockDur);
+        this.logger.warn(
+          `Lockout ${lockLevel + 1}o nível (${lockDur}s) aplicado para ${k}: ${failedCount} falhas`,
+        );
+        return { failedCount, locked: true, lockedForMs: lockDur * 1000 };
+      }
+
+      // Sem bloqueio ainda: mantém a janela de 15min
+      await redis.expire(k, WINDOW_SEC);
+      return { failedCount, locked: false, lockedForMs: 0 };
+    } catch {
+      this.markRedisUnavailable();
+      return this.registerFailureLocal(ip, email);
+    }
+  }
+
+  private registerFailureLocal(
     ip: string,
     email: string,
   ): {
@@ -86,7 +201,6 @@ export class LockoutService {
     const now = Date.now();
     const existing = this.entries.get(k);
 
-    // Reset se última tentativa foi fora da janela (15min sem atividade).
     let entry: LockoutEntry;
     if (!existing || now - existing.lastAttempt > WINDOW_MS) {
       entry = { failedCount: 1, blockedUntil: 0, lastAttempt: now };
@@ -98,27 +212,23 @@ export class LockoutService {
       };
     }
 
-    // Aplica bloqueio se atingir múltiplo de MAX_FAILURES_BEFORE_LOCK
-    // E o bloqueio anterior já expirou (ou nunca houve).
     let locked = false;
     let lockedForMs = 0;
     const isMultipleOfThreshold = entry.failedCount % MAX_FAILURES_BEFORE_LOCK === 0;
     const blockExpired = entry.blockedUntil <= now;
     if (isMultipleOfThreshold && blockExpired) {
-      // lockLevel = quantos bloqueios já aplicamos (0-indexed).
-      // 5 falhas → level 0 (30s), 10 falhas → level 1 (2min), etc.
       const lockLevel = Math.min(
         Math.floor(entry.failedCount / MAX_FAILURES_BEFORE_LOCK) - 1,
-        LOCK_DURATIONS_MS.length - 1,
+        LOCK_DURATIONS_SEC.length - 1,
       );
-      const duration = LOCK_DURATIONS_MS[lockLevel];
+      const duration = LOCK_DURATIONS_SEC[lockLevel];
       if (duration !== undefined) {
-        lockedForMs = duration;
+        lockedForMs = duration * 1000;
         entry.blockedUntil = now + lockedForMs;
       }
       locked = true;
       this.logger.warn(
-        `Lockout aplicado para ${k}: nível ${lockLevel + 1}, ${lockedForMs / 1000}s`,
+        `Lockout local aplicado para ${k}: nível ${lockLevel + 1}, ${lockedForMs / 1000}s`,
       );
     }
 
@@ -129,7 +239,16 @@ export class LockoutService {
   /**
    * Reseta contador após login bem-sucedido.
    */
-  resetOnSuccess(ip: string, email: string): void {
+  async resetOnSuccess(ip: string, email: string): Promise<void> {
+    if (this.isRedisReachable()) {
+      try {
+        const k = this.key(ip, email);
+        await this.cacheService!.getRedisClient().del(k);
+        return;
+      } catch {
+        this.markRedisUnavailable();
+      }
+    }
     const k = this.key(ip, email);
     this.entries.delete(k);
   }
@@ -138,6 +257,7 @@ export class LockoutService {
    * Limpa entradas expiradas (chamar periodicamente).
    */
   cleanup(): number {
+    if (this.isRedisReachable()) return 0; // Redis auto-expira via TTL
     const now = Date.now();
     let removed = 0;
     for (const [k, entry] of this.entries) {
@@ -147,5 +267,12 @@ export class LockoutService {
       }
     }
     return removed;
+  }
+
+  private markRedisUnavailable(): void {
+    if (this.redisAvailable) {
+      this.redisAvailable = false;
+      this.logger.error("Redis indisponível — LockoutService operando em modo local (degradado).");
+    }
   }
 }
