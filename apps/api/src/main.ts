@@ -15,8 +15,6 @@ import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
 
 async function bootstrap(): Promise<void> {
-
-async function bootstrap(): Promise<void> {
   const port = Number.parseInt(process.env.PORT ?? "4000", 10);
   const host = process.env.HOST ?? "0.0.0.0";
   const isProduction = process.env.NODE_ENV === "production";
@@ -127,11 +125,6 @@ async function bootstrap(): Promise<void> {
     }
   } catch (err) {
     console.error(`[boot] listen FAILED: ${String(err)}`);
-    throw err;
-  }
-  } catch (err) {
-    clearInterval(hb);
-    console.log(`[boot] listen FAILED: ${String(err)}`);
     throw err;
   }
   console.log(`[media-rate-api] Swagger UI: http://${host}:${port}/api/docs`);
