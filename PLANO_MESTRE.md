@@ -357,7 +357,7 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 - [x] 9.1.2 Testes unitários + integração. · evid: `.github/workflows/ci.yml:41-66` — job `test` roda `npx vitest run --coverage`. 338 testes passando.
 - [x] 9.1.3 SAST (CodeQL) + dependency scan. · evid: `.github/workflows/ci.yml:93-106` — CodeQL (javascript-typescript). `security.yml` — cron semanal com `npm audit` + CodeQL v3 + Trivy (fs). `npm audit --audit-level=high` no CI lint-audit job. T026: corrigido `pnpm`→`npm` e `master`→`main`.
 - [x] 9.1.4 Build Docker multi-stage com `prune` de dev deps. · evid: `apps/api/Dockerfile` — multi-stage (builder + runner), node:20-alpine, usuário não-root (nestjs:nodejs), HEALTHCHECK wget, `npm ci --workspace=apps/api` com prune de dev deps no estágio de produção. T026 implementado.
-- [~] 9.1.5 Scan de imagem com Trivy. · evid: `security.yml:27-33` — Trivy `aquasecurity/trivy-action@master` configurado para scan `fs`. Imagem Docker agora existe (9.1.4), mas scan de imagem (não filesystem) requer `scan-type: 'image'` com build prévio. Pendente: adicionar job de build + scan de imagem.
+- [x] 9.1.5 Scan de imagem com Trivy. · evid: `security.yml:36-55` — job `trivy-image`: build Docker image → `aquasecurity/trivy-action@0.28.0` com `image-ref`, severidade `CRITICAL,HIGH`, `exit-code: 1`, upload SARIF via `github/codeql-action/upload-sarif@v3`. Roda em cron semanal + push para main + workflow_dispatch. T027 implementado.
 - [~] 9.1.6 Deploy automático em staging após merge em `main`. · evid: `deploy.yml` — validate → migrate → deploy-web (Vercel) + deploy-api (Railway) → health-check. `railway.json` criado (T026). URLs placeholder (`media-rate.example.com`). Sem staging separado.
 
 ### Secrets e Deploy (9.2–9.4)
