@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 
 interface TextMarqueeProps {
   items: string[];
@@ -18,9 +18,17 @@ export function TextMarquee({
   itemClassName,
   pauseOnHover = true,
 }: TextMarqueeProps) {
-  const shouldReduce = useReducedMotion();
+  // T046: detecta prefers-reduced-motion apos mount (evita mismatch SSR/cliente).
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduce(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
 
-  if (shouldReduce) {
+  if (reduce) {
     return (
       <div className={`flex flex-wrap justify-center gap-4 ${className ?? ""}`}>
         {items.map((item, i) => (

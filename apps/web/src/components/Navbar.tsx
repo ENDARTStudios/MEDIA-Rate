@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { LazyLogo } from "./lazy";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -12,7 +12,15 @@ import { toast } from "sonner";
 
 export function Navbar() {
   const t = useTranslations("nav");
-  const shouldReduce = useReducedMotion();
+  // T046: detecta prefers-reduced-motion apos mount.
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduce(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -39,8 +47,8 @@ export function Navbar() {
         <div className={`flex justify-between transition-all duration-normal ${scrolled ? "h-14" : "h-16"}`}>
           <motion.div
             className="flex items-center"
-            whileHover={shouldReduce ? undefined : { scale: 1.02 }}
-            transition={{ duration: shouldReduce ? 0 : 0.2 }}
+            whileHover={reduce ? undefined : { scale: 1.02 }}
+            transition={{ duration: reduce ? 0 : 0.2 }}
           >
             <Link
               href="/"
@@ -112,10 +120,10 @@ export function Navbar() {
           <motion.div
             id="mobile-menu"
             className="md:hidden"
-            initial={shouldReduce ? false : { opacity: 0, height: 0 }}
+            initial={reduce ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            exit={shouldReduce ? undefined : { opacity: 0, height: 0 }}
-            transition={{ duration: shouldReduce ? 0 : 0.2, ease: "easeInOut" }}
+            exit={reduce ? undefined : { opacity: 0, height: 0 }}
+            transition={{ duration: reduce ? 0 : 0.2, ease: "easeInOut" }}
           >
             <div className="px-2 pt-2 pb-3 space-y-1 bg-black border-t border-surface-border">
               <Link href="/catalog" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">{t("catalog")}</Link>

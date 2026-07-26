@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { gsap, SplitText } from "@/lib/gsap-config";
 import { LazyParallaxBackground } from "./lazy";
@@ -14,7 +14,15 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps) {
-  const shouldReduce = useReducedMotion();
+  // T046: detecta prefers-reduced-motion apos mount (evita mismatch SSR/cliente).
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduce(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -53,9 +61,9 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
       <LazyParallaxBackground>
         <motion.div
           className="max-w-4xl mx-auto text-center relative z-10"
-          initial={shouldReduce ? false : { opacity: 0, y: 24 }}
+          initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldReduce ? 0 : 0.6, ease: "easeOut" }}
+          transition={{ duration: reduce ? 0 : 0.6, ease: "easeOut" }}
         >
           <h1
             id="hero-title"
@@ -67,17 +75,17 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
 
           <motion.p
             className="text-lg md:text-xl text-primary-100/80 mb-10 max-w-2xl mx-auto"
-            initial={shouldReduce ? false : { opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: shouldReduce ? 0 : 0.5, delay: shouldReduce ? 0 : 0.2, ease: "easeOut" }}
+            transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : 0.2, ease: "easeOut" }}
           >
             {subtitle}
           </motion.p>
 
           <motion.div
-            initial={shouldReduce ? false : { opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: shouldReduce ? 0 : 0.5, delay: shouldReduce ? 0 : 0.3, ease: "easeOut" }}
+            transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : 0.3, ease: "easeOut" }}
           >
             <Link
               href={ctaHref}
