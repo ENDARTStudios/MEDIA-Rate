@@ -6,7 +6,7 @@
   },
   "deploy": {
     "startCommand": "/app/docker-entrypoint.sh",
-    "healthcheckPath": "/api/v1/health",
+    "healthcheckPath": "/health",
     "restartPolicy": "ON_FAILURE"
   }
 }
