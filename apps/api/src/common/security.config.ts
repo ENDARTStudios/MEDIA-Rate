@@ -73,7 +73,7 @@ export function buildHelmetOptions(
 
   return {
     hsts: isProduction ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
-    contentTypeNoSniff: true,
+    // noSniff e aplicado por default pelo helmet; contentTypeNoSniff removido (nao existe na v13).
     frameguard: { action: "deny" },
     hidePoweredBy: true,
     // CSP gerenciada via hook onSend (T021/7.1) — nao via Helmet.

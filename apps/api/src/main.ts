@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import "dotenv/config";
-import { NestFactory, Reflector } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
@@ -44,16 +44,25 @@ async function bootstrap(): Promise<void> {
     // CacheModule nao disponivel (ex.: testes) — fallback memoria local.
   }
   await fastifyAdapter.register(
-    rateLimit,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rateLimit as any,
     buildRateLimitOptions({ redis: rateLimitRedis }),
   );
 
   // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
   // CSP gerenciada separadamente via hook onSend (T021/7.1).
-  await fastifyAdapter.register(helmet, buildHelmetOptions());
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    helmet as any,
+    buildHelmetOptions(),
+  );
 
   // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
-  await fastifyAdapter.register(cors, buildCorsOptions());
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cors as any,
+    buildCorsOptions(),
+  );
 
   const fastify = fastifyAdapter.getInstance();
 
@@ -87,8 +96,7 @@ async function bootstrap(): Promise<void> {
   });
 
   // T1.1: HTTPS redirect em producao (308 quando x-forwarded-proto=http).
-  const reflector = app.get(Reflector);
-  app.useGlobalGuards(new HttpsRedirectGuard(reflector));
+  app.useGlobalGuards(new HttpsRedirectGuard());
 
   // T1.6: Exception filter global.
   app.useGlobalFilters(new GlobalExceptionFilter());

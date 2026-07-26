@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { FastifyReply } from "fastify";
+import "@fastify/cookie";
 
 /**
  * Configuração de cookie de sessão (T3.2).

@@ -98,9 +98,9 @@ export function buildRateLimitOptions(
     timeWindow: 60_000,
     keyGenerator: (req: FastifyRequest) => {
       const ip = req.ip ?? "unknown";
-      const rawUrl = (req as Record<string, unknown>).raw
-        ? ((req as Record<string, unknown>).raw as Record<string, string>).url ?? "/"
-        : (req.url ?? "/");
+      const rawUrl = ((req as unknown as Record<string, unknown>).raw
+        ? ((req as unknown as Record<string, unknown>).raw as Record<string, string>).url ?? "/"
+        : (req.url ?? "/"));
       const route = rawUrl.split("?")[0]!;
       const userId = (req as unknown as { user?: { id: string } }).user?.id;
       if (userId) {
@@ -108,7 +108,7 @@ export function buildRateLimitOptions(
       }
       return `rl:${ip}:${route}`;
     },
-    errorResponseBuilder: (_req, context) => {
+    errorResponseBuilder: (_req: FastifyRequest, context: { max: number; ttl: number }) => {
       return {
         statusCode: 429,
         error: "Too Many Requests",

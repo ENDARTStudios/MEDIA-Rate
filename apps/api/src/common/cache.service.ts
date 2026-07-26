@@ -1,20 +1,29 @@
 import { Injectable, Logger, type OnModuleDestroy } from "@nestjs/common";
-import Redis from "ioredis";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+const Redis: any = require("ioredis");
 
 @Injectable()
 export class CacheService implements OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name);
-  private readonly redis: Redis;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private client: any;
   private readonly defaultTTL = 300;
 
   constructor(redisUrl?: string) {
-    this.redis = new Redis(redisUrl ?? "redis://localhost:6379", { maxRetriesPerRequest: 3, lazyConnect: true });
-    this.redis.on("error", (e) => this.logger.warn(`Redis connection error: ${e.message}`));
+    const url = redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379";
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    this.redis = new Redis(url, { maxRetriesPerRequest: 3, lazyConnect: true });
+    this.redis.on("error", (e: Error) => this.logger.warn(`Redis connection error: ${e.message}`));
   }
 
-  getRedisClient(): Redis {
+  getRedisClient() {
     return this.redis;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private redis: any;
 
   async get<T>(key: string): Promise<T | null> {
     const raw = await this.redis.get(key);
@@ -43,10 +52,7 @@ export class CacheService implements OnModuleDestroy {
 
   async readThrough<T>(key: string, ttlSec: number, fetchFn: () => Promise<T>): Promise<T> {
     const cached = await this.get<T>(key);
-    if (cached !== null) {
-      this.logger.debug(`Cache HIT: ${key}`);
-      return cached;
-    }
+    if (cached !== null) { this.logger.debug(`Cache HIT: ${key}`); return cached; }
     this.logger.debug(`Cache MISS: ${key}`);
     const fresh = await fetchFn();
     await this.set(key, fresh, ttlSec);

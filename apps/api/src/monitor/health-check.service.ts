@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import type { PrismaService } from "../../prisma/prisma.service.js";
+import type { PrismaService } from "../prisma/prisma.service.js";
 
 /**
  * Health check service (T9.5 — monitoramento básico).

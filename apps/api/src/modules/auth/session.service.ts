@@ -11,6 +11,7 @@ import { PrismaService } from "../../prisma/prisma.service.js";
  */
 const SESSION_TTL_HOURS = Number.parseInt(process.env.SESSION_TTL_HOURS ?? "168", 10); // 7 dias
 const SESSION_TTL_MS = SESSION_TTL_HOURS * 60 * 60 * 1000;
+const REFRESH_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24h — sliding session renewal threshold
 
 /**
  * Resultado da criação de sessão.
@@ -117,8 +118,8 @@ export class SessionService {
 
     // Sliding session: estende TTL se faltar menos de 24h para expirar.
     const msUntilExpiry = result.expires_at.getTime() - Date.now();
-    if (msUntilExpiry < this.REFRESH_THRESHOLD_MS) {
-      const newExpiry = new Date(Date.now() + this.getTtlMs());
+    if (msUntilExpiry < REFRESH_THRESHOLD_MS) {
+      const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
       await this.prisma.sessao.update({
         where: { id: result.id },
         data: { expires_at: newExpiry },

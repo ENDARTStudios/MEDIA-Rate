@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { createHash } from "crypto";
-import { PrismaService } from "../prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service.js";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -53,15 +53,15 @@ export class AuditLogService {
     };
 
     if (params.usuarioId) {
-      data.usuario = { connect: { id: params.usuarioId } };
+      data.usuario_id = params.usuarioId;
     }
 
     if (params.dadosAntes) {
-      data.dados_antes = params.dadosAntes as Prisma.JsonValue;
+      data.dados_antes = params.dadosAntes as Prisma.InputJsonValue;
     }
 
     if (params.dadosDepois) {
-      data.dados_depois = params.dadosDepois as Prisma.JsonValue;
+      data.dados_depois = params.dadosDepois as Prisma.InputJsonValue;
     }
 
     await this.prisma.auditLog.create({ data });
@@ -99,7 +99,7 @@ export class AuditLogService {
     let violacoes = 0;
 
     for (const log of logs) {
-      const payload = JSON.stringify({
+      const payload: string = JSON.stringify({
         anterior,
         entidade: log.entidade,
         entidade_id: log.entidade_id,
@@ -108,7 +108,7 @@ export class AuditLogService {
         timestamp: log.created_at.toISOString(),
       });
 
-      const hashEsperado = createHash("sha256").update(payload).digest("hex");
+      const hashEsperado: string = createHash("sha256").update(payload).digest("hex");
 
       if (hashEsperado !== log.hash_cadeia) {
         violacoes++;

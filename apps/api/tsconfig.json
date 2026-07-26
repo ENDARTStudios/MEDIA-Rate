@@ -18,7 +18,8 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
-    "removeComments": false
+    "removeComments": false,
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]

@@ -14,6 +14,7 @@ RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 
 # 3) codigo + build (gera dist/)
 COPY apps/api/ ./apps/api/
+COPY tsconfig.base.json ./
 RUN npm run build --workspace=apps/api
 
 # ============ RUNNER ============

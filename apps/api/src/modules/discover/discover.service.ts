@@ -35,13 +35,13 @@ export class DiscoverService {
       where: opts.tipo ? { tipo: opts.tipo } : undefined,
       take: Math.min(opts.limit ?? 20, 100),
       include: {
-        scores: { select: { consolidated: true }, where: { consolidated: { gt: 0 } }, take: 1, orderBy: { calculado_em: "desc" } },
+        scores: { select: { score: true }, where: { score: { gt: 0 } }, take: 1, orderBy: { calculado_em: "desc" } },
       },
     });
 
     const enriched = items.map((m: any) => ({
       ...m,
-      score: m.scores?.[0]?.consolidated ?? null,
+      score: m.scores?.[0]?.score ?? null,
     }));
     enriched.sort((a: any, b: any) => (b.score ?? 0) - (a.score ?? 0));
 
