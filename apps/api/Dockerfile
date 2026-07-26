@@ -3,10 +3,9 @@
 FROM --platform=linux/amd64 node:20-alpine AS builder
 WORKDIR /app
 
-# 1) deps (monorepo: raiz + workspace api + packages)
+# 1) deps: raiz + workspace api. SEM packages/ (nao existe no repo).
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
-COPY packages/ ./packages/
 RUN npm ci --workspace=apps/api
 
 # 2) Prisma Client (npm ci nao roda generate sem postinstall; gerar aqui)
