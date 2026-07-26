@@ -37,8 +37,10 @@ function parseAllowedOrigins(envValue: string | undefined): string[] {
  */
 export function buildCorsOptions(overrides: Partial<CorsConfigOptions> = {}): FastifyCorsOptions {
   const isProduction = process.env.NODE_ENV === "production";
+  const rawOrigins =
+    process.env.ALLOWED_ORIGINS ?? process.env.CORS_ORIGIN ?? "";
   const allowedOrigins =
-    overrides.allowedOrigins ?? parseAllowedOrigins(process.env.ALLOWED_ORIGINS);
+    overrides.allowedOrigins ?? parseAllowedOrigins(rawOrigins);
 
   if (isProduction) {
     if (allowedOrigins.length === 0) {
@@ -64,7 +66,7 @@ export function buildCorsOptions(overrides: Partial<CorsConfigOptions> = {}): Fa
         cb(null, true);
         return;
       }
-      cb(new Error(`CORS: origem ${origin} nao permitida`), false);
+      cb(null, false); // origem nao permitida — sem headers CORS (browser bloqueia)
     },
     credentials: overrides.allowCredentials ?? true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

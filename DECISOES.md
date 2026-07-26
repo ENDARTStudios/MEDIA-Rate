@@ -468,3 +468,9 @@ A T048 foi bloqueada por SCOPE_OVERFLOW. Decomposta em:
 - T052: Frontend use-auth-store.ts — trocar localStorage por chamadas API reais
 - T053: Frontend páginas login/register — ligar formulários às chamadas reais
 - T054: Playwright diag-auth-real.mjs — validação comportamental cross-site
+
+---
+
+## [2026-07-25] D-053 — T056: CORS lê ALLOWED_ORIGINS com fallback CORS_ORIGIN
+
+`cors.config.ts` agora lê `ALLOWED_ORIGINS` (primário) e `CORS_ORIGIN` (fallback). Origem não permitida retorna `cb(null, false)` em vez de `cb(new Error(...))` — evita 500 em preflight. Lista explícita de origens permitidas; never wildcard with credentials.
