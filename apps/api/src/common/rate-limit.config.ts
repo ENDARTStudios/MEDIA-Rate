@@ -7,19 +7,20 @@ export interface RateLimitConfigOptions {
   redis?: unknown;
 }
 
-interface RedisSliding {
-  multi(): RedisSliding;
-  zremrangebyscore(key: string, min: number, max: number): RedisSliding;
-  zadd(key: string, score: string, member: string): RedisSliding;
-  zcard(key: string): RedisSliding;
-  pexpire(key: string, ms: number): RedisSliding;
-  exec(): Promise<Array<[Error | null, unknown]>>;
+/**
+ * Interface minima para o cliente ioredis usado pelo @fastify/rate-limit.
+ * O plugin usa incr + pexpire como store nativa de Redis. Basta um objeto
+ * com esses metodos — sem precisar de constructable class.
+ */
+interface RateLimitRedisClient {
+  incr(key: string): Promise<number>;
+  pexpire(key: string, ms: number): Promise<number>;
 }
 
-function isRedisSliding(obj: unknown): obj is RedisSliding {
+function isRateLimitRedis(obj: unknown): obj is RateLimitRedisClient {
   if (!obj || typeof obj !== "object") return false;
   const r = obj as Record<string, unknown>;
-  return typeof r.multi === "function" && typeof r.zadd === "function";
+  return typeof r.incr === "function" && typeof r.pexpire === "function";
 }
 
 function envInt(key: string, fallback: number): number {
@@ -29,59 +30,15 @@ function envInt(key: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-let memberCounter = 0;
-
-/**
- * Store Redis com sliding window via sorted set (ZADD + ZREMRANGEBYSCORE + ZCARD).
- * T020/7.3 — True sliding window: cada requisicao e registrada como entrada no ZSET
- * com timestamp como score. Entradas fora da janela sao removidas antes da contagem.
- *
- * Fallback: se Redis nao disponivel, @fastify/rate-limit usa store em memoria padrao.
- */
-class RedisSlidingWindowStore {
-  constructor(private readonly redis: RedisSliding) {}
-
-  incr(
-    key: string,
-    cb: (err: Error | null, current: number, ttl: number, max: number) => void,
-    max: number,
-    timeWindow: number,
-  ): void {
-    const now = Date.now();
-    const cutoff = now - timeWindow;
-    const member = `${now}:${(memberCounter++).toString(36)}`;
-
-    void this.redis
-      .multi()
-      .zremrangebyscore(key, 0, cutoff)
-      .zadd(key, now.toString(), member)
-      .zcard(key)
-      .pexpire(key, timeWindow)
-      .exec()
-      .then((results) => {
-        const current = (results?.[2]?.[1] as number) ?? 0;
-        cb(null, current, Math.ceil(timeWindow / 1000), max);
-      })
-      .catch(() => {
-        cb(null, 0, Math.ceil(timeWindow / 1000), max);
-      });
-  }
-
-  child(
-    _routeOptions: FastifyRateLimitOptions,
-    cb: (err: Error | null, current: number, ttl: number, max: number, newKey: string) => void,
-  ): void {
-    cb(null, 0, 60, 100, "");
-  }
-}
-
 /**
  * Constroi opcoes de rate limit para @fastify/rate-limit.
  *
- * T020/7.3 — Rate limit avancado (revisado T021):
- * - Sliding window real via Redis ZSET (ZADD + ZREMRANGEBYSCORE + ZCARD).
- *   Cada requisicao registra timestamp no sorted set; entradas expiradas sao removidas.
- * - Store: Redis (ioredis) quando disponivel; fallback para memoria local.
+ * T020/7.3 + T035:
+ * - Store: Redis nativo do @fastify/rate-limit (INCR + PEXPIRE, janela fixa).
+ *   DIVIDA TECNICA: O sliding window via ZSET foi removido (T020/T021) porque a
+ *   store custom (RedisSlidingWindowStore) nao era compativel com a API v11 do
+ *   @fastify/rate-limit (Store is not a constructor). Reintroduzir sliding window
+ *   quando o plugin suportar store como instancia ou migrar para outro rate-limiter.
  * - Key generator: rl:{userId}:{rota} autenticado, rl:{ip}:{rota} anonimo.
  * - Per-route: loginRateLimit() 6/min, uploadRateLimit() 10/min, discoverRateLimit() 30/min.
  * - Global: 100/min via RATE_LIMIT_API_PER_MIN.
@@ -115,8 +72,8 @@ export function buildRateLimitOptions(
         message: `Limite de ${context.max} requisicoes por ${Math.round((context.ttl ?? 60_000) / 1000)}s atingido. Tente novamente em breve.`,
       };
     },
-    ...(redis && isRedisSliding(redis)
-      ? { store: new RedisSlidingWindowStore(redis as RedisSliding) }
+    ...(redis && isRateLimitRedis(redis)
+      ? { redis: redis as RateLimitRedisClient }
       : {}),
   };
 }
