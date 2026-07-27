@@ -1,14 +1,33 @@
 const SESSION_EXPIRED_EVENT = "mediarate:session-expired";
 
-// T057: cross-domain fix — document.cookie nao le cookies de railway.app.
-// Armazenamos em memoria o csrf_token capturado do login response.
-let _csrfToken: string | null = null;
-export function setCsrfToken(token: string | null) { _csrfToken = token; }
+// T057 cross-domain fix: sessionStorage sobrevive ao Next.js SSR→client.
+// csrf_token nao e credencial de sessao — e seguro em sessionStorage.
+const CSRF_KEY = "mediarate:csrf";
+function readCsrfStore(): string | null {
+  if (typeof sessionStorage === "undefined") return null;
+  try { return sessionStorage.getItem(CSRF_KEY); } catch { return null; }
+}
+function writeCsrfStore(token: string | null) {
+  if (typeof sessionStorage === "undefined") return;
+  try {
+    if (token) sessionStorage.setItem(CSRF_KEY, token);
+    else sessionStorage.removeItem(CSRF_KEY);
+  } catch {}
+}
+
+export function setCsrfToken(token: string | null) { writeCsrfStore(token); }
+
+export function getCsrfToken(): string | null {
+  const stored = readCsrfStore();
+  if (stored) return stored;
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+  return m ? m[1]! : null;
+}
 
 export class ApiError extends Error {
   status: number;
   body: unknown;
-
   constructor(status: number, message: string, body?: unknown) {
     super(message);
     this.name = "ApiError";
@@ -21,7 +40,6 @@ export class SessionExpiredError extends Error {
   constructor() {
     super("Sessão expirada.");
     this.name = "SessionExpiredError";
-    // Dispara evento para o store limpar estado (T052)
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
     }
@@ -37,13 +55,6 @@ function getBaseUrl(): string {
     return "http://localhost:4000";
   }
   return url.replace(/\/+$/, "");
-}
-
-export function getCsrfToken(): string | null {
-  if (_csrfToken) return _csrfToken;
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
-  return match ? match[1]! : null;
 }
 
 function isMutation(method: string): boolean {
@@ -119,14 +130,9 @@ export async function apiFetch<T = unknown>(
 }
 
 export const api = {
-  get: <T = unknown>(path: string, opts?: FetchOptions) =>
-    apiFetch<T>(path, { ...opts, method: "GET" }),
-  post: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
-    apiFetch<T>(path, { ...opts, method: "POST", body }),
-  put: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
-    apiFetch<T>(path, { ...opts, method: "PUT", body }),
-  patch: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
-    apiFetch<T>(path, { ...opts, method: "PATCH", body }),
-  delete: <T = unknown>(path: string, opts?: FetchOptions) =>
-    apiFetch<T>(path, { ...opts, method: "DELETE", ...opts }),
+  get: <T = unknown>(path: string, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "GET" }),
+  post: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "POST", body }),
+  put: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "PUT", body }),
+  patch: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "PATCH", body }),
+  delete: <T = unknown>(path: string, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "DELETE", ...opts }),
 };
