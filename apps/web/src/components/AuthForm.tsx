@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { loginSchema, registerSchema, getPasswordStrength, type LoginData, type RegisterData } from "@/lib/schemas/auth";
@@ -30,20 +31,42 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <div className="sr-only" aria-live="polite" role="status">
-        {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
+    <>
+      <style>{`
+        @keyframes beam-h { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
+        @keyframes beam-v { 0%, 100% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(100%); } }
+      `}</style>
+      <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+        <div className="absolute inset-0 rounded-md overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite" }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite 2s" }} />
+          <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: "linear-gradient(180deg, transparent, #818CF8 50%, transparent)", animation: "beam-v 4s ease-in-out infinite 1s" }} />
+          <div className="absolute right-0 top-0 bottom-0 w-[1px]" style={{ background: "linear-gradient(180deg, transparent, #818CF8 50%, transparent)", animation: "beam-v 4s ease-in-out infinite 3s" }} />
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+          <div className="sr-only" aria-live="polite" role="status">
+            {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
+          </div>
+          <Field label="Email" error={errors.email?.message} autoComplete="email">
+            <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          </Field>
+          <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="current-password">
+            <PasswordInput register={register("password")} error={!!errors.password} />
+          </Field>
+          <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
+            {isSubmitting ? "Entrando..." : t("login")}
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-[#9CA3AF] mt-6">
+          Não tem conta?{" "}
+          <Link href="/register" className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all">
+            Cadastre-se
+          </Link>
+        </p>
       </div>
-      <Field label="Email" error={errors.email?.message} autoComplete="email">
-        <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
-      </Field>
-      <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="current-password">
-        <PasswordInput register={register("password")} error={!!errors.password} />
-      </Field>
-      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-        {isSubmitting ? "Entrando..." : t("login")}
-      </Button>
-    </form>
+    </>
   );
 }
 
@@ -70,50 +93,72 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <div className="sr-only" aria-live="polite" role="status">
-        {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
-      </div>
-      <Field label="Nome" error={errors.name?.message} autoComplete="name">
-        <input {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
-      </Field>
-      <Field label="Email" error={errors.email?.message} autoComplete="email">
-        <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
-      </Field>
-      <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="new-password">
-        <PasswordInput register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
-        {strength && (
-          <div className="mt-1.5">
-            <div className="flex gap-1">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ backgroundColor: i < strength.segments ? strength.color : "rgba(148,163,255,0.1)" }} />
-              ))}
-            </div>
-            <p className="text-xs mt-0.5" style={{ color: strength.color }}>
-              {strength.level === "weak" ? t("passwordWeak") : strength.level === "medium" ? t("passwordMedium") : t("passwordStrong")}
-            </p>
+    <>
+      <style>{`
+        @keyframes beam-h { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
+        @keyframes beam-v { 0%, 100% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(100%); } }
+      `}</style>
+      <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+        <div className="absolute inset-0 rounded-md overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite" }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite 2s" }} />
+          <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: "linear-gradient(180deg, transparent, #818CF8 50%, transparent)", animation: "beam-v 4s ease-in-out infinite 1s" }} />
+          <div className="absolute right-0 top-0 bottom-0 w-[1px]" style={{ background: "linear-gradient(180deg, transparent, #818CF8 50%, transparent)", animation: "beam-v 4s ease-in-out infinite 3s" }} />
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+          <div className="sr-only" aria-live="polite" role="status">
+            {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
           </div>
-        )}
-      </Field>
-      <Field label="Confirmar senha" error={errors.confirmPassword?.message} autoComplete="new-password">
-        <PasswordInput register={register("confirmPassword")} error={!!errors.confirmPassword} />
-      </Field>
-      <label className="flex items-start gap-2 text-xs text-gray-400 cursor-pointer">
-        <input type="checkbox" {...register("acceptTerms")} className="mt-0.5 accent-accent-500" />
-        <span>Concordo com os <a href="/terms" className="text-accent-400 underline" target="_blank">Termos</a> e a <a href="/privacy" className="text-accent-400 underline" target="_blank">Política de Privacidade</a></span>
-      </label>
-      {errors.acceptTerms && <p className="text-xs text-red-500" role="alert">{errors.acceptTerms.message}</p>}
-      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-        {isSubmitting ? "Criando conta..." : t("register")}
-      </Button>
-    </form>
+          <Field label="Nome" error={errors.name?.message} autoComplete="name">
+            <input {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
+          </Field>
+          <Field label="Email" error={errors.email?.message} autoComplete="email">
+            <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          </Field>
+          <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="new-password">
+            <PasswordInput register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
+            {strength && (
+              <div className="mt-1.5">
+                <div className="flex gap-1">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ backgroundColor: i < strength.segments ? strength.color : "rgba(129,140,248,0.12)" }} />
+                  ))}
+                </div>
+                <p className="text-xs mt-0.5" style={{ color: strength.color }}>
+                  {strength.level === "weak" ? t("passwordWeak") : strength.level === "medium" ? t("passwordMedium") : t("passwordStrong")}
+                </p>
+              </div>
+            )}
+          </Field>
+          <Field label="Confirmar senha" error={errors.confirmPassword?.message} autoComplete="new-password">
+            <PasswordInput register={register("confirmPassword")} error={!!errors.confirmPassword} />
+          </Field>
+          <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
+            <input type="checkbox" {...register("acceptTerms")} className="mt-0.5 accent-[#818CF8]" />
+            <span>Concordo com os <a href="/terms" className="text-[#818CF8] underline" target="_blank">Termos</a> e a <a href="/privacy" className="text-[#818CF8] underline" target="_blank">Política de Privacidade</a></span>
+          </label>
+          {errors.acceptTerms && <p className="text-xs text-red-500" role="alert">{errors.acceptTerms.message}</p>}
+          <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
+            {isSubmitting ? "Criando conta..." : t("register")}
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-[#9CA3AF] mt-6">
+          Já tem conta?{" "}
+          <Link href="/login" className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all">
+            Entrar
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }
 
 function Field({ label, error, children, autoComplete }: { label: string; error?: string; children: React.ReactNode; autoComplete?: string }) {
   return (
     <div>
-      <label className="block text-xs text-gray-400 mb-1">{label}</label>
+      <label className="block text-xs text-[#9CA3AF] mb-1">{label}</label>
       {children}
       {error && <p className="text-xs text-red-500 mt-1" role="alert">{error}</p>}
     </div>
@@ -124,8 +169,8 @@ function PasswordInput({ register, error, onChange }: { register: ReturnType<imp
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <input {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#131331] border border-surface-border/30 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 aria-[invalid=true]:border-red-500" placeholder="••••••" />
-      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs" aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
+      <input {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="••••••" />
+      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC] text-xs" aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
         {show ? "🙈" : "👁"}
       </button>
     </div>

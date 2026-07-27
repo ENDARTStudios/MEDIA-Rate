@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { LazyLogo } from "./lazy";
+import { Logo } from "./Logo";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { toast } from "sonner";
 
@@ -52,11 +52,10 @@ export function Navbar() {
           >
             <Link
               href="/"
-              className="flex items-center gap-2 text-xl font-bold text-accent-600 hover:text-accent-500 transition-colors"
+              className="flex items-center gap-2 text-xl font-bold text-[#EDE7DC] hover:text-[#818CF8] transition-colors"
               aria-label="MEDIA Rate — Página inicial"
             >
-              <LazyLogo className="w-8 h-8" />
-              MEDIA Rate
+              <Logo variant="compact" size="sm" />
             </Link>
           </motion.div>
 

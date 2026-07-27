@@ -17,7 +17,7 @@ export function GlowingEffect({
   disabled = false,
   proximity = 64,
   inactiveZone = 0.01,
-  borderWidth = 2,
+  borderWidth = 3,
 }: GlowingEffectProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -56,22 +56,22 @@ export function GlowingEffect({
     if (intensity <= 0) return;
 
     const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, spread);
-    gradient.addColorStop(0, `rgba(225, 29, 72, ${0.15 * intensity})`);
-    gradient.addColorStop(0.5, `rgba(225, 29, 72, ${0.08 * intensity})`);
-    gradient.addColorStop(1, "rgba(225, 29, 72, 0)");
+    gradient.addColorStop(0, `rgba(129, 140, 248, ${0.15 * intensity})`);
+    gradient.addColorStop(0.5, `rgba(129, 140, 248, ${0.08 * intensity})`);
+    gradient.addColorStop(1, "rgba(129, 140, 248, 0)");
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, rect.width, rect.height);
 
     const borderGradient = ctx.createRadialGradient(cx, cy, spread * 0.8, cx, cy, spread);
-    borderGradient.addColorStop(0, `rgba(225, 29, 72, ${0.6 * intensity})`);
-    borderGradient.addColorStop(1, "rgba(225, 29, 72, 0)");
+    borderGradient.addColorStop(0, `rgba(129, 140, 248, ${0.6 * intensity})`);
+    borderGradient.addColorStop(1, "rgba(129, 140, 248, 0)");
 
     const r = spread * intensity;
     ctx.strokeStyle = borderGradient;
     ctx.lineWidth = borderWidth;
     ctx.beginPath();
-    ctx.roundRect(borderWidth / 2, borderWidth / 2, rect.width - borderWidth, rect.height - borderWidth, 20);
+    ctx.roundRect(borderWidth / 2, borderWidth / 2, rect.width - borderWidth, rect.height - borderWidth, 8);
     ctx.stroke();
   }, [spread, glow, disabled, proximity, inactiveZone, borderWidth]);
 
