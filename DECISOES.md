@@ -546,3 +546,9 @@ Motivo: A V3 §12 trava cores, fontes e score bands do MEDIA Rate. O design syst
 ## [2026-07-27] D-066 — T059: ScoreDial + LayeredBackground como fundação visual
 
 O ScoreDial é o componente-âncora do produto: anel SVG com preenchimento proporcional ao score (0-10), cor por faixa, número grande em Space Grotesk, breakdown opcional (Crítica 40% / Público 40% / Consenso 20%), scroll-reveal (800ms stroke-dashoffset), hover revela breakdown. O LayeredBackground (grão SVG noise + grid 40px + spotlight radial opcional) estabelece profundidade sem aurora-blob. Página `/pt-BR/design-system` demonstra todos os componentes. Build verde (50 páginas SSG), 30 testes passando.
+
+---
+
+## [2026-07-27] D-069 — T077: noindex investigado como bug-provável (meta robots = index,follow já presente)
+
+Motivo: Crawl do Screaming Frog reportou 100% de páginas com noindex. Investigação via `curl -I` e `grep meta robots` revelou que o meta robots `<meta name="robots" content="index, follow"/>` JÁ está presente no `<head>` via `generateMetadata()` (adicionado na T074 para páginas públicas). O noindex reportado pelo crawl pode ser: (a) falso positivo do SF (crawl feito antes do deploy T074 → cache), (b) header X-Robots-Tag injetado pelo Vercel em runtime (nenhum encontrado no curl atual), ou (c) alguma página que perdeu o robots no SSR (todas as páginas SSG verificadas têm meta robots). Correção definitiva na T078 se o re-crawl confirmar persistência. Veto aberto: não corrigir dentro da T077 (é tarefa de diagnóstico).
