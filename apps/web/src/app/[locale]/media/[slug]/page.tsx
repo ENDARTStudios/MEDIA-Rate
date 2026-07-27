@@ -55,7 +55,7 @@ export default async function MediaDetailPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MediaDetailClient slug={slug} />
+      <MediaDetailClient slug={slug} initialData={media} />
     </>
   );
 }

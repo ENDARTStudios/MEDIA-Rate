@@ -6,14 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import * as Tabs from "@radix-ui/react-tabs";
 import { getMediaBySlug } from "@/lib/api";
+import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useState } from "react";
 
-export function MediaDetailClient({ slug }: { slug: string }) {
+export function MediaDetailClient({ slug, initialData }: { slug: string; initialData?: Media | null }) {
   const t = useTranslations("catalog");
-  const { data: media, isLoading, error } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug) });
+  const { data: media, isLoading, error } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
 
   if (isLoading) {
     return (
