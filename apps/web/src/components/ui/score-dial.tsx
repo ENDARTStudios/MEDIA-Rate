@@ -63,6 +63,15 @@ export function ScoreDial({
         viewBox={`0 0 ${config.viewBox} ${config.viewBox}`}
         aria-hidden="true"
       >
+        <defs>
+          <filter id={`glow-${size}`}>
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <circle
           cx={config.center}
           cy={config.center}
@@ -81,6 +90,7 @@ export function ScoreDial({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={displayOffset}
+          filter={`url(#glow-${size})`}
           style={{
             transition: inView ? "stroke-dashoffset 800ms ease-out" : "none",
           }}
