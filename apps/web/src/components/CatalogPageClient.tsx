@@ -112,9 +112,7 @@ export function CatalogPageClient({ initialData }: { initialData?: CatalogRespon
         </Suspense>
       </aside>
       <div className="flex-1 min-w-0">
-        <Suspense fallback={<CatalogSkeleton count={12} />}>
-          <CatalogContent initialData={initialData} />
-        </Suspense>
+        <CatalogContent initialData={initialData} />
       </div>
     </div>
   );
