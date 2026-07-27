@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   fetchMe: async () => {
     set({ isLoading: true });
     try {
-      const me = await api.get<{ id: string; email: string; nome: string | null }>("/api/v1/me");
+      const me = await api.get<{ id: string; email: string; nome: string | null }>("/api/v1/auth/me");
       set({ user: mapUser(me), isAuthenticated: true, isLoading: false, error: null });
     } catch (e) {
       if (e instanceof SessionExpiredError || (e instanceof ApiError && e.status === 401)) {

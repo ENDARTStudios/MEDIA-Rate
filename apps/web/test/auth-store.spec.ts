@@ -34,7 +34,7 @@ describe("Auth Store (T052)", () => {
     const result = await useAuthStore.getState().login("t@t.com", "pass");
     expect(result.success).toBe(true);
     expect(postSpy).toHaveBeenCalledWith("/api/v1/auth/login", { email: "t@t.com", password: "pass" }, { auth: false });
-    expect(getSpy).toHaveBeenCalledWith("/api/v1/me");
+    expect(getSpy).toHaveBeenCalledWith("/api/v1/auth/me");
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
     expect(useAuthStore.getState().user?.email).toBe("t@t.com");
   });
