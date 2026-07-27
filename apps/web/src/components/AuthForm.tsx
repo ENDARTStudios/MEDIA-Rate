@@ -32,10 +32,6 @@ export function LoginForm() {
 
   return (
     <>
-      <style>{`
-        @keyframes beam-h { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
-        @keyframes beam-v { 0%, 100% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(100%); } }
-      `}</style>
       <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div className="absolute inset-0 rounded-md overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite" }} />
@@ -48,11 +44,11 @@ export function LoginForm() {
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
           </div>
-          <Field label="Email" error={errors.email?.message} autoComplete="email">
-            <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          <Field id="auth-login-email" label="Email" error={errors.email?.message}>
+            <input id="auth-login-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
           </Field>
-          <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="current-password">
-            <PasswordInput register={register("password")} error={!!errors.password} />
+          <Field id="auth-login-password" label={t("password") ?? "Senha"} error={errors.password?.message}>
+            <PasswordInput id="auth-login-password" register={register("password")} error={!!errors.password} />
           </Field>
           <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
             {isSubmitting ? "Entrando..." : t("login")}
@@ -94,10 +90,6 @@ export function RegisterForm() {
 
   return (
     <>
-      <style>{`
-        @keyframes beam-h { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
-        @keyframes beam-v { 0%, 100% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(100%); } }
-      `}</style>
       <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div className="absolute inset-0 rounded-md overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, #818CF8 50%, transparent)", animation: "beam-h 4s ease-in-out infinite" }} />
@@ -110,14 +102,14 @@ export function RegisterForm() {
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
           </div>
-          <Field label="Nome" error={errors.name?.message} autoComplete="name">
-            <input {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
+          <Field id="auth-register-name" label="Nome" error={errors.name?.message}>
+            <input id="auth-register-name" {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
           </Field>
-          <Field label="Email" error={errors.email?.message} autoComplete="email">
-            <input {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          <Field id="auth-register-email" label="Email" error={errors.email?.message}>
+            <input id="auth-register-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
           </Field>
-          <Field label={t("password") ?? "Senha"} error={errors.password?.message} autoComplete="new-password">
-            <PasswordInput register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
+          <Field id="auth-register-password" label={t("password") ?? "Senha"} error={errors.password?.message}>
+            <PasswordInput id="auth-register-password" register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
             {strength && (
               <div className="mt-1.5">
                 <div className="flex gap-1">
@@ -131,8 +123,8 @@ export function RegisterForm() {
               </div>
             )}
           </Field>
-          <Field label="Confirmar senha" error={errors.confirmPassword?.message} autoComplete="new-password">
-            <PasswordInput register={register("confirmPassword")} error={!!errors.confirmPassword} />
+          <Field id="auth-register-confirm-password" label="Confirmar senha" error={errors.confirmPassword?.message}>
+            <PasswordInput id="auth-register-confirm-password" register={register("confirmPassword")} error={!!errors.confirmPassword} />
           </Field>
           <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
             <input type="checkbox" {...register("acceptTerms")} className="mt-0.5 accent-[#818CF8]" />
@@ -155,23 +147,27 @@ export function RegisterForm() {
   );
 }
 
-function Field({ label, error, children, autoComplete }: { label: string; error?: string; children: React.ReactNode; autoComplete?: string }) {
+function Field({ id, label, error, children }: { id?: string; label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-[#9CA3AF] mb-1">{label}</label>
+      <label htmlFor={id} className="block text-xs text-[#9CA3AF] mb-1">{label}</label>
       {children}
       {error && <p className="text-xs text-red-500 mt-1" role="alert">{error}</p>}
     </div>
   );
 }
 
-function PasswordInput({ register, error, onChange }: { register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>; error: boolean; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+function PasswordInput({ id, register, error, onChange }: { id?: string; register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>; error: boolean; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <input {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="••••••" />
-      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC] text-xs" aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
-        {show ? "🙈" : "👁"}
+      <input id={id} {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="••••••" />
+      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC]" aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
+        {show ? (
+          <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+        ) : (
+          <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+        )}
       </button>
     </div>
   );

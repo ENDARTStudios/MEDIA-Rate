@@ -22,10 +22,6 @@ export function PricingCards() {
 
   return (
     <div className="grid md:grid-cols-3 gap-6 mb-20 items-start">
-      <style>{`
-        @keyframes beam-h { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
-        @keyframes beam-v { 0%, 100% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(100%); } }
-      `}</style>
       {PLANS.map((plan) => {
         const isPlus = plan.id === "plus";
         const loggedIn = isAuthenticated;

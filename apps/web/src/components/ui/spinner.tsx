@@ -22,6 +22,8 @@ function Spinner({ size = "md", className }: SpinnerProps) {
         className
       )}
       style={{ borderTopColor: "#818CF8" }}
+      role="status"
+      aria-label="Carregando"
     />
   )
 }

@@ -48,31 +48,31 @@ export function CatalogFiltersClient() {
   return (
     <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-gray-100">Filtros{activeCount > 0 ? ` (${activeCount})` : ""}</span>
+        <span className="font-semibold text-[#EDE7DC]">Filtros{activeCount > 0 ? ` (${activeCount})` : ""}</span>
         {activeCount > 0 && (
-          <button onClick={clearAll} className="text-xs text-accent-400 hover:text-accent-300">
+          <button onClick={clearAll} className="text-xs text-[#818CF8] hover:text-[#A5B4FC]">
             Limpar todos
           </button>
         )}
       </div>
 
       <div>
-        <label className="block text-xs text-gray-400 mb-1.5">{t("search")}</label>
+        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("search")}</label>
         <input
           type="search"
           value={query}
           onChange={(e) => setParam("q", e.target.value)}
           placeholder={t("search")}
-          className="w-full px-3 py-2 bg-surface-card border border-surface-border rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500"
+          className="w-full px-3 py-2 bg-surface-card border border-surface-border rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         />
       </div>
 
       <div>
-        <label className="block text-xs text-gray-400 mb-1.5">{t("all")}</label>
+        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("all")}</label>
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setParam("type", "")}
-            className={`px-2.5 py-1 rounded-md text-xs transition-colors ${!type ? "bg-accent-600 text-white" : "bg-surface-card text-gray-400 hover:text-gray-200"}`}
+            className={`px-2.5 py-1 rounded-md text-xs transition-colors ${!type ? "bg-[#818CF8] text-[#0F172A]" : "bg-surface-card text-[#9CA3AF] hover:text-[#EDE7DC]"}`}
           >
             {t("all")}
           </button>
@@ -80,7 +80,7 @@ export function CatalogFiltersClient() {
             <button
               key={value}
               onClick={() => setParam("type", type === value ? "" : value)}
-              className={`px-2.5 py-1 rounded-md text-xs transition-colors ${type === value ? "bg-accent-600 text-white" : "bg-surface-card text-gray-400 hover:text-gray-200"}`}
+              className={`px-2.5 py-1 rounded-md text-xs transition-colors ${type === value ? "bg-[#818CF8] text-[#0F172A]" : "bg-surface-card text-[#9CA3AF] hover:text-[#EDE7DC]"}`}
             >
               {t(labelKey)}
             </button>
@@ -89,11 +89,11 @@ export function CatalogFiltersClient() {
       </div>
 
       <div>
-        <label className="block text-xs text-gray-400 mb-1.5">{t("sort")}</label>
+        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("sort")}</label>
         <select
           value={sort}
           onChange={(e) => setParam("sort", e.target.value)}
-          className="w-full px-3 py-2 bg-surface-card border border-surface-border rounded-lg text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+          className="w-full px-3 py-2 bg-surface-card border border-surface-border rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         >
           <option value="">{t("sortScore")}</option>
           {SORT_OPTIONS.map(({ value, labelKey }) => (

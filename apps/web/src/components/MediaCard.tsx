@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,6 +37,15 @@ export function MediaCard({ media }: { media: MediaItem }) {
   const glowRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const shineRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<ReturnType<typeof animate>[]>([]);
+
+  useEffect(() => {
+    return () => {
+      animRef.current.forEach((a) => {
+        try { a.pause(); } catch {}
+      });
+    };
+  }, []);
 
   const NEON_COLOR = "#818CF8";
 
@@ -61,8 +70,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
     if (cardRef.current) {
       cardRef.current.style.transition = "transform 0.15s ease-out, box-shadow 0.15s ease-out";
     }
-    if (glowRef.current) animate(glowRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
-    if (overlayRef.current) animate(overlayRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
+    animRef.current = [];
+    if (glowRef.current) animRef.current.push(animate(glowRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" }));
+    if (overlayRef.current) animRef.current.push(animate(overlayRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" }));
   };
 
   const handleLeave = () => {
@@ -71,8 +81,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
     cardRef.current.style.boxShadow = "";
     cardRef.current.style.transition = "transform 0.4s ease-out, box-shadow 0.4s ease-out";
 
-    if (glowRef.current) animate(glowRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
-    if (overlayRef.current) animate(overlayRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
+    animRef.current = [];
+    if (glowRef.current) animRef.current.push(animate(glowRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" }));
+    if (overlayRef.current) animRef.current.push(animate(overlayRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" }));
     if (shineRef.current) { shineRef.current.style.opacity = "0"; }
   };
 
@@ -139,7 +150,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
         </div>
 
         <div className="p-3 bg-[#11111E] rounded-b-md">
-          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-white transition-colors">{media.titulo}</h3>
+          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">{media.titulo}</h3>
           <p className="text-xs text-[#9CA3AF] mt-1">{t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}</p>
         </div>
       </Link>

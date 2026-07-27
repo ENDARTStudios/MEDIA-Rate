@@ -33,8 +33,8 @@ export function DiscoverClient({ initialData }: { initialData?: CatalogResponse 
   if (!data || data.items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
-        <p className="text-gray-400">Nenhuma mídia disponível no momento.</p>
-        <a href="/catalog" className="mt-4 inline-block px-6 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors">Explorar catálogo completo</a>
+        <p className="text-[#9CA3AF]">Nenhuma mídia disponível no momento.</p>
+        <a href="/catalog" className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors">Explorar catálogo completo</a>
       </div>
     );
   }

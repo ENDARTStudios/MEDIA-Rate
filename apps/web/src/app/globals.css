@@ -162,3 +162,12 @@ body {
     pointer-events: none;
   }
 }
+
+@keyframes beam-h {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(100%); }
+}
+@keyframes beam-v {
+  0%, 100% { opacity: 0; transform: translateY(-100%); }
+  50% { opacity: 1; transform: translateY(100%); }
+}

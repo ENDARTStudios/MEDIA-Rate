@@ -34,11 +34,11 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
       aria-label={t("loadingCatalog")}
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-xl bg-[#0A0A0F] overflow-hidden shadow-surface-1">
-          <div className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #0A0A0F 40%, #141420 50%, #0A0A0F 60%)" }} />
+        <div key={i} className="rounded-md bg-[#09090F] overflow-hidden shadow-surface-1">
+          <div className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #09090F 40%, #11111E 50%, #09090F 60%)" }} />
           <div className="p-3 space-y-2.5">
-            <div className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #141420 40%, #1C1C2E 50%, #141420 60%)" }} />
-            <div className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #141420 40%, #1C1C2E 50%, #141420 60%)" }} />
+            <div className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)" }} />
+            <div className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)" }} />
           </div>
         </div>
       ))}

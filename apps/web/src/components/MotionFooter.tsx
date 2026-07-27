@@ -89,9 +89,9 @@ export function MotionFooter() {
             </h4>
             <div className="flex gap-4">
               {[
-                { label: "X", href: "#" },
-                { label: "GH", href: "#" },
-                { label: "DC", href: "#" },
+                { label: "Twitter / X", href: "#" },
+                { label: "GitHub", href: "#" },
+                { label: "Discord", href: "#" },
               ].map((social) => (
                 <motion.a
                   key={social.label}

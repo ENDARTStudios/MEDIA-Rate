@@ -22,18 +22,18 @@ export function PricingTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-surface-border/30">
-            <th scope="col" className="text-left py-3 pr-4 text-gray-400 font-medium">{t("features")}</th>
+            <th scope="col" className="text-left py-3 pr-4 text-[#9CA3AF] font-medium">{t("features")}</th>
             {Object.entries(plans).map(([k, v]) => (
-              <th key={k} scope="col" className={`py-3 px-4 text-center font-medium ${k === "plus" ? "text-accent-400" : "text-gray-400"}`}>{v}</th>
+              <th key={k} scope="col" className={`py-3 px-4 text-center font-medium ${k === "plus" ? "text-[#818CF8]" : "text-[#9CA3AF]"}`}>{v}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {FEATURES.map((feat) => (
             <tr key={feat} className="border-b border-surface-border/10">
-              <td className="py-3 pr-4 text-gray-300">{t(`feature_${feat}`)}</td>
+              <td className="py-3 pr-4 text-[#EDE7DC]">{t(`feature_${feat}`)}</td>
               {Object.keys(plans).map((plan) => (
-                <td key={plan} className={`py-3 px-4 text-center ${plan === "plus" ? "text-accent-400" : "text-gray-500"}`}>
+                <td key={plan} className={`py-3 px-4 text-center ${plan === "plus" ? "text-[#818CF8]" : "text-[#6B7280]"}`}>
                   {check(plan, feat) ? "✓" : "—"}
                 </td>
               ))}

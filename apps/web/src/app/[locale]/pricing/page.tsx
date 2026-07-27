@@ -34,10 +34,10 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-display font-bold text-gray-100 mb-4">
+          <h1 className="text-4xl font-heading font-bold text-[#EDE7DC] mb-4">
             {t("headline")}
           </h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-[#9CA3AF] max-w-2xl mx-auto">
             {t("subheadline")}
           </p>
         </div>
