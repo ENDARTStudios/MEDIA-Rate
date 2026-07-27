@@ -42,7 +42,6 @@ export class WatchlistService {
     return this.prisma.watchlistEntry.update({
       where: { id: entryId },
       data: { coluna },
-      include: { midia: { select: { id: true, titulo: true, tipo: true, ano_lancamento: true, imagem_url: true } } },
     });
   }
 
