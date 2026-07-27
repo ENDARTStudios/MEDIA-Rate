@@ -129,16 +129,16 @@ export function Logo({
       </svg>
 
       {variant === "full" && (
-        <span className="flex items-baseline">
+        <span className="flex flex-col items-start leading-tight">
           <span
             className={`font-heading font-bold text-[#EDE7DC] leading-none tracking-tight ${s.media}`}
           >
             MEDIA
           </span>
           <span
-            className={`font-heading font-medium text-[#9CA3AF] leading-none tracking-tight ${s.rate}`}
+            className={`font-heading font-medium text-[#9CA3AF] leading-none tracking-wider ${s.rate}`}
           >
-            &nbsp;Rate
+            Rate
           </span>
         </span>
       )}

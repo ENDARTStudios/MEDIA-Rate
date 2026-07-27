@@ -58,10 +58,10 @@ export function Navbar() {
           >
             <Link
               href="/"
-              className="flex items-center gap-2 text-xl font-bold text-[#EDE7DC] hover:text-[#818CF8] transition-colors"
+              className="flex items-center transition-colors"
               aria-label={t("homeAria")}
             >
-              <Logo variant="compact" size="sm" />
+              <Logo variant="full" size="sm" />
             </Link>
           </motion.div>
 

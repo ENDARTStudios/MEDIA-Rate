@@ -7,8 +7,8 @@ import { useAuthStore } from "@/stores/use-auth-store";
 
 const PLANS = [
   { id: "free", price: 0, highlighted: false },
-  { id: "plus", price: 8.90, highlighted: true },
-  { id: "premium", price: 14.90, highlighted: false },
+  { id: "plus", price: 4.90, highlighted: true },
+  { id: "premium", price: 9.90, highlighted: false },
 ] as const;
 
 function formatPrice(price: number, locale: string) {
@@ -21,7 +21,7 @@ export function PricingCards() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <div className="grid md:grid-cols-3 gap-6 mb-20 items-start">
+    <div className="grid md:grid-cols-3 gap-6 mb-20 items-stretch">
       {PLANS.map((plan) => {
         const isPlus = plan.id === "plus";
         const loggedIn = isAuthenticated;
@@ -29,7 +29,11 @@ export function PricingCards() {
         return (
           <div
             key={plan.id}
-            className={`relative rounded-md border p-6 flex flex-col ${isPlus ? "bg-[#11111E] border-[rgba(129,140,248,0.2)] scale-[1.02] z-10" : "bg-[#11111E] border-[rgba(129,140,248,0.08)]"}`}
+            className={`relative rounded-md border p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+              isPlus
+                ? "bg-[#11111E] border-[rgba(129,140,248,0.2)]"
+                : "bg-[#11111E] border-[rgba(129,140,248,0.08)] hover:border-[rgba(129,140,248,0.3)]"
+            }`}
           >
             {isPlus && (
               <>
@@ -52,6 +56,9 @@ export function PricingCards() {
                 <span className="text-4xl font-heading font-bold text-[#EDE7DC]">{formatPrice(plan.price, locale)}</span>
                 <span className="text-sm text-[#9CA3AF]">/{t("month")}</span>
               </div>
+              <p className="text-xs text-[#6B7280] mt-0.5">
+                {plan.price > 0 ? formatPrice(plan.price * 0.85, locale) + " " + t("perMonthBilledAnnually") : null}
+              </p>
               <p className="text-xs text-[#9CA3AF] mt-1">
                 {plan.price === 0 ? t("noCard") : t("cancelAnyTime")}
               </p>
