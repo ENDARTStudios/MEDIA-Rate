@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     try {
       await api.post<{ usuario: { id: string; email: string; nome: string | null } }>(
         "/api/v1/auth/login",
-        { email, senha: password },
+        { email, password },
         { auth: false },
       );
       // Login sets cookies (sess + csrf_token) via Set-Cookie header.
@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   register: async (name, email, password) => {
     set({ isLoading: true, error: null });
     try {
-      await api.post("/api/v1/auth/register", { nome: name, email, senha: password }, { auth: false });
+      await api.post("/api/v1/auth/register", { nome: name, email, password }, { auth: false });
       // Auto-login after registration (same session context).
       await get().login(email, password);
       return { success: true };
