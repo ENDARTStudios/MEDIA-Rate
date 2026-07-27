@@ -23,14 +23,14 @@ function mapToMediaItem(media: any): MediaItem {
   };
 }
 
-function CatalogContent({ initialData }: { initialData?: CatalogResponse }) {
+function CatalogContent({ initialData, initialType, initialSort, initialQuery }: { initialData?: CatalogResponse; initialType?: string; initialSort?: string; initialQuery?: string }) {
   const t = useTranslations("catalog");
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const type = (sp.get("type") || undefined) as MediaType | undefined;
-  const sort = sp.get("sort") || undefined;
-  const query = sp.get("q") || undefined;
+  const type = (sp.get("type") || initialType || undefined) as MediaType | undefined;
+  const sort = sp.get("sort") || initialSort || undefined;
+  const query = sp.get("q") || initialQuery || undefined;
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ["catalog", { type, sort, query }],
@@ -98,7 +98,7 @@ function CatalogContent({ initialData }: { initialData?: CatalogResponse }) {
   );
 }
 
-export function CatalogPageClient({ initialData }: { initialData?: CatalogResponse }) {
+export function CatalogPageClient({ initialData, initialType, initialSort, initialQuery }: { initialData?: CatalogResponse; initialType?: string; initialSort?: string; initialQuery?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -112,7 +112,9 @@ export function CatalogPageClient({ initialData }: { initialData?: CatalogRespon
         </Suspense>
       </aside>
       <div className="flex-1 min-w-0">
-        <CatalogContent initialData={initialData} />
+        <Suspense fallback={<CatalogSkeleton count={12} />}>
+          <CatalogContent initialData={initialData} initialType={initialType} initialSort={initialSort} initialQuery={initialQuery} />
+        </Suspense>
       </div>
     </div>
   );
