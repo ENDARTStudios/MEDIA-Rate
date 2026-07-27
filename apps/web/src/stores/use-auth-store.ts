@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { api, ApiError, SessionExpiredError } from "@/lib/http";
 
 interface User {
   id: string;
@@ -14,45 +14,87 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  fetchMe: () => Promise<void>;
 }
 
-function getUsers(): Record<string, { name: string; password: string }> {
-  try { return JSON.parse(localStorage.getItem("mediarate-users") || "{}"); } catch { return {}; }
+function mapUser(apiUser: { id: string; email: string; nome: string | null } | null): User | null {
+  if (!apiUser) return null;
+  return { id: apiUser.id, email: apiUser.email, name: apiUser.nome ?? "", avatarUrl: null };
 }
-function saveUsers(u: Record<string, unknown>) { localStorage.setItem("mediarate-users", JSON.stringify(u)); }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
+export const useAuthStore = create<AuthState>()((set, get) => ({
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
 
-      login: async (email, password) => {
-        const users = getUsers();
-        const found = users[email];
-        if (!found) return { success: false, error: "Email não encontrado" };
-        if (found.password !== password) return { success: false, error: "Senha incorreta" };
-        set({ user: { id: email, name: found.name, email, avatarUrl: null }, isAuthenticated: true });
-        return { success: true };
-      },
+  login: async (email, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.post<{ usuario: { id: string; email: string; nome: string | null } }>(
+        "/api/v1/auth/login",
+        { email, senha: password },
+        { auth: false },
+      );
+      // Login sets cookies (sess + csrf_token) via Set-Cookie header.
+      // Fetch the user profile using the session cookie.
+      await get().fetchMe();
+      return { success: true };
+    } catch (e) {
+      if (e instanceof ApiError) {
+        const msg = e.message || "Credenciais inválidas.";
+        set({ isLoading: false, error: msg });
+        return { success: false, error: msg };
+      }
+      set({ isLoading: false, error: "Erro ao fazer login." });
+      return { success: false, error: "Erro ao fazer login." };
+    }
+  },
 
-      register: async (name, email, password) => {
-        const users = getUsers();
-        if (users[email]) return { success: false, error: "Este email já está cadastrado" };
-        users[email] = { name, password };
-        saveUsers(users);
-        set({ user: { id: email, name, email, avatarUrl: null }, isAuthenticated: true });
-        return { success: true };
-      },
+  register: async (name, email, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.post("/api/v1/auth/register", { nome: name, email, senha: password }, { auth: false });
+      // Auto-login after registration (same session context).
+      await get().login(email, password);
+      return { success: true };
+    } catch (e) {
+      set({ isLoading: false });
+      if (e instanceof ApiError) {
+        const msg = e.message || "Erro ao criar conta.";
+        set({ error: msg });
+        return { success: false, error: msg };
+      }
+      set({ error: "Erro ao criar conta." });
+      return { success: false, error: "Erro ao criar conta." };
+    }
+  },
 
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
-      },
-    }),
-    { name: "mediarate-auth", partialize: (s) => ({ user: s.user, isAuthenticated: s.isAuthenticated }) }
-  )
-);
+  logout: async () => {
+    set({ isLoading: true });
+    try {
+      await api.post("/api/v1/auth/logout");
+    } catch {
+      // Mesmo com erro de rede, limpar estado local.
+    }
+    set({ user: null, isAuthenticated: false, isLoading: false, error: null });
+  },
+
+  fetchMe: async () => {
+    set({ isLoading: true });
+    try {
+      const me = await api.get<{ id: string; email: string; nome: string | null }>("/api/v1/me");
+      set({ user: mapUser(me), isAuthenticated: true, isLoading: false, error: null });
+    } catch (e) {
+      if (e instanceof SessionExpiredError || (e instanceof ApiError && e.status === 401)) {
+        set({ user: null, isAuthenticated: false, isLoading: false, error: null });
+      } else {
+        set({ isLoading: false });
+      }
+    }
+  },
+}));

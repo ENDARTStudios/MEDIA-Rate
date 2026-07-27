@@ -486,3 +486,9 @@ Camada de auth cross-site do backend completa: `CsrfGuard` valida `X-CSRF-Token`
 ## [2026-07-25] D-055 — T051: cliente HTTP real no frontend
 
 Camada de infraestrutura do frontend: `lib/http.ts` implementa fetch wrapper com `credentials: 'include'`, leitura de `csrf_token` do cookie (anexa `X-CSRF-Token` em mutações), interceptor 401 → redirect login (exceto login/register), `ApiError` sem stack trace. Sessão vive exclusivamente no cookie httpOnly (sem localStorage/item 5.9).
+
+---
+
+## [2026-07-25] D-056 — T052: store de auth real, persist removido
+
+`use-auth-store.ts` reescrito para usar `lib/http.ts`: login/register/logout/fetchMe via cliente HTTP real. `persist` (Zustand middleware de localStorage) removido. Auth sem localStorage — sessão via cookie httpOnly. Assinatura pública mantida (compatível com AuthForm/Navbar/Dashboard).
