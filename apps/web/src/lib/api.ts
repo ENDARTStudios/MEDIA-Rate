@@ -82,7 +82,7 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
 
 export async function getMediaBySlug(slug: string): Promise<Media | null> {
   await delay(300); maybeThrow();
-  return MOCK_MEDIA.find((m) => m.slug === slug) ?? null;
+  return MOCK_MEDIA.find((m) => m.slug === slug) ?? MOCK_MEDIA.find((m) => m.id === slug) ?? null;
 }
 
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
