@@ -23,9 +23,13 @@ export class WatchlistController {
   }
 
   @Patch(":id/move")
-  @UsePipes(new ZodValidationPipe(moveWatchlistSchema))
-  async move(@Req() req: FastifyRequest & { user?: { id: string } }, @Param("id") id: string, @Body() body: MoveWatchlistDto) {
-    return this.service.move(req.user!.id, id, body.coluna);
+  async move(
+    @Req() req: FastifyRequest & { user?: { id: string }; body?: any },
+    @Param("id") id: string,
+  ) {
+    const body = req.body ?? {};
+    const coluna = moveWatchlistSchema.parse(body).coluna;
+    return this.service.move(req.user!.id, id, coluna);
   }
 
   @Delete(":id")
