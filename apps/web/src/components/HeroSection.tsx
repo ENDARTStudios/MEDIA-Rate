@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { gsap } from "@/lib/gsap-config";
 import { ScoreDial } from "@/components/ui/score-dial";
+import { HoverTextEffect } from "@/components/ui/hover-text-effect";
 import { cinematicEntry, neonGlow } from "@/lib/motion";
 
 interface HeroSectionProps {
@@ -63,6 +64,9 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
           animate="visible"
         >
           <div className="flex-1 text-center lg:text-left max-w-2xl">
+            <p className="text-xs text-[#818CF8] font-heading uppercase tracking-[0.2em] mb-3">
+              <HoverTextEffect>MEDIA Rate</HoverTextEffect>
+            </p>
             <h1
               id="hero-title"
               className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#EDE7DC] tracking-tight leading-[1.05] mb-6"

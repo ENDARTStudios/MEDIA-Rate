@@ -9,6 +9,9 @@ interface ScoreDialProps {
   size?: "sm" | "md" | "lg";
   showBreakdown?: boolean;
   className?: string;
+  scale?: "0-10" | "0-100";
+  breakdownData?: { critic: number; audience: number; consensus: number };
+  sources?: { source: string; score: number; maxScore: number }[];
 }
 
 const SIZE_CONFIG = {
@@ -28,6 +31,9 @@ export function ScoreDial({
   size = "md",
   showBreakdown = false,
   className,
+  scale = "0-10",
+  breakdownData,
+  sources,
 }: ScoreDialProps) {
   const config = SIZE_CONFIG[size];
   const circumference = 2 * Math.PI * config.radius;
@@ -51,10 +57,20 @@ export function ScoreDial({
     return () => io.disconnect();
   }, []);
 
-  const clamped = Math.max(0, Math.min(10, score));
-  const color = scoreColor(clamped);
-  const fillOffset = circumference - (clamped / 10) * circumference;
+  const clamped = Math.max(0, scale === "0-100" ? Math.min(100, score) : Math.min(10, score));
+  const color = scoreColor(scale === "0-100" ? clamped / 10 : clamped);
+  const ringPercent = scale === "0-100" ? clamped / 100 : clamped / 10;
+  const fillOffset = circumference - ringPercent * circumference;
   const displayOffset = inView ? fillOffset : circumference;
+  const displayValue = scale === "0-100" ? Math.round(clamped) : Math.round(clamped * 10) / 10;
+
+  const bars = breakdownData
+    ? [
+        { label: "Crítica", pct: breakdownData.critic, color: "#38BDF8" },
+        { label: "Público", pct: breakdownData.audience, color: "#F59E0B" },
+        { label: "Consenso", pct: breakdownData.consensus, color: "#818CF8" },
+      ]
+    : BREAKDOWN_BARS;
 
   const ringEl = (
     <div className="relative" style={{ width: config.viewBox, height: config.viewBox }}>
@@ -105,7 +121,7 @@ export function ScoreDial({
         )}
         style={{ color, fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        {clamped}
+        {scale === "0-100" ? Math.round(clamped) : displayValue}
       </span>
     </div>
   );
@@ -119,7 +135,7 @@ export function ScoreDial({
         !showBreakdown && "bg-[#11111E] border border-[rgba(129,140,248,0.12)]",
       )}
     >
-      {BREAKDOWN_BARS.map((bar) => (
+      {bars.map((bar) => (
         <div key={bar.label} className="flex items-center gap-2 text-xs">
           <span
             className="w-16 shrink-0 font-body"

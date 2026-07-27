@@ -7,8 +7,14 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { Logo } from "./Logo";
+import { GradientMenu } from "./ui/gradient-menu";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { toast } from "sonner";
+
+const NAV_ITEMS = [
+  { label: "catalog", href: "/catalog" },
+  { label: "pricing", href: "/pricing" },
+];
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -38,8 +44,8 @@ export function Navbar() {
     <nav
       className={`sticky top-0 z-sticky border-b transition-all duration-normal ${
         scrolled
-          ? "bg-black/90 backdrop-blur-md border-surface-border/50"
-          : "bg-black border-surface-border"
+          ? "bg-[#09090F]/95 backdrop-blur-md border-[rgba(129,140,248,0.08)]"
+          : "bg-[#09090F] border-[rgba(129,140,248,0.06)]"
       }`}
       aria-label="Navegação principal"
     >
@@ -60,29 +66,28 @@ export function Navbar() {
           </motion.div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/catalog" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t("catalog")}</Link>
-            <Link href="/pricing" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t("pricing")}</Link>
+            <GradientMenu items={NAV_ITEMS.map((item) => ({ label: t(item.label as any) ?? item.label, href: item.href }))} />
             {isAuthenticated ? (
               <div className="relative ml-2">
-                <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white transition-colors">
-                  <span className="w-7 h-7 rounded-full bg-accent-500/20 flex items-center justify-center text-xs font-bold text-accent-500">{user?.name?.[0] ?? "?"}</span>
+                <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors">
+                  <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8]">{user?.name?.[0] ?? "?"}</span>
                   <span>{user?.name?.split(" ")[0] ?? "Perfil"}</span>
                 </button>
                 {menuOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-48 bg-surface-card border border-surface-border/30 rounded-xl shadow-floating py-1 z-dropdown" onMouseLeave={() => setMenuOpen(false)}>
-                    <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-gray-300 hover:bg-surface-elevated transition-colors">{t("profile")}</Link>
-                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-gray-300 hover:bg-surface-elevated transition-colors">Dashboard</Link>
-                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-gray-300 hover:bg-surface-elevated transition-colors">Configurações</Link>
-                    <Link href="/watchlist" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-gray-300 hover:bg-surface-elevated transition-colors">Watchlist</Link>
-                    <hr className="my-1 border-surface-border/30" />
-                    <button onClick={() => { logout(); setMenuOpen(false); toast.success("Sessão encerrada"); router.push("/"); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-surface-elevated transition-colors">Sair</button>
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown" onMouseLeave={() => setMenuOpen(false)}>
+                    <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">{t("profile")}</Link>
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Dashboard</Link>
+                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Configurações</Link>
+                    <Link href="/watchlist" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Watchlist</Link>
+                    <hr className="my-1 border-[rgba(129,140,248,0.08)]" />
+                    <button onClick={() => { logout(); setMenuOpen(false); toast.success("Sessão encerrada"); router.push("/"); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-[#1C1C2E] transition-colors">Sair</button>
                   </div>
                 )}
               </div>
             ) : (
               <>
-                <Link href="/login" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t("login")}</Link>
-                <Link href="/register" className="bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-700 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-400">{t("register")}</Link>
+                <Link href="/login" className="text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-sm font-medium transition-colors">{t("login")}</Link>
+                <Link href="/register" className="bg-[#818CF8] text-[#0F172A] px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all">{t("register")}</Link>
               </>
             )}
             <LocaleSwitcher />
@@ -94,7 +99,7 @@ export function Navbar() {
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
               aria-label="Abrir menu"
-              className="text-gray-300 hover:text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500"
+              className="text-[#9CA3AF] hover:text-[#EDE7DC] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             >
               <svg
                 className="w-6 h-6"
@@ -124,19 +129,19 @@ export function Navbar() {
             exit={reduce ? undefined : { opacity: 0, height: 0 }}
             transition={{ duration: reduce ? 0 : 0.2, ease: "easeInOut" }}
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-black border-t border-surface-border">
-              <Link href="/catalog" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">{t("catalog")}</Link>
-              <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">{t("pricing")}</Link>
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-[#09090F] border-t border-[rgba(129,140,248,0.08)]">
+              <Link href="/catalog" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("catalog")}</Link>
+              <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("pricing")}</Link>
               {isAuthenticated ? (
                 <>
-                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">{t("profile")}</Link>
-                  <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">Watchlist</Link>
+                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("profile")}</Link>
+                  <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">Watchlist</Link>
                   <button onClick={() => { logout(); setMobileOpen(false); }} className="block w-full text-left text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-base font-medium">Sair</button>
                 </>
               ) : (
                 <>
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">{t("login")}</Link>
-                  <Link href="/register" onClick={() => setMobileOpen(false)} className="block text-accent-600 hover:text-accent-500 font-semibold px-3 py-2 rounded-md text-base">{t("register")}</Link>
+                  <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("login")}</Link>
+                  <Link href="/register" onClick={() => setMobileOpen(false)} className="block text-[#818CF8] hover:text-[#A5B4FC] font-semibold px-3 py-2 rounded-md text-base">{t("register")}</Link>
                 </>
               )}
               <div className="px-3 py-2"><LocaleSwitcher /></div>
