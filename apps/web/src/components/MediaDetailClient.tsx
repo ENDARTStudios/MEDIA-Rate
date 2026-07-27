@@ -10,7 +10,7 @@ import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function MediaDetailClient({ slug, initialData }: { slug: string; initialData?: Media | null }) {
   const t = useTranslations("catalog");
@@ -192,21 +192,42 @@ function WatchlistButton({ mediaId }: { mediaId: string }) {
 }
 
 function FavoriteButton({ mediaId }: { mediaId: string }) {
-  const { isInWatchlist, addToWatchlist, removeItem, entries } = useWatchlistStore();
+  const { isInWatchlist, addToWatchlist, removeItem, entries, fetchWatchlist } = useWatchlistStore();
   const [loading, setLoading] = useState(false);
-  const inList = isInWatchlist(mediaId);
-  const entryId = entries.find(e => e.mediaId === mediaId)?.id;
+  const [optimisticFav, setOptimisticFav] = useState(false);
+
+  // Sync optimistic state with store
+  useEffect(() => {
+    setOptimisticFav(isInWatchlist(mediaId));
+  }, [entries, mediaId, isInWatchlist]);
+
+  // On mount: fetch to check if already favorited
+  useEffect(() => {
+    fetchWatchlist();
+  }, []);
+
+  const inList = optimisticFav || isInWatchlist(mediaId);
+  const entryId = entries.find(e => {
+    const mId = String(e.mediaId ?? e.midia_id ?? e.media?.id ?? "");
+    return mId === mediaId || e.mediaId === mediaId || e.midia_id === mediaId;
+  })?.id;
 
   if (loading) return <Button disabled variant="outline" size="sm">...</Button>;
   if (inList && entryId) {
     return (
-      <Button onClick={async () => { setLoading(true); try { await removeItem(entryId); } finally { setLoading(false); } }} variant="outline" size="sm">
+      <Button
+        onClick={async () => { setLoading(true); try { await removeItem(entryId); setOptimisticFav(false); } finally { setLoading(false); } }}
+        variant="outline" size="sm"
+      >
         ♥ Favorito
       </Button>
     );
   }
   return (
-    <Button onClick={async () => { setLoading(true); try { await addToWatchlist(mediaId, "WANT"); } finally { setLoading(false); } }} variant="outline" size="sm">
+    <Button
+      onClick={async () => { setLoading(true); try { await addToWatchlist(mediaId, "WANT"); setOptimisticFav(true); } finally { setLoading(false); } }}
+      variant="outline" size="sm"
+    >
       ♡ Favoritar
     </Button>
   );
