@@ -1,51 +1,114 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { api, ApiError } from "@/lib/http";
 
-export interface WatchlistColumn {
+interface WatchlistEntry {
   id: string;
-  title: string;
-  items: string[];
+  mediaId: string;
+  midia_id?: string;
+  status: string;
+  coluna?: string;
+  media?: any;
+  addedAt?: string;
+  created_at?: string;
 }
 
 interface WatchlistState {
-  columns: Record<string, WatchlistColumn>;
-  addToColumn: (columnId: string, mediaId: string) => void;
-  moveItem: (fromColumn: string, toColumn: string, mediaId: string) => void;
-  removeItem: (columnId: string, mediaId: string) => void;
+  entries: WatchlistEntry[];
+  isLoading: boolean;
+  error: string | null;
+  fetchWatchlist: () => Promise<void>;
+  addToWatchlist: (mediaId: string, status?: string) => Promise<void>;
+  moveItem: (entryId: string, newStatus: string) => Promise<void>;
+  removeItem: (entryId: string) => Promise<void>;
+  isInWatchlist: (mediaId: string) => boolean;
+  getEntryStatus: (mediaId: string) => string | null;
 }
 
-const DEFAULT_COLUMNS: Record<string, WatchlistColumn> = {
-  want: { id: "want", title: "Quero ver", items: [] },
-  watching: { id: "watching", title: "Assistindo", items: [] },
-  completed: { id: "completed", title: "Completo", items: [] },
-  dropped: { id: "dropped", title: "Abandonado", items: [] },
-};
+export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
+  entries: [],
+  isLoading: false,
+  error: null,
 
-export const useWatchlistStore = create<WatchlistState>()(
-  persist(
-    (set) => ({
-      columns: DEFAULT_COLUMNS,
-      addToColumn: (columnId, mediaId) =>
-        set((s) => {
-          const col = { ...s.columns[columnId] };
-          if (!col.items.includes(mediaId)) col.items = [...col.items, mediaId];
-          return { columns: { ...s.columns, [columnId]: col } };
-        }),
-      moveItem: (fromColumn, toColumn, mediaId) =>
-        set((s) => ({
-          columns: {
-            ...s.columns,
-            [fromColumn]: { ...s.columns[fromColumn], items: s.columns[fromColumn].items.filter((i) => i !== mediaId) },
-            [toColumn]: { ...s.columns[toColumn], items: [...s.columns[toColumn].items, mediaId] },
-          },
-        })),
-      removeItem: (columnId, mediaId) =>
-        set((s) => ({
-          columns: { ...s.columns, [columnId]: { ...s.columns[columnId], items: s.columns[columnId].items.filter((i) => i !== mediaId) } },
-        })),
-    }),
-    { name: "mediarate-watchlist" }
-  )
-);
+  fetchWatchlist: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await api.get<{ items?: WatchlistEntry[] }>("/api/v1/watchlist");
+      const items = data.items ?? (Array.isArray(data) ? data : []);
+      const mapped = items.map((e: any) => ({
+        id: String(e.id),
+        mediaId: String(e.mediaId ?? e.midia_id ?? e.media?.id ?? ""),
+        midia_id: e.midia_id,
+        status: e.status ?? e.coluna ?? "WANT",
+        coluna: e.coluna ?? e.status,
+        media: e.media ?? null,
+        addedAt: e.addedAt ?? e.created_at,
+        created_at: e.created_at,
+      }));
+      set({ entries: mapped, isLoading: false });
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Erro ao carregar watchlist";
+      set({ error: msg, isLoading: false });
+      throw err;
+    }
+  },
+
+  addToWatchlist: async (mediaId, status) => {
+    set({ error: null });
+    try {
+      await api.post("/api/v1/watchlist", {
+        midia_id: mediaId,
+        coluna: status || "WANT",
+      });
+      await get().fetchWatchlist();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Erro ao adicionar à watchlist";
+      set({ error: msg });
+      throw err;
+    }
+  },
+
+  moveItem: async (entryId, newStatus) => {
+    set({ error: null });
+    try {
+      await api.patch(`/api/v1/watchlist/${entryId}/move`, { coluna: newStatus });
+      await get().fetchWatchlist();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Erro ao mover item";
+      set({ error: msg });
+      throw err;
+    }
+  },
+
+  removeItem: async (entryId) => {
+    set({ error: null });
+    try {
+      await api.delete(`/api/v1/watchlist/${entryId}`);
+      await get().fetchWatchlist();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Erro ao remover item";
+      set({ error: msg });
+      throw err;
+    }
+  },
+
+  isInWatchlist: (mediaId) => {
+    return get().entries.some(
+      (e) =>
+        e.mediaId === mediaId ||
+        e.midia_id === mediaId ||
+        (e.media && e.media.id === mediaId)
+    );
+  },
+
+  getEntryStatus: (mediaId) => {
+    const entry = get().entries.find(
+      (e) =>
+        e.mediaId === mediaId ||
+        e.midia_id === mediaId ||
+        (e.media && e.media.id === mediaId)
+    );
+    return entry ? (entry.status ?? entry.coluna ?? null) : null;
+  },
+}));

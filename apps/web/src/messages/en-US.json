@@ -269,5 +269,24 @@
   "catalogFilters": {
     "filters": "Filters",
     "clearAll": "Clear all"
+  },
+  "watchlist": {
+    "title": "Watchlist",
+    "empty": "Your watchlist is empty.",
+    "emptyColumn": "No titles here",
+    "addToWatchlist": "Add to watchlist",
+    "removeFromWatchlist": "Remove from watchlist",
+    "queroVer": "Want to Watch",
+    "vendo": "Watching",
+    "vi": "Watched",
+    "added": "Added to watchlist",
+    "removed": "Removed from watchlist",
+    "moved": "Item moved",
+    "addError": "Error adding",
+    "removeError": "Error removing",
+    "moveError": "Error moving",
+    "retry": "Try again",
+    "exploreCatalog": "Explore catalog",
+    "mediaItem": "Media {id}"
   }
 }

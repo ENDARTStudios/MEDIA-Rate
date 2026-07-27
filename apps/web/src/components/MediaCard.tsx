@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { LazyMediaScoreBadge } from "./lazy";
+import { WatchlistButton } from "./WatchlistButton";
 
 export interface MediaItem {
   id: string;
@@ -107,6 +108,10 @@ export function MediaCard({ media }: { media: MediaItem }) {
         style={{ boxShadow: `0 0 30px ${NEON_COLOR}30, 0 0 8px ${NEON_COLOR}15` }}
         aria-hidden="true"
       />
+
+      <div className="absolute top-2 left-12 z-20" onClick={(e) => e.stopPropagation()}>
+        <WatchlistButton mediaId={media.id} />
+      </div>
 
       <Link
         href={`/midia/${media.id}`}

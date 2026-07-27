@@ -172,44 +172,22 @@ export function MediaDetailClient({ slug }: { slug: string }) {
 }
 
 function WatchlistButton({ mediaId }: { mediaId: string }) {
-  const t = useTranslations("catalog");
-  const { columns, addToColumn, removeItem } = useWatchlistStore();
-  const [selected, setSelected] = useState("want");
-  const [open, setOpen] = useState(false);
+  const { isInWatchlist, getEntryStatus, removeItem, entries } = useWatchlistStore();
+  const t = useTranslations("watchlist");
+  const [loading, setLoading] = useState(false);
+  const inList = isInWatchlist(mediaId);
+  const status = getEntryStatus(mediaId);
+  const entryId = entries.find(e => e.mediaId === mediaId)?.id;
 
-  const isInWatchlist = Object.values(columns).some((c) => c.items.includes(mediaId));
-  const currentCol = Object.entries(columns).find(([, c]) => c.items.includes(mediaId))?.[0];
-
-  const cols = { want: "Quero ver", watching: "Assistindo", completed: "Completo", dropped: "Abandonado" };
-
-  if (isInWatchlist) {
+  if (loading) return <Button disabled variant="secondary" size="sm">...</Button>;
+  if (inList && entryId) {
     return (
-      <Button onClick={() => { currentCol && removeItem(currentCol, mediaId); }} variant="secondary" size="sm">
-        ✓ Na watchlist ({cols[currentCol as keyof typeof cols] ?? cols.want})
+      <Button onClick={async () => { setLoading(true); try { await removeItem(entryId); } finally { setLoading(false); } }} variant="secondary" size="sm">
+        ✓ {status === "WANT" ? t("queroVer") : status === "WATCHING" ? t("vendo") : status === "COMPLETED" ? t("vi") : t("removeFromWatchlist")}
       </Button>
     );
   }
-
-  return (
-    <div className="relative inline-block">
-      <Button onClick={() => setOpen(!open)} variant="default" size="sm">
-        + Watchlist
-      </Button>
-      {open && (
-        <div className="absolute top-full mt-1 left-0 bg-surface-card border border-surface-border/30 rounded-xl shadow-floating py-1 min-w-[180px] z-dropdown" onMouseLeave={() => setOpen(false)}>
-          {Object.entries(cols).map(([k, v]) => (
-            <button
-              key={k}
-              onClick={() => { addToColumn(k, mediaId); setOpen(false); }}
-              className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-surface-elevated transition-colors"
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return null;
 }
 
 function FavoriteButton({ mediaId }: { mediaId: string }) {

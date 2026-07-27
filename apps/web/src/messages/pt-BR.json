@@ -269,5 +269,24 @@
   "catalogFilters": {
     "filters": "Filtros",
     "clearAll": "Limpar todos"
+  },
+  "watchlist": {
+    "title": "Watchlist",
+    "empty": "Sua watchlist está vazia.",
+    "emptyColumn": "Nenhum título aqui",
+    "addToWatchlist": "Adicionar à watchlist",
+    "removeFromWatchlist": "Remover da watchlist",
+    "queroVer": "Quero Ver",
+    "vendo": "Vendo",
+    "vi": "Vi",
+    "added": "Adicionado à watchlist",
+    "removed": "Removido da watchlist",
+    "moved": "Item movido",
+    "addError": "Erro ao adicionar",
+    "removeError": "Erro ao remover",
+    "moveError": "Erro ao mover",
+    "retry": "Tentar novamente",
+    "exploreCatalog": "Explorar catálogo",
+    "mediaItem": "Mídia {id}"
   }
 }
