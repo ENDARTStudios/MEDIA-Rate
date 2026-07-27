@@ -5,12 +5,15 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { MediaScore as MediaScoreType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { scoreColor } from "@/lib/design-tokens";
 
 interface MediaScoreModuleProps {
   score: MediaScoreType | null;
 }
 
-function scoreColor(v: number) { if (v >= 70) return "#22C55E"; if (v >= 40) return "#EAB308"; return "#EF4444"; }
+function scoreModuleColor(consolidated: number, scale: "0-10" | "0-100" = "0-10"): string {
+  return scoreColor(consolidated, scale);
+}
 
 export function MediaScoreModule({ score }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");
@@ -28,7 +31,7 @@ export function MediaScoreModule({ score }: MediaScoreModuleProps) {
   const radius = 52;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (consolidated / 100) * circ;
-  const color = scoreColor(consolidated);
+  const color = scoreModuleColor(consolidated, "0-100");
 
   return (
     <div className="bg-surface-card rounded-2xl p-6 border border-surface-border/30 space-y-5">

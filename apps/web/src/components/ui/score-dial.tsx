@@ -57,7 +57,7 @@ export function ScoreDial({
   }, []);
 
   const clamped = Math.max(0, scale === "0-100" ? Math.min(100, score) : Math.min(10, score));
-  const color = scoreColor(scale === "0-100" ? clamped / 10 : clamped);
+  const color = scoreColor(clamped, scale);
   const ringPercent = scale === "0-100" ? clamped / 100 : clamped / 10;
   const fillOffset = circumference - ringPercent * circumference;
   const displayOffset = inView ? fillOffset : circumference;

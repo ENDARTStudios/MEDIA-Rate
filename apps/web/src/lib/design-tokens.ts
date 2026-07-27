@@ -30,21 +30,23 @@ export const colors = {
   },
 } as const;
 
-export function scoreColor(score: number): string {
-  if (score >= 9) return colors.score[9];
-  if (score >= 8) return colors.score[8];
-  if (score >= 7) return colors.score[7];
-  if (score >= 6) return colors.score[6];
-  if (score >= 5) return colors.score[5];
+export function scoreColor(score: number, scale: "0-10" | "0-100" = "0-10"): string {
+  const n = scale === "0-100" ? score / 10 : score;
+  if (n >= 9) return colors.score[9];
+  if (n >= 8) return colors.score[8];
+  if (n >= 7) return colors.score[7];
+  if (n >= 6) return colors.score[6];
+  if (n >= 5) return colors.score[5];
   return colors.score.low;
 }
 
-export function scoreLabel(score: number): string {
-  if (score >= 9) return "score9";
-  if (score >= 8) return "score8";
-  if (score >= 7) return "score7";
-  if (score >= 6) return "score6";
-  if (score >= 5) return "score5";
+export function scoreLabel(score: number, scale: "0-10" | "0-100" = "0-10"): string {
+  const n = scale === "0-100" ? score / 10 : score;
+  if (n >= 9) return "score9";
+  if (n >= 8) return "score8";
+  if (n >= 7) return "score7";
+  if (n >= 6) return "score6";
+  if (n >= 5) return "score5";
   return "scoreLow";
 }
 

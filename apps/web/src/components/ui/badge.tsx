@@ -1,15 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-
-const scoreColor = (score: number) => {
-  if (score >= 9) return "#34D399"
-  if (score >= 8) return "#38BDF8"
-  if (score >= 7) return "#818CF8"
-  if (score >= 6) return "#F59E0B"
-  if (score >= 5) return "#F97316"
-  return "#EF4444"
-}
+import { scoreColor as getScoreColor } from "@/lib/design-tokens"
+import type { ReactNode } from "react"
 
 type BadgeProps = {
   children?: React.ReactNode
@@ -46,7 +39,7 @@ function Badge({
     style = { backgroundColor: "#1C1C2E", color: "#9CA3AF", borderColor: "#1C1C2E" }
   } else if (variant === "score" && typeof score === "number") {
     hasBorder = true
-    const c = scoreColor(score)
+    const c = getScoreColor(score)
     style = { backgroundColor: "transparent", color: c, borderColor: c }
   } else if (variant === "status") {
     if (statusLabel === "Free") {
