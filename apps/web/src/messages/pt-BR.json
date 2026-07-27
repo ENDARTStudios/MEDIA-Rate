@@ -41,7 +41,7 @@
     "sessionEnded": "Sessão encerrada"
   },
   "landing": {
-    "hero": "Score unificado de filmes, séries, games e livros",
+    "hero": "Score unificado de filmes, séries e games",
     "heroSubtitle": "MEDIA Score™ agrega avaliações de fontes públicas em um único indicador de 0 a 100.",
     "cta": "Começar grátis",
     "features": "Recursos",
@@ -61,9 +61,6 @@
     "filme": "Filmes",
     "serie": "Séries",
     "game": "Games",
-    "livro": "Livros",
-    "anime": "Animes",
-    "comic": "Quadrinhos",
     "sort": "Ordenar",
     "sortTitulo": "Título (A-Z)",
     "sortAno": "Ano (recente)",
@@ -263,7 +260,7 @@
     "ctaText": "Comece agora e descubra seu próximo título favorito. Gratuito.",
     "ctaTitle": "Começar grátis",
     "metaTitle": "MEDIA Rate — Descubra o que assistir, jogar e ler",
-    "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
+    "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Score unificado de entretenimento."
   },

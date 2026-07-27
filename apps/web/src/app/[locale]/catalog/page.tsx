@@ -11,7 +11,7 @@ export async function generateMetadata({
   const { locale } = await params;
   return {
     title: "Catálogo — MEDIA Rate",
-    description: "Explore filmes, séries, games e livros no MEDIA Rate.",
+    description: "Explore filmes, séries e games no MEDIA Rate.",
     alternates: {
       canonical: `https://media-rate-web.vercel.app/${locale}/catalog`,
     },
