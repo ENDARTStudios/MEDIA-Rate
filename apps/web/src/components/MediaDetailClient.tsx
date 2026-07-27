@@ -192,6 +192,22 @@ function WatchlistButton({ mediaId }: { mediaId: string }) {
 }
 
 function FavoriteButton({ mediaId }: { mediaId: string }) {
-  const [fav, setFav] = useState(false);
-  return <Button onClick={() => setFav(!fav)} variant="outline" size="sm">{fav ? "♥ Favorito" : "♡ Favoritar"}</Button>;
+  const { isInWatchlist, addToWatchlist, removeItem, entries } = useWatchlistStore();
+  const [loading, setLoading] = useState(false);
+  const inList = isInWatchlist(mediaId);
+  const entryId = entries.find(e => e.mediaId === mediaId)?.id;
+
+  if (loading) return <Button disabled variant="outline" size="sm">...</Button>;
+  if (inList && entryId) {
+    return (
+      <Button onClick={async () => { setLoading(true); try { await removeItem(entryId); } finally { setLoading(false); } }} variant="outline" size="sm">
+        ♥ Favorito
+      </Button>
+    );
+  }
+  return (
+    <Button onClick={async () => { setLoading(true); try { await addToWatchlist(mediaId, "WANT"); } finally { setLoading(false); } }} variant="outline" size="sm">
+      ♡ Favoritar
+    </Button>
+  );
 }

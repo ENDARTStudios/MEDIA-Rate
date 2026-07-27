@@ -17,18 +17,16 @@ export class WatchlistService {
 
     return this.prisma.watchlistEntry.create({
       data: {
-        usuario: { connect: { id: usuarioId } },
-        midia: { connect: { id: dto.midia_id } },
+        usuario_id: usuarioId,
+        midia_id: dto.midia_id,
         coluna: dto.coluna ?? "WANT",
       },
-      include: { midia: { select: { id: true, titulo: true, tipo: true, ano_lancamento: true, imagem_url: true } } },
     });
   }
 
   async list(usuarioId: string, coluna?: WatchlistColuna) {
     return this.prisma.watchlistEntry.findMany({
       where: { usuario_id: usuarioId, ...(coluna ? { coluna } : {}) },
-      include: { midia: { select: { id: true, titulo: true, tipo: true, ano_lancamento: true, imagem_url: true } } },
       orderBy: { created_at: "desc" },
     });
   }

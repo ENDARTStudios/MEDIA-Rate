@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const addToWatchlistSchema = z.object({
-  midia_id: z.string().uuid(),
+  midia_id: z.string().min(1).max(255),
   coluna: z.enum(["WANT", "WATCHING", "COMPLETED", "DROPPED"]).default("WANT"),
 });
 
