@@ -1,15 +1,25 @@
 import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
+import { createHash } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import type { AddToWatchlistDto, MoveWatchlistDto } from "./dto/watchlist.dto.js";
 import type { WatchlistColuna } from "@prisma/client";
+
+function stringToUuid(str: string): string {
+  const hash = createHash("sha1").update("media-rate-v1:" + str).digest();
+  hash[6] = (hash[6] & 0x0f) | 0x50;
+  hash[8] = (hash[8] & 0x3f) | 0x80;
+  const hex = hash.toString("hex", 0, 16);
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+}
 
 @Injectable()
 export class WatchlistService {
   constructor(private readonly prisma: PrismaService) {}
 
   async add(usuarioId: string, dto: AddToWatchlistDto) {
+    const midiaId = stringToUuid(dto.midia_id);
     const existing = await this.prisma.watchlistEntry.findUnique({
-      where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: dto.midia_id } },
+      where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
     });
     if (existing) {
       throw new ConflictException("Esta mídia já está na sua watchlist.");
@@ -18,7 +28,7 @@ export class WatchlistService {
     return this.prisma.watchlistEntry.create({
       data: {
         usuario_id: usuarioId,
-        midia_id: dto.midia_id,
+        midia_id: midiaId,
         coluna: dto.coluna ?? "WANT",
       },
     });
