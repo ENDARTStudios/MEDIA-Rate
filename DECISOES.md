@@ -492,3 +492,9 @@ Camada de infraestrutura do frontend: `lib/http.ts` implementa fetch wrapper com
 ## [2026-07-25] D-056 — T052: store de auth real, persist removido
 
 `use-auth-store.ts` reescrito para usar `lib/http.ts`: login/register/logout/fetchMe via cliente HTTP real. `persist` (Zustand middleware de localStorage) removido. Auth sem localStorage — sessão via cookie httpOnly. Assinatura pública mantida (compatível com AuthForm/Navbar/Dashboard).
+
+---
+
+## [2026-07-25] D-057 — T053: prova comportamental real + forms de auth reais
+
+Auth flow cross-site completo validado no browser: register 201 → login 200 + cookies (SameSite=None) → /me 200 (prova cookie enviado) → dashboard redirect. useRequireAuth valida sessão via fetchMe(). Forms tratam erros reais do backend. Sem localStorage para auth.
