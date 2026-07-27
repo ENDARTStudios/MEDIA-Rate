@@ -288,7 +288,6 @@ model Midia {
 
   scores                  MediaScore[]
   interacoes              UsuarioMidiaInteracao[]
-  watchlist_entries       WatchlistEntry[]
   score_views             MediaScoreView[]
   generos                 MidiaGenero[]
   streamings              MidiaStreaming[]
