@@ -69,6 +69,7 @@ export class AuthController {
   ): Promise<{
     usuario: { id: string; email: string; nome: string | null };
     expires_at: string;
+    csrf_token: string;
   }> {
     const dto = body as { email: string; password: string };
     const userAgent = req.headers["user-agent"];
@@ -80,7 +81,7 @@ export class AuthController {
     });
 
     // T3.2: seta cookie httpOnly Secure SameSite=Lax.
-    this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
+    const csrf = this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
 
     return {
       usuario: {
@@ -89,6 +90,7 @@ export class AuthController {
         nome: result.usuario.nome,
       },
       expires_at: result.expires_at.toISOString(),
+      csrf_token: csrf,
     };
   }
 

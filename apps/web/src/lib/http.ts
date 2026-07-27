@@ -1,5 +1,10 @@
 const SESSION_EXPIRED_EVENT = "mediarate:session-expired";
 
+// T057: cross-domain fix — document.cookie nao le cookies de railway.app.
+// Armazenamos em memoria o csrf_token capturado do login response.
+let _csrfToken: string | null = null;
+export function setCsrfToken(token: string | null) { _csrfToken = token; }
+
 export class ApiError extends Error {
   status: number;
   body: unknown;
@@ -35,6 +40,7 @@ function getBaseUrl(): string {
 }
 
 export function getCsrfToken(): string | null {
+  if (_csrfToken) return _csrfToken;
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
   return match ? match[1]! : null;

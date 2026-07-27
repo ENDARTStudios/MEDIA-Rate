@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { api, ApiError, SessionExpiredError } from "@/lib/http";
+import { api, ApiError, SessionExpiredError, setCsrfToken } from "@/lib/http";
 
 interface User {
   id: string;
@@ -35,13 +35,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      await api.post<{ usuario: { id: string; email: string; nome: string | null } }>(
+      const data = await api.post<{ usuario: { id: string; email: string; nome: string | null }; csrf_token?: string }>(
         "/api/v1/auth/login",
         { email, password },
         { auth: false },
       );
-      // Login sets cookies (sess + csrf_token) via Set-Cookie header.
-      // Fetch the user profile using the session cookie.
+      // T057: captura csrf_token do response (cross-domain: document.cookie nao acessa cookies de railway.app).
+      if (data.csrf_token) setCsrfToken(data.csrf_token);
       await get().fetchMe();
       return { success: true };
     } catch (e) {
@@ -79,8 +79,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     try {
       await api.post("/api/v1/auth/logout");
     } catch {
-      // Mesmo com erro de rede, limpar estado local.
     }
+    setCsrfToken(null);
     set({ user: null, isAuthenticated: false, isLoading: false, error: null });
   },
 
