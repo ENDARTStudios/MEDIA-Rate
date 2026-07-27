@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useAuthStore } from "@/stores/use-auth-store";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 
 const COLUMN_LABELS: Record<string, string> = {

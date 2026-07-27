@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";

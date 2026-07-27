@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { CatalogSkeleton } from "@/components/CatalogSkeleton";

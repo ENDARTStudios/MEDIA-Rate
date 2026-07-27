@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { gsap } from "@/lib/gsap-config";

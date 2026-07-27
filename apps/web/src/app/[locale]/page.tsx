@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
 import { MediaRail } from "../../components/MediaRail";

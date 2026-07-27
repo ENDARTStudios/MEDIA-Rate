@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { loginSchema, registerSchema, getPasswordStrength, type LoginData, type RegisterData } from "@/lib/schemas/auth";

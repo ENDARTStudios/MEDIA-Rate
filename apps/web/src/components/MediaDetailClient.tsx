@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
 import { getMediaBySlug } from "@/lib/api";
 import type { Media } from "@/lib/types";

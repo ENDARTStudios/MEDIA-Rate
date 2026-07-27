@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 
 export async function Footer() {
   const t = await getTranslations("footer");

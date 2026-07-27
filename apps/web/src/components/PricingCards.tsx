@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { useAuthStore } from "@/stores/use-auth-store";
 

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 
 export function ProfileContent() {
