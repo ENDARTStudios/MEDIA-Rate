@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { DiscoverClient } from "../../../components/DiscoverClient";
 import { getCatalogSync } from "../../../lib/api";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Descobrir — MEDIA Rate", description: "Descubra novas mídias no MEDIA Rate." };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return { title: "Descobrir — MEDIA Rate", description: "Descubra novas mídias no MEDIA Rate.", alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/discover` }, robots: { index: true, follow: true } };
 }
 
 export default async function DiscoverPage({ params }: { params: Promise<{ locale: string }> }) {

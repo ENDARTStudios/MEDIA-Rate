@@ -1,8 +1,20 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Termos de Uso — MEDIA Rate" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Termos de Uso — MEDIA Rate",
+    description: "Termos de uso do MEDIA Rate.",
+    alternates: {
+      canonical: `https://media-rate-web.vercel.app/${locale}/terms`,
+    },
+    robots: { index: true, follow: true },
+  };
 }
 
 export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {

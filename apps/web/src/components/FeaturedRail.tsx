@@ -15,7 +15,7 @@ const FEATURED_MEDIA: MediaItem[] = [
   { id: "f5", titulo: "Mortal Kombat 2", tipo: "FILME", ano_lancamento: 2026, imagem_url: "https://image.tmdb.org/t/p/w500/iILiJSRViTEcF23MHhGCbVm3mfW.jpg", score: 80 },
   { id: "f6", titulo: "Baldur's Gate 3", tipo: "GAME", ano_lancamento: 2023, imagem_url: null, score: 96 },
   { id: "f7", titulo: "Super Mario Galaxy: O Filme", tipo: "FILME", ano_lancamento: 2026, imagem_url: "https://image.tmdb.org/t/p/w500/b3WeTp42eJSRuE4UZfyPCOJW4c.jpg", score: 83 },
-  { id: "f8", titulo: "Frieren", tipo: "SERIE", ano_lancamento: 2023, imagem_url: "https://image.tmdb.org/t/p/w500/dqBW9v7NAMtH1RH1E7xuhNKCY0A.jpg", score: 88 },
+  { id: "f8", titulo: "Frieren", tipo: "SERIE", ano_lancamento: 2023, imagem_url: null, score: 88 },
 ];
 
 export function FeaturedRail() {

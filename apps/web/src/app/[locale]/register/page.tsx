@@ -5,8 +5,9 @@ import { RegisterForm } from "../../../components/AuthForm";
 import { LazyLogo } from "../../../components/lazy";
 import { SocialButtons } from "../../../components/SocialButtons";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Cadastrar — MEDIA Rate", description: "Crie sua conta gratuita no MEDIA Rate." };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return { title: "Cadastrar — MEDIA Rate", description: "Crie sua conta gratuita no MEDIA Rate.", alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/register` }, robots: { index: true, follow: true } };
 }
 
 export default async function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {

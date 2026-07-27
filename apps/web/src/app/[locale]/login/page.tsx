@@ -5,8 +5,9 @@ import { LoginForm } from "../../../components/AuthForm";
 import { LazyLogo } from "../../../components/lazy";
 import { SocialButtons } from "../../../components/SocialButtons";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Entrar — MEDIA Rate", description: "Acesse sua conta MEDIA Rate." };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return { title: "Entrar — MEDIA Rate", description: "Acesse sua conta MEDIA Rate.", alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/login` }, robots: { index: true, follow: true } };
 }
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {

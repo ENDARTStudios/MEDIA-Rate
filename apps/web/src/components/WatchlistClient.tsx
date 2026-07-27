@@ -117,7 +117,7 @@ export function WatchlistClient() {
                         className="bg-[#1C1C2E] rounded-lg p-3 border border-[#2A2A3E]"
                       >
                         <Link
-                          href={`/midia/${entry.mediaId}`}
+                          href={`/media/${entry.mediaId}`}
                           className="block text-sm font-medium text-gray-200 hover:text-[#818CF8] truncate transition-colors"
                         >
                           {t("mediaItem", { id: entry.mediaId })}

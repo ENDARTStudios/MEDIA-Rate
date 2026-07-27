@@ -14,6 +14,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: th("metaTitle"),
     description: th("metaDescription"),
+    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}` },
+    robots: { index: true, follow: true },
     openGraph: { title: th("metaOgTitle"), description: th("metaOgDescription"), siteName: tm("appName"), type: "website" },
   };
 }

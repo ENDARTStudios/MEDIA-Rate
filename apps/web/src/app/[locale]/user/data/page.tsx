@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import type { Metadata } from "next";
 
 export default function UserDataPage() {
   const t = useTranslations("lgpd");
@@ -52,7 +51,7 @@ export default function UserDataPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-gray-100">{t("privacy")}</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-100">Seus Dados</h1>
 
       <section className="space-y-6">
         <div className="bg-surface-card rounded-lg shadow-surface-1 p-6">

@@ -114,7 +114,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
       </div>
 
       <Link
-        href={`/midia/${media.id}`}
+        href={`/media/${media.id}`}
         className="relative z-10 block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
         aria-label={`${media.titulo} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}

@@ -3,8 +3,20 @@ import type { Metadata } from "next";
 import { CatalogPageClient } from "../../../components/CatalogPageClient";
 import { getCatalogSync } from "../../../lib/api";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Catálogo — MEDIA Rate", description: "Explore filmes, séries, games e livros no MEDIA Rate." };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Catálogo — MEDIA Rate",
+    description: "Explore filmes, séries, games e livros no MEDIA Rate.",
+    alternates: {
+      canonical: `https://media-rate-web.vercel.app/${locale}/catalog`,
+    },
+    robots: { index: true, follow: true },
+  };
 }
 
 export default async function CatalogPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -17,6 +29,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ locale
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-6 text-[#EDE7DC]">{t("title")}</h1>
+      <p className="text-[#9CA3AF] mb-6 max-w-2xl">Explore nosso catálogo de filmes, séries e games com o MEDIA Score™ unificado. Filtre por gênero, tipo e nota para encontrar seu próximo título favorito. Compare avaliações da crítica e do público em um único lugar.</p>
       <CatalogPageClient initialData={initialData} />
     </div>
   );
