@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
-import { LazyMediaScoreBadge } from "./lazy";
+import { ScoreDial } from "@/components/ui/score-dial";
 import { WatchlistButton } from "./WatchlistButton";
 
 export interface MediaItem {
@@ -149,7 +149,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
           {media.score != null && (
             <div className="absolute top-2 right-2 z-20">
-              <LazyMediaScoreBadge score={media.score} />
+              <ScoreDial
+                score={media.tipo === "GAME" ? media.score : media.score / 10}
+                size="sm"
+                scale={media.tipo === "GAME" ? "0-100" : "0-10"}
+              />
             </div>
           )}
         </div>
