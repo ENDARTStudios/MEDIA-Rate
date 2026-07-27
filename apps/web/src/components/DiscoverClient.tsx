@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { getCatalog } from "@/lib/api";
 import type { CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
@@ -19,6 +20,7 @@ function mapToMediaItem(media: any): MediaItem {
 }
 
 export function DiscoverClient({ initialData }: { initialData?: CatalogResponse }) {
+  const t = useTranslations("discover");
   const { data, isLoading } = useQuery({
     queryKey: ["discover"],
     queryFn: () => getCatalog({ page: 1, limit: 10, sort: "score" }),
@@ -33,8 +35,8 @@ export function DiscoverClient({ initialData }: { initialData?: CatalogResponse 
   if (!data || data.items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
-        <p className="text-[#9CA3AF]">Nenhuma mídia disponível no momento.</p>
-        <a href="/catalog" className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors">Explorar catálogo completo</a>
+        <p className="text-[#9CA3AF]">{t("empty")}</p>
+        <a href="/catalog" className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors">{t("cta")}</a>
       </div>
     );
   }

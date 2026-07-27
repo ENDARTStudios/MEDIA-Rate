@@ -23,6 +23,7 @@ const SORT_OPTIONS = [
 
 export function CatalogFiltersClient() {
   const t = useTranslations("catalog");
+  const tf = useTranslations("catalogFilters");
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -48,10 +49,10 @@ export function CatalogFiltersClient() {
   return (
     <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-[#EDE7DC]">Filtros{activeCount > 0 ? ` (${activeCount})` : ""}</span>
+        <span className="font-semibold text-[#EDE7DC]">{tf("filters")}{activeCount > 0 ? ` (${activeCount})` : ""}</span>
         {activeCount > 0 && (
           <button onClick={clearAll} className="text-xs text-[#818CF8] hover:text-[#A5B4FC]">
-            Limpar todos
+            {tf("clearAll")}
           </button>
         )}
       </div>

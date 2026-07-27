@@ -7,11 +7,14 @@ import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const tm = await getTranslations({ locale, namespace: "common" });
+  const th = await getTranslations({ locale, namespace: "home" });
   return {
-    title: "MEDIA Rate — Descubra o que assistir, jogar e ler",
-    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
-    openGraph: { title: "MEDIA Rate", description: "Score unificado de entretenimento.", siteName: "MEDIA Rate", type: "website" },
+    title: th("metaTitle"),
+    description: th("metaDescription"),
+    openGraph: { title: th("metaOgTitle"), description: th("metaOgDescription"), siteName: tm("appName"), type: "website" },
   };
 }
 
@@ -20,6 +23,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const t = await getTranslations("landing");
   const tNav = await getTranslations("nav");
+  const th = await getTranslations("home");
 
   return (
     <LayeredBackground>
@@ -41,7 +45,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               <LazyAnimatedHeading as="h2" className="font-heading text-3xl font-bold mb-6 text-[#EDE7DC]">
                 {t("cta")}
               </LazyAnimatedHeading>
-              <p className="text-[#9CA3AF] mb-8 leading-relaxed">Comece agora e descubra seu próximo título favorito. Gratuito.</p>
+              <p className="text-[#9CA3AF] mb-8 leading-relaxed">{th("ctaText")}</p>
               <Link
                 href="/register"
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"

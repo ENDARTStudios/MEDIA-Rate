@@ -121,6 +121,7 @@ export function CatalogPageClient({ initialData }: { initialData?: CatalogRespon
 }
 
 function MobileFilterBar({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; setDrawerOpen: (v: boolean) => void }) {
+  const tFilters = useTranslations("catalogFilters");
   const sp = useSearchParams();
   const activeCount = [...new URLSearchParams(sp.toString()).keys()].filter((k) => k !== "").length;
 
@@ -128,7 +129,7 @@ function MobileFilterBar({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; s
     <>
       <div className="lg:hidden flex items-center justify-between">
         <Button variant="outline" size="sm" onClick={() => setDrawerOpen(true)}>
-          Filtros{activeCount > 0 ? ` (${activeCount})` : ""}
+          {tFilters("filters")}{activeCount > 0 ? ` (${activeCount})` : ""}
         </Button>
       </div>
       {drawerOpen && (
@@ -136,7 +137,7 @@ function MobileFilterBar({ drawerOpen, setDrawerOpen }: { drawerOpen: boolean; s
           <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
           <div className="absolute inset-y-0 left-0 w-72 bg-surface-card shadow-floating p-5 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-[#EDE7DC] text-sm">Filtros</span>
+              <span className="font-semibold text-[#EDE7DC] text-sm">{tFilters("filters")}</span>
               <button onClick={() => setDrawerOpen(false)} className="text-[#9CA3AF] hover:text-gray-200 text-lg leading-none">&times;</button>
             </div>
             <CatalogFiltersClient />

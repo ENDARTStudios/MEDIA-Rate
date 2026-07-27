@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { scoreColor } from "@/lib/design-tokens";
 
@@ -20,11 +21,8 @@ const SIZE_CONFIG = {
   lg: { viewBox: 136, center: 68, radius: 60, strokeWidth: 6 },
 } as const;
 
-const BREAKDOWN_BARS = [
-  { label: "Crítica", pct: 40, color: "#38BDF8" },
-  { label: "Público", pct: 40, color: "#F59E0B" },
-  { label: "Consenso", pct: 20, color: "#818CF8" },
-] as const;
+const STATIC_BAR_PCTS = [40, 40, 20] as const;
+const STATIC_BAR_COLORS = ["#38BDF8", "#F59E0B", "#818CF8"] as const;
 
 export function ScoreDial({
   score,
@@ -35,6 +33,7 @@ export function ScoreDial({
   breakdownData,
   sources,
 }: ScoreDialProps) {
+  const tScore = useTranslations("scoredial");
   const config = SIZE_CONFIG[size];
   const circumference = 2 * Math.PI * config.radius;
   const [inView, setInView] = useState(false);
@@ -64,13 +63,19 @@ export function ScoreDial({
   const displayOffset = inView ? fillOffset : circumference;
   const displayValue = scale === "0-100" ? Math.round(clamped) : Math.round(clamped * 10) / 10;
 
+  const staticBars = [
+    { label: tScore("critic"), pct: STATIC_BAR_PCTS[0], color: STATIC_BAR_COLORS[0] },
+    { label: tScore("audience"), pct: STATIC_BAR_PCTS[1], color: STATIC_BAR_COLORS[1] },
+    { label: tScore("consensus"), pct: STATIC_BAR_PCTS[2], color: STATIC_BAR_COLORS[2] },
+  ];
+
   const bars = breakdownData
     ? [
-        { label: "Crítica", pct: breakdownData.critic, color: "#38BDF8" },
-        { label: "Público", pct: breakdownData.audience, color: "#F59E0B" },
-        { label: "Consenso", pct: breakdownData.consensus, color: "#818CF8" },
+        { label: tScore("critic"), pct: breakdownData.critic, color: "#38BDF8" },
+        { label: tScore("audience"), pct: breakdownData.audience, color: "#F59E0B" },
+        { label: tScore("consensus"), pct: breakdownData.consensus, color: "#818CF8" },
       ]
-    : BREAKDOWN_BARS;
+    : staticBars;
 
   const ringEl = (
     <div className="relative" style={{ width: config.viewBox, height: config.viewBox }}>
@@ -170,7 +175,7 @@ export function ScoreDial({
       className={cn("relative inline-flex flex-col items-center", className)}
       onMouseEnter={() => !showBreakdown && setHovered(true)}
       onMouseLeave={() => !showBreakdown && setHovered(false)}
-      aria-label={`Score: ${displayValue} out of ${scale === "0-100" ? "100" : "10"}`}
+      aria-label={tScore("ariaLabel", { score: displayValue, max: scale === "0-100" ? "100" : "10" })}
       role="status"
     >
       {ringEl}

@@ -27,7 +27,18 @@
     "passwordStrong": "Forte",
     "logout": "Sair",
     "profile": "Perfil",
-    "admin": "Admin"
+    "admin": "Admin",
+    "mainNav": "Navegação principal",
+    "homeAria": "MEDIA Rate — Página inicial",
+    "openMenu": "Abrir menu",
+    "dashboard": "Dashboard",
+    "settings": "Configurações",
+    "watchlist": "Watchlist",
+    "sessionEnded": "Sessão encerrada",
+    "openMenu": "Abrir menu",
+    "mainNav": "Navegação principal",
+    "homeAria": "MEDIA Rate — Página inicial",
+    "sessionEnded": "Sessão encerrada"
   },
   "landing": {
     "hero": "Score unificado de filmes, séries, games e livros",
@@ -68,6 +79,25 @@
     "mediaScoreAria": "MEDIA Score {score} de 100",
     "loadingCatalog": "Atualizando catálogo...",
     "catalogAria": "Catálogo de mídias"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "emptyDesc": "Adicione títulos à sua watchlist para ver análises e estatísticas.",
+    "exploreCatalog": "Explorar catálogo",
+    "totalWatchlist": "Total na Watchlist",
+    "titulos": "títulos",
+    "watchingNow": "Assistindo Agora",
+    "inProgress": "em progresso",
+    "completed": "Completo",
+    "concluidos": "concluídos",
+    "statusDistribution": "Distribuição por Status",
+    "wantToSee": "Quero ver",
+    "watching": "Assistindo",
+    "dropped": "Abandonado",
+    "whereWatch": "Onde você assiste",
+    "noStreamingData": "Sem dados de streaming disponíveis.",
+    "tasteEvolution": "Evolução do Gosto",
+    "tasteEvolutionDesc": "Complete títulos e adicione notas para ver a evolução do seu gosto ao longo do tempo."
   },
   "checkout": {
     "title": "Upgrade de plano",
@@ -134,6 +164,110 @@
     "tagline": "Descubra o que assistir, jogar e ler",
     "privacy": "Privacidade",
     "terms": "Termos",
-    "contact": "Contato"
+    "contact": "Contato",
+    "about": "Sobre",
+    "legal": "Legal",
+    "lgpd": "LGPD",
+    "social": "Social",
+    "socialTwitter": "Twitter / X",
+    "socialGithub": "GitHub",
+    "socialDiscord": "Discord",
+    "copyright": "MEDIA Score™ · END ART Studios"
+  },
+  "auth": {
+    "loginTitle": "Entrar",
+    "loginSubtitle": "Bem-vindo de volta",
+    "loginButton": "Entrar",
+    "entrando": "Entrando...",
+    "noAccount": "Não tem conta?",
+    "signUp": "Cadastre-se",
+    "emailLabel": "Email",
+    "emailPlaceholder": "seu@email.com",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "••••••",
+    "loginSuccess": "Login realizado!",
+    "loginError": "Credenciais inválidas",
+    "registerTitle": "Cadastre-se",
+    "registerSubtitle": "Crie sua conta",
+    "registerButton": "Cadastrar",
+    "cadastrando": "Criando conta...",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Seu nome",
+    "confirmPasswordLabel": "Confirmar senha",
+    "agreeTerms": "Concordo com os ",
+    "termsLink": "Termos",
+    "privacyLink": "Política de Privacidade",
+    "hasAccount": "Já tem conta?",
+    "signIn": "Entrar",
+    "registerSuccess": "Conta criada! Bem-vindo ao MEDIA Rate.",
+    "registerError": "Erro ao criar conta",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
+  },
+  "hero": {
+    "brandName": "MEDIA Rate",
+    "exploreCatalog": "Explorar catálogo",
+    "mediaScore": "MEDIA Score™"
+  },
+  "featured": {
+    "title": "Em alta agora",
+    "ariaLabel": "Mídias em alta"
+  },
+  "mediarail": {
+    "filmes": "Filmes",
+    "series": "Séries",
+    "games": "Games",
+    "count": "{count} títulos",
+    "ariaLabel": "{title} em destaque"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "emptyTitle": "Dashboard",
+    "emptyDesc": "Adicione títulos à sua watchlist para ver análises e estatísticas.",
+    "exploreCatalog": "Explorar catálogo",
+    "totalWatchlist": "Total na Watchlist",
+    "titulos": "títulos",
+    "watchingNow": "Assistindo Agora",
+    "inProgress": "em progresso",
+    "completed": "Completos",
+    "concluidos": "concluídos",
+    "statusDistribution": "Distribuição por Status",
+    "wantToSee": "Quero ver",
+    "watching": "Assistindo",
+    "dropped": "Abandonado",
+    "whereWatch": "Onde você assiste",
+    "noStreamingData": "Sem dados de streaming disponíveis.",
+    "tasteEvolution": "Evolução do Gosto",
+    "tasteEvolutionDesc": "Complete títulos e adicione notas para ver a evolução do seu gosto ao longo do tempo."
+  },
+  "discover": {
+    "empty": "Nenhuma mídia disponível no momento.",
+    "cta": "Explorar catálogo completo"
+  },
+  "error": {
+    "title": "Algo deu errado",
+    "description": "Não foi possível carregar. Tente novamente.",
+    "retry": "Tentar novamente"
+  },
+  "scoredial": {
+    "critic": "Crítica",
+    "audience": "Público",
+    "consensus": "Consenso",
+    "ariaLabel": "Score: {score} de {max}"
+  },
+  "localeSwitcher": {
+    "ariaLabel": "Selecionar idioma"
+  },
+  "home": {
+    "ctaText": "Comece agora e descubra seu próximo título favorito. Gratuito.",
+    "ctaTitle": "Começar grátis",
+    "metaTitle": "MEDIA Rate — Descubra o que assistir, jogar e ler",
+    "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
+    "metaOgTitle": "MEDIA Rate",
+    "metaOgDescription": "Score unificado de entretenimento."
+  },
+  "catalogFilters": {
+    "filters": "Filtros",
+    "clearAll": "Limpar todos"
   }
 }

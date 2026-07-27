@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 
 const MOCK_ITEMS: Record<string, MediaItem[]> = {
@@ -33,17 +34,25 @@ const MOCK_ITEMS: Record<string, MediaItem[]> = {
   ],
 };
 
-const LABELS: Record<string, { title: string; color: string }> = {
-  FILME: { title: "Filmes", color: "#38BDF8" },
-  SERIE: { title: "Séries", color: "#818CF8" },
-  GAME: { title: "Games", color: "#F59E0B" },
+const LABELS: Record<string, { color: string }> = {
+  FILME: { color: "#38BDF8" },
+  SERIE: { color: "#818CF8" },
+  GAME: { color: "#F59E0B" },
+};
+
+const LABEL_KEYS: Record<string, string> = {
+  FILME: "filmes",
+  SERIE: "series",
+  GAME: "games",
 };
 
 export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME" }) {
+  const t = useTranslations("mediarail");
   const shouldReduce = useReducedMotion();
   const railRef = useRef<HTMLDivElement>(null);
   const items = MOCK_ITEMS[mediaType] || [];
-  const { title, color } = LABELS[mediaType];
+  const title = t(LABEL_KEYS[mediaType]);
+  const { color } = LABELS[mediaType];
 
   return (
     <section className="py-10 px-4" aria-labelledby={`rail-${mediaType}`}>
@@ -54,11 +63,11 @@ export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME"
             {title}
           </h2>
           <div className="text-xs text-[#6B7280] font-body">
-            {items.length} títulos
+            {t("count", { count: items.length })}
           </div>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4" role="list" aria-label={`${title} em destaque`}>
+        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4" role="list" aria-label={t("ariaLabel", { title })}>
           {items.map((media, i) => (
             <motion.div
               key={media.id}

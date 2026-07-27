@@ -47,7 +47,7 @@ export function Navbar() {
           ? "bg-[#09090F]/95 backdrop-blur-md border-[rgba(129,140,248,0.08)]"
           : "bg-[#09090F] border-[rgba(129,140,248,0.06)]"
       }`}
-      aria-label="Navegação principal"
+      aria-label={t("mainNav")}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between transition-all duration-normal ${scrolled ? "h-14" : "h-16"}`}>
@@ -59,7 +59,7 @@ export function Navbar() {
             <Link
               href="/"
               className="flex items-center gap-2 text-xl font-bold text-[#EDE7DC] hover:text-[#818CF8] transition-colors"
-              aria-label="MEDIA Rate — Página inicial"
+              aria-label={t("homeAria")}
             >
               <Logo variant="compact" size="sm" />
             </Link>
@@ -71,16 +71,16 @@ export function Navbar() {
               <div className="relative ml-2">
                 <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors">
                   <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8]">{user?.name?.[0] ?? "?"}</span>
-                  <span>{user?.name?.split(" ")[0] ?? "Perfil"}</span>
+                  <span>{user?.name?.split(" ")[0] ?? t("profile")}</span>
                 </button>
                 {menuOpen && (
                   <div className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown" onMouseLeave={() => setMenuOpen(false)}>
                     <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">{t("profile")}</Link>
-                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Dashboard</Link>
-                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Configurações</Link>
-                    <Link href="/watchlist" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">Watchlist</Link>
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">{t("dashboard")}</Link>
+                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">{t("settings")}</Link>
+                    <Link href="/watchlist" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors">{t("watchlist")}</Link>
                     <hr className="my-1 border-[rgba(129,140,248,0.08)]" />
-                    <button onClick={() => { logout(); setMenuOpen(false); toast.success("Sessão encerrada"); router.push("/"); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-[#1C1C2E] transition-colors">Sair</button>
+                    <button onClick={() => { logout(); setMenuOpen(false); toast.success(t("sessionEnded")); router.push("/"); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-[#1C1C2E] transition-colors">{t("logout")}</button>
                   </div>
                 )}
               </div>
@@ -98,7 +98,7 @@ export function Navbar() {
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              aria-label="Abrir menu"
+              aria-label={t("openMenu")}
               className="text-[#9CA3AF] hover:text-[#EDE7DC] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             >
               <svg
@@ -135,8 +135,8 @@ export function Navbar() {
               {isAuthenticated ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("profile")}</Link>
-                  <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">Watchlist</Link>
-                  <button onClick={() => { logout(); setMobileOpen(false); }} className="block w-full text-left text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-base font-medium">Sair</button>
+                  <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("watchlist")}</Link>
+                  <button onClick={() => { logout(); setMobileOpen(false); }} className="block w-full text-left text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-base font-medium">{t("logout")}</button>
                 </>
               ) : (
                 <>

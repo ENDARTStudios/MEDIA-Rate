@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { gsap } from "@/lib/gsap-config";
 import { neonGlow } from "@/lib/motion";
@@ -18,6 +19,7 @@ const FEATURED_MEDIA: MediaItem[] = [
 ];
 
 export function FeaturedRail() {
+  const t = useTranslations("featured");
   const shouldReduce = useReducedMotion();
   const railRef = useRef<HTMLDivElement>(null);
 
@@ -51,11 +53,11 @@ export function FeaturedRail() {
         <div className="flex items-center gap-3 mb-6">
           <div className="w-1 h-5 rounded-full bg-[#818CF8]" style={shouldReduce ? undefined : neonGlow().boxShadow ? { boxShadow: neonGlow().boxShadow } : undefined} aria-hidden="true" />
           <h2 id="featured-title" className="font-heading text-xl font-bold text-[#EDE7DC] uppercase tracking-wider">
-            Em alta agora
+            {t("title")}
           </h2>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4" role="list" aria-label="Mídias em alta">
+        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4" role="list" aria-label={t("ariaLabel")}>
           {FEATURED_MEDIA.map((media, i) => (
             <motion.div
               key={media.id}

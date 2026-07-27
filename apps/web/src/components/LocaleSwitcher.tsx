@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition, useEffect, useRef } from "react";
 
@@ -18,6 +18,7 @@ const SHORT_MAP: Record<string, string> = {
 
 export function LocaleSwitcher() {
   const locale = useLocale();
+  const t = useTranslations("localeSwitcher");
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -49,7 +50,7 @@ export function LocaleSwitcher() {
         onClick={() => setOpen(!open)}
         disabled={isPending}
         className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#818CF8] hover:bg-[#11111E] rounded-md px-2 py-1 transition-colors"
-        aria-label="Selecionar idioma"
+        aria-label={t("ariaLabel")}
       >
         <svg
           className="w-3.5 h-3.5"

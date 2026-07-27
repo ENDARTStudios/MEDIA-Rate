@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { gsap } from "@/lib/gsap-config";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { HoverTextEffect } from "@/components/ui/hover-text-effect";
@@ -16,6 +17,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps) {
+  const t = useTranslations("hero");
   const [reduce, setReduce] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const dialRef = useRef<HTMLDivElement>(null);
@@ -65,7 +67,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
         >
           <div className="flex-1 text-center lg:text-left max-w-2xl">
             <p className="text-xs text-[#818CF8] font-heading uppercase tracking-[0.2em] mb-3">
-              <HoverTextEffect>MEDIA Rate</HoverTextEffect>
+              <HoverTextEffect>{t("brandName")}</HoverTextEffect>
             </p>
             <h1
               id="hero-title"
@@ -98,7 +100,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
                 href="/catalog"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg border border-[#1C1C2E] text-[#EDE7DC] font-semibold text-sm hover:bg-[#11111E] transition-colors"
               >
-                Explorar catálogo
+                {t("exploreCatalog")}
               </Link>
             </div>
           </div>
@@ -108,7 +110,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
               <div className="absolute inset-0 rounded-full bg-[#818CF8] opacity-[0.08] blur-[60px] scale-125" aria-hidden="true" />
               <ScoreDial score={8.7} size="lg" showBreakdown className="relative z-10" />
               <p className="text-center text-xs text-[#9CA3AF] mt-4 font-heading uppercase tracking-widest">
-                MEDIA Score&trade;
+                {t("mediaScore")}
               </p>
             </div>
           </div>

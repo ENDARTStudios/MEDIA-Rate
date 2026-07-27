@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 type ErrorStateProps = {
   title?: string;
@@ -29,28 +30,32 @@ function WarningIcon() {
 }
 
 export function ErrorState({
-  title = "Algo deu errado",
-  description = "Não foi possível carregar. Tente novamente.",
+  title,
+  description,
   onRetry,
   className = "",
 }: ErrorStateProps) {
+  const t = useTranslations("error");
+  const resolvedTitle = title ?? t("title");
+  const resolvedDescription = description ?? t("description");
+
   return (
     <div className={`flex flex-col items-center text-center py-16 px-4 ${className}`}>
       <div className="text-[#F97316] mb-4">
         <WarningIcon />
       </div>
       <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">
-        {title}
+        {resolvedTitle}
       </h3>
       <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">
-        {description}
+        {resolvedDescription}
       </p>
       {onRetry && (
         <button
           onClick={onRetry}
           className="bg-[#818CF8] text-[#0F172A] px-6 py-2 rounded-lg font-medium text-sm hover:brightness-110 transition-all focus:ring-2 focus:ring-[#818CF8] focus:outline-none"
         >
-          Tentar novamente
+          {t("retry")}
         </button>
       )}
     </div>

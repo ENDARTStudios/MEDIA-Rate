@@ -12,7 +12,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { Button } from "@/components/ui/button";
 
 export function LoginForm() {
-  const t = useTranslations("nav");
+  const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuthStore();
 
@@ -21,12 +21,12 @@ export function LoginForm() {
   const onSubmit = async (d: LoginData) => {
     const result = await login(d.email, d.password);
     if (result.success) {
-      toast.success("Login realizado!");
+      toast.success(t("loginSuccess"));
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
       const dest = cb && cb.startsWith("/") ? cb : "/dashboard";
       router.replace(dest);
     } else {
-      toast.error(result.error || "Credenciais inválidas");
+      toast.error(result.error || t("loginError"));
     }
   };
 
@@ -44,21 +44,21 @@ export function LoginForm() {
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
           </div>
-          <Field id="auth-login-email" label="Email" error={errors.email?.message}>
-            <input id="auth-login-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          <Field id="auth-login-email" label={t("emailLabel")} error={errors.email?.message}>
+            <input id="auth-login-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder={t("emailPlaceholder")} />
           </Field>
-          <Field id="auth-login-password" label={t("password") ?? "Senha"} error={errors.password?.message}>
+          <Field id="auth-login-password" label={t("passwordLabel")} error={errors.password?.message}>
             <PasswordInput id="auth-login-password" register={register("password")} error={!!errors.password} />
           </Field>
           <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
-            {isSubmitting ? "Entrando..." : t("login")}
+            {isSubmitting ? t("entrando") : t("loginButton")}
           </Button>
         </form>
 
         <p className="text-center text-sm text-[#9CA3AF] mt-6">
-          Não tem conta?{" "}
+          {t("noAccount")}{" "}
           <Link href="/register" className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all">
-            Cadastre-se
+            {t("signUp")}
           </Link>
         </p>
       </div>
@@ -67,7 +67,7 @@ export function LoginForm() {
 }
 
 export function RegisterForm() {
-  const t = useTranslations("nav");
+  const t = useTranslations("auth");
   const router = useRouter();
   const { register: regStore } = useAuthStore();
   const [pw, setPw] = useState("");
@@ -79,12 +79,12 @@ export function RegisterForm() {
   const onSubmit = async (d: RegisterData) => {
     const result = await regStore(d.name, d.email, d.password);
     if (result.success) {
-      toast.success("Conta criada! Bem-vindo ao MEDIA Rate.");
+      toast.success(t("registerSuccess"));
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
       const dest = cb && cb.startsWith("/") ? cb : "/dashboard";
       router.replace(dest);
     } else {
-      toast.error(result.error || "Erro ao criar conta");
+      toast.error(result.error || t("registerError"));
     }
   };
 
@@ -102,13 +102,13 @@ export function RegisterForm() {
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors).map((e) => e?.message).filter(Boolean).join(". ")}
           </div>
-          <Field id="auth-register-name" label="Nome" error={errors.name?.message}>
-            <input id="auth-register-name" {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="Seu nome" />
+          <Field id="auth-register-name" label={t("nameLabel")} error={errors.name?.message}>
+            <input id="auth-register-name" {...register("name")} aria-invalid={!!errors.name} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder={t("namePlaceholder")} />
           </Field>
-          <Field id="auth-register-email" label="Email" error={errors.email?.message}>
-            <input id="auth-register-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="seu@email.com" />
+          <Field id="auth-register-email" label={t("emailLabel")} error={errors.email?.message}>
+            <input id="auth-register-email" {...register("email")} aria-invalid={!!errors.email} className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder={t("emailPlaceholder")} />
           </Field>
-          <Field id="auth-register-password" label={t("password") ?? "Senha"} error={errors.password?.message}>
+          <Field id="auth-register-password" label={t("passwordLabel")} error={errors.password?.message}>
             <PasswordInput id="auth-register-password" register={register("password")} error={!!errors.password} onChange={(e) => setPw(e.target.value)} />
             {strength && (
               <div className="mt-1.5">
@@ -123,23 +123,23 @@ export function RegisterForm() {
               </div>
             )}
           </Field>
-          <Field id="auth-register-confirm-password" label="Confirmar senha" error={errors.confirmPassword?.message}>
+          <Field id="auth-register-confirm-password" label={t("confirmPasswordLabel")} error={errors.confirmPassword?.message}>
             <PasswordInput id="auth-register-confirm-password" register={register("confirmPassword")} error={!!errors.confirmPassword} />
           </Field>
           <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
             <input type="checkbox" {...register("acceptTerms")} className="mt-0.5 accent-[#818CF8]" />
-            <span>Concordo com os <a href="/terms" className="text-[#818CF8] underline" target="_blank">Termos</a> e a <a href="/privacy" className="text-[#818CF8] underline" target="_blank">Política de Privacidade</a></span>
+            <span>{t("agreeTerms")} <a href="/terms" className="text-[#818CF8] underline" target="_blank">{t("termsLink")}</a> e a <a href="/privacy" className="text-[#818CF8] underline" target="_blank">{t("privacyLink")}</a></span>
           </label>
           {errors.acceptTerms && <p className="text-xs text-red-500" role="alert">{errors.acceptTerms.message}</p>}
           <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
-            {isSubmitting ? "Criando conta..." : t("register")}
+            {isSubmitting ? t("cadastrando") : t("registerButton")}
           </Button>
         </form>
 
         <p className="text-center text-sm text-[#9CA3AF] mt-6">
-          Já tem conta?{" "}
+          {t("hasAccount")}{" "}
           <Link href="/login" className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all">
-            Entrar
+            {t("signIn")}
           </Link>
         </p>
       </div>
@@ -158,11 +158,12 @@ function Field({ id, label, error, children }: { id?: string; label: string; err
 }
 
 function PasswordInput({ id, register, error, onChange }: { id?: string; register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>; error: boolean; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+  const t = useTranslations("auth");
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <input id={id} {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder="••••••" />
-      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC]" aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
+      <input id={id} {...register} type={show ? "text" : "password"} onChange={(e) => { register.onChange(e); onChange?.(e); }} className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500" placeholder={t("passwordPlaceholder")} />
+      <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC]" aria-label={show ? t("hidePassword") : t("showPassword")}>
         {show ? (
           <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
         ) : (

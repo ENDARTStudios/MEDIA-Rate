@@ -58,7 +58,7 @@ export function MotionFooter() {
             <ul className="space-y-3">
               <li><Link href="/catalog" className={linkHover}>{tNav("catalog")}</Link></li>
               <li><Link href="/pricing" className={linkHover}>{tNav("pricing")}</Link></li>
-              <li><Link href="#sobre" className={linkHover}>Sobre</Link></li>
+              <li><Link href="#sobre" className={linkHover}>{t("about")}</Link></li>
             </ul>
           </motion.div>
 
@@ -69,12 +69,12 @@ export function MotionFooter() {
             viewport={{ once: true, margin: "-80px" }}
           >
             <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
-              Legal
+              {t("legal")}
             </h4>
             <ul className="space-y-3">
               <li><Link href="/privacy" className={linkHover}>{t("privacy")}</Link></li>
               <li><a href="#" className={linkHover}>{t("terms")}</a></li>
-              <li><Link href="/user/data" className={linkHover}>LGPD</Link></li>
+              <li><Link href="/user/data" className={linkHover}>{t("lgpd")}</Link></li>
             </ul>
           </motion.div>
 
@@ -85,13 +85,13 @@ export function MotionFooter() {
             viewport={{ once: true, margin: "-80px" }}
           >
             <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
-              Social
+              {t("social")}
             </h4>
             <div className="flex gap-4">
               {[
-                { label: "Twitter / X", href: "#" },
-                { label: "GitHub", href: "#" },
-                { label: "Discord", href: "#" },
+                { label: t("socialTwitter"), href: "#" },
+                { label: t("socialGithub"), href: "#" },
+                { label: t("socialDiscord"), href: "#" },
               ].map((social) => (
                 <motion.a
                   key={social.label}
@@ -116,7 +116,7 @@ export function MotionFooter() {
           viewport={{ once: true, margin: "-40px" }}
         >
           <p className="text-xs text-[#6B7280]">&copy; {year} MEDIA Rate. {t("rights")}</p>
-          <p className="text-xs text-[#6B7280]">MEDIA Score&trade; &middot; END ART Studios</p>
+          <p className="text-xs text-[#6B7280]">{t("copyright")}</p>
         </motion.div>
       </div>
     </footer>
