@@ -30,7 +30,7 @@ function run() {
       "--output-folder", crawlDir,
       "--export-format", "csv",
       "--export-tabs",
-      "Internal:All,Response Codes:Internal All,Directives:All,Hreflang:All,Page Titles:All,Meta Description:All",
+      "Internal:All,Response Codes:Internal All,Directives:All,Hreflang:All,Page Titles:All,Meta Description:All,Images:All",
       "--overwrite",
     ];
 
@@ -130,10 +130,42 @@ function summarize() {
   const hfFile = findCsv(crawlDir, "hreflang");
   if (hfFile) {
     const hfRows = parseCsv(hfFile);
+    const hfNon200 = hfRows.filter((r) => {
+      const sc = Number(r["Status Code"] || r["Status"] || 0);
+      return sc > 0 && sc !== 200;
+    });
     console.log(`\n--- Hreflang (${hfRows.length} entries) ---`);
+    if (hfNon200.length) {
+      console.log(`  Non-200: ${hfNon200.length} (should be 0)`);
+      hfNon200.slice(0, 10).forEach((r) => console.log(`    [${r["Status Code"]}] ${r["Address"] || r["Hreflang URL"] || r["URL"]}`));
+    } else {
+      console.log(`  Non-200: 0 (all valid)`);
+    }
+  } else {
+    console.log("\n--- Hreflang: no CSV (hreflang data not exported) ---");
   }
 
-  // 4. Content gaps
+  // 4. Images — alt text and size
+  const imgFile = findCsv(crawlDir, "image") || findCsv(crawlDir, "images");
+  if (imgFile) {
+    const imgRows = parseCsv(imgFile);
+    const missingAlt = imgRows.filter((r) => {
+      const alt = r["Alt Text"] || r["Alt"] || r["Alternative Text"] || "";
+      return alt.trim() === "";
+    });
+    const missingSize = imgRows.filter((r) => {
+      const w = r["Width"] || r["Image Width"] || "";
+      const h = r["Height"] || r["Image Height"] || "";
+      return !w || !h || w === "0" || h === "0";
+    });
+    console.log(`\n--- Images (${imgRows.length} total) ---`);
+    console.log(`  Missing alt: ${missingAlt.length} (decorative alt=\"\" may be flagged)`);
+    console.log(`  Missing size: ${missingSize.length} (Next.js fill mode may be flagged)`);
+  } else {
+    console.log("\n--- Images: no CSV ---");
+  }
+
+  // 5. Content gaps
   const titleFile = findCsv(crawlDir, "page_title");
   if (titleFile) {
     const tRows = parseCsv(titleFile);
