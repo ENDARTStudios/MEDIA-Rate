@@ -7,13 +7,15 @@ import { MediaDetailClient } from "../../../../components/MediaDetailClient";
 interface Props { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const media = await getMediaBySlug(slug);
   if (!media) return { title: "Mídia não encontrada — MEDIA Rate" };
 
   return {
     title: `${media.title} (${media.year}) — MEDIA Rate`,
     description: media.synopsis.slice(0, 160),
+    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/media/${slug}` },
+    robots: { index: true, follow: true },
     openGraph: {
       title: `${media.title} — MEDIA Rate`,
       description: media.synopsis.slice(0, 160),
