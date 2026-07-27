@@ -1,13 +1,9 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { animate } from "animejs";
-import { colors } from "@/lib/design-tokens";
-import { LazyMediaScoreBadge } from "./lazy";
 
 export interface MediaItem {
   id: string;
@@ -19,152 +15,104 @@ export interface MediaItem {
 }
 
 const TIPO_LABEL: Record<string, string> = {
-  FILME: "filme", SERIE: "serie", GAME: "game", LIVRO: "livro", ANIME: "anime", COMIC: "comic",
+  FILME: "filme",
+  SERIE: "serie",
+  GAME: "game",
+  LIVRO: "livro",
+  ANIME: "anime",
+  COMIC: "comic",
 };
 
 const TIPO_ICON: Record<string, string> = {
-  FILME: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-4-4l-4 1.75V6h-2v8.75L7 13l-1.75 6L12 21l6.75-2z",
+  FILME:
+    "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-4-4l-4 1.75V6h-2v8.75L7 13l-1.75 6L12 21l6.75-2z",
   SERIE: "M4 6h16v2H4zm0 4h16v2H4zm0 4h16v2H4z",
-  GAME: "M15 7.5V9h-1.5v1H15v1.5h1.5V10H18V9h-1.5V7.5zM9 12c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-3 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm12 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-3-3c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z",
-  LIVRO: "M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z",
+  GAME:
+    "M15 7.5V9h-1.5v1H15v1.5h1.5V10H18V9h-1.5V7.5zM9 12c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-3 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm12 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-3-3c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z",
+  LIVRO:
+    "M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z",
 };
+
+function getScoreColor(score: number): string {
+  if (score >= 90) return "#34D399";
+  if (score >= 80) return "#38BDF8";
+  if (score >= 70) return "#818CF8";
+  if (score >= 60) return "#F59E0B";
+  if (score >= 50) return "#F97316";
+  return "#EF4444";
+}
 
 export function MediaCard({ media }: { media: MediaItem }) {
   const t = useTranslations("catalog");
-  const shouldReduce = useReducedMotion();
+  const [imgError, setImgError] = useState(false);
+
   const tipoLabel = TIPO_LABEL[media.tipo] ?? media.tipo;
   const scoreLabel = media.score != null ? `${media.score}/100` : "—";
-  const cardRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const shineRef = useRef<HTMLDivElement>(null);
-
-  const handleMove = (e: MouseEvent) => {
-    if (shouldReduce || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    const rx = (y - 0.5) * 8;
-    const ry = (x - 0.5) * -8;
-    cardRef.current.style.transform = `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
-    cardRef.current.style.boxShadow = `${-ry * 2}px ${-rx * 2}px 20px rgba(0,0,0,0.5), 0 0 30px rgba(225,29,72,${0.15 * Math.max(x, y)})`;
-
-    if (shineRef.current) {
-      shineRef.current.style.background = `linear-gradient(${x * 60 + 15}deg, rgba(255,255,255,0.08) 0%, transparent 60%)`;
-      shineRef.current.style.opacity = "1";
-    }
-  };
-
-  const handleEnter = () => {
-    if (shouldReduce) return;
-    if (cardRef.current) {
-      cardRef.current.style.transition = "transform 0.15s ease-out, box-shadow 0.15s ease-out";
-    }
-    if (glowRef.current) animate(glowRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
-    if (overlayRef.current) animate(overlayRef.current, { opacity: [0, 1], duration: 300, ease: "outQuad" });
-  };
-
-  const handleLeave = () => {
-    if (shouldReduce || !cardRef.current) return;
-    cardRef.current.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)";
-    cardRef.current.style.boxShadow = "";
-    cardRef.current.style.transition = "transform 0.4s ease-out, box-shadow 0.4s ease-out";
-
-    if (glowRef.current) animate(glowRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
-    if (overlayRef.current) animate(overlayRef.current, { opacity: [1, 0], duration: 400, ease: "inQuad" });
-    if (shineRef.current) { shineRef.current.style.opacity = "0"; }
-  };
+  const aspectRatio = media.tipo === "GAME" ? "aspect-video" : "aspect-[2/3]";
+  const imgHeight = media.tipo === "GAME" ? 169 : 450;
 
   return (
-    <motion.div
-      ref={cardRef}
-      layoutId={`media-${media.id}`}
-      whileTap={shouldReduce ? undefined : { scale: 0.97 }}
-      transition={{ duration: shouldReduce ? 0 : 0.15, ease: "easeOut" }}
-      onMouseEnter={handleEnter}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className="relative group cursor-pointer"
-      style={{ transformStyle: "preserve-3d" }}
-    >
-      <div
-        ref={glowRef}
-        className="pointer-events-none absolute -inset-1 rounded-xl opacity-0 z-0"
-        style={{ boxShadow: `0 0 30px ${colors.accent[500]}30, 0 0 8px ${colors.accent[500]}15` }}
-        aria-hidden="true"
-      />
-
+    <div className="group transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-surface-2 rounded-md">
       <Link
-        href={`/midia/${media.id}`}
-        className="relative z-10 block bg-surface-card rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-black"
+        href={`/pt-BR/media/${media.id}`}
+        className="block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
         aria-label={`${media.titulo} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
-        <div className="aspect-[2/3] bg-gray-800 relative overflow-hidden">
-          {media.imagem_url ? (
-            <ImageWithFallback
+        <div className={`${aspectRatio} bg-[#1C1C2E] relative overflow-hidden rounded-t-md`}>
+          {media.imagem_url && !imgError ? (
+            <Image
               src={media.imagem_url}
               alt={`Capa de ${media.titulo}`}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="w-full h-full object-cover"
               width={300}
-              height={450}
+              height={imgHeight}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              onError={() => setImgError(true)}
+              loading="lazy"
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-600 bg-gradient-to-br from-gray-800 to-gray-900">
-              <svg className="w-12 h-12 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d={TIPO_ICON[media.tipo] ?? TIPO_ICON.FILME} />
+            <div className="flex items-center justify-center h-full text-[#9CA3AF]">
+              <svg
+                className="w-12 h-12 opacity-50"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d={TIPO_ICON[media.tipo] ?? TIPO_ICON.FILME}
+                />
               </svg>
             </div>
           )}
 
-          <div ref={shineRef} className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300" aria-hidden="true" />
-
-          <div
-            ref={overlayRef}
-            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-0 flex flex-col justify-end p-4"
-          >
-            <span className="text-xs font-semibold text-accent-400 uppercase tracking-widest">{t(tipoLabel)}</span>
-            <span className="text-xs text-gray-300 mt-0.5">{media.ano_lancamento ?? "—"}</span>
-          </div>
+          <span className="absolute top-2 left-2 text-xs text-[#9CA3AF] bg-[#1C1C2E] rounded-full px-2 py-0.5">
+            {t(tipoLabel)}
+          </span>
 
           {media.score != null && (
-            <div className="absolute top-2 right-2 z-20">
-              <LazyMediaScoreBadge score={media.score} />
-            </div>
+            <span
+              className="absolute top-2 right-2 rounded-full px-2 py-0.5 text-xs font-bold bg-[#11111E] border border-white/5"
+              style={{ color: getScoreColor(media.score) }}
+            >
+              {media.score}/100
+            </span>
           )}
         </div>
 
-        <div className="p-3">
-          <h3 className="text-sm font-medium text-gray-100 truncate group-hover:text-white transition-colors">{media.titulo}</h3>
-          <p className="text-xs text-gray-400 mt-1">{t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}</p>
+        <div className="p-3 bg-[#11111E] rounded-b-md">
+          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] line-clamp-2">
+            {media.titulo}
+          </h3>
+          <p className="text-xs text-[#9CA3AF] mt-1">
+            {media.ano_lancamento ?? "—"}
+          </p>
         </div>
       </Link>
-    </motion.div>
-  );
-}
-
-function ImageWithFallback({ src, alt, className, width, height, sizes }: { src: string; alt: string; className: string; width: number; height: number; sizes: string }) {
-  const [error, setError] = useState(false);
-
-  if (error) {
-    return (
-      <div className={`flex items-center justify-center bg-gradient-to-br from-primary-800 to-primary-900 text-gray-500 ${className}`}>
-        <svg className="w-10 h-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-      </div>
-    );
-  }
-
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      className={className}
-      width={width}
-      height={height}
-      sizes={sizes}
-      onError={() => setError(true)}
-      loading="lazy"
-    />
+    </div>
   );
 }

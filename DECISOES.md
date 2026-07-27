@@ -524,3 +524,25 @@ Implementada em `CatalogPageClient.tsx` e `DiscoverClient.tsx`:
 ## [2026-07-26] D-064 — T058: `/discover` público com dados reais
 
 A página `/pt-BR/discover` agora exibe grid com mídias reais (top 10 por MEDIA Score) via `getCatalogSync()` no SSR + `DiscoverClient` no cliente, sem exigir login. Link para catálogo completo mantido. Substitui o placeholder estático anterior ("Coleções curadas aparecerão aqui").
+
+---
+
+## [2026-07-27] D-065 — T059: Design System com tokens V3 §12 TRAVADOS
+
+Motivo: A V3 §12 trava cores, fontes e score bands do MEDIA Rate. O design system antigo (T5.8/UI UX Pro Max) usava tokens não-alinhados (#0F0F23, rose red #E11D48, Inter headings). A T059 substitui completamente por:
+
+**Cores (V3 §12):** BG #09090F, CB #11111E, BD #1C1C2E. Accents: critics #38BDF8, audience #F59E0B, indigo #818CF8. Score bands: ≥9 #34D399, ≥8 #38BDF8, ≥7 #818CF8, ≥6 #F59E0B, ≥5 #F97316, <5 #EF4444.
+
+**Fontes:** Space Grotesk (headings/scores, via next/font/google), Inter (body).
+
+**Proibições:** glassmorphism blanket, rounded-2xl blanket, aurora-blob, hero trio centralizado, 3 cards iguais em fileira, texto #FFFFFF (usar #EDE7DC).
+
+**Border-radius:** rounded-md (6px) cards/inputs, rounded-lg (8px) buttons, rounded-full pills.
+
+**Artefatos:** `tailwind.config.ts`, `globals.css`, `design-tokens.ts` reescritos. Componentes base criados em `ui/`: ScoreDial, Badge, Spinner, Skeleton, Input, EmptyState, ErrorState, LayeredBackground. Button e MediaCard atualizados.
+
+---
+
+## [2026-07-27] D-066 — T059: ScoreDial + LayeredBackground como fundação visual
+
+O ScoreDial é o componente-âncora do produto: anel SVG com preenchimento proporcional ao score (0-10), cor por faixa, número grande em Space Grotesk, breakdown opcional (Crítica 40% / Público 40% / Consenso 20%), scroll-reveal (800ms stroke-dashoffset), hover revela breakdown. O LayeredBackground (grão SVG noise + grid 40px + spotlight radial opcional) estabelece profundidade sem aurora-blob. Página `/pt-BR/design-system` demonstra todos os componentes. Build verde (50 páginas SSG), 30 testes passando.

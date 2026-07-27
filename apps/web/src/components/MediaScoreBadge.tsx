@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
 import { useTranslations } from "next-intl";
-import { colors, score } from "@/lib/design-tokens";
+import { scoreColor as getScoreColor } from "@/lib/design-tokens";
 
-function scoreColor(value: number): string {
-  if (value >= 70) return score.high;
-  if (value >= 40) return score.medium;
-  return score.low;
+function scoreHex(value: number): string {
+  const normalized = value / 10;
+  return getScoreColor(normalized);
 }
 
 interface MediaScoreBadgeProps {
@@ -63,7 +62,7 @@ export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProp
     });
   }, [inView, value]);
 
-  const color = scoreColor(value);
+  const color = scoreHex(value);
 
   return (
     <div
