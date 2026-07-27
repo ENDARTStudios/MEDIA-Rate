@@ -65,7 +65,9 @@
     "share": "Compartir",
     "loadMore": "Cargar más",
     "mediaScore": "MEDIA Score",
-    "mediaScoreAria": "MEDIA Score {score} de 100"
+    "mediaScoreAria": "MEDIA Score {score} de 100",
+    "loadingCatalog": "Actualizando catálogo...",
+    "catalogAria": "Catálogo de medios"
   },
   "checkout": {
     "title": "Mejora de plan",

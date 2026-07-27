@@ -59,17 +59,25 @@ const MANUAL: any[] = [
 const MOCK_MEDIA: Media[] = [...SEED_MEDIA, ...MANUAL] as Media[];
 export { MOCK_MEDIA };
 
+function applyCatalogFilters(items: Media[], filters?: CatalogFilters) {
+  let result = [...items];
+  if (filters?.type) result = result.filter((m) => m.type === filters.type);
+  if (filters?.search) { const q = filters.search.toLowerCase(); result = result.filter((m) => m.title.toLowerCase().includes(q) || m.synopsis.toLowerCase().includes(q)); }
+  if (filters?.sort === "title") result.sort((a, b) => a.title.localeCompare(b.title));
+  if (filters?.sort === "year") result.sort((a, b) => b.year - a.year);
+  if (filters?.sort === "score") result.sort((a, b) => (b.score?.consolidated ?? 0) - (a.score?.consolidated ?? 0));
+  const p = filters?.page ?? 1; const l = filters?.limit ?? 12;
+  const start = (p - 1) * l; const sliced = result.slice(start, start + l);
+  return { items: sliced, total: result.length, page: p, limit: l, hasMore: start + l < result.length };
+}
+
+export function getCatalogSync(filters?: CatalogFilters): CatalogResponse {
+  return applyCatalogFilters(MOCK_MEDIA, filters);
+}
+
 export async function getCatalog(filters?: CatalogFilters): Promise<CatalogResponse> {
   await delay(400); maybeThrow();
-  let items = [...MOCK_MEDIA];
-  if (filters?.type) items = items.filter((m) => m.type === filters.type);
-  if (filters?.search) { const q = filters.search.toLowerCase(); items = items.filter((m) => m.title.toLowerCase().includes(q) || m.synopsis.toLowerCase().includes(q)); }
-  if (filters?.sort === "title") items.sort((a, b) => a.title.localeCompare(b.title));
-  if (filters?.sort === "year") items.sort((a, b) => b.year - a.year);
-  if (filters?.sort === "score") items.sort((a, b) => (b.score?.consolidated ?? 0) - (a.score?.consolidated ?? 0));
-  const p = filters?.page ?? 1; const l = filters?.limit ?? 12;
-  const start = (p - 1) * l; const sliced = items.slice(start, start + l);
-  return { items: sliced, total: items.length, page: p, limit: l, hasMore: start + l < items.length };
+  return applyCatalogFilters(MOCK_MEDIA, filters);
 }
 
 export async function getMediaBySlug(slug: string): Promise<Media | null> {

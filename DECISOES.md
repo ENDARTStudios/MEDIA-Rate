@@ -498,3 +498,29 @@ Camada de infraestrutura do frontend: `lib/http.ts` implementa fetch wrapper com
 ## [2026-07-25] D-057 — T053: prova comportamental real + forms de auth reais
 
 Auth flow cross-site completo validado no browser: register 201 → login 200 + cookies (SameSite=None) → /me 200 (prova cookie enviado) → dashboard redirect. useRequireAuth valida sessão via fetchMe(). Forms tratam erros reais do backend. Sem localStorage para auth.
+
+---
+
+## [2026-07-26] D-062 — T058: SSR pre-fetch do catálogo (anti-"some")
+
+Motivo: O bug "catálogo carrega e some" (deslogado) era causado pela ausência de dados no SSR — a página pintava skeleton no primeiro paint e dependia 100% do client-side fetch. Agora `catalog/page.tsx` pre-fetcha `getCatalogSync()` (sem delay artificial, sem simulação de erro) no servidor e passa `initialData` ao `CatalogPageClient`. O `useQuery` recebe `initialData` para que os cards SSR sobrevivam à hidratação sem flash de skeleton. O `discover/page.tsx` segue o mesmo padrão (top 10 por MEDIA Score). Ambos são públicos (sem auth).
+
+Alternativas consideradas: ISR estático (rejeitado: exigiria gerar 47 páginas com variações de tipo/ordenacão, inviável); Deixar como estava (rejeitado: viola §3/§4 da V3 — catálogo deslogado deve funcionar com dados públicos).
+
+---
+
+## [2026-07-26] D-063 — T058: regra anti-"some" como contrato de código
+
+REGRA: Nenhum container de conteúdo (grid, rail, lista) pode partir de estado vazio/opacity:0 que dependa de fetch para "aparecer". O conteúdo do SSR/ISR é o piso; o fetch client-side só pode (i) confirmar/substituir por dados pessoais quando logado, ou (ii) cair em estado explícito (CTA, empty-state, erro com retry), NUNCA remover o que já estava pintado.
+
+Implementada em `CatalogPageClient.tsx` e `DiscoverClient.tsx`:
+- `isLoading && !data` → skeleton (sem dados prévios = primeira montagem sem initialData)
+- `error && !data` → estado de erro (sem dados para preservar)
+- `error && data` → banner de erro acima do grid preservado (dados SSR intactos)
+- `!data || items.length === 0` → empty-state explícito
+
+---
+
+## [2026-07-26] D-064 — T058: `/discover` público com dados reais
+
+A página `/pt-BR/discover` agora exibe grid com mídias reais (top 10 por MEDIA Score) via `getCatalogSync()` no SSR + `DiscoverClient` no cliente, sem exigir login. Link para catálogo completo mantido. Substitui o placeholder estático anterior ("Coleções curadas aparecerão aqui").

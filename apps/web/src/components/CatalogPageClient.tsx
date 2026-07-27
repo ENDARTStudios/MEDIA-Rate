@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
 import { getCatalog } from "@/lib/api";
-import type { MediaType } from "@/lib/types";
+import type { MediaType, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
@@ -23,21 +23,24 @@ function mapToMediaItem(media: any): MediaItem {
   };
 }
 
-function CatalogContent() {
+function CatalogContent({ initialData }: { initialData?: CatalogResponse }) {
   const t = useTranslations("catalog");
   const sp = useSearchParams();
   const type = (sp.get("type") || undefined) as MediaType | undefined;
   const sort = sp.get("sort") || undefined;
   const query = sp.get("q") || undefined;
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ["catalog", { type, sort, query }],
     queryFn: () => getCatalog({ type, search: query, sort: sort as any }),
+    initialData: type === undefined && sort === undefined && query === undefined ? initialData : undefined,
   });
 
-  if (isLoading) return <CatalogSkeleton count={12} />;
+  if (isLoading && !data) {
+    return <CatalogSkeleton count={12} />;
+  }
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
         <svg className="w-14 h-14 text-red-500/60 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -46,6 +49,22 @@ function CatalogContent() {
         <p className="text-gray-400 mb-4">{t("error")}</p>
         <Button onClick={() => refetch()}>{t("retry")}</Button>
       </div>
+    );
+  }
+
+  if (error && data) {
+    return (
+      <>
+        <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg" role="alert">
+          <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <p className="text-sm text-red-300">{t("error")}</p>
+          <Button size="sm" onClick={() => refetch()} className="ml-auto">{t("retry")}</Button>
+        </div>
+        <p className="text-sm text-gray-400 mb-4">{t("count", { count: data.total })}</p>
+        <CatalogGrid medias={data.items.map(mapToMediaItem)} />
+      </>
     );
   }
 
@@ -66,12 +85,18 @@ function CatalogContent() {
   return (
     <>
       <p className="text-sm text-gray-400 mb-4">{t("count", { count: data.total })}</p>
+      {isFetching && !isLoading && (
+        <div className="mb-3 flex items-center gap-2 text-xs text-gray-500" aria-live="polite">
+          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+          {t("loadingCatalog")}
+        </div>
+      )}
       <CatalogGrid medias={data.items.map(mapToMediaItem)} />
     </>
   );
 }
 
-export function CatalogPageClient() {
+export function CatalogPageClient({ initialData }: { initialData?: CatalogResponse }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -81,7 +106,7 @@ export function CatalogPageClient() {
       </Suspense>
       <div className="flex-1 min-w-0">
         <Suspense fallback={<CatalogSkeleton count={12} />}>
-          <CatalogContent />
+          <CatalogContent initialData={initialData} />
         </Suspense>
       </div>
     </div>

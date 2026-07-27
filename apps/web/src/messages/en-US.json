@@ -65,7 +65,9 @@
     "share": "Share",
     "loadMore": "Load more",
     "mediaScore": "MEDIA Score",
-    "mediaScoreAria": "MEDIA Score {score} out of 100"
+    "mediaScoreAria": "MEDIA Score {score} out of 100",
+    "loadingCatalog": "Updating catalog...",
+    "catalogAria": "Media catalog"
   },
   "checkout": {
     "title": "Plan upgrade",
