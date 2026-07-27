@@ -90,7 +90,6 @@ export class LgpdService {
       }),
       this.prisma.watchlistEntry.findMany({
         where: { usuario_id },
-        include: { midia: { select: { id: true, titulo: true, tipo: true } } },
       }),
       this.prisma.usuarioMidiaInteracao.findMany({
         where: { usuario_id },
