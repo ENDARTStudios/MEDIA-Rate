@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { Logo } from "./Logo";
+import { SearchCommand } from "./SearchCommand";
 import { GradientMenu } from "./ui/gradient-menu";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { toast } from "sonner";
@@ -66,6 +67,7 @@ export function Navbar() {
           </motion.div>
 
           <div className="hidden md:flex items-center space-x-4">
+            <SearchCommand />
             <GradientMenu items={NAV_ITEMS.map((item) => ({ label: t(item.label as any) ?? item.label, href: item.href }))} />
             {isAuthenticated ? (
               <div className="relative ml-2">
