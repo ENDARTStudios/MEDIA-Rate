@@ -5,11 +5,8 @@ import type { AddToWatchlistDto, MoveWatchlistDto } from "./dto/watchlist.dto.js
 import type { WatchlistColuna } from "@prisma/client";
 
 function stringToUuid(str: string): string {
-  const hash = createHash("sha1").update("media-rate-v1:" + str).digest();
-  hash[6] = (hash[6] & 0x0f) | 0x50;
-  hash[8] = (hash[8] & 0x3f) | 0x80;
-  const hex = hash.toString("hex", 0, 16);
-  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+  const h = createHash("md5").update("media-rate-v1:" + str).digest("hex");
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20,32)}`;
 }
 
 @Injectable()
