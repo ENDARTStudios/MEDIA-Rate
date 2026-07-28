@@ -62,7 +62,7 @@ describe("SessionCookieService (T3.2 + T049)", () => {
       expect(csrf).toMatch(/^[a-f0-9]{64}$/);
     });
 
-    it("em prod: httpOnly=true, secure=true, sameSite=None (sess + csrf)", () => {
+    it("em prod: httpOnly=true, secure=true, sameSite=Lax (sess + csrf)", () => {
       process.env.NODE_ENV = "production";
       const { reply, setCookie } = createMockReply();
       const expires = new Date(Date.now() + 3600 * 1000);
@@ -75,13 +75,13 @@ describe("SessionCookieService (T3.2 + T049)", () => {
       const [, , sessOpts] = setCookie.mock.calls[0]!;
       expect(sessOpts.secure).toBe(true);
       expect(sessOpts.httpOnly).toBe(true);
-      expect(sessOpts.sameSite).toBe("none");
+      expect(sessOpts.sameSite).toBe("lax");
 
       // csrf_token
       const [, , csrfOpts] = setCookie.mock.calls[1]!;
       expect(csrfOpts.secure).toBe(true);
       expect(csrfOpts.httpOnly).toBe(false);
-      expect(csrfOpts.sameSite).toBe("none");
+      expect(csrfOpts.sameSite).toBe("lax");
     });
   });
 

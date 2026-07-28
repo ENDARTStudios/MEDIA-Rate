@@ -17,7 +17,7 @@ export class SessionCookieService {
     void reply.setCookie(COOKIE_NAME, token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      sameSite: "lax",
       path: "/",
       expires: expiresAt,
     });
@@ -27,7 +27,7 @@ export class SessionCookieService {
     void reply.setCookie(CSRF_COOKIE_NAME, csrf, {
       httpOnly: false,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      sameSite: "lax",
       path: "/",
     });
 
@@ -39,7 +39,7 @@ export class SessionCookieService {
     void reply.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      sameSite: "lax",
       path: "/",
     });
     void reply.clearCookie(CSRF_COOKIE_NAME, {
