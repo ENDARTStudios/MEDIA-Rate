@@ -11,8 +11,6 @@ export function DiagPanel() {
     setEnabled(params.get("diag") === "1");
   }, []);
 
-  if (!enabled) return null;
-
   const buildId =
     typeof window !== "undefined"
       ? (window as any).__NEXT_DATA__?.buildId || "N/A"
@@ -125,6 +123,8 @@ export function DiagPanel() {
       window.removeEventListener("unhandledrejection", onRejection);
     };
   }, []);
+
+  if (!enabled) return null;
 
   function copyReport() {
     const lines = [
