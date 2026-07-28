@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { MediaCard, type MediaItem } from "./MediaCard";
 
@@ -35,17 +35,11 @@ export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
       role="feed"
       aria-label={t("catalogAria")}
     >
-      <AnimatePresence mode="popLayout">
-        {medias.map((media) => (
-          <motion.div
-            key={media.id}
-            exit={shouldReduce ? undefined : { opacity: 0, scale: 0.9 }}
-            transition={{ duration: shouldReduce ? 0 : 0.25, ease: "easeOut" }}
-          >
+      {medias.map((media) => (
+          <div key={media.id}>
             <MediaCard media={media} />
-          </motion.div>
+          </div>
         ))}
-      </AnimatePresence>
     </motion.div>
   );
 }
