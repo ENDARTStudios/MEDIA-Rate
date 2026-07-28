@@ -139,6 +139,8 @@
     "noCard": "Sem cartão para começar",
     "cancelAnyTime": "Cancele quando quiser",
     "perMonthBilledAnnually": "/mês no plano anual (-15%)",
+    "year": "ano",
+    "savePercent": "economize {pct}%",
     "securePayment": "Pagamento seguro",
     "startFree": "Começar grátis",
     "upgrade": "Fazer upgrade",

@@ -6,23 +6,76 @@
 
 # Test info
 
-- Name: teste-fechado.spec.ts >> Teste Fechado — MEDIA Rate >> 06 — Home
-- Location: e2e\teste-fechado.spec.ts:145:3
+- Name: teste-fechado.spec.ts >> Teste Fechado — MEDIA Rate >> 01 — Register
+- Location: e2e\teste-fechado.spec.ts:35:3
 
 # Error details
 
 ```
-Error: UNKNOWN: unknown error, open 'D:\PROJETOS\MEDIA Rate\MEDIA Rate\apps\web\apps\web\e2e\screenshots\06a-home-desktop.png'
+Error: UNKNOWN: unknown error, open 'D:\PROJETOS\MEDIA Rate\MEDIA Rate\apps\web\apps\web\e2e\screenshots\01b-register-result.png'
 ```
 
 # Test source
 
 ```ts
+  1   | // T079 — Varredura completa: 11 fluxos do teste fechado
+  2   | // node --experimental-vm-modules node_modules/.bin/playwright test e2e/teste-fechado.spec.ts
+  3   | 
+  4   | import { test, expect } from "@playwright/test";
+  5   | import fs from "fs";
+  6   | 
+  7   | const BASE = "https://media-rate-web.vercel.app";
+  8   | const SCREEN_DIR = "apps/web/e2e/screenshots";
+  9   | fs.mkdirSync(SCREEN_DIR, { recursive: true });
+  10  | 
+  11  | function ss(page, name) {
+  12  |   const path = `${SCREEN_DIR}/${name}.png`;
+  13  |   return page.screenshot({ path, fullPage: false });
+  14  | }
+  15  | 
+  16  | test.describe("Teste Fechado — MEDIA Rate", () => {
+  17  |   const bugs = [];
+  18  |   const consoleErrors = [];
+  19  |   const networkErrors = [];
+  20  |   const pageErrors = [];
+  21  | 
+  22  |   test.beforeEach(async ({ page }) => {
+  23  |     page.on("console", (msg) => {
+  24  |       if (msg.type() === "error") consoleErrors.push({ url: page.url(), text: msg.text().slice(0, 200) });
+  25  |     });
+  26  |     page.on("requestfailed", (req) => {
+  27  |       networkErrors.push({ url: page.url(), failed: req.url(), reason: req.failure()?.errorText || "unknown" });
+  28  |     });
+  29  |     page.on("pageerror", (err) => {
+  30  |       pageErrors.push({ url: page.url(), message: err.message.slice(0, 200) });
+  31  |     });
+  32  |   });
+  33  | 
+  34  |   // Fluxo 1: Register
+  35  |   test("01 — Register", async ({ page }) => {
+  36  |     const email = `e2e-${Date.now()}@test.com`;
+  37  |     await page.goto(`${BASE}/pt-BR/register`, { waitUntil: "networkidle", timeout: 15000 });
+  38  |     await ss(page, "01a-register-form");
+  39  | 
+  40  |     const name = page.locator('input[name="name"]').first();
+  41  |     const emailF = page.locator('input[type="email"]').first();
+  42  |     const pwds = page.locator('input[type="password"]');
+  43  |     const chk = page.locator('input[type="checkbox"]').first();
+  44  |     const submit = page.locator('button[type="submit"]').first();
+  45  | 
+  46  |     if (await name.count()) await name.fill("E2E Tester");
+  47  |     if (await emailF.count()) await emailF.fill(email);
+  48  |     const pwdCount = await pwds.count();
+  49  |     if (pwdCount >= 1) await pwds.nth(0).fill("TesteForte123!");
+  50  |     if (pwdCount >= 2) await pwds.nth(1).fill("TesteForte123!");
+  51  |     if (await chk.count()) await chk.check().catch(() => {});
+  52  |     if (await submit.count()) await submit.click();
   53  | 
   54  |     await page.waitForTimeout(5000);
   55  |     const url = page.url();
   56  |     console.log("  Register result:", url);
-  57  |     await ss(page, "01b-register-result");
+> 57  |     await ss(page, "01b-register-result");
+      |     ^ Error: UNKNOWN: unknown error, open 'D:\PROJETOS\MEDIA Rate\MEDIA Rate\apps\web\apps\web\e2e\screenshots\01b-register-result.png'
   58  | 
   59  |     if (url.includes("/register")) {
   60  |       bugs.push({ id: "BUG-001", fluxo: 1, severity: "Alto", desc: "Register — não redirecionou após submit", evidence: `Console: ${consoleErrors.length}, Network: ${networkErrors.length}, Page: ${pageErrors.length}, URL: ${url}`, cause: "Form não submeteu ou backend não respondeu" });
@@ -118,106 +171,9 @@ Error: UNKNOWN: unknown error, open 'D:\PROJETOS\MEDIA Rate\MEDIA Rate\apps\web\
   150 |     const rails = await page.locator("section").count();
   151 |     const cards = await page.locator('a[href*="/media/"]').count();
   152 |     console.log(`  Home: hero="${hero?.slice(0, 60)}" sections=${rails} cards=${cards}`);
-> 153 |     await ss(page, "06a-home-desktop");
-      |     ^ Error: UNKNOWN: unknown error, open 'D:\PROJETOS\MEDIA Rate\MEDIA Rate\apps\web\apps\web\e2e\screenshots\06a-home-desktop.png'
+  153 |     await ss(page, "06a-home-desktop");
   154 | 
   155 |     if (!hero) {
   156 |       bugs.push({ id: "BUG-007", fluxo: 6, severity: "Alto", desc: "Home — hero section vazio", evidence: `Hero text: ${hero}` });
   157 |     }
-  158 |     if (cards === 0) {
-  159 |       bugs.push({ id: "BUG-008", fluxo: 6, severity: "Alto", desc: "Home — 0 cards nos rails", evidence: `Cards: ${cards}` });
-  160 |     }
-  161 |   });
-  162 | 
-  163 |   // Fluxo 7: i18n
-  164 |   test("07 — i18n (PT/EN/ES)", async ({ page }) => {
-  165 |     const locales = ["/pt-BR", "/en-US", "/es-ES"];
-  166 |     for (const loc of locales) {
-  167 |       await page.goto(`${BASE}${loc}/catalog`, { waitUntil: "networkidle", timeout: 15000 });
-  168 |       await page.waitForTimeout(1000);
-  169 |       const h1 = await page.locator("h1").first().textContent();
-  170 |       console.log(`  ${loc}: H1="${h1}"`);
-  171 |       await ss(page, `07-${loc.replace("/", "")}`);
-  172 |     }
-  173 |   });
-  174 | 
-  175 |   // Fluxo 8: Logout
-  176 |   test("08 — Logout + protected route", async ({ page }) => {
-  177 |     // Protected route access (without login)
-  178 |     await page.goto(`${BASE}/pt-BR/watchlist`, { waitUntil: "networkidle", timeout: 15000 });
-  179 |     await page.waitForTimeout(2000);
-  180 |     const protectedUrl = page.url();
-  181 |     console.log("  Protected route:", protectedUrl);
-  182 |     await ss(page, "08a-protected");
-  183 |     if (!protectedUrl.includes("/login")) {
-  184 |       bugs.push({ id: "BUG-009", fluxo: 8, severity: "Alto", desc: "Watchlist — não redirecionou para login (usuário deslogado)", evidence: `URL: ${protectedUrl}` });
-  185 |     }
-  186 |   });
-  187 | 
-  188 |   // Fluxo 9: Planos
-  189 |   test("09 — Planos", async ({ page }) => {
-  190 |     await page.goto(`${BASE}/pt-BR/pricing`, { waitUntil: "networkidle", timeout: 15000 });
-  191 |     await page.waitForTimeout(1000);
-  192 |     await ss(page, "09-pricing");
-  193 |     const planCards = await page.locator("article, .bg-\\[\\#11111E\\]").count();
-  194 |     console.log(`  Pricing: cards=${planCards}`);
-  195 |     if (planCards < 2) {
-  196 |       bugs.push({ id: "BUG-010", fluxo: 9, severity: "Médio", desc: "Planos — menos de 2 planos visíveis", evidence: `Cards: ${planCards}` });
-  197 |     }
-  198 |   });
-  199 | 
-  200 |   // Fluxo 10: SEO
-  201 |   test("10 — SEO (View Source)", async ({ page }) => {
-  202 |     await page.goto(`${BASE}/pt-BR/media/g1`, { waitUntil: "networkidle", timeout: 15000 });
-  203 |     await page.waitForTimeout(1500);
-  204 | 
-  205 |     const source = await page.content();
-  206 |     const hasCanonical = source.includes("canonical");
-  207 |     const hasRobots = source.includes("robots");
-  208 |     const hasH1 = /<h1[^>]*>/i.test(source);
-  209 |     const hasTitle = /<title>/i.test(source);
-  210 | 
-  211 |     console.log(`  SEO: canonical=${hasCanonical} robots=${hasRobots} H1=${hasH1} title=${hasTitle}`);
-  212 |     await ss(page, "10-seo-meta");
-  213 | 
-  214 |     if (!hasCanonical) bugs.push({ id: "BUG-011", fluxo: 10, severity: "Alto", desc: "SEO — canonical ausente na página de detalhe", evidence: "Canonical: false" });
-  215 |     if (!hasRobots) bugs.push({ id: "BUG-012", fluxo: 10, severity: "Alto", desc: "SEO — meta robots ausente", evidence: "Robots: false" });
-  216 |     if (!hasH1) bugs.push({ id: "BUG-013", fluxo: 10, severity: "Alto", desc: "SEO — H1 ausente", evidence: "H1: false" });
-  217 |   });
-  218 | 
-  219 |   // Fluxo 11: Security headers
-  220 |   test("11 — Security headers", async ({ page }) => {
-  221 |     await page.goto(`${BASE}`, { waitUntil: "networkidle", timeout: 15000 });
-  222 |     await page.waitForTimeout(1000);
-  223 | 
-  224 |     // Check via Performance API
-  225 |     const headers = await page.evaluate(() => {
-  226 |       const entry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-  227 |       return { type: entry?.type || "navigate" };
-  228 |     });
-  229 |     console.log("  Security: navigation type =", headers.type);
-  230 | 
-  231 |     // We can't directly read response headers from Playwright without intercepting
-  232 |     // Use page.route to capture
-  233 |     let securityHeaders = {};
-  234 |     await page.route("**/pt-BR", (route) => {
-  235 |       const resp = route.request().response();
-  236 |       if (resp) {
-  237 |         securityHeaders = {
-  238 |           "x-frame-options": resp.headers()["x-frame-options"] || "MISSING",
-  239 |           "x-content-type-options": resp.headers()["x-content-type-options"] || "MISSING",
-  240 |           "referrer-policy": resp.headers()["referrer-policy"] || "MISSING",
-  241 |           "csp": resp.headers()["content-security-policy"] ? "PRESENT" : "MISSING",
-  242 |         };
-  243 |       }
-  244 |       route.continue();
-  245 |     }, { times: 1 });
-  246 | 
-  247 |     await page.goto(`${BASE}`, { waitUntil: "networkidle", timeout: 15000 });
-  248 |     await page.waitForTimeout(500);
-  249 |     console.log("  Security headers:", JSON.stringify(securityHeaders));
-  250 |   });
-  251 | 
-  252 |   // After all: report
-  253 |   test.afterAll(() => {
 ```

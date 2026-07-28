@@ -139,6 +139,8 @@
     "noCard": "No card required",
     "cancelAnyTime": "Cancel anytime",
     "perMonthBilledAnnually": "/mo billed annually (-15%)",
+    "year": "yr",
+    "savePercent": "save {pct}%",
     "securePayment": "Secure payment",
     "startFree": "Start free",
     "upgrade": "Upgrade",

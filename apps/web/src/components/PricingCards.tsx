@@ -57,7 +57,9 @@ export function PricingCards() {
                 <span className="text-sm text-[#9CA3AF]">/{t("month")}</span>
               </div>
               <p className="text-xs text-[#6B7280] mt-0.5">
-                {plan.price > 0 ? formatPrice(plan.price * 0.85, locale) + " " + t("perMonthBilledAnnually") : null}
+                {plan.price > 0
+                  ? formatPrice(plan.price * 12 * 0.85, locale) + "/" + t("year") + " (" + t("savePercent", { pct: 15 }) + ")"
+                  : null}
               </p>
               <p className="text-xs text-[#9CA3AF] mt-1">
                 {plan.price === 0 ? t("noCard") : t("cancelAnyTime")}
