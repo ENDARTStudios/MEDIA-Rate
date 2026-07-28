@@ -36,6 +36,15 @@ export class ApiError extends Error {
   }
 }
 
+export class RateLimitedError extends Error {
+  retryAfterSeconds: number;
+  constructor(retryAfter: number) {
+    super("Muitas requisições. Tente novamente em breve.");
+    this.name = "RateLimitedError";
+    this.retryAfterSeconds = retryAfter;
+  }
+}
+
 export class SessionExpiredError extends Error {
   constructor() {
     super("Sessão expirada.");
@@ -116,6 +125,10 @@ export async function apiFetch<T = unknown>(
   }
 
   if (!res.ok) {
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get("Retry-After") ?? "5", 10);
+      throw new RateLimitedError(Math.max(1, retryAfter));
+    }
     const msg =
       typeof data === "object" && data !== null && "message" in data
         ? String((data as { message: unknown }).message)
