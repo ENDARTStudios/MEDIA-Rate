@@ -12,10 +12,35 @@
 ## 2. Como fazer deploy
 
 ### Frontend (Vercel)
+
+**Opção recomendada** (atualiza o domínio de produção automaticamente):
+```bash
+cd apps/web
+npm run deploy:with-alias
+```
+
+**Opção manual** (requer atualizar o alias separadamente):
 ```bash
 cd apps/web
 npm run build
-vercel --prod --yes
+npm run deploy
+# ⚠️ Após o deploy, o domínio media-rate-web.vercel.app NÃO é atualizado
+# automaticamente. Execute o comando abaixo para atualizar:
+npx vercel alias ls | Select-String "media-rate-web"  # veja o alias antigo
+npx vercel alias set <DEPLOY_URL> media-rate-web.vercel.app
+```
+
+**Por que o alias precisa ser atualizado manualmente**: O domínio `media-rate-web.vercel.app`
+está configurado como um alias manual na Vercel (não como Production Domain do projeto
+`end-art-studios/web`). Isso faz com que `vercel --prod` atualize apenas os aliases
+automáticos (`web-ten-iota-34.vercel.app`) e NÃO o domínio de produção principal. O script
+`deploy:with-alias` resolve isso executando `vercel alias set` após o deploy.
+
+**Como verificar que o domínio tem o código novo**:
+```bash
+# Compare os hashes dos chunks JS (devem ser iguais):
+curl -s "https://media-rate-web.vercel.app/pt-BR" | grep -oP '/_next/static/chunks/\K[a-z0-9]+-[a-f0-9]+' | head -1
+curl -s "https://web-ten-iota-34.vercel.app/pt-BR" | grep -oP '/_next/static/chunks/\K[a-z0-9]+-[a-f0-9]+' | head -1
 ```
 
 ### Backend (Railway)
