@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
-import { gsap } from "@/lib/gsap-config";
-import { neonGlow } from "@/lib/motion";
 
 const FEATURED_MEDIA: MediaItem[] = [
   { id: "f1", titulo: "A Odisseia", tipo: "FILME", ano_lancamento: 2026, imagem_url: "https://image.tmdb.org/t/p/w500/muMwJAiMtReEHLKpKMWt2rMkYF7.jpg", score: 79 },
@@ -23,35 +21,11 @@ export function FeaturedRail() {
   const shouldReduce = useReducedMotion();
   const railRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (shouldReduce || !railRef.current) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        railRef.current,
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: railRef.current,
-            start: "top 90%",
-            toggleActions: "play none none none",
-          },
-        },
-      );
-    }, railRef);
-
-    return () => ctx.revert();
-  }, [shouldReduce]);
-
   return (
     <section className="py-12 px-4 relative" aria-labelledby="featured-title">
       <div className="max-w-7xl mx-auto" ref={railRef}>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-1 h-5 rounded-full bg-[#818CF8]" style={shouldReduce ? undefined : neonGlow().boxShadow ? { boxShadow: neonGlow().boxShadow } : undefined} aria-hidden="true" />
+          <div className="w-1 h-5 rounded-full bg-[#818CF8]" aria-hidden="true" />
           <h2 id="featured-title" className="font-heading text-xl font-bold text-[#EDE7DC] uppercase tracking-wider">
             {t("title")}
           </h2>
