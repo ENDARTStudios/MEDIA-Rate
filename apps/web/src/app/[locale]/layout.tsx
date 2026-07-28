@@ -12,11 +12,41 @@ import { QueryProvider } from "../../providers/query-provider";
 import { Toaster } from "sonner";
 import "../globals.css";
 
-export const metadata: Metadata = {
-  title: "MEDIA Rate — Descubra o que assistir, jogar e ler",
-  description:
-    "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://media-rate-web.vercel.app';
+  
+  // Constroi alternates dinamicamente com base no roteamento
+  const alternates: Record<string, string> = {};
+  routing.locales.forEach((l) => {
+    alternates[l] = `${baseUrl}/${l}`;
+  });
+  alternates['x-default'] = `${baseUrl}`;
+
+  return {
+    title: {
+      template: '%s | MEDIA Rate',
+      default: 'MEDIA Rate — Descubra o que assistir, jogar e ler',
+    },
+    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: alternates,
+    },
+    openGraph: {
+      siteName: 'MEDIA Rate',
+      locale: locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

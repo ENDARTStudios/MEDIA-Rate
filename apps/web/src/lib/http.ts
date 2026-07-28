@@ -101,11 +101,9 @@ export async function apiFetch<T = unknown>(
   });
 
   if (res.status === 401 && auth && !isAuthRoute(path)) {
-    if (typeof window !== "undefined") {
-      const locale = window.location.pathname.split("/")[1] ?? "";
-      const loginPath = locale.length === 2 ? `/${locale}/login` : "/login";
-      window.location.href = loginPath;
-    }
+    // T101: Não forçar redirecionamento global em erros 401, especialmente em rotas públicas.
+    // O erro será lançado e os componentes que requerem auth (ex: FavoriteButton) devem tratá-lo localmente,
+    // ou o hook useRequireAuth fará o redirecionamento. Redirecionar aqui quebra páginas públicas.
     throw new SessionExpiredError();
   }
 
