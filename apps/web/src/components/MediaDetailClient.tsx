@@ -196,27 +196,36 @@ function FavoriteButton({ mediaId }: { mediaId: string }) {
   const [loading, setLoading] = useState(false);
   const [optimisticFav, setOptimisticFav] = useState(false);
 
-  // Sync optimistic state with store
+  // On mount: fetch to check if already favorited, then sync optimistic state
   useEffect(() => {
-    setOptimisticFav(isInWatchlist(mediaId));
-  }, [entries, mediaId, isInWatchlist]);
-
-  // On mount: fetch to check if already favorited
-  useEffect(() => {
-    fetchWatchlist();
+    fetchWatchlist().then(() => {
+      setOptimisticFav(isInWatchlist(mediaId));
+    });
   }, []);
 
-  const inList = optimisticFav || isInWatchlist(mediaId);
+  // Re-sync when entries change (after external add/remove)
+  useEffect(() => {
+    setOptimisticFav(isInWatchlist(mediaId));
+  }, [entries.length]); // Only re-sync on count change, not on every entry object change
+
   const entryId = entries.find(e => {
     const mId = String(e.mediaId ?? e.midia_id ?? e.media?.id ?? "");
     return mId === mediaId || e.mediaId === mediaId || e.midia_id === mediaId;
   })?.id;
 
   if (loading) return <Button disabled variant="outline" size="sm">...</Button>;
-  if (inList && entryId) {
+  if (optimisticFav) {
     return (
       <Button
-        onClick={async () => { setLoading(true); try { await removeItem(entryId); setOptimisticFav(false); } finally { setLoading(false); } }}
+        onClick={async () => {
+          setLoading(true);
+          try {
+            if (entryId) await removeItem(entryId);
+            else await removeItem(mediaId);
+          } catch {}
+          setOptimisticFav(false);
+          setLoading(false);
+        }}
         variant="outline" size="sm"
       >
         ♥ Favorito
