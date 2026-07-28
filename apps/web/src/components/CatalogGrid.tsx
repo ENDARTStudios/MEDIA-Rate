@@ -39,7 +39,6 @@ export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
         {medias.map((media) => (
           <motion.div
             key={media.id}
-            layout
             initial={shouldReduce ? false : { opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={shouldReduce ? undefined : { opacity: 0, scale: 0.9 }}
