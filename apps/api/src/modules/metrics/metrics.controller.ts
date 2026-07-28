@@ -9,7 +9,8 @@ export class MetricsController {
   @Get()
   async getMetrics(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
     const adminToken = process.env.ADMIN_TOKEN || "media-rate-admin-2026";
-    const headerToken = req.headers["x-admin-token"] as string | undefined;
+    const rawHeaders = (req as any).raw?.headers ?? req.headers;
+    const headerToken = Object.entries(rawHeaders).find(([k]) => k.toLowerCase() === "x-admin-token")?.[1] as string | undefined;
 
     if (!headerToken || headerToken !== adminToken) {
       throw new HttpException({ statusCode: 401, error: "Unauthorized", message: "Admin token required" }, HttpStatus.UNAUTHORIZED);
