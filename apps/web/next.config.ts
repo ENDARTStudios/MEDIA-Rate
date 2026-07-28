@@ -24,6 +24,17 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["motion", "gsap", "animejs"],
   },
+  // T098: Proxy /api/* to Railway for same-origin cookies (first-party).
+  // The browser sees api calls as vercel.app/api/* → no third-party cookie blocking.
+  async rewrites() {
+    const apiTarget = process.env.API_PROXY_TARGET || "https://media-rate-production.up.railway.app";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiTarget}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     const isProduction = process.env.NODE_ENV === "production";
     return [

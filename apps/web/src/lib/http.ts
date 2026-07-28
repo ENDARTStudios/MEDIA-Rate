@@ -47,13 +47,12 @@ export class SessionExpiredError extends Error {
 }
 
 function getBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (!url) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("NEXT_PUBLIC_API_URL não definida em produção.");
-    }
-    return "http://localhost:4000";
-  }
+  // T098: In production (Vercel), use RELATIVE URL so browser calls go through
+  // the same-origin proxy rewrite (/api/* → Railway). This makes cookies first-party.
+  if (process.env.NODE_ENV === "production") return "";
+
+  // In dev, use local backend (fallback to localhost:4000).
+  const url = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
   return url.replace(/\/+$/, "");
 }
 
