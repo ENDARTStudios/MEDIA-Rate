@@ -1,29 +1,87 @@
-import { setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getMediaBySlug } from "../../../../lib/api";
-import { MediaDetailClient } from "../../../../components/MediaDetailClient";
+import { notFound } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { MediaDetailClient } from "@/components/MediaDetailClient";
+import { StructuredData } from "@/components/StructuredData";
+import { getMediaBySlug } from "@/lib/api";
+import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
+import type { Media, MediaType } from "@/lib/types";
 
-interface Props { params: Promise<{ locale: string; slug: string }> }
+interface Props {
+  params: Promise<{ locale: string; slug: string }>;
+}
+
+const schemaTypeByMediaType: Record<MediaType, string> = {
+  movie: "Movie",
+  series: "TVSeries",
+  game: "VideoGame",
+  book: "Book",
+  anime: "TVSeries",
+  comic: "Book",
+};
+
+function descriptionFor(media: Media): string {
+  return media.synopsis.trim().slice(0, 160);
+}
+
+function mediaStructuredData(media: Media, locale: string, pageUrl: string) {
+  const schemaType = schemaTypeByMediaType[media.type];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    "@id": `${pageUrl}#media`,
+    "url": pageUrl,
+    "name": media.title,
+    "description": media.synopsis,
+    "inLanguage": locale,
+    "genre": media.genres,
+    ...(media.posterUrl ? { image: media.posterUrl } : {}),
+    ...(media.year ? { copyrightYear: media.year } : {}),
+    "mainEntityOfPage": pageUrl,
+  };
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const media = await getMediaBySlug(slug);
-  if (!media) return { title: "Mídia não encontrada — MEDIA Rate" };
+
+  if (!media) {
+    return {
+      title: "Mídia não encontrada — MEDIA Rate",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const pageUrl = localizedUrl(locale, `/media/${media.slug}`);
+  const description = descriptionFor(media);
+  const title = `${media.title} (${media.year}) — MEDIA Rate`;
 
   return {
-    title: `${media.title} (${media.year}) — MEDIA Rate`,
-    description: media.synopsis.slice(0, 160),
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/media/${slug}` },
+    title,
+    description,
+    alternates: {
+      canonical: pageUrl,
+      languages: localizedAlternates(`/media/${media.slug}`),
+    },
     robots: { index: true, follow: true },
     openGraph: {
-      title: `${media.title} — MEDIA Rate`,
-      description: media.synopsis.slice(0, 160),
+      title,
+      description,
+      url: pageUrl,
       type: "article",
-      images: media.posterUrl ? [{ url: media.posterUrl, width: 600, height: 900, alt: media.title }] : [],
+      locale: localeOpenGraph(locale),
+      images: media.posterUrl
+        ? [{ url: media.posterUrl, width: 600, height: 900, alt: media.title }]
+        : [],
       siteName: "MEDIA Rate",
     },
-    twitter: { card: "summary_large_image", title: media.title, description: media.synopsis.slice(0, 160) },
+    twitter: {
+      card: media.posterUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: media.posterUrl ? [media.posterUrl] : [],
+    },
   };
 }
 
@@ -34,27 +92,28 @@ export default async function MediaDetailPage({ params }: Props) {
   const media = await getMediaBySlug(slug);
   if (!media) notFound();
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "MediaObject",
-    name: media.title,
-    description: media.synopsis,
-    datePublished: String(media.year),
-    genre: media.genres,
-    image: media.posterUrl,
-    ...(media.score && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: String(media.score.consolidated),
-        bestRating: "100",
-        reviewCount: media.score.sources.length,
-      },
-    }),
-  };
+  const pageUrl = localizedUrl(locale, `/media/${media.slug}`);
+  const jsonLd = [
+    mediaStructuredData(media, locale, pageUrl),
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "MEDIA Rate", "item": localizedUrl(locale) },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Catalog",
+          "item": localizedUrl(locale, "/catalog"),
+        },
+        { "@type": "ListItem", "position": 3, "name": media.title, "item": pageUrl },
+      ],
+    },
+  ];
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <StructuredData data={jsonLd} />
       <MediaDetailClient slug={slug} initialData={media} />
     </>
   );

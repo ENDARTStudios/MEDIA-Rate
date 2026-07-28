@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
-import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
+import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -10,22 +10,22 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const copy = getInstitutionalContent(locale).about;
+  const copy = getInstitutionalContent(locale).sources;
 
   return {
     title: copy.metaTitle,
     description: copy.metaDescription,
     alternates: {
-      canonical: localizedUrl(locale, "/about"),
-      languages: localizedAlternates("/about"),
+      canonical: localizedUrl(locale, "/sources"),
+      languages: localizedAlternates("/sources"),
     },
     openGraph: {
       title: copy.metaTitle,
       description: copy.metaDescription,
-      url: localizedUrl(locale, "/about"),
+      url: localizedUrl(locale, "/sources"),
       siteName: "MEDIA Rate",
       locale: localeOpenGraph(locale),
-      type: "website",
+      type: "article",
     },
     twitter: {
       card: "summary",
@@ -36,22 +36,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function AboutPage({ params }: PageProps) {
+export default async function SourcesPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const copy = getInstitutionalContent(locale).about;
-  const pageUrl = localizedUrl(locale, "/about");
+  const copy = getInstitutionalContent(locale).sources;
+  const pageUrl = localizedUrl(locale, "/sources");
 
   const jsonLd = [
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": `${siteUrl}/#organization`,
-      "name": "MEDIA Rate",
-      "legalName": "END ART Studios",
-      "url": siteUrl,
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      "url": pageUrl,
+      "name": copy.metaTitle,
       "description": copy.metaDescription,
-      "sameAs": ["https://github.com/ENDARTStudios/MEDIA-Rate"],
+      "inLanguage": locale,
+      "isPartOf": { "@id": "https://media-rate-web.vercel.app/#website" },
     },
     {
       "@context": "https://schema.org",
@@ -74,17 +74,29 @@ export default async function AboutPage({ params }: PageProps) {
       </header>
 
       <div className="prose prose-invert max-w-none prose-headings:font-heading prose-a:text-primary">
-        <section aria-labelledby="mission-title">
-          <h2 id="mission-title">{copy.missionTitle}</h2>
-          <p>{copy.missionBody}</p>
+        <section aria-labelledby="coverage-title">
+          <h2 id="coverage-title">{copy.coverageTitle}</h2>
+          <p>{copy.coverageBody}</p>
         </section>
-        <section aria-labelledby="product-title">
-          <h2 id="product-title">{copy.productTitle}</h2>
-          <p>{copy.productBody}</p>
+
+        <section aria-labelledby="supported-sources-title">
+          <h2 id="supported-sources-title">{copy.sourceTitle}</h2>
+          <dl className="not-prose mt-6 grid gap-4 sm:grid-cols-2">
+            {copy.sourceItems.map((item) => (
+              <div
+                key={item.name}
+                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+              >
+                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{item.name}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">{item.description}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
-        <section aria-labelledby="editorial-title">
-          <h2 id="editorial-title">{copy.teamTitle}</h2>
-          <p>{copy.teamBody}</p>
+
+        <section aria-labelledby="transparency-title">
+          <h2 id="transparency-title">{copy.transparencyTitle}</h2>
+          <p>{copy.transparencyBody}</p>
         </section>
       </div>
     </article>

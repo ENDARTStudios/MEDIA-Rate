@@ -1,59 +1,136 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
+import { StructuredData } from "@/components/StructuredData";
+import { getInstitutionalContent } from "@/lib/institutional-content";
+import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
+  const copy = getInstitutionalContent(locale).methodology;
+
   return {
-    title: "Como o MEDIA Score é calculado",
-    description: "Entenda a metodologia por trás do MEDIA Score: fontes avaliadas, pesos, atualizações e como garantimos a precisão da nota.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/methodology` },
+    title: copy.metaTitle,
+    description: copy.metaDescription,
+    alternates: {
+      canonical: localizedUrl(locale, "/methodology"),
+      languages: localizedAlternates("/methodology"),
+    },
+    openGraph: {
+      title: copy.metaTitle,
+      description: copy.metaDescription,
+      url: localizedUrl(locale, "/methodology"),
+      siteName: "MEDIA Rate",
+      locale: localeOpenGraph(locale),
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title: copy.metaTitle,
+      description: copy.metaDescription,
+    },
     robots: { index: true, follow: true },
   };
 }
 
-export default async function MethodologyPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function MethodologyPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("common");
+  const copy = getInstitutionalContent(locale).methodology;
+  const pageUrl = localizedUrl(locale, "/methodology");
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      "url": pageUrl,
+      "name": copy.metaTitle,
+      "description": copy.metaDescription,
+      "inLanguage": locale,
+      "isPartOf": { "@id": "https://media-rate-web.vercel.app/#website" },
+      "about": { "@id": "https://media-rate-web.vercel.app/#organization" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": copy.faqs.map((faq) => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": { "@type": "Answer", "text": faq.answer },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "MEDIA Rate", "item": localizedUrl(locale) },
+        { "@type": "ListItem", "position": 2, "name": copy.title, "item": pageUrl },
+      ],
+    },
+  ];
 
   return (
-    <article className="container max-w-4xl mx-auto py-12 px-4">
+    <article className="container mx-auto max-w-4xl px-4 py-12">
+      <StructuredData data={jsonLd} />
       <header className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-foreground font-heading">
-          Como o MEDIA Score é calculado
+        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          {copy.title}
         </h1>
-        <p className="text-lg text-muted-foreground">
-          Transparência, precisão e contexto para a sua descoberta de mídia.
-        </p>
+        <p className="mt-4 text-lg text-muted-foreground">{copy.lead}</p>
       </header>
 
       <div className="prose prose-invert max-w-none prose-headings:font-heading prose-a:text-primary">
-        <h2>O que é o MEDIA Score?</h2>
-        <p>
-          O <strong>MEDIA Score</strong> é uma nota consolidada de 0 a 100 que reflete a recepção crítica e do público sobre filmes, séries, jogos e livros. Ele não substitui a sua opinião, mas oferece um ponto de partida confiável para decidir o que assistir ou jogar.
-        </p>
+        <section aria-labelledby="score-title">
+          <h2 id="score-title">{copy.scoreTitle}</h2>
+          <p>{copy.scoreBody}</p>
+        </section>
 
-        <h2>Nossos Critérios e Fontes</h2>
-        <p>
-          Para calcular o score, agregamos dados de diversas fontes públicas e plataformas de crítica especializadas. O cálculo considera:
-        </p>
-        <ul>
-          <li><strong>Crítica Especializada:</strong> Avaliações de veículos reconhecidos e jornalistas verificados (peso: 60%).</li>
-          <li><strong>Recepção do Público:</strong> Notas de usuários em plataformas abertas, filtradas para evitar review bombing (peso: 40%).</li>
-          <li><strong>Recência:</strong> Obras clássicas têm suas notas estabilizadas, enquanto lançamentos recentes podem sofrer variações conforme novas críticas são publicadas.</li>
-        </ul>
+        <section aria-labelledby="calculation-title">
+          <h2 id="calculation-title">{copy.calculationTitle}</h2>
+          <p>{copy.calculationLead}</p>
+          <dl className="not-prose mt-6 grid gap-4 sm:grid-cols-3">
+            {copy.calculationItems.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+              >
+                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{item.label}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">{item.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-        <h2>Perguntas Frequentes (FAQ)</h2>
-        <div className="space-y-6 mt-6">
-          <div>
-            <h3 className="text-xl font-semibold">O MEDIA Score é atualizado com que frequência?</h3>
-            <p>Para lançamentos (menos de 30 dias), o score é atualizado diariamente. Para obras mais antigas, a atualização ocorre semanalmente ou quando há uma mudança significativa nas fontes de dados.</p>
+        <section aria-labelledby="confidence-title">
+          <h2 id="confidence-title">{copy.confidenceTitle}</h2>
+          <p>{copy.confidenceBody}</p>
+        </section>
+
+        <section aria-labelledby="scope-title">
+          <h2 id="scope-title">{copy.scopeTitle}</h2>
+          <p>{copy.scopeBody}</p>
+        </section>
+
+        <section aria-labelledby="faq-title">
+          <h2 id="faq-title">{copy.faqTitle}</h2>
+          <div className="not-prose mt-6 space-y-4">
+            {copy.faqs.map((faq) => (
+              <section
+                key={faq.question}
+                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+              >
+                <h3 className="font-heading text-lg font-semibold text-[#EDE7DC]">
+                  {faq.question}
+                </h3>
+                <p className="mt-2 leading-relaxed text-[#9CA3AF]">{faq.answer}</p>
+              </section>
+            ))}
           </div>
-          <div>
-            <h3 className="text-xl font-semibold">Vocês incluem avaliações de usuários da plataforma?</h3>
-            <p>Sim. Embora o score principal seja uma agregação de mercado, assinantes do plano Premium podem ver um score ajustado ao seu perfil de gosto pessoal (IA).</p>
-          </div>
-        </div>
+        </section>
       </div>
     </article>
   );

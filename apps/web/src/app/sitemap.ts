@@ -1,43 +1,46 @@
-import { MetadataRoute } from 'next';
-import { routing } from '../i18n/routing';
+import type { MetadataRoute } from "next";
+import { routing } from "@/i18n/routing";
+import { MOCK_MEDIA } from "@/lib/api";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
+
+const publicRoutes: Array<{
+  pathname: string;
+  changeFrequency: "weekly" | "monthly";
+  priority: number;
+}> = [
+  { pathname: "", changeFrequency: "weekly", priority: 1 },
+  { pathname: "/catalog", changeFrequency: "weekly", priority: 0.9 },
+  { pathname: "/pricing", changeFrequency: "monthly", priority: 0.7 },
+  { pathname: "/about", changeFrequency: "monthly", priority: 0.6 },
+  { pathname: "/methodology", changeFrequency: "monthly", priority: 0.7 },
+  { pathname: "/sources", changeFrequency: "monthly", priority: 0.6 },
+  { pathname: "/privacy", changeFrequency: "monthly", priority: 0.3 },
+  { pathname: "/terms", changeFrequency: "monthly", priority: 0.3 },
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://media-rate-web.vercel.app';
-  
-  // Rotas públicas estáticas (sem slug)
-  const staticRoutes = [
-    '',
-    '/about',
-    '/methodology',
-    '/sources',
-    '/catalog',
-  ];
+  const staticEntries = publicRoutes.flatMap((route) =>
+    routing.locales.map((locale) => ({
+      url: localizedUrl(locale, route.pathname),
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
+      alternates: {
+        languages: localizedAlternates(route.pathname),
+      },
+    })),
+  );
 
-  const sitemapEntries: MetadataRoute.Sitemap = [];
+  const mediaEntries = MOCK_MEDIA.flatMap((media) =>
+    routing.locales.map((locale) => ({
+      url: localizedUrl(locale, `/media/${media.slug}`),
+      ...(media.score?.updatedAt ? { lastModified: media.score.updatedAt } : {}),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+      alternates: {
+        languages: localizedAlternates(`/media/${media.slug}`),
+      },
+    })),
+  );
 
-  for (const route of staticRoutes) {
-    const alternates: Record<string, string> = {};
-    
-    // Constrói as URLs alternativas para cada locale suportado
-    for (const locale of routing.locales) {
-      alternates[locale] = `${baseUrl}/${locale}${route}`;
-    }
-    // Adiciona o x-default apontando para o root (sem locale, que o middleware trata)
-    alternates['x-default'] = `${baseUrl}${route}`;
-
-    // Adiciona uma entrada para cada locale explícito
-    for (const locale of routing.locales) {
-      sitemapEntries.push({
-        url: `${baseUrl}/${locale}${route}`,
-        lastModified: new Date(),
-        changeFrequency: route === '' || route === '/catalog' ? 'daily' : 'monthly',
-        priority: route === '' ? 1 : 0.8,
-        alternates: {
-          languages: alternates,
-        },
-      });
-    }
-  }
-
-  return sitemapEntries;
+  return [...staticEntries, ...mediaEntries];
 }

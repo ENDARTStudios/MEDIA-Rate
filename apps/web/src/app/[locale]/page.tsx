@@ -6,17 +6,38 @@ import { MediaRail } from "../../components/MediaRail";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
+import { StructuredData } from "@/components/StructuredData";
+import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const tm = await getTranslations({ locale, namespace: "common" });
   const th = await getTranslations({ locale, namespace: "home" });
   return {
     title: th("metaTitle"),
     description: th("metaDescription"),
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}` },
+    alternates: {
+      canonical: localizedUrl(locale),
+      languages: localizedAlternates(),
+    },
     robots: { index: true, follow: true },
-    openGraph: { title: th("metaOgTitle"), description: th("metaOgDescription"), siteName: tm("appName"), type: "website" },
+    openGraph: {
+      title: th("metaOgTitle"),
+      description: th("metaOgDescription"),
+      url: localizedUrl(locale),
+      locale: localeOpenGraph(locale),
+      siteName: tm("appName"),
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: th("metaOgTitle"),
+      description: th("metaOgDescription"),
+    },
   };
 }
 
@@ -26,9 +47,19 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const t = await getTranslations("landing");
   const tNav = await getTranslations("nav");
   const th = await getTranslations("home");
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    "url": siteUrl,
+    "name": "MEDIA Rate",
+    "inLanguage": locale,
+    "publisher": { "@id": `${siteUrl}/#organization` },
+  };
 
   return (
     <LayeredBackground>
+      <StructuredData data={websiteJsonLd} />
       <div className="flex">
         <div className="flex-1 min-w-0">
           <HeroSection
@@ -44,7 +75,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
           <section className="py-20 px-4 border-t border-[rgba(129,140,248,0.08)]">
             <div className="max-w-2xl mx-auto text-center">
-              <LazyAnimatedHeading as="h2" className="font-heading text-3xl font-bold mb-6 text-[#EDE7DC]">
+              <LazyAnimatedHeading
+                as="h2"
+                className="font-heading text-3xl font-bold mb-6 text-[#EDE7DC]"
+              >
                 {t("cta")}
               </LazyAnimatedHeading>
               <p className="text-[#9CA3AF] mb-8 leading-relaxed">{th("ctaText")}</p>
@@ -53,8 +87,19 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"
               >
                 {tNav("register")}
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </Link>
             </div>

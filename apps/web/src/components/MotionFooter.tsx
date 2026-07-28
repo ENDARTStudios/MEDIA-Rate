@@ -10,7 +10,8 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
 };
 
-const linkHover = "relative text-sm text-[#9CA3AF] transition-colors duration-200 hover:text-[#818CF8] after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#818CF8] after:transition-all after:duration-200 hover:after:w-full";
+const linkHover =
+  "relative text-sm text-[#9CA3AF] transition-colors duration-200 hover:text-[#818CF8] after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#818CF8] after:transition-all after:duration-200 hover:after:w-full";
 
 export function MotionFooter() {
   const t = useTranslations("footer");
@@ -23,7 +24,10 @@ export function MotionFooter() {
       className="relative bg-[#09090F] pt-20 pb-8 border-t border-[rgba(129,140,248,0.08)]"
       role="contentinfo"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(129,140,248,0.03)_0%,transparent_60%)] pointer-events-none" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(129,140,248,0.03)_0%,transparent_60%)] pointer-events-none"
+        aria-hidden="true"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
@@ -41,9 +45,7 @@ export function MotionFooter() {
             >
               MEDIA Rate
             </motion.div>
-            <p className="text-sm text-[#6B7280] leading-relaxed">
-              {t("tagline")}
-            </p>
+            <p className="text-sm text-[#6B7280] leading-relaxed">{t("tagline")}</p>
           </motion.div>
 
           <motion.div
@@ -56,9 +58,26 @@ export function MotionFooter() {
               {tNav("catalog")}
             </h4>
             <ul className="space-y-3">
-              <li><Link href="/catalog" className={linkHover}>{tNav("catalog")}</Link></li>
-              <li><Link href="/pricing" className={linkHover}>{tNav("pricing")}</Link></li>
-              <li><Link href="#sobre" className={linkHover}>{t("about")}</Link></li>
+              <li>
+                <Link href="/catalog" className={linkHover}>
+                  {tNav("catalog")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className={linkHover}>
+                  {tNav("pricing")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className={linkHover}>
+                  {t("about")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/methodology" className={linkHover}>
+                  MEDIA Score™
+                </Link>
+              </li>
             </ul>
           </motion.div>
 
@@ -72,9 +91,21 @@ export function MotionFooter() {
               {t("legal")}
             </h4>
             <ul className="space-y-3">
-              <li><Link href="/privacy" className={linkHover}>{t("privacy")}</Link></li>
-              <li><a href="#" className={linkHover}>{t("terms")}</a></li>
-              <li><Link href="/user/data" className={linkHover}>{t("lgpd")}</Link></li>
+              <li>
+                <Link href="/privacy" className={linkHover}>
+                  {t("privacy")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className={linkHover}>
+                  {t("terms")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/user/data" className={linkHover}>
+                  {t("lgpd")}
+                </Link>
+              </li>
             </ul>
           </motion.div>
 
@@ -89,9 +120,7 @@ export function MotionFooter() {
             </h4>
             <div className="flex gap-4">
               {[
-                { label: t("socialTwitter"), href: "#" },
-                { label: t("socialGithub"), href: "#" },
-                { label: t("socialDiscord"), href: "#" },
+                { label: t("socialGithub"), href: "https://github.com/ENDARTStudios/MEDIA-Rate" },
               ].map((social) => (
                 <motion.a
                   key={social.label}
@@ -115,7 +144,9 @@ export function MotionFooter() {
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
         >
-          <p className="text-xs text-[#6B7280]">&copy; {year} MEDIA Rate. {t("rights")}</p>
+          <p className="text-xs text-[#6B7280]">
+            &copy; {year} MEDIA Rate. {t("rights")}
+          </p>
           <p className="text-xs text-[#6B7280]">{t("copyright")}</p>
         </motion.div>
       </div>
