@@ -6,9 +6,10 @@ import { z } from "zod";
  * não forçar complexidade excessiva, mas mínimo de 8 é padrão).
  */
 export const RegisterDto = z.object({
-  email: z.string().email().max(255),
-  password: z.string().min(8).max(128),
-  nome: z.string().min(1).max(255).optional(),
+  email: z.string().email("Email inválido.").max(255),
+  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres.").max(128),
+  nome: z.string().min(2).max(255).optional(),
+  inviteCode: z.string().uuid().optional(),
 });
 
 export type RegisterDtoType = z.infer<typeof RegisterDto>;

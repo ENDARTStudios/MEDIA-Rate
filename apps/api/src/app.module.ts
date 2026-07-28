@@ -22,6 +22,7 @@ import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
 import { CacheModule } from "./common/cache.module.js";
+import { InviteModule } from "./modules/invite/invite.module.js";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CacheModule } from "./common/cache.module.js";
     QueueModule.forRoot({ redis: { host: process.env.REDIS_HOST ?? "localhost", port: parseInt(process.env.REDIS_PORT ?? "6379"), password: process.env.REDIS_PASSWORD } }),
     UploadModule,
     CacheModule.forRoot(),
+    InviteModule,
   ],
   providers: [
     // Guards globais (ordem importa: Auth → Roles → Plan)

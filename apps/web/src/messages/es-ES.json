@@ -205,7 +205,9 @@
     "registerSuccess": "¡Cuenta creada! Bienvenido a MEDIA Rate.",
     "registerError": "Error al crear cuenta",
     "showPassword": "Mostrar contraseña",
-    "hidePassword": "Ocultar contraseña"
+    "hidePassword": "Ocultar contraseña",
+    "inviteCodeLabel": "Código de invitación",
+    "inviteCodePlaceholder": "UUID de invitación (Beta Cerrada)"
   },
   "hero": {
     "brandName": "MEDIA Rate",

@@ -1,170 +1,146 @@
-# MANUAL_DO_OPERADOR.md
+# MANUAL DO OPERADOR — MEDIA Rate
 
-Manual de operação do **MEDIA Rate** — plataforma de descoberta de mídia com MEDIA Score™.
+## 1. Arquitetura
 
-Linguagem simples, sem jargão técnico. Se algo aqui não estiver claro, é erro do manual — avise.
+- **Frontend**: Next.js 16 (App Router) hospedado no Vercel (`media-rate-web.vercel.app`)
+- **Backend**: NestJS + Fastify + Prisma hospedado no Railway (`media-rate-production.up.railway.app`)
+- **Banco**: PostgreSQL no Railway
+- **Autenticação**: Cookie httpOnly `sess` + CSRF double-submit (`csrf_token`)
+- **i18n**: 3 locales (pt-BR, en-US, es-ES) via next-intl
+- **Proxy**: Vercel Rewrites (`/api/*` → Railway) para cookies first-party (T098)
 
----
+## 2. Como fazer deploy
 
-## 1. Como saber se está no ar
+### Frontend (Vercel)
+```bash
+cd apps/web
+npm run build
+vercel --prod --yes
+```
 
-### Site (frontend)
-- Acesse: **https://media-rate.example.com**
-- Se a página carregar com o logo "MEDIA Rate" e o botão "Começar grátis", está no ar.
-- Se aparecer erro 500 ou página em branco, veja "O que fazer se parar" abaixo.
+### Backend (Railway)
+```bash
+cd apps/api
+railway up --service "MEDIA Rate"
+```
 
-### API (backend)
-- Acesse: **https://api.media-rate.example.com/health**
-- Se retornar `{"status":"ok","uptime":...}`, está funcionando.
-- Se retornar erro ou não carregar, veja "O que fazer se parar" abaixo.
+### Variáveis de ambiente críticas
+- `DATABASE_URL` — PostgreSQL connection string (Railway)
+- `ALLOWED_ORIGINS` — CORS origins (comma-separated): `https://media-rate-web.vercel.app,https://media-rate-end-art-studios.vercel.app`
+- `ADMIN_TOKEN` — token para /metrics e geração de convites
+- `SESSION_SECRET` — secret para cookies de sessão
+- `COOKIE_SECRET` — secret para @fastify/cookie
 
-### Monitoramento automático
-- O GitHub Actions verifica o site e a API a cada 5 minutos.
-- Se algo parar, ele abre automaticamente um "issue" no GitHub avisando.
-- Você recebe email se configurar notificações do GitHub.
+## 3. Como monitorar
 
----
+### Health check
+```bash
+curl https://media-rate-web.vercel.app/health
+# → {"status":"ok","uptime":...,"version":"0.1.0","timestamp":"..."}
+```
 
-## 2. O que fazer se parar
-
-### Frontend parou (site não carrega)
-1. Acesse https://vercel.com/dashboard
-2. Clique no projeto "media-rate-web"
-3. Vá em "Deployments"
-4. Se o último deploy tem status "Error", clique nele e veja os logs
-5. Se não souber resolver, clique "Redeploy" no último deploy que funcionou
-6. Se persistir, contate o desenvolvedor
-
-### Backend parou (API não responde)
-1. Acesse https://railway.app/dashboard
-2. Clique no projeto "media-rate-api"
-3. Vá em "Deployments"
-4. Se o último deploy tem status "Failed", clique nele e veja os logs
-5. Se não souber resolver, clique "Rollback" para voltar à versão anterior
-6. Se persistir, contate o desenvolvedor
-
-### Banco de dados parou
-1. Acesse https://railway.app/dashboard (ou https://neon.tech se usar Neon)
-2. Verifique se o PostgreSQL está com status "Running"
-3. Se estiver "Crashed" ou "Stopped", clique "Restart"
-4. Se persistir, verifique se o plano gratuito não atingiu limite de uso
-
-### Tudo parou (deploy quebrou tudo)
-1. Não entre em pânico.
-2. Acesse o GitHub → Actions → procure o workflow "Deploy"
-3. Se o deploy falhou, o código anterior continua no ar (deploy é atômico)
-4. Se precisa voltar à versão anterior:
-   - Vercel: Deployments → clique no penúltimo deploy → "Promote to Production"
-   - Railway: Deployments → clique em um deploy anterior → "Rollback"
-5. Contate o desenvolvedor descrevendo o que aconteceu
-
----
-
-## 3. Como pedir alteração futura
-
-### Mudança simples (texto, cor, imagem)
-1. Descreva o que quer mudar em linguagem simples
-2. Exemplo: "Mudar a cor do botão de azul para verde"
-3. Envie para o desenvolvedor
-
-### Nova funcionalidade
-1. Descreva o que quer e por quê
-2. Exemplo: "Quero que os usuários possam marcar filmes como 'já assisti'"
-3. O desenvolvedor vai avaliar, planejar e implementar
-
-### Correção de bug
-1. Descreva o que aconteceu (passo a passo)
-2. Exemplo: "Quando clico em 'Assinar Plus', a tela fica branca"
-3. Inclua: qual navegador, se estava no celular ou computador
-
----
-
-## 4. Segredos e senhas (importante)
-
-### Onde estão os segredos de produção
-- **Vercel:** Dashboard → Settings → Environment Variables
-- **Railway:** Dashboard → Variables
-- **GitHub:** Settings → Secrets and Variables → Actions
-- **PostgreSQL:** A connection string está no Railway/Neon dashboard
-
-### Nunca faça
-- **Nunca** cole uma senha ou chave de API no chat
-- **Nunca** commite um arquivo `.env` com valores reais
-- **Nunca** compartilhe o link do Vercel/Railway com tokens visíveis
-
-### Se precisar rotacionar um segredo
-1. Gere nova chave no painel do provedor (Stripe, PostHog, etc.)
-2. Atualize no Vercel/Railway/GitHub Secrets
-3. Faça redeploy (push para `main` ou clique "Redeploy")
-4. Revogue a chave antiga no painel do provedor
-
----
-
-## 5. Backup do banco de dados
-
-### Backup manual (antes de mudanças importantes)
-1. Acesse o Railway/Neon dashboard
-2. Ou rode: `cd apps/api && ./scripts/migrate-safe.sh`
-3. O backup fica em `apps/api/backups/backup-YYYYMMDD-HHMMSS.sql`
-
-### Restaurar backup
-1. `psql "$DATABASE_URL" < backup-YYYYMMDD-HHMMSS.sql`
-
----
-
-## 6. Deploy (como o site vai ao ar)
-
-### Deploy automático
-- Toda vez que alguém faz `git push` para a branch `main`:
-  1. GitHub Actions roda lint + testes + audit
-  2. Se tudo passa, faz migration do banco
-  3. Deploy do frontend no Vercel
-  4. Deploy do backend no Railway
-  5. Health check pós-deploy
-
-### Deploy manual (se precisar)
-- GitHub → Actions → "Deploy" → "Run workflow"
-
----
-
-## 7. Monitoramento
-
-### Health check automático
-- A cada 5 minutos, o GitHub Actions verifica se o site e a API estão no ar
-- Se falhar, abre um "issue" no GitHub automaticamente
-- Você pode ver os alertas em: GitHub → Issues → label "health-check"
+### Métricas (requer X-Admin-Token)
+```bash
+curl -H "X-Admin-Token: media-rate-admin-2026" https://media-rate-web.vercel.app/metrics
+# → {"uptime_seconds":..., "requests_total":..., "watchlist_adds":..., ...}
+```
 
 ### Logs
-- **Frontend:** Vercel Dashboard → projeto → "Logs"
-- **Backend:** Railway Dashboard → projeto → "Logs"
-- **Banco:** Railway/Neon dashboard
+```bash
+railway logs --service "MEDIA Rate" --lines 100
+```
 
-### Métricas de negócio (PostHog)
-- Acesse: https://app.posthog.com
-- Login com a conta configurada no setup
-- Veja: ativação, retenção D1/D7/D30, conversão Free→Plus→Premium, MRR
+### SEO Audit (Screaming Frog)
+```bash
+node apps/web/scripts/seo-crawl.mjs https://media-rate-web.vercel.app
+```
 
----
+### Testes E2E (Playwright)
+```bash
+cd apps/web
+npx playwright test e2e/teste-fechado.spec.ts
+```
 
-## 8. Planos gratuitos (limites)
+## 4. Como fazer backup/restauração
 
-| Serviço | Plano | Limite | O que acontece ao atingir |
-|---|---|---|---|
-| Vercel | Hobby | 100GB bandwidth/mês | Site para de carregar |
-| Railway | Starter | $5 crédito/mês | API para de responder |
-| Neon (PostgreSQL) | Free | 0.5GB storage | Inserções falham |
-| PostHog | Cloud Free | 1M events/mês | Eventos novos são descartados |
-| GitHub Actions | Free (repo público) | 2000 min/mês | Workflows param de rodar |
+### Backup (Railway PostgreSQL)
+O Railway faz backups automáticos diários do banco. Para backup manual:
+```bash
+railway connect --service "MEDIA Rate"
+pg_dump $DATABASE_URL > backup_$(date +%Y%m%d).sql
+```
 
-Se atingir qualquer limite, o site pode parar. Monitore uso nos dashboards.
+### Restauração
+```bash
+railway connect --service "MEDIA Rate"
+psql $DATABASE_URL < backup_20260727.sql
+```
 
----
+## 5. Plano de Resposta a Incidentes
 
-## 9. Contatos
+### Nível 1: Erro 5xx esporádico (< 10/min)
+- Verificar logs: `railway logs --service "MEDIA Rate" --lines 200`
+- Causas comuns: Prisma timeout, validação Zod, body não parseado
+- Ação: Nenhuma — monitorar
 
-- **Desenvolvedor:** END ART Studios
-- **Email:** endart.studios@gmail.com
+### Nível 2: Erro 5xx sustentado (> 10/5min OU latência p95 > 2s)
+- Verificar /metrics para contagem de erros
+- Verificar status do Railway: `railway status`
+- Ação: Rollback se deploy recente; verificar DB
 
----
+### Nível 3: Site fora do ar (uptime < 99%)
+- Verificar Vercel: https://vercel.com/end-art-studios/media-rate
+- Verificar Railway: `railway status`
+- Ação: Escalar para equipe; restaurar último backup se necessário
 
-*Última atualização: 2026-07-18*
+### Comunicação
+- Status: atualizar status page (se configurada)
+- Email: notificar usuários beta via email cadastrado
+
+### Post-mortem
+- Documentar causa raiz em DECISOES.md
+- Criar tarefa de correção (Txxx)
+- Prevenir recorrência com teste automatizado
+
+## 6. Como gerenciar usuários (Beta Fechada)
+
+### Gerar convite (admin)
+```bash
+curl -X POST https://media-rate-web.vercel.app/api/v1/invite \
+  -H "X-Admin-Token: <token>" \
+  -H "Content-Type: application/json"
+# → {"code": "uuid-aqui"}
+```
+
+### Registrar com convite
+Usuário acessa `/pt-BR/register` e preenche nome + email + senha + código de convite.
+
+### Listar usuários registrados
+```bash
+curl -H "X-Admin-Token: <token>" https://media-rate-web.vercel.app/metrics
+# → auth_registers: N
+```
+
+### Taxa de ativação
+Comparar `invites gerados` vs `auth_registers` nos /metrics.
+
+## 7. Como configurar billing
+
+Planos atuais:
+- Free: R$0/mês
+- Plus: R$4,90/mês ou R$49,98/ano (15% off)
+- Premium: R$9,90/mês ou R$100,98/ano (15% off)
+
+Para alterar preços: editar `apps/web/src/components/PricingCards.tsx` (constante PLANS) + i18n em `apps/web/src/messages/*.json`.
+
+Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
+
+## 8. Checklist de deploy
+
+- [ ] `npm run build` (frontend e backend) → 0 erros
+- [ ] `npx vitest run` → todos passam
+- [ ] `npx playwright test e2e/teste-fechado.spec.ts` → 21+/22 passam
+- [ ] `node apps/web/scripts/seo-crawl.mjs` → 0 4xx, 0 noindex
+- [ ] `curl /health` → 200
+- [ ] `vercel --prod --yes` / `railway up`
+- [ ] Verificar site no browser (home, catálogo, login, register, planos)

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -16,6 +17,7 @@ import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
 import { RegisterDto, LoginDto } from "./dto/auth.dto.js";
+import { validInvites } from "../invite/invite.controller.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import type { AuthenticatedUser } from "../../common/guards/auth.guard.js";
 import { timingSafeEqual } from "node:crypto";
@@ -50,10 +52,26 @@ export class AuthController {
     nome: string | null;
     created_at: string;
   }> {
-    const dto = body as { email: string; password: string; nome?: string };
+    const dto = body as { email: string; password: string; nome?: string; inviteCode?: string };
     const ip = req.ip ?? undefined;
+
+    if (dto.inviteCode) {
+      if (!validInvites.has(dto.inviteCode)) {
+        throw new BadRequestException({
+          statusCode: 400,
+          error: "Bad Request",
+          message: "Código de convite inválido ou expirado.",
+        });
+      }
+    }
+
     this.metrics.incrementRegister();
     const result = await this.authService.register(dto, { ip });
+
+    if (dto.inviteCode) {
+      validInvites.delete(dto.inviteCode);
+    }
+
     return {
       id: result.id,
       email: result.email,
