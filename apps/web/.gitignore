@@ -1,2 +1,8 @@
 .vercel
 .seo-crawl/
+e2e/screenshots/
+test-results/
+playwright-report/
+
+.vercel
+.env*

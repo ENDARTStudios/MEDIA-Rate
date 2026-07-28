@@ -36,6 +36,7 @@ function CatalogContent({ initialData, initialType, initialSort, initialQuery }:
     queryKey: ["catalog", { type, sort, query }],
     queryFn: () => getCatalog({ type, search: query, sort: sort as any }),
     initialData: type === undefined && sort === undefined && query === undefined ? initialData : undefined,
+    staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading && !data) {
