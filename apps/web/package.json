@@ -14,7 +14,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "deploy": "vercel --prod --yes",
+    "deploy:with-alias": "node scripts/deploy-and-alias.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
