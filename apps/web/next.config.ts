@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${apiTarget}/api/:path*`,
       },
+      {
+        source: "/health",
+        destination: `${apiTarget}/health`,
+      },
+      {
+        source: "/metrics",
+        destination: `${apiTarget}/metrics`,
+      },
     ];
   },
   async headers() {
