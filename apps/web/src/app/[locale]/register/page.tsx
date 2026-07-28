@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { RegisterForm } from "../../../components/AuthForm";
 import { LazyLogo } from "../../../components/lazy";
 import { SocialButtons } from "../../../components/SocialButtons";

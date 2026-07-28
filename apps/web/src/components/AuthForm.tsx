@@ -131,7 +131,7 @@ export function RegisterForm() {
           </Field>
           <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
             <input type="checkbox" {...register("acceptTerms")} className="mt-0.5 accent-[#818CF8]" />
-            <span>{t("agreeTerms")} <a href="/terms" className="text-[#818CF8] underline" target="_blank">{t("termsLink")}</a> e a <a href="/privacy" className="text-[#818CF8] underline" target="_blank">{t("privacyLink")}</a></span>
+            <span>{t("agreeTerms")} <Link href="/terms" className="text-[#818CF8] underline" target="_blank">{t("termsLink")}</Link> e a <Link href="/privacy" className="text-[#818CF8] underline" target="_blank">{t("privacyLink")}</Link></span>
           </label>
           {errors.acceptTerms && <p className="text-xs text-red-500" role="alert">{errors.acceptTerms.message}</p>}
           <Button type="submit" className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]" size="lg" disabled={isSubmitting}>
