@@ -6,7 +6,7 @@ import { routing } from "../../i18n/routing";
 import { Navbar } from "../../components/Navbar";
 import { MotionFooter } from "../../components/MotionFooter";
 import { LgpdBanner } from "../../components/LgpdBanner";
-import { DiagPanel } from "../../components/DiagPanel";
+import { DiagPanelLoader } from "../../components/DiagPanelLoader";
 import { PageTransition } from "../../components/PageTransition";
 import { QueryProvider } from "../../providers/query-provider";
 import { Toaster } from "sonner";
@@ -79,8 +79,8 @@ export default async function LocaleLayout({
       <MotionFooter />
       <LgpdBanner />
       <Toaster theme="dark" position="top-right" />
-      {/* TODO: remover DiagPanel antes da Beta */}
-      <DiagPanel />
+      {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
+      <DiagPanelLoader />
     </NextIntlClientProvider>
     </QueryProvider>
   );

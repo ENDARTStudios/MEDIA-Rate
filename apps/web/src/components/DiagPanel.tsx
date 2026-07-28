@@ -165,7 +165,7 @@ export function DiagPanel() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-[11px] font-mono text-[#9CA3AF] flex flex-col gap-1">
+    <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-[11px] font-mono text-[#9CA3AF] flex flex-col gap-1" data-diag-panel="true">
       <div className="flex items-center justify-between mb-1">
         <span className="text-[#818CF8] font-bold text-[12px]">
           MEDIA Rate Diag
