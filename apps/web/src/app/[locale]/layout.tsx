@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
@@ -51,9 +50,7 @@ export default async function LocaleLayout({
       <LgpdBanner />
       <Toaster theme="dark" position="top-right" />
       {/* TODO: remover DiagPanel antes da Beta */}
-      <Suspense>
-        <DiagPanel />
-      </Suspense>
+      <DiagPanel />
     </NextIntlClientProvider>
     </QueryProvider>
   );

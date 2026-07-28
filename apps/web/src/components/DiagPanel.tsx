@@ -1,11 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 
 export function DiagPanel() {
-  const sp = useSearchParams();
-  if (sp.get("diag") !== "1") return null;
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    // Read ?diag=1 from window.location to avoid useSearchParams in layout root
+    const params = new URLSearchParams(window.location.search);
+    setEnabled(params.get("diag") === "1");
+  }, []);
+
+  if (!enabled) return null;
 
   const buildId =
     typeof window !== "undefined"
