@@ -18,6 +18,7 @@ import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
+import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
 import { CacheModule } from "./common/cache.module.js";
@@ -39,6 +40,7 @@ import { CacheModule } from "./common/cache.module.js";
     LgpdModule,
     WatchlistModule,
     DiscoverModule,
+    MetricsModule,
     QueueModule.forRoot({ redis: { host: process.env.REDIS_HOST ?? "localhost", port: parseInt(process.env.REDIS_PORT ?? "6379"), password: process.env.REDIS_PASSWORD } }),
     UploadModule,
     CacheModule.forRoot(),

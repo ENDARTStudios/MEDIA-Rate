@@ -14,6 +14,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService, type LoginResult } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
+import { MetricsService } from "../metrics/metrics.service.js";
 import { RegisterDto, LoginDto } from "./dto/auth.dto.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import type { AuthenticatedUser } from "../../common/guards/auth.guard.js";
@@ -34,6 +35,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly sessionService: SessionService,
     private readonly cookieService: SessionCookieService,
+    private readonly metrics: MetricsService,
   ) {}
 
   @Post("register")
@@ -50,6 +52,7 @@ export class AuthController {
   }> {
     const dto = body as { email: string; password: string; nome?: string };
     const ip = req.ip ?? undefined;
+    this.metrics.incrementRegister();
     const result = await this.authService.register(dto, { ip });
     return {
       id: result.id,
@@ -75,6 +78,7 @@ export class AuthController {
     const userAgent = req.headers["user-agent"];
     const ip = req.ip ?? undefined;
 
+    this.metrics.incrementLogin();
     const result: LoginResult = await this.authService.login(dto, {
       ip,
       user_agent: typeof userAgent === "string" ? userAgent : undefined,
@@ -123,6 +127,7 @@ export class AuthController {
   ): Promise<{ message: string }> {
     const user = (req as FastifyRequest & { user?: AuthenticatedUser }).user;
     if (user) {
+      this.metrics.incrementLogout();
       const cookies = (req as unknown as { cookies?: Record<string, string> }).cookies;
       const cookieToken = cookies?.csrf_token;
       const headerVal = req.headers["x-csrf-token"] as string | string[] | undefined;
