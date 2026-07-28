@@ -1,6 +1,6 @@
 import { test, expect, chromium } from "@playwright/test";
 
-const PROD = "https://web-ten-iota-34.vercel.app";
+const PROD = "https://media-rate-web.vercel.app";
 const API = "https://media-rate-production.up.railway.app";
 const BRAVE = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe";
 
