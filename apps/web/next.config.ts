@@ -16,6 +16,12 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  *   self-hosted via next/font.
  */
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_ID:
+      process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 7) ||
+      process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.substring(0, 7) ||
+      "local",
+  },
   reactStrictMode: true,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "image.tmdb.org" }],
