@@ -41,7 +41,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-const TYPE_LABELS: Record<string, string> = { Filme: "Filmes", "Série": "Séries", Game: "Games", Anime: "Animes" };
+const TYPE_LABELS: Record<string, string> = { Filme: "Filmes", "Série": "Séries", Game: "Games" };
 
 export function SearchCommand() {
   const t = useTranslations("catalog");
