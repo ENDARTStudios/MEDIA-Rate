@@ -80,6 +80,7 @@ export class AuthGuard implements CanActivate {
   private isDefaultPublicPath(url: string): boolean {
     return (
       url === "/health" ||
+      url === "/metrics" ||
       url.startsWith("/api/v1/auth/register") ||
       url.startsWith("/api/v1/auth/login") ||
       url.startsWith("/api/v1/echo") || // T1.4 rota de exemplo, não exige auth
