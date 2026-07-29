@@ -6,6 +6,9 @@ import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
+import { RateLimitedError } from "@/lib/http";
+import { RateLimited } from "@/components/ui/rate-limited";
+import { ErrorState } from "@/components/ui/error-state";
 
 const COLUMN_LABELS: Record<string, string> = {
   WANT: "wantToSee",
@@ -24,7 +27,7 @@ const COLUMN_COLORS: Record<string, string> = {
 export function DashboardContent() {
   const t = useTranslations("dashboard");
   const { user } = useAuthStore();
-  const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
+  const { entries, isLoading, error, fetchWatchlist } = useWatchlistStore();
 
   useEffect(() => {
     fetchWatchlist();
@@ -40,6 +43,22 @@ export function DashboardContent() {
     return (
       <div className="max-w-5xl mx-auto py-16 px-4 text-center">
         <p className="text-[#9CA3AF]">{t("loading")}</p>
+      </div>
+    );
+  }
+
+  if (error instanceof RateLimitedError) {
+    return (
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => fetchWatchlist()} />
+      </div>
+    );
+  }
+
+  if (error && total === 0) {
+    return (
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <ErrorState message={String(error)} onRetry={() => fetchWatchlist()} />
       </div>
     );
   }

@@ -17,7 +17,7 @@ interface WatchlistEntry {
 interface WatchlistState {
   entries: WatchlistEntry[];
   isLoading: boolean;
-  error: string | null;
+  error: Error | string | null;
   fetchWatchlist: () => Promise<void>;
   addToWatchlist: (mediaId: string, status?: string) => Promise<void>;
   moveItem: (entryId: string, newStatus: string) => Promise<void>;
@@ -49,7 +49,7 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
       set({ entries: mapped, isLoading: false });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Erro ao carregar watchlist";
-      set({ error: msg, isLoading: false });
+      set({ error: err instanceof Error ? err : msg, isLoading: false });
       throw err;
     }
   },

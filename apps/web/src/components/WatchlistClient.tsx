@@ -7,6 +7,8 @@ import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
+import { RateLimitedError } from "@/lib/http";
+import { RateLimited } from "@/components/ui/rate-limited";
 
 interface ColumnDef {
   key: string;
@@ -84,7 +86,17 @@ export function WatchlistClient() {
     );
   }
 
+  if (error instanceof RateLimitedError) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("title")}</h1>
+        <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => fetchWatchlist()} />
+      </div>
+    );
+  }
+
   if (error && entries.length === 0) {
+    const errorMsg = typeof error === "string" ? error : error.message;
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("title")}</h1>
@@ -92,7 +104,7 @@ export function WatchlistClient() {
           <svg className="w-14 h-14 text-red-400/60 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
-          <p className="text-[#9CA3AF] mb-2">{error}</p>
+          <p className="text-[#9CA3AF] mb-2">{errorMsg}</p>
           <Button onClick={() => fetchWatchlist()} variant="ghost" size="sm">
             {t("retry")}
           </Button>

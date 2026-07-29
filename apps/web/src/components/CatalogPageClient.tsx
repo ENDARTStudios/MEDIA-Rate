@@ -11,6 +11,8 @@ import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
 import { Button } from "@/components/ui/button";
 import type { MediaItem } from "./MediaCard";
+import { RateLimitedError } from "@/lib/http";
+import { RateLimited } from "@/components/ui/rate-limited";
 
 function mapToMediaItem(media: any): MediaItem {
   return {
@@ -41,6 +43,14 @@ function CatalogContent({ initialData, initialType, initialSort, initialQuery }:
 
   if (isLoading && !data) {
     return <CatalogSkeleton count={12} />;
+  }
+
+  if (error instanceof RateLimitedError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => refetch()} />
+      </div>
+    );
   }
 
   if (error && !data) {

@@ -11,10 +11,14 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
+import { RateLimitedError } from "@/lib/http";
+import { RateLimited } from "@/components/ui/rate-limited";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 
 export function MediaDetailClient({ slug, initialData }: { slug: string; initialData?: Media | null }) {
   const t = useTranslations("catalog");
-  const { data: media, isLoading, error } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
+  const { data: media, isLoading, error, refetch } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
 
   if (isLoading) {
     return (
@@ -28,11 +32,30 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
     );
   }
 
-  if (error || !media) {
+  if (error instanceof RateLimitedError) {
     return (
-      <div className="max-w-5xl mx-auto py-16 px-4 text-center" role="alert">
-        <h2 className="text-xl text-[#EDE7DC] mb-4">{t("error")}</h2>
-        <Button onClick={() => window.history.back()}>{t("retry")}</Button>
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
+  if (!media) {
+    return (
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <EmptyState
+          title="Mídia não encontrada"
+          description="O conteúdo que você procura não existe ou foi removido."
+          action={<a href="/catalog" className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium hover:brightness-110 transition-colors">Explorar catálogo</a>}
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <ErrorState message={error.message} onRetry={() => refetch()} />
       </div>
     );
   }

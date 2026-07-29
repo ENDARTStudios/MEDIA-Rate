@@ -7,6 +7,9 @@ import type { CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import type { MediaItem } from "./MediaCard";
+import { RateLimitedError } from "@/lib/http";
+import { RateLimited } from "@/components/ui/rate-limited";
+import { ErrorState } from "@/components/ui/error-state";
 
 function mapToMediaItem(media: any): MediaItem {
   return {
@@ -21,7 +24,7 @@ function mapToMediaItem(media: any): MediaItem {
 
 export function DiscoverClient({ initialData }: { initialData?: CatalogResponse }) {
   const t = useTranslations("discover");
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["discover"],
     queryFn: () => getCatalog({ page: 1, limit: 10, sort: "score" }),
     initialData,
@@ -30,6 +33,14 @@ export function DiscoverClient({ initialData }: { initialData?: CatalogResponse 
 
   if (isLoading && !data) {
     return <CatalogSkeleton count={10} />;
+  }
+
+  if (error instanceof RateLimitedError) {
+    return <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => refetch()} />;
+  }
+
+  if (error && !data) {
+    return <ErrorState message={error.message} onRetry={() => refetch()} />;
   }
 
   if (!data || data.items.length === 0) {
