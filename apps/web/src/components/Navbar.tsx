@@ -10,6 +10,7 @@ import { Logo } from "./Logo";
 import { SearchCommand } from "./SearchCommand";
 import { GradientMenu } from "./ui/gradient-menu";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { toast } from "sonner";
 
 const NAV_ITEMS = [
@@ -33,6 +34,7 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, isAuthenticated, logout, setInitialUser } = useAuthStore();
+  const { fetchWatchlist, entries: wlEntries } = useWatchlistStore();
 
   // Use server-provided auth state for initial SSR render (eliminates flash)
   const effectiveAuth = initialAuth?.isAuthenticated || isAuthenticated;
@@ -46,6 +48,13 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
       setInitialUser(initialAuth.userName || "");
     }
   }, []);
+
+  // T135: Eagerly fetch watchlist as soon as auth is confirmed (before any card renders)
+  useEffect(() => {
+    if (effectiveAuth && wlEntries.length === 0) {
+      fetchWatchlist().catch(() => {});
+    }
+  }, [effectiveAuth]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
