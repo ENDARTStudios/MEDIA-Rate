@@ -552,3 +552,24 @@ O ScoreDial Ã© o componente-Ã¢ncora do produto: anel SVG com preenchimento propo
 ## [2026-07-27] D-069 â€” T077: noindex investigado como bug-provÃ¡vel (meta robots = index,follow jÃ¡ presente)
 
 Motivo: Crawl do Screaming Frog reportou 100% de pÃ¡ginas com noindex. InvestigaÃ§Ã£o via `curl -I` e `grep meta robots` revelou que o meta robots `<meta name="robots" content="index, follow"/>` JÃ estÃ¡ presente no `<head>` via `generateMetadata()` (adicionado na T074 para pÃ¡ginas pÃºblicas). O noindex reportado pelo crawl pode ser: (a) falso positivo do SF (crawl feito antes do deploy T074 â†’ cache), (b) header X-Robots-Tag injetado pelo Vercel em runtime (nenhum encontrado no curl atual), ou (c) alguma pÃ¡gina que perdeu o robots no SSR (todas as pÃ¡ginas SSG verificadas tÃªm meta robots). CorreÃ§Ã£o definitiva na T078 se o re-crawl confirmar persistÃªncia. Veto aberto: nÃ£o corrigir dentro da T077 (Ã© tarefa de diagnÃ³stico).
+
+---
+
+## D-131 — Status real dos diferenciais competitivos (V1.3 §8)
+
+**Data**: 2026-07-29
+**Status**: Locked — documentação interna apenas
+
+NENHUM diferencial é comunicado externamente como "pronto" sem gate. Status real:
+
+| Diferencial | Status | Ressalva |
+|-------------|--------|----------|
+| Transparência de fontes (sources[].included/exclusionReason) | Especificado (§3.3, §3.5) | Não implementado/verificado no backend |
+| Confidence Score numérico (§3.4) | Especificado | Constantes (1000 votos, 3 fontes, etc.) são valores iniciais, não calibrados com dados reais |
+| Fórmula sem cancelamento algébrico (§3.1, v2) | Proposta | Pendente sign-off formal de governança (v1 com defeito segue locked até aprovação) |
+| Detecção de outlier determinística (§3.3b) | Especificado | Limiar de 3.0 pontos de desvio é valor inicial, não calibrado |
+| "Metodologia unificada" entre Filme/Série/Game | Impreciso | Função de cálculo é a mesma, mas estrutura não é simétrica: criticsScore sempre null para Filme/Série, só existe para Game (IGDB aggregated_rating). Comunicação de produto deve refletir essa assimetria, não implicar paridade total |
+| Versionamento (algorithmVersion) | Especificado | Convenção definida (§3.5); sem histórico real ainda — não há v1 rodando em produção para comparar |
+| algorithmVersion/confidenceScore na UI | Implementado | Só em tooltip técnico (<details>), NUNCA na UI principal (grep = 0) |
+
+"Metodologia unificada" entre Filme/Série/Game é IMPRECISO como comunicado antes. A função de cálculo é a mesma (globalScore = 0.5×critics + 0.5×audience ou único disponível), mas a ESTRUTURA não é simétrica: criticsScore é sempre null para Filme/Série (nenhuma fonte aprovada de crítica — §3.2) e só existe para Game (IGDB aggregated_rating). Comunicação de produto (marketing, pitch, docs públicas) deve refletir essa ASSIMETRIA, não implicar paridade total.

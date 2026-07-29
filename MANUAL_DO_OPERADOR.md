@@ -169,3 +169,17 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 - [ ] `curl /health` â†’ 200
 - [ ] `vercel --prod --yes` / `railway up`
 - [ ] Verificar site no browser (home, catÃ¡logo, login, register, planos)
+
+---
+
+## Status dos diferenciais competitivos (V1.3 §8)
+
+**NENHUM diferencial é comunicado externamente como "pronto" sem gate.** Status real documentado em DECISOES.md D-131:
+
+- **Transparência de fontes**: Especificado, não verificado no backend
+- **Confidence Score**: Constantes são valores iniciais, não calibrados
+- **Fórmula v2**: Proposta, pendente sign-off formal de governança
+- **Outlier detection**: Limiar 3.0 é valor inicial, não calibrado
+- **"Metodologia unificada"**: IMPRECISO — estrutura assimétrica (criticsScore null para Filme/Série)
+
+**algorithmVersion/confidenceScore**: Só em tooltip técnico (<details>Detalhes técnicos</details> no MediaScoreModule). NUNCA na UI principal.
