@@ -26,19 +26,12 @@ interface Props {
 export function WatchlistButton({ mediaId, className = "" }: Props) {
   const t = useTranslations("watchlist");
   const shouldReduce = useReducedMotion();
-  const { isInWatchlist, getEntryStatus, addToWatchlist, moveItem, removeItem, entries, fetchWatchlist, isLoading: storeLoading } = useWatchlistStore();
+  const { isInWatchlist, getEntryStatus, addToWatchlist, moveItem, removeItem, entries } = useWatchlistStore();
   const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  // T133: Auto-fetch watchlist on mount so isInWatchlist works on any page
-  useEffect(() => {
-    if (isAuthenticated && entries.length === 0 && !storeLoading) {
-      fetchWatchlist().catch(() => {});
-    }
-  }, [isAuthenticated, entries.length, storeLoading, fetchWatchlist]);
 
   const inWatchlist = isInWatchlist(mediaId);
   const status = getEntryStatus(mediaId);

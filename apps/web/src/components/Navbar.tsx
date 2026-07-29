@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "@/lib/navigation";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
@@ -49,12 +49,14 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
     }
   }, []);
 
-  // T135: Eagerly fetch watchlist as soon as auth is confirmed (before any card renders)
+  // T135: Eagerly fetch watchlist ONCE as soon as auth is confirmed  
+  const hasFetchedWl = useRef(false);
   useEffect(() => {
-    if (effectiveAuth && wlEntries.length === 0) {
+    if (effectiveAuth && !hasFetchedWl.current && wlEntries.length === 0) {
+      hasFetchedWl.current = true;
       fetchWatchlist().catch(() => {});
     }
-  }, [effectiveAuth]);
+  }, [effectiveAuth, wlEntries.length, fetchWatchlist]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
