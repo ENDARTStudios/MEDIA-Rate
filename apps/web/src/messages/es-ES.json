@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "MEDIA Rate",
-    "tagline": "Descubre qué ver, jugar y leer",
+    "tagline": "Descubre qué ver y jugar",
     "loading": "Cargando...",
     "error": "Algo salió mal",
     "retry": "Intentar de nuevo",
@@ -42,7 +42,7 @@
   },
   "landing": {
     "hero": "Puntuación unificada de películas, series y juegos",
-    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único de 0 a 100.",
+    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único de 0 a 10.",
     "cta": "Empezar gratis",
     "features": "Características",
     "feature1": "MEDIA Score™ consolidado",
@@ -164,7 +164,7 @@
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
-    "tagline": "Descubre qué ver, jugar y leer",
+    "tagline": "Descubre qué ver y jugar",
     "privacy": "Privacidad",
     "terms": "Términos",
     "contact": "Contacto",
@@ -264,7 +264,7 @@
     "ariaLabel": "Seleccionar idioma"
   },
   "home": {
-    "metaTitle": "MEDIA Rate — Descubre qué ver, jugar y leer",
+    "metaTitle": "MEDIA Rate — Descubre qué ver y jugar",
     "metaDescription": "Plataforma de descubrimiento de medios con MEDIA Score™ unificado para películas, series, juegos y filmes.",
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Puntuación unificada de entretenimiento.",

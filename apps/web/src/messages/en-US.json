@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "MEDIA Rate",
-    "tagline": "Discover what to watch, play and read",
+    "tagline": "Discover what to watch and play",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",
@@ -164,7 +164,7 @@
   },
   "footer": {
     "rights": "All rights reserved.",
-    "tagline": "Discover what to watch, play and read",
+    "tagline": "Discover what to watch and play",
     "privacy": "Privacy",
     "terms": "Terms",
     "contact": "Contact",
@@ -206,7 +206,7 @@
     "registerError": "Error creating account",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "inviteCodeLabel": "Invite code",
+    "inviteCodeLabel": "invite code (optional)",
     "inviteCodePlaceholder": "Invite UUID (Closed Beta)"
   },
   "hero": {
@@ -264,7 +264,7 @@
     "ariaLabel": "Select language"
   },
   "home": {
-    "metaTitle": "MEDIA Rate — Discover what to watch, play and read",
+    "metaTitle": "MEDIA Rate — Discover what to watch and play",
     "metaDescription": "Media discovery platform with unified MEDIA Score™ for movies, series and games.",
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Unified entertainment score.",
