@@ -88,7 +88,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
     if (shineRef.current) { shineRef.current.style.opacity = "0"; }
   };
 
-  const aspectRatio = media.tipo === "GAME" ? "aspect-video" : "aspect-[2/3]";
+  const aspectRatio = "aspect-[2/3]";
 
   return (
     <motion.div

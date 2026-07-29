@@ -7,7 +7,19 @@ export function toggleApiError() { errorSimulated = !errorSimulated; }
 function maybeThrow() { if (errorSimulated) throw new Error("Simulated API error"); }
 
 function game(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, conf: "high" | "medium" | "low", platforms: string[]): any {
-  return { id, slug, title, type: "game", year, genres, synopsis, posterUrl: null, backdropUrl: null, score: { consolidated: scoreC, confidence: conf, sources: [{ source: "metacritic", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." }, cast: [], crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }], reviews: [], streaming: platforms.map((p) => ({ name: p })) };
+  const posters: Record<string, string> = {
+    "elden-ring": "https://image.tmdb.org/t/p/w500/4Z1zqJMhCvYvok7CEICXZlq0e8e.jpg",
+    "baldur-s-gate-3": "https://image.tmdb.org/t/p/w500/q2ccBMrYBdWdKwHjrB6hqPprz6n.jpg",
+    "re-4": "https://image.tmdb.org/t/p/w500/o0cUSqHkBf9raFZ0VEj5PH7i42S.jpg",
+    "zelda-totk": "https://image.tmdb.org/t/p/w500/x0nvYzQpyJc5pdT9lMnkMuYAg0O.jpg",
+    "starfield": "https://image.tmdb.org/t/p/w500/b3WeTp42eJSRuE4UZfyPCOJW4c.jpg",
+    "harry-potter-legacy": "https://image.tmdb.org/t/p/w500/iILiJSRViTEcF23MHhGCbVm3mfW.jpg",
+  };
+  const poster = posters[slug] ?? null;
+  return { id, slug, title, type: "game", year, genres, synopsis, posterUrl: poster, backdropUrl: null,
+    score: { consolidated: scoreC, confidence: conf, sources: [{ source: "metacritic", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." },
+    cast: ["Hidetaka Miyazaki", "Yoshiaki Koizumi", "Todd Howard"].slice(0, 2).map((name) => ({ name, role: "Desenvolvedor" })),
+    crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }], reviews: [], streaming: platforms.map((p) => ({ name: p })) };
 }
 
 function anime(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, poster: string | null, backdrop: string | null): any {
