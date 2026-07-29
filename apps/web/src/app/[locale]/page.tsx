@@ -8,6 +8,7 @@ import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
 import { StructuredData } from "@/components/StructuredData";
 import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
+import { HomeContentSections } from "@/components/HomeContentSections";
 
 export async function generateMetadata({
   params,
@@ -87,23 +88,14 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"
               >
                 {tNav("register")}
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
             </div>
           </section>
+
+          <HomeContentSections />
         </div>
 
         <HomeVerticalMarquee />
