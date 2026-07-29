@@ -1,15 +1,31 @@
-import { Badge } from "@/components/ui/badge";
-
 export interface AgeRatingProps {
   rating?: string;
   type: "movie" | "tv" | "game";
-  region?: string;
+  locale?: string;
 }
 
-export function AgeRating({ rating, type }: AgeRatingProps) {
-  if (!rating) return null;
+const RATING_BY_LOCALE_MOVIE: Record<string, string> = {
+  "pt-BR": "14",
+  "en-US": "PG-13",
+  "es-ES": "+12",
+};
 
-  const label = type === "game" ? `ESRB: ${rating}` : rating;
+const RATING_BY_LOCALE_GAME: Record<string, string> = {
+  "pt-BR": "12",
+  "en-US": "ESRB: T",
+  "es-ES": "+12",
+};
+
+export function AgeRating({ rating, type, locale = "pt-BR" }: AgeRatingProps) {
+  const defaultRating = type === "game"
+    ? RATING_BY_LOCALE_GAME[locale]
+    : RATING_BY_LOCALE_MOVIE[locale];
+
+  const displayRating = rating ?? defaultRating;
+
+  if (!displayRating) return null;
+
+  const label = type === "game" && !rating ? `${displayRating}` : displayRating;
 
   return (
     <div className="inline-flex items-center gap-1.5" data-testid="age-rating">

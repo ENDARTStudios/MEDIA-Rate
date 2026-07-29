@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { getMediaBySlug, getCatalogSync } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
@@ -37,6 +37,7 @@ interface MediaDetailPageProps {
 
 export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   const { data: media, isLoading, error, refetch } = useQuery({
     queryKey: ["media", id],
     queryFn: () => getMediaBySlug(id),
@@ -117,7 +118,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   <span>{media.year}</span>
                   {media.duration && <><span>·</span><span>{media.duration}</span></>}
                   <span>·</span><span>{media.genres.slice(0, 3).join(", ")}</span>
-                  <AgeRating rating={undefined} type={type === "tv" ? "tv" : type === "movie" ? "movie" : "game"} />
+                  <AgeRating rating={undefined} type={type === "tv" ? "tv" : type === "movie" ? "movie" : "game"} locale={locale} />
                 </div>
               </div>
               <div className="flex items-center gap-3">

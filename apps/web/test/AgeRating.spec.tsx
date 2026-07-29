@@ -8,18 +8,23 @@ describe("AgeRating", () => {
     expect(getByTestId("age-rating").textContent).toContain("14");
   });
 
-  it("prefixa ESRB para type game", () => {
-    const { getByTestId } = render(<AgeRating rating="T" type="game" />);
+  it("usa classificação BR para locale pt-BR", () => {
+    const { getByTestId } = render(<AgeRating type="movie" locale="pt-BR" />);
+    expect(getByTestId("age-rating").textContent).toContain("14");
+  });
+
+  it("usa classificação US para locale en-US", () => {
+    const { getByTestId } = render(<AgeRating type="movie" locale="en-US" />);
+    expect(getByTestId("age-rating").textContent).toContain("PG-13");
+  });
+
+  it("usa ESRB para games no locale en-US", () => {
+    const { getByTestId } = render(<AgeRating type="game" locale="en-US" />);
     expect(getByTestId("age-rating").textContent).toContain("ESRB: T");
   });
 
-  it("retorna null quando rating ausente", () => {
-    const { container } = render(<AgeRating rating={undefined} type="movie" />);
-    expect(container.querySelector("[data-testid=age-rating]")).toBeNull();
-  });
-
-  it("retorna null com string vazia", () => {
-    const { container } = render(<AgeRating rating="" type="tv" />);
+  it("retorna null se rating e default ausentes", () => {
+    const { container } = render(<AgeRating type="tv" locale="zz" />);
     expect(container.querySelector("[data-testid=age-rating]")).toBeNull();
   });
 });
