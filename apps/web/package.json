@@ -53,6 +53,7 @@
     "@playwright/test": "^1.62.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.19.43",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
@@ -60,10 +61,12 @@
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.2.10",
     "jsdom": "^26.0.0",
+    "msw": "^2.15.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wcag-contrast": "^3.0.0"
   },
   "peerDependencies": {
     "next": "^16.2.10"
