@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { label: "pricing", href: "/pricing" },
 ];
 
-export function Navbar() {
+export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boolean; userName: string | null } }) {
   const t = useTranslations("nav");
   // T046: detecta prefers-reduced-motion apos mount.
   const [reduce, setReduce] = useState(false);
@@ -32,7 +32,14 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, setInitialUser } = useAuthStore();
+
+  // Seed store with server-side auth state before first client render
+  useEffect(() => {
+    if (initialAuth?.isAuthenticated && initialAuth.userName) {
+      setInitialUser(initialAuth.userName);
+    }
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);

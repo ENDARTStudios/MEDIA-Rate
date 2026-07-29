@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "../../i18n/routing";
 import { Navbar } from "../../components/Navbar";
+import { AuthHeader } from "../../components/AuthHeader";
 import { MotionFooter } from "../../components/MotionFooter";
 import { LgpdBanner } from "../../components/LgpdBanner";
 import { DiagPanelLoader } from "../../components/DiagPanelLoader";
@@ -72,7 +73,7 @@ export default async function LocaleLayout({
       <a href="#main" className="skip-link">
         {t("skipToContent")}
       </a>
-      <Navbar />
+      <AuthHeader />
       <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
         <PageTransition>{children}</PageTransition>
       </main>

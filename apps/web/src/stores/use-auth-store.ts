@@ -19,6 +19,7 @@ interface AuthState {
   register: (name: string, email: string, password: string, inviteCode?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  setInitialUser: (name: string) => void;
 }
 
 function mapUser(apiUser: { id: string; email: string; nome: string | null } | null): User | null {
@@ -98,5 +99,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         set({ isLoading: false });
       }
     }
+  },
+
+  setInitialUser: (name: string) => {
+    set({ user: { id: "ssr", email: "", name, avatarUrl: null }, isAuthenticated: true, isLoading: false, error: null });
   },
 }));
