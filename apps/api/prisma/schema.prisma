@@ -351,7 +351,7 @@ enum WatchlistColuna {
 model WatchlistEntry {
   id          String           @id @default(uuid()) @db.Uuid
   usuario_id  String           @map("usuario_id") @db.Uuid
-  midia_id    String           @map("midia_id") @db.Uuid
+  midia_id    String           @map("midia_id") @db.VarChar(255)
   coluna      WatchlistColuna  @default(WANT)
   prioridade  Int              @default(0)
   created_at  DateTime         @default(now()) @map("created_at")

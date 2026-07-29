@@ -1,20 +1,14 @@
 import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
-import { createHash } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import type { AddToWatchlistDto, MoveWatchlistDto } from "./dto/watchlist.dto.js";
 import type { WatchlistColuna } from "@prisma/client";
-
-function stringToUuid(str: string): string {
-  const h = createHash("md5").update("media-rate-v1:" + str).digest("hex");
-  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20,32)}`;
-}
 
 @Injectable()
 export class WatchlistService {
   constructor(private readonly prisma: PrismaService) {}
 
   async add(usuarioId: string, dto: AddToWatchlistDto) {
-    const midiaId = stringToUuid(dto.midia_id);
+    const midiaId = dto.midia_id;
     const existing = await this.prisma.watchlistEntry.findUnique({
       where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
     });
