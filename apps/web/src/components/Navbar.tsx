@@ -56,6 +56,7 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
 
   return (
     <nav
+      data-authed={effectiveAuth ? "1" : undefined}
       className={`sticky top-0 z-sticky border-b transition-all duration-normal ${
         scrolled
           ? "bg-[#09090F]/95 backdrop-blur-md border-[rgba(129,140,248,0.08)]"
