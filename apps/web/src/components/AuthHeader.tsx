@@ -1,34 +1,17 @@
 import { cookies } from "next/headers";
 import { Navbar } from "./Navbar";
 
-const API_BASE = process.env.API_PROXY_TARGET || "https://media-rate-production.up.railway.app";
-
-async function getServerAuth() {
+export async function AuthHeader() {
   try {
     const cookieStore = await cookies();
-    const sessToken = cookieStore.get("sess")?.value;
-    if (!sessToken) return { isAuthenticated: false as const, userName: null };
+    const hasSession = !!cookieStore.get("sess")?.value;
 
-    const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
-      headers: { Cookie: `sess=${sessToken}` },
-      cache: "no-store",
-      signal: AbortSignal.timeout(3000),
-    });
-
-    if (!res.ok) return { isAuthenticated: false as const, userName: null };
-
-    const data = await res.json();
-    const nome = data?.usuario?.nome || data?.nome || null;
-    return {
-      isAuthenticated: true as const,
-      userName: nome,
-    };
+    if (hasSession) {
+      return <Navbar initialAuth={{ isAuthenticated: true, userName: null }} />;
+    }
   } catch {
-    return { isAuthenticated: false as const, userName: null };
+    // cookies() can throw in some build contexts — silently fallback
   }
-}
 
-export async function AuthHeader() {
-  const auth = await getServerAuth();
-  return <Navbar initialAuth={auth} />;
+  return <Navbar initialAuth={{ isAuthenticated: false, userName: null }} />;
 }
