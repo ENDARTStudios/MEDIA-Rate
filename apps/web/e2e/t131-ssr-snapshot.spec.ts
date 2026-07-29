@@ -36,9 +36,8 @@ test.describe("T131 - SSR data-authed snapshot", () => {
             const html = await resp.text();
             results.push({
               authed: html.includes('data-authed="1"'),
-              snippet: html.includes('data-authed="1"')
-                ? html.substring(html.indexOf('data-authed="1"') - 50, html.indexOf('data-authed="1"') + 100)
-                : (html.includes("<nav") ? html.substring(html.indexOf("<nav"), html.indexOf("<nav") + 200) : "NO_NAV"),
+              hasName: html.includes("T131"),
+              snippet: html.substring(html.indexOf("<nav"), html.indexOf("<nav") + 300),
             });
           } catch {}
         }
@@ -50,6 +49,7 @@ test.describe("T131 - SSR data-authed snapshot", () => {
       console.log("\n=== COM SESSAO ===");
       for (const r of results) {
         console.log(`  data-authed="1": ${r.authed}`);
+        console.log(`  hasName: ${r.hasName}`);
         console.log(`  snippet: ${r.snippet.replace(/[\n\r]/g, " ")}`);
       }
     } finally {
