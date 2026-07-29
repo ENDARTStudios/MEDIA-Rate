@@ -86,8 +86,8 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
             {effectiveAuth ? (
               <div className="relative ml-2">
                 <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors">
-                  <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8]">{effectiveUser?.name?.[0] ?? "?"}</span>
-                  <span>{effectiveUser?.name?.split(" ")[0] ?? t("profile")}</span>
+                  <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8] shrink-0">{effectiveUser?.name?.[0] ?? "?"}</span>
+                  <span className="min-w-[40px]">{effectiveUser?.name?.split(" ")[0] ?? t("profile")}</span>
                 </button>
                 {menuOpen && (
                   <div className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown" onMouseLeave={() => setMenuOpen(false)}>
