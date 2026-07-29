@@ -41,9 +41,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         { email, password },
         { auth: false },
       );
-      // T057: captura csrf_token do response (cross-domain: document.cookie nao acessa cookies de railway.app).
       if (data.csrf_token) setCsrfToken(data.csrf_token);
       await get().fetchMe();
+      // T130: Set flag cookie for SSR auth detection (non-PII)
+      if (typeof document !== "undefined") {
+        document.cookie = `mr_auth=1; SameSite=Lax; Secure; Path=/; max-age=86400`;
+      }
       return { success: true };
     } catch (e) {
       if (e instanceof ApiError) {
@@ -84,6 +87,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     } catch {
     }
     setCsrfToken(null);
+    // T130: Clear auth flag cookie
+    if (typeof document !== "undefined") {
+      document.cookie = `mr_auth=; SameSite=Lax; Secure; Path=/; max-age=0`;
+    }
     set({ user: null, isAuthenticated: false, isLoading: false, error: null });
   },
 

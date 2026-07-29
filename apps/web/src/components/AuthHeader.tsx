@@ -4,13 +4,13 @@ import { Navbar } from "./Navbar";
 export async function AuthHeader() {
   try {
     const cookieStore = await cookies();
-    const hasSession = !!cookieStore.get("sess")?.value;
+    const hasAuth = !!(cookieStore.get("mr_auth")?.value || cookieStore.get("sess")?.value);
 
-    if (hasSession) {
+    if (hasAuth) {
       return <Navbar initialAuth={{ isAuthenticated: true, userName: null }} />;
     }
   } catch {
-    // cookies() can throw in some build contexts — silently fallback
+    // Silently fallback to unauthenticated
   }
 
   return <Navbar initialAuth={{ isAuthenticated: false, userName: null }} />;
