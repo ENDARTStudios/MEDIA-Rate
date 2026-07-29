@@ -56,6 +56,13 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
 
   addToWatchlist: async (mediaId, status) => {
     set({ error: null });
+    // T136: Optimistic update — add entry immediately so UI reflects change
+    const optimisticEntry: WatchlistEntry = {
+      id: "opt-" + Date.now(),
+      mediaId: String(mediaId),
+      status: status || "WANT",
+    };
+    set((state) => ({ entries: [...state.entries, optimisticEntry] }));
     try {
       await api.post("/api/v1/watchlist", {
         midia_id: mediaId,
@@ -63,6 +70,8 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
       });
       await get().fetchWatchlist();
     } catch (err) {
+      // Rollback optimistic update
+      set((state) => ({ entries: state.entries.filter((e) => e.id !== optimisticEntry.id) }));
       const msg = err instanceof ApiError ? err.message : "Erro ao adicionar à watchlist";
       set({ error: msg });
       throw err;
