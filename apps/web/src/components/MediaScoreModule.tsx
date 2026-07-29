@@ -45,7 +45,7 @@ export function MediaScoreModule({ score }: MediaScoreModuleProps) {
       {/* Gauge + confidence badge */}
       <div className="flex items-center gap-5">
         <div className="relative w-[120px] h-[120px] shrink-0">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120" role="img" aria-label={`Score geral ${consolidated} de 100, baseado em ${sources.length} fonte${sources.length > 1 ? "s" : ""}`}>
             <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(148,163,255,0.1)" strokeWidth="8" />
             <circle cx="60" cy="60" r={radius} fill="none" stroke="url(#score-grad)" strokeWidth="8" strokeLinecap="round"
               strokeDasharray={circ} strokeDashoffset={shouldReduce ? circ * (1 - consolidated / 100) : offset}

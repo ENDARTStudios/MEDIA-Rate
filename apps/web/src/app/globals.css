@@ -174,3 +174,20 @@ body {
   0%, 100% { opacity: 0; transform: translateY(-100%); }
   50% { opacity: 1; transform: translateY(100%); }
 }
+
+/* §2.6 — Focus visible: outline em --accent-indigo */
+:focus-visible {
+  outline: 2px solid #818CF8;
+  outline-offset: 2px;
+}
+
+/* §2.6 — prefers-reduced-motion: disable all animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
