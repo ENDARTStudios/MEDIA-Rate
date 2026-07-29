@@ -4,11 +4,12 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { getMediaBySlug } from "@/lib/api";
+import { getMediaBySlug, getCatalogSync } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
 import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
+import { AgeRating } from "./AgeRating";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
@@ -71,6 +72,11 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
   const tipoLabel = type === "movie" ? "Filmes" : type === "tv" ? "Séries" : "Games";
   const tipoSingular = type === "movie" ? "Filme" : type === "tv" ? "Série" : "Jogo";
 
+  const relatedItems = getCatalogSync({ type: media.type, limit: 6 })
+    .items.filter((m) => m.id !== media.id)
+    .slice(0, 5)
+    .map(toMediaItem);
+
   return (
     <article className="pb-16">
       {/* Breadcrumbs */}
@@ -110,6 +116,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   <span>{media.year}</span>
                   {media.duration && <><span>·</span><span>{media.duration}</span></>}
                   <span>·</span><span>{media.genres.slice(0, 3).join(", ")}</span>
+                  <AgeRating rating={undefined} type={type === "tv" ? "tv" : type === "movie" ? "movie" : "game"} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -144,6 +151,8 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
             </div>
           </div>
         )}
+
+        {relatedItems.length > 0 && <Related items={relatedItems} title="Relacionados" />}
 
         {/* Related */}
         {children}
