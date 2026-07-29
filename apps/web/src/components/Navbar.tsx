@@ -34,10 +34,16 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, isAuthenticated, logout, setInitialUser } = useAuthStore();
 
-  // Seed store with server-side auth state before first client render
+  // Use server-provided auth state for initial SSR render (eliminates flash)
+  const effectiveAuth = initialAuth?.isAuthenticated || isAuthenticated;
+  const effectiveUser = initialAuth?.isAuthenticated
+    ? { name: initialAuth.userName || "", email: "", id: "ssr", avatarUrl: null }
+    : user;
+
+  // Seed store with server-side auth state so subsequent renders use store
   useEffect(() => {
-    if (initialAuth?.isAuthenticated && initialAuth.userName) {
-      setInitialUser(initialAuth.userName);
+    if (initialAuth?.isAuthenticated) {
+      setInitialUser(initialAuth.userName || "");
     }
   }, []);
 
@@ -76,11 +82,11 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
           <div className="hidden md:flex items-center space-x-4">
             <SearchCommand />
             <GradientMenu items={NAV_ITEMS.map((item) => ({ label: t(item.label as any) ?? item.label, href: item.href }))} />
-            {isAuthenticated ? (
+            {effectiveAuth ? (
               <div className="relative ml-2">
                 <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors">
-                  <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8]">{user?.name?.[0] ?? "?"}</span>
-                  <span>{user?.name?.split(" ")[0] ?? t("profile")}</span>
+                  <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8]">{effectiveUser?.name?.[0] ?? "?"}</span>
+                  <span>{effectiveUser?.name?.split(" ")[0] ?? t("profile")}</span>
                 </button>
                 {menuOpen && (
                   <div className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown" onMouseLeave={() => setMenuOpen(false)}>
@@ -141,7 +147,7 @@ export function Navbar({ initialAuth }: { initialAuth?: { isAuthenticated: boole
             <div className="px-2 pt-2 pb-3 space-y-1 bg-[#09090F] border-t border-[rgba(129,140,248,0.08)]">
               <Link href="/catalog" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("catalog")}</Link>
               <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("pricing")}</Link>
-              {isAuthenticated ? (
+              {effectiveAuth ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("profile")}</Link>
                   <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium">{t("watchlist")}</Link>
