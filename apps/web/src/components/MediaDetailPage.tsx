@@ -10,6 +10,7 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { AgeRating } from "./AgeRating";
+import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
@@ -121,6 +122,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               </div>
               <div className="flex items-center gap-3">
                 {media.score && <MediaScoreBadge score={media.score.consolidated} />}
+                {(media.score as any)?.snapshots && <ScoreTrend snapshots={(media.score as any).snapshots} />}
               </div>
               <MediaScoreModule score={media.score} />
             </div>

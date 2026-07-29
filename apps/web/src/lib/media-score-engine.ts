@@ -1,185 +1,77 @@
-// MEDIA Score™ Engine — V3 §7 formula + domain-specific scales
-// score = round((0.4×critic + 0.4×audience + 0.2×consensus)×10)/10
+/**
+ * MEDIA Score™ Engine v2
+ * V1.3 §3.1: globalScore = 0.5×critics + 0.5×audience (ou único disponível)
+ * consensus DESACOPLADO — puramente informativo, NUNCA realimenta globalScore
+ */
 
-export interface ScoreSource {
-  source: string;
-  score: number;
-  maxScore: number;
-  type: "critic" | "audience";
-}
+import type { MediaScore, SourceRating, Confidence, SourceName } from "@/lib/types";
 
-export interface ScoreInput {
-  sources: ScoreSource[];
-  domain: "movie" | "series" | "game";
-}
+export const ALGORITHM_VERSION = "media-score-v2.0";
 
-export interface ScoreBreakdown {
-  critic: number;
-  audience: number;
-  consensus: number;
-}
-
-export interface MediaScoreResult {
-  consolidated: number;
-  displayScore: number | string;
-  scale: "0-10" | "0-100";
-  confidence: "high" | "medium" | "low";
-  breakdown: ScoreBreakdown;
-  normalizedSources: ScoreSource[];
-  explanation: string;
-}
-
-function normalizeSource(source: ScoreSource, domain: string): number {
-  let normalized = source.score / source.maxScore;
-
-  switch (source.source) {
-    case "tmdb":
-      normalized = source.score / 10;
-      break;
-    case "rawg":
-      normalized = source.score / 5;
-      break;
-    case "igdb":
-      normalized = source.score / 100;
-      break;
-    case "steam":
-      normalized = source.score / 100;
-      break;
-    case "metacritic":
-      normalized = source.score / 100;
-      break;
-    case "imdb":
-      normalized = source.score / 10;
-      break;
-    default:
-      break;
+/** §3.1: Fórmula v2 */
+export function calculateGlobalScore(
+  criticsScore: number | null,
+  audienceScore: number | null,
+): number {
+  if (criticsScore != null && audienceScore != null) {
+    return Math.round((0.5 * criticsScore + 0.5 * audienceScore) * 10) / 10;
   }
-
-  return Math.max(0, Math.min(1, normalized));
+  if (criticsScore != null) return Math.round(criticsScore * 10) / 10;
+  if (audienceScore != null) return Math.round(audienceScore * 10) / 10;
+  return 0;
 }
 
-function computeBreakdown(sources: ScoreSource[], domain: string): ScoreBreakdown {
-  const normalized = sources.map((s) => ({ ...s, normalized: normalizeSource(s, domain) }));
-
-  const critics = normalized.filter((s) => s.type === "critic");
-  const audiences = normalized.filter((s) => s.type === "audience");
-
-  const criticAvg = critics.length > 0
-    ? critics.reduce((sum, s) => sum + s.normalized, 0) / critics.length
-    : 0;
-
-  const audienceAvg = audiences.length > 0
-    ? audiences.reduce((sum, s) => sum + s.normalized, 0) / audiences.length
-    : 0;
-
-  const allAvg = normalized.length > 0
-    ? normalized.reduce((sum, s) => sum + s.normalized, 0) / normalized.length
-    : 0;
-
-  const agreement = 1 - Math.abs(critics.length > 0 && audiences.length > 0 ? criticAvg - audienceAvg : 0);
-
-  const consensus = (allAvg * 0.5 + agreement * 0.5);
-
-  return {
-    critic: Math.round(criticAvg * 100),
-    audience: Math.round(audienceAvg * 100),
-    consensus: Math.round(consensus * 100),
-  };
+/** §3.1: consensus informativo — NUNCA realimenta globalScore */
+export function calculateConsensus(
+  criticsScore: number | null,
+  audienceScore: number | null,
+): number | null {
+  if (criticsScore == null || audienceScore == null) return null;
+  return Math.round((1 - Math.min(1, Math.abs(criticsScore - audienceScore) / 10)) * 100) / 10;
 }
 
-function computeConfidence(sources: ScoreSource[], domain: string): "high" | "medium" | "low" {
-  const sourceCount = new Set(sources.map((s) => s.source)).size;
-  const totalVotes = sources.length;
+/** Appendix A §6: Confidence Score */
+export function calculateConfidenceScore(
+  totalVotes: number,
+  sourceCount: number,
+  stdDev: number,
+  ageInDays: number,
+): number {
+  return Math.max(0, Math.min(100,
+    40 * Math.min(1, totalVotes / 1000) +
+    25 * Math.min(1, sourceCount / 3) +
+    20 * (1 - Math.min(1, stdDev / 2.5)) +
+    15 * (1 - Math.min(1, ageInDays / 180)),
+  ));
+}
 
-  const coverage = Math.min(1, sourceCount / 5);
-  const volume = Math.min(1, totalVotes / 10);
-  const critics = sources.filter((s) => s.type === "critic").length;
-  const audiences = sources.filter((s) => s.type === "audience").length;
-  const agreement = critics > 0 && audiences > 0
-    ? 1 - Math.abs(
-        sources.filter(s => s.type === "critic").reduce((sum, s) => sum + normalizeSource(s, domain), 0) / critics -
-        sources.filter(s => s.type === "audience").reduce((sum, s) => sum + normalizeSource(s, domain), 0) / audiences
-      )
-    : 0.5;
-
-  const freshness = sources.length > 0 ? 1 : 0;
-
-  const score = coverage * 40 + volume * 30 + Math.max(0, agreement) * 20 + freshness * 10;
-
-  if (score >= 70) return "high";
-  if (score >= 40) return "medium";
+export function confidenceLevel(score: number): Confidence {
+  if (score >= 75) return "high";
+  if (score >= 45) return "medium";
   return "low";
 }
 
-export function computeMediaScore(input: ScoreInput): MediaScoreResult {
-  const { sources, domain } = input;
-  const scale = domain === "game" ? "0-100" : "0-10" as const;
-
-  const breakdown = computeBreakdown(sources, domain);
-
-  const V3Score = (0.4 * (breakdown.critic / 100) + 0.4 * (breakdown.audience / 100) + 0.2 * (breakdown.consensus / 100)) * 100;
-  const roundToOneDecimal = Math.round(V3Score * 10) / 10;
-
-  const displayScore = scale === "0-100" ? Math.round(roundToOneDecimal) : Math.round(roundToOneDecimal) / 10;
-  const normalizedScore = scale === "0-100" ? Math.round(roundToOneDecimal) : roundToOneDecimal / 10;
-
-  const confidence = computeConfidence(sources, domain);
-
-  const explanation = confidence === "high"
-    ? "Alto consenso entre fontes."
-    : confidence === "medium"
-    ? "Avaliações mistas."
-    : "Consenso baixo.";
-
-  const normalizedSources = sources.map((s) => ({
-    ...s,
-    score: scale === "0-100"
-      ? Math.round(normalizeSource(s, domain) * 100)
-      : Math.round(normalizeSource(s, domain) * 10) / 10,
-    maxScore: scale === "0-100" ? 100 : 10,
-    displayScore: scale === "0-100"
-      ? Math.round(normalizeSource(s, domain) * 100)
-      : Math.round(normalizeSource(s, domain) * 10) / 10,
-  })) as any;
-
-  return {
-    consolidated: normalizedScore,
-    displayScore,
-    scale,
-    confidence,
-    breakdown,
-    normalizedSources,
-    explanation,
-  };
+/** §3.3b: Agregação multi-fonte com weight = log(1 + votos) */
+export function aggregateAudienceScore(sources: Array<{ value: number; votes: number }>): number {
+  if (sources.length === 0) return 0;
+  const weighted = sources.map((s) => ({
+    value: s.value,
+    weight: Math.log(1 + s.votes),
+  }));
+  const sumWeighted = weighted.reduce((acc, s) => acc + s.value * s.weight, 0);
+  const sumWeights = weighted.reduce((acc, s) => acc + s.weight, 0);
+  return sumWeights > 0 ? Math.round((sumWeighted / sumWeights) * 10) / 10 : 0;
 }
 
-// Helper to enrich existing mock/API media data with computed score
-export function enrichMediaScore(media: any): any {
-  if (!media.score || !media.score.sources) return media;
+/** §3.3: Outlier detection — desvio > 3.0 da mediana → excluded */
+export function filterOutliers(values: number[], threshold: number = 3.0): Array<{ value: number; excluded: boolean }> {
+  const sorted = [...values].sort((a, b) => a - b);
+  const median = sorted.length % 2 === 0
+    ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+    : sorted[Math.floor(sorted.length / 2)]!;
+  return values.map((v) => ({ value: v, excluded: Math.abs(v - median) > threshold }));
+}
 
-  const domain = media.type as "movie" | "series" | "game";
-  const sources: ScoreSource[] = (media.score.sources || []).map((s: any) => ({
-    source: s.source || "tmdb",
-    score: s.score || 0,
-    maxScore: s.maxScore || 10,
-    type: (["metacritic", "rottentomatoes"].includes(s.source) ? "critic" : "audience") as "critic" | "audience",
-  }));
-
-  if (sources.length === 0) {
-    return {
-      ...media,
-      computedScore: { consolidated: null, displayScore: null, scale: domain === "game" ? "0-100" : "0-10", confidence: "low", breakdown: { critic: 0, audience: 0, consensus: 0 }, normalizedSources: [], explanation: "Sem dados." },
-    };
-  }
-
-  const result = computeMediaScore({ sources, domain });
-  return {
-    ...media,
-    score: {
-      ...media.score,
-      consolidated: result.consolidated,
-      confidence: result.confidence,
-    },
-    computedScore: result,
-  };
+export function makeSnapshot(date: string, score: number) {
+  return { date, score };
 }
