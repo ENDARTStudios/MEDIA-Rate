@@ -17,6 +17,12 @@ export interface MediaScore {
   sources: SourceRating[];
   explanation: string;
   updatedAt?: string;
+  criticsScore?: number | null;
+  audienceScore?: number | null;
+  consensus?: number | null;
+  sampleSize?: number;
+  algorithmVersion?: string;
+  confidenceScore?: number;
 }
 
 export interface Media {
