@@ -2,18 +2,16 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { CatalogPageClient } from "../../../components/CatalogPageClient";
 import { getCatalogSync } from "../../../lib/api";
+import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "Catálogo — MEDIA Rate",
     description: "Explore filmes, séries e games no MEDIA Rate.",
     alternates: {
-      canonical: `https://media-rate-web.vercel.app/${locale}/catalog`,
+      canonical: localizedUrl(locale, "/catalog"),
+      languages: localizedAlternates("/catalog"),
     },
     robots: { index: true, follow: true },
   };

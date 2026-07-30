@@ -3,13 +3,17 @@ import type { Metadata } from "next";
 import { PricingCards } from "../../../components/PricingCards";
 import { PricingTable } from "../../../components/PricingTable";
 import { PricingFAQ } from "../../../components/PricingFAQ";
+import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "Planos — MEDIA Rate",
     description: "Escolha o plano ideal e descubra seu próximo título favorito com o MEDIA Score™.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/pricing` },
+    alternates: {
+      canonical: localizedUrl(locale, "/pricing"),
+      languages: localizedAlternates("/pricing"),
+    },
     robots: { index: true, follow: true },
     openGraph: { title: "Planos MEDIA Rate", description: "Descubra filmes, séries, games e livros com score consolidado.", siteName: "MEDIA Rate", type: "website" },
   };
