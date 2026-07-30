@@ -23,14 +23,14 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
       <div className="space-y-8 text-[#9CA3AF] leading-relaxed">
         <section>
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">1. Controlador e Contato</h2>
-          <p>O MEDIA Rate é operado pela ENDART Studios. Para questões sobre privacidade, entre em contato pelo canal de suporte na plataforma. [CONFIRMAR: razão social completa e canal de DPO]</p>
+          <p>O MEDIA Rate é operado por <strong>45.370.930 EDINALDO SOARES DA SILVA</strong>. Para questões sobre privacidade, entre em contato pelo email <a href="mailto:endart.studios@gmail.com" className="text-[#818CF8] underline">endart.studios@gmail.com</a>.</p>
         </section>
 
         <section>
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">2. Quais Dados Coletamos</h2>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Dados de conta:</strong> nome e email fornecidos no cadastro. A senha é armazenada com hash criptográfico (nunca em texto puro).</li>
-            <li><strong>Dados de assinatura:</strong> plano contratado (Free/Plus/Premium) e status de pagamento. Dados de cartão de crédito são processados pelo provedor de pagamento e NÃO são armazenados em nossos servidores. [CONFIRMAR: provedor de pagamento específico]</li>
+            <li><strong>Dados de assinatura:</strong> plano contratado (Free/Plus/Premium) e status de pagamento. Dados de cartão de crédito são processados pelo <strong>Stripe</strong> e NÃO são armazenados em nossos servidores.</li>
             <li><strong>Dados de uso:</strong> watchlist (itens salvos), favoritos, histórico de navegação e preferências de gosto. Estes dados são criptografados em nível de aplicação.</li>
             <li><strong>Cookies essenciais:</strong> cookie de sessão (httpOnly, Secure, SameSite=Lax) para autenticação. Não utilizamos cookies de rastreamento ou publicidade.</li>
           </ul>
@@ -50,7 +50,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">4. Compartilhamento de Dados</h2>
           <p>Seus dados NÃO são vendidos. Compartilhamos dados apenas com:</p>
           <ul className="list-disc pl-5 space-y-1 mt-2">
-            <li>Provedor de pagamento (processamento de assinaturas).</li>
+            <li>Provedor de pagamento Stripe (processamento de assinaturas).</li>
             <li>Provedores de infraestrutura (Vercel para hospedagem frontend, Railway para backend).</li>
           </ul>
         </section>

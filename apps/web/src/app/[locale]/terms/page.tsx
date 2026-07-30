@@ -39,7 +39,18 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
             <li><strong>Plus (R$19,90/mês):</strong> catálogo completo, watchlist ilimitada, recomendações IA.</li>
             <li><strong>Premium (R$39,90/mês):</strong> tudo do Plus + perfil de gosto avançado, listas personalizadas, exportação de dados.</li>
           </ul>
-          <p className="mt-2">A cobrança é recorrente mensal. [CONFIRMAR: política de reembolso e período de teste gratuito]</p>
+          <p className="mt-2">A cobrança é recorrente mensal. O pagamento é processado pelo Stripe — o MEDIA Rate NÃO armazena dados de cartão de crédito.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">3b. Reembolso, Cancelamento e Arrependimento (CDC)</h2>
+          <ul className="list-disc pl-5 space-y-2">
+            <li><strong>Direito de arrependimento (CDC Art. 49):</strong> Você pode desistir da assinatura em até 7 (sete) dias corridos a contar da data da contratação, com reembolso integral dos valores pagos, sem necessidade de justificativa. Este direito aplica-se a consumidores no Brasil.</li>
+            <li><strong>Cancelamento:</strong> Você pode cancelar sua assinatura a qualquer momento. O cancelamento interrompe a renovação automática e vale até o fim do ciclo já pago, sem cobrança adicional.</li>
+            <li><strong>Reembolso:</strong> Quando devido (arrependimento ou hipótese legal), o valor é restituído em até 30 (trinta) dias, pelo mesmo meio de pagamento via Stripe, com correção monetária.</li>
+            <li><strong>Cobrança indevida (CDC Art. 42, parágrafo único):</strong> Se você for cobrado indevidamente, tem direito à devolução em dobro do valor pago, acrescido de correção monetária e juros legais.</li>
+          </ul>
+          <p className="mt-2 text-xs text-[#6B7280] italic">Nota: estes direitos aplicam-se a consumidores no Brasil, conforme o Código de Defesa do Consumidor (Lei 8.078/1990).</p>
         </section>
 
         <section>
@@ -69,7 +80,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
 
         <section>
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">9. Lei Aplicável e Foro</h2>
-          <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca da sede da ENDART Studios para dirimir quaisquer questões. [CONFIRMAR: comarca específica]</p>
+          <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de Osasco, São Paulo (SP), centro, para dirimir quaisquer controvérsias decorrentes destes termos.</p>
         </section>
 
         <section>
