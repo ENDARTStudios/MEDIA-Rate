@@ -123,7 +123,8 @@
                   "totalUsers":  "Total de usuarios",
                   "activeSubscriptions":  "Suscripciones activas",
                   "plusUsers":  "Usuarios Plus",
-                  "premiumUsers":  "Usuarios Premium"
+                  "premiumUsers":  "Usuarios Premium",
+                  "plans":  "Planes"
               },
     "pricing":  {
                     "headline":  "Elige cómo quieres descubrir tu próximo título",
