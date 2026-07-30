@@ -134,13 +134,17 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
       {/* Synopsis + Cast */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div>
-          <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">Sinopse</h2>
-          <p className="text-[#9CA3AF] leading-relaxed">{media.synopsis}</p>
+          <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("synopsis")}</h2>
+          {media.synopsis ? (
+            <p className="text-[#9CA3AF] leading-relaxed">{media.synopsis}</p>
+          ) : (
+            <p className="text-sm text-[#6B7280] italic">{t("synopsisUnavailable")}</p>
+          )}
         </div>
 
-        {media.cast.length > 0 && (
+        {media.cast.length > 0 ? (
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">Elenco</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("cast")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {media.cast.map((c) => (
                 <div key={c.name} className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-[#1C1C2E]">
@@ -150,6 +154,21 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                     <p className="text-xs text-[#6B7280] truncate">{c.role}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
+            <p className="text-sm text-[#6B7280]">{t("castUnavailable")}</p>
+          </div>
+        )}
+
+        {media.streaming && media.streaming.length > 0 && (
+          <div>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("whereToWatch")}</h2>
+            <div className="flex flex-wrap gap-2">
+              {media.streaming.map((s) => (
+                <span key={s.name} className="px-3 py-1.5 bg-[#11111E] border border-[#1C1C2E] rounded-full text-sm text-[#9CA3AF]">{s.name}</span>
               ))}
             </div>
           </div>
