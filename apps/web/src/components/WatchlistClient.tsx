@@ -9,6 +9,10 @@ import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
+import { MOCK_MEDIA } from "@/lib/api";
+
+// Build lookup for midia_id → title resolution
+const byId = new Map(MOCK_MEDIA.map((m) => [m.id, m]));
 
 interface ColumnDef {
   key: string;
@@ -139,6 +143,8 @@ export function WatchlistClient() {
           const columnEntries = entries.filter(
             (e) => (e.status ?? e.coluna) === col.key
           );
+          // T142: Hide orphans (entries whose midia_id not in catalog)
+          const visible = columnEntries.filter((e) => byId.has(e.mediaId));
 
           return (
             <div
@@ -148,25 +154,25 @@ export function WatchlistClient() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-[#EDE7DC]">{t(col.i18nKey)}</h2>
                 <span className="text-xs text-[#9CA3AF] bg-[#1C1C2E] px-2 py-0.5 rounded-full">
-                  {columnEntries.length}
+                  {visible.length}
                 </span>
               </div>
 
-              {columnEntries.length === 0 ? (
+              {visible.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
                   <p className="text-xs text-[#6B7280]">{t("empty")}</p>
-                </div>
-              ) : (
+                </div>) : (
                 <div className="space-y-3 flex-1">
-                  {columnEntries.map((entry) => {
-                    if (entry.media) {
+                  {visible.map((entry) => {
+                    const m = byId.get(entry.mediaId);
+                    if (m) {
                       const mediaItem: MediaItem = {
-                        id: entry.media.id ?? entry.mediaId,
-                        titulo: entry.media.titulo ?? "",
-                        tipo: entry.media.tipo ?? "FILME",
-                        ano_lancamento: entry.media.ano_lancamento ?? null,
-                        imagem_url: entry.media.imagem_url ?? null,
-                        score: entry.media.score ?? null,
+                        id: m.id,
+                        titulo: m.title,
+                        tipo: m.type === "movie" ? "FILME" : m.type === "series" ? "SERIE" : "GAME",
+                        ano_lancamento: m.year,
+                        imagem_url: m.posterUrl,
+                        score: m.score?.consolidated ?? null,
                       };
                       return (
                         <div key={entry.id}>
@@ -188,30 +194,6 @@ export function WatchlistClient() {
                         </div>
                       );
                     }
-                    return (
-                      <div key={entry.id} className="bg-[#1C1C2E] rounded-md p-3">
-                        <Link
-                          href={`/media/${entry.mediaId}`}
-                          className="block text-sm font-medium text-[#EDE7DC] hover:text-[#818CF8] truncate transition-colors"
-                        >
-                          {t("mediaItem", { id: entry.mediaId })}
-                        </Link>
-                        <div className="flex items-center justify-between mt-1">
-                          <MoveDropdown entryId={entry.id} currentStatus={col.key} />
-                          <button
-                            onClick={async () => {
-                              setDeleting(entry.id);
-                              try { await removeItem(entry.id); } catch {}
-                              setDeleting(null);
-                            }}
-                            disabled={deleting === entry.id}
-                            className="text-xs text-[#6B7280] hover:text-red-400 transition-colors"
-                          >
-                            {deleting === entry.id ? "..." : t("removeFromWatchlist")}
-                          </button>
-                        </div>
-                      </div>
-                    );
                   })}
                 </div>
               )}
