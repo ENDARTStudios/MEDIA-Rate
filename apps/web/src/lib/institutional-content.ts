@@ -74,21 +74,21 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "O que o score representa",
       scoreBody:
         "O score consolidado resume as avaliações disponíveis de uma obra depois de normalizar a escala de cada fonte. Ele é uma ferramenta de contexto: uma nota não substitui uma crítica, não prevê a experiência individual e deve ser lida ao lado das fontes exibidas na ficha da obra.",
-      calculationTitle: "Como o cálculo é composto",
+      calculationTitle: "Como o cálculo é composto (v2)",
       calculationLead:
-        "Quando os dados necessários estão disponíveis, o motor atual combina três dimensões para gerar o score consolidado.",
+        "O MEDIA Score™ v2 calcula a nota global como a média simples entre crítica e público quando ambos os dados estão disponíveis. Quando apenas uma das fontes existe — como em filmes e séries — o score reflete essa fonte. O consenso entre crítica e público é um indicador separado e informativo: NÃO entra no cálculo da nota.",
       calculationItems: [
         {
-          label: "Crítica (40%)",
-          body: "Média normalizada das fontes classificadas como crítica especializada.",
+          label: "Crítica (50%)",
+          body: "Média normalizada das fontes classificadas como crítica especializada. Quando disponível.",
         },
         {
-          label: "Público (40%)",
+          label: "Público (50%)",
           body: "Média normalizada das fontes classificadas como avaliações de audiência.",
         },
         {
-          label: "Consenso (20%)",
-          body: "Sinal que considera a média geral das fontes e o grau de concordância entre crítica e público.",
+          label: "Consenso (informativo)",
+          body: "Indicador separado que mede a concordância entre crítica e público (0–10). NÃO realimenta o cálculo do score global — serve apenas para contextualizar a divergência.",
         },
       ],
       confidenceTitle: "Nível de confiança",
@@ -181,21 +181,21 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "What the score represents",
       scoreBody:
         "The consolidated score summarizes the ratings available for a title after normalizing each source scale. It is a context tool: a score does not replace a review, does not predict an individual experience and should be read alongside the sources shown on the title page.",
-      calculationTitle: "How the calculation is composed",
+      calculationTitle: "How the Calculation Works (v2)",
       calculationLead:
-        "When the necessary data is available, the current engine combines three dimensions to generate a consolidated score.",
+        "The MEDIA Score™ v2 calculates the global score as the simple average of critics and audience when both are available. When only one source exists — as in movies and series — the score reflects that source. Consensus between critics and audience is a separate, informative indicator: it does NOT factor into the score calculation.",
       calculationItems: [
         {
-          label: "Critics (40%)",
-          body: "Normalized average of sources classified as professional criticism.",
+          label: "Critics (50%)",
+          body: "Normalized average of sources classified as professional criticism. When available.",
         },
         {
-          label: "Audience (40%)",
+          label: "Audience (50%)",
           body: "Normalized average of sources classified as audience ratings.",
         },
         {
-          label: "Consensus (20%)",
-          body: "A signal that considers the overall source average and the degree of agreement between critics and audience.",
+          label: "Consensus (informative)",
+          body: "Separate indicator measuring agreement between critics and audience (0–10). Does NOT feed back into the global score — only provides context on divergence.",
         },
       ],
       confidenceTitle: "Confidence level",
@@ -284,21 +284,21 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "Qué representa la puntuación",
       scoreBody:
         "La puntuación consolidada resume las valoraciones disponibles de una obra tras normalizar la escala de cada fuente. Es una herramienta de contexto: una nota no sustituye una crítica, no predice la experiencia individual y debe leerse junto con las fuentes mostradas en la ficha.",
-      calculationTitle: "Cómo se compone el cálculo",
+      calculationTitle: "Cómo Funciona el Cálculo (v2)",
       calculationLead:
-        "Cuando están disponibles los datos necesarios, el motor actual combina tres dimensiones para generar una puntuación consolidada.",
+        "El MEDIA Score™ v2 calcula la nota global como el promedio simple entre crítica y público cuando ambos están disponibles. Cuando solo una fuente existe — como en películas y series — la nota refleja esa fuente. El consenso entre crítica y público es un indicador separado e informativo: NO entra en el cálculo de la nota.",
       calculationItems: [
         {
-          label: "Crítica (40%)",
-          body: "Promedio normalizado de fuentes clasificadas como crítica especializada.",
+          label: "Crítica (50%)",
+          body: "Promedio normalizado de fuentes clasificadas como crítica especializada. Cuando está disponible.",
         },
         {
-          label: "Público (40%)",
+          label: "Público (50%)",
           body: "Promedio normalizado de fuentes clasificadas como valoraciones de audiencia.",
         },
         {
-          label: "Consenso (20%)",
-          body: "Señal que considera el promedio general de las fuentes y el grado de acuerdo entre crítica y público.",
+          label: "Consenso (informativo)",
+          body: "Indicador separado que mide la concordancia entre crítica y público (0–10). NO realimenta el cálculo del score global — solo proporciona contexto sobre la divergencia.",
         },
       ],
       confidenceTitle: "Nivel de confianza",
