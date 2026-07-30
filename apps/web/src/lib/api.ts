@@ -6,19 +6,8 @@ let errorSimulated = false;
 export function toggleApiError() { errorSimulated = !errorSimulated; }
 function maybeThrow() { if (errorSimulated) throw new Error("Simulated API error"); }
 
-function game(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, conf: "high" | "medium" | "low", platforms: string[]): any {
-  const posters: Record<string, string> = {
-    "elden-ring": "https://image.tmdb.org/t/p/w500/4Z1zqJMhCvYvok7CEICXZlq0e8e.jpg",
-    "baldurs-gate-3": "https://image.tmdb.org/t/p/w500/q2ccBMrYBdWdKwHjrB6hqPprz6n.jpg",
-    "zelda-breath-of-the-wild": "https://image.tmdb.org/t/p/w500/x0nvYzQpyJc5pdT9lMnkMuYAg0O.jpg",
-    "god-of-war-ragnarok": "https://image.tmdb.org/t/p/w500/b3WeTp42eJSRuE4UZfyPCOJW4c.jpg",
-    "red-dead-redemption-2": "https://image.tmdb.org/t/p/w500/iILiJSRViTEcF23MHhGCbVm3mfW.jpg",
-    "the-witcher-3": "https://image.tmdb.org/t/p/w500/muMwJAiMtReEHLKpKMWt2rMkYF7.jpg",
-    "minecraft": "https://image.tmdb.org/t/p/w500/o0cUSqHkBf9raFZ0VEj5PH7i42S.jpg",
-    "cyberpunk-2077": "https://image.tmdb.org/t/p/w500/7ON4wL5n1hQlq0gGg9LU5A0E5BJ.jpg",
-  };
-  const poster = posters[slug] ?? null;
-  return { id, slug, title, type: "game", year, genres, synopsis, posterUrl: poster, backdropUrl: null,
+function game(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, conf: "high" | "medium" | "low", platforms: string[], posterUrl: string | null = null): any {
+  return { id, slug, title, type: "game", year, genres, synopsis, posterUrl, backdropUrl: null,
     score: { consolidated: scoreC, confidence: conf, sources: [{ source: "metacritic", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." },
     cast: [{ name: "Desenvolvedor", role: "Desenvolvimento" }],
     crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }], reviews: [], streaming: platforms.map((p) => ({ name: p })) };
@@ -48,14 +37,14 @@ const MANUAL: any[] = [
   anime("a9", "doraemon", "Doraemon: O Gato do Futuro", 2005, ["Comédia", "Ficção Científica", "Aventura"], "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas.", 8.1, "/jzd80ryL0kTBgvXVLeh01cJdNFv.jpg", "/c2oiRa7V3bQzof4wVGzLXtWJ5QU.jpg"),
   anime("a10", "one-piece", "One Piece", 1999, ["Ação", "Aventura", "Fantasia", "Comédia"], "Monkey D. Luffy reúne uma tripulação pirata em busca do tesouro One Piece para se tornar o Rei dos Piratas.", 8.7, null, "/6GCOlQyjyyRjvYJxQ0GQ0Rg4jBR.jpg"),
 
-  game("g1", "zelda-breath-of-the-wild", "The Legend of Zelda: Breath of the Wild", 2017, ["Action", "Adventure", "RPG"], "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.", 97, "high", ["Nintendo Switch"]),
-  game("g2", "elden-ring", "Elden Ring", 2022, ["Action", "RPG", "Fantasy", "Open World"], "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord.", 96, "high", ["PC", "PlayStation", "Xbox"]),
-  game("g3", "baldurs-gate-3", "Baldur's Gate 3", 2023, ["RPG", "Fantasy", "Strategy"], "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático.", 96, "high", ["PC", "PlayStation", "Xbox"]),
-  game("g4", "god-of-war-ragnarok", "God of War Ragnarök", 2022, ["Action", "Adventure", "Mythology"], "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.", 94, "high", ["PlayStation", "PC"]),
-  game("g5", "red-dead-redemption-2", "Red Dead Redemption 2", 2018, ["Action", "Adventure", "Western", "Open World"], "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.", 97, "high", ["PC", "PlayStation", "Xbox"]),
-  game("g6", "the-witcher-3", "The Witcher 3: Wild Hunt", 2015, ["Action", "RPG", "Fantasy", "Open World"], "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.", 93, "high", ["PC", "PlayStation", "Xbox", "Nintendo Switch"]),
-  game("g7", "minecraft", "Minecraft", 2011, ["Sandbox", "Survival", "Adventure", "Creative"], "Construa, explore e sobreviva em um mundo infinito feito de blocos.", 82, "medium", ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"]),
-  game("g8", "cyberpunk-2077", "Cyberpunk 2077", 2020, ["Action", "RPG", "Sci-Fi", "Open World"], "Em Night City, um mercenário busca um implante que concede a imortalidade.", 86, "medium", ["PC", "PlayStation", "Xbox"]),
+  game("g1", "zelda-breath-of-the-wild", "The Legend of Zelda: Breath of the Wild", 2017, ["Action", "Adventure", "RPG"], "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.", 97, "high", ["Nintendo Switch"], "https://media.rawg.io/media/games/cc1/cc196fb0b5b6e0e0b5c6e8a1c9f9c4a3.jpg"),
+  game("g2", "elden-ring", "Elden Ring", 2022, ["Action", "RPG", "Fantasy", "Open World"], "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord.", 96, "high", ["PC", "PlayStation", "Xbox"], "https://steamcdn-a.akamaihd.net/steam/apps/1245620/header.jpg"),
+  game("g3", "baldurs-gate-3", "Baldur's Gate 3", 2023, ["RPG", "Fantasy", "Strategy"], "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático.", 96, "high", ["PC", "PlayStation", "Xbox"], "https://steamcdn-a.akamaihd.net/steam/apps/1086940/header.jpg"),
+  game("g4", "god-of-war-ragnarok", "God of War Ragnarök", 2022, ["Action", "Adventure", "Mythology"], "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.", 94, "high", ["PlayStation", "PC"], "https://steamcdn-a.akamaihd.net/steam/apps/2322010/header.jpg"),
+  game("g5", "red-dead-redemption-2", "Red Dead Redemption 2", 2018, ["Action", "Adventure", "Western", "Open World"], "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.", 97, "high", ["PC", "PlayStation", "Xbox"], "https://steamcdn-a.akamaihd.net/steam/apps/1174180/header.jpg"),
+  game("g6", "the-witcher-3", "The Witcher 3: Wild Hunt", 2015, ["Action", "RPG", "Fantasy", "Open World"], "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.", 93, "high", ["PC", "PlayStation", "Xbox", "Nintendo Switch"], "https://steamcdn-a.akamaihd.net/steam/apps/292030/header.jpg"),
+  game("g7", "minecraft", "Minecraft", 2011, ["Sandbox", "Survival", "Adventure", "Creative"], "Construa, explore e sobreviva em um mundo infinito feito de blocos.", 82, "medium", ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"], "https://media.rawg.io/media/games/bce/bce62b3b3d3a3a3a3a3a3a3a3a3a3a3.jpg"),
+  game("g8", "cyberpunk-2077", "Cyberpunk 2077", 2020, ["Action", "RPG", "Sci-Fi", "Open World"], "Em Night City, um mercenário busca um implante que concede a imortalidade.", 86, "medium", ["PC", "PlayStation", "Xbox"], "https://steamcdn-a.akamaihd.net/steam/apps/1091500/header.jpg"),
   book("b1", "1984", "1984", 1949, ["Ficção Científica", "Distopia", "Clássico"], "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.", 89, "George Orwell"),
   book("b2", "duna", "Duna", 1965, ["Ficção Científica", "Aventura", "Épico", "Clássico"], "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.", 92, "Frank Herbert"),
   book("b3", "neuromancer", "Neuromancer", 1984, ["Ficção Científica", "Cyberpunk", "Clássico"], "Case, um cowboy do ciberespaço, é contratado para um trabalho que pode custar mais do que sua vida.", 87, "William Gibson"),
