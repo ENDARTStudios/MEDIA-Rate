@@ -175,7 +175,7 @@ export function WatchlistClient() {
                         score: m.score?.consolidated ?? null,
                       };
                       return (
-                        <div key={entry.id}>
+                        <div key={entry.id} className="max-w-[200px]">
                           <MediaCard media={mediaItem} />
                           <div className="flex items-center justify-between mt-1 px-1">
                             <MoveDropdown entryId={entry.id} currentStatus={col.key} />
