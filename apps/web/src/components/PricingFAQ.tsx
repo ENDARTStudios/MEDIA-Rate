@@ -9,7 +9,6 @@ const FAQ = [
   { q: "Preciso de conta para usar?", a: "Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente IA exigem plano Plus ou Premium." },
   { q: "Posso cancelar quando quiser?", a: "Sim. Todos os planos pagos podem ser cancelados a qualquer momento, sem multa ou aviso prévio." },
   { q: "Posso mudar de plano depois?", a: "Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente." },
-  { q: "Quais fontes de avaliação vocês usam?", a: "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e RAWG para games." },
 ];
 
 export function PricingFAQ() {
