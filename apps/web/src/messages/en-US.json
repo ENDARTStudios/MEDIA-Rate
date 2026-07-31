@@ -78,7 +78,10 @@
     "synopsisUnavailable": "Synopsis unavailable.",
     "cast": "Cast",
     "castUnavailable": "Cast not yet available.",
-    "whereToWatch": "Where to Watch"
+    "whereToWatch": "Where to Watch",
+    "readMore": "Read more",
+    "readLess": "Read less",
+    "linkCopied": "Link copied!"
   },
   "dashboard": {
     "title": "Dashboard",

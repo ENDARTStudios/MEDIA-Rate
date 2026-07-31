@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { Link } from "@/lib/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
@@ -38,6 +39,8 @@ interface MediaDetailPageProps {
 export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
   const t = useTranslations("catalog");
   const locale = useLocale();
+  const [synopsisExpanded, setSynopsisExpanded] = useState(false);
+  const [shared, setShared] = useState(false);
   const { data: media, isLoading, error, refetch } = useQuery({
     queryKey: ["media", id],
     queryFn: () => getMediaBySlug(id),
@@ -124,6 +127,24 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               <div className="flex items-center gap-3">
                 {media.score && <MediaScoreBadge score={media.score.consolidated} />}
                 {(media.score as any)?.snapshots && <ScoreTrend snapshots={(media.score as any).snapshots} />}
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.href);
+                      setShared(true);
+                      setTimeout(() => setShared(false), 2000);
+                    } catch {
+                      // fallback for older browsers
+                    }
+                  }}
+                  className="text-xs text-[#6B7280] hover:text-[#818CF8] transition-colors flex items-center gap-1"
+                  title={t("share")}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  {shared ? t("linkCopied") : t("share")}
+                </button>
               </div>
               <MediaScoreModule score={media.score} />
             </div>
@@ -136,7 +157,19 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
         <div>
           <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("synopsis")}</h2>
           {media.synopsis ? (
-            <p className="text-[#9CA3AF] leading-relaxed">{media.synopsis}</p>
+            <div>
+              <p className={`text-[#9CA3AF] leading-relaxed ${synopsisExpanded ? "" : "line-clamp-3"}`}>
+                {media.synopsis}
+              </p>
+              {media.synopsis.length > 200 && (
+                <button
+                  onClick={() => setSynopsisExpanded(!synopsisExpanded)}
+                  className="text-sm text-[#818CF8] hover:underline mt-1 transition-colors"
+                >
+                  {synopsisExpanded ? t("readLess") : t("readMore")}
+                </button>
+              )}
+            </div>
           ) : (
             <p className="text-sm text-[#6B7280] italic">{t("synopsisUnavailable")}</p>
           )}
