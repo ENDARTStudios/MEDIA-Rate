@@ -52,7 +52,7 @@ const content: Record<string, InstitutionalContent> = {
     about: {
       metaTitle: "Sobre o MEDIA Rate",
       metaDescription:
-        "Conheça o MEDIA Rate, uma plataforma para descobrir filmes, séries, games, livros, animes e quadrinhos com contexto de score.",
+        "Conheça o MEDIA Rate, uma plataforma para descobrir filmes, séries e games com contexto de score. Animes são cobertos como gênero dentro de Séries. Livros e quadrinhos estão no roadmap e chegarão em atualização futura.",
       title: "Sobre o MEDIA Rate",
       lead: "Uma plataforma para tornar a descoberta de entretenimento mais clara, comparável e contextualizada.",
       missionTitle: "Nossa missão",
@@ -147,7 +147,7 @@ const content: Record<string, InstitutionalContent> = {
         },
         {
           name: "Open Library",
-          description: "Dados de contexto e avaliação para livros, quando disponíveis.",
+          description: "Categorias adicionais (livros/quadrinhos) planejadas para o futuro.",
         },
       ],
       transparencyTitle: "Transparência antes de precisão aparente",
@@ -159,7 +159,7 @@ const content: Record<string, InstitutionalContent> = {
     about: {
       metaTitle: "About MEDIA Rate",
       metaDescription:
-        "Learn about MEDIA Rate, a platform for discovering movies, series, games, books, anime and comics with score context.",
+        "Learn about MEDIA Rate, a platform for discovering movies, series and games with score context. Anime is covered as a genre within Series. Books and comics are on the roadmap and coming in a future update.",
       title: "About MEDIA Rate",
       lead: "A platform that makes entertainment discovery clearer, more comparable and more contextual.",
       missionTitle: "Our mission",
@@ -251,7 +251,7 @@ const content: Record<string, InstitutionalContent> = {
           name: "IGDB and RAWG",
           description: "Context and rating data for games, when available.",
         },
-        { name: "Open Library", description: "Context and rating data for books, when available." },
+        { name: "Open Library", description: "Additional categories (books/comics) planned for the future." },
       ],
       transparencyTitle: "Transparency over apparent precision",
       transparencyBody:
@@ -262,7 +262,7 @@ const content: Record<string, InstitutionalContent> = {
     about: {
       metaTitle: "Acerca de MEDIA Rate",
       metaDescription:
-        "Conoce MEDIA Rate, una plataforma para descubrir películas, series, juegos, libros, anime y cómics con contexto de puntuación.",
+        "Conoce MEDIA Rate, una plataforma para descubrir películas, series y juegos con contexto de puntuación. El anime está cubierto como género dentro de Series. Libros y cómics están en la hoja de ruta y llegarán en una actualización futura.",
       title: "Acerca de MEDIA Rate",
       lead: "Una plataforma que hace que descubrir entretenimiento sea más claro, comparable y contextualizado.",
       missionTitle: "Nuestra misión",
@@ -358,7 +358,7 @@ const content: Record<string, InstitutionalContent> = {
         },
         {
           name: "Open Library",
-          description: "Datos de contexto y valoración para libros, cuando están disponibles.",
+          description: "Categorías adicionales (libros/cómics) planeadas para el futuro.",
         },
       ],
       transparencyTitle: "Transparencia antes que precisión aparente",
