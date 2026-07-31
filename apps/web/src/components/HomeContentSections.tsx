@@ -35,6 +35,10 @@ export function HomeContentSections() {
             <p className="text-sm text-[#6B7280] leading-relaxed">Utilizamos TMDB, RAWG, IGDB e Steam como fontes primárias. Cada nota bruta é normalizada para a escala 0–100, aplicando limites mínimos de votos e detecção de outliers para garantir qualidade estatística. Fontes abaixo do limiar ou com desvio extremo são excluídas e documentadas com o motivo.</p>
           </div>
           <div>
+            <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">Fontes e Cobertura de Dados</h3>
+            <p className="text-sm text-[#6B7280] leading-relaxed">O MEDIA Rate integra fontes por tipo de mídia: TMDB (filmes e séries), TVMaze (séries), RAWG e IGDB (games), Steam (games). A cobertura varia por tipo — filmes têm a base mais ampla; jogos dependem da disponibilidade de dados abertos. Os dados são atualizados periodicamente conforme as APIs das fontes.</p>
+          </div>
+          <div>
             <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">Nível de confiança e transparência do score</h3>
             <p className="text-sm text-[#6B7280] leading-relaxed">Cada MEDIA Score™ exibe um indicador de confiança (Alta / Média / Baixa), calculado com base no volume de votos, número de fontes, dispersão das notas e idade dos dados. Scores com baixa confiança são sinalizados com alerta visual, nunca ocultados.</p>
           </div>
@@ -160,6 +164,10 @@ export function HomeContentSections() {
           <div>
             <h3 className="font-heading text-base font-semibold text-[#9CA3AF] mb-1">Posso mudar de plano depois?</h3>
             <p className="text-sm text-[#6B7280] leading-relaxed">Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente.</p>
+          </div>
+          <div>
+            <h3 className="font-heading text-base font-semibold text-[#9CA3AF] mb-1">O MEDIA Score é uma crítica?</h3>
+            <p className="text-sm text-[#6B7280] leading-relaxed">Não. O MEDIA Score™ é um indicador consolidado de sinais de avaliação de fontes públicas — não é uma crítica nem opinião editorial. Ele deve ser usado como ponto de partida para descoberta, não como substituto de uma análise individual.</p>
           </div>
           <div>
             <h3 className="font-heading text-base font-semibold text-[#9CA3AF] mb-1">Quais fontes de avaliação vocês usam?</h3>

@@ -4,6 +4,8 @@ import { useState } from "react";
 
 const FAQ = [
   { q: "O que é o MEDIA Score™ e como é calculado?", a: "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única de 0 a 100, com indicador de confiança (alta/média/baixa)." },
+  { q: "Quais fontes de avaliação vocês usam?", a: "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e RAWG para games." },
+  { q: "O MEDIA Score é uma crítica?", a: "Não. É um indicador consolidado de avaliações de fontes públicas — não é uma crítica nem opinião editorial. Use como ponto de partida, não como substituto de uma análise individual." },
   { q: "Preciso de conta para usar?", a: "Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente IA exigem plano Plus ou Premium." },
   { q: "Posso cancelar quando quiser?", a: "Sim. Todos os planos pagos podem ser cancelados a qualquer momento, sem multa ou aviso prévio." },
   { q: "Posso mudar de plano depois?", a: "Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente." },
