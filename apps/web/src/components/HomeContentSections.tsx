@@ -17,7 +17,7 @@ export function HomeContentSections() {
           </div>
           <div>
             <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">Categorias de mídia cobertas</h3>
-            <p className="text-sm text-[#6B7280] leading-relaxed">Filmes, séries e games — com expansão prevista para livros, animes e quadrinhos.</p>
+            <p className="text-sm text-[#6B7280] leading-relaxed">Filmes, séries e games são o foco atual. Animes são cobertos como gênero dentro de Séries. Livros, animes e quadrinhos como categorias próprias estão no roadmap e chegarão em atualizações futuras.</p>
           </div>
         </div>
       </section>
@@ -163,7 +163,7 @@ export function HomeContentSections() {
           </div>
           <div>
             <h3 className="font-heading text-base font-semibold text-[#9CA3AF] mb-1">Quais fontes de avaliação vocês usam?</h3>
-            <p className="text-sm text-[#6B7280] leading-relaxed">Utilizamos IMDb, Rotten Tomatoes e TMDB para filmes e séries; IGDB e RAWG para games; OpenLibrary e Goodreads para livros. O peso de cada fonte varia conforme disponibilidade e confiabilidade.</p>
+            <p className="text-sm text-[#6B7280] leading-relaxed">Utilizamos IMDb, Rotten Tomatoes e TMDB para filmes e séries; IGDB e RAWG para games.</p>
           </div>
         </div>
         <p className="text-sm text-[#6B7280] mt-4">

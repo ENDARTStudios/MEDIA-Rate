@@ -31,9 +31,9 @@ export async function generateMetadata({
   return {
     title: {
       template: '%s | MEDIA Rate',
-      default: 'MEDIA Rate — Descubra o que assistir, jogar e ler',
+      default: 'MEDIA Rate — Descubra o que assistir e jogar',
     },
-    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries, games e livros.",
+    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: alternates,

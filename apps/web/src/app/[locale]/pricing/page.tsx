@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       languages: localizedAlternates("/pricing"),
     },
     robots: { index: true, follow: true },
-    openGraph: { title: "Planos MEDIA Rate", description: "Descubra filmes, séries, games e livros com score consolidado.", siteName: "MEDIA Rate", type: "website" },
+    openGraph: { title: "Planos MEDIA Rate", description: "Descubra filmes, séries e games com score consolidado.", siteName: "MEDIA Rate", type: "website" },
   };
 }
 
@@ -32,7 +32,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
       { "@type": "Question", name: "Preciso de conta para usar?", acceptedAnswer: { "@type": "Answer", text: "Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente IA exigem plano Plus ou Premium." } },
       { "@type": "Question", name: "Posso cancelar quando quiser?", acceptedAnswer: { "@type": "Answer", text: "Sim. Todos os planos pagos podem ser cancelados a qualquer momento, sem multa ou aviso prévio." } },
       { "@type": "Question", name: "Posso mudar de plano depois?", acceptedAnswer: { "@type": "Answer", text: "Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente." } },
-      { "@type": "Question", name: "Quais fontes de avaliação vocês usam?", acceptedAnswer: { "@type": "Answer", text: "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e RAWG para games; OpenLibrary e Goodreads para livros. O peso de cada fonte varia conforme a disponibilidade e confiabilidade dos dados." } },
+      { "@type": "Question", name: "Quais fontes de avaliação vocês usam?", acceptedAnswer: { "@type": "Answer", text: "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e RAWG para games." } },
     ],
   };
 
