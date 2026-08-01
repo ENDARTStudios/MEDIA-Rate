@@ -101,7 +101,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <strong className="text-[#EDE7DC]">Livros e quadrinhos/mangás estão no roadmap</strong> e chegarão como categorias próprias em uma atualização futura. Hoje o foco são Filmes, Séries e Games — as três categorias com cobertura completa de fontes e score consolidado.
           </p>
           <p className="mt-3 text-xs text-[#6B7280]">
-            Esta página também está disponível em <Link href="/en-US/about" className="text-[#818CF8] underline">inglês</Link> e <Link href="/es-ES/about" className="text-[#818CF8] underline">espanhol</Link>.
+            Esta página também está disponível em <Link href="/about" locale="en-US" className="text-[#818CF8] underline">inglês</Link> e <Link href="/about" locale="es-ES" className="text-[#818CF8] underline">espanhol</Link>.
           </p>
         </section>
       </div>
