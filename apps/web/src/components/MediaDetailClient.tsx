@@ -123,7 +123,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
       {/* Tabs */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs.Root defaultValue="synopsis">
-          <Tabs.List className="flex border-b border-[rgba(129,140,248,0.08)] mb-8" aria-label="Seções de conteúdo">
+          <Tabs.List className="flex border-b border-[rgba(129,140,248,0.08)] mb-8" aria-label={t("tabsLabel")}>
             {[
               ["synopsis", t("synopsis")],
               ["cast", t("cast")],

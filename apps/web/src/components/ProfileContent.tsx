@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 
 export function ProfileContent() {
+  const t = useTranslations("profile");
+  const tc = useTranslations("common");
   const { user } = useAuthStore();
   const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
 
@@ -22,13 +25,13 @@ export function ProfileContent() {
   const dropped = statusCounts.DROPPED || 0;
 
   const badges = [
-    { name: "Explorador", desc: "5+ títulos na watchlist", unlocked: total >= 5 },
-    { name: "Maratonista", desc: "3+ séries completas", unlocked: completed >= 3 },
-    { name: "Ativo", desc: "Assistindo 1+ título", unlocked: watching >= 1 },
+    { name: t("explorerTitle"), desc: t("explorerDesc"), unlocked: total >= 5 },
+    { name: t("marathonerTitle"), desc: t("marathonerDesc"), unlocked: completed >= 3 },
+    { name: t("activeTitle"), desc: t("activeDesc"), unlocked: watching >= 1 },
   ];
 
   if (isLoading && total === 0) {
-    return <div className="max-w-4xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">Carregando...</div>;
+    return <div className="max-w-4xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">{tc("loading")}</div>;
   }
 
   return (

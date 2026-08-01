@@ -118,7 +118,8 @@
     "typeGame": "Game",
     "typeMoviePlural": "Filmes",
     "typeSeriesPlural": "Séries",
-    "typeGamePlural": "Games"
+    "typeGamePlural": "Games",
+    "tabsLabel": "Seções de conteúdo"
   },
   "dashboard": {
     "title": "Dashboard",
