@@ -449,5 +449,20 @@
     "faq6Q": "Which rating sources do you use?",
     "faq6A": "We use IMDb, Rotten Tomatoes and TMDB for movies and series; IGDB and RAWG for games.",
     "faqCta": "Full plan FAQ"
+  },
+  "pricingFaq": {
+    "title": "Frequently Asked Questions",
+    "faq1Q": "What is the MEDIA Score and how is it calculated?",
+    "faq1A": "The MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB and OpenLibrary into a single 0-100 score, with a confidence indicator (high/medium/low).",
+    "faq2Q": "Which rating sources do you use?",
+    "faq2A": "We use IMDb, Rotten Tomatoes, TMDB, Metacritic for movies and series; IGDB and RAWG for games.",
+    "faq3Q": "Is the MEDIA Score a review?",
+    "faq3A": "No. It is a consolidated indicator of public source ratings — it is not a review or editorial opinion. Use it as a starting point, not as a substitute for individual analysis.",
+    "faq4Q": "Do I need an account to use it?",
+    "faq4A": "No. The catalog, search and MEDIA Score are free. Unlimited recommendations, taste profile and AI assistant require a Plus or Premium plan.",
+    "faq5Q": "Can I cancel at any time?",
+    "faq5A": "Yes. All paid plans can be canceled at any time, with no penalties or advance notice.",
+    "faq6Q": "Can I change plans later?",
+    "faq6A": "Yes. You can upgrade or downgrade at any time. The amount is adjusted proportionally."
   }
 }

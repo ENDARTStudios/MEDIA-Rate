@@ -12,7 +12,8 @@ const PLANS = [
 ] as const;
 
 function formatPrice(price: number, locale: string) {
-  return new Intl.NumberFormat(locale, { style: "currency", currency: "BRL", minimumFractionDigits: price === 0 ? 0 : 2 }).format(price);
+  const currency = locale === "pt-BR" ? "BRL" : locale === "en-US" ? "USD" : "EUR";
+  return new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: price === 0 ? 0 : 2 }).format(price);
 }
 
 export function PricingCards() {
