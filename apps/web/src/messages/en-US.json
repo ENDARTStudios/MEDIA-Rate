@@ -476,7 +476,7 @@
     "searchRecommendBody": "Based on your taste profile and history, MEDIA Rate suggests titles similar to those you have rated or added to your watchlist.",
     "plansTitle": "Plans and Subscription",
     "plansCompareTitle": "Free, Plus and Premium plan comparison",
-    "plansCompareBody": "The Free plan offers a limited catalog and basic MEDIA Score. The Plus plan ($4.90/month) unlocks the full catalog, unlimited watchlist, and AI recommendations. Premium ($9.90/month) adds advanced taste profile, custom lists, and priority support.",
+    "plansCompareBody": "The Free plan offers a limited catalog and basic MEDIA Score. The Plus plan ({plusPrice}/month) unlocks the full catalog, unlimited watchlist, and AI recommendations. Premium ({premiumPrice}/month) adds advanced taste profile, custom lists, and priority support.",
     "plansBenefitsTitle": "Exclusive benefits for subscribers",
     "plansBenefitsBody": "Plus and Premium subscribers have access to the full catalog, personalized AI recommendations, data export, and priority support.",
     "plansCancelTitle": "Upgrade, downgrade and cancellation",

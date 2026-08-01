@@ -476,7 +476,7 @@
     "searchRecommendBody": "Según tu perfil de gusto e historial, MEDIA Rate sugiere títulos similares a los que ya has valorado o añadido a tu watchlist.",
     "plansTitle": "Planes y Suscripción",
     "plansCompareTitle": "Comparativa de planes Free, Plus y Premium",
-    "plansCompareBody": "El plan Free ofrece catálogo limitado y MEDIA Score básico. El plan Plus (€4,90/mes) desbloquea el catálogo completo, watchlist ilimitada y recomendaciones IA. Premium (€9,90/mes) añade perfil de gusto avanzado, listas personalizadas y soporte prioritario.",
+    "plansCompareBody": "El plan Free ofrece catálogo limitado y MEDIA Score básico. El plan Plus ({plusPrice}/mes) desbloquea el catálogo completo, watchlist ilimitada y recomendaciones IA. Premium ({premiumPrice}/mes) añade perfil de gusto avanzado, listas personalizadas y soporte prioritario.",
     "plansBenefitsTitle": "Beneficios exclusivos para suscriptores",
     "plansBenefitsBody": "Los suscriptores Plus y Premium tienen acceso al catálogo completo, recomendaciones personalizadas por IA, exportación de datos y soporte prioritario.",
     "plansCancelTitle": "Upgrade, downgrade y cancelación",

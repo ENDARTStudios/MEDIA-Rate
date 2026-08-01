@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
+import { normalizeDisplayScore } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { WatchlistButton } from "./WatchlistButton";
 
@@ -150,7 +151,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
           {media.score != null && (
             <div className="absolute top-2 right-2 z-20">
               <ScoreDial
-                score={media.tipo === "GAME" ? media.score : media.score / 10}
+                score={normalizeDisplayScore(media.score, media.tipo === "GAME" ? "game" : "movie")}
                 size="sm"
                 scale={media.tipo === "GAME" ? "0-100" : "0-10"}
               />

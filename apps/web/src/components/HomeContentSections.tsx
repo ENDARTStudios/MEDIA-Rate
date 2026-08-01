@@ -1,10 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/lib/navigation";
+import { formatPlanPrice } from "@/lib/pricing";
 
 export function HomeContentSections() {
   const t = useTranslations("homeContent");
+  const locale = useLocale();
+
+  const plusPrice = formatPlanPrice(4.9, locale);
+  const premiumPrice = formatPlanPrice(9.9, locale);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
@@ -94,7 +99,7 @@ export function HomeContentSections() {
         <div className="space-y-6">
           <div>
             <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">{t("plansCompareTitle")}</h3>
-            <p className="text-sm text-[#6B7280] leading-relaxed">{t("plansCompareBody")}</p>
+            <p className="text-sm text-[#6B7280] leading-relaxed">{t("plansCompareBody", { plusPrice, premiumPrice })}</p>
           </div>
           <div>
             <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">{t("plansBenefitsTitle")}</h3>
