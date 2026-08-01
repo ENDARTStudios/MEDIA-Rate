@@ -5,7 +5,7 @@ import { getInstitutionalContent } from "@/lib/institutional-content";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "pricing" });
+  const t = await getTranslations({ locale, namespace: "faq" });
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),

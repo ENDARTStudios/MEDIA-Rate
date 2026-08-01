@@ -1,12 +1,17 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "terms" });
   return {
-    title: "Termos de Uso — MEDIA Rate",
-    description: "Termos de uso do MEDIA Rate. Condições para uso da plataforma, planos, assinatura e cancelamento.",
-    alternates: { canonical: "https://media-rate-web.vercel.app/" + locale + "/terms" },
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: {
+      canonical: localizedUrl(locale, "/terms"),
+      languages: localizedAlternates("/terms"),
+    },
     robots: { index: true, follow: true },
   };
 }

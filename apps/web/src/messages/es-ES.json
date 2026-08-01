@@ -329,5 +329,19 @@
     "exploreCatalog": "Explorar catálogo",
     "mediaItem": "Medio {id}",
     "moveTo": "Mover a"
+  },
+  "privacy": {
+    "metaTitle": "Política de Privacidad — MEDIA Rate",
+    "metaDescription": "Política de privacidad de MEDIA Rate. Conozca cómo tratamos sus datos personales conforme a la LGPD."
+  },
+  "terms": {
+    "metaTitle": "Términos de Uso — MEDIA Rate",
+    "metaDescription": "Términos de uso de MEDIA Rate. Condiciones para usar la plataforma, planes, suscripción y cancelación."
+  },
+  "faq": {
+    "metaTitle": "Preguntas Frecuentes — MEDIA Rate",
+    "metaDescription": "Resuelve tus dudas sobre MEDIA Rate, el MEDIA Score™, planes y fuentes de valoración.",
+    "metaOgTitle": "FAQ — MEDIA Rate",
+    "metaOgDescription": "Preguntas frecuentes sobre MEDIA Score™, planes y fuentes de valoración."
   }
 }

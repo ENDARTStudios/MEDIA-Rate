@@ -1,12 +1,17 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "privacy" });
   return {
-    title: "Política de Privacidade — MEDIA Rate",
-    description: "Política de privacidade do MEDIA Rate. Saiba como tratamos seus dados pessoais conforme a LGPD.",
-    alternates: { canonical: "https://media-rate-web.vercel.app/" + locale + "/privacy" },
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: {
+      canonical: localizedUrl(locale, "/privacy"),
+      languages: localizedAlternates("/privacy"),
+    },
     robots: { index: true, follow: true },
   };
 }

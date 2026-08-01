@@ -29,12 +29,13 @@ export default function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   if (isPrivateRoute(pathname)) {
-    // T147: Server-side auth check — redirect unauthenticated users
     const sessCookie = request.cookies.get("sess")?.value;
     if (!sessCookie) {
       const locale = pathname.split("/")[1] || "pt-BR";
       const loginUrl = new URL(`/${locale}/login`, request.url);
-      return NextResponse.redirect(loginUrl);
+      const redirect = NextResponse.redirect(loginUrl);
+      redirect.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+      return redirect;
     }
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }

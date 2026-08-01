@@ -81,6 +81,7 @@ export async function generateDetailMetadata({
         ...locales.map((l) => [l, `${SITE_URL}/${l}/${type}/${id}`]),
       ]),
     },
+    robots: { index: true, follow: true },
     openGraph: {
       title: media.title,
       description: media.synopsis.substring(0, 160),

@@ -4,15 +4,15 @@ import { localizedAlternates, localizedUrl } from "@/lib/seo";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return {
-    title: "Configurações — MEDIA Rate",
+    title: "Checkout — MEDIA Rate",
     alternates: {
-      canonical: localizedUrl(locale, "/settings"),
-      languages: localizedAlternates("/settings"),
+      canonical: localizedUrl(locale, "/checkout"),
+      languages: localizedAlternates("/checkout"),
     },
     robots: { index: false, follow: false },
   };
 }
 
-export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
