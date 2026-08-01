@@ -44,9 +44,9 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
     return (
       <div className="max-w-5xl mx-auto py-16 px-4">
         <EmptyState
-          title="Mídia não encontrada"
-          description="O conteúdo que você procura não existe ou foi removido."
-          action={<a href="/catalog" className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium hover:brightness-110 transition-colors">Explorar catálogo</a>}
+          title={t("notFoundTitle")}
+          description={t("notFoundDesc")}
+          action={<Link href="/catalog" className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium hover:brightness-110 transition-colors">{t("exploreCatalog")}</Link>}
         />
       </div>
     );
@@ -96,10 +96,9 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
                 </div>
               </div>
 
-              {/* Streaming Badges */}
-              {media.streaming.length > 0 && (
+              {media.streaming.length > 0 ? (
                 <div>
-                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">Onde assistir</p>
+                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">{t("whereToWatch")}</p>
                   <div className="flex flex-wrap gap-2">
                     {media.streaming.map((s) => (
                       <span key={s.name} className="px-3 py-1.5 bg-[#11111E] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#EDE7DC] font-medium">
@@ -108,12 +107,12 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className="flex flex-wrap gap-2">
                 <WatchlistButton mediaId={media.id} />
                 <FavoriteButton mediaId={media.id} />
-                <Button variant="outline" size="sm" disabled aria-label="Compartilhar">{t("share")}</Button>
+                <ShareButton />
               </div>
               <MediaScoreModule score={media.score} />
             </div>
@@ -126,9 +125,9 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
         <Tabs.Root defaultValue="synopsis">
           <Tabs.List className="flex border-b border-[rgba(129,140,248,0.08)] mb-8" aria-label="Seções de conteúdo">
             {[
-              ["synopsis", "Sinopse"],
-              ["cast", "Elenco"],
-              ["reviews", "Reviews"],
+              ["synopsis", t("synopsis")],
+              ["cast", t("cast")],
+              ["reviews", t("reviews")],
             ].map(([v, l]) => (
               <Tabs.Trigger
                 key={v}
@@ -141,12 +140,12 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
           </Tabs.List>
 
           <Tabs.Content value="synopsis" className="focus-visible:outline-none">
-            <p className="text-[#EDE7DC] leading-relaxed text-base">{media.synopsis}</p>
+            <SynopsisBlock synopsis={media.synopsis} />
           </Tabs.Content>
 
           <Tabs.Content value="cast" className="focus-visible:outline-none">
             {media.cast.length === 0 ? (
-              <p className="text-[#6B7280] text-sm">Informações de elenco não disponíveis.</p>
+              <EmptySection message={t("castUnavailable")} />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {media.cast.map((c) => (
@@ -173,7 +172,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
 
           <Tabs.Content value="reviews" className="focus-visible:outline-none">
             {media.reviews.length === 0 ? (
-              <p className="text-[#6B7280] text-sm">Nenhuma review disponível.</p>
+              <EmptySection message={t("noReviews")} />
             ) : (
               <div className="space-y-4">
                 {media.reviews.map((r) => (
@@ -192,6 +191,81 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
         </Tabs.Root>
       </div>
     </article>
+  );
+}
+
+function SynopsisBlock({ synopsis }: { synopsis: string }) {
+  const t = useTranslations("catalog");
+  const [expanded, setExpanded] = useState(false);
+  const longEnough = synopsis.length > 250;
+
+  if (!synopsis) {
+    return <EmptySection message={t("synopsisUnavailable")} />;
+  }
+
+  return (
+    <div>
+      <p className={`text-[#EDE7DC] leading-relaxed text-base ${!expanded && longEnough ? "line-clamp-4" : ""}`}>
+        {synopsis}
+      </p>
+      {longEnough && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-sm text-[#818CF8] hover:underline mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
+        >
+          {expanded ? t("readLess") : t("readMore")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ShareButton() {
+  const t = useTranslations("catalog");
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({ url });
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      } catch {
+        // fallback
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard may fail
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleShare}
+      aria-label={t("share")}
+    >
+      {copied ? t("linkCopied") : t("share")}
+    </Button>
+  );
+}
+
+function EmptySection({ message }: { message: string }) {
+  return (
+    <div className="bg-[#11111E] rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
+      <svg className="w-8 h-8 text-[#6B7280] mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p className="text-sm text-[#6B7280]">{message}</p>
+    </div>
   );
 }
 
@@ -215,21 +289,20 @@ function WatchlistButton({ mediaId }: { mediaId: string }) {
 }
 
 function FavoriteButton({ mediaId }: { mediaId: string }) {
+  const t = useTranslations("catalog");
   const { isInWatchlist, addToWatchlist, removeItem, entries, fetchWatchlist } = useWatchlistStore();
   const [loading, setLoading] = useState(false);
   const [optimisticFav, setOptimisticFav] = useState(false);
 
-  // On mount: fetch to check if already favorited, then sync optimistic state
   useEffect(() => {
     fetchWatchlist().then(() => {
       setOptimisticFav(isInWatchlist(mediaId));
     });
   }, []);
 
-  // Re-sync when entries change (after external add/remove)
   useEffect(() => {
     setOptimisticFav(isInWatchlist(mediaId));
-  }, [entries.length]); // Only re-sync on count change, not on every entry object change
+  }, [entries.length]);
 
   const entryId = entries.find(e => {
     const mId = String(e.mediaId ?? e.midia_id ?? e.media?.id ?? "");
@@ -251,7 +324,7 @@ function FavoriteButton({ mediaId }: { mediaId: string }) {
         }}
         variant="outline" size="sm"
       >
-        ♥ Favorito
+        ♥ {t("favoriteRemove")}
       </Button>
     );
   }
@@ -260,7 +333,7 @@ function FavoriteButton({ mediaId }: { mediaId: string }) {
       onClick={async () => { setLoading(true); try { await addToWatchlist(mediaId, "WANT"); setOptimisticFav(true); } finally { setLoading(false); } }}
       variant="outline" size="sm"
     >
-      ♡ Favoritar
+      ♡ {t("favoriteAdd")}
     </Button>
   );
 }

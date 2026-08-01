@@ -10,7 +10,6 @@ import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
 import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
-import { AgeRating } from "./AgeRating";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
@@ -65,7 +64,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
   if (!media) {
     return (
       <div className="max-w-5xl mx-auto py-16 px-4">
-        <EmptyState title="Mídia não encontrada" description="O conteúdo que você procura não existe." action={<Link href="/catalog" className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium">Explorar catálogo</Link>} />
+        <EmptyState title={t("notFoundTitle")} description={t("notFoundDesc")} action={<Link href="/catalog" className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium">{t("exploreCatalog")}</Link>} />
       </div>
     );
   }
@@ -74,8 +73,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
     return <div className="max-w-5xl mx-auto py-16 px-4"><ErrorState message={error.message} onRetry={() => refetch()} /></div>;
   }
 
-  const tipoLabel = type === "movie" ? "Filmes" : type === "tv" ? "Séries" : "Games";
-  const tipoSingular = type === "movie" ? "Filme" : type === "tv" ? "Série" : "Jogo";
+  const tipoLabel = type === "movie" ? t("filme") : type === "tv" ? t("serie") : t("game");
 
   const relatedItems = getCatalogSync({ type: media.type, limit: 6 })
     .items.filter((m) => m.id !== media.id)
@@ -87,9 +85,9 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
       {/* Breadcrumbs */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
         <nav className="flex items-center gap-2 text-sm text-[#9CA3AF]" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-[#EDE7DC]">Home</Link>
+          <Link href="/" className="hover:text-[#EDE7DC]">{t("home")}</Link>
           <span>/</span>
-          <Link href="/catalog" className="hover:text-[#EDE7DC]">Catálogo</Link>
+          <Link href="/catalog" className="hover:text-[#EDE7DC]">{t("title")}</Link>
           <span>/</span>
           <Link href={`/catalog?type=${media.type}`} className="hover:text-[#EDE7DC]">{tipoLabel}</Link>
           <span>/</span>
@@ -115,13 +113,12 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
             </div>
             <div className="flex-1 min-w-0 space-y-4">
               <div>
-                <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">{tipoSingular}</span>
+                <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">{tipoLabel}</span>
                 <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{media.title}</h1>
                 <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
                   <span>{media.year}</span>
                   {media.duration && <><span>·</span><span>{media.duration}</span></>}
                   <span>·</span><span>{media.genres.slice(0, 3).join(", ")}</span>
-                  <AgeRating rating={undefined} type={type === "tv" ? "tv" : type === "movie" ? "movie" : "game"} locale={locale} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -129,16 +126,29 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                 {(media.score as any)?.snapshots && <ScoreTrend snapshots={(media.score as any).snapshots} />}
                 <button
                   onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(window.location.href);
-                      setShared(true);
-                      setTimeout(() => setShared(false), 2000);
-                    } catch {
-                      // fallback for older browsers
+                    const url = window.location.href;
+                    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+                    if (isMobile && navigator.share) {
+                      try {
+                        await navigator.share({ title: media.title, url });
+                        setShared(true);
+                        setTimeout(() => setShared(false), 2000);
+                        return;
+                      } catch {
+                        // fallback
+                      }
                     }
+                    try {
+                      await navigator.clipboard.writeText(url);
+                    } catch {
+                      // clipboard may fail
+                    }
+                    setShared(true);
+                    setTimeout(() => setShared(false), 2000);
                   }}
-                  className="text-xs text-[#6B7280] hover:text-[#818CF8] transition-colors flex items-center gap-1"
+                  className="text-xs text-[#6B7280] hover:text-[#818CF8] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
                   title={t("share")}
+                  aria-label={t("share")}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -164,7 +174,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               {media.synopsis.length > 200 && (
                 <button
                   onClick={() => setSynopsisExpanded(!synopsisExpanded)}
-                  className="text-sm text-[#818CF8] hover:underline mt-1 transition-colors"
+                  className="text-sm text-[#818CF8] hover:underline mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
                 >
                   {synopsisExpanded ? t("readLess") : t("readMore")}
                 </button>
@@ -196,7 +206,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
           </div>
         )}
 
-        {media.streaming && media.streaming.length > 0 && (
+        {media.streaming && media.streaming.length > 0 ? (
           <div>
             <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("whereToWatch")}</h2>
             <div className="flex flex-wrap gap-2">
@@ -205,14 +215,18 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               ))}
             </div>
           </div>
+        ) : (
+          <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
+            <svg className="w-8 h-8 text-[#6B7280] mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <p className="text-sm text-[#6B7280]">{t("streamingUnavailable")}</p>
+          </div>
         )}
 
-        {relatedItems.length > 0 && <Related items={relatedItems} title="Relacionados" />}
+        {relatedItems.length > 0 && <Related items={relatedItems} title={t("related")} />}
 
-        {/* Related */}
         {children}
-
-        {/* Content-type-specific children (Seasons/Episodes for TV) */}
       </div>
     </article>
   );

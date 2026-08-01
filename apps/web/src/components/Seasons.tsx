@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 export interface Season {
@@ -14,12 +17,14 @@ export interface SeasonsProps {
 }
 
 export function Seasons({ seasons, activeSeason, onSelect }: SeasonsProps) {
+  const t = useTranslations("catalog");
+
   if (!seasons || seasons.length === 0) return null;
 
   return (
     <div className="py-4" data-testid="seasons">
       <h3 className="text-sm font-heading font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">
-        Temporadas
+        {t("seasons")}
       </h3>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist">
         {seasons.map((s) => {
@@ -36,7 +41,7 @@ export function Seasons({ seasons, activeSeason, onSelect }: SeasonsProps) {
                   : "bg-[#1C1C2E] text-[#9CA3AF] hover:text-[#EDE7DC]"
               }`}
             >
-              {s.title || `Temporada ${s.number}`}
+              {s.title || `${t("seasonLabel")} ${s.number}`}
               {s.score !== undefined && (
                 <span className="ml-2 inline-flex">
                   <Badge variant="score" score={s.score} />

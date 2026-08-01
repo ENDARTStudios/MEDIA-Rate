@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 export interface Episode {
@@ -17,6 +18,8 @@ export interface EpisodesProps {
 }
 
 export function Episodes({ episodes, seasonNumber }: EpisodesProps) {
+  const t = useTranslations("catalog");
+
   if (!episodes || episodes.length === 0) return null;
 
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -24,7 +27,7 @@ export function Episodes({ episodes, seasonNumber }: EpisodesProps) {
   return (
     <div className="py-4" data-testid="episodes">
       <h3 className="text-sm font-heading font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">
-        Episódios — Temporada {seasonNumber}
+        {t("episodesSeason", { season: seasonNumber })}
       </h3>
       <div className="space-y-1">
         {episodes.map((ep) => {
