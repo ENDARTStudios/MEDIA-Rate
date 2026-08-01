@@ -4,7 +4,7 @@
     "tagline": "Discover what to watch and play",
     "loading": "Loading...",
     "error": "Something went wrong",
-    "retry": "Try again",
+    "retry": "Retry",
     "notFound": "Page not found",
     "notFoundCta": "Back to home",
     "cancel": "Cancel",
@@ -13,7 +13,11 @@
     "selectLanguage": "Select language",
     "skipToContent": "Skip to main content",
     "loadingCatalog": "Loading catalog",
-    "catalogAria": "Media catalog"
+    "catalogAria": "Media catalog",
+    "verifyingSession": "Verifying session...",
+    "tooManyRequests": "Too many requests",
+    "tryAgain": "You can try again now.",
+    "retryIn": "Try again in"
   },
   "nav": {
     "home": "Home",
@@ -34,7 +38,8 @@
     "dashboard": "Dashboard",
     "settings": "Settings",
     "watchlist": "Watchlist",
-    "sessionEnded": "Session ended"
+    "sessionEnded": "Session ended",
+    "footerLinks": "Footer links"
   },
   "landing": {
     "hero": "Unified score for movies, series and games",
@@ -97,7 +102,23 @@
     "notFoundTitle": "Media not found",
     "home": "Home",
     "notFoundDesc": "The content you are looking for does not exist or has been removed.",
-    "exploreCatalog": "Explore catalog"
+    "exploreCatalog": "Explore catalog",
+    "scoreUnavailable": "MEDIA Score unavailable",
+    "noRatingsYet": "Not enough ratings yet",
+    "audienceLabel": "Audience",
+    "criticsLabel": "Critics",
+    "audienceDataInsufficient": "Insufficient audience data",
+    "highDivergence": "High critics/audience divergence",
+    "today": "today",
+    "daysAgo": "{days} day{days, plural, one {} other {s}} ago",
+    "monthsAgo": "{months} month{months, plural, one {} other {s}} ago",
+    "searchPlaceholder": "Search movies, series, games...",
+    "typeMovie": "Movie",
+    "typeSeries": "Series",
+    "typeGame": "Game",
+    "typeMoviePlural": "Movies",
+    "typeSeriesPlural": "Series",
+    "typeGamePlural": "Games"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -227,7 +248,8 @@
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
     "socialDiscord": "Discord",
-    "copyright": "MEDIA Score™ · END ART Studios"
+    "copyright": "MEDIA Score™ · END ART Studios",
+    "footerLinks": "Footer links"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -464,5 +486,13 @@
     "faq5A": "Yes. All paid plans can be canceled at any time, with no penalties or advance notice.",
     "faq6Q": "Can I change plans later?",
     "faq6A": "Yes. You can upgrade or downgrade at any time. The amount is adjusted proportionally."
+  },
+  "profile": {
+    "explorerTitle": "Explorer",
+    "explorerDesc": "5+ titles on watchlist",
+    "marathonerTitle": "Marathoner",
+    "marathonerDesc": "3+ completed series",
+    "activeTitle": "Active",
+    "activeDesc": "Watching 1+ title"
   }
 }

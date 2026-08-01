@@ -16,7 +16,7 @@ export async function Footer() {
             <span className="text-sm font-semibold text-accent-500">MEDIA Rate</span>
             <span className="text-xs text-gray-500">&copy; {year}. {t("rights")}</span>
           </div>
-          <nav aria-label="Links do rodapé">
+          <nav aria-label={t("footerLinks")}>
             <ul className="flex gap-6 text-sm">
               <li>
                 <Link href="/privacy" className="text-gray-400 hover:text-gray-200 transition-colors">

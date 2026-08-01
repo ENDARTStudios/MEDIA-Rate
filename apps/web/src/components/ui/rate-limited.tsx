@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface RateLimitedProps {
   retryAfterSeconds: number;
@@ -8,6 +9,7 @@ interface RateLimitedProps {
 }
 
 export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
+  const t = useTranslations("common");
   const [remaining, setRemaining] = useState(retryAfterSeconds);
 
   useEffect(() => {
@@ -30,11 +32,11 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">Muitas requisições</h3>
+      <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">{t("tooManyRequests")}</h3>
       <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">
         {canRetry
-          ? "Você já pode tentar novamente."
-          : `Tente novamente em ${remaining}s`}
+          ? t("tryAgain")
+          : t("retryIn") + " " + remaining + "s"}
       </p>
       <button
         onClick={onRetry}
@@ -42,7 +44,7 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
         className="px-6 py-2 rounded-lg text-sm font-medium transition-colors bg-[#818CF8] text-[#0F172A] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
         data-testid="rate-limited-retry"
       >
-        Tentar novamente
+        {t("retry")}
       </button>
     </div>
   );

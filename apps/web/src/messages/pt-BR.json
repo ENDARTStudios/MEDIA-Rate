@@ -13,7 +13,11 @@
     "selectLanguage": "Selecionar idioma",
     "skipToContent": "Pular para conteÃºdo principal",
     "loadingCatalog": "Carregando catÃ¡logo",
-    "catalogAria": "CatÃ¡logo de mÃ­dias"
+    "catalogAria": "CatÃ¡logo de mÃ­dias",
+    "verifyingSession": "Verificando sessão...",
+    "tooManyRequests": "Muitas requisições",
+    "tryAgain": "Você já pode tentar novamente.",
+    "retryIn": "Tente novamente em"
   },
   "nav": {
     "home": "InÃ­cio",
@@ -34,7 +38,8 @@
     "dashboard": "Dashboard",
     "settings": "ConfiguraÃ§Ãµes",
     "watchlist": "Watchlist",
-    "sessionEnded": "SessÃ£o encerrada"
+    "sessionEnded": "SessÃ£o encerrada",
+    "footerLinks": "Links do rodapé"
   },
   "landing": {
     "hero": "Score unificado de filmes, sÃ©ries e games",
@@ -97,7 +102,23 @@
     "notFoundTitle": "MÃ­dia nÃ£o encontrada",
     "home": "InÃ­cio",
     "notFoundDesc": "O conteÃºdo que vocÃª procura nÃ£o existe ou foi removido.",
-    "exploreCatalog": "Explorar catÃ¡logo"
+    "exploreCatalog": "Explorar catÃ¡logo",
+    "scoreUnavailable": "MEDIA Score indisponível",
+    "noRatingsYet": "Ainda sem avaliações suficientes",
+    "audienceLabel": "Audiência",
+    "criticsLabel": "Críticos",
+    "audienceDataInsufficient": "Dados de audiência insuficientes",
+    "highDivergence": "Alta divergência crítica/audiência",
+    "today": "hoje",
+    "daysAgo": "há {days} dia{days, plural, one {} other {s}}",
+    "monthsAgo": "há {months} mês{months, plural, one {} other {es}}",
+    "searchPlaceholder": "Buscar filmes, séries, games...",
+    "typeMovie": "Filme",
+    "typeSeries": "Série",
+    "typeGame": "Game",
+    "typeMoviePlural": "Filmes",
+    "typeSeriesPlural": "Séries",
+    "typeGamePlural": "Games"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -227,7 +248,8 @@
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
     "socialDiscord": "Discord",
-    "copyright": "MEDIA Scoreâ„¢ Â· END ART Studios"
+    "copyright": "MEDIA Scoreâ„¢ Â· END ART Studios",
+    "footerLinks": "Links do rodapé"
   },
   "auth": {
     "loginTitle": "Entrar",
@@ -464,5 +486,13 @@
     "faq5A": "Sim. Todos os planos pagos podem ser cancelados a qualquer momento, sem multa ou aviso prévio.",
     "faq6Q": "Posso mudar de plano depois?",
     "faq6A": "Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente."
+  },
+  "profile": {
+    "explorerTitle": "Explorador",
+    "explorerDesc": "5+ títulos na watchlist",
+    "marathonerTitle": "Maratonista",
+    "marathonerDesc": "3+ séries completas",
+    "activeTitle": "Ativo",
+    "activeDesc": "Assistindo 1+ título"
   }
 }

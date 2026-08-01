@@ -28,7 +28,7 @@ export function MediaScoreModule({ score }: MediaScoreModuleProps) {
   if (!score) {
     return (
       <div className="bg-[#11111E] rounded-2xl p-6 border border-[#1C1C2E]" data-testid="score-empty">
-        <p className="text-sm text-[#6B7280]">MEDIA Score indisponível</p>
+        <p className="text-sm text-[#6B7280]">{t("scoreUnavailable")}</p>
       </div>
     );
   }

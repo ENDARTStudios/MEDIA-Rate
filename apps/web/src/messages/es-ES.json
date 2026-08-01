@@ -4,7 +4,7 @@
     "tagline": "Descubre qué ver y jugar",
     "loading": "Cargando...",
     "error": "Algo salió mal",
-    "retry": "Intentar de nuevo",
+    "retry": "Reintentar",
     "notFound": "Página no encontrada",
     "notFoundCta": "Volver al inicio",
     "cancel": "Cancelar",
@@ -13,7 +13,11 @@
     "selectLanguage": "Seleccionar idioma",
     "skipToContent": "Saltar al contenido principal",
     "loadingCatalog": "Cargando catálogo",
-    "catalogAria": "Catálogo de medios"
+    "catalogAria": "Catálogo de medios",
+    "verifyingSession": "Verificando sesión...",
+    "tooManyRequests": "Demasiadas solicitudes",
+    "tryAgain": "Ya puedes intentarlo de nuevo.",
+    "retryIn": "Inténtalo de nuevo en"
   },
   "nav": {
     "home": "Inicio",
@@ -34,7 +38,8 @@
     "dashboard": "Dashboard",
     "settings": "Configuración",
     "watchlist": "Watchlist",
-    "sessionEnded": "Sesión cerrada"
+    "sessionEnded": "Sesión cerrada",
+    "footerLinks": "Enlaces del pie de página"
   },
   "landing": {
     "hero": "Puntuación unificada de películas, series y juegos",
@@ -97,7 +102,23 @@
     "notFoundTitle": "Medio no encontrado",
     "home": "Inicio",
     "notFoundDesc": "El contenido que buscas no existe o ha sido eliminado.",
-    "exploreCatalog": "Explorar catálogo"
+    "exploreCatalog": "Explorar catálogo",
+    "scoreUnavailable": "MEDIA Score no disponible",
+    "noRatingsYet": "Aún sin suficientes valoraciones",
+    "audienceLabel": "Audiencia",
+    "criticsLabel": "Críticos",
+    "audienceDataInsufficient": "Datos de audiencia insuficientes",
+    "highDivergence": "Alta divergencia crítica/audiencia",
+    "today": "hoy",
+    "daysAgo": "hace {days} día{days, plural, one {} other {s}}",
+    "monthsAgo": "hace {months} mes{months, plural, one {} other {es}}",
+    "searchPlaceholder": "Buscar películas, series, juegos...",
+    "typeMovie": "Película",
+    "typeSeries": "Serie",
+    "typeGame": "Juego",
+    "typeMoviePlural": "Películas",
+    "typeSeriesPlural": "Series",
+    "typeGamePlural": "Juegos"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -227,7 +248,8 @@
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
     "socialDiscord": "Discord",
-    "copyright": "MEDIA Score™ · END ART Studios"
+    "copyright": "MEDIA Score™ · END ART Studios",
+    "footerLinks": "Enlaces del pie de página"
   },
   "auth": {
     "loginTitle": "Entrar",
@@ -464,5 +486,13 @@
     "faq5A": "Sí. Todos los planes de pago pueden cancelarse en cualquier momento, sin penalización ni aviso previo.",
     "faq6Q": "Puedo cambiar de plan después?",
     "faq6A": "Sí. Puedes hacer upgrade o downgrade en cualquier momento. El importe se ajusta proporcionalmente."
+  },
+  "profile": {
+    "explorerTitle": "Explorador",
+    "explorerDesc": "5+ títulos en la watchlist",
+    "marathonerTitle": "Maratoniano",
+    "marathonerDesc": "3+ series completadas",
+    "activeTitle": "Activo",
+    "activeDesc": "Viendo 1+ título"
   }
 }
