@@ -343,5 +343,9 @@
     "metaDescription": "Tire suas dúvidas sobre o MEDIA Rate, o MEDIA Score™, planos e fontes de avaliação.",
     "metaOgTitle": "FAQ — MEDIA Rate",
     "metaOgDescription": "Perguntas frequentes sobre o MEDIA Score™, planos e fontes de avaliação."
+  },
+  "about": {
+    "metaTitle": "Sobre — MEDIA Rate",
+    "metaDescription": "O MEDIA Rate reúne scores de filmes, séries e games agregando fontes públicas em um indicador transparente."
   }
 }

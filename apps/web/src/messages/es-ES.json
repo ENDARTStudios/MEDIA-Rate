@@ -152,7 +152,7 @@
   "admin": {
     "title": "Panel administrativo",
     "users": "Usuarios",
-    "planes": "Planes",
+    "plans": "Planes",
     "metrics": "Métricas",
     "totalUsers": "Total de usuarios",
     "activeSubscriptions": "Suscripciones activas",
@@ -343,5 +343,9 @@
     "metaDescription": "Resuelve tus dudas sobre MEDIA Rate, el MEDIA Score™, planes y fuentes de valoración.",
     "metaOgTitle": "FAQ — MEDIA Rate",
     "metaOgDescription": "Preguntas frecuentes sobre MEDIA Score™, planes y fuentes de valoración."
+  },
+  "about": {
+    "metaTitle": "Acerca de — MEDIA Rate",
+    "metaDescription": "MEDIA Rate reúne puntuaciones de películas, series y juegos agregando fuentes públicas en un indicador transparente."
   }
 }

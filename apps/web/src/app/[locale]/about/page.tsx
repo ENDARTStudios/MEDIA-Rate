@@ -1,13 +1,14 @@
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/lib/navigation";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "about" });
   return {
-    title: "Sobre — MEDIA Rate",
-    description: "O MEDIA Rate reúne scores de filmes, séries e games agregando fontes públicas em um indicador transparente. Saiba como funciona.",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
     alternates: {
       canonical: localizedUrl(locale, "/about"),
       languages: localizedAlternates("/about"),

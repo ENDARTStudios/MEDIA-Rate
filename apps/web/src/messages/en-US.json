@@ -343,5 +343,9 @@
     "metaDescription": "Get answers about MEDIA Rate, MEDIA Score™, plans and rating sources.",
     "metaOgTitle": "FAQ — MEDIA Rate",
     "metaOgDescription": "Frequently asked questions about MEDIA Score™, plans and rating sources."
+  },
+  "about": {
+    "metaTitle": "About — MEDIA Rate",
+    "metaDescription": "MEDIA Rate aggregates scores for movies, series and games from public sources into a transparent indicator."
   }
 }
