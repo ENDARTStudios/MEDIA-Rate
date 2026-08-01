@@ -119,7 +119,15 @@
     "typeMoviePlural": "Movies",
     "typeSeriesPlural": "Series",
     "typeGamePlural": "Games",
-    "tabsLabel": "Content sections"
+    "tabsLabel": "Content sections",
+    "highConfidence": "High confidence",
+    "mediumConfidence": "Medium confidence",
+    "lowConfidence": "Low confidence",
+    "fewSources": "Few sources/ratings",
+    "updated": "Updated",
+    "mayBeOutdated": "may be outdated",
+    "sources": "Sources",
+    "scoreAriaLabel": "Overall score {score} out of 100, based on {sources} source{sources, plural, one {} other {s}}"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -357,11 +365,45 @@
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",
-    "metaDescription": "MEDIA Rate privacy policy. Learn how we handle your personal data in accordance with LGPD."
+    "metaDescription": "MEDIA Rate privacy policy. Learn how we handle your personal data in accordance with LGPD.",
+    "h1": "Privacy Policy",
+    "lastUpdated": "Last updated: July 30, 2026",
+    "s1h": "1. Controller and Contact",
+    "s1b": "MEDIA Rate is operated by 45.370.930 EDINALDO SOARES DA SILVA. For privacy inquiries, contact endart.studios@gmail.com.",
+    "s2h": "2. What Data We Collect",
+    "s2b": "We collect account data (name, email), subscription data (plan, payment status via Stripe), usage data (watchlist, favorites, history) and essential session cookies (httpOnly, Secure, SameSite=Lax). We do not use tracking or advertising cookies.",
+    "s3h": "3. Legal Basis and Purpose",
+    "s3b": "We process your data under the following legal bases: contract execution (providing the contracted service), consent (optional communications via opt-in) and legitimate interest (platform improvements, fraud prevention).",
+    "s4h": "4. Data Sharing",
+    "s4b": "Your data is NOT sold. We only share data with: payment provider Stripe (subscription processing) and infrastructure providers (Vercel for frontend hosting, Railway for backend).",
+    "s5h": "5. Data Retention",
+    "s5b": "Your data is kept while your account exists. Upon deletion request, data is removed within 30 days. Audit logs are retained for 6 years.",
+    "s6h": "6. Your Rights",
+    "s6b": "You may exercise the following rights: access (view your data on the Your Data page), correction (update your details in Settings), deletion (request full data removal), portability (export your data in JSON) and consent withdrawal.",
+    "s7h": "7. Security",
+    "s7b": "We employ technical measures to protect your data: cryptographically hashed passwords, httpOnly/Secure/SameSite session cookies, HTTPS-only communication and application-level encryption of sensitive data.",
+    "s8h": "8. Changes to This Policy",
+    "s8b": "This policy may be updated periodically. Significant changes will be communicated via email or platform notification."
   },
   "terms": {
     "metaTitle": "Terms of Use — MEDIA Rate",
-    "metaDescription": "MEDIA Rate terms of use. Conditions for using the platform, plans, subscription and cancellation."
+    "metaDescription": "MEDIA Rate terms of use. Conditions for using the platform, plans, subscription and cancellation.",
+    "h1": "Terms of Use",
+    "lastUpdated": "Last updated: July 30, 2026",
+    "s1h": "1. Acceptance of Terms",
+    "s1b": "By accessing or using MEDIA Rate, you agree to these Terms of Use. If you do not agree, do not use the platform.",
+    "s2h": "2. Eligibility",
+    "s2b": "You must be at least 13 years old to create an account. Provide only true and current information.",
+    "s3h": "3. Plans and Subscription",
+    "s3b": "MEDIA Rate offers three plans: Free (), Plus (.90/month) and Premium (.90/month). Billing is monthly recurring. Payment is processed by Stripe.",
+    "s4h": "4. Cancellation",
+    "s4b": "You may cancel your subscription at any time. Cancellation stops automatic renewal.",
+    "s5h": "5. Intellectual Property",
+    "s5b": "MEDIA Score™ and the MEDIA Rate brand are owned by ENDART Studios. Third-party content belongs to their respective rights holders.",
+    "s6h": "6. Limitation of Liability",
+    "s6b": "MEDIA Score™ is an aggregation of public source ratings. It does not constitute editorial opinion.",
+    "s7h": "7. Governing Law",
+    "s7b": "These terms are governed by the laws of the Federative Republic of Brazil. Venue: Osasco, São Paulo (SP), Brazil."
   },
   "faq": {
     "metaTitle": "Frequently Asked Questions — MEDIA Rate",
@@ -494,6 +536,29 @@
     "marathonerTitle": "Marathoner",
     "marathonerDesc": "3+ completed series",
     "activeTitle": "Active",
-    "activeDesc": "Watching 1+ title"
+    "activeDesc": "Watching 1+ title",
+    "user": "User",
+    "planFreeSince": "Plan {plan} · Member since {date}",
+    "titles": "titles",
+    "emptyMessage": "Add titles to your watchlist to see stats and badges.",
+    "exploreCatalog": "Explore catalog",
+    "inWatchlist": "In watchlist",
+    "completed": "Completed",
+    "watching": "Watching",
+    "dropped": "Dropped",
+    "tasteProfile": "Taste Profile",
+    "tasteEmpty": "Complete titles and add ratings to see your taste profile.",
+    "badges": "Badges",
+    "recentActivity": "Recent Activity",
+    "recentEmpty": "No recent activity."
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "name": "Name",
+    "email": "Email",
+    "language": "Language",
+    "languageHint": "Select your preferred language.",
+    "session": "Session"
   }
 }

@@ -119,7 +119,15 @@
     "typeMoviePlural": "Películas",
     "typeSeriesPlural": "Series",
     "typeGamePlural": "Juegos",
-    "tabsLabel": "Secciones de contenido"
+    "tabsLabel": "Secciones de contenido",
+    "highConfidence": "Alta confianza",
+    "mediumConfidence": "Confianza media",
+    "lowConfidence": "Baja confianza",
+    "fewSources": "Pocas fuentes/valoraciones",
+    "updated": "Actualizado",
+    "mayBeOutdated": "puede estar desactualizado",
+    "sources": "Fuentes",
+    "scoreAriaLabel": "Puntuación general {score} de 100, basada en {sources} fuente{sources, plural, one {} other {s}}"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -357,11 +365,45 @@
   },
   "privacy": {
     "metaTitle": "Política de Privacidad — MEDIA Rate",
-    "metaDescription": "Política de privacidad de MEDIA Rate. Conozca cómo tratamos sus datos personales conforme a la LGPD."
+    "metaDescription": "Política de privacidad de MEDIA Rate. Conozca cómo tratamos sus datos personales conforme a la LGPD.",
+    "h1": "Política de Privacidad",
+    "lastUpdated": "Última actualización: 30 de julio de 2026",
+    "s1h": "1. Responsable y Contacto",
+    "s1b": "MEDIA Rate es operado por 45.370.930 EDINALDO SOARES DA SILVA. Para cuestiones de privacidad, contacte endart.studios@gmail.com.",
+    "s2h": "2. Qué Datos Recopilamos",
+    "s2b": "Recopilamos datos de cuenta (nombre, email), datos de suscripción (plan, estado de pago vía Stripe), datos de uso (watchlist, favoritos, historial) y cookies esenciales de sesión (httpOnly, Secure, SameSite=Lax). No utilizamos cookies de rastreo o publicidad.",
+    "s3h": "3. Base Legal y Finalidad",
+    "s3b": "Tratamos sus datos bajo las siguientes bases legales: ejecución de contrato (proveer el servicio contratado), consentimiento (comunicaciones opcionales mediante opt-in) e interés legítimo (mejoras de la plataforma, prevención de fraude).",
+    "s4h": "4. Compartición de Datos",
+    "s4b": "Sus datos NO se venden. Solo compartimos datos con: proveedor de pago Stripe (procesamiento de suscripciones) y proveedores de infraestructura (Vercel para hosting frontend, Railway para backend).",
+    "s5h": "5. Retención de Datos",
+    "s5b": "Sus datos se mantienen mientras su cuenta exista. Al solicitar eliminación, los datos se eliminan en un plazo de 30 días. Los registros de auditoría se conservan durante 6 años.",
+    "s6h": "6. Sus Derechos",
+    "s6b": "Puede ejercer los siguientes derechos: acceso (consulte sus datos en la página Sus Datos), corrección (actualice sus datos en Configuración), eliminación (solicite la eliminación total), portabilidad (exporte sus datos en JSON) y revocación del consentimiento.",
+    "s7h": "7. Seguridad",
+    "s7b": "Adoptamos medidas técnicas para proteger sus datos: contraseñas con hash criptográfico, cookies de sesión httpOnly/Secure/SameSite, comunicación exclusivamente mediante HTTPS y cifrado de datos sensibles a nivel de aplicación.",
+    "s8h": "8. Cambios en esta Política",
+    "s8b": "Esta política puede actualizarse periódicamente. Los cambios significativos serán comunicados por email o notificación en la plataforma."
   },
   "terms": {
     "metaTitle": "Términos de Uso — MEDIA Rate",
-    "metaDescription": "Términos de uso de MEDIA Rate. Condiciones para usar la plataforma, planes, suscripción y cancelación."
+    "metaDescription": "Términos de uso de MEDIA Rate. Condiciones para usar la plataforma, planes, suscripción y cancelación.",
+    "h1": "Términos de Uso",
+    "lastUpdated": "Última actualización: 30 de julio de 2026",
+    "s1h": "1. Aceptación de los Términos",
+    "s1b": "Al acceder o usar MEDIA Rate, acepta estos Términos de Uso. Si no está de acuerdo, no utilice la plataforma.",
+    "s2h": "2. Elegibilidad",
+    "s2b": "Debe tener al menos 13 años para crear una cuenta. Proporcione solo información verdadera y actualizada.",
+    "s3h": "3. Planes y Suscripción",
+    "s3b": "MEDIA Rate ofrece tres planes: Free (€0), Plus (€4,90/mes) y Premium (€9,90/mes). La facturación es mensual recurrente. El pago es procesado por Stripe.",
+    "s4h": "4. Cancelación",
+    "s4b": "Puede cancelar su suscripción en cualquier momento. La cancelación detiene la renovación automática.",
+    "s5h": "5. Propiedad Intelectual",
+    "s5b": "MEDIA Score™ y la marca MEDIA Rate son propiedad de ENDART Studios. El contenido de terceros pertenece a sus respectivos titulares de derechos.",
+    "s6h": "6. Limitación de Responsabilidad",
+    "s6b": "MEDIA Score™ es una agregación de valoraciones de fuentes públicas. No constituye opinión editorial propia.",
+    "s7h": "7. Ley Aplicable",
+    "s7b": "Estos términos se rigen por las leyes de la República Federativa de Brasil. Foro: Osasco, São Paulo (SP), Brasil."
   },
   "faq": {
     "metaTitle": "Preguntas Frecuentes — MEDIA Rate",
@@ -494,6 +536,29 @@
     "marathonerTitle": "Maratoniano",
     "marathonerDesc": "3+ series completadas",
     "activeTitle": "Activo",
-    "activeDesc": "Viendo 1+ título"
+    "activeDesc": "Viendo 1+ título",
+    "user": "Usuario",
+    "planFreeSince": "Plan {plan} · Miembro desde {date}",
+    "titles": "títulos",
+    "emptyMessage": "Añade títulos a tu watchlist para ver estadísticas e insignias.",
+    "exploreCatalog": "Explorar catálogo",
+    "inWatchlist": "En watchlist",
+    "completed": "Completados",
+    "watching": "Viendo",
+    "dropped": "Abandonados",
+    "tasteProfile": "Perfil de Gusto",
+    "tasteEmpty": "Completa títulos y añade notas para ver tu perfil de gusto.",
+    "badges": "Insignias",
+    "recentActivity": "Actividad Reciente",
+    "recentEmpty": "Sin actividad reciente."
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": "Cuenta",
+    "name": "Nombre",
+    "email": "Email",
+    "language": "Idioma",
+    "languageHint": "Selecciona tu idioma preferido.",
+    "session": "Sesión"
   }
 }
