@@ -149,6 +149,10 @@
   "pricing": {
     "headline": "Choose how you want to discover your next title",
     "subheadline": "From free to Premium — all plans include MEDIA Score™.",
+    "metaTitle": "Plans — MEDIA Rate",
+    "metaDescription": "Choose the ideal plan and discover your next favorite title with MEDIA Score™.",
+    "metaOgTitle": "MEDIA Rate Plans",
+    "metaOgDescription": "Discover movies, series and games with a consolidated score.",
     "mostPopular": "Most popular",
     "free": "Free",
     "plus": "Plus",

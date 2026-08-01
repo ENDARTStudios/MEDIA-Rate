@@ -114,6 +114,11 @@ const content: Record<string, InstitutionalContent> = {
           answer:
             "Não. O motor normaliza a escala de cada fonte antes de combinar os sinais disponíveis.",
         },
+        {
+          question: "A plataforma é gratuita?",
+          answer:
+            "Sim. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas e funcionalidades avançadas exigem um plano Plus ou Premium.",
+        },
       ],
     },
     sources: {
@@ -221,6 +226,11 @@ const content: Record<string, InstitutionalContent> = {
           answer:
             "No. The engine normalizes each source scale before combining the available signals.",
         },
+        {
+          question: "Is the platform free?",
+          answer:
+            "Yes. The catalog, search and MEDIA Score™ are free. Unlimited recommendations and advanced features require a Plus or Premium plan.",
+        },
       ],
     },
     sources: {
@@ -323,6 +333,11 @@ const content: Record<string, InstitutionalContent> = {
           question: "¿Las fuentes usan la misma escala?",
           answer:
             "No. El motor normaliza la escala de cada fuente antes de combinar las señales disponibles.",
+        },
+        {
+          question: "¿La plataforma es gratuita?",
+          answer:
+            "Sí. El catálogo, la búsqueda y el MEDIA Score™ son gratuitos. Las recomendaciones ilimitadas y funcionalidades avanzadas requieren un plan Plus o Premium.",
         },
       ],
     },

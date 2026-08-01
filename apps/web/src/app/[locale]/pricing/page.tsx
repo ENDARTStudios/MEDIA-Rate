@@ -7,15 +7,16 @@ import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pricing" });
   return {
-    title: "Planos — MEDIA Rate",
-    description: "Escolha o plano ideal e descubra seu próximo título favorito com o MEDIA Score™.",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
     alternates: {
       canonical: localizedUrl(locale, "/pricing"),
       languages: localizedAlternates("/pricing"),
     },
     robots: { index: true, follow: true },
-    openGraph: { title: "Planos MEDIA Rate", description: "Descubra filmes, séries e games com score consolidado.", siteName: "MEDIA Rate", type: "website" },
+    openGraph: { title: t("metaOgTitle"), description: t("metaOgDescription"), siteName: "MEDIA Rate", type: "website" },
   };
 }
 

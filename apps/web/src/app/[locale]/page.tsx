@@ -57,10 +57,19 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     "inLanguage": locale,
     "publisher": { "@id": `${siteUrl}/#organization` },
   };
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${siteUrl}/#organization`,
+    "url": siteUrl,
+    "name": "MEDIA Rate",
+    "description": th("metaDescription"),
+    "foundingDate": "2025",
+  };
 
   return (
     <LayeredBackground>
-      <StructuredData data={websiteJsonLd} />
+      <StructuredData data={[websiteJsonLd, orgJsonLd]} />
       <div className="flex">
         <div className="flex-1 min-w-0">
           <HeroSection
