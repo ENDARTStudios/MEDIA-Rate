@@ -6,8 +6,11 @@ import type { MediaScore as MediaScoreType } from "@/lib/types";
 import { scoreColor } from "@/lib/design-tokens";
 import { Bar } from "./Bar";
 
+import { normalizeDisplayScore } from "@/lib/score-utils";
+
 interface MediaScoreModuleProps {
   score: MediaScoreType | null;
+  mediaType?: string;
 }
 
 function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): string {
@@ -21,7 +24,7 @@ function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): s
   return t("monthsAgo", { months });
 }
 
-export function MediaScoreModule({ score }: MediaScoreModuleProps) {
+export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
 
@@ -33,7 +36,8 @@ export function MediaScoreModule({ score }: MediaScoreModuleProps) {
     );
   }
 
-  const { consolidated, confidence, sources, explanation, updatedAt, criticsScore, audienceScore, consensus } = score;
+  const { consolidated: rawConsolidated, confidence, sources, explanation, updatedAt, criticsScore, audienceScore, consensus } = score;
+  const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
   const radius = 52;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (consolidated / 100) * circ;

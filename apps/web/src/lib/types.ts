@@ -2,7 +2,7 @@ export type MediaType = "movie" | "series" | "game" | "book" | "anime" | "comic"
 
 export type Confidence = "high" | "medium" | "low";
 
-export type SourceName = "imdb" | "rottentomatoes" | "tmdb" | "metacritic" | "igdb" | "rawg" | "openlibrary";
+export type SourceName = "imdb" | "rottentomatoes" | "tmdb" | "igdb" | "rawg" | "openlibrary";
 
 export interface SourceRating {
   source: SourceName;

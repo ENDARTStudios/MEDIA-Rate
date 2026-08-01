@@ -114,7 +114,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
                 <FavoriteButton mediaId={media.id} />
                 <ShareButton />
               </div>
-              <MediaScoreModule score={media.score} />
+              <MediaScoreModule score={media.score} mediaType={media.type} />
             </div>
           </div>
         </div>

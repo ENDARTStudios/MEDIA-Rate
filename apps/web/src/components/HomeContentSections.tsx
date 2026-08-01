@@ -134,9 +134,9 @@ export function HomeContentSections() {
             <h3 className="font-heading text-lg font-semibold text-[#9CA3AF] mb-2">{t("languagesAvailableTitle")}</h3>
             <p className="text-sm text-[#6B7280] leading-relaxed">
               {t("languagesAvailableBody")}{" "}
-              <Link href="/pt-BR" className="text-[#818CF8] underline">{t("languagesPt")}</Link>,{" "}
-              <Link href="/en-US" className="text-[#818CF8] underline">{t("languagesEn")}</Link>{" "}{t("and")}{" "}
-              <Link href="/es-ES" className="text-[#818CF8] underline">{t("languagesEs")}</Link>.
+              <Link href="/" locale="pt-BR" className="text-[#818CF8] underline">{t("languagesPt")}</Link>,{" "}
+              <Link href="/" locale="en-US" className="text-[#818CF8] underline">{t("languagesEn")}</Link>{" "}{t("and")}{" "}
+              <Link href="/" locale="es-ES" className="text-[#818CF8] underline">{t("languagesEs")}</Link>.
             </p>
           </div>
           <div>

@@ -156,7 +156,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   {shared ? t("linkCopied") : t("share")}
                 </button>
               </div>
-              <MediaScoreModule score={media.score} />
+              <MediaScoreModule score={media.score} mediaType={media.type} />
             </div>
           </div>
         </div>

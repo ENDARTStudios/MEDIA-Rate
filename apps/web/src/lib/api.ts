@@ -8,7 +8,7 @@ function maybeThrow() { if (errorSimulated) throw new Error("Simulated API error
 
 function game(id: string, slug: string, title: string, year: number, genres: string[], synopsis: string, scoreC: number, conf: "high" | "medium" | "low", platforms: string[], posterUrl: string | null = null): any {
   return { id, slug, title, type: "game", year, genres, synopsis, posterUrl, backdropUrl: null,
-    score: { consolidated: scoreC, confidence: conf, sources: [{ source: "metacritic", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." },
+    score: { consolidated: scoreC, confidence: conf, sources: [{ source: "tmdb", score: scoreC, maxScore: 100 }, { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 }], explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica." },
     cast: [{ name: "Desenvolvedor", role: "Desenvolvimento" }],
     crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }], reviews: [], streaming: platforms.map((p) => ({ name: p })) };
 }

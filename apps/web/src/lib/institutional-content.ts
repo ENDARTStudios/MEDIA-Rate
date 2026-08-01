@@ -142,7 +142,7 @@ const content: Record<string, InstitutionalContent> = {
           description: "Metadados e sinais de avaliação para filmes e séries, quando disponíveis.",
         },
         {
-          name: "Rotten Tomatoes e Metacritic",
+          name: "Rotten Tomatoes e TMDB",
           description:
             "Sinais de crítica especializada, quando disponibilizados na integração da obra.",
         },
@@ -253,7 +253,7 @@ const content: Record<string, InstitutionalContent> = {
           description: "Metadata and rating signals for movies and series, when available.",
         },
         {
-          name: "Rotten Tomatoes and Metacritic",
+          name: "Rotten Tomatoes and TMDB",
           description:
             "Professional criticism signals, when available through the title integration.",
         },
@@ -363,7 +363,7 @@ const content: Record<string, InstitutionalContent> = {
             "Metadatos y señales de valoración para películas y series, cuando están disponibles.",
         },
         {
-          name: "Rotten Tomatoes y Metacritic",
+          name: "Rotten Tomatoes y TMDB",
           description:
             "Señales de crítica especializada, cuando están disponibles en la integración de la obra.",
         },

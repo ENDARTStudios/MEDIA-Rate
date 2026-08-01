@@ -27,7 +27,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 74,
           "maxScore": 100
         }
@@ -70,7 +70,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 70,
           "maxScore": 100
         }
@@ -112,7 +112,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 57,
           "maxScore": 100
         }
@@ -155,7 +155,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 83,
           "maxScore": 100
         }
@@ -197,7 +197,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 71,
           "maxScore": 100
         }
@@ -239,7 +239,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 62,
           "maxScore": 100
         }
@@ -281,7 +281,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 73,
           "maxScore": 100
         }
@@ -323,7 +323,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 66,
           "maxScore": 100
         }
@@ -366,7 +366,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 76,
           "maxScore": 100
         }
@@ -409,7 +409,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 64,
           "maxScore": 100
         }
@@ -452,7 +452,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 73,
           "maxScore": 100
         }
@@ -494,7 +494,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 75,
           "maxScore": 100
         }
@@ -537,7 +537,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 71,
           "maxScore": 100
         }
@@ -580,7 +580,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 87,
           "maxScore": 100
         }
@@ -622,7 +622,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 82,
           "maxScore": 100
         }
@@ -665,7 +665,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 73,
           "maxScore": 100
         }
@@ -707,7 +707,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 70,
           "maxScore": 100
         }
@@ -749,7 +749,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 69,
           "maxScore": 100
         }
@@ -792,7 +792,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 67,
           "maxScore": 100
         }
@@ -834,7 +834,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 70,
           "maxScore": 100
         }
@@ -877,7 +877,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 66,
           "maxScore": 100
         }
@@ -919,7 +919,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 64,
           "maxScore": 100
         }
@@ -962,7 +962,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 76,
           "maxScore": 100
         }
@@ -1005,7 +1005,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 69,
           "maxScore": 100
         }
@@ -1047,7 +1047,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 90,
           "maxScore": 100
         }
@@ -1089,7 +1089,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 44,
           "maxScore": 100
         }
@@ -1131,7 +1131,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 65,
           "maxScore": 100
         }
@@ -1173,7 +1173,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 30,
           "maxScore": 100
         }
@@ -1216,7 +1216,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 81,
           "maxScore": 100
         }
@@ -1259,7 +1259,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 78,
           "maxScore": 100
         }
@@ -1302,7 +1302,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 57,
           "maxScore": 100
         }
@@ -1344,7 +1344,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 78,
           "maxScore": 100
         }
@@ -1387,7 +1387,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 3,
           "maxScore": 100
         }
@@ -1429,7 +1429,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 61,
           "maxScore": 100
         }
@@ -1472,7 +1472,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 91,
           "maxScore": 100
         }
@@ -1514,7 +1514,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 82,
           "maxScore": 100
         }
@@ -1556,7 +1556,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 59,
           "maxScore": 100
         }
@@ -1599,7 +1599,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 71,
           "maxScore": 100
         }
@@ -1642,7 +1642,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 74,
           "maxScore": 100
         }
@@ -1685,7 +1685,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 77,
           "maxScore": 100
         }
@@ -1728,7 +1728,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 64,
           "maxScore": 100
         }
@@ -1771,7 +1771,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 37,
           "maxScore": 100
         }
@@ -1813,7 +1813,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 94,
           "maxScore": 100
         }
@@ -1855,7 +1855,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 82,
           "maxScore": 100
         }
@@ -1898,7 +1898,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 67,
           "maxScore": 100
         }
@@ -1940,7 +1940,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 53,
           "maxScore": 100
         }
@@ -1982,7 +1982,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 61,
           "maxScore": 100
         }
@@ -2024,7 +2024,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 77,
           "maxScore": 100
         }
@@ -2066,7 +2066,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 72,
           "maxScore": 100
         }
@@ -2108,7 +2108,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 78,
           "maxScore": 100
         }
@@ -2150,7 +2150,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 70,
           "maxScore": 100
         }
@@ -2193,7 +2193,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 88,
           "maxScore": 100
         }
@@ -2235,7 +2235,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 85,
           "maxScore": 100
         }
@@ -2277,7 +2277,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 30,
           "maxScore": 100
         }
@@ -2320,7 +2320,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 87,
           "maxScore": 100
         }
@@ -2362,7 +2362,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 57,
           "maxScore": 100
         }
@@ -2405,7 +2405,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 77,
           "maxScore": 100
         }
@@ -2448,7 +2448,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 82,
           "maxScore": 100
         }
@@ -2490,7 +2490,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 61,
           "maxScore": 100
         }
@@ -2533,7 +2533,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 85,
           "maxScore": 100
         }
@@ -2576,7 +2576,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 86,
           "maxScore": 100
         }
@@ -2618,7 +2618,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 87,
           "maxScore": 100
         }
@@ -2661,7 +2661,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 84,
           "maxScore": 100
         }
@@ -2703,7 +2703,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 84,
           "maxScore": 100
         }
@@ -2745,7 +2745,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": -3,
           "maxScore": 100
         }
@@ -2787,7 +2787,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 51,
           "maxScore": 100
         }
@@ -2829,7 +2829,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 50,
           "maxScore": 100
         }
@@ -2872,7 +2872,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 66,
           "maxScore": 100
         }
@@ -2914,7 +2914,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 65,
           "maxScore": 100
         }
@@ -2956,7 +2956,7 @@ export const SEED_MEDIA = [
           "maxScore": 10
         },
         {
-          "source": "metacritic",
+          "source": "tmdb",
           "score": 55,
           "maxScore": 100
         }
