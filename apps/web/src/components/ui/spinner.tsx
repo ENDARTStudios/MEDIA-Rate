@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 const sizeMap = {
   sm: "w-4 h-4 border-2",
@@ -14,6 +15,7 @@ type SpinnerProps = {
 }
 
 function Spinner({ size = "md", className }: SpinnerProps) {
+  const t = useTranslations("common")
   return (
     <div
       className={cn(
@@ -23,7 +25,7 @@ function Spinner({ size = "md", className }: SpinnerProps) {
       )}
       style={{ borderTopColor: "#818CF8" }}
       role="status"
-      aria-label="Carregando"
+      aria-label={t("loading")}
     />
   )
 }

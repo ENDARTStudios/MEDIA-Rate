@@ -274,7 +274,7 @@
     "loginSuccess": "Logged in successfully!",
     "loginError": "Invalid credentials",
     "registerTitle": "Sign up",
-    "registerSubtitle": "Create your account",
+    "registerSubtitle": "Create your free MEDIA Rate account.",
     "registerButton": "Sign up",
     "cadastrando": "Creating account...",
     "nameLabel": "Name",
@@ -560,5 +560,17 @@
     "language": "Language",
     "languageHint": "Select your preferred language.",
     "session": "Session"
+  },
+  "onboarding": {
+    "h1": "Welcome to MEDIA Rate",
+    "lead": "Your discovery platform with a unified score.",
+    "step1": "Explore the catalog",
+    "step1d": "discover movies, series and games with MEDIA Score",
+    "step2": "Understand the score",
+    "step2d": "see the critics/audience/consensus breakdown",
+    "step3": "Build your watchlist",
+    "step3d": "save what you want to watch, are watching or have watched",
+    "step4": "Quick search",
+    "step4d": "press K to search any title"
   }
 }

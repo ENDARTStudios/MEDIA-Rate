@@ -273,8 +273,8 @@
     "passwordPlaceholder": "â€¢â€¢â€¢â€¢â€¢â€¢",
     "loginSuccess": "Login realizado!",
     "loginError": "Credenciais invÃ¡lidas",
-    "registerTitle": "Cadastre-se",
-    "registerSubtitle": "Crie sua conta",
+    "registerTitle": "Cadastrar",
+    "registerSubtitle": "Crie sua conta gratuita no MEDIA Rate.",
     "registerButton": "Cadastrar",
     "cadastrando": "Criando conta...",
     "nameLabel": "Nome",
@@ -283,7 +283,7 @@
     "agreeTerms": "Concordo com os ",
     "termsLink": "Termos",
     "privacyLink": "PolÃ­tica de Privacidade",
-    "hasAccount": "JÃ¡ tem conta?",
+    "hasAccount": "Já tem conta?",
     "signIn": "Entrar",
     "registerSuccess": "Conta criada! Bem-vindo ao MEDIA Rate.",
     "registerError": "Erro ao criar conta",
@@ -560,5 +560,17 @@
     "language": "Idioma",
     "languageHint": "Selecione seu idioma preferido.",
     "session": "Sessão"
+  },
+  "onboarding": {
+    "h1": "Bem-vindo ao MEDIA Rate",
+    "lead": "Sua plataforma de descoberta com score unificado.",
+    "step1": "Explore o catálogo",
+    "step1d": "descubra filmes, séries e games com MEDIA Score",
+    "step2": "Entenda o score",
+    "step2d": "veja o breakdown críticos/público/consenso",
+    "step3": "Monte sua watchlist",
+    "step3d": "salve o que quer ver, está vendo ou já viu",
+    "step4": "Busca rápida",
+    "step4d": "pressione K para buscar qualquer título"
   }
 }
