@@ -6,11 +6,11 @@ import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { motion, useReducedMotion } from "motion/react";
 
-const STATUS_LABELS: Record<string, string> = {
-  WANT: "queroVer",
-  WATCHING: "vendo",
-  COMPLETED: "vi",
-};
+function statusKeys(isGame: boolean): Record<string, string> {
+  return isGame
+    ? { WANT: "queroJogar", WATCHING: "jogando", COMPLETED: "joguei" }
+    : { WANT: "queroVer", WATCHING: "vendo", COMPLETED: "vi" };
+}
 
 const NEXT_STATUS: Record<string, string> = {
   WANT: "WATCHING",
@@ -20,10 +20,11 @@ const NEXT_STATUS: Record<string, string> = {
 
 interface Props {
   mediaId: string;
+  mediaType?: string;
   className?: string;
 }
 
-export function WatchlistButton({ mediaId, className = "" }: Props) {
+export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const t = useTranslations("watchlist");
   const shouldReduce = useReducedMotion();
   const { isInWatchlist, getEntryStatus, addToWatchlist, moveItem, removeItem, entries } = useWatchlistStore();
@@ -38,6 +39,9 @@ export function WatchlistButton({ mediaId, className = "" }: Props) {
   const entry = entries.find(
     (e) => e.mediaId === mediaId || e.midia_id === mediaId || (e.media && e.media.id === mediaId)
   );
+
+  const isGame = mediaType === "game";
+  const labels = statusKeys(isGame);
 
   useEffect(() => {
     function handleClickOutside(e: globalThis.MouseEvent) {
@@ -96,7 +100,7 @@ export function WatchlistButton({ mediaId, className = "" }: Props) {
     }
   }
 
-  const statusLabel = status ? t(STATUS_LABELS[status] ?? "queroVer") : "";
+  const statusLabel = status ? t(labels[status] ?? labels.WANT) : "";
 
   return (
     <div ref={ref} className={`relative ${className}`}>
@@ -136,9 +140,9 @@ export function WatchlistButton({ mediaId, className = "" }: Props) {
 
       {open && inWatchlist && (
         <div className="absolute top-full left-0 mt-1 w-40 bg-[#1C1C2E] border border-[#2A2A3E] rounded-lg shadow-floating z-50 overflow-hidden">
-          <button onClick={(e) => { e.stopPropagation(); handleMove("WANT"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t("queroVer")}</button>
-          <button onClick={(e) => { e.stopPropagation(); handleMove("WATCHING"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t("vendo")}</button>
-          <button onClick={(e) => { e.stopPropagation(); handleMove("COMPLETED"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t("vi")}</button>
+          <button onClick={(e) => { e.stopPropagation(); handleMove("WANT"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t(labels.WANT)}</button>
+          <button onClick={(e) => { e.stopPropagation(); handleMove("WATCHING"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t(labels.WATCHING)}</button>
+          <button onClick={(e) => { e.stopPropagation(); handleMove("COMPLETED"); }} className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors">{t(labels.COMPLETED)}</button>
           <button onClick={(e) => { e.stopPropagation(); handleRemove(); }} className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors border-t border-[#2A2A3E]">{t("removeFromWatchlist")}</button>
         </div>
       )}

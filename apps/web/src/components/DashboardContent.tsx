@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
+import { MOCK_MEDIA } from "@/lib/api";
 
 const COLUMN_LABELS: Record<string, string> = {
   WANT: "wantToSee",
@@ -24,6 +25,8 @@ const COLUMN_COLORS: Record<string, string> = {
   DROPPED: "bg-[#6B7280]",
 };
 
+const byId = new Map(MOCK_MEDIA.map((m) => [m.id, m]));
+
 export function DashboardContent() {
   const t = useTranslations("dashboard");
   const { user } = useAuthStore();
@@ -38,6 +41,15 @@ export function DashboardContent() {
   entries.forEach((e) => { statusCounts[e.status] = (statusCounts[e.status] || 0) + 1; });
   const completedCount = statusCounts.COMPLETED || 0;
   const watchingCount = statusCounts.WATCHING || 0;
+
+  const typeCounts = useMemo(() => {
+    const counts: Record<string, number> = { movie: 0, series: 0, game: 0 };
+    entries.forEach((e) => {
+      const m = byId.get(e.mediaId);
+      if (m) counts[m.type] = (counts[m.type] || 0) + 1;
+    });
+    return counts;
+  }, [entries]);
 
   if (isLoading && total === 0) {
     return (
@@ -118,8 +130,28 @@ export function DashboardContent() {
         </div>
 
         <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
-          <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-6">{t("whereWatch")}</h2>
-          <p className="text-sm text-[#6B7280] text-center py-8">{t("noStreamingData")}</p>
+          <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-6">{t("byType")}</h2>
+          <div className="space-y-4">
+            {[
+              { key: "movie", label: t("movies"), color: "bg-[#F59E0B]" },
+              { key: "series", label: t("series"), color: "bg-[#38BDF8]" },
+              { key: "game", label: t("games"), color: "bg-[#A78BFA]" },
+            ].map(({ key, label, color }) => {
+              const count = typeCounts[key] || 0;
+              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+              return (
+                <div key={key}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-[#EDE7DC]">{label}</span>
+                    <span className="text-[#9CA3AF] tabular-nums">{count} ({pct}%)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#1C1C2E] overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

@@ -98,7 +98,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
 
               {media.streaming.length > 0 ? (
                 <div>
-                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">{t("whereToWatch")}</p>
+                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">{media.type === "game" ? t("whereToPlay") : t("whereToWatch")}</p>
                   <div className="flex flex-wrap gap-2">
                     {media.streaming.map((s) => (
                       <span key={s.name} className="px-3 py-1.5 bg-[#11111E] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#EDE7DC] font-medium">
@@ -110,7 +110,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
               ) : null}
 
               <div className="flex flex-wrap gap-2">
-                <WatchlistButton mediaId={media.id} />
+                <WatchlistButton mediaId={media.id} mediaType={media.type} />
                 <FavoriteButton mediaId={media.id} />
                 <ShareButton />
               </div>
@@ -269,7 +269,7 @@ function EmptySection({ message }: { message: string }) {
   );
 }
 
-function WatchlistButton({ mediaId }: { mediaId: string }) {
+function WatchlistButton({ mediaId, mediaType }: { mediaId: string; mediaType?: string }) {
   const { isInWatchlist, getEntryStatus, removeItem, entries } = useWatchlistStore();
   const t = useTranslations("watchlist");
   const [loading, setLoading] = useState(false);
@@ -277,11 +277,16 @@ function WatchlistButton({ mediaId }: { mediaId: string }) {
   const status = getEntryStatus(mediaId);
   const entryId = entries.find(e => e.mediaId === mediaId)?.id;
 
+  const isGame = mediaType === "game";
+  const wantLabel = isGame ? t("queroJogar") : t("queroVer");
+  const watchingLabel = isGame ? t("jogando") : t("vendo");
+  const completedLabel = isGame ? t("joguei") : t("vi");
+
   if (loading) return <Button disabled variant="secondary" size="sm">...</Button>;
   if (inList && entryId) {
     return (
       <Button onClick={async () => { setLoading(true); try { await removeItem(entryId); } finally { setLoading(false); } }} variant="secondary" size="sm">
-        ✓ {status === "WANT" ? t("queroVer") : status === "WATCHING" ? t("vendo") : status === "COMPLETED" ? t("vi") : t("removeFromWatchlist")}
+        ✓ {status === "WANT" ? wantLabel : status === "WATCHING" ? watchingLabel : status === "COMPLETED" ? completedLabel : t("removeFromWatchlist")}
       </Button>
     );
   }

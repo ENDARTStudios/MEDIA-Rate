@@ -208,7 +208,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
 
         {media.streaming && media.streaming.length > 0 ? (
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("whereToWatch")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{media.type === "game" ? t("whereToPlay") : t("whereToWatch")}</h2>
             <div className="flex flex-wrap gap-2">
               {media.streaming.map((s) => (
                 <span key={s.name} className="px-3 py-1.5 bg-[#11111E] border border-[#1C1C2E] rounded-full text-sm text-[#9CA3AF]">{s.name}</span>
@@ -220,7 +220,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
             <svg className="w-8 h-8 text-[#6B7280] mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            <p className="text-sm text-[#6B7280]">{t("streamingUnavailable")}</p>
+            <p className="text-sm text-[#6B7280]">{media.type === "game" ? t("streamingUnavailableGame") : t("streamingUnavailable")}</p>
           </div>
         )}
 
