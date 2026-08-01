@@ -6,7 +6,7 @@ export interface RelatedProps {
   title?: string;
 }
 
-export function Related({ items, title = "Relacionados" }: RelatedProps) {
+export function Related({ items, title = "" }: RelatedProps) {
   if (!items || items.length === 0) return null;
 
   return (
