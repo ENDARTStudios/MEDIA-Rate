@@ -1,10 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useAuthStore } from "../../../stores/use-auth-store";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { useRouter, usePathname } from "next/navigation";
-import { ProtectedPage } from "../../../components/ProtectedPage";
-import { Button } from "../../../components/ui/button";
+import { ProtectedPage } from "@/components/ProtectedPage";
+import { Button } from "@/components/ui/button";
 
 export default function SettingsPage() {
   const t = useTranslations("nav");
