@@ -12,7 +12,7 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
-import { genreSlug } from "@/lib/i18n-content";
+import { genreSlug, titleForLocale } from "@/lib/i18n-content";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -93,7 +93,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
           <span>/</span>
           <Link href={`/catalog?type=${media.type}`} className="hover:text-[#EDE7DC]">{tipoLabel}</Link>
           <span>/</span>
-          <span className="text-[#EDE7DC] truncate">{media.title}</span>
+          <span className="text-[#EDE7DC] truncate">{titleForLocale(media, locale)}</span>
         </nav>
       </div>
 
@@ -106,7 +106,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <div className="shrink-0 relative w-48 aspect-[2/3]">
               {media.posterUrl ? (
-                <Image src={media.posterUrl} alt={`Poster de ${media.title}`} fill className="object-cover rounded-md" sizes="192px" />
+                <Image src={media.posterUrl} alt={`Poster de ${titleForLocale(media, locale)}`} fill className="object-cover rounded-md" sizes="192px" />
               ) : (
                 <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280]">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -116,7 +116,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
             <div className="flex-1 min-w-0 space-y-4">
               <div>
                 <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">{tipoLabel}</span>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{media.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{titleForLocale(media, locale)}</h1>
                 <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
                   <span>{media.year}</span>
                   {media.duration && <><span>·</span><span>{media.duration}</span></>}

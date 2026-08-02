@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getMediaBySlug } from "@/lib/api";
+import { titleForLocale } from "@/lib/i18n-content";
 
 type MediaType = "movie" | "tv" | "game";
 
@@ -47,7 +48,7 @@ export async function generateDetailMetadata({
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": schemaType,
-    name: media.title,
+    name: titleForLocale(media, locale),
     description: media.synopsis,
     image: media.posterUrl,
     datePublished: String(media.year),
@@ -72,7 +73,7 @@ export async function generateDetailMetadata({
   }
 
   return {
-    title: `${media.title} — MEDIA Rate`,
+    title: `${titleForLocale(media, locale)} — MEDIA Rate`,
     description: media.synopsis.substring(0, 160),
     alternates: {
       canonical: canonicalUrl,
@@ -83,7 +84,7 @@ export async function generateDetailMetadata({
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: media.title,
+      title: titleForLocale(media, locale),
       description: media.synopsis.substring(0, 160),
       images: media.posterUrl ? [{ url: media.posterUrl }] : [],
       url: canonicalUrl,

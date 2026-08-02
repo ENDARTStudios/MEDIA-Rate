@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState, useEffect, type MouseEvent } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/ui/score-dial";
+import { titleForLocale } from "@/lib/i18n-content";
 import { WatchlistButton } from "./WatchlistButton";
 
 export interface MediaItem {
@@ -160,7 +161,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
         </div>
 
         <div className="p-3 bg-[#11111E] rounded-b-md">
-          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">{media.titulo}</h3>
+          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">{titleForLocale(media as any, useLocale())}</h3>
           <p className="text-xs text-[#9CA3AF] mt-1">{t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}</p>
         </div>
       </Link>

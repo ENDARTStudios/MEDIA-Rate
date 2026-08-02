@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -11,7 +11,7 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
-import { genreSlug } from "@/lib/i18n-content";
+import { genreSlug, titleForLocale } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -20,6 +20,7 @@ import { ErrorState } from "@/components/ui/error-state";
 export function MediaDetailClient({ slug, initialData }: { slug: string; initialData?: Media | null }) {
   const t = useTranslations("catalog");
   const tg = useTranslations("genres");
+  const locale = useLocale();
   const { data: media, isLoading, error, refetch } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
 
   if (isLoading) {
@@ -75,13 +76,13 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
           <nav className="flex items-center gap-2 text-sm text-[#9CA3AF] mb-8" aria-label="Breadcrumb">
             <Link href="/catalog" className="hover:text-[#EDE7DC] transition-colors">{t("title")}</Link><span aria-hidden="true">/</span>
             <Link href={`/catalog?type=${media.type}`} className="hover:text-[#EDE7DC] transition-colors">{tipoLabel}</Link><span aria-hidden="true">/</span>
-            <span className="text-[#EDE7DC] truncate">{media.title}</span>
+            <span className="text-[#EDE7DC] truncate">{titleForLocale(media, locale)}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <div className="shrink-0 relative w-48 aspect-[2/3]">
               {media.posterUrl ? (
-                <Image src={media.posterUrl} alt={`Poster de ${media.title}`} fill className="object-cover rounded-md shadow-surface-2" sizes="192px" />
+                <Image src={media.posterUrl} alt={`Poster de ${titleForLocale(media, locale)}`} fill className="object-cover rounded-md shadow-surface-2" sizes="192px" />
               ) : (
                 <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280] shadow-surface-2">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -91,7 +92,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
             <div className="flex-1 min-w-0 space-y-4">
               <div>
                 <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">{tipoLabel}</span>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{media.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{titleForLocale(media, locale)}</h1>
                 <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
                   <span>{media.year}</span>{media.duration && <><span aria-hidden="true">·</span><span>{media.duration}</span></>}
                   <span aria-hidden="true">·</span><span>{media.genres.slice(0, 3).map(g => tg(genreSlug(g))).join(", ")}</span>
