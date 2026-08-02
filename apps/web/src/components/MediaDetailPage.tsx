@@ -12,7 +12,7 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
-import { genreSlug, titleForLocale } from "@/lib/i18n-content";
+import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -171,7 +171,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
           {media.synopsis ? (
             <div>
               <p className={`text-[#9CA3AF] leading-relaxed ${synopsisExpanded ? "" : "line-clamp-3"}`}>
-                {media.synopsis}
+                {synopsisForLocale(media, locale)}
               </p>
               {media.synopsis.length > 200 && (
                 <button

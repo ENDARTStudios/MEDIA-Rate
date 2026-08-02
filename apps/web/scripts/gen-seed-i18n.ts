@@ -174,7 +174,7 @@ function main() {
 
   let total=0, w=0, empty=0, orphan=0, translated=0, identical=0, pending=0, pendingNoTranslation=0, pendingKeyMismatch=0;
   const pendingIds: string[] = [];
-  const result: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = {};
+  const result: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]; synopsis:{pt:string;en:string;es:string}}> = {};
 
   for (const e of all) {
     const id = canonicalKey(e);
@@ -198,7 +198,7 @@ function main() {
 
     const slugs: string[] = [];
     for (const g of (e.genres||[])) { const s = genreSlug(g as string); slugs.push(s); if (!gMap[s]) { console.error("ORPHAN: "+s+" from "+g+" in "+id); orphan++; } }
-    result[id] = { titleLocalized:{pt:ptTitle,en:enTitle,es:esTitle}, genreSlugs:slugs };
+    result[id] = { titleLocalized:{pt:ptTitle,en:enTitle,es:esTitle}, genreSlugs:slugs, synopsis:{pt:(e.synopsis||"") as string, en:(e.synopsis||"") as string, es:(e.synopsis||"") as string} };
     w++;
   }
 
@@ -208,7 +208,7 @@ function main() {
   if (pendingIds.length) console.log("PENDING ids: "+pendingIds.join(","));
   if (empty||orphan) { console.error("FAIL: asserts failed"); process.exit(1); }
 
-  fs.writeFileSync(outPath, "export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = "+JSON.stringify(result,null,2)+";\n");
+  fs.writeFileSync(outPath, "export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[];synopsis:{pt:string;en:string;es:string}}> = "+JSON.stringify(result,null,2)+";\n");
   console.log("Written: "+outPath+" ("+w+" entries)");
   let dedup: [string,string,string,string][] = [];
   for (let k in result) {

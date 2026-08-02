@@ -1,4 +1,4 @@
-export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = {
+export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[];synopsis:{pt:string;en:string;es:string}}> = {
   "1984": {
     "titleLocalized": {
       "pt": "1984",
@@ -9,7 +9,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "ficcao",
       "distopia",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.",
+      "en": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.",
+      "es": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão."
+    }
   },
   "237020": {
     "titleLocalized": {
@@ -19,7 +24,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "261639": {
     "titleLocalized": {
@@ -29,7 +39,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "1235877": {
     "titleLocalized": {
@@ -39,7 +54,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "1285366": {
     "titleLocalized": {
@@ -49,7 +69,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "1491920": {
     "titleLocalized": {
@@ -59,7 +84,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "a-odisseia": {
     "titleLocalized": {
@@ -69,7 +99,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
+      "en": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
+      "es": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem"
+    }
   },
   "dia-d": {
     "titleLocalized": {
@@ -79,7 +114,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
+      "en": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
+      "es": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao "
+    }
   },
   "moana": {
     "titleLocalized": {
@@ -89,7 +129,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Na Polinésia Antiga, quando uma terrível maldição contraída por Maui chega à ilha de um impetuoso chefe, sua filha obstinada responde ao chamado do Oceano para procurar o semideus e consertar as coisa",
+      "en": "Na Polinésia Antiga, quando uma terrível maldição contraída por Maui chega à ilha de um impetuoso chefe, sua filha obstinada responde ao chamado do Oceano para procurar o semideus e consertar as coisa",
+      "es": "Na Polinésia Antiga, quando uma terrível maldição contraída por Maui chega à ilha de um impetuoso chefe, sua filha obstinada responde ao chamado do Oceano para procurar o semideus e consertar as coisa"
+    }
   },
   "obsess-o": {
     "titleLocalized": {
@@ -99,7 +144,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
+      "en": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
+      "es": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q"
+    }
   },
   "backrooms-um-n-o-lugar": {
     "titleLocalized": {
@@ -109,7 +159,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m",
+      "en": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m",
+      "es": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m"
+    }
   },
   "supergirl": {
     "titleLocalized": {
@@ -119,7 +174,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
+      "en": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
+      "es": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma"
+    }
   },
   "mestres-do-universo": {
     "titleLocalized": {
@@ -129,7 +189,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
+      "en": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
+      "es": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri"
+    }
   },
   "minions-monstros": {
     "titleLocalized": {
@@ -139,7 +204,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
+      "en": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
+      "es": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni"
+    }
   },
   "toy-story-5": {
     "titleLocalized": {
@@ -149,7 +219,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O trabalho de Buzz, Woody, Jessie e do resto da gangue fica exponencialmente mais difícil quando eles enfrentam uma nova ameaça à diversão: a tecnologia.",
+      "en": "O trabalho de Buzz, Woody, Jessie e do resto da gangue fica exponencialmente mais difícil quando eles enfrentam uma nova ameaça à diversão: a tecnologia.",
+      "es": "O trabalho de Buzz, Woody, Jessie e do resto da gangue fica exponencialmente mais difícil quando eles enfrentam uma nova ameaça à diversão: a tecnologia."
+    }
   },
   "todo-mundo-em-p-nico": {
     "titleLocalized": {
@@ -159,7 +234,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
+      "en": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
+      "es": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror"
+    }
   },
   "desejo": {
     "titleLocalized": {
@@ -169,7 +249,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
+      "en": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
+      "es": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil"
+    }
   },
   "borderline": {
     "titleLocalized": {
@@ -179,7 +264,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "star-wars-o-mandaloriano-e-grogu": {
     "titleLocalized": {
@@ -189,7 +279,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
+      "en": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
+      "es": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud"
+    }
   },
   "homem-aranha-um-novo-dia": {
     "titleLocalized": {
@@ -199,7 +294,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
+      "en": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
+      "es": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se"
+    }
   },
   "devoradores-de-estrelas": {
     "titleLocalized": {
@@ -209,7 +309,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
+      "en": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
+      "es": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã"
+    }
   },
   "descendentes-pa-s-das-maravilhas-malvado": {
     "titleLocalized": {
@@ -219,7 +324,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
+      "en": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
+      "es": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a"
+    }
   },
   "cora-o-partido": {
     "titleLocalized": {
@@ -229,7 +339,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
+      "en": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
+      "es": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr"
+    }
   },
   "o-cobrador-de-d-vidas": {
     "titleLocalized": {
@@ -239,7 +354,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
+      "en": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
+      "es": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas."
+    }
   },
   "o-diabo-veste-prada-2": {
     "titleLocalized": {
@@ -249,7 +369,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
+      "en": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
+      "es": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo"
+    }
   },
   "guas-mortais": {
     "titleLocalized": {
@@ -259,7 +384,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
+      "en": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
+      "es": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta"
+    }
   },
   "a-morte-de-robin-hood": {
     "titleLocalized": {
@@ -269,7 +399,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
+      "en": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
+      "es": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q"
+    }
   },
   "kraken": {
     "titleLocalized": {
@@ -279,7 +414,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um biólogo marinho investiga uma fazenda de peixe. Adolescentes mortos e curiosos acreditam que uma criatura gigantesca com vários tentáculos está localizada nas profundezas do fiordo, pronta para esm",
+      "en": "Um biólogo marinho investiga uma fazenda de peixe. Adolescentes mortos e curiosos acreditam que uma criatura gigantesca com vários tentáculos está localizada nas profundezas do fiordo, pronta para esm",
+      "es": "Um biólogo marinho investiga uma fazenda de peixe. Adolescentes mortos e curiosos acreditam que uma criatura gigantesca com vários tentáculos está localizada nas profundezas do fiordo, pronta para esm"
+    }
   },
   "the-furious": {
     "titleLocalized": {
@@ -289,7 +429,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Após a filha de Wang Wei ser sequestrada por uma rede criminosa e ele não receber ajuda da polícia corrupta, Wei decide encontrá-la por conta própria. Seu único aliado é Navin, um jornalista implacáve",
+      "en": "Após a filha de Wang Wei ser sequestrada por uma rede criminosa e ele não receber ajuda da polícia corrupta, Wei decide encontrá-la por conta própria. Seu único aliado é Navin, um jornalista implacáve",
+      "es": "Após a filha de Wang Wei ser sequestrada por uma rede criminosa e ele não receber ajuda da polícia corrupta, Wei decide encontrá-la por conta própria. Seu único aliado é Navin, um jornalista implacáve"
+    }
   },
   "passageiro-do-mal": {
     "titleLocalized": {
@@ -299,7 +444,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Durante uma viagem de van, um jovem casal presencia um acidente terrível que resulta na morte do motorista. Logo, eles passam a ser perseguidos por uma entidade demoníaca, de quem é impossível escapar",
+      "en": "Durante uma viagem de van, um jovem casal presencia um acidente terrível que resulta na morte do motorista. Logo, eles passam a ser perseguidos por uma entidade demoníaca, de quem é impossível escapar",
+      "es": "Durante uma viagem de van, um jovem casal presencia um acidente terrível que resulta na morte do motorista. Logo, eles passam a ser perseguidos por uma entidade demoníaca, de quem é impossível escapar"
+    }
   },
   "michael": {
     "titleLocalized": {
@@ -309,7 +459,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A história da vida de Michael Jackson além da música, traçando sua jornada desde a descoberta de seu talento extraordinário como líder dos Jackson Five até o artista visionário cuja ambição criativa i",
+      "en": "A história da vida de Michael Jackson além da música, traçando sua jornada desde a descoberta de seu talento extraordinário como líder dos Jackson Five até o artista visionário cuja ambição criativa i",
+      "es": "A história da vida de Michael Jackson além da música, traçando sua jornada desde a descoberta de seu talento extraordinário como líder dos Jackson Five até o artista visionário cuja ambição criativa i"
+    }
   },
   "il-frullo-del-passero": {
     "titleLocalized": {
@@ -319,7 +474,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "au-bonheur-des-dames": {
     "titleLocalized": {
@@ -329,7 +489,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "mortal-kombat-2": {
     "titleLocalized": {
@@ -339,7 +504,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
+      "en": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
+      "es": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som"
+    }
   },
   "avatar-fogo-e-cinzas": {
     "titleLocalized": {
@@ -349,7 +519,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
+      "en": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
+      "es": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li"
+    }
   },
   "une-flamme-dans-mon-c-ur": {
     "titleLocalized": {
@@ -359,7 +534,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "super-mario-galaxy-o-filme": {
     "titleLocalized": {
@@ -369,7 +549,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
+      "en": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
+      "es": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador."
+    }
   },
   "vingadores-doutor-destino": {
     "titleLocalized": {
@@ -379,7 +564,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
+      "en": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
+      "es": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes."
+    }
   },
   "citizen-vigilante": {
     "titleLocalized": {
@@ -389,7 +579,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
+      "en": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
+      "es": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local."
+    }
   },
   "um-sonho-de-liberdade": {
     "titleLocalized": {
@@ -399,7 +594,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
+      "en": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
+      "es": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man"
+    }
   },
   "maldi-o-da-m-mia": {
     "titleLocalized": {
@@ -409,7 +609,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
+      "en": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
+      "es": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem"
+    }
   },
   "forgive-us-all": {
     "titleLocalized": {
@@ -419,7 +624,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "demon-slayer-kimetsu-no-yaiba-castelo-infinito": {
     "titleLocalized": {
@@ -429,7 +639,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
+      "en": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
+      "es": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem"
+    }
   },
   "homem-aranha-sem-volta-para-casa": {
     "titleLocalized": {
@@ -439,7 +654,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
+      "en": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
+      "es": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e "
+    }
   },
   "siping": {
     "titleLocalized": {
@@ -449,7 +669,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "avatar-aang-o-ltimo-mestre-do-ar": {
     "titleLocalized": {
@@ -459,7 +684,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
+      "en": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
+      "es": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr"
+    }
   },
   "interestelar": {
     "titleLocalized": {
@@ -469,7 +699,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
+      "en": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
+      "es": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci"
+    }
   },
   "black-box": {
     "titleLocalized": {
@@ -479,7 +714,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um voo doméstico de rotina se transforma em um voo infernal por meio de uma série de fenômenos inexplicáveis ​​e terror puro. Encontros surreais confundem as fronteiras entre a realidade e o pesadelo.",
+      "en": "Um voo doméstico de rotina se transforma em um voo infernal por meio de uma série de fenômenos inexplicáveis ​​e terror puro. Encontros surreais confundem as fronteiras entre a realidade e o pesadelo.",
+      "es": "Um voo doméstico de rotina se transforma em um voo infernal por meio de uma série de fenômenos inexplicáveis ​​e terror puro. Encontros surreais confundem as fronteiras entre a realidade e o pesadelo."
+    }
   },
   "vixen": {
     "titleLocalized": {
@@ -489,7 +729,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Este é o primeiro filme daquela que viria a ser a mais conhecida série do realizador de culto da comédia erótica norte americana, Russ Meyer, o mestre inconfundível do cinema que nos deu a ver as mais",
+      "en": "Este é o primeiro filme daquela que viria a ser a mais conhecida série do realizador de culto da comédia erótica norte americana, Russ Meyer, o mestre inconfundível do cinema que nos deu a ver as mais",
+      "es": "Este é o primeiro filme daquela que viria a ser a mais conhecida série do realizador de culto da comédia erótica norte americana, Russ Meyer, o mestre inconfundível do cinema que nos deu a ver as mais"
+    }
   },
   "boulevard": {
     "titleLocalized": {
@@ -499,7 +744,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco",
+      "en": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco",
+      "es": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco"
+    }
   },
   "o-limite-do-prazer": {
     "titleLocalized": {
@@ -509,7 +759,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
+      "en": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
+      "es": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal."
+    }
   },
   "as-ovelhas-detetives": {
     "titleLocalized": {
@@ -519,7 +774,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
+      "en": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
+      "es": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, "
+    }
   },
   "tagesschau": {
     "titleLocalized": {
@@ -529,7 +789,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Tagesschau é um serviço de notícias de televisão nacional e internacional alemão produzido pela equipe editorial da ARD-aktuell em nome da rede de televisão de serviço público alemão ARD",
+      "en": "Tagesschau é um serviço de notícias de televisão nacional e internacional alemão produzido pela equipe editorial da ARD-aktuell em nome da rede de televisão de serviço público alemão ARD",
+      "es": "Tagesschau é um serviço de notícias de televisão nacional e internacional alemão produzido pela equipe editorial da ARD-aktuell em nome da rede de televisão de serviço público alemão ARD"
+    }
   },
   "a-casa-do-drag-o": {
     "titleLocalized": {
@@ -539,7 +804,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye",
+      "en": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye",
+      "es": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye"
+    }
   },
   "lei-ordem-unidade-de-v-timas-especiais": {
     "titleLocalized": {
@@ -549,7 +819,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
+      "en": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
+      "es": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç"
+    }
   },
   "rote-rosen": {
     "titleLocalized": {
@@ -559,7 +834,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "o-mentalista": {
     "titleLocalized": {
@@ -569,7 +849,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
+      "en": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
+      "es": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor"
+    }
   },
   "mori-no-kuma-san-toumin-chuu": {
     "titleLocalized": {
@@ -579,7 +864,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
+      "en": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
+      "es": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n"
+    }
   },
   "lei-ordem": {
     "titleLocalized": {
@@ -589,7 +879,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
+      "en": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
+      "es": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais."
+    }
   },
   "o-novato": {
     "titleLocalized": {
@@ -599,7 +894,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
+      "en": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
+      "es": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais"
+    }
   },
   "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai": {
     "titleLocalized": {
@@ -609,7 +909,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
+      "en": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
+      "es": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass"
+    }
   },
   "silo": {
     "titleLocalized": {
@@ -619,7 +924,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
+      "en": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
+      "es": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re"
+    }
   },
   "supernatural": {
     "titleLocalized": {
@@ -629,7 +939,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
+      "en": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
+      "es": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho."
+    }
   },
   "origem": {
     "titleLocalized": {
@@ -639,7 +954,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
+      "en": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
+      "es": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur"
+    }
   },
   "grey-s-anatomy": {
     "titleLocalized": {
@@ -649,7 +969,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
+      "en": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
+      "es": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... "
+    }
   },
   "rick-e-morty": {
     "titleLocalized": {
@@ -659,7 +984,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
+      "en": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
+      "es": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas."
+    }
   },
   "kaatelal-sons": {
     "titleLocalized": {
@@ -669,7 +999,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "paradise-hotel": {
     "titleLocalized": {
@@ -679,7 +1014,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "watch-what-happens-live-with-andy-cohen": {
     "titleLocalized": {
@@ -689,7 +1029,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "the-late-show-with-stephen-colbert": {
     "titleLocalized": {
@@ -699,7 +1044,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Sinopse indisponível.",
+      "en": "Sinopse indisponível.",
+      "es": "Sinopse indisponível."
+    }
   },
   "binnelanders": {
     "titleLocalized": {
@@ -709,7 +1059,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     },
     "genreSlugs": [
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
+      "en": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
+      "es": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac"
+    }
   },
   "jujutsu-kaisen": {
     "titleLocalized": {
@@ -721,7 +1076,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "fantasia",
       "sobrenatural"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria.",
+      "en": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria.",
+      "es": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria."
+    }
   },
   "frieren": {
     "titleLocalized": {
@@ -733,7 +1093,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia",
       "aventura",
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas.",
+      "en": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas.",
+      "es": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas."
+    }
   },
   "hunter-x-hunter": {
     "titleLocalized": {
@@ -745,7 +1110,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "aventura",
       "fantasia"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados.",
+      "en": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados.",
+      "es": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados."
+    }
   },
   "bleach": {
     "titleLocalized": {
@@ -757,7 +1127,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "sobrenatural",
       "fantasia"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society.",
+      "en": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society.",
+      "es": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society."
+    }
   },
   "re-zero": {
     "titleLocalized": {
@@ -769,7 +1144,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia",
       "drama",
       "psicologico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento.",
+      "en": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento.",
+      "es": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento."
+    }
   },
   "detetive-conan": {
     "titleLocalized": {
@@ -781,7 +1161,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "misterio",
       "crime",
       "suspense"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa.",
+      "en": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa.",
+      "es": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa."
+    }
   },
   "pokemon": {
     "titleLocalized": {
@@ -793,7 +1178,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "aventura",
       "fantasia",
       "acao"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon.",
+      "en": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon.",
+      "es": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon."
+    }
   },
   "mushoku-tensei": {
     "titleLocalized": {
@@ -805,7 +1195,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia",
       "aventura",
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico.",
+      "en": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico.",
+      "es": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico."
+    }
   },
   "doraemon": {
     "titleLocalized": {
@@ -817,7 +1212,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "comedia",
       "ficcao",
       "aventura"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas.",
+      "en": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas.",
+      "es": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas."
+    }
   },
   "one-piece": {
     "titleLocalized": {
@@ -830,7 +1230,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "aventura",
       "fantasia",
       "comedia"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Monkey D. Luffy reúne uma tripulação pirata em busca do tesouro One Piece para se tornar o Rei dos Piratas.",
+      "en": "Monkey D. Luffy reúne uma tripulação pirata em busca do tesouro One Piece para se tornar o Rei dos Piratas.",
+      "es": "Monkey D. Luffy reúne uma tripulação pirata em busca do tesouro One Piece para se tornar o Rei dos Piratas."
+    }
   },
   "zelda-breath-of-the-wild": {
     "titleLocalized": {
@@ -842,7 +1247,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "aventura",
       "rpg"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.",
+      "en": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.",
+      "es": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon."
+    }
   },
   "elden-ring": {
     "titleLocalized": {
@@ -855,7 +1265,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "rpg",
       "fantasy",
       "openworld"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord.",
+      "en": "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord.",
+      "es": "Nas Terras Intermédias, um guerreiro busca restaurar o Elden Ring e se tornar Elden Lord."
+    }
   },
   "baldurs-gate-3": {
     "titleLocalized": {
@@ -867,7 +1282,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "rpg",
       "fantasy",
       "strategy"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático.",
+      "en": "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático.",
+      "es": "Um jogo de RPG baseado em Dungeons & Dragons com narrativa ramificada e combate tático."
+    }
   },
   "god-of-war-ragnarok": {
     "titleLocalized": {
@@ -879,7 +1299,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "aventura",
       "mythology"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.",
+      "en": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.",
+      "es": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica."
+    }
   },
   "red-dead-redemption-2": {
     "titleLocalized": {
@@ -892,7 +1317,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "aventura",
       "faroeste",
       "openworld"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.",
+      "en": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.",
+      "es": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano."
+    }
   },
   "the-witcher-3": {
     "titleLocalized": {
@@ -905,7 +1335,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "rpg",
       "fantasy",
       "openworld"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.",
+      "en": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.",
+      "es": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem."
+    }
   },
   "minecraft": {
     "titleLocalized": {
@@ -918,7 +1353,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "survival",
       "aventura",
       "creative"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Construa, explore e sobreviva em um mundo infinito feito de blocos.",
+      "en": "Construa, explore e sobreviva em um mundo infinito feito de blocos.",
+      "es": "Construa, explore e sobreviva em um mundo infinito feito de blocos."
+    }
   },
   "cyberpunk-2077": {
     "titleLocalized": {
@@ -931,7 +1371,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "rpg",
       "ficcao",
       "openworld"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em Night City, um mercenário busca um implante que concede a imortalidade.",
+      "en": "Em Night City, um mercenário busca um implante que concede a imortalidade.",
+      "es": "Em Night City, um mercenário busca um implante que concede a imortalidade."
+    }
   },
   "duna": {
     "titleLocalized": {
@@ -944,7 +1389,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "aventura",
       "epico",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.",
+      "en": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.",
+      "es": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach."
+    }
   },
   "neuromancer": {
     "titleLocalized": {
@@ -956,7 +1406,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "ficcao",
       "cyberpunk",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Case, um cowboy do ciberespaço, é contratado para um trabalho que pode custar mais do que sua vida.",
+      "en": "Case, um cowboy do ciberespaço, é contratado para um trabalho que pode custar mais do que sua vida.",
+      "es": "Case, um cowboy do ciberespaço, é contratado para um trabalho que pode custar mais do que sua vida."
+    }
   },
   "cem-anos-de-solidao": {
     "titleLocalized": {
@@ -969,7 +1424,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "literatura",
       "classico",
       "drama"
-    ]
+    ],
+    "synopsis": {
+      "pt": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana.",
+      "en": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana.",
+      "es": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana."
+    }
   },
   "o-hobbit": {
     "titleLocalized": {
@@ -981,7 +1441,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia",
       "aventura",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor.",
+      "en": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor.",
+      "es": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor."
+    }
   },
   "o-guia-do-mochileiro": {
     "titleLocalized": {
@@ -993,7 +1458,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "ficcao",
       "comedia",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo.",
+      "en": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo.",
+      "es": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo."
+    }
   },
   "watchmen": {
     "titleLocalized": {
@@ -1006,7 +1476,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama",
       "misterio",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados.",
+      "en": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados.",
+      "es": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados."
+    }
   },
   "sandman": {
     "titleLocalized": {
@@ -1019,7 +1494,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "terror",
       "mito",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais.",
+      "en": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais.",
+      "es": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais."
+    }
   },
   "saga": {
     "titleLocalized": {
@@ -1032,7 +1512,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "ficcao",
       "romance",
       "epico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Dois soldados de lados opostos de uma guerra galáctica se apaixonam e fogem para proteger sua filha.",
+      "en": "Dois soldados de lados opostos de uma guerra galáctica se apaixonam e fogem para proteger sua filha.",
+      "es": "Dois soldados de lados opostos de uma guerra galáctica se apaixonam e fogem para proteger sua filha."
+    }
   },
   "maus": {
     "titleLocalized": {
@@ -1045,7 +1530,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "historia",
       "drama",
       "classico"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Um sobrevivente do Holocausto conta sua história, com judeus como ratos e nazistas como gatos.",
+      "en": "Um sobrevivente do Holocausto conta sua história, com judeus como ratos e nazistas como gatos.",
+      "es": "Um sobrevivente do Holocausto conta sua história, com judeus como ratos e nazistas como gatos."
+    }
   },
   "the-boys": {
     "titleLocalized": {
@@ -1058,7 +1548,12 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "satira",
       "acao",
       "dark"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha.",
+      "en": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha.",
+      "es": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha."
+    }
   },
   "invincible": {
     "titleLocalized": {
@@ -1071,6 +1566,11 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao",
       "drama",
       "ficcao"
-    ]
+    ],
+    "synopsis": {
+      "pt": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser.",
+      "en": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser.",
+      "es": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser."
+    }
   }
 };

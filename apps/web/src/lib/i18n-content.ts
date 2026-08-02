@@ -65,3 +65,13 @@ export function genreSlugsFor(media: { id?: string; slug?: string; genres?: stri
   // Fallback: compute from genres
   return (media.genres || []).map(g => genreSlug(g));
 }
+
+export function synopsisForLocale(media: { synopsis: string; id?: string; slug?: string }, locale: string): string {
+  const key = (media.slug ?? media.id) as string;
+  const d = key ? SEED_I18N[key] : undefined;
+  if (d?.synopsis) {
+    const lang = locale.split("-")[0] as "pt" | "en" | "es";
+    return d.synopsis[lang] || d.synopsis.pt;
+  }
+  return media.synopsis;
+}

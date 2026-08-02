@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getMediaBySlug } from "@/lib/api";
 import { titleForLocale } from "@/lib/i18n-content";
+import { synopsisForLocale } from "@/lib/i18n-content";
 
 type MediaType = "movie" | "tv" | "game";
 
@@ -74,7 +75,7 @@ export async function generateDetailMetadata({
 
   return {
     title: `${titleForLocale(media, locale)} — MEDIA Rate`,
-    description: media.synopsis.substring(0, 160),
+      description: synopsisForLocale(media, locale).substring(0, 160),
     alternates: {
       canonical: canonicalUrl,
       languages: Object.fromEntries([
@@ -85,7 +86,7 @@ export async function generateDetailMetadata({
     robots: { index: true, follow: true },
     openGraph: {
       title: titleForLocale(media, locale),
-      description: media.synopsis.substring(0, 160),
+    description: synopsisForLocale(media, locale).substring(0, 160),
       images: media.posterUrl ? [{ url: media.posterUrl }] : [],
       url: canonicalUrl,
       locale: locale === "pt-BR" ? "pt_BR" : locale === "en-US" ? "en_US" : "es_ES",

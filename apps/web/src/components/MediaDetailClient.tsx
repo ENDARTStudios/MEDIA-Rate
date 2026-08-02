@@ -11,7 +11,7 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
-import { genreSlug, titleForLocale } from "@/lib/i18n-content";
+import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -143,7 +143,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
           </Tabs.List>
 
           <Tabs.Content value="synopsis" className="focus-visible:outline-none">
-            <SynopsisBlock synopsis={media.synopsis} />
+            <SynopsisBlock synopsis={synopsisForLocale(media, locale)} />
           </Tabs.Content>
 
           <Tabs.Content value="cast" className="focus-visible:outline-none">
