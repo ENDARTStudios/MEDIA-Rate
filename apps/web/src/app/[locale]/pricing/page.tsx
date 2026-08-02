@@ -4,7 +4,7 @@ import { PricingCards } from "../../../components/PricingCards";
 import { PricingTable } from "../../../components/PricingTable";
 import { PricingFAQ } from "../../../components/PricingFAQ";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
-import { serializeJsonLd } from "../../../lib/sanitize";
+import { serializeJsonLd } from "../../../lib/json-ld";
 
 export async function generateMetadata({
   params,

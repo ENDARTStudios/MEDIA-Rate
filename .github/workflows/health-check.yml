@@ -23,7 +23,7 @@ jobs:
       - name: Check API health
         id: api
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://api.media-rate.example.com/health || echo "000")
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://media-rate-production.up.railway.app/health || echo "000")
           echo "api_status=$RESPONSE" >> $GITHUB_OUTPUT
           if [ "$RESPONSE" != "200" ]; then
             echo "API health check FAILED: $RESPONSE"
@@ -34,7 +34,7 @@ jobs:
       - name: Check Web health
         id: web
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://media-rate.example.com || echo "000")
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://media-rate-web.vercel.app || echo "000")
           echo "web_status=$RESPONSE" >> $GITHUB_OUTPUT
           if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "307" ]; then
             echo "Web health check FAILED: $RESPONSE"
@@ -73,7 +73,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `Health Check FAILED: API=${apiStatus}, Web=${webStatus}`,
-                body: `Health check falhou em ${timestamp}.\n\n- API status: ${apiStatus}\n- Web status: ${webStatus}\n\nAcesse:\n- API: https://api.media-rate.example.com/health\n- Web: https://media-rate.example.com\n\nInvestigar logs no Railway/Vercel.`,
+                body: `Health check falhou em ${timestamp}.\n\n- API status: ${apiStatus}\n- Web status: ${webStatus}\n\nAcesse:\n- API: https://media-rate-production.up.railway.app/health\n- Web: https://media-rate-web.vercel.app\n\nInvestigar logs no Railway/Vercel.`,
                 labels: ['health-check', 'alert', 'production']
               });
             }

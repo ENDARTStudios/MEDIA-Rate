@@ -2,10 +2,11 @@
 
 import { MediaDetailPage } from "@/components/MediaDetailPage";
 import { getMediaBySlug } from "@/lib/api";
-import { serializeJsonLd } from "@/lib/sanitize";
+import { serializeJsonLd } from "@/lib/json-ld";
+import type { Media } from "@/lib/types";
 
 export function MovieDetailWrapper({ id }: { id: string }) {
-  const media = getMediaBySlug(id) as any; // sync read for metadata
+  const media = getMediaBySlug(id) as unknown as Media | null; // sync read for metadata
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "Movie",

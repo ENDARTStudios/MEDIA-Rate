@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import { MediaDetailPage } from "@/components/MediaDetailPage";
 import { getMediaBySlug } from "@/lib/api";
-import { serializeJsonLd } from "@/lib/sanitize";
+import { serializeJsonLd } from "@/lib/json-ld";
+import type { Media } from "@/lib/types";
 
 const Seasons = dynamic(
   () => import("@/components/Seasons").then((m) => ({ default: m.Seasons })),
@@ -15,7 +16,7 @@ const Episodes = dynamic(
 );
 
 export function TVDetailWrapper({ id }: { id: string }) {
-  const media = getMediaBySlug(id) as any;
+  const media = getMediaBySlug(id) as unknown as Media | null;
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "TVSeries",

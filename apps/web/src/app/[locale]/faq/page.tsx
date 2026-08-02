@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
-import { serializeJsonLd } from "@/lib/sanitize";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 
 export async function generateMetadata({

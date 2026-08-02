@@ -2,10 +2,11 @@
 
 import { MediaDetailPage } from "@/components/MediaDetailPage";
 import { getMediaBySlug } from "@/lib/api";
-import { serializeJsonLd } from "@/lib/sanitize";
+import { serializeJsonLd } from "@/lib/json-ld";
+import type { Media, StreamingService } from "@/lib/types";
 
 export function GameDetailWrapper({ id }: { id: string }) {
-  const media = getMediaBySlug(id) as any;
+  const media = getMediaBySlug(id) as unknown as Media | null;
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -14,7 +15,7 @@ export function GameDetailWrapper({ id }: { id: string }) {
     "image": media.posterUrl,
     "datePublished": String(media.year),
     "genre": media.genres?.slice(0, 3),
-    "gamePlatform": media.streaming?.map((s: any) => s.name) ?? [],
+    "gamePlatform": media.streaming?.map((s: StreamingService) => s.name) ?? [],
     "aggregateRating": media.score
       ? {
           "@type": "AggregateRating",

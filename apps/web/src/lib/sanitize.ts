@@ -1,18 +1,18 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtmlLib from "sanitize-html";
 
 /**
- * Sanitiza HTML dinâmico com DOMPurify (T5.4).
+ * Sanitiza HTML dinâmico (T5.4).
  *
  * Uso:
  *   const clean = sanitizeHtml(dirtyHtml);
  *   return <div dangerouslySetInnerHTML={{ __html: clean }} />;
  *
- * DOMPurify isomorphic: funciona em server (Node) e client (browser).
+ * sanitize-html (CJS puro, sem jsdom): funciona em server (Node) e client (browser).
  * Remove scripts, event handlers, javascript: URIs, etc.
  */
 export function sanitizeHtml(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: [
+  return sanitizeHtmlLib(dirty, {
+    allowedTags: [
       "p",
       "br",
       "strong",
@@ -33,23 +33,11 @@ export function sanitizeHtml(dirty: string): string {
       "code",
       "pre",
     ],
-    ALLOWED_ATTR: ["href", "title", "class", "target", "rel"],
-    ALLOW_DATA_ATTR: false,
+    allowedAttributes: {
+      "*": ["href", "title", "class", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
   });
-}
-
-/**
- * Serializa um objeto para JSON-LD de forma segura para uso em
- * `<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ... }}>`.
- *
- * Escapa `<` como `\u003c` para impedir que qualquer string injetada
- * (ex.: synopsis vinda da API contendo `</script>`) escape do script tag.
- */
-export function serializeJsonLd(data: unknown): string {
-  return JSON.stringify(data)
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026");
 }
 
 /**

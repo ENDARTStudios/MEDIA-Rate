@@ -1,4 +1,4 @@
-import { serializeJsonLd } from "@/lib/sanitize";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 interface StructuredDataProps {
   data: Record<string, unknown> | Record<string, unknown>[];
