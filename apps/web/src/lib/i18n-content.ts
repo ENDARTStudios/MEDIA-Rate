@@ -43,7 +43,7 @@ export function genreSlug(label: string): string {
 
 export function titleForLocale(media: { title: string; titleLocalized?: LocalizedString; id?: string; slug?: string }, locale: string): string {
   // Try seed-i18n derived map first
-  const key = (media.id ?? media.slug) as string;
+  const key = (media.slug ?? media.id) as string;
   const d = key ? SEED_I18N[key] : undefined;
   if (d?.titleLocalized) {
     const loc = locale as keyof LocalizedString;
@@ -59,7 +59,7 @@ export function titleForLocale(media: { title: string; titleLocalized?: Localize
 }
 
 export function genreSlugsFor(media: { id?: string; slug?: string; genres?: string[] }): string[] {
-  const key = (media.id ?? media.slug) as string;
+  const key = (media.slug ?? media.id) as string;
   const d = key ? SEED_I18N[key] : undefined;
   if (d?.genreSlugs?.length) return d.genreSlugs;
   // Fallback: compute from genres
