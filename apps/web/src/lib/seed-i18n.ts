@@ -84,8 +84,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "moana": {
     "titleLocalized": {
       "pt": "Moana",
-      "en": "The Odyssey",
-      "es": "La Odisea"
+      "en": "Moana",
+      "es": "Moana"
     },
     "genreSlugs": [
       "drama"
@@ -94,8 +94,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "obsess-o": {
     "titleLocalized": {
       "pt": "Obsessão",
-      "en": "The Silence of the Lambs",
-      "es": "El Silencio de los Corderos"
+      "en": "Obsessão",
+      "es": "Obsessão"
     },
     "genreSlugs": [
       "drama"
@@ -114,8 +114,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "supergirl": {
     "titleLocalized": {
       "pt": "Supergirl",
-      "en": "Titanic",
-      "es": "Titanic"
+      "en": "Supergirl",
+      "es": "Supergirl"
     },
     "genreSlugs": [
       "drama"
@@ -124,8 +124,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "mestres-do-universo": {
     "titleLocalized": {
       "pt": "Mestres do Universo",
-      "en": "Fight Club",
-      "es": "El Club de la Lucha"
+      "en": "Mestres do Universo",
+      "es": "Mestres do Universo"
     },
     "genreSlugs": [
       "drama"
@@ -144,8 +144,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "toy-story-5": {
     "titleLocalized": {
       "pt": "Toy Story 5",
-      "en": "The Sixth Sense",
-      "es": "El Sexto Sentido"
+      "en": "Toy Story 5",
+      "es": "Toy Story 5"
     },
     "genreSlugs": [
       "drama"
@@ -184,8 +184,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "star-wars-o-mandaloriano-e-grogu": {
     "titleLocalized": {
       "pt": "Star Wars: O Mandaloriano e Grogu",
-      "en": "Star Wars: O Mandaloriano e Grogu",
-      "es": "Star Wars: O Mandaloriano e Grogu"
+      "en": "Star Wars: The Mandalorian and Grogu",
+      "es": "Star Wars: El Mandaloriano y Grogu"
     },
     "genreSlugs": [
       "drama"
@@ -194,8 +194,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "homem-aranha-um-novo-dia": {
     "titleLocalized": {
       "pt": "Homem-Aranha: Um Novo Dia",
-      "en": "Homem-Aranha: Um Novo Dia",
-      "es": "Homem-Aranha: Um Novo Dia"
+      "en": "Spider-Man: Brand New Day",
+      "es": "Spider-Man: Un Nuevo Dia"
     },
     "genreSlugs": [
       "drama"
@@ -294,8 +294,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "passageiro-do-mal": {
     "titleLocalized": {
       "pt": "Passageiro do Mal",
-      "en": "Passageiro do Mal",
-      "es": "Passageiro do Mal"
+      "en": "Evil Passenger",
+      "es": "Pasajero del Mal"
     },
     "genreSlugs": [
       "drama"
@@ -344,8 +344,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "avatar-fogo-e-cinzas": {
     "titleLocalized": {
       "pt": "Avatar: Fogo e Cinzas",
-      "en": "Avatar: Fogo e Cinzas",
-      "es": "Avatar: Fogo e Cinzas"
+      "en": "Avatar: Fire and Ashes",
+      "es": "Avatar: Fuego y Cenizas"
     },
     "genreSlugs": [
       "drama"
@@ -364,8 +364,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "super-mario-galaxy-o-filme": {
     "titleLocalized": {
       "pt": "Super Mario Galaxy: O Filme",
-      "en": "Super Mario Galaxy: O Filme",
-      "es": "Super Mario Galaxy: O Filme"
+      "en": "Super Mario Galaxy",
+      "es": "Super Mario Galaxy"
     },
     "genreSlugs": [
       "drama"
@@ -374,8 +374,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "vingadores-doutor-destino": {
     "titleLocalized": {
       "pt": "Vingadores: Doutor Destino",
-      "en": "Vingadores: Doutor Destino",
-      "es": "Vingadores: Doutor Destino"
+      "en": "Avengers: Doomsday",
+      "es": "Vengadores: Doomsday"
     },
     "genreSlugs": [
       "drama"
@@ -424,8 +424,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "demon-slayer-kimetsu-no-yaiba-castelo-infinito": {
     "titleLocalized": {
       "pt": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
-      "en": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
-      "es": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito"
+      "en": "Demon Slayer: Infinity Castle",
+      "es": "Demon Slayer: Castillo Infinito"
     },
     "genreSlugs": [
       "drama"
@@ -434,8 +434,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "homem-aranha-sem-volta-para-casa": {
     "titleLocalized": {
       "pt": "Homem-Aranha: Sem Volta Para Casa",
-      "en": "Homem-Aranha: Sem Volta Para Casa",
-      "es": "Homem-Aranha: Sem Volta Para Casa"
+      "en": "Spider-Man: No Way Home",
+      "es": "Spider-Man: No Way Home"
     },
     "genreSlugs": [
       "drama"
@@ -484,8 +484,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "vixen": {
     "titleLocalized": {
       "pt": "Vixen!",
-      "en": "Vixen!",
-      "es": "Vixen!"
+      "en": "Vixen",
+      "es": "Vixen"
     },
     "genreSlugs": [
       "drama"
@@ -534,8 +534,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "a-casa-do-drag-o": {
     "titleLocalized": {
       "pt": "A Casa do Dragão",
-      "en": "A Casa do Dragão",
-      "es": "A Casa do Dragão"
+      "en": "House of the Dragon",
+      "es": "La Casa del Dragon"
     },
     "genreSlugs": [
       "drama"
@@ -554,8 +554,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "rote-rosen": {
     "titleLocalized": {
       "pt": "Rote Rosen",
-      "en": "Contact",
-      "es": "Contacto"
+      "en": "Rote Rosen",
+      "es": "Rote Rosen"
     },
     "genreSlugs": [
       "drama"
@@ -564,8 +564,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-mentalista": {
     "titleLocalized": {
       "pt": "O Mentalista",
-      "en": "Gladiator",
-      "es": "Gladiador"
+      "en": "O Mentalista",
+      "es": "O Mentalista"
     },
     "genreSlugs": [
       "drama"
@@ -584,8 +584,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "lei-ordem": {
     "titleLocalized": {
       "pt": "Lei & Ordem",
-      "en": "The Matrix",
-      "es": "Matrix"
+      "en": "Lei & Ordem",
+      "es": "Lei & Ordem"
     },
     "genreSlugs": [
       "drama"
@@ -594,8 +594,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-novato": {
     "titleLocalized": {
       "pt": "O Novato",
-      "en": "Blade Runner",
-      "es": "Blade Runner"
+      "en": "O Novato",
+      "es": "O Novato"
     },
     "genreSlugs": [
       "drama"
@@ -625,7 +625,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Supernatural",
       "en": "Supernatural",
-      "es": "Supernatural"
+      "es": "Sobrenatural"
     },
     "genreSlugs": [
       "drama"
@@ -645,7 +645,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Grey's Anatomy",
       "en": "Grey's Anatomy",
-      "es": "Grey's Anatomy"
+      "es": "Anatomia de Grey"
     },
     "genreSlugs": [
       "drama"
@@ -654,8 +654,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "rick-e-morty": {
     "titleLocalized": {
       "pt": "Rick e Morty",
-      "en": "Rick e Morty",
-      "es": "Rick e Morty"
+      "en": "Rick and Morty",
+      "es": "Rick y Morty"
     },
     "genreSlugs": [
       "drama"
@@ -675,7 +675,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Paradise Hotel",
       "en": "Paradise Hotel",
-      "es": "Paradise Hotel"
+      "es": "Hotel Paraiso"
     },
     "genreSlugs": [
       "drama"
