@@ -84,8 +84,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "moana": {
     "titleLocalized": {
       "pt": "Moana",
-      "en": "Moana",
-      "es": "Moana"
+      "en": "The Odyssey",
+      "es": "La Odisea"
     },
     "genreSlugs": [
       "drama"
@@ -94,8 +94,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "obsess-o": {
     "titleLocalized": {
       "pt": "Obsessão",
-      "en": "Obsessão",
-      "es": "Obsessão"
+      "en": "The Silence of the Lambs",
+      "es": "El Silencio de los Corderos"
     },
     "genreSlugs": [
       "drama"
@@ -114,8 +114,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "supergirl": {
     "titleLocalized": {
       "pt": "Supergirl",
-      "en": "Supergirl",
-      "es": "Supergirl"
+      "en": "Titanic",
+      "es": "Titanic"
     },
     "genreSlugs": [
       "drama"
@@ -124,8 +124,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "mestres-do-universo": {
     "titleLocalized": {
       "pt": "Mestres do Universo",
-      "en": "Mestres do Universo",
-      "es": "Mestres do Universo"
+      "en": "Fight Club",
+      "es": "El Club de la Lucha"
     },
     "genreSlugs": [
       "drama"
@@ -144,8 +144,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "toy-story-5": {
     "titleLocalized": {
       "pt": "Toy Story 5",
-      "en": "Toy Story 5",
-      "es": "Toy Story 5"
+      "en": "The Sixth Sense",
+      "es": "El Sexto Sentido"
     },
     "genreSlugs": [
       "drama"
@@ -554,8 +554,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "rote-rosen": {
     "titleLocalized": {
       "pt": "Rote Rosen",
-      "en": "Rote Rosen",
-      "es": "Rote Rosen"
+      "en": "Contact",
+      "es": "Contacto"
     },
     "genreSlugs": [
       "drama"
@@ -564,8 +564,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-mentalista": {
     "titleLocalized": {
       "pt": "O Mentalista",
-      "en": "O Mentalista",
-      "es": "O Mentalista"
+      "en": "Gladiator",
+      "es": "Gladiador"
     },
     "genreSlugs": [
       "drama"
@@ -584,8 +584,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "lei-ordem": {
     "titleLocalized": {
       "pt": "Lei & Ordem",
-      "en": "Lei & Ordem",
-      "es": "Lei & Ordem"
+      "en": "The Matrix",
+      "es": "Matrix"
     },
     "genreSlugs": [
       "drama"
@@ -594,8 +594,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-novato": {
     "titleLocalized": {
       "pt": "O Novato",
-      "en": "O Novato",
-      "es": "O Novato"
+      "en": "Blade Runner",
+      "es": "Blade Runner"
     },
     "genreSlugs": [
       "drama"

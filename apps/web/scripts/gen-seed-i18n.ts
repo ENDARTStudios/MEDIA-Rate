@@ -92,7 +92,19 @@ const T: Record<string,{en:string;es:string}> = {
 function canonicalKey(e) { return (e.slug||String(e.id)) as string; }
 
 function main() {
-  const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {"a-odisseia":{"en":"The Odyssey","es":"La Odisea"},"dia-d":{"en":"D-Day","es":"D-Day"},"contato":{"en":"Contact","es":"Contacto"},"matrix":{"en":"The Matrix","es":"Matrix"},"blade-runner":{"en":"Blade Runner","es":"Blade Runner"},"gladiador":{"en":"Gladiator","es":"Gladiador"},"jurassic-park":{"en":"Jurassic Park","es":"Parque Jurásico"},"titanic":{"en":"Titanic","es":"Titanic"},"harry-potter-e-a-pedra-filosofal":{"en":"Harry Potter and the Philosopher's Stone","es":"Harry Potter y la Piedra Filosofal"},"toy-story":{"en":"Toy Story","es":"Toy Story"},"procurando-nemo":{"en":"Finding Nemo","es":"Buscando a Nemo"},"os-incriveis":{"en":"The Incredibles","es":"Los Increíbles"},"vingadores-ultimato":{"en":"Avengers: Endgame","es":"Vengadores: Endgame"},"pantera-negra":{"en":"Black Panther","es":"Pantera Negra"},"o-exterminador-do-futuro":{"en":"The Terminator","es":"El Exterminador"},"de-volta-para-o-futuro":{"en":"Back to the Future","es":"Volver al Futuro"},"clube-da-luta":{"en":"Fight Club","es":"El Club de la Lucha"},"o-sexto-sentido":{"en":"The Sixth Sense","es":"El Sexto Sentido"},"o-silencio-dos-inocentes":{"en":"The Silence of the Lambs","es":"El Silencio de los Corderos"},"um-sonho-de-liberdade":{"en":"The Shawshank Redemption","es":"Cadena Perpetua"}};
+  const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "1084244":{en:"The Sixth Sense",es:"El Sexto Sentido"},
+  "1339713":{en:"The Silence of the Lambs",es:"El Silencio de los Corderos"},
+  
+  "1275779":{en:"D-Day",es:"D-Day"},
+  "27181":{en:"Contact",es:"Contacto"},
+  "5920":{en:"Gladiator",es:"Gladiador"},
+  "549":{en:"The Matrix",es:"Matrix"},
+  "79744":{en:"Blade Runner",es:"Blade Runner"},
+  "1108427":{en:"The Odyssey",es:"La Odisea"},
+  "1081003":{en:"Titanic",es:"Titanic"},
+  "454639":{en:"Fight Club",es:"El Club de la Lucha"},
+  "a-odisseia":{"en":"The Odyssey","es":"La Odisea"},"dia-d":{"en":"D-Day","es":"D-Day"},"contato":{"en":"Contact","es":"Contacto"},"matrix":{"en":"The Matrix","es":"Matrix"},"blade-runner":{"en":"Blade Runner","es":"Blade Runner"},"gladiador":{"en":"Gladiator","es":"Gladiador"},"jurassic-park":{"en":"Jurassic Park","es":"Parque Jurásico"},"titanic":{"en":"Titanic","es":"Titanic"},"harry-potter-e-a-pedra-filosofal":{"en":"Harry Potter and the Philosopher's Stone","es":"Harry Potter y la Piedra Filosofal"},"toy-story":{"en":"Toy Story","es":"Toy Story"},"procurando-nemo":{"en":"Finding Nemo","es":"Buscando a Nemo"},"os-incriveis":{"en":"The Incredibles","es":"Los Increíbles"},"vingadores-ultimato":{"en":"Avengers: Endgame","es":"Vengadores: Endgame"},"pantera-negra":{"en":"Black Panther","es":"Pantera Negra"},"o-exterminador-do-futuro":{"en":"The Terminator","es":"El Exterminador"},"de-volta-para-o-futuro":{"en":"Back to the Future","es":"Volver al Futuro"},"clube-da-luta":{"en":"Fight Club","es":"El Club de la Lucha"},"o-sexto-sentido":{"en":"The Sixth Sense","es":"El Sexto Sentido"},"o-silencio-dos-inocentes":{"en":"The Silence of the Lambs","es":"El Silencio de los Corderos"},"um-sonho-de-liberdade":{"en":"The Shawshank Redemption","es":"Cadena Perpetua"}};
   const outPath = path.resolve(__dirname,"..","src","lib","seed-i18n.ts");
   const gMap = (ptBR as any).genres as Record<string,string>;
   const all = [...(SEED_MEDIA as any[]),...(MOCK_MEDIA as any[])];
@@ -105,7 +117,7 @@ function main() {
     const id = canonicalKey(e);
     if (!id) continue; total++;
     const ptTitle = (e.title as string)||"";
-    const slugKey = (e.slug||"") as string; const cached = TRANSLATIONS_BY_ID[slugKey]; const tr = T[ptTitle] || (cached as any);
+    const slugKey2 = (e.slug||"") as string; const numId = String(e.id||""); const cached = TRANSLATIONS_BY_ID[slugKey2] || TRANSLATIONS_BY_ID[numId]; const tr = T[ptTitle] || (cached as any) || TRANSLATIONS_BY_ID[numId];
     const enTitle = tr?.en || (TITLE_IDENTICAL_WHITELIST.has(id) ? ptTitle : ptTitle);
     const esTitle = tr?.es || (TITLE_IDENTICAL_WHITELIST.has(ptTitle) ? ptTitle : (tr?.en || ptTitle));
     if (!ptTitle||!enTitle||!esTitle) { empty++; continue; }
