@@ -12,8 +12,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.",
-      "en": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão.",
-      "es": "Em uma sociedade totalitária, Winston Smith luta para manter sua humanidade sob o olhar do Grande Irmão."
+      "en": "In a totalitarian surveillance state, Winston Smith struggles to maintain his humanity and forbidden love under the watchful eye of Big Brother.",
+      "es": "En un estado totalitario de vigilancia, Winston Smith lucha por mantener su humanidad y un amor prohibido bajo la mirada vigilante del Gran Hermano."
     }
   },
   "237020": {
@@ -154,16 +154,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "backrooms-um-n-o-lugar": {
     "titleLocalized": {
       "pt": "Backrooms: Um Não-Lugar",
-      "en": "Backrooms: Um Não-Lugar",
-      "es": "Backrooms: Um Não-Lugar"
+      "en": "Backrooms: A Non-Place",
+      "es": "Backrooms: Un No-Lugar"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m",
-      "en": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m",
-      "es": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m"
+      "en": "A group of explorers discovers an endless maze of empty yellow rooms existing beyond reality, where the laws of physics no longer apply and something lurks in the silence.",
+      "es": "Un grupo de exploradores descubre un laberinto interminable de habitaciones amarillas vacías que existen más allá de la realidad, donde las leyes de la física ya no se aplican y algo acecha en el silencio."
     }
   },
   "supergirl": {
@@ -679,16 +679,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "avatar-aang-o-ltimo-mestre-do-ar": {
     "titleLocalized": {
       "pt": "Avatar Aang: O Último Mestre do Ar",
-      "en": "Avatar Aang: O Último Mestre do Ar",
-      "es": "Avatar Aang: O Último Mestre do Ar"
+      "en": "Avatar Aang: The Last Airbender",
+      "es": "Avatar Aang: El Ultimo Maestro del Aire"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
-      "en": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
-      "es": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr"
+      "en": "Aang, the last Airbender and the Avatar, must master all four elements to end the Fire Nation's war and restore balance to the world.",
+      "es": "Aang, el último Maestro del Aire y el Avatar, debe dominar los cuatro elementos para detener la guerra de la Nación del Fuego y restaurar el equilibrio del mundo."
     }
   },
   "interestelar": {
@@ -927,8 +927,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
-      "en": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
-      "es": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re"
+      "en": "In a dystopian future, the last ten thousand people on Earth live in a giant underground silo, where a sheriff investigates a murder and uncovers the truth about their confined world.",
+      "es": "En un futuro distópico, los últimos diez mil habitantes de la Tierra viven en un silo subterráneo gigante, donde un sheriff investiga un asesinato y descubre la verdad sobre su mundo confinado."
     }
   },
   "supernatural": {
@@ -949,16 +949,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "origem": {
     "titleLocalized": {
       "pt": "Origem",
-      "en": "Origem",
-      "es": "Origem"
+      "en": "Origin",
+      "es": "Origen"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
-      "en": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
-      "es": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur"
+      "en": "A scientist makes a discovery that challenges the boundaries between science and faith, forcing humanity to reconsider its deepest beliefs about where we come from.",
+      "es": "Un científico hace un descubrimiento que desafía los límites entre ciencia y fe, obligando a la humanidad a reconsiderar sus creencias más profundas sobre nuestro origen."
     }
   },
   "grey-s-anatomy": {
@@ -1079,8 +1079,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria.",
-      "en": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria.",
-      "es": "Yuji Itadori engole um dedo amaldiçoado e se torna hospedeiro de Sukuna, o Rei das Maldições, entrando no mundo da feitiçaria."
+      "en": "A high school student swallows a cursed finger and becomes entangled in the world of sorcerers and curses, training to protect the innocent from supernatural threats.",
+      "es": "Un estudiante traga un dedo maldito y se ve envuelto en el mundo de los hechiceros y las maldiciones, entrenando para proteger a los inocentes de amenazas sobrenaturales."
     }
   },
   "frieren": {
@@ -1113,8 +1113,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados.",
-      "en": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados.",
-      "es": "Gon Freecss descobre que seu pai é um Hunter lendário e decide seguir seus passos, enfrentando desafios e fazendo aliados."
+      "en": "A young boy sets out to become a Hunter and find his missing father, making friends and facing deadly challenges in a world of extraordinary adventures.",
+      "es": "Un joven emprende el camino para convertirse en Cazador y encontrar a su padre desaparecido, haciendo amigos y enfrentando desafíos mortales en un mundo de aventuras extraordinarias."
     }
   },
   "bleach": {
@@ -1130,15 +1130,15 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society.",
-      "en": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society.",
-      "es": "Ichigo Kurosaki ganha poderes de Shinigami e deve proteger os vivos de espíritos malignos enquanto navega pela Soul Society."
+      "en": "A teenager gains the powers of a Soul Reaper and must protect the living world from evil spirits while navigating the complex politics of the Soul Society.",
+      "es": "Un adolescente obtiene los poderes de un Shinigami y debe proteger el mundo de los vivos de los espíritus malignos mientras navega por la compleja política de la Sociedad de Almas."
     }
   },
   "re-zero": {
     "titleLocalized": {
       "pt": "Re:ZERO - Starting Life in Another World",
-      "en": "Re:ZERO - Starting Life in Another World",
-      "es": "Re:ZERO - Starting Life in Another World"
+      "en": "Re:Zero",
+      "es": "Re:Zero"
     },
     "genreSlugs": [
       "fantasia",
@@ -1147,8 +1147,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento.",
-      "en": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento.",
-      "es": "Subaru Natsuki é transportado para um mundo de fantasia e descobre que revive após a morte, enfrentando ciclos de sofrimento."
+      "en": "A young man is transported to a fantasy world and discovers he has the ability to return to a save point upon death, forcing him to relive traumatic events to protect those he loves.",
+      "es": "Un joven es transportado a un mundo de fantasía y descubre que tiene la capacidad de volver a un punto de guardado al morir, obligándolo a revivir eventos traumáticos para proteger a quienes ama."
     }
   },
   "detetive-conan": {
@@ -1171,8 +1171,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "pokemon": {
     "titleLocalized": {
       "pt": "Pokémon",
-      "en": "Pokémon",
-      "es": "Pokémon"
+      "en": "Pokemon",
+      "es": "Pokemon"
     },
     "genreSlugs": [
       "aventura",
@@ -1181,8 +1181,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon.",
-      "en": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon.",
-      "es": "Ash Ketchum viaja pelo mundo capturando e treinando Pokémon para se tornar um Mestre Pokémon."
+      "en": "A young trainer journeys across regions to catch, train, and battle creatures called Pokemon, aiming to become the greatest Pokemon Master in the world.",
+      "es": "Un joven entrenador viaja por regiones para capturar, entrenar y luchar con criaturas llamadas Pokemon, con el objetivo de convertirse en el mejor Maestro Pokemon del mundo."
     }
   },
   "mushoku-tensei": {
@@ -1205,8 +1205,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "doraemon": {
     "titleLocalized": {
       "pt": "Doraemon: O Gato do Futuro",
-      "en": "Doraemon: O Gato do Futuro",
-      "es": "Doraemon: O Gato do Futuro"
+      "en": "Doraemon",
+      "es": "Doraemon"
     },
     "genreSlugs": [
       "comedia",
@@ -1215,8 +1215,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas.",
-      "en": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas.",
-      "es": "Doraemon, um gato robótico do século XXII, viaja ao passado para ajudar Nobita com seus gadgets futuristas."
+      "en": "A robotic cat from the 22nd century travels back in time to help a young boy navigate the challenges of childhood using futuristic gadgets from his magical pocket.",
+      "es": "Un gato robótico del siglo XXII viaja al pasado para ayudar a un niño a navegar los desafíos de la infancia usando gadgets futuristas de su bolsillo mágico."
     }
   },
   "one-piece": {
@@ -1292,8 +1292,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "god-of-war-ragnarok": {
     "titleLocalized": {
       "pt": "God of War Ragnarök",
-      "en": "God of War Ragnarök",
-      "es": "God of War Ragnarök"
+      "en": "God of War: Ragnarok",
+      "es": "God of War: Ragnarok"
     },
     "genreSlugs": [
       "acao",
@@ -1302,8 +1302,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.",
-      "en": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica.",
-      "es": "Kratos e Atreus enfrentam o Ragnarök nos Nove Reinos da mitologia nórdica."
+      "en": "Kratos and his son Atreus journey through the Nine Realms as Ragnarok approaches, facing Norse gods and monsters in an epic conclusion to the Norse saga.",
+      "es": "Kratos y su hijo Atreus viajan por los Nueve Reinos mientras se acerca el Ragnarok, enfrentando dioses y monstruos nórdicos en una conclusión épica de la saga nórdica."
     }
   },
   "red-dead-redemption-2": {
@@ -1320,8 +1320,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.",
-      "en": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano.",
-      "es": "Arthur Morgan e a gangue Van der Linde lutam pela sobrevivência no oeste americano."
+      "en": "Arthur Morgan and the Van der Linde gang are on the run from the law in America's fading Wild West, grappling with loyalty, survival, and the end of an era.",
+      "es": "Arthur Morgan y la banda Van der Linde huyen de la ley en el ocaso del Salvaje Oeste americano, lidiando con la lealtad, la supervivencia y el fin de una era."
     }
   },
   "the-witcher-3": {
@@ -1338,8 +1338,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.",
-      "en": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem.",
-      "es": "Geralt de Rívia busca sua filha adotiva Ciri enquanto enfrenta a invasão da Caçada Selvagem."
+      "en": "Geralt of Rivia, a monster hunter for hire, searches for his adopted daughter while navigating a war-torn world and confronting an otherworldly threat.",
+      "es": "Geralt de Rivia, un cazador de monstruos a sueldo, busca a su hija adoptiva mientras navega por un mundo devastado por la guerra y enfrenta una amenaza sobrenatural."
     }
   },
   "minecraft": {
@@ -1381,7 +1381,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "duna": {
     "titleLocalized": {
       "pt": "Duna",
-      "en": "Duna",
+      "en": "Dune",
       "es": "Duna"
     },
     "genreSlugs": [
@@ -1392,8 +1392,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.",
-      "en": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach.",
-      "es": "Paul Atreides deve sobreviver no planeta deserto Arrakis e abraçar seu destino como Kwisatz Haderach."
+      "en": "Paul Atreides travels to the desert planet Arrakis, where his family controls the universe's most valuable substance, and a destiny greater than he can imagine awaits.",
+      "es": "Paul Atreides viaja al planeta desértico Arrakis, donde su familia controla la sustancia más valiosa del universo, y le espera un destino más grande de lo que puede imaginar."
     }
   },
   "neuromancer": {
@@ -1416,8 +1416,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "cem-anos-de-solidao": {
     "titleLocalized": {
       "pt": "Cem Anos de Solidão",
-      "en": "Cem Anos de Solidão",
-      "es": "Cem Anos de Solidão"
+      "en": "One Hundred Years of Solitude",
+      "es": "Cien Anos de Soledad"
     },
     "genreSlugs": [
       "realismomagico",
@@ -1427,15 +1427,15 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana.",
-      "en": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana.",
-      "es": "A saga da família Buendía em Macondo, entrelaçando realismo mágico com a história latino-americana."
+      "en": "The multi-generational saga of the Buendia family in the mythical town of Macondo, weaving magical realism with the history of Latin America.",
+      "es": "La saga multigeneracional de la familia Buendía en el mítico pueblo de Macondo, entrelazando realismo mágico con la historia de América Latina."
     }
   },
   "o-hobbit": {
     "titleLocalized": {
       "pt": "O Hobbit",
-      "en": "O Hobbit",
-      "es": "O Hobbit"
+      "en": "The Hobbit",
+      "es": "El Hobbit"
     },
     "genreSlugs": [
       "fantasia",
@@ -1444,8 +1444,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor.",
-      "en": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor.",
-      "es": "Bilbo Bolseiro embarca em uma jornada épica com 13 anões para recuperar o tesouro de Erebor."
+      "en": "Bilbo Baggins is swept into an epic quest to reclaim the lost Dwarf kingdom of Erebor from the fearsome dragon Smaug, discovering courage he never knew he had.",
+      "es": "Bilbo Bolsón se ve arrastrado a una búsqueda épica para recuperar el reino enano perdido de Erebor del temible dragón Smaug, descubriendo un coraje que nunca supo que tenía."
     }
   },
   "o-guia-do-mochileiro": {
@@ -1479,8 +1479,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados.",
-      "en": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados.",
-      "es": "Quem vigia os vigilantes? Uma investigação de assassinato revela segredos sombrios sobre heróis aposentados."
+      "en": "In an alternate 1985 where superheroes exist, a murder investigation unravels a conspiracy that forces retired heroes to confront their past and the nature of power.",
+      "es": "En un 1985 alternativo donde existen los superhéroes, una investigación de asesinato revela una conspiración que obliga a héroes retirados a confrontar su pasado y la naturaleza del poder."
     }
   },
   "sandman": {
@@ -1551,15 +1551,15 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha.",
-      "en": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha.",
-      "es": "Em um mundo onde super-heróis são celebridades corruptas, um grupo financiado pela CIA os mantém na linha."
+      "en": "A group of vigilantes sets out to take down corrupt superheroes who abuse their powers, exposing the dark side of fame and corporate-controlled heroism.",
+      "es": "Un grupo de justicieros se propone derribar a superhéroes corruptos que abusan de sus poderes, exponiendo el lado oscuro de la fama y el heroísmo controlado por corporaciones."
     }
   },
   "invincible": {
     "titleLocalized": {
       "pt": "Invincible",
       "en": "Invincible",
-      "es": "Invincible"
+      "es": "Invencible"
     },
     "genreSlugs": [
       "superheroi",
@@ -1569,8 +1569,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser.",
-      "en": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser.",
-      "es": "Mark Grayson descobre seus poderes e que seu pai herói não é quem parece ser."
+      "en": "A teenager inherits his father's superhuman powers and discovers that being a hero comes with brutal consequences and devastating family secrets.",
+      "es": "Un adolescente hereda los poderes sobrehumanos de su padre y descubre que ser un héroe conlleva consecuencias brutales y secretos familiares devastadores."
     }
   }
 };
