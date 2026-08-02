@@ -1,262 +1,14 @@
 export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = {
-  "278": {
+  "1984": {
     "titleLocalized": {
-      "pt": "Um Sonho de Liberdade",
-      "en": "The Shawshank Redemption",
-      "es": "Cadena Perpetua"
+      "pt": "1984",
+      "en": "1984",
+      "es": "1984"
     },
     "genreSlugs": [
-      "drama"
-    ]
-  },
-  "549": {
-    "titleLocalized": {
-      "pt": "Lei & Ordem",
-      "en": "Lei & Ordem",
-      "es": "Lei & Ordem"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1416": {
-    "titleLocalized": {
-      "pt": "Grey's Anatomy",
-      "en": "Grey's Anatomy",
-      "es": "Grey's Anatomy"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1622": {
-    "titleLocalized": {
-      "pt": "Supernatural",
-      "en": "Supernatural",
-      "es": "Supernatural"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "2734": {
-    "titleLocalized": {
-      "pt": "Lei & Ordem: Unidade de Vítimas Especiais",
-      "en": "Lei & Ordem: Unidade de Vítimas Especiais",
-      "es": "Lei & Ordem: Unidade de Vítimas Especiais"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "5721": {
-    "titleLocalized": {
-      "pt": "Vixen!",
-      "en": "Vixen!",
-      "es": "Vixen!"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "5920": {
-    "titleLocalized": {
-      "pt": "O Mentalista",
-      "en": "O Mentalista",
-      "es": "O Mentalista"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "22980": {
-    "titleLocalized": {
-      "pt": "Watch What Happens Live with Andy Cohen",
-      "en": "Watch What Happens Live with Andy Cohen",
-      "es": "Watch What Happens Live with Andy Cohen"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "27181": {
-    "titleLocalized": {
-      "pt": "Rote Rosen",
-      "en": "Rote Rosen",
-      "es": "Rote Rosen"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "47612": {
-    "titleLocalized": {
-      "pt": "Au Bonheur des Dames",
-      "en": "Au Bonheur des Dames",
-      "es": "Au Bonheur des Dames"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "51025": {
-    "titleLocalized": {
-      "pt": "Paradise Hotel",
-      "en": "Paradise Hotel",
-      "es": "Paradise Hotel"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "60625": {
-    "titleLocalized": {
-      "pt": "Rick e Morty",
-      "en": "Rick e Morty",
-      "es": "Rick e Morty"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "63770": {
-    "titleLocalized": {
-      "pt": "The Late Show with Stephen Colbert",
-      "en": "The Late Show with Stephen Colbert",
-      "es": "The Late Show with Stephen Colbert"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "64439": {
-    "titleLocalized": {
-      "pt": "Une flamme dans mon cœur",
-      "en": "Une flamme dans mon cœur",
-      "es": "Une flamme dans mon cœur"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "79744": {
-    "titleLocalized": {
-      "pt": "O Novato",
-      "en": "O Novato",
-      "es": "O Novato"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "83533": {
-    "titleLocalized": {
-      "pt": "Avatar: Fogo e Cinzas",
-      "en": "Avatar: Fogo e Cinzas",
-      "es": "Avatar: Fogo e Cinzas"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "94722": {
-    "titleLocalized": {
-      "pt": "Tagesschau",
-      "en": "Tagesschau",
-      "es": "Tagesschau"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "94997": {
-    "titleLocalized": {
-      "pt": "A Casa do Dragão",
-      "en": "A Casa do Dragão",
-      "es": "A Casa do Dragão"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "113266": {
-    "titleLocalized": {
-      "pt": "Kaatelal & Sons",
-      "en": "Kaatelal & Sons",
-      "es": "Kaatelal & Sons"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "124364": {
-    "titleLocalized": {
-      "pt": "Origem",
-      "en": "Origem",
-      "es": "Origem"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "125988": {
-    "titleLocalized": {
-      "pt": "Silo",
-      "en": "Silo",
-      "es": "Silo"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "157336": {
-    "titleLocalized": {
-      "pt": "Interestelar",
-      "en": "Interstellar",
-      "es": "Interestelar"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "200066": {
-    "titleLocalized": {
-      "pt": "Il frullo del passero",
-      "en": "Il frullo del passero",
-      "es": "Il frullo del passero"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "204269": {
-    "titleLocalized": {
-      "pt": "Mori no Kuma-san, Toumin-chuu.",
-      "en": "Mori no Kuma-san, Toumin-chuu.",
-      "es": "Mori no Kuma-san, Toumin-chuu."
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "206559": {
-    "titleLocalized": {
-      "pt": "Binnelanders",
-      "en": "Binnelanders",
-      "es": "Binnelanders"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "233643": {
-    "titleLocalized": {
-      "pt": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
-      "en": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
-      "es": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!"
-    },
-    "genreSlugs": [
-      "drama"
+      "ficcao",
+      "distopia",
+      "classico"
     ]
   },
   "237020": {
@@ -279,221 +31,11 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "454639": {
-    "titleLocalized": {
-      "pt": "Mestres do Universo",
-      "en": "Mestres do Universo",
-      "es": "Mestres do Universo"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "634649": {
-    "titleLocalized": {
-      "pt": "Homem-Aranha: Sem Volta Para Casa",
-      "en": "Homem-Aranha: Sem Volta Para Casa",
-      "es": "Homem-Aranha: Sem Volta Para Casa"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "687163": {
-    "titleLocalized": {
-      "pt": "Devoradores de Estrelas",
-      "en": "Devoradores de Estrelas",
-      "es": "Devoradores de Estrelas"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "931285": {
-    "titleLocalized": {
-      "pt": "Mortal Kombat 2",
-      "en": "Mortal Kombat 2",
-      "es": "Mortal Kombat 2"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "936075": {
-    "titleLocalized": {
-      "pt": "Michael",
-      "en": "Michael",
-      "es": "Michael"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "969681": {
-    "titleLocalized": {
-      "pt": "Homem-Aranha: Um Novo Dia",
-      "en": "Homem-Aranha: Um Novo Dia",
-      "es": "Homem-Aranha: Um Novo Dia"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "976912": {
-    "titleLocalized": {
-      "pt": "O Limite do Prazer",
-      "en": "O Limite do Prazer",
-      "es": "O Limite do Prazer"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "980431": {
-    "titleLocalized": {
-      "pt": "Avatar Aang: O Último Mestre do Ar",
-      "en": "Avatar Aang: O Último Mestre do Ar",
-      "es": "Avatar Aang: O Último Mestre do Ar"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1003596": {
-    "titleLocalized": {
-      "pt": "Vingadores: Doutor Destino",
-      "en": "Vingadores: Doutor Destino",
-      "es": "Vingadores: Doutor Destino"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1081003": {
-    "titleLocalized": {
-      "pt": "Supergirl",
-      "en": "Supergirl",
-      "es": "Supergirl"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1083381": {
-    "titleLocalized": {
-      "pt": "Backrooms: Um Não-Lugar",
-      "en": "Backrooms: Um Não-Lugar",
-      "es": "Backrooms: Um Não-Lugar"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1084244": {
-    "titleLocalized": {
-      "pt": "Toy Story 5",
-      "en": "Toy Story 5",
-      "es": "Toy Story 5"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1108427": {
-    "titleLocalized": {
-      "pt": "Moana",
-      "en": "Moana",
-      "es": "Moana"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1110034": {
-    "titleLocalized": {
-      "pt": "Kraken",
-      "en": "Kraken",
-      "es": "Kraken"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1127384": {
-    "titleLocalized": {
-      "pt": "Águas Mortais",
-      "en": "Águas Mortais",
-      "es": "Águas Mortais"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1226863": {
-    "titleLocalized": {
-      "pt": "Super Mario Galaxy: O Filme",
-      "en": "Super Mario Galaxy: O Filme",
-      "es": "Super Mario Galaxy: O Filme"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1228710": {
-    "titleLocalized": {
-      "pt": "Star Wars: O Mandaloriano e Grogu",
-      "en": "Star Wars: O Mandaloriano e Grogu",
-      "es": "Star Wars: O Mandaloriano e Grogu"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
   "1235877": {
     "titleLocalized": {
       "pt": "ஜன நாயகன்",
       "en": "ஜன நாயகன்",
       "es": "ஜன நாயகன்"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1273221": {
-    "titleLocalized": {
-      "pt": "Todo Mundo em Pânico",
-      "en": "Todo Mundo em Pânico",
-      "es": "Todo Mundo em Pânico"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1275779": {
-    "titleLocalized": {
-      "pt": "Dia D",
-      "en": "D-Day",
-      "es": "D-Day"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1280738": {
-    "titleLocalized": {
-      "pt": "The Furious",
-      "en": "The Furious",
-      "es": "The Furious"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1284465": {
-    "titleLocalized": {
-      "pt": "A Morte de Robin Hood",
-      "en": "A Morte de Robin Hood",
-      "es": "A Morte de Robin Hood"
     },
     "genreSlugs": [
       "drama"
@@ -509,126 +51,6 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "1301421": {
-    "titleLocalized": {
-      "pt": "As Ovelhas Detetives",
-      "en": "As Ovelhas Detetives",
-      "es": "As Ovelhas Detetives"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1304313": {
-    "titleLocalized": {
-      "pt": "Maldição da Múmia",
-      "en": "Maldição da Múmia",
-      "es": "Maldição da Múmia"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1311031": {
-    "titleLocalized": {
-      "pt": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
-      "en": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
-      "es": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1314481": {
-    "titleLocalized": {
-      "pt": "O Diabo Veste Prada 2",
-      "en": "O Diabo Veste Prada 2",
-      "es": "O Diabo Veste Prada 2"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1315772": {
-    "titleLocalized": {
-      "pt": "Minions & Monstros",
-      "en": "Minions & Monstros",
-      "es": "Minions & Monstros"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1318621": {
-    "titleLocalized": {
-      "pt": "Descendentes: País das Maravilhas Malvado",
-      "en": "Descendentes: País das Maravilhas Malvado",
-      "es": "Descendentes: País das Maravilhas Malvado"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1321008": {
-    "titleLocalized": {
-      "pt": "Black Box",
-      "en": "Black Box",
-      "es": "Black Box"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1339713": {
-    "titleLocalized": {
-      "pt": "Obsessão",
-      "en": "Obsessão",
-      "es": "Obsessão"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1368314": {
-    "titleLocalized": {
-      "pt": "Passageiro do Mal",
-      "en": "Passageiro do Mal",
-      "es": "Passageiro do Mal"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1368337": {
-    "titleLocalized": {
-      "pt": "A Odisseia",
-      "en": "The Odyssey",
-      "es": "La Odisea"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1413976": {
-    "titleLocalized": {
-      "pt": "Citizen Vigilante",
-      "en": "Citizen Vigilante",
-      "es": "Citizen Vigilante"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
-  "1443894": {
-    "titleLocalized": {
-      "pt": "Forgive Us All",
-      "en": "Forgive Us All",
-      "es": "Forgive Us All"
-    },
-    "genreSlugs": [
-      "drama"
-    ]
-  },
   "1491920": {
     "titleLocalized": {
       "pt": "功夫女足",
@@ -639,37 +61,107 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "1523145": {
+  "a-odisseia": {
     "titleLocalized": {
-      "pt": "Coração Partido",
-      "en": "Coração Partido",
-      "es": "Coração Partido"
+      "pt": "A Odisseia",
+      "en": "The Odyssey",
+      "es": "La Odisea"
     },
     "genreSlugs": [
       "drama"
     ]
   },
-  "1595852": {
+  "dia-d": {
     "titleLocalized": {
-      "pt": "Boulevard",
-      "en": "Boulevard",
-      "es": "Boulevard"
+      "pt": "Dia D",
+      "en": "D-Day",
+      "es": "D-Day"
     },
     "genreSlugs": [
       "drama"
     ]
   },
-  "1630409": {
+  "moana": {
     "titleLocalized": {
-      "pt": "O Cobrador de Dívidas",
-      "en": "O Cobrador de Dívidas",
-      "es": "O Cobrador de Dívidas"
+      "pt": "Moana",
+      "en": "Moana",
+      "es": "Moana"
     },
     "genreSlugs": [
       "drama"
     ]
   },
-  "1668364": {
+  "obsess-o": {
+    "titleLocalized": {
+      "pt": "Obsessão",
+      "en": "Obsessão",
+      "es": "Obsessão"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "backrooms-um-n-o-lugar": {
+    "titleLocalized": {
+      "pt": "Backrooms: Um Não-Lugar",
+      "en": "Backrooms: Um Não-Lugar",
+      "es": "Backrooms: Um Não-Lugar"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "supergirl": {
+    "titleLocalized": {
+      "pt": "Supergirl",
+      "en": "Supergirl",
+      "es": "Supergirl"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "mestres-do-universo": {
+    "titleLocalized": {
+      "pt": "Mestres do Universo",
+      "en": "Mestres do Universo",
+      "es": "Mestres do Universo"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "minions-monstros": {
+    "titleLocalized": {
+      "pt": "Minions & Monstros",
+      "en": "Minions & Monstros",
+      "es": "Minions & Monstros"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "toy-story-5": {
+    "titleLocalized": {
+      "pt": "Toy Story 5",
+      "en": "Toy Story 5",
+      "es": "Toy Story 5"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "todo-mundo-em-p-nico": {
+    "titleLocalized": {
+      "pt": "Todo Mundo em Pânico",
+      "en": "Todo Mundo em Pânico",
+      "es": "Todo Mundo em Pânico"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "desejo": {
     "titleLocalized": {
       "pt": "Desejo",
       "en": "Desejo",
@@ -679,7 +171,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "1727780": {
+  "borderline": {
     "titleLocalized": {
       "pt": "Borderline",
       "en": "Borderline",
@@ -689,7 +181,267 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "1728704": {
+  "star-wars-o-mandaloriano-e-grogu": {
+    "titleLocalized": {
+      "pt": "Star Wars: O Mandaloriano e Grogu",
+      "en": "Star Wars: O Mandaloriano e Grogu",
+      "es": "Star Wars: O Mandaloriano e Grogu"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "homem-aranha-um-novo-dia": {
+    "titleLocalized": {
+      "pt": "Homem-Aranha: Um Novo Dia",
+      "en": "Homem-Aranha: Um Novo Dia",
+      "es": "Homem-Aranha: Um Novo Dia"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "devoradores-de-estrelas": {
+    "titleLocalized": {
+      "pt": "Devoradores de Estrelas",
+      "en": "Devoradores de Estrelas",
+      "es": "Devoradores de Estrelas"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "descendentes-pa-s-das-maravilhas-malvado": {
+    "titleLocalized": {
+      "pt": "Descendentes: País das Maravilhas Malvado",
+      "en": "Descendentes: País das Maravilhas Malvado",
+      "es": "Descendentes: País das Maravilhas Malvado"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "cora-o-partido": {
+    "titleLocalized": {
+      "pt": "Coração Partido",
+      "en": "Coração Partido",
+      "es": "Coração Partido"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "o-cobrador-de-d-vidas": {
+    "titleLocalized": {
+      "pt": "O Cobrador de Dívidas",
+      "en": "O Cobrador de Dívidas",
+      "es": "O Cobrador de Dívidas"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "o-diabo-veste-prada-2": {
+    "titleLocalized": {
+      "pt": "O Diabo Veste Prada 2",
+      "en": "O Diabo Veste Prada 2",
+      "es": "O Diabo Veste Prada 2"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "guas-mortais": {
+    "titleLocalized": {
+      "pt": "Águas Mortais",
+      "en": "Águas Mortais",
+      "es": "Águas Mortais"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "a-morte-de-robin-hood": {
+    "titleLocalized": {
+      "pt": "A Morte de Robin Hood",
+      "en": "A Morte de Robin Hood",
+      "es": "A Morte de Robin Hood"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "kraken": {
+    "titleLocalized": {
+      "pt": "Kraken",
+      "en": "Kraken",
+      "es": "Kraken"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "the-furious": {
+    "titleLocalized": {
+      "pt": "The Furious",
+      "en": "The Furious",
+      "es": "The Furious"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "passageiro-do-mal": {
+    "titleLocalized": {
+      "pt": "Passageiro do Mal",
+      "en": "Passageiro do Mal",
+      "es": "Passageiro do Mal"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "michael": {
+    "titleLocalized": {
+      "pt": "Michael",
+      "en": "Michael",
+      "es": "Michael"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "il-frullo-del-passero": {
+    "titleLocalized": {
+      "pt": "Il frullo del passero",
+      "en": "Il frullo del passero",
+      "es": "Il frullo del passero"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "au-bonheur-des-dames": {
+    "titleLocalized": {
+      "pt": "Au Bonheur des Dames",
+      "en": "Au Bonheur des Dames",
+      "es": "Au Bonheur des Dames"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "mortal-kombat-2": {
+    "titleLocalized": {
+      "pt": "Mortal Kombat 2",
+      "en": "Mortal Kombat 2",
+      "es": "Mortal Kombat 2"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "avatar-fogo-e-cinzas": {
+    "titleLocalized": {
+      "pt": "Avatar: Fogo e Cinzas",
+      "en": "Avatar: Fogo e Cinzas",
+      "es": "Avatar: Fogo e Cinzas"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "une-flamme-dans-mon-c-ur": {
+    "titleLocalized": {
+      "pt": "Une flamme dans mon cœur",
+      "en": "Une flamme dans mon cœur",
+      "es": "Une flamme dans mon cœur"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "super-mario-galaxy-o-filme": {
+    "titleLocalized": {
+      "pt": "Super Mario Galaxy: O Filme",
+      "en": "Super Mario Galaxy: O Filme",
+      "es": "Super Mario Galaxy: O Filme"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "vingadores-doutor-destino": {
+    "titleLocalized": {
+      "pt": "Vingadores: Doutor Destino",
+      "en": "Vingadores: Doutor Destino",
+      "es": "Vingadores: Doutor Destino"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "citizen-vigilante": {
+    "titleLocalized": {
+      "pt": "Citizen Vigilante",
+      "en": "Citizen Vigilante",
+      "es": "Citizen Vigilante"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "um-sonho-de-liberdade": {
+    "titleLocalized": {
+      "pt": "Um Sonho de Liberdade",
+      "en": "The Shawshank Redemption",
+      "es": "Cadena Perpetua"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "maldi-o-da-m-mia": {
+    "titleLocalized": {
+      "pt": "Maldição da Múmia",
+      "en": "Maldição da Múmia",
+      "es": "Maldição da Múmia"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "forgive-us-all": {
+    "titleLocalized": {
+      "pt": "Forgive Us All",
+      "en": "Forgive Us All",
+      "es": "Forgive Us All"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "demon-slayer-kimetsu-no-yaiba-castelo-infinito": {
+    "titleLocalized": {
+      "pt": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
+      "en": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
+      "es": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "homem-aranha-sem-volta-para-casa": {
+    "titleLocalized": {
+      "pt": "Homem-Aranha: Sem Volta Para Casa",
+      "en": "Homem-Aranha: Sem Volta Para Casa",
+      "es": "Homem-Aranha: Sem Volta Para Casa"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "siping": {
     "titleLocalized": {
       "pt": "Siping",
       "en": "Siping",
@@ -699,7 +451,267 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "a1": {
+  "avatar-aang-o-ltimo-mestre-do-ar": {
+    "titleLocalized": {
+      "pt": "Avatar Aang: O Último Mestre do Ar",
+      "en": "Avatar Aang: O Último Mestre do Ar",
+      "es": "Avatar Aang: O Último Mestre do Ar"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "interestelar": {
+    "titleLocalized": {
+      "pt": "Interestelar",
+      "en": "Interstellar",
+      "es": "Interestelar"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "black-box": {
+    "titleLocalized": {
+      "pt": "Black Box",
+      "en": "Black Box",
+      "es": "Black Box"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "vixen": {
+    "titleLocalized": {
+      "pt": "Vixen!",
+      "en": "Vixen!",
+      "es": "Vixen!"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "boulevard": {
+    "titleLocalized": {
+      "pt": "Boulevard",
+      "en": "Boulevard",
+      "es": "Boulevard"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "o-limite-do-prazer": {
+    "titleLocalized": {
+      "pt": "O Limite do Prazer",
+      "en": "O Limite do Prazer",
+      "es": "O Limite do Prazer"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "as-ovelhas-detetives": {
+    "titleLocalized": {
+      "pt": "As Ovelhas Detetives",
+      "en": "As Ovelhas Detetives",
+      "es": "As Ovelhas Detetives"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "tagesschau": {
+    "titleLocalized": {
+      "pt": "Tagesschau",
+      "en": "Tagesschau",
+      "es": "Tagesschau"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "a-casa-do-drag-o": {
+    "titleLocalized": {
+      "pt": "A Casa do Dragão",
+      "en": "A Casa do Dragão",
+      "es": "A Casa do Dragão"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "lei-ordem-unidade-de-v-timas-especiais": {
+    "titleLocalized": {
+      "pt": "Lei & Ordem: Unidade de Vítimas Especiais",
+      "en": "Lei & Ordem: Unidade de Vítimas Especiais",
+      "es": "Lei & Ordem: Unidade de Vítimas Especiais"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "rote-rosen": {
+    "titleLocalized": {
+      "pt": "Rote Rosen",
+      "en": "Rote Rosen",
+      "es": "Rote Rosen"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "o-mentalista": {
+    "titleLocalized": {
+      "pt": "O Mentalista",
+      "en": "O Mentalista",
+      "es": "O Mentalista"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "mori-no-kuma-san-toumin-chuu": {
+    "titleLocalized": {
+      "pt": "Mori no Kuma-san, Toumin-chuu.",
+      "en": "Mori no Kuma-san, Toumin-chuu.",
+      "es": "Mori no Kuma-san, Toumin-chuu."
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "lei-ordem": {
+    "titleLocalized": {
+      "pt": "Lei & Ordem",
+      "en": "Lei & Ordem",
+      "es": "Lei & Ordem"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "o-novato": {
+    "titleLocalized": {
+      "pt": "O Novato",
+      "en": "O Novato",
+      "es": "O Novato"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai": {
+    "titleLocalized": {
+      "pt": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
+      "en": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
+      "es": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "silo": {
+    "titleLocalized": {
+      "pt": "Silo",
+      "en": "Silo",
+      "es": "Silo"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "supernatural": {
+    "titleLocalized": {
+      "pt": "Supernatural",
+      "en": "Supernatural",
+      "es": "Supernatural"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "origem": {
+    "titleLocalized": {
+      "pt": "Origem",
+      "en": "Origem",
+      "es": "Origem"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "grey-s-anatomy": {
+    "titleLocalized": {
+      "pt": "Grey's Anatomy",
+      "en": "Grey's Anatomy",
+      "es": "Grey's Anatomy"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "rick-e-morty": {
+    "titleLocalized": {
+      "pt": "Rick e Morty",
+      "en": "Rick e Morty",
+      "es": "Rick e Morty"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "kaatelal-sons": {
+    "titleLocalized": {
+      "pt": "Kaatelal & Sons",
+      "en": "Kaatelal & Sons",
+      "es": "Kaatelal & Sons"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "paradise-hotel": {
+    "titleLocalized": {
+      "pt": "Paradise Hotel",
+      "en": "Paradise Hotel",
+      "es": "Paradise Hotel"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "watch-what-happens-live-with-andy-cohen": {
+    "titleLocalized": {
+      "pt": "Watch What Happens Live with Andy Cohen",
+      "en": "Watch What Happens Live with Andy Cohen",
+      "es": "Watch What Happens Live with Andy Cohen"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "the-late-show-with-stephen-colbert": {
+    "titleLocalized": {
+      "pt": "The Late Show with Stephen Colbert",
+      "en": "The Late Show with Stephen Colbert",
+      "es": "The Late Show with Stephen Colbert"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "binnelanders": {
+    "titleLocalized": {
+      "pt": "Binnelanders",
+      "en": "Binnelanders",
+      "es": "Binnelanders"
+    },
+    "genreSlugs": [
+      "drama"
+    ]
+  },
+  "jujutsu-kaisen": {
     "titleLocalized": {
       "pt": "Jujutsu Kaisen",
       "en": "Jujutsu Kaisen",
@@ -711,7 +723,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "sobrenatural"
     ]
   },
-  "a2": {
+  "frieren": {
     "titleLocalized": {
       "pt": "Frieren e a Jornada para o Além",
       "en": "Frieren: Beyond Journey's End",
@@ -723,7 +735,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "a3": {
+  "hunter-x-hunter": {
     "titleLocalized": {
       "pt": "Hunter x Hunter",
       "en": "Hunter x Hunter",
@@ -735,7 +747,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia"
     ]
   },
-  "a4": {
+  "bleach": {
     "titleLocalized": {
       "pt": "Bleach",
       "en": "Bleach",
@@ -747,7 +759,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "fantasia"
     ]
   },
-  "a5": {
+  "re-zero": {
     "titleLocalized": {
       "pt": "Re:ZERO - Starting Life in Another World",
       "en": "Re:ZERO - Starting Life in Another World",
@@ -759,7 +771,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "psicologico"
     ]
   },
-  "a6": {
+  "detetive-conan": {
     "titleLocalized": {
       "pt": "Detetive Conan",
       "en": "Detetive Conan",
@@ -771,7 +783,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "suspense"
     ]
   },
-  "a7": {
+  "pokemon": {
     "titleLocalized": {
       "pt": "Pokémon",
       "en": "Pokémon",
@@ -783,7 +795,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "acao"
     ]
   },
-  "a8": {
+  "mushoku-tensei": {
     "titleLocalized": {
       "pt": "Mushoku Tensei: Jobless Reincarnation",
       "en": "Mushoku Tensei: Jobless Reincarnation",
@@ -795,7 +807,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "a9": {
+  "doraemon": {
     "titleLocalized": {
       "pt": "Doraemon: O Gato do Futuro",
       "en": "Doraemon: O Gato do Futuro",
@@ -807,7 +819,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "aventura"
     ]
   },
-  "a10": {
+  "one-piece": {
     "titleLocalized": {
       "pt": "One Piece",
       "en": "One Piece",
@@ -820,7 +832,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "comedia"
     ]
   },
-  "g1": {
+  "zelda-breath-of-the-wild": {
     "titleLocalized": {
       "pt": "The Legend of Zelda: Breath of the Wild",
       "en": "The Legend of Zelda: Breath of the Wild",
@@ -832,7 +844,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "rpg"
     ]
   },
-  "g2": {
+  "elden-ring": {
     "titleLocalized": {
       "pt": "Elden Ring",
       "en": "Elden Ring",
@@ -845,7 +857,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "openworld"
     ]
   },
-  "g3": {
+  "baldurs-gate-3": {
     "titleLocalized": {
       "pt": "Baldur's Gate 3",
       "en": "Baldur's Gate 3",
@@ -857,7 +869,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "strategy"
     ]
   },
-  "g4": {
+  "god-of-war-ragnarok": {
     "titleLocalized": {
       "pt": "God of War Ragnarök",
       "en": "God of War Ragnarök",
@@ -869,7 +881,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "mythology"
     ]
   },
-  "g5": {
+  "red-dead-redemption-2": {
     "titleLocalized": {
       "pt": "Red Dead Redemption 2",
       "en": "Red Dead Redemption 2",
@@ -882,7 +894,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "openworld"
     ]
   },
-  "g6": {
+  "the-witcher-3": {
     "titleLocalized": {
       "pt": "The Witcher 3: Wild Hunt",
       "en": "The Witcher 3: Wild Hunt",
@@ -895,7 +907,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "openworld"
     ]
   },
-  "g7": {
+  "minecraft": {
     "titleLocalized": {
       "pt": "Minecraft",
       "en": "Minecraft",
@@ -908,7 +920,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "creative"
     ]
   },
-  "g8": {
+  "cyberpunk-2077": {
     "titleLocalized": {
       "pt": "Cyberpunk 2077",
       "en": "Cyberpunk 2077",
@@ -921,19 +933,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "openworld"
     ]
   },
-  "b1": {
-    "titleLocalized": {
-      "pt": "1984",
-      "en": "1984",
-      "es": "1984"
-    },
-    "genreSlugs": [
-      "ficcao",
-      "distopia",
-      "classico"
-    ]
-  },
-  "b2": {
+  "duna": {
     "titleLocalized": {
       "pt": "Duna",
       "en": "Duna",
@@ -946,7 +946,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "b3": {
+  "neuromancer": {
     "titleLocalized": {
       "pt": "Neuromancer",
       "en": "Neuromancer",
@@ -958,7 +958,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "b4": {
+  "cem-anos-de-solidao": {
     "titleLocalized": {
       "pt": "Cem Anos de Solidão",
       "en": "Cem Anos de Solidão",
@@ -971,7 +971,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "drama"
     ]
   },
-  "b5": {
+  "o-hobbit": {
     "titleLocalized": {
       "pt": "O Hobbit",
       "en": "O Hobbit",
@@ -983,7 +983,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "b6": {
+  "o-guia-do-mochileiro": {
     "titleLocalized": {
       "pt": "O Guia do Mochileiro das Galáxias",
       "en": "O Guia do Mochileiro das Galáxias",
@@ -995,7 +995,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "c1": {
+  "watchmen": {
     "titleLocalized": {
       "pt": "Watchmen",
       "en": "Watchmen",
@@ -1008,7 +1008,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "c2": {
+  "sandman": {
     "titleLocalized": {
       "pt": "Sandman",
       "en": "Sandman",
@@ -1021,7 +1021,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "c3": {
+  "saga": {
     "titleLocalized": {
       "pt": "Saga",
       "en": "Saga",
@@ -1034,7 +1034,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "epico"
     ]
   },
-  "c4": {
+  "maus": {
     "titleLocalized": {
       "pt": "Maus",
       "en": "Maus",
@@ -1047,7 +1047,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "classico"
     ]
   },
-  "c5": {
+  "the-boys": {
     "titleLocalized": {
       "pt": "The Boys",
       "en": "The Boys",
@@ -1060,7 +1060,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
       "dark"
     ]
   },
-  "c6": {
+  "invincible": {
     "titleLocalized": {
       "pt": "Invincible",
       "en": "Invincible",

@@ -89,18 +89,20 @@ const T: Record<string,{en:string;es:string}> = {
   "Demon Slayer":{en:"Demon Slayer",es:"Demon Slayer"},
 };
 
+function canonicalKey(e) { return (e.slug||String(e.id)) as string; }
+
 function main() {
   const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {"a-odisseia":{"en":"The Odyssey","es":"La Odisea"},"dia-d":{"en":"D-Day","es":"D-Day"},"contato":{"en":"Contact","es":"Contacto"},"matrix":{"en":"The Matrix","es":"Matrix"},"blade-runner":{"en":"Blade Runner","es":"Blade Runner"},"gladiador":{"en":"Gladiator","es":"Gladiador"},"jurassic-park":{"en":"Jurassic Park","es":"Parque Jurásico"},"titanic":{"en":"Titanic","es":"Titanic"},"harry-potter-e-a-pedra-filosofal":{"en":"Harry Potter and the Philosopher's Stone","es":"Harry Potter y la Piedra Filosofal"},"toy-story":{"en":"Toy Story","es":"Toy Story"},"procurando-nemo":{"en":"Finding Nemo","es":"Buscando a Nemo"},"os-incriveis":{"en":"The Incredibles","es":"Los Increíbles"},"vingadores-ultimato":{"en":"Avengers: Endgame","es":"Vengadores: Endgame"},"pantera-negra":{"en":"Black Panther","es":"Pantera Negra"},"o-exterminador-do-futuro":{"en":"The Terminator","es":"El Exterminador"},"de-volta-para-o-futuro":{"en":"Back to the Future","es":"Volver al Futuro"},"clube-da-luta":{"en":"Fight Club","es":"El Club de la Lucha"},"o-sexto-sentido":{"en":"The Sixth Sense","es":"El Sexto Sentido"},"o-silencio-dos-inocentes":{"en":"The Silence of the Lambs","es":"El Silencio de los Corderos"},"um-sonho-de-liberdade":{"en":"The Shawshank Redemption","es":"Cadena Perpetua"}};
   const outPath = path.resolve(__dirname,"..","src","lib","seed-i18n.ts");
   const gMap = (ptBR as any).genres as Record<string,string>;
   const all = [...(SEED_MEDIA as any[]),...(MOCK_MEDIA as any[])];
 
-  let total=0, w=0, empty=0, orphan=0, translated=0, identical=0, pending=0;
+  let total=0, w=0, empty=0, orphan=0, translated=0, identical=0, pending=0, pendingNoTranslation=0, pendingKeyMismatch=0;
   const pendingIds: string[] = [];
   const result: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = {};
 
   for (const e of all) {
-    const id = (e.id??e.slug) as string;
+    const id = canonicalKey(e);
     if (!id) continue; total++;
     const ptTitle = (e.title as string)||"";
     const slugKey = (e.slug||"") as string; const cached = TRANSLATIONS_BY_ID[slugKey]; const tr = T[ptTitle] || (cached as any);
@@ -113,8 +115,10 @@ function main() {
       identical++;
     } else if (enTitle !== ptTitle || esTitle !== ptTitle) {
       translated++;
+    } else if (cached || tr) {
+      pending++; pendingKeyMismatch++; pendingIds.push(id);
     } else {
-      pending++; pendingIds.push(id);
+      pending++; pendingNoTranslation++; pendingIds.push(id);
     }
 
     const slugs: string[] = [];
@@ -125,13 +129,13 @@ function main() {
 
   console.log("Universe(SEED+MOCK): "+all.length+" | Written: "+w+" | Total w/ id: "+total);
   console.log("Empty: "+empty+" | Orphan: "+orphan);
-  console.log("Title translated: "+translated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | PENDING: "+pending);
+  console.log("Title translated: "+translated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | NOTRANSLATION: "+pendingNoTranslation+" | KEYMISMATCH: "+pendingKeyMismatch+" | PENDING: "+pending);
   if (pendingIds.length) console.log("PENDING ids: "+pendingIds.join(","));
   if (empty||orphan) { console.error("FAIL: asserts failed"); process.exit(1); }
 
   fs.writeFileSync(outPath, "export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = "+JSON.stringify(result,null,2)+";\n");
   console.log("Written: "+outPath+" ("+w+" entries)");
-  if (pending>0) { console.log("INCOMPLETE — PENDING="+pending); }
+  if (pending>0) { console.log("INCOMPLETE — NOTRANSLATION="+pendingNoTranslation+" KEYMISMATCH="+pendingKeyMismatch); }
   else { console.log("PASS (0 pending)"); }
 }
 main();
