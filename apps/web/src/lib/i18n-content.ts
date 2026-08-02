@@ -46,13 +46,13 @@ export function titleForLocale(media: { title: string; titleLocalized?: Localize
   const key = (media.slug ?? media.id) as string;
   const d = key ? SEED_I18N[key] : undefined;
   if (d?.titleLocalized) {
-    const loc = locale as keyof LocalizedString;
-    return d.titleLocalized[loc] || d.titleLocalized.pt;
+    const lang = locale.split("-")[0] as keyof LocalizedString;
+    return d.titleLocalized[lang] || d.titleLocalized.pt;
   }
   // Fallback to inline titleLocalized field
   if (media.titleLocalized) {
-    const locKey = locale as keyof LocalizedString;
-    if (locKey in media.titleLocalized && media.titleLocalized[locKey]) return media.titleLocalized[locKey];
+    const lang = locale.split("-")[0] as keyof LocalizedString;
+    if (lang in media.titleLocalized && media.titleLocalized[lang]) return media.titleLocalized[lang];
     return media.titleLocalized.pt || media.title;
   }
   return media.title;
