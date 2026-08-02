@@ -27,8 +27,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "Stephen Colbert hosts a nightly comedy and talk show featuring celebrity interviews, political satire, and musical performances.",
+      "es": "Stephen Colbert presenta un programa nocturno de comedia y entrevistas con celebridades, sátira política y actuaciones musicales."
     }
   },
   "261639": {
@@ -42,8 +42,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "The iconic fighting tournament returns with new champions from Earthrealm and Outworld clashing in brutal kombat, where the fate of all realms hangs in the balance.",
+      "es": "El icónico torneo de lucha regresa con nuevos campeones de la Tierra y el Mundo Exterior enfrentándose en kombate brutal, donde el destino de todos los reinos pende de un hilo."
     }
   },
   "1235877": {
@@ -57,8 +57,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "Tanjiro and the Demon Slayer Corps enter the Infinity Castle for their final battle against Muzan Kibutsuji, the progenitor of all demons.",
+      "es": "Tanjiro y el Cuerpo de Cazadores de Demonios entran al Castillo Infinito para su batalla final contra Muzan Kibutsuji, el progenitor de todos los demonios."
     }
   },
   "1285366": {
@@ -72,8 +72,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "Peter Parker's identity as Spider-Man is exposed, forcing him to seek help from Doctor Strange as villains from across the multiverse invade his world.",
+      "es": "La identidad de Peter Parker como Spider-Man queda expuesta, obligándolo a buscar ayuda del Doctor Strange mientras villanos de todo el multiverso invaden su mundo."
     }
   },
   "1491920": {
@@ -87,8 +87,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A quiet drama about a man confronting his past and the choices that shaped his life, unfolding over the course of a single day on a tree-lined boulevard.",
+      "es": "Un drama tranquilo sobre un hombre confrontando su pasado y las elecciones que moldearon su vida, desarrollándose a lo largo de un solo día en un bulevar arbolado."
     }
   },
   "a-odisseia": {
@@ -769,8 +769,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "as-ovelhas-detetives": {
     "titleLocalized": {
       "pt": "As Ovelhas Detetives",
-      "en": "As Ovelhas Detetives",
-      "es": "As Ovelhas Detetives"
+      "en": "The Detective Sheep",
+      "es": "Las Ovejas Detectives"
     },
     "genreSlugs": [
       "drama"
@@ -814,8 +814,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "lei-ordem-unidade-de-v-timas-especiais": {
     "titleLocalized": {
       "pt": "Lei & Ordem: Unidade de Vítimas Especiais",
-      "en": "Lei & Ordem: Unidade de Vítimas Especiais",
-      "es": "Lei & Ordem: Unidade de Vítimas Especiais"
+      "en": "Law & Order: Special Victims Unit",
+      "es": "La Ley y el Orden: Unidad de Victimas Especiales"
     },
     "genreSlugs": [
       "drama"
@@ -829,8 +829,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "rote-rosen": {
     "titleLocalized": {
       "pt": "Rote Rosen",
-      "en": "Rote Rosen",
-      "es": "Rote Rosen"
+      "en": "Red Roses",
+      "es": "Rosas Rojas"
     },
     "genreSlugs": [
       "drama"
@@ -859,8 +859,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "mori-no-kuma-san-toumin-chuu": {
     "titleLocalized": {
       "pt": "Mori no Kuma-san, Toumin-chuu.",
-      "en": "Mori no Kuma-san, Toumin-chuu.",
-      "es": "Mori no Kuma-san, Toumin-chuu."
+      "en": "The Bear in the Forest",
+      "es": "El Oso del Bosque"
     },
     "genreSlugs": [
       "drama"
@@ -1024,8 +1024,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "watch-what-happens-live-with-andy-cohen": {
     "titleLocalized": {
       "pt": "Watch What Happens Live with Andy Cohen",
-      "en": "Watch What Happens Live with Andy Cohen",
-      "es": "Watch What Happens Live with Andy Cohen"
+      "en": "Watch What Happens Live",
+      "es": "Mira lo que Pasa en Vivo"
     },
     "genreSlugs": [
       "drama"
@@ -1040,7 +1040,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "The Late Show with Stephen Colbert",
       "en": "The Late Show with Stephen Colbert",
-      "es": "The Late Show with Stephen Colbert"
+      "es": "El Late Show con Stephen Colbert"
     },
     "genreSlugs": [
       "drama"
@@ -1400,7 +1400,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Neuromancer",
       "en": "Neuromancer",
-      "es": "Neuromancer"
+      "es": "Neuromante"
     },
     "genreSlugs": [
       "ficcao",
@@ -1451,8 +1451,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-guia-do-mochileiro": {
     "titleLocalized": {
       "pt": "O Guia do Mochileiro das Galáxias",
-      "en": "O Guia do Mochileiro das Galáxias",
-      "es": "O Guia do Mochileiro das Galáxias"
+      "en": "The Hitchhiker's Guide to the Galaxy",
+      "es": "Guia del Autoestopista Galactico"
     },
     "genreSlugs": [
       "ficcao",

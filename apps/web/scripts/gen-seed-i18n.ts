@@ -93,6 +93,12 @@ function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e
 
 function main() {
   const SYNOPSIS_BY_ID: Record<string,{en:string;es:string}> = {
+  "237020":{en:"Stephen Colbert hosts a nightly comedy and talk show featuring celebrity interviews, political satire, and musical performances.",es:"Stephen Colbert presenta un programa nocturno de comedia y entrevistas con celebridades, sátira política y actuaciones musicales."},
+  "261639":{en:"The iconic fighting tournament returns with new champions from Earthrealm and Outworld clashing in brutal kombat, where the fate of all realms hangs in the balance.",es:"El icónico torneo de lucha regresa con nuevos campeones de la Tierra y el Mundo Exterior enfrentándose en kombate brutal, donde el destino de todos los reinos pende de un hilo."},
+  "1235877":{en:"Tanjiro and the Demon Slayer Corps enter the Infinity Castle for their final battle against Muzan Kibutsuji, the progenitor of all demons.",es:"Tanjiro y el Cuerpo de Cazadores de Demonios entran al Castillo Infinito para su batalla final contra Muzan Kibutsuji, el progenitor de todos los demonios."},
+  "1285366":{en:"Peter Parker's identity as Spider-Man is exposed, forcing him to seek help from Doctor Strange as villains from across the multiverse invade his world.",es:"La identidad de Peter Parker como Spider-Man queda expuesta, obligándolo a buscar ayuda del Doctor Strange mientras villanos de todo el multiverso invaden su mundo."},
+  "1491920":{en:"A quiet drama about a man confronting his past and the choices that shaped his life, unfolding over the course of a single day on a tree-lined boulevard.",es:"Un drama tranquilo sobre un hombre confrontando su pasado y las elecciones que moldearon su vida, desarrollándose a lo largo de un solo día en un bulevar arbolado."},
+
   "o-diabo-veste-prada-2":{en:"Miranda Priestly returns to the cutthroat world of fashion publishing, facing a new generation of digital disruption while navigating the complexities of mentorship and legacy.",es:"Miranda Priestly regresa al implacable mundo de las publicaciones de moda, enfrentando una nueva generación de disrupción digital mientras navega las complejidades del mentorazgo y el legado."},
   "descendentes-pa-s-das-maravilhas-malvado":{en:"The children of Disney's most iconic heroes and villains return for a new adventure where the boundaries between good and evil blur and a new generation must forge its own path.",es:"Los hijos de los héroes y villanos más icónicos de Disney regresan para una nueva aventura donde los límites entre el bien y el mal se difuminan y una nueva generación debe forjar su propio camino."},
   "binnelanders":{en:"A long-running South African medical drama following the personal and professional lives of the staff at the Binneland Clinic, exploring love, betrayal and healing.",es:"Un drama médico sudafricano de larga duración que sigue las vidas personales y profesionales del personal de la Clínica Binneland, explorando el amor, la traición y la sanación."},
@@ -167,6 +173,24 @@ function main() {
 };
 
 const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "237020":{en:"The Late Show with Stephen Colbert",es:"El Late Show con Stephen Colbert"},
+  "261639":{en:"Mortal Kombat 2",es:"Mortal Kombat 2"},
+  "1235877":{en:"Demon Slayer: Infinity Castle",es:"Demon Slayer: Castillo Infinito"},
+  "1285366":{en:"Homem-Aranha: Sem Volta Para Casa",es:"Spider-Man: No Way Home"},
+  "1491920":{en:"Boulevard",es:"Boulevard"},
+
+  "neuromancer":{en:"Neuromancer",es:"Neuromante"},
+  "o-guia-do-mochileiro":{en:"The Hitchhiker's Guide to the Galaxy",es:"Guia del Autoestopista Galactico"},
+  "saga":{en:"Saga",es:"Saga"},
+  "maus":{en:"Maus",es:"Maus"},
+  "boulevard":{en:"Boulevard",es:"Boulevard"},
+  "as-ovelhas-detetives":{en:"The Detective Sheep",es:"Las Ovejas Detectives"},
+  "mori-no-kuma-san-toumin-chuu":{en:"The Bear in the Forest",es:"El Oso del Bosque"},
+  "rote-rosen":{en:"Red Roses",es:"Rosas Rojas"},
+  "lei-ordem-unidade-de-v-timas-especiais":{en:"Law & Order: Special Victims Unit",es:"La Ley y el Orden: Unidad de Victimas Especiales"},
+  "watch-what-happens-live-with-andy-cohen":{en:"Watch What Happens Live",es:"Mira lo que Pasa en Vivo"},
+  "the-late-show-with-stephen-colbert":{en:"The Late Show with Stephen Colbert",es:"El Late Show con Stephen Colbert"},
+
   "o-diabo-veste-prada-2":{en:"The Devil Wears Prada 2",es:"El Diablo Viste de Prada 2"},
   "descendentes-pa-s-das-maravilhas-malvado":{en:"Descendants: Path of Wonders",es:"Descendientes: Camino de Maravillas"},
   "binnelanders":{en:"Binnelanders",es:"Binnelanders"},
