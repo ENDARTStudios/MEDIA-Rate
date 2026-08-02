@@ -1,6 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import { createHash, randomBytes } from "node:crypto";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+
 import { PrismaService } from "../../prisma/prisma.service.js";
 
 /**
@@ -42,10 +42,25 @@ export interface SessionCreationResult {
  * - Custo de lookup no banco é desprezível com índice em token_hash UNIQUE.
  */
 @Injectable()
-export class SessionService {
+export class SessionService implements OnApplicationBootstrap {
   private readonly logger = new Logger(SessionService.name);
+  private cleanupTimer: NodeJS.Timeout | undefined;
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Agenda limpeza periódica de sessões expiradas e revogadas.
+   * Timer com unref() — não impede o processo de encerrar.
+   */
+  onApplicationBootstrap(): void {
+    const CLEANUP_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
+    this.cleanupTimer = setInterval(() => {
+      void this.cleanupExpired().catch((err: unknown) => {
+        this.logger.warn(`cleanupExpired falhou: ${String(err)}`);
+      });
+    }, CLEANUP_INTERVAL_MS);
+    this.cleanupTimer.unref();
+  }
 
   /**
    * Gera token opaco de 32 bytes (256 bits) em base64url.

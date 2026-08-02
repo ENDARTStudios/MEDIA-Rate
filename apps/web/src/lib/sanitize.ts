@@ -39,6 +39,20 @@ export function sanitizeHtml(dirty: string): string {
 }
 
 /**
+ * Serializa um objeto para JSON-LD de forma segura para uso em
+ * `<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ... }}>`.
+ *
+ * Escapa `<` como `\u003c` para impedir que qualquer string injetada
+ * (ex.: synopsis vinda da API contendo `</script>`) escape do script tag.
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
+/**
  * Verifica se um HTML já está sanitizado (heurística para evitar dupla sanitização).
  */
 export function isSanitized(html: string): boolean {

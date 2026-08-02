@@ -1,2973 +1,2716 @@
 export const SEED_MEDIA = [
   {
-    "id": "1368337",
-    "slug": "a-odisseia",
-    "title": "A Odisseia",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/muMwJAiMtReEHLKpKMWt2rMkYF7.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/tYuC9kUwqhpDQ3pv1kLMqyMF1Jw.jpg",
-    "score": {
-      "consolidated": 79,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 74,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1275779",
-    "slug": "dia-d",
-    "title": "Dia D",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/pmff1wjKrgJi92PPr346lAifzlg.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
-    "score": {
-      "consolidated": 72,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 70,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "1108427",
-    "slug": "moana",
-    "title": "Moana",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Na Polinésia Antiga, quando uma terrível maldição contraída por Maui chega à ilha de um impetuoso chefe, sua filha obstinada responde ao chamado do Oceano para procurar o semideus e consertar as coisa",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/sUkilgOKAGjw9c7OsRPLa392MOw.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/c6BPbkO5Npt1OdwttAxCFo06wtH.jpg",
-    "score": {
-      "consolidated": 59,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 57,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1339713",
-    "slug": "obsess-o",
-    "title": "Obsessão",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/wUc6IDf5ChjM1UyQye21qFBeJY0.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/r013C8Me2bZ0pUi0OWJRh0h7MzT.jpg",
-    "score": {
-      "consolidated": 82,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 83,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "1083381",
-    "slug": "backrooms-um-n-o-lugar",
-    "title": "Backrooms: Um Não-Lugar",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os \"Backrooms\", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/qEl4BDBTGnhLiadZx0c9nHM8vBF.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/2aA8iPlMCks3k131ymFBAY6FL0b.jpg",
-    "score": {
-      "consolidated": 71,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 71,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1081003",
-    "slug": "supergirl",
-    "title": "Supergirl",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/qhXfLI1gDWaahzfHT0cb2CH61hO.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/8CIgg0gCHIYz0jrx5IcZEOy047J.jpg",
-    "score": {
-      "consolidated": 61,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 62,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "454639",
-    "slug": "mestres-do-universo",
-    "title": "Mestres do Universo",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/atpb7NKSyM4bJSUY8vQTunzK4Na.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/piV2OnzTZCyGBP9JCjlHIgKGlfo.jpg",
-    "score": {
-      "consolidated": 73,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 73,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "1315772",
-    "slug": "minions-monstros",
-    "title": "Minions & Monstros",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/hTowtXrkCY7FJyoj4p91JckrJSE.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/kkcwhgSFd81QDlXo8ytrpHPQjhy.jpg",
-    "score": {
-      "consolidated": 64,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 66,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1084244",
-    "slug": "toy-story-5",
-    "title": "Toy Story 5",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O trabalho de Buzz, Woody, Jessie e do resto da gangue fica exponencialmente mais difícil quando eles enfrentam uma nova ameaça à diversão: a tecnologia.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/sssrBhdvDcczgMQYDc8oCoSuFEJ.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/qjTqY5coNiz6sVtPng40IzltsoN.jpg",
-    "score": {
-      "consolidated": 74,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 76,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1273221",
-    "slug": "todo-mundo-em-p-nico",
-    "title": "Todo Mundo em Pânico",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/y9yJd2qIIwhZcllHeKHsz5eRvNr.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/xWBiXclrRmTggQHMRsIn84YHavs.jpg",
-    "score": {
-      "consolidated": 65,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 64,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "1668364",
-    "slug": "desejo",
-    "title": "Desejo",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/6iToFU4GaJz4OlLMx34v3VWV7JE.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/oBter8Y5p2ZFUwWgQ1T9pulGFTJ.jpg",
-    "score": {
-      "consolidated": 71,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 73,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1727780",
-    "slug": "borderline",
-    "title": "Borderline",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/sAA2mjpYJFAKydtzG4P4aHC4mZk.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/t5iMyppJhIdjPQDAWIWoilO5iYf.jpg",
-    "score": {
-      "consolidated": 75,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 75,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1228710",
-    "slug": "star-wars-o-mandaloriano-e-grogu",
-    "title": "Star Wars: O Mandaloriano e Grogu",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/dNwaS0tnwgQRaQFPY5MbGxdmYXr.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/ysLlsAxwgNSxBWHCgTKJrmjxpRQ.jpg",
-    "score": {
-      "consolidated": 72,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 71,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "969681",
-    "slug": "homem-aranha-um-novo-dia",
-    "title": "Homem-Aranha: Um Novo Dia",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/x0nvYzQpyJc5pdT9lMnkMuYAg0O.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/vjMvFSmGUxEtqVdaZgvFee9XkZl.jpg",
-    "score": {
-      "consolidated": 90,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 87,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "687163",
-    "slug": "devoradores-de-estrelas",
-    "title": "Devoradores de Estrelas",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/2i8uru7rlbHKaoIbC2V4FZLT7uW.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg",
-    "score": {
-      "consolidated": 87,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 82,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "1318621",
-    "slug": "descendentes-pa-s-das-maravilhas-malvado",
-    "title": "Descendentes: País das Maravilhas Malvado",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/2IdGPF5ALnkPbDBqxuzjdTuCOFC.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/idRLKyu43mRhMWNjzd6FiEromNI.jpg",
-    "score": {
-      "consolidated": 77,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 73,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "1523145",
-    "slug": "cora-o-partido",
-    "title": "Coração Partido",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/lsa8cLHVMPcKiSV5blNOqHTpQil.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/1x9e0qWonw634NhIsRdvnneeqvN.jpg",
-    "score": {
-      "consolidated": 72,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 70,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "1630409",
-    "slug": "o-cobrador-de-d-vidas",
-    "title": "O Cobrador de Dívidas",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/qBKdfIV8YeReAYyzebW7R14vWhe.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/5Va6qlwvpneo0XLzGFlvgYH5ncP.jpg",
-    "score": {
-      "consolidated": 72,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 69,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1314481",
-    "slug": "o-diabo-veste-prada-2",
-    "title": "O Diabo Veste Prada 2",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/50yWyY981TyUHhoxxSEKwO70FmQ.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/Af907x5h9W1wVis8XrSd7ynTWuy.jpg",
-    "score": {
-      "consolidated": 71,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 67,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "1127384",
-    "slug": "guas-mortais",
-    "title": "Águas Mortais",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/dWsw0X420R6ngEcVCkNlZ189Amr.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/szKv713FcUXx6hcfdY369vtkmzr.jpg",
-    "score": {
-      "consolidated": 74,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 70,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "1284465",
-    "slug": "a-morte-de-robin-hood",
-    "title": "A Morte de Robin Hood",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/o0QndnepFPWget2kdKpzh26RBYt.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/aM3pduSU53VjcALWOfLWNw8v2TI.jpg",
-    "score": {
-      "consolidated": 67,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 66,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "1110034",
-    "slug": "kraken",
-    "title": "Kraken",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Um biólogo marinho investiga uma fazenda de peixe. Adolescentes mortos e curiosos acreditam que uma criatura gigantesca com vários tentáculos está localizada nas profundezas do fiordo, pronta para esm",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/lb8lEHDWRAflGr0daGsmJVoey2d.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/oV472EbPedkc5QzqolGc7sCgCnn.jpg",
-    "score": {
-      "consolidated": 64,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 64,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1280738",
-    "slug": "the-furious",
-    "title": "The Furious",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Após a filha de Wang Wei ser sequestrada por uma rede criminosa e ele não receber ajuda da polícia corrupta, Wei decide encontrá-la por conta própria. Seu único aliado é Navin, um jornalista implacáve",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/k334z7zxOJlJvOsOwyRF6HClCvi.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/9XwQphZxNJgGASfjL58mhIkJJpf.jpg",
-    "score": {
-      "consolidated": 74,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 76,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "1368314",
-    "slug": "passageiro-do-mal",
-    "title": "Passageiro do Mal",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Durante uma viagem de van, um jovem casal presencia um acidente terrível que resulta na morte do motorista. Logo, eles passam a ser perseguidos por uma entidade demoníaca, de quem é impossível escapar",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/aSoOiatgMmXtDS3iwWD5hC2Rbyn.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/3pDfu71mrzSuFYyIfnKEjt8z4BC.jpg",
-    "score": {
-      "consolidated": 73,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 69,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "936075",
-    "slug": "michael",
-    "title": "Michael",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A história da vida de Michael Jackson além da música, traçando sua jornada desde a descoberta de seu talento extraordinário como líder dos Jackson Five até o artista visionário cuja ambição criativa i",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/gXh43JopeO8BlA661BvlkR6yeqs.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/ufSwlnECLoUbBjPrFqEQcWBzHwc.jpg",
-    "score": {
-      "consolidated": 87,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 90,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "200066",
-    "slug": "il-frullo-del-passero",
-    "title": "Il frullo del passero",
-    "type": "movie",
-    "year": 1988,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/8Q5INiyhPf7QxCIcXFWF8QXLPuN.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/py9wIg0AyUmgXvuDeNuP8OgIVFu.jpg",
-    "score": {
-      "consolidated": 42,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 4.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 44,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "47612",
-    "slug": "au-bonheur-des-dames",
-    "title": "Au Bonheur des Dames",
-    "type": "movie",
-    "year": 1930,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/sVFvFFEMRJ1eUzD6nbYLSqwHi0d.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/o5bRLCNBmWBCBluFlOLUgivdONs.jpg",
-    "score": {
-      "consolidated": 63,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 65,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "261639",
-    "slug": "",
-    "title": "尼寺の情事　極楽ＳＥＸ",
-    "type": "movie",
-    "year": 1998,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/nth8G0m835nk1xWsV6Ga95FT2na.jpg",
-    "backdropUrl": null,
-    "score": {
-      "consolidated": 34,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 3.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 3.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 30,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "931285",
-    "slug": "mortal-kombat-2",
-    "title": "Mortal Kombat 2",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/iILiJSRViTEcF23MHhGCbVm3mfW.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/4EAAwpylq313qrDqpCxulUrXBNF.jpg",
-    "score": {
-      "consolidated": 80,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 81,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "83533",
-    "slug": "avatar-fogo-e-cinzas",
-    "title": "Avatar: Fogo e Cinzas",
-    "type": "movie",
-    "year": 2025,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/3almrQT8GnrDjnQeWotdExjJhZm.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/sdZSjtGUTSN8B3al5o0f2WoQfQQ.jpg",
-    "score": {
-      "consolidated": 76,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 78,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "64439",
-    "slug": "une-flamme-dans-mon-c-ur",
-    "title": "Une flamme dans mon cœur",
-    "type": "movie",
-    "year": 1987,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/qI2cTls7msoXF4wIqju7klqiZ6Y.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/gsq4670nadz8Xc5GJ3osNiP3UzS.jpg",
-    "score": {
-      "consolidated": 61,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 57,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "1226863",
-    "slug": "super-mario-galaxy-o-filme",
-    "title": "Super Mario Galaxy: O Filme",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/b3WeTp42eJSRuE4UZfyPCOJW4c.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/kxQiIJ4gVcD3K6o14MJ72p5yRcE.jpg",
-    "score": {
-      "consolidated": 83,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 78,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1003596",
-    "slug": "vingadores-doutor-destino",
-    "title": "Vingadores: Doutor Destino",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/j8ThEXgdGWYg1uWdSqygOSnlIA2.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/6KDDoTq8Vq3HuQHULzuvPiCJbMI.jpg",
-    "score": {
-      "consolidated": 0,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 0.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 0,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 3,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1413976",
-    "slug": "citizen-vigilante",
-    "title": "Citizen Vigilante",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/6LmJD3Wohe0g4U62wgi7RyJqfE4.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/qJ2KSHJhlFvASBMLbGuP7OFMaFg.jpg",
-    "score": {
-      "consolidated": 64,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 61,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "278",
-    "slug": "um-sonho-de-liberdade",
-    "title": "Um Sonho de Liberdade",
-    "type": "movie",
-    "year": 1994,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/umX3lBhHoTV7Lsci140Yr8VpXyN.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
-    "score": {
-      "consolidated": 87,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 91,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "1304313",
-    "slug": "maldi-o-da-m-mia",
-    "title": "Maldição da Múmia",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/fI6XBw8k5CWNwxLEYZwpjA89TPg.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/xugEpZk9YQ0DIz1aFvH5HGkqpZK.jpg",
-    "score": {
-      "consolidated": 80,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 82,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "1443894",
-    "slug": "forgive-us-all",
-    "title": "Forgive Us All",
-    "type": "movie",
-    "year": 2025,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/bT7sMDsvWNeIGgZ6ZsisNdBcHdq.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/l3qnMiVwuWxBikOpBcYpUHKUBdN.jpg",
-    "score": {
-      "consolidated": 54,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 59,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1235877",
-    "slug": "",
-    "title": "ஜன நாயகன்",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/jt8pfSIdi47YpFMMWVRr8w5u2S0.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/v3lNH2gCojWYXVuXcT9FZLBxcSq.jpg",
-    "score": {
-      "consolidated": 75,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 71,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1311031",
-    "slug": "demon-slayer-kimetsu-no-yaiba-castelo-infinito",
-    "title": "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
-    "type": "movie",
-    "year": 2025,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/c55sXCaQBj3vuHqZe62tv90xCQS.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/1RgPyOhN4DRs225BGTlHJqCudII.jpg",
-    "score": {
-      "consolidated": 78,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 74,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "634649",
-    "slug": "homem-aranha-sem-volta-para-casa",
-    "title": "Homem-Aranha: Sem Volta Para Casa",
-    "type": "movie",
-    "year": 2021,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/xaKydnMw6wR1MBAjS5seGPVusbs.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/zD5v1E4joAzFvmAEytt7fM3ivyT.jpg",
-    "score": {
-      "consolidated": 79,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 77,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "1285366",
-    "slug": "",
-    "title": "愛のぬくもり",
-    "type": "movie",
-    "year": 2024,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/3r0O6BW9USoZ9mteCVyNKMQriRL.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/yjK3ardrgdS8suZG8KMU82Q7U38.jpg",
-    "score": {
-      "consolidated": 63,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 64,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "1728704",
-    "slug": "siping",
-    "title": "Siping",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/wNzRyplxryB8s6jb8Be5dYAKZb5.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/5XZqtQNB3XAnn7kFgU0XsSHbevV.jpg",
-    "score": {
-      "consolidated": 40,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 3.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 37,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "980431",
-    "slug": "avatar-aang-o-ltimo-mestre-do-ar",
-    "title": "Avatar Aang: O Último Mestre do Ar",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/h0jCyR6FTvp6ULcPokfoXvV1t3O.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg",
-    "score": {
-      "consolidated": 92,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 9.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 9.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 94,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "157336",
-    "slug": "interestelar",
-    "title": "Interestelar",
-    "type": "movie",
-    "year": 2014,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/6ricSDD83BClJsFdGB6x7cM0MFQ.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg",
-    "score": {
-      "consolidated": 85,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 82,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1321008",
-    "slug": "black-box",
-    "title": "Black Box",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Um voo doméstico de rotina se transforma em um voo infernal por meio de uma série de fenômenos inexplicáveis ​​e terror puro. Encontros surreais confundem as fronteiras entre a realidade e o pesadelo.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/O7vJPEWsnLrKqPYHIHKG8zlEK1.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/ce0RjYfcgzQeiT3PjaARWv5PVQO.jpg",
-    "score": {
-      "consolidated": 62,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 67,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "5721",
-    "slug": "vixen",
-    "title": "Vixen!",
-    "type": "movie",
-    "year": 1968,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Este é o primeiro filme daquela que viria a ser a mais conhecida série do realizador de culto da comédia erótica norte americana, Russ Meyer, o mestre inconfundível do cinema que nos deu a ver as mais",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/wJScc4TQpz7FZmTl0GN11Xf4X8q.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/uLu8zcwmR7qjkkF3zkScm6Sjh2v.jpg",
-    "score": {
-      "consolidated": 55,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 53,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "1491920",
-    "slug": "",
-    "title": "功夫女足",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/7H9Gkdr9V5KMM6STtCRdTuRD2Zd.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/J1UgJwRxDQS92kw75KgeVFZMHf.jpg",
-    "score": {
-      "consolidated": 63,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 61,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1595852",
-    "slug": "boulevard",
-    "title": "Boulevard",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/6bSCzwnFbdy7Z8ZLHfc9ZexJLSY.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/98uiDns59GUw26SQSCFmuSHTki3.jpg",
-    "score": {
-      "consolidated": 76,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 77,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "976912",
-    "slug": "o-limite-do-prazer",
-    "title": "O Limite do Prazer",
-    "type": "movie",
-    "year": 2023,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/fmLQaEPC9uRCbjPs1NI4S90qimH.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/rHnANzYUmV3WZw3n0yWOLiR3pen.jpg",
-    "score": {
-      "consolidated": 71,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 72,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "1301421",
-    "slug": "as-ovelhas-detetives",
-    "title": "As Ovelhas Detetives",
-    "type": "movie",
-    "year": 2026,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/crW4rarCRUVRSRFy3Bufw8Mwf8l.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/a8uQvrplTkhGJQog6GZ6CqF8An6.jpg",
-    "score": {
-      "consolidated": 79,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 78,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "94722",
-    "slug": "tagesschau",
-    "title": "Tagesschau",
-    "type": "series",
-    "year": 1952,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Tagesschau é um serviço de notícias de televisão nacional e internacional alemão produzido pela equipe editorial da ARD-aktuell em nome da rede de televisão de serviço público alemão ARD",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/7dFZJ2ZJJdcmkp05B9NWlqTJ5tq.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/jWXrQstj7p3Wl5MfYWY6IHqRpDb.jpg",
-    "score": {
-      "consolidated": 67,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 70,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max",
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "94997",
-    "slug": "a-casa-do-drag-o",
-    "title": "A Casa do Dragão",
-    "type": "series",
-    "year": 2022,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/oKJDm4QCKbp6mR4FnxXrFlPJP8Y.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/577eXC8wFQT0eUrJcgznSiFPRmk.jpg",
-    "score": {
-      "consolidated": 84,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 88,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "2734",
-    "slug": "lei-ordem-unidade-de-v-timas-especiais",
-    "title": "Lei & Ordem: Unidade de Vítimas Especiais",
-    "type": "series",
-    "year": 1999,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/nYkYmNFfKydgrcO45oNjOnW0FDJ.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/obtdxPgmfykYwVnvuYXC5f2xKlQ.jpg",
-    "score": {
-      "consolidated": 80,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 85,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "27181",
-    "slug": "rote-rosen",
-    "title": "Rote Rosen",
-    "type": "series",
-    "year": 2006,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/swL2qUjGrChFyj14ExwA0pwWtzv.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/qZ1odCAlNZhUIeLXZXU06JxRqjo.jpg",
-    "score": {
-      "consolidated": 30,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 30,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "5920",
-    "slug": "o-mentalista",
-    "title": "O Mentalista",
-    "type": "series",
-    "year": 2008,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/d1ZcT5tHzUeQ7zgYecOVoWxH9FL.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/q3pCsNvJ7CmdJUz2sJEEUY3pOPC.jpg",
-    "score": {
-      "consolidated": 84,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 87,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "204269",
-    "slug": "mori-no-kuma-san-toumin-chuu",
-    "title": "Mori no Kuma-san, Toumin-chuu.",
-    "type": "series",
-    "year": 2022,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/mGMO3bW9ByTj4xkqCaBQyti4QHm.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/gH3HCoEBuiLqzZii0sOMfMyXSR8.jpg",
-    "score": {
-      "consolidated": 59,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 57,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "549",
-    "slug": "lei-ordem",
-    "title": "Lei & Ordem",
-    "type": "series",
-    "year": 1990,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/9ez0xyH6IIg8Ww4hNpiD9lHRRH7.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/tc7canPSAn2X14hYi6Rl3gZm1o4.jpg",
-    "score": {
-      "consolidated": 73,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 7.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 77,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "79744",
-    "slug": "o-novato",
-    "title": "O Novato",
-    "type": "series",
-    "year": 2018,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/yCPGrd6fzbftuaH97OUS6tUdE4B.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/6iNWfGVCEfASDdlNb05TP5nG0ll.jpg",
-    "score": {
-      "consolidated": 85,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 82,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "233643",
-    "slug": "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai",
-    "title": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
-    "type": "series",
-    "year": 2023,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/ipqu76qqHiVB2vlK2gGZNwF9SwX.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/5IBSPGPAEFEkEJo4leqvpq0RcKf.jpg",
-    "score": {
-      "consolidated": 62,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 61,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video",
-      "Paramount+"
-    ]
-  },
-  {
-    "id": "125988",
-    "slug": "silo",
-    "title": "Silo",
-    "type": "series",
-    "year": 2023,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/tVR4q9FazxJuCEpaYxiCijUlvM3.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/uTWhbLc7Bj4qNSdW3ZvZKL8cOHv.jpg",
-    "score": {
-      "consolidated": 82,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 85,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+",
-      "Star+"
-    ]
-  },
-  {
-    "id": "1622",
-    "slug": "supernatural",
-    "title": "Supernatural",
-    "type": "series",
-    "year": 2005,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/eK4gEBWNGJoxCD67KFKzaKfSzWU.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg",
-    "score": {
-      "consolidated": 83,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.3,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 86,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "124364",
-    "slug": "origem",
-    "title": "Origem",
-    "type": "series",
-    "year": 2022,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/eK9ZDIq7gPFRJ0GGaWvgrXLZgXX.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/xLdw1xdHocKYFFvx7w41NchXMfJ.jpg",
-    "score": {
-      "consolidated": 85,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 87,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "1416",
-    "slug": "grey-s-anatomy",
-    "title": "Grey's Anatomy",
-    "type": "series",
-    "year": 2005,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/vrChGRs0DsoCoaeHif8PlZY637Q.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/jP0Rhj9OTPDAwQlHQwOLFDdeE8t.jpg",
-    "score": {
-      "consolidated": 82,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.2,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 84,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Disney+"
-    ]
-  },
-  {
-    "id": "60625",
-    "slug": "rick-e-morty",
-    "title": "Rick e Morty",
-    "type": "series",
-    "year": 2013,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/5qfd0e2uMbVInX3YdeFbDsfxi1t.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/5BDNWWHweQL0q1fmTv7gmRXfnl4.jpg",
-    "score": {
-      "consolidated": 87,
-      "confidence": "high",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 8.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 8.7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 84,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Alto consenso entre fontes."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "113266",
-    "slug": "kaatelal-sons",
-    "title": "Kaatelal & Sons",
-    "type": "series",
-    "year": 2020,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/cIHvYSONXUF17lUlschDDiw1Trz.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/97uGOtjEQjTRcdm5WV7yW52foWL.jpg",
-    "score": {
-      "consolidated": 0,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 0,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 0,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": -3,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix"
-    ]
-  },
-  {
-    "id": "51025",
-    "slug": "paradise-hotel",
-    "title": "Paradise Hotel",
-    "type": "series",
-    "year": 2005,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/ycSBcACecVR0zSnP2ZF83k5f7he.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/nun8Ssmni886Ib4v7chgQbswDfl.jpg",
-    "score": {
-      "consolidated": 56,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 51,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "22980",
-    "slug": "watch-what-happens-live-with-andy-cohen",
-    "title": "Watch What Happens Live with Andy Cohen",
-    "type": "series",
-    "year": 2009,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/onSD9UXfJwrMXWhq7UY7hGF2S1h.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/hINekSpbcBxjnjGqmIm6I4bz2ab.jpg",
-    "score": {
-      "consolidated": 50,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 4.8,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 50,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Netflix",
-      "Max"
-    ]
-  },
-  {
-    "id": "237020",
-    "slug": "",
-    "title": "百家讲坛：专题集",
-    "type": "series",
-    "year": 2001,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/7bS6LJn4EpopXSGSOUxrO9BEUjS.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/3iZrlYvakyQepd1zfIQJAki47eO.jpg",
-    "score": {
-      "consolidated": 70,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6.9,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 7,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 66,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  },
-  {
-    "id": "63770",
-    "slug": "the-late-show-with-stephen-colbert",
-    "title": "The Late Show with Stephen Colbert",
-    "type": "series",
-    "year": 2015,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Sinopse indisponível.",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/9jkThAGYj2yp8jsS6Nriy5mzKFT.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/gMMnf8VRg3Z98WaFmOLr9Jk8pIs.jpg",
-    "score": {
-      "consolidated": 61,
-      "confidence": "medium",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 6,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 6.1,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 65,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Avaliações mistas."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Max"
-    ]
-  },
-  {
-    "id": "206559",
-    "slug": "binnelanders",
-    "title": "Binnelanders",
-    "type": "series",
-    "year": 2005,
-    "genres": [
-      "Drama"
-    ],
-    "duration": null,
-    "synopsis": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
-    "posterUrl": "https://image.tmdb.org/t/p/w500/3bzECfllho8PphdYujLUIuhncJD.jpg",
-    "backdropUrl": "https://image.tmdb.org/t/p/w1280/s1dTt4M31q2HwD5Fkl1tf5tQzJg.jpg",
-    "score": {
-      "consolidated": 55,
-      "confidence": "low",
-      "sources": [
-        {
-          "source": "imdb",
-          "score": 5.4,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 5.5,
-          "maxScore": 10
-        },
-        {
-          "source": "tmdb",
-          "score": 55,
-          "maxScore": 100
-        }
-      ],
-      "explanation": "Consenso baixo."
-    },
-    "cast": [],
-    "crew": [],
-    "reviews": [],
-    "streaming": [
-      "Prime Video"
-    ]
-  }
+    id: "1368337",
+    slug: "a-odisseia",
+    title: "A Odisseia",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
+    posterUrl: "https://image.tmdb.org/t/p/w500/muMwJAiMtReEHLKpKMWt2rMkYF7.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/tYuC9kUwqhpDQ3pv1kLMqyMF1Jw.jpg",
+    score: {
+      consolidated: 79,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 74,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1275779",
+    slug: "dia-d",
+    title: "Dia D",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
+    posterUrl: "https://image.tmdb.org/t/p/w500/pmff1wjKrgJi92PPr346lAifzlg.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
+    score: {
+      consolidated: 72,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 70,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "1108427",
+    slug: "moana",
+    title: "Moana",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Na Polinésia Antiga, quando uma terrível maldição contraída por Maui chega à ilha de um impetuoso chefe, sua filha obstinada responde ao chamado do Oceano para procurar o semideus e consertar as coisa",
+    posterUrl: "https://image.tmdb.org/t/p/w500/sUkilgOKAGjw9c7OsRPLa392MOw.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/c6BPbkO5Npt1OdwttAxCFo06wtH.jpg",
+    score: {
+      consolidated: 59,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 57,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1339713",
+    slug: "obsess-o",
+    title: "Obsessão",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
+    posterUrl: "https://image.tmdb.org/t/p/w500/wUc6IDf5ChjM1UyQye21qFBeJY0.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/r013C8Me2bZ0pUi0OWJRh0h7MzT.jpg",
+    score: {
+      consolidated: 82,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 83,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "1083381",
+    slug: "backrooms-um-n-o-lugar",
+    title: "Backrooms: Um Não-Lugar",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      'Em 1990, o vendedor de móveis Clark descobre em sua loja um portal para os "Backrooms", um labirinto infinito de escritórios surreais. Fascinado, ele convence sua funcionária Kat e o namorado dela a m',
+    posterUrl: "https://image.tmdb.org/t/p/w500/qEl4BDBTGnhLiadZx0c9nHM8vBF.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/2aA8iPlMCks3k131ymFBAY6FL0b.jpg",
+    score: {
+      consolidated: 71,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 71,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "1081003",
+    slug: "supergirl",
+    title: "Supergirl",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
+    posterUrl: "https://image.tmdb.org/t/p/w500/qhXfLI1gDWaahzfHT0cb2CH61hO.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/8CIgg0gCHIYz0jrx5IcZEOy047J.jpg",
+    score: {
+      consolidated: 61,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 62,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "454639",
+    slug: "mestres-do-universo",
+    title: "Mestres do Universo",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
+    posterUrl: "https://image.tmdb.org/t/p/w500/atpb7NKSyM4bJSUY8vQTunzK4Na.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/piV2OnzTZCyGBP9JCjlHIgKGlfo.jpg",
+    score: {
+      consolidated: 73,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 73,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "1315772",
+    slug: "minions-monstros",
+    title: "Minions & Monstros",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
+    posterUrl: "https://image.tmdb.org/t/p/w500/hTowtXrkCY7FJyoj4p91JckrJSE.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/kkcwhgSFd81QDlXo8ytrpHPQjhy.jpg",
+    score: {
+      consolidated: 64,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 66,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max", "Prime Video"],
+  },
+  {
+    id: "1084244",
+    slug: "toy-story-5",
+    title: "Toy Story 5",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O trabalho de Buzz, Woody, Jessie e do resto da gangue fica exponencialmente mais difícil quando eles enfrentam uma nova ameaça à diversão: a tecnologia.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/sssrBhdvDcczgMQYDc8oCoSuFEJ.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/qjTqY5coNiz6sVtPng40IzltsoN.jpg",
+    score: {
+      consolidated: 74,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 76,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max", "Prime Video"],
+  },
+  {
+    id: "1273221",
+    slug: "todo-mundo-em-p-nico",
+    title: "Todo Mundo em Pânico",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
+    posterUrl: "https://image.tmdb.org/t/p/w500/y9yJd2qIIwhZcllHeKHsz5eRvNr.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/xWBiXclrRmTggQHMRsIn84YHavs.jpg",
+    score: {
+      consolidated: 65,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 64,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "1668364",
+    slug: "desejo",
+    title: "Desejo",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
+    posterUrl: "https://image.tmdb.org/t/p/w500/6iToFU4GaJz4OlLMx34v3VWV7JE.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/oBter8Y5p2ZFUwWgQ1T9pulGFTJ.jpg",
+    score: {
+      consolidated: 71,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 73,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "1727780",
+    slug: "borderline",
+    title: "Borderline",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/sAA2mjpYJFAKydtzG4P4aHC4mZk.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/t5iMyppJhIdjPQDAWIWoilO5iYf.jpg",
+    score: {
+      consolidated: 75,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 75,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1228710",
+    slug: "star-wars-o-mandaloriano-e-grogu",
+    title: "Star Wars: O Mandaloriano e Grogu",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
+    posterUrl: "https://image.tmdb.org/t/p/w500/dNwaS0tnwgQRaQFPY5MbGxdmYXr.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/ysLlsAxwgNSxBWHCgTKJrmjxpRQ.jpg",
+    score: {
+      consolidated: 72,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 71,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "969681",
+    slug: "homem-aranha-um-novo-dia",
+    title: "Homem-Aranha: Um Novo Dia",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
+    posterUrl: "https://image.tmdb.org/t/p/w500/x0nvYzQpyJc5pdT9lMnkMuYAg0O.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/vjMvFSmGUxEtqVdaZgvFee9XkZl.jpg",
+    score: {
+      consolidated: 90,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 87,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "687163",
+    slug: "devoradores-de-estrelas",
+    title: "Devoradores de Estrelas",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
+    posterUrl: "https://image.tmdb.org/t/p/w500/2i8uru7rlbHKaoIbC2V4FZLT7uW.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg",
+    score: {
+      consolidated: 87,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 82,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "1318621",
+    slug: "descendentes-pa-s-das-maravilhas-malvado",
+    title: "Descendentes: País das Maravilhas Malvado",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
+    posterUrl: "https://image.tmdb.org/t/p/w500/2IdGPF5ALnkPbDBqxuzjdTuCOFC.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/idRLKyu43mRhMWNjzd6FiEromNI.jpg",
+    score: {
+      consolidated: 77,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 73,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "1523145",
+    slug: "cora-o-partido",
+    title: "Coração Partido",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
+    posterUrl: "https://image.tmdb.org/t/p/w500/lsa8cLHVMPcKiSV5blNOqHTpQil.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/1x9e0qWonw634NhIsRdvnneeqvN.jpg",
+    score: {
+      consolidated: 72,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 70,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "1630409",
+    slug: "o-cobrador-de-d-vidas",
+    title: "O Cobrador de Dívidas",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/qBKdfIV8YeReAYyzebW7R14vWhe.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/5Va6qlwvpneo0XLzGFlvgYH5ncP.jpg",
+    score: {
+      consolidated: 72,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 69,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1314481",
+    slug: "o-diabo-veste-prada-2",
+    title: "O Diabo Veste Prada 2",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
+    posterUrl: "https://image.tmdb.org/t/p/w500/50yWyY981TyUHhoxxSEKwO70FmQ.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/Af907x5h9W1wVis8XrSd7ynTWuy.jpg",
+    score: {
+      consolidated: 71,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 67,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "1127384",
+    slug: "guas-mortais",
+    title: "Águas Mortais",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
+    posterUrl: "https://image.tmdb.org/t/p/w500/dWsw0X420R6ngEcVCkNlZ189Amr.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/szKv713FcUXx6hcfdY369vtkmzr.jpg",
+    score: {
+      consolidated: 74,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 70,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "1284465",
+    slug: "a-morte-de-robin-hood",
+    title: "A Morte de Robin Hood",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
+    posterUrl: "https://image.tmdb.org/t/p/w500/o0QndnepFPWget2kdKpzh26RBYt.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/aM3pduSU53VjcALWOfLWNw8v2TI.jpg",
+    score: {
+      consolidated: 67,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 66,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "1110034",
+    slug: "kraken",
+    title: "Kraken",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Um biólogo marinho investiga uma fazenda de peixe. Adolescentes mortos e curiosos acreditam que uma criatura gigantesca com vários tentáculos está localizada nas profundezas do fiordo, pronta para esm",
+    posterUrl: "https://image.tmdb.org/t/p/w500/lb8lEHDWRAflGr0daGsmJVoey2d.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/oV472EbPedkc5QzqolGc7sCgCnn.jpg",
+    score: {
+      consolidated: 64,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 64,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max", "Prime Video"],
+  },
+  {
+    id: "1280738",
+    slug: "the-furious",
+    title: "The Furious",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Após a filha de Wang Wei ser sequestrada por uma rede criminosa e ele não receber ajuda da polícia corrupta, Wei decide encontrá-la por conta própria. Seu único aliado é Navin, um jornalista implacáve",
+    posterUrl: "https://image.tmdb.org/t/p/w500/k334z7zxOJlJvOsOwyRF6HClCvi.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/9XwQphZxNJgGASfjL58mhIkJJpf.jpg",
+    score: {
+      consolidated: 74,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 76,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "1368314",
+    slug: "passageiro-do-mal",
+    title: "Passageiro do Mal",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Durante uma viagem de van, um jovem casal presencia um acidente terrível que resulta na morte do motorista. Logo, eles passam a ser perseguidos por uma entidade demoníaca, de quem é impossível escapar",
+    posterUrl: "https://image.tmdb.org/t/p/w500/aSoOiatgMmXtDS3iwWD5hC2Rbyn.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/3pDfu71mrzSuFYyIfnKEjt8z4BC.jpg",
+    score: {
+      consolidated: 73,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 69,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "936075",
+    slug: "michael",
+    title: "Michael",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A história da vida de Michael Jackson além da música, traçando sua jornada desde a descoberta de seu talento extraordinário como líder dos Jackson Five até o artista visionário cuja ambição criativa i",
+    posterUrl: "https://image.tmdb.org/t/p/w500/gXh43JopeO8BlA661BvlkR6yeqs.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/ufSwlnECLoUbBjPrFqEQcWBzHwc.jpg",
+    score: {
+      consolidated: 87,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 90,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "200066",
+    slug: "il-frullo-del-passero",
+    title: "Il frullo del passero",
+    type: "movie",
+    year: 1988,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/8Q5INiyhPf7QxCIcXFWF8QXLPuN.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/py9wIg0AyUmgXvuDeNuP8OgIVFu.jpg",
+    score: {
+      consolidated: 42,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 4.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 44,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "47612",
+    slug: "au-bonheur-des-dames",
+    title: "Au Bonheur des Dames",
+    type: "movie",
+    year: 1930,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/sVFvFFEMRJ1eUzD6nbYLSqwHi0d.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/o5bRLCNBmWBCBluFlOLUgivdONs.jpg",
+    score: {
+      consolidated: 63,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 65,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "261639",
+    slug: "",
+    title: "尼寺の情事　極楽ＳＥＸ",
+    type: "movie",
+    year: 1998,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/nth8G0m835nk1xWsV6Ga95FT2na.jpg",
+    backdropUrl: null,
+    score: {
+      consolidated: 34,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 3.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 3.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 30,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "931285",
+    slug: "mortal-kombat-2",
+    title: "Mortal Kombat 2",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
+    posterUrl: "https://image.tmdb.org/t/p/w500/iILiJSRViTEcF23MHhGCbVm3mfW.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/4EAAwpylq313qrDqpCxulUrXBNF.jpg",
+    score: {
+      consolidated: 80,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 81,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "83533",
+    slug: "avatar-fogo-e-cinzas",
+    title: "Avatar: Fogo e Cinzas",
+    type: "movie",
+    year: 2025,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
+    posterUrl: "https://image.tmdb.org/t/p/w500/3almrQT8GnrDjnQeWotdExjJhZm.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/sdZSjtGUTSN8B3al5o0f2WoQfQQ.jpg",
+    score: {
+      consolidated: 76,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 78,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "64439",
+    slug: "une-flamme-dans-mon-c-ur",
+    title: "Une flamme dans mon cœur",
+    type: "movie",
+    year: 1987,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/qI2cTls7msoXF4wIqju7klqiZ6Y.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/gsq4670nadz8Xc5GJ3osNiP3UzS.jpg",
+    score: {
+      consolidated: 61,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 57,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "1226863",
+    slug: "super-mario-galaxy-o-filme",
+    title: "Super Mario Galaxy: O Filme",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/b3WeTp42eJSRuE4UZfyPCOJW4c.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/kxQiIJ4gVcD3K6o14MJ72p5yRcE.jpg",
+    score: {
+      consolidated: 83,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 78,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Prime Video"],
+  },
+  {
+    id: "1003596",
+    slug: "vingadores-doutor-destino",
+    title: "Vingadores: Doutor Destino",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/j8ThEXgdGWYg1uWdSqygOSnlIA2.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/6KDDoTq8Vq3HuQHULzuvPiCJbMI.jpg",
+    score: {
+      consolidated: 0,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 0.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 0,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 3,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "1413976",
+    slug: "citizen-vigilante",
+    title: "Citizen Vigilante",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/6LmJD3Wohe0g4U62wgi7RyJqfE4.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/qJ2KSHJhlFvASBMLbGuP7OFMaFg.jpg",
+    score: {
+      consolidated: 64,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 61,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "278",
+    slug: "um-sonho-de-liberdade",
+    title: "Um Sonho de Liberdade",
+    type: "movie",
+    year: 1994,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
+    posterUrl: "https://image.tmdb.org/t/p/w500/umX3lBhHoTV7Lsci140Yr8VpXyN.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+    score: {
+      consolidated: 87,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 91,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "1304313",
+    slug: "maldi-o-da-m-mia",
+    title: "Maldição da Múmia",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
+    posterUrl: "https://image.tmdb.org/t/p/w500/fI6XBw8k5CWNwxLEYZwpjA89TPg.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/xugEpZk9YQ0DIz1aFvH5HGkqpZK.jpg",
+    score: {
+      consolidated: 80,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 82,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "1443894",
+    slug: "forgive-us-all",
+    title: "Forgive Us All",
+    type: "movie",
+    year: 2025,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/bT7sMDsvWNeIGgZ6ZsisNdBcHdq.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/l3qnMiVwuWxBikOpBcYpUHKUBdN.jpg",
+    score: {
+      consolidated: 54,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 59,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1235877",
+    slug: "",
+    title: "ஜன நாயகன்",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/jt8pfSIdi47YpFMMWVRr8w5u2S0.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/v3lNH2gCojWYXVuXcT9FZLBxcSq.jpg",
+    score: {
+      consolidated: 75,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 71,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1311031",
+    slug: "demon-slayer-kimetsu-no-yaiba-castelo-infinito",
+    title: "Demon Slayer: Kimetsu no Yaiba Castelo Infinito",
+    type: "movie",
+    year: 2025,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
+    posterUrl: "https://image.tmdb.org/t/p/w500/c55sXCaQBj3vuHqZe62tv90xCQS.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/1RgPyOhN4DRs225BGTlHJqCudII.jpg",
+    score: {
+      consolidated: 78,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 74,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "634649",
+    slug: "homem-aranha-sem-volta-para-casa",
+    title: "Homem-Aranha: Sem Volta Para Casa",
+    type: "movie",
+    year: 2021,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
+    posterUrl: "https://image.tmdb.org/t/p/w500/xaKydnMw6wR1MBAjS5seGPVusbs.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/zD5v1E4joAzFvmAEytt7fM3ivyT.jpg",
+    score: {
+      consolidated: 79,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 77,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "1285366",
+    slug: "",
+    title: "愛のぬくもり",
+    type: "movie",
+    year: 2024,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/3r0O6BW9USoZ9mteCVyNKMQriRL.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/yjK3ardrgdS8suZG8KMU82Q7U38.jpg",
+    score: {
+      consolidated: 63,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 64,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "1728704",
+    slug: "siping",
+    title: "Siping",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/wNzRyplxryB8s6jb8Be5dYAKZb5.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/5XZqtQNB3XAnn7kFgU0XsSHbevV.jpg",
+    score: {
+      consolidated: 40,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 3.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 37,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "980431",
+    slug: "avatar-aang-o-ltimo-mestre-do-ar",
+    title: "Avatar Aang: O Último Mestre do Ar",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O Avatar Aang, o último mestre do ar do mundo, toma conhecimento de um poder antigo que poderia salvar sua cultura da extinção. Com a ajuda de seus amigos, ele embarca em uma busca global para encontr",
+    posterUrl: "https://image.tmdb.org/t/p/w500/h0jCyR6FTvp6ULcPokfoXvV1t3O.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg",
+    score: {
+      consolidated: 92,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 9.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 9.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 94,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "157336",
+    slug: "interestelar",
+    title: "Interestelar",
+    type: "movie",
+    year: 2014,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
+    posterUrl: "https://image.tmdb.org/t/p/w500/6ricSDD83BClJsFdGB6x7cM0MFQ.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg",
+    score: {
+      consolidated: 85,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 82,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Prime Video"],
+  },
+  {
+    id: "1321008",
+    slug: "black-box",
+    title: "Black Box",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Um voo doméstico de rotina se transforma em um voo infernal por meio de uma série de fenômenos inexplicáveis ​​e terror puro. Encontros surreais confundem as fronteiras entre a realidade e o pesadelo.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/O7vJPEWsnLrKqPYHIHKG8zlEK1.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/ce0RjYfcgzQeiT3PjaARWv5PVQO.jpg",
+    score: {
+      consolidated: 62,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 67,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "5721",
+    slug: "vixen",
+    title: "Vixen!",
+    type: "movie",
+    year: 1968,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Este é o primeiro filme daquela que viria a ser a mais conhecida série do realizador de culto da comédia erótica norte americana, Russ Meyer, o mestre inconfundível do cinema que nos deu a ver as mais",
+    posterUrl: "https://image.tmdb.org/t/p/w500/wJScc4TQpz7FZmTl0GN11Xf4X8q.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/uLu8zcwmR7qjkkF3zkScm6Sjh2v.jpg",
+    score: {
+      consolidated: 55,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 53,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "1491920",
+    slug: "",
+    title: "功夫女足",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/7H9Gkdr9V5KMM6STtCRdTuRD2Zd.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/J1UgJwRxDQS92kw75KgeVFZMHf.jpg",
+    score: {
+      consolidated: 63,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 61,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "1595852",
+    slug: "boulevard",
+    title: "Boulevard",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      'Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No "boulevard", eles desco',
+    posterUrl: "https://image.tmdb.org/t/p/w500/6bSCzwnFbdy7Z8ZLHfc9ZexJLSY.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/98uiDns59GUw26SQSCFmuSHTki3.jpg",
+    score: {
+      consolidated: 76,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 77,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "976912",
+    slug: "o-limite-do-prazer",
+    title: "O Limite do Prazer",
+    type: "movie",
+    year: 2023,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/fmLQaEPC9uRCbjPs1NI4S90qimH.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/rHnANzYUmV3WZw3n0yWOLiR3pen.jpg",
+    score: {
+      consolidated: 71,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 72,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "1301421",
+    slug: "as-ovelhas-detetives",
+    title: "As Ovelhas Detetives",
+    type: "movie",
+    year: 2026,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
+    posterUrl: "https://image.tmdb.org/t/p/w500/crW4rarCRUVRSRFy3Bufw8Mwf8l.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/a8uQvrplTkhGJQog6GZ6CqF8An6.jpg",
+    score: {
+      consolidated: 79,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 78,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "94722",
+    slug: "tagesschau",
+    title: "Tagesschau",
+    type: "series",
+    year: 1952,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Tagesschau é um serviço de notícias de televisão nacional e internacional alemão produzido pela equipe editorial da ARD-aktuell em nome da rede de televisão de serviço público alemão ARD",
+    posterUrl: "https://image.tmdb.org/t/p/w500/7dFZJ2ZJJdcmkp05B9NWlqTJ5tq.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/jWXrQstj7p3Wl5MfYWY6IHqRpDb.jpg",
+    score: {
+      consolidated: 67,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 70,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max", "Prime Video"],
+  },
+  {
+    id: "94997",
+    slug: "a-casa-do-drag-o",
+    title: "A Casa do Dragão",
+    type: "series",
+    year: 2022,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      '200 anos antes dos eventos de "Game of Thrones", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye',
+    posterUrl: "https://image.tmdb.org/t/p/w500/oKJDm4QCKbp6mR4FnxXrFlPJP8Y.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/577eXC8wFQT0eUrJcgznSiFPRmk.jpg",
+    score: {
+      consolidated: 84,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 88,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "2734",
+    slug: "lei-ordem-unidade-de-v-timas-especiais",
+    title: "Lei & Ordem: Unidade de Vítimas Especiais",
+    type: "series",
+    year: 1999,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
+    posterUrl: "https://image.tmdb.org/t/p/w500/nYkYmNFfKydgrcO45oNjOnW0FDJ.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/obtdxPgmfykYwVnvuYXC5f2xKlQ.jpg",
+    score: {
+      consolidated: 80,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 85,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "27181",
+    slug: "rote-rosen",
+    title: "Rote Rosen",
+    type: "series",
+    year: 2006,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/swL2qUjGrChFyj14ExwA0pwWtzv.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/qZ1odCAlNZhUIeLXZXU06JxRqjo.jpg",
+    score: {
+      consolidated: 30,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 30,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "5920",
+    slug: "o-mentalista",
+    title: "O Mentalista",
+    type: "series",
+    year: 2008,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
+    posterUrl: "https://image.tmdb.org/t/p/w500/d1ZcT5tHzUeQ7zgYecOVoWxH9FL.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/q3pCsNvJ7CmdJUz2sJEEUY3pOPC.jpg",
+    score: {
+      consolidated: 84,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 87,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "204269",
+    slug: "mori-no-kuma-san-toumin-chuu",
+    title: "Mori no Kuma-san, Toumin-chuu.",
+    type: "series",
+    year: 2022,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
+    posterUrl: "https://image.tmdb.org/t/p/w500/mGMO3bW9ByTj4xkqCaBQyti4QHm.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/gH3HCoEBuiLqzZii0sOMfMyXSR8.jpg",
+    score: {
+      consolidated: 59,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 57,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "549",
+    slug: "lei-ordem",
+    title: "Lei & Ordem",
+    type: "series",
+    year: 1990,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/9ez0xyH6IIg8Ww4hNpiD9lHRRH7.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/tc7canPSAn2X14hYi6Rl3gZm1o4.jpg",
+    score: {
+      consolidated: 73,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 7.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 77,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "79744",
+    slug: "o-novato",
+    title: "O Novato",
+    type: "series",
+    year: 2018,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
+    posterUrl: "https://image.tmdb.org/t/p/w500/yCPGrd6fzbftuaH97OUS6tUdE4B.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/6iNWfGVCEfASDdlNb05TP5nG0ll.jpg",
+    score: {
+      consolidated: 85,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 82,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "233643",
+    slug: "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai",
+    title: "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
+    type: "series",
+    year: 2023,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
+    posterUrl: "https://image.tmdb.org/t/p/w500/ipqu76qqHiVB2vlK2gGZNwF9SwX.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/5IBSPGPAEFEkEJo4leqvpq0RcKf.jpg",
+    score: {
+      consolidated: 62,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 61,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video", "Paramount+"],
+  },
+  {
+    id: "125988",
+    slug: "silo",
+    title: "Silo",
+    type: "series",
+    year: 2023,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Em um futuro destruído e tóxico, existe uma comunidade que vive dentro de um gigantesco silo subterrâneo com centenas de andares de profundidade. Lá, homens e mulheres vivem numa sociedade cheia de re",
+    posterUrl: "https://image.tmdb.org/t/p/w500/tVR4q9FazxJuCEpaYxiCijUlvM3.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/uTWhbLc7Bj4qNSdW3ZvZKL8cOHv.jpg",
+    score: {
+      consolidated: 82,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 85,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+", "Star+"],
+  },
+  {
+    id: "1622",
+    slug: "supernatural",
+    title: "Supernatural",
+    type: "series",
+    year: 2005,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/eK4gEBWNGJoxCD67KFKzaKfSzWU.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg",
+    score: {
+      consolidated: 83,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.3,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 86,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "124364",
+    slug: "origem",
+    title: "Origem",
+    type: "series",
+    year: 2022,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Desvende o mistério de uma cidade no centro dos EUA. Enquanto os moradores lutam para manter um senso de normalidade, eles também devem sobreviver às ameaças da floresta ao redor, incluindo as criatur",
+    posterUrl: "https://image.tmdb.org/t/p/w500/eK9ZDIq7gPFRJ0GGaWvgrXLZgXX.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/xLdw1xdHocKYFFvx7w41NchXMfJ.jpg",
+    score: {
+      consolidated: 85,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 87,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "1416",
+    slug: "grey-s-anatomy",
+    title: "Grey's Anatomy",
+    type: "series",
+    year: 2005,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
+    posterUrl: "https://image.tmdb.org/t/p/w500/vrChGRs0DsoCoaeHif8PlZY637Q.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/jP0Rhj9OTPDAwQlHQwOLFDdeE8t.jpg",
+    score: {
+      consolidated: 82,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.2,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 84,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Disney+"],
+  },
+  {
+    id: "60625",
+    slug: "rick-e-morty",
+    title: "Rick e Morty",
+    type: "series",
+    year: 2013,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/5qfd0e2uMbVInX3YdeFbDsfxi1t.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/5BDNWWHweQL0q1fmTv7gmRXfnl4.jpg",
+    score: {
+      consolidated: 87,
+      confidence: "high",
+      sources: [
+        {
+          source: "imdb",
+          score: 8.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 8.7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 84,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Alto consenso entre fontes.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "113266",
+    slug: "kaatelal-sons",
+    title: "Kaatelal & Sons",
+    type: "series",
+    year: 2020,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/cIHvYSONXUF17lUlschDDiw1Trz.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/97uGOtjEQjTRcdm5WV7yW52foWL.jpg",
+    score: {
+      consolidated: 0,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 0,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 0,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: -3,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix"],
+  },
+  {
+    id: "51025",
+    slug: "paradise-hotel",
+    title: "Paradise Hotel",
+    type: "series",
+    year: 2005,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/ycSBcACecVR0zSnP2ZF83k5f7he.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/nun8Ssmni886Ib4v7chgQbswDfl.jpg",
+    score: {
+      consolidated: 56,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 51,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "22980",
+    slug: "watch-what-happens-live-with-andy-cohen",
+    title: "Watch What Happens Live with Andy Cohen",
+    type: "series",
+    year: 2009,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/onSD9UXfJwrMXWhq7UY7hGF2S1h.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/hINekSpbcBxjnjGqmIm6I4bz2ab.jpg",
+    score: {
+      consolidated: 50,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 4.8,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 50,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Netflix", "Max"],
+  },
+  {
+    id: "237020",
+    slug: "",
+    title: "百家讲坛：专题集",
+    type: "series",
+    year: 2001,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/7bS6LJn4EpopXSGSOUxrO9BEUjS.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/3iZrlYvakyQepd1zfIQJAki47eO.jpg",
+    score: {
+      consolidated: 70,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6.9,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 7,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 66,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
+  {
+    id: "63770",
+    slug: "the-late-show-with-stephen-colbert",
+    title: "The Late Show with Stephen Colbert",
+    type: "series",
+    year: 2015,
+    genres: ["Drama"],
+    duration: null,
+    synopsis: "Sinopse indisponível.",
+    posterUrl: "https://image.tmdb.org/t/p/w500/9jkThAGYj2yp8jsS6Nriy5mzKFT.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/gMMnf8VRg3Z98WaFmOLr9Jk8pIs.jpg",
+    score: {
+      consolidated: 61,
+      confidence: "medium",
+      sources: [
+        {
+          source: "imdb",
+          score: 6,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 6.1,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 65,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Avaliações mistas.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Max"],
+  },
+  {
+    id: "206559",
+    slug: "binnelanders",
+    title: "Binnelanders",
+    type: "series",
+    year: 2005,
+    genres: ["Drama"],
+    duration: null,
+    synopsis:
+      "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
+    posterUrl: "https://image.tmdb.org/t/p/w500/3bzECfllho8PphdYujLUIuhncJD.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/s1dTt4M31q2HwD5Fkl1tf5tQzJg.jpg",
+    score: {
+      consolidated: 55,
+      confidence: "low",
+      sources: [
+        {
+          source: "imdb",
+          score: 5.4,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 5.5,
+          maxScore: 10,
+        },
+        {
+          source: "tmdb",
+          score: 55,
+          maxScore: 100,
+        },
+      ],
+      explanation: "Consenso baixo.",
+    },
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: ["Prime Video"],
+  },
 ];

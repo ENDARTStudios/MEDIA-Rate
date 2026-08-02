@@ -9,7 +9,9 @@ test("debug catalog chain opacity", async () => {
     headless: false,
     args: ["--no-sandbox", "--disable-gpu"],
   });
-  const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+  const page = await browser
+    .newContext({ viewport: { width: 1440, height: 900 } })
+    .then((c) => c.newPage());
 
   try {
     await page.goto(`${PROD}/pt-BR/catalog`, { waitUntil: "networkidle", timeout: 20000 });
@@ -41,13 +43,14 @@ test("debug catalog chain opacity", async () => {
 
     console.log("\n=== OPACITY CHAIN ===");
     chain.forEach((c: any) => {
-      console.log(`[${c.depth}] ${c.tag}.${c.cls} opacity=${c.opacity} display=${c.display} ${c.width}x${c.height}`);
+      console.log(
+        `[${c.depth}] ${c.tag}.${c.cls} opacity=${c.opacity} display=${c.display} ${c.width}x${c.height}`,
+      );
     });
 
     // Check prefers-reduced-motion
     const prm = await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
     console.log(`\nprefers-reduced-motion: ${prm}`);
-
   } finally {
     await browser.close();
   }

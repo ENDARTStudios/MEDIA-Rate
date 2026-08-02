@@ -15,11 +15,19 @@ p.on("response", async (r) => {
   const u = r.url();
   if (/railway\.app\/api\/v1\/(auth|me)/.test(u)) {
     const sc = r.headers()["set-cookie"] || "";
-    net.push({ s: r.status(), u: u.replace(/.*\/api\/v1/, "/api/v1"), setCookie: sc ? sc.split(";")[0]?.split("=")[0] : "" });
+    net.push({
+      s: r.status(),
+      u: u.replace(/.*\/api\/v1/, "/api/v1"),
+      setCookie: sc ? sc.split(";")[0]?.split("=")[0] : "",
+    });
   }
 });
-const cerr = []; p.on("console", (m) => { if (m.type() === "error") cerr.push(m.text().slice(0, 200)); });
-const perr = []; p.on("pageerror", (e) => perr.push(e.message.slice(0, 200)));
+const cerr = [];
+p.on("console", (m) => {
+  if (m.type() === "error") cerr.push(m.text().slice(0, 200));
+});
+const perr = [];
+p.on("pageerror", (e) => perr.push(e.message.slice(0, 200)));
 
 const email = "e2e-" + Date.now() + "@test.com";
 
@@ -38,9 +46,13 @@ const chk = p.locator('input[type="checkbox"]').first();
 if ((await chk.count()) > 0) await chk.check().catch(() => {});
 
 net.length = 0;
-await p.locator('button:has-text("Cadastrar")').first().click().catch(() => {
-  return p.locator('button[type="submit"]').first().click();
-});
+await p
+  .locator('button:has-text("Cadastrar")')
+  .first()
+  .click()
+  .catch(() => {
+    return p.locator('button[type="submit"]').first().click();
+  });
 await p.waitForTimeout(5000);
 console.log("REGISTER url=", p.url());
 console.log("REGISTER net=", JSON.stringify(net, null, 1));
@@ -55,14 +67,19 @@ await p.waitForTimeout(1000);
 net.length = 0;
 const logoutBtn = p.locator('button:has-text("Sair")');
 if ((await logoutBtn.count()) > 0) {
-  await logoutBtn.first().click().catch(() => {});
+  await logoutBtn
+    .first()
+    .click()
+    .catch(() => {});
   await p.waitForTimeout(3000);
 }
 console.log("LOGOUT url=", p.url());
 console.log("LOGOUT net=", JSON.stringify(net, null, 1));
 
 // Protected route
-await p.goto(BASE + "/pt-BR/dashboard", { waitUntil: "domcontentloaded", timeout: 10_000 }).catch(() => {});
+await p
+  .goto(BASE + "/pt-BR/dashboard", { waitUntil: "domcontentloaded", timeout: 10_000 })
+  .catch(() => {});
 await p.waitForTimeout(2000);
 console.log("DASHBOARD url=", p.url());
 

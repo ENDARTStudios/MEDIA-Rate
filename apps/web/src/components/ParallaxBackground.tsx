@@ -3,7 +3,13 @@
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap-config";
 
-export function ParallaxBackground({ children, speed = 0.3 }: { children: React.ReactNode; speed?: number }) {
+export function ParallaxBackground({
+  children,
+  speed = 0.3,
+}: {
+  children: React.ReactNode;
+  speed?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

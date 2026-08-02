@@ -29,7 +29,8 @@ jobs:
       - name: Supply Chain Audit (Socket Security)
         uses: socket-security/action@latest
         with:
-          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}
+      - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Run Executors (Trivy & ZAP)
         run: pnpm exec tsx scripts/run-scans.ts
@@ -62,7 +63,8 @@ jobs:
       - name: Supply Chain Audit (Socket Security)
         uses: socket-security/action@latest
         with:
-          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}
+      - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Download Executor Results (AC-24)
         uses: actions/download-artifact@v4
@@ -100,7 +102,8 @@ jobs:
       - name: Supply Chain Audit (Socket Security)
         uses: socket-security/action@latest
         with:
-          api-token: ${{ secrets.SOCKET_API_TOKEN }}      - name: Install Dependencies
+          api-token: ${{ secrets.SOCKET_API_TOKEN }}
+      - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Download Verdict
         uses: actions/download-artifact@v4

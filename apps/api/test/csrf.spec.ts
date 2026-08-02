@@ -7,6 +7,7 @@ import { AuthController } from "../src/modules/auth/auth.controller.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
+import { MetricsService } from "../src/modules/metrics/metrics.service.js";
 
 describe("CSRF Guard (T050)", () => {
   let app: NestFastifyApplication;
@@ -16,9 +17,42 @@ describe("CSRF Guard (T050)", () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        { provide: AuthService, useValue: { login: async () => ({ token: "mock-token", expires_at: new Date(), usuario: { id: "u1", email: "e@e.com", nome: null } }), register: async () => ({ id: "u1", email: "e@e.com", nome: null, created_at: new Date() }), forgotPassword: async () => ({ message: "ok" }), resetPassword: async () => ({ message: "ok" }), logoutAudit: async () => {} } },
+        {
+          provide: AuthService,
+          useValue: {
+            login: async () => ({
+              token: "mock-token",
+              expires_at: new Date(),
+              usuario: { id: "u1", email: "e@e.com", nome: null },
+            }),
+            register: async () => ({
+              id: "u1",
+              email: "e@e.com",
+              nome: null,
+              created_at: new Date(),
+            }),
+            forgotPassword: async () => ({ message: "ok" }),
+            resetPassword: async () => ({ message: "ok" }),
+            logoutAudit: async () => {},
+          },
+        },
         { provide: SessionService, useValue: { revokeSession: async () => true } },
-        { provide: SessionCookieService, useValue: { setSessionCookie: () => {}, clearSessionCookie: () => {}, getCookieName: () => "sess" } },
+        {
+          provide: SessionCookieService,
+          useValue: {
+            setSessionCookie: () => {},
+            clearSessionCookie: () => {},
+            getCookieName: () => "sess",
+          },
+        },
+        {
+          provide: MetricsService,
+          useValue: {
+            incrementRegister: () => {},
+            incrementLogin: () => {},
+            incrementLogout: () => {},
+          },
+        },
       ],
     }).compile();
 
@@ -51,8 +85,7 @@ describe("CSRF Guard (T050)", () => {
   });
 
   it("logout sem X-CSRF-Token sem sessao → 200 (CSRF so atua com autenticacao)", async () => {
-    const r = await request(app.getHttpServer())
-      .post("/api/v1/auth/logout");
+    const r = await request(app.getHttpServer()).post("/api/v1/auth/logout");
     expect(r.status).toBe(200);
     expect(r.body.message).toMatch(/Logout/i);
   });
@@ -76,8 +109,7 @@ describe("CSRF Guard (T050)", () => {
   });
 
   it("logout sem X-CSRF-Token sem auth → 200 (CSRF delegation)", async () => {
-    const r = await request(app.getHttpServer())
-      .post("/api/v1/auth/logout");
+    const r = await request(app.getHttpServer()).post("/api/v1/auth/logout");
     expect(r.status).toBe(200);
   });
 });

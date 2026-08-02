@@ -11,7 +11,9 @@ test.describe("T135 - heart persistence diagnostic", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       const testEmail = "t135-" + Date.now() + "@prova.test";
@@ -25,7 +27,9 @@ test.describe("T135 - heart persistence diagnostic", () => {
       await page.locator('input[name="email"]').first().fill(testEmail);
       await page.locator('input[name="password"]').first().fill("Prova@135!");
       await page.locator('button[type="submit"]').first().click();
-      try { await page.waitForURL("**/dashboard", { timeout: 15000 }); } catch {}
+      try {
+        await page.waitForURL("**/dashboard", { timeout: 15000 });
+      } catch {}
 
       // Track watchlist API
       let watchlistCalls = 0;
@@ -33,7 +37,9 @@ test.describe("T135 - heart persistence diagnostic", () => {
       page.on("response", async (resp) => {
         if (resp.url().includes("/api/v1/watchlist") && resp.request().method() === "GET") {
           watchlistCalls++;
-          try { watchlistData = await resp.text(); } catch {}
+          try {
+            watchlistData = await resp.text();
+          } catch {}
         }
       });
 
@@ -67,10 +73,14 @@ test.describe("T135 - heart persistence diagnostic", () => {
         await page.waitForTimeout(3000);
 
         // Check hearts after reload
-        const filledNow = await page.locator('svg[fill*="EF4444"], button[title*="vendo"], button[title*="vi"], button[title*="Quero"]').count().catch(() => 0);
+        const filledNow = await page
+          .locator(
+            'svg[fill*="EF4444"], button[title*="vendo"], button[title*="vi"], button[title*="Quero"]',
+          )
+          .count()
+          .catch(() => 0);
         console.log("Filled hearts after reload:", filledNow);
       }
-
     } finally {
       await browser.close();
     }

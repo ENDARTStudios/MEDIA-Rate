@@ -11,7 +11,9 @@ test.describe("T136 - heart persistence verification", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       const testEmail = "t136f-" + Date.now() + "@prova.test";
@@ -25,7 +27,9 @@ test.describe("T136 - heart persistence verification", () => {
       await page.locator('input[name="email"]').first().fill(testEmail);
       await page.locator('input[name="password"]').first().fill("Prova@136!");
       await page.locator('button[type="submit"]').first().click();
-      try { await page.waitForURL("**/dashboard", { timeout: 15000 }); } catch {}
+      try {
+        await page.waitForURL("**/dashboard", { timeout: 15000 });
+      } catch {}
       await page.waitForTimeout(2000);
 
       await page.goto(PROD + "/pt-BR/catalog", { waitUntil: "load", timeout: 15000 });
@@ -33,7 +37,10 @@ test.describe("T136 - heart persistence verification", () => {
 
       // Find heart button by its unique SVG path
       const heartSelector = 'svg path[d*="M20.84 4.61"]';
-      const heartCount = await page.locator(heartSelector).count().catch(() => 0);
+      const heartCount = await page
+        .locator(heartSelector)
+        .count()
+        .catch(() => 0);
       console.log("Heart SVGs found:", heartCount);
 
       if (heartCount === 0) {
@@ -46,29 +53,35 @@ test.describe("T136 - heart persistence verification", () => {
       const firstHeartSvg = page.locator(heartSelector).first();
       const firstHeartBtn = firstHeartSvg.locator("..");
       // Walk up if needed
-      const parentTag = await firstHeartBtn.evaluate(el => el.tagName).catch(() => "");
+      const parentTag = await firstHeartBtn.evaluate((el) => el.tagName).catch(() => "");
       console.log("Heart parent tag:", parentTag);
-      
+
       // The SVG is inside a <button>, which is inside <motion.button> which renders as <button>
       // Use ancestor matching
-      const btn = page.locator('button:has(' + heartSelector + ')').first();
-      const btnTag = await btn.evaluate(el => el.tagName).catch(() => "");
+      const btn = page.locator("button:has(" + heartSelector + ")").first();
+      const btnTag = await btn.evaluate((el) => el.tagName).catch(() => "");
       console.log("Button tag:", btnTag);
 
-      const initialLabel = await btn.getAttribute("aria-label").catch(() => "") || "";
-      const initialTitle = await btn.getAttribute("title").catch(() => "") || "";
+      const initialLabel = (await btn.getAttribute("aria-label").catch(() => "")) || "";
+      const initialTitle = (await btn.getAttribute("title").catch(() => "")) || "";
       console.log("Initial aria-label:", initialLabel);
       console.log("Initial title:", initialTitle);
 
-      const initiallyFilled = initialLabel.includes("Quero Ver") || initialLabel.includes("Vendo") || initialLabel.includes("Vi");
+      const initiallyFilled =
+        initialLabel.includes("Quero Ver") ||
+        initialLabel.includes("Vendo") ||
+        initialLabel.includes("Vi");
       console.log("Initially filled:", initiallyFilled);
 
       // Click to favorite
       await btn.click();
       await page.waitForTimeout(2500);
 
-      const labelAfterClick = await btn.getAttribute("aria-label").catch(() => "") || "";
-      const afterClickFilled = labelAfterClick.includes("Quero Ver") || labelAfterClick.includes("Vendo") || labelAfterClick.includes("Vi");
+      const labelAfterClick = (await btn.getAttribute("aria-label").catch(() => "")) || "";
+      const afterClickFilled =
+        labelAfterClick.includes("Quero Ver") ||
+        labelAfterClick.includes("Vendo") ||
+        labelAfterClick.includes("Vi");
       console.log("After click filled:", afterClickFilled, "|", labelAfterClick);
 
       if (!afterClickFilled) {
@@ -82,9 +95,13 @@ test.describe("T136 - heart persistence verification", () => {
       await page.reload({ waitUntil: "load", timeout: 15000 });
       await page.waitForTimeout(5000);
 
-      const btnAfterReload = page.locator('button:has(' + heartSelector + ')').first();
-      const labelAfterReload = await btnAfterReload.getAttribute("aria-label").catch(() => "") || "";
-      const persistsReload = labelAfterReload.includes("Quero Ver") || labelAfterReload.includes("Vendo") || labelAfterReload.includes("Vi");
+      const btnAfterReload = page.locator("button:has(" + heartSelector + ")").first();
+      const labelAfterReload =
+        (await btnAfterReload.getAttribute("aria-label").catch(() => "")) || "";
+      const persistsReload =
+        labelAfterReload.includes("Quero Ver") ||
+        labelAfterReload.includes("Vendo") ||
+        labelAfterReload.includes("Vi");
       console.log("After reload filled:", persistsReload, "|", labelAfterReload);
 
       // NAVIGATE AWAY AND BACK
@@ -94,9 +111,12 @@ test.describe("T136 - heart persistence verification", () => {
       await page.goto(PROD + "/pt-BR/catalog", { waitUntil: "load", timeout: 15000 });
       await page.waitForTimeout(5000);
 
-      const btnAfterNav = page.locator('button:has(' + heartSelector + ')').first();
-      const labelAfterNav = await btnAfterNav.getAttribute("aria-label").catch(() => "") || "";
-      const persistsNav = labelAfterNav.includes("Quero Ver") || labelAfterNav.includes("Vendo") || labelAfterNav.includes("Vi");
+      const btnAfterNav = page.locator("button:has(" + heartSelector + ")").first();
+      const labelAfterNav = (await btnAfterNav.getAttribute("aria-label").catch(() => "")) || "";
+      const persistsNav =
+        labelAfterNav.includes("Quero Ver") ||
+        labelAfterNav.includes("Vendo") ||
+        labelAfterNav.includes("Vi");
       console.log("After nav filled:", persistsNav, "|", labelAfterNav);
 
       // UNFAVORITE
@@ -105,14 +125,18 @@ test.describe("T136 - heart persistence verification", () => {
       await page.waitForTimeout(1500);
 
       const removeBtn2 = page.locator('button:has-text("Remover")');
-      if (await removeBtn2.count().catch(() => 0) > 0) {
+      if ((await removeBtn2.count().catch(() => 0)) > 0) {
         await removeBtn2.first().click();
         await page.waitForTimeout(2000);
       }
 
-      const btnAfterRemove = page.locator('button:has(' + heartSelector + ')').first();
-      const labelAfterRemove = await btnAfterRemove.getAttribute("aria-label").catch(() => "") || "";
-      const unfavorited = !labelAfterRemove.includes("Quero Ver") && !labelAfterRemove.includes("Vendo") && !labelAfterRemove.includes("Vi");
+      const btnAfterRemove = page.locator("button:has(" + heartSelector + ")").first();
+      const labelAfterRemove =
+        (await btnAfterRemove.getAttribute("aria-label").catch(() => "")) || "";
+      const unfavorited =
+        !labelAfterRemove.includes("Quero Ver") &&
+        !labelAfterRemove.includes("Vendo") &&
+        !labelAfterRemove.includes("Vi");
       console.log("Unfavorited:", unfavorited, "|", labelAfterRemove);
 
       await page.screenshot({ path: "e2e/screenshots/t136-final.png", fullPage: false });
@@ -123,7 +147,6 @@ test.describe("T136 - heart persistence verification", () => {
       console.log("PERSISTS nav:", persistsNav);
       console.log("UNFAVORITED:", unfavorited);
       console.log("ALL PASS:", persistsReload && persistsNav && unfavorited);
-
     } finally {
       await browser.close();
     }

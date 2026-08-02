@@ -1,11 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
 import Stripe from "stripe";
-import type {
+import {
   CheckoutSession,
   CreateCheckoutInput,
   IPaymentGateway,
   WebhookEvent,
 } from "../domain/gateway/payment-gateway.port.js";
+import { WebhookSignatureError } from "../domain/gateway/payment-gateway.port.js";
 
 /**
  * Adaptador concreto do Stripe para IPaymentGateway (T4.8).
@@ -66,7 +67,14 @@ export class StripePaymentGateway implements IPaymentGateway {
     if (!webhookSecret) {
       throw new Error("STRIPE_WEBHOOK_SECRET ausente.");
     }
-    const event = this.client.webhooks.constructEvent(payload, signature, webhookSecret);
+    let event: Stripe.Event;
+    try {
+      event = this.client.webhooks.constructEvent(payload, signature, webhookSecret);
+    } catch (err) {
+      // Assinatura inválida → rejeição 400 (não 500) para o Stripe não
+      // retentar indefinidamente.
+      throw new WebhookSignatureError(`Assinatura de webhook inválida: ${String(err)}`);
+    }
     return {
       id: event.id,
       type: event.type,

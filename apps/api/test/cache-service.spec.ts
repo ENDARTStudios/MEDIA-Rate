@@ -17,7 +17,12 @@ describe("CacheService (unit — mock Redis)", () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [{ provide: CacheService, useFactory: () => Object.assign(new CacheService(), { redis: mockRedis } as any) }],
+      providers: [
+        {
+          provide: CacheService,
+          useFactory: () => Object.assign(new CacheService(), { redis: mockRedis } as any),
+        },
+      ],
     }).compile();
     service = module.get<CacheService>(CacheService);
   });
@@ -77,7 +82,10 @@ describe("CacheService (unit — mock Redis)", () => {
 
 describe("CacheInvalidationService (unit)", () => {
   it("onMediaUpdated — invalida media + catalog + discover", async () => {
-    const mockCache = { invalidateOnWrite: vi.fn().mockResolvedValue(undefined), delPattern: vi.fn().mockResolvedValue(undefined) } as any;
+    const mockCache = {
+      invalidateOnWrite: vi.fn().mockResolvedValue(undefined),
+      delPattern: vi.fn().mockResolvedValue(undefined),
+    } as any;
     const svc = new CacheInvalidationService(mockCache);
     await svc.onMediaUpdated("m1");
     expect(mockCache.invalidateOnWrite).toHaveBeenCalledWith("media:m1");

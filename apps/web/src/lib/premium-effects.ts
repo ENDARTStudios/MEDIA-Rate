@@ -35,7 +35,9 @@ export function useCinematicCursor({
       glow.style.opacity = "1";
     };
 
-    const onLeave = () => { glow.style.opacity = "0"; };
+    const onLeave = () => {
+      glow.style.opacity = "0";
+    };
 
     const loop = () => {
       x += (tx - x) * 0.1;
@@ -59,34 +61,37 @@ export function useCinematicCursor({
     };
   }, [glowSize, glowColor]);
 
-  const magneticRef = useCallback((el: HTMLElement | null) => {
-    if (!el) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return;
+  const magneticRef = useCallback(
+    (el: HTMLElement | null) => {
+      if (!el) return;
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
 
-    const onEnter = () => el.style.transition = "transform 0.15s ease-out";
-    const onMove = (e: PointerEvent) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) * magneticStrength;
-      const dy = (e.clientY - cy) * magneticStrength;
-      el.style.transform = `translate(${dx}px, ${dy}px)`;
-    };
-    const onLeave = () => {
-      el.style.transform = "translate(0, 0)";
-    };
+      const onEnter = () => (el.style.transition = "transform 0.15s ease-out");
+      const onMove = (e: PointerEvent) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) * magneticStrength;
+        const dy = (e.clientY - cy) * magneticStrength;
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+      };
+      const onLeave = () => {
+        el.style.transform = "translate(0, 0)";
+      };
 
-    el.addEventListener("pointerenter", onEnter);
-    el.addEventListener("pointermove", onMove as EventListener);
-    el.addEventListener("pointerleave", onLeave);
+      el.addEventListener("pointerenter", onEnter);
+      el.addEventListener("pointermove", onMove as EventListener);
+      el.addEventListener("pointerleave", onLeave);
 
-    return () => {
-      el.removeEventListener("pointerenter", onEnter);
-      el.removeEventListener("pointermove", onMove as EventListener);
-      el.removeEventListener("pointerleave", onLeave);
-    };
-  }, [magneticStrength]);
+      return () => {
+        el.removeEventListener("pointerenter", onEnter);
+        el.removeEventListener("pointermove", onMove as EventListener);
+        el.removeEventListener("pointerleave", onLeave);
+      };
+    },
+    [magneticStrength],
+  );
 
   return { magneticRef };
 }

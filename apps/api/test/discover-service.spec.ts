@@ -42,6 +42,14 @@ describe("DiscoverService (unit)", () => {
     result.items.forEach((m: any) => expect(m.tipo).toBe("FILME"));
   });
 
+  it("search — parametriza o filtro de tipo (Prisma.sql, sem interpolar input)", async () => {
+    await service.search("a", { tipo: "FILME" });
+    const rawQuery = prisma.lastRawQuery;
+    expect(rawQuery).toBeDefined();
+    // O valor do tipo nunca aparece concatenado no SQL — sempre como parâmetro.
+    expect(rawQuery.includes("FILME")).toBe(false);
+  });
+
   it("discover — retorna mídias ordenadas por score", async () => {
     const result = await service.discover({ limit: 5 });
     expect(result.items.length).toBeGreaterThan(0);
@@ -70,26 +78,74 @@ describe("DiscoverService (unit)", () => {
 
 function mockPrisma() {
   const DB = [
-    { id: "1", titulo: "The Shawshank Redemption", tipo: "FILME", ano_lancamento: 1994, sinopse: "Prison drama", imagem_url: null },
-    { id: "2", titulo: "Breaking Bad", tipo: "SERIE", ano_lancamento: 2008, sinopse: "Chemistry teacher", imagem_url: null },
-    { id: "3", titulo: "Inception", tipo: "FILME", ano_lancamento: 2010, sinopse: "Dream heist", imagem_url: null },
-    { id: "4", titulo: "Interstellar", tipo: "FILME", ano_lancamento: 2014, sinopse: "Space travel", imagem_url: null },
-    { id: "5", titulo: "Shawshank", tipo: "FILME", ano_lancamento: 1994, sinopse: "Test", imagem_url: null },
+    {
+      id: "1",
+      titulo: "The Shawshank Redemption",
+      tipo: "FILME",
+      ano_lancamento: 1994,
+      sinopse: "Prison drama",
+      imagem_url: null,
+    },
+    {
+      id: "2",
+      titulo: "Breaking Bad",
+      tipo: "SERIE",
+      ano_lancamento: 2008,
+      sinopse: "Chemistry teacher",
+      imagem_url: null,
+    },
+    {
+      id: "3",
+      titulo: "Inception",
+      tipo: "FILME",
+      ano_lancamento: 2010,
+      sinopse: "Dream heist",
+      imagem_url: null,
+    },
+    {
+      id: "4",
+      titulo: "Interstellar",
+      tipo: "FILME",
+      ano_lancamento: 2014,
+      sinopse: "Space travel",
+      imagem_url: null,
+    },
+    {
+      id: "5",
+      titulo: "Shawshank",
+      tipo: "FILME",
+      ano_lancamento: 1994,
+      sinopse: "Test",
+      imagem_url: null,
+    },
   ];
 
+  let lastRawQuery: string | undefined;
+
   return {
-    $queryRawUnsafe: async (sql: string) => {
-      const qMatch = sql.match(/\$1/) ? sql.match(/'(%[^']+%|'[^']+')/)?.[0] : null;
-      const rawQ = qMatch ? qMatch.replace(/'/g, "").replace(/%/g, "").toLowerCase() : "";
-      const q = new URLSearchParams(`q=${rawQ}`).get("q") || rawQ;
-      let results = DB.filter((m) => m.titulo.toLowerCase().includes(q) || m.sinopse.toLowerCase().includes(q));
-      if (sql.includes("tipo =")) {
-        const tipoMatch = sql.match(/tipo = '(\w+)'/);
-        if (tipoMatch) results = results.filter((m) => m.tipo === tipoMatch[1]);
+    get lastRawQuery() {
+      return lastRawQuery;
+    },
+    // $queryRaw recebe um objeto Query (Prisma.sql template) — captura o SQL
+    // compilado e extrai valores a partir dos placeholders.
+    $queryRaw: async (query: any) => {
+      const sql = typeof query === "string" ? query : (query?.sql ?? "");
+      const values = (query?.values ?? []) as unknown[];
+      lastRawQuery = sql;
+      let compiled = sql;
+      for (const v of values) {
+        compiled = compiled.replace(/\?/, JSON.stringify(v));
       }
-      const limitMatch = sql.match(/LIMIT (\d+)/);
+      const q = values[0] as string | undefined;
+      const rawQ = q ? q.toLowerCase() : "";
+      let results = DB.filter(
+        (m) => m.titulo.toLowerCase().includes(rawQ) || m.sinopse.toLowerCase().includes(rawQ),
+      );
+      const tipoMatch = compiled.match(/tipo = "(\w+)"/);
+      if (tipoMatch) results = results.filter((m) => m.tipo === tipoMatch[1]);
+      const limitMatch = compiled.match(/LIMIT (\d+)/);
       const limit = limitMatch ? parseInt(limitMatch[1]) : 20;
-      const offsetMatch = sql.match(/OFFSET (\d+)/);
+      const offsetMatch = compiled.match(/OFFSET (\d+)/);
       const offset = offsetMatch ? parseInt(offsetMatch[1]) : 0;
       const total = results.length;
       results = results.slice(offset, offset + limit);
@@ -109,7 +165,7 @@ function mockPrisma() {
 
 function mockEmptyPrisma() {
   return {
-    $queryRawUnsafe: async () => [],
+    $queryRaw: async () => [],
     midia: { findMany: async () => [] },
   };
 }

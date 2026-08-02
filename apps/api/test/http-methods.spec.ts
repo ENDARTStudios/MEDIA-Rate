@@ -42,7 +42,7 @@ describe("Rejeicao de metodos HTTP nao permitidos (T020/7.6)", () => {
   it("CONNECT deve ser bloqueado pelo mesmo hook (verifica via header Allow ausente)", async () => {
     // CONNECT causa socket hang up com supertest — testamos que o hook existe
     // e rejeita metodos bloqueados. A validacao funcional e feita via TRACE acima.
-    const fastify = (app.getHttpAdapter().getInstance() as Record<string, unknown>);
+    const fastify = app.getHttpAdapter().getInstance() as Record<string, unknown>;
     expect(fastify).toBeDefined();
   });
 
@@ -52,7 +52,9 @@ describe("Rejeicao de metodos HTTP nao permitidos (T020/7.6)", () => {
   });
 
   it("POST continua funcionando normalmente", async () => {
-    const r = await request(app.getHttpServer()).post("/api/v1/auth/login").send({ email: "test@test.com", password: "12345678" });
+    const r = await request(app.getHttpServer())
+      .post("/api/v1/auth/login")
+      .send({ email: "test@test.com", password: "12345678" });
     expect(r.status).not.toBe(405);
   });
 

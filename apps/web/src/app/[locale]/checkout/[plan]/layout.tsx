@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 
-interface Props { params: Promise<{ locale: string; plan: string }> }
+interface Props {
+  params: Promise<{ locale: string; plan: string }>;
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, plan } = await params;
-  const planName = plan === "plus" || plan === "PLUS" ? "Plus" : plan === "premium" || plan === "PREMIUM" ? "Premium" : plan;
+  const planName =
+    plan === "plus" || plan === "PLUS"
+      ? "Plus"
+      : plan === "premium" || plan === "PREMIUM"
+        ? "Premium"
+        : plan;
   return {
     title: `Checkout ${planName} — MEDIA Rate`,
     description: `Assine o plano ${planName} do MEDIA Rate.`,

@@ -25,10 +25,13 @@ mkdirSync(crawlDir, { recursive: true });
 function run() {
   return new Promise((resolve, reject) => {
     const args = [
-      "--crawl", URL,
+      "--crawl",
+      URL,
       "--headless",
-      "--output-folder", crawlDir,
-      "--export-format", "csv",
+      "--output-folder",
+      crawlDir,
+      "--export-format",
+      "csv",
       "--export-tabs",
       "Internal:All,Response Codes:Internal All,Directives:All,Hreflang:All,Page Titles:All,Meta Description:All,Images:All",
       "--overwrite",
@@ -39,8 +42,12 @@ function run() {
     let stdout = "";
     let stderr = "";
 
-    proc.stdout.on("data", (d) => { stdout += d.toString(); });
-    proc.stderr.on("data", (d) => { stderr += d.toString(); });
+    proc.stdout.on("data", (d) => {
+      stdout += d.toString();
+    });
+    proc.stderr.on("data", (d) => {
+      stderr += d.toString();
+    });
 
     const timer = setTimeout(() => {
       proc.kill("SIGTERM");
@@ -67,7 +74,9 @@ function parseCsv(filePath) {
   return lines.slice(1).map((line) => {
     const row = {};
     const vals = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
-    headers.forEach((h, i) => { row[h] = (vals[i] || "").trim().replace(/^"|"$/g, ""); });
+    headers.forEach((h, i) => {
+      row[h] = (vals[i] || "").trim().replace(/^"|"$/g, "");
+    });
     return row;
   });
 }
@@ -75,7 +84,9 @@ function parseCsv(filePath) {
 function findCsv(dir, pattern) {
   if (!existsSync(dir)) return null;
   const files = readdirSync(dir);
-  const match = files.find((f) => f.toLowerCase().includes(pattern.toLowerCase()) && f.endsWith(".csv"));
+  const match = files.find(
+    (f) => f.toLowerCase().includes(pattern.toLowerCase()) && f.endsWith(".csv"),
+  );
   return match ? join(dir, match) : null;
 }
 
@@ -94,7 +105,9 @@ function summarize() {
       if (code) codes[code] = (codes[code] || 0) + 1;
     });
     console.log(`\n--- Response Codes (${respRows.length} URLs) ---`);
-    Object.entries(codes).sort((a, b) => Number(a[0]) - Number(b[0])).forEach(([k, v]) => console.log(`  ${k}: ${v}`));
+    Object.entries(codes)
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .forEach(([k, v]) => console.log(`  ${k}: ${v}`));
 
     const errors = respRows.filter((r) => {
       const c = Number(r["Status Code"] || r["Status"] || 0);
@@ -102,7 +115,9 @@ function summarize() {
     });
     if (errors.length) {
       console.log(`\n--- URLs 4xx/5xx (${errors.length}) ---`);
-      errors.slice(0, 20).forEach((r) => console.log(`  [${r["Status Code"]}] ${r["Address"] || r["URL"]}`));
+      errors
+        .slice(0, 20)
+        .forEach((r) => console.log(`  [${r["Status Code"]}] ${r["Address"] || r["URL"]}`));
       if (errors.length > 20) console.log(`  ... and ${errors.length - 20} more`);
     } else {
       console.log("\n--- URLs 4xx/5xx: NONE ---");
@@ -114,7 +129,12 @@ function summarize() {
   // 2. Noindex
   const rows = respRows.length ? respRows : parseCsv(respFile || "");
   const noindexUrls = rows.filter((r) => {
-    const idx = (r["Indexability"] || r["Indexability Status"] || r["Indexable"] || "").toLowerCase();
+    const idx = (
+      r["Indexability"] ||
+      r["Indexability Status"] ||
+      r["Indexable"] ||
+      ""
+    ).toLowerCase();
     const robots = (r["Meta Robots"] || r["Meta Robots 1"] || "").toLowerCase();
     return idx.includes("noindex") || robots.includes("noindex");
   });
@@ -137,7 +157,11 @@ function summarize() {
     console.log(`\n--- Hreflang (${hfRows.length} entries) ---`);
     if (hfNon200.length) {
       console.log(`  Non-200: ${hfNon200.length} (should be 0)`);
-      hfNon200.slice(0, 10).forEach((r) => console.log(`    [${r["Status Code"]}] ${r["Address"] || r["Hreflang URL"] || r["URL"]}`));
+      hfNon200
+        .slice(0, 10)
+        .forEach((r) =>
+          console.log(`    [${r["Status Code"]}] ${r["Address"] || r["Hreflang URL"] || r["URL"]}`),
+        );
     } else {
       console.log(`  Non-200: 0 (all valid)`);
     }

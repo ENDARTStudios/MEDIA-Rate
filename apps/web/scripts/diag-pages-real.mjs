@@ -13,10 +13,10 @@ console.log("=== DESLOGADO ===");
 const ctx1 = await b.newContext();
 const p1 = await ctx1.newPage();
 const cards1 = async () =>
-  p1.evaluate(() =>
-    document.querySelectorAll(
-      'a[href*="/midia/"],a[href*="/media/"],[data-media-card],article'
-    ).length
+  p1.evaluate(
+    () =>
+      document.querySelectorAll('a[href*="/midia/"],a[href*="/media/"],[data-media-card],article')
+        .length,
   );
 
 await p1.goto(BASE + "/pt-BR/catalog", { waitUntil: "domcontentloaded", timeout: 30000 });
@@ -26,13 +26,21 @@ for (const t of [1000, 3000, 6000, 9000]) {
   prev = t;
   const c = await cards1();
   console.log(`DESLOGADO /catalog @${t}ms cards=${c}`);
-  if (c === 0) { console.log("[FAIL] DESLOGADO cards=0"); pass = false; }
+  if (c === 0) {
+    console.log("[FAIL] DESLOGADO cards=0");
+    pass = false;
+  }
 }
 // Check landing page
 await p1.goto(BASE + "/pt-BR", { waitUntil: "domcontentloaded", timeout: 30000 });
-const landingLen = await p1.evaluate(() => (document.querySelector("main")?.innerText || "").trim().length);
+const landingLen = await p1.evaluate(
+  () => (document.querySelector("main")?.innerText || "").trim().length,
+);
 console.log("DESLOGADO / landing mainLen=", landingLen);
-if (landingLen === 0) { console.log("[FAIL] DESLOGADO landing empty"); pass = false; }
+if (landingLen === 0) {
+  console.log("[FAIL] DESLOGADO landing empty");
+  pass = false;
+}
 await ctx1.close();
 
 console.log("\n=== LOGADO ===");
@@ -65,17 +73,21 @@ if ((await pwdFields.count()) >= 2) {
 const chk = p2.locator('input[type="checkbox"]').first();
 if ((await chk.count()) > 0) await chk.check().catch(() => {});
 
-const submitBtn = p2.locator('button[type="submit"],button:has-text("Cadastrar"),button:has-text("Register"),button:has-text("Sign up"),button:has-text("Registrarse")').first();
+const submitBtn = p2
+  .locator(
+    'button[type="submit"],button:has-text("Cadastrar"),button:has-text("Register"),button:has-text("Sign up"),button:has-text("Registrarse")',
+  )
+  .first();
 if ((await submitBtn.count()) > 0) await submitBtn.click();
 await p2.waitForTimeout(4000);
 console.log("LOGADO after register url=", p2.url());
 
 // Try /catalog logged in
 const cards2 = async () =>
-  p2.evaluate(() =>
-    document.querySelectorAll(
-      'a[href*="/midia/"],a[href*="/media/"],[data-media-card],article'
-    ).length
+  p2.evaluate(
+    () =>
+      document.querySelectorAll('a[href*="/midia/"],a[href*="/media/"],[data-media-card],article')
+        .length,
   );
 
 await p2.goto(BASE + "/pt-BR/catalog", { waitUntil: "domcontentloaded", timeout: 30000 });
@@ -85,7 +97,10 @@ for (const t of [1000, 3000, 6000, 9000]) {
   prev = t;
   const c = await cards2();
   console.log(`LOGADO /catalog @${t}ms cards=${c}`);
-  if (c === 0) { console.log("[FAIL] LOGADO cards=0"); pass = false; }
+  if (c === 0) {
+    console.log("[FAIL] LOGADO cards=0");
+    pass = false;
+  }
 }
 
 // Check session persistence
@@ -101,7 +116,10 @@ if (urlAfter.includes("/login")) {
 const perr = [];
 p2.on("pageerror", (e) => perr.push(e.message.slice(0, 120)));
 await p2.waitForTimeout(500);
-if (perr.length > 0) { console.log("[FAIL] pageerrors:", perr); pass = false; }
+if (perr.length > 0) {
+  console.log("[FAIL] pageerrors:", perr);
+  pass = false;
+}
 
 await ctx2.close();
 await b.close();

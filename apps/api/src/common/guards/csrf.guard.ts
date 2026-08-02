@@ -13,7 +13,7 @@ export class CsrfGuard implements CanActivate {
     };
 
     // Se nao ha sessao, deixa passar — o AuthGuard retorna 401.
-    const hasSession = !!(req.cookies?.["sess"]);
+    const hasSession = !!req.cookies?.["sess"];
     if (!hasSession) return true;
 
     const cookieToken = req.cookies?.csrf_token;

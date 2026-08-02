@@ -37,31 +37,33 @@ test.describe("T105 - Brave HEADED visibility + cookies", () => {
           visiveis++;
         } else if (!invisibleCardStyles) {
           // Capture first invisible card's computed style
-          invisibleCardStyles = await card.evaluate((el) => {
-            const cs = getComputedStyle(el);
-            const r = el.getBoundingClientRect();
-            const parent = el.parentElement;
-            const pcs = parent ? getComputedStyle(parent) : null;
-            const pRect = parent ? parent.getBoundingClientRect() : null;
-            return {
-              opacity: cs.opacity,
-              visibility: cs.visibility,
-              display: cs.display,
-              transform: cs.transform,
-              width: r.width,
-              height: r.height,
-              top: r.top,
-              left: r.left,
-              position: cs.position,
-              overflow: cs.overflow,
-              parentTag: parent?.tagName || "none",
-              parentDisplay: pcs?.display || "none",
-              parentOverflow: pcs?.overflow || "none",
-              parentWidth: pRect?.width || 0,
-              parentHeight: pRect?.height || 0,
-              className: (el as HTMLElement).className?.substring(0, 200),
-            };
-          }).catch(() => null);
+          invisibleCardStyles = await card
+            .evaluate((el) => {
+              const cs = getComputedStyle(el);
+              const r = el.getBoundingClientRect();
+              const parent = el.parentElement;
+              const pcs = parent ? getComputedStyle(parent) : null;
+              const pRect = parent ? parent.getBoundingClientRect() : null;
+              return {
+                opacity: cs.opacity,
+                visibility: cs.visibility,
+                display: cs.display,
+                transform: cs.transform,
+                width: r.width,
+                height: r.height,
+                top: r.top,
+                left: r.left,
+                position: cs.position,
+                overflow: cs.overflow,
+                parentTag: parent?.tagName || "none",
+                parentDisplay: pcs?.display || "none",
+                parentOverflow: pcs?.overflow || "none",
+                parentWidth: pRect?.width || 0,
+                parentHeight: pRect?.height || 0,
+                className: (el as HTMLElement).className?.substring(0, 200),
+              };
+            })
+            .catch(() => null);
         }
       }
 
@@ -128,11 +130,18 @@ test.describe("T105 - Brave HEADED visibility + cookies", () => {
       await page.waitForTimeout(2000);
 
       // Check user indicator visibility
-      const userIndicator = page.locator('button:has-text("T105"), [data-testid="user-menu"], button:has-text("Perfil"), button:has-text("Conta"), a[href*="/dashboard"], a[href*="/profile"]').first();
+      const userIndicator = page
+        .locator(
+          'button:has-text("T105"), [data-testid="user-menu"], button:has-text("Perfil"), button:has-text("Conta"), a[href*="/dashboard"], a[href*="/profile"]',
+        )
+        .first();
       const indicatorVis = await userIndicator.isVisible().catch(() => false);
       console.log(`Indicador de usuario visivel apos login: ${indicatorVis}`);
 
-      await page.screenshot({ path: "e2e/screenshots/t105-apos-login-headed.png", fullPage: false });
+      await page.screenshot({
+        path: "e2e/screenshots/t105-apos-login-headed.png",
+        fullPage: false,
+      });
 
       // CONTEXT.COOKIES() - lê o cookie real do browser
       const cookiesAfterLogin = await context.cookies();
@@ -140,10 +149,15 @@ test.describe("T105 - Brave HEADED visibility + cookies", () => {
       console.log("\n=== context.cookies() APOS LOGIN ===");
       console.log(`Total cookies: ${cookiesAfterLogin.length}`);
       if (sessCookie) {
-        console.log(`Cookie 'sess': domain=${sessCookie.domain}, path=${sessCookie.path}, sameSite=${sessCookie.sameSite}, httpOnly=${sessCookie.httpOnly}, secure=${sessCookie.secure}`);
+        console.log(
+          `Cookie 'sess': domain=${sessCookie.domain}, path=${sessCookie.path}, sameSite=${sessCookie.sameSite}, httpOnly=${sessCookie.httpOnly}, secure=${sessCookie.secure}`,
+        );
       } else {
         console.log("Cookie 'sess' NAO encontrado!");
-        console.log("Cookies disponiveis:", cookiesAfterLogin.map((c) => `${c.name} (${c.domain})`).join(", "));
+        console.log(
+          "Cookies disponiveis:",
+          cookiesAfterLogin.map((c) => `${c.name} (${c.domain})`).join(", "),
+        );
       }
 
       // RELOAD
@@ -163,14 +177,19 @@ test.describe("T105 - Brave HEADED visibility + cookies", () => {
       const entrarVis = await entrarBtn.isVisible().catch(() => false);
       console.log(`Botao "Entrar" visivel: ${entrarVis} (se true = deslogou)`);
 
-      await page.screenshot({ path: "e2e/screenshots/t105-pos-reload-headed.png", fullPage: false });
+      await page.screenshot({
+        path: "e2e/screenshots/t105-pos-reload-headed.png",
+        fullPage: false,
+      });
 
       // Cookies after reload
       const cookiesAfterReload = await context.cookies();
       const sessAfterReload = cookiesAfterReload.find((c) => c.name === "sess");
       console.log("\n=== context.cookies() APOS RELOAD ===");
       if (sessAfterReload) {
-        console.log(`Cookie 'sess': domain=${sessAfterReload.domain}, path=${sessAfterReload.path}, sameSite=${sessAfterReload.sameSite}, httpOnly=${sessAfterReload.httpOnly}, secure=${sessAfterReload.secure}`);
+        console.log(
+          `Cookie 'sess': domain=${sessAfterReload.domain}, path=${sessAfterReload.path}, sameSite=${sessAfterReload.sameSite}, httpOnly=${sessAfterReload.httpOnly}, secure=${sessAfterReload.secure}`,
+        );
       } else {
         console.log("Cookie 'sess' NAO encontrado apos reload!");
       }
@@ -179,12 +198,13 @@ test.describe("T105 - Brave HEADED visibility + cookies", () => {
       console.log("\n========== RESUMO T105 ==========");
       console.log(`Catalogo: DOM=${totalNoDom}, visiveis=${visiveis}`);
       console.log(`Home: DOM=${homeTotal}, visiveis=${homeVisiveis}`);
-      console.log(`Login: indicator=${indicatorVis}, reload-indicator=${userIndAfterReload}, entrar-btn=${entrarVis}`);
+      console.log(
+        `Login: indicator=${indicatorVis}, reload-indicator=${userIndAfterReload}, entrar-btn=${entrarVis}`,
+      );
       console.log(`Cookie sess: ${sessCookie ? "PRESENTE" : "AUSENTE"}`);
 
       // Gate assertions (soft - we expect these to fail on baseline)
       expect(homeVisiveis, "Home precisa ter cards visiveis").toBeGreaterThan(0);
-
     } finally {
       await browser.close();
     }

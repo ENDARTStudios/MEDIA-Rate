@@ -18,7 +18,9 @@ export function getGenreDistribution(ids: string[]) {
       total++;
     }
   }
-  const sorted = Object.entries(genres).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const sorted = Object.entries(genres)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
   return sorted.map(([genre, count]) => ({ genre, pct: Math.round((count / total) * 100), count }));
 }
 

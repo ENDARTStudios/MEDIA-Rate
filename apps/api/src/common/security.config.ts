@@ -1,4 +1,4 @@
-import type { FastifyHelmetOptions } from "@fastify/helmet";
+import { FastifyHelmetOptions } from "@fastify/helmet";
 import { randomBytes } from "node:crypto";
 
 export interface HelmetConfigOptions {
@@ -82,4 +82,3 @@ export function buildHelmetOptions(
     dnsPrefetchControl: { allow: false },
   };
 }
-

@@ -25,17 +25,33 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
     page.on("request", (req) => {
       const url = req.url();
       let host = "";
-      try { host = new URL(url).host; } catch { host = "invalid"; }
+      try {
+        host = new URL(url).host;
+      } catch {
+        host = "invalid";
+      }
       const cookie = req.headers()["cookie"];
-      logs.reqs.push({ url, host, hasCookie: !!cookie, type: req.resourceType(), method: req.method() });
+      logs.reqs.push({
+        url,
+        host,
+        hasCookie: !!cookie,
+        type: req.resourceType(),
+        method: req.method(),
+      });
       if (req.resourceType() === "fetch" || req.resourceType() === "xhr") {
-        console.log(`[REQ] ${req.method()} ${host} cookie=${!!cookie ? "SIM" : "NAO"} ${url.substring(0, 150)}`);
+        console.log(
+          `[REQ] ${req.method()} ${host} cookie=${cookie ? "SIM" : "NAO"} ${url.substring(0, 150)}`,
+        );
       }
     });
 
     page.on("response", (res) => {
       let host2 = "";
-      try { host2 = new URL(res.url()).host; } catch { host2 = "invalid"; }
+      try {
+        host2 = new URL(res.url()).host;
+      } catch {
+        host2 = "invalid";
+      }
       const h: Record<string, string> = {};
       // Log only headers for auth-related responses
       logs.ress.push({ url: res.url(), status: res.status(), host: host2, headers: h });
@@ -91,7 +107,9 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
     } catch {
       console.log(`[FALLBACK] Sem redirect. Current URL: ${page.url()}`);
       // Check for error toasts
-      const toastMsg = await page.locator('[data-sonner-toast], [role="alert"], .toast').allTextContents();
+      const toastMsg = await page
+        .locator('[data-sonner-toast], [role="alert"], .toast')
+        .allTextContents();
       console.log(`Toast/alert messages: ${toastMsg.join(" | ")}`);
       await page.waitForTimeout(3000);
     }
@@ -108,14 +126,20 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
 
     if (railwayReqs.length > 0) {
       console.log("\n*** SMOKING GUN: railway.app no JS ***");
-      railwayReqs.forEach((r) => console.log(`  ${r.method} ${r.url} cookie=${r.hasCookie ? "SIM" : "NAO"}`));
+      railwayReqs.forEach((r) =>
+        console.log(`  ${r.method} ${r.url} cookie=${r.hasCookie ? "SIM" : "NAO"}`),
+      );
     } else {
       console.log("--- SEM railway.app no JS (T098 ok) ---");
     }
 
     // Lista todas as chamadas de API
     console.log("\nTodas chamadas fetch/xhr para /api/:");
-    apiReqs.forEach((r) => console.log(`  ${r.method} ${r.host} cookie=${r.hasCookie ? "SIM" : "NAO"} ${r.url.substring(0, 150)}`));
+    apiReqs.forEach((r) =>
+      console.log(
+        `  ${r.method} ${r.host} cookie=${r.hasCookie ? "SIM" : "NAO"} ${r.url.substring(0, 150)}`,
+      ),
+    );
 
     // --- RELOAD ---
     console.log("\n=== RELOAD ===");
@@ -128,22 +152,24 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
     const isLogado = !afterReloadUrl.includes("/login") && !afterReloadUrl.includes("/register");
 
     // /me after reload (exact match for API /me)
-    const meReqsAfterReload = logs.reqs
-      .slice(beforeReloadCount)
-      .filter((r) => {
-        const u = r.url;
-        return (u.includes("/api/v1/auth/me") || u.endsWith("/v1/auth/me") || u.includes("/auth/me")) && (r.type === "fetch" || r.type === "xhr");
-      });
-    const meResAfterReload = logs.ress
-      .filter((r) => {
-        const u = r.url;
-        return (u.includes("/api/v1/auth/me") || u.endsWith("/v1/auth/me") || u.includes("/auth/me"));
-      });
+    const meReqsAfterReload = logs.reqs.slice(beforeReloadCount).filter((r) => {
+      const u = r.url;
+      return (
+        (u.includes("/api/v1/auth/me") || u.endsWith("/v1/auth/me") || u.includes("/auth/me")) &&
+        (r.type === "fetch" || r.type === "xhr")
+      );
+    });
+    const meResAfterReload = logs.ress.filter((r) => {
+      const u = r.url;
+      return u.includes("/api/v1/auth/me") || u.endsWith("/v1/auth/me") || u.includes("/auth/me");
+    });
 
     console.log(`URL após reload: ${afterReloadUrl}`);
     console.log(`Logado após reload: ${isLogado}`);
     console.log(`Requisições /me (fetch/xhr) após reload:`);
-    meReqsAfterReload.forEach((r) => console.log(`  ${r.method} ${r.host} cookie=${r.hasCookie ? "SIM" : "NAO"} type=${r.type}`));
+    meReqsAfterReload.forEach((r) =>
+      console.log(`  ${r.method} ${r.host} cookie=${r.hasCookie ? "SIM" : "NAO"} type=${r.type}`),
+    );
     meResAfterReload.forEach((r) => console.log(`  RESPONSE: ${r.status} ${r.host}`));
 
     // --- CATALOG ---
@@ -163,7 +189,9 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
 
     // --- RESUMO FINAL ---
     const totalRailway = logs.reqs.filter((r) => r.host.includes("railway.app"));
-    const totalRailwayJS = logs.reqs.filter((r) => r.host.includes("railway.app") && (r.type === "fetch" || r.type === "xhr"));
+    const totalRailwayJS = logs.reqs.filter(
+      (r) => r.host.includes("railway.app") && (r.type === "fetch" || r.type === "xhr"),
+    );
 
     console.log(`\n========== RESUMO FINAL ==========`);
     console.log(`Total requests: ${logs.reqs.length}`);
@@ -174,7 +202,9 @@ test.describe("T103 - fetch auth cross-origin intercept", () => {
     console.log(`Cookies sent in any request: ${logs.reqs.some((r) => r.hasCookie)}`);
 
     // GATE BINARIO
-    expect(totalRailwayJS.length, "ZERO requests para railway.app vindos de fetch/xhr no JS").toBe(0);
+    expect(totalRailwayJS.length, "ZERO requests para railway.app vindos de fetch/xhr no JS").toBe(
+      0,
+    );
     expect(cards, "Catalog com cards visiveis").toBeGreaterThan(0);
   });
 });

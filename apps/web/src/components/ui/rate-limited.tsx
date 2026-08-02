@@ -16,7 +16,10 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
     if (remaining <= 0) return;
     const id = setInterval(() => {
       setRemaining((prev) => {
-        if (prev <= 1) { clearInterval(id); return 0; }
+        if (prev <= 1) {
+          clearInterval(id);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
@@ -28,15 +31,23 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
   return (
     <div className="flex flex-col items-center text-center py-12 px-4" data-testid="rate-limited">
       <div className="w-12 h-12 rounded-full bg-[#F59E0B]/10 flex items-center justify-center mb-4">
-        <svg className="w-6 h-6 text-[#F59E0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="w-6 h-6 text-[#F59E0B]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
       </div>
       <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">{t("tooManyRequests")}</h3>
       <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">
-        {canRetry
-          ? t("tryAgain")
-          : t("retryIn") + " " + remaining + "s"}
+        {canRetry ? t("tryAgain") : t("retryIn") + " " + remaining + "s"}
       </p>
       <button
         onClick={onRetry}

@@ -175,7 +175,10 @@ export function ScoreDial({
       className={cn("relative inline-flex flex-col items-center", className)}
       onMouseEnter={() => !showBreakdown && setHovered(true)}
       onMouseLeave={() => !showBreakdown && setHovered(false)}
-      aria-label={tScore("ariaLabel", { score: displayValue, max: scale === "0-100" ? "100" : "10" })}
+      aria-label={tScore("ariaLabel", {
+        score: displayValue,
+        max: scale === "0-100" ? "100" : "10",
+      })}
       role="status"
     >
       {ringEl}

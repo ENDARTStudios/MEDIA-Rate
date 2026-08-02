@@ -1,4 +1,4 @@
-import type { FastifyRateLimitOptions } from "@fastify/rate-limit";
+import { FastifyRateLimitOptions } from "@fastify/rate-limit";
 import type { FastifyRequest } from "fastify";
 
 export interface RateLimitConfigOptions {
@@ -55,9 +55,9 @@ export function buildRateLimitOptions(
     timeWindow: 60_000,
     keyGenerator: (req: FastifyRequest) => {
       const ip = req.ip ?? "unknown";
-      const rawUrl = ((req as unknown as Record<string, unknown>).raw
-        ? ((req as unknown as Record<string, unknown>).raw as Record<string, string>).url ?? "/"
-        : (req.url ?? "/"));
+      const rawUrl = (req as unknown as Record<string, unknown>).raw
+        ? (((req as unknown as Record<string, unknown>).raw as Record<string, string>).url ?? "/")
+        : (req.url ?? "/");
       const route = rawUrl.split("?")[0]!;
       const userId = (req as unknown as { user?: { id: string } }).user?.id;
       if (userId) {
@@ -72,9 +72,7 @@ export function buildRateLimitOptions(
         message: `Limite de ${context.max} requisicoes por ${Math.round((context.ttl ?? 60_000) / 1000)}s atingido. Tente novamente em breve.`,
       };
     },
-    ...(redis && isRateLimitRedis(redis)
-      ? { redis: redis as RateLimitRedisClient }
-      : {}),
+    ...(redis && isRateLimitRedis(redis) ? { redis: redis as RateLimitRedisClient } : {}),
   };
 }
 

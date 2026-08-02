@@ -17,7 +17,7 @@ function renderWithProviders(ui: React.ReactElement) {
   return render(
     <NextIntlClientProvider locale="pt-BR" messages={messages}>
       {ui}
-    </NextIntlClientProvider>
+    </NextIntlClientProvider>,
   );
 }
 
@@ -44,7 +44,9 @@ describe("Seasons", () => {
 
   it("chama onSelect ao clicar", async () => {
     const onSelect = vi.fn();
-    const { getByText } = renderWithProviders(<Seasons seasons={mockSeasons} onSelect={onSelect} />);
+    const { getByText } = renderWithProviders(
+      <Seasons seasons={mockSeasons} onSelect={onSelect} />,
+    );
     const btn = getByText("Terceira");
     await userEvent.setup().click(btn);
     expect(onSelect).toHaveBeenCalledWith(3);

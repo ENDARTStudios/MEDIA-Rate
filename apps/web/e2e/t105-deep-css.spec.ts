@@ -60,7 +60,8 @@ test.describe("T105 - Deep CSS inspection", () => {
               transform: pcs.transform?.substring(0, 100),
               position: pcs.position,
               animation: pcs.animationName !== "none" ? pcs.animationName : "none",
-              transition: pcs.transition !== "all 0s ease 0s" ? pcs.transition?.substring(0, 80) : "none",
+              transition:
+                pcs.transition !== "all 0s ease 0s" ? pcs.transition?.substring(0, 80) : "none",
             });
             current = current.parentElement;
             depth++;
@@ -83,23 +84,33 @@ test.describe("T105 - Deep CSS inspection", () => {
         });
 
         console.log("\n=== CARD 0 CSS TREE ===");
-        console.log(`SELF: opacity=${cardStyles.self.opacity} visibility=${cardStyles.self.visibility} display=${cardStyles.self.display} w=${cardStyles.self.width} h=${cardStyles.self.height}`);
-        console.log(`SELF: transform=${cardStyles.self.transform} animation=${cardStyles.self.animationName} fillMode=${cardStyles.self.animationFillMode} willChange=${cardStyles.self.willChange}`);
+        console.log(
+          `SELF: opacity=${cardStyles.self.opacity} visibility=${cardStyles.self.visibility} display=${cardStyles.self.display} w=${cardStyles.self.width} h=${cardStyles.self.height}`,
+        );
+        console.log(
+          `SELF: transform=${cardStyles.self.transform} animation=${cardStyles.self.animationName} fillMode=${cardStyles.self.animationFillMode} willChange=${cardStyles.self.willChange}`,
+        );
         console.log("\nANCESTORS:");
         cardStyles.ancestors.forEach((a: any) => {
           console.log(`  [${a.depth}] ${a.tag}.${a.cls}`);
-          console.log(`       display=${a.display} opacity=${a.opacity} overflow=${a.overflow} w=${a.width} h=${a.height} pos=${a.position}`);
+          console.log(
+            `       display=${a.display} opacity=${a.opacity} overflow=${a.overflow} w=${a.width} h=${a.height} pos=${a.position}`,
+          );
           if (a.animation !== "none") console.log(`       animation=${a.animation}`);
           if (a.transition !== "none") console.log(`       transition=${a.transition}`);
           if (a.transform !== "none") console.log(`       transform=${a.transform}`);
         });
 
         // Check for framer-motion / motion.div patterns
-        const motionDivs = await page.locator('[style*="opacity"], [class*="motion"], [class*="framer"], [class*="animate"]').count();
+        const motionDivs = await page
+          .locator('[style*="opacity"], [class*="motion"], [class*="framer"], [class*="animate"]')
+          .count();
         console.log(`\nMotion/animation elements on page: ${motionDivs}`);
 
         // Check prefers-reduced-motion
-        const prefersReduced = await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
+        const prefersReduced = await page.evaluate(
+          () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+        );
         console.log(`prefers-reduced-motion: ${prefersReduced}`);
 
         // Check if any card has opacity < 1
@@ -113,7 +124,6 @@ test.describe("T105 - Deep CSS inspection", () => {
       }
 
       await page.screenshot({ path: "e2e/screenshots/t105-catalog-deep-css.png", fullPage: true });
-
     } finally {
       await browser.close();
     }

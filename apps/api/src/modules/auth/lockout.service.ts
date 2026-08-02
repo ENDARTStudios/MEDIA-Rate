@@ -42,9 +42,7 @@ export class LockoutService implements OnModuleDestroy {
   private readonly entries = new Map<string, LockoutEntry>();
   private redisAvailable = true;
 
-  constructor(
-    @Optional() private readonly cacheService?: CacheService,
-  ) {}
+  constructor(@Optional() private readonly cacheService?: CacheService) {}
 
   async onModuleDestroy(): Promise<void> {
     // Cleanup do Map local (nenhuma ação de shutdown necessária para Redis).
@@ -75,7 +73,10 @@ export class LockoutService implements OnModuleDestroy {
     return this.isLockedLocal(ip, email);
   }
 
-  private async isLockedRedis(ip: string, email: string): Promise<{ locked: boolean; remainingMs: number }> {
+  private async isLockedRedis(
+    ip: string,
+    email: string,
+  ): Promise<{ locked: boolean; remainingMs: number }> {
     try {
       const k = this.key(ip, email);
       const ttl = await this.cacheService!.getRedisClient().ttl(k);
@@ -155,7 +156,10 @@ export class LockoutService implements OnModuleDestroy {
       if (globalCount >= GLOBAL_IP_MAX_FAILURES) {
         const globalBlocked = await redis.ttl(globalK);
         if (globalBlocked > 0) {
-          const lockDur = LOCK_DURATIONS_SEC[Math.min(4, Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1)] ?? LOCK_DURATIONS_SEC[4]!;
+          const lockDur =
+            LOCK_DURATIONS_SEC[
+              Math.min(4, Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1)
+            ] ?? LOCK_DURATIONS_SEC[4]!;
           await redis.expire(k, lockDur);
           await redis.expire(globalK, lockDur);
           this.logger.warn(

@@ -8,9 +8,23 @@ import { MediaCard, type MediaItem } from "./MediaCard";
 function EmptyState() {
   const t = useTranslations("catalog");
   return (
-    <div className="col-span-full flex flex-col items-center justify-center py-20 text-center" role="status">
-      <svg className="w-16 h-16 text-[#6B7280] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <div
+      className="col-span-full flex flex-col items-center justify-center py-20 text-center"
+      role="status"
+    >
+      <svg
+        className="w-16 h-16 text-[#6B7280] mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1}
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
       </svg>
       <p className="text-[#9CA3AF] text-lg">{t("noResults")}</p>
     </div>
@@ -36,10 +50,10 @@ export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
       aria-label={t("catalogAria")}
     >
       {medias.map((media) => (
-          <div key={media.id}>
-            <MediaCard media={media} />
-          </div>
-        ))}
+        <div key={media.id}>
+          <MediaCard media={media} />
+        </div>
+      ))}
     </motion.div>
   );
 }

@@ -1,9 +1,9 @@
-type FaqItem = {
+interface FaqItem {
   question: string;
   answer: string;
-};
+}
 
-type InstitutionalContent = {
+interface InstitutionalContent {
   about: {
     metaTitle: string;
     metaDescription: string;
@@ -25,7 +25,7 @@ type InstitutionalContent = {
     scoreBody: string;
     calculationTitle: string;
     calculationLead: string;
-    calculationItems: Array<{ label: string; body: string }>;
+    calculationItems: { label: string; body: string }[];
     confidenceTitle: string;
     confidenceBody: string;
     scopeTitle: string;
@@ -41,11 +41,11 @@ type InstitutionalContent = {
     coverageTitle: string;
     coverageBody: string;
     sourceTitle: string;
-    sourceItems: Array<{ name: string; description: string }>;
+    sourceItems: { name: string; description: string }[];
     transparencyTitle: string;
     transparencyBody: string;
   };
-};
+}
 
 const content: Record<string, InstitutionalContent> = {
   "pt-BR": {
@@ -261,7 +261,10 @@ const content: Record<string, InstitutionalContent> = {
           name: "IGDB and RAWG",
           description: "Context and rating data for games, when available.",
         },
-        { name: "Open Library", description: "Additional categories (books/comics) planned for the future." },
+        {
+          name: "Open Library",
+          description: "Additional categories (books/comics) planned for the future.",
+        },
       ],
       transparencyTitle: "Transparency over apparent precision",
       transparencyBody:

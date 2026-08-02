@@ -17,7 +17,9 @@ describe("HTTP Client (T051)", () => {
   });
 
   it("GET usa credentials: include", async () => {
-    fetchSpy.mockResolvedValueOnce(new Response("{}", { status: 200, headers: { "content-type": "application/json" } }));
+    fetchSpy.mockResolvedValueOnce(
+      new Response("{}", { status: 200, headers: { "content-type": "application/json" } }),
+    );
     await api.get("/health");
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
@@ -26,7 +28,9 @@ describe("HTTP Client (T051)", () => {
   });
 
   it("POST usa credentials + body JSON", async () => {
-    fetchSpy.mockResolvedValueOnce(new Response("{}", { status: 200, headers: { "content-type": "application/json" } }));
+    fetchSpy.mockResolvedValueOnce(
+      new Response("{}", { status: 200, headers: { "content-type": "application/json" } }),
+    );
     await api.post("/test", { foo: "bar" });
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     expect(init.credentials).toBe("include");
@@ -38,7 +42,9 @@ describe("HTTP Client (T051)", () => {
       get: vi.fn().mockReturnValue("csrf_token=test-csrf-value-64chars-long-token-here-ok"),
       configurable: true,
     });
-    fetchSpy.mockResolvedValueOnce(new Response("{}", { status: 200, headers: { "content-type": "application/json" } }));
+    fetchSpy.mockResolvedValueOnce(
+      new Response("{}", { status: 200, headers: { "content-type": "application/json" } }),
+    );
     await api.post("/test", {});
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     const headers = init.headers as Record<string, string>;
@@ -50,7 +56,9 @@ describe("HTTP Client (T051)", () => {
       get: vi.fn().mockReturnValue("csrf_token=some-token"),
       configurable: true,
     });
-    fetchSpy.mockResolvedValueOnce(new Response("{}", { status: 200, headers: { "content-type": "application/json" } }));
+    fetchSpy.mockResolvedValueOnce(
+      new Response("{}", { status: 200, headers: { "content-type": "application/json" } }),
+    );
     await api.get("/health");
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     const headers = init.headers as Record<string, string> | undefined;
@@ -68,16 +76,21 @@ describe("HTTP Client (T051)", () => {
   });
 
   it("401 em login → NAO redirect (trata como erro normal)", async () => {
-    fetchSpy.mockResolvedValueOnce(new Response('{"message":"Invalid credentials"}', {
-      status: 401,
-      headers: { "content-type": "application/json" },
-    }));
-    await expect(api.post("/api/v1/auth/login", { email: "x", password: "x" }))
-      .rejects.toThrow(ApiError);
+    fetchSpy.mockResolvedValueOnce(
+      new Response('{"message":"Invalid credentials"}', {
+        status: 401,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    await expect(api.post("/api/v1/auth/login", { email: "x", password: "x" })).rejects.toThrow(
+      ApiError,
+    );
   });
 
   it("4xx/5xx → lance ApiError com status + mensagem", async () => {
-    fetchSpy.mockResolvedValueOnce(Response.json({ message: "Erro de validação" }, { status: 422 }));
+    fetchSpy.mockResolvedValueOnce(
+      Response.json({ message: "Erro de validação" }, { status: 422 }),
+    );
     try {
       await api.post("/api/v1/register", {});
       expect.unreachable();
@@ -88,10 +101,10 @@ describe("HTTP Client (T051)", () => {
   });
 
   it("NEXT_PUBLIC_API_URL vazio em producao → lance erro", () => {
-    process.env.NEXT_PUBLIC_API_URL = "";
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "");
+    vi.stubEnv("NODE_ENV", "production");
     expect(() => getCsrfToken()).not.toThrow();
-    process.env.NODE_ENV = "test";
+    vi.unstubAllEnvs();
   });
 
   it("getCsrfToken retorna valor do cookie", () => {

@@ -1,7 +1,7 @@
 import { Injectable, Logger, type OnModuleDestroy } from "@nestjs/common";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Redis: any = require("ioredis");
 
 @Injectable()
@@ -14,7 +14,7 @@ export class CacheService implements OnModuleDestroy {
   constructor(redisUrl?: string) {
     const url = redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379";
     const isLocal = /localhost|127\.0\.0\.1|::1|\.internal/.test(url);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     this.redis = new Redis(url, {
       maxRetriesPerRequest: 3,
       lazyConnect: true,
@@ -33,7 +33,11 @@ export class CacheService implements OnModuleDestroy {
   async get<T>(key: string): Promise<T | null> {
     const raw = await this.redis.get(key);
     if (!raw) return null;
-    try { return JSON.parse(raw) as T; } catch { return raw as unknown as T; }
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return raw as unknown as T;
+    }
   }
 
   async set(key: string, value: unknown, ttlSec = this.defaultTTL): Promise<void> {
@@ -57,7 +61,10 @@ export class CacheService implements OnModuleDestroy {
 
   async readThrough<T>(key: string, ttlSec: number, fetchFn: () => Promise<T>): Promise<T> {
     const cached = await this.get<T>(key);
-    if (cached !== null) { this.logger.debug(`Cache HIT: ${key}`); return cached; }
+    if (cached !== null) {
+      this.logger.debug(`Cache HIT: ${key}`);
+      return cached;
+    }
     this.logger.debug(`Cache MISS: ${key}`);
     const fresh = await fetchFn();
     await this.set(key, fresh, ttlSec);
@@ -70,7 +77,11 @@ export class CacheService implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    try { await this.redis.quit(); } catch { /* Redis nao conectado — nada a fechar */ }
+    try {
+      await this.redis.quit();
+    } catch {
+      /* Redis nao conectado — nada a fechar */
+    }
     this.logger.log("Redis connection closed.");
   }
 }

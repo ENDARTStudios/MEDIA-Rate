@@ -1,9 +1,11 @@
-type StructuredDataProps = {
-  data: Record<string, unknown> | Array<Record<string, unknown>>;
-};
+import { serializeJsonLd } from "@/lib/sanitize";
+
+interface StructuredDataProps {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}
 
 export function StructuredData({ data }: StructuredDataProps) {
-  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  const json = serializeJsonLd(data);
 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />;
 }

@@ -33,16 +33,36 @@ export class MetricsService {
 
   private startTime = Date.now();
 
-  incrementRequest() { this.counters.requests_total++; }
-  increment5xx() { this.counters.requests_5xx++; }
-  incrementWatchlistAdd() { this.counters.watchlist_adds++; }
-  incrementWatchlistMove() { this.counters.watchlist_moves++; }
-  incrementWatchlistRemove() { this.counters.watchlist_removes++; }
-  incrementRegister() { this.counters.auth_registers++; }
-  incrementLogin() { this.counters.auth_logins++; }
-  incrementLogout() { this.counters.auth_logouts++; }
-  incrementDbQuery() { this.counters.db_queries_total++; }
-  incrementDbError() { this.counters.db_errors++; }
+  incrementRequest() {
+    this.counters.requests_total++;
+  }
+  increment5xx() {
+    this.counters.requests_5xx++;
+  }
+  incrementWatchlistAdd() {
+    this.counters.watchlist_adds++;
+  }
+  incrementWatchlistMove() {
+    this.counters.watchlist_moves++;
+  }
+  incrementWatchlistRemove() {
+    this.counters.watchlist_removes++;
+  }
+  incrementRegister() {
+    this.counters.auth_registers++;
+  }
+  incrementLogin() {
+    this.counters.auth_logins++;
+  }
+  incrementLogout() {
+    this.counters.auth_logouts++;
+  }
+  incrementDbQuery() {
+    this.counters.db_queries_total++;
+  }
+  incrementDbError() {
+    this.counters.db_errors++;
+  }
 
   async getMetrics(): Promise<MetricsSnapshot> {
     const mem = process.memoryUsage();

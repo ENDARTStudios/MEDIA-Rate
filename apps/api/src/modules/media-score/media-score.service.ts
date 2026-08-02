@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+
 import { PrismaService } from "../../prisma/prisma.service.js";
 
 /**

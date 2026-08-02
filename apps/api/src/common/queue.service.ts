@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { Queue, Worker, type JobsOptions } from "bullmq";
-import type { Redis } from "ioredis";
+import { Redis } from "ioredis";
 
 export interface QueueConfig {
   name: string;
@@ -36,11 +36,18 @@ export class QueueService implements OnModuleDestroy {
 
   async addJob(queueName: string, jobName: string, data: unknown, opts?: JobsOptions) {
     const queue = this.getQueue(queueName);
-    return queue.add(jobName, data, opts ?? { attempts: 3, backoff: { type: "exponential", delay: 1000 } });
+    return queue.add(
+      jobName,
+      data,
+      opts ?? { attempts: 3, backoff: { type: "exponential", delay: 1000 } },
+    );
   }
 
   registerWorker(queueName: string, handler: (job: any) => Promise<void>) {
-    const worker = new Worker(queueName, handler, { connection: this.config.connection, concurrency: 5 });
+    const worker = new Worker(queueName, handler, {
+      connection: this.config.connection,
+      concurrency: 5,
+    });
     this.workers.set(queueName, worker);
     this.logger.log(`Worker for "${queueName}" registered.`);
     return worker;

@@ -15,7 +15,18 @@ function mapToMediaItem(media: any): MediaItem {
   return {
     id: media.id,
     titulo: media.title,
-    tipo: (media.type === "movie" ? "FILME" : media.type === "series" ? "SERIE" : media.type === "game" ? "GAME" : media.type === "anime" ? "ANIME" : media.type === "comic" ? "COMIC" : "LIVRO"),
+    tipo:
+      media.type === "movie"
+        ? "FILME"
+        : media.type === "series"
+          ? "SERIE"
+          : media.type === "game"
+            ? "GAME"
+            : media.type === "anime"
+              ? "ANIME"
+              : media.type === "comic"
+                ? "COMIC"
+                : "LIVRO",
     ano_lancamento: media.year,
     imagem_url: media.posterUrl,
     score: media.score?.consolidated ?? null,
@@ -47,7 +58,12 @@ export function DiscoverClient({ initialData }: { initialData?: CatalogResponse 
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
         <p className="text-[#9CA3AF]">{t("empty")}</p>
-        <a href="/catalog" className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors">{t("cta")}</a>
+        <a
+          href="/catalog"
+          className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors"
+        >
+          {t("cta")}
+        </a>
       </div>
     );
   }

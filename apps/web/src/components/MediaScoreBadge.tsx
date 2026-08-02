@@ -31,7 +31,7 @@ export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProp
           io.disconnect();
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -40,9 +40,7 @@ export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProp
   useEffect(() => {
     if (!inView || !numRef.current) return;
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReduced) {
       numRef.current.textContent = String(value);
@@ -75,11 +73,7 @@ export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProp
       aria-label={t("mediaScoreAria", { score: value })}
       role="status"
     >
-      <span
-        ref={numRef}
-        className="font-heading text-sm font-bold tabular-nums"
-        style={{ color }}
-      >
+      <span ref={numRef} className="font-heading text-sm font-bold tabular-nums" style={{ color }}>
         0
       </span>
       <span className="text-xs text-gray-400" aria-hidden="true">

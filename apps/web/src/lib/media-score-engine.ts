@@ -37,12 +37,16 @@ export function calculateConfidenceScore(
   stdDev: number,
   ageInDays: number,
 ): number {
-  return Math.max(0, Math.min(100,
-    40 * Math.min(1, totalVotes / 1000) +
-    25 * Math.min(1, sourceCount / 3) +
-    20 * (1 - Math.min(1, stdDev / 2.5)) +
-    15 * (1 - Math.min(1, ageInDays / 180)),
-  ));
+  return Math.max(
+    0,
+    Math.min(
+      100,
+      40 * Math.min(1, totalVotes / 1000) +
+        25 * Math.min(1, sourceCount / 3) +
+        20 * (1 - Math.min(1, stdDev / 2.5)) +
+        15 * (1 - Math.min(1, ageInDays / 180)),
+    ),
+  );
 }
 
 export function confidenceLevel(score: number): Confidence {
@@ -52,7 +56,7 @@ export function confidenceLevel(score: number): Confidence {
 }
 
 /** §3.3b: Agregação multi-fonte com weight = log(1 + votos) */
-export function aggregateAudienceScore(sources: Array<{ value: number; votes: number }>): number {
+export function aggregateAudienceScore(sources: { value: number; votes: number }[]): number {
   if (sources.length === 0) return 0;
   const weighted = sources.map((s) => ({
     value: s.value,
@@ -64,11 +68,15 @@ export function aggregateAudienceScore(sources: Array<{ value: number; votes: nu
 }
 
 /** §3.3: Outlier detection — desvio > 3.0 da mediana → excluded */
-export function filterOutliers(values: number[], threshold: number = 3.0): Array<{ value: number; excluded: boolean }> {
+export function filterOutliers(
+  values: number[],
+  threshold = 3.0,
+): { value: number; excluded: boolean }[] {
   const sorted = [...values].sort((a, b) => a - b);
-  const median = sorted.length % 2 === 0
-    ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
-    : sorted[Math.floor(sorted.length / 2)]!;
+  const median =
+    sorted.length % 2 === 0
+      ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+      : sorted[Math.floor(sorted.length / 2)]!;
   return values.map((v) => ({ value: v, excluded: Math.abs(v - median) > threshold }));
 }
 

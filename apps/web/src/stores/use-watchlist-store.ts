@@ -104,19 +104,13 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
 
   isInWatchlist: (mediaId) => {
     return get().entries.some(
-      (e) =>
-        e.mediaId === mediaId ||
-        e.midia_id === mediaId ||
-        (e.media && e.media.id === mediaId)
+      (e) => e.mediaId === mediaId || e.midia_id === mediaId || (e.media && e.media.id === mediaId),
     );
   },
 
   getEntryStatus: (mediaId) => {
     const entry = get().entries.find(
-      (e) =>
-        e.mediaId === mediaId ||
-        e.midia_id === mediaId ||
-        (e.media && e.media.id === mediaId)
+      (e) => e.mediaId === mediaId || e.midia_id === mediaId || (e.media && e.media.id === mediaId),
     );
     return entry ? (entry.status ?? entry.coluna ?? null) : null;
   },

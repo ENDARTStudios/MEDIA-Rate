@@ -10,7 +10,9 @@ test("trace watchlist API v2", async () => {
     headless: false,
     args: ["--no-sandbox", "--disable-gpu"],
   });
-  const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+  const page = await browser
+    .newContext({ viewport: { width: 1440, height: 900 } })
+    .then((c) => c.newPage());
 
   try {
     const testEmail = "t136v3-" + Date.now() + "@prova.test";
@@ -24,14 +26,18 @@ test("trace watchlist API v2", async () => {
     await page.locator('input[name="email"]').first().fill(testEmail);
     await page.locator('input[name="password"]').first().fill("Prova@136!");
     await page.locator('button[type="submit"]').first().click();
-    try { await page.waitForURL("**/dashboard", { timeout: 15000 }); } catch {}
+    try {
+      await page.waitForURL("**/dashboard", { timeout: 15000 });
+    } catch {}
     await page.waitForTimeout(2000);
 
     // Trace API responses
     let watchlistItems = "";
     page.on("response", async (resp) => {
       if (resp.url().includes("/api/v1/watchlist") && resp.request().method() === "GET") {
-        try { watchlistItems = await resp.text(); } catch {}
+        try {
+          watchlistItems = await resp.text();
+        } catch {}
       }
     });
 
@@ -57,7 +63,9 @@ test("trace watchlist API v2", async () => {
       try {
         const raw = localStorage.getItem("mediarate:csrf") || "";
         return "csrf: " + raw.substring(0, 50);
-      } catch { return "error"; }
+      } catch {
+        return "error";
+      }
     });
     console.log("Store state:", storeState);
 
@@ -72,7 +80,6 @@ test("trace watchlist API v2", async () => {
     const heartAfterReload = page.locator('button:has(svg path[d*="M20.84 4.61"])').first();
     const label2 = await heartAfterReload.getAttribute("aria-label").catch(() => "");
     console.log("Heart label after reload:", label2);
-
   } finally {
     await browser.close();
   }

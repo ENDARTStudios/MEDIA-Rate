@@ -1,14 +1,18 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface LayeredBackgroundProps {
-  children: React.ReactNode
-  spotlight?: boolean
-  className?: string
+  children: React.ReactNode;
+  spotlight?: boolean;
+  className?: string;
 }
 
-export function LayeredBackground({ children, spotlight = false, className }: LayeredBackgroundProps) {
+export function LayeredBackground({
+  children,
+  spotlight = false,
+  className,
+}: LayeredBackgroundProps) {
   return (
     <>
       {/* Base solid background */}
@@ -45,15 +49,14 @@ export function LayeredBackground({ children, spotlight = false, className }: La
           className="fixed inset-0 pointer-events-none"
           aria-hidden="true"
           style={{
-            background: "radial-gradient(ellipse at 50% 0%, rgba(129,140,248,0.06) 0%, transparent 60%)",
+            background:
+              "radial-gradient(ellipse at 50% 0%, rgba(129,140,248,0.06) 0%, transparent 60%)",
           }}
         />
       )}
 
       {/* Content container */}
-      <div className={cn("relative z-10", className)}>
-        {children}
-      </div>
+      <div className={cn("relative z-10", className)}>{children}</div>
     </>
-  )
+  );
 }

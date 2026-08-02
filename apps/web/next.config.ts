@@ -39,7 +39,8 @@ const nextConfig: NextConfig = {
   // T098: Proxy /api/* to Railway for same-origin cookies (first-party).
   // The browser sees api calls as vercel.app/api/* → no third-party cookie blocking.
   async rewrites() {
-    const apiTarget = process.env.API_PROXY_TARGET || "https://media-rate-production.up.railway.app";
+    const apiTarget =
+      process.env.API_PROXY_TARGET || "https://media-rate-production.up.railway.app";
     return [
       {
         source: "/api/:path*",
@@ -48,10 +49,6 @@ const nextConfig: NextConfig = {
       {
         source: "/health",
         destination: `${apiTarget}/health`,
-      },
-      {
-        source: "/metrics",
-        destination: `${apiTarget}/metrics`,
       },
     ];
   },
@@ -70,16 +67,16 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://app.posthog.com https://js.stripe.com",
-              "connect-src 'self' https://app.posthog.com https://api.stripe.com",
-              "frame-src 'self' https://js.stripe.com",
+              "script-src 'self' 'unsafe-inline'",
+              "connect-src 'self'",
+              "frame-src 'self'",
               "frame-ancestors 'none'",
               "img-src 'self' data: https:",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' data: https://fonts.gstatic.com",
+              "style-src 'self' 'unsafe-inline'",
+              "font-src 'self' data:",
               "object-src 'none'",
               "base-uri 'self'",
-              "form-action 'self' https://api.stripe.com",
+              "form-action 'self'",
               isProduction ? "upgrade-insecure-requests" : "",
             ]
               .filter(Boolean)

@@ -8,9 +8,7 @@ import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { useState } from "react";
 
-const server = setupServer(
-  http.get("*/api/test", () => HttpResponse.json({ ok: true })),
-);
+const server = setupServer(http.get("*/api/test", () => HttpResponse.json({ ok: true })));
 beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -21,7 +19,8 @@ function TestComponent() {
 
   const handleFetch = () => {
     setState("loading");
-    api.get("/api/test")
+    api
+      .get("/api/test")
       .then(() => setState("idle"))
       .catch((e) => {
         if (e instanceof RateLimitedError) {
@@ -42,13 +41,20 @@ function TestComponent() {
   if (state === "loading") {
     return <div data-testid="loading">Carregando...</div>;
   }
-  return <button onClick={handleFetch} data-testid="fetch-btn">Fetch</button>;
+  return (
+    <button onClick={handleFetch} data-testid="fetch-btn">
+      Fetch
+    </button>
+  );
 }
 
 describe("RateLimited 429 + Retry-After", () => {
   it("exibe rate-limited com retry desabilitado", async () => {
     server.use(
-      http.get("*/api/test", () => new HttpResponse(null, { status: 429, headers: { "Retry-After": "3" } })),
+      http.get(
+        "*/api/test",
+        () => new HttpResponse(null, { status: 429, headers: { "Retry-After": "3" } }),
+      ),
     );
     const { getByTestId } = render(<TestComponent />);
     await userEvent.setup().click(getByTestId("fetch-btn"));

@@ -11,7 +11,7 @@ import { AppModule } from "./app.module.js";
 import { buildHelmetOptions } from "./common/security.config.js";
 import { buildCspHeader, generateRequestNonce } from "./common/security.config.js";
 import { buildCorsOptions } from "./common/cors.config.js";
-import { buildRateLimitOptions } from "./common/rate-limit.config.js";
+import { buildRateLimitOptions, loginRateLimit } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
 
@@ -24,6 +24,14 @@ async function bootstrap(): Promise<void> {
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 
+  // COOKIE_SECRET: obrigatório em produção — falhar no boot é melhor do que
+  // rodar com segredo conhecido.
+  const cookieSecret =
+    process.env.COOKIE_SECRET ?? (isProduction ? undefined : "dev-secret-change-me");
+  if (!cookieSecret) {
+    throw new Error("COOKIE_SECRET é obrigatório em produção. Defina a variável de ambiente.");
+  }
+
   // T020/7.7: bodyLimit padrao de 1 MiB.
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true,
@@ -35,6 +43,28 @@ async function bootstrap(): Promise<void> {
     bufferLogs: true,
   });
   console.log("module graph built");
+
+  // T4.8 (webhook Stripe): preserva o corpo bruto (raw) de requests JSON.
+  // A assinatura do webhook é calculada sobre os bytes originais — e
+  // JSON.stringify(req.body) pode divergir (ordem de chaves, whitespace,
+  // escapes), quebrando a verificação. O parser JSON padrão do Fastify
+  // (com proteção contra proto/constructor poisoning) é mantido, apenas
+  // anexando req.rawBody à request.
+  const defaultJsonParser = (
+    fastifyAdapter.getInstance() as unknown as {
+      getDefaultJsonParser: (
+        proto: string,
+        ctor: string,
+      ) => (
+        req: unknown,
+        body: string | Buffer,
+        done: (err: Error | null, value?: unknown) => void,
+      ) => void;
+    }
+  ).getDefaultJsonParser("error", "error");
+  fastifyAdapter.useBodyParser("application/json", true, {}, (req, body, done) => {
+    defaultJsonParser(req, body, done);
+  });
 
   // T020/7.3 + T1.3: Rate limit com key generator por user+IP+rota.
   // Store em memoria — Redis distribuido depende de infra conectada (T036).
@@ -65,7 +95,7 @@ async function bootstrap(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cookie as any,
     {
-      secret: process.env.COOKIE_SECRET ?? "dev-secret-change-me",
+      secret: cookieSecret,
       hook: "onRequest",
     },
   );
@@ -74,9 +104,19 @@ async function bootstrap(): Promise<void> {
   const fastify = fastifyAdapter.getInstance();
 
   // T020/7.7: Upload route com bodyLimit de 50 MiB.
+  // Rate limit específico para rotas sensíveis (brute force).
   fastify.addHook("onRoute", (routeOptions) => {
     if (routeOptions.url === "/api/v1/upload" && routeOptions.method === "POST") {
       routeOptions.bodyLimit = 52_428_800; // 50 MiB
+    }
+    const sensitivePostRoutes = [
+      "/api/v1/auth/login",
+      "/api/v1/auth/forgot-password",
+      "/api/v1/auth/reset-password",
+    ];
+    if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = loginRateLimit();
     }
   });
 
@@ -110,35 +150,49 @@ async function bootstrap(): Promise<void> {
   console.log("[boot] hooks + guards done");
 
   // T4.2: Swagger OpenAPI 3.1 em /api/docs e /api/docs-json.
-  const config = new DocumentBuilder()
-    .setTitle("MEDIA Rate API")
-    .setDescription("Plataforma de descoberta de mídia com MEDIA Score™ unificado.")
-    .setVersion("0.1.0")
-    .addBearerAuth()
-    .addTag("auth", "Autenticação e sessão")
-    .addTag("media", "Catálogo de mídia e MEDIA Score")
-    .addTag("payment", "Checkout e webhooks Stripe")
-    .addTag("lgpd", "Direitos do titular de dados")
-    .addTag("admin", "Endpoints administrativos")
-    .build();
-  console.log("[boot] calling app.init + app.listen...");
+  // Exposição controlada: habilitar apenas com SWAGGER_ENABLED=true
+  // (padrão: desabilitado — em produção, sem superfície de API pública).
+  if (process.env.SWAGGER_ENABLED === "true") {
+    const config = new DocumentBuilder()
+      .setTitle("MEDIA Rate API")
+      .setDescription("Plataforma de descoberta de mídia com MEDIA Score™ unificado.")
+      .setVersion("0.1.0")
+      .addBearerAuth()
+      .addTag("auth", "Autenticação e sessão")
+      .addTag("media", "Catálogo de mídia e MEDIA Score")
+      .addTag("payment", "Checkout e webhooks Stripe")
+      .addTag("lgpd", "Direitos do titular de dados")
+      .addTag("admin", "Endpoints administrativos")
+      .build();
+    console.log("[boot] calling app.init + app.listen...");
+    try {
+      await app.listen(port, "0.0.0.0");
+      console.log(`[boot] listening on 0.0.0.0:${port}`);
+
+      // Swagger apos listen (rotas resolvidas)
+      try {
+        const document = SwaggerModule.createDocument(app, config);
+        SwaggerModule.setup("api/docs", app, document);
+        console.log("[boot] swagger setup done");
+      } catch (swagErr) {
+        console.warn(`[boot] swagger setup FAILED (non-blocking): ${String(swagErr)}`);
+      }
+    } catch (err) {
+      console.error(`[boot] listen FAILED: ${String(err)}`);
+      throw err;
+    }
+    console.log(`[media-rate-api] Swagger UI: http://${host}:${port}/api/docs`);
+    return;
+  }
+
+  console.log("[boot] calling app.init + app.listen... (swagger disabled)");
   try {
     await app.listen(port, "0.0.0.0");
     console.log(`[boot] listening on 0.0.0.0:${port}`);
-
-    // Swagger apos listen (rotas resolvidas)
-    try {
-      const document = SwaggerModule.createDocument(app, config);
-      SwaggerModule.setup("api/docs", app, document);
-      console.log("[boot] swagger setup done");
-    } catch (swagErr) {
-      console.warn(`[boot] swagger setup FAILED (non-blocking): ${String(swagErr)}`);
-    }
   } catch (err) {
     console.error(`[boot] listen FAILED: ${String(err)}`);
     throw err;
   }
-  console.log(`[media-rate-api] Swagger UI: http://${host}:${port}/api/docs`);
 }
 
 void bootstrap().catch((err: unknown) => {

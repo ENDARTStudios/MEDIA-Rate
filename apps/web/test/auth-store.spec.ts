@@ -4,7 +4,11 @@ import * as http from "../src/lib/http";
 
 function mockApi() {
   vi.spyOn(http.api, "post").mockImplementation(async () => ({}));
-  vi.spyOn(http.api, "get").mockImplementation(async () => ({ id: "u1", email: "test@test.com", nome: "Test" }));
+  vi.spyOn(http.api, "get").mockImplementation(async () => ({
+    id: "u1",
+    email: "test@test.com",
+    nome: "Test",
+  }));
 }
 
 function mockApiError(status: number, message: string) {
@@ -29,11 +33,17 @@ describe("Auth Store (T052)", () => {
 
   it("login chama api.post + api.get(/me)", async () => {
     const postSpy = vi.spyOn(http.api, "post").mockResolvedValue({} as never);
-    const getSpy = vi.spyOn(http.api, "get").mockResolvedValue({ id: "u1", email: "t@t.com", nome: "User" } as never);
+    const getSpy = vi
+      .spyOn(http.api, "get")
+      .mockResolvedValue({ id: "u1", email: "t@t.com", nome: "User" } as never);
 
     const result = await useAuthStore.getState().login("t@t.com", "pass");
     expect(result.success).toBe(true);
-    expect(postSpy).toHaveBeenCalledWith("/api/v1/auth/login", { email: "t@t.com", password: "pass" }, { auth: false });
+    expect(postSpy).toHaveBeenCalledWith(
+      "/api/v1/auth/login",
+      { email: "t@t.com", password: "pass" },
+      { auth: false },
+    );
     expect(getSpy).toHaveBeenCalledWith("/api/v1/auth/me");
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
     expect(useAuthStore.getState().user?.email).toBe("t@t.com");
@@ -49,7 +59,9 @@ describe("Auth Store (T052)", () => {
 
   it("register chama api.post(/register) + login automatica", async () => {
     const postSpy = vi.spyOn(http.api, "post").mockResolvedValue({});
-    const getSpy = vi.spyOn(http.api, "get").mockResolvedValue({ id: "u1", email: "t@t.com", nome: "User" });
+    const getSpy = vi
+      .spyOn(http.api, "get")
+      .mockResolvedValue({ id: "u1", email: "t@t.com", nome: "User" });
 
     const result = await useAuthStore.getState().register("User", "t@t.com", "pass");
     expect(result.success).toBe(true);
@@ -77,7 +89,10 @@ describe("Auth Store (T052)", () => {
 
   it("fetchMe com SessionExpiredError → limpa estado", async () => {
     mockMeExpired();
-    useAuthStore.setState({ user: { id: "x", email: "x", name: "x", avatarUrl: null }, isAuthenticated: true });
+    useAuthStore.setState({
+      user: { id: "x", email: "x", name: "x", avatarUrl: null },
+      isAuthenticated: true,
+    });
     await useAuthStore.getState().fetchMe();
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
     expect(useAuthStore.getState().user).toBeNull();
@@ -85,7 +100,10 @@ describe("Auth Store (T052)", () => {
 
   it("logout chama api.post(/logout) e limpa estado", async () => {
     const postSpy = vi.spyOn(http.api, "post").mockResolvedValue({});
-    useAuthStore.setState({ user: { id: "x", email: "x", name: "x", avatarUrl: null }, isAuthenticated: true });
+    useAuthStore.setState({
+      user: { id: "x", email: "x", name: "x", avatarUrl: null },
+      isAuthenticated: true,
+    });
     await useAuthStore.getState().logout();
     expect(postSpy).toHaveBeenCalledWith("/api/v1/auth/logout");
     expect(useAuthStore.getState().isAuthenticated).toBe(false);

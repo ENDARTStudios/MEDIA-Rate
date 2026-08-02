@@ -12,9 +12,7 @@ export function DiagPanel() {
   }, []);
 
   const buildId =
-    typeof window !== "undefined"
-      ? (window as any).__NEXT_DATA__?.buildId || "N/A"
-      : "SSR";
+    typeof window !== "undefined" ? (window as any).__NEXT_DATA__?.buildId || "N/A" : "SSR";
 
   const url = typeof window !== "undefined" ? window.location.href : "SSR";
 
@@ -31,22 +29,15 @@ export function DiagPanel() {
   const [lastApi, setLastApi] = useState("");
   const [minimized, setMinimized] = useState(false);
 
-  const cookies =
-    typeof document !== "undefined" ? document.cookie : "";
-  const cookieDisplay = cookies
-    ? "(present, httpOnly invisible)"
-    : "(httpOnly, invisible to JS)";
+  const cookies = typeof document !== "undefined" ? document.cookie : "";
+  const cookieDisplay = cookies ? "(present, httpOnly invisible)" : "(httpOnly, invisible to JS)";
 
   const csrfToken =
-    typeof sessionStorage !== "undefined"
-      ? sessionStorage.getItem("mediarate:csrf")
-      : null;
+    typeof sessionStorage !== "undefined" ? sessionStorage.getItem("mediarate:csrf") : null;
   const csrfDisplay = csrfToken ? csrfToken.substring(0, 4) + "..." : "—";
 
   const storageKeys =
-    typeof sessionStorage !== "undefined"
-      ? Object.keys(sessionStorage).join(", ") || "—"
-      : "N/A";
+    typeof sessionStorage !== "undefined" ? Object.keys(sessionStorage).join(", ") || "—" : "N/A";
 
   async function testMe() {
     setMeLoading(true);
@@ -56,15 +47,9 @@ export function DiagPanel() {
       setLastApi(`/me → ${r.status}`);
       if (r.ok) {
         const d = await r.json();
-        setMeEmail(
-          d.email || d.nome || JSON.stringify(d).substring(0, 40)
-        );
+        setMeEmail(d.email || d.nome || JSON.stringify(d).substring(0, 40));
       } else {
-        setMeEmail(
-          r.status === 401
-            ? "NÃO LOGADO / cookie não enviado"
-            : `Error ${r.status}`
-        );
+        setMeEmail(r.status === 401 ? "NÃO LOGADO / cookie não enviado" : `Error ${r.status}`);
       }
     } catch (e: any) {
       setMeStatus(0);
@@ -81,7 +66,7 @@ export function DiagPanel() {
       setLastApi(`/watchlist → ${r.status}`);
       if (r.ok) {
         const d = await r.json();
-        setWlCount(Array.isArray(d) ? d.length : d.items?.length ?? 0);
+        setWlCount(Array.isArray(d) ? d.length : (d.items?.length ?? 0));
       }
     } catch (e: any) {
       setWlStatus(0);
@@ -100,17 +85,10 @@ export function DiagPanel() {
     window.addEventListener("resize", onResize);
 
     const onError = (e: ErrorEvent) => {
-      setErrors((prev) =>
-        [...prev, `JS: ${e.message?.substring(0, 80)}`].slice(-10)
-      );
+      setErrors((prev) => [...prev, `JS: ${e.message?.substring(0, 80)}`].slice(-10));
     };
     const onRejection = (e: PromiseRejectionEvent) => {
-      setErrors((prev) =>
-        [
-          ...prev,
-          `Promise: ${String(e.reason).substring(0, 80)}`,
-        ].slice(-10)
-      );
+      setErrors((prev) => [...prev, `Promise: ${String(e.reason).substring(0, 80)}`].slice(-10));
     };
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onRejection);
@@ -154,10 +132,7 @@ export function DiagPanel() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md px-3 py-1.5 text-[11px] font-mono text-[#9CA3AF]">
-        <button
-          onClick={() => setMinimized(false)}
-          className="text-[#6B7280] hover:text-[#EDE7DC]"
-        >
+        <button onClick={() => setMinimized(false)} className="text-[#6B7280] hover:text-[#EDE7DC]">
           Diag
         </button>
       </div>
@@ -165,11 +140,12 @@ export function DiagPanel() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-[11px] font-mono text-[#9CA3AF] flex flex-col gap-1" data-diag-panel="true">
+    <div
+      className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-[11px] font-mono text-[#9CA3AF] flex flex-col gap-1"
+      data-diag-panel="true"
+    >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[#818CF8] font-bold text-[12px]">
-          MEDIA Rate Diag
-        </span>
+        <span className="text-[#818CF8] font-bold text-[12px]">MEDIA Rate Diag</span>
         <button
           onClick={() => setMinimized(true)}
           className="text-[#6B7280] hover:text-[#EDE7DC] leading-none"
@@ -184,23 +160,10 @@ export function DiagPanel() {
       {row("cookie_js", cookieDisplay)}
       {row("csrf", csrfDisplay)}
       {row("storage_keys", storageKeys)}
-      {row(
-        "me",
-        meLoading
-          ? "loading..."
-          : `${meStatus ?? "—"} ${meEmail}`
-      )}
-      {row(
-        "watchlist",
-        wlLoading
-          ? "loading..."
-          : `${wlStatus ?? "—"} items=${wlCount ?? "—"}`
-      )}
+      {row("me", meLoading ? "loading..." : `${meStatus ?? "—"} ${meEmail}`)}
+      {row("watchlist", wlLoading ? "loading..." : `${wlStatus ?? "—"} items=${wlCount ?? "—"}`)}
       {row("last_api", lastApi || "—")}
-      {row(
-        "errors",
-        errors.length === 0 ? "—" : `${errors.length} erro(s)`
-      )}
+      {row("errors", errors.length === 0 ? "—" : `${errors.length} erro(s)`)}
       {errors.length > 0 && (
         <div className="max-h-16 overflow-y-auto text-[#EF4444] mt-0.5">
           {errors.map((e, i) => (

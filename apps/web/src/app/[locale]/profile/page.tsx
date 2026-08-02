@@ -4,7 +4,11 @@ import { ProtectedPage } from "@/components/ProtectedPage";
 import { ProfileContent } from "@/components/ProfileContent";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "Perfil — MEDIA Rate",

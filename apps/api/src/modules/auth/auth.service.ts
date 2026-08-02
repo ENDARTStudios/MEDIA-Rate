@@ -13,7 +13,7 @@ import { SessionService, type SessionCreationResult } from "./session.service.js
 import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
-import type { RegisterDtoType, LoginDtoType } from "./dto/auth.dto.js";
+import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
 
 /**
  * Resultado de registro. Nunca expõe password_hash.
@@ -114,11 +114,14 @@ export class AuthService {
     this.analytics.identify(usuario.id, { plan: "free", role: "user" });
 
     await this.auditLog.log({
-      entidade: "Usuario", entidadeId: usuario.id, acao: "register",
-      usuarioId: usuario.id, dadosDepois: { email: dto.email },
+      entidade: "Usuario",
+      entidadeId: usuario.id,
+      acao: "register",
+      usuarioId: usuario.id,
+      dadosDepois: { email: dto.email },
     });
 
-    this.logger.log(`Usuário registrado: ${usuario.email}`);
+    this.logger.log(`Usuário registrado (id: ${usuario.id})`);
     return usuario;
   }
 
@@ -199,8 +202,11 @@ export class AuthService {
     });
 
     await this.auditLog.log({
-      entidade: "Usuario", entidadeId: usuario.id, acao: "login",
-      usuarioId: usuario.id, ipOrigem: ip,
+      entidade: "Usuario",
+      entidadeId: usuario.id,
+      acao: "login",
+      usuarioId: usuario.id,
+      ipOrigem: ip,
     });
 
     return {
@@ -211,7 +217,10 @@ export class AuthService {
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const usuario = await this.prisma.usuario.findUnique({ where: { email }, select: { id: true, email: true } });
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { email },
+      select: { id: true, email: true },
+    });
     if (!usuario) return { message: "Se o email existir, um link de reset será enviado." };
 
     const token = randomBytes(32).toString("hex");
@@ -226,10 +235,13 @@ export class AuthService {
     });
 
     await this.auditLog.log({
-      entidade: "Usuario", entidadeId: usuario.id, acao: "password_reset_requested",
+      entidade: "Usuario",
+      entidadeId: usuario.id,
+      acao: "password_reset_requested",
     });
 
-    this.logger.log(`Reset de senha solicitado para ${usuario.email} — token: ${token}`);
+    // NUNCA logar o token de reset em texto plano (equivalente à senha).
+    this.logger.log(`Reset de senha solicitado (usuário ${usuario.id})`);
     return { message: "Se o email existir, um link de reset será enviado." };
   }
 
@@ -241,18 +253,36 @@ export class AuthService {
     });
 
     if (!usuario) {
-      throw new BadRequestException({ statusCode: 400, error: "Bad Request", message: "Token inválido ou expirado." });
+      throw new BadRequestException({
+        statusCode: 400,
+        error: "Bad Request",
+        message: "Token inválido ou expirado.",
+      });
     }
 
     const passwordHash = await this.passwordService.hash(newPassword);
 
-    await this.prisma.usuario.update({
-      where: { id: usuario.id },
-      data: { password_hash: passwordHash, password_reset_token: null, password_reset_expira: null },
-    });
+    // Transação: troca a senha E revoga todas as sessões ativas do usuário
+    // (padrão de segurança pós-reset — sessões antigas não sobrevivem).
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({
+        where: { id: usuario.id },
+        data: {
+          password_hash: passwordHash,
+          password_reset_token: null,
+          password_reset_expira: null,
+        },
+      }),
+      this.prisma.sessao.updateMany({
+        where: { usuario_id: usuario.id, revoked_at: null },
+        data: { revoked_at: new Date() },
+      }),
+    ]);
 
     await this.auditLog.log({
-      entidade: "Usuario", entidadeId: usuario.id, acao: "password_reset_completed",
+      entidade: "Usuario",
+      entidadeId: usuario.id,
+      acao: "password_reset_completed",
     });
 
     this.logger.log(`Senha resetada para usuário ${usuario.id}`);
@@ -261,7 +291,11 @@ export class AuthService {
 
   async logoutAudit(usuarioId: string, ip?: string): Promise<void> {
     await this.auditLog.log({
-      entidade: "Usuario", entidadeId: usuarioId, acao: "logout", usuarioId, ipOrigem: ip,
+      entidade: "Usuario",
+      entidadeId: usuarioId,
+      acao: "logout",
+      usuarioId,
+      ipOrigem: ip,
     });
   }
 }

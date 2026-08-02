@@ -27,46 +27,163 @@ const __dirname = path.dirname(__filename);
 const SRC = path.resolve(__dirname, "..", "src");
 const SCAN_DIRS = ["components", "app"];
 
-const EXCLUDE_FILES = ["seed-data.ts", "mock-data.ts", "api.ts", "design-tokens.ts", ".spec.", ".test.", "DesignSystemClient.tsx"];
+const EXCLUDE_FILES = [
+  "seed-data.ts",
+  "mock-data.ts",
+  "api.ts",
+  "design-tokens.ts",
+  ".spec.",
+  ".test.",
+  "DesignSystemClient.tsx",
+];
 
 // Whitelist — words that are NOT chrome UI (mock data, brand names, cognates)
 const WHITELIST = [
-  "MEDIA Score", "MEDIA Rate", "MEDIA Score™",
-  "Metacritic", "Igdb", "Stripe", "TMDB", "RAWG", "Steam", "OpenLibrary", "TVMaze",
-  "IMDb", "Rotten Tomatoes", "AniList", "Goodreads",
-  "Completos", "Abandonados", "Explorador", "Activo", "Idioma", "Email", "Perfil",
-  "Catálogo", "Configuración",
-  "LGPD", "CDC", "ANPD", "DPO",
-  "Osasco", "São Paulo", "Brasil",
-  "Free", "Plus", "Premium",
-  "ENDART Studios", "EDINALDO SOARES DA SILVA",
-  "—", "✓", "☆", "★", "...",
+  "MEDIA Score",
+  "MEDIA Rate",
+  "MEDIA Score™",
+  "Metacritic",
+  "Igdb",
+  "Stripe",
+  "TMDB",
+  "RAWG",
+  "Steam",
+  "OpenLibrary",
+  "TVMaze",
+  "IMDb",
+  "Rotten Tomatoes",
+  "AniList",
+  "Goodreads",
+  "Completos",
+  "Abandonados",
+  "Explorador",
+  "Activo",
+  "Idioma",
+  "Email",
+  "Perfil",
+  "Catálogo",
+  "Configuración",
+  "LGPD",
+  "CDC",
+  "ANPD",
+  "DPO",
+  "Osasco",
+  "São Paulo",
+  "Brasil",
+  "Free",
+  "Plus",
+  "Premium",
+  "ENDART Studios",
+  "EDINALDO SOARES DA SILVA",
+  "—",
+  "✓",
+  "☆",
+  "★",
+  "...",
 ];
 
 // PT function words that signal a UI label (not mock content)
 const PT_CHROME_WORDS = [
-  "Configurações", "Configuracoes", "Conta", "Nome", "Sessão", "Sessao", "Sair",
-  "Entrar", "Cadastre-se", "Cadastrar", "Buscar", "Favoritar", "Favorito",
-  "Compartilhar", "Compartilhem", "Avaliar", "Salvar", "Cancelar", "Confirmar",
-  "Enviar", "Voltar", "Avançar", "Continuar", "Concluir", "Fechar",
-  "Adicionar", "Remover", "Editar", "Excluir", "Criar", "Atualizar",
-  "Carregando", "Processando", "Verificando",
-  "Selecione", "Digite", "Escolha", "Informe", "Preencha",
-  "assistir", "jogar", "ver", "filme", "série", "game", "jogo",
-  "sinopse", "elenco", "temporada", "episódio", "nota", "score",
-  "fontes", "Fontes", "confiança", "atualizado", "desatualizado",
-  "watchlist", "dashboard", "catálogo",
+  "Configurações",
+  "Configuracoes",
+  "Conta",
+  "Nome",
+  "Sessão",
+  "Sessao",
+  "Sair",
+  "Entrar",
+  "Cadastre-se",
+  "Cadastrar",
+  "Buscar",
+  "Favoritar",
+  "Favorito",
+  "Compartilhar",
+  "Compartilhem",
+  "Avaliar",
+  "Salvar",
+  "Cancelar",
+  "Confirmar",
+  "Enviar",
+  "Voltar",
+  "Avançar",
+  "Continuar",
+  "Concluir",
+  "Fechar",
+  "Adicionar",
+  "Remover",
+  "Editar",
+  "Excluir",
+  "Criar",
+  "Atualizar",
+  "Carregando",
+  "Processando",
+  "Verificando",
+  "Selecione",
+  "Digite",
+  "Escolha",
+  "Informe",
+  "Preencha",
+  "assistir",
+  "jogar",
+  "ver",
+  "filme",
+  "série",
+  "game",
+  "jogo",
+  "sinopse",
+  "elenco",
+  "temporada",
+  "episódio",
+  "nota",
+  "score",
+  "fontes",
+  "Fontes",
+  "confiança",
+  "atualizado",
+  "desatualizado",
+  "watchlist",
+  "dashboard",
+  "catálogo",
 ];
 
 // EN words that would look like chrome in wrong context
 const EN_CHROME_WORDS = [
-  "Settings", "Account", "Name", "Session", "Sign out", "Log in", "Register",
-  "Search", "Favorite", "Share", "Save", "Cancel", "Submit", "Send",
-  "Loading", "Processing", "Verifying",
-  "Select", "Type", "Choose", "Enter",
-  "watch", "play", "movie", "series", "game",
-  "synopsis", "cast", "season", "episode", "rating", "score",
-  "sources", "confidence", "updated", "outdated",
+  "Settings",
+  "Account",
+  "Name",
+  "Session",
+  "Sign out",
+  "Log in",
+  "Register",
+  "Search",
+  "Favorite",
+  "Share",
+  "Save",
+  "Cancel",
+  "Submit",
+  "Send",
+  "Loading",
+  "Processing",
+  "Verifying",
+  "Select",
+  "Type",
+  "Choose",
+  "Enter",
+  "watch",
+  "play",
+  "movie",
+  "series",
+  "game",
+  "synopsis",
+  "cast",
+  "season",
+  "episode",
+  "rating",
+  "score",
+  "sources",
+  "confidence",
+  "updated",
+  "outdated",
 ];
 
 interface Flag {
@@ -177,15 +294,38 @@ for (const dir of SCAN_DIRS) {
 
 // D-199.1: mojibake/double-encoding detection — exit !=0 if found
 (function checkMojibake() {
-  const MOJIBAKE = ["\u00c3\u00a9","\u00c3\u00a3","\u00c3\u00a7","\u00c3\u00aa","\u00c3\u00b4","\u00c3\u00ad","\u00c3\u00ba","\u00c3\u00b3","\u00c3\u00a1","\u00c3\u00a2","\u00c3\u00b5","\u00e2\u20ac\u201c","\u00e2\u201e\u00a2","\u00c2\u00b7"];
+  const MOJIBAKE = [
+    "\u00c3\u00a9",
+    "\u00c3\u00a3",
+    "\u00c3\u00a7",
+    "\u00c3\u00aa",
+    "\u00c3\u00b4",
+    "\u00c3\u00ad",
+    "\u00c3\u00ba",
+    "\u00c3\u00b3",
+    "\u00c3\u00a1",
+    "\u00c3\u00a2",
+    "\u00c3\u00b5",
+    "\u00e2\u20ac\u201c",
+    "\u00e2\u201e\u00a2",
+    "\u00c2\u00b7",
+  ];
   const issues: string[] = [];
-  for (const loc of ["pt-BR","en-US","es-ES"]) {
+  for (const loc of ["pt-BR", "en-US", "es-ES"]) {
     const p = path.resolve(SRC, "messages", loc + ".json");
     if (!fs.existsSync(p)) continue;
     const c = fs.readFileSync(p, "utf8");
-    for (const pat of MOJIBAKE) { if (c.includes(pat)) { issues.push(loc + ".json: " + pat); break; } }
+    for (const pat of MOJIBAKE) {
+      if (c.includes(pat)) {
+        issues.push(loc + ".json: " + pat);
+        break;
+      }
+    }
   }
-  if (issues.length > 0) { console.log("MOJIBAKE FAIL: " + issues.join("; ")); process.exit(1); }
+  if (issues.length > 0) {
+    console.log("MOJIBAKE FAIL: " + issues.join("; "));
+    process.exit(1);
+  }
   console.log("Mojibake check: PASS (0 in 3 locales)");
 })();
 

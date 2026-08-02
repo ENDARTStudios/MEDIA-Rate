@@ -12,7 +12,11 @@ function mockContext(opts: { hasCookie?: boolean; validToken?: boolean; url: str
   const http = { getRequest: () => request };
 
   return {
-    context: { getHandler: () => ({}), getClass: () => ({}), switchToHttp: () => http } as unknown as ExecutionContext,
+    context: {
+      getHandler: () => ({}),
+      getClass: () => ({}),
+      switchToHttp: () => http,
+    } as unknown as ExecutionContext,
     request,
   };
 }
@@ -38,10 +42,23 @@ describe("AuthGuard (unit)", () => {
   });
 
   it("cookie válido — retorna true e anexa request.user", async () => {
-    const { context, request } = mockContext({ hasCookie: true, validToken: true, url: "/api/v1/admin/stats" });
-    const mockSession = { validateToken: async () => ({ sessao: { id: "s1", usuario_id: "u1", expires_at: new Date() }, usuario: { id: "u1", email: "test@mediarate.app", nome: null } }) };
+    const { context, request } = mockContext({
+      hasCookie: true,
+      validToken: true,
+      url: "/api/v1/admin/stats",
+    });
+    const mockSession = {
+      validateToken: async () => ({
+        sessao: { id: "s1", usuario_id: "u1", expires_at: new Date() },
+        usuario: { id: "u1", email: "test@mediarate.app", nome: null },
+      }),
+    };
     const testModule = await Test.createTestingModule({
-      providers: [AuthGuard, { provide: SessionService, useValue: mockSession }, { provide: Reflector, useValue: { getAllAndOverride: () => undefined } }],
+      providers: [
+        AuthGuard,
+        { provide: SessionService, useValue: mockSession },
+        { provide: Reflector, useValue: { getAllAndOverride: () => undefined } },
+      ],
     }).compile();
     const customGuard = testModule.get<AuthGuard>(AuthGuard);
     const result = await customGuard.canActivate(context);

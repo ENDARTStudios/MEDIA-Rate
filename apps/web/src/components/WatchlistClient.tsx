@@ -105,8 +105,19 @@ export function WatchlistClient() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("title")}</h1>
         <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-          <svg className="w-14 h-14 text-red-400/60 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          <svg
+            className="w-14 h-14 text-red-400/60 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
           <p className="text-[#9CA3AF] mb-2">{errorMsg}</p>
           <Button onClick={() => fetchWatchlist()} variant="ghost" size="sm">
@@ -122,8 +133,19 @@ export function WatchlistClient() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("title")}</h1>
         <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
-          <svg className="w-14 h-14 text-[#6B7280] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          <svg
+            className="w-14 h-14 text-[#6B7280] mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1}
+              d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+            />
           </svg>
           <p className="text-[#9CA3AF] mb-4">{t("empty")}</p>
           <Link href="/catalog">
@@ -140,9 +162,7 @@ export function WatchlistClient() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {COLUMNS.map((col) => {
-          const columnEntries = entries.filter(
-            (e) => (e.status ?? e.coluna) === col.key
-          );
+          const columnEntries = entries.filter((e) => (e.status ?? e.coluna) === col.key);
           // T142: Hide orphans (entries whose midia_id not in catalog)
           const visible = columnEntries.filter((e) => byId.has(e.mediaId));
 
@@ -161,7 +181,8 @@ export function WatchlistClient() {
               {visible.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
                   <p className="text-xs text-[#6B7280]">{t("empty")}</p>
-                </div>) : (
+                </div>
+              ) : (
                 <div className="space-y-3 flex-1">
                   {visible.map((entry) => {
                     const m = byId.get(entry.mediaId);
@@ -182,7 +203,9 @@ export function WatchlistClient() {
                             <button
                               onClick={async () => {
                                 setDeleting(entry.id);
-                                try { await removeItem(entry.id); } catch {}
+                                try {
+                                  await removeItem(entry.id);
+                                } catch {}
                                 setDeleting(null);
                               }}
                               disabled={deleting === entry.id}

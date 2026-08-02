@@ -17,7 +17,9 @@ const b = await chromium.launch();
     const u = r.url();
     if (/api\/v1|auth|railway\.app|vercel\.app\/api|localhost/i.test(u)) {
       let body = "";
-      try { body = (await r.text()).slice(0, 200); } catch {}
+      try {
+        body = (await r.text()).slice(0, 200);
+      } catch {}
       net.push({ phase: "res", s: r.status(), u, body });
     }
   });
@@ -26,8 +28,11 @@ const b = await chromium.launch();
     if (/api\/v1|auth|railway\.app|vercel\.app\/api|localhost/i.test(u))
       net.push({ phase: "FAIL", u, err: r.failure()?.errorText });
   });
-  const cerr = []; const perr = [];
-  p.on("console", (m) => { if (m.type() === "error") cerr.push(m.text().slice(0, 200)); });
+  const cerr = [];
+  const perr = [];
+  p.on("console", (m) => {
+    if (m.type() === "error") cerr.push(m.text().slice(0, 200));
+  });
   p.on("pageerror", (e) => perr.push((e.message || "").slice(0, 200)));
 
   await p.goto(BASE + "/pt-BR/register", { waitUntil: "networkidle", timeout: 30_000 });
@@ -45,12 +50,18 @@ const b = await chromium.launch();
   const chk = p.locator('input[type="checkbox"]').first();
   if ((await chk.count()) > 0) await chk.check().catch(() => {});
 
-  net.length = 0; cerr.length = 0; perr.length = 0;
+  net.length = 0;
+  cerr.length = 0;
+  perr.length = 0;
 
   const beforeUrl = p.url();
   const btn = p.getByRole("button", { name: /cadastrar|criar|registrar|sign ?up/i }).first();
   await btn.click().catch(async () => {
-    await p.locator('form button[type="submit"], form button').last().click().catch(() => {});
+    await p
+      .locator('form button[type="submit"], form button')
+      .last()
+      .click()
+      .catch(() => {});
   });
   await p.waitForTimeout(4000);
   const afterUrl = p.url();
@@ -74,7 +85,9 @@ const b = await chromium.launch();
     const u = r.url();
     if (/api\/v1|midia|discover|search|railway\.app/i.test(u)) {
       let body = "";
-      try { body = (await r.text()).slice(0, 150); } catch {}
+      try {
+        body = (await r.text()).slice(0, 150);
+      } catch {}
       cnet.push({ s: r.status(), u, body });
     }
   });
@@ -85,8 +98,15 @@ const b = await chromium.launch();
   });
 
   await p.goto(BASE + "/pt-BR/catalog", { waitUntil: "domcontentloaded", timeout: 30_000 });
-  const cards = async () => p.evaluate(() => document.querySelectorAll('a[href*="/midia/"], a[href*="/media/"], [data-media-card], article').length);
-  const txt = async () => p.evaluate(() => (document.querySelector("main")?.innerText || "").trim().length);
+  const cards = async () =>
+    p.evaluate(
+      () =>
+        document.querySelectorAll(
+          'a[href*="/midia/"], a[href*="/media/"], [data-media-card], article',
+        ).length,
+    );
+  const txt = async () =>
+    p.evaluate(() => (document.querySelector("main")?.innerText || "").trim().length);
 
   let prev = 0;
   for (const t of [1000, 3000, 6000, 9000]) {
@@ -105,11 +125,18 @@ const b = await chromium.launch();
   const found = [];
   for (const s of srcs.slice(0, 6)) {
     const url = s.startsWith("http") ? s : BASE + s;
-    const js = await fetch(url).then((r) => r.text()).catch(() => "");
-    const m = js.match(/https?:\/\/[a-z0-9.-]*(railway\.app|vercel\.app|localhost)[^"'\s`]*/gi) || [];
+    const js = await fetch(url)
+      .then((r) => r.text())
+      .catch(() => "");
+    const m =
+      js.match(/https?:\/\/[a-z0-9.-]*(railway\.app|vercel\.app|localhost)[^"'\s`]*/gi) || [];
     const apiHits = js.match(/["'`](https?:\/\/[^"'`]*\/api\/v1|\/api\/v1)["'`]/gi) || [];
     if (m.length || apiHits.length)
-      found.push({ chunk: s.split("/").pop(), hosts: [...new Set(m)].slice(0, 5), apiBase: [...new Set(apiHits)].slice(0, 5) });
+      found.push({
+        chunk: s.split("/").pop(),
+        hosts: [...new Set(m)].slice(0, 5),
+        apiBase: [...new Set(apiHits)].slice(0, 5),
+      });
   }
   console.log("BUNDLE_API_HITS=", JSON.stringify(found, null, 1));
 }

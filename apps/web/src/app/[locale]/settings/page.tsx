@@ -23,7 +23,9 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{ts("account")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {ts("account")}
+            </h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-[#9CA3AF]">{ts("name")}</span>
@@ -37,10 +39,12 @@ export default function SettingsPage() {
           </div>
 
           <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{ts("language")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {ts("language")}
+            </h2>
             <p className="text-sm text-[#9CA3AF] mb-3">{ts("languageHint")}</p>
             <div className="flex gap-2">
-              {locales.map(loc => (
+              {locales.map((loc) => (
                 <Button
                   key={loc}
                   variant={currentLocale === loc ? "default" : "outline"}
@@ -54,8 +58,16 @@ export default function SettingsPage() {
           </div>
 
           <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{ts("session")}</h2>
-            <Button variant="destructive" onClick={() => { logout(); router.push("/"); }}>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {ts("session")}
+            </h2>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                logout();
+                router.push("/");
+              }}
+            >
               {tn("logout") ?? ts("session")}
             </Button>
           </div>

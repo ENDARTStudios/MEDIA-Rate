@@ -5,15 +5,17 @@ const API = "https://media-rate-production.up.railway.app";
 const BRAVE = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe";
 
 async function chainOpacity(locator: any): Promise<number> {
-  return locator.evaluate((el: Element) => {
-    let min = 1;
-    let e: Element | null = el;
-    for (let i = 0; i < 4 && e; i++, e = e.parentElement) {
-      const o = parseFloat(getComputedStyle(e).opacity);
-      if (!isNaN(o) && o < min) min = o;
-    }
-    return min;
-  }).catch(() => 0);
+  return locator
+    .evaluate((el: Element) => {
+      let min = 1;
+      let e: Element | null = el;
+      for (let i = 0; i < 4 && e; i++, e = e.parentElement) {
+        const o = parseFloat(getComputedStyle(e).opacity);
+        if (!isNaN(o) && o < min) min = o;
+      }
+      return min;
+    })
+    .catch(() => 0);
 }
 
 test.describe("T106 - Gate final", () => {
@@ -45,13 +47,15 @@ test.describe("T106 - Gate final", () => {
       console.log(`Footer: ${results.footer}`);
 
       // Check visible cards only
-      const visibleCards = page.locator('a[href*="/media/"]').filter({ has: page.locator('img') });
+      const visibleCards = page.locator('a[href*="/media/"]').filter({ has: page.locator("img") });
       const vcCount = await visibleCards.count();
-      let homeOpOk = 0, homeTotal = 0;
+      let homeOpOk = 0,
+        homeTotal = 0;
       for (let i = 0; i < vcCount; i++) {
         const c = visibleCards.nth(i);
         const box = await c.boundingBox().catch(() => null);
-        if (box && box.y < 900 && box.y + box.height > 0) { // in viewport
+        if (box && box.y < 900 && box.y + box.height > 0) {
+          // in viewport
           const op = await chainOpacity(c);
           homeTotal++;
           if (op > 0.99) homeOpOk++;
@@ -60,7 +64,7 @@ test.describe("T106 - Gate final", () => {
       results.home_cards = `${homeOpOk}/${homeTotal}`;
       console.log(`Home visible cards op=1: ${homeOpOk}/${homeTotal}`);
 
-      results.nav_logo = await chainOpacity(page.locator('nav a[aria-label]').first());
+      results.nav_logo = await chainOpacity(page.locator("nav a[aria-label]").first());
       console.log(`Nav logo: ${results.nav_logo}`);
 
       await page.screenshot({ path: "e2e/screenshots/t106-home.png", fullPage: true });
@@ -72,7 +76,8 @@ test.describe("T106 - Gate final", () => {
 
       const catCards = page.locator('a[href*="/media/"]');
       const catTotal = await catCards.count();
-      let catOpOk = 0, catChecked = 0;
+      let catOpOk = 0,
+        catChecked = 0;
       for (let i = 0; i < Math.min(catTotal, 8); i++) {
         const op = await chainOpacity(catCards.nth(i));
         catChecked++;
@@ -109,9 +114,13 @@ test.describe("T106 - Gate final", () => {
       await page.waitForTimeout(1500);
 
       // User avatar in nav
-      const avatar = page.locator('nav span.rounded-full').first();
+      const avatar = page.locator("nav span.rounded-full").first();
       results.login_avatar_op = await chainOpacity(avatar);
-      results.login_entrar_vis = await page.locator('nav a[href*="/login"]').first().isVisible().catch(() => true);
+      results.login_entrar_vis = await page
+        .locator('nav a[href*="/login"]')
+        .first()
+        .isVisible()
+        .catch(() => true);
       console.log(`Avatar op=${results.login_avatar_op} entrarVis=${results.login_entrar_vis}`);
 
       await page.screenshot({ path: "e2e/screenshots/t106-logado.png", fullPage: false });
@@ -129,8 +138,14 @@ test.describe("T106 - Gate final", () => {
 
       results.reload_url = page.url();
       results.reload_avatar_op = await chainOpacity(avatar);
-      results.reload_entrar_vis = await page.locator('nav a[href*="/login"]').first().isVisible().catch(() => true);
-      console.log(`URL: ${results.reload_url} avatarOp=${results.reload_avatar_op} entrarVis=${results.reload_entrar_vis}`);
+      results.reload_entrar_vis = await page
+        .locator('nav a[href*="/login"]')
+        .first()
+        .isVisible()
+        .catch(() => true);
+      console.log(
+        `URL: ${results.reload_url} avatarOp=${results.reload_avatar_op} entrarVis=${results.reload_entrar_vis}`,
+      );
 
       await page.screenshot({ path: "e2e/screenshots/t106-reload.png", fullPage: false });
 
@@ -153,7 +168,6 @@ test.describe("T106 - Gate final", () => {
       expect(gates.footer, "Footer opacity=1").toBe(true);
       expect(gates.catalogo, "Catalogo cards opacity=1").toBe(true);
       expect(gates.cookie, "Cookie sess Lax/httpOnly/secure").toBe(true);
-
     } finally {
       await browser.close();
     }

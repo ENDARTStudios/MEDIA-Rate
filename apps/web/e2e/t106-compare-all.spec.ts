@@ -27,7 +27,11 @@ test("compare all URLs catalog", async () => {
       console.log(`URL final: ${url.substring(0, 80)}`);
       console.log(`Cards no DOM: ${count}`);
       if (count > 0) {
-        const box = await page.locator('a[href*="/media/"]').first().boundingBox().catch(() => null);
+        const box = await page
+          .locator('a[href*="/media/"]')
+          .first()
+          .boundingBox()
+          .catch(() => null);
         console.log(`Card 0 box: ${box ? `${box.width}x${box.height}` : "null"}`);
       }
     } catch (e: any) {

@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { animate, stagger } from "animejs";
 
-interface CatalogSkeletonProps { count?: number; }
+interface CatalogSkeletonProps {
+  count?: number;
+}
 
 export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
   const t = useTranslations("common");
@@ -21,7 +23,9 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
       loop: true,
       ease: "linear",
     });
-    return () => { ctrl.pause(); };
+    return () => {
+      ctrl.pause();
+    };
   }, []);
 
   return (
@@ -35,10 +39,25 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
     >
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-md bg-[#09090F] overflow-hidden shadow-surface-1">
-          <div className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #09090F 40%, #11111E 50%, #09090F 60%)" }} />
+          <div
+            className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]"
+            style={{
+              backgroundImage: "linear-gradient(110deg, #09090F 40%, #11111E 50%, #09090F 60%)",
+            }}
+          />
           <div className="p-3 space-y-2.5">
-            <div className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)" }} />
-            <div className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]" style={{ backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)" }} />
+            <div
+              className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]"
+              style={{
+                backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)",
+              }}
+            />
+            <div
+              className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]"
+              style={{
+                backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)",
+              }}
+            />
           </div>
         </div>
       ))}

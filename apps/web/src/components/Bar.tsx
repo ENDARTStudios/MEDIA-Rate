@@ -29,7 +29,10 @@ export function Bar({ criticsScore, audienceScore, consensus, maxScore = 10 }: B
             <span className="text-[#38BDF8] tabular-nums font-medium">{criticsScore}</span>
           </div>
           <div className="h-2 rounded-full bg-[#1C1C2E] overflow-hidden">
-            <div className="h-full rounded-full bg-[#38BDF8]" style={{ width: `${Math.round((criticsScore! / maxScore) * 100)}%` }} />
+            <div
+              className="h-full rounded-full bg-[#38BDF8]"
+              style={{ width: `${Math.round((criticsScore! / maxScore) * 100)}%` }}
+            />
           </div>
         </div>
       )}
@@ -40,13 +43,17 @@ export function Bar({ criticsScore, audienceScore, consensus, maxScore = 10 }: B
             <span className="text-[#F59E0B] tabular-nums font-medium">{audienceScore}</span>
           </div>
           <div className="h-2 rounded-full bg-[#1C1C2E] overflow-hidden">
-            <div className="h-full rounded-full bg-[#F59E0B]" style={{ width: `${Math.round((audienceScore! / maxScore) * 100)}%` }} />
+            <div
+              className="h-full rounded-full bg-[#F59E0B]"
+              style={{ width: `${Math.round((audienceScore! / maxScore) * 100)}%` }}
+            />
           </div>
         </div>
       )}
       {gap !== null && (
         <p className="text-xs text-[#6B7280] mt-1">
-          {t("consensusLabel")}: {highConsensus ? t("highConsensus") : `${t("lowConsensus")} (${gap.toFixed(1)}pts)`}
+          {t("consensusLabel")}:{" "}
+          {highConsensus ? t("highConsensus") : `${t("lowConsensus")} (${gap.toFixed(1)}pts)`}
         </p>
       )}
     </div>

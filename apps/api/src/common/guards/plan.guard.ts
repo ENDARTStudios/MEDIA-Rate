@@ -1,14 +1,14 @@
 import {
-  type CanActivate,
+  CanActivate,
   type ExecutionContext,
   Injectable,
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Reflector precisa ser import como valor para NestJS DI
+
 import { Reflector } from "@nestjs/core";
-import type { FastifyRequest } from "fastify";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+import { FastifyRequest } from "fastify";
+
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { PLAN_KEY, PLAN_RANK } from "../decorators/require-plan.decorator.js";
 import type { AuthenticatedUser } from "./auth.guard.js";

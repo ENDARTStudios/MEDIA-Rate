@@ -3,8 +3,9 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { CanActivate } from "@nestjs/common";
 import { WatchlistController } from "../src/modules/watchlist/watchlist.controller.js";
 import { WatchlistService } from "../src/modules/watchlist/watchlist.service.js";
+import { MetricsService } from "../src/modules/metrics/metrics.service.js";
 import { AuthGuard } from "../src/common/guards/auth.guard.js";
-import type { FastifyRequest } from "fastify";
+import { FastifyRequest } from "fastify";
 
 const mockAuthGuard: CanActivate = { canActivate: async () => true };
 
@@ -19,16 +20,38 @@ describe("WatchlistController (unit)", () => {
   beforeEach(async () => {
     service = {
       list: async () => [],
-      add: async (uid: string, dto: any) => ({ id: "entry-1", midia_id: dto.midia_id, coluna: dto.coluna ?? "WANT", midia: { id: dto.midia_id, titulo: "Test", tipo: "FILME", ano_lancamento: 2024, imagem_url: null } }),
+      add: async (uid: string, dto: any) => ({
+        id: "entry-1",
+        midia_id: dto.midia_id,
+        coluna: dto.coluna ?? "WANT",
+        midia: {
+          id: dto.midia_id,
+          titulo: "Test",
+          tipo: "FILME",
+          ano_lancamento: 2024,
+          imagem_url: null,
+        },
+      }),
       move: async () => ({ id: "entry-1", coluna: "COMPLETED" }),
       remove: async () => {},
     };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WatchlistController],
-      providers: [{ provide: WatchlistService, useValue: service }],
+      providers: [
+        { provide: WatchlistService, useValue: service },
+        {
+          provide: MetricsService,
+          useValue: {
+            incrementWatchlistAdd: () => {},
+            incrementWatchlistMove: () => {},
+            incrementWatchlistRemove: () => {},
+          },
+        },
+      ],
     })
-      .overrideGuard(AuthGuard).useValue(mockAuthGuard)
+      .overrideGuard(AuthGuard)
+      .useValue(mockAuthGuard)
       .compile();
     controller = module.get<WatchlistController>(WatchlistController);
   });
@@ -44,7 +67,11 @@ describe("WatchlistController (unit)", () => {
   });
 
   it("PATCH /:id/move — move coluna", async () => {
-    const result = await controller.move(mockReq(), "entry-1", { coluna: "COMPLETED" });
+    const req = {
+      user: { id: "user-1" },
+      body: { coluna: "COMPLETED" },
+    } as unknown as FastifyRequest & { user: { id: string }; body?: any };
+    const result = await controller.move(req, "entry-1");
     expect(result.coluna).toBe("COMPLETED");
   });
 

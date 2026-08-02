@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
-import type { CreateMediaDto, UpdateMediaDto } from "./dto/media.dto.js";
+import { CreateMediaDto, UpdateMediaDto } from "./dto/media.dto.js";
 import type { ClassificacaoIndicativa } from "@prisma/client";
 
 const NR_TO_CLASSIFICACAO: Record<number, ClassificacaoIndicativa> = {
@@ -19,7 +19,10 @@ function mapCreateDto(dto: CreateMediaDto) {
     tipo: dto.tipo,
     sinopse: dto.sinopse,
     ano_lancamento: dto.ano_lancamento,
-    classificacao_indicativa: dto.classificacao_indicativa !== undefined ? (NR_TO_CLASSIFICACAO[dto.classificacao_indicativa] ?? null) : null,
+    classificacao_indicativa:
+      dto.classificacao_indicativa !== undefined
+        ? (NR_TO_CLASSIFICACAO[dto.classificacao_indicativa] ?? null)
+        : null,
     duracao_minutos: dto.duracao ? Number.parseInt(dto.duracao, 10) || null : null,
     imagem_url: dto.imagem_url ?? null,
     fonte: dto.fonte ?? "manual",
@@ -34,7 +37,9 @@ function mapUpdateDto(dto: UpdateMediaDto) {
     ...(dto.tipo !== undefined && { tipo: dto.tipo }),
     ...(dto.sinopse !== undefined && { sinopse: dto.sinopse }),
     ...(dto.ano_lancamento !== undefined && { ano_lancamento: dto.ano_lancamento }),
-    ...(dto.classificacao_indicativa !== undefined && { classificacao_indicativa: NR_TO_CLASSIFICACAO[dto.classificacao_indicativa] ?? null }),
+    ...(dto.classificacao_indicativa !== undefined && {
+      classificacao_indicativa: NR_TO_CLASSIFICACAO[dto.classificacao_indicativa] ?? null,
+    }),
     ...(dto.duracao !== undefined && { duracao_minutos: Number.parseInt(dto.duracao, 10) || null }),
     ...(dto.imagem_url !== undefined && { imagem_url: dto.imagem_url }),
     ...(dto.fonte !== undefined && { fonte: dto.fonte }),

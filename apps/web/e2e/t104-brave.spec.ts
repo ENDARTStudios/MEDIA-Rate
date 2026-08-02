@@ -39,24 +39,42 @@ test.describe("T104 - Brave browser intercept", () => {
     page.on("request", (req) => {
       const url = req.url();
       let host = "";
-      try { host = new URL(url).host; } catch { host = "invalid"; }
+      try {
+        host = new URL(url).host;
+      } catch {
+        host = "invalid";
+      }
       const cookie = req.headers()["cookie"];
-      logs.reqs.push({ url, host, hasCookie: !!cookie, type: req.resourceType(), method: req.method() });
+      logs.reqs.push({
+        url,
+        host,
+        hasCookie: !!cookie,
+        type: req.resourceType(),
+        method: req.method(),
+      });
       if (req.resourceType() === "fetch" || req.resourceType() === "xhr" || url.includes("/api/")) {
-        console.log(`[REQ] ${req.method()} ${host} cookie=${!!cookie ? "SIM" : "NAO"} ${url.substring(0, 150)}`);
+        console.log(
+          `[REQ] ${req.method()} ${host} cookie=${cookie ? "SIM" : "NAO"} ${url.substring(0, 150)}`,
+        );
       }
     });
 
     page.on("response", (res) => {
       const url = res.url();
       let host = "";
-      try { host = new URL(url).host; } catch { host = "invalid"; }
+      try {
+        host = new URL(url).host;
+      } catch {
+        host = "invalid";
+      }
       const setCookie = res.headers()["set-cookie"] || "";
       const allHeaders = res.headers();
       logs.ress.push({ url, host, status: res.status(), setCookie, headers: allHeaders });
       if (url.includes("/api/") || setCookie) {
         const scMasked = setCookie ? setCookie.replace(/=[^;]+/, "=***").substring(0, 250) : "";
-        console.log(`[RES] ${res.status()} ${host} set-cookie=${scMasked || "(none)"} ${url.substring(0, 120)}`);
+        console.log(
+          `[RES] ${res.status()} ${host} set-cookie=${scMasked || "(none)"} ${url.substring(0, 120)}`,
+        );
       }
     });
 
@@ -127,15 +145,23 @@ test.describe("T104 - Brave browser intercept", () => {
       // /me após reload
       const meReqs = logs.reqs
         .slice(beforeReload)
-        .filter((r) => r.url.includes("/api/v1/auth/me") && (r.type === "fetch" || r.type === "xhr"));
-      const meRes = logs.ress
-        .filter((r) => r.url.includes("/api/v1/auth/me"));
+        .filter(
+          (r) => r.url.includes("/api/v1/auth/me") && (r.type === "fetch" || r.type === "xhr"),
+        );
+      const meRes = logs.ress.filter((r) => r.url.includes("/api/v1/auth/me"));
 
       console.log("\n--- /me NO RELOAD ---");
-      meReqs.forEach((r) => console.log(`  REQ: ${r.method} ${r.host} cookie=${r.hasCookie ? "PRESENTE" : "AUSENTE"} type=${r.type}`));
+      meReqs.forEach((r) =>
+        console.log(
+          `  REQ: ${r.method} ${r.host} cookie=${r.hasCookie ? "PRESENTE" : "AUSENTE"} type=${r.type}`,
+        ),
+      );
       meRes.slice(-3).forEach((r) => console.log(`  RES: ${r.status} ${r.host}`));
 
-      await page.screenshot({ path: "e2e/screenshots/t104-brave-apos-reload.png", fullPage: false });
+      await page.screenshot({
+        path: "e2e/screenshots/t104-brave-apos-reload.png",
+        fullPage: false,
+      });
 
       // PASSO 3: CATALOG
       console.log("\n--- CATALOG NO BRAVE ---");
@@ -146,7 +172,9 @@ test.describe("T104 - Brave browser intercept", () => {
       console.log(`Cards visiveis: ${cards}`);
 
       // Cache-Control from page HTML
-      const pageRes = logs.ress.find((r) => r.url.includes("/catalog") && !r.url.includes("_rsc") && r.status === 200);
+      const pageRes = logs.ress.find(
+        (r) => r.url.includes("/catalog") && !r.url.includes("_rsc") && r.status === 200,
+      );
       if (pageRes) {
         const cacheControl = pageRes.headers["cache-control"] || "AUSENTE";
         console.log(`Cache-Control catalog: ${cacheControl}`);
@@ -155,7 +183,9 @@ test.describe("T104 - Brave browser intercept", () => {
       await page.screenshot({ path: "e2e/screenshots/t104-brave-catalog.png", fullPage: false });
 
       // RESUMO
-      const railwayReqs = logs.reqs.filter((r) => r.host.includes("railway.app") && (r.type === "fetch" || r.type === "xhr"));
+      const railwayReqs = logs.reqs.filter(
+        (r) => r.host.includes("railway.app") && (r.type === "fetch" || r.type === "xhr"),
+      );
       console.log(`\n========== RESUMO BRAVE ==========`);
       console.log(`Total requests: ${logs.reqs.length}`);
       console.log(`railway.app fetch/xhr no JS: ${railwayReqs.length}`);
@@ -165,15 +195,18 @@ test.describe("T104 - Brave browser intercept", () => {
       if (!isLogado) {
         console.log("\n*** BRAVE DESLOGOU NO RELOAD (PASSO 5 FATOS) ***");
         if (loginRes) {
-          console.log(`Set-Cookie: ${loginRes.setCookie.replace(/=[^;]+/, "=***").substring(0, 400)}`);
+          console.log(
+            `Set-Cookie: ${loginRes.setCookie.replace(/=[^;]+/, "=***").substring(0, 400)}`,
+          );
         }
-        meReqs.forEach((r) => console.log(`/me REQ: ${r.method} cookie=${r.hasCookie ? "PRESENTE" : "AUSENTE"}`));
+        meReqs.forEach((r) =>
+          console.log(`/me REQ: ${r.method} cookie=${r.hasCookie ? "PRESENTE" : "AUSENTE"}`),
+        );
         meRes.forEach((r) => console.log(`/me RES: ${r.status}`));
       }
 
       expect(railwayReqs.length, "ZERO railway.app no JS").toBe(0);
       expect(cards, "Catalog com cards").toBeGreaterThan(0);
-
     } finally {
       await browser.close();
     }

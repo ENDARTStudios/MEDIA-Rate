@@ -55,9 +55,7 @@ export default function UserDataPage() {
 
       <section className="space-y-6">
         <div className="bg-surface-card rounded-lg shadow-surface-1 p-6">
-          <h2 className="text-xl font-semibold mb-2 text-gray-100">
-            {t("exportData")}
-          </h2>
+          <h2 className="text-xl font-semibold mb-2 text-gray-100">{t("exportData")}</h2>
           <p className="text-sm text-gray-400 mb-4">
             Baixe todos os dados pessoais que temos sobre você em formato JSON.
           </p>
@@ -75,9 +73,7 @@ export default function UserDataPage() {
         </div>
 
         <div className="bg-surface-card rounded-lg shadow-surface-1 p-6 border-l-4 border-red-500">
-          <h2 className="text-xl font-semibold mb-2 text-gray-100">
-            {t("deleteData")}
-          </h2>
+          <h2 className="text-xl font-semibold mb-2 text-gray-100">{t("deleteData")}</h2>
           <p className="text-sm text-gray-400 mb-4">{t("deleteWarning")}</p>
           <Button onClick={() => setShowConfirm(true)} disabled={deleting} variant="destructive">
             {deleting ? "..." : t("confirmDelete")}

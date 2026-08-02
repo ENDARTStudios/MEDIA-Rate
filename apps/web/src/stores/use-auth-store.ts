@@ -16,7 +16,12 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password: string, inviteCode?: string) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    inviteCode?: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   setInitialUser: (name: string) => void;
@@ -36,11 +41,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const data = await api.post<{ usuario: { id: string; email: string; nome: string | null }; csrf_token?: string }>(
-        "/api/v1/auth/login",
-        { email, password },
-        { auth: false },
-      );
+      const data = await api.post<{
+        usuario: { id: string; email: string; nome: string | null };
+        csrf_token?: string;
+      }>("/api/v1/auth/login", { email, password }, { auth: false });
       if (data.csrf_token) setCsrfToken(data.csrf_token);
       await get().fetchMe();
       // T130: Set flag cookie for SSR auth detection (non-PII)
@@ -84,8 +88,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ isLoading: true });
     try {
       await api.post("/api/v1/auth/logout");
-    } catch {
-    }
+    } catch {}
     setCsrfToken(null);
     // T130: Clear auth flag cookie
     if (typeof document !== "undefined") {
@@ -97,7 +100,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   fetchMe: async () => {
     set({ isLoading: true });
     try {
-      const me = await api.get<{ id: string; email: string; nome: string | null }>("/api/v1/auth/me");
+      const me = await api.get<{ id: string; email: string; nome: string | null }>(
+        "/api/v1/auth/me",
+      );
       set({ user: mapUser(me), isAuthenticated: true, isLoading: false, error: null });
     } catch (e) {
       if (e instanceof SessionExpiredError || (e instanceof ApiError && e.status === 401)) {
@@ -109,6 +114,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   setInitialUser: (name: string) => {
-    set({ user: { id: "ssr", email: "", name, avatarUrl: null }, isAuthenticated: true, isLoading: false, error: null });
+    set({
+      user: { id: "ssr", email: "", name, avatarUrl: null },
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
   },
 }));

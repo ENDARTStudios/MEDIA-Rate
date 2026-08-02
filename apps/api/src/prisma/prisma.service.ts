@@ -22,7 +22,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       // eslint-disable-next-line no-console
       console.log("[prisma] connected to database");
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn(`[prisma] connection failed (non-blocking): ${(err as Error).message}`);
       // O app sobe sem DB — o /health reporta degraded ate o Prisma reconectar.
     }

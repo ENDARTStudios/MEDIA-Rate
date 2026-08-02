@@ -33,11 +33,7 @@ export async function registerAndLogin(
 /**
  * Login via UI com credenciais existentes (usuario ja registrado).
  */
-export async function login(
-  page: Page,
-  email: string,
-  password: string,
-): Promise<void> {
+export async function login(page: Page, email: string, password: string): Promise<void> {
   await page.goto("/login");
   await page.waitForSelector("form", { timeout: 10_000 });
 

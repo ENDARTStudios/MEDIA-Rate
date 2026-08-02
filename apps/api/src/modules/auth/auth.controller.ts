@@ -11,15 +11,15 @@ import {
   UsePipes,
   UnauthorizedException,
 } from "@nestjs/common";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService, type LoginResult } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
-import { RegisterDto, LoginDto } from "./dto/auth.dto.js";
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto.js";
 import { validInvites } from "../invite/invite.controller.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
-import type { AuthenticatedUser } from "../../common/guards/auth.guard.js";
+import { AuthenticatedUser } from "../../common/guards/auth.guard.js";
 import { timingSafeEqual } from "node:crypto";
 
 /**
@@ -152,22 +152,37 @@ export class AuthController {
       const headerToken = Array.isArray(headerVal) ? headerVal[0] : headerVal;
 
       if (!cookieToken || !headerToken) {
-        throw new HttpException({
-          statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
-        }, 403);
+        throw new HttpException(
+          {
+            statusCode: 403,
+            error: "Forbidden",
+            message: "CSRF token inválido.",
+          },
+          403,
+        );
       }
       try {
         const a = Buffer.from(headerToken, "utf-8");
         const b = Buffer.from(cookieToken, "utf-8");
         if (a.byteLength !== b.byteLength || !timingSafeEqual(a, b)) {
-          throw new HttpException({
-            statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
-          }, 403);
+          throw new HttpException(
+            {
+              statusCode: 403,
+              error: "Forbidden",
+              message: "CSRF token inválido.",
+            },
+            403,
+          );
         }
       } catch {
-        throw new HttpException({
-          statusCode: 403, error: "Forbidden", message: "CSRF token inválido.",
-        }, 403);
+        throw new HttpException(
+          {
+            statusCode: 403,
+            error: "Forbidden",
+            message: "CSRF token inválido.",
+          },
+          403,
+        );
       }
     }
 
@@ -190,16 +205,16 @@ export class AuthController {
 
   @Post("forgot-password")
   @HttpCode(200)
-  async forgotPassword(@Body("email") email: string): Promise<{ message: string }> {
-    return this.authService.forgotPassword(email);
+  @UsePipes(new ZodValidationPipe(ForgotPasswordDto))
+  async forgotPassword(@Body() body: unknown): Promise<{ message: string }> {
+    return this.authService.forgotPassword((body as { email: string }).email);
   }
 
   @Post("reset-password")
   @HttpCode(200)
-  async resetPassword(
-    @Body("token") token: string,
-    @Body("password") password: string,
-  ): Promise<{ message: string }> {
-    return this.authService.resetPassword(token, password);
+  @UsePipes(new ZodValidationPipe(ResetPasswordDto))
+  async resetPassword(@Body() body: unknown): Promise<{ message: string }> {
+    const dto = body as { token: string; password: string };
+    return this.authService.resetPassword(dto.token, dto.password);
   }
 }

@@ -56,7 +56,10 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
         <div className="absolute bottom-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-[#F59E0B] opacity-[0.02] blur-[100px]" />
       </div>
 
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.04)_0%,transparent_60%)]" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.04)_0%,transparent_60%)]"
+        aria-hidden="true"
+      />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <motion.div
@@ -92,8 +95,19 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
                 style={reduce ? undefined : glow}
               >
                 {cta}
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </Link>
               <Link
@@ -107,7 +121,10 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
 
           <div ref={dialRef} className="flex-shrink-0">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-[#818CF8] opacity-[0.08] blur-[60px] scale-125" aria-hidden="true" />
+              <div
+                className="absolute inset-0 rounded-full bg-[#818CF8] opacity-[0.08] blur-[60px] scale-125"
+                aria-hidden="true"
+              />
               <ScoreDial score={8.7} size="lg" showBreakdown className="relative z-10" />
               <p className="text-center text-xs text-[#9CA3AF] mt-4 font-heading uppercase tracking-widest">
                 {t("mediaScore")}

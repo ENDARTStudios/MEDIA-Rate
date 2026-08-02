@@ -1,12 +1,12 @@
 import { Body, Controller, Headers, HttpCode, Post, Req, UsePipes } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
-import type { FastifyRequest } from "fastify";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PaymentService precisa ser import como valor para NestJS DI
+import { FastifyRequest } from "fastify";
+
 import { PaymentService } from "./payment.service.js";
 import { CreateCheckoutDto } from "./dto/payment.dto.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import { Idempotent } from "../../common/decorators/idempotent.decorator.js";
-import type { AuthenticatedUser } from "../../common/guards/auth.guard.js";
+import { AuthenticatedUser } from "../../common/guards/auth.guard.js";
 
 /**
  * Controller de pagamento (T4.8).
@@ -64,9 +64,9 @@ export class PaymentController {
     @Req() req: FastifyRequest,
     @Headers("stripe-signature") signature: string,
   ): Promise<{ processed: boolean; event_id: string; type: string }> {
-    // Body raw — não usar @Body() que parseia JSON. Lê do raw body do Fastify.
-    const rawBody =
-      typeof req.body === "string" ? req.body : req.body ? JSON.stringify(req.body) : "";
+    // Body raw — a assinatura do Stripe é calculada sobre os bytes originais.
+    // O parser JSON registrado em main.ts preserva os bytes em req.rawBody.
+    const rawBody = (req as unknown as { rawBody?: string | Buffer }).rawBody ?? "";
     return this.paymentService.processWebhook(rawBody, signature ?? "");
   }
 }

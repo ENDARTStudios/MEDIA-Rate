@@ -8,7 +8,10 @@ async function probe(ctxOpts, label) {
   const ctx = await b.newContext(ctxOpts);
   for (const u of routes) {
     const p = await ctx.newPage();
-    const resp401 = [], resp4xx = [], pageErr = [], reqFail = [];
+    const resp401 = [],
+      resp4xx = [],
+      pageErr = [],
+      reqFail = [];
     p.on("response", (r) => {
       const s = r.status();
       const url = r.url();
@@ -16,7 +19,7 @@ async function probe(ctxOpts, label) {
       if (s >= 400 && s < 600) resp4xx.push(s + " " + url);
     });
     p.on("pageerror", (e) => pageErr.push(e.message));
-    p.on("requestfailed", (r) => reqFail.push(r.url() + " :: " + (r.failure()?.errorText)));
+    p.on("requestfailed", (r) => reqFail.push(r.url() + " :: " + r.failure()?.errorText));
 
     try {
       await p.goto(BASE + u, { waitUntil: "domcontentloaded", timeout: 30_000 });
@@ -30,8 +33,10 @@ async function probe(ctxOpts, label) {
         const cs = getComputedStyle(main);
         const contentEl =
           [...(main ? main.querySelectorAll("*") : [])].find(
-            (e) => (e.innerText || "").trim().length > 20
-          ) || main || document.body;
+            (e) => (e.innerText || "").trim().length > 20,
+          ) ||
+          main ||
+          document.body;
         const ccs = getComputedStyle(contentEl);
         const cx = window.innerWidth / 2,
           cy = Math.min(window.innerHeight / 2, 600);
@@ -52,9 +57,14 @@ async function probe(ctxOpts, label) {
     const late = await read();
 
     console.log(
-      "\n[" + label + "] " + u +
-      "\n  early=" + JSON.stringify(early) +
-      "\n  late =" + JSON.stringify(late)
+      "\n[" +
+        label +
+        "] " +
+        u +
+        "\n  early=" +
+        JSON.stringify(early) +
+        "\n  late =" +
+        JSON.stringify(late),
     );
     console.log("  401=" + resp401.map((x) => x.replace(BASE, "")).slice(0, 8));
     console.log("  4xx=" + resp4xx.map((x) => x.replace(BASE, "")).slice(0, 8));

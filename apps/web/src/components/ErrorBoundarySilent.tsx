@@ -20,7 +20,11 @@ export class ErrorBoundarySilent extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     if (typeof console !== "undefined") {
-      console.error("[DiagPanelSafe] crashed silently:", error.message, info.componentStack?.substring(0, 200));
+      console.error(
+        "[DiagPanelSafe] crashed silently:",
+        error.message,
+        info.componentStack?.substring(0, 200),
+      );
     }
   }
 

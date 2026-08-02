@@ -3,7 +3,12 @@ import { test, expect } from "@playwright/test";
 test.describe("Busca e Discover", () => {
   test("pagina discover carrega com grid de midias", async ({ page }) => {
     await page.goto("/discover");
-    await expect(page.locator("h3, h2, h1").filter({ hasText: /descubra|discover|search/i }).first()).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page
+        .locator("h3, h2, h1")
+        .filter({ hasText: /descubra|discover|search/i })
+        .first(),
+    ).toBeVisible({ timeout: 10_000 });
 
     const items = page.locator("a[href*='/media/']");
     const count = await items.count();
@@ -12,7 +17,9 @@ test.describe("Busca e Discover", () => {
 
   test("busca retorna resultados relevantes", async ({ page }) => {
     await page.goto("/discover");
-    const searchInput = page.locator('input[type="search"], input[placeholder*="buscar"], input[placeholder*="search"]').first();
+    const searchInput = page
+      .locator('input[type="search"], input[placeholder*="buscar"], input[placeholder*="search"]')
+      .first();
     if (await searchInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await searchInput.fill("Elden");
       await searchInput.press("Enter");

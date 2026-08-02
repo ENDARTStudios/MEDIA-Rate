@@ -31,10 +31,10 @@ p.on("console", (m) => {
 p.on("pageerror", (e) => perr.push(e.message.slice(0, 120)));
 
 const cards = async () =>
-  p.evaluate(() =>
-    document.querySelectorAll(
-      'a[href*="/midia/"],a[href*="/media/"],[data-media-card],article'
-    ).length
+  p.evaluate(
+    () =>
+      document.querySelectorAll('a[href*="/midia/"],a[href*="/media/"],[data-media-card],article')
+        .length,
   );
 const txt = async () =>
   p.evaluate(() => (document.querySelector("main")?.innerText || "").trim().length);
@@ -90,7 +90,9 @@ for (const route of ["/pt-BR/catalog", "/pt-BR"]) {
   }
 
   if (r.errs.length > 0 && r.errs.some((e) => e.includes("401"))) {
-    console.log(`[FAIL] ${route}: 401 detectado em rota de API — fetch autenticado na descoberta publica`);
+    console.log(
+      `[FAIL] ${route}: 401 detectado em rota de API — fetch autenticado na descoberta publica`,
+    );
     pass = false;
   }
   if (r.pageerrs.length > 0) {

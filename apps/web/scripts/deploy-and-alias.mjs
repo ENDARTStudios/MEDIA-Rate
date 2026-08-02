@@ -22,19 +22,20 @@ try {
     console.error("[deploy] Could not find deployment URL in output.");
     process.exit(1);
   }
-  const deployUrl = match[1]!;
+  const deployUrl = match[1];
+  if (!deployUrl) {
+    console.error("[deploy] Missing deployment URL.");
+    process.exit(1);
+  }
   console.log(`[deploy] Deployment URL: ${deployUrl}`);
 
   // Update the production domain alias
   console.log(`[deploy] Updating alias ${PROD_DOMAIN} → ${deployUrl}...`);
-  const aliasOutput = execSync(
-    `npx vercel alias set ${deployUrl} ${PROD_DOMAIN}`,
-    {
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-      cwd: new URL(".", import.meta.url).pathname + "..",
-    },
-  );
+  const aliasOutput = execSync(`npx vercel alias set ${deployUrl} ${PROD_DOMAIN}`, {
+    encoding: "utf-8",
+    stdio: ["pipe", "pipe", "pipe"],
+    cwd: new URL(".", import.meta.url).pathname + "..",
+  });
   console.log(aliasOutput);
   console.log(`[deploy] ✅ ${PROD_DOMAIN} now points to ${deployUrl}`);
 } catch (e) {

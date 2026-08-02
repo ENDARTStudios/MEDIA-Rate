@@ -13,14 +13,18 @@ async function registerUser(page, name, email) {
   if ((await pwdInputs.count()) > 1) await pwdInputs.nth(1).fill(PWD);
   const chk = page.locator('input[type="checkbox"]').first();
   if ((await chk.count()) > 0) await chk.check().catch(() => {});
-  await page.locator('button:has-text("Cadastrar")').first().click().catch(() => {
-    return page.locator('button[type="submit"]').first().click();
-  });
+  await page
+    .locator('button:has-text("Cadastrar")')
+    .first()
+    .click()
+    .catch(() => {
+      return page.locator('button[type="submit"]').first().click();
+    });
 }
 
 async function logoutViaUI(page) {
   // Desktop: click user avatar
-  const userBtn = page.locator('nav button:has(span.w-7)').first();
+  const userBtn = page.locator("nav button:has(span.w-7)").first();
   if ((await userBtn.count()) > 0) {
     await userBtn.click();
     await page.waitForTimeout(300);
@@ -36,7 +40,7 @@ async function logoutViaUI(page) {
   if ((await menuBtn.count()) > 0) {
     await menuBtn.click();
     await page.waitForTimeout(300);
-    await page.locator('text=Sair').first().click({ timeout: 3000 });
+    await page.locator("text=Sair").first().click({ timeout: 3000 });
     return true;
   }
   return false;
@@ -60,7 +64,9 @@ test.describe("A1 Auth E2E (T054)", () => {
     await logoutViaUI(page);
     await page.waitForTimeout(2000);
 
-    await page.goto(`${BASE}/pt-BR/dashboard`, { waitUntil: "domcontentloaded", timeout: 10_000 }).catch(() => {});
+    await page
+      .goto(`${BASE}/pt-BR/dashboard`, { waitUntil: "domcontentloaded", timeout: 10_000 })
+      .catch(() => {});
     await page.waitForTimeout(2000);
     expect(page.url()).toContain("/login");
   });
@@ -91,9 +97,13 @@ test.describe("A1 Auth E2E (T054)", () => {
     const pwdInputs = page.locator('input[type="password"]');
     await pwdInputs.first().fill(PWD);
     if ((await pwdInputs.count()) > 1) await pwdInputs.nth(1).fill(PWD);
-    await page.locator('button:has-text("Cadastrar")').first().click().catch(() => {
-      return page.locator('button[type="submit"]').first().click();
-    });
+    await page
+      .locator('button:has-text("Cadastrar")')
+      .first()
+      .click()
+      .catch(() => {
+        return page.locator('button[type="submit"]').first().click();
+      });
     await page.waitForTimeout(2000);
 
     const body = await page.locator("body").innerText();
@@ -107,7 +117,11 @@ test.describe("A1 Auth E2E (T054)", () => {
     await page.waitForTimeout(2000);
 
     const csrf = await page.evaluate(() => {
-      try { return sessionStorage.getItem("mediarate:csrf"); } catch { return null; }
+      try {
+        return sessionStorage.getItem("mediarate:csrf");
+      } catch {
+        return null;
+      }
     });
     // csrf_token em sessionStorage confirma captura cross-domain
     expect(csrf).toBeDefined();

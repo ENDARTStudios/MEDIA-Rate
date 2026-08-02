@@ -9,13 +9,19 @@ describe("T141 — game poster structural integrity", () => {
   it("0 games with posterUrl null", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
     const missing = games.filter((m) => !m.posterUrl);
-    expect(missing, `${missing.length} games without poster: ${missing.map(m => m.title).join(", ")}`).toEqual([]);
+    expect(
+      missing,
+      `${missing.length} games without poster: ${missing.map((m) => m.title).join(", ")}`,
+    ).toEqual([]);
   });
 
   it("0 games with poster from movie domain (tmdb)", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
     const tmdbGames = games.filter((m) => m.posterUrl && m.posterUrl.includes("image.tmdb.org"));
-    expect(tmdbGames, `${tmdbGames.length} games with tmdb poster: ${tmdbGames.map(m => m.title).join(", ")}`).toEqual([]);
+    expect(
+      tmdbGames,
+      `${tmdbGames.length} games with tmdb poster: ${tmdbGames.map((m) => m.title).join(", ")}`,
+    ).toEqual([]);
   });
 
   it("game posters come from game domains (steam/rawg)", () => {
@@ -32,7 +38,9 @@ describe("T141 — game poster structural integrity", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
     const urls = games.map((m) => m.posterUrl).filter(Boolean) as string[];
     const unique = new Set(urls);
-    expect(unique.size, `duplicate posters: ${urls.length - unique.size} duplicates`).toBe(urls.length);
+    expect(unique.size, `duplicate posters: ${urls.length - unique.size} duplicates`).toBe(
+      urls.length,
+    );
   });
 
   it("filter type=game returns only type==='game'", () => {

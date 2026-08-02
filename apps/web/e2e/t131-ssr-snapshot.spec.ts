@@ -11,7 +11,9 @@ test.describe("T131 - SSR data-authed snapshot", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       // Login
@@ -26,7 +28,9 @@ test.describe("T131 - SSR data-authed snapshot", () => {
       await page.locator('input[name="email"]').first().fill(testEmail);
       await page.locator('input[name="password"]').first().fill("Prova@131!");
       await page.locator('button[type="submit"]').first().click();
-      try { await page.waitForURL("**/dashboard", { timeout: 15000 }); } catch {}
+      try {
+        await page.waitForURL("**/dashboard", { timeout: 15000 });
+      } catch {}
 
       // Intercept SSR HTML
       const results: { authed: boolean; snippet: string }[] = [];
@@ -63,7 +67,9 @@ test.describe("T131 - SSR data-authed snapshot", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       const results: { authed: boolean; snippet: string }[] = [];
@@ -73,7 +79,9 @@ test.describe("T131 - SSR data-authed snapshot", () => {
             const html = await resp.text();
             results.push({
               authed: html.includes('data-authed="1"'),
-              snippet: html.includes("<nav") ? html.substring(html.indexOf("<nav"), html.indexOf("<nav") + 200) : "NO_NAV",
+              snippet: html.includes("<nav")
+                ? html.substring(html.indexOf("<nav"), html.indexOf("<nav") + 200)
+                : "NO_NAV",
             });
           } catch {}
         }

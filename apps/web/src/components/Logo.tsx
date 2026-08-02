@@ -15,20 +15,14 @@ interface LogoProps {
   className?: string;
 }
 
-export function Logo({
-  variant = "full",
-  size = "md",
-  className,
-}: LogoProps) {
+export function Logo({ variant = "full", size = "md", className }: LogoProps) {
   const filterId = useId().replace(/:/g, "");
   const diamondRef = useRef<SVGPathElement>(null);
   const ringRef = useRef<SVGCircleElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
     const diamond = diamondRef.current;
@@ -70,9 +64,7 @@ export function Logo({
   const s = SIZES[size];
 
   return (
-    <span
-      className={`inline-flex items-center select-none ${variant === "full" ? s.gap : ""}`}
-    >
+    <span className={`inline-flex items-center select-none ${variant === "full" ? s.gap : ""}`}>
       <svg
         viewBox="0 0 40 40"
         className={`${s.symbol} ${className ?? ""} shrink-0`}
@@ -80,13 +72,7 @@ export function Logo({
         aria-hidden="true"
       >
         <defs>
-          <filter
-            id={`logo-neon-${filterId}`}
-            x="-50%"
-            y="-50%"
-            width="200%"
-            height="200%"
-          >
+          <filter id={`logo-neon-${filterId}`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="1.5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
@@ -118,14 +104,7 @@ export function Logo({
           opacity="0.85"
         />
 
-        <circle
-          ref={dotRef}
-          cx="20"
-          cy="20"
-          r="1.5"
-          fill="#818CF8"
-          opacity="0"
-        />
+        <circle ref={dotRef} cx="20" cy="20" r="1.5" fill="#818CF8" opacity="0" />
       </svg>
 
       {variant === "full" && (

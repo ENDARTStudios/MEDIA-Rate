@@ -32,7 +32,9 @@ export function TextMarquee({
     return (
       <div className={`flex flex-wrap justify-center gap-4 ${className ?? ""}`}>
         {items.map((item, i) => (
-          <span key={i} className={itemClassName}>{item}</span>
+          <span key={i} className={itemClassName}>
+            {item}
+          </span>
         ))}
       </div>
     );

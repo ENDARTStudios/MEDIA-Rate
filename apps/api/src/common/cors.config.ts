@@ -1,4 +1,4 @@
-import type { FastifyCorsOptions } from "@fastify/cors";
+import { FastifyCorsOptions } from "@fastify/cors";
 
 export interface CorsConfigOptions {
   /**
@@ -37,10 +37,8 @@ function parseAllowedOrigins(envValue: string | undefined): string[] {
  */
 export function buildCorsOptions(overrides: Partial<CorsConfigOptions> = {}): FastifyCorsOptions {
   const isProduction = process.env.NODE_ENV === "production";
-  const rawOrigins =
-    process.env.ALLOWED_ORIGINS ?? process.env.CORS_ORIGIN ?? "";
-  const allowedOrigins =
-    overrides.allowedOrigins ?? parseAllowedOrigins(rawOrigins);
+  const rawOrigins = process.env.ALLOWED_ORIGINS ?? process.env.CORS_ORIGIN ?? "";
+  const allowedOrigins = overrides.allowedOrigins ?? parseAllowedOrigins(rawOrigins);
 
   if (isProduction) {
     if (allowedOrigins.length === 0) {
@@ -70,7 +68,13 @@ export function buildCorsOptions(overrides: Partial<CorsConfigOptions> = {}): Fa
     },
     credentials: overrides.allowCredentials ?? true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "Idempotency-Key", "X-CSRF-Token"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Request-Id",
+      "Idempotency-Key",
+      "X-CSRF-Token",
+    ],
     exposedHeaders: ["X-Request-Id"],
     maxAge: 600,
   };

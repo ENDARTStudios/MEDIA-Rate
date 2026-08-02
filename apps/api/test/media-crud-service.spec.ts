@@ -17,7 +17,12 @@ describe("MediaService — escrita (unit)", () => {
   });
 
   it("create — cria nova mídia", async () => {
-    const result = await service.create({ titulo: "Test", tipo: "FILME", sinopse: "Test", ano_lancamento: 2024 });
+    const result = await service.create({
+      titulo: "Test",
+      tipo: "FILME",
+      sinopse: "Test",
+      ano_lancamento: 2024,
+    });
     expect(result.titulo).toBe("Test");
     expect(result.tipo).toBe("FILME");
   });
@@ -42,7 +47,12 @@ describe("MediaService — escrita (unit)", () => {
   });
 
   it("create + update + delete — fluxo completo", async () => {
-    const created = await service.create({ titulo: "Fluxo", tipo: "SERIE", sinopse: "Fluxo", ano_lancamento: 2024 });
+    const created = await service.create({
+      titulo: "Fluxo",
+      tipo: "SERIE",
+      sinopse: "Fluxo",
+      ano_lancamento: 2024,
+    });
     expect(created.id).toBeDefined();
 
     const updated = await service.update(created.id, { titulo: "Fluxo 2", ano_lancamento: 2025 });
@@ -62,7 +72,12 @@ function mockPrisma() {
     midia: {
       findUnique: async (args: any) => DB.find((m) => m.id === args.where.id) ?? null,
       create: async (args: any) => {
-        const m = { id: `m${nextId++}`, ...args.data, created_at: new Date(), updated_at: new Date() };
+        const m = {
+          id: `m${nextId++}`,
+          ...args.data,
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
         DB.push(m);
         return m;
       },

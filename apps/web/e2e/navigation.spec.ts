@@ -16,7 +16,9 @@ test.describe("Navegacao e i18n", () => {
 
   test("troca idioma de pt-BR para en-US", async ({ page }) => {
     await page.goto("/");
-    const localeSelect = page.locator("select[aria-label*='idioma'], select[aria-label*='language']");
+    const localeSelect = page.locator(
+      "select[aria-label*='idioma'], select[aria-label*='language']",
+    );
     await localeSelect.waitFor({ timeout: 5_000 });
 
     await localeSelect.selectOption("en-US");
@@ -26,7 +28,9 @@ test.describe("Navegacao e i18n", () => {
 
   test("troca idioma para es-ES", async ({ page }) => {
     await page.goto("/");
-    const localeSelect = page.locator("select[aria-label*='idioma'], select[aria-label*='language']");
+    const localeSelect = page.locator(
+      "select[aria-label*='idioma'], select[aria-label*='language']",
+    );
     await localeSelect.waitFor({ timeout: 5_000 });
 
     await localeSelect.selectOption("es-ES");
@@ -39,10 +43,12 @@ test.describe("Navegacao e i18n", () => {
 
     // Verifica que pelo menos um nome de plano aparece
     const planNames = page.locator("text=Free, text=Plus, text=Premium");
-    await expect(planNames.first()).toBeVisible({ timeout: 5_000 }).catch(async () => {
-      // Fallback: procura por precos (R$)
-      await expect(page.locator("text=R$").first()).toBeVisible({ timeout: 5_000 });
-    });
+    await expect(planNames.first())
+      .toBeVisible({ timeout: 5_000 })
+      .catch(async () => {
+        // Fallback: procura por precos (R$)
+        await expect(page.locator("text=R$").first()).toBeVisible({ timeout: 5_000 });
+      });
   });
 
   test("links de rodape existem", async ({ page }) => {

@@ -38,21 +38,27 @@ test.describe("T105 - GATE BINARY (Brave headed)", () => {
 
         // Check ancestor opacity for first card
         if (i === 0) {
-          const ancestor2Opacity = await card.evaluate((el) => {
-            let p = el.parentElement?.parentElement;
-            if (!p) return "N/A";
-            // p is [1] DIV.group, parentElement is [2] (motion wrapper)
-            if (p.parentElement) {
-              return getComputedStyle(p.parentElement).opacity;
-            }
-            return "N/A";
-          }).catch(() => "error");
+          const ancestor2Opacity = await card
+            .evaluate((el) => {
+              const p = el.parentElement?.parentElement;
+              if (!p) return "N/A";
+              // p is [1] DIV.group, parentElement is [2] (motion wrapper)
+              if (p.parentElement) {
+                return getComputedStyle(p.parentElement).opacity;
+              }
+              return "N/A";
+            })
+            .catch(() => "error");
           ancestorOpacityZero = ancestor2Opacity === "0";
-          console.log(`Card 0 ancestor[2] opacity: ${ancestor2Opacity}, isVisible: ${isVis}, box: ${box ? `${box.width}x${box.height}` : "null"}`);
+          console.log(
+            `Card 0 ancestor[2] opacity: ${ancestor2Opacity}, isVisible: ${isVis}, box: ${box ? `${box.width}x${box.height}` : "null"}`,
+          );
         }
       }
 
-      console.log(`Catalogo: DOM=${totalDom}, visiveis=${visiveis}, ancestorOpacity0=${ancestorOpacityZero}`);
+      console.log(
+        `Catalogo: DOM=${totalDom}, visiveis=${visiveis}, ancestorOpacity0=${ancestorOpacityZero}`,
+      );
 
       await page.screenshot({ path: "e2e/screenshots/t105-gate-catalog.png", fullPage: true });
 
@@ -106,7 +112,9 @@ test.describe("T105 - GATE BINARY (Brave headed)", () => {
       await page.screenshot({ path: "e2e/screenshots/t105-gate-login.png", fullPage: false });
 
       // Check user indicator - look for dashboard content or any logged-in state
-      const userIndicator = page.locator('[data-testid="user-menu"], [data-testid="avatar"], text="Dashboard", h1, h2').first();
+      const userIndicator = page
+        .locator('[data-testid="user-menu"], [data-testid="avatar"], text="Dashboard", h1, h2')
+        .first();
       const indicatorVis = await userIndicator.isVisible().catch(() => false);
       // Also check that we're NOT on login page
       const onLoginPage = page.url().includes("/login") || page.url().includes("/register");
@@ -122,9 +130,13 @@ test.describe("T105 - GATE BINARY (Brave headed)", () => {
       const sessCookie = cookiesAfterLogin.find((c) => c.name === "sess");
       console.log("\n=== context.cookies() ===");
       if (sessCookie) {
-        console.log(`Cookie 'sess': domain=${sessCookie.domain} path=${sessCookie.path} sameSite=${sessCookie.sameSite} httpOnly=${sessCookie.httpOnly} secure=${sessCookie.secure}`);
+        console.log(
+          `Cookie 'sess': domain=${sessCookie.domain} path=${sessCookie.path} sameSite=${sessCookie.sameSite} httpOnly=${sessCookie.httpOnly} secure=${sessCookie.secure}`,
+        );
       } else {
-        console.log(`Cookie 'sess' AUSENTE! Cookies: ${cookiesAfterLogin.map(c => c.name).join(", ")}`);
+        console.log(
+          `Cookie 'sess' AUSENTE! Cookies: ${cookiesAfterLogin.map((c) => c.name).join(", ")}`,
+        );
       }
 
       // RELOAD
@@ -151,7 +163,9 @@ test.describe("T105 - GATE BINARY (Brave headed)", () => {
       console.log(`Home visiveis: ${homeVisiveis}/${homeTotal}`);
       console.log(`Login indicator: ${indicatorVis}`);
       console.log(`Reload logado: ${!entrarVis}`);
-      console.log(`Cookie sess: ${sessReload ? `${sessReload.sameSite}/${sessReload.httpOnly}/${sessReload.secure}` : "AUSENTE"}`);
+      console.log(
+        `Cookie sess: ${sessReload ? `${sessReload.sameSite}/${sessReload.httpOnly}/${sessReload.secure}` : "AUSENTE"}`,
+      );
 
       // GATE assertions
       expect(visiveis, "Catalogo: cards visiveis > 0").toBeGreaterThan(0);
@@ -164,7 +178,6 @@ test.describe("T105 - GATE BINARY (Brave headed)", () => {
         expect(sessReload.httpOnly, "httpOnly=true").toBe(true);
         expect(sessReload.secure, "secure=true").toBe(true);
       }
-
     } finally {
       await browser.close();
     }

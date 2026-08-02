@@ -224,10 +224,20 @@ describe("PaymentController (unit T8.1)", () => {
   });
 
   it("webhook() calls processWebhook with raw body and signature", async () => {
-    const req = { body: '{"type":"test"}' } as any;
+    // O controller lê req.rawBody (bytes preservados pelo parser JSON em main.ts).
+    const req = { body: { type: "test" }, rawBody: Buffer.from('{"type":"test"}') } as any;
     const result = await controller.webhook(req, "sig_test");
-    expect(mockService.processWebhook).toHaveBeenCalledWith('{"type":"test"}', "sig_test");
+    expect(mockService.processWebhook).toHaveBeenCalledWith(
+      Buffer.from('{"type":"test"}'),
+      "sig_test",
+    );
     expect(result.processed).toBe(true);
+  });
+
+  it("webhook() repassa empty string quando rawBody ausente", async () => {
+    const req = { body: {} } as any;
+    await controller.webhook(req, "sig_test");
+    expect(mockService.processWebhook).toHaveBeenCalledWith("", "sig_test");
   });
 });
 

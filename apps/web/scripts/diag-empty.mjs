@@ -10,8 +10,7 @@ for (const u of urls) {
   const p = await b.newPage();
   const errs = [];
   p.on("console", (m) => {
-    if (m.type() === "error" || m.type() === "warning")
-      errs.push(`[${m.type()}] ${m.text()}`);
+    if (m.type() === "error" || m.type() === "warning") errs.push(`[${m.type()}] ${m.text()}`);
   });
   p.on("pageerror", (e) => errs.push(`[pageerror] ${e.message}`));
 
@@ -41,9 +40,7 @@ for (const u of urls) {
     return {
       email: vis(email),
       form: vis(form),
-      topTag: top
-        ? top.tagName + "." + (top.className?.toString() || "").slice(0, 60)
-        : "null",
+      topTag: top ? top.tagName + "." + (top.className?.toString() || "").slice(0, 60) : "null",
       bodyChildren: document.body.children.length,
       mainHTML: document.querySelector("main")?.innerHTML?.slice(0, 400) || "(no main)",
     };

@@ -19,32 +19,33 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://media-rate-web.vercel.app';
-  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://media-rate-web.vercel.app";
+
   // Constroi alternates dinamicamente com base no roteamento
   const alternates: Record<string, string> = {};
   routing.locales.forEach((l) => {
     alternates[l] = `${baseUrl}/${l}`;
   });
-  alternates['x-default'] = `${baseUrl}`;
+  alternates["x-default"] = `${baseUrl}`;
 
   return {
     title: {
-      template: '%s | MEDIA Rate',
-      default: 'MEDIA Rate — Descubra o que assistir e jogar',
+      template: "%s | MEDIA Rate",
+      default: "MEDIA Rate — Descubra o que assistir e jogar",
     },
-    description: "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
+    description:
+      "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: alternates,
     },
     openGraph: {
-      siteName: 'MEDIA Rate',
+      siteName: "MEDIA Rate",
       locale: locale,
-      type: 'website',
+      type: "website",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
     },
   };
 }
@@ -70,19 +71,19 @@ export default async function LocaleLayout({
   return (
     <QueryProvider>
       <NextIntlClientProvider>
-      <a href="#main" className="skip-link">
-        {t("skipToContent")}
-      </a>
-      <AuthHeader />
-      <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
-        <PageTransition>{children}</PageTransition>
-      </main>
-      <MotionFooter />
-      <LgpdBanner />
-      <Toaster theme="dark" position="top-right" />
-      {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
-      <DiagPanelLoader />
-    </NextIntlClientProvider>
+        <a href="#main" className="skip-link">
+          {t("skipToContent")}
+        </a>
+        <AuthHeader />
+        <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
+          <PageTransition>{children}</PageTransition>
+        </main>
+        <MotionFooter />
+        <LgpdBanner />
+        <Toaster theme="dark" position="top-right" />
+        {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
+        <DiagPanelLoader />
+      </NextIntlClientProvider>
     </QueryProvider>
   );
 }

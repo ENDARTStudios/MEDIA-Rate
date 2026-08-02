@@ -5,7 +5,11 @@ const SESSION_EXPIRED_EVENT = "mediarate:session-expired";
 const CSRF_KEY = "mediarate:csrf";
 function readCsrfStore(): string | null {
   if (typeof sessionStorage === "undefined") return null;
-  try { return sessionStorage.getItem(CSRF_KEY); } catch { return null; }
+  try {
+    return sessionStorage.getItem(CSRF_KEY);
+  } catch {
+    return null;
+  }
 }
 function writeCsrfStore(token: string | null) {
   if (typeof sessionStorage === "undefined") return;
@@ -15,7 +19,9 @@ function writeCsrfStore(token: string | null) {
   } catch {}
 }
 
-export function setCsrfToken(token: string | null) { writeCsrfStore(token); }
+export function setCsrfToken(token: string | null) {
+  writeCsrfStore(token);
+}
 
 export function getCsrfToken(): string | null {
   const stored = readCsrfStore();
@@ -78,10 +84,7 @@ export interface FetchOptions extends Omit<RequestInit, "body"> {
   auth?: boolean;
 }
 
-export async function apiFetch<T = unknown>(
-  path: string,
-  options: FetchOptions = {},
-): Promise<T> {
+export async function apiFetch<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
   const base = getBaseUrl();
   const url = `${base}${path}`;
   const { auth = true, body, ...init } = options;
@@ -140,9 +143,14 @@ export async function apiFetch<T = unknown>(
 }
 
 export const api = {
-  get: <T = unknown>(path: string, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "GET" }),
-  post: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "POST", body }),
-  put: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "PUT", body }),
-  patch: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "PATCH", body }),
-  delete: <T = unknown>(path: string, opts?: FetchOptions) => apiFetch<T>(path, { ...opts, method: "DELETE", ...opts }),
+  get: <T = unknown>(path: string, opts?: FetchOptions) =>
+    apiFetch<T>(path, { ...opts, method: "GET" }),
+  post: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
+    apiFetch<T>(path, { ...opts, method: "POST", body }),
+  put: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
+    apiFetch<T>(path, { ...opts, method: "PUT", body }),
+  patch: <T = unknown>(path: string, body?: unknown, opts?: FetchOptions) =>
+    apiFetch<T>(path, { ...opts, method: "PATCH", body }),
+  delete: <T = unknown>(path: string, opts?: FetchOptions) =>
+    apiFetch<T>(path, { ...opts, method: "DELETE", ...opts }),
 };

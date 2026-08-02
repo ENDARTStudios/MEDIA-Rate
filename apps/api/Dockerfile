@@ -35,7 +35,7 @@ RUN chmod +x /app/docker-entrypoint.sh
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=25s \
-  CMD wget -qO- http://localhost:3000/api/v1/health || exit 1
+  CMD wget -qO- http://localhost:3000/health || exit 1
 
 # Entrypoint via script executavel — deterministico, sem parsing de aspas/cd.
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

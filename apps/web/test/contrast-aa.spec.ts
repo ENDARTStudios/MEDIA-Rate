@@ -36,7 +36,7 @@ const BG = "#09090F";
 const SURFACE = "#11111E";
 const AA_MIN = 4.5;
 
-const SCORE_FAIXAS: Array<{ label: string; hex: string }> = [
+const SCORE_FAIXAS: { label: string; hex: string }[] = [
   { label: ">=9 (emerald)", hex: colors.score[9] },
   { label: ">=8 (sky)", hex: colors.score[8] },
   { label: ">=7 (indigo)", hex: colors.score[7] },
@@ -49,19 +49,25 @@ describe("V1.3 §1.2 — Contraste AA das 6 faixas de score", () => {
   for (const faixa of SCORE_FAIXAS) {
     it(`${faixa.label} ${faixa.hex} contra ${BG} — ratio >= ${AA_MIN}`, () => {
       const ratio = contrastRatio(faixa.hex, BG);
-      expect(ratio, `${faixa.label} ${faixa.hex} vs ${BG}: ratio=${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_MIN);
+      expect(
+        ratio,
+        `${faixa.label} ${faixa.hex} vs ${BG}: ratio=${ratio.toFixed(2)}`,
+      ).toBeGreaterThanOrEqual(AA_MIN);
     });
 
     it(`${faixa.label} ${faixa.hex} contra ${SURFACE} — ratio >= ${AA_MIN}`, () => {
       const ratio = contrastRatio(faixa.hex, SURFACE);
-      expect(ratio, `${faixa.label} ${faixa.hex} vs ${SURFACE}: ratio=${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_MIN);
+      expect(
+        ratio,
+        `${faixa.label} ${faixa.hex} vs ${SURFACE}: ratio=${ratio.toFixed(2)}`,
+      ).toBeGreaterThanOrEqual(AA_MIN);
     });
   }
 });
 
 describe("V1.3 §1.2 — getScoreColor é a ÚNICA fonte de cor de score", () => {
   it("retorna os 6 hex esperados para scores representativos (0-10)", () => {
-    const cases: Array<[number, string]> = [
+    const cases: [number, string][] = [
       [9.5, colors.score[9]],
       [8.2, colors.score[8]],
       [7.0, colors.score[7]],
@@ -76,7 +82,7 @@ describe("V1.3 §1.2 — getScoreColor é a ÚNICA fonte de cor de score", () =>
   });
 
   it("retorna os 6 hex esperados para scores representativos (0-100)", () => {
-    const cases: Array<[number, string]> = [
+    const cases: [number, string][] = [
       [95, colors.score[9]],
       [82, colors.score[8]],
       [70, colors.score[7]],

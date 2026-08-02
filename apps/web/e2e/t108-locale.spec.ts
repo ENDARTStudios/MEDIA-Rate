@@ -10,7 +10,9 @@ test.describe("T108 - locale links gateway", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       const redirects307: string[] = [];
@@ -25,7 +27,11 @@ test.describe("T108 - locale links gateway", () => {
       console.log("\n=== TEST 1: Login - Logo ===");
       await page.goto(`${PROD}/pt-BR/login`, { waitUntil: "networkidle", timeout: 20000 });
       await page.waitForTimeout(1500);
-      const logoVis = await page.locator('nav a[aria-label], a[href="/pt-BR"], a[href="/pt-BR/login"]').first().isVisible().catch(() => false);
+      const logoVis = await page
+        .locator('nav a[aria-label], a[href="/pt-BR"], a[href="/pt-BR/login"]')
+        .first()
+        .isVisible()
+        .catch(() => false);
       console.log(`Logo visible: ${logoVis}`);
 
       // === TEST 2: Login - click "Cadastre-se" ===
@@ -54,8 +60,16 @@ test.describe("T108 - locale links gateway", () => {
       console.log("\n=== TEST 4: Terms/Privacy href ===");
       await page.goto(`${PROD}/pt-BR/register`, { waitUntil: "networkidle", timeout: 20000 });
       await page.waitForTimeout(1500);
-      const tHref = await page.locator('a[href*="/terms"]').first().getAttribute("href").catch(() => "");
-      const pHref = await page.locator('a[href*="/privacy"]').first().getAttribute("href").catch(() => "");
+      const tHref = await page
+        .locator('a[href*="/terms"]')
+        .first()
+        .getAttribute("href")
+        .catch(() => "");
+      const pHref = await page
+        .locator('a[href*="/privacy"]')
+        .first()
+        .getAttribute("href")
+        .catch(() => "");
       console.log(`Terms href: ${tHref} -> has /pt-BR: ${tHref?.includes("/pt-BR/terms")}`);
       console.log(`Privacy href: ${pHref} -> has /pt-BR: ${pHref?.includes("/pt-BR/privacy")}`);
 
@@ -66,8 +80,12 @@ test.describe("T108 - locale links gateway", () => {
       console.log(`Redirects 307: ${redirects307.length}`);
       redirects307.forEach((r) => console.log(`  ${r}`));
 
-      const hasLocale307 = redirects307.some((r) =>
-        r.includes("/login") || r.includes("/register") || r.includes("/terms") || r.includes("/privacy")
+      const hasLocale307 = redirects307.some(
+        (r) =>
+          r.includes("/login") ||
+          r.includes("/register") ||
+          r.includes("/terms") ||
+          r.includes("/privacy"),
       );
       console.log(`307 involving locale paths: ${hasLocale307}`);
 
@@ -76,7 +94,6 @@ test.describe("T108 - locale links gateway", () => {
       } else {
         console.log("PASS: No 307 redirects on locale paths");
       }
-
     } finally {
       await browser.close();
     }

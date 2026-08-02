@@ -32,13 +32,23 @@ export function ConfirmDialog({
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-card rounded-2xl shadow-floating border border-surface-border/30 p-6 z-popover"
           aria-describedby="confirm-dialog-desc"
         >
-          <DialogPrimitive.Title className="text-lg font-semibold text-gray-100 mb-2">{title}</DialogPrimitive.Title>
-          <DialogPrimitive.Description id="confirm-dialog-desc" className="text-sm text-gray-400 mb-6">
+          <DialogPrimitive.Title className="text-lg font-semibold text-gray-100 mb-2">
+            {title}
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Description
+            id="confirm-dialog-desc"
+            className="text-sm text-gray-400 mb-6"
+          >
             {description}
           </DialogPrimitive.Description>
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>{cancelLabel}</Button>
-            <Button variant={variant === "destructive" ? "destructive" : "default"} onClick={onConfirm}>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {cancelLabel}
+            </Button>
+            <Button
+              variant={variant === "destructive" ? "destructive" : "default"}
+              onClick={onConfirm}
+            >
               {confirmLabel}
             </Button>
           </div>

@@ -37,7 +37,10 @@ export function HomeVerticalMarquee() {
 
   if (shouldReduce) {
     return (
-      <aside className="hidden lg:block w-32 shrink-0 border-l border-[rgba(129,140,248,0.06)] py-4 pl-3" aria-hidden="true">
+      <aside
+        className="hidden lg:block w-32 shrink-0 border-l border-[rgba(129,140,248,0.06)] py-4 pl-3"
+        aria-hidden="true"
+      >
         {ITEMS.slice(0, 10).map((item) => (
           <div key={item.name} className="text-xs text-[#6B7280] py-0.5 truncate">
             {item.name}
@@ -68,7 +71,9 @@ export function HomeVerticalMarquee() {
           <div key={`${item.name}-${i}`} className="flex items-center gap-1.5 group">
             <span
               className="w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ backgroundColor: scoreColor(item.score, item.score > 10 ? "0-100" : "0-10") }}
+              style={{
+                backgroundColor: scoreColor(item.score, item.score > 10 ? "0-100" : "0-10"),
+              }}
             />
             <span className="text-xs text-[#6B7280] truncate group-hover:text-[#9CA3AF] transition-colors">
               {item.name}

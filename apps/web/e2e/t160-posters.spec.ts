@@ -10,11 +10,15 @@ test.describe("T160 - game poster verification", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       const errors: string[] = [];
-      page.on("console", (msg) => { if (msg.type() === "error") errors.push(msg.text()); });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") errors.push(msg.text());
+      });
 
       await page.goto(PROD + "/pt-BR/catalog?type=game", { waitUntil: "load", timeout: 15000 });
       await page.waitForTimeout(4000);
@@ -26,8 +30,10 @@ test.describe("T160 - game poster verification", () => {
       let allOk = true;
       for (let i = 0; i < count; i++) {
         const img = imgs.nth(i);
-        const nw = await img.evaluate((el: HTMLImageElement) => el.complete ? el.naturalWidth : 0).catch(() => 0);
-        const src = await img.getAttribute("src").catch(() => "") || "";
+        const nw = await img
+          .evaluate((el: HTMLImageElement) => (el.complete ? el.naturalWidth : 0))
+          .catch(() => 0);
+        const src = (await img.getAttribute("src").catch(() => "")) || "";
         const name = src.split("/").pop()?.substring(0, 40) || "?";
         console.log("  [" + i + "] nw=" + nw + " " + name);
         if (nw === 0) allOk = false;

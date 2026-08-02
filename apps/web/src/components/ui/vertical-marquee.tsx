@@ -21,13 +21,7 @@ export function VerticalMarquee({ items, speed = 30, className }: VerticalMarque
   }, []);
 
   return (
-    <div
-      className={cn(
-        "relative w-16 overflow-hidden",
-        className,
-      )}
-      aria-hidden="true"
-    >
+    <div className={cn("relative w-16 overflow-hidden", className)} aria-hidden="true">
       <div className="absolute inset-0 bg-gradient-to-b from-[#09090F] via-transparent to-[#09090F] pointer-events-none z-10" />
 
       <div className={cn("flex flex-col items-center", reduce && "gap-4 py-8")}>

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Post, Req } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import type { FastifyRequest } from "fastify";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- LgpdService precisa ser import como valor para NestJS DI
+import { FastifyRequest } from "fastify";
+
 import { LgpdService } from "./lgpd.service.js";
 import { SolicitarExclusaoDto } from "./dto/lgpd.dto.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";

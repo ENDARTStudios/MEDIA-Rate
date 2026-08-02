@@ -9,7 +9,9 @@ test("debug catalog deep", async () => {
     headless: false,
     args: ["--no-sandbox", "--disable-gpu"],
   });
-  const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+  const page = await browser
+    .newContext({ viewport: { width: 1440, height: 900 } })
+    .then((c) => c.newPage());
 
   try {
     await page.goto(`${PROD}/pt-BR/catalog`, { waitUntil: "load", timeout: 15000 });
@@ -18,7 +20,7 @@ test("debug catalog deep", async () => {
     const chain = await page.evaluate(() => {
       const card = document.querySelector('a[href*="/media/"]');
       if (!card) return "no card found";
-      
+
       const result: any[] = [];
       let e: Element | null = card;
       for (let i = 0; i < 5 && e; i++, e = e.parentElement) {
@@ -32,7 +34,9 @@ test("debug catalog deep", async () => {
           cs_opacity: getComputedStyle(e).opacity,
           cs_display: getComputedStyle(e).display,
           children_count: e.children.length,
-          child_tags: Array.from(e.children).map(c => c.tagName).join(","),
+          child_tags: Array.from(e.children)
+            .map((c) => c.tagName)
+            .join(","),
         });
       }
       return result;
@@ -46,7 +50,6 @@ test("debug catalog deep", async () => {
       console.log(`    dataset: ${c.dataset}`);
       console.log(`    children(${c.children_count}): ${c.child_tags}`);
     });
-
   } finally {
     await browser.close();
   }

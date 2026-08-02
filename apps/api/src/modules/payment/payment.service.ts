@@ -1,12 +1,14 @@
 import { Inject, Injectable, Logger, BadRequestException } from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { createHash } from "node:crypto";
 import {
   PAYMENT_GATEWAY,
   type IPaymentGateway,
   type CheckoutSession,
 } from "./domain/gateway/payment-gateway.port.js";
-import type { CreateCheckoutDtoType, WebhookPayload } from "./dto/payment.dto.js";
+import { WebhookSignatureError } from "./domain/gateway/payment-gateway.port.js";
+import { CreateCheckoutDtoType, WebhookPayload } from "./dto/payment.dto.js";
 
 /**
  * Serviço de pagamento (T4.8 use case).
@@ -55,7 +57,22 @@ export class PaymentService {
     signature: string,
   ): Promise<{ processed: boolean; event_id: string; type: string }> {
     // 1. Verifica assinatura + constrói evento.
-    const event = await this.gateway.constructWebhookEvent(payload, signature);
+    //    Assinatura inválida → 400 (Stripe interpreta como rejeição e não
+    //    faz retentativas; um 500 consumiria o rate limit com eventos falsos).
+    let event: Awaited<ReturnType<IPaymentGateway["constructWebhookEvent"]>>;
+    try {
+      event = await this.gateway.constructWebhookEvent(payload, signature);
+    } catch (err) {
+      if (err instanceof WebhookSignatureError) {
+        this.logger.warn(`Webhook rejeitado: assinatura inválida (${String(err)})`);
+        throw new BadRequestException({
+          statusCode: 400,
+          error: "Bad Request",
+          message: "Assinatura de webhook inválida.",
+        });
+      }
+      throw err;
+    }
 
     // 2. Idempotência: verifica se evento já foi processado.
     const existing = await this.prisma.eventoPagamento.findUnique({
@@ -68,7 +85,7 @@ export class PaymentService {
 
     // 3. Persiste evento (idempotência) ANTES de processar.
     // Se processamento falhar, evento fica marcado como erro mas não reprocessa.
-    const payload_hash = Buffer.from(payload).toString("base64url").slice(0, 64);
+    const payload_hash = createHash("sha256").update(payload).digest("hex");
     const evento = await this.prisma.eventoPagamento.create({
       data: {
         stripe_event_id: event.id,

@@ -45,7 +45,11 @@ export function GlowingEffect({
 
     if (!glow || disabled) return;
 
-    const inside = cx >= inactiveZone && cx <= rect.width - inactiveZone && cy >= inactiveZone && cy <= rect.height - inactiveZone;
+    const inside =
+      cx >= inactiveZone &&
+      cx <= rect.width - inactiveZone &&
+      cy >= inactiveZone &&
+      cy <= rect.height - inactiveZone;
     if (!inside) return;
 
     const dx = Math.min(Math.abs(cx), Math.abs(rect.width - cx));
@@ -71,7 +75,13 @@ export function GlowingEffect({
     ctx.strokeStyle = borderGradient;
     ctx.lineWidth = borderWidth;
     ctx.beginPath();
-    ctx.roundRect(borderWidth / 2, borderWidth / 2, rect.width - borderWidth, rect.height - borderWidth, 8);
+    ctx.roundRect(
+      borderWidth / 2,
+      borderWidth / 2,
+      rect.width - borderWidth,
+      rect.height - borderWidth,
+      8,
+    );
     ctx.stroke();
   }, [spread, glow, disabled, proximity, inactiveZone, borderWidth]);
 

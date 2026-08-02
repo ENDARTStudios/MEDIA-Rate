@@ -19,10 +19,38 @@ const PT_DIACRITICS = /[ãõÃÕ]|ção\b|ções\b|íssimo|íssima|mente\b(?=.*[
 
 // PT function words that don't exist in EN/ES as-is
 const PT_FUNCTION_WORDS = [
-  "voce", "você", "nao", "não", "esta", "está", "para", "pelo", "pela",
-  "como", "quando", "onde", "porque", "muito", "pouco", "agora", "depois",
-  "antes", "sempre", "nunca", "tambem", "também", "ainda", "ja", "já",
-  "aqui", "ali", "nisso", "disso", "naquilo", "daquele", "naquela"
+  "voce",
+  "você",
+  "nao",
+  "não",
+  "esta",
+  "está",
+  "para",
+  "pelo",
+  "pela",
+  "como",
+  "quando",
+  "onde",
+  "porque",
+  "muito",
+  "pouco",
+  "agora",
+  "depois",
+  "antes",
+  "sempre",
+  "nunca",
+  "tambem",
+  "também",
+  "ainda",
+  "ja",
+  "já",
+  "aqui",
+  "ali",
+  "nisso",
+  "disso",
+  "naquilo",
+  "daquele",
+  "naquela",
 ];
 
 // ES-only function words (used to exclude false positives for ES pages)
@@ -70,17 +98,23 @@ function isUIChrome(text: string): boolean {
   return true;
 }
 
-function detectPT(text: string, isES: boolean): { isPT: boolean; word: string; classification: "chrome" | "mock" } {
+function detectPT(
+  text: string,
+  isES: boolean,
+): { isPT: boolean; word: string; classification: "chrome" | "mock" } {
   if (!text || text.length < 3) return { isPT: false, word: "", classification: "mock" };
 
   // Skip product names and brand terms
-  if (/MEDIA Score|MEDIA Rate/i.test(text)) return { isPT: false, word: "", classification: "mock" };
+  if (/MEDIA Score|MEDIA Rate/i.test(text))
+    return { isPT: false, word: "", classification: "mock" };
 
   // If text has no PT-only diacritics AND no PT function words, it's not PT
   const hasPTDiacritic = PT_DIACRITICS.test(text);
   const lower = text.toLowerCase();
-  const hasPTFuncWord = PT_FUNCTION_WORDS.some((w) => lower.includes(` ${w} `) || lower.startsWith(`${w} `) || lower.endsWith(` ${w}`));
-  
+  const hasPTFuncWord = PT_FUNCTION_WORDS.some(
+    (w) => lower.includes(` ${w} `) || lower.startsWith(`${w} `) || lower.endsWith(` ${w}`),
+  );
+
   if (!hasPTDiacritic && !hasPTFuncWord) {
     return { isPT: false, word: "", classification: "mock" };
   }
@@ -107,10 +141,16 @@ async function auditPage(page: Page, url: string, locale: string): Promise<UrlRe
     await page.waitForTimeout(1500);
 
     // Extract innerText
-    const bodyText = await page.locator("body").innerText().catch(() => "");
+    const bodyText = await page
+      .locator("body")
+      .innerText()
+      .catch(() => "");
 
     // Extract headings (h1-h3)
-    const headings = await page.locator("h1, h2, h3").allInnerTexts().catch(() => []);
+    const headings = await page
+      .locator("h1, h2, h3")
+      .allInnerTexts()
+      .catch(() => []);
 
     // Extract aria-labels
     const ariaLabels: string[] = await page.evaluate(() => {
@@ -169,7 +209,11 @@ async function auditPage(page: Page, url: string, locale: string): Promise<UrlRe
       if (alt.length < 3) continue;
       const { isPT, word, classification } = detectPT(alt, isES);
       if (isPT) {
-        result.flags.push({ selector: "alt", text: word, classification: isMockContentTitle(alt) ? "mock" : classification });
+        result.flags.push({
+          selector: "alt",
+          text: word,
+          classification: isMockContentTitle(alt) ? "mock" : classification,
+        });
       }
     }
 
@@ -189,9 +233,12 @@ async function auditPage(page: Page, url: string, locale: string): Promise<UrlRe
         result.mockItems.push(m);
       }
     }
-
   } catch (err: any) {
-    result.flags.push({ selector: "error", text: err.message?.substring(0, 60) || "unknown", classification: "mock" });
+    result.flags.push({
+      selector: "error",
+      text: err.message?.substring(0, 60) || "unknown",
+      classification: "mock",
+    });
   }
 
   return result;
@@ -201,13 +248,27 @@ async function auditPage(page: Page, url: string, locale: string): Promise<UrlRe
 const LOCALES = ["pt-BR", "en-US", "es-ES"];
 
 const PUBLIC_ROUTES = [
-  "/", "/catalog", "/pricing", "/about", "/faq", "/methodology", "/sources",
-  "/privacy", "/terms", "/discover"
+  "/",
+  "/catalog",
+  "/pricing",
+  "/about",
+  "/faq",
+  "/methodology",
+  "/sources",
+  "/privacy",
+  "/terms",
+  "/discover",
 ];
 
 const DETAIL_SLUGS = [
-  "/movie/a-odisseia", "/tv/frieren", "/game/elden-ring", "/game/minecraft",
-  "/media/1275779", "/media/27181", "/media/549", "/media/g7",
+  "/movie/a-odisseia",
+  "/tv/frieren",
+  "/game/elden-ring",
+  "/game/minecraft",
+  "/media/1275779",
+  "/media/27181",
+  "/media/549",
+  "/media/g7",
 ];
 
 (async () => {
@@ -234,7 +295,9 @@ const DETAIL_SLUGS = [
       const chromeFlags = result.flags.filter((f) => f.classification === "chrome");
       if (chromeFlags.length > 0 && isNonPT) {
         totalChromeFlags += chromeFlags.length;
-        console.log(`  ${route === "/" ? "home" : route.replace("/", "")} | ${chromeFlags.length} chrome flag(s)`);
+        console.log(
+          `  ${route === "/" ? "home" : route.replace("/", "")} | ${chromeFlags.length} chrome flag(s)`,
+        );
         for (const f of chromeFlags) {
           console.log(`    [${f.selector}] ${f.text.substring(0, 70)}`);
         }

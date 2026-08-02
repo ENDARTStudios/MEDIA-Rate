@@ -1,9 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
+import { serializeJsonLd } from "@/lib/sanitize";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "faq" });
   return {
@@ -44,13 +49,19 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
+      />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{faqTitle}</h1>
         <div className="space-y-6">
           {faqs.map((faq, i) => (
             <section key={i} className="bg-[#11111E] border border-[#1C1C2E] rounded-lg p-6">
-              <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3" itemProp="name">
+              <h2
+                className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3"
+                itemProp="name"
+              >
                 {faq.question}
               </h2>
               <p className="text-[#9CA3AF] leading-relaxed text-sm">{faq.answer}</p>

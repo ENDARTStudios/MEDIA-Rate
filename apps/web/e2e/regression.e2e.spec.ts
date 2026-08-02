@@ -20,7 +20,10 @@ test.describe("Regression - Public Pages (T054)", () => {
     await page.goto(`${BASE}/pt-BR/catalog`, { waitUntil: "domcontentloaded", timeout: 15_000 });
     await page.waitForTimeout(2000);
 
-    const mainText = await page.locator("main").innerText().catch(() => "");
+    const mainText = await page
+      .locator("main")
+      .innerText()
+      .catch(() => "");
     expect(mainText.length).toBeGreaterThan(100);
     expect(perr).toHaveLength(0);
   });

@@ -10,7 +10,8 @@ describe("QueueService (unit — mock BullMQ)", () => {
       providers: [
         {
           provide: QueueService,
-          useFactory: () => new QueueService({ name: "test", connection: { host: "localhost", port: 6379 } }),
+          useFactory: () =>
+            new QueueService({ name: "test", connection: { host: "localhost", port: 6379 } }),
         },
       ],
     }).compile();
@@ -30,9 +31,15 @@ describe("QueueService (unit — mock BullMQ)", () => {
   });
 
   it("addJob — adiciona job à fila", async () => {
-    const spy = vi.spyOn(service.getQueue("test-queue"), "add").mockResolvedValue({ id: "job-1" } as any);
+    const spy = vi
+      .spyOn(service.getQueue("test-queue"), "add")
+      .mockResolvedValue({ id: "job-1" } as any);
     await service.addJob("test-queue", "test-job", { data: 123 });
-    expect(spy).toHaveBeenCalledWith("test-job", { data: 123 }, { attempts: 3, backoff: { type: "exponential", delay: 1000 } });
+    expect(spy).toHaveBeenCalledWith(
+      "test-job",
+      { data: 123 },
+      { attempts: 3, backoff: { type: "exponential", delay: 1000 } },
+    );
   });
 
   it("closeAll — fecha todas as filas e workers", async () => {

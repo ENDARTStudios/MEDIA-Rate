@@ -26,13 +26,12 @@ const COLORS: Record<string, string> = {
 };
 
 function buildMediaItems(mediaType: "movie" | "series" | "game"): MediaItem[] {
-  return MOCK_MEDIA
-    .filter((m) => {
-      if (mediaType === "movie") return m.type === "movie";
-      if (mediaType === "series") return m.type === "series" || m.type === "anime";
-      if (mediaType === "game") return m.type === "game";
-      return false;
-    })
+  return MOCK_MEDIA.filter((m) => {
+    if (mediaType === "movie") return m.type === "movie";
+    if (mediaType === "series") return m.type === "series" || m.type === "anime";
+    if (mediaType === "game") return m.type === "game";
+    return false;
+  })
     .slice(0, 8)
     .map((m) => ({
       id: m.id,
@@ -64,8 +63,15 @@ export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME"
     <section className="py-10 px-4" aria-labelledby={`rail-${mediaType}`}>
       <div className="max-w-7xl mx-auto" ref={railRef}>
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-1 h-5 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
-          <h2 id={`rail-${mediaType}`} className="font-heading text-xl font-bold text-[#EDE7DC] uppercase tracking-wider">
+          <div
+            className="w-1 h-5 rounded-full"
+            style={{ backgroundColor: color }}
+            aria-hidden="true"
+          />
+          <h2
+            id={`rail-${mediaType}`}
+            className="font-heading text-xl font-bold text-[#EDE7DC] uppercase tracking-wider"
+          >
             {t(labelKey)}
           </h2>
           <div className="text-xs text-[#6B7280] font-body">
@@ -73,7 +79,11 @@ export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME"
           </div>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4" role="list" aria-label={t("ariaLabel", { title: t(labelKey) })}>
+        <div
+          className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
+          role="list"
+          aria-label={t("ariaLabel", { title: t(labelKey) })}
+        >
           {items.map((media, i) => (
             <motion.div
               key={media.id}

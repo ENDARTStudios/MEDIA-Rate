@@ -2,13 +2,13 @@
 
 import * as React from "react";
 
-type EmptyStateProps = {
+interface EmptyStateProps {
   icon?: React.ReactNode;
   title?: string;
   description?: string;
   action?: React.ReactNode;
   className?: string;
-};
+}
 
 function SearchIcon() {
   return (
@@ -37,17 +37,9 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className={`flex flex-col items-center text-center py-16 px-4 ${className}`}>
-      <div className="text-[#9CA3AF] mb-4">
-        {icon ?? <SearchIcon />}
-      </div>
-      <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">
-        {title}
-      </h3>
-      {description && (
-        <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">
-          {description}
-        </p>
-      )}
+      <div className="text-[#9CA3AF] mb-4">{icon ?? <SearchIcon />}</div>
+      <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">{title}</h3>
+      {description && <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   );

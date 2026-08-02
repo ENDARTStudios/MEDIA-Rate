@@ -23,21 +23,36 @@ test.describe("T144 - C3 i18n verification", () => {
         headless: false,
         args: ["--no-sandbox", "--disable-gpu"],
       });
-      const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+      const page = await browser
+        .newContext({ viewport: { width: 1440, height: 900 } })
+        .then((c) => c.newPage());
 
       try {
         await page.goto(PROD + p.path, { waitUntil: "load", timeout: 15000 });
         await page.waitForTimeout(3000);
 
-        const text = await page.locator("body").innerText().catch(() => "") || "";
-        
+        const text =
+          (await page
+            .locator("body")
+            .innerText()
+            .catch(() => "")) || "";
+
         // Look for raw i18n keys (pattern: namespace.key)
         const rawKeyPattern = /\b[a-z]+\.[a-z]+(\.[a-z]+)?\b/g;
         const matches = text.match(rawKeyPattern) || [];
-        const realKeys = matches.filter((m) => !m.includes("vercel.app") && !m.startsWith("media-rate") && m.length > 5);
+        const realKeys = matches.filter(
+          (m) => !m.includes("vercel.app") && !m.startsWith("media-rate") && m.length > 5,
+        );
 
         // Filter out known false positives (URLs, email-like, class names)
-        const falsePositives = ["media.rate", "vercel.app", "end.art", "tmdb.org", "rawg.io", "akamaihd.net"];
+        const falsePositives = [
+          "media.rate",
+          "vercel.app",
+          "end.art",
+          "tmdb.org",
+          "rawg.io",
+          "akamaihd.net",
+        ];
         const actualLeaks = realKeys.filter((k) => !falsePositives.some((fp) => k.includes(fp)));
 
         if (actualLeaks.length > 0) {
@@ -51,7 +66,6 @@ test.describe("T144 - C3 i18n verification", () => {
         if (inEnglish && (text.includes("Entrar") || text.includes("Cadastrar"))) {
           console.log("  ⚠️ Portuguese text found in en-US page");
         }
-
       } finally {
         await browser.close();
       }

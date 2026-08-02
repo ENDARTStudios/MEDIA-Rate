@@ -21,10 +21,15 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
 
   test.beforeEach(async ({ page }) => {
     page.on("console", (msg) => {
-      if (msg.type() === "error") consoleErrors.push({ url: page.url(), text: msg.text().slice(0, 200) });
+      if (msg.type() === "error")
+        consoleErrors.push({ url: page.url(), text: msg.text().slice(0, 200) });
     });
     page.on("requestfailed", (req) => {
-      networkErrors.push({ url: page.url(), failed: req.url(), reason: req.failure()?.errorText || "unknown" });
+      networkErrors.push({
+        url: page.url(),
+        failed: req.url(),
+        reason: req.failure()?.errorText || "unknown",
+      });
     });
     page.on("pageerror", (err) => {
       pageErrors.push({ url: page.url(), message: err.message.slice(0, 200) });
@@ -57,7 +62,14 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     await ss(page, "01b-register-result");
 
     if (url.includes("/register")) {
-      bugs.push({ id: "BUG-001", fluxo: 1, severity: "Alto", desc: "Register — não redirecionou após submit", evidence: `Console: ${consoleErrors.length}, Network: ${networkErrors.length}, Page: ${pageErrors.length}, URL: ${url}`, cause: "Form não submeteu ou backend não respondeu" });
+      bugs.push({
+        id: "BUG-001",
+        fluxo: 1,
+        severity: "Alto",
+        desc: "Register — não redirecionou após submit",
+        evidence: `Console: ${consoleErrors.length}, Network: ${networkErrors.length}, Page: ${pageErrors.length}, URL: ${url}`,
+        cause: "Form não submeteu ou backend não respondeu",
+      });
     }
   });
 
@@ -84,15 +96,27 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     await page.waitForTimeout(2000);
 
     const cards = await page.locator('a[href*="/media/"]').count();
-    const images = await page.locator('img').count();
+    const images = await page.locator("img").count();
     console.log(`  Catalog: cards=${cards} images=${images}`);
     await ss(page, "03-catalog");
 
     if (cards === 0) {
-      bugs.push({ id: "BUG-002", fluxo: 3, severity: "Crítico", desc: "Catálogo — 0 cards visíveis", evidence: `Cards: ${cards}, Console: ${consoleErrors.length}, Network: ${networkErrors.length}` });
+      bugs.push({
+        id: "BUG-002",
+        fluxo: 3,
+        severity: "Crítico",
+        desc: "Catálogo — 0 cards visíveis",
+        evidence: `Cards: ${cards}, Console: ${consoleErrors.length}, Network: ${networkErrors.length}`,
+      });
     }
     if (images === 0) {
-      bugs.push({ id: "BUG-003", fluxo: 3, severity: "Alto", desc: "Catálogo — 0 imagens carregadas", evidence: `Images: ${images}` });
+      bugs.push({
+        id: "BUG-003",
+        fluxo: 3,
+        severity: "Alto",
+        desc: "Catálogo — 0 imagens carregadas",
+        evidence: `Images: ${images}`,
+      });
     }
   });
 
@@ -112,13 +136,31 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
       console.log(`  Detail: H1=${h1Count} ScoreDial=${scoreDial} URL=${page.url()}`);
 
       if (h1Count === 0) {
-        bugs.push({ id: "BUG-004", fluxo: 4, severity: "Alto", desc: "Detalhe — sem H1", evidence: `H1: ${h1Count}` });
+        bugs.push({
+          id: "BUG-004",
+          fluxo: 4,
+          severity: "Alto",
+          desc: "Detalhe — sem H1",
+          evidence: `H1: ${h1Count}`,
+        });
       }
       if (page.url().includes("404") || page.url().includes("not-found")) {
-        bugs.push({ id: "BUG-005", fluxo: 4, severity: "Crítico", desc: "Detalhe — 404 ao clicar card", evidence: `URL: ${page.url()}` });
+        bugs.push({
+          id: "BUG-005",
+          fluxo: 4,
+          severity: "Crítico",
+          desc: "Detalhe — 404 ao clicar card",
+          evidence: `URL: ${page.url()}`,
+        });
       }
     } else {
-      bugs.push({ id: "BUG-006", fluxo: 4, severity: "Crítico", desc: "Detalhe — 0 cards no catálogo para clicar", evidence: "No media card links found" });
+      bugs.push({
+        id: "BUG-006",
+        fluxo: 4,
+        severity: "Crítico",
+        desc: "Detalhe — 0 cards no catálogo para clicar",
+        evidence: "No media card links found",
+      });
     }
   });
 
@@ -127,7 +169,11 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     await page.goto(`${BASE}/pt-BR/catalog`, { waitUntil: "networkidle", timeout: 15000 });
     await page.waitForTimeout(1000);
 
-    const wlBtn = page.locator('button[aria-label*="watchlist"], button[aria-label*="Watchlist"], button:has-text("Adicionar")').first();
+    const wlBtn = page
+      .locator(
+        'button[aria-label*="watchlist"], button[aria-label*="Watchlist"], button:has-text("Adicionar")',
+      )
+      .first();
     if (await wlBtn.count()) {
       await wlBtn.click();
       await page.waitForTimeout(2000);
@@ -153,10 +199,22 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     await ss(page, "06a-home-desktop");
 
     if (!hero) {
-      bugs.push({ id: "BUG-007", fluxo: 6, severity: "Alto", desc: "Home — hero section vazio", evidence: `Hero text: ${hero}` });
+      bugs.push({
+        id: "BUG-007",
+        fluxo: 6,
+        severity: "Alto",
+        desc: "Home — hero section vazio",
+        evidence: `Hero text: ${hero}`,
+      });
     }
     if (cards === 0) {
-      bugs.push({ id: "BUG-008", fluxo: 6, severity: "Alto", desc: "Home — 0 cards nos rails", evidence: `Cards: ${cards}` });
+      bugs.push({
+        id: "BUG-008",
+        fluxo: 6,
+        severity: "Alto",
+        desc: "Home — 0 cards nos rails",
+        evidence: `Cards: ${cards}`,
+      });
     }
   });
 
@@ -181,7 +239,13 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     console.log("  Protected route:", protectedUrl);
     await ss(page, "08a-protected");
     if (!protectedUrl.includes("/login")) {
-      bugs.push({ id: "BUG-009", fluxo: 8, severity: "Alto", desc: "Watchlist — não redirecionou para login (usuário deslogado)", evidence: `URL: ${protectedUrl}` });
+      bugs.push({
+        id: "BUG-009",
+        fluxo: 8,
+        severity: "Alto",
+        desc: "Watchlist — não redirecionou para login (usuário deslogado)",
+        evidence: `URL: ${protectedUrl}`,
+      });
     }
   });
 
@@ -193,7 +257,13 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     const planCards = await page.locator("article, .bg-\\[\\#11111E\\]").count();
     console.log(`  Pricing: cards=${planCards}`);
     if (planCards < 2) {
-      bugs.push({ id: "BUG-010", fluxo: 9, severity: "Médio", desc: "Planos — menos de 2 planos visíveis", evidence: `Cards: ${planCards}` });
+      bugs.push({
+        id: "BUG-010",
+        fluxo: 9,
+        severity: "Médio",
+        desc: "Planos — menos de 2 planos visíveis",
+        evidence: `Cards: ${planCards}`,
+      });
     }
   });
 
@@ -208,12 +278,35 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     const hasH1 = /<h1[^>]*>/i.test(source);
     const hasTitle = /<title>/i.test(source);
 
-    console.log(`  SEO: canonical=${hasCanonical} robots=${hasRobots} H1=${hasH1} title=${hasTitle}`);
+    console.log(
+      `  SEO: canonical=${hasCanonical} robots=${hasRobots} H1=${hasH1} title=${hasTitle}`,
+    );
     await ss(page, "10-seo-meta");
 
-    if (!hasCanonical) bugs.push({ id: "BUG-011", fluxo: 10, severity: "Alto", desc: "SEO — canonical ausente na página de detalhe", evidence: "Canonical: false" });
-    if (!hasRobots) bugs.push({ id: "BUG-012", fluxo: 10, severity: "Alto", desc: "SEO — meta robots ausente", evidence: "Robots: false" });
-    if (!hasH1) bugs.push({ id: "BUG-013", fluxo: 10, severity: "Alto", desc: "SEO — H1 ausente", evidence: "H1: false" });
+    if (!hasCanonical)
+      bugs.push({
+        id: "BUG-011",
+        fluxo: 10,
+        severity: "Alto",
+        desc: "SEO — canonical ausente na página de detalhe",
+        evidence: "Canonical: false",
+      });
+    if (!hasRobots)
+      bugs.push({
+        id: "BUG-012",
+        fluxo: 10,
+        severity: "Alto",
+        desc: "SEO — meta robots ausente",
+        evidence: "Robots: false",
+      });
+    if (!hasH1)
+      bugs.push({
+        id: "BUG-013",
+        fluxo: 10,
+        severity: "Alto",
+        desc: "SEO — H1 ausente",
+        evidence: "H1: false",
+      });
   });
 
   // Fluxo 11: Security headers
@@ -231,18 +324,22 @@ test.describe("Teste Fechado — MEDIA Rate", () => {
     // We can't directly read response headers from Playwright without intercepting
     // Use page.route to capture
     let securityHeaders = {};
-    await page.route("**/pt-BR", (route) => {
-      const resp = route.request().response();
-      if (resp) {
-        securityHeaders = {
-          "x-frame-options": resp.headers()["x-frame-options"] || "MISSING",
-          "x-content-type-options": resp.headers()["x-content-type-options"] || "MISSING",
-          "referrer-policy": resp.headers()["referrer-policy"] || "MISSING",
-          "csp": resp.headers()["content-security-policy"] ? "PRESENT" : "MISSING",
-        };
-      }
-      route.continue();
-    }, { times: 1 });
+    await page.route(
+      "**/pt-BR",
+      (route) => {
+        const resp = route.request().response();
+        if (resp) {
+          securityHeaders = {
+            "x-frame-options": resp.headers()["x-frame-options"] || "MISSING",
+            "x-content-type-options": resp.headers()["x-content-type-options"] || "MISSING",
+            "referrer-policy": resp.headers()["referrer-policy"] || "MISSING",
+            "csp": resp.headers()["content-security-policy"] ? "PRESENT" : "MISSING",
+          };
+        }
+        route.continue();
+      },
+      { times: 1 },
+    );
 
     await page.goto(`${BASE}`, { waitUntil: "networkidle", timeout: 15000 });
     await page.waitForTimeout(500);

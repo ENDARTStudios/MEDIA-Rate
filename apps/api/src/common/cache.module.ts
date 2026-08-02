@@ -12,8 +12,15 @@ export class CacheModule {
     return {
       module: CacheModule,
       providers: [
-        { provide: "REDIS_URL", useValue: options?.redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379" },
-        { provide: CacheService, useFactory: (url: string) => new CacheService(url), inject: ["REDIS_URL"] },
+        {
+          provide: "REDIS_URL",
+          useValue: options?.redisUrl ?? process.env.REDIS_URL ?? "redis://localhost:6379",
+        },
+        {
+          provide: CacheService,
+          useFactory: (url: string) => new CacheService(url),
+          inject: ["REDIS_URL"],
+        },
         CacheInvalidationService,
       ],
       exports: [CacheService, CacheInvalidationService],

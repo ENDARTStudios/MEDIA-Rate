@@ -1,17 +1,17 @@
 import {
-  type CallHandler,
+  CallHandler,
   type ExecutionContext,
   Injectable,
   type NestInterceptor,
   BadRequestException,
 } from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Reflector precisa ser import como valor para NestJS DI
+
 import { Reflector } from "@nestjs/core";
-import type { FastifyRequest } from "fastify";
+import { FastifyRequest } from "fastify";
 
 import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- PrismaService precisa ser import como valor para NestJS DI
+
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { IDEMPOTENT_KEY } from "../decorators/idempotent.decorator.js";
 

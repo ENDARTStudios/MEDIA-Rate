@@ -34,7 +34,9 @@ describe("WatchlistService (unit)", () => {
 
   it("add — mídia duplicada em coluna diferente lança ConflictException", async () => {
     await service.add("user-1", { midia_id: "media-1", coluna: "WANT" });
-    await expect(service.add("user-1", { midia_id: "media-1", coluna: "COMPLETED" })).rejects.toThrow(ConflictException);
+    await expect(
+      service.add("user-1", { midia_id: "media-1", coluna: "COMPLETED" }),
+    ).rejects.toThrow(ConflictException);
   });
 
   it("list — retorna watchlist do usuário por coluna", async () => {
@@ -59,7 +61,9 @@ describe("WatchlistService (unit)", () => {
   });
 
   it("move — entrada inexistente lança NotFoundException", async () => {
-    await expect(service.move("user-1", "nonexistent", "COMPLETED")).rejects.toThrow(NotFoundException);
+    await expect(service.move("user-1", "nonexistent", "COMPLETED")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("move — entrada de outro usuário lança NotFoundException", async () => {
@@ -88,26 +92,68 @@ function mockPrisma() {
       findMany: async (args: any) => {
         let items = entries.filter((e) => e.usuario_id === args.where.usuario_id);
         if (args.where?.coluna) items = items.filter((e) => e.coluna === args.where.coluna);
-        return items.map((e) => ({ ...e, midia: { id: e.midia_id, titulo: `Title ${e.midia_id}`, tipo: "FILME", ano_lancamento: 2024, imagem_url: null } }));
+        return items.map((e) => ({
+          ...e,
+          midia: {
+            id: e.midia_id,
+            titulo: `Title ${e.midia_id}`,
+            tipo: "FILME",
+            ano_lancamento: 2024,
+            imagem_url: null,
+          },
+        }));
       },
       findFirst: async (args: any) => {
-        return entries.find((e) => e.id === args.where.id && e.usuario_id === args.where.usuario_id) ?? null;
+        return (
+          entries.find((e) => e.id === args.where.id && e.usuario_id === args.where.usuario_id) ??
+          null
+        );
       },
       findUnique: async (args: any) => {
-        const byUserMidia = entries.find((e) => e.usuario_id === args.where.usuario_id_midia_id.usuario_id && e.midia_id === args.where.usuario_id_midia_id.midia_id);
+        const byUserMidia = entries.find(
+          (e) =>
+            e.usuario_id === args.where.usuario_id_midia_id.usuario_id &&
+            e.midia_id === args.where.usuario_id_midia_id.midia_id,
+        );
         if (byUserMidia) return byUserMidia;
         return entries.find((e) => e.id === args.where.id) ?? null;
       },
       create: async (args: any) => {
-        const e = { id: `entry-${nextId++}`, usuario_id: args.data.usuario_id ?? args.data.usuario.connect.id, midia_id: args.data.midia_id ?? args.data.midia.connect.id, coluna: args.data.coluna ?? "WANT", prioridade: 0, created_at: new Date(), updated_at: new Date() };
+        const e = {
+          id: `entry-${nextId++}`,
+          usuario_id: args.data.usuario_id ?? args.data.usuario.connect.id,
+          midia_id: args.data.midia_id ?? args.data.midia.connect.id,
+          coluna: args.data.coluna ?? "WANT",
+          prioridade: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
         entries.push(e);
-        return { ...e, midia: { id: e.midia_id, titulo: `Title ${e.midia_id}`, tipo: "FILME", ano_lancamento: 2024, imagem_url: null } };
+        return {
+          ...e,
+          midia: {
+            id: e.midia_id,
+            titulo: `Title ${e.midia_id}`,
+            tipo: "FILME",
+            ano_lancamento: 2024,
+            imagem_url: null,
+          },
+        };
       },
       update: async (args: any) => {
         const e = entries.find((x) => x.id === args.where.id);
         if (!e) return null;
         Object.assign(e, args.data, { updated_at: new Date() });
-        return { ...e, midia: { id: e.midia_id, titulo: `Title ${e.midia_id}`, tipo: "FILME", ano_lancamento: 2024, imagem_url: null } };
+        return {
+          ...e,
+          midia: {
+            id: e.midia_id,
+            titulo: `Title ${e.midia_id}`,
+            tipo: "FILME",
+            ano_lancamento: 2024,
+            imagem_url: null,
+          },
+        };
       },
       delete: async (args: any) => {
         const idx = entries.findIndex((e) => e.id === args.where.id);
@@ -117,7 +163,16 @@ function mockPrisma() {
       },
     },
     midia: {
-      findUnique: async (args: any) => entries.some((e) => e.midia_id === args.where.id) ? { id: args.where.id, titulo: "Title", tipo: "FILME", ano_lancamento: 2024, imagem_url: null } : null,
+      findUnique: async (args: any) =>
+        entries.some((e) => e.midia_id === args.where.id)
+          ? {
+              id: args.where.id,
+              titulo: "Title",
+              tipo: "FILME",
+              ano_lancamento: 2024,
+              imagem_url: null,
+            }
+          : null,
     },
   };
 }

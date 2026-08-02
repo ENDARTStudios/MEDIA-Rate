@@ -13,11 +13,15 @@ export function ProfileContent() {
   const { user } = useAuthStore();
   const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
 
-  useEffect(() => { fetchWatchlist(); }, [fetchWatchlist]);
+  useEffect(() => {
+    fetchWatchlist();
+  }, [fetchWatchlist]);
 
   const total = entries.length;
   const st: Record<string, number> = { WANT: 0, WATCHING: 0, COMPLETED: 0, DROPPED: 0 };
-  entries.forEach((e) => { st[e.status] = (st[e.status] || 0) + 1; });
+  entries.forEach((e) => {
+    st[e.status] = (st[e.status] || 0) + 1;
+  });
   const completed = st.COMPLETED || 0;
   const watching = st.WATCHING || 0;
   const dropped = st.DROPPED || 0;
@@ -29,7 +33,9 @@ export function ProfileContent() {
   ];
 
   if (isLoading && total === 0) {
-    return <div className="max-w-4xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">{tc("loading")}</div>;
+    return (
+      <div className="max-w-4xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">{tc("loading")}</div>
+    );
   }
 
   return (
@@ -39,16 +45,26 @@ export function ProfileContent() {
           {user?.name?.[0] ?? "?"}
         </div>
         <div>
-          <h1 className="text-2xl font-heading font-bold text-[#EDE7DC]">{user?.name ?? t("user")}</h1>
-          <p className="text-sm text-[#9CA3AF]">{t("planFreeSince", { plan: "Free", date: "Jan 2026" })}</p>
-          {total > 0 && <p className="text-xs text-[#6B7280] mt-1">{total} {t("titles")}</p>}
+          <h1 className="text-2xl font-heading font-bold text-[#EDE7DC]">
+            {user?.name ?? t("user")}
+          </h1>
+          <p className="text-sm text-[#9CA3AF]">
+            {t("planFreeSince", { plan: "Free", date: "Jan 2026" })}
+          </p>
+          {total > 0 && (
+            <p className="text-xs text-[#6B7280] mt-1">
+              {total} {t("titles")}
+            </p>
+          )}
         </div>
       </div>
 
       {total === 0 && (
         <div className="text-center py-12 text-[#9CA3AF]">
           <p className="mb-4">{t("emptyMessage")}</p>
-          <Link href="/catalog"><Button variant="outline">{t("exploreCatalog")}</Button></Link>
+          <Link href="/catalog">
+            <Button variant="outline">{t("exploreCatalog")}</Button>
+          </Link>
         </div>
       )}
 
@@ -61,25 +77,37 @@ export function ProfileContent() {
               { label: t("watching"), value: watching },
               { label: t("dropped"), value: dropped },
             ].map(({ label, value }) => (
-              <div key={label} className="bg-[#11111E] rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)]">
-                <p className="text-3xl font-heading font-bold text-[#EDE7DC] tabular-nums">{value}</p>
+              <div
+                key={label}
+                className="bg-[#11111E] rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)]"
+              >
+                <p className="text-3xl font-heading font-bold text-[#EDE7DC] tabular-nums">
+                  {value}
+                </p>
                 <p className="text-xs text-[#9CA3AF] mt-1">{label}</p>
               </div>
             ))}
           </div>
 
           <div className="mb-12">
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{t("tasteProfile")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {t("tasteProfile")}
+            </h2>
             <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
               <p className="text-sm text-[#6B7280] text-center py-8">{t("tasteEmpty")}</p>
             </div>
           </div>
 
           <div className="mb-12">
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{t("badges")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {t("badges")}
+            </h2>
             <div className="flex flex-wrap gap-3">
               {badges.map((b) => (
-                <div key={b.name} className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-[#818CF8]/10 border-[#818CF8]/30 text-[#818CF8]" : "bg-[#11111E] border-[rgba(129,140,248,0.08)] text-[#6B7280]"}`}>
+                <div
+                  key={b.name}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-[#818CF8]/10 border-[#818CF8]/30 text-[#818CF8]" : "bg-[#11111E] border-[rgba(129,140,248,0.08)] text-[#6B7280]"}`}
+                >
                   {b.unlocked ? "★" : "☆"} {b.name}
                   <span className="ml-2 text-xs opacity-60">{b.desc}</span>
                 </div>
@@ -88,7 +116,9 @@ export function ProfileContent() {
           </div>
 
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{t("recentActivity")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
+              {t("recentActivity")}
+            </h2>
             <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)] text-center text-sm text-[#6B7280]">
               {t("recentEmpty")}
             </div>

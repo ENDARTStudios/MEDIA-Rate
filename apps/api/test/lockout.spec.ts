@@ -63,7 +63,13 @@ describe("LockoutService (T3.3 + T020/7.5)", () => {
       for (const { failedCount, level, ms } of expectedLevels) {
         const lockLevel = Math.min(Math.floor(failedCount / 5) - 1, 4);
         expect(lockLevel).toBe(level);
-        const durations = [60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 60 * 60 * 1000, 24 * 60 * 60 * 1000];
+        const durations = [
+          60 * 1000,
+          5 * 60 * 1000,
+          15 * 60 * 1000,
+          60 * 60 * 1000,
+          24 * 60 * 60 * 1000,
+        ];
         expect(durations[lockLevel]).toBe(ms);
       }
     });

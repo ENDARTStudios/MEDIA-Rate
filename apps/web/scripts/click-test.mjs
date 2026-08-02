@@ -5,7 +5,9 @@ const p = await b.newPage();
 const perr = [];
 p.on("pageerror", (e) => perr.push(e));
 const failedReq = [];
-p.on("response", (r) => { if (r.status() >= 400) failedReq.push(r.status() + " " + r.url()); });
+p.on("response", (r) => {
+  if (r.status() >= 400) failedReq.push(r.status() + " " + r.url());
+});
 
 const BASE = "https://media-rate-web.vercel.app";
 await p.goto(BASE + "/pt-BR", { waitUntil: "networkidle", timeout: 15000 });
@@ -32,7 +34,11 @@ await p.click('a[aria-label*="MEDIA"]');
 await p.waitForTimeout(2000);
 console.log("4. Home:", p.url());
 
-console.log("Page errors:", perr.length, perr.map((e) => e.message?.slice(0, 80)));
+console.log(
+  "Page errors:",
+  perr.length,
+  perr.map((e) => e.message?.slice(0, 80)),
+);
 console.log("Failed reqs:", failedReq.slice(0, 5));
 const pass = pUrl.includes("pricing") && cUrl.includes("catalog") && pErr === 0 && cErr === 0;
 console.log("RESULT:", pass ? "PASS" : "FAIL");

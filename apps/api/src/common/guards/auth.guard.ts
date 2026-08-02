@@ -1,11 +1,11 @@
 import {
-  type CanActivate,
+  CanActivate,
   type ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import type { FastifyRequest } from "fastify";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- SessionService precisa ser import como valor para NestJS DI
+import { FastifyRequest } from "fastify";
+
 import { SessionService } from "../../modules/auth/session.service.js";
 
 /**
@@ -49,7 +49,7 @@ export class AuthGuard implements CanActivate {
     const token = cookies?.[cookieName];
 
     if (!token) {
-      // Rotas /auth/register, /auth/login, /health são públicas por padrão.
+      // Rotas públicas não exigem autenticação.
       if (this.isDefaultPublicPath(request.url)) return true;
       throw new UnauthorizedException({
         statusCode: 401,
@@ -60,6 +60,10 @@ export class AuthGuard implements CanActivate {
 
     const result = await this.sessionService.validateToken(token);
     if (!result) {
+      // Token presente mas inválido/expirado: em rotas públicas, trata como
+      // visitante anônimo (senão usuário com cookie velho ficaria preso
+      // sem conseguir logar/registrar); em rotas protegidas, 401.
+      if (this.isDefaultPublicPath(request.url)) return true;
       throw new UnauthorizedException({
         statusCode: 401,
         error: "Unauthorized",
@@ -83,8 +87,10 @@ export class AuthGuard implements CanActivate {
       url === "/metrics" ||
       url.startsWith("/api/v1/auth/register") ||
       url.startsWith("/api/v1/auth/login") ||
+      url.startsWith("/api/v1/auth/forgot-password") ||
+      url.startsWith("/api/v1/auth/reset-password") ||
       url.startsWith("/api/v1/echo") || // T1.4 rota de exemplo, não exige auth
-      url.startsWith("/api/v1/_force-error") || // T1.6 rota de debug
+      url.startsWith("/api/v1/_force-error") || // T1.6 rota de debug (dev apenas)
       url.startsWith("/api/v1/webhooks/") || // webhooks usam assinatura própria
       url.startsWith("/api/docs") || // Swagger UI (T4.2)
       url.startsWith("/api/docs-json") // Swagger JSON (T4.2)

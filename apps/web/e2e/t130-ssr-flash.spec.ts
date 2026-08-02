@@ -11,7 +11,9 @@ test.describe("T130 - SSR flash diagnostic", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       // Register + Login
@@ -27,7 +29,9 @@ test.describe("T130 - SSR flash diagnostic", () => {
       await page.locator('input[name="email"]').first().fill(testEmail);
       await page.locator('input[name="password"]').first().fill(testPass);
       await page.locator('button[type="submit"]').first().click();
-      try { await page.waitForURL("**/dashboard", { timeout: 15000 }); } catch {}
+      try {
+        await page.waitForURL("**/dashboard", { timeout: 15000 });
+      } catch {}
 
       // === SSR HTML intercept on reload ===
       console.log("\n=== SSR HTML SNAPSHOT ON RELOAD ===");
@@ -40,15 +44,24 @@ test.describe("T130 - SSR flash diagnostic", () => {
             ssrSnapshots.push(html);
             const hasEntrar = html.includes("Entrar");
             const hasCadastrar = html.includes("Cadastrar") || html.includes("Cadastre-se");
-            const hasEdi = html.includes("Edi") || html.includes("avatar-menu") || html.includes("data-authed");
+            const hasEdi =
+              html.includes("Edi") || html.includes("avatar-menu") || html.includes("data-authed");
             // Extract the nav section (~1000 chars around "Entrar")
             const entrarIdx = html.indexOf("Entrar");
-            const snippet = entrarIdx > 0 ? html.substring(Math.max(0, entrarIdx - 400), entrarIdx + 600) : "NOT_FOUND";
+            const snippet =
+              entrarIdx > 0
+                ? html.substring(Math.max(0, entrarIdx - 400), entrarIdx + 600)
+                : "NOT_FOUND";
             console.log(`\nSSR HTML (document reload):`);
             console.log(`  contiene "Entrar": ${hasEntrar}`);
             console.log(`  contiene "Cadastrar/Cadastre-se": ${hasCadastrar}`);
             console.log(`  contiene indicador logado (Edi/avatar): ${hasEdi}`);
-            console.log(`  snippet (~1000 chars): ${snippet.replace(/[\n\r]/g, " ").replace(/\s+/g, " ").substring(0, 500)}`);
+            console.log(
+              `  snippet (~1000 chars): ${snippet
+                .replace(/[\n\r]/g, " ")
+                .replace(/\s+/g, " ")
+                .substring(0, 500)}`,
+            );
           } catch {}
         }
       });
@@ -56,21 +69,23 @@ test.describe("T130 - SSR flash diagnostic", () => {
       await page.reload({ waitUntil: "load", timeout: 20000 });
       await page.waitForTimeout(2000);
 
-      // Also check after reload: DOM state  
+      // Also check after reload: DOM state
       const urlAfterReload = page.url();
       console.log(`\nURL após reload: ${urlAfterReload}`);
 
       // Check DiagPanel state
       await page.goto(`${PROD}/pt-BR?diag=1`, { waitUntil: "networkidle", timeout: 15000 });
       await page.waitForTimeout(3000);
-      const diagText = await page.locator("[data-diag-panel]").innerText().catch(() => "N/A");
+      const diagText = await page
+        .locator("[data-diag-panel]")
+        .innerText()
+        .catch(() => "N/A");
       console.log(`\nDiagPanel after login+reload:`);
       // Extract the me line
       const meLine = diagText.split("\n").find((l: string) => l.includes("me:"));
       console.log(`  ${meLine}`);
 
       console.log(`\nSSR snapshots captured: ${ssrSnapshots.length}`);
-
     } finally {
       await browser.close();
     }

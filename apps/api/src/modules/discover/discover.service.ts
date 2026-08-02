@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
-import type { TipoMidia } from "@prisma/client";
+import { Prisma, type TipoMidia } from "@prisma/client";
 
 interface SearchOptions {
   tipo?: TipoMidia;
@@ -15,18 +15,20 @@ export class DiscoverService {
   async search(q: string, opts: SearchOptions = {}) {
     const limit = Math.min(opts.limit ?? 20, 100);
     const offset = opts.offset ?? 0;
-    const tipoFilter = opts.tipo ? `AND tipo = '${opts.tipo}'::"TipoMidia"` : "";
+    // Parametrizado via Prisma.sql — nunca interpolar input do usuário no SQL.
+    const tipoFilter = opts.tipo ? Prisma.sql`AND tipo = ${opts.tipo}::"TipoMidia"` : Prisma.empty;
 
-    const results: any[] = await this.prisma.$queryRawUnsafe(`
+    const results: (Record<string, unknown> & { total: number })[] = await this.prisma
+      .$queryRaw(Prisma.sql`
       SELECT id, titulo, tipo, ano_lancamento, sinopse, imagem_url,
              COUNT(*) OVER()::int AS total
       FROM "midia"
-      WHERE (titulo % $1 OR sinopse % $1) ${tipoFilter}
-      ORDER BY similarity(titulo, $1) DESC
+      WHERE (titulo % ${q} OR sinopse % ${q}) ${tipoFilter}
+      ORDER BY similarity(titulo, ${q}) DESC
       LIMIT ${limit} OFFSET ${offset}
-    `, q);
+    `);
 
-    const total = results.length > 0 ? results[0].total : 0;
+    const total = results.length > 0 ? (results[0]?.total ?? 0) : 0;
     return { items: results, total, limit, offset };
   }
 
@@ -35,15 +37,20 @@ export class DiscoverService {
       where: opts.tipo ? { tipo: opts.tipo } : undefined,
       take: Math.min(opts.limit ?? 20, 100),
       include: {
-        scores: { select: { score: true }, where: { score: { gt: 0 } }, take: 1, orderBy: { calculado_em: "desc" } },
+        scores: {
+          select: { score: true },
+          where: { score: { gt: 0 } },
+          take: 1,
+          orderBy: { calculado_em: "desc" },
+        },
       },
     });
 
-    const enriched = items.map((m: any) => ({
+    const enriched = items.map((m) => ({
       ...m,
       score: m.scores?.[0]?.score ?? null,
     }));
-    enriched.sort((a: any, b: any) => (b.score ?? 0) - (a.score ?? 0));
+    enriched.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
     return { items: enriched, total: items.length };
   }

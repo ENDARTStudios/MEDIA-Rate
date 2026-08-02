@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getMediaBySlug } from "@/lib/api";
 import { titleForLocale } from "@/lib/i18n-content";
 import { synopsisForLocale } from "@/lib/i18n-content";
+import { siteUrl } from "@/lib/seo";
 
 type MediaType = "movie" | "tv" | "game";
 
@@ -20,7 +21,7 @@ const OG_TYPES: Record<MediaType, OGType> = {
   game: "video.other",
 };
 
-const SITE_URL = "https://media-rate-web.vercel.app";
+const SITE_URL = siteUrl;
 
 export async function generateDetailMetadata({
   locale,
@@ -49,19 +50,19 @@ export async function generateDetailMetadata({
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": schemaType,
-    name: titleForLocale(media, locale),
-    description: media.synopsis,
-    image: media.posterUrl,
-    datePublished: String(media.year),
-    genre: media.genres,
+    "name": titleForLocale(media, locale),
+    "description": media.synopsis,
+    "image": media.posterUrl,
+    "datePublished": String(media.year),
+    "genre": media.genres,
   };
 
   if (media.score && score10 != null) {
     jsonLd.aggregateRating = {
       "@type": "AggregateRating",
-      ratingValue: (score10 / 10).toFixed(1),
-      bestRating: "10",
-      ratingCount: media.score.sources?.length ?? 1,
+      "ratingValue": (score10 / 10).toFixed(1),
+      "bestRating": "10",
+      "ratingCount": media.score.sources?.length ?? 1,
     };
   }
 
@@ -75,7 +76,7 @@ export async function generateDetailMetadata({
 
   return {
     title: `${titleForLocale(media, locale)} — MEDIA Rate`,
-      description: synopsisForLocale(media, locale).substring(0, 160),
+    description: synopsisForLocale(media, locale).substring(0, 160),
     alternates: {
       canonical: canonicalUrl,
       languages: Object.fromEntries([
@@ -86,7 +87,7 @@ export async function generateDetailMetadata({
     robots: { index: true, follow: true },
     openGraph: {
       title: titleForLocale(media, locale),
-    description: synopsisForLocale(media, locale).substring(0, 160),
+      description: synopsisForLocale(media, locale).substring(0, 160),
       images: media.posterUrl ? [{ url: media.posterUrl }] : [],
       url: canonicalUrl,
       locale: locale === "pt-BR" ? "pt_BR" : locale === "en-US" ? "en_US" : "es_ES",

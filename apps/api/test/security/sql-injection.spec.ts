@@ -8,7 +8,7 @@ import { applySecurityToAdapter } from "../helpers/apply-security.js";
 function noStackOrInternal(body: unknown): void {
   const text = JSON.stringify(body);
   expect(text).not.toContain("PrismaClientKnownRequestError");
-  expect(text).not.toContain("stack\":");
+  expect(text).not.toContain('stack":');
   expect(text).not.toMatch(/at\s+.*(?:node_modules|:\d+:\d+)/);
 }
 
@@ -39,19 +39,35 @@ describe("Regressao SQL Injection (T024/8.8)", () => {
 
   const injectionPayloads = [
     "' OR 1=1 --",
-    "'; DROP TABLE \"Midia\"; --",
-    "1 UNION SELECT * FROM \"Usuario\"",
-    "Robert'); DROP TABLE \"Midia\";--",
+    '\'; DROP TABLE "Midia"; --',
+    '1 UNION SELECT * FROM "Usuario"',
+    'Robert\'); DROP TABLE "Midia";--',
     "' OR '1'='1",
     "admin'--",
-    "1; DELETE FROM \"Usuario\" WHERE 1=1",
+    '1; DELETE FROM "Usuario" WHERE 1=1',
   ];
 
-  describe("GET /api/v1/midias?q= (busca)", () => {
+  describe("GET /api/v1/search?q= (busca por similaridade)", () => {
     for (const payload of injectionPayloads) {
       it(`rejeita ou retorna vazio para "${payload.slice(0, 30)}..."`, async () => {
-        const r = await request(app.getHttpServer())
-          .get(`/api/v1/midias?q=${encodeURIComponent(payload)}`);
+        const r = await request(app.getHttpServer()).get(
+          `/api/v1/search?q=${encodeURIComponent(payload)}`,
+        );
+        expect(r.status).not.toBe(500);
+        noStackOrInternal(r.body);
+      });
+    }
+  });
+
+  describe("GET /api/v1/search?tipo= (filtro — regressao da injecao)", () => {
+    // A rota exige autenticação (401); a validação zod do tipo é coberta
+    // em discover-controller.spec.ts. Aqui garantimos que nenhum payload
+    // malicioso produz erro de servidor/stack vazado.
+    for (const payload of injectionPayloads) {
+      it(`rejeita ou trata graciosamente "${payload.slice(0, 30)}..."`, async () => {
+        const r = await request(app.getHttpServer()).get(
+          `/api/v1/search?q=test&tipo=${encodeURIComponent(payload)}`,
+        );
         expect(r.status).not.toBe(500);
         noStackOrInternal(r.body);
       });
@@ -84,8 +100,9 @@ describe("Regressao SQL Injection (T024/8.8)", () => {
 
   describe("Validacao de parametros", () => {
     it("parametros com SQL injection sao tratados como texto normal", async () => {
-      const r = await request(app.getHttpServer())
-        .get("/api/v1/midias?type='; DROP TABLE \"Midia\";--");
+      const r = await request(app.getHttpServer()).get(
+        '/api/v1/midias?type=\'; DROP TABLE "Midia";--',
+      );
       expect(r.status).not.toBe(500);
       noStackOrInternal(r.body);
     });

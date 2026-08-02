@@ -4,7 +4,11 @@ import { ProtectedPage } from "@/components/ProtectedPage";
 import { DashboardContent } from "@/components/DashboardContent";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "Dashboard — MEDIA Rate",
@@ -19,5 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ProtectedPage><DashboardContent /></ProtectedPage>;
+  return (
+    <ProtectedPage>
+      <DashboardContent />
+    </ProtectedPage>
+  );
 }

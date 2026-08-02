@@ -24,7 +24,12 @@ export function useAsyncState<T = unknown>() {
       return data;
     } catch (e: unknown) {
       if (e instanceof RateLimitedError) {
-        setState({ data: undefined, isLoading: false, error: null, rateLimited: e.retryAfterSeconds });
+        setState({
+          data: undefined,
+          isLoading: false,
+          error: null,
+          rateLimited: e.retryAfterSeconds,
+        });
       } else {
         setState({ data: undefined, isLoading: false, error: e as Error, rateLimited: null });
       }

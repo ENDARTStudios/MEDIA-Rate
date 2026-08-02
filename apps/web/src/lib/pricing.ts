@@ -30,7 +30,12 @@ export const PLANS: PlanDefinition[] = [
     price: 4.9,
     currency: { "pt-BR": "BRL", "en-US": "USD", "es-ES": "EUR" },
     highlighted: true,
-    benefits: ["pricing.plusFeature1", "pricing.plusFeature2", "pricing.plusFeature3", "pricing.plusFeature4"],
+    benefits: [
+      "pricing.plusFeature1",
+      "pricing.plusFeature2",
+      "pricing.plusFeature3",
+      "pricing.plusFeature4",
+    ],
   },
   {
     id: "premium",
@@ -38,7 +43,13 @@ export const PLANS: PlanDefinition[] = [
     price: 9.9,
     currency: { "pt-BR": "BRL", "en-US": "USD", "es-ES": "EUR" },
     highlighted: false,
-    benefits: ["pricing.premiumFeature1", "pricing.premiumFeature2", "pricing.premiumFeature3", "pricing.premiumFeature4", "pricing.premiumFeature5"],
+    benefits: [
+      "pricing.premiumFeature1",
+      "pricing.premiumFeature2",
+      "pricing.premiumFeature3",
+      "pricing.premiumFeature4",
+      "pricing.premiumFeature5",
+    ],
   },
 ];
 

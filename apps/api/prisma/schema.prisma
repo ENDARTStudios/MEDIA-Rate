@@ -326,7 +326,9 @@ model UsuarioMidiaInteracao {
   tipo        String   @db.VarChar(32) // 'assistiu', 'avaliou', 'recomendou_receber'
   // Avaliação do usuário (1–5 estrelas, opcional).
   rating      Int?
-  // Comentário livre (criptografado em T2.6 se sensível).
+  // Comentário livre do usuário. ATENÇÃO: armazenado em plaintext —
+  // a criptografia de coluna (T2.6) NÃO está implementada em produção
+  // (ColumnEncryptionService existe mas não é usado). Pendência aberta.
   comentario  String?  @db.Text
   created_at  DateTime @default(now()) @map("created_at")
 
@@ -365,11 +367,12 @@ model WatchlistEntry {
 }
 
 /// Preferências de gosto do usuário para recomendação.
-/// Dado pessoal LGPD — criptografado em T2.6.
+/// Dado pessoal LGPD — armazenado em plaintext. A criptografia de coluna
+/// (T2.6) NÃO está implementada em produção (pendência aberta).
 model PreferenciaUsuario {
   usuario_id          String   @id @map("usuario_id") @db.Uuid
   // JSON com gêneros preferidos, atores favoritos, etc.
-  // Criptografado em nível de aplicação (T2.6).
+  // Plaintext (T2.6 pendente — ver DECISOES.md).
   preferencias_blob   String   @map("preferencias_blob") @db.Text
   // Versão do esquema de preferências (para migração futura).
   versao              Int      @default(1)

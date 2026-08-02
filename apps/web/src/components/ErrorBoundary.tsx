@@ -37,14 +37,8 @@ export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
-        <h2 className="mt-6 text-xl font-semibold text-gray-100">
-          {t("error")}
-        </h2>
-        {error.digest && (
-          <p className="mt-2 text-sm text-gray-500">
-            ID: {error.digest}
-          </p>
-        )}
+        <h2 className="mt-6 text-xl font-semibold text-gray-100">{t("error")}</h2>
+        {error.digest && <p className="mt-2 text-sm text-gray-500">ID: {error.digest}</p>}
         <div className="mt-6">
           <Button onClick={reset} size="lg">
             {t("retry")}

@@ -103,4 +103,15 @@ export default tseslint.config(
       "@typescript-eslint/no-extraneous-class": "off",
     },
   },
+
+  // NestJS usa emitDecoratorMetadata: classes injetadas via constructor
+  // precisam ser importadas como VALUE (não type-only) para que o metadata
+  // de design:paramtypes seja emitido. "consistent-type-imports" converteria
+  // esses imports e quebraria o DI em runtime.
+  {
+    files: ["apps/api/**/*.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-imports": "off",
+    },
+  },
 );

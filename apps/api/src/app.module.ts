@@ -24,6 +24,14 @@ import { UploadModule } from "./modules/upload/upload.module.js";
 import { CacheModule } from "./common/cache.module.js";
 import { InviteModule } from "./modules/invite/invite.module.js";
 
+/**
+ * Módulo de debug (rotas _force-error) — apenas para teste do exception
+ * filter (T1.6). Habilitar somente em desenvolvimento via
+ * ENABLE_DEBUG_ROUTES=true. Nunca habilitado em produção.
+ */
+const enableDebugRoutes =
+  process.env.NODE_ENV !== "production" && process.env.ENABLE_DEBUG_ROUTES === "true";
+
 @Module({
   imports: [
     AppLoggerModule,
@@ -31,7 +39,7 @@ import { InviteModule } from "./modules/invite/invite.module.js";
     PrismaModule,
     HealthModule,
     EchoModule,
-    DebugModule,
+    ...(enableDebugRoutes ? [DebugModule] : []),
     AuthModule,
     AdminModule,
     PremiumModule,
@@ -42,7 +50,13 @@ import { InviteModule } from "./modules/invite/invite.module.js";
     WatchlistModule,
     DiscoverModule,
     MetricsModule,
-    QueueModule.forRoot({ redis: { host: process.env.REDIS_HOST ?? "localhost", port: parseInt(process.env.REDIS_PORT ?? "6379"), password: process.env.REDIS_PASSWORD } }),
+    QueueModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST ?? "localhost",
+        port: parseInt(process.env.REDIS_PORT ?? "6379"),
+        password: process.env.REDIS_PASSWORD,
+      },
+    }),
     UploadModule,
     CacheModule.forRoot(),
     InviteModule,

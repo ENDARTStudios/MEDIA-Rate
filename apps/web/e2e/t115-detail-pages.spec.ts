@@ -10,7 +10,9 @@ test.describe("T115 - Detail pages", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({ viewport: { width: 1440, height: 900 } })
+      .then((c) => c.newPage());
 
     try {
       // Track which chunks are loaded
@@ -24,12 +26,19 @@ test.describe("T115 - Detail pages", () => {
 
       // === MOVIE ===
       console.log("\n=== MOVIE ===");
-      await page.goto(`${PROD}/pt-BR/movie/a-odisseia`, { waitUntil: "networkidle", timeout: 20000 });
+      await page.goto(`${PROD}/pt-BR/movie/a-odisseia`, {
+        waitUntil: "networkidle",
+        timeout: 20000,
+      });
       await page.waitForTimeout(2000);
       const movieTitle = await page.locator("h1").first().textContent();
       console.log(`Movie title: ${movieTitle}`);
-      const hasSeasonsChunk = loadedChunks.some((c) => c.includes("Seasons") || c.includes("seasons"));
-      const hasEpisodesChunk = loadedChunks.some((c) => c.includes("Episodes") || c.includes("episodes"));
+      const hasSeasonsChunk = loadedChunks.some(
+        (c) => c.includes("Seasons") || c.includes("seasons"),
+      );
+      const hasEpisodesChunk = loadedChunks.some(
+        (c) => c.includes("Episodes") || c.includes("episodes"),
+      );
       console.log(`Seasons chunk loaded: ${hasSeasonsChunk}`);
       console.log(`Episodes chunk loaded: ${hasEpisodesChunk}`);
       await page.screenshot({ path: "e2e/screenshots/t115-movie.png", fullPage: false });
@@ -45,8 +54,12 @@ test.describe("T115 - Detail pages", () => {
       await page.waitForTimeout(2000);
       const tvTitle = await page.locator("h1").first().textContent();
       console.log(`TV title: ${tvTitle}`);
-      const tvSeasonsChunk = loadedChunks.some((c) => c.includes("Seasons") || c.includes("seasons"));
-      const tvEpisodesChunk = loadedChunks.some((c) => c.includes("Episodes") || c.includes("episodes"));
+      const tvSeasonsChunk = loadedChunks.some(
+        (c) => c.includes("Seasons") || c.includes("seasons"),
+      );
+      const tvEpisodesChunk = loadedChunks.some(
+        (c) => c.includes("Episodes") || c.includes("episodes"),
+      );
       console.log(`Seasons chunk loaded: ${tvSeasonsChunk}`);
       console.log(`Episodes chunk loaded: ${tvEpisodesChunk}`);
       await page.screenshot({ path: "e2e/screenshots/t115-tv.png", fullPage: false });
@@ -55,12 +68,19 @@ test.describe("T115 - Detail pages", () => {
 
       // === GAME ===
       console.log("\n=== GAME ===");
-      await page.goto(`${PROD}/pt-BR/game/elden-ring`, { waitUntil: "networkidle", timeout: 20000 });
+      await page.goto(`${PROD}/pt-BR/game/elden-ring`, {
+        waitUntil: "networkidle",
+        timeout: 20000,
+      });
       await page.waitForTimeout(2000);
       const gameTitle = await page.locator("h1").first().textContent();
       console.log(`Game title: ${gameTitle}`);
-      const gameSeasonsChunk = loadedChunks.some((c) => c.includes("Seasons") || c.includes("seasons"));
-      const gameEpisodesChunk = loadedChunks.some((c) => c.includes("Episodes") || c.includes("episodes"));
+      const gameSeasonsChunk = loadedChunks.some(
+        (c) => c.includes("Seasons") || c.includes("seasons"),
+      );
+      const gameEpisodesChunk = loadedChunks.some(
+        (c) => c.includes("Episodes") || c.includes("episodes"),
+      );
       console.log(`Seasons chunk loaded: ${gameSeasonsChunk}`);
       console.log(`Episodes chunk loaded: ${gameEpisodesChunk}`);
       await page.screenshot({ path: "e2e/screenshots/t115-game.png", fullPage: false });
@@ -69,7 +89,6 @@ test.describe("T115 - Detail pages", () => {
       console.log(`Movie: ${movieTitle}`);
       console.log(`TV: ${tvTitle}`);
       console.log(`Game: ${gameTitle}`);
-
     } finally {
       await browser.close();
     }

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { buildCorsOptions } from "../src/common/cors.config.js";
 
 function createMockCallback() {
-  const calls: Array<{ err: Error | null; allowed: boolean }> = [];
+  const calls: { err: Error | null; allowed: boolean }[] = [];
   const cb = (err: Error | null, allowed: boolean) => calls.push({ err, allowed });
   return { cb, calls };
 }

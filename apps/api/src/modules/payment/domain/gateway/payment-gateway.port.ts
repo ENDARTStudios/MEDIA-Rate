@@ -42,6 +42,13 @@ export interface WebhookEvent {
 }
 
 /**
+ * Erro de assinatura inválida de webhook (tentativa de fraude ou
+ * configuração errada). O serviço traduz para HTTP 400 — o gateway de
+ * pagamento rejeita a request sem retentativas indevidas.
+ */
+export class WebhookSignatureError extends Error {}
+
+/**
  * Porta do gateway de pagamento.
  */
 export interface IPaymentGateway {
@@ -53,7 +60,7 @@ export interface IPaymentGateway {
 
   /**
    * Constrói evento de webhook a partir do payload bruto + assinatura.
-   * @throws Error se assinatura inválida (tentativa de fraude).
+   * @throws WebhookSignatureError se a assinatura for inválida.
    */
   constructWebhookEvent(payload: string | Buffer, signature: string): Promise<WebhookEvent>;
 

@@ -11,34 +11,54 @@ test.describe("T109 - DiagPanel fail-proof + login capture", () => {
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const page = await browser.newContext({
-      viewport: { width: 1440, height: 900 },
-      ignoreHTTPSErrors: true,
-    }).then((c) => c.newPage());
+    const page = await browser
+      .newContext({
+        viewport: { width: 1440, height: 900 },
+        ignoreHTTPSErrors: true,
+      })
+      .then((c) => c.newPage());
 
     try {
       const pageErrors: string[] = [];
       const failedRequests: string[] = [];
-      page.on("pageerror", (e) => { pageErrors.push(e.message); console.log(`[PAGEERROR] ${e.message}`); });
-      page.on("requestfailed", (r) => { failedRequests.push(`${r.url()} — ${r.failure()?.errorText}`); });
+      page.on("pageerror", (e) => {
+        pageErrors.push(e.message);
+        console.log(`[PAGEERROR] ${e.message}`);
+      });
+      page.on("requestfailed", (r) => {
+        failedRequests.push(`${r.url()} — ${r.failure()?.errorText}`);
+      });
 
       // ============ PASSO 2: ?diag=1 no crash ============
       console.log("\n=== PASSO 2: ?diag=1 NO CRASH ===");
       await page.goto(`${PROD}/pt-BR?diag=1`, { waitUntil: "networkidle", timeout: 25000 });
       await page.waitForTimeout(3000);
 
-      const bodyText = await page.locator("body").innerText().catch(() => "");
+      const bodyText = await page
+        .locator("body")
+        .innerText()
+        .catch(() => "");
       const hasCantLoad = bodyText.includes("couldn't load") || bodyText.includes("could not load");
       console.log(`"couldn't load" found: ${hasCantLoad}`);
 
       // Check home content is visible (hero or main content)
-      const heroTitle = await page.locator("#hero-title").isVisible().catch(() => false);
-      const mainContent = await page.locator("main h1, main h2, main section").first().isVisible().catch(() => false);
+      const heroTitle = await page
+        .locator("#hero-title")
+        .isVisible()
+        .catch(() => false);
+      const mainContent = await page
+        .locator("main h1, main h2, main section")
+        .first()
+        .isVisible()
+        .catch(() => false);
       console.log(`Hero visible: ${heroTitle}, Main content: ${mainContent}`);
 
       // Check DiagPanel in DOM
-      const panelCount = await page.locator('[data-diag-panel]').count();
-      const panelText = await page.locator('[data-diag-panel]').innerText().catch(() => "PANEL-NOT-FOUND");
+      const panelCount = await page.locator("[data-diag-panel]").count();
+      const panelText = await page
+        .locator("[data-diag-panel]")
+        .innerText()
+        .catch(() => "PANEL-NOT-FOUND");
       console.log(`DiagPanel count: ${panelCount}, text length: ${panelText.length}`);
       if (panelText !== "PANEL-NOT-FOUND") {
         console.log(`\n--- DIAGPANEL TEXT (no login) ---`);
@@ -84,7 +104,10 @@ test.describe("T109 - DiagPanel fail-proof + login capture", () => {
         await page.waitForTimeout(2500);
       }
 
-      const loggedPanelText = await page.locator('[data-diag-panel]').innerText().catch(() => "PANEL-NOT-FOUND");
+      const loggedPanelText = await page
+        .locator("[data-diag-panel]")
+        .innerText()
+        .catch(() => "PANEL-NOT-FOUND");
       console.log(`\n--- DIAGPANEL TEXT (LOGADO) ---`);
       console.log(loggedPanelText);
 
@@ -117,7 +140,10 @@ test.describe("T109 - DiagPanel fail-proof + login capture", () => {
         await page.waitForTimeout(2500);
       }
 
-      const reloadPanelText = await page.locator('[data-diag-panel]').innerText().catch(() => "PANEL-NOT-FOUND");
+      const reloadPanelText = await page
+        .locator("[data-diag-panel]")
+        .innerText()
+        .catch(() => "PANEL-NOT-FOUND");
       console.log(`\n--- DIAGPANEL TEXT (POS-RELOAD) ---`);
       console.log(reloadPanelText);
 
@@ -146,7 +172,6 @@ test.describe("T109 - DiagPanel fail-proof + login capture", () => {
       failedRequests.forEach((r) => console.log(`  ${r}`));
       console.log(`"couldn't load" found: ${hasCantLoad}`);
       console.log(`DiagPanel found: ${panelCount > 0}`);
-
     } finally {
       await browser.close();
     }

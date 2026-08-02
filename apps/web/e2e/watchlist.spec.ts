@@ -31,8 +31,14 @@ test.describe("Watchlist Kanban", () => {
     const emptyMsg = page.locator("text=vazia, text=adicione, text=sem itens, text=nenhum");
     const columns = page.locator("text=Quero ver, text=Assistindo");
 
-    const hasMessage = await emptyMsg.first().isVisible({ timeout: 3_000 }).catch(() => false);
-    const hasColumns = await columns.first().isVisible({ timeout: 3_000 }).catch(() => false);
+    const hasMessage = await emptyMsg
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
+    const hasColumns = await columns
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
 
     expect(hasMessage || hasColumns).toBeTruthy();
   });

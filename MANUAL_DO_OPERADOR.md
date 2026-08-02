@@ -65,8 +65,10 @@ curl https://media-rate-web.vercel.app/health
 ```
 
 ### MÃ©tricas (requer X-Admin-Token)
+O token admin Ã© definido pela variÃ¡vel `ADMIN_TOKEN` no ambiente da API (Railway).
+Use o valor real (NUNCA commitar; gerar com `openssl rand -hex 32`).
 ```bash
-curl -H "X-Admin-Token: media-rate-admin-2026" https://media-rate-web.vercel.app/metrics
+curl -H "X-Admin-Token: <TOKEN_DO_AMBIENTE>" https://media-rate-web.vercel.app/metrics
 # â†’ {"uptime_seconds":..., "requests_total":..., "watchlist_adds":..., ...}
 ```
 
@@ -172,14 +174,14 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 
 ---
 
-## Status dos diferenciais competitivos (V1.3 §8)
+## Status dos diferenciais competitivos (V1.3 ï¿½8)
 
-**NENHUM diferencial é comunicado externamente como "pronto" sem gate.** Status real documentado em DECISOES.md D-131:
+**NENHUM diferencial ï¿½ comunicado externamente como "pronto" sem gate.** Status real documentado em DECISOES.md D-131:
 
-- **Transparência de fontes**: Especificado, não verificado no backend
-- **Confidence Score**: Constantes são valores iniciais, não calibrados
-- **Fórmula v2**: Proposta, pendente sign-off formal de governança
-- **Outlier detection**: Limiar 3.0 é valor inicial, não calibrado
-- **"Metodologia unificada"**: IMPRECISO — estrutura assimétrica (criticsScore null para Filme/Série)
+- **Transparï¿½ncia de fontes**: Especificado, nï¿½o verificado no backend
+- **Confidence Score**: Constantes sï¿½o valores iniciais, nï¿½o calibrados
+- **Fï¿½rmula v2**: Proposta, pendente sign-off formal de governanï¿½a
+- **Outlier detection**: Limiar 3.0 ï¿½ valor inicial, nï¿½o calibrado
+- **"Metodologia unificada"**: IMPRECISO ï¿½ estrutura assimï¿½trica (criticsScore null para Filme/Sï¿½rie)
 
-**algorithmVersion/confidenceScore**: Só em tooltip técnico (<details>Detalhes técnicos</details> no MediaScoreModule). NUNCA na UI principal.
+**algorithmVersion/confidenceScore**: Sï¿½ em tooltip tï¿½cnico (<details>Detalhes tï¿½cnicos</details> no MediaScoreModule). NUNCA na UI principal.

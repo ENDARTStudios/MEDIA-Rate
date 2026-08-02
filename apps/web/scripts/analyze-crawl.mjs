@@ -12,16 +12,23 @@ function parseCsv(path) {
   return lines.slice(1).map((line) => {
     const row = {};
     const vals = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || line.split(",");
-    headers.forEach((h, i) => { row[h] = (vals[i] || "").trim().replace(/^"|"$/g, ""); });
+    headers.forEach((h, i) => {
+      row[h] = (vals[i] || "").trim().replace(/^"|"$/g, "");
+    });
     return row;
   });
 }
 
 const internal = parseCsv(dir + "/internal_all.csv");
 const codes = {};
-internal.forEach((r) => { const c = r["Status Code"] || r.Status || ""; codes[c] = (codes[c] || 0) + 1; });
+internal.forEach((r) => {
+  const c = r["Status Code"] || r.Status || "";
+  codes[c] = (codes[c] || 0) + 1;
+});
 console.log("=== RESPONSE CODES ===");
-Object.entries(codes).sort((a, b) => Number(a[0]) - Number(b[0])).forEach(([k, v]) => console.log("  " + k + ": " + v));
+Object.entries(codes)
+  .sort((a, b) => Number(a[0]) - Number(b[0]))
+  .forEach(([k, v]) => console.log("  " + k + ": " + v));
 
 const directives = parseCsv(dir + "/directives_all.csv");
 const indexability = {};
@@ -41,11 +48,16 @@ console.log("Canonical URLs: " + canonicalCount);
 
 const titles = parseCsv(dir + "/page_titles_all.csv");
 const titleMap = {};
-titles.forEach((r) => { const t = (r["Title 1"] || r.Title || "").trim(); if (t) titleMap[t] = (titleMap[t] || 0) + 1; });
+titles.forEach((r) => {
+  const t = (r["Title 1"] || r.Title || "").trim();
+  if (t) titleMap[t] = (titleMap[t] || 0) + 1;
+});
 const dups = Object.entries(titleMap).filter(([, v]) => v > 1);
 const missing = titles.filter((r) => !(r["Title 1"] || r.Title));
 console.log("\n=== PAGE TITLES ===");
-console.log("  Total: " + titles.length + " | Missing: " + missing.length + " | Duplicates: " + dups.length);
+console.log(
+  "  Total: " + titles.length + " | Missing: " + missing.length + " | Duplicates: " + dups.length,
+);
 
 const metaDesc = parseCsv(dir + "/meta_description_all.csv");
 const missingDesc = metaDesc.filter((r) => !(r["Meta Description 1"] || r["Meta Description"]));

@@ -15,9 +15,7 @@ export class QueueModule {
 
     return {
       module: QueueModule,
-      providers: [
-        { provide: QueueService, useFactory: () => new QueueService(config) },
-      ],
+      providers: [{ provide: QueueService, useFactory: () => new QueueService(config) }],
       exports: [QueueService],
       global: true,
     };
