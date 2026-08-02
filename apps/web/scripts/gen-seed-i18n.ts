@@ -93,6 +93,17 @@ function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e
 
 function main() {
   const SYNOPSIS_BY_ID: Record<string,{en:string;es:string}> = {
+  "o-diabo-veste-prada-2":{en:"Miranda Priestly returns to the cutthroat world of fashion publishing, facing a new generation of digital disruption while navigating the complexities of mentorship and legacy.",es:"Miranda Priestly regresa al implacable mundo de las publicaciones de moda, enfrentando una nueva generación de disrupción digital mientras navega las complejidades del mentorazgo y el legado."},
+  "descendentes-pa-s-das-maravilhas-malvado":{en:"The children of Disney's most iconic heroes and villains return for a new adventure where the boundaries between good and evil blur and a new generation must forge its own path.",es:"Los hijos de los héroes y villanos más icónicos de Disney regresan para una nueva aventura donde los límites entre el bien y el mal se difuminan y una nueva generación debe forjar su propio camino."},
+  "binnelanders":{en:"A long-running South African medical drama following the personal and professional lives of the staff at the Binneland Clinic, exploring love, betrayal and healing.",es:"Un drama médico sudafricano de larga duración que sigue las vidas personales y profesionales del personal de la Clínica Binneland, explorando el amor, la traición y la sanación."},
+  "kaatelal-sons":{en:"An Indian family drama following the Kaatelal brothers as they navigate generational conflicts, business rivalries, and the bonds that hold their family together.",es:"Un drama familiar indio que sigue a los hermanos Kaatelal mientras navegan conflictos generacionales, rivalidades empresariales y los lazos que mantienen unida a su familia."},
+  "siping":{en:"A Chinese historical epic set in the ancient city of Siping, weaving together political intrigue, forbidden romance, and the clash of empires.",es:"Una épica histórica china ambientada en la antigua ciudad de Siping, entrelazando intriga política, romance prohibido y el choque de imperios."},
+  "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai":{en:"A Japanese action-comedy about an undercover agent who must infiltrate a dangerous organization while maintaining his cover, blending espionage with unexpected humor.",es:"Una comedia de acción japonesa sobre un agente encubierto que debe infiltrarse en una organización peligrosa mientras mantiene su cobertura, mezclando espionaje con humor inesperado."},
+  "zelda-breath-of-the-wild":{en:"Link awakens from a hundred-year slumber to explore a vast open world, reclaim his memories, and defeat Calamity Ganon to save the kingdom of Hyrule.",es:"Link despierta de un sueño de cien años para explorar un vasto mundo abierto, recuperar sus recuerdos y derrotar a la Calamidad Ganon para salvar el reino de Hyrule."},
+  "mushoku-tensei":{en:"A jobless shut-in is reincarnated into a fantasy world, determined to live his new life to the fullest, mastering magic and forming bonds in his second chance at life.",es:"Un desempleado recluso es reencarnado en un mundo de fantasía, decidido a vivir su nueva vida al máximo, dominando la magia y formando vínculos en su segunda oportunidad."},
+  "detetive-conan":{en:"A brilliant high school detective is transformed into a child by a mysterious poison and continues to solve baffling cases while searching for the criminal syndicate responsible.",es:"Un brillante detective de secundaria es transformado en un niño por un veneno misterioso y continúa resolviendo casos desconcertantes mientras busca al sindicato criminal responsable."},
+  "sandman":{en:"Dream, the lord of the dream realm, escapes after decades of imprisonment and sets out to rebuild his kingdom while confronting gods, demons, and his own immortal family.",es:"Sueño, el señor del reino de los sueños, escapa tras décadas de prisión y se propone reconstruir su reino mientras confronta dioses, demonios y su propia familia inmortal."},
+
   "o-mentalista":{en:"A former psychic medium uses his keen observational skills to help the California Bureau of Investigation solve complex murders while searching for the serial killer who murdered his family.",es:"Un ex médium psíquico usa sus agudas habilidades de observación para ayudar a la Oficina de Investigación de California a resolver asesinatos complejos mientras busca al asesino en serie que mató a su familia."},
   "lei-ordem":{en:"A groundbreaking police procedural and legal drama that follows NYPD detectives investigating crimes and district attorneys prosecuting the offenders, exploring the complexities of the justice system.",es:"Un drama policial y legal innovador que sigue a los detectives del NYPD investigando crímenes y a los fiscales procesando a los delincuentes, explorando las complejidades del sistema judicial."},
   "o-novato":{en:"A middle-aged man pursues his dream of becoming a police officer, joining the LAPD as its oldest rookie and proving that it is never too late to start over.",es:"Un hombre de mediana edad persigue su sueño de convertirse en oficial de policía, uniéndose al LAPD como su novato más viejo y demostrando que nunca es demasiado tarde para empezar de nuevo."},
@@ -156,6 +167,17 @@ function main() {
 };
 
 const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "o-diabo-veste-prada-2":{en:"The Devil Wears Prada 2",es:"El Diablo Viste de Prada 2"},
+  "descendentes-pa-s-das-maravilhas-malvado":{en:"Descendants: Path of Wonders",es:"Descendientes: Camino de Maravillas"},
+  "binnelanders":{en:"Binnelanders",es:"Binnelanders"},
+  "kaatelal-sons":{en:"Kaatelal Sons",es:"Kaatelal Sons"},
+  "siping":{en:"Siping",es:"Siping"},
+  "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai":{en:"Secret Mission: The Undercover Agent Never Loses",es:"Mision Secreta: El Agente Encubierto Nunca Pierde"},
+  "zelda-breath-of-the-wild":{en:"The Legend of Zelda: Breath of the Wild",es:"The Legend of Zelda: Aliento de lo Salvaje"},
+  "mushoku-tensei":{en:"Mushoku Tensei: Jobless Reincarnation",es:"Mushoku Tensei: Reencarnacion Sin Empleo"},
+  "detetive-conan":{en:"Detective Conan",es:"Detective Conan"},
+  "sandman":{en:"The Sandman",es:"El Sandman"},
+
   "o-mentalista":{en:"The Mentalist",es:"El Mentalista"},
   "lei-ordem":{en:"Law & Order",es:"La Ley y el Orden"},
   "o-novato":{en:"The Rookie",es:"El Novato"},
@@ -301,7 +323,8 @@ const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
 
   console.log("Universe(SEED+MOCK): "+all.length+" | Written: "+w+" | Total w/ id: "+total);
   console.log("Empty: "+empty+" | Orphan: "+orphan);
-  let dedupTranslated = Object.keys(result).filter(function(k){var e=result[k];return e.titleLocalized.en!==e.titleLocalized.pt||e.titleLocalized.es!==e.titleLocalized.pt;}).length; console.log("Title translated (dedup): "+dedupTranslated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | NOTRANSLATION: "+pendingNoTranslation+" | KEYMISMATCH: "+pendingKeyMismatch+" | PENDING: "+pending);
+  let dedupTranslated = Object.keys(result).filter(function(k){var e=result[k];return e.titleLocalized.en!==e.titleLocalized.pt||e.titleLocalized.es!==e.titleLocalized.pt;}).length;   let dedupSynopses = Object.keys(result).filter(function(k){var e=result[k];return e.synopsis.en!==e.synopsis.pt||e.synopsis.es!==e.synopsis.pt;}).length;
+  console.log("Title translated (dedup): "+dedupTranslated+" | synopses: "+dedupSynopses+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | NOTRANSLATION: "+pendingNoTranslation+" | KEYMISMATCH: "+pendingKeyMismatch+" | PENDING: "+pending);
   if (pendingIds.length) console.log("PENDING ids: "+pendingIds.join(","));
   if (empty||orphan) { console.error("FAIL: asserts failed"); process.exit(1); }
 

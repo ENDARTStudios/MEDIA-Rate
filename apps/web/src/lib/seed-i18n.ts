@@ -319,16 +319,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "descendentes-pa-s-das-maravilhas-malvado": {
     "titleLocalized": {
       "pt": "Descendentes: País das Maravilhas Malvado",
-      "en": "Descendentes: País das Maravilhas Malvado",
-      "es": "Descendentes: País das Maravilhas Malvado"
+      "en": "Descendants: Path of Wonders",
+      "es": "Descendientes: Camino de Maravillas"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
-      "en": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a",
-      "es": "Agora que a Rainha de Copas é boazinha e a Cinderela está a salvo, tudo parece perfeito para Red e Chloe. Mal sabem elas que mudar o passado criou um novo vilão: Maddox Hatter. Quando Maddox captura a"
+      "en": "The children of Disney's most iconic heroes and villains return for a new adventure where the boundaries between good and evil blur and a new generation must forge its own path.",
+      "es": "Los hijos de los héroes y villanos más icónicos de Disney regresan para una nueva aventura donde los límites entre el bien y el mal se difuminan y una nueva generación debe forjar su propio camino."
     }
   },
   "cora-o-partido": {
@@ -364,16 +364,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-diabo-veste-prada-2": {
     "titleLocalized": {
       "pt": "O Diabo Veste Prada 2",
-      "en": "O Diabo Veste Prada 2",
-      "es": "O Diabo Veste Prada 2"
+      "en": "The Devil Wears Prada 2",
+      "es": "El Diablo Viste de Prada 2"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
-      "en": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo",
-      "es": "Miranda Priestly navega por sua carreira em meio ao declínio das publicações tradicionais de revistas. Ela se confronta com Emily Charlton, sua ex-assistente, agora uma influente executiva de um grupo"
+      "en": "Miranda Priestly returns to the cutthroat world of fashion publishing, facing a new generation of digital disruption while navigating the complexities of mentorship and legacy.",
+      "es": "Miranda Priestly regresa al implacable mundo de las publicaciones de moda, enfrentando una nueva generación de disrupción digital mientras navega las complejidades del mentorazgo y el legado."
     }
   },
   "guas-mortais": {
@@ -672,8 +672,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A Chinese historical epic set in the ancient city of Siping, weaving together political intrigue, forbidden romance, and the clash of empires.",
+      "es": "Una épica histórica china ambientada en la antigua ciudad de Siping, entrelazando intriga política, romance prohibido y el choque de imperios."
     }
   },
   "avatar-aang-o-ltimo-mestre-do-ar": {
@@ -904,16 +904,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai": {
     "titleLocalized": {
       "pt": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
-      "en": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!",
-      "es": "Secret Mission: Sennyuu Sousakan wa Zettai ni Makenai!"
+      "en": "Secret Mission: The Undercover Agent Never Loses",
+      "es": "Mision Secreta: El Agente Encubierto Nunca Pierde"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
-      "en": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass",
-      "es": "A agente de repressão aos narcóticos Riko Ikazuchi está disfarçada com sua colega júnior Noma em um apartamento que serve como esconderijo para uma organização criminosa. Apesar de Riko e Noma se pass"
+      "en": "A Japanese action-comedy about an undercover agent who must infiltrate a dangerous organization while maintaining his cover, blending espionage with unexpected humor.",
+      "es": "Una comedia de acción japonesa sobre un agente encubierto que debe infiltrarse en una organización peligrosa mientras mantiene su cobertura, mezclando espionaje con humor inesperado."
     }
   },
   "silo": {
@@ -994,16 +994,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "kaatelal-sons": {
     "titleLocalized": {
       "pt": "Kaatelal & Sons",
-      "en": "Kaatelal & Sons",
-      "es": "Kaatelal & Sons"
+      "en": "Kaatelal Sons",
+      "es": "Kaatelal Sons"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "An Indian family drama following the Kaatelal brothers as they navigate generational conflicts, business rivalries, and the bonds that hold their family together.",
+      "es": "Un drama familiar indio que sigue a los hermanos Kaatelal mientras navegan conflictos generacionales, rivalidades empresariales y los lazos que mantienen unida a su familia."
     }
   },
   "paradise-hotel": {
@@ -1062,8 +1062,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
-      "en": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac",
-      "es": "Uma novela sul-africana em africâner. Ela se passa dentro e ao redor do hospital privado fictício, Binneland Kliniek, em Pretória, e o enredo segue os testes, traumas e tribulações da equipe e dos pac"
+      "en": "A long-running South African medical drama following the personal and professional lives of the staff at the Binneland Clinic, exploring love, betrayal and healing.",
+      "es": "Un drama médico sudafricano de larga duración que sigue las vidas personales y profesionales del personal de la Clínica Binneland, explorando el amor, la traición y la sanación."
     }
   },
   "jujutsu-kaisen": {
@@ -1154,8 +1154,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "detetive-conan": {
     "titleLocalized": {
       "pt": "Detetive Conan",
-      "en": "Detetive Conan",
-      "es": "Detetive Conan"
+      "en": "Detective Conan",
+      "es": "Detective Conan"
     },
     "genreSlugs": [
       "misterio",
@@ -1164,8 +1164,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa.",
-      "en": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa.",
-      "es": "Transformado em criança, o detetive adolescente Shinichi Kudo resolve crimes sob o pseudônimo Conan Edogawa."
+      "en": "A brilliant high school detective is transformed into a child by a mysterious poison and continues to solve baffling cases while searching for the criminal syndicate responsible.",
+      "es": "Un brillante detective de secundaria es transformado en un niño por un veneno misterioso y continúa resolviendo casos desconcertantes mientras busca al sindicato criminal responsable."
     }
   },
   "pokemon": {
@@ -1189,7 +1189,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Mushoku Tensei: Jobless Reincarnation",
       "en": "Mushoku Tensei: Jobless Reincarnation",
-      "es": "Mushoku Tensei: Jobless Reincarnation"
+      "es": "Mushoku Tensei: Reencarnacion Sin Empleo"
     },
     "genreSlugs": [
       "fantasia",
@@ -1198,8 +1198,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico.",
-      "en": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico.",
-      "es": "Reencarnado em um mundo de magia, um NEET de 34 anos ganha uma segunda chance e se torna Rudy, um prodígio mágico."
+      "en": "A jobless shut-in is reincarnated into a fantasy world, determined to live his new life to the fullest, mastering magic and forming bonds in his second chance at life.",
+      "es": "Un desempleado recluso es reencarnado en un mundo de fantasía, decidido a vivir su nueva vida al máximo, dominando la magia y formando vínculos en su segunda oportunidad."
     }
   },
   "doraemon": {
@@ -1241,7 +1241,7 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "The Legend of Zelda: Breath of the Wild",
       "en": "The Legend of Zelda: Breath of the Wild",
-      "es": "The Legend of Zelda: Breath of the Wild"
+      "es": "The Legend of Zelda: Aliento de lo Salvaje"
     },
     "genreSlugs": [
       "acao",
@@ -1250,8 +1250,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.",
-      "en": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon.",
-      "es": "Link desperta de um sono centenário em Hyrule para derrotar Calamity Ganon."
+      "en": "Link awakens from a hundred-year slumber to explore a vast open world, reclaim his memories, and defeat Calamity Ganon to save the kingdom of Hyrule.",
+      "es": "Link despierta de un sueño de cien años para explorar un vasto mundo abierto, recuperar sus recuerdos y derrotar a la Calamidad Ganon para salvar el reino de Hyrule."
     }
   },
   "elden-ring": {
@@ -1486,8 +1486,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "sandman": {
     "titleLocalized": {
       "pt": "Sandman",
-      "en": "Sandman",
-      "es": "Sandman"
+      "en": "The Sandman",
+      "es": "El Sandman"
     },
     "genreSlugs": [
       "fantasia",
@@ -1497,8 +1497,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais.",
-      "en": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais.",
-      "es": "Morpheus, o Senhor dos Sonhos, reconstrói seu reino após décadas aprisionado por mortais."
+      "en": "Dream, the lord of the dream realm, escapes after decades of imprisonment and sets out to rebuild his kingdom while confronting gods, demons, and his own immortal family.",
+      "es": "Sueño, el señor del reino de los sueños, escapa tras décadas de prisión y se propone reconstruir su reino mientras confronta dioses, demonios y su propia familia inmortal."
     }
   },
   "saga": {
