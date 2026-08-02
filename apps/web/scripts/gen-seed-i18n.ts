@@ -89,7 +89,7 @@ const T: Record<string,{en:string;es:string}> = {
   "Demon Slayer":{en:"Demon Slayer",es:"Demon Slayer"},
 };
 
-function canonicalKey(e) { return (e.slug||String(e.id)) as string; }
+function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e.id)) as string; }
 
 function main() {
   const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
