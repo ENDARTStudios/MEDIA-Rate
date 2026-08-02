@@ -117,7 +117,7 @@ function main() {
     const id = canonicalKey(e);
     if (!id) continue; total++;
     const ptTitle = (e.title as string)||"";
-    const slugKey2 = (e.slug||"") as string; const numId = String(e.id||""); const cached = TRANSLATIONS_BY_ID[slugKey2] || TRANSLATIONS_BY_ID[numId]; const tr = T[ptTitle] || (cached as any) || TRANSLATIONS_BY_ID[numId];
+    const slugKey2 = (e.slug||"") as string; const cached = TRANSLATIONS_BY_ID[slugKey2]; const tr = T[ptTitle] || (cached as any);
     const enTitle = tr?.en || (TITLE_IDENTICAL_WHITELIST.has(id) ? ptTitle : ptTitle);
     const esTitle = tr?.es || (TITLE_IDENTICAL_WHITELIST.has(ptTitle) ? ptTitle : (tr?.en || ptTitle));
     if (!ptTitle||!enTitle||!esTitle) { empty++; continue; }
@@ -147,6 +147,16 @@ function main() {
 
   fs.writeFileSync(outPath, "export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = "+JSON.stringify(result,null,2)+";\n");
   console.log("Written: "+outPath+" ("+w+" entries)");
+  let dedup: [string,string,string,string][] = [];
+  for (let k in result) {
+    let e = result[k];
+    if (e.titleLocalized.en !== e.titleLocalized.pt || e.titleLocalized.es !== e.titleLocalized.pt) {
+      dedup.push([k, e.titleLocalized.pt, e.titleLocalized.en, e.titleLocalized.es]);
+    }
+  }
+  dedup.sort((a,b) => a[0].localeCompare(b[0]));
+  console.log("DEDUP translated list: "+dedup.length+" distinct canonicalKeys");
+  dedup.forEach(r => console.log("  "+r[0]+" | "+r[1]+" | "+r[2]+" | "+r[3]));
   if (pending>0) { console.log("INCOMPLETE — NOTRANSLATION="+pendingNoTranslation+" KEYMISMATCH="+pendingKeyMismatch); }
   else { console.log("PASS (0 pending)"); }
 }
