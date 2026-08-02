@@ -127,7 +127,14 @@
     "updated": "Updated",
     "mayBeOutdated": "may be outdated",
     "sources": "Sources",
-    "scoreAriaLabel": "Overall score {score} out of 100, based on {sources} source{sources, plural, one {} other {s}}"
+    "scoreAriaLabel": "Overall score {score} out of 100, based on {sources} source{sources, plural, one {} other {s}}",
+    "criticsBar": "Critics",
+    "audienceBar": "Audience",
+    "consensusLabel": "Consensus",
+    "highConsensus": "High consensus",
+    "lowConsensus": "Critics/audience divergence",
+    "scoreV2": "MEDIA Score™ v2",
+    "methodologyV2": "Calculated as the average between Critics (50%) and Audience (50%). Consensus is a qualitative indicator of the gap between both ratings — it is not part of the calculation."
   },
   "dashboard": {
     "title": "Dashboard",

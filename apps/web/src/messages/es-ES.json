@@ -127,7 +127,14 @@
     "updated": "Actualizado",
     "mayBeOutdated": "puede estar desactualizado",
     "sources": "Fuentes",
-    "scoreAriaLabel": "Puntuación general {score} de 100, basada en {sources} fuente{sources, plural, one {} other {s}}"
+    "scoreAriaLabel": "Puntuación general {score} de 100, basada en {sources} fuente{sources, plural, one {} other {s}}",
+    "criticsBar": "Crítica",
+    "audienceBar": "Público",
+    "consensusLabel": "Consenso",
+    "highConsensus": "Alto consenso",
+    "lowConsensus": "Divergencia crítica/público",
+    "scoreV2": "MEDIA Score™ v2",
+    "methodologyV2": "Calculado como media entre Crítica (50%) y Público (50%). El consenso es un indicador cualitativo de la brecha entre ambas valoraciones — no entra en el cálculo."
   },
   "dashboard": {
     "title": "Dashboard",
