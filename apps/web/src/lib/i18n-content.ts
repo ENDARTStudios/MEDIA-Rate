@@ -1,4 +1,5 @@
 import type { LocalizedString } from "./types";
+import { SEED_I18N } from "./seed-i18n";
 
 export function localized(field: LocalizedString | undefined, locale: string): string {
   if (!field) return "";
@@ -38,11 +39,27 @@ export function genreSlug(label: string): string {
   return PT_TO_SLUG[label] || label.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-export function titleForLocale(media: { title: string; titleLocalized?: import("./types").LocalizedString }, locale: string): string {
+export function titleForLocale(media: { title: string; titleLocalized?: LocalizedString; id?: string; slug?: string }, locale: string): string {
+  // Try seed-i18n derived map first
+  const key = (media.id ?? media.slug) as string;
+  const d = key ? SEED_I18N[key] : undefined;
+  if (d?.titleLocalized) {
+    const loc = locale as keyof LocalizedString;
+    return d.titleLocalized[loc] || d.titleLocalized.pt;
+  }
+  // Fallback to inline titleLocalized field
   if (media.titleLocalized) {
-    const key = locale as keyof import("./types").LocalizedString;
-    if (key in media.titleLocalized && media.titleLocalized[key]) return media.titleLocalized[key];
+    const locKey = locale as keyof LocalizedString;
+    if (locKey in media.titleLocalized && media.titleLocalized[locKey]) return media.titleLocalized[locKey];
     return media.titleLocalized.pt || media.title;
   }
   return media.title;
+}
+
+export function genreSlugsFor(media: { id?: string; slug?: string; genres?: string[] }): string[] {
+  const key = (media.id ?? media.slug) as string;
+  const d = key ? SEED_I18N[key] : undefined;
+  if (d?.genreSlugs?.length) return d.genreSlugs;
+  // Fallback: compute from genres
+  return (media.genres || []).map(g => genreSlug(g));
 }
