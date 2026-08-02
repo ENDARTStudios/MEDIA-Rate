@@ -472,8 +472,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "1275779": {
     "titleLocalized": {
       "pt": "Dia D",
-      "en": "Dia D",
-      "es": "Dia D"
+      "en": "D-Day",
+      "es": "D-Day"
     },
     "genreSlugs": [
       "drama"
@@ -602,8 +602,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "1368337": {
     "titleLocalized": {
       "pt": "A Odisseia",
-      "en": "A Odisseia",
-      "es": "A Odisseia"
+      "en": "The Odyssey",
+      "es": "La Odisea"
     },
     "genreSlugs": [
       "drama"

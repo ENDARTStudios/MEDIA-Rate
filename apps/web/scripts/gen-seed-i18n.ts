@@ -90,6 +90,7 @@ const T: Record<string,{en:string;es:string}> = {
 };
 
 function main() {
+  const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {"a-odisseia":{"en":"The Odyssey","es":"La Odisea"},"dia-d":{"en":"D-Day","es":"D-Day"},"contato":{"en":"Contact","es":"Contacto"},"matrix":{"en":"The Matrix","es":"Matrix"},"blade-runner":{"en":"Blade Runner","es":"Blade Runner"},"gladiador":{"en":"Gladiator","es":"Gladiador"},"jurassic-park":{"en":"Jurassic Park","es":"Parque Jurásico"},"titanic":{"en":"Titanic","es":"Titanic"},"harry-potter-e-a-pedra-filosofal":{"en":"Harry Potter and the Philosopher's Stone","es":"Harry Potter y la Piedra Filosofal"},"toy-story":{"en":"Toy Story","es":"Toy Story"},"procurando-nemo":{"en":"Finding Nemo","es":"Buscando a Nemo"},"os-incriveis":{"en":"The Incredibles","es":"Los Increíbles"},"vingadores-ultimato":{"en":"Avengers: Endgame","es":"Vengadores: Endgame"},"pantera-negra":{"en":"Black Panther","es":"Pantera Negra"},"o-exterminador-do-futuro":{"en":"The Terminator","es":"El Exterminador"},"de-volta-para-o-futuro":{"en":"Back to the Future","es":"Volver al Futuro"},"clube-da-luta":{"en":"Fight Club","es":"El Club de la Lucha"},"o-sexto-sentido":{"en":"The Sixth Sense","es":"El Sexto Sentido"},"o-silencio-dos-inocentes":{"en":"The Silence of the Lambs","es":"El Silencio de los Corderos"},"um-sonho-de-liberdade":{"en":"The Shawshank Redemption","es":"Cadena Perpetua"}};
   const outPath = path.resolve(__dirname,"..","src","lib","seed-i18n.ts");
   const gMap = (ptBR as any).genres as Record<string,string>;
   const all = [...(SEED_MEDIA as any[]),...(MOCK_MEDIA as any[])];
@@ -102,8 +103,8 @@ function main() {
     const id = (e.id??e.slug) as string;
     if (!id) continue; total++;
     const ptTitle = (e.title as string)||"";
-    const tr = T[ptTitle];
-    const enTitle = tr?.en || (TITLE_IDENTICAL_WHITELIST.has(ptTitle) ? ptTitle : ptTitle);
+    const slugKey = (e.slug||"") as string; const cached = TRANSLATIONS_BY_ID[slugKey]; const tr = T[ptTitle] || (cached as any);
+    const enTitle = tr?.en || (TITLE_IDENTICAL_WHITELIST.has(id) ? ptTitle : ptTitle);
     const esTitle = tr?.es || (TITLE_IDENTICAL_WHITELIST.has(ptTitle) ? ptTitle : (tr?.en || ptTitle));
     if (!ptTitle||!enTitle||!esTitle) { empty++; continue; }
 
@@ -124,7 +125,7 @@ function main() {
 
   console.log("Universe(SEED+MOCK): "+all.length+" | Written: "+w+" | Total w/ id: "+total);
   console.log("Empty: "+empty+" | Orphan: "+orphan);
-  console.log("Title translated: "+translated+" | identical-whitelist: "+identical+" | PENDING: "+pending);
+  console.log("Title translated: "+translated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | PENDING: "+pending);
   if (pendingIds.length) console.log("PENDING ids: "+pendingIds.join(","));
   if (empty||orphan) { console.error("FAIL: asserts failed"); process.exit(1); }
 
