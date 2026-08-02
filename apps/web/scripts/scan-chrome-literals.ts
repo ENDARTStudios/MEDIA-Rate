@@ -175,6 +175,20 @@ for (const dir of SCAN_DIRS) {
   }
 }
 
+// D-199.1: mojibake/double-encoding detection — exit !=0 if found
+(function checkMojibake() {
+  const MOJIBAKE = ["\u00c3\u00a9","\u00c3\u00a3","\u00c3\u00a7","\u00c3\u00aa","\u00c3\u00b4","\u00c3\u00ad","\u00c3\u00ba","\u00c3\u00b3","\u00c3\u00a1","\u00c3\u00a2","\u00c3\u00b5","\u00e2\u20ac\u201c","\u00e2\u201e\u00a2","\u00c2\u00b7"];
+  const issues: string[] = [];
+  for (const loc of ["pt-BR","en-US","es-ES"]) {
+    const p = path.resolve(SRC, "messages", loc + ".json");
+    if (!fs.existsSync(p)) continue;
+    const c = fs.readFileSync(p, "utf8");
+    for (const pat of MOJIBAKE) { if (c.includes(pat)) { issues.push(loc + ".json: " + pat); break; } }
+  }
+  if (issues.length > 0) { console.log("MOJIBAKE FAIL: " + issues.join("; ")); process.exit(1); }
+  console.log("Mojibake check: PASS (0 in 3 locales)");
+})();
+
 console.log("=== MEDIA Rate Static Chrome Literal Scan ===\n");
 console.log(`Files scanned: ${totalFiles}`);
 console.log(`Chrome literals found: ${allFlags.length}\n`);
