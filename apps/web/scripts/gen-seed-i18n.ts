@@ -10,12 +10,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import { genreSlug } from "../src/lib/i18n-content";
 import ptBR from "../src/messages/pt-BR.json";
 
-// Nomes próprios SEM forma localizada (D-185: en=es=pt justificado)
+// D-187.1: SOMENTE ids cujo title.pt JÁ É o nome internacional sem forma localizada
 const TITLE_IDENTICAL_WHITELIST = new Set([
   "1917", "Dunkirk", "Matrix", "Elden Ring", "Minecraft", "Cyberpunk 2077",
-  "Baldur's Gate 3", "Zelda: Tears", "Succession", "Breaking Bad",
-  "Stranger Things", "The Last of Us", "Oppenheimer", "Dune: Parte 2",
-  "Inception", "Avatar", "Cidade de Deus"
+  "Baldur's Gate 3", "Oppenheimer", "Avatar",
+  // D-187.1 mantidos com justificativa (title.pt já é o internacional):
+  // title.pt="1917" — número, sem localização
+  // title.pt="Dunkirk" — nome próprio de cidade/batalha, sem localização PT  
+  // title.pt="Matrix" — nome próprio de filme, sem localização
+  // title.pt="Elden Ring" — nome próprio de game, sem localização
+  // title.pt="Minecraft" — nome próprio de game, sem localização
+  // title.pt="Cyberpunk 2077" — nome próprio de game, sem localização
+  // title.pt="Baldur's Gate 3" — nome próprio de game, sem localização
+  // title.pt="Oppenheimer" — sobrenome, sem localização
+  // title.pt="Avatar" — nome próprio, sem localização
 ]);
 
 // Traduções manuais (en = título original/internacional; es = oficial quando conhecido)
@@ -122,6 +130,7 @@ function main() {
 
   fs.writeFileSync(outPath, "export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = "+JSON.stringify(result,null,2)+";\n");
   console.log("Written: "+outPath+" ("+w+" entries)");
-  if (pending>0) { console.log("PASS (with "+pending+" pending — translation in progress)"); } else { console.log("PASS (0 pending)"); }
+  if (pending>0) { console.log("INCOMPLETE — PENDING="+pending); }
+  else { console.log("PASS (0 pending)"); }
 }
 main();
