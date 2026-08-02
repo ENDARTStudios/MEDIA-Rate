@@ -619,7 +619,15 @@
     "mito": "Myth",
     "western": "Western",
     "literatura": "Literature",
-    "strategy": "Strategy"
+    "strategy": "Strategy",
+    "sobrenatural": "Supernatural",
+    "psicologico": "Psychological",
+    "fantasy": "Fantasy",
+    "distopia": "Dystopia",
+    "classico": "Classic",
+    "realismomagico": "Magical Realism",
+    "superheroi": "Superhero",
+    "satira": "Satire"
   },
   "scoreContext": {
     "high": "High confidence",

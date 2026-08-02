@@ -36,7 +36,9 @@ const PT_TO_SLUG: Record<string, string> = {
 };
 
 export function genreSlug(label: string): string {
-  return PT_TO_SLUG[label] || label.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (PT_TO_SLUG[label]) return PT_TO_SLUG[label];
+  // Normalize: strip accents, lowercase, keep alphanumeric
+  return label.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 }
 
 export function titleForLocale(media: { title: string; titleLocalized?: LocalizedString; id?: string; slug?: string }, locale: string): string {

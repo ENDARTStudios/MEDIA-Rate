@@ -1,9 +1,9 @@
-export const SEED_I18N: Record<string, { titleLocalized: { pt: string; en: string; es: string }; genreSlugs: string[] }> = {
+export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:string};genreSlugs:string[]}> = {
   "278": {
     "titleLocalized": {
       "pt": "Um Sonho de Liberdade",
-      "en": "Um Sonho de Liberdade",
-      "es": "Um Sonho de Liberdade"
+      "en": "The Shawshank Redemption",
+      "es": "Cadena Perpetua"
     },
     "genreSlugs": [
       "drama"
@@ -697,6 +697,380 @@ export const SEED_I18N: Record<string, { titleLocalized: { pt: string; en: strin
     },
     "genreSlugs": [
       "drama"
+    ]
+  },
+  "a1": {
+    "titleLocalized": {
+      "pt": "Jujutsu Kaisen",
+      "en": "Jujutsu Kaisen",
+      "es": "Jujutsu Kaisen"
+    },
+    "genreSlugs": [
+      "acao",
+      "fantasia",
+      "sobrenatural"
+    ]
+  },
+  "a2": {
+    "titleLocalized": {
+      "pt": "Frieren e a Jornada para o Além",
+      "en": "Frieren: Beyond Journey's End",
+      "es": "Frieren: Más Allá del Final"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "aventura",
+      "drama"
+    ]
+  },
+  "a3": {
+    "titleLocalized": {
+      "pt": "Hunter x Hunter",
+      "en": "Hunter x Hunter",
+      "es": "Hunter x Hunter"
+    },
+    "genreSlugs": [
+      "acao",
+      "aventura",
+      "fantasia"
+    ]
+  },
+  "a4": {
+    "titleLocalized": {
+      "pt": "Bleach",
+      "en": "Bleach",
+      "es": "Bleach"
+    },
+    "genreSlugs": [
+      "acao",
+      "sobrenatural",
+      "fantasia"
+    ]
+  },
+  "a5": {
+    "titleLocalized": {
+      "pt": "Re:ZERO - Starting Life in Another World",
+      "en": "Re:ZERO - Starting Life in Another World",
+      "es": "Re:ZERO - Starting Life in Another World"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "drama",
+      "psicologico"
+    ]
+  },
+  "a6": {
+    "titleLocalized": {
+      "pt": "Detetive Conan",
+      "en": "Detetive Conan",
+      "es": "Detetive Conan"
+    },
+    "genreSlugs": [
+      "misterio",
+      "crime",
+      "suspense"
+    ]
+  },
+  "a7": {
+    "titleLocalized": {
+      "pt": "Pokémon",
+      "en": "Pokémon",
+      "es": "Pokémon"
+    },
+    "genreSlugs": [
+      "aventura",
+      "fantasia",
+      "acao"
+    ]
+  },
+  "a8": {
+    "titleLocalized": {
+      "pt": "Mushoku Tensei: Jobless Reincarnation",
+      "en": "Mushoku Tensei: Jobless Reincarnation",
+      "es": "Mushoku Tensei: Jobless Reincarnation"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "aventura",
+      "drama"
+    ]
+  },
+  "a9": {
+    "titleLocalized": {
+      "pt": "Doraemon: O Gato do Futuro",
+      "en": "Doraemon: O Gato do Futuro",
+      "es": "Doraemon: O Gato do Futuro"
+    },
+    "genreSlugs": [
+      "comedia",
+      "ficcao",
+      "aventura"
+    ]
+  },
+  "a10": {
+    "titleLocalized": {
+      "pt": "One Piece",
+      "en": "One Piece",
+      "es": "One Piece"
+    },
+    "genreSlugs": [
+      "acao",
+      "aventura",
+      "fantasia",
+      "comedia"
+    ]
+  },
+  "g1": {
+    "titleLocalized": {
+      "pt": "The Legend of Zelda: Breath of the Wild",
+      "en": "The Legend of Zelda: Breath of the Wild",
+      "es": "The Legend of Zelda: Breath of the Wild"
+    },
+    "genreSlugs": [
+      "acao",
+      "aventura",
+      "rpg"
+    ]
+  },
+  "g2": {
+    "titleLocalized": {
+      "pt": "Elden Ring",
+      "en": "Elden Ring",
+      "es": "Elden Ring"
+    },
+    "genreSlugs": [
+      "acao",
+      "rpg",
+      "fantasy",
+      "openworld"
+    ]
+  },
+  "g3": {
+    "titleLocalized": {
+      "pt": "Baldur's Gate 3",
+      "en": "Baldur's Gate 3",
+      "es": "Baldur's Gate 3"
+    },
+    "genreSlugs": [
+      "rpg",
+      "fantasy",
+      "strategy"
+    ]
+  },
+  "g4": {
+    "titleLocalized": {
+      "pt": "God of War Ragnarök",
+      "en": "God of War Ragnarök",
+      "es": "God of War Ragnarök"
+    },
+    "genreSlugs": [
+      "acao",
+      "aventura",
+      "mythology"
+    ]
+  },
+  "g5": {
+    "titleLocalized": {
+      "pt": "Red Dead Redemption 2",
+      "en": "Red Dead Redemption 2",
+      "es": "Red Dead Redemption 2"
+    },
+    "genreSlugs": [
+      "acao",
+      "aventura",
+      "faroeste",
+      "openworld"
+    ]
+  },
+  "g6": {
+    "titleLocalized": {
+      "pt": "The Witcher 3: Wild Hunt",
+      "en": "The Witcher 3: Wild Hunt",
+      "es": "The Witcher 3: Wild Hunt"
+    },
+    "genreSlugs": [
+      "acao",
+      "rpg",
+      "fantasy",
+      "openworld"
+    ]
+  },
+  "g7": {
+    "titleLocalized": {
+      "pt": "Minecraft",
+      "en": "Minecraft",
+      "es": "Minecraft"
+    },
+    "genreSlugs": [
+      "sandbox",
+      "survival",
+      "aventura",
+      "creative"
+    ]
+  },
+  "g8": {
+    "titleLocalized": {
+      "pt": "Cyberpunk 2077",
+      "en": "Cyberpunk 2077",
+      "es": "Cyberpunk 2077"
+    },
+    "genreSlugs": [
+      "acao",
+      "rpg",
+      "ficcao",
+      "openworld"
+    ]
+  },
+  "b1": {
+    "titleLocalized": {
+      "pt": "1984",
+      "en": "1984",
+      "es": "1984"
+    },
+    "genreSlugs": [
+      "ficcao",
+      "distopia",
+      "classico"
+    ]
+  },
+  "b2": {
+    "titleLocalized": {
+      "pt": "Duna",
+      "en": "Duna",
+      "es": "Duna"
+    },
+    "genreSlugs": [
+      "ficcao",
+      "aventura",
+      "epico",
+      "classico"
+    ]
+  },
+  "b3": {
+    "titleLocalized": {
+      "pt": "Neuromancer",
+      "en": "Neuromancer",
+      "es": "Neuromancer"
+    },
+    "genreSlugs": [
+      "ficcao",
+      "cyberpunk",
+      "classico"
+    ]
+  },
+  "b4": {
+    "titleLocalized": {
+      "pt": "Cem Anos de Solidão",
+      "en": "Cem Anos de Solidão",
+      "es": "Cem Anos de Solidão"
+    },
+    "genreSlugs": [
+      "realismomagico",
+      "literatura",
+      "classico",
+      "drama"
+    ]
+  },
+  "b5": {
+    "titleLocalized": {
+      "pt": "O Hobbit",
+      "en": "O Hobbit",
+      "es": "O Hobbit"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "aventura",
+      "classico"
+    ]
+  },
+  "b6": {
+    "titleLocalized": {
+      "pt": "O Guia do Mochileiro das Galáxias",
+      "en": "O Guia do Mochileiro das Galáxias",
+      "es": "O Guia do Mochileiro das Galáxias"
+    },
+    "genreSlugs": [
+      "ficcao",
+      "comedia",
+      "classico"
+    ]
+  },
+  "c1": {
+    "titleLocalized": {
+      "pt": "Watchmen",
+      "en": "Watchmen",
+      "es": "Watchmen"
+    },
+    "genreSlugs": [
+      "superheroi",
+      "drama",
+      "misterio",
+      "classico"
+    ]
+  },
+  "c2": {
+    "titleLocalized": {
+      "pt": "Sandman",
+      "en": "Sandman",
+      "es": "Sandman"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "terror",
+      "mito",
+      "classico"
+    ]
+  },
+  "c3": {
+    "titleLocalized": {
+      "pt": "Saga",
+      "en": "Saga",
+      "es": "Saga"
+    },
+    "genreSlugs": [
+      "fantasia",
+      "ficcao",
+      "romance",
+      "epico"
+    ]
+  },
+  "c4": {
+    "titleLocalized": {
+      "pt": "Maus",
+      "en": "Maus",
+      "es": "Maus"
+    },
+    "genreSlugs": [
+      "biografia",
+      "historia",
+      "drama",
+      "classico"
+    ]
+  },
+  "c5": {
+    "titleLocalized": {
+      "pt": "The Boys",
+      "en": "The Boys",
+      "es": "The Boys"
+    },
+    "genreSlugs": [
+      "superheroi",
+      "satira",
+      "acao",
+      "dark"
+    ]
+  },
+  "c6": {
+    "titleLocalized": {
+      "pt": "Invincible",
+      "en": "Invincible",
+      "es": "Invincible"
+    },
+    "genreSlugs": [
+      "superheroi",
+      "acao",
+      "drama",
+      "ficcao"
     ]
   }
 };
