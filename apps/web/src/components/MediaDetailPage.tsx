@@ -12,6 +12,7 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
+import { genreSlug } from "@/lib/i18n-content";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -37,6 +38,7 @@ interface MediaDetailPageProps {
 
 export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
   const t = useTranslations("catalog");
+  const tg = useTranslations("genres");
   const locale = useLocale();
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
   const [shared, setShared] = useState(false);
@@ -118,7 +120,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                 <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
                   <span>{media.year}</span>
                   {media.duration && <><span>·</span><span>{media.duration}</span></>}
-                  <span>·</span><span>{media.genres.slice(0, 3).join(", ")}</span>
+                  <span>·</span><span>{media.genres.slice(0, 3).map(g => tg(genreSlug(g))).join(", ")}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">

@@ -11,6 +11,7 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
+import { genreSlug } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,6 +19,7 @@ import { ErrorState } from "@/components/ui/error-state";
 
 export function MediaDetailClient({ slug, initialData }: { slug: string; initialData?: Media | null }) {
   const t = useTranslations("catalog");
+  const tg = useTranslations("genres");
   const { data: media, isLoading, error, refetch } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
 
   if (isLoading) {
@@ -92,7 +94,7 @@ export function MediaDetailClient({ slug, initialData }: { slug: string; initial
                 <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">{media.title}</h1>
                 <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
                   <span>{media.year}</span>{media.duration && <><span aria-hidden="true">·</span><span>{media.duration}</span></>}
-                  <span aria-hidden="true">·</span><span>{media.genres.slice(0, 3).join(", ")}</span>
+                  <span aria-hidden="true">·</span><span>{media.genres.slice(0, 3).map(g => tg(genreSlug(g))).join(", ")}</span>
                 </div>
               </div>
 
