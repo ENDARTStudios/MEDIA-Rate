@@ -147,8 +147,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
-      "en": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q",
-      "es": "Sem grandes pretensões, um romântico incurável compra um brinquedo que promete realizar desejos únicos. Ele quebra o artefato misterioso enquanto pede para conquistar a crush e consegue exatamente o q"
+      "en": "A gripping psychological thriller about a man whose infatuation spirals into a dangerous obsession, blurring the line between love and control.",
+      "es": "Un thriller psicológico sobre un hombre cuya fascinación se convierte en una peligrosa obsesión, difuminando la línea entre el amor y el control."
     }
   },
   "backrooms-um-n-o-lugar": {
@@ -177,8 +177,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
-      "en": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma",
-      "es": "Kara Zor-El comemora seu aniversário de 21 anos viajando pela galáxia com seu cachorro Krypto. Ao longo do caminho, ela conhece a jovem Ruthye Marye Knoll e se depara com uma tragédia que a leva a uma"
+      "en": "Kara Zor-El, Superman's cousin, balances her life as a young professional with her destiny as Earth's protector, facing threats from across the galaxy.",
+      "es": "Kara Zor-El, la prima de Superman, equilibra su vida como joven profesional con su destino como protectora de la Tierra, enfrentando amenazas de toda la galaxia."
     }
   },
   "mestres-do-universo": {
@@ -192,8 +192,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
-      "en": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri",
-      "es": "Adam caiu na Terra quando era criança e perdeu a espada mágica que o ligava a Eternia. Quase 20 anos depois, ele a recupera e retorna ao seu planeta natal para protegê-lo do malvado Esqueleto, mas pri"
+      "en": "On the planet Eternia, He-Man and his allies battle the evil Skeletor for control of Castle Grayskull and the fate of the universe.",
+      "es": "En el planeta Eternia, He-Man y sus aliados luchan contra el malvado Skeletor por el control del Castillo Grayskull y el destino del universo."
     }
   },
   "minions-monstros": {
@@ -207,8 +207,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
-      "en": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni",
-      "es": "Esta é a frenética, ridícula e totalmente verdadeira história de como os Minions conquistaram Hollywood, se tornaram estrelas de cinema, perderam tudo, libertaram monstros pelo mundo e, depois, se uni"
+      "en": "The mischievous Minions accidentally unleash ancient monsters from a cursed artifact, turning a routine vacation into a globe-trotting monster-hunting adventure.",
+      "es": "Los traviesos Minions liberan accidentalmente monstruos ancestrales de un artefacto maldito, convirtiendo unas vacaciones rutinarias en una aventura global de caza de monstruos."
     }
   },
   "toy-story-5": {
@@ -237,8 +237,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
-      "en": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror",
-      "es": "Vinte e seis anos depois de escaparem de um assassino mascarado suspeitosamente familiar, o Quarteto Fantástico está de volta à mira do criminoso, e nenhuma propriedade intelectual de filmes de terror"
+      "en": "A chaotic comedy where an entire city descends into panic over a misunderstood rumor, following multiple interconnected stories of people losing their minds.",
+      "es": "Una comedia caótica donde una ciudad entera entra en pánico por un rumor malinterpretado, siguiendo múltiples historias interconectadas de personas perdiendo la cabeza."
     }
   },
   "desejo": {
@@ -252,8 +252,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
-      "en": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil",
-      "es": "A vida de Lucero parece impecável: um lar abastado, um marido dedicado e dois filhos que personificam a promessa de uma família perfeita. No entanto, sob essa superfície, fermenta uma insatisfação sil"
+      "en": "A provocative exploration of human longing, where characters confront their deepest desires and the consequences of pursuing them to the extreme.",
+      "es": "Una exploración provocativa del anhelo humano, donde los personajes confrontan sus deseos más profundos y las consecuencias de perseguirlos al extremo."
     }
   },
   "borderline": {
@@ -267,8 +267,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A tense drama exploring the fragile boundaries of the human psyche, where a therapist and patient both confront their own psychological limits.",
+      "es": "Un drama tenso que explora los frágiles límites de la psique humana, donde un terapeuta y su paciente confrontan sus propios límites psicológicos."
     }
   },
   "star-wars-o-mandaloriano-e-grogu": {
@@ -312,8 +312,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
-      "en": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã",
-      "es": "O professor de ciências Ryland Grace acorda em uma espaçonave a anos-luz de casa, sem nenhuma lembrança de quem é ou como chegou ali. À medida que sua memória retorna, ele começa a descobrir sua missã"
+      "en": "A cosmic horror saga where ancient entities feed on dying stars, and a ragtag crew of explorers must prevent the next extinction-level event.",
+      "es": "Una saga de horror cósmico donde entidades ancestrales se alimentan de estrellas moribundas, y una tripulación improvisada de exploradores debe prevenir el próximo evento de extinción."
     }
   },
   "descendentes-pa-s-das-maravilhas-malvado": {
@@ -507,8 +507,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
-      "en": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som",
-      "es": "Os campeões favoritos dos fãs – agora acompanhados pelo próprio Johnny Cage – são colocados uns contra os outros numa sangrenta e derradeira batalha, sem regras ou limites, para derrotar o governo som"
+      "en": "The iconic fighting tournament returns with new champions from Earthrealm and Outworld clashing in Mortal Kombat, where the fate of realms hangs in the balance.",
+      "es": "El icónico torneo de lucha regresa con nuevos campeones de la Tierra y el Mundo Exterior enfrentándose en Mortal Kombat, donde el destino de los reinos pende de un hilo."
     }
   },
   "avatar-fogo-e-cinzas": {
