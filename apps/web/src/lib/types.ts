@@ -4,6 +4,12 @@ export type Confidence = "high" | "medium" | "low";
 
 export type SourceName = "imdb" | "rottentomatoes" | "tmdb" | "igdb" | "rawg" | "openlibrary";
 
+export interface LocalizedString {
+  pt: string;
+  en: string;
+  es: string;
+}
+
 export interface SourceRating {
   source: SourceName;
   score: number;
