@@ -747,8 +747,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco",
-      "en": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco",
-      "es": "Nova cidade, vida nova. E um encontro inesperado com Luke, um rapaz movido a adrenalina e atormentado por demônios. Apesar dos alertas, Hasley não consegue ficar longe dele. No \"boulevard\", eles desco"
+      "en": "A quiet drama unfolding over the course of a single day on a tree-lined boulevard, where a man confronts the choices that shaped his life and discovers unexpected redemption.",
+      "es": "Un drama tranquilo que se desarrolla a lo largo de un solo día en un bulevar arbolado, donde un hombre enfrenta las elecciones que moldearon su vida y descubre una redención inesperada."
     }
   },
   "o-limite-do-prazer": {
@@ -777,8 +777,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
-      "en": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, ",
-      "es": "George é um pastor que lê romances policiais para suas queridas ovelhas todas as noites, acreditando que elas não conseguem entender. Mas, quando um incidente misterioso interrompe a vida na fazenda, "
+      "en": "When a flock of sheep on a peaceful farm starts disappearing, an unlikely team of woolly detectives must solve the mystery before there's no one left to bah.",
+      "es": "Cuando un rebaño de ovejas en una granja pacífica comienza a desaparecer, un equipo improbable de detectives lanudos debe resolver el misterio antes de que no quede nadie para balar."
     }
   },
   "tagesschau": {
@@ -822,8 +822,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
-      "en": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç",
-      "es": "Detetives que fazem parte da Unidade de Vítimas Especiais da polícia de Nova York investigam crimes de natureza sexual, como estupros, em que a vítima sobrevive, e auxilia as autoridades na investigaç"
+      "en": "An elite squad of NYPD detectives investigates sexually based offenses in this hard-hitting and emotional series that has defined the crime drama genre for over two decades.",
+      "es": "Un escuadrón de élite de detectives del NYPD investiga delitos sexuales en esta serie contundente y emotiva que ha definido el género de drama criminal durante más de dos décadas."
     }
   },
   "rote-rosen": {
@@ -837,8 +837,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A German romantic drama set in a small town where a florist's red roses carry messages of love, loss, and secrets between the residents.",
+      "es": "Un drama romántico alemán ambientado en un pequeño pueblo donde las rosas rojas de una florista llevan mensajes de amor, pérdida y secretos entre los residentes."
     }
   },
   "o-mentalista": {
@@ -867,8 +867,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
-      "en": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n",
-      "es": "Eu quero acasalar com Nowa…” -Há alguns anos, um urso que mora na floresta encontrou um filhote. Cuide bem do cachorrinho, que cresce rápido, honesto e gentil. Mas o urso tem um problema… Está quase n"
+      "en": "A gentle slice-of-life anime following a bear preparing for hibernation in a magical forest, making friends with the woodland creatures along the way.",
+      "es": "Un anime tranquilo que sigue a un oso preparándose para la hibernación en un bosque mágico, haciendo amigos con las criaturas del bosque en el camino."
     }
   },
   "lei-ordem": {
@@ -1461,8 +1461,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo.",
-      "en": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo.",
-      "es": "Arthur Dent é salvo da destruição da Terra e embarca em uma viagem hilária pelo universo."
+      "en": "Arthur Dent is whisked off Earth moments before its destruction and embarks on a hilarious journey through space with an alien researcher, discovering the answer to life, the universe, and everything.",
+      "es": "Arthur Dent es llevado de la Tierra momentos antes de su destrucción y emprende un viaje hilarante por el espacio con un investigador alienígena, descubriendo la respuesta a la vida, el universo y todo lo demás."
     }
   },
   "watchmen": {
