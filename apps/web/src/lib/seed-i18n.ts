@@ -334,31 +334,31 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "cora-o-partido": {
     "titleLocalized": {
       "pt": "Coração Partido",
-      "en": "Coração Partido",
-      "es": "Coração Partido"
+      "en": "Broken Heart",
+      "es": "Corazon Partido"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
-      "en": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr",
-      "es": "A adolescente Polina tenta recomeçar a vida em uma nova cidade, mas logo se torna alvo de bullying na escola. Tudo muda quando Bars, o aluno mais temido e misterioso do colégio, oferece proteção em tr"
+      "en": "A deeply emotional drama about love, loss, and the long road to healing after a devastating breakup, told through parallel timelines of a relationship's beginning and end.",
+      "es": "Un drama profundamente emotivo sobre el amor, la pérdida y el largo camino hacia la curación tras una ruptura devastadora, contado a través de líneas temporales paralelas del inicio y final de una relación."
     }
   },
   "o-cobrador-de-d-vidas": {
     "titleLocalized": {
       "pt": "O Cobrador de Dívidas",
-      "en": "O Cobrador de Dívidas",
-      "es": "O Cobrador de Dívidas"
+      "en": "The Life Collector",
+      "es": "El Cobrador de Vidas"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
-      "en": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas.",
-      "es": "Assombrado pela culpa após a prisão, um ex-cobrador de dívidas corre contra uma doença terminal, retornando ao seu antigo mundo para vingar as vítimas dos agiotas."
+      "en": "A mysterious debt collector discovers that the debts he collects are not financial but spiritual, forcing him to confront forces beyond the mortal realm.",
+      "es": "Un misterioso cobrador de deudas descubre que las deudas que cobra no son financieras sino espirituales, obligándolo a enfrentar fuerzas más allá del reino mortal."
     }
   },
   "o-diabo-veste-prada-2": {
@@ -379,31 +379,31 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "guas-mortais": {
     "titleLocalized": {
       "pt": "Águas Mortais",
-      "en": "Águas Mortais",
-      "es": "Águas Mortais"
+      "en": "Deadly Waters",
+      "es": "Aguas Mortales"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
-      "en": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta",
-      "es": "Um voo de Los Angeles para Xangai cai no meio do Oceano Pacífico. Após sobreviverem ao acidente, os passageiros logo percebem que não estão sozinhos e precisam lutar pela própria vida em águas infesta"
+      "en": "A survival thriller set in the open ocean, where a group of strangers must fight the elements — and each other — after their yacht capsizes in shark-infested waters.",
+      "es": "Un thriller de supervivencia en mar abierto, donde un grupo de extraños debe luchar contra los elementos — y entre ellos — después de que su yate naufraga en aguas infestadas de tiburones."
     }
   },
   "a-morte-de-robin-hood": {
     "titleLocalized": {
       "pt": "A Morte de Robin Hood",
-      "en": "A Morte de Robin Hood",
-      "es": "A Morte de Robin Hood"
+      "en": "The Death of Robin Hood",
+      "es": "La Muerte de Robin Hood"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
-      "en": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q",
-      "es": "Atormentado pelas cicatrizes de uma vida marcada pelo crime, Robin Hood sobrevive por pouco àquela que acreditava ser sua batalha final. Gravemente ferido, ele é encontrado por uma mulher misteriosa q"
+      "en": "An aging Robin Hood grapples with his legacy, past crimes, and a final battle that will define how history remembers the legendary outlaw of Sherwood Forest.",
+      "es": "Un Robin Hood envejecido lucha con su legado, sus crímenes pasados y una batalla final que definirá cómo la historia recuerda al legendario proscrito del Bosque de Sherwood."
     }
   },
   "kraken": {
@@ -469,31 +469,31 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "il-frullo-del-passero": {
     "titleLocalized": {
       "pt": "Il frullo del passero",
-      "en": "Il frullo del passero",
-      "es": "Il frullo del passero"
+      "en": "The Sparrow's Flutter",
+      "es": "El Aleteo del Gorrion"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "An Italian drama of quiet beauty, following an elderly man's daily routine and the small, profound moments that give life its meaning in a changing world.",
+      "es": "Un drama italiano de una belleza tranquila, siguiendo la rutina diaria de un anciano y los pequeños y profundos momentos que dan sentido a la vida en un mundo cambiante."
     }
   },
   "au-bonheur-des-dames": {
     "titleLocalized": {
       "pt": "Au Bonheur des Dames",
-      "en": "Au Bonheur des Dames",
-      "es": "Au Bonheur des Dames"
+      "en": "The Ladies' Paradise",
+      "es": "El Paraiso de las Damas"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A sweeping period drama set in a Parisian department store, where ambition, love and commerce collide as a young woman rises through the ranks of retail society.",
+      "es": "Un drama de época ambientado en unos grandes almacenes parisinos, donde la ambición, el amor y el comercio colisionan mientras una joven asciende en la sociedad del comercio."
     }
   },
   "mortal-kombat-2": {
@@ -529,16 +529,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "une-flamme-dans-mon-c-ur": {
     "titleLocalized": {
       "pt": "Une flamme dans mon cœur",
-      "en": "Une flamme dans mon cœur",
-      "es": "Une flamme dans mon cœur"
+      "en": "A Flame in My Heart",
+      "es": "Una Llama en Mi Corazon"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "An intimate French romance about a passionate but forbidden love affair between two people from different worlds, set against the backdrop of 1980s Paris.",
+      "es": "Un romance francés íntimo sobre un amor apasionado pero prohibido entre dos personas de mundos diferentes, ambientado en el París de los años 80."
     }
   },
   "super-mario-galaxy-o-filme": {
@@ -575,15 +575,15 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     "titleLocalized": {
       "pt": "Citizen Vigilante",
       "en": "Citizen Vigilante",
-      "es": "Citizen Vigilante"
+      "es": "Ciudadano Vigilante"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
-      "en": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local.",
-      "es": "Um homem faz justiça com suas próprias mãos, perseguindo criminosos. Sua cruzada como vigilante faz dele uma estrela da mídia social, mas isso o coloca em conflito com o chefe de polícia local."
+      "en": "An ordinary citizen takes justice into his own hands when the system fails, becoming an unlikely vigilante in a city drowning in corruption and crime.",
+      "es": "Un ciudadano común toma la justicia en sus propias manos cuando el sistema falla, convirtiéndose en un justiciero improbable en una ciudad ahogada por la corrupción y el crimen."
     }
   },
   "um-sonho-de-liberdade": {
@@ -604,31 +604,31 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "maldi-o-da-m-mia": {
     "titleLocalized": {
       "pt": "Maldição da Múmia",
-      "en": "Maldição da Múmia",
-      "es": "Maldição da Múmia"
+      "en": "Curse of the Mummy",
+      "es": "La Maldicion de la Momia"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
-      "en": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem",
-      "es": "A filha de um jornalista desaparece num deserto sem deixar rastros, deixando a família dilacerada e em luto. Até que, oito anos mais tarde, a jovem garota reaparece, deixando todos chocados. O problem"
+      "en": "An archaeological expedition awakens an ancient curse buried for millennia, unleashing a supernatural force that threatens to consume everyone in its path.",
+      "es": "Una expedición arqueológica despierta una maldición milenaria enterrada, desatando una fuerza sobrenatural que amenaza con consumir a todos a su paso."
     }
   },
   "forgive-us-all": {
     "titleLocalized": {
       "pt": "Forgive Us All",
       "en": "Forgive Us All",
-      "es": "Forgive Us All"
+      "es": "Perdonanos a Todos"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Sinopse indisponível.",
-      "en": "Sinopse indisponível.",
-      "es": "Sinopse indisponível."
+      "en": "A powerful drama about redemption, faith, and the human capacity for forgiveness, following a priest who must confront his own past sins while helping a community heal.",
+      "es": "Un drama poderoso sobre la redención, la fe y la capacidad humana de perdonar, siguiendo a un sacerdote que debe confrontar sus propios pecados pasados mientras ayuda a una comunidad a sanar."
     }
   },
   "demon-slayer-kimetsu-no-yaiba-castelo-infinito": {
@@ -754,16 +754,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-limite-do-prazer": {
     "titleLocalized": {
       "pt": "O Limite do Prazer",
-      "en": "O Limite do Prazer",
-      "es": "O Limite do Prazer"
+      "en": "The Limits of Pleasure",
+      "es": "Los Limites del Placer"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
-      "en": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal.",
-      "es": "Quando o recluso Franklin trai sua garota com uma mulher misteriosa que ele conhece em um aplicativo de namoro, isso se torna o início de uma obsessão mortal."
+      "en": "A provocative thriller exploring the boundaries of human desire, where the pursuit of ultimate pleasure leads to dangerous consequences and moral reckoning.",
+      "es": "Un thriller provocador que explora los límites del deseo humano, donde la búsqueda del placer máximo conduce a consecuencias peligrosas y un ajuste de cuentas moral."
     }
   },
   "as-ovelhas-detetives": {
@@ -844,16 +844,16 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "o-mentalista": {
     "titleLocalized": {
       "pt": "O Mentalista",
-      "en": "O Mentalista",
-      "es": "O Mentalista"
+      "en": "The Mentalist",
+      "es": "El Mentalista"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
-      "en": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor",
-      "es": "Patrick Jane é famoso por sua habilidade de alta percepção de tudo que está ao seu redor. Ele já quase foi uma celebridade, alegando ser médium vidente, mas agora admite que fingia ter poderes paranor"
+      "en": "A former psychic medium uses his keen observational skills to help the California Bureau of Investigation solve complex murders while searching for the serial killer who murdered his family.",
+      "es": "Un ex médium psíquico usa sus agudas habilidades de observación para ayudar a la Oficina de Investigación de California a resolver asesinatos complejos mientras busca al asesino en serie que mató a su familia."
     }
   },
   "mori-no-kuma-san-toumin-chuu": {
@@ -874,31 +874,31 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "lei-ordem": {
     "titleLocalized": {
       "pt": "Lei & Ordem",
-      "en": "Lei & Ordem",
-      "es": "Lei & Ordem"
+      "en": "Law & Order",
+      "es": "La Ley y el Orden"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
-      "en": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais.",
-      "es": "O drama mostra o processo complicado de determinar a culpa ou a inocência, quando vidas estão em jogo. Muitas vezes inspirado pelas notícias mais recentes, o enredo destaca dilemas éticos e pessoais."
+      "en": "A groundbreaking police procedural and legal drama that follows NYPD detectives investigating crimes and district attorneys prosecuting the offenders, exploring the complexities of the justice system.",
+      "es": "Un drama policial y legal innovador que sigue a los detectives del NYPD investigando crímenes y a los fiscales procesando a los delincuentes, explorando las complejidades del sistema judicial."
     }
   },
   "o-novato": {
     "titleLocalized": {
       "pt": "O Novato",
-      "en": "O Novato",
-      "es": "O Novato"
+      "en": "The Rookie",
+      "es": "El Novato"
     },
     "genreSlugs": [
       "drama"
     ],
     "synopsis": {
       "pt": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
-      "en": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais",
-      "es": "John Nolan, um homem de 40 anos, deixa para trás sua vida confortável em uma cidade pequena para viver seu sonho de ser um agente policial no Departamento de Polícia de Los Angeles. Como o novato mais"
+      "en": "A middle-aged man pursues his dream of becoming a police officer, joining the LAPD as its oldest rookie and proving that it is never too late to start over.",
+      "es": "Un hombre de mediana edad persigue su sueño de convertirse en oficial de policía, uniéndose al LAPD como su novato más viejo y demostrando que nunca es demasiado tarde para empezar de nuevo."
     }
   },
   "secret-mission-sennyuu-sousakan-wa-zettai-ni-makenai": {

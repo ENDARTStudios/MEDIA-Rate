@@ -93,6 +93,21 @@ function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e
 
 function main() {
   const SYNOPSIS_BY_ID: Record<string,{en:string;es:string}> = {
+  "o-mentalista":{en:"A former psychic medium uses his keen observational skills to help the California Bureau of Investigation solve complex murders while searching for the serial killer who murdered his family.",es:"Un ex médium psíquico usa sus agudas habilidades de observación para ayudar a la Oficina de Investigación de California a resolver asesinatos complejos mientras busca al asesino en serie que mató a su familia."},
+  "lei-ordem":{en:"A groundbreaking police procedural and legal drama that follows NYPD detectives investigating crimes and district attorneys prosecuting the offenders, exploring the complexities of the justice system.",es:"Un drama policial y legal innovador que sigue a los detectives del NYPD investigando crímenes y a los fiscales procesando a los delincuentes, explorando las complejidades del sistema judicial."},
+  "o-novato":{en:"A middle-aged man pursues his dream of becoming a police officer, joining the LAPD as its oldest rookie and proving that it is never too late to start over.",es:"Un hombre de mediana edad persigue su sueño de convertirse en oficial de policía, uniéndose al LAPD como su novato más viejo y demostrando que nunca es demasiado tarde para empezar de nuevo."},
+  "a-morte-de-robin-hood":{en:"An aging Robin Hood grapples with his legacy, past crimes, and a final battle that will define how history remembers the legendary outlaw of Sherwood Forest.",es:"Un Robin Hood envejecido lucha con su legado, sus crímenes pasados y una batalla final que definirá cómo la historia recuerda al legendario proscrito del Bosque de Sherwood."},
+  "o-cobrador-de-d-vidas":{en:"A mysterious debt collector discovers that the debts he collects are not financial but spiritual, forcing him to confront forces beyond the mortal realm.",es:"Un misterioso cobrador de deudas descubre que las deudas que cobra no son financieras sino espirituales, obligándolo a enfrentar fuerzas más allá del reino mortal."},
+  "o-limite-do-prazer":{en:"A provocative thriller exploring the boundaries of human desire, where the pursuit of ultimate pleasure leads to dangerous consequences and moral reckoning.",es:"Un thriller provocador que explora los límites del deseo humano, donde la búsqueda del placer máximo conduce a consecuencias peligrosas y un ajuste de cuentas moral."},
+  "cora-o-partido":{en:"A deeply emotional drama about love, loss, and the long road to healing after a devastating breakup, told through parallel timelines of a relationship's beginning and end.",es:"Un drama profundamente emotivo sobre el amor, la pérdida y el largo camino hacia la curación tras una ruptura devastadora, contado a través de líneas temporales paralelas del inicio y final de una relación."},
+  "guas-mortais":{en:"A survival thriller set in the open ocean, where a group of strangers must fight the elements — and each other — after their yacht capsizes in shark-infested waters.",es:"Un thriller de supervivencia en mar abierto, donde un grupo de extraños debe luchar contra los elementos — y entre ellos — después de que su yate naufraga en aguas infestadas de tiburones."},
+  "citizen-vigilante":{en:"An ordinary citizen takes justice into his own hands when the system fails, becoming an unlikely vigilante in a city drowning in corruption and crime.",es:"Un ciudadano común toma la justicia en sus propias manos cuando el sistema falla, convirtiéndose en un justiciero improbable en una ciudad ahogada por la corrupción y el crimen."},
+  "maldi-o-da-m-mia":{en:"An archaeological expedition awakens an ancient curse buried for millennia, unleashing a supernatural force that threatens to consume everyone in its path.",es:"Una expedición arqueológica despierta una maldición milenaria enterrada, desatando una fuerza sobrenatural que amenaza con consumir a todos a su paso."},
+  "forgive-us-all":{en:"A powerful drama about redemption, faith, and the human capacity for forgiveness, following a priest who must confront his own past sins while helping a community heal.",es:"Un drama poderoso sobre la redención, la fe y la capacidad humana de perdonar, siguiendo a un sacerdote que debe confrontar sus propios pecados pasados mientras ayuda a una comunidad a sanar."},
+  "il-frullo-del-passero":{en:"An Italian drama of quiet beauty, following an elderly man's daily routine and the small, profound moments that give life its meaning in a changing world.",es:"Un drama italiano de una belleza tranquila, siguiendo la rutina diaria de un anciano y los pequeños y profundos momentos que dan sentido a la vida en un mundo cambiante."},
+  "au-bonheur-des-dames":{en:"A sweeping period drama set in a Parisian department store, where ambition, love and commerce collide as a young woman rises through the ranks of retail society.",es:"Un drama de época ambientado en unos grandes almacenes parisinos, donde la ambición, el amor y el comercio colisionan mientras una joven asciende en la sociedad del comercio."},
+  "une-flamme-dans-mon-c-ur":{en:"An intimate French romance about a passionate but forbidden love affair between two people from different worlds, set against the backdrop of 1980s Paris.",es:"Un romance francés íntimo sobre un amor apasionado pero prohibido entre dos personas de mundos diferentes, ambientado en el París de los años 80."},
+
   "1984":{en:"In a totalitarian surveillance state, Winston Smith struggles to maintain his humanity and forbidden love under the watchful eye of Big Brother.",es:"En un estado totalitario de vigilancia, Winston Smith lucha por mantener su humanidad y un amor prohibido bajo la mirada vigilante del Gran Hermano."},
   "jujutsu-kaisen":{en:"A high school student swallows a cursed finger and becomes entangled in the world of sorcerers and curses, training to protect the innocent from supernatural threats.",es:"Un estudiante traga un dedo maldito y se ve envuelto en el mundo de los hechiceros y las maldiciones, entrenando para proteger a los inocentes de amenazas sobrenaturales."},
   "hunter-x-hunter":{en:"A young boy sets out to become a Hunter and find his missing father, making friends and facing deadly challenges in a world of extraordinary adventures.",es:"Un joven emprende el camino para convertirse en Cazador y encontrar a su padre desaparecido, haciendo amigos y enfrentando desafíos mortales en un mundo de aventuras extraordinarias."},
@@ -141,6 +156,21 @@ function main() {
 };
 
 const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "o-mentalista":{en:"The Mentalist",es:"El Mentalista"},
+  "lei-ordem":{en:"Law & Order",es:"La Ley y el Orden"},
+  "o-novato":{en:"The Rookie",es:"El Novato"},
+  "a-morte-de-robin-hood":{en:"The Death of Robin Hood",es:"La Muerte de Robin Hood"},
+  "o-cobrador-de-d-vidas":{en:"The Life Collector",es:"El Cobrador de Vidas"},
+  "o-limite-do-prazer":{en:"The Limits of Pleasure",es:"Los Limites del Placer"},
+  "cora-o-partido":{en:"Broken Heart",es:"Corazon Partido"},
+  "guas-mortais":{en:"Deadly Waters",es:"Aguas Mortales"},
+  "citizen-vigilante":{en:"Citizen Vigilante",es:"Ciudadano Vigilante"},
+  "maldi-o-da-m-mia":{en:"Curse of the Mummy",es:"La Maldicion de la Momia"},
+  "forgive-us-all":{en:"Forgive Us All",es:"Perdonanos a Todos"},
+  "il-frullo-del-passero":{en:"The Sparrow's Flutter",es:"El Aleteo del Gorrion"},
+  "au-bonheur-des-dames":{en:"The Ladies' Paradise",es:"El Paraiso de las Damas"},
+  "une-flamme-dans-mon-c-ur":{en:"A Flame in My Heart",es:"Una Llama en Mi Corazon"},
+
   "549":{en:"The Matrix",es:"Matrix"},
   "1984":{en:"1984",es:"1984"},
   "5920":{en:"Gladiator",es:"Gladiador"},
