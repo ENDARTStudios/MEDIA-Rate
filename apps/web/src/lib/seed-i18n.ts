@@ -102,8 +102,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
-      "en": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem",
-      "es": "Acompanhe a saga de Odisseu, o lendário rei de Ítaca, em sua longa e perigosa jornada de retorno ao lar após a Guerra de Troia. O relato narra seus confrontos com seres míticos, como o ciclope Polifem"
+      "en": "Follow the saga of Odysseus, the legendary king of Ithaca, on his long and perilous journey home after the Trojan War, facing mythical creatures and divine challenges.",
+      "es": "Acompaña la saga de Odiseo, el legendario rey de Ítaca, en su largo y peligroso viaje de regreso tras la Guerra de Troya, enfrentando criaturas míticas y desafíos divinos."
     }
   },
   "dia-d": {
@@ -117,8 +117,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
-      "en": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao ",
-      "es": "A existência de vida extraterrestre torna-se uma realidade inegável para todos os habitantes da Terra em um único instante. O mundo entra em colapso quando uma meteorologista, em plena transmissão ao "
+      "en": "The epic retelling of the Allied invasion of Normandy on June 6, 1944 — D-Day — the largest amphibious military operation in history that turned the tide of World War II.",
+      "es": "La épica recreación de la invasión aliada de Normandía el 6 de junio de 1944 — el Día D — la mayor operación militar anfibia de la historia que cambió el rumbo de la Segunda Guerra Mundial."
     }
   },
   "moana": {
@@ -282,8 +282,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
-      "en": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud",
-      "es": "O maligno Império caiu e os senhores da guerra Imperiais ainda estão espalhados pela galáxia. Enquanto a jovem Nova República luta para proteger tudo pelo que a Rebelião batalhou, ela conta com a ajud"
+      "en": "The Mandalorian and Grogu embark on a new adventure across the galaxy, facing Imperial remnants, bounty hunters, and the deepening bond between warrior and foundling.",
+      "es": "El Mandaloriano y Grogu emprenden una nueva aventura a través de la galaxia, enfrentando remanentes imperiales, cazarrecompensas y el vínculo cada vez más profundo entre guerrero y expósito."
     }
   },
   "homem-aranha-um-novo-dia": {
@@ -297,8 +297,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
-      "en": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se",
-      "es": "É um novo dia para Peter Parker. Combatendo o crime em tempo integral como Homem-Aranha em um mundo que não se lembra mais dele e lidando com a pressão de ver seus antigos amigos seguirem em frente se"
+      "en": "A new chapter for Spider-Man begins as Peter Parker navigates life after the multiversal chaos, facing fresh threats and rediscovering what it truly means to be a hero.",
+      "es": "Un nuevo capítulo para Spider-Man comienza mientras Peter Parker navega la vida tras el caos multiversal, enfrentando nuevas amenazas y redescubriendo lo que realmente significa ser un héroe."
     }
   },
   "devoradores-de-estrelas": {
@@ -522,8 +522,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
-      "en": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li",
-      "es": "Após a devastadora guerra contra a RDA e a perda de seu filho mais velho, Jake Sully e Neytiri enfrentam uma nova ameaça em Pandora: o Povo das Cinzas, uma tribo Na'vi violenta e sedenta por poder, li"
+      "en": "The next chapter in the Avatar saga takes Jake Sully and Neytiri to a volcanic region of Pandora, where they encounter a new clan and face an unprecedented natural threat.",
+      "es": "El siguiente capítulo de la saga Avatar lleva a Jake Sully y Neytiri a una región volcánica de Pandora, donde encuentran un nuevo clan y enfrentan una amenaza natural sin precedentes."
     }
   },
   "une-flamme-dans-mon-c-ur": {
@@ -552,8 +552,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
-      "en": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador.",
-      "es": "Depois de salvar o Reino dos Cogumelos, Mario e seus amigos se encontram em uma missão intergaláctica para deter um novo vilão ameaçador."
+      "en": "Mario blasts off into space to rescue Princess Peach from Bowser's cosmic clutches, journeying across fantastical galaxies in his biggest adventure yet.",
+      "es": "Mario despega al espacio para rescatar a la Princesa Peach de las garras cósmicas de Bowser, viajando a través de galaxias fantásticas en su mayor aventura hasta ahora."
     }
   },
   "vingadores-doutor-destino": {
@@ -567,8 +567,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
-      "en": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes.",
-      "es": "Heróis icônicos de três universos diferentes são colocados em rota de colisão mortal e enfrentam uma ameaça existencial sem precedentes, diferente de tudo que já vivenciaram antes."
+      "en": "The Avengers face their greatest challenge yet as Doctor Doom emerges as a multiversal threat, forcing Earth's mightiest heroes to unite like never before.",
+      "es": "Los Vengadores enfrentan su mayor desafío cuando el Doctor Doom emerge como una amenaza multiversal, obligando a los héroes más poderosos de la Tierra a unirse como nunca antes."
     }
   },
   "citizen-vigilante": {
@@ -597,8 +597,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
-      "en": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man",
-      "es": "Em 1946, Andy Dufresne, um banqueiro jovem e bem sucedido, tem a sua vida radicalmente modificada ao ser condenado por um crime que nunca cometeu, o homicídio de sua esposa e do amante dela. Ele é man"
+      "en": "A banker wrongly convicted of murder forms an unlikely friendship with a fellow inmate and finds a way to survive — and hope — inside Shawshank prison over the course of two decades.",
+      "es": "Un banquero injustamente condenado por asesinato forma una amistad improbable con otro recluso y encuentra la manera de sobrevivir — y tener esperanza — dentro de la prisión de Shawshank a lo largo de dos décadas."
     }
   },
   "maldi-o-da-m-mia": {
@@ -642,8 +642,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
-      "en": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem",
-      "es": "Enquanto os membros dos caçadores e os Hashira participavam de um rigoroso programa de fortalecimento coletivo, conhecido como Treinamento dos Hashira, em preparação para a batalha final contra os dem"
+      "en": "Tanjiro and the Demon Slayer Corps enter the Infinite Castle for their final battle against Muzan Kibutsuji, the progenitor of all demons.",
+      "es": "Tanjiro y el Cuerpo de Cazadores de Demonios entran al Castillo Infinito para su batalla final contra Muzan Kibutsuji, el progenitor de todos los demonios."
     }
   },
   "homem-aranha-sem-volta-para-casa": {
@@ -657,8 +657,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
-      "en": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e ",
-      "es": "Peter Parker é desmascarado e não consegue mais separar sua vida normal dos grandes riscos de ser um super-herói. Quando ele pede ajuda ao Doutor Estranho, os riscos se tornam ainda mais perigosos, e "
+      "en": "Peter Parker's identity as Spider-Man is exposed, forcing him to seek help from Doctor Strange — but a spell gone wrong pulls villains from across the multiverse into his world.",
+      "es": "La identidad de Peter Parker como Spider-Man queda expuesta, obligándolo a buscar ayuda del Doctor Strange — pero un hechizo fallido atrae villanos de todo el multiverso a su mundo."
     }
   },
   "siping": {
@@ -702,8 +702,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
-      "en": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci",
-      "es": "As reservas naturais da Terra estão chegando ao fim e um grupo de astronautas recebe a missão de verificar possíveis planetas para receberem a população mundial, possibilitando a continuação da espéci"
+      "en": "In a near future where Earth is becoming uninhabitable, a former NASA pilot travels through a wormhole near Saturn in search of a new home for humanity.",
+      "es": "En un futuro cercano donde la Tierra se vuelve inhabitable, un ex piloto de la NASA viaja a través de un agujero de gusano cerca de Saturno en busca de un nuevo hogar para la humanidad."
     }
   },
   "black-box": {
@@ -807,8 +807,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye",
-      "en": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye",
-      "es": "200 anos antes dos eventos de \"Game of Thrones\", os Targaryen estavam no ápice de seu poder, tendo inúmeros dragões sob seu comando, mas nem tudo dura para sempre. O início do fim da dinastia Targarye"
+      "en": "Set 200 years before the events of Game of Thrones, this series tells the story of House Targaryen and the civil war — known as the Dance of the Dragons — that tore the dynasty apart.",
+      "es": "Ambientada 200 años antes de los eventos de Game of Thrones, esta serie cuenta la historia de la Casa Targaryen y la guerra civil — conocida como la Danza de los Dragones — que desgarró la dinastía."
     }
   },
   "lei-ordem-unidade-de-v-timas-especiais": {
@@ -942,8 +942,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
-      "en": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho.",
-      "es": "Os irmãos Dean e Sam vasculham o país em busca de atividades paranormais, brigando com demônios, fantasmas e monstros no caminho."
+      "en": "Two brothers follow their father's footsteps as hunters, fighting evil supernatural beings of many kinds — including monsters, demons, and gods — that roam the earth.",
+      "es": "Dos hermanos siguen los pasos de su padre como cazadores, luchando contra seres sobrenaturales malignos de muchos tipos — incluyendo monstruos, demonios y dioses — que vagan por la tierra."
     }
   },
   "origem": {
@@ -972,8 +972,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
-      "en": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... ",
-      "es": "Os médicos do Grey Sloan Memorial Hospital lidam diariamente com casos e consequências de vida ou morte. É um no outro que eles encontram apoio, conforto, amizade e, às vezes, até mais que amizade... "
+      "en": "A drama centered on the personal and professional lives of surgical interns and their supervisors at a Seattle hospital, navigating medicine, relationships, and ambition.",
+      "es": "Un drama centrado en las vidas personales y profesionales de los internos quirúrgicos y sus supervisores en un hospital de Seattle, navegando la medicina, las relaciones y la ambición."
     }
   },
   "rick-e-morty": {
@@ -987,8 +987,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
-      "en": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas.",
-      "es": "O brilhante cientista beberrão Rick sequestra Morty, seu neto aborrescente, para viver loucuras em outros mundos e dimensões alternativas."
+      "en": "A sociopathic genius scientist drags his inherently timid grandson on insanely dangerous adventures across the multiverse, dealing with family chaos and cosmic horrors.",
+      "es": "Un científico genio sociópata arrastra a su nieto inherentemente tímido a aventuras increíblemente peligrosas a través del multiverso, lidiando con el caos familiar y horrores cósmicos."
     }
   },
   "kaatelal-sons": {
@@ -1096,8 +1096,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
     ],
     "synopsis": {
       "pt": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas.",
-      "en": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas.",
-      "es": "Após derrotar o Rei Demônio, a elfa Frieren embarca em uma jornada para entender o significado da vida e das conexões humanas."
+      "en": "Elf mage Frieren continues her journey to understand humanity decades after her adventuring party defeated the Demon King, accompanied by her late comrades' apprentice.",
+      "es": "La maga elfa Frieren continúa su viaje para comprender a la humanidad décadas después de que su grupo de aventureros derrotara al Rey Demonio, acompañada por la aprendiz de sus difuntos camaradas."
     }
   },
   "hunter-x-hunter": {
