@@ -37,3 +37,12 @@ const PT_TO_SLUG: Record<string, string> = {
 export function genreSlug(label: string): string {
   return PT_TO_SLUG[label] || label.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
+
+export function titleForLocale(media: { title: string; titleLocalized?: import("./types").LocalizedString }, locale: string): string {
+  if (media.titleLocalized) {
+    const key = locale as keyof import("./types").LocalizedString;
+    if (key in media.titleLocalized && media.titleLocalized[key]) return media.titleLocalized[key];
+    return media.titleLocalized.pt || media.title;
+  }
+  return media.title;
+}

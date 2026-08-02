@@ -35,9 +35,11 @@ export interface Media {
   id: string;
   slug: string;
   title: string;
+  titleLocalized?: LocalizedString;
   type: MediaType;
   year: number;
   genres: string[];
+  genreSlugs?: string[];
   duration?: string;
   synopsis: string;
   posterUrl: string | null;
