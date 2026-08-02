@@ -613,7 +613,13 @@
     "simulacao": "Simulação",
     "corrida": "Corrida",
     "luta": "Luta",
-    "esports": "Esportes"
+    "esports": "Esportes",
+    "mythology": "Mitologia",
+    "dark": "Dark",
+    "mito": "Mito",
+    "western": "Faroeste",
+    "literatura": "Literatura",
+    "strategy": "Estratégia"
   },
   "scoreContext": {
     "high": "Alta confiança",
