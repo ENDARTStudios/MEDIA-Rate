@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { PESOS_POR_TIPO_V2, type ClassificacaoFonte, obterFonte } from "./source-registry.js";
 
 /**
  * Pesos das fontes por tipo de mídia (DECIDE-01).
@@ -37,6 +38,33 @@ export interface MediaScoreResult {
   detalhes: {
     fonte: string;
     rating_original: number;
+    z_score: number;
+    peso: number;
+    contribuicao: number;
+  }[];
+}
+
+/**
+ * Resultado do MEDIA Score v2 (classificação Crítica vs Público).
+ *
+ * - `score` = consolidado: 0.5×Crítica + 0.5×Público quando ambos existem;
+ *   senão o bucket disponível; neutro 50 quando nenhum.
+ * - `consenso` = gap |Crítica − Público| em escala 0–100 (informativo,
+ *   NUNCA realimenta o score).
+ */
+export interface MediaScoreV2Result {
+  score: number;
+  criticosScore: number | null;
+  publicoScore: number | null;
+  consenso: number | null;
+  num_fontes: number;
+  confianca: number;
+  pesos_usados: Record<string, number>;
+  detalhes: {
+    fonte: string;
+    classificacao: ClassificacaoFonte;
+    rating_original: number;
+    rating_100: number;
     z_score: number;
     peso: number;
     contribuicao: number;
@@ -124,6 +152,115 @@ export class MediaScoreService {
       pesos_usados: pesos,
       detalhes,
     };
+  }
+
+  /**
+   * MEDIA Score v2 — classificação Crítica vs Público (fix CRIT-02).
+   *
+   * Cada fonte é classificada pelo registro (`source-registry.ts`):
+   *   - Metacritic Metascore / Rotten Tomatoes / IGDB aggregated_rating /
+   *     OpenCritic / ComicBookRoundup / RogerEbert  → CRÍTICA
+   *   - TMDB / OMDb / IMDb / TVMaze / Trakt / RAWG / Steam / Letterboxd /
+   *     livros e mangás → PÚBLICO
+   *
+   * Normalização: `rating_100 = rating × fator100` (fórmulas lineares da
+   * especificação). O z-score é invariante a escala (meio e desvio escalam
+   * junto), então os buckets usam a mecânica z-score da v1.
+   *
+   * Fontes desconhecidas (fora do registro) ou sem peso para o tipo são
+   * ignoradas — mesma semântica da v1.
+   */
+  calcularScoreV2(tipo: string, avaliacoes: FonteAvaliacao[]): MediaScoreV2Result {
+    const pesos = PESOS_POR_TIPO_V2[tipo] ?? {
+      critica: {} as Record<string, number>,
+      publico: {} as Record<string, number>,
+    };
+    const buckets: Record<ClassificacaoFonte, MediaScoreV2Result["detalhes"]> = {
+      critica: [],
+      publico: [],
+    };
+    const pesosUsados: Record<string, number> = {};
+
+    for (const av of avaliacoes) {
+      const meta = obterFonte(av.fonte);
+      if (!meta) {
+        this.logger.warn(`Fonte fora do registro ignorada: ${av.fonte}`);
+        continue;
+      }
+      const peso = pesos[meta.classificacao][meta.id];
+      if (!peso || peso <= 0) continue;
+      const bucket = buckets[meta.classificacao];
+      if (!bucket) continue;
+      const fator = meta.fator100;
+      const rating100 = Math.max(0, Math.min(100, av.rating * fator));
+      const media100 = av.media_fonte * fator;
+      const desvio100 = (av.desvio_fonte > 0 ? av.desvio_fonte : 1) * fator;
+      const z = (rating100 - media100) / desvio100;
+      pesosUsados[meta.id] = peso;
+      bucket.push({
+        fonte: meta.id,
+        classificacao: meta.classificacao,
+        rating_original: av.rating,
+        rating_100: Math.round(rating100 * 10) / 10,
+        z_score: z,
+        peso,
+        contribuicao: z * peso,
+      });
+    }
+
+    const criticosScore = this.scoreDoBucket(buckets.critica);
+    const publicoScore = this.scoreDoBucket(buckets.publico);
+
+    const numFontes = buckets.critica.length + buckets.publico.length;
+    if (numFontes === 0) {
+      return {
+        score: 50,
+        criticosScore: null,
+        publicoScore: null,
+        consenso: null,
+        num_fontes: 0,
+        confianca: 0,
+        pesos_usados: pesosUsados,
+        detalhes: [],
+      };
+    }
+
+    let score: number;
+    if (criticosScore != null && publicoScore != null) {
+      score = Math.round((0.5 * criticosScore + 0.5 * publicoScore) * 10) / 10;
+    } else {
+      score = criticosScore ?? publicoScore ?? 50;
+    }
+
+    const consenso =
+      criticosScore != null && publicoScore != null
+        ? Math.round(Math.abs(criticosScore - publicoScore) * 10) / 10
+        : null;
+
+    const detalhes = [...buckets.critica, ...buckets.publico];
+    const confianca = this.calcularConfianca(numFontes, detalhes);
+
+    return {
+      score,
+      criticosScore,
+      publicoScore,
+      consenso,
+      num_fontes: numFontes,
+      confianca,
+      pesos_usados: pesosUsados,
+      detalhes,
+    };
+  }
+
+  /** Média ponderada de z-scores do bucket → score 0–100 (1 casa decimal). */
+  private scoreDoBucket(bucket: MediaScoreV2Result["detalhes"]): number | null {
+    if (bucket.length === 0) return null;
+    const somaPonderada = bucket.reduce((acc, d) => acc + d.contribuicao, 0);
+    const somaPesos = bucket.reduce((acc, d) => acc + d.peso, 0);
+    if (somaPesos === 0) return null;
+    const zMedio = somaPonderada / somaPesos;
+    const raw = Math.max(0, Math.min(100, 50 + zMedio * 25));
+    return Math.round(raw * 10) / 10;
   }
 
   /**

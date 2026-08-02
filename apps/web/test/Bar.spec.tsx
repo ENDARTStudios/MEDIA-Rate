@@ -1,41 +1,60 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { Bar } from "@/components/Bar";
 
+const messages = {
+  catalog: {
+    criticsBar: "Crítica",
+    audienceBar: "Público",
+    consensusLabel: "Consenso",
+    highConsensus: "Alto consenso",
+    lowConsensus: "Divergência crítica/público",
+    noRatingsYet: "Ainda sem avaliações suficientes",
+  },
+};
+
+function renderWithProviders(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="pt-BR" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 describe("Bar", () => {
-  it("modo uma barra (só audiência) quando criticsScore null", () => {
-    const { container } = render(<Bar criticsScore={null} audienceScore={75} />);
-    expect(container.querySelector("[data-testid=bar-single]")).toBeTruthy();
-    expect(container.textContent).toContain("Audiência");
-    expect(container.textContent).toContain("75");
-    expect(container.textContent).not.toContain("Críticos");
+  it("modo dual: barras Crítica e Público com escala 0–100 (CRIT-02)", () => {
+    const { container } = renderWithProviders(<Bar criticsScore={89} audienceScore={81.5} />);
+    expect(container.querySelector("[data-testid=bar-dual]")).toBeTruthy();
+    expect(container.textContent).toContain("Crítica");
+    expect(container.textContent).toContain("Público");
+    expect(container.textContent).toContain("89");
+    expect(container.textContent).toContain("81.5");
+    const bars = container.querySelectorAll(".h-2 > div");
+    expect(bars[0]).toHaveStyle({ width: "89%" });
+    expect(bars[1]).toHaveStyle({ width: "82%" });
   });
 
-  it("modo dual com críticos + audiência", () => {
-    const { container } = render(<Bar criticsScore={82} audienceScore={75} />);
+  it("só audiência quando criticsScore null", () => {
+    const { container } = renderWithProviders(<Bar criticsScore={null} audienceScore={75} />);
     expect(container.querySelector("[data-testid=bar-dual]")).toBeTruthy();
-    expect(container.textContent).toContain("Críticos");
-    expect(container.textContent).toContain("Audiência");
+    expect(container.textContent).not.toContain("Crítica");
+    expect(container.textContent).toContain("Público");
   });
 
   it("mensagem insuficiente quando ambos null", () => {
-    const { container } = render(<Bar criticsScore={null} audienceScore={null} />);
+    const { container } = renderWithProviders(<Bar criticsScore={null} audienceScore={null} />);
     expect(container.textContent).toContain("Ainda sem avaliações");
   });
 
-  it("borda tracejada quando consensus < 3 e criticsScore não null", () => {
-    const { container } = render(<Bar criticsScore={82} audienceScore={45} consensus={2} />);
-    expect(container.querySelector(".border-dashed")).toBeTruthy();
-    expect(container.textContent).toContain("divergência");
+  it("consenso alto quando gap ≤ 10 pontos (escala 0–100)", () => {
+    const { container } = renderWithProviders(<Bar criticsScore={89} audienceScore={81.5} />);
+    expect(container.textContent).toContain("Alto consenso");
   });
 
-  it("NUNCA borda tracejada quando criticsScore null (filme/série)", () => {
-    const { container } = render(<Bar criticsScore={null} audienceScore={75} consensus={2} />);
-    expect(container.querySelector(".border-dashed")).toBeFalsy();
-  });
-
-  it("sem divergência quando consensus >= 3", () => {
-    const { container } = render(<Bar criticsScore={82} audienceScore={80} consensus={4} />);
-    expect(container.querySelector(".border-dashed")).toBeFalsy();
+  it("divergência quando gap > 10 pontos", () => {
+    const { container } = renderWithProviders(<Bar criticsScore={90} audienceScore={50} />);
+    expect(container.textContent).toContain("Divergência crítica/público");
+    expect(container.textContent).toContain("40.0pts");
   });
 });

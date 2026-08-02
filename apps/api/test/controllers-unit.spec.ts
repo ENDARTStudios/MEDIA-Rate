@@ -51,7 +51,10 @@ const MOCK_USER = { id: "u1", email: "user@example.com", nome: "User", sessao_id
 describe("MediaController (unit T8.1)", () => {
   let controller: MediaController;
   let mockPrisma: ReturnType<typeof createMockPrisma>;
-  let mockScoreService: { calcularScore: ReturnType<typeof vi.fn> };
+  let mockScoreService: {
+    calcularScore: ReturnType<typeof vi.fn>;
+    calcularScoreV2?: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     mockPrisma = createMockPrisma();
@@ -115,8 +118,11 @@ describe("MediaController (unit T8.1)", () => {
   });
 
   it("getMediaScore() returns calculated score when no persisted", async () => {
-    mockScoreService.calcularScore.mockReturnValue({
+    mockScoreService.calcularScoreV2 = vi.fn().mockReturnValue({
       score: 50,
+      criticosScore: null,
+      publicoScore: null,
+      consenso: null,
       num_fontes: 0,
       confianca: 0,
       pesos_usados: {},
@@ -125,6 +131,7 @@ describe("MediaController (unit T8.1)", () => {
     mockPrisma.midia.findUnique.mockResolvedValue({ id: "1", tipo: "FILME", scores: [] });
     const result = await controller.getMediaScore("1");
     expect(result.score).toBe(50);
+    expect(result.criticosScore).toBeNull();
   });
 });
 

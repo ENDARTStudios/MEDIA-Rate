@@ -91,6 +91,7 @@ export class AuthGuard implements CanActivate {
       url.startsWith("/api/v1/auth/reset-password") ||
       url.startsWith("/api/v1/echo") || // T1.4 rota de exemplo, não exige auth
       url.startsWith("/api/v1/_force-error") || // T1.6 rota de debug (dev apenas)
+      url.startsWith("/api/v1/_debug/coletar") || // auditoria de fontes (gate ENABLE_DEBUG_ROUTES, dev)
       url.startsWith("/api/v1/webhooks/") || // webhooks usam assinatura própria
       url.startsWith("/api/docs") || // Swagger UI (T4.2)
       url.startsWith("/api/docs-json") // Swagger JSON (T4.2)

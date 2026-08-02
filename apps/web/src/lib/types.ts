@@ -2,7 +2,38 @@ export type MediaType = "movie" | "series" | "game" | "book" | "anime" | "comic"
 
 export type Confidence = "high" | "medium" | "low";
 
-export type SourceName = "imdb" | "rottentomatoes" | "tmdb" | "igdb" | "rawg" | "openlibrary";
+export type SourceName =
+  | "imdb"
+  | "imdb_dataset"
+  | "omdb"
+  | "rottentomatoes"
+  | "rottentomatoes_audience"
+  | "metacritic"
+  | "metacritic_user"
+  | "tmdb"
+  | "tvmaze"
+  | "trakt"
+  | "letterboxd"
+  | "rogerebert"
+  | "igdb"
+  | "igdb_publico"
+  | "rawg"
+  | "steam"
+  | "steamspy"
+  | "opencritic"
+  | "openlibrary"
+  | "googlebooks"
+  | "goodreads"
+  | "librarything"
+  | "skoob"
+  | "amazon"
+  | "comicvine"
+  | "comicbookroundup"
+  | "jikan"
+  | "anilist"
+  | "kitsu"
+  | "mangadex"
+  | "animeplanet";
 
 export interface LocalizedString {
   pt: string;

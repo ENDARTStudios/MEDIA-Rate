@@ -6,15 +6,20 @@ interface BarProps {
   criticsScore: number | null | undefined;
   audienceScore: number | null;
   consensus?: number | null;
+  /** Escala de exibição (0–100 por padrão — CRIT-02). */
   maxScore?: number;
 }
 
-export function Bar({ criticsScore, audienceScore, consensus, maxScore = 10 }: BarProps) {
+export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
   const t = useTranslations("catalog");
   const hasCritics = criticsScore != null;
   const hasAudience = audienceScore != null;
-  const gap = hasCritics && hasAudience ? Math.abs(criticsScore! - audienceScore!) : null;
-  const highConsensus = gap !== null && gap <= 1.5;
+  const gap =
+    hasCritics && hasAudience
+      ? Math.abs((criticsScore as number) - (audienceScore as number))
+      : null;
+  // Consenso alto: gap ≤ 10 pontos em escala 0–100.
+  const highConsensus = gap !== null && gap <= 10;
 
   if (!hasCritics && !hasAudience) {
     return <p className="text-sm text-[#6B7280]">{t("noRatingsYet")}</p>;
@@ -31,7 +36,7 @@ export function Bar({ criticsScore, audienceScore, consensus, maxScore = 10 }: B
           <div className="h-2 rounded-full bg-[#1C1C2E] overflow-hidden">
             <div
               className="h-full rounded-full bg-[#38BDF8]"
-              style={{ width: `${Math.round((criticsScore! / maxScore) * 100)}%` }}
+              style={{ width: `${Math.round(((criticsScore as number) / maxScore) * 100)}%` }}
             />
           </div>
         </div>
@@ -45,7 +50,7 @@ export function Bar({ criticsScore, audienceScore, consensus, maxScore = 10 }: B
           <div className="h-2 rounded-full bg-[#1C1C2E] overflow-hidden">
             <div
               className="h-full rounded-full bg-[#F59E0B]"
-              style={{ width: `${Math.round((audienceScore! / maxScore) * 100)}%` }}
+              style={{ width: `${Math.round((audienceScore / maxScore) * 100)}%` }}
             />
           </div>
         </div>

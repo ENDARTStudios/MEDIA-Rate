@@ -7,6 +7,7 @@ import { scoreColor } from "@/lib/design-tokens";
 import { Bar } from "./Bar";
 
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import { derivarScores } from "@/lib/media-score-engine";
 
 interface MediaScoreModuleProps {
   score: MediaScoreType | null;
@@ -49,6 +50,14 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
     audienceScore,
     consensus,
   } = score;
+
+  // CRIT-02: deriva Crítica/Público dos sources crus quando o payload não
+  // traz os buckets prontos (mock antigo / futura API sem persistência).
+  const derivado = derivarScores(sources, mediaType);
+  const criticos = criticsScore ?? derivado.criticosScore;
+  const publico = audienceScore ?? derivado.publicoScore;
+  const consenso = consensus ?? derivado.consenso;
+
   const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
   const radius = 52;
   const circ = 2 * Math.PI * radius;
@@ -155,11 +164,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
       </div>
 
       <div className="pt-3 border-t border-[#1C1C2E]">
-        <Bar
-          criticsScore={criticsScore}
-          audienceScore={audienceScore ?? consolidated}
-          consensus={consensus}
-        />
+        <Bar criticsScore={criticos} audienceScore={publico} consensus={consenso} />
       </div>
 
       <div className="space-y-2 pt-3 border-t border-[#1C1C2E]">

@@ -177,4 +177,78 @@ describe("MediaScoreService (T4.7)", () => {
       expect(result.score).toBe(80.4);
     });
   });
+
+  describe("calcularScoreV2() — classificação Crítica vs Público (CRIT-02)", () => {
+    it("Zelda BotW: crítica (metacritic 97 + igdb 92) vs público (igdb 85 + rawg + steam)", () => {
+      const result = svc.calcularScoreV2("GAME", [
+        // crítica
+        { fonte: "metacritic", rating: 97, media_fonte: 70, desvio_fonte: 15 }, // z=1.8, peso 0.2
+        { fonte: "igdb", rating: 92, media_fonte: 70, desvio_fonte: 15 }, // z=1.4667, peso 0.5
+        // público
+        { fonte: "igdb_publico", rating: 85, media_fonte: 70, desvio_fonte: 15 }, // z=1.0, peso 0.25
+        { fonte: "rawg", rating: 4.5, media_fonte: 3.5, desvio_fonte: 0.6 }, // z=1.6667, peso 0.35
+        { fonte: "steam", rating: 0.9, media_fonte: 0.75, desvio_fonte: 0.2 }, // z=0.75, peso 0.15
+      ]);
+      // crítica: zMedio = (1.8*0.2 + 1.4667*0.5)/0.7 = 1.5619 → 50+1.5619*25 = 89.0
+      expect(result.criticosScore).toBe(89);
+      // público: zMedio = (1.0*0.25 + 1.6667*0.35 + 0.75*0.15)/0.75 = 1.2611 → 50+1.2611*25 = 81.5
+      expect(result.publicoScore).toBe(81.5);
+      expect(result.consenso).toBe(7.5); // |89.0 - 81.5|
+      expect(result.score).toBe(85.3); // 0.5*89 + 0.5*81.5
+      expect(result.num_fontes).toBe(5);
+      expect(result.confianca).toBe(0.9);
+    });
+
+    it("só crítica: publicoScore null e score = crítica; consenso null", () => {
+      const result = svc.calcularScoreV2("FILME", [
+        { fonte: "metacritic", rating: 90, media_fonte: 70, desvio_fonte: 15 }, // z=1.3333
+        { fonte: "rottentomatoes", rating: 80, media_fonte: 70, desvio_fonte: 15 }, // z=0.6667
+      ]);
+      // zMedio = (1.3333*0.6 + 0.6667*0.4)/1.0 = 1.0667 → 50+26.67 = 76.7
+      expect(result.criticosScore).toBe(76.7);
+      expect(result.publicoScore).toBeNull();
+      expect(result.consenso).toBeNull();
+      expect(result.score).toBe(76.7);
+    });
+
+    it("normaliza rating para 0–100 (fator da escala)", () => {
+      const result = svc.calcularScoreV2("FILME", [
+        { fonte: "tmdb", rating: 8.0, media_fonte: 7.0, desvio_fonte: 1.5 }, // 0-10 → ×10
+      ]);
+      const tmdb = result.detalhes.find((d) => d.fonte === "tmdb");
+      expect(tmdb).toBeDefined();
+      expect(tmdb!.rating_100).toBe(80);
+      expect(tmdb!.classificacao).toBe("publico");
+      expect(result.publicoScore).not.toBeNull();
+    });
+
+    it("SERIE usa tvmaze no bucket público", () => {
+      const result = svc.calcularScoreV2("SERIE", [
+        { fonte: "tmdb", rating: 8.0, media_fonte: 7.0, desvio_fonte: 1.5 }, // z=0.6667, peso 0.3
+        { fonte: "tvmaze", rating: 9.0, media_fonte: 7.0, desvio_fonte: 1.5 }, // z=1.3333, peso 0.25
+      ]);
+      const tvmaze = result.detalhes.find((d) => d.fonte === "tvmaze");
+      expect(tvmaze).toBeDefined();
+      expect(tvmaze!.classificacao).toBe("publico");
+      // zMedio = (0.6667*0.3 + 1.3333*0.25)/0.55 = 0.9697 → 74.2
+      expect(result.publicoScore).toBe(74.2);
+    });
+
+    it("fonte fora do registro é ignorada (score neutro 50)", () => {
+      const result = svc.calcularScoreV2("FILME", [
+        { fonte: "fonte_inventada", rating: 99, media_fonte: 50, desvio_fonte: 10 },
+      ]);
+      expect(result.num_fontes).toBe(0);
+      expect(result.score).toBe(50);
+      expect(result.detalhes).toEqual([]);
+      expect(result.confianca).toBe(0);
+    });
+
+    it("fonte de outro domínio sem peso para o tipo é ignorada", () => {
+      const result = svc.calcularScoreV2("LIVRO", [
+        { fonte: "igdb", rating: 90, media_fonte: 70, desvio_fonte: 15 }, // peso só em GAME
+      ]);
+      expect(result.num_fontes).toBe(0);
+    });
+  });
 });

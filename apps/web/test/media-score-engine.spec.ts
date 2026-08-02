@@ -6,8 +6,19 @@ import {
   confidenceLevel,
   aggregateAudienceScore,
   filterOutliers,
+  derivarScores,
   ALGORITHM_VERSION,
 } from "@/lib/media-score-engine";
+import type { SourceRating } from "@/lib/types";
+
+/** CRIT-02 — Zelda BotW: fontes reais da especificação (jogo). */
+const ZELDA_SOURCES: SourceRating[] = [
+  { source: "metacritic", score: 97, maxScore: 100 },
+  { source: "igdb", score: 92, maxScore: 100 },
+  { source: "igdb_publico", score: 85, maxScore: 100 },
+  { source: "rawg", score: 4.5, maxScore: 5 },
+  { source: "steam", score: 0.9, maxScore: 1 },
+];
 
 describe("Fórmula v2 — globalScore", () => {
   it("0.5×critics + 0.5×audience quando ambos existem", () => {
@@ -79,13 +90,74 @@ describe("Agregação multi-fonte §3.3b", () => {
 describe("Outlier detection §3.3", () => {
   it("exclui valores com desvio > 3.0 da mediana", () => {
     const result = filterOutliers([7, 8, 7.5, 15, 8.5], 3.0);
-    expect(result[3]!.excluded).toBe(true); // 15 é outlier
-    expect(result[0]!.excluded).toBe(false);
+    expect(result[3]?.excluded).toBe(true); // 15 é outlier
+    expect(result[0]?.excluded).toBe(false);
   });
 });
 
 describe("algorithmVersion", () => {
   it("é media-score-v2.0", () => {
     expect(ALGORITHM_VERSION).toBe("media-score-v2.0");
+  });
+});
+
+describe("derivarScores — Crítica vs Público (CRIT-02)", () => {
+  it("Zelda BotW: separa crítica (metacritic 97 + igdb 92) do público", () => {
+    const r = derivarScores(ZELDA_SOURCES, "game");
+    // crítica: z = (97-70)/15=1.8 (peso 0.2) + (92-70)/15=1.4667 (peso 0.5)
+    // zMedio = (0.36+0.7333)/0.7 = 1.5619 → 89.0
+    expect(r.criticosScore).toBe(89);
+    // público: igdb_publico z=1.0 (0.25) + rawg z=1.6667 (0.35) + steam z=0.75 (0.15)
+    // zMedio = (0.25+0.5833+0.1125)/0.75 = 1.2611 → 81.5
+    expect(r.publicoScore).toBe(81.5);
+    expect(r.consenso).toBe(7.5);
+    expect(r.detalhes).toHaveLength(5);
+    const metacritic = r.detalhes.find((d) => d.fonte === "metacritic");
+    expect(metacritic?.classificacao).toBe("critica");
+    expect(metacritic?.rating_100).toBe(97);
+    const steam = r.detalhes.find((d) => d.fonte === "steam");
+    expect(steam?.classificacao).toBe("publico");
+  });
+
+  it("só crítica quando o mock antigo não tem fontes públicas", () => {
+    const r = derivarScores(
+      [
+        { source: "metacritic", score: 90, maxScore: 100 },
+        { source: "rottentomatoes", score: 80, maxScore: 100 },
+      ],
+      "movie",
+    );
+    expect(r.criticosScore).toBe(76.7);
+    expect(r.publicoScore).toBeNull();
+    expect(r.consenso).toBeNull();
+  });
+
+  it("fontes fora do registro são ignoradas", () => {
+    const r = derivarScores(
+      [{ source: "fonte_inventada" as SourceRating["source"], score: 99, maxScore: 100 }],
+      "movie",
+    );
+    expect(r.detalhes).toEqual([]);
+    expect(r.criticosScore).toBeNull();
+    expect(r.publicoScore).toBeNull();
+  });
+
+  it("normaliza escalas diferentes para 0–100", () => {
+    const r = derivarScores([{ source: "imdb", score: 8.0, maxScore: 10 }], "movie");
+    const imdb = r.detalhes[0];
+    expect(imdb?.rating_100).toBe(80);
+    expect(imdb?.classificacao).toBe("publico");
+  });
+
+  it("anime usa pesos do bucket público (jikan/anilist)", () => {
+    const r = derivarScores(
+      [
+        { source: "jikan", score: 9.0, maxScore: 10 },
+        { source: "anilist", score: 90, maxScore: 100 },
+      ],
+      "anime",
+    );
+    expect(r.publicoScore).not.toBeNull();
+    expect(r.criticosScore).toBeNull();
   });
 });

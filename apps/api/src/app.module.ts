@@ -14,6 +14,7 @@ import { AdminModule } from "./modules/admin/admin.module.js";
 import { PremiumModule } from "./modules/premium/premium.module.js";
 import { MediaModule } from "./modules/media/media.module.js";
 import { MediaScoreModule } from "./modules/media-score/media-score.module.js";
+import { ColetaModule } from "./modules/media-score/coleta.module.js";
 import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
@@ -39,7 +40,7 @@ const enableDebugRoutes =
     PrismaModule,
     HealthModule,
     EchoModule,
-    ...(enableDebugRoutes ? [DebugModule] : []),
+    ...(enableDebugRoutes ? [DebugModule, ColetaModule] : []),
     AuthModule,
     AdminModule,
     PremiumModule,

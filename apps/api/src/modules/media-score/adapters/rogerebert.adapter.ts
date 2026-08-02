@@ -1,0 +1,38 @@
+import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
+import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
+import { fetchTexto } from "./http.utils.js";
+import { extrairAggregateRatingJsonLd } from "./scrape-numerico.util.js";
+
+/**
+ * RogerEbert.com — sem API; página do filme expõe JSON-LD
+ * aggregateRating.ratingValue (0–4 estrelas, crítica). Scraping numérico
+ * ISOLADO — gate SCRAPE_NUMERICO_ENABLED=true.
+ */
+export class RogerEbertAdapter implements FonteAdapter {
+  readonly id = "rogerebert";
+
+  atendeTipo(tipo: string): boolean {
+    return dominioDoTipo(tipo) === "filme_serie" && tipo === "FILME";
+  }
+
+  ativo(): boolean {
+    return process.env.SCRAPE_NUMERICO_ENABLED === "true";
+  }
+
+  async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
+    const slug =
+      consulta.idsExternos?.rogerebert ??
+      consulta.titulo
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    const url = `https://www.rogerebert.com/reviews/${slug}`;
+    const html = await fetchTexto(url);
+    const rating = extrairAggregateRatingJsonLd(html);
+    if (rating == null) return [];
+    const stats = estatisticas("0-4");
+    return [{ fonte: this.id, rating, media_fonte: stats.media, desvio_fonte: stats.desvio, url }];
+  }
+}

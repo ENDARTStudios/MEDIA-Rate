@@ -4,6 +4,7 @@ import type {
   Media,
   MediaSearchResult,
   PricingPlan,
+  SourceRating,
   UserProfile,
 } from "./types";
 import { SEED_MEDIA } from "./seed-data";
@@ -30,7 +31,8 @@ function game(
   conf: "high" | "medium" | "low",
   platforms: string[],
   posterUrl: string | null = null,
-): any {
+  sources: SourceRating[] | null = null,
+): Media {
   return {
     id,
     slug,
@@ -44,13 +46,13 @@ function game(
     score: {
       consolidated: scoreC,
       confidence: conf,
-      sources: [
+      sources: sources ?? [
         { source: "tmdb", score: scoreC, maxScore: 100 },
         { source: "igdb", score: Math.round(scoreC * 0.95), maxScore: 100 },
       ],
       explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica.",
     },
-    cast: [{ name: "Desenvolvedor", role: "Desenvolvimento" }],
+    cast: [{ name: "Desenvolvedor", role: "Desenvolvimento", photoUrl: null }],
     crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }],
     reviews: [],
     streaming: platforms.map((p) => ({ name: p })),
@@ -67,7 +69,7 @@ function anime(
   scoreC: number,
   poster: string | null,
   backdrop: string | null,
-): any {
+): Media {
   return {
     id,
     slug,
@@ -103,7 +105,7 @@ function book(
   synopsis: string,
   scoreC: number,
   author: string,
-): any {
+): Media {
   return {
     id,
     slug,
@@ -136,7 +138,7 @@ function comic(
   synopsis: string,
   scoreC: number,
   publisher: string,
-): any {
+): Media {
   return {
     id,
     slug,
@@ -160,7 +162,7 @@ function comic(
   };
 }
 
-const MANUAL: any[] = [
+const MANUAL: Media[] = [
   anime(
     "a1",
     "jujutsu-kaisen",
@@ -283,6 +285,14 @@ const MANUAL: any[] = [
     "high",
     ["Nintendo Switch"],
     "https://upload.wikimedia.org/wikipedia/en/c/c6/The_Legend_of_Zelda_Breath_of_the_Wild.jpg",
+    [
+      // CRIT-02: fontes reais da especificação — crítica vs público separados.
+      { source: "metacritic", score: 97, maxScore: 100 },
+      { source: "igdb", score: 92, maxScore: 100 },
+      { source: "igdb_publico", score: 85, maxScore: 100 },
+      { source: "rawg", score: 4.5, maxScore: 5 },
+      { source: "steam", score: 0.9, maxScore: 1 },
+    ],
   ),
   game(
     "g2",

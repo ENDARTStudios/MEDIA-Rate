@@ -138,6 +138,9 @@ export class MediaController {
   async getMediaScore(@Param("id") id: string): Promise<{
     midia_id: string;
     score: number;
+    criticosScore: number | null;
+    publicoScore: number | null;
+    consenso: number | null;
     num_fontes: number;
     confianca: number;
     pesos_usados: Record<string, number>;
@@ -156,6 +159,8 @@ export class MediaController {
     }
 
     // Se já existe score persistido (job diário), retorna ele.
+    // Critica/Público não são persistidos ainda — null até a tabela de
+    // avaliações por fonte existir.
     if (midia.scores.length > 0) {
       const existing = midia.scores[0];
       if (!existing) {
@@ -164,6 +169,9 @@ export class MediaController {
       return {
         midia_id: id,
         score: existing.score,
+        criticosScore: null,
+        publicoScore: null,
+        consenso: null,
         num_fontes: existing.num_fontes,
         confianca: 0.6,
         pesos_usados: existing.pesos_usados as Record<string, number>,
@@ -172,10 +180,13 @@ export class MediaController {
     }
 
     // Sem score persistido — calcula on-the-fly (placeholder: sem fontes = neutro).
-    const result = this.mediaScoreService.calcularScore(midia.tipo, []);
+    const result = this.mediaScoreService.calcularScoreV2(midia.tipo, []);
     return {
       midia_id: id,
       score: result.score,
+      criticosScore: result.criticosScore,
+      publicoScore: result.publicoScore,
+      consenso: result.consenso,
       num_fontes: result.num_fontes,
       confianca: result.confianca,
       pesos_usados: result.pesos_usados,

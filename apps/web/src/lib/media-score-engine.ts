@@ -4,7 +4,8 @@
  * consensus DESACOPLADO — puramente informativo, NUNCA realimenta globalScore
  */
 
-import type { MediaScore, SourceRating, Confidence, SourceName } from "@/lib/types";
+import type { SourceRating, Confidence, SourceName, MediaType } from "@/lib/types";
+import { FONTES_WEB, PESOS_POR_TIPO_WEB } from "@/lib/source-registry";
 
 export const ALGORITHM_VERSION = "media-score-v2.0";
 
@@ -67,16 +68,97 @@ export function aggregateAudienceScore(sources: { value: number; votes: number }
   return sumWeights > 0 ? Math.round((sumWeighted / sumWeights) * 10) / 10 : 0;
 }
 
+/** Estatísticas de referência por escala (espelho da API) — média/desvio em 0–100. */
+const ESCALA_ESTATISTICAS: Record<string, { media100: number; desvio100: number }> = {
+  "0-10": { media100: 70, desvio100: 15 },
+  "0-100": { media100: 70, desvio100: 15 },
+  "0-5": { media100: 70, desvio100: 12 },
+  "0-4": { media100: 75, desvio100: 12.5 },
+  "ratio": { media100: 75, desvio100: 20 },
+};
+
+export interface BucketsDerivados {
+  criticosScore: number | null;
+  publicoScore: number | null;
+  consenso: number | null;
+  detalhes: {
+    fonte: SourceName;
+    classificacao: "critica" | "publico";
+    rating_100: number;
+    z_score: number;
+    peso: number;
+  }[];
+}
+
+/**
+ * Deriva Crítica vs Público dos `sources` crus (fix CRIT-02).
+ *
+ * Espelho do cálculo v2 da API: normaliza `score/maxScore` → 0–100,
+ * classifica pela fonte no registro, agrega por z-score ponderado dentro
+ * de cada bucket (pesos por tipo) e consolida 0.5×crítica + 0.5×público.
+ * Fontes fora do registro ou sem peso para o tipo são ignoradas.
+ */
+export function derivarScores(sources: SourceRating[], mediaType?: string): BucketsDerivados {
+  const pesos = PESOS_POR_TIPO_WEB[(mediaType ?? "movie") as MediaType] ?? PESOS_POR_TIPO_WEB.movie;
+  const buckets: Record<"critica" | "publico", BucketsDerivados["detalhes"]> = {
+    critica: [],
+    publico: [],
+  };
+
+  for (const sr of sources) {
+    // imdb é o mesmo dado do OMDb (alinhado ao registro da API).
+    const meta = FONTES_WEB[sr.source] ?? (sr.source === "imdb" ? FONTES_WEB.omdb : undefined);
+    if (!meta) continue;
+    const peso = pesos[meta.classificacao][meta.id];
+    if (!peso || peso <= 0) continue;
+    const rating100 = (sr.score / sr.maxScore) * 100;
+    const stats = ESCALA_ESTATISTICAS[meta.escala] ?? { media100: 70, desvio100: 15 };
+    const z = (rating100 - stats.media100) / stats.desvio100;
+    buckets[meta.classificacao].push({
+      fonte: sr.source,
+      classificacao: meta.classificacao,
+      rating_100: Math.round(rating100 * 10) / 10,
+      z_score: z,
+      peso,
+    });
+  }
+
+  const criticosScore = scoreDoBucket(buckets.critica);
+  const publicoScore = scoreDoBucket(buckets.publico);
+
+  let consenso: number | null = null;
+  if (criticosScore != null && publicoScore != null) {
+    consenso = Math.round(Math.abs(criticosScore - publicoScore) * 10) / 10;
+  }
+
+  return {
+    criticosScore,
+    publicoScore,
+    consenso,
+    detalhes: [...buckets.critica, ...buckets.publico],
+  };
+}
+
+function scoreDoBucket(bucket: BucketsDerivados["detalhes"]): number | null {
+  if (bucket.length === 0) return null;
+  const somaPonderada = bucket.reduce((acc, d) => acc + d.z_score * d.peso, 0);
+  const somaPesos = bucket.reduce((acc, d) => acc + d.peso, 0);
+  if (somaPesos === 0) return null;
+  const zMedio = somaPonderada / somaPesos;
+  const raw = Math.max(0, Math.min(100, 50 + zMedio * 25));
+  return Math.round(raw * 10) / 10;
+}
+
 /** §3.3: Outlier detection — desvio > 3.0 da mediana → excluded */
 export function filterOutliers(
   values: number[],
   threshold = 3.0,
 ): { value: number; excluded: boolean }[] {
   const sorted = [...values].sort((a, b) => a - b);
-  const median =
-    sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
-      : sorted[Math.floor(sorted.length / 2)]!;
+  const mid = Math.floor(sorted.length / 2);
+  const a = sorted[mid - 1] ?? 0;
+  const b = sorted[mid] ?? 0;
+  const median = sorted.length % 2 === 0 ? (a + b) / 2 : b;
   return values.map((v) => ({ value: v, excluded: Math.abs(v - median) > threshold }));
 }
 
