@@ -94,8 +94,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "obsess-o": {
     "titleLocalized": {
       "pt": "Obsessão",
-      "en": "Obsessão",
-      "es": "Obsessão"
+      "en": "Obsession",
+      "es": "Obsesion"
     },
     "genreSlugs": [
       "drama"
@@ -124,8 +124,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "mestres-do-universo": {
     "titleLocalized": {
       "pt": "Mestres do Universo",
-      "en": "Mestres do Universo",
-      "es": "Mestres do Universo"
+      "en": "Masters of the Universe",
+      "es": "Amos del Universo"
     },
     "genreSlugs": [
       "drama"
@@ -134,8 +134,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "minions-monstros": {
     "titleLocalized": {
       "pt": "Minions & Monstros",
-      "en": "Minions & Monstros",
-      "es": "Minions & Monstros"
+      "en": "Minions Monsters",
+      "es": "Minions Monstruos"
     },
     "genreSlugs": [
       "drama"
@@ -154,8 +154,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "todo-mundo-em-p-nico": {
     "titleLocalized": {
       "pt": "Todo Mundo em Pânico",
-      "en": "Todo Mundo em Pânico",
-      "es": "Todo Mundo em Pânico"
+      "en": "Everybody in Panic",
+      "es": "Todos en Panico"
     },
     "genreSlugs": [
       "drama"
@@ -164,8 +164,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "desejo": {
     "titleLocalized": {
       "pt": "Desejo",
-      "en": "Desejo",
-      "es": "Desejo"
+      "en": "Desire",
+      "es": "Deseo"
     },
     "genreSlugs": [
       "drama"
@@ -204,8 +204,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "devoradores-de-estrelas": {
     "titleLocalized": {
       "pt": "Devoradores de Estrelas",
-      "en": "Devoradores de Estrelas",
-      "es": "Devoradores de Estrelas"
+      "en": "Star Devourers",
+      "es": "Devoradores de Estrellas"
     },
     "genreSlugs": [
       "drama"

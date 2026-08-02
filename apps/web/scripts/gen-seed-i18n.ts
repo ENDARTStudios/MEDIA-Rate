@@ -93,9 +93,26 @@ function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e
 
 function main() {
   const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "549":{en:"The Matrix",es:"Matrix"},
+  "5920":{en:"Gladiator",es:"Gladiador"},
+  "27181":{en:"Contact",es:"Contacto"},
+  "79744":{en:"Blade Runner",es:"Blade Runner"},
+  "454639":{en:"Fight Club",es:"El Club de la Lucha"},
+  "1081003":{en:"Titanic",es:"Titanic"},
+  "1084244":{en:"The Sixth Sense",es:"El Sexto Sentido"},
+  "1108427":{en:"The Odyssey",es:"La Odisea"},
+  "1275779":{en:"D-Day",es:"D-Day"},
+  "1339713":{en:"The Silence of the Lambs",es:"El Silencio de los Corderos"},
+  "minions-monstros":{en:"Minions Monsters",es:"Minions Monstruos"},
+  "borderline":{en:"Borderline",es:"Borderline"},
+  "obsess-o":{en:"Obsession",es:"Obsesion"},
+  "supergirl":{en:"Supergirl",es:"Supergirl"},
+  "mestres-do-universo":{en:"Masters of the Universe",es:"Amos del Universo"},
+  "desejo":{en:"Desire",es:"Deseo"},
+  "devoradores-de-estrelas":{en:"Star Devourers",es:"Devoradores de Estrellas"},
+  "mortal-kombat-2":{en:"Mortal Kombat 2",es:"Mortal Kombat 2"},
   "homem-aranha-um-novo-dia":{en:"Spider-Man: Brand New Day",es:"Spider-Man: Un Nuevo Dia"},
   "homem-aranha-sem-volta-para-casa":{en:"Spider-Man: No Way Home",es:"Spider-Man: No Way Home"},
-  "mortal-kombat-2":{en:"Mortal Kombat 2",es:"Mortal Kombat 2"},
   "vingadores-doutor-destino":{en:"Avengers: Doomsday",es:"Vengadores: Doomsday"},
   "super-mario-galaxy-o-filme":{en:"Super Mario Galaxy",es:"Super Mario Galaxy"},
   "avatar-fogo-e-cinzas":{en:"Avatar: Fire and Ashes",es:"Avatar: Fuego y Cenizas"},
@@ -116,7 +133,6 @@ function main() {
   "vixen":{en:"Vixen",es:"Vixen"},
   "tagesschau":{en:"Tagesschau",es:"Tagesschau"},
   "paradise-hotel":{en:"Paradise Hotel",es:"Hotel Paraiso"},
-
   "a-odisseia":{en:"The Odyssey",es:"La Odisea"},
   "dia-d":{en:"D-Day",es:"D-Day"},
   "contato":{en:"Contact",es:"Contacto"},
@@ -150,19 +166,8 @@ function main() {
   "pulp-fiction":{en:"Pulp Fiction",es:"Tiempos Violentos"},
   "star-wars":{en:"Star Wars: A New Hope",es:"Star Wars: Una Nueva Esperanza"},
   "harry-potter":{en:"Harry Potter and the Sorcerer's Stone",es:"Harry Potter y la Piedra Filosofal"},
-
-  "1084244":{en:"The Sixth Sense",es:"El Sexto Sentido"},
-  "1339713":{en:"The Silence of the Lambs",es:"El Silencio de los Corderos"},
-  
-  "1275779":{en:"D-Day",es:"D-Day"},
-  "27181":{en:"Contact",es:"Contacto"},
-  "5920":{en:"Gladiator",es:"Gladiador"},
-  "549":{en:"The Matrix",es:"Matrix"},
-  "79744":{en:"Blade Runner",es:"Blade Runner"},
-  "1108427":{en:"The Odyssey",es:"La Odisea"},
-  "1081003":{en:"Titanic",es:"Titanic"},
-  "454639":{en:"Fight Club",es:"El Club de la Lucha"},
-  "a-odisseia":{"en":"The Odyssey","es":"La Odisea"},"dia-d":{"en":"D-Day","es":"D-Day"},"contato":{"en":"Contact","es":"Contacto"},"matrix":{"en":"The Matrix","es":"Matrix"},"blade-runner":{"en":"Blade Runner","es":"Blade Runner"},"gladiador":{"en":"Gladiator","es":"Gladiador"},"jurassic-park":{"en":"Jurassic Park","es":"Parque Jurásico"},"titanic":{"en":"Titanic","es":"Titanic"},"harry-potter-e-a-pedra-filosofal":{"en":"Harry Potter and the Philosopher's Stone","es":"Harry Potter y la Piedra Filosofal"},"toy-story":{"en":"Toy Story","es":"Toy Story"},"procurando-nemo":{"en":"Finding Nemo","es":"Buscando a Nemo"},"os-incriveis":{"en":"The Incredibles","es":"Los Increíbles"},"vingadores-ultimato":{"en":"Avengers: Endgame","es":"Vengadores: Endgame"},"pantera-negra":{"en":"Black Panther","es":"Pantera Negra"},"o-exterminador-do-futuro":{"en":"The Terminator","es":"El Exterminador"},"de-volta-para-o-futuro":{"en":"Back to the Future","es":"Volver al Futuro"},"clube-da-luta":{"en":"Fight Club","es":"El Club de la Lucha"},"o-sexto-sentido":{"en":"The Sixth Sense","es":"El Sexto Sentido"},"o-silencio-dos-inocentes":{"en":"The Silence of the Lambs","es":"El Silencio de los Corderos"},"um-sonho-de-liberdade":{"en":"The Shawshank Redemption","es":"Cadena Perpetua"}};
+  "todo-mundo-em-p-nico":{en:"Everybody in Panic",es:"Todos en Panico"}
+};
   const outPath = path.resolve(__dirname,"..","src","lib","seed-i18n.ts");
   const gMap = (ptBR as any).genres as Record<string,string>;
   const all = [...(SEED_MEDIA as any[]),...(MOCK_MEDIA as any[])];
@@ -199,7 +204,7 @@ function main() {
 
   console.log("Universe(SEED+MOCK): "+all.length+" | Written: "+w+" | Total w/ id: "+total);
   console.log("Empty: "+empty+" | Orphan: "+orphan);
-  console.log("Title translated: "+translated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | NOTRANSLATION: "+pendingNoTranslation+" | KEYMISMATCH: "+pendingKeyMismatch+" | PENDING: "+pending);
+  let dedupTranslated = Object.keys(result).filter(function(k){var e=result[k];return e.titleLocalized.en!==e.titleLocalized.pt||e.titleLocalized.es!==e.titleLocalized.pt;}).length; console.log("Title translated (dedup): "+dedupTranslated+" | identical-whitelist: "+TITLE_IDENTICAL_WHITELIST.size+" | NOTRANSLATION: "+pendingNoTranslation+" | KEYMISMATCH: "+pendingKeyMismatch+" | PENDING: "+pending);
   if (pendingIds.length) console.log("PENDING ids: "+pendingIds.join(","));
   if (empty||orphan) { console.error("FAIL: asserts failed"); process.exit(1); }
 
