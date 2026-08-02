@@ -93,12 +93,12 @@ function canonicalKey(e: { id?: any; slug?: string }) { return (e.slug||String(e
 
 function main() {
   const SYNOPSIS_BY_ID: Record<string,{en:string;es:string}> = {
+  "1984":{en:"In a totalitarian surveillance state, Winston Smith struggles to maintain his humanity and forbidden love under the watchful eye of Big Brother.",es:"En un estado totalitario de vigilancia, Winston Smith lucha por mantener su humanidad y un amor prohibido bajo la mirada vigilante del Gran Hermano."},
   "237020":{en:"Stephen Colbert hosts a nightly comedy and talk show featuring celebrity interviews, political satire, and musical performances.",es:"Stephen Colbert presenta un programa nocturno de comedia y entrevistas con celebridades, sátira política y actuaciones musicales."},
   "261639":{en:"The iconic fighting tournament returns with new champions from Earthrealm and Outworld clashing in brutal kombat, where the fate of all realms hangs in the balance.",es:"El icónico torneo de lucha regresa con nuevos campeones de la Tierra y el Mundo Exterior enfrentándose en kombate brutal, donde el destino de todos los reinos pende de un hilo."},
   "1235877":{en:"Tanjiro and the Demon Slayer Corps enter the Infinity Castle for their final battle against Muzan Kibutsuji, the progenitor of all demons.",es:"Tanjiro y el Cuerpo de Cazadores de Demonios entran al Castillo Infinito para su batalla final contra Muzan Kibutsuji, el progenitor de todos los demonios."},
   "1285366":{en:"Peter Parker's identity as Spider-Man is exposed, forcing him to seek help from Doctor Strange as villains from across the multiverse invade his world.",es:"La identidad de Peter Parker como Spider-Man queda expuesta, obligándolo a buscar ayuda del Doctor Strange mientras villanos de todo el multiverso invaden su mundo."},
   "1491920":{en:"A quiet drama about a man confronting his past and the choices that shaped his life, unfolding over the course of a single day on a tree-lined boulevard.",es:"Un drama tranquilo sobre un hombre confrontando su pasado y las elecciones que moldearon su vida, desarrollándose a lo largo de un solo día en un bulevar arbolado."},
-
   "o-diabo-veste-prada-2":{en:"Miranda Priestly returns to the cutthroat world of fashion publishing, facing a new generation of digital disruption while navigating the complexities of mentorship and legacy.",es:"Miranda Priestly regresa al implacable mundo de las publicaciones de moda, enfrentando una nueva generación de disrupción digital mientras navega las complejidades del mentorazgo y el legado."},
   "descendentes-pa-s-das-maravilhas-malvado":{en:"The children of Disney's most iconic heroes and villains return for a new adventure where the boundaries between good and evil blur and a new generation must forge its own path.",es:"Los hijos de los héroes y villanos más icónicos de Disney regresan para una nueva aventura donde los límites entre el bien y el mal se difuminan y una nueva generación debe forjar su propio camino."},
   "binnelanders":{en:"A long-running South African medical drama following the personal and professional lives of the staff at the Binneland Clinic, exploring love, betrayal and healing.",es:"Un drama médico sudafricano de larga duración que sigue las vidas personales y profesionales del personal de la Clínica Binneland, explorando el amor, la traición y la sanación."},
@@ -109,7 +109,6 @@ function main() {
   "mushoku-tensei":{en:"A jobless shut-in is reincarnated into a fantasy world, determined to live his new life to the fullest, mastering magic and forming bonds in his second chance at life.",es:"Un desempleado recluso es reencarnado en un mundo de fantasía, decidido a vivir su nueva vida al máximo, dominando la magia y formando vínculos en su segunda oportunidad."},
   "detetive-conan":{en:"A brilliant high school detective is transformed into a child by a mysterious poison and continues to solve baffling cases while searching for the criminal syndicate responsible.",es:"Un brillante detective de secundaria es transformado en un niño por un veneno misterioso y continúa resolviendo casos desconcertantes mientras busca al sindicato criminal responsable."},
   "sandman":{en:"Dream, the lord of the dream realm, escapes after decades of imprisonment and sets out to rebuild his kingdom while confronting gods, demons, and his own immortal family.",es:"Sueño, el señor del reino de los sueños, escapa tras décadas de prisión y se propone reconstruir su reino mientras confronta dioses, demonios y su propia familia inmortal."},
-
   "o-mentalista":{en:"A former psychic medium uses his keen observational skills to help the California Bureau of Investigation solve complex murders while searching for the serial killer who murdered his family.",es:"Un ex médium psíquico usa sus agudas habilidades de observación para ayudar a la Oficina de Investigación de California a resolver asesinatos complejos mientras busca al asesino en serie que mató a su familia."},
   "lei-ordem":{en:"A groundbreaking police procedural and legal drama that follows NYPD detectives investigating crimes and district attorneys prosecuting the offenders, exploring the complexities of the justice system.",es:"Un drama policial y legal innovador que sigue a los detectives del NYPD investigando crímenes y a los fiscales procesando a los delincuentes, explorando las complejidades del sistema judicial."},
   "o-novato":{en:"A middle-aged man pursues his dream of becoming a police officer, joining the LAPD as its oldest rookie and proving that it is never too late to start over.",es:"Un hombre de mediana edad persigue su sueño de convertirse en oficial de policía, uniéndose al LAPD como su novato más viejo y demostrando que nunca es demasiado tarde para empezar de nuevo."},
@@ -124,8 +123,6 @@ function main() {
   "il-frullo-del-passero":{en:"An Italian drama of quiet beauty, following an elderly man's daily routine and the small, profound moments that give life its meaning in a changing world.",es:"Un drama italiano de una belleza tranquila, siguiendo la rutina diaria de un anciano y los pequeños y profundos momentos que dan sentido a la vida en un mundo cambiante."},
   "au-bonheur-des-dames":{en:"A sweeping period drama set in a Parisian department store, where ambition, love and commerce collide as a young woman rises through the ranks of retail society.",es:"Un drama de época ambientado en unos grandes almacenes parisinos, donde la ambición, el amor y el comercio colisionan mientras una joven asciende en la sociedad del comercio."},
   "une-flamme-dans-mon-c-ur":{en:"An intimate French romance about a passionate but forbidden love affair between two people from different worlds, set against the backdrop of 1980s Paris.",es:"Un romance francés íntimo sobre un amor apasionado pero prohibido entre dos personas de mundos diferentes, ambientado en el París de los años 80."},
-
-  "1984":{en:"In a totalitarian surveillance state, Winston Smith struggles to maintain his humanity and forbidden love under the watchful eye of Big Brother.",es:"En un estado totalitario de vigilancia, Winston Smith lucha por mantener su humanidad y un amor prohibido bajo la mirada vigilante del Gran Hermano."},
   "jujutsu-kaisen":{en:"A high school student swallows a cursed finger and becomes entangled in the world of sorcerers and curses, training to protect the innocent from supernatural threats.",es:"Un estudiante traga un dedo maldito y se ve envuelto en el mundo de los hechiceros y las maldiciones, entrenando para proteger a los inocentes de amenazas sobrenaturales."},
   "hunter-x-hunter":{en:"A young boy sets out to become a Hunter and find his missing father, making friends and facing deadly challenges in a world of extraordinary adventures.",es:"Un joven emprende el camino para convertirse en Cazador y encontrar a su padre desaparecido, haciendo amigos y enfrentando desafíos mortales en un mundo de aventuras extraordinarias."},
   "bleach":{en:"A teenager gains the powers of a Soul Reaper and must protect the living world from evil spirits while navigating the complex politics of the Soul Society.",es:"Un adolescente obtiene los poderes de un Shinigami y debe proteger el mundo de los vivos de los espíritus malignos mientras navega por la compleja política de la Sociedad de Almas."},
@@ -173,12 +170,22 @@ function main() {
 };
 
 const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
+  "549":{en:"The Matrix",es:"Matrix"},
+  "1984":{en:"1984",es:"1984"},
+  "5920":{en:"Gladiator",es:"Gladiador"},
+  "27181":{en:"Contact",es:"Contacto"},
+  "79744":{en:"Blade Runner",es:"Blade Runner"},
   "237020":{en:"The Late Show with Stephen Colbert",es:"El Late Show con Stephen Colbert"},
   "261639":{en:"Mortal Kombat 2",es:"Mortal Kombat 2"},
+  "454639":{en:"Fight Club",es:"El Club de la Lucha"},
+  "1081003":{en:"Titanic",es:"Titanic"},
+  "1084244":{en:"The Sixth Sense",es:"El Sexto Sentido"},
+  "1108427":{en:"The Odyssey",es:"La Odisea"},
   "1235877":{en:"Demon Slayer: Infinity Castle",es:"Demon Slayer: Castillo Infinito"},
+  "1275779":{en:"D-Day",es:"D-Day"},
   "1285366":{en:"Homem-Aranha: Sem Volta Para Casa",es:"Spider-Man: No Way Home"},
+  "1339713":{en:"The Silence of the Lambs",es:"El Silencio de los Corderos"},
   "1491920":{en:"Boulevard",es:"Boulevard"},
-
   "neuromancer":{en:"Neuromancer",es:"Neuromante"},
   "o-guia-do-mochileiro":{en:"The Hitchhiker's Guide to the Galaxy",es:"Guia del Autoestopista Galactico"},
   "saga":{en:"Saga",es:"Saga"},
@@ -190,7 +197,6 @@ const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
   "lei-ordem-unidade-de-v-timas-especiais":{en:"Law & Order: Special Victims Unit",es:"La Ley y el Orden: Unidad de Victimas Especiales"},
   "watch-what-happens-live-with-andy-cohen":{en:"Watch What Happens Live",es:"Mira lo que Pasa en Vivo"},
   "the-late-show-with-stephen-colbert":{en:"The Late Show with Stephen Colbert",es:"El Late Show con Stephen Colbert"},
-
   "o-diabo-veste-prada-2":{en:"The Devil Wears Prada 2",es:"El Diablo Viste de Prada 2"},
   "descendentes-pa-s-das-maravilhas-malvado":{en:"Descendants: Path of Wonders",es:"Descendientes: Camino de Maravillas"},
   "binnelanders":{en:"Binnelanders",es:"Binnelanders"},
@@ -201,7 +207,6 @@ const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
   "mushoku-tensei":{en:"Mushoku Tensei: Jobless Reincarnation",es:"Mushoku Tensei: Reencarnacion Sin Empleo"},
   "detetive-conan":{en:"Detective Conan",es:"Detective Conan"},
   "sandman":{en:"The Sandman",es:"El Sandman"},
-
   "o-mentalista":{en:"The Mentalist",es:"El Mentalista"},
   "lei-ordem":{en:"Law & Order",es:"La Ley y el Orden"},
   "o-novato":{en:"The Rookie",es:"El Novato"},
@@ -216,18 +221,6 @@ const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
   "il-frullo-del-passero":{en:"The Sparrow's Flutter",es:"El Aleteo del Gorrion"},
   "au-bonheur-des-dames":{en:"The Ladies' Paradise",es:"El Paraiso de las Damas"},
   "une-flamme-dans-mon-c-ur":{en:"A Flame in My Heart",es:"Una Llama en Mi Corazon"},
-
-  "549":{en:"The Matrix",es:"Matrix"},
-  "1984":{en:"1984",es:"1984"},
-  "5920":{en:"Gladiator",es:"Gladiador"},
-  "27181":{en:"Contact",es:"Contacto"},
-  "79744":{en:"Blade Runner",es:"Blade Runner"},
-  "454639":{en:"Fight Club",es:"El Club de la Lucha"},
-  "1081003":{en:"Titanic",es:"Titanic"},
-  "1084244":{en:"The Sixth Sense",es:"El Sexto Sentido"},
-  "1108427":{en:"The Odyssey",es:"La Odisea"},
-  "1275779":{en:"D-Day",es:"D-Day"},
-  "1339713":{en:"The Silence of the Lambs",es:"El Silencio de los Corderos"},
   "jujutsu-kaisen":{en:"Jujutsu Kaisen",es:"Jujutsu Kaisen"},
   "hunter-x-hunter":{en:"Hunter x Hunter",es:"Hunter x Hunter"},
   "bleach":{en:"Bleach",es:"Bleach"},
@@ -323,7 +316,7 @@ const TRANSLATIONS_BY_ID: Record<string,{en:string;es:string}> = {
     const id = canonicalKey(e);
     if (!id) continue; total++;
     const ptTitle = (e.title as string)||"";
-    const slugKey2 = (e.slug||"") as string; const cached = TRANSLATIONS_BY_ID[slugKey2]; const tr = T[ptTitle] || (cached as any);
+    const slugKey2 = (e.slug || String(e.id || "")) as string; const cached = TRANSLATIONS_BY_ID[slugKey2]; const tr = T[ptTitle] || (cached as any);
     const enTitle = tr?.en || (TITLE_IDENTICAL_WHITELIST.has(id) ? ptTitle : ptTitle);
     const esTitle = tr?.es || (TITLE_IDENTICAL_WHITELIST.has(ptTitle) ? ptTitle : (tr?.en || ptTitle));
     if (!ptTitle||!enTitle||!esTitle) { empty++; continue; }

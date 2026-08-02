@@ -19,8 +19,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "237020": {
     "titleLocalized": {
       "pt": "百家讲坛：专题集",
-      "en": "百家讲坛：专题集",
-      "es": "百家讲坛：专题集"
+      "en": "The Late Show with Stephen Colbert",
+      "es": "El Late Show con Stephen Colbert"
     },
     "genreSlugs": [
       "drama"
@@ -34,8 +34,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "261639": {
     "titleLocalized": {
       "pt": "尼寺の情事　極楽ＳＥＸ",
-      "en": "尼寺の情事　極楽ＳＥＸ",
-      "es": "尼寺の情事　極楽ＳＥＸ"
+      "en": "Mortal Kombat 2",
+      "es": "Mortal Kombat 2"
     },
     "genreSlugs": [
       "drama"
@@ -49,8 +49,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "1235877": {
     "titleLocalized": {
       "pt": "ஜன நாயகன்",
-      "en": "ஜன நாயகன்",
-      "es": "ஜன நாயகன்"
+      "en": "Demon Slayer: Infinity Castle",
+      "es": "Demon Slayer: Castillo Infinito"
     },
     "genreSlugs": [
       "drama"
@@ -64,8 +64,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "1285366": {
     "titleLocalized": {
       "pt": "愛のぬくもり",
-      "en": "愛のぬくもり",
-      "es": "愛のぬくもり"
+      "en": "Homem-Aranha: Sem Volta Para Casa",
+      "es": "Spider-Man: No Way Home"
     },
     "genreSlugs": [
       "drama"
@@ -79,8 +79,8 @@ export const SEED_I18N: Record<string,{titleLocalized:{pt:string;en:string;es:st
   "1491920": {
     "titleLocalized": {
       "pt": "功夫女足",
-      "en": "功夫女足",
-      "es": "功夫女足"
+      "en": "Boulevard",
+      "es": "Boulevard"
     },
     "genreSlugs": [
       "drama"
