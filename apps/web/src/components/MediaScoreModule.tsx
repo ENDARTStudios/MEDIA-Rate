@@ -25,9 +25,13 @@ function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): s
   return t("monthsAgo", { months });
 }
 
+/** Tipos em preparação (§IX P2) — fontes ainda não ativadas. */
+const TIPOS_PREPARACAO = new Set(["book", "comic", "anime"]);
+
 export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
+  const emPreparacao = mediaType ? TIPOS_PREPARACAO.has(mediaType) : false;
 
   if (!score) {
     return (
@@ -121,7 +125,17 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-gray-100 mb-1">MEDIA Score</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">MEDIA Score</h3>
+            {emPreparacao && (
+              <span
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-[#F59E0B] bg-[#F59E0B]/15 mb-1"
+                data-testid="score-coming-soon"
+              >
+                {t("scoreComingSoon")}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 mb-2">
             <span
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"

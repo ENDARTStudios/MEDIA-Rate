@@ -20,6 +20,9 @@ const schemaTypeByMediaType: Record<MediaType, string> = {
   comic: "Book",
 };
 
+/** Tipos em preparação (§IX P2) — fontes ainda não ativadas: não indexar. */
+const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
+
 function descriptionFor(media: Media): string {
   return media.synopsis.trim().slice(0, 160);
 }
@@ -56,6 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pageUrl = localizedUrl(locale, `/media/${media.slug}`);
   const description = descriptionFor(media);
   const title = `${media.title} (${media.year}) — MEDIA Rate`;
+  const emPreparacao = TIPOS_PREPARACAO.has(media.type);
 
   return {
     title,
@@ -64,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: pageUrl,
       languages: localizedAlternates(`/media/${media.slug}`),
     },
-    robots: { index: true, follow: true },
+    robots: emPreparacao ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: {
       title,
       description,
