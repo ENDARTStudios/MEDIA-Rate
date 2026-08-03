@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { CatalogPageClient } from "../../../components/CatalogPageClient";
-import { getCatalogSync } from "../../../lib/api";
+import { getCatalog } from "../../../lib/api";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 
 export async function generateMetadata({
@@ -33,11 +33,12 @@ export default async function CatalogPage({
   const t = await getTranslations("catalog");
 
   const sp = await searchParams;
-  const initialData = getCatalogSync({
+  const initialData = await getCatalog({
     page: 1,
     limit: 12,
     type: sp.type as any,
     sort: sp.sort as any,
+    search: sp.q,
   });
 
   return (

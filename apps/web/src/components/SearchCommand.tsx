@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { MOCK_MEDIA } from "@/lib/api";
+import { searchMedia } from "@/lib/api";
 import { scoreColor } from "@/lib/design-tokens";
-import type { Media } from "@/lib/types";
 
 interface SearchResult {
   id: string;
+  slug: string;
   title: string;
   year: number;
   type: string;
@@ -16,28 +16,22 @@ interface SearchResult {
   score: number | null;
 }
 
-function searchMedia(query: string): SearchResult[] {
-  if (!query || query.length < 2) return [];
-  const q = query.toLowerCase();
-  return MOCK_MEDIA.filter((m: Media) => m.title.toLowerCase().includes(q))
-    .slice(0, 15)
-    .map((m: Media) => ({
-      id: m.id,
-      title: m.title,
-      year: m.year,
-      type:
-        m.type === "movie"
-          ? "Filme"
-          : m.type === "series"
-            ? "Série"
-            : m.type === "game"
-              ? "Game"
-              : m.type === "anime"
-                ? "Anime"
-                : m.type,
-      posterUrl: m.posterUrl,
-      score: m.score?.consolidated ?? null,
-    }));
+const TYPE_LABELS: Record<string, string> = { Filme: "Filmes", Série: "Séries", Game: "Games" };
+
+function tipoLabel(tipo: string): string {
+  return tipo === "movie"
+    ? "Filme"
+    : tipo === "series"
+      ? "Série"
+      : tipo === "game"
+        ? "Game"
+        : tipo === "anime"
+          ? "Anime"
+          : tipo === "book"
+            ? "Livro"
+            : tipo === "comic"
+              ? "HQ"
+              : tipo;
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -49,19 +43,48 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-const TYPE_LABELS: Record<string, string> = { Filme: "Filmes", Série: "Séries", Game: "Games" };
-
 export function SearchCommand() {
   const t = useTranslations("catalog");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const debouncedQuery = useDebounce(query, 250);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const results = debouncedQuery.length >= 2 ? searchMedia(debouncedQuery) : [];
+  useEffect(() => {
+    if (debouncedQuery.length < 2) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    let cancelled = false;
+    setSearching(true);
+    searchMedia(debouncedQuery)
+      .then((r) => {
+        if (cancelled) return;
+        setResults(
+          r.slice(0, 15).map(({ media }) => ({
+            id: media.id,
+            slug: media.slug,
+            title: media.title,
+            year: media.year,
+            type: tipoLabel(media.type),
+            posterUrl: media.posterUrl,
+            score: media.score?.consolidated ?? null,
+          })),
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setSearching(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
 
   const grouped: Record<string, SearchResult[]> = {};
   results.forEach((r) => {
@@ -108,7 +131,7 @@ export function SearchCommand() {
       if (e.key === "Enter" && totalResults > 0) {
         const flat = Object.values(grouped).flat();
         if (flat[selectedIdx]) {
-          router.push(`/media/${flat[selectedIdx].id}`);
+          router.push(`/media/${flat[selectedIdx].slug}`);
           setOpen(false);
         }
       }
@@ -236,7 +259,13 @@ export function SearchCommand() {
                 </div>
               )}
 
-              {debouncedQuery.length >= 2 && totalResults === 0 && (
+              {debouncedQuery.length >= 2 && searching && (
+                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                  Buscando...
+                </div>
+              )}
+
+              {debouncedQuery.length >= 2 && !searching && totalResults === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="text-sm text-[#9CA3AF] mb-1">Nenhum resultado encontrado.</p>
                   <p className="text-xs text-[#6B7280]">
@@ -258,7 +287,7 @@ export function SearchCommand() {
                         <button
                           key={item.id}
                           onClick={() => {
-                            router.push(`/media/${item.id}`);
+                            router.push(`/media/${item.slug}`);
                             setOpen(false);
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${isSelected ? "bg-[#1C1C2E]" : "hover:bg-[#151524]"}`}

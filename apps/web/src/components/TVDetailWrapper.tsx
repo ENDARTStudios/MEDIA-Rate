@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { MediaDetailPage } from "@/components/MediaDetailPage";
-import { getMediaBySlug } from "@/lib/api";
 import { serializeJsonLd } from "@/lib/json-ld";
 import type { Media } from "@/lib/types";
 
@@ -15,8 +14,7 @@ const Episodes = dynamic(
   { ssr: false },
 );
 
-export function TVDetailWrapper({ id }: { id: string }) {
-  const media = getMediaBySlug(id) as unknown as Media | null;
+export function TVDetailWrapper({ id, media }: { id: string; media: Media | null }) {
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "TVSeries",

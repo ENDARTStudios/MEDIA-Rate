@@ -1,13 +1,206 @@
 import type {
   CatalogFilters,
   CatalogResponse,
+  Confidence,
   Media,
   MediaSearchResult,
+  MediaType,
   PricingPlan,
+  SourceName,
   SourceRating,
   UserProfile,
 } from "./types";
 import { SEED_MEDIA } from "./seed-data";
+
+/**
+ * Camada de dados do frontend.
+ *
+ * Dados reais vêm da API MEDIA Rate (proxy same-origin /api/* → Railway,
+ * ver next.config.ts rewrites). Se a API falhar (rede, 5xx) ou não tiver o
+ * item, cai para os mocks locais — o site nunca quebra por indisponibilidade
+ * do backend.
+ */
+
+const API_TIMEOUT_MS = 7000;
+
+// ===========================================================================
+// Tipos do payload da API (espelho dos endpoints públicos)
+// ===========================================================================
+
+interface ApiScoreDetalhe {
+  fonte: string;
+  classificacao: "critica" | "publico";
+  rating_original: number;
+  rating_100: number;
+  z_score: number;
+  peso: number;
+  contribuicao: number;
+}
+
+interface ApiScore {
+  score: number;
+  criticosScore: number | null;
+  publicoScore: number | null;
+  consenso: number | null;
+  num_fontes: number;
+  confianca: number;
+  calculado_em: string;
+  detalhes?: ApiScoreDetalhe[];
+}
+
+interface ApiFonte {
+  fonte: string;
+  url: string | null;
+}
+
+interface ApiMidiaSlug {
+  id: string;
+  slug: string;
+  titulo: string;
+  titulo_original: string | null;
+  tipo: string;
+  sinopse: string | null;
+  ano_lancamento: number | null;
+  imagem_url: string | null;
+  classificacao_indicativa: string | null;
+  duracao_minutos: number | null;
+  generos: string[];
+  streamings: string[];
+  score: ApiScore | null;
+  fontes: ApiFonte[];
+}
+
+interface ApiMidiaList {
+  id: string;
+  titulo: string;
+  tipo: string;
+  ano_lancamento: number | null;
+  imagem_url: string | null;
+  scores?: { score: number }[];
+}
+
+interface ApiSearchItem {
+  id: string;
+  titulo: string;
+  tipo: string;
+  ano_lancamento: number | null;
+  sinopse: string | null;
+  imagem_url: string | null;
+  slug: string;
+}
+
+// ===========================================================================
+// Fetch com timeout e falha graciosa
+// ===========================================================================
+
+async function apiGet<T>(path: string): Promise<T | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    try {
+      const res = await fetch(`/api${path}`, {
+        signal: controller.signal,
+        next: { revalidate: 300 },
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) return null;
+      return (await res.json()) as T;
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    // Rede/5xx/timeout → null: o caller decide o fallback.
+    return null;
+  }
+}
+
+// ===========================================================================
+// Mapeamento API → tipo Media do frontend
+// ===========================================================================
+
+function mapTipo(tipo: string): MediaType {
+  switch (tipo) {
+    case "FILME":
+      return "movie";
+    case "SERIE":
+      return "series";
+    case "GAME":
+      return "game";
+    case "LIVRO":
+      return "book";
+    case "HQ":
+      return "comic";
+    case "ANIME":
+      return "anime";
+    default:
+      return "movie";
+  }
+}
+
+function mapConfidence(c: number | null | undefined): Confidence {
+  if (c == null) return "low";
+  if (c >= 0.6) return "high";
+  if (c >= 0.3) return "medium";
+  return "low";
+}
+
+const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
+
+function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
+  const urlsByFonte = new Map(m.fontes.map((f) => [f.fonte, f.url]));
+  const sources: SourceRating[] =
+    m.score?.detalhes?.map((d) => ({
+      source: d.fonte as SourceName,
+      score: d.rating_100,
+      maxScore: 100,
+      ...(urlsByFonte.get(d.fonte) ? { url: urlsByFonte.get(d.fonte)! } : {}),
+    })) ?? [];
+
+  const confidence = mapConfidence(m.score?.confianca);
+  const emPreparacao = TIPOS_PREPARACAO.has(mapTipo(m.tipo));
+
+  return {
+    id: m.id,
+    slug: fallbackSlug ?? m.slug,
+    title: m.titulo,
+    type: mapTipo(m.tipo),
+    year: m.ano_lancamento ?? new Date().getFullYear(),
+    genres: m.generos,
+    duration: m.duracao_minutos != null ? `${m.duracao_minutos} min` : undefined,
+    synopsis: m.sinopse ?? "",
+    posterUrl: m.imagem_url,
+    backdropUrl: null,
+    score: m.score
+      ? {
+          consolidated: m.score.score,
+          confidence,
+          sources,
+          explanation: emPreparacao
+            ? "Tipo em preparação — fontes ainda não ativadas."
+            : m.score.num_fontes > 0
+              ? `MEDIA Score™ consolidado a partir de ${m.score.num_fontes} ${
+                  m.score.num_fontes === 1 ? "fonte" : "fontes"
+                }.`
+              : "Sem avaliações suficientes das fontes ainda.",
+          updatedAt: m.score.calculado_em,
+          criticsScore: m.score.criticosScore,
+          audienceScore: m.score.publicoScore,
+          consensus: m.score.consenso,
+          sampleSize: m.score.num_fontes,
+          algorithmVersion: "v2",
+          confidenceScore: m.score.confianca,
+        }
+      : null,
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: m.streamings.map((nome) => ({ name: nome })),
+  };
+}
+
+// ===========================================================================
+// Mocks (fallback) — inalterados
+// ===========================================================================
 
 function delay(ms = 400): Promise<void> {
   return new Promise((r) => setTimeout(r, ms + Math.random() * 200));
@@ -286,7 +479,6 @@ const MANUAL: Media[] = [
     ["Nintendo Switch"],
     "https://upload.wikimedia.org/wikipedia/en/c/c6/The_Legend_of_Zelda_Breath_of_the_Wild.jpg",
     [
-      // CRIT-02: fontes reais da especificação — crítica vs público separados.
       { source: "metacritic", score: 97, maxScore: 100 },
       { source: "igdb", score: 92, maxScore: 100 },
       { source: "igdb_publico", score: 85, maxScore: 100 },
@@ -533,19 +725,158 @@ export function getCatalogSync(filters?: CatalogFilters): CatalogResponse {
   return applyCatalogFilters(MOCK_MEDIA, filters);
 }
 
+const TIPO_TO_API: Record<MediaType, string> = {
+  movie: "FILME",
+  series: "SERIE",
+  game: "GAME",
+  book: "LIVRO",
+  anime: "ANIME",
+  comic: "HQ",
+};
+
+const SORT_TO_API: Record<string, string> = {
+  title: "titulo",
+  year: "ano_lancamento",
+  score: "score",
+};
+
+/**
+ * Catálogo real da API (paginação cursor) com fallback para o mock local.
+ * Busca textual usa /api/v1/search (similarity); lista usa /api/v1/midias.
+ */
 export async function getCatalog(filters?: CatalogFilters): Promise<CatalogResponse> {
+  if (filters?.search) {
+    const data = await apiGet<{ items: ApiSearchItem[]; total: number }>(
+      `/api/v1/search?q=${encodeURIComponent(filters.search)}&limit=100`,
+    );
+    if (data?.items) {
+      const items = data.items
+        .filter((it) => !filters.type || mapTipo(it.tipo) === filters.type)
+        .map((it) => mediaFromSearchItem(it));
+      return applyLocalPagination(items, filters);
+    }
+  } else {
+    const params = new URLSearchParams();
+    if (filters?.type) params.set("tipo", TIPO_TO_API[filters.type]);
+    if (filters?.sort && SORT_TO_API[filters.sort]) {
+      params.set("sort", `${SORT_TO_API[filters.sort]}:${filters.order === "asc" ? "asc" : "desc"}`);
+    }
+    params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
+    const data = await apiGet<{
+      data: ApiMidiaList[];
+      next_cursor: string | null;
+      has_more: boolean;
+    }>(`/api/v1/midias?${params.toString()}`);
+    if (data?.data) {
+      const items = data.data.map(mediaFromList);
+      return {
+        items,
+        total: items.length + (data.has_more ? 1 : 0), // aproximação sem total absoluto
+        page: filters?.page ?? 1,
+        limit: filters?.limit ?? (items.length || 20),
+        hasMore: data.has_more,
+      };
+    }
+  }
+
   await delay(400);
   maybeThrow();
   return applyCatalogFilters(MOCK_MEDIA, filters);
 }
 
+function mediaFromSearchItem(it: ApiSearchItem): Media {
+  return {
+    id: it.id,
+    slug: it.slug,
+    title: it.titulo,
+    type: mapTipo(it.tipo),
+    year: it.ano_lancamento ?? new Date().getFullYear(),
+    genres: [],
+    synopsis: it.sinopse ?? "",
+    posterUrl: it.imagem_url,
+    backdropUrl: null,
+    score: null,
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: [],
+  };
+}
+
+function mediaFromList(m: ApiMidiaList): Media {
+  return {
+    id: m.id,
+    slug: slugify(m.titulo),
+    title: m.titulo,
+    type: mapTipo(m.tipo),
+    year: m.ano_lancamento ?? new Date().getFullYear(),
+    genres: [],
+    synopsis: "",
+    posterUrl: m.imagem_url,
+    backdropUrl: null,
+    score:
+      m.scores?.[0]?.score != null
+        ? {
+            consolidated: m.scores[0].score,
+            confidence: "low",
+            sources: [],
+            explanation: "Consulte os detalhes para ver as fontes do score.",
+          }
+        : null,
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: [],
+  };
+}
+
+function applyLocalPagination(items: Media[], filters?: CatalogFilters): CatalogResponse {
+  const p = filters?.page ?? 1;
+  const l = filters?.limit ?? 12;
+  const start = (p - 1) * l;
+  const sliced = items.slice(start, start + l);
+  return {
+    items: sliced,
+    total: items.length,
+    page: p,
+    limit: l,
+    hasMore: start + l < items.length,
+  };
+}
+
+/** Slug canônico (espelho do slugify da API). */
+function slugify(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Detalhe de mídia: API real primeiro, mock como fallback. */
 export async function getMediaBySlug(slug: string): Promise<Media | null> {
+  const api = await apiGet<ApiMidiaSlug>(`/api/v1/midias/slug/${encodeURIComponent(slug)}`);
+  if (api) return mediaFromApi(api, slug);
+
   await delay(300);
   maybeThrow();
   return MOCK_MEDIA.find((m) => m.slug === slug) ?? MOCK_MEDIA.find((m) => m.id === slug) ?? null;
 }
 
+/** Busca global: API (similarity) com fallback para o mock. */
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
+  if (!q || q.length < 2) return [];
+  const data = await apiGet<{ items: ApiSearchItem[] }>(
+    `/api/v1/search?q=${encodeURIComponent(q)}&limit=15`,
+  );
+  if (data?.items?.length) {
+    return data.items.map((it, i) => ({
+      media: mediaFromSearchItem(it),
+      relevance: 1 - i * 0.01,
+    }));
+  }
+
   await delay(250);
   maybeThrow();
   const lower = q.toLowerCase();

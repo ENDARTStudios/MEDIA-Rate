@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { TVDetailWrapper } from "@/components/TVDetailWrapper";
 import { generateDetailMetadata } from "@/lib/detail-metadata";
+import { getMediaBySlug } from "@/lib/api";
 
 export async function generateMetadata({
   params,
@@ -19,5 +20,6 @@ export default async function TVDetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  return <TVDetailWrapper id={id} />;
+  const media = await getMediaBySlug(id);
+  return <TVDetailWrapper id={id} media={media} />;
 }

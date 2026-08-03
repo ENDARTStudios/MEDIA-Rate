@@ -1,12 +1,10 @@
 "use client";
 
 import { MediaDetailPage } from "@/components/MediaDetailPage";
-import { getMediaBySlug } from "@/lib/api";
 import { serializeJsonLd } from "@/lib/json-ld";
 import type { Media, StreamingService } from "@/lib/types";
 
-export function GameDetailWrapper({ id }: { id: string }) {
-  const media = getMediaBySlug(id) as unknown as Media | null;
+export function GameDetailWrapper({ id, media }: { id: string; media: Media | null }) {
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "VideoGame",

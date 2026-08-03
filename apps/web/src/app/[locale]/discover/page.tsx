@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { DiscoverClient } from "../../../components/DiscoverClient";
-import { getCatalogSync } from "../../../lib/api";
+import { getCatalog } from "../../../lib/api";
 
 export async function generateMetadata({
   params,
@@ -22,7 +22,7 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
 
-  const initialData = getCatalogSync({ page: 1, limit: 10, sort: "score" });
+  const initialData = await getCatalog({ page: 1, limit: 10, sort: "score" });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
