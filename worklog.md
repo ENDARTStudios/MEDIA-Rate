@@ -782,3 +782,47 @@ Stage Summary:
 - Testes: +4 watchlist (limite), +7 payment (trial), +3 auth getMe, score-utils web;
   API 428 aprovados, web 111 aprovados, lint/typecheck/build limpos.
 - Status: DONE (aguardando deploy Railway — migração + variáveis Stripe não ativadas).
+
+## [2026-08-03] Stage: MEDIA Score v3 (MET-03) - estimador Bayesiano por midia
+- Implementada a metodologia matematica do Operador (D-133) substituindo a v2:
+  MEDIA = (v/(v+m)) * S + (m/(v+m)) * C em ambas as engines (web e API).
+- Config por midia: FILME/SERIE (0.4/0.4/0.2, m=60), GAME (0.55/0.35/0.10, m=1015,
+  escala 0-100), LIVRO (0.25/0.55/0.20, m=100, curva de inflacao quando C > 8.5),
+  HQ (0.60 publico + 0.40 consenso-editoras, m=250), ANIME (0.45/0.45/0.10
+  polarizacao, m=500). I = 1 - |critica - publico| agora REALIMENTA o score.
+- Confidence Score v3 0-100: 40xcobertura + 30xvolume + 20xconcordancia +
+  10xatualizacao; faixas >= 70 Alta / >= 40 Media / < 40 Baixa. Confianca persistida
+  muda de 0-1 para 0-100.
+- API: calcularScoreV3 + indicePolarizacao + indiceConsensoEditoras +
+  calcularConfiancaV3 + obterMediaCatalogoPublico (AVG por categoria, fallback 70);
+  recalcularEPersistir passa a persistir indice_consenso e votos_total; coleta debug
+  e GET /midias/:id/media-score usam v3; slug expoe indiceConsenso/votosTotal.
+- Web: engine v3 (CONFIG_V3, calculateGlobalScore Bayes, polarizacao, editoras,
+  curva de inflacao, CS v3, ALGORITHM_VERSION media-score-v3.0); api.ts mapConfidence
+  nas faixas 70/40 + campos novos; types.ts com indiceConsenso/votosTotal.
+- Prisma client regenerado (votos/indice_consenso/votos_total presentes desde a
+  migracao 20260803_media_score_v3).
+- Testes: web media-score-engine 32 aprovados (v3: Bayes por midia, inflacao,
+  polarizacao, editoras, CS/faixas); API media-score 32 (bloco v3 + recalcular v3),
+  controllers-unit atualizado (v3 no getMediaScore); suites completas: API 437,
+  web 126; lint zero, typecheck API/web limpos.
+- Status: DONE (pendente deploy Railway).
+
+## [2026-08-03] Stage: Correcoes pos-revisao do MEDIA Score v3 (D-133)
+- Migracao 20260803_media_score_v3 stageada no git (era untracked - prisma migrate
+  deploy no Railway nao aplicaria as colunas novas).
+- Anti-colapso do catalogo: com v=0 (fontes ainda nao reportam votos), score = S
+  direto em vez de C (antes toda obra virava a media da categoria); pull Bayesiano
+  so ativa com v > 0. Adapters tmdb (vote_count) e igdb (rating_count /
+  aggregated_rating_count) agora preenchem votos.
+- Espelho web alinhado a API: consenso I em 0-10 (antes fracao 0-1, 10x mais fraco),
+  polarizacao/editoras com a mesma quantizacao da API, curva de inflacao sem
+  pre-arredondamento, CS com concordancia = 0 para menos de 2 fontes.
+- Guarda Number.isFinite no montarBuckets (NaN de adaptadores externos ignorado) e
+  _avg nao finito vira null no obterMediaCatalogoPublico.
+- Confianca legada (0-1) normalizada para CS 0-100 na leitura (slug + getMediaScore).
+- Cache TTL 5min da media do catalogo por tipo (evita O(N^2) de aggregates no job).
+- Removidos calcularScore (v1) e calcularScoreV2 orfaos + MediaScoreResult/
+  MediaScoreV2Result/calcularConfianca (substituidos por DetalheFonte); testes v1/v2
+  removidos. Suites: API 418, web 127; lint/typecheck limpos.
+- Status: DONE (pendente deploy Railway).

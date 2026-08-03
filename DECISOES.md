@@ -645,3 +645,49 @@ games). Engine atual normaliza tudo 0–100. Decisão de exibição pendente.
    recomendações 3/dia, histórico 10) com gatilhos de upgrade.
 3. Alertas por gênero/franquia (Plus) e comparador de perfis/listas colaborativas
    (Premium) — dependem de recomendação/notificação, ainda não existem.
+
+## [2026-08-03] D-133 - MEDIA Score v3 (MET-03): estimador Bayesiano por midia
+
+**Origem:** metodologia matematica do MEDIA Score por midia (documento do Operador)
+substituindo a v2 (0.5xcritica + 0.5xpublico, consenso informativo).
+
+### Formula (todas as midias)
+MEDIA = (v/(v+m)) * S + (m/(v+m)) * C
+- v = total de avaliacoes; m = threshold da midia; C = media do catalogo da mesma
+  categoria (prior); S = soma ponderada dos componentes disponiveis (renormalizada).
+
+### Componentes e thresholds
+- Filmes/Series (0-10): S = 0.4xCritica + 0.4xPublico + 0.2xI; m = 60 (50 publico + 10 critica).
+- Games (0-100): S = 0.55xCritica + 0.35xPublico + 0.10xI; m = 1015 (1000 + 15); exibicao x10.
+- Livros (0-10): S = 0.25xCritica + 0.55xPublico + 0.20xI; m = 100; curva de inflacao
+  (S' = min(S, 0.5S + 3)) quando C > 8.5.
+- HQs (0-10): S = 0.60xPublico + 0.40xConsenso-Editoras; m = 250 (critica substituida).
+- Mangas/LN (0-10): S = 0.45xCritica + 0.45xPublico + 0.10xPolarizacao; m = 500.
+- I = 1 - |critica - publico| REALIMENTA o score (nao e mais informativo).
+
+### Confidence Score (CS 0-100)
+CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
+- Cobertura: fontes distintas (satura em 5). Volume: v (satura em m).
+- Concordancia: 1 - min(1, desvio/2.5). Atualizacao: voto <= 30 dias = 1, decai ate 180.
+- Faixas: >= 70 Alta (verde), >= 40 Media (amarelo), < 40 Baixa (cinza).
+- Confianca persistida muda de 0-1 (heuristica v1/v2) para CS 0-100.
+
+### Decisoes de implementacao
+- Engine web e API implementam a mesma config por midia (CONFIG_V3 / CONFIG_V3_POR_TIPO).
+- Polarizacao: I = max(0, 1 - min(1, extremas/total x 1.25)), extremas = notas <= 2 ou >= 9.
+- Consenso de editoras: I = 1 - min(1, desvio padrao das medias por editora / 2.5).
+- v = soma dos votos das fontes (avaliacao_fonte.votos, ja migrado em 20260803_media_score_v3).
+- C = AVG(media_score.score) da categoria; sem dados -> 70 (0-100) / 7 (0-10).
+- recalcularEPersistir (job diario + coleta admin) passa a persistir v3: indice_consenso,
+  votos_total, score, confianca CS; consenso (gap) permanece informativo.
+- ALGORITHM_VERSION = "media-score-v3.0" (web). API: calcularScoreV3 (v1/v2 mantidos).
+- Web: mapConfidence usa as faixas 70/40; confiancas legadas 0-1 caem em "low" ate o
+  job diario recalcular.
+
+### Correcoes pos-revisao (2026-08-03)
+- Migracao 20260803_media_score_v3 stageada (deploy exige migrations commitadas).
+- v=0 (sem votos coletados) usa S direto em vez de C - evita achatar o catalogo
+  na media da categoria enquanto os adapters nao reportam votos; tmdb/igdb passam
+  a reportar votos reais (vote_count/rating_count).
+- Espelho web alinhado a API (I em 0-10, mesma quantizacao, curva sem pre-round).
+- Guardas Number.isFinite + cache TTL do catalogo medio; v1/v2 removidos.

@@ -108,17 +108,33 @@ Depois de feito: responda "feito o item Nº 5"
 
 ---
 
-### [6] Configurar webhook do Stripe
+### [6] ~~Configurar webhook do Stripe~~ — FEITO (modo live completo)
+
+Resultado (2026-08-03):
+- Endpoint **live** criado no dashboard do Stripe: URL de produção
+  `https://media-rate-production.up.railway.app/api/v1/webhooks/stripe` (status enabled,
+  api_version 2026-06-24.dahlia).
+- Eventos assinados (todos os 5 tratados pelo backend + extras ignorados):
+  `checkout.session.completed`, `customer.subscription.created`,
+  `customer.subscription.updated`, `customer.subscription.trial_will_end`,
+  `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`,
+  `customer.created`, `customer.updated`.
+- Variáveis do Stripe configuradas no Railway (produção):
+  `STRIPE_SECRET_KEY` (rk_live restrita com Prices Write + Webhook Read/Write),
+  `STRIPE_WEBHOOK_SECRET` (whsec_ da aba Live), `STRIPE_PRICE_PLUS_ID` e
+  `STRIPE_PRICE_PREMIUM_ID` (prices live criados: Plus R$4,90 e Premium R$9,90/mês BRL).
+- Observação: `STRIPE_SECRET_KEY` restrita não expõe a sk_ completa; para ampliar
+  permissões, editar a chave em https://dashboard.stripe.com/apikeys.
 
 Por quê: o Stripe precisa avisar o backend quando um pagamento é confirmado.
 Onde: https://dashboard.stripe.com/webhooks
-Passo a passo:
-1. Acesse https://dashboard.stripe.com/webhooks
-2. Clique "Add endpoint"
-3. URL: `https://api.media-rate.example.com/api/v1/webhooks/stripe`
-4. Eventos: `checkout.session.completed`, `customer.subscription.deleted`
-5. Copie o "Signing secret" (whsec_...)
-6. Adicione `STRIPE_WEBHOOK_SECRET` nas variáveis de ambiente do Railway.
+Passo a passo (aplicado):
+1. Acesse https://dashboard.stripe.com/webhooks ✅
+2. Clique "Add endpoint" ✅
+3. URL: `https://media-rate-production.up.railway.app/api/v1/webhooks/stripe` ✅
+4. Eventos (9, cobrindo os 5 do `PaymentService` + trial_will_end) ✅
+5. Copie o "Signing secret" (whsec_...) — da aba **Live** ✅
+6. `STRIPE_WEBHOOK_SECRET` + `STRIPE_SECRET_KEY` + price IDs no Railway ✅
 Como saber que deu certo: faça um pagamento de teste e veja o log no Railway confirmando o webhook.
 Depois de feito: responda "feito o item Nº 6"
 
