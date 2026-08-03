@@ -79,6 +79,23 @@ describe("IgdbAdapter — OAuth Twitch + Apicalypse (aggregated_rating/rating)",
     expect(notas[0].url).toBe("https://www.igdb.com/games/zelda-botw");
   });
 
+  it("token OAuth via POST form-encoded (não query string — Twitch 404)", async () => {
+    mockFetch([
+      { body: { access_token: "tok", expires_in: 3600 } },
+      { body: [{ name: "Zelda", slug: "zelda", aggregated_rating: 90 }] },
+    ]);
+    const { IgdbAdapter } = await import("../src/modules/media-score/adapters/igdb.adapter.js");
+    await new IgdbAdapter("igdb").coletar({ tipo: "GAME", titulo: "Zelda" });
+    const chamadas = vi.mocked(fetch).mock.calls;
+    const [url, init] = chamadas[0];
+    expect(String(url)).toBe("https://id.twitch.tv/oauth2/token");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toContain("grant_type=client_credentials");
+    expect((init?.headers as Record<string, string>)["content-type"]).toBe(
+      "application/x-www-form-urlencoded",
+    );
+  });
+
   it("fonte igdb_publico usa rating (público)", async () => {
     mockFetch([
       { body: { access_token: "tok", expires_in: 3600 } },

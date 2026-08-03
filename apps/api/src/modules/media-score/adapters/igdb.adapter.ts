@@ -18,16 +18,17 @@ let tokenCache: { token: string; expiraEm: number } | null = null;
 
 async function obterTokenTwitch(): Promise<string> {
   if (tokenCache && Date.now() < tokenCache.expiraEm) return tokenCache.token;
-  const params = new URLSearchParams({
+  const corpo = new URLSearchParams({
     client_id: process.env.TWITCH_CLIENT_ID ?? "",
     client_secret: process.env.TWITCH_CLIENT_SECRET ?? "",
     grant_type: "client_credentials",
+  }).toString();
+  const resposta = await postJson<TokenTwitch>("https://id.twitch.tv/oauth2/token", corpo, {
+    headers: {
+      accept: "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+    },
   });
-  const resposta = await postJson<TokenTwitch>(
-    `https://id.twitch.tv/oauth2/token?${params.toString()}`,
-    "",
-    { headers: { accept: "application/json" } },
-  );
   if (!resposta.access_token) return "";
   tokenCache = {
     token: resposta.access_token,
