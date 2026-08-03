@@ -9,7 +9,11 @@ interface SteamSpyApp {
   negative: number;
 }
 
-/** Steam Spy — dados da Store via terceiros; ratio positivo ×100 (público). */
+/**
+ * Steam Spy — dados da Store via terceiros; ratio positivo ×100 (público).
+ * A API pública steamspy.com foi descontinuada (retorna vazio desde 2025);
+ * o acesso atual exige chave paga (STEAMSPY_API_KEY). Inativa sem chave.
+ */
 export class SteamSpyAdapter implements FonteAdapter {
   readonly id = "steamspy";
 
@@ -18,7 +22,7 @@ export class SteamSpyAdapter implements FonteAdapter {
   }
 
   ativo(): boolean {
-    return true;
+    return Boolean(process.env.STEAMSPY_API_KEY);
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {

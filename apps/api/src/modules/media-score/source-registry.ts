@@ -22,7 +22,7 @@
 
 export type ClassificacaoFonte = "critica" | "publico";
 export type DominioMidia = "filme_serie" | "game" | "livro" | "hq" | "anime_manga";
-export type StatusFonte = "ativo" | "preparacao";
+export type StatusFonte = "ativo" | "preparacao" | "inativo";
 export type MetodoColeta = "api" | "dataset" | "oauth" | "scrape_numerico";
 
 export interface FonteMeta {
@@ -60,6 +60,7 @@ export const FONTES: FonteMeta[] = [
     fator100: 10,
     metodo: "api",
     status: "ativo",
+    requerChave: true,
   },
   {
     id: "tvmaze",
@@ -226,7 +227,9 @@ export const FONTES: FonteMeta[] = [
     escala: "0-100",
     fator100: 100,
     metodo: "api",
-    status: "ativo",
+    // API pública descontinuada (resposta vazia); acesso atual exige chave paga.
+    status: "inativo",
+    requerChave: true,
   },
   {
     id: "opencritic",

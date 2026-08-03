@@ -24,6 +24,9 @@ import { AniListAdapter } from "./adapters/anilist.adapter.js";
 import { KitsuAdapter } from "./adapters/kitsu.adapter.js";
 import { MangaDexAdapter } from "./adapters/mangadex.adapter.js";
 import { AnimePlanetAdapter } from "./adapters/animeplanet.adapter.js";
+import { TmdbAdapter } from "./adapters/tmdb.adapter.js";
+import { IgdbAdapter } from "./adapters/igdb.adapter.js";
+import { RawgAdapter } from "./adapters/rawg.adapter.js";
 import type { ConsultaMedia } from "./adapters/fonte-adapter.interface.js";
 
 export interface ResultadoColeta {
@@ -37,12 +40,16 @@ export interface ResultadoColeta {
 export class ColetaService {
   private readonly logger = new Logger(ColetaService.name);
   readonly adaptadores: FonteAdapter[] = [
+    new TmdbAdapter(),
     new TvmazeAdapter(),
     new OmdbAdapter(),
     new TraktAdapter(),
     new LetterboxdAdapter(),
     new RottenTomatoesAdapter(),
     new MetacriticAdapter(),
+    new IgdbAdapter("igdb"),
+    new IgdbAdapter("igdb_publico"),
+    new RawgAdapter(),
     new OpenCriticAdapter(),
     new SteamAdapter(),
     new SteamSpyAdapter(),
