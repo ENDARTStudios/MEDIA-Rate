@@ -590,3 +590,58 @@ ignorada pelo endpoint `?name=` antigo (devolvia sempre o mesmo jogo popular).
   remotePatterns de imagens e dos textos públicos (i18n/FAQ/JSON-LD).
 - Sem migração de banco: comentário do schema atualizado; nenhuma linha `fonte=rawg`
   existia em produção (adapter sempre inativo sem chave).
+
+---
+
+## [2026-08-03] D-132 — Posicionamento cross-mídia, planos e monetização (consolidação do Operador)
+Origem: análise do Operador consolidando proposta de valor, justificativa de preços,
+concorrência e estratégia de planos Free/Plus/Premium.
+
+### Posicionamento
+- Único agregador cross-mídia com score unificado e metodologia aberta/auditável
+  (filmes, séries, games, livros, HQs, mangás na mesma escala). Não vence concorrentes
+  gratuitos em profundidade (RT/IMDb/Letterboxd, OpenCritic/Steam, Goodreads/Skoob,
+  ComicBookRoundup, MyAnimeList) — vence em amplitude comparável + transparência
+  metodológica + crítica/público separados + consenso como indicador.
+- Diferencial de longo prazo: livros, HQs e mangás (nenhum agregador unificado existe);
+  comunicação deve focar a unificação VIVIDA (ex.: "Duna (livro), Berserk (mangá) e
+  Elden Ring (game) na mesma escala") + top 10 cross-mídia + identidade de consumo
+  cross-mídia no perfil.
+
+### Escalas por mídia (proposta do Operador)
+- Filmes/Séries: 0–10 (crítica vs audiência, alta densidade de dados).
+- Games: 0–100 (granularidade da comunidade gamer).
+- Livros/HQs/Mangás: 0–10 (nichos).
+CONFLITO ABERTO: escala por mídia contradiz o posicionamento central (unificação exige
+escala comum — os exemplos do próprio documento usam 0–10 para todas as mídias, inclusive
+games). Engine atual normaliza tudo 0–100. Decisão de exibição pendente.
+
+### Planos
+- Free (R$0): catálogo + score liberados; limitações de CONVENIÊNCIA (nunca conteúdo):
+  watchlist 20 itens, 3 recomendações/dia, histórico 10 títulos, compartilhamento livre,
+  gamificação (badges/streaks/conquistas) para retenção. Gatilhos: progresso, social
+  proof, escassez suave, preview bloqueado (blur/cadeado).
+- Plus (R$4,90/mês): watchlist ilimitada + listas customizadas, recomendações ilimitadas,
+  ALERTAS de novos títulos por gênero/franquia (o "momento uau" — tangível e recorrente),
+  breakdown completo do score, histórico ilimitado, zero anúncios.
+- Premium (R$9,90/mês): tudo do Plus + comparação entre perfis, listas colaborativas
+  (votação), badge Apoiador/perfil destacado, acesso antecipado, export CSV/JSON,
+  API pessoal, suporte prioritário. Social é o motivo para pagar.
+- Trial de 7 dias do Plus para todo registro (estimativa do Operador: sem trial,
+  conversão Free→Plus < 2%).
+
+### Fatos novos observados (conflitam com a análise)
+1. "Watchlist ainda não existe" (§2) é impreciso: módulo watchlist já existe (API + store
+   web, colunas WANT/CURRENT/DONE) — falta apenas o limite de 20 no Free e histórico.
+2. Escala hoje: engine e UI exibem 0–100 unificado; heroSubtitle pt-BR já diz "0 a 10"
+   e en-US "0-100" (inconsistência de texto pré-existente a ser resolvida junto).
+3. Trial Stripe não implementado (só mapeamento do webhook trial_will_end);
+   alertas, recomendações limitadas/diárias e listas colaborativas não existem.
+
+### Pendências para implementação (ordem sugerida)
+1. Decidir a escala de exibição (única 0–10 vs por mídia) — é o core do score e da
+   comunicação; alinhar com i18n (heroSubtitle).
+2. Implementar trial de 7 dias do Plus (Stripe) + limites do Free (watchlist 20,
+   recomendações 3/dia, histórico 10) com gatilhos de upgrade.
+3. Alertas por gênero/franquia (Plus) e comparador de perfis/listas colaborativas
+   (Premium) — dependem de recomendação/notificação, ainda não existem.
