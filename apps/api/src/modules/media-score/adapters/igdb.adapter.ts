@@ -25,7 +25,7 @@ async function obterTokenTwitch(): Promise<string> {
   }).toString();
   const resposta = await postJson<TokenTwitch>("https://id.twitch.tv/oauth2/token", corpo, {
     headers: {
-      accept: "application/json",
+      "accept": "application/json",
       "content-type": "application/x-www-form-urlencoded",
     },
   });
