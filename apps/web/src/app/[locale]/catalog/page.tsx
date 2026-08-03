@@ -2,7 +2,35 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { CatalogPageClient } from "../../../components/CatalogPageClient";
 import { getCatalog } from "../../../lib/api";
+import type { MediaType } from "../../../lib/types";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
+
+type CatalogSort = "title" | "year" | "score";
+
+function asMediaType(value: string | undefined): MediaType | undefined {
+  switch (value) {
+    case "movie":
+    case "series":
+    case "game":
+    case "book":
+    case "anime":
+    case "comic":
+      return value;
+    default:
+      return undefined;
+  }
+}
+
+function asCatalogSort(value: string | undefined): CatalogSort | undefined {
+  switch (value) {
+    case "title":
+    case "year":
+    case "score":
+      return value;
+    default:
+      return undefined;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -36,8 +64,8 @@ export default async function CatalogPage({
   const initialData = await getCatalog({
     page: 1,
     limit: 12,
-    type: sp.type as any,
-    sort: sp.sort as any,
+    type: asMediaType(sp.type),
+    sort: asCatalogSort(sp.sort),
     search: sp.q,
   });
 

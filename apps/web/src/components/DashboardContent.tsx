@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
-import { useAuthStore } from "@/stores/use-auth-store";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
@@ -29,7 +28,6 @@ const byId = new Map(MOCK_MEDIA.map((m) => [m.id, m]));
 
 export function DashboardContent() {
   const t = useTranslations("dashboard");
-  const { user } = useAuthStore();
   const { entries, isLoading, error, fetchWatchlist } = useWatchlistStore();
 
   useEffect(() => {

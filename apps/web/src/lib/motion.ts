@@ -1,6 +1,6 @@
 "use client";
 
-import { gsap, ScrollTrigger } from "@/lib/gsap-config";
+import { gsap } from "@/lib/gsap-config";
 import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
 import type { Variants } from "motion/react";

@@ -67,7 +67,7 @@ export function useHapticConfirm() {
     el.style.position = el.style.position || "relative";
     el.appendChild(check);
 
-    const tl = animate([el, check], {
+    animate([el, check], {
       duration: 800,
       autoplay: true,
     });

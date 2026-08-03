@@ -94,6 +94,41 @@ export default tseslint.config(
     },
   },
 
+  // Scripts de diagnostico/CLI do web (Node.js + browser automation) e specs
+  // e2e (Playwright) — codigo descartavel/one-off: console e globals de
+  // browser sao legitimamente usados, e regras estritas de tipagem/limpeza
+  // sao relaxadas (nao e codigo de producao).
+  {
+    files: [
+      "apps/web/scripts/**/*.{mjs,js,ts}",
+      "apps/web/e2e/**/*.{ts,tsx}",
+      "apps/web/playwright.config.ts",
+    ],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        window: "readonly",
+        document: "readonly",
+        fetch: "readonly",
+        URL: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        getComputedStyle: "readonly",
+        location: "readonly",
+      },
+    },
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-empty": "off",
+      "no-useless-escape": "off",
+    },
+  },
+
   // Modulos NestJS (controllers, modules, providers) — classes vazias com
   // decorator sao padrao do framework; regra de "no-extraneous-class"
   // precisa ser relaxada para esses arquivos.

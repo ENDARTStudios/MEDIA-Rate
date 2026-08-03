@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { scoreColor as getScoreColor } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

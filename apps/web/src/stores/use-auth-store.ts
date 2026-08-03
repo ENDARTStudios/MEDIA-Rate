@@ -88,7 +88,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ isLoading: true });
     try {
       await api.post("/api/v1/auth/logout");
-    } catch {}
+    } catch {
+      // Logout local continua mesmo se a chamada à API falhar.
+    }
     setCsrfToken(null);
     // T130: Clear auth flag cookie
     if (typeof document !== "undefined") {

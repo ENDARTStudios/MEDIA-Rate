@@ -34,9 +34,10 @@ describe("T141 — game poster structural integrity", () => {
   it("game posters come from game domains (steam/rawg)", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
     for (const g of games) {
-      if (g.posterUrl) {
-        const ok = GAME_DOMAINS.some((d) => g.posterUrl!.includes(d));
-        expect(ok, `${g.title} poster ${g.posterUrl} is not from game domain`).toBe(true);
+      const url = g.posterUrl;
+      if (url) {
+        const ok = GAME_DOMAINS.some((d) => url.includes(d));
+        expect(ok, `${g.title} poster ${url} is not from game domain`).toBe(true);
       }
     }
   });

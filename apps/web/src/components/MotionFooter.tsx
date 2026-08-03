@@ -3,7 +3,6 @@
 import { Link } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },

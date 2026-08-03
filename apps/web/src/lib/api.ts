@@ -22,8 +22,7 @@ import { SEED_MEDIA } from "./seed-data";
  */
 
 const API_TIMEOUT_MS = 7000;
-const API_BASE =
-  process.env.API_PROXY_TARGET ?? "https://media-rate-production.up.railway.app";
+const API_BASE = process.env.API_PROXY_TARGET ?? "https://media-rate-production.up.railway.app";
 
 // ===========================================================================
 // Tipos do payload da API (espelho dos endpoints públicos)
@@ -156,12 +155,15 @@ const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anim
 function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
   const urlsByFonte = new Map(m.fontes.map((f) => [f.fonte, f.url]));
   const sources: SourceRating[] =
-    m.score?.detalhes?.map((d) => ({
-      source: d.fonte as SourceName,
-      score: d.rating_100,
-      maxScore: 100,
-      ...(urlsByFonte.get(d.fonte) ? { url: urlsByFonte.get(d.fonte)! } : {}),
-    })) ?? [];
+    m.score?.detalhes?.map((d) => {
+      const url = urlsByFonte.get(d.fonte);
+      return {
+        source: d.fonte as SourceName,
+        score: d.rating_100,
+        maxScore: 100,
+        ...(url ? { url } : {}),
+      };
+    }) ?? [];
 
   const confidence = mapConfidence(m.score?.confianca);
   const emPreparacao = TIPOS_PREPARACAO.has(mapTipo(m.tipo));
@@ -766,7 +768,10 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
     const params = new URLSearchParams();
     if (filters?.type) params.set("tipo", TIPO_TO_API[filters.type]);
     if (filters?.sort && SORT_TO_API[filters.sort]) {
-      params.set("sort", `${SORT_TO_API[filters.sort]}:${filters.order === "asc" ? "asc" : "desc"}`);
+      params.set(
+        "sort",
+        `${SORT_TO_API[filters.sort]}:${filters.order === "asc" ? "asc" : "desc"}`,
+      );
     }
     params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
     const data = await apiGet<{

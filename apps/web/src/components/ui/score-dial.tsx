@@ -31,7 +31,7 @@ export function ScoreDial({
   className,
   scale = "0-10",
   breakdownData,
-  sources,
+  sources: _sources,
 }: ScoreDialProps) {
   const tScore = useTranslations("scoredial");
   const config = SIZE_CONFIG[size];

@@ -37,7 +37,7 @@ describe("Episodes", () => {
 
   it("expandir mostra sinopse e score", async () => {
     const { getByText } = renderWithProviders(
-      <Episodes episodes={[mockEpisodes[0]!]} seasonNumber={1} />,
+      <Episodes episodes={[mockEpisodes[0]]} seasonNumber={1} />,
     );
     await userEvent.setup().click(getByText("Piloto"));
     expect(getByText("O começo.")).toBeTruthy();

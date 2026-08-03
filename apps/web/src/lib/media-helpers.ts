@@ -1,11 +1,12 @@
+import type { Media } from "./types";
 import { MOCK_MEDIA } from "./api";
 
 export function getMediaById(id: string) {
   return MOCK_MEDIA.find((m) => m.id === id) ?? null;
 }
 
-export function getMediaByIds(ids: string[]) {
-  return ids.map((id) => getMediaById(id)).filter(Boolean);
+export function getMediaByIds(ids: string[]): Media[] {
+  return ids.map((id) => getMediaById(id)).filter((m): m is Media => m !== null);
 }
 
 export function getGenreDistribution(ids: string[]) {
@@ -13,7 +14,7 @@ export function getGenreDistribution(ids: string[]) {
   const items = getMediaByIds(ids);
   let total = 0;
   for (const item of items) {
-    for (const g of (item as any).genres || []) {
+    for (const g of item.genres) {
       genres[g] = (genres[g] || 0) + 1;
       total++;
     }
@@ -28,7 +29,7 @@ export function getStreamingDistribution(ids: string[]) {
   const services: Record<string, number> = {};
   const items = getMediaByIds(ids);
   for (const item of items) {
-    for (const s of (item as any).streaming || []) {
+    for (const s of item.streaming) {
       services[s.name] = (services[s.name] || 0) + 1;
     }
   }

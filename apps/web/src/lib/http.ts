@@ -16,7 +16,9 @@ function writeCsrfStore(token: string | null) {
   try {
     if (token) sessionStorage.setItem(CSRF_KEY, token);
     else sessionStorage.removeItem(CSRF_KEY);
-  } catch {}
+  } catch {
+    // sessionStorage indisponível (ex: modo privado) — segue sem token.
+  }
 }
 
 export function setCsrfToken(token: string | null) {
@@ -28,7 +30,7 @@ export function getCsrfToken(): string | null {
   if (stored) return stored;
   if (typeof document === "undefined") return null;
   const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
-  return m ? m[1]! : null;
+  return m?.[1] ?? null;
 }
 
 export class ApiError extends Error {

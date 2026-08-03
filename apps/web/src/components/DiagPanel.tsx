@@ -12,7 +12,10 @@ export function DiagPanel() {
   }, []);
 
   const buildId =
-    typeof window !== "undefined" ? (window as any).__NEXT_DATA__?.buildId || "N/A" : "SSR";
+    typeof window !== "undefined"
+      ? ((window as unknown as { __NEXT_DATA__?: { buildId?: string } }).__NEXT_DATA__?.buildId ??
+        "N/A")
+      : "SSR";
 
   const url = typeof window !== "undefined" ? window.location.href : "SSR";
 
@@ -51,9 +54,9 @@ export function DiagPanel() {
       } else {
         setMeEmail(r.status === 401 ? "NÃO LOGADO / cookie não enviado" : `Error ${r.status}`);
       }
-    } catch (e: any) {
+    } catch (e) {
       setMeStatus(0);
-      setMeEmail("fetch failed: " + (e.message || "network"));
+      setMeEmail("fetch failed: " + (e instanceof Error ? e.message : String(e)));
     }
     setMeLoading(false);
   }
@@ -68,7 +71,7 @@ export function DiagPanel() {
         const d = await r.json();
         setWlCount(Array.isArray(d) ? d.length : (d.items?.length ?? 0));
       }
-    } catch (e: any) {
+    } catch {
       setWlStatus(0);
     }
     setWlLoading(false);

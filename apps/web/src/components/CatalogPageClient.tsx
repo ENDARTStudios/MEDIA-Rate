@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
 import { getCatalog } from "@/lib/api";
-import type { MediaType, CatalogResponse } from "@/lib/types";
+import type { MediaType, Media, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
@@ -14,7 +14,20 @@ import type { MediaItem } from "./MediaCard";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 
-function mapToMediaItem(media: any): MediaItem {
+type CatalogSort = "title" | "year" | "score";
+
+function asCatalogSort(value: string | undefined): CatalogSort | undefined {
+  switch (value) {
+    case "title":
+    case "year":
+    case "score":
+      return value;
+    default:
+      return undefined;
+  }
+}
+
+function mapToMediaItem(media: Media): MediaItem {
   return {
     id: media.id,
     titulo: media.title,
@@ -57,7 +70,7 @@ function CatalogContent({
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ["catalog", { type, sort, query }],
-    queryFn: () => getCatalog({ type, search: query, sort: sort as any }),
+    queryFn: () => getCatalog({ type, search: query, sort: asCatalogSort(sort) }),
     initialData:
       type === undefined && sort === undefined && query === undefined ? initialData : undefined,
     staleTime: 5 * 60 * 1000,

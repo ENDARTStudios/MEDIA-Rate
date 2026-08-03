@@ -54,7 +54,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
       animRef.current.forEach((a) => {
         try {
           a.pause();
-        } catch {}
+        } catch {
+          // Animação já não está mais em execução — nada a fazer.
+        }
       });
     };
   }, []);
@@ -147,7 +149,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
         href={`/media/${media.id}`}
         className="relative z-10 block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
-        aria-label={`${titleForLocale(media as any, useLocale())} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
+        aria-label={`${titleForLocale({ title: media.titulo, id: media.id }, useLocale())} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
         <div className={`${aspectRatio} bg-[#1C1C2E] relative overflow-hidden`}>
           {media.imagem_url ? (
@@ -207,7 +209,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
         <div className="p-3 bg-[#11111E] rounded-b-md">
           <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">
-            {titleForLocale(media as any, useLocale())}
+            {titleForLocale({ title: media.titulo, id: media.id }, useLocale())}
           </h3>
           <p className="text-xs text-[#9CA3AF] mt-1">
             {t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}

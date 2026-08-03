@@ -60,6 +60,7 @@ export interface MediaScore {
   sampleSize?: number;
   algorithmVersion?: string;
   confidenceScore?: number;
+  snapshots?: { date: string; score: number }[];
 }
 
 export interface Media {

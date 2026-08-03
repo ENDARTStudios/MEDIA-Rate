@@ -10,8 +10,10 @@ export interface ScoreTrendProps {
 export function ScoreTrend({ snapshots }: ScoreTrendProps) {
   if (!snapshots || snapshots.length < 2) return null;
 
-  const latest = snapshots[snapshots.length - 1]!;
-  const previous = snapshots[snapshots.length - 2]!;
+  const lastIndex = snapshots.length - 1;
+  const latest = snapshots[lastIndex];
+  const previous = snapshots[lastIndex - 1];
+  if (latest == null || previous == null) return null;
   const delta = latest.score - previous.score;
 
   const arrow = delta > 0 ? "↑" : delta < 0 ? "↓" : "→";

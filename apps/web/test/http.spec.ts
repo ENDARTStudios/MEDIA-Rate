@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { apiFetch, api, getCsrfToken, ApiError, SessionExpiredError } from "../src/lib/http";
+import { api, getCsrfToken, ApiError, SessionExpiredError } from "../src/lib/http";
 
 const FAKE_BASE = "https://api.example.com";
 

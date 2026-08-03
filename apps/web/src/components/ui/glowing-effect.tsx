@@ -71,7 +71,6 @@ export function GlowingEffect({
     borderGradient.addColorStop(0, `rgba(129, 140, 248, ${0.6 * intensity})`);
     borderGradient.addColorStop(1, "rgba(129, 140, 248, 0)");
 
-    const r = spread * intensity;
     ctx.strokeStyle = borderGradient;
     ctx.lineWidth = borderWidth;
     ctx.beginPath();

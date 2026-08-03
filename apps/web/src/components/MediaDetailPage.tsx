@@ -192,9 +192,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               </div>
               <div className="flex items-center gap-3">
                 {media.score && <MediaScoreBadge score={media.score.consolidated} />}
-                {(media.score as any)?.snapshots && (
-                  <ScoreTrend snapshots={(media.score as any).snapshots} />
-                )}
+                {media.score?.snapshots && <ScoreTrend snapshots={media.score.snapshots} />}
                 <button
                   onClick={async () => {
                     const url = window.location.href;

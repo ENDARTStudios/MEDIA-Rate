@@ -58,7 +58,7 @@ export function Navbar({
   useEffect(() => {
     if (effectiveAuth && !hasFetchedWl.current && wlEntries.length === 0) {
       hasFetchedWl.current = true;
-      fetchWatchlist().catch(() => {});
+      fetchWatchlist().catch(() => undefined);
     }
   }, [effectiveAuth, wlEntries.length, fetchWatchlist]);
 
@@ -101,7 +101,7 @@ export function Navbar({
             <SearchCommand />
             <GradientMenu
               items={NAV_ITEMS.map((item) => ({
-                label: t(item.label as any) ?? item.label,
+                label: t(item.label) ?? item.label,
                 href: item.href,
               }))}
             />

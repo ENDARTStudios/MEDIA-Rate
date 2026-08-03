@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { getCatalog } from "@/lib/api";
-import type { CatalogResponse } from "@/lib/types";
+import type { CatalogResponse, Media } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import type { MediaItem } from "./MediaCard";
@@ -11,7 +11,7 @@ import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 
-function mapToMediaItem(media: any): MediaItem {
+function mapToMediaItem(media: Media): MediaItem {
   return {
     id: media.id,
     titulo: media.title,

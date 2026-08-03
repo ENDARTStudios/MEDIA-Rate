@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { MediaDetailPage } from "@/components/MediaDetailPage";
-import type { Media } from "@/lib/types";
 
 vi.mock("@/lib/api", () => ({
   getMediaBySlug: vi.fn(),
@@ -12,11 +10,12 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/lib/navigation", () => ({
-  Link: ({ href, children }: any) => `<a href="${href}">${children}</a>`,
+  Link: ({ href, children }: { href: string; children: React.ReactNode }) =>
+    `<a href="${href}">${children}</a>`,
 }));
 
 vi.mock("next/image", () => ({
-  default: (p: any) => `<img src="${p.src}" alt="${p.alt}" />`,
+  default: (p: { src: string; alt?: string }) => `<img src="${p.src}" alt="${p.alt ?? ""}" />`,
 }));
 
 vi.mock("./MediaScoreModule", () => ({
@@ -29,7 +28,7 @@ vi.mock("./MediaScoreBadge", () => ({
 
 describe("MediaDetailPage", () => {
   it("renderiza breadcrumbs com Home > Catálogo > Tipo > Título", async () => {
-    const { getByText } = render("<MediaDetailPage id='test' type='movie' />");
+    render("<MediaDetailPage id='test' type='movie' />");
     expect(true).toBe(true);
   });
 });

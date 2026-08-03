@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ApiError, RateLimitedError } from "@/lib/http";
+import { RateLimitedError } from "@/lib/http";
 
 export interface AsyncState<T> {
   data: T | undefined;

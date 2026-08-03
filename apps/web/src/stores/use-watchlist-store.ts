@@ -3,13 +3,21 @@
 import { create } from "zustand";
 import { api, ApiError } from "@/lib/http";
 
+interface WatchlistMedia {
+  id?: string;
+  title?: string;
+  posterUrl?: string | null;
+  type?: string;
+  year?: number | null;
+}
+
 interface WatchlistEntry {
   id: string;
   mediaId: string;
   midia_id?: string;
   status: string;
   coluna?: string;
-  media?: any;
+  media?: WatchlistMedia | null;
   addedAt?: string;
   created_at?: string;
 }
@@ -34,9 +42,11 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
   fetchWatchlist: async () => {
     set({ isLoading: true, error: null });
     try {
-      const data = await api.get<{ items?: WatchlistEntry[] }>("/api/v1/watchlist");
-      const items = data.items ?? (Array.isArray(data) ? data : []);
-      const mapped = items.map((e: any) => ({
+      const data = await api.get<{ items?: WatchlistEntry[] } | WatchlistEntry[]>(
+        "/api/v1/watchlist",
+      );
+      const items: WatchlistEntry[] = Array.isArray(data) ? data : (data.items ?? []);
+      const mapped = items.map((e) => ({
         id: String(e.id),
         mediaId: String(e.mediaId ?? e.midia_id ?? e.media?.id ?? ""),
         midia_id: e.midia_id,

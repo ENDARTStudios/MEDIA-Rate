@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import type { MediaType } from "@/lib/types";
 
 const TYPES: { value: MediaType; labelKey: string }[] = [

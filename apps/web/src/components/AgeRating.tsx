@@ -4,7 +4,7 @@ export interface AgeRatingProps {
   locale?: string;
 }
 
-export function AgeRating({ rating, type, locale = "pt-BR" }: AgeRatingProps) {
+export function AgeRating({ rating, type: _type, locale: _locale = "pt-BR" }: AgeRatingProps) {
   if (!rating) return null;
 
   return (

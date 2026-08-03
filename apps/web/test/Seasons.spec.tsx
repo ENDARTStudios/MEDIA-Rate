@@ -53,7 +53,7 @@ describe("Seasons", () => {
   });
 
   it("renderiza Badge quando score disponivel", () => {
-    const { getByText } = renderWithProviders(<Seasons seasons={[mockSeasons[0]!]} />);
+    const { getByText } = renderWithProviders(<Seasons seasons={[mockSeasons[0]]} />);
     expect(getByText("82")).toBeTruthy();
   });
 

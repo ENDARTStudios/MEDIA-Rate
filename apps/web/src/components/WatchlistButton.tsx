@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
-import { useAuthStore } from "@/stores/use-auth-store";
 import { motion, useReducedMotion } from "motion/react";
 
 function statusKeys(isGame: boolean): Record<string, string> {
@@ -11,12 +10,6 @@ function statusKeys(isGame: boolean): Record<string, string> {
     ? { WANT: "queroJogar", WATCHING: "jogando", COMPLETED: "joguei" }
     : { WANT: "queroVer", WATCHING: "vendo", COMPLETED: "vi" };
 }
-
-const NEXT_STATUS: Record<string, string> = {
-  WANT: "WATCHING",
-  WATCHING: "COMPLETED",
-  COMPLETED: "WANT",
-};
 
 interface Props {
   mediaId: string;
@@ -29,7 +22,6 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const shouldReduce = useReducedMotion();
   const { isInWatchlist, getEntryStatus, addToWatchlist, moveItem, removeItem, entries } =
     useWatchlistStore();
-  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
@@ -74,6 +66,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
       setAnimate(true);
       setTimeout(() => setAnimate(false), 300);
     } catch {
+      // Falha silenciosa: o store mantém o estado otimista.
     } finally {
       setLoading(false);
     }
@@ -85,6 +78,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     try {
       if (entry) await moveItem(entry.id, newStatus);
     } catch {
+      // Falha silenciosa: o store mantém o estado otimista.
     } finally {
       setLoading(false);
     }
@@ -96,6 +90,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     try {
       if (entry) await removeItem(entry.id);
     } catch {
+      // Falha silenciosa: o store mantém o estado otimista.
     } finally {
       setLoading(false);
     }

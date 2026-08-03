@@ -57,7 +57,9 @@ function MoveDropdown({ entryId, currentStatus }: { entryId: string; currentStat
                 setLoading(true);
                 try {
                   await moveItem(entryId, col.key);
-                } catch {}
+                } catch {
+                  // Falha silenciosa: o store mantém o estado otimista.
+                }
                 setLoading(false);
                 setOpen(false);
               }}
@@ -205,7 +207,9 @@ export function WatchlistClient() {
                                 setDeleting(entry.id);
                                 try {
                                   await removeItem(entry.id);
-                                } catch {}
+                                } catch {
+                                  // Falha silenciosa: o store mantém o estado otimista.
+                                }
                                 setDeleting(null);
                               }}
                               disabled={deleting === entry.id}

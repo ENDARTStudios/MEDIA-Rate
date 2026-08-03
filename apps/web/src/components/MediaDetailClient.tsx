@@ -469,7 +469,9 @@ function FavoriteButton({ mediaId }: { mediaId: string }) {
           try {
             if (entryId) await removeItem(entryId);
             else await removeItem(mediaId);
-          } catch {}
+          } catch {
+            // Falha silenciosa: o store mantém o estado otimista.
+          }
           setOptimisticFav(false);
           setLoading(false);
         }}

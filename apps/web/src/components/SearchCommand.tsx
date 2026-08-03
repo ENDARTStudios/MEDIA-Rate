@@ -260,9 +260,7 @@ export function SearchCommand() {
               )}
 
               {debouncedQuery.length >= 2 && searching && (
-                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                  Buscando...
-                </div>
+                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">Buscando...</div>
               )}
 
               {debouncedQuery.length >= 2 && !searching && totalResults === 0 && (
