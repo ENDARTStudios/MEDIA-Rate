@@ -22,6 +22,8 @@ import { SEED_MEDIA } from "./seed-data";
  */
 
 const API_TIMEOUT_MS = 7000;
+const API_BASE =
+  process.env.API_PROXY_TARGET ?? "https://media-rate-production.up.railway.app";
 
 // ===========================================================================
 // Tipos do payload da API (espelho dos endpoints públicos)
@@ -95,18 +97,23 @@ interface ApiSearchItem {
 
 async function apiGet<T>(path: string): Promise<T | null> {
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    // Cliente: same-origin (rewrite /api/* → Railway) — CSP connect-src 'self'.
+    // Servidor: direto no Railway (sem o hop do rewrite, instável no fetch
+    // RSC) — também funciona no build/export, que não tem origin própria.
+    const isClient = typeof window !== "undefined";
+    const url = isClient ? `/api${path}` : `${API_BASE}${path}`;
+    const controller = isClient ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), API_TIMEOUT_MS) : null;
     try {
-      const res = await fetch(`/api${path}`, {
-        signal: controller.signal,
-        next: { revalidate: 300 },
+      const res = await fetch(url, {
+        ...(controller ? { signal: controller.signal } : {}),
+        ...(isClient ? {} : { next: { revalidate: 300 } }),
       });
       if (res.status === 404) return null;
       if (!res.ok) return null;
       return (await res.json()) as T;
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   } catch {
     // Rede/5xx/timeout → null: o caller decide o fallback.
