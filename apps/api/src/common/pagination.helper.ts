@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 
 /**
  * DTO de paginação cursor-based (T4.5).
@@ -53,7 +54,7 @@ export async function paginateCursor<T>(params: {
   params: PaginationDtoType;
   where?: Record<string, unknown>;
   orderBy?: Record<string, "asc" | "desc">;
-  select?: Record<string, boolean>;
+  select?: Prisma.MidiaSelect;
 }): Promise<PaginatedResult<T>> {
   const { prisma, model, cursor_field, params: p, where, orderBy, select } = params;
   const limit = p.limit ?? 20;

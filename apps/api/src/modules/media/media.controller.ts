@@ -121,6 +121,11 @@ export class MediaController {
         tipo: true,
         ano_lancamento: true,
         imagem_url: true,
+        scores: {
+          select: { score: true },
+          take: 1,
+          orderBy: { calculado_em: "desc" },
+        },
       },
     });
   }
@@ -187,6 +192,7 @@ export class MediaController {
             num_fontes: score.num_fontes,
             confianca: score.confianca,
             calculado_em: score.calculado_em.toISOString(),
+            detalhes: Array.isArray(score.detalhes) ? score.detalhes : [],
           }
         : null,
       fontes: midia.avaliacoes.map((a) => ({ fonte: a.fonte, url: a.url })),
