@@ -140,13 +140,23 @@ Depois de feito: responda "feito o item Nº 6"
 
 ---
 
-### [7] Configurar PostHog (analytics)
+### [7] ~~Configurar PostHog (analytics)~~ — FEITO (backend; web pendente de integração)
+
+Resultado (2026-08-03):
+- Projeto **MEDIA Rate** (id 527617) localizado via CLI do PostHog; Project API key
+  (`phc_...`) obtida e configurada:
+  - Railway (produção): `ANALYTICS_WRITE_KEY` ✅
+  - `.env.local` (dev): `ANALYTICS_WRITE_KEY` ✅ (gitignored)
+  - Host padrão `https://app.posthog.com` (posthog-node no backend).
+- PENDENTE: o frontend ainda NÃO tem integração posthog-js (nenhum uso em apps/web);
+  quando implementada, adicionar `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` e
+  `NEXT_PUBLIC_POSTHOG_HOST` nas variáveis do Vercel.
 
 Por quê: para medir ativação, retenção e conversão (Discovery Q7).
 Onde: https://app.posthog.com
-Passo a passo:
-1. Crie conta em https://posthog.com (Cloud free tier — 1M events/mês grátis).
-2. Copie o "Project API key" em Project Settings.
-3. Adicione `ANALYTICS_WRITE_KEY` nas variáveis do Railway e Vercel.
+Passo a passo (aplicado):
+1. Conta e projeto "MEDIA Rate" existentes (criado 2026-07-25) ✅
+2. Project API key copiada via `posthog-cli` (project-get → api_token) ✅
+3. `ANALYTICS_WRITE_KEY` no Railway ✅ (Vercel: pendente até o frontend usar posthog-js)
 Como saber que deu certo: faça login no site e veja o evento `user_session_start` no PostHog.
 Depois de feito: responda "feito o item Nº 7"
