@@ -267,12 +267,12 @@ model ConsentimentoUsuario {
 // ===========================================================================
 
 /// Catálogo de mídia. Sincronizado das fontes públicas (OMDb, TMDB, IGDB,
-/// RAWG, Open Library) — não é input do usuário.
+/// Open Library) — não é input do usuário.
 model Midia {
   id                      String                 @id @default(uuid()) @db.Uuid
   // ID externo na fonte (ex: 'tt0111161' para IMDb, '12345' para TMDB).
   fonte_id                String                 @map("fonte_id") @db.VarChar(64)
-  fonte                   String                 @db.VarChar(32) // 'omdb', 'tmdb', 'igdb', 'rawg', 'openlibrary'
+  fonte                   String                 @db.VarChar(32) // 'omdb', 'tmdb', 'igdb', 'opencritic', 'openlibrary'
   tipo                    TipoMidia
   titulo                  String                 @db.Text
   titulo_original         String?                @map("titulo_original") @db.Text

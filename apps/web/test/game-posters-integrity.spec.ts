@@ -3,11 +3,10 @@ import { getCatalogSync, MOCK_MEDIA } from "@/lib/api";
 
 // Domínios aceitos para posters de games. "upload.wikimedia.org" é exceção
 // documentada: exclusivos de plataforma (ex: Zelda BOTW, Nintendo) não estão
-// no Steam nem no RAWG, e a capa oficial da Wikimedia é o melhor ativo estável.
+// no Steam, e a capa oficial da Wikimedia é o melhor ativo estável.
 // O host também está no remotePatterns do next.config (images).
 const GAME_DOMAINS = [
   "steamcdn-a.akamaihd.net",
-  "media.rawg.io",
   "cdn.cloudflare.steamstatic.com",
   "upload.wikimedia.org",
 ];
@@ -31,7 +30,7 @@ describe("T141 — game poster structural integrity", () => {
     ).toEqual([]);
   });
 
-  it("game posters come from game domains (steam/rawg)", () => {
+  it("game posters come from game domains (steam/wikimedia)", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
     for (const g of games) {
       const url = g.posterUrl;

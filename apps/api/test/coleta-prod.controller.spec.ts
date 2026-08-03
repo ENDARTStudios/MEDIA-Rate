@@ -87,7 +87,7 @@ describe("ColetaProdController (coleta em produção)", () => {
     mockColeta.coletarTudo.mockResolvedValue([
       nota("igdb"),
       nota("igdb_publico", 84),
-      { fonte: "rawg", status: "erro", motivo: "fora do ar" },
+      { fonte: "opencritic", status: "erro", motivo: "resposta inválida" },
     ]);
     mockScore.recalcularEPersistir.mockResolvedValue({
       score: 81.2,

@@ -16,7 +16,6 @@ const ZELDA_SOURCES: SourceRating[] = [
   { source: "metacritic", score: 97, maxScore: 100 },
   { source: "igdb", score: 92, maxScore: 100 },
   { source: "igdb_publico", score: 85, maxScore: 100 },
-  { source: "rawg", score: 4.5, maxScore: 5 },
   { source: "steam", score: 0.9, maxScore: 1 },
 ];
 
@@ -107,11 +106,11 @@ describe("derivarScores — Crítica vs Público (CRIT-02)", () => {
     // crítica: z = (97-70)/15=1.8 (peso 0.2) + (92-70)/15=1.4667 (peso 0.5)
     // zMedio = (0.36+0.7333)/0.7 = 1.5619 → 89.0
     expect(r.criticosScore).toBe(89);
-    // público: igdb_publico z=1.0 (0.25) + rawg z=1.6667 (0.35) + steam z=0.75 (0.15)
-    // zMedio = (0.25+0.5833+0.1125)/0.75 = 1.2611 → 81.5
-    expect(r.publicoScore).toBe(81.5);
-    expect(r.consenso).toBe(7.5);
-    expect(r.detalhes).toHaveLength(5);
+    // público: igdb_publico z=1.0 (0.35) + steam z=0.75 (0.25)
+    // zMedio = (0.35 + 0.1875)/0.6 = 0.8958 → 72.4
+    expect(r.publicoScore).toBe(72.4);
+    expect(r.consenso).toBe(16.6);
+    expect(r.detalhes).toHaveLength(4);
     const metacritic = r.detalhes.find((d) => d.fonte === "metacritic");
     expect(metacritic?.classificacao).toBe("critica");
     expect(metacritic?.rating_100).toBe(97);

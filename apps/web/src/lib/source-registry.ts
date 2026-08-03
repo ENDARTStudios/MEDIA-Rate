@@ -57,7 +57,6 @@ export const FONTES_WEB: Record<string, FonteWeb> = {
     classificacao: "publico",
     escala: "0-100",
   },
-  rawg: { id: "rawg", rotulo: "RAWG", classificacao: "publico", escala: "0-5" },
   steam: { id: "steam", rotulo: "Steam Store", classificacao: "publico", escala: "ratio" },
   steamspy: { id: "steamspy", rotulo: "Steam Spy", classificacao: "publico", escala: "ratio" },
   opencritic: { id: "opencritic", rotulo: "OpenCritic", classificacao: "critica", escala: "0-100" },
@@ -122,7 +121,7 @@ export const PESOS_POR_TIPO_WEB: Record<
   },
   game: {
     critica: { igdb: 0.5, opencritic: 0.3, metacritic: 0.2 },
-    publico: { rawg: 0.35, igdb_publico: 0.25, steam: 0.15, steamspy: 0.1, metacritic_user: 0.15 },
+    publico: { igdb_publico: 0.35, steam: 0.25, steamspy: 0.15, metacritic_user: 0.25 },
   },
   book: {
     critica: {},

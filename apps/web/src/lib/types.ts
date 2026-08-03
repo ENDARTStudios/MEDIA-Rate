@@ -17,7 +17,6 @@ export type SourceName =
   | "rogerebert"
   | "igdb"
   | "igdb_publico"
-  | "rawg"
   | "steam"
   | "steamspy"
   | "opencritic"

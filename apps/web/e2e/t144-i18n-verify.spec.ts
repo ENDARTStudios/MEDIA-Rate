@@ -50,7 +50,7 @@ test.describe("T144 - C3 i18n verification", () => {
           "vercel.app",
           "end.art",
           "tmdb.org",
-          "rawg.io",
+          "opencritic.com",
           "akamaihd.net",
         ];
         const actualLeaks = realKeys.filter((k) => !falsePositives.some((fp) => k.includes(fp)));

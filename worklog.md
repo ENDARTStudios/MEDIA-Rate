@@ -742,3 +742,16 @@ Stage Summary:
 - Todas as animações permanecem funcionais (Motion no bundle principal, GSAP/Anime.js on-demand).
 - Status: DONE.
 - Fase 5.5 concluída (T5.7 - T5.12).
+
+---
+
+## [2026-08-03] Stage: Substituição do RAWG por OpenCritic (API + web)
+- RAWG extinto (HTTP 522) removido: adapter deletado, FonteMeta do registro, pesos v1/v2,
+  espelhos web, SourceName, remotePatterns do next.config e textos i18n/FAQ/JSON-LD.
+- OpenCriticAdapter corrigido para o contrato real do wrapper RapidAPI: busca
+  GET /game/search?criteria= + detalhe GET /game/{id} (o endpoint ?name= era ignorado).
+- Pesos v2 GAME público: igdb_publico 0.35, steam 0.25, steamspy 0.15,
+  metacritic_user 0.25 (soma 1.00).
+- Testes atualizados: adapters-novos (OpenCritic), media-score v1/v2, fixture
+  coleta-prod e media-score-engine (web).
+- Status: DONE (após lint/testes/deploy).

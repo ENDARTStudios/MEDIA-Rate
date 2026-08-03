@@ -74,10 +74,10 @@ describe("MediaScoreService (T4.7)", () => {
       });
     });
 
-    it("games usam pesos diferentes (igdb:0.5, rawg:0.5)", () => {
+    it("games usam pesos diferentes (igdb:0.5, opencritic:0.5)", () => {
       const result = svc.calcularScore("GAME", [
         { fonte: "igdb", rating: 90, media_fonte: 70, desvio_fonte: 10 }, // z=2
-        { fonte: "rawg", rating: 80, media_fonte: 70, desvio_fonte: 10 }, // z=1
+        { fonte: "opencritic", rating: 80, media_fonte: 70, desvio_fonte: 10 }, // z=1
       ]);
       // somaPonderada = 2*0.5 + 1*0.5 = 1.5
       // somaPesos = 1.0
@@ -86,7 +86,7 @@ describe("MediaScoreService (T4.7)", () => {
       expect(result.score).toBe(87.5);
       expect(result.pesos_usados).toEqual({
         igdb: 0.5,
-        rawg: 0.5,
+        opencritic: 0.5,
       });
     });
 
@@ -179,23 +179,22 @@ describe("MediaScoreService (T4.7)", () => {
   });
 
   describe("calcularScoreV2() — classificação Crítica vs Público (CRIT-02)", () => {
-    it("Zelda BotW: crítica (metacritic 97 + igdb 92) vs público (igdb 85 + rawg + steam)", () => {
+    it("Zelda BotW: crítica (metacritic 97 + igdb 92) vs público (igdb_publico + steam)", () => {
       const result = svc.calcularScoreV2("GAME", [
         // crítica
         { fonte: "metacritic", rating: 97, media_fonte: 70, desvio_fonte: 15 }, // z=1.8, peso 0.2
         { fonte: "igdb", rating: 92, media_fonte: 70, desvio_fonte: 15 }, // z=1.4667, peso 0.5
         // público
-        { fonte: "igdb_publico", rating: 85, media_fonte: 70, desvio_fonte: 15 }, // z=1.0, peso 0.25
-        { fonte: "rawg", rating: 4.5, media_fonte: 3.5, desvio_fonte: 0.6 }, // z=1.6667, peso 0.35
-        { fonte: "steam", rating: 0.9, media_fonte: 0.75, desvio_fonte: 0.2 }, // z=0.75, peso 0.15
+        { fonte: "igdb_publico", rating: 85, media_fonte: 70, desvio_fonte: 15 }, // z=1.0, peso 0.35
+        { fonte: "steam", rating: 0.9, media_fonte: 0.75, desvio_fonte: 0.2 }, // z=0.75, peso 0.25
       ]);
       // crítica: zMedio = (1.8*0.2 + 1.4667*0.5)/0.7 = 1.5619 → 50+1.5619*25 = 89.0
       expect(result.criticosScore).toBe(89);
-      // público: zMedio = (1.0*0.25 + 1.6667*0.35 + 0.75*0.15)/0.75 = 1.2611 → 50+1.2611*25 = 81.5
-      expect(result.publicoScore).toBe(81.5);
-      expect(result.consenso).toBe(7.5); // |89.0 - 81.5|
-      expect(result.score).toBe(85.3); // 0.5*89 + 0.5*81.5
-      expect(result.num_fontes).toBe(5);
+      // público: zMedio = (1.0*0.35 + 0.75*0.25)/0.6 = 0.8958 → 50+0.8958*25 = 72.4
+      expect(result.publicoScore).toBe(72.4);
+      expect(result.consenso).toBe(16.6); // |89.0 - 72.4|
+      expect(result.score).toBe(80.7); // 0.5*89 + 0.5*72.4
+      expect(result.num_fontes).toBe(4);
       expect(result.confianca).toBe(0.9);
     });
 

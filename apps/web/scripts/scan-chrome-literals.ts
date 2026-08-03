@@ -46,7 +46,7 @@ const WHITELIST = [
   "Igdb",
   "Stripe",
   "TMDB",
-  "RAWG",
+  "OpenCritic",
   "Steam",
   "OpenLibrary",
   "TVMaze",

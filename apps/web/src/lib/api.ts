@@ -491,7 +491,7 @@ const MANUAL: Media[] = [
       { source: "metacritic", score: 97, maxScore: 100 },
       { source: "igdb", score: 92, maxScore: 100 },
       { source: "igdb_publico", score: 85, maxScore: 100 },
-      { source: "rawg", score: 4.5, maxScore: 5 },
+      { source: "opencritic", score: 94, maxScore: 100 },
       { source: "steam", score: 0.9, maxScore: 1 },
     ],
   ),

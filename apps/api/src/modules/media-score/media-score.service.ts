@@ -10,7 +10,7 @@ import { PESOS_POR_TIPO_V2, type ClassificacaoFonte, obterFonte } from "./source
 const PESOS_POR_TIPO: Record<string, Record<string, number>> = {
   FILME: { omdb: 0.3, tmdb: 0.4, metacritic: 0.3 },
   SERIE: { omdb: 0.3, tmdb: 0.4, metacritic: 0.3 },
-  GAME: { igdb: 0.5, rawg: 0.5 },
+  GAME: { igdb: 0.5, opencritic: 0.5 },
   LIVRO: { openlibrary: 0.6, goodreads: 0.4 },
 };
 
@@ -160,7 +160,7 @@ export class MediaScoreService {
    * Cada fonte é classificada pelo registro (`source-registry.ts`):
    *   - Metacritic Metascore / Rotten Tomatoes / IGDB aggregated_rating /
    *     OpenCritic / ComicBookRoundup / RogerEbert  → CRÍTICA
-   *   - TMDB / OMDb / IMDb / TVMaze / Trakt / RAWG / Steam / Letterboxd /
+   *   - TMDB / OMDb / IMDb / TVMaze / Trakt / Steam / Letterboxd /
    *     livros e mangás → PÚBLICO
    *
    * Normalização: `rating_100 = rating × fator100` (fórmulas lineares da

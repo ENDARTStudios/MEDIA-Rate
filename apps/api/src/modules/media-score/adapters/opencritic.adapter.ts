@@ -5,13 +5,15 @@ import { fetchJson } from "./http.utils.js";
 interface OpenCriticSearchItem {
   id: number;
   name: string;
-  url?: string;
+  /** Distância de similaridade do search — menor é melhor. */
+  dist?: number;
 }
 
 interface OpenCriticDetalhe {
+  name?: string;
   medianScore?: number;
   topCriticScore?: number;
-  name?: string;
+  url?: string;
 }
 
 const HOST_RAPIDAPI = "opencritic-api.p.rapidapi.com";
@@ -41,9 +43,9 @@ function melhorCorrespondencia(
 }
 
 /**
- * OpenCritic — API via RapidAPI (chave gratuita OPENCRITIC_API_KEY).
- * Busca GET /game?name= e detalhe GET /game/{id} para medianScore 0–100 (crítica).
- * Inativa sem chave.
+ * OpenCritic — API via RapidAPI (chave OPENCRITIC_API_KEY).
+ * Busca GET /game/search?criteria= e detalhe GET /game/{id} para
+ * medianScore 0–100 (crítica). Inativa sem chave.
  */
 export class OpenCriticAdapter implements FonteAdapter {
   readonly id = "opencritic";
@@ -68,7 +70,7 @@ export class OpenCriticAdapter implements FonteAdapter {
       "x-rapidapi-host": HOST_RAPIDAPI,
     };
     const busca = await fetchJson<OpenCriticSearchItem[]>(
-      `https://${HOST_RAPIDAPI}/game?name=${encodeURIComponent(consulta.titulo)}`,
+      `https://${HOST_RAPIDAPI}/game/search?criteria=${encodeURIComponent(consulta.titulo)}`,
       { headers },
     );
     const item = melhorCorrespondencia(consulta.titulo, busca);
@@ -85,9 +87,7 @@ export class OpenCriticAdapter implements FonteAdapter {
         rating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
-        url:
-          item.url ??
-          `https://opencritic.com/game/${item.id}/${item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        url: detalhe.url ?? `https://opencritic.com/game/${item.id}`,
       },
     ];
   }

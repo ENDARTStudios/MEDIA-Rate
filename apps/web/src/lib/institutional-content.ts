@@ -147,7 +147,7 @@ const content: Record<string, InstitutionalContent> = {
             "Sinais de crítica especializada, quando disponibilizados na integração da obra.",
         },
         {
-          name: "IGDB e RAWG",
+          name: "IGDB e OpenCritic",
           description: "Dados de contexto e avaliação para jogos, quando disponíveis.",
         },
         {
@@ -258,7 +258,7 @@ const content: Record<string, InstitutionalContent> = {
             "Professional criticism signals, when available through the title integration.",
         },
         {
-          name: "IGDB and RAWG",
+          name: "IGDB and OpenCritic",
           description: "Context and rating data for games, when available.",
         },
         {
@@ -371,7 +371,7 @@ const content: Record<string, InstitutionalContent> = {
             "Señales de crítica especializada, cuando están disponibles en la integración de la obra.",
         },
         {
-          name: "IGDB y RAWG",
+          name: "IGDB y OpenCritic",
           description: "Datos de contexto y valoración para juegos, cuando están disponibles.",
         },
         {

@@ -573,3 +573,20 @@ NENHUM diferencial é comunicado externamente como "pronto" sem gate. Status real
 | algorithmVersion/confidenceScore na UI | Implementado | Só em tooltip técnico (<details>), NUNCA na UI principal (grep = 0) |
 
 "Metodologia unificada" entre Filme/Série/Game é IMPRECISO como comunicado antes. A função de cálculo é a mesma (globalScore = 0.5×critics + 0.5×audience ou único disponível), mas a ESTRUTURA não é simétrica: criticsScore é sempre null para Filme/Série (nenhuma fonte aprovada de crítica — §3.2) e só existe para Game (IGDB aggregated_rating). Comunicação de produto (marketing, pitch, docs públicas) deve refletir essa ASSIMETRIA, não implicar paridade total.
+---
+
+## [2026-08-03] DecisÃ£o: RAWG substituÃ­do por OpenCritic (fonte extinta)
+Motivo: a API da RAWG deixou de responder (HTTP 522 â€” serviÃ§o extinto) e nunca teve chave
+configurada em produÃ§Ã£o (RAWG_API_KEY ausente no Railway), portanto nunca coletou nota real.
+OpenCritic jÃ¡ era fonte aprovada (crÃ­tica, escala 0â€“100) e a chave RapidAPI
+(OPENCRITIC_API_KEY) jÃ¡ existia nas variÃ¡veis do Railway â€” a busca foi corrigida para o
+contrato real do wrapper (`GET /game/search?criteria=` + `GET /game/{id}`), que era
+ignorada pelo endpoint `?name=` antigo (devolvia sempre o mesmo jogo popular).
+
+- Games v1 (legacy): GAME = { igdb: 0.5, opencritic: 0.5 } (era rawg).
+- Games v2 â€” bucket pÃºblico: rawg removido; pesos redistribuÃ­dos para soma 1.00:
+  igdb_publico 0.35, steam 0.25, steamspy 0.15, metacritic_user 0.25.
+- RAWG removido do registro de fontes (API e espelho web), do SourceName (web), do
+  remotePatterns de imagens e dos textos pÃºblicos (i18n/FAQ/JSON-LD).
+- Sem migraÃ§Ã£o de banco: comentÃ¡rio do schema atualizado; nenhuma linha `fonte=rawg`
+  existia em produÃ§Ã£o (adapter sempre inativo sem chave).

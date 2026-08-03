@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TmdbAdapter } from "../src/modules/media-score/adapters/tmdb.adapter.js";
-import { RawgAdapter } from "../src/modules/media-score/adapters/rawg.adapter.js";
+import { OpenCriticAdapter } from "../src/modules/media-score/adapters/opencritic.adapter.js";
 
 function mockFetch(respostas: { ok?: boolean; status?: number; body: unknown }[]) {
   let indice = 0;
@@ -116,26 +116,39 @@ describe("IgdbAdapter — OAuth Twitch + Apicalypse (aggregated_rating/rating)",
   });
 });
 
-describe("RawgAdapter — busca por nome com apóstrofo (rating 0-5)", () => {
-  it("casa nome compacto e retorna rating", async () => {
-    vi.stubEnv("RAWG_API_KEY", "teste");
+describe("OpenCriticAdapter — busca por critérios com apóstrofo (medianScore 0-100)", () => {
+  it("casa nome compacto e retorna medianScore do detalhe", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
     mockFetch([
       {
+        body: [
+          { id: 9136, name: "Baldur's Gate 3", dist: 0.277 },
+          { id: 11384, name: "Baldur's Gate: Dark Alliance", dist: 0.65 },
+        ],
+      },
+      {
         body: {
-          results: [
-            { name: "Other Game", slug: "other", rating: 3.2 },
-            { name: "Baldur's Gate 3", slug: "baldurs-gate-3", rating: 4.5 },
-          ],
+          id: 9136,
+          name: "Baldur's Gate 3",
+          medianScore: 91,
+          url: "https://opencritic.com/game/9136/baldurs-gate-3",
         },
       },
     ]);
-    const notas = await new RawgAdapter().coletar({ tipo: "GAME", titulo: "Baldurs Gate 3" });
+    const notas = await new OpenCriticAdapter().coletar({
+      tipo: "GAME",
+      titulo: "Baldurs Gate 3",
+    });
     expect(notas).toHaveLength(1);
-    expect(notas[0].rating).toBe(4.5);
-    expect(notas[0].url).toBe("https://rawg.io/games/baldurs-gate-3");
+    expect(notas[0].fonte).toBe("opencritic");
+    expect(notas[0].rating).toBe(91);
+    expect(notas[0].url).toBe("https://opencritic.com/game/9136/baldurs-gate-3");
+    const [buscaUrl, detalheUrl] = vi.mocked(fetch).mock.calls.map(([u]) => String(u));
+    expect(buscaUrl).toContain("/game/search?criteria=");
+    expect(detalheUrl).toContain("/game/9136");
   });
 
   it("fica inativo sem chave", () => {
-    expect(new RawgAdapter().ativo()).toBe(false);
+    expect(new OpenCriticAdapter().ativo()).toBe(false);
   });
 });

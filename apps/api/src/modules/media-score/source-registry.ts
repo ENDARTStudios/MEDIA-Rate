@@ -15,7 +15,7 @@
  *
  * `fator100` converte o rating BRUTO da fonte para a escala interna 0–100
  * (todas as fórmulas da especificação são lineares):
- *   filme/série (0–10):  ×10   | games (0–100): ×1  | RAWG (0–5): ×20
+ *   filme/série (0–10):  ×10   | games (0–100): ×1  | Steam ratio (0–1): ×100
  *   Steam ratio (0–1):   ×100  | Letterboxd (0–5): ×20 | RogerEbert (0–4): ×25
  *   RT %/Metascore/OpenCritic (0–100): ×1
  */
@@ -195,17 +195,6 @@ export const FONTES: FonteMeta[] = [
     escala: "0-100",
     fator100: 1,
     metodo: "oauth",
-    status: "ativo",
-    requerChave: true,
-  },
-  {
-    id: "rawg",
-    rotulo: "RAWG",
-    dominio: ["game"],
-    classificacao: "publico",
-    escala: "0-5",
-    fator100: 20,
-    metodo: "api",
     status: "ativo",
     requerChave: true,
   },
@@ -427,7 +416,7 @@ export const PESOS_POR_TIPO_V2: Record<
   },
   GAME: {
     critica: { igdb: 0.5, opencritic: 0.3, metacritic: 0.2 },
-    publico: { rawg: 0.35, igdb_publico: 0.25, steam: 0.15, steamspy: 0.1, metacritic_user: 0.15 },
+    publico: { igdb_publico: 0.35, steam: 0.25, steamspy: 0.15, metacritic_user: 0.25 },
   },
   LIVRO: {
     critica: {},

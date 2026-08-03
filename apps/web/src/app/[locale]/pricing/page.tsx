@@ -81,7 +81,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         "acceptedAnswer": {
           "@type": "Answer",
           "text":
-            "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e RAWG para games.",
+            "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e OpenCritic para games.",
         },
       },
     ],
