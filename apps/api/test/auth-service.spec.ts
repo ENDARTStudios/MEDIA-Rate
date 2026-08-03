@@ -10,10 +10,47 @@ import { AuditLogService } from "../src/common/audit-log.service.js";
 import { ConflictException, UnauthorizedException, BadRequestException } from "@nestjs/common";
 import { createHash } from "crypto";
 
+interface MockUser {
+  id: string;
+  email: string;
+  password_hash: string;
+  nome: string | null;
+  password_reset_token: string | null;
+  password_reset_expira: Date | null;
+  ultimo_login_em: Date | null;
+  email_verificado_em?: Date | null;
+}
+
+interface MockUserWhere {
+  email?: string;
+  id?: string;
+  password_reset_token?: string | null;
+  password_reset_expira?: { gt?: Date } | Date | null;
+}
+
+interface MockUserArgs {
+  where: MockUserWhere;
+  data?: Partial<MockUser>;
+  select?: Record<string, boolean>;
+}
+
+interface MockTransactionContext {
+  usuario: {
+    create: (args: MockUserArgs) => Promise<MockUser>;
+    update: (args: MockUserArgs) => Promise<unknown>;
+  };
+  usuarioPapel: { create: () => Promise<unknown> };
+  usuarioPlano: { create: () => Promise<unknown> };
+  papel: { findUnique: () => Promise<unknown> };
+}
+
+type MockTransactionInput =
+  ((tx: MockTransactionContext) => Promise<MockUser>) | Promise<unknown>[];
+
 describe("AuthService (unit)", () => {
   let service: AuthService;
   let mockPrismaObj: ReturnType<typeof mockPrisma>;
-  let userMap: Map<string, any>;
+  let userMap: Map<string, MockUser>;
 
   beforeEach(async () => {
     process.env.SKIP_DB_CONNECT = "true";
@@ -48,12 +85,31 @@ describe("AuthService (unit)", () => {
           useValue: {
             isLocked: async () => ({ locked: false, remainingMs: 0 }),
             registerFailure: async () => ({ locked: false, failedCount: 1 }),
-            resetOnSuccess: async () => {},
+            resetOnSuccess: async () => {
+              /* stub de teste */
+            },
           },
         },
         { provide: PrismaService, useValue: mockPrismaObj },
-        { provide: AnalyticsService, useValue: { capture: () => {}, identify: () => {} } },
-        { provide: AuditLogService, useValue: { log: async () => {} } },
+        {
+          provide: AnalyticsService,
+          useValue: {
+            capture: () => {
+              /* stub de teste */
+            },
+            identify: () => {
+              /* stub de teste */
+            },
+          },
+        },
+        {
+          provide: AuditLogService,
+          useValue: {
+            log: async () => {
+              /* stub de teste */
+            },
+          },
+        },
       ],
     }).compile();
 
@@ -131,15 +187,17 @@ describe("AuthService (unit)", () => {
       email_verificado_em: null,
     });
     // findFirst procura pelo hash do token
-    mockPrismaObj.usuario.findFirst = async (args: any) => {
+    mockPrismaObj.usuario.findFirst = async (args: MockUserArgs) => {
       for (const u of userMap.values()) {
         if (
           args.where.password_reset_token &&
           u.password_reset_token === args.where.password_reset_token
         ) {
-          if (args.where.password_reset_expira) {
-            const gtDate = args.where.password_reset_expira.gt as Date;
-            if (u.password_reset_expira && new Date(u.password_reset_expira) > gtDate) return u;
+          const expira = args.where.password_reset_expira;
+          if (expira && "gt" in expira) {
+            const gtDate = expira.gt as Date;
+            if (u.password_reset_expira !== null && new Date(u.password_reset_expira) > gtDate)
+              return u;
             return null;
           }
           return u;
@@ -148,11 +206,13 @@ describe("AuthService (unit)", () => {
       return null;
     };
     // update procura pelo id
-    mockPrismaObj.usuario.update = async (args: any) => {
+    mockPrismaObj.usuario.update = async (args: MockUserArgs) => {
       if (args.where.id) {
-        const u = userMap.get(
-          args.where.email ?? Object.values(userMap).find((v) => v.id === args.where.id)?.email,
-        );
+        const email =
+          args.where.email ??
+          Object.values(userMap).find((v) => v.id === args.where.id)?.email ??
+          "";
+        const u = userMap.get(email);
         if (u) {
           Object.assign(u, args.data);
           return u;
@@ -195,8 +255,10 @@ describe("AuthService (unit)", () => {
 
   it("logoutAudit — chama auditLog com acao logout", async () => {
     let loggedAction = "";
-    const auditModule = (service as any).auditLog;
-    auditModule.log = async (args: any) => {
+    const auditModule = (
+      service as unknown as { auditLog: { log: (args: { acao: string }) => Promise<unknown> } }
+    ).auditLog;
+    auditModule.log = async (args: { acao: string }) => {
       loggedAction = args.acao;
     };
     await service.logoutAudit("u1", "1.2.3.4");
@@ -204,7 +266,7 @@ describe("AuthService (unit)", () => {
   });
 });
 
-function mockPrisma(users: Map<string, any>) {
+function mockPrisma(users: Map<string, MockUser>) {
   users.set("exists@test.com", {
     id: "u1",
     email: "exists@test.com",
@@ -227,40 +289,43 @@ function mockPrisma(users: Map<string, any>) {
 
   return {
     usuario: {
-      findUnique: async (args: any) => users.get(args.where.email) ?? null,
-      findFirst: async (args: any) => {
+      findUnique: async (args: MockUserArgs) => users.get(args.where.email ?? "") ?? null,
+      findFirst: async (args: MockUserArgs) => {
         for (const u of users.values()) {
           if (
             args.where.password_reset_token &&
             u.password_reset_token === args.where.password_reset_token
           ) {
+            const expira = args.where.password_reset_expira;
             if (
-              args.where.password_reset_expira &&
-              u.password_reset_expira < args.where.password_reset_expira.gt
+              expira &&
+              "gt" in expira &&
+              expira.gt !== undefined &&
+              u.password_reset_expira !== null &&
+              u.password_reset_expira < expira.gt
             )
               return u;
-            if (args.where.password_reset_expira) return null;
+            if (expira) return null;
             return u;
           }
         }
         return null;
       },
-      create: async (args: any) => {
-        const u = {
+      create: async (args: MockUserArgs) => {
+        const u: MockUser = {
           id: `u_${Date.now()}`,
-          email: args.data.email,
+          email: args.data?.email ?? "",
           password_hash: "hashed",
-          nome: args.data.nome ?? null,
+          nome: args.data?.nome ?? null,
           password_reset_token: null,
           password_reset_expira: null,
           ultimo_login_em: null,
           email_verificado_em: null,
         };
-        users.set(args.data.email, u);
+        users.set(u.email, u);
         return u;
       },
-      update: async (args: any) => {
-        const email = args.where.email || args.where.id;
+      update: async (args: MockUserArgs) => {
         if (args.where.email) {
           const u = users.get(args.where.email);
           if (u) {
@@ -290,24 +355,26 @@ function mockPrisma(users: Map<string, any>) {
     usuarioPapel: { create: async () => ({}) },
     usuarioPlano: { create: async () => ({}) },
     sessao: { updateMany: async () => ({ count: 0 }) },
-    $transaction: async (arg: any) => {
+    $transaction: async (arg: MockTransactionInput) => {
       // Forma callback (register): tx como objeto de métodos.
       if (typeof arg === "function") {
         return arg({
           usuario: {
-            create: async (a: any) => (
-              users.set(a.data.email, {
+            create: async (a: MockUserArgs) => {
+              const email = a.data?.email ?? "";
+              const u: MockUser = {
                 id: `u_${Date.now()}`,
-                email: a.data.email,
+                email,
                 password_hash: "hashed",
-                nome: a.data.nome ?? null,
+                nome: a.data?.nome ?? null,
                 password_reset_token: null,
                 password_reset_expira: null,
                 ultimo_login_em: null,
                 email_verificado_em: null,
-              }),
-              users.get(a.data.email)!
-            ),
+              };
+              users.set(email, u);
+              return u;
+            },
             update: async () => ({}),
           },
           usuarioPapel: { create: async () => ({}) },

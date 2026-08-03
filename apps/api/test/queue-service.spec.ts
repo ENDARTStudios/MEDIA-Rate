@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
+import type { Job } from "bullmq";
 import { QueueService, GracefulShutdownService } from "../src/common/queue.service.js";
 
 describe("QueueService (unit — mock BullMQ)", () => {
@@ -33,7 +34,7 @@ describe("QueueService (unit — mock BullMQ)", () => {
   it("addJob — adiciona job à fila", async () => {
     const spy = vi
       .spyOn(service.getQueue("test-queue"), "add")
-      .mockResolvedValue({ id: "job-1" } as any);
+      .mockResolvedValue({ id: "job-1" } as unknown as Job);
     await service.addJob("test-queue", "test-job", { data: 123 });
     expect(spy).toHaveBeenCalledWith(
       "test-job",
@@ -52,7 +53,7 @@ describe("QueueService (unit — mock BullMQ)", () => {
 
 describe("GracefulShutdownService (unit)", () => {
   it("enableShutdown — registra handlers SIGTERM e SIGINT", () => {
-    const mockQueue = { closeAll: vi.fn().mockResolvedValue(undefined) } as any;
+    const mockQueue = { closeAll: vi.fn().mockResolvedValue(undefined) } as unknown as QueueService;
     const svc = new GracefulShutdownService(mockQueue);
     const mockServer = { close: vi.fn((cb: () => void) => cb()) };
 

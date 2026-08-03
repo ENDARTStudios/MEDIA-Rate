@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
-import type { AddToWatchlistDto, MoveWatchlistDto } from "./dto/watchlist.dto.js";
+import type { AddToWatchlistDto } from "./dto/watchlist.dto.js";
 import type { WatchlistColuna } from "@prisma/client";
 
 @Injectable()

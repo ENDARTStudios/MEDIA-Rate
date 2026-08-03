@@ -1,12 +1,25 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { BadRequestException } from "@nestjs/common";
 import { DiscoverController } from "../src/modules/discover/discover.controller.js";
 import { DiscoverService } from "../src/modules/discover/discover.service.js";
 
+interface MockDiscoverService {
+  search: Mock<
+    (
+      q: string,
+      filters: { tipo?: string; limit?: number; offset?: number },
+    ) => Promise<{ items: unknown[]; total: number; limit: number; offset: number }>
+  >;
+  discover: Mock<
+    (filters: { tipo?: string; limit?: number }) => Promise<{ items: unknown[]; total: number }>
+  >;
+  trending: Mock<(filters: { limit?: number }) => Promise<{ items: unknown[]; total: number }>>;
+}
+
 describe("DiscoverController (unit)", () => {
   let controller: DiscoverController;
-  let service: any;
+  let service: MockDiscoverService;
 
   beforeEach(async () => {
     service = {

@@ -78,10 +78,12 @@ export class LockoutService implements OnModuleDestroy {
     email: string,
   ): Promise<{ locked: boolean; remainingMs: number }> {
     try {
+      const cache = this.cacheService;
+      if (cache === undefined) return this.isLockedLocal(ip, email);
       const k = this.key(ip, email);
-      const ttl = await this.cacheService!.getRedisClient().ttl(k);
+      const ttl = await cache.getRedisClient().ttl(k);
       if (ttl < 0) return { locked: false, remainingMs: 0 }; // key não existe
-      const counter = await this.cacheService!.getRedisClient().get(k);
+      const counter = await cache.getRedisClient().get(k);
       const count = counter ? Number.parseInt(counter, 10) : 0;
       const isAtThreshold = count >= MAX_FAILURES_BEFORE_LOCK;
       if (isAtThreshold && ttl > 0) {
@@ -131,7 +133,9 @@ export class LockoutService implements OnModuleDestroy {
     lockedForMs: number;
   }> {
     try {
-      const redis = this.cacheService!.getRedisClient();
+      const cache = this.cacheService;
+      if (cache === undefined) return this.registerFailureLocal(ip, email);
+      const redis = cache.getRedisClient();
       const k = this.key(ip, email);
       const globalK = this.globalKey(ip);
 
@@ -159,7 +163,9 @@ export class LockoutService implements OnModuleDestroy {
           const lockDur =
             LOCK_DURATIONS_SEC[
               Math.min(4, Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1)
-            ] ?? LOCK_DURATIONS_SEC[4]!;
+            ] ??
+            LOCK_DURATIONS_SEC[4] ??
+            86400;
           await redis.expire(k, lockDur);
           await redis.expire(globalK, lockDur);
           this.logger.warn(
@@ -176,7 +182,7 @@ export class LockoutService implements OnModuleDestroy {
           Math.floor(failedCount / MAX_FAILURES_BEFORE_LOCK) - 1,
           LOCK_DURATIONS_SEC.length - 1,
         );
-        const lockDur = LOCK_DURATIONS_SEC[lockLevel]!;
+        const lockDur = LOCK_DURATIONS_SEC[lockLevel] ?? 86400;
         await redis.expire(k, lockDur);
         this.logger.warn(
           `Lockout ${lockLevel + 1}o nível (${lockDur}s) aplicado para ${k}: ${failedCount} falhas`,
@@ -246,8 +252,10 @@ export class LockoutService implements OnModuleDestroy {
   async resetOnSuccess(ip: string, email: string): Promise<void> {
     if (this.isRedisReachable()) {
       try {
+        const cache = this.cacheService;
+        if (cache === undefined) return;
         const k = this.key(ip, email);
-        await this.cacheService!.getRedisClient().del(k);
+        await cache.getRedisClient().del(k);
         return;
       } catch {
         this.markRedisUnavailable();

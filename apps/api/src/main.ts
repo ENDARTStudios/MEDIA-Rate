@@ -42,6 +42,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     bufferLogs: true,
   });
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("module graph built");
 
   // T4.8 (webhook Stripe): preserva o corpo bruto (raw) de requests JSON.
@@ -73,6 +74,7 @@ async function bootstrap(): Promise<void> {
     rateLimit as any,
     buildRateLimitOptions(),
   );
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] rate-limit registered");
 
   // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
@@ -99,6 +101,7 @@ async function bootstrap(): Promise<void> {
       hook: "onRequest",
     },
   );
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] plugins registered (rate-limit, helmet, cors, cookie)");
 
   const fastify = fastifyAdapter.getInstance();
@@ -147,6 +150,7 @@ async function bootstrap(): Promise<void> {
 
   // T1.6: Exception filter global.
   app.useGlobalFilters(new GlobalExceptionFilter());
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] hooks + guards done");
 
   // T4.2: Swagger OpenAPI 3.1 em /api/docs e /api/docs-json.
@@ -164,15 +168,18 @@ async function bootstrap(): Promise<void> {
       .addTag("lgpd", "Direitos do titular de dados")
       .addTag("admin", "Endpoints administrativos")
       .build();
+    // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
     console.log("[boot] calling app.init + app.listen...");
     try {
       await app.listen(port, "0.0.0.0");
+      // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
       console.log(`[boot] listening on 0.0.0.0:${port}`);
 
       // Swagger apos listen (rotas resolvidas)
       try {
         const document = SwaggerModule.createDocument(app, config);
         SwaggerModule.setup("api/docs", app, document);
+        // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
         console.log("[boot] swagger setup done");
       } catch (swagErr) {
         console.warn(`[boot] swagger setup FAILED (non-blocking): ${String(swagErr)}`);
@@ -181,13 +188,16 @@ async function bootstrap(): Promise<void> {
       console.error(`[boot] listen FAILED: ${String(err)}`);
       throw err;
     }
+    // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
     console.log(`[media-rate-api] Swagger UI: http://${host}:${port}/api/docs`);
     return;
   }
 
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] calling app.init + app.listen... (swagger disabled)");
   try {
     await app.listen(port, "0.0.0.0");
+    // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
     console.log(`[boot] listening on 0.0.0.0:${port}`);
   } catch (err) {
     console.error(`[boot] listen FAILED: ${String(err)}`);

@@ -7,6 +7,21 @@ import { MetricsService } from "../src/modules/metrics/metrics.service.js";
 import { AuthGuard } from "../src/common/guards/auth.guard.js";
 import { FastifyRequest } from "fastify";
 
+interface MockWatchlistService {
+  list: (usuarioId: string, coluna?: string) => Promise<unknown[]>;
+  add: (
+    usuarioId: string,
+    dto: { midia_id: string; coluna?: string },
+  ) => Promise<{
+    id: string;
+    midia_id: string;
+    coluna: string;
+    midia: Record<string, unknown>;
+  }>;
+  move: (usuarioId: string, id: string, coluna: string) => Promise<{ id: string; coluna: string }>;
+  remove: (usuarioId: string, id: string) => Promise<void>;
+}
+
 const mockAuthGuard: CanActivate = { canActivate: async () => true };
 
 function mockReq(userId = "user-1") {
@@ -15,12 +30,12 @@ function mockReq(userId = "user-1") {
 
 describe("WatchlistController (unit)", () => {
   let controller: WatchlistController;
-  let service: any;
+  let service: MockWatchlistService;
 
   beforeEach(async () => {
     service = {
       list: async () => [],
-      add: async (uid: string, dto: any) => ({
+      add: async (uid: string, dto: { midia_id: string; coluna?: string }) => ({
         id: "entry-1",
         midia_id: dto.midia_id,
         coluna: dto.coluna ?? "WANT",
@@ -33,7 +48,9 @@ describe("WatchlistController (unit)", () => {
         },
       }),
       move: async () => ({ id: "entry-1", coluna: "COMPLETED" }),
-      remove: async () => {},
+      remove: async () => {
+        /* stub de teste */
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,9 +60,15 @@ describe("WatchlistController (unit)", () => {
         {
           provide: MetricsService,
           useValue: {
-            incrementWatchlistAdd: () => {},
-            incrementWatchlistMove: () => {},
-            incrementWatchlistRemove: () => {},
+            incrementWatchlistAdd: () => {
+              /* stub de teste */
+            },
+            incrementWatchlistMove: () => {
+              /* stub de teste */
+            },
+            incrementWatchlistRemove: () => {
+              /* stub de teste */
+            },
           },
         },
       ],
@@ -70,7 +93,7 @@ describe("WatchlistController (unit)", () => {
     const req = {
       user: { id: "user-1" },
       body: { coluna: "COMPLETED" },
-    } as unknown as FastifyRequest & { user: { id: string }; body?: any };
+    } as unknown as FastifyRequest & { user: { id: string }; body?: { coluna?: string } };
     const result = await controller.move(req, "entry-1");
     expect(result.coluna).toBe("COMPLETED");
   });

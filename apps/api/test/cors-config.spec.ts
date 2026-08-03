@@ -34,8 +34,10 @@ describe("CORS Options (T056)", () => {
 
     opts.origin("https://app.example.com", cb);
     expect(calls.length).toBe(1);
-    expect(calls[0]!.err).toBeNull();
-    expect(calls[0]!.allowed).toBe(true);
+    const call = calls[0];
+    if (!call) throw new Error("callback nao chamado");
+    expect(call.err).toBeNull();
+    expect(call.allowed).toBe(true);
   });
 
   it("origem NAO permitida — cb(null, false) SEM erro (nao causa 500)", () => {
@@ -46,8 +48,10 @@ describe("CORS Options (T056)", () => {
 
     opts.origin("https://evil.example", cb);
     expect(calls.length).toBe(1);
-    expect(calls[0]!.err).toBeNull(); // T056: nunca Error → não vira 500
-    expect(calls[0]!.allowed).toBe(false);
+    const call = calls[0];
+    if (!call) throw new Error("callback nao chamado");
+    expect(call.err).toBeNull(); // T056: nunca Error → não vira 500
+    expect(call.allowed).toBe(false);
   });
 
   it("sem header Origin — permitido (server-to-server)", () => {
@@ -57,7 +61,9 @@ describe("CORS Options (T056)", () => {
     const { cb, calls } = createMockCallback();
 
     opts.origin(undefined, cb);
-    expect(calls[0]!.allowed).toBe(true);
+    const call = calls[0];
+    if (!call) throw new Error("callback nao chamado");
+    expect(call.allowed).toBe(true);
   });
 
   it("CORS_ORIGIN fallback funciona quando ALLOWED_ORIGINS ausente", () => {
@@ -67,7 +73,9 @@ describe("CORS Options (T056)", () => {
     const { cb, calls } = createMockCallback();
 
     opts.origin("https://fallback.example.com", cb);
-    expect(calls[0]!.allowed).toBe(true);
+    const call = calls[0];
+    if (!call) throw new Error("callback nao chamado");
+    expect(call.allowed).toBe(true);
   });
 
   it("credentials true por default", () => {

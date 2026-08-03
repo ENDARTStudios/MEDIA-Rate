@@ -27,7 +27,7 @@ export class UploadService {
     this.validateMagicBytes(file.buffer, file.mimetype);
 
     const parts = file.originalname.split(".");
-    const ext = parts.length > 1 ? parts.pop()! : "bin";
+    const ext = parts.length > 1 ? (parts.pop() ?? "bin") : "bin";
     const filename = `${randomUUID()}.${ext}`;
     const sha256 = createHash("sha256").update(file.buffer).digest("hex");
 

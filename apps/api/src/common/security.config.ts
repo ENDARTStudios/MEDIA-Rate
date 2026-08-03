@@ -6,14 +6,11 @@ export interface HelmetConfigOptions {
   cspTrustedOrigins: string[];
 }
 
-let nonceSeq = 0;
-
 /**
  * Gera nonce unico (base64url) por requisicao.
- * Composto por 16 bytes aleatorios + counter incrementado.
+ * Composto por 16 bytes aleatorios por requisicao.
  */
 export function generateRequestNonce(): string {
-  nonceSeq++;
   return randomBytes(16).toString("base64url");
 }
 

@@ -44,9 +44,11 @@ describe("Regressao CSRF (T024/8.8)", () => {
       .post("/api/v1/auth/login")
       .send({ email: "csrf-test@mediarate.app", password: "Senha@123" });
 
-    const setCookie = r.headers["set-cookie"] as string | string[];
+    const setCookie = r.headers["set-cookie"] as string | string[] | undefined;
     if (setCookie) {
-      const cookieStr = Array.isArray(setCookie) ? setCookie[0]! : setCookie;
+      const first = Array.isArray(setCookie) ? setCookie[0] : setCookie;
+      if (first === undefined) throw new Error("set-cookie vazio");
+      const cookieStr = first;
       expect(cookieStr.toLowerCase()).toContain("httponly");
     }
   });
@@ -56,9 +58,11 @@ describe("Regressao CSRF (T024/8.8)", () => {
       .post("/api/v1/auth/login")
       .send({ email: "csrf-lax@mediarate.app", password: "Senha@123" });
 
-    const setCookie = r.headers["set-cookie"] as string | string[];
+    const setCookie = r.headers["set-cookie"] as string | string[] | undefined;
     if (setCookie) {
-      const cookieStr = Array.isArray(setCookie) ? setCookie[0]! : setCookie;
+      const first = Array.isArray(setCookie) ? setCookie[0] : setCookie;
+      if (first === undefined) throw new Error("set-cookie vazio");
+      const cookieStr = first;
       // SameSite=Lax e a mitigacao principal de CSRF
       expect(cookieStr).toMatch(/samesite\s*=\s*lax/i);
     }
@@ -69,9 +73,11 @@ describe("Regressao CSRF (T024/8.8)", () => {
       .post("/api/v1/auth/login")
       .send({ email: "csrf-none@mediarate.app", password: "Senha@123" });
 
-    const setCookie = r.headers["set-cookie"] as string | string[];
+    const setCookie = r.headers["set-cookie"] as string | string[] | undefined;
     if (setCookie) {
-      const cookieStr = Array.isArray(setCookie) ? setCookie[0]! : setCookie;
+      const first = Array.isArray(setCookie) ? setCookie[0] : setCookie;
+      if (first === undefined) throw new Error("set-cookie vazio");
+      const cookieStr = first;
       // SameSite=None permitiria CSRF
       expect(cookieStr).not.toMatch(/samesite\s*=\s*none/i);
     }
@@ -82,9 +88,11 @@ describe("Regressao CSRF (T024/8.8)", () => {
       .post("/api/v1/auth/login")
       .send({ email: "csrf-path@mediarate.app", password: "Senha@123" });
 
-    const setCookie = r.headers["set-cookie"] as string | string[];
+    const setCookie = r.headers["set-cookie"] as string | string[] | undefined;
     if (setCookie) {
-      const cookieStr = Array.isArray(setCookie) ? setCookie[0]! : setCookie;
+      const first = Array.isArray(setCookie) ? setCookie[0] : setCookie;
+      if (first === undefined) throw new Error("set-cookie vazio");
+      const cookieStr = first;
       expect(cookieStr).toMatch(/path\s*=\s*\//i);
     }
   });

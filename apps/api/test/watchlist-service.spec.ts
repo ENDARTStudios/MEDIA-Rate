@@ -4,9 +4,51 @@ import { WatchlistService } from "../src/modules/watchlist/watchlist.service.js"
 import { PrismaService } from "../src/prisma/prisma.service.js";
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
+interface WatchlistEntryRow {
+  id: string;
+  usuario_id: string;
+  midia_id: string;
+  coluna: string;
+  prioridade: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface MockWatchlistArgs {
+  where: {
+    usuario_id?: string;
+    id?: string;
+    coluna?: string;
+    usuario_id_midia_id?: { usuario_id: string; midia_id: string };
+  };
+  data?: {
+    usuario_id?: string;
+    midia_id?: string;
+    coluna?: string;
+    usuario?: { connect: { id: string } };
+    midia?: { connect: { id: string } };
+  };
+}
+
+type WatchlistEntryWithMidia = WatchlistEntryRow & { midia: Record<string, unknown> };
+
+interface MockWatchlistPrisma {
+  watchlistEntry: {
+    findMany: (args: MockWatchlistArgs) => Promise<WatchlistEntryWithMidia[]>;
+    findFirst: (args: MockWatchlistArgs) => Promise<WatchlistEntryRow | null>;
+    findUnique: (args: MockWatchlistArgs) => Promise<WatchlistEntryRow | null>;
+    create: (args: MockWatchlistArgs) => Promise<WatchlistEntryWithMidia>;
+    update: (args: MockWatchlistArgs) => Promise<WatchlistEntryWithMidia | null>;
+    delete: (args: MockWatchlistArgs) => Promise<Record<string, unknown>>;
+  };
+  midia: {
+    findUnique: (args: MockWatchlistArgs) => Promise<Record<string, unknown> | null>;
+  };
+}
+
 describe("WatchlistService (unit)", () => {
   let service: WatchlistService;
-  let prisma: any;
+  let prisma: MockWatchlistPrisma;
 
   beforeEach(async () => {
     prisma = mockPrisma();
@@ -83,13 +125,13 @@ describe("WatchlistService (unit)", () => {
   });
 });
 
-function mockPrisma() {
+function mockPrisma(): MockWatchlistPrisma {
   let nextId = 1;
-  const entries: any[] = [];
+  const entries: WatchlistEntryRow[] = [];
 
   return {
     watchlistEntry: {
-      findMany: async (args: any) => {
+      findMany: async (args: MockWatchlistArgs) => {
         let items = entries.filter((e) => e.usuario_id === args.where.usuario_id);
         if (args.where?.coluna) items = items.filter((e) => e.coluna === args.where.coluna);
         return items.map((e) => ({
@@ -103,27 +145,27 @@ function mockPrisma() {
           },
         }));
       },
-      findFirst: async (args: any) => {
+      findFirst: async (args: MockWatchlistArgs) => {
         return (
           entries.find((e) => e.id === args.where.id && e.usuario_id === args.where.usuario_id) ??
           null
         );
       },
-      findUnique: async (args: any) => {
+      findUnique: async (args: MockWatchlistArgs) => {
         const byUserMidia = entries.find(
           (e) =>
-            e.usuario_id === args.where.usuario_id_midia_id.usuario_id &&
-            e.midia_id === args.where.usuario_id_midia_id.midia_id,
+            e.usuario_id === args.where.usuario_id_midia_id?.usuario_id &&
+            e.midia_id === args.where.usuario_id_midia_id?.midia_id,
         );
         if (byUserMidia) return byUserMidia;
         return entries.find((e) => e.id === args.where.id) ?? null;
       },
-      create: async (args: any) => {
-        const e = {
+      create: async (args: MockWatchlistArgs) => {
+        const e: WatchlistEntryRow = {
           id: `entry-${nextId++}`,
-          usuario_id: args.data.usuario_id ?? args.data.usuario.connect.id,
-          midia_id: args.data.midia_id ?? args.data.midia.connect.id,
-          coluna: args.data.coluna ?? "WANT",
+          usuario_id: args.data?.usuario_id ?? args.data?.usuario?.connect.id ?? "",
+          midia_id: args.data?.midia_id ?? args.data?.midia?.connect.id ?? "",
+          coluna: args.data?.coluna ?? "WANT",
           prioridade: 0,
           created_at: new Date(),
           updated_at: new Date(),
@@ -140,7 +182,7 @@ function mockPrisma() {
           },
         };
       },
-      update: async (args: any) => {
+      update: async (args: MockWatchlistArgs) => {
         const e = entries.find((x) => x.id === args.where.id);
         if (!e) return null;
         Object.assign(e, args.data, { updated_at: new Date() });
@@ -155,7 +197,7 @@ function mockPrisma() {
           },
         };
       },
-      delete: async (args: any) => {
+      delete: async (args: MockWatchlistArgs) => {
         const idx = entries.findIndex((e) => e.id === args.where.id);
         if (idx === -1) throw new Error("Not found");
         entries.splice(idx, 1);
@@ -163,7 +205,7 @@ function mockPrisma() {
       },
     },
     midia: {
-      findUnique: async (args: any) =>
+      findUnique: async (args: MockWatchlistArgs) =>
         entries.some((e) => e.midia_id === args.where.id)
           ? {
               id: args.where.id,

@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Test } from "@nestjs/testing";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
-import cookiePlugin from "@fastify/cookie";
+import type { FastifyPluginAsync } from "fastify";
+import cookiePlugin, { type FastifyCookieOptions } from "@fastify/cookie";
 import request from "supertest";
 import { AuthController } from "../src/modules/auth/auth.controller.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
@@ -33,24 +34,36 @@ describe("CSRF Guard (T050)", () => {
             }),
             forgotPassword: async () => ({ message: "ok" }),
             resetPassword: async () => ({ message: "ok" }),
-            logoutAudit: async () => {},
+            logoutAudit: async () => {
+              /* stub de teste */
+            },
           },
         },
         { provide: SessionService, useValue: { revokeSession: async () => true } },
         {
           provide: SessionCookieService,
           useValue: {
-            setSessionCookie: () => {},
-            clearSessionCookie: () => {},
+            setSessionCookie: () => {
+              /* stub de teste */
+            },
+            clearSessionCookie: () => {
+              /* stub de teste */
+            },
             getCookieName: () => "sess",
           },
         },
         {
           provide: MetricsService,
           useValue: {
-            incrementRegister: () => {},
-            incrementLogin: () => {},
-            incrementLogout: () => {},
+            incrementRegister: () => {
+              /* stub de teste */
+            },
+            incrementLogin: () => {
+              /* stub de teste */
+            },
+            incrementLogout: () => {
+              /* stub de teste */
+            },
           },
         },
       ],
@@ -58,7 +71,9 @@ describe("CSRF Guard (T050)", () => {
 
     const adapter = new FastifyAdapter({ logger: false, bodyLimit: 1_048_576 });
     app = moduleRef.createNestApplication<NestFastifyApplication>(adapter);
-    await adapter.register(cookiePlugin as any, { secret: "test-csrf" });
+    await adapter.register(cookiePlugin as FastifyPluginAsync<FastifyCookieOptions>, {
+      secret: "test-csrf",
+    });
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
   });

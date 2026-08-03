@@ -3,9 +3,32 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { DiscoverService } from "../src/modules/discover/discover.service.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
 
+interface MockDiscoverRow {
+  id: string;
+  titulo: string;
+  tipo: string;
+  ano_lancamento: number;
+  sinopse: string;
+  imagem_url: string | null;
+}
+
+interface MockDiscoverPrisma {
+  readonly lastRawQuery: string | undefined;
+  $queryRaw: (
+    query: { sql: string; values: unknown[] } | string,
+  ) => Promise<(MockDiscoverRow & { total: number })[]>;
+  midia: {
+    findMany: (args: {
+      where?: { tipo?: string };
+      orderBy?: { score?: unknown };
+      take?: number;
+    }) => Promise<MockDiscoverRow[]>;
+  };
+}
+
 describe("DiscoverService (unit)", () => {
   let service: DiscoverService;
-  let prisma: any;
+  let prisma: MockDiscoverPrisma;
 
   beforeEach(async () => {
     prisma = mockPrisma();
@@ -39,7 +62,7 @@ describe("DiscoverService (unit)", () => {
 
   it("search — filtra por tipo", async () => {
     const result = await service.search("a", { tipo: "FILME" });
-    result.items.forEach((m: any) => expect(m.tipo).toBe("FILME"));
+    result.items.forEach((m: { tipo: string }) => expect(m.tipo).toBe("FILME"));
   });
 
   it("search — parametriza o filtro de tipo (Prisma.sql, sem interpolar input)", async () => {
@@ -59,7 +82,7 @@ describe("DiscoverService (unit)", () => {
   it("discover — retorna trending com dados de score", async () => {
     const result = await service.trending({ limit: 3 });
     expect(result.items.length).toBeLessThanOrEqual(3);
-    result.items.forEach((m: any) => {
+    result.items.forEach((m: { titulo: string; tipo: string }) => {
       expect(m.titulo).toBeDefined();
       expect(m.tipo).toBeDefined();
     });
@@ -128,9 +151,9 @@ function mockPrisma() {
     },
     // $queryRaw recebe um objeto Query (Prisma.sql template) — captura o SQL
     // compilado e extrai valores a partir dos placeholders.
-    $queryRaw: async (query: any) => {
-      const sql = typeof query === "string" ? query : (query?.sql ?? "");
-      const values = (query?.values ?? []) as unknown[];
+    $queryRaw: async (query: { sql: string; values: unknown[] } | string) => {
+      const sql = typeof query === "string" ? query : query.sql;
+      const values = typeof query === "string" ? [] : query.values;
       lastRawQuery = sql;
       let compiled = sql;
       for (const v of values) {
@@ -152,7 +175,11 @@ function mockPrisma() {
       return results.map((r) => ({ ...r, total }));
     },
     midia: {
-      findMany: async (args: any) => {
+      findMany: async (args: {
+        where?: { tipo?: string };
+        orderBy?: { score?: unknown };
+        take?: number;
+      }) => {
         let items = [...DB];
         if (args.where?.tipo) items = items.filter((m) => m.tipo === args.where.tipo);
         if (args.orderBy?.score) items.sort(() => -1);
@@ -163,8 +190,11 @@ function mockPrisma() {
   };
 }
 
-function mockEmptyPrisma() {
+function mockEmptyPrisma(): MockDiscoverPrisma {
   return {
+    get lastRawQuery() {
+      return undefined;
+    },
     $queryRaw: async () => [],
     midia: { findMany: async () => [] },
   };

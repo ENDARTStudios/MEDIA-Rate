@@ -5,8 +5,37 @@ import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
 import { MetricsService } from "../src/modules/metrics/metrics.service.js";
-import { ConflictException, UnauthorizedException, HttpException } from "@nestjs/common";
+import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { FastifyReply, FastifyRequest } from "fastify";
+
+interface MockAuthService {
+  register: (
+    dto: { email: string; password: string; nome?: string },
+    options?: { ip?: string },
+  ) => Promise<{ id: string; email: string; nome: string | null; created_at: Date }>;
+  login: (
+    dto: { email: string; password: string },
+    options?: { ip?: string; user_agent?: string },
+  ) => Promise<{
+    token: string;
+    expires_at: Date;
+    usuario: { id: string; email: string; nome: string | null };
+  }>;
+  forgotPassword: (email: string) => Promise<{ message: string }>;
+  resetPassword: (token: string, password: string) => Promise<{ message: string }>;
+  logoutAudit: (usuarioId: string) => Promise<void>;
+}
+
+interface MockSessionService {
+  revokeSession: (token: string) => Promise<boolean>;
+  validateToken: (token: string) => Promise<unknown>;
+}
+
+interface MockCookieService {
+  getCookieName: () => string;
+  clearSessionCookie: (reply: FastifyReply) => void;
+  setSessionCookie: (reply: FastifyReply, token: string, expiresAt: Date) => string;
+}
 
 function mockReq(ip = "1.2.3.4", userAgent = "test-agent") {
   return { ip, headers: { "user-agent": userAgent } } as unknown as FastifyRequest;
@@ -14,41 +43,57 @@ function mockReq(ip = "1.2.3.4", userAgent = "test-agent") {
 
 function mockReply() {
   return {
-    setCookie: () => {},
+    setCookie: () => {
+      /* stub de teste */
+    },
     header: () => mockReply(),
     send: () => mockReply(),
-    clearCookie: () => {},
+    clearCookie: () => {
+      /* stub de teste */
+    },
   } as unknown as FastifyReply;
 }
 
 describe("AuthController (unit)", () => {
   let controller: AuthController;
-  let authService: any;
-  let sessionService: any;
-  let cookieService: any;
+  let authService: MockAuthService;
+  let sessionService: MockSessionService;
+  let cookieService: MockCookieService;
 
   beforeEach(async () => {
     authService = {
-      register: async (dto: any) => ({
+      register: async (dto) => ({
         id: "u1",
         email: dto.email,
         nome: dto.nome ?? null,
         created_at: new Date(),
       }),
-      login: async (dto: any) => ({
+      login: async (dto) => ({
         token: "token-xyz",
         expires_at: new Date(),
         usuario: { id: "u1", email: dto.email, nome: null },
       }),
       forgotPassword: async () => ({ message: "ok" }),
       resetPassword: async () => ({ message: "ok" }),
-      logoutAudit: async () => {},
+      logoutAudit: async () => {
+        /* stub de teste */
+      },
     };
-    sessionService = { revokeSession: async () => {}, validateToken: async () => null };
+    sessionService = {
+      revokeSession: async () => {
+        /* stub de teste */
+        return true;
+      },
+      validateToken: async () => null,
+    };
     cookieService = {
       getCookieName: () => "sess",
-      clearSessionCookie: () => {},
-      setSessionCookie: () => {},
+      clearSessionCookie: () => {
+        /* stub de teste */
+      },
+      setSessionCookie: () => {
+        /* stub de teste */
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -60,9 +105,15 @@ describe("AuthController (unit)", () => {
         {
           provide: MetricsService,
           useValue: {
-            incrementRegister: () => {},
-            incrementLogin: () => {},
-            incrementLogout: () => {},
+            incrementRegister: () => {
+              /* stub de teste */
+            },
+            incrementLogin: () => {
+              /* stub de teste */
+            },
+            incrementLogout: () => {
+              /* stub de teste */
+            },
           },
         },
       ],
@@ -130,19 +181,21 @@ describe("AuthController (unit)", () => {
   });
 
   it("me — retorna dados do usuario autenticado", async () => {
-    const req = { user: { id: "u1", email: "u1@test.com", nome: "User" } } as any;
+    const req = {
+      user: { id: "u1", email: "u1@test.com", nome: "User" },
+    } as unknown as FastifyRequest;
     const result = await controller.me(req);
     expect(result.id).toBe("u1");
     expect(result.email).toBe("u1@test.com");
   });
 
   it("me — usuario nao autenticado lanca 401", async () => {
-    const req = {} as any;
+    const req = {} as unknown as FastifyRequest;
     await expect(controller.me(req)).rejects.toThrow(UnauthorizedException);
   });
 
   it("logout — sem cookie limpa e nao quebra", async () => {
-    const req = { cookies: {} } as any;
+    const req = { cookies: {} } as unknown as FastifyRequest;
     const reply = mockReply();
     const result = await controller.logout(req, reply);
     expect(result.message).toMatch(/Logout/i);
@@ -154,7 +207,7 @@ describe("AuthController (unit)", () => {
       cookies: { sess: "some-token", csrf_token: csrf },
       user: { id: "u1" },
       headers: { "x-csrf-token": csrf },
-    } as any;
+    } as unknown as FastifyRequest;
     const reply = mockReply();
     let revokedToken: string | null = null;
     sessionService.revokeSession = async (t: string) => {
@@ -169,7 +222,7 @@ describe("AuthController (unit)", () => {
   });
 
   it("logout — sem usuario ignora logoutAudit", async () => {
-    const req = { cookies: { sess: "token" } } as any;
+    const req = { cookies: { sess: "token" } } as unknown as FastifyRequest;
     const reply = mockReply();
     let audited = false;
     authService.logoutAudit = async () => {

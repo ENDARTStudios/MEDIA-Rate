@@ -58,7 +58,7 @@ export function buildRateLimitOptions(
       const rawUrl = (req as unknown as Record<string, unknown>).raw
         ? (((req as unknown as Record<string, unknown>).raw as Record<string, string>).url ?? "/")
         : (req.url ?? "/");
-      const route = rawUrl.split("?")[0]!;
+      const route = rawUrl.split("?")[0] ?? "/";
       const userId = (req as unknown as { user?: { id: string } }).user?.id;
       if (userId) {
         return `rl:${userId}:${route}`;

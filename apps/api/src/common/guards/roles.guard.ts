@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  type ExecutionContext,
-  Injectable,
-  ForbiddenException,
-} from "@nestjs/common";
+import { CanActivate, type ExecutionContext, Injectable, ForbiddenException } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
 import { FastifyRequest } from "fastify";

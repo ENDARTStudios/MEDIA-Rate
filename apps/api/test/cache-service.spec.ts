@@ -1,10 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { CacheService, CacheInvalidationService } from "../src/common/cache.service.js";
 
+interface MockRedis {
+  get: Mock<(key: string) => Promise<string | null>>;
+  set: Mock<(key: string, value: string, mode: string, ttl: number) => Promise<unknown>>;
+  del: Mock<(...keys: string[]) => Promise<number>>;
+  keys: Mock<(pattern: string) => Promise<string[]>>;
+  quit: Mock<() => Promise<unknown>>;
+  on: Mock<(event: string, listener: (...args: unknown[]) => void) => void>;
+}
+
 describe("CacheService (unit — mock Redis)", () => {
   let service: CacheService;
-  let mockRedis: any;
+  let mockRedis: MockRedis;
 
   beforeEach(async () => {
     mockRedis = {
@@ -20,7 +29,11 @@ describe("CacheService (unit — mock Redis)", () => {
       providers: [
         {
           provide: CacheService,
-          useFactory: () => Object.assign(new CacheService(), { redis: mockRedis } as any),
+          useFactory: () => {
+            const svc = new CacheService();
+            Object.assign(svc, { redis: mockRedis });
+            return svc;
+          },
         },
       ],
     }).compile();
@@ -85,7 +98,7 @@ describe("CacheInvalidationService (unit)", () => {
     const mockCache = {
       invalidateOnWrite: vi.fn().mockResolvedValue(undefined),
       delPattern: vi.fn().mockResolvedValue(undefined),
-    } as any;
+    } as unknown as CacheService;
     const svc = new CacheInvalidationService(mockCache);
     await svc.onMediaUpdated("m1");
     expect(mockCache.invalidateOnWrite).toHaveBeenCalledWith("media:m1");

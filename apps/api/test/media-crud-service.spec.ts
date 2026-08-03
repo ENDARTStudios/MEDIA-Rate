@@ -4,9 +4,21 @@ import { MediaService } from "../src/modules/media/media.service.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
 import { NotFoundException } from "@nestjs/common";
 
+interface MockMediaPrisma {
+  midia: {
+    findUnique: (args: { where: { id: string } }) => Promise<Record<string, unknown> | null>;
+    create: (args: { data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
+    update: (args: {
+      where: { id: string };
+      data: Record<string, unknown>;
+    }) => Promise<Record<string, unknown>>;
+    delete: (args: { where: { id: string } }) => Promise<Record<string, unknown>>;
+  };
+}
+
 describe("MediaService — escrita (unit)", () => {
   let service: MediaService;
-  let prisma: any;
+  let prisma: MockMediaPrisma;
 
   beforeEach(async () => {
     prisma = mockPrisma();
@@ -64,14 +76,14 @@ describe("MediaService — escrita (unit)", () => {
   });
 });
 
-function mockPrisma() {
-  const DB: any[] = [];
+function mockPrisma(): MockMediaPrisma {
+  const DB: Record<string, unknown>[] = [];
   let nextId = 1;
 
   return {
     midia: {
-      findUnique: async (args: any) => DB.find((m) => m.id === args.where.id) ?? null,
-      create: async (args: any) => {
+      findUnique: async (args) => DB.find((m) => m.id === args.where.id) ?? null,
+      create: async (args) => {
         const m = {
           id: `m${nextId++}`,
           ...args.data,
@@ -81,13 +93,15 @@ function mockPrisma() {
         DB.push(m);
         return m;
       },
-      update: async (args: any) => {
+      update: async (args) => {
         const idx = DB.findIndex((m) => m.id === args.where.id);
         if (idx === -1) throw new Error("NotFound");
-        Object.assign(DB[idx], args.data, { updated_at: new Date() });
-        return DB[idx];
+        const row = DB[idx];
+        if (row === undefined) throw new Error("NotFound");
+        Object.assign(row, args.data, { updated_at: new Date() });
+        return row;
       },
-      delete: async (args: any) => {
+      delete: async (args) => {
         const idx = DB.findIndex((m) => m.id === args.where.id);
         if (idx === -1) throw new Error("NotFound");
         DB.splice(idx, 1);

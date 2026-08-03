@@ -1,6 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
-import { Queue, Worker, type JobsOptions } from "bullmq";
-import { Redis } from "ioredis";
+import { Queue, Worker, type Job, type JobsOptions } from "bullmq";
 
 export interface QueueConfig {
   name: string;
@@ -26,12 +25,13 @@ export class QueueService implements OnModuleDestroy {
   }
 
   getQueue(name: string): Queue {
-    if (!this.queues.has(name)) {
-      const queue = new Queue(name, { connection: this.config.connection });
+    let queue = this.queues.get(name);
+    if (!queue) {
+      queue = new Queue(name, { connection: this.config.connection });
       this.queues.set(name, queue);
       this.logger.log(`Queue "${name}" registered.`);
     }
-    return this.queues.get(name)!;
+    return queue;
   }
 
   async addJob(queueName: string, jobName: string, data: unknown, opts?: JobsOptions) {
@@ -43,7 +43,7 @@ export class QueueService implements OnModuleDestroy {
     );
   }
 
-  registerWorker(queueName: string, handler: (job: any) => Promise<void>) {
+  registerWorker(queueName: string, handler: (job: Job) => Promise<void>) {
     const worker = new Worker(queueName, handler, {
       connection: this.config.connection,
       concurrency: 5,
@@ -70,7 +70,7 @@ export class GracefulShutdownService {
 
   constructor(private readonly queueService: QueueService) {}
 
-  enableShutdown(server: any): void {
+  enableShutdown(server: { close: () => Promise<void> | void }): void {
     const shutdown = async (signal: string) => {
       this.logger.log(`Received ${signal} — shutting down gracefully.`);
       await this.queueService.closeAll();
