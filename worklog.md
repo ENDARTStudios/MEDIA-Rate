@@ -826,3 +826,21 @@ Stage Summary:
   MediaScoreV2Result/calcularConfianca (substituidos por DetalheFonte); testes v1/v2
   removidos. Suites: API 418, web 127; lint/typecheck limpos.
 - Status: DONE (pendente deploy Railway).
+
+## [2026-08-03] Stage: Deploy v3 + Stripe/PostHog em producao (validacao)
+- Push dos commits v3 (d953492, 4ab4dd3, 6f0c2fa) + fix 09e9620; Railway deployou.
+- BLOQUEIO ENCONTRADO: deploy v3 falhou no healthcheck - payment.module.ts usava
+  require() lazy para o StripePaymentGateway (build ESM nao tem require); a branch
+  so executava com STRIPE_SECRET_KEY setado, que nunca existiu em producao ate
+  hoje. Fix: import estatico do gateway (09e9620).
+- Stripe live configurado: STRIPE_SECRET_KEY (rk_live restrita), STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_PLUS_ID/PREMIUM_ID (R$ 4,90 / R$ 9,90 mensais BRL criados via API);
+  webhook endpoint live com 9 eventos (inclui customer.subscription.trial_will_end).
+- PostHog: ANALYTICS_WRITE_KEY no Railway (projeto MEDIA Rate id 527617).
+- VALIDADO em producao (BG3): v3 live com score 90 (v2: 89.4), criticos 93,
+  publico 85.7, indiceConsenso 92.7, votosTotal 1566 (IGDB rating_count fluindo!),
+  confianca 90 (CS 0-100). Coleta admin POST /midias/:id/coletar recalculou via
+  calcularScoreV3 e persistiu indice_consenso/votos_total.
+- Pendente de validacao do Operador: pagamento de teste 4242 (webhook + trial) e
+  evento user_session_start no PostHog (login).
+- Status: DONE.
