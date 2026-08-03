@@ -3,6 +3,7 @@ import { PaymentController } from "./payment.controller.js";
 import { PaymentService } from "./payment.service.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { MockPaymentGateway } from "./adapter/mock-payment.gateway.js";
+import { StripePaymentGateway } from "./adapter/stripe-payment.gateway.js";
 import { PAYMENT_GATEWAY } from "./domain/gateway/payment-gateway.port.js";
 
 /**
@@ -22,9 +23,6 @@ import { PAYMENT_GATEWAY } from "./domain/gateway/payment-gateway.port.js";
       useFactory: () => {
         const secretKey = process.env.STRIPE_SECRET_KEY;
         if (secretKey && secretKey !== "SUA_CHAVE_AQUI" && secretKey.length > 0) {
-          // Lazy import para evitar carregar Stripe em test.
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const { StripePaymentGateway } = require("./adapter/stripe-payment.gateway.js");
           return new StripePaymentGateway();
         }
         return new MockPaymentGateway();
