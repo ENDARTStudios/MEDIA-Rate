@@ -88,6 +88,7 @@ export class ColetaProdController {
           rating: r.nota.rating,
           media_fonte: r.nota.media_fonte,
           desvio_fonte: r.nota.desvio_fonte,
+          votos: r.nota.votos ?? null,
           url: r.nota.url ?? null,
         })),
       });

@@ -7,6 +7,7 @@ interface TmdbResultado {
   title?: string;
   name?: string;
   vote_average?: number;
+  vote_count?: number;
 }
 
 interface TmdbBusca {
@@ -48,6 +49,7 @@ export class TmdbAdapter implements FonteAdapter {
         rating: item.vote_average,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: item.vote_count,
         url: `https://www.themoviedb.org/${tipo}/${item.id}`,
       },
     ];

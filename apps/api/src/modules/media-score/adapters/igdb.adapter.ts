@@ -11,7 +11,9 @@ interface JogoIgdb {
   name?: string;
   slug?: string;
   aggregated_rating?: number;
+  aggregated_rating_count?: number;
   rating?: number;
+  rating_count?: number;
 }
 
 let tokenCache: { token: string; expiraEm: number } | null = null;
@@ -66,7 +68,8 @@ export class IgdbAdapter implements FonteAdapter {
     const token = await obterTokenTwitch();
     if (!token) return [];
     const campo = this.id === "igdb_publico" ? "rating" : "aggregated_rating";
-    const corpo = `search "${consulta.titulo}"; fields name, slug, ${campo}; where ${campo} != null; limit 1;`;
+    const campoVotos = this.id === "igdb_publico" ? "rating_count" : "aggregated_rating_count";
+    const corpo = `search "${consulta.titulo}"; fields name, slug, ${campo}, ${campoVotos}; where ${campo} != null; limit 1;`;
     const jogos = await postJson<JogoIgdb[]>("https://api.igdb.com/v4/games", corpo, {
       headers: {
         "client-id": process.env.TWITCH_CLIENT_ID ?? "",
@@ -85,6 +88,7 @@ export class IgdbAdapter implements FonteAdapter {
         rating: nota,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: jogo?.[campoVotos],
         url: jogo.slug ? `https://www.igdb.com/games/${jogo.slug}` : undefined,
       },
     ];

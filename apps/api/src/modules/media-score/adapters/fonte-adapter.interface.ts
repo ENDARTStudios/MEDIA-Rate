@@ -26,6 +26,8 @@ export interface NotaColetada {
   media_fonte: number;
   /** Desvio-padrão estatístico da fonte (mesma escala do rating). */
   desvio_fonte: number;
+  /** Votos/reviews reportados pela fonte para a obra (v3 MET-03). */
+  votos?: number;
   /** URL pública da nota (para transparência/auditoria). */
   url?: string;
 }

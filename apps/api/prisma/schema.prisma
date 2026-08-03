@@ -321,7 +321,14 @@ model MediaScore {
   score_publico Float?  @map("score_publico")
   // v2: |crítica − público| em 0–100 (informativo, não realimenta o score).
   consenso      Float?  @map("consenso")
-  // Confiança 0–1 (heurística de número de fontes + variância dos z-scores).
+  // v3 (MET-03): índice de consenso 0–100 (I = 100 − |crítica − público|) —
+  // REALIMENTA o score com peso por tipo.
+  indice_consenso Float? @map("indice_consenso")
+  // v3 (MET-03): votos totais coletados (Σ votos das fontes) — input do
+  // pull Bayesiano e do fator Volume da confiança.
+  votos_total   Int?    @map("votos_total")
+  // Confidence Score 0–100 (v3: 40×cobertura + 30×volume + 20×concordância +
+  // 10×atualização). Faixas: ≥70 Alta, ≥40 Média, <40 Baixa.
   confianca     Float?  @map("confianca")
   // v2: detalhes por fonte (JSON com fonte, classificação, z-score, peso).
   detalhes      Json?   @map("detalhes")
@@ -348,6 +355,10 @@ model AvaliacaoFonte {
   media_fonte  Float    @map("media_fonte")
   // Desvio-padrão estatístico da fonte (mesma escala do rating).
   desvio_fonte Float    @map("desvio_fonte")
+  // v3 (MET-03): votos/reviews reportados pela fonte para a obra (TMDB
+  // vote_count, Steam total de reviews, IGDB rating_count…). null = não
+  // medido — pull Bayesiano e fator Volume da confiança usam 0.
+  votos        Int?
   // URL pública da nota (transparência/auditoria).
   url          String?  @db.Text
   coletado_em  DateTime @default(now()) @map("coletado_em")

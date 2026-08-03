@@ -24,7 +24,11 @@ export class ColetaController {
           r.status === "ok" && !!r.nota,
       )
       .map((r) => r.nota);
-    const score = this.mediaScore.calcularScoreV2(consulta.tipo, avaliacoes);
+    const votosTotal = avaliacoes.reduce((acc, a) => acc + (a.votos ?? 0), 0);
+    const score = this.mediaScore.calcularScoreV3(consulta.tipo, avaliacoes, {
+      votosTotal,
+      mediaCatalogo: await this.mediaScore.obterMediaCatalogoPublico(consulta.tipo),
+    });
     return { resultados, score };
   }
 }

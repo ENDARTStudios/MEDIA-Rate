@@ -43,6 +43,8 @@ interface ApiScore {
   criticosScore: number | null;
   publicoScore: number | null;
   consenso: number | null;
+  indiceConsenso?: number | null;
+  votosTotal?: number | null;
   num_fontes: number;
   confianca: number;
   calculado_em: string;
@@ -143,10 +145,15 @@ function mapTipo(tipo: string): MediaType {
   }
 }
 
+/**
+ * Confidence Score v3 (0–100): CS ≥ 70 Alta (verde), ≥ 40 Média (amarelo),
+ * < 40 Baixa (cinza). Confianças legadas 0–1 (pré-v3) caem em "low" até o
+ * job diário recalcular com o CS v3.
+ */
 function mapConfidence(c: number | null | undefined): Confidence {
   if (c == null) return "low";
-  if (c >= 0.6) return "high";
-  if (c >= 0.3) return "medium";
+  if (c >= 70) return "high";
+  if (c >= 40) return "medium";
   return "low";
 }
 
@@ -195,8 +202,10 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
           criticsScore: m.score.criticosScore,
           audienceScore: m.score.publicoScore,
           consensus: m.score.consenso,
+          indiceConsenso: m.score.indiceConsenso ?? null,
+          votosTotal: m.score.votosTotal ?? 0,
           sampleSize: m.score.num_fontes,
-          algorithmVersion: "v2",
+          algorithmVersion: "v3",
           confidenceScore: m.score.confianca,
         }
       : null,

@@ -28,6 +28,16 @@ import {
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { RolesGuard } from "../../common/guards/roles.guard.js";
+
+/**
+ * Confiança legada (pré-v3, heurística 0–1) → Confidence Score v3 (0–100).
+ * Valores < 1 só existem na escala antiga (a v3 é inteira e o máximo legado
+ * é 0.9); normaliza para a nova faixa de leitura (≥70 Alta, ≥40 Média).
+ */
+function normalizarConfianca(c: number | null | undefined): number {
+  if (c == null) return 0;
+  return c < 1 ? Math.round(c * 100) : c;
+}
 import { Roles } from "../../common/decorators/roles.decorator.js";
 import {
   PaginationDto,
@@ -132,7 +142,7 @@ export class MediaController {
 
   @Get("slug/:slug")
   @ApiOperation({
-    summary: "Detalhes de uma mídia por slug (ou id) com score v2 e fontes",
+    summary: "Detalhes de uma mídia por slug (ou id) com score v3 e fontes",
   })
   @ApiResponse({ status: 200, description: "Mídia encontrada com score e fontes." })
   @ApiResponse({ status: 404, description: "Mídia não encontrada." })
@@ -194,8 +204,10 @@ export class MediaController {
             criticosScore: score.score_critica,
             publicoScore: score.score_publico,
             consenso: score.consenso,
+            indiceConsenso: score.indice_consenso ?? null,
+            votosTotal: score.votos_total ?? 0,
             num_fontes: score.num_fontes,
-            confianca: score.confianca,
+            confianca: normalizarConfianca(score.confianca),
             calculado_em: score.calculado_em.toISOString(),
             detalhes: Array.isArray(score.detalhes) ? score.detalhes : [],
           }
@@ -239,6 +251,8 @@ export class MediaController {
     criticosScore: number | null;
     publicoScore: number | null;
     consenso: number | null;
+    indiceConsenso: number | null;
+    votosTotal: number;
     num_fontes: number;
     confianca: number;
     pesos_usados: Record<string, number>;
@@ -257,7 +271,7 @@ export class MediaController {
     }
 
     // Se já existe score persistido (job diário ou coleta admin), retorna ele
-    // com os buckets Crítica/Público (v2).
+    // com os buckets Crítica/Público e campos v3 (MET-03).
     if (midia.scores.length > 0) {
       const existing = midia.scores[0];
       if (!existing) {
@@ -269,21 +283,25 @@ export class MediaController {
         criticosScore: existing.score_critica ?? null,
         publicoScore: existing.score_publico ?? null,
         consenso: existing.consenso ?? null,
+        indiceConsenso: existing.indice_consenso ?? null,
+        votosTotal: existing.votos_total ?? 0,
         num_fontes: existing.num_fontes,
-        confianca: existing.confianca ?? 0.6,
+        confianca: normalizarConfianca(existing.confianca),
         pesos_usados: existing.pesos_usados as Record<string, number>,
         calculado_em: existing.calculado_em.toISOString(),
       };
     }
 
-    // Sem score persistido — calcula on-the-fly (placeholder: sem fontes = neutro).
-    const result = this.mediaScoreService.calcularScoreV2(midia.tipo, []);
+    // Sem score persistido — calcula on-the-fly (v3: sem fontes = prior C).
+    const result = this.mediaScoreService.calcularScoreV3(midia.tipo, []);
     return {
       midia_id: id,
       score: result.score,
       criticosScore: result.criticosScore,
       publicoScore: result.publicoScore,
       consenso: result.consenso,
+      indiceConsenso: result.indiceConsenso,
+      votosTotal: result.votosTotal,
       num_fontes: result.num_fontes,
       confianca: result.confianca,
       pesos_usados: result.pesos_usados,

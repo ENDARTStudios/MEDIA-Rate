@@ -56,6 +56,10 @@ export interface MediaScore {
   criticsScore?: number | null;
   audienceScore?: number | null;
   consensus?: number | null;
+  /** v3 (MET-03): índice de consenso I = 100 − |crítica − público| (0–100). */
+  indiceConsenso?: number | null;
+  /** v3 (MET-03): votos totais v — input do pull Bayesiano. */
+  votosTotal?: number;
   sampleSize?: number;
   algorithmVersion?: string;
   confidenceScore?: number;

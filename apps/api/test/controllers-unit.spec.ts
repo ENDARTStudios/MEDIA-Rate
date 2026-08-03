@@ -54,6 +54,7 @@ describe("MediaController (unit T8.1)", () => {
   let mockScoreService: {
     calcularScore: ReturnType<typeof vi.fn>;
     calcularScoreV2?: ReturnType<typeof vi.fn>;
+    calcularScoreV3?: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -124,10 +125,10 @@ describe("MediaController (unit T8.1)", () => {
     expect(result.criticosScore).toBe(88);
     expect(result.publicoScore).toBe(82);
     expect(result.consenso).toBe(6);
-    expect(result.confianca).toBe(0.9);
+    expect(result.confianca).toBe(90); // legada 0–1 normalizada para CS 0–100
   });
 
-  it("getMediaScore() persisted sem buckets v2 — fallback null e confiança 0.6", async () => {
+  it("getMediaScore() persisted sem buckets v2 — fallback null e confiança 0", async () => {
     mockPrisma.midia.findUnique.mockResolvedValue({
       id: "1",
       tipo: "FILME",
@@ -137,7 +138,7 @@ describe("MediaController (unit T8.1)", () => {
     expect(result.score).toBe(70);
     expect(result.criticosScore).toBeNull();
     expect(result.publicoScore).toBeNull();
-    expect(result.confianca).toBe(0.6);
+    expect(result.confianca).toBe(0);
   });
 
   it("getMediaScore() throws 404 if not found", async () => {
@@ -146,11 +147,13 @@ describe("MediaController (unit T8.1)", () => {
   });
 
   it("getMediaScore() returns calculated score when no persisted", async () => {
-    mockScoreService.calcularScoreV2 = vi.fn().mockReturnValue({
-      score: 50,
+    mockScoreService.calcularScoreV3 = vi.fn().mockReturnValue({
+      score: 70,
       criticosScore: null,
       publicoScore: null,
       consenso: null,
+      indiceConsenso: null,
+      votosTotal: 0,
       num_fontes: 0,
       confianca: 0,
       pesos_usados: {},
@@ -158,7 +161,7 @@ describe("MediaController (unit T8.1)", () => {
     });
     mockPrisma.midia.findUnique.mockResolvedValue({ id: "1", tipo: "FILME", scores: [] });
     const result = await controller.getMediaScore("1");
-    expect(result.score).toBe(50);
+    expect(result.score).toBe(70);
     expect(result.criticosScore).toBeNull();
   });
 
@@ -195,7 +198,7 @@ describe("MediaController (unit T8.1)", () => {
     expect(result.generos).toEqual(["Drama"]);
     expect(result.streamings).toEqual(["Netflix"]);
     expect(result.score?.score).toBe(70.5);
-    expect(result.score?.confianca).toBe(0.9);
+    expect(result.score?.confianca).toBe(90); // legada 0–1 normalizada
     expect(result.score?.detalhes).toEqual([{ fonte: "tmdb" }]);
     expect(result.fontes).toEqual([{ fonte: "tmdb", url: "https://tmdb/x" }]);
   });
