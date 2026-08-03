@@ -755,3 +755,8 @@ Stage Summary:
 - Testes atualizados: adapters-novos (OpenCritic), media-score v1/v2, fixture
   coleta-prod e media-score-engine (web).
 - Status: DONE (após lint/testes/deploy).
+
+- Validacao em producao (2026-08-03): GAME Baldur's Gate 3 seedado (fonte igdb, id 119171),
+  coleta admin OK — opencritic 98 + igdb 94.5 (critica 93) + igdb_publico 95 + steam 0.97
+  (publico 85.7) → score 89.4, confianca 0.9. Slug canonico: baldur-s-gate-3.
+  Pagina web /pt-BR/game/baldur-s-gate-3 renderiza com dados reais.
