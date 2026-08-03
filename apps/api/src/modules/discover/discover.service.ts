@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { Prisma, type TipoMidia } from "@prisma/client";
+import { slugify } from "../../common/slugify.js";
 
 interface SearchOptions {
   tipo?: TipoMidia;
@@ -29,7 +30,12 @@ export class DiscoverService {
     `);
 
     const total = results.length > 0 ? (results[0]?.total ?? 0) : 0;
-    return { items: results, total, limit, offset };
+    // Slug canônico por item (frontend navega por URL amigável).
+    const items = results.map((r) => ({
+      ...r,
+      slug: slugify(String(r.titulo ?? "")),
+    }));
+    return { items, total, limit, offset };
   }
 
   async discover(opts: { limit?: number; tipo?: TipoMidia } = {}) {

@@ -161,6 +161,113 @@ describe("MediaController (unit T8.1)", () => {
     expect(result.score).toBe(50);
     expect(result.criticosScore).toBeNull();
   });
+
+  it("getBySlug() resolve por id UUID direto", async () => {
+    mockPrisma.midia.findUnique.mockResolvedValue({
+      id: "abc-123",
+      titulo: "Lucifer",
+      titulo_original: null,
+      tipo: "SERIE",
+      sinopse: "Sinopse",
+      ano_lancamento: 2016,
+      imagem_url: "https://x/poster.jpg",
+      classificacao_indicativa: "LIVRE",
+      duracao_minutos: 42,
+      generos: [{ genero: { nome: "Drama" } }],
+      streamings: [{ service: { nome: "Netflix" } }],
+      scores: [
+        {
+          score: 70.5,
+          score_critica: null,
+          score_publico: 70.5,
+          consenso: null,
+          num_fontes: 4,
+          confianca: 0.9,
+          calculado_em: new Date(),
+        },
+      ],
+      avaliacoes: [{ fonte: "tmdb", url: "https://tmdb/x" }],
+    });
+    const result = await controller.getBySlug("abc-123");
+    expect(result.id).toBe("abc-123");
+    expect(result.slug).toBe("lucifer");
+    expect(result.generos).toEqual(["Drama"]);
+    expect(result.streamings).toEqual(["Netflix"]);
+    expect(result.score?.score).toBe(70.5);
+    expect(result.score?.confianca).toBe(0.9);
+    expect(result.fontes).toEqual([{ fonte: "tmdb", url: "https://tmdb/x" }]);
+  });
+
+  it("getBySlug() resolve por slugify do titulo (sem acento)", async () => {
+    mockPrisma.midia.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      id: "m1",
+      titulo: "O Poderoso Chefão",
+      titulo_original: null,
+      tipo: "FILME",
+      sinopse: null,
+      ano_lancamento: 1972,
+      imagem_url: null,
+      classificacao_indicativa: null,
+      duracao_minutos: null,
+      generos: [],
+      streamings: [],
+      scores: [],
+      avaliacoes: [],
+    });
+    mockPrisma.midia.findMany.mockResolvedValue([
+      { id: "m1", titulo: "O Poderoso Chefão", titulo_original: null },
+      { id: "m2", titulo: "Outro Filme", titulo_original: null },
+    ]);
+    const result = await controller.getBySlug("o-poderoso-chefao");
+    expect(result.id).toBe("m1");
+    expect(result.slug).toBe("o-poderoso-chefao");
+    expect(result.score).toBeNull();
+  });
+
+  it("getBySlug() resolve por slugify do titulo_original", async () => {
+    mockPrisma.midia.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      id: "m1",
+      titulo: "Frieren e a Jornada para o Além",
+      titulo_original: "Sousou no Frieren",
+      tipo: "SERIE",
+      sinopse: null,
+      ano_lancamento: 2023,
+      imagem_url: null,
+      classificacao_indicativa: null,
+      duracao_minutos: null,
+      generos: [],
+      streamings: [],
+      scores: [],
+      avaliacoes: [],
+    });
+    mockPrisma.midia.findMany.mockResolvedValue([
+      { id: "m1", titulo: "Frieren e a Jornada para o Além", titulo_original: "Sousou no Frieren" },
+    ]);
+    const result = await controller.getBySlug("sousou-no-frieren");
+    expect(result.id).toBe("m1");
+  });
+
+  it("getBySlug() throws 404 quando nada corresponde", async () => {
+    mockPrisma.midia.findUnique.mockResolvedValueOnce(null);
+    mockPrisma.midia.findMany.mockResolvedValue([
+      { id: "m1", titulo: "Outro Filme", titulo_original: null },
+    ]);
+    await expect(controller.getBySlug("nao-existe")).rejects.toThrow();
+  });
+
+  it("list() com sort=score usa orderBy da relacao scores", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([]);
+    await controller.list(undefined, "10", undefined, "score:desc");
+    const call = mockPrisma.midia.findMany.mock.calls[0]?.[0];
+    expect(call?.orderBy).toEqual({ scores: { score: "desc" } });
+  });
+
+  it("list() com sort inválido cai no default created_at desc", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([]);
+    await controller.list(undefined, "10", undefined, "hack:desc");
+    const call = mockPrisma.midia.findMany.mock.calls[0]?.[0];
+    expect(call?.orderBy).toEqual({ created_at: "desc" });
+  });
 });
 
 describe("LgpdController (unit T8.1)", () => {

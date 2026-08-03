@@ -21,8 +21,10 @@ describe("Regressao SQL Injection (T024/8.8)", () => {
     process.env.SKIP_DB_CONNECT = "true";
     // GET /api/v1/midias é público desde a Fase de catálogo — sem DB no
     // teste, stubamos o Prisma para a query executar contra lista vazia.
+    // GET /api/v1/search também é público (mesmo fluxo via $queryRaw).
     const prismaStub = {
       midia: { findMany: async () => [] },
+      $queryRaw: async () => [],
       // Demais models nunca são consultados neste spec (login falha na
       // validação zod antes de tocar o banco).
     };

@@ -101,6 +101,15 @@ export class AuthGuard implements CanActivate {
     }
     // Catálogo de leitura é público (frontend consome sem login).
     if (m === "GET" && url.startsWith("/api/v1/midias")) return true;
+    // Busca/descoberta pública (frontend de catálogo).
+    if (
+      m === "GET" &&
+      (url.startsWith("/api/v1/search") ||
+        url.startsWith("/api/v1/discover") ||
+        url.startsWith("/api/v1/trending"))
+    ) {
+      return true;
+    }
     // Coleta admin via x-admin-token — validado no próprio controller
     // (comparação timing-safe), sem depender de cookie de sessão.
     if (m === "POST" && /^\/api\/v1\/midias\/[^/]+\/coletar$/.test(url)) return true;

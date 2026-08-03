@@ -136,4 +136,17 @@ describe("AuthGuard (unit)", () => {
     });
     await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
   });
+
+  it("GET /api/v1/search — público (busca do frontend)", async () => {
+    const { context } = mockContext({ hasCookie: false, url: "/api/v1/search?q=godfather" });
+    const result = await guard.canActivate(context);
+    expect(result).toBe(true);
+  });
+
+  it("GET /api/v1/discover e /api/v1/trending — públicos", async () => {
+    const discover = mockContext({ hasCookie: false, url: "/api/v1/discover?tipo=FILME" });
+    const trending = mockContext({ hasCookie: false, url: "/api/v1/trending" });
+    expect(await guard.canActivate(discover.context)).toBe(true);
+    expect(await guard.canActivate(trending.context)).toBe(true);
+  });
 });

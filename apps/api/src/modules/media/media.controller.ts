@@ -15,6 +15,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { slugify } from "../../common/slugify.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { MediaService } from "./media.service.js";
@@ -66,7 +67,7 @@ export class MediaController {
   @ApiQuery({
     name: "sort",
     required: false,
-    description: "Ordenação allowlist: titulo, ano_lancamento",
+    description: "Ordenação allowlist: titulo, ano_lancamento, score",
   })
   async list(
     @Query("cursor") cursor: string | undefined,
@@ -74,7 +75,13 @@ export class MediaController {
     @Query("tipo") tipo: string | undefined,
     @Query("sort") sort: string | undefined,
   ): Promise<
-    PaginatedResult<{ id: string; titulo: string; tipo: string; ano_lancamento: number | null }>
+    PaginatedResult<{
+      id: string;
+      titulo: string;
+      tipo: string;
+      ano_lancamento: number | null;
+      imagem_url: string | null;
+    }>
   > {
     const params: PaginationDtoType = PaginationDto.parse({
       cursor,
@@ -88,11 +95,17 @@ export class MediaController {
     }
 
     // Allowlist de campos de ordenação (T4.6 sort allowlist).
-    const ALLOWED_SORT_FIELDS = ["titulo", "ano_lancamento", "created_at"] as const;
+    // "score" ordena pela relação media_score (maior score primeiro).
+    const ALLOWED_SORT_FIELDS = ["titulo", "ano_lancamento", "created_at", "score"] as const;
     const sortResult = validateSortField(sort, ALLOWED_SORT_FIELDS);
-    const orderBy = sortResult
-      ? { [sortResult.field]: sortResult.direction }
-      : { created_at: "desc" as const };
+    let orderBy: unknown = { created_at: "desc" as const };
+    if (sortResult) {
+      if (sortResult.field === "score") {
+        orderBy = { scores: { score: sortResult.direction } };
+      } else {
+        orderBy = { [sortResult.field]: sortResult.direction };
+      }
+    }
 
     return paginateCursor({
       prisma: this.prisma,
@@ -102,8 +115,82 @@ export class MediaController {
       where,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- orderBy construído dinamicamente
       orderBy: orderBy as any,
-      select: { id: true, titulo: true, tipo: true, ano_lancamento: true },
+      select: {
+        id: true,
+        titulo: true,
+        tipo: true,
+        ano_lancamento: true,
+        imagem_url: true,
+      },
     });
+  }
+
+  @Get("slug/:slug")
+  @ApiOperation({
+    summary: "Detalhes de uma mídia por slug (ou id) com score v2 e fontes",
+  })
+  @ApiResponse({ status: 200, description: "Mídia encontrada com score e fontes." })
+  @ApiResponse({ status: 404, description: "Mídia não encontrada." })
+  async getBySlug(@Param("slug") slug: string) {
+    const include = {
+      generos: { include: { genero: { select: { nome: true } } } },
+      streamings: { include: { service: { select: { nome: true } } } },
+      scores: true,
+      avaliacoes: { select: { fonte: true, url: true } },
+    };
+
+    // 1) id UUID direto (rotas legadas /movie/[id] e cards que linkam por id).
+    let midia = await this.prisma.midia.findUnique({ where: { id: slug }, include });
+    if (!midia) {
+      // 2) slugify sobre titulo/titulo_original (catálogo real).
+      const slugLimpo = slugify(slug);
+      const candidatos = await this.prisma.midia.findMany({
+        select: { id: true, titulo: true, titulo_original: true },
+      });
+      const alvo = candidatos.find(
+        (c) =>
+          slugify(c.titulo) === slugLimpo ||
+          (c.titulo_original != null && slugify(c.titulo_original) === slugLimpo),
+      );
+      if (alvo) {
+        midia = await this.prisma.midia.findUnique({ where: { id: alvo.id }, include });
+      }
+    }
+    if (!midia) {
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Mídia não encontrada.",
+      });
+    }
+
+    const score = midia.scores[0];
+    return {
+      id: midia.id,
+      slug: slugify(midia.titulo),
+      titulo: midia.titulo,
+      titulo_original: midia.titulo_original,
+      tipo: midia.tipo,
+      sinopse: midia.sinopse,
+      ano_lancamento: midia.ano_lancamento,
+      imagem_url: midia.imagem_url,
+      classificacao_indicativa: midia.classificacao_indicativa,
+      duracao_minutos: midia.duracao_minutos,
+      generos: midia.generos.map((g) => g.genero.nome),
+      streamings: midia.streamings.map((s) => s.service.nome),
+      score: score
+        ? {
+            score: score.score,
+            criticosScore: score.score_critica,
+            publicoScore: score.score_publico,
+            consenso: score.consenso,
+            num_fontes: score.num_fontes,
+            confianca: score.confianca,
+            calculado_em: score.calculado_em.toISOString(),
+          }
+        : null,
+      fontes: midia.avaliacoes.map((a) => ({ fonte: a.fonte, url: a.url })),
+    };
   }
 
   @Get(":id")
