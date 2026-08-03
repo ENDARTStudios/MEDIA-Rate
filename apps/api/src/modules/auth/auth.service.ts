@@ -14,6 +14,7 @@ import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
+import { FREE_WATCHLIST_LIMIT } from "../watchlist/watchlist.service.js";
 
 /**
  * Resultado de registro. Nunca expõe password_hash.
@@ -36,6 +37,19 @@ export interface LoginResult {
     email: string;
     nome: string | null;
   };
+}
+
+/**
+ * Resultado de GET /auth/me — usuário + plano/entitlements (D-132).
+ */
+export interface MeResult {
+  id: string;
+  email: string;
+  nome: string | null;
+  plano: "FREE" | "PLUS" | "PREMIUM";
+  status: string;
+  trial_ends_at: string | null;
+  watchlist_limit: number | null;
 }
 
 /**
@@ -297,5 +311,45 @@ export class AuthService {
       usuarioId,
       ipOrigem: ip,
     });
+  }
+
+  /**
+   * Dados do usuário autenticado + plano/entitlements (D-132).
+   * Consumido por GET /api/v1/auth/me.
+   */
+  async getMe(usuarioId: string): Promise<MeResult> {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      select: {
+        id: true,
+        email: true,
+        nome: true,
+        plano: {
+          select: {
+            plano: true,
+            status: true,
+            trial_ends_at: true,
+          },
+        },
+      },
+    });
+    if (!usuario) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        error: "Unauthorized",
+        message: "Autenticação necessária.",
+      });
+    }
+
+    const plano = usuario.plano?.plano ?? "FREE";
+    return {
+      id: usuario.id,
+      email: usuario.email,
+      nome: usuario.nome,
+      plano,
+      status: usuario.plano?.status ?? "ATIVA",
+      trial_ends_at: usuario.plano?.trial_ends_at?.toISOString() ?? null,
+      watchlist_limit: plano === "FREE" ? FREE_WATCHLIST_LIMIT : null,
+    };
   }
 }

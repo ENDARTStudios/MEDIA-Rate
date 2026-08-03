@@ -19,9 +19,11 @@ import type {
 export class MockPaymentGateway implements IPaymentGateway {
   private readonly logger = new Logger(MockPaymentGateway.name);
   public readonly createdSessions: CheckoutSession[] = [];
+  public readonly createdInputs: CreateCheckoutInput[] = [];
   public readonly cancelledSubscriptions: string[] = [];
 
   async createCheckoutSession(input: CreateCheckoutInput): Promise<CheckoutSession> {
+    this.createdInputs.push(input);
     const session: CheckoutSession = {
       id: `cs_test_${randomUUID()}`,
       url: `data:text/html,<html><body>Mock checkout for ${input.plano}</body></html>`,

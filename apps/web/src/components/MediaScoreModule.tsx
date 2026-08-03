@@ -63,10 +63,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const consenso = consensus ?? derivado.consenso;
 
   const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
+  const scale = mediaType === "game" ? "0-100" : "0-10";
+  const maxScore = scale === "0-100" ? 100 : 10;
   const radius = 52;
   const circ = 2 * Math.PI * radius;
-  const offset = circ - (consolidated / 100) * circ;
-  const color = scoreColor(consolidated, "0-100");
+  const offset = circ - (consolidated / maxScore) * circ;
+  const color = scoreColor(consolidated, scale);
   const isStale = updatedAt
     ? new Date(updatedAt).getTime() < Date.now() - 30 * 24 * 3600 * 1000
     : false;
@@ -87,7 +89,11 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             className="w-full h-full -rotate-90"
             viewBox="0 0 120 120"
             role="img"
-            aria-label={t("scoreAriaLabel", { score: consolidated, sources: sources.length })}
+            aria-label={t("scoreAriaLabel", {
+              score: consolidated,
+              sources: sources.length,
+              scale: maxScore,
+            })}
           >
             <circle
               cx="60"

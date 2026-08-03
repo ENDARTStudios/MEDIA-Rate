@@ -24,6 +24,15 @@ interface MockAuthService {
   forgotPassword: (email: string) => Promise<{ message: string }>;
   resetPassword: (token: string, password: string) => Promise<{ message: string }>;
   logoutAudit: (usuarioId: string) => Promise<void>;
+  getMe: (usuarioId: string) => Promise<{
+    id: string;
+    email: string;
+    nome: string | null;
+    plano: "FREE" | "PLUS" | "PREMIUM";
+    status: string;
+    trial_ends_at: string | null;
+    watchlist_limit: number | null;
+  }>;
 }
 
 interface MockSessionService {
@@ -78,6 +87,15 @@ describe("AuthController (unit)", () => {
       logoutAudit: async () => {
         /* stub de teste */
       },
+      getMe: async (id: string) => ({
+        id,
+        email: "u1@test.com",
+        nome: "User",
+        plano: "FREE",
+        status: "ATIVA",
+        trial_ends_at: null,
+        watchlist_limit: 20,
+      }),
     };
     sessionService = {
       revokeSession: async () => {
@@ -180,13 +198,15 @@ describe("AuthController (unit)", () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  it("me — retorna dados do usuario autenticado", async () => {
+  it("me — retorna dados do usuario autenticado + plano (D-132)", async () => {
     const req = {
       user: { id: "u1", email: "u1@test.com", nome: "User" },
     } as unknown as FastifyRequest;
     const result = await controller.me(req);
     expect(result.id).toBe("u1");
     expect(result.email).toBe("u1@test.com");
+    expect(result.plano).toBe("FREE");
+    expect(result.watchlist_limit).toBe(20);
   });
 
   it("me — usuario nao autenticado lanca 401", async () => {

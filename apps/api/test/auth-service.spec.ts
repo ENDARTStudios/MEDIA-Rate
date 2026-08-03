@@ -19,6 +19,7 @@ interface MockUser {
   password_reset_expira: Date | null;
   ultimo_login_em: Date | null;
   email_verificado_em?: Date | null;
+  plano?: { plano: string; status: string; trial_ends_at: Date | null };
 }
 
 interface MockUserWhere {
@@ -264,6 +265,43 @@ describe("AuthService (unit)", () => {
     await service.logoutAudit("u1", "1.2.3.4");
     expect(loggedAction).toBe("logout");
   });
+
+  describe("getMe() — plano e entitlements (D-132)", () => {
+    it("usuário FREE retorna plano FREE + watchlist_limit 20", async () => {
+      const result = await service.getMe("u1");
+      expect(result.id).toBe("u1");
+      expect(result.plano).toBe("FREE");
+      expect(result.status).toBe("ATIVA");
+      expect(result.trial_ends_at).toBeNull();
+      expect(result.watchlist_limit).toBe(20);
+    });
+
+    it("usuário PLUS em trial retorna trial_ends_at e sem limite", async () => {
+      userMap.set("trial@test.com", {
+        id: "u9",
+        email: "trial@test.com",
+        password_hash: "h",
+        nome: null,
+        password_reset_token: null,
+        password_reset_expira: null,
+        ultimo_login_em: null,
+        plano: {
+          plano: "PLUS",
+          status: "TRIALING",
+          trial_ends_at: new Date("2026-08-10T00:00:00Z"),
+        },
+      });
+      const result = await service.getMe("u9");
+      expect(result.plano).toBe("PLUS");
+      expect(result.status).toBe("TRIALING");
+      expect(result.trial_ends_at).toBe("2026-08-10T00:00:00.000Z");
+      expect(result.watchlist_limit).toBeNull();
+    });
+
+    it("usuário inexistente lança UnauthorizedException", async () => {
+      await expect(service.getMe("nao-existe")).rejects.toThrow(UnauthorizedException);
+    });
+  });
 });
 
 function mockPrisma(users: Map<string, MockUser>) {
@@ -289,7 +327,15 @@ function mockPrisma(users: Map<string, MockUser>) {
 
   return {
     usuario: {
-      findUnique: async (args: MockUserArgs) => users.get(args.where.email ?? "") ?? null,
+      findUnique: async (args: MockUserArgs) => {
+        if (args.where.id) {
+          for (const u of users.values()) {
+            if (u.id === args.where.id) return u;
+          }
+          return null;
+        }
+        return users.get(args.where.email ?? "") ?? null;
+      },
       findFirst: async (args: MockUserArgs) => {
         for (const u of users.values()) {
           if (

@@ -8,6 +8,20 @@ interface User {
   name: string;
   email: string;
   avatarUrl: string | null;
+  plan?: "FREE" | "PLUS" | "PREMIUM";
+  subscriptionStatus?: string;
+  trialEndsAt?: string | null;
+  watchlistLimit?: number | null;
+}
+
+interface MeResponse {
+  id: string;
+  email: string;
+  nome: string | null;
+  plano?: "FREE" | "PLUS" | "PREMIUM";
+  status?: string;
+  trial_ends_at?: string | null;
+  watchlist_limit?: number | null;
 }
 
 interface AuthState {
@@ -27,9 +41,18 @@ interface AuthState {
   setInitialUser: (name: string) => void;
 }
 
-function mapUser(apiUser: { id: string; email: string; nome: string | null } | null): User | null {
+function mapUser(apiUser: MeResponse | null): User | null {
   if (!apiUser) return null;
-  return { id: apiUser.id, email: apiUser.email, name: apiUser.nome ?? "", avatarUrl: null };
+  return {
+    id: apiUser.id,
+    email: apiUser.email,
+    name: apiUser.nome ?? "",
+    avatarUrl: null,
+    plan: apiUser.plano,
+    subscriptionStatus: apiUser.status,
+    trialEndsAt: apiUser.trial_ends_at,
+    watchlistLimit: apiUser.watchlist_limit,
+  };
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -102,9 +125,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   fetchMe: async () => {
     set({ isLoading: true });
     try {
-      const me = await api.get<{ id: string; email: string; nome: string | null }>(
-        "/api/v1/auth/me",
-      );
+      const me = await api.get<MeResponse>("/api/v1/auth/me");
       set({ user: mapUser(me), isAuthenticated: true, isLoading: false, error: null });
     } catch (e) {
       if (e instanceof SessionExpiredError || (e instanceof ApiError && e.status === 401)) {

@@ -12,7 +12,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { AuthService, type LoginResult } from "./auth.service.js";
+import { AuthService, type LoginResult, type MeResult } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
@@ -117,11 +117,7 @@ export class AuthController {
   }
 
   @Get("me")
-  async me(@Req() req: FastifyRequest): Promise<{
-    id: string;
-    email: string;
-    nome: string | null;
-  }> {
+  async me(@Req() req: FastifyRequest): Promise<MeResult> {
     const user = (req as FastifyRequest & { user?: AuthenticatedUser }).user;
     if (!user) {
       throw new UnauthorizedException({
@@ -130,11 +126,7 @@ export class AuthController {
         message: "Autenticação necessária.",
       });
     }
-    return {
-      id: user.id,
-      email: user.email,
-      nome: user.nome,
-    };
+    return this.authService.getMe(user.id);
   }
 
   @Post("logout")

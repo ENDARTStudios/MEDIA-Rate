@@ -26,6 +26,7 @@ interface WatchlistState {
   entries: WatchlistEntry[];
   isLoading: boolean;
   error: Error | string | null;
+  limitReached: boolean;
   fetchWatchlist: () => Promise<void>;
   addToWatchlist: (mediaId: string, status?: string) => Promise<void>;
   moveItem: (entryId: string, newStatus: string) => Promise<void>;
@@ -38,6 +39,7 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
   entries: [],
   isLoading: false,
   error: null,
+  limitReached: false,
 
   fetchWatchlist: async () => {
     set({ isLoading: true, error: null });
@@ -65,7 +67,7 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
   },
 
   addToWatchlist: async (mediaId, status) => {
-    set({ error: null });
+    set({ error: null, limitReached: false });
     // T136: Optimistic update — add entry immediately so UI reflects change
     const optimisticEntry: WatchlistEntry = {
       id: "opt-" + Date.now(),
@@ -82,8 +84,13 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
     } catch (err) {
       // Rollback optimistic update
       set((state) => ({ entries: state.entries.filter((e) => e.id !== optimisticEntry.id) }));
-      const msg = err instanceof ApiError ? err.message : "Erro ao adicionar à watchlist";
-      set({ error: msg });
+      const isLimit = err instanceof ApiError && err.status === 402;
+      const msg = isLimit
+        ? "Limite do plano Free atingido (20 itens). Faça upgrade para o Plus para itens ilimitados."
+        : err instanceof ApiError
+          ? err.message
+          : "Erro ao adicionar à watchlist";
+      set({ error: msg, limitReached: isLimit });
       throw err;
     }
   },

@@ -43,7 +43,7 @@
   },
   "landing": {
     "hero": "Puntuación unificada de películas, series y juegos",
-    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único de 0 a 10.",
+    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único por medio: juegos de 0 a 100, películas y series de 0 a 10.",
     "cta": "Empezar gratis",
     "features": "Características",
     "feature1": "MEDIA Score™ consolidado",
@@ -78,6 +78,7 @@
     "loadMore": "Cargar más",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} de 100",
+    "mediaScoreAria10": "MEDIA Score {score} de 10",
     "loadingCatalog": "Actualizando catálogo...",
     "catalogAria": "Catálogo de medios",
     "synopsisUnavailable": "Sinopsis no disponible.",
@@ -127,7 +128,7 @@
     "updated": "Actualizado",
     "mayBeOutdated": "puede estar desactualizado",
     "sources": "Fuentes",
-    "scoreAriaLabel": "Puntuación general {score} de 100, basada en {sources} fuente{sources, plural, one {} other {s}}",
+    "scoreAriaLabel": "Puntuación general {score} de {scale}, basada en {sources} fuente{sources, plural, one {} other {s}}",
     "criticsBar": "Crítica",
     "audienceBar": "Público",
     "consensusLabel": "Consenso",
@@ -226,6 +227,7 @@
       "3 recomendaciones/día"
     ],
     "plusFeatures": [
+      "Prueba gratis de 7 días",
       "Todo del Free",
       "Recomendaciones ilimitadas",
       "Explicaciones del score",
@@ -369,7 +371,14 @@
     "retry": "Intentar de nuevo",
     "exploreCatalog": "Explorar catálogo",
     "mediaItem": "Medio {id}",
-    "moveTo": "Mover a"
+    "moveTo": "Mover a",
+    "limitReached": "Límite del plan Free alcanzado (20 elementos en la watchlist).",
+    "upgradeCta": "Mejorar a Plus",
+    "planFree": "Plan Free",
+    "planPlus": "Plan Plus",
+    "planPremium": "Plan Premium",
+    "trialActive": "Trial Plus — termina el {date}",
+    "itemsCount": "{count} de 20 elementos"
   },
   "privacy": {
     "metaTitle": "Política de Privacidad — MEDIA Rate",
@@ -510,7 +519,7 @@
     "languagesSeoBody": "Cada idioma tiene URLs canónicas, metadatos y contenido localizados, garantizando una indexación correcta en buscadores.",
     "faqTitle": "Preguntas Frecuentes",
     "faq1Q": "¿Qué es el MEDIA Score y cómo se calcula?",
-    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, IGDB y OpenLibrary en una nota única de 0 a 100.",
+    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, IGDB y OpenLibrary en una nota única por medio: juegos de 0 a 100, demás medios de 0 a 10.",
     "faq2Q": "¿Necesito una cuenta para usar MEDIA Rate?",
     "faq2A": "No. El catálogo, búsqueda y MEDIA Score son gratuitos. Las recomendaciones ilimitadas requieren Plus o Premium.",
     "faq3Q": "¿Puedo cancelar mi suscripción cuando quiera?",
@@ -526,7 +535,7 @@
   "pricingFaq": {
     "title": "Preguntas frecuentes",
     "faq1Q": "Qué es el MEDIA Score y cómo se calcula?",
-    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, IGDB y OpenLibrary en una nota única de 0 a 100, con indicador de confianza (alta/media/baja).",
+    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, IGDB y OpenLibrary en una nota única por medio: juegos de 0 a 100, demás medios de 0 a 10, con indicador de confianza (alta/media/baja).",
     "faq2Q": "Qué fuentes de valoración utilizan?",
     "faq2A": "Utilizamos IMDb, Rotten Tomatoes, TMDB para películas y series; IGDB y OpenCritic para juegos.",
     "faq3Q": "Es el MEDIA Score una crítica?",

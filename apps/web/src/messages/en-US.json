@@ -43,7 +43,7 @@
   },
   "landing": {
     "hero": "Unified score for movies, series and games",
-    "heroSubtitle": "MEDIA Score™ aggregates ratings from public sources into a single 0-100 indicator.",
+    "heroSubtitle": "MEDIA Score™ aggregates ratings from public sources into a single indicator per media: games 0-100, movies and series 0-10.",
     "cta": "Get started free",
     "features": "Features",
     "feature1": "Consolidated MEDIA Score™",
@@ -78,6 +78,7 @@
     "loadMore": "Load more",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} out of 100",
+    "mediaScoreAria10": "MEDIA Score {score} out of 10",
     "loadingCatalog": "Updating catalog...",
     "catalogAria": "Media catalog",
     "synopsisUnavailable": "Synopsis unavailable.",
@@ -127,7 +128,7 @@
     "updated": "Updated",
     "mayBeOutdated": "may be outdated",
     "sources": "Sources",
-    "scoreAriaLabel": "Overall score {score} out of 100, based on {sources} source{sources, plural, one {} other {s}}",
+    "scoreAriaLabel": "Overall score {score} out of {scale}, based on {sources} source{sources, plural, one {} other {s}}",
     "criticsBar": "Critics",
     "audienceBar": "Audience",
     "consensusLabel": "Consensus",
@@ -226,6 +227,7 @@
       "3 recommendations/day"
     ],
     "plusFeatures": [
+      "7-day free trial",
       "Everything in Free",
       "Unlimited recommendations",
       "Full score explanations",
@@ -369,7 +371,14 @@
     "retry": "Try again",
     "exploreCatalog": "Explore catalog",
     "mediaItem": "Media {id}",
-    "moveTo": "Move to"
+    "moveTo": "Move to",
+    "limitReached": "Free plan limit reached (20 watchlist items).",
+    "upgradeCta": "Upgrade to Plus",
+    "planFree": "Free plan",
+    "planPlus": "Plus plan",
+    "planPremium": "Premium plan",
+    "trialActive": "Plus trial — ends on {date}",
+    "itemsCount": "{count} of 20 items"
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",
@@ -510,7 +519,7 @@
     "languagesSeoBody": "Each language has localized canonical URLs, metadata and content, ensuring correct search engine indexing.",
     "faqTitle": "Frequently Asked Questions",
     "faq1Q": "What is MEDIA Score and how is it calculated?",
-    "faq1A": "MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, IGDB and OpenLibrary into a single 0-100 score.",
+    "faq1A": "MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, IGDB and OpenLibrary into a single per-media score: games 0-100, other media 0-10.",
     "faq2Q": "Do I need an account to use MEDIA Rate?",
     "faq2A": "No. The catalog, search and MEDIA Score are free. Unlimited recommendations require Plus or Premium.",
     "faq3Q": "Can I cancel my subscription at any time?",
@@ -526,7 +535,7 @@
   "pricingFaq": {
     "title": "Frequently Asked Questions",
     "faq1Q": "What is the MEDIA Score and how is it calculated?",
-    "faq1A": "The MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, IGDB and OpenLibrary into a single 0-100 score, with a confidence indicator (high/medium/low).",
+    "faq1A": "The MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, IGDB and OpenLibrary into a single per-media score: games 0-100, other media 0-10, with a confidence indicator (high/medium/low).",
     "faq2Q": "Which rating sources do you use?",
     "faq2A": "We use IMDb, Rotten Tomatoes, TMDB for movies and series; IGDB and OpenCritic for games.",
     "faq3Q": "Is the MEDIA Score a review?",

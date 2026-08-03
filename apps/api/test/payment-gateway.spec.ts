@@ -70,6 +70,34 @@ describe("PaymentService + MockPaymentGateway (T4.8)", () => {
 
       expect(result.url).toContain("PREMIUM");
     });
+
+    it("D-132: PLUS inicia com trial de 7 dias (trial_period_days = 7)", async () => {
+      await svc.createCheckout(
+        {
+          plano: "PLUS",
+          success_url: "https://app.example.com/success",
+          cancel_url: "https://app.example.com/cancel",
+        },
+        { id: "user-1", email: "user@example.com" },
+      );
+
+      const input = gateway.createdInputs[0]!;
+      expect(input.trial_period_days).toBe(7);
+    });
+
+    it("D-132: PREMIUM não recebe trial", async () => {
+      await svc.createCheckout(
+        {
+          plano: "PREMIUM",
+          success_url: "https://app.example.com/success",
+          cancel_url: "https://app.example.com/cancel",
+        },
+        { id: "user-1", email: "user@example.com" },
+      );
+
+      const input = gateway.createdInputs[0]!;
+      expect(input.trial_period_days).toBeUndefined();
+    });
   });
 
   describe("processWebhook() — idempotência (T2.10 + T4.3)", () => {
@@ -100,8 +128,111 @@ describe("PaymentService + MockPaymentGateway (T4.8)", () => {
       const upsertArg = mock.usuarioPlano.upsert.mock.calls[0]![0];
       expect(upsertArg.where.usuario_id).toBe("user-1");
       expect(upsertArg.create.plano).toBe("PLUS");
-      expect(upsertArg.create.status).toBe("ATIVA");
+      expect(upsertArg.create.status).toBe("TRIALING");
       expect(upsertArg.create.stripe_subscription_id).toBe("sub_123");
+      expect(upsertArg.create.trial_ends_at).toBeInstanceOf(Date);
+    });
+
+    it("D-132: checkout sem current_period_end ativa sem trial (ATIVA)", async () => {
+      mock.eventoPagamento.findUnique.mockResolvedValue(null);
+      mock.eventoPagamento.create.mockResolvedValue({ id: "evt-1b" });
+      mock.eventoPagamento.update.mockResolvedValue({});
+      mock.usuarioPlano.upsert.mockResolvedValue({});
+
+      const payload = JSON.stringify({
+        type: "checkout.session.completed",
+        data: {
+          object: {
+            id: "cs_124",
+            subscription: "sub_124",
+            metadata: { usuario_id: "user-1", plano: "PLUS" },
+          },
+        },
+      });
+
+      await svc.processWebhook(payload, "sig-mock");
+
+      const upsertArg = mock.usuarioPlano.upsert.mock.calls[0]![0];
+      expect(upsertArg.create.status).toBe("ATIVA");
+      expect(upsertArg.create.trial_ends_at).toBeNull();
+    });
+
+    it("D-132: subscription.updated status trialing registra fim do trial", async () => {
+      mock.eventoPagamento.findUnique.mockResolvedValue(null);
+      mock.eventoPagamento.create.mockResolvedValue({ id: "evt-2b" });
+      mock.eventoPagamento.update.mockResolvedValue({});
+      mock.usuarioPlano.upsert.mockResolvedValue({});
+
+      const trialEnd = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
+      const payload = JSON.stringify({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_999",
+            status: "trialing",
+            customer: "cus_999",
+            current_period_end: trialEnd,
+            metadata: { usuario_id: "user-1", plano: "PLUS" },
+          },
+        },
+      });
+
+      const result = await svc.processWebhook(payload, "sig-mock");
+
+      expect(result.processed).toBe(true);
+      expect(mock.usuarioPlano.upsert).toHaveBeenCalledOnce();
+      const upsertArg = mock.usuarioPlano.upsert.mock.calls[0]![0];
+      expect(upsertArg.create.status).toBe("TRIALING");
+      expect(upsertArg.create.trial_ends_at.getTime()).toBe(trialEnd * 1000);
+    });
+
+    it("D-132: subscription.updated status active encerra o trial", async () => {
+      mock.eventoPagamento.findUnique.mockResolvedValue(null);
+      mock.eventoPagamento.create.mockResolvedValue({ id: "evt-2c" });
+      mock.eventoPagamento.update.mockResolvedValue({});
+      mock.usuarioPlano.update.mockResolvedValue({});
+
+      const payload = JSON.stringify({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_1000",
+            status: "active",
+            metadata: { usuario_id: "user-1", plano: "PLUS" },
+          },
+        },
+      });
+
+      await svc.processWebhook(payload, "sig-mock");
+
+      expect(mock.usuarioPlano.update).toHaveBeenCalledOnce();
+      const updateArg = mock.usuarioPlano.update.mock.calls[0]![0];
+      expect(updateArg.data.status).toBe("ATIVA");
+      expect(updateArg.data.trial_ends_at).toBeNull();
+    });
+
+    it("D-132: trial_will_end marca trial_notified_at", async () => {
+      mock.eventoPagamento.findUnique.mockResolvedValue(null);
+      mock.eventoPagamento.create.mockResolvedValue({ id: "evt-2d" });
+      mock.eventoPagamento.update.mockResolvedValue({});
+      mock.usuarioPlano.update.mockResolvedValue({});
+
+      const payload = JSON.stringify({
+        type: "customer.subscription.trial_will_end",
+        data: {
+          object: {
+            id: "sub_1001",
+            metadata: { usuario_id: "user-1" },
+          },
+        },
+      });
+
+      const result = await svc.processWebhook(payload, "sig-mock");
+
+      expect(result.processed).toBe(true);
+      expect(mock.usuarioPlano.update).toHaveBeenCalledOnce();
+      const updateArg = mock.usuarioPlano.update.mock.calls[0]![0];
+      expect(updateArg.data.trial_notified_at).toBeInstanceOf(Date);
     });
 
     it("idempotência: segundo webhook com mesmo event_id não reprocessa", async () => {

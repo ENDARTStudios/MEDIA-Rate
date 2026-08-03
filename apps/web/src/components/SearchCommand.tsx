@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { searchMedia } from "@/lib/api";
 import { scoreColor } from "@/lib/design-tokens";
+import { normalizeDisplayScore } from "@/lib/score-utils";
 
 interface SearchResult {
   id: string;
@@ -327,11 +328,26 @@ export function SearchCommand() {
                             <span
                               className="text-xs font-mono font-bold shrink-0 px-1.5 py-0.5 rounded"
                               style={{
-                                color: scoreColor(item.score, "0-100"),
-                                backgroundColor: `${scoreColor(item.score, "0-100")}15`,
+                                color: scoreColor(
+                                  normalizeDisplayScore(
+                                    item.score,
+                                    item.type === "Game" ? "game" : "movie",
+                                  ),
+                                  item.type === "Game" ? "0-100" : "0-10",
+                                ),
+                                backgroundColor: `${scoreColor(
+                                  normalizeDisplayScore(
+                                    item.score,
+                                    item.type === "Game" ? "game" : "movie",
+                                  ),
+                                  item.type === "Game" ? "0-100" : "0-10",
+                                )}15`,
                               }}
                             >
-                              {item.score}
+                              {normalizeDisplayScore(
+                                item.score,
+                                item.type === "Game" ? "game" : "movie",
+                              )}
                             </span>
                           )}
                         </button>

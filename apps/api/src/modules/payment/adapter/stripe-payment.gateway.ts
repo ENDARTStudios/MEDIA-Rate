@@ -48,6 +48,14 @@ export class StripePaymentGateway implements IPaymentGateway {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: input.success_url,
       cancel_url: input.cancel_url,
+      ...(input.trial_period_days
+        ? {
+            subscription_data: {
+              trial_period_days: input.trial_period_days,
+              metadata: { usuario_id: input.usuario_id, plano: input.plano },
+            },
+          }
+        : {}),
       metadata: {
         usuario_id: input.usuario_id,
         plano: input.plano,

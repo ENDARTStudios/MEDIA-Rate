@@ -33,7 +33,7 @@
     "profile": "Perfil",
     "admin": "Admin",
     "mainNav": "Navegação principal",
-    "homeAria": "MEDIA Rate �\u001d Página inicial",
+    "homeAria": "MEDIA Rate — Página inicial",
     "openMenu": "Abrir menu",
     "dashboard": "Dashboard",
     "settings": "Configurações",
@@ -43,15 +43,15 @@
   },
   "landing": {
     "hero": "Score unificado de filmes, séries e games",
-    "heroSubtitle": "MEDIA Score�\u001e� agrega avaliações de fontes públicas em um único indicador de 0 a 10.",
+    "heroSubtitle": "MEDIA Score™ agrega avaliações de fontes públicas em um indicador único por mídia: jogos de 0 a 100, filmes e séries de 0 a 10.",
     "cta": "Começar grátis",
     "features": "Recursos",
-    "feature1": "MEDIA Score�\u001e� consolidado",
+    "feature1": "MEDIA Score™ consolidado",
     "feature1Desc": "Avaliações de IMDb, TMDB, IGDB, OpenCritic e Open Library em um só lugar.",
     "feature2": "Recomendações personalizadas",
     "feature2Desc": "Algoritmo que aprende seu gosto conforme você consome.",
     "feature3": "Planos para todos",
-    "feature3Desc": "Free, Plus e Premium �\u001d comece grátis e faça upgrade quando quiser."
+    "feature3Desc": "Free, Plus e Premium — comece grátis e faça upgrade quando quiser."
   },
   "catalog": {
     "title": "Catálogo",
@@ -78,6 +78,7 @@
     "loadMore": "Carregar mais",
     "mediaScore": "MEDIA Score",
     "mediaScoreAria": "MEDIA Score {score} de 100",
+    "mediaScoreAria10": "MEDIA Score {score} de 10",
     "loadingCatalog": "Atualizando catálogo...",
     "catalogAria": "Catálogo de mídias",
     "synopsisUnavailable": "Sinopse indisponível no momento.",
@@ -98,7 +99,7 @@
     "seasons": "Temporadas",
     "episodes": "Episódios",
     "seasonLabel": "Temporada",
-    "episodesSeason": "Episódios �\u001d Temporada {season}",
+    "episodesSeason": "Episódios — Temporada {season}",
     "notFoundTitle": "Mídia não encontrada",
     "home": "Início",
     "notFoundDesc": "O conteúdo que você procura não existe ou foi removido.",
@@ -127,7 +128,7 @@
     "updated": "Atualizado",
     "mayBeOutdated": "pode estar desatualizado",
     "sources": "Fontes",
-    "scoreAriaLabel": "Score geral {score} de 100, baseado em {sources} fonte{sources, plural, one {} other {s}}",
+    "scoreAriaLabel": "Score geral {score} de {scale}, baseado em {sources} fonte{sources, plural, one {} other {s}}",
     "criticsBar": "Crítica",
     "audienceBar": "Público",
     "consensusLabel": "Consenso",
@@ -199,9 +200,9 @@
   },
   "pricing": {
     "headline": "Escolha como você quer descobrir seu próximo título",
-    "subheadline": "Do gratuito ao Premium �\u001d todos os planos incluem o MEDIA Score�\u001e�.",
+    "subheadline": "Do gratuito ao Premium — todos os planos incluem o MEDIA Score™.",
     "metaTitle": "Planos â€” MEDIA Rate",
-    "metaDescription": "Escolha o plano ideal e descubra seu próximo título favorito com o MEDIA Score�\u001e�.",
+    "metaDescription": "Escolha o plano ideal e descubra seu próximo título favorito com o MEDIA Score™.",
     "metaOgTitle": "Planos MEDIA Rate",
     "metaOgDescription": "Descubra filmes, séries e games com score consolidado.",
     "mostPopular": "Mais popular",
@@ -221,11 +222,12 @@
     "features": "Recursos",
     "freeFeatures": [
       "Catálogo completo",
-      "MEDIA Score�\u001e�",
+      "MEDIA Score™",
       "Watchlist",
       "3 recomendações/dia"
     ],
     "plusFeatures": [
+      "Trial de 7 dias grátis",
       "Tudo do Free",
       "Recomendações ilimitadas",
       "Explicações completas do score",
@@ -240,7 +242,7 @@
       "Comparação entre perfis"
     ],
     "feature_catalogo": "Catálogo completo",
-    "feature_mediascore": "MEDIA Score�\u001e�",
+    "feature_mediascore": "MEDIA Score™",
     "feature_watchlist": "Watchlist",
     "feature_recommendations": "Recomendações",
     "feature_unlimitedRecs": "Recomendações ilimitadas",
@@ -265,7 +267,7 @@
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
     "socialDiscord": "Discord",
-    "copyright": "MEDIA Score�\u001e� · END ART Studios",
+    "copyright": "MEDIA Score™ · END ART Studios",
     "footerLinks": "Links do rodapé"
   },
   "auth": {
@@ -305,7 +307,7 @@
   "hero": {
     "brandName": "MEDIA Rate",
     "exploreCatalog": "Explorar catálogo",
-    "mediaScore": "MEDIA Score�\u001e�"
+    "mediaScore": "MEDIA Score™"
   },
   "featured": {
     "title": "Em alta agora",
@@ -340,7 +342,7 @@
     "ctaText": "Comece agora e descubra seu próximo título favorito. Gratuito.",
     "ctaTitle": "Começar grátis",
     "metaTitle": "MEDIA Rate â€” Descubra o que assistir e jogar",
-    "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score�\u001e� unificado para filmes, séries e games.",
+    "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Score unificado de entretenimento."
   },
@@ -369,10 +371,17 @@
     "retry": "Tentar novamente",
     "exploreCatalog": "Explorar catálogo",
     "mediaItem": "Mídia {id}",
-    "moveTo": "Mover para"
+    "moveTo": "Mover para",
+    "limitReached": "Limite do plano Free atingido (20 itens na watchlist).",
+    "upgradeCta": "Fazer upgrade para Plus",
+    "planFree": "Plano Free",
+    "planPlus": "Plano Plus",
+    "planPremium": "Plano Premium",
+    "trialActive": "Trial Plus — termina em {date}",
+    "itemsCount": "{count} de 20 itens"
   },
   "privacy": {
-    "metaTitle": "Política de Privacidade �\u001d MEDIA Rate",
+    "metaTitle": "Política de Privacidade — MEDIA Rate",
     "metaDescription": "Política de privacidade do MEDIA Rate. Saiba como tratamos seus dados pessoais conforme a LGPD.",
     "h1": "Política de Privacidade",
     "lastUpdated": "Última atualização: 30 de julho de 2026",
@@ -383,7 +392,7 @@
     "s3h": "3. Base Legal e Finalidade (LGPD)",
     "s3b": "Tratamos seus dados com as seguintes bases legais: execução de contrato (fornecer o serviço contratado), consentimento (comunicações opcionais mediante opt-in) e legítimo interesse (melhorias na plataforma, prevenção de fraudes).",
     "s4h": "4. Compartilhamento de Dados",
-    "s4b": "Seus dados N�O s�o vendidos. Compartilhamos dados apenas com: provedor de pagamento Stripe (processamento de assinaturas) e provedores de infraestrutura (Vercel para hospedagem frontend, Railway para backend).",
+    "s4b": "Seus dados NÃO sÃo vendidos. Compartilhamos dados apenas com: provedor de pagamento Stripe (processamento de assinaturas) e provedores de infraestrutura (Vercel para hospedagem frontend, Railway para backend).",
     "s5h": "5. Retenção de Dados",
     "s5b": "Seus dados são mantidos enquanto sua conta existir. Ao solicitar exclusão, os dados são removidos em até 30 dias. Logs de auditoria são retidos por 6 anos conforme recomendação da ANPD.",
     "s6h": "6. Seus Direitos (LGPD Art. 18)",
@@ -415,9 +424,9 @@
   },
   "faq": {
     "metaTitle": "Perguntas Frequentes â€” MEDIA Rate",
-    "metaDescription": "Tire suas dúvidas sobre o MEDIA Rate, o MEDIA Score�\u001e�, planos e fontes de avaliação.",
+    "metaDescription": "Tire suas dúvidas sobre o MEDIA Rate, o MEDIA Score™, planos e fontes de avaliação.",
     "metaOgTitle": "FAQ â€” MEDIA Rate",
-    "metaOgDescription": "Perguntas frequentes sobre o MEDIA Score�\u001e�, planos e fontes de avaliação."
+    "metaOgDescription": "Perguntas frequentes sobre o MEDIA Score™, planos e fontes de avaliação."
   },
   "about": {
     "metaTitle": "Sobre â€” MEDIA Rate",
@@ -427,25 +436,25 @@
     "title": "Sobre o MEDIA Rate",
     "lead": "O MEDIA Rate reúne avaliações de fontes públicas em um score unificado e transparente para ajudar você a decidir o que assistir ou jogar.",
     "whatIsTitle": "O que é o MEDIA Rate",
-    "whatIsBody": "O MEDIA Rate é uma plataforma que agrega avaliações de fontes públicas �\u001d como TMDB, OpenCritic, IGDB e Steam �\u001d em um único score consolidado, o MEDIA Score�\u001e�. Em vez de consultar vários sites para decidir se um filme, série ou game vale seu tempo, você encontra o contexto em um só lugar.",
+    "whatIsBody": "O MEDIA Rate é uma plataforma que agrega avaliações de fontes públicas — como TMDB, OpenCritic, IGDB e Steam — em um único score consolidado, o MEDIA Score™. Em vez de consultar vários sites para decidir se um filme, série ou game vale seu tempo, você encontra o contexto em um só lugar.",
     "whatIsNotTitle": "O que o MEDIA Rate não é",
-    "whatIsNotBody": "O MEDIA Rate <strong>não é uma crítica</strong> nem uma opinião editorial. O MEDIA Score�\u001e� não reflete o gosto de um autor �\u001d ele é uma <strong>agregação transparente de avaliações públicas</strong>, com metodologia aberta e verificável. Cada score exibe suas fontes, o nível de confiança e o quanto crítica e público concordam.",
+    "whatIsNotBody": "O MEDIA Rate <strong>não é uma crítica</strong> nem uma opinião editorial. O MEDIA Score™ não reflete o gosto de um autor — ele é uma <strong>agregação transparente de avaliações públicas</strong>, com metodologia aberta e verificável. Cada score exibe suas fontes, o nível de confiança e o quanto crítica e público concordam.",
     "whatIsNotCta": "Leia a metodologia completa â†’",
     "categoriesTitle": "Categorias cobertas hoje",
     "categoriesIntro": "O foco atual são <strong>três categorias</strong>: Filmes, Séries e Games.",
     "categoriesMovie": "<strong>Filmes:</strong> scores agregados a partir do TMDB, IMDb e Rotten Tomatoes.",
-    "categoriesSeries": "<strong>Séries:</strong> incluindo animes �\u001d que são cobertos como gênero dentro de Séries, com dados do TMDB e TVMaze.",
+    "categoriesSeries": "<strong>Séries:</strong> incluindo animes — que são cobertos como gênero dentro de Séries, com dados do TMDB e TVMaze.",
     "categoriesGame": "<strong>Games:</strong> scores do IGDB, OpenCritic e Steam.",
-    "howItWorksTitle": "Como o MEDIA Score�\u001e� funciona",
-    "howItWorksBody": "O MEDIA Score�\u001e� v2 calcula a nota como a média entre crítica e público quando ambos estão disponíveis. O consenso entre eles é um indicador separado e informativo �\u001d não entra no cálculo. A metodologia completa, incluindo normalização, detecção de outliers e o indicador de confiança, está documentada na página de metodologia.",
+    "howItWorksTitle": "Como o MEDIA Score™ funciona",
+    "howItWorksBody": "O MEDIA Score™ v2 calcula a nota como a média entre crítica e público quando ambos estão disponíveis. O consenso entre eles é um indicador separado e informativo — não entra no cálculo. A metodologia completa, incluindo normalização, detecção de outliers e o indicador de confiança, está documentada na página de metodologia.",
     "howItWorksCta": "Ver metodologia â†’",
     "transparencyTitle": "Transparência e conformidade",
-    "transparencyBody": "Cada MEDIA Score�\u001e� exibe suas fontes e o nível de confiança. Nenhum score é ocultado �\u001d scores com baixa confiança são sinalizados, nunca suprimidos. Seguimos a LGPD: você pode acessar, corrigir, exportar ou excluir seus dados a qualquer momento.",
-    "transparencyCta": "Política de Privacidade � \u0019",
+    "transparencyBody": "Cada MEDIA Score™ exibe suas fontes e o nível de confiança. Nenhum score é ocultado — scores com baixa confiança são sinalizados, nunca suprimidos. Seguimos a LGPD: você pode acessar, corrigir, exportar ou excluir seus dados a qualquer momento.",
+    "transparencyCta": "Política de Privacidade →",
     "languagesTitle": "Idiomas",
     "languagesBody": "O MEDIA Rate está disponível em três idiomas: português (Brasil), inglês (EUA) e espanhol (Espanha). Use o seletor de idioma no canto superior direito para alternar a qualquer momento.",
     "roadmapTitle": "O que vem depois",
-    "roadmapBody": "<strong>Livros e quadrinhos/mangás estão no roadmap</strong> e chegarão como categorias próprias em uma atualização futura. Hoje o foco são Filmes, Séries e Games �\u001d as três categorias com cobertura completa de fontes e score consolidado.",
+    "roadmapBody": "<strong>Livros e quadrinhos/mangás estão no roadmap</strong> e chegarão como categorias próprias em uma atualização futura. Hoje o foco são Filmes, Séries e Games — as três categorias com cobertura completa de fontes e score consolidado.",
     "availableIn": "Esta página também está disponível em",
     "enLabel": "inglês",
     "esLabel": "espanhol",
@@ -510,7 +519,7 @@
     "languagesSeoBody": "Cada idioma possui URLs canônicas, metadados e conteúdo localizados, garantindo indexação correta nos buscadores e uma experiência totalmente adaptada à sua região.",
     "faqTitle": "Perguntas Frequentes",
     "faq1Q": "O que é o MEDIA Score™ e como ele é calculado?",
-    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única de 0 a 100, com indicador de confiança (alta/média/baixa).",
+    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
     "faq2Q": "Preciso de conta para usar o MEDIA Rate?",
     "faq2A": "Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente IA exigem plano Plus ou Premium.",
     "faq3Q": "Posso cancelar minha assinatura quando quiser?",
@@ -526,7 +535,7 @@
   "pricingFaq": {
     "title": "Perguntas frequentes",
     "faq1Q": "O que é o MEDIA Score™ e como é calculado?",
-    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única de 0 a 100, com indicador de confiança (alta/média/baixa).",
+    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
     "faq2Q": "Quais fontes de avaliação vocês usam?",
     "faq2A": "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e OpenCritic para games.",
     "faq3Q": "O MEDIA Score é uma crítica?",

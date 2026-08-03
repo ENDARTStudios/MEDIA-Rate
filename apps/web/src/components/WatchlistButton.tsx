@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 
 function statusKeys(isGame: boolean): Record<string, string> {
@@ -20,8 +21,15 @@ interface Props {
 export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const t = useTranslations("watchlist");
   const shouldReduce = useReducedMotion();
-  const { isInWatchlist, getEntryStatus, addToWatchlist, moveItem, removeItem, entries } =
-    useWatchlistStore();
+  const {
+    isInWatchlist,
+    getEntryStatus,
+    addToWatchlist,
+    moveItem,
+    removeItem,
+    entries,
+    limitReached,
+  } = useWatchlistStore();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
@@ -183,6 +191,22 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
           >
             {t("removeFromWatchlist")}
           </button>
+        </div>
+      )}
+
+      {limitReached && (
+        <div
+          className="absolute top-full left-0 mt-1 w-48 bg-[#1C1C2E] border border-[#2A2A3E] rounded-lg shadow-floating z-50 p-3 space-y-2"
+          role="alert"
+        >
+          <p className="text-xs text-[#F59E0B] leading-snug">{t("limitReached")}</p>
+          <Link
+            href="/pricing"
+            onClick={(e) => e.stopPropagation()}
+            className="block text-center text-xs font-medium text-[#11111E] bg-[#818CF8] hover:bg-[#6D7BF7] rounded-md px-3 py-1.5 transition-colors"
+          >
+            {t("upgradeCta")}
+          </Link>
         </div>
       )}
     </div>

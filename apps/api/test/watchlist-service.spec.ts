@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { WatchlistService } from "../src/modules/watchlist/watchlist.service.js";
+import {
+  WatchlistService,
+  FREE_WATCHLIST_LIMIT,
+} from "../src/modules/watchlist/watchlist.service.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { ConflictException, HttpException, NotFoundException } from "@nestjs/common";
 
 interface WatchlistEntryRow {
   id: string;
@@ -40,9 +43,13 @@ interface MockWatchlistPrisma {
     create: (args: MockWatchlistArgs) => Promise<WatchlistEntryWithMidia>;
     update: (args: MockWatchlistArgs) => Promise<WatchlistEntryWithMidia | null>;
     delete: (args: MockWatchlistArgs) => Promise<Record<string, unknown>>;
+    count: (args: { where: { usuario_id: string } }) => Promise<number>;
   };
   midia: {
     findUnique: (args: MockWatchlistArgs) => Promise<Record<string, unknown> | null>;
+  };
+  usuarioPlano: {
+    findUnique: (args: { where: { usuario_id: string } }) => Promise<{ plano: string } | null>;
   };
 }
 
@@ -123,14 +130,69 @@ describe("WatchlistService (unit)", () => {
   it("remove — entrada inexistente lança NotFoundException", async () => {
     await expect(service.remove("user-1", "nonexistent")).rejects.toThrow(NotFoundException);
   });
+
+  describe("D-132: limite do plano Free (20 itens)", () => {
+    it("add — FREE abaixo do limite permite", async () => {
+      prisma = mockPrisma({ prefill: FREE_WATCHLIST_LIMIT - 1 });
+      service = await buildService(prisma);
+      const result = await service.add("user-1", { midia_id: "media-x", coluna: "WANT" });
+      expect(result.midia_id).toBe("media-x");
+    });
+
+    it("add — FREE no limite lança 402 Payment Required", async () => {
+      prisma = mockPrisma({ prefill: FREE_WATCHLIST_LIMIT });
+      service = await buildService(prisma);
+      const err = await service
+        .add("user-1", { midia_id: "media-x", coluna: "WANT" })
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(HttpException);
+      expect(err.getStatus()).toBe(402);
+      expect(err.getResponse().required_plan).toBe("PLUS");
+    });
+
+    it("add — sem registro de plano (FREE default) aplica limite", async () => {
+      prisma = mockPrisma({ prefill: FREE_WATCHLIST_LIMIT });
+      service = await buildService(prisma);
+      await expect(service.add("user-1", { midia_id: "media-x", coluna: "WANT" })).rejects.toThrow(
+        HttpException,
+      );
+    });
+
+    it("add — PLUS ignora o limite (trial incluído)", async () => {
+      prisma = mockPrisma({ prefill: FREE_WATCHLIST_LIMIT, plano: "PLUS" });
+      service = await buildService(prisma);
+      const result = await service.add("user-1", { midia_id: "media-x", coluna: "WANT" });
+      expect(result.midia_id).toBe("media-x");
+    });
+  });
 });
 
-function mockPrisma(): MockWatchlistPrisma {
+async function buildService(prisma: MockWatchlistPrisma): Promise<WatchlistService> {
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [WatchlistService, { provide: PrismaService, useValue: prisma }],
+  }).compile();
+  return module.get<WatchlistService>(WatchlistService);
+}
+
+function mockPrisma(opts: { plano?: string; prefill?: number } = {}): MockWatchlistPrisma {
   let nextId = 1;
   const entries: WatchlistEntryRow[] = [];
+  for (let i = 0; i < (opts.prefill ?? 0); i++) {
+    entries.push({
+      id: `entry-${nextId++}`,
+      usuario_id: "user-1",
+      midia_id: `m-${i}`,
+      coluna: "WANT",
+      prioridade: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+  }
 
   return {
     watchlistEntry: {
+      count: async (args: { where: { usuario_id: string } }) =>
+        entries.filter((e) => e.usuario_id === args.where.usuario_id).length,
       findMany: async (args: MockWatchlistArgs) => {
         let items = entries.filter((e) => e.usuario_id === args.where.usuario_id);
         if (args.where?.coluna) items = items.filter((e) => e.coluna === args.where.coluna);
@@ -215,6 +277,9 @@ function mockPrisma(): MockWatchlistPrisma {
               imagem_url: null,
             }
           : null,
+    },
+    usuarioPlano: {
+      findUnique: async () => (opts.plano ? { plano: opts.plano } : null),
     },
   };
 }

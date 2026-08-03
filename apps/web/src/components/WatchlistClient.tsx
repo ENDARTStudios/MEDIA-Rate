@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/lib/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
+import { formatDate } from "@/lib/i18n";
 import { MOCK_MEDIA } from "@/lib/api";
 
 // Build lookup for midia_id → title resolution
@@ -76,12 +78,21 @@ function MoveDropdown({ entryId, currentStatus }: { entryId: string; currentStat
 
 export function WatchlistClient() {
   const t = useTranslations("watchlist");
+  const locale = useLocale();
+  const { user } = useAuthStore();
   const { entries, isLoading, error, fetchWatchlist, removeItem } = useWatchlistStore();
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     fetchWatchlist();
   }, []);
+
+  const isTrial =
+    user?.plan === "PLUS" &&
+    user.trialEndsAt != null &&
+    new Date(user.trialEndsAt).getTime() > Date.now();
+  const planKey =
+    user?.plan === "PREMIUM" ? "planPremium" : user?.plan === "PLUS" ? "planPlus" : "planFree";
 
   if (isLoading && entries.length === 0) {
     return (
@@ -160,7 +171,24 @@ export function WatchlistClient() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("title")}</h1>
+      <div className="flex flex-wrap items-center gap-3 mb-8">
+        <h1 className="text-3xl font-heading font-bold text-[#EDE7DC]">{t("title")}</h1>
+        {user?.plan && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#1C1C2E] text-[#9CA3AF] border border-[#2A2A3E]">
+            {t(planKey)}
+          </span>
+        )}
+        {isTrial && user?.trialEndsAt && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-[#F59E0B] bg-[#F59E0B]/15 border border-[#F59E0B]/30">
+            {t("trialActive", { date: formatDate(user.trialEndsAt, locale) })}
+          </span>
+        )}
+        {user?.plan === "FREE" && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-[#9CA3AF] bg-[#1C1C2E] border border-[#2A2A3E]">
+            {t("itemsCount", { count: entries.length })}
+          </span>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {COLUMNS.map((col) => {

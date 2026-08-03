@@ -760,3 +760,25 @@ Stage Summary:
   coleta admin OK — opencritic 98 + igdb 94.5 (critica 93) + igdb_publico 95 + steam 0.97
   (publico 85.7) → score 89.4, confianca 0.9. Slug canonico: baldur-s-gate-3.
   Pagina web /pt-BR/game/baldur-s-gate-3 renderiza com dados reais.
+
+## [2026-08-03] Stage: Escala por mídia + Trial 7 dias Plus + Limite watchlist Free (D-132)
+- Escala por mídia (§1): normalizeDisplayScore invertido — GAME mantém 0–100,
+  demais mídias (filme/série/livro/HQ/anime) convertem 0–100 → 0–10 na exibição.
+  ScoreDial/ScoreModule/Badge/SearchCommand/MediaCard ajustados (escala-aware);
+  aria-labels com {scale}; heroSubtitle/FAQ/JSON-LD unificados nas 3 línguas.
+- Correção de corrupção em pt-BR.json: 40 caracteres U+FFFD (™/—/→ quebrados em
+  \u001e/\u001d/\u0019) em textos de landing/pricing/privacidade/método restaurados.
+- Trial de 7 dias no Plus: StripePaymentGateway envia trial_period_days=7 +
+  subscription_data.metadata; PaymentService trata subscription.created/updated
+  (trialing→trial_ends_at, active→encerra trial), trial_will_end→trial_notified_at,
+  checkout.session.completed→status TRIALING quando trial futuro. Schema:
+  trial_ends_at/trial_notified_at em usuario_plano + migration
+  20260803_trial_plus_watchlist_limit.
+- GET /api/v1/auth/me agora retorna plano, status, trial_ends_at e watchlist_limit
+  (20 no Free, null em Plus/Premium) — AuthService.getMe.
+- Limite da watchlist: POST /watchlist retorna 402 no plano Free ao atingir 20 itens;
+  store web trata 402 (limitReached) com CTA de upgrade no WatchlistButton e
+  badge de plano/trial/contador na página de watchlist.
+- Testes: +4 watchlist (limite), +7 payment (trial), +3 auth getMe, score-utils web;
+  API 428 aprovados, web 111 aprovados, lint/typecheck/build limpos.
+- Status: DONE (aguardando deploy Railway — migração + variáveis Stripe não ativadas).

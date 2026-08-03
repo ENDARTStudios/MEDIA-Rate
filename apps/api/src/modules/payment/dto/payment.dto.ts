@@ -25,6 +25,7 @@ export interface WebhookPayload {
       metadata?: { usuario_id?: string; plano?: string };
       subscription?: string;
       current_period_end?: number;
+      status?: string;
     };
   };
 }

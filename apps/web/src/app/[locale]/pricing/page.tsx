@@ -45,7 +45,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         "acceptedAnswer": {
           "@type": "Answer",
           "text":
-            "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única de 0 a 100, com indicador de confiança (alta/média/baixa).",
+            "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
         },
       },
       {

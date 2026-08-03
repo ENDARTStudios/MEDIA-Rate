@@ -30,6 +30,8 @@ export interface CreateCheckoutInput {
   cancel_url: string;
   /** ID do usuário no MEDIA Rate (metadata). */
   usuario_id: string;
+  /** Dias de trial sem cobrança (undefined = sem trial). */
+  trial_period_days?: number;
 }
 
 /**

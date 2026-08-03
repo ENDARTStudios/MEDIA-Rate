@@ -12,11 +12,13 @@ function scoreHex(value: number): string {
 
 interface MediaScoreBadgeProps {
   score: number;
+  mediaType?: string;
   className?: string;
 }
 
-export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProps) {
+export function MediaScoreBadge({ score: value, mediaType, className }: MediaScoreBadgeProps) {
   const t = useTranslations("catalog");
+  const isGame = mediaType === "game";
   const numRef = useRef<HTMLSpanElement>(null);
   const [inView, setInView] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ export function MediaScoreBadge({ score: value, className }: MediaScoreBadgeProp
         backgroundColor: `${color}1A`,
         border: `1px solid ${color}4D`,
       }}
-      aria-label={t("mediaScoreAria", { score: value })}
+      aria-label={t(isGame ? "mediaScoreAria" : "mediaScoreAria10", { score: value })}
       role="status"
     >
       <span ref={numRef} className="font-heading text-sm font-bold tabular-nums" style={{ color }}>

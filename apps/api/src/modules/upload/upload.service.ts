@@ -2,10 +2,17 @@ import { Injectable, BadRequestException, Logger } from "@nestjs/common";
 import { createHash, randomUUID } from "crypto";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "application/pdf"];
+const ALLOWED_MIME = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+  "application/pdf",
+];
 const MIME_MAGIC: Record<string, number[]> = {
-  "image/jpeg": [0xFF, 0xD8, 0xFF],
-  "image/png": [0x89, 0x50, 0x4E, 0x47],
+  "image/jpeg": [0xff, 0xd8, 0xff],
+  "image/png": [0x89, 0x50, 0x4e, 0x47],
   "image/gif": [0x47, 0x49, 0x46, 0x38],
   "image/webp": [0x52, 0x49, 0x46, 0x46],
   "application/pdf": [0x25, 0x50, 0x44, 0x46],
@@ -31,8 +38,16 @@ export class UploadService {
     const filename = `${randomUUID()}.${ext}`;
     const sha256 = createHash("sha256").update(file.buffer).digest("hex");
 
-    this.logger.log(`Upload validado: ${filename} (${file.buffer.length} bytes, SHA-256: ${sha256.slice(0, 8)}...)`);
-    return { filename, buffer: file.buffer, mimetype: file.mimetype, sha256, size: file.buffer.length };
+    this.logger.log(
+      `Upload validado: ${filename} (${file.buffer.length} bytes, SHA-256: ${sha256.slice(0, 8)}...)`,
+    );
+    return {
+      filename,
+      buffer: file.buffer,
+      mimetype: file.mimetype,
+      sha256,
+      size: file.buffer.length,
+    };
   }
 
   private validateMagicBytes(buffer: Buffer, mimetype: string) {
@@ -41,7 +56,9 @@ export class UploadService {
 
     for (let i = 0; i < magic.length; i++) {
       if (buffer[i] !== magic[i]) {
-        throw new BadRequestException(`Tipo MIME declara ${mimetype} mas os magic bytes não conferem. Rejeitado por segurança.`);
+        throw new BadRequestException(
+          `Tipo MIME declara ${mimetype} mas os magic bytes não conferem. Rejeitado por segurança.`,
+        );
       }
     }
   }

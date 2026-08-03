@@ -27,7 +27,16 @@ export class UploadController {
     const file = await (req as MultipartRequest).file();
     if (!file) throw new Error("Nenhum arquivo enviado.");
     const buffer = await file.toBuffer();
-    const result = this.service.validateAndPrepare({ buffer, mimetype: file.mimetype, originalname: file.filename });
-    return { filename: result.filename, size: result.size, mimetype: result.mimetype, sha256: result.sha256 };
+    const result = this.service.validateAndPrepare({
+      buffer,
+      mimetype: file.mimetype,
+      originalname: file.filename,
+    });
+    return {
+      filename: result.filename,
+      size: result.size,
+      mimetype: result.mimetype,
+      sha256: result.sha256,
+    };
   }
 }
