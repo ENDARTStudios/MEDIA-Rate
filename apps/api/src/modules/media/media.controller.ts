@@ -145,7 +145,10 @@ export class MediaController {
     };
 
     // 1) id UUID direto (rotas legadas /movie/[id] e cards que linkam por id).
-    let midia = await this.prisma.midia.findUnique({ where: { id: slug }, include });
+    // Só tenta findUnique se o parâmetro for UUID válido — senão o Postgres
+    // lança erro de conversão em vez de retornar null (coluna UUID).
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    let midia = isUuid ? await this.prisma.midia.findUnique({ where: { id: slug }, include }) : null;
     if (!midia) {
       // 2) slugify sobre titulo/titulo_original (catálogo real).
       const slugLimpo = slugify(slug);

@@ -164,7 +164,7 @@ describe("MediaController (unit T8.1)", () => {
 
   it("getBySlug() resolve por id UUID direto", async () => {
     mockPrisma.midia.findUnique.mockResolvedValue({
-      id: "abc-123",
+      id: "792422c1-f982-4380-9d26-a6925120d0ad",
       titulo: "Lucifer",
       titulo_original: null,
       tipo: "SERIE",
@@ -184,22 +184,53 @@ describe("MediaController (unit T8.1)", () => {
           num_fontes: 4,
           confianca: 0.9,
           calculado_em: new Date(),
+          detalhes: [{ fonte: "tmdb" }],
         },
       ],
       avaliacoes: [{ fonte: "tmdb", url: "https://tmdb/x" }],
     });
-    const result = await controller.getBySlug("abc-123");
-    expect(result.id).toBe("abc-123");
+    const result = await controller.getBySlug("792422c1-f982-4380-9d26-a6925120d0ad");
+    expect(result.id).toBe("792422c1-f982-4380-9d26-a6925120d0ad");
     expect(result.slug).toBe("lucifer");
     expect(result.generos).toEqual(["Drama"]);
     expect(result.streamings).toEqual(["Netflix"]);
     expect(result.score?.score).toBe(70.5);
     expect(result.score?.confianca).toBe(0.9);
+    expect(result.score?.detalhes).toEqual([{ fonte: "tmdb" }]);
     expect(result.fontes).toEqual([{ fonte: "tmdb", url: "https://tmdb/x" }]);
   });
 
+  it("getBySlug() nao tenta findUnique para slug nao-UUID (fallback direto)", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([
+      { id: "m1", titulo: "Lucifer", titulo_original: null },
+    ]);
+    mockPrisma.midia.findUnique.mockResolvedValue({
+      id: "m1",
+      titulo: "Lucifer",
+      titulo_original: null,
+      tipo: "SERIE",
+      sinopse: null,
+      ano_lancamento: 2016,
+      imagem_url: null,
+      classificacao_indicativa: null,
+      duracao_minutos: null,
+      generos: [],
+      streamings: [],
+      scores: [],
+      avaliacoes: [],
+    });
+    const result = await controller.getBySlug("lucifer");
+    expect(result.id).toBe("m1");
+    expect(result.slug).toBe("lucifer");
+    // O primeiro findUnique (por UUID) nunca é chamado com o slug textual.
+    expect(mockPrisma.midia.findUnique).toHaveBeenCalledWith({
+      where: { id: "m1" },
+      include: expect.any(Object),
+    });
+  });
+
   it("getBySlug() resolve por slugify do titulo (sem acento)", async () => {
-    mockPrisma.midia.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
+    mockPrisma.midia.findUnique.mockResolvedValue({
       id: "m1",
       titulo: "O Poderoso Chefão",
       titulo_original: null,
@@ -225,7 +256,7 @@ describe("MediaController (unit T8.1)", () => {
   });
 
   it("getBySlug() resolve por slugify do titulo_original", async () => {
-    mockPrisma.midia.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
+    mockPrisma.midia.findUnique.mockResolvedValue({
       id: "m1",
       titulo: "Frieren e a Jornada para o Além",
       titulo_original: "Sousou no Frieren",
