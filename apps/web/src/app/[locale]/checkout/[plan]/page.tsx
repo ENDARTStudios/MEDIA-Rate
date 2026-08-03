@@ -16,7 +16,8 @@ export default function CheckoutPage({
 }: {
   params: Promise<{ locale: string; plan: string }>;
 }) {
-  const { plan } = use(params);
+  const { plan, locale } = use(params);
+  const planKey = plan.toUpperCase();
   const t = useTranslations("checkout");
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
@@ -25,13 +26,13 @@ export default function CheckoutPage({
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace(`/register?callbackUrl=/checkout/${plan}`);
+      router.replace(`/register?callbackUrl=/checkout/${planKey}`);
     }
-  }, [isAuthenticated, router, plan]);
+  }, [isAuthenticated, router, planKey]);
 
   if (!isAuthenticated) return null;
 
-  const isValidPlan = plan === "PLUS" || plan === "PREMIUM";
+  const isValidPlan = planKey === "PLUS" || planKey === "PREMIUM";
 
   async function handleCheckout() {
     if (!isValidPlan) return;
@@ -46,9 +47,9 @@ export default function CheckoutPage({
         },
         credentials: "include", // envia cookie httpOnly de sessão
         body: JSON.stringify({
-          plano: plan,
-          success_url: `${window.location.origin}/${plan}/success`,
-          cancel_url: `${window.location.origin}/${plan}/canceled`,
+          plano: planKey,
+          success_url: `${window.location.origin}/${locale}/pricing?status=success`,
+          cancel_url: `${window.location.origin}/${locale}/pricing?status=canceled`,
         }),
       });
 
@@ -82,11 +83,11 @@ export default function CheckoutPage({
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
         <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-          {plan === "PLUS" ? t("plus") : t("premium")}
+          {planKey === "PLUS" ? t("plus") : t("premium")}
         </h2>
 
         <ul className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-          {plan === "PLUS" && (
+          {planKey === "PLUS" && (
             <>
               <li>✓ Watchlist até 100 itens</li>
               <li>✓ Recomendações avançadas</li>
@@ -94,7 +95,7 @@ export default function CheckoutPage({
               <li>✓ Sem anúncios</li>
             </>
           )}
-          {plan === "PREMIUM" && (
+          {planKey === "PREMIUM" && (
             <>
               <li>✓ Watchlist ilimitada</li>
               <li>✓ Recomendações ML personalizadas</li>
@@ -111,7 +112,7 @@ export default function CheckoutPage({
           disabled={loading}
           className="w-full bg-primary-700 text-white font-semibold py-3 rounded-md hover:bg-primary-800 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-700"
         >
-          {loading ? t("redirecting") : t("subscribe", { plan })}
+          {loading ? t("redirecting") : t("subscribe", { plan: planKey })}
         </button>
 
         {error && (
