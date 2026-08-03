@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { TraktAdapter } from "../src/modules/media-score/adapters/trakt.adapter.js";
 import { ComicVineAdapter } from "../src/modules/media-score/adapters/comicvine.adapter.js";
+import { OpenCriticAdapter } from "../src/modules/media-score/adapters/opencritic.adapter.js";
 
 function mockFetch(respostas: { ok?: boolean; status?: number; body: unknown }[]) {
   let indice = 0;
@@ -78,6 +79,81 @@ describe("ComicVineAdapter — regressão: campo count_of_issues (não count_of_
     vi.stubEnv("COMICVINE_API_KEY", "teste");
     mockFetch([{ body: { results: [] } }]);
     const notas = await new ComicVineAdapter().coletar({ tipo: "HQ", titulo: "Inexistente" });
+    expect(notas).toEqual([]);
+  });
+});
+
+describe("OpenCriticAdapter — regressão: endpoints GET /game (busca + detalhe)", () => {
+  it("retorna medianScore 0–100 do detalhe", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
+    mockFetch([
+      {
+        body: [
+          {
+            id: 4504,
+            name: "Super Mario Odyssey",
+            url: "https://opencritic.com/game/4504/super-mario-odyssey",
+          },
+          { id: 1548, name: "The Legend of Zelda: Breath of the Wild" },
+        ],
+      },
+      {
+        body: {
+          medianScore: 96,
+          topCriticScore: 95.8,
+          name: "The Legend of Zelda: Breath of the Wild",
+        },
+      },
+    ]);
+    const notas = await new OpenCriticAdapter().coletar({
+      tipo: "GAME",
+      titulo: "The Legend of Zelda: Breath of the Wild",
+      ano: 2017,
+    });
+    expect(notas).toHaveLength(1);
+    expect(notas[0].fonte).toBe("opencritic");
+    expect(notas[0].rating).toBe(96);
+    expect(notas[0].url).toContain("/game/1548");
+  });
+
+  it("prefere correspondência exata mesmo fora de ordem", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
+    mockFetch([
+      {
+        body: [
+          { id: 1, name: "Outro Jogo" },
+          { id: 1548, name: "The Legend of Zelda: Breath of the Wild" },
+        ],
+      },
+      { body: { medianScore: 100 } },
+    ]);
+    const notas = await new OpenCriticAdapter().coletar({
+      tipo: "GAME",
+      titulo: "The Legend of Zelda: Breath of the Wild",
+    });
+    expect(notas[0].rating).toBe(100);
+  });
+
+  it("casa apóstrofo na consulta (Baldurs Gate 3)", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
+    mockFetch([
+      {
+        body: [
+          { id: 4504, name: "Super Mario Odyssey" },
+          { id: 9136, name: "Baldur's Gate 3" },
+        ],
+      },
+      { body: { medianScore: 96 } },
+    ]);
+    const notas = await new OpenCriticAdapter().coletar({ tipo: "GAME", titulo: "Baldurs Gate 3" });
+    expect(notas[0].rating).toBe(96);
+    expect(notas[0].url).toContain("/game/9136");
+  });
+
+  it("volta vazio quando busca não retorna nada", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
+    mockFetch([{ body: [] }]);
+    const notas = await new OpenCriticAdapter().coletar({ tipo: "GAME", titulo: "Inexistente" });
     expect(notas).toEqual([]);
   });
 });
