@@ -4,20 +4,21 @@ Fila de ações manuais que só o Operador pode executar (cliques em painel de t
 
 ---
 
-### [1] Rotacionar segredos expostos no "Initial commit"
+### [1] ~~Rotacionar segredos expostos no "Initial commit"~~ — INVESTIGADO: nada real foi exposto
 
-Por quê: o arquivo `.env` foi commitado por engano no commit inicial `87481e7`. Mesmo após a remoção do tracking em T0.11, o histórico do git ainda contém os valores. Todo segredo que estava nesse arquivo deve ser considerado comprometido e rotacionado.
-Onde: painéis dos provedores (Stripe, PostHog, banco de dados, deploy).
-Passo a passo:
-1. Abra o arquivo `.env` localmente para conferir quais chaves/tokens estavam lá.
-2. Para cada chave encontrada, acesse o painel correspondente e gere uma nova chave/revogue a antiga:
-   - Stripe: https://dashboard.stripe.com/apikeys — clique "Roll key".
-   - PostHog: https://app.posthog.com/project/settings — clique "Reset project API key".
-   - Banco de dados: resetar senha ou regenerar connection string.
-3. Atualize o `.env` local com os novos valores. **Não cole os valores no chat.**
-4. Atualize as variáveis de ambiente no Vercel/Railway/GitHub Secrets.
-Como saber que deu certo: o aplicativo roda com os novos segredos; os antigos não funcionam mais.
-Depois de feito: responda "feito o item Nº 1"
+Resultado da investigação (2026-08-03):
+- O único arquivo `.env` na história é `apps/backend/.env` (blob `46b7aac`) do commit inicial
+  `9f71944` (o hash `87481e7` citado não existe no histórico atual), contendo APENAS
+  `DATABASE_URL=postgresql://mediarate:mediarate@localhost:5432/mediarate` — URL local de dev
+  (host `localhost`), sem segredos de provedor e sem credencial de produção.
+- Nenhuma chave de provedor (Stripe/PostHog/TMDB/OMDB/Twitch/Google Books/etc.) foi commitada
+  em nenhum commit; todas foram adicionadas depois via variáveis de ambiente (Vercel/Railway).
+- Árvore atual: zero credenciais reais (scan por `sk_live_`, `whsec_`, `phc_`, `AKIA`, `ghp_`,
+  `xoxb-`, `BEGIN PRIVATE` = nenhuma ocorrência; o único hit é o literal documental `whsec_...`
+  neste arquivo).
+- Ação necessária: NENHUMA rotação. Resíduo: a URL de dev local permanece no histórico do git
+  (inofensiva — aponta para `localhost`). Purge de história com `git filter-repo` é OPCIONAL e
+  fica a critério do Operador (custo: reescrita de história + force-push).
 
 ---
 
