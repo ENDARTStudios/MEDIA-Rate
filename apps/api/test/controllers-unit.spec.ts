@@ -106,10 +106,38 @@ describe("MediaController (unit T8.1)", () => {
     mockPrisma.midia.findUnique.mockResolvedValue({
       id: "1",
       tipo: "FILME",
-      scores: [{ score: 85, num_fontes: 3, pesos_usados: {}, calculado_em: new Date() }],
+      scores: [
+        {
+          score: 85,
+          num_fontes: 3,
+          pesos_usados: {},
+          calculado_em: new Date(),
+          score_critica: 88,
+          score_publico: 82,
+          consenso: 6,
+          confianca: 0.9,
+        },
+      ],
     });
     const result = await controller.getMediaScore("1");
     expect(result.score).toBe(85);
+    expect(result.criticosScore).toBe(88);
+    expect(result.publicoScore).toBe(82);
+    expect(result.consenso).toBe(6);
+    expect(result.confianca).toBe(0.9);
+  });
+
+  it("getMediaScore() persisted sem buckets v2 — fallback null e confiança 0.6", async () => {
+    mockPrisma.midia.findUnique.mockResolvedValue({
+      id: "1",
+      tipo: "FILME",
+      scores: [{ score: 70, num_fontes: 2, pesos_usados: {}, calculado_em: new Date() }],
+    });
+    const result = await controller.getMediaScore("1");
+    expect(result.score).toBe(70);
+    expect(result.criticosScore).toBeNull();
+    expect(result.publicoScore).toBeNull();
+    expect(result.confianca).toBe(0.6);
   });
 
   it("getMediaScore() throws 404 if not found", async () => {

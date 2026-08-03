@@ -158,9 +158,8 @@ export class MediaController {
       });
     }
 
-    // Se já existe score persistido (job diário), retorna ele.
-    // Critica/Público não são persistidos ainda — null até a tabela de
-    // avaliações por fonte existir.
+    // Se já existe score persistido (job diário ou coleta admin), retorna ele
+    // com os buckets Crítica/Público (v2).
     if (midia.scores.length > 0) {
       const existing = midia.scores[0];
       if (!existing) {
@@ -169,11 +168,11 @@ export class MediaController {
       return {
         midia_id: id,
         score: existing.score,
-        criticosScore: null,
-        publicoScore: null,
-        consenso: null,
+        criticosScore: existing.score_critica ?? null,
+        publicoScore: existing.score_publico ?? null,
+        consenso: existing.consenso ?? null,
         num_fontes: existing.num_fontes,
-        confianca: 0.6,
+        confianca: existing.confianca ?? 0.6,
         pesos_usados: existing.pesos_usados as Record<string, number>,
         calculado_em: existing.calculado_em.toISOString(),
       };

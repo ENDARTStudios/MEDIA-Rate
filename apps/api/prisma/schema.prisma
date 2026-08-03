@@ -291,6 +291,9 @@ model Midia {
   score_views             MediaScoreView[]
   generos                 MidiaGenero[]
   streamings              MidiaStreaming[]
+  avaliacoes              AvaliacaoFonte[]
+  // Última coleta de avaliações das fontes (null = nunca coletado).
+  avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
@@ -298,7 +301,8 @@ model Midia {
   @@map("midia")
 }
 
-/// MEDIA Score™ por mídia. Recalculado por job diário (T4.7).
+/// MEDIA Score™ por mídia. Recalculado por job diário (T4.7) ou após coleta
+/// (rota admin POST /api/v1/midias/:id/coletar).
 model MediaScore {
   id           String   @id @default(uuid()) @db.Uuid
   midia_id     String   @map("midia_id") @db.Uuid
@@ -308,13 +312,48 @@ model MediaScore {
   num_fontes   Int      @map("num_fontes")
   // Pesos usados no cálculo (JSON para auditoria/replay).
   pesos_usados Json     @map("pesos_usados")
-  calculado_em DateTime @default(now()) @map("calculado_em")
+  // v2 (CRIT-02): score do bucket Crítica (0–100), null sem fontes de crítica.
+  score_critica Float?  @map("score_critica")
+  // v2 (CRIT-02): score do bucket Público (0–100), null sem fontes de público.
+  score_publico Float?  @map("score_publico")
+  // v2: |crítica − público| em 0–100 (informativo, não realimenta o score).
+  consenso      Float?  @map("consenso")
+  // Confiança 0–1 (heurística de número de fontes + variância dos z-scores).
+  confianca     Float?  @map("confianca")
+  // v2: detalhes por fonte (JSON com fonte, classificação, z-score, peso).
+  detalhes      Json?   @map("detalhes")
+  calculado_em  DateTime @default(now()) @map("calculado_em")
 
   midia        Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
 
   @@unique([midia_id])
   @@index([score])
   @@map("media_score")
+}
+
+/// Avaliação bruta coletada de uma fonte externa para uma mídia.
+/// Persistida para auditoria (url), re-coleta idempotente e recomputação
+/// do MEDIA Score (T4.7 — substitui NotaColetada volátil).
+model AvaliacaoFonte {
+  id           String   @id @default(uuid()) @db.Uuid
+  midia_id     String   @map("midia_id") @db.Uuid
+  // Id canônico no source-registry (ex.: "tmdb", "metacritic", "igdb_publico").
+  fonte        String   @db.VarChar(32)
+  // Rating bruto na escala original da fonte (0–10, 0–100, 0–5, ratio 0–1…).
+  rating       Float
+  // Média estatística da fonte (mesma escala do rating).
+  media_fonte  Float    @map("media_fonte")
+  // Desvio-padrão estatístico da fonte (mesma escala do rating).
+  desvio_fonte Float    @map("desvio_fonte")
+  // URL pública da nota (transparência/auditoria).
+  url          String?  @db.Text
+  coletado_em  DateTime @default(now()) @map("coletado_em")
+
+  midia        Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([midia_id, fonte])
+  @@index([midia_id])
+  @@map("avaliacao_fonte")
 }
 
 /// Interação do usuário com mídia (assistiu, avaliou, salvou, etc.).

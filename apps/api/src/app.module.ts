@@ -15,6 +15,7 @@ import { PremiumModule } from "./modules/premium/premium.module.js";
 import { MediaModule } from "./modules/media/media.module.js";
 import { MediaScoreModule } from "./modules/media-score/media-score.module.js";
 import { ColetaModule } from "./modules/media-score/coleta.module.js";
+import { FontesModule } from "./modules/fontes/fontes.module.js";
 import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
@@ -46,6 +47,7 @@ const enableDebugRoutes =
     PremiumModule,
     MediaScoreModule,
     MediaModule,
+    FontesModule,
     PaymentModule,
     LgpdModule,
     WatchlistModule,

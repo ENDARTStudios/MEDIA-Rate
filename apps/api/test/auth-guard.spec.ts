@@ -5,10 +5,19 @@ import { SessionService } from "../src/modules/auth/session.service.js";
 import { Reflector } from "@nestjs/core";
 import { UnauthorizedException, type ExecutionContext } from "@nestjs/common";
 
-function mockContext(opts: { hasCookie?: boolean; validToken?: boolean; url: string }) {
+function mockContext(opts: {
+  hasCookie?: boolean;
+  validToken?: boolean;
+  url: string;
+  method?: string;
+}) {
   const cookies: Record<string, string> = {};
   if (opts.hasCookie) cookies.sess = "test-token";
-  const request = { cookies, url: opts.url } as any;
+  const request = {
+    cookies,
+    url: opts.url,
+    method: opts.method ?? "GET",
+  } as unknown as { cookies: Record<string, string>; url: string; method?: string };
   const http = { getRequest: () => request };
 
   return {
@@ -87,5 +96,44 @@ describe("AuthGuard (unit)", () => {
     const { context } = mockContext({ hasCookie: false, url: "/api/v1/echo" });
     const result = await guard.canActivate(context);
     expect(result).toBe(true);
+  });
+
+  it("GET /api/v1/midias (catálogo público) — retorna true sem cookie", async () => {
+    const { context } = mockContext({ hasCookie: false, url: "/api/v1/midias?limit=10" });
+    const result = await guard.canActivate(context);
+    expect(result).toBe(true);
+  });
+
+  it("GET /api/v1/midias/:id/media-score — retorna true sem cookie", async () => {
+    const { context } = mockContext({
+      hasCookie: false,
+      url: "/api/v1/midias/abc-123/media-score",
+    });
+    const result = await guard.canActivate(context);
+    expect(result).toBe(true);
+  });
+
+  it("POST /api/v1/midias (criar mídia) — exige auth mesmo sendo midias", async () => {
+    const { context } = mockContext({ hasCookie: false, method: "POST", url: "/api/v1/midias" });
+    await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("POST /api/v1/midias/:id/coletar — passa sem cookie (x-admin-token valida no controller)", async () => {
+    const { context } = mockContext({
+      hasCookie: false,
+      method: "POST",
+      url: "/api/v1/midias/abc-123/coletar",
+    });
+    const result = await guard.canActivate(context);
+    expect(result).toBe(true);
+  });
+
+  it("POST /api/v1/midias/abc-123/outro (rota admin desconhecida) — exige auth", async () => {
+    const { context } = mockContext({
+      hasCookie: false,
+      method: "POST",
+      url: "/api/v1/midias/abc-123/outro",
+    });
+    await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
   });
 });

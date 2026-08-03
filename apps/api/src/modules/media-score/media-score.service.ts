@@ -295,35 +295,48 @@ export class MediaScoreService {
   }
 
   /**
-   * Recalcula e persiste MEDIA Score para uma mídia específica.
-   * Chamado por job cron diário (T4.7 — sem Redis, sem fila externa).
+   * Recalcula e persiste MEDIA Score (v2) para uma mídia específica.
+   *
+   * Lê as avaliações persistidas na tabela `avaliacao_fonte` (preenchida
+   * pela rota de coleta), recalcula com `calcularScoreV2` e faz upsert no
+   * `media_score` (score, buckets crítica/público, consenso, confiança e
+   * detalhes por fonte). Chamado pelo job cron diário e pela rota
+   * POST /api/v1/midias/:id/coletar.
    */
-  async recalcularEPersistir(midia_id: string): Promise<MediaScoreResult | null> {
-    // Busca mídia + avaliações das fontes.
-    // Em produção, viria de tabela `midia_avaliacao_fonte` (a criar em
-    // tarefa futura). Por ora, se não houver avaliações, retorna null.
+  async recalcularEPersistir(
+    midia_id: string,
+  ): Promise<(MediaScoreV2Result & { calculado_em: Date }) | null> {
     const midia = await this.prisma.midia.findUnique({
       where: { id: midia_id },
-      include: { scores: true },
+      include: { avaliacoes: true },
     });
     if (!midia) return null;
 
-    // Placeholder: se já existe score persistido, retorna ele.
-    // Tarefa futura: ler avaliações reais das fontes (TMDB, OMDb, etc)
-    // e recalcular.
-    if (midia.scores.length > 0) {
-      const existing = midia.scores[0];
-      if (existing) {
-        return {
-          score: existing.score,
-          num_fontes: existing.num_fontes,
-          confianca: 0.6, // placeholder
-          pesos_usados: existing.pesos_usados as Record<string, number>,
-          detalhes: [],
-        };
-      }
-    }
+    const avaliacoes: FonteAvaliacao[] = midia.avaliacoes.map((a) => ({
+      fonte: a.fonte,
+      rating: a.rating,
+      media_fonte: a.media_fonte,
+      desvio_fonte: a.desvio_fonte,
+    }));
 
-    return null;
+    const resultado = this.calcularScoreV2(midia.tipo, avaliacoes);
+    const data = {
+      score: resultado.score,
+      num_fontes: resultado.num_fontes,
+      pesos_usados: resultado.pesos_usados,
+      score_critica: resultado.criticosScore,
+      score_publico: resultado.publicoScore,
+      consenso: resultado.consenso,
+      confianca: resultado.confianca,
+      detalhes: resultado.detalhes,
+    };
+
+    await this.prisma.mediaScore.upsert({
+      where: { midia_id },
+      create: { midia_id, ...data },
+      update: data,
+    });
+
+    return { ...resultado, calculado_em: new Date() };
   }
 }

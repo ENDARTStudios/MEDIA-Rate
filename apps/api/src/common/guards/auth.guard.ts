@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
 
     if (!token) {
       // Rotas públicas não exigem autenticação.
-      if (this.isDefaultPublicPath(request.url)) return true;
+      if (this.isDefaultPublicPath(request.url, request.method)) return true;
       throw new UnauthorizedException({
         statusCode: 401,
         error: "Unauthorized",
@@ -63,7 +63,7 @@ export class AuthGuard implements CanActivate {
       // Token presente mas inválido/expirado: em rotas públicas, trata como
       // visitante anônimo (senão usuário com cookie velho ficaria preso
       // sem conseguir logar/registrar); em rotas protegidas, 401.
-      if (this.isDefaultPublicPath(request.url)) return true;
+      if (this.isDefaultPublicPath(request.url, request.method)) return true;
       throw new UnauthorizedException({
         statusCode: 401,
         error: "Unauthorized",
@@ -81,8 +81,9 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private isDefaultPublicPath(url: string): boolean {
-    return (
+  private isDefaultPublicPath(url: string, method?: string): boolean {
+    const m = method?.toUpperCase() ?? "GET";
+    if (
       url === "/health" ||
       url === "/metrics" ||
       url.startsWith("/api/v1/auth/register") ||
@@ -95,6 +96,14 @@ export class AuthGuard implements CanActivate {
       url.startsWith("/api/v1/webhooks/") || // webhooks usam assinatura própria
       url.startsWith("/api/docs") || // Swagger UI (T4.2)
       url.startsWith("/api/docs-json") // Swagger JSON (T4.2)
-    );
+    ) {
+      return true;
+    }
+    // Catálogo de leitura é público (frontend consome sem login).
+    if (m === "GET" && url.startsWith("/api/v1/midias")) return true;
+    // Coleta admin via x-admin-token — validado no próprio controller
+    // (comparação timing-safe), sem depender de cookie de sessão.
+    if (m === "POST" && /^\/api\/v1\/midias\/[^/]+\/coletar$/.test(url)) return true;
+    return false;
   }
 }

@@ -3,6 +3,7 @@ import { Test } from "@nestjs/testing";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 import request from "supertest";
 import { AppModule } from "../../src/app.module.js";
+import { PrismaService } from "../../src/prisma/prisma.service.js";
 import { applySecurityToAdapter } from "../helpers/apply-security.js";
 
 function noStackOrInternal(body: unknown): void {
@@ -18,9 +19,19 @@ describe("Regressao SQL Injection (T024/8.8)", () => {
   beforeAll(async () => {
     process.env.NODE_ENV = "test";
     process.env.SKIP_DB_CONNECT = "true";
+    // GET /api/v1/midias é público desde a Fase de catálogo — sem DB no
+    // teste, stubamos o Prisma para a query executar contra lista vazia.
+    const prismaStub = {
+      midia: { findMany: async () => [] },
+      // Demais models nunca são consultados neste spec (login falha na
+      // validação zod antes de tocar o banco).
+    };
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prismaStub)
+      .compile();
 
     const adapter = new FastifyAdapter({ logger: false, bodyLimit: 1_048_576 });
     app = moduleRef.createNestApplication<NestFastifyApplication>(adapter);

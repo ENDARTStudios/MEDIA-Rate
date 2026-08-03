@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
 import type { PrismaService } from "../src/prisma/prisma.service.js";
 
@@ -249,6 +249,84 @@ describe("MediaScoreService (T4.7)", () => {
         { fonte: "igdb", rating: 90, media_fonte: 70, desvio_fonte: 15 }, // peso só em GAME
       ]);
       expect(result.num_fontes).toBe(0);
+    });
+  });
+
+  describe("recalcularEPersistir() — v2 com upsert (T4.7 + coleta admin)", () => {
+    function mockPrisma(avaliacoes: unknown[], existingScore?: unknown) {
+      const upsert = vi.fn().mockResolvedValue({});
+      const prisma = {
+        midia: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: "m1",
+            tipo: "GAME",
+            avaliacoes,
+            scores: existingScore ? [{ ...existingScore }] : [],
+          }),
+        },
+        mediaScore: { upsert },
+      };
+      return { prisma, upsert };
+    }
+
+    it("retorna null quando mídia não existe", async () => {
+      const { prisma } = mockPrisma([]);
+      prisma.midia.findUnique.mockResolvedValue(null);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      expect(await service.recalcularEPersistir("m1")).toBeNull();
+    });
+
+    it("recalcula a partir das avaliações persistidas e faz upsert com campos v2", async () => {
+      const { prisma, upsert } = mockPrisma([
+        { fonte: "igdb", rating: 92, media_fonte: 70, desvio_fonte: 15 },
+        { fonte: "igdb_publico", rating: 85, media_fonte: 70, desvio_fonte: 15 },
+      ]);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      const result = await service.recalcularEPersistir("m1");
+
+      expect(result).not.toBeNull();
+      expect(result!.criticosScore).toBeDefined();
+      expect(result!.publicoScore).toBeDefined();
+      expect(result!.calculado_em).toBeInstanceOf(Date);
+
+      const call = upsert.mock.calls[0]![0];
+      expect(call.where).toEqual({ midia_id: "m1" });
+      expect(call.create.midia_id).toBe("m1");
+      expect(call.update.score_critica).toBe(result!.criticosScore);
+      expect(call.update.score_publico).toBe(result!.publicoScore);
+      expect(call.update.consenso).toBe(result!.consenso);
+      expect(call.update.confianca).toBe(result!.confianca);
+      expect(call.update.detalhes).toHaveLength(2);
+      expect(call.update.num_fontes).toBe(2);
+    });
+
+    it("sem avaliações → upsert neutro (score 50, num_fontes 0)", async () => {
+      const { prisma, upsert } = mockPrisma([]);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      const result = await service.recalcularEPersistir("m1");
+
+      expect(result).not.toBeNull();
+      expect(result!.score).toBe(50);
+      expect(result!.num_fontes).toBe(0);
+      expect(result!.criticosScore).toBeNull();
+      expect(result!.publicoScore).toBeNull();
+
+      const call = upsert.mock.calls[0]![0];
+      expect(call.update.score).toBe(50);
+      expect(call.update.num_fontes).toBe(0);
+      expect(call.update.detalhes).toEqual([]);
+    });
+
+    it("fonte fora do registro nas avaliações persistidas é ignorada", async () => {
+      const { prisma, upsert } = mockPrisma([
+        { fonte: "fonte_inventada", rating: 99, media_fonte: 50, desvio_fonte: 10 },
+      ]);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      const result = await service.recalcularEPersistir("m1");
+
+      expect(result!.num_fontes).toBe(0);
+      expect(result!.score).toBe(50);
+      expect(upsert.mock.calls[0]![0].update.num_fontes).toBe(0);
     });
   });
 });
