@@ -4,8 +4,11 @@ import { fetchJson } from "./http.utils.js";
 
 interface TraktItem {
   type: "movie" | "show";
-  movie?: { ids: { slug: string } };
-  show?: { ids: { slug: string } };
+  movie?: { ids: { slug: string } } & TraktRating;
+  show?: { ids: { slug: string } } & TraktRating;
+}
+
+interface TraktRating {
   rating?: number;
   vote_count?: number;
 }
@@ -36,13 +39,14 @@ export class TraktAdapter implements FonteAdapter {
       },
     });
     const item = itens[0];
-    if (!item?.rating || item.rating <= 0) return [];
-    const slug = item.movie?.ids.slug ?? item.show?.ids.slug;
+    const rating = item?.movie?.rating ?? item?.show?.rating;
+    if (!rating || rating <= 0) return [];
+    const slug = item?.movie?.ids.slug ?? item?.show?.ids.slug;
     const stats = estatisticas("0-10");
     return [
       {
         fonte: this.id,
-        rating: item.rating,
+        rating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
         url: slug ? `https://trakt.tv/${tipo}/${slug}` : undefined,

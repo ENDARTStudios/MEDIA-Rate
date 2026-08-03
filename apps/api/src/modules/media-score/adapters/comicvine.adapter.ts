@@ -7,7 +7,7 @@ interface ComicVineVolume {
 }
 
 interface ComicVineVolumeDetail {
-  results?: { count_of_issue_appearances?: number };
+  results?: { count_of_issues?: number };
 }
 
 /** Comic Vine — key gratuita (COMICVINE_API_KEY); votos públicos somados 0–5. */
@@ -34,9 +34,9 @@ export class ComicVineAdapter implements FonteAdapter {
     const volume = busca.results?.[0];
     if (!volume) return [];
     const detalhe = await fetchJson<ComicVineVolumeDetail>(
-      `${base}/volume/4050-${volume.id}/?api_key=${this.chave() ?? ""}&format=json&field_list=count_of_issue_appearances`,
+      `${base}/volume/4050-${volume.id}/?api_key=${this.chave() ?? ""}&format=json&field_list=count_of_issues`,
     );
-    const total = detalhe.results?.count_of_issue_appearances;
+    const total = detalhe.results?.count_of_issues;
     if (!total || total <= 0) return [];
     // Sem nota agregada exposta na API; proxy de audiência 0–5 (fase preparação).
     const stats = estatisticas("0-5");
