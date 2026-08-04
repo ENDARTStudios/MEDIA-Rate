@@ -140,24 +140,19 @@ export class MediaController {
     if (genero !== undefined && genero !== "") {
       where.generos = {
         some: {
-          genero: Number.isFinite(generoNum)
-            ? { id: generoNum }
-            : { slug: genero },
+          genero: Number.isFinite(generoNum) ? { id: generoNum } : { slug: genero },
         },
       };
     }
 
     // Allowlist de campos de ordenação (T4.6 sort allowlist).
-    // "score" ordena pela relação media_score (maior score primeiro).
+    // "score" usa o campo desnormalizado midia.score (último media_score) —
+    // orderBy escalar, sem depender de orderBy de relação (quirk do engine).
     const ALLOWED_SORT_FIELDS = ["titulo", "ano_lancamento", "created_at", "score"] as const;
     const sortResult = validateSortField(sort, ALLOWED_SORT_FIELDS);
     let orderBy: unknown = { created_at: "desc" as const };
     if (sortResult) {
-      if (sortResult.field === "score") {
-        orderBy = { scores: { score: sortResult.direction } };
-      } else {
-        orderBy = { [sortResult.field]: sortResult.direction };
-      }
+      orderBy = { [sortResult.field]: sortResult.direction };
     }
 
     // Total real da coleção filtrada (exibição "N títulos" no catálogo web).

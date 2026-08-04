@@ -79,8 +79,15 @@ export class WatchlistService {
 
     // Join manual: watchlist.midia_id é VarChar sem FK — busca as mídias
     // do catálogo (quando existem) com score e gêneros para o frontend.
+    // Entradas legadas com ids não-UUID (ex.: mock "g1") são ignoradas
+    // (o cast UUID falharia).
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const midiaIds = entries.map((e) => e.midia_id).filter((id) => UUID_RE.test(id));
+    if (midiaIds.length === 0) {
+      return entries.map((entry) => ({ ...entry, media: null }));
+    }
     const midias = await this.prisma.midia.findMany({
-      where: { id: { in: entries.map((e) => e.midia_id) } },
+      where: { id: { in: midiaIds } },
       select: {
         id: true,
         titulo: true,

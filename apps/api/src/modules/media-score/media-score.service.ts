@@ -487,6 +487,12 @@ export class MediaScoreService {
       update: data,
     });
 
+    // Desnormaliza o score na midia (ordenação escalar sem orderBy de relação).
+    await this.prisma.midia.update({
+      where: { id: midia_id },
+      data: { score: resultado.score },
+    });
+
     return { ...resultado, calculado_em: new Date() };
   }
 }
