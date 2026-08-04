@@ -5,6 +5,7 @@ import { HeroSection } from "../../components/HeroSection";
 import { MediaRail } from "../../components/MediaRail";
 import { ContinueDecision } from "../../components/ContinueDecision";
 import { HomeStats } from "../../components/HomeStats";
+import { ComingSoonRails } from "../../components/ComingSoonRails";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
@@ -88,6 +89,8 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <MediaRail mediaType="FILME" />
           <MediaRail mediaType="SERIE" />
           <MediaRail mediaType="GAME" />
+
+          <ComingSoonRails />
 
           <section className="py-20 px-4 border-t border-[rgba(129,140,248,0.08)]">
             <div className="max-w-2xl mx-auto text-center">
