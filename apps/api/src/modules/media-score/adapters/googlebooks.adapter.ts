@@ -36,6 +36,7 @@ export class GoogleBooksAdapter implements FonteAdapter {
         rating: item.volumeInfo.averageRating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: item.volumeInfo.ratingsCount,
         url: item.volumeInfo.infoLink,
       },
     ];

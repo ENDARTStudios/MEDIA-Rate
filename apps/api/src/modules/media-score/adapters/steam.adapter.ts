@@ -47,6 +47,7 @@ export class SteamAdapter implements FonteAdapter {
         rating: ratio,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: summary.total_positive + summary.total_negative,
         url: `https://store.steampowered.com/app/${appid}`,
       },
     ];

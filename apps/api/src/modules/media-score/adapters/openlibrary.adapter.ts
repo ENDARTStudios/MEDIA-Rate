@@ -32,6 +32,7 @@ export class OpenLibraryAdapter implements FonteAdapter {
         rating: doc.ratings_average,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: doc.ratings_count,
         url: `https://openlibrary.org/search?q=${encodeURIComponent(consulta.titulo)}`,
       },
     ];

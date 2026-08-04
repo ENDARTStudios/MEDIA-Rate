@@ -3,7 +3,7 @@ import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
 import { fetchJson } from "./http.utils.js";
 
 interface MangaDexStats {
-  rating?: { average?: number; bayesian?: number };
+  rating?: { average?: number; bayesian?: number; distribution?: Record<string, number> };
 }
 
 interface MangaDexSearch {
@@ -33,6 +33,10 @@ export class MangaDexAdapter implements FonteAdapter {
     );
     const nota = statsDados.rating?.bayesian ?? statsDados.rating?.average;
     if (!nota) return [];
+    const distribuicao = statsDados.rating?.distribution;
+    const votos = distribuicao
+      ? Object.values(distribuicao).reduce((acc, v) => acc + (Number(v) || 0), 0)
+      : undefined;
     const stats = estatisticas("0-10");
     return [
       {
@@ -40,6 +44,7 @@ export class MangaDexAdapter implements FonteAdapter {
         rating: nota,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: votos && votos > 0 ? votos : undefined,
         url: `https://mangadex.org/title/${manga.id}`,
       },
     ];

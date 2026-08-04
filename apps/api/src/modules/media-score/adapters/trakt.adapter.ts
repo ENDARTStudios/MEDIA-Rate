@@ -10,7 +10,7 @@ interface TraktItem {
 
 interface TraktRating {
   rating?: number;
-  vote_count?: number;
+  votes?: number;
 }
 
 /** Trakt.tv — API key gratuita (TRAKT_CLIENT_ID). rating 0–10 (audiência). */
@@ -49,6 +49,7 @@ export class TraktAdapter implements FonteAdapter {
         rating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: item?.movie?.votes ?? item?.show?.votes,
         url: slug ? `https://trakt.tv/${tipo}/${slug}` : undefined,
       },
     ];

@@ -42,6 +42,7 @@ export class ImdbDatasetAdapter implements FonteAdapter {
         rating: item.averageRating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: item.numVotes,
         url: `https://www.imdb.com/title/${item.tconst}`,
       },
     ];

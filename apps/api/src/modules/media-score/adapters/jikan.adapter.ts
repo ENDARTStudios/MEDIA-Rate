@@ -3,7 +3,7 @@ import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
 import { fetchJson } from "./http.utils.js";
 
 interface JikanAnime {
-  data?: { score?: number; url?: string }[];
+  data?: { score?: number; url?: string; scored_by?: number }[];
 }
 
 /** Jikan (MyAnimeList) — API não oficial pública. score 0–10 (público). */
@@ -30,6 +30,7 @@ export class JikanAdapter implements FonteAdapter {
         rating: anime.score,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: anime.scored_by,
         url: anime.url,
       },
     ];

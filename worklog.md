@@ -909,3 +909,16 @@ Stage Summary:
   sessao. STRIPE_PAYMENT_METHODS permanece "card". Quando charges_enabled=true:
   trocar para card,pix,boleto (1 comando) + ativar Pix no dashboard.
 - Status: DONE (aguardando verificacao do Stripe).
+
+## [2026-08-03] Stage: votos nas demais fontes (pull Bayesiano ativo em todas as midias)
+- Adapters agora reportam votos (alem de tmdb/igdb):
+  trakt (votes), jikan (scored_by), omdb (imdbVotes), steam (pos+neg),
+  steamspy (pos+neg), googlebooks (ratingsCount), openlibrary (ratings_count),
+  mangadex (sum da distribuicao), imdb_dataset (numVotes).
+- Com isso, filmes/series (omdb/trakt), games (steam), livros (googlebooks/
+  openlibrary), mangas (jikan/mangadex) passam a alimentar o pull Bayesiano
+  (v>0 -> MEDIA = (v/(v+m))S + (m/(v+m))C) e o fator Volume do CS.
+- Fontes sem votos disponiveis (metacritic, opencritic, goodreads, RT,
+  letterboxd etc.) permanecem v=0 -> score = S (sem pull), ja protegido.
+- Suites: API 418, typecheck/lint limpos.
+- Status: DONE.

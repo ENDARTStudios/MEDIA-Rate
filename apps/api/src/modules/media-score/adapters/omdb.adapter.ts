@@ -5,6 +5,7 @@ import { fetchJson } from "./http.utils.js";
 interface OmdbResponse {
   imdbRating?: string;
   imdbID?: string;
+  imdbVotes?: string;
   Response?: string;
 }
 
@@ -32,6 +33,7 @@ export class OmdbAdapter implements FonteAdapter {
     if (dados.Response === "False" || !dados.imdbRating) return [];
     const rating = Number.parseFloat(dados.imdbRating);
     if (!Number.isFinite(rating)) return [];
+    const votosBrutos = Number(dados.imdbVotes?.replace(/,/g, "") ?? "");
     const stats = estatisticas("0-10");
     return [
       {
@@ -39,6 +41,7 @@ export class OmdbAdapter implements FonteAdapter {
         rating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: Number.isFinite(votosBrutos) && votosBrutos > 0 ? votosBrutos : undefined,
         url: `https://www.imdb.com/title/${dados.imdbID}`,
       },
     ];
