@@ -41,9 +41,17 @@ export class StripePaymentGateway implements IPaymentGateway {
       throw new Error(`STRIPE_PRICE_${input.plano}_ID não configurado.`);
     }
 
+    // Métodos de pagamento via env (ex.: "card,pix" quando o Pix estiver
+    // ativado no dashboard do Stripe). Default: cartão.
+    const paymentMethods = (process.env.STRIPE_PAYMENT_METHODS ?? "card")
+      .split(",")
+      .map((m) => m.trim())
+      .filter(Boolean);
+
     const session = await this.client.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
+      payment_method_types:
+        paymentMethods as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
       // Desativa a conversão de moeda automática (adaptive pricing) da conta —
       // ela adiciona seletor de país/moeda ao Checkout e pode falhar com
       // "Erro de processamento" sem registrar tentativa de pagamento.

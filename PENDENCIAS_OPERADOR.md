@@ -125,6 +125,17 @@ Resultado (2026-08-03):
   `STRIPE_PRICE_PREMIUM_ID` (prices live criados: Plus R$4,90 e Premium R$9,90/mês BRL).
 - Observação: `STRIPE_SECRET_KEY` restrita não expõe a sk_ completa; para ampliar
   permissões, editar a chave em https://dashboard.stripe.com/apikeys.
+- STATUS DA CONTA (2026-08-03, via API): `charges_enabled=false`,
+  `payouts_enabled=false`, `requirements.disabled_reason=requirements.pending_verification`
+  — a conta live está em REVISÃO manual do Stripe (dados enviados, banco vinculado,
+  TOS aceito). Pagamentos live só funcionam após a verificação concluir (1-5 dias
+  úteis para contas BR; o "Erro de processamento" no Checkout é causado por isso).
+- AÇÃO do Operador quando a verificação concluir:
+  1. https://dashboard.stripe.com/settings/payment_methods (modo Live) → ativar
+     **Cartão** e **Pix**.
+  2. Se quiser Pix no Checkout: setar `STRIPE_PAYMENT_METHODS=card,pix` no Railway
+     (código já suporta via env, default "card").
+  3. Refazer o pagamento de teste real (R$ 4,90) e validar webhook + trial.
 
 Por quê: o Stripe precisa avisar o backend quando um pagamento é confirmado.
 Onde: https://dashboard.stripe.com/webhooks

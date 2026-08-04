@@ -861,3 +861,16 @@ Stage Summary:
 - PENDENTE (cartao real): testar outro cartao/banco; conferir com o banco se o
   cartao esta habilitado para compras internacionais/3DS; testar em outra rede.
 - Status: DONE.
+
+## [2026-08-03] Stage: Causa raiz do "Erro de processamento" + Pix pronto
+- Causa raiz definitiva: conta live com charges_enabled=false,
+  requirements.disabled_reason=pending_verification (revisao manual do Stripe).
+  Nenhum cartao chega a ser tokenizado (zero PaymentMethod/PI/SI/customer em 6+
+  tentativas, 2 cartoes, 2 navegadores); modo teste funciona porque o Stripe ativa
+  tudo no teste. Nada no nosso codigo bloqueia pagamentos.
+- Correcoes aplicadas: gateway aceita STRIPE_PAYMENT_METHODS (default "card";
+  "card,pix" quando Pix ativado no dashboard); .env.example documentado.
+- PENDENTE Operador: aguardar verificacao da conta (1-5 dias uteis) e ativar
+  Cartao+Pix em https://dashboard.stripe.com/settings/payment_methods; depois
+  refazer pagamento de teste real.
+- Status: DONE (aguardando verificacao do Stripe).
