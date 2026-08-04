@@ -92,6 +92,10 @@ interface TmdbGenre {
   name: string;
 }
 
+interface TmdbGenreList {
+  genres: TmdbGenre[];
+}
+
 /** Slug simples: minúsculas, sem acentos, espaços → hífen. */
 function slugify(texto: string): string {
   return texto
@@ -108,8 +112,8 @@ function slugify(texto: string): string {
 async function syncGeneros(apiKey: string, prisma: PrismaClient): Promise<Map<number, number>> {
   const generos = new Map<number, number>();
   for (const tipo of ["movie", "tv"] as const) {
-    const data = await fetchTmdb<TmdbGenre[]>(`/genre/${tipo}/list`, apiKey);
-    for (const g of data) {
+    const data = await fetchTmdb<TmdbGenreList>(`/genre/${tipo}/list`, apiKey);
+    for (const g of data.genres) {
       const row = await prisma.genero.upsert({
         where: { tmdb_id: g.id },
         create: { tmdb_id: g.id, nome: g.name, slug: slugify(g.name) },
@@ -122,7 +126,7 @@ async function syncGeneros(apiKey: string, prisma: PrismaClient): Promise<Map<nu
   return generos;
 }
 
-/** Cria os vínculos N:N midia↔genero (idempotente). */
+/** Cria os vínculos N:N midia↔genero (batch idempotente). */
 async function linkGeneros(
   prisma: PrismaClient,
   midiaId: string,
@@ -130,15 +134,14 @@ async function linkGeneros(
   generos: Map<number, number>,
 ): Promise<void> {
   if (!genreIds) return;
-  for (const gid of genreIds) {
-    const generoId = generos.get(gid);
-    if (!generoId) continue;
-    await prisma.midiaGenero.upsert({
-      where: { midia_id_genero_id: { midia_id: midiaId, genero_id: generoId } },
-      create: { midia_id: midiaId, genero_id: generoId },
-      update: {},
-    });
-  }
+  const data = genreIds
+    .map((gid) => {
+      const generoId = generos.get(gid);
+      return generoId ? { midia_id: midiaId, genero_id: generoId } : null;
+    })
+    .filter((x): x is { midia_id: string; genero_id: number } => x != null);
+  if (data.length === 0) return;
+  await prisma.midiaGenero.createMany({ data, skipDuplicates: true });
 }
 
 async function main(): Promise<void> {
