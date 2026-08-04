@@ -970,3 +970,25 @@ Stage Summary:
   apiGet (watchlist, busca, detalhes) estavam caindo no fallback mock.
 - Ajustes anteriores mantidos: total real (COUNT) e paginacao por remount.
 - Status: DONE (validar no navegador com hard refresh).
+
+## [2026-08-04] Stage: Bloco autonomo pos-redesign (generos, watchlist real, notificacoes, dívida)
+- GENEROS: seed TMDB agora sincroniza a tabela genero (tmdb_id, slug) e vincula
+  midia_genero; API aceita filtro `genero` (slug/id) e expoe GET /api/v1/generos
+  (com contagens); catalogo web tem seletor de genero no filtro avancado.
+  Migracao 20260804_genero_tmdb_id.
+- WATCHLIST REAL: list() agora faz join manual com midia (score + generos) —
+  kanban/cards/ContinueDecision deixam de usar o mock; precos do checkout
+  alinhados (R$ 4,90 / R$ 9,90).
+- NOTIFICACOES in-app (D-132 "score mudou"): model Notificacao + migracao
+  20260804_notificacao_score; service/controller (GET, ler, marcar lida);
+  job diario gera alertas SCORE_MUDOU (variacao >= 5 desde a ultima); sino no
+  header (poll 60s, badge, dropdown, i18n 3 idiomas).
+- DIVIDA TECNICA: graceful shutdown (enableShutdownHooks no main.ts — SIGTERM
+  dispara prisma disconnect); posthog-js no frontend (pageview + identify,
+  inerte sem NEXT_PUBLIC_ANALYTICS_WRITE_KEY — vars do Vercel pendentes).
+- Verificado: refresh token (sliding session) e audit logging JA implementados;
+  export LGPD (GET /api/v1/user/data) ja existia; "recomendacoes 3/dia" e
+  "historico 10" sem infra de dados — documentados como fora do escopo.
+- Suites: API 429, web 143. Pendente: aplicar migracoes + re-seed TMDB em
+  producao (via tunel) para popular generos.
+- Status: DONE.
