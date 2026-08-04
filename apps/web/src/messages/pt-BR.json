@@ -167,6 +167,8 @@
     "movies": "Filmes",
     "series": "Séries",
     "games": "Games",
+    "favoriteType": "Tipo favorito",
+    "tasteProfile": "Perfil de Gosto",
     "loading": "Carregando..."
   },
   "checkout": {
@@ -220,12 +222,7 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": [
-      "Catálogo completo",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recomendações/dia"
-    ],
+    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
