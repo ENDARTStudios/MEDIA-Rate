@@ -113,6 +113,8 @@ export class AuthGuard implements CanActivate {
     // Coleta admin via x-admin-token — validado no próprio controller
     // (comparação timing-safe), sem depender de cookie de sessão.
     if (m === "POST" && /^\/api\/v1\/midias\/[^/]+\/coletar$/.test(url)) return true;
+    // Job diário do MEDIA Score (gatilho admin via x-admin-token).
+    if (m === "POST" && /^\/api\/v1\/midias\/score-job$/.test(url)) return true;
     return false;
   }
 }
