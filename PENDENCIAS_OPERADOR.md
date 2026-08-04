@@ -131,23 +131,23 @@ Resultado (2026-08-03):
   `STRIPE_PRICE_PREMIUM_ID` (prices live criados: Plus R$4,90 e Premium R$9,90/mês BRL).
 - Observação: `STRIPE_SECRET_KEY` restrita não expõe a sk_ completa; para ampliar
   permissões, editar a chave em https://dashboard.stripe.com/apikeys.
-- STATUS DA CONTA (2026-08-03, via API): `charges_enabled=false`,
-  `payouts_enabled=false`, `requirements.disabled_reason=requirements.pending_verification`
-  — a conta live está em REVISÃO manual do Stripe (dados enviados, banco vinculado,
-  TOS aceito). Pagamentos live só funcionam após a verificação concluir (1-5 dias
-  úteis para contas BR; o "Erro de processamento" no Checkout é causado por isso).
-- AÇÃO do Operador quando a verificação concluir:
-  1. https://dashboard.stripe.com/settings/payment_methods (modo Live) → ativar
-     **Cartão** e **Pix** (o Boleto já está solicitado via API — capability
-     `boleto_payments` requested/pending).
-  2. Se quiser Pix/Boleto no Checkout: setar `STRIPE_PAYMENT_METHODS=card,pix,boleto`
-     no Railway (código já suporta via env; default "card" — NÃO ativar antes da
-     verificação, senão a criação de sessão falha com "pix is invalid").
-- STATUS DOS MÉTODOS (2026-08-03, via API):
-  - Payment Method Configuration (default): card/pix/boleto display_preference = ON ✅
-  - Capabilities: `card_payments` requested/pending, `boleto_payments` requested/pending,
-    `transfers` requested/pending; capability `pix` NÃO é solicitável via API
-    (ativação do Pix é pelo dashboard após a verificação).
+- STATUS DA CONTA (2026-08-04, via API): **VERIFICADA E LIBERADA** —
+  `charges_enabled=true`, `payouts_enabled=true`, `card_payments` ACTIVE,
+  `boleto_payments` ACTIVE, `transfers` ACTIVE, `requirements.disabled_reason` vazio.
+  Apple Pay e Google Pay disponíveis (auto no Checkout com card).
+- DECISÃO (boleto): mínimo de **R$ 5,00 por transação** — o plano Plus (R$ 4,90)
+  ficaria impagável via boleto. `STRIPE_PAYMENT_METHODS` permanece `card`
+  (cards + wallets). Boleto só faria sentido para planos ≥ R$ 5,00.
+- PENDENTE (Pix): continua **dashboard-only** (capability `pix` não existe via
+  API — "Unknown capability"). Quando aparecer em Settings → Payment methods
+  (aba Live), ativar e trocar `STRIPE_PAYMENT_METHODS=card,pix` (Checkout
+  hospedado aceita 1 tipo explícito; métodos ativados adicionais aparecem
+  automaticamente quando o param é omitido).
+- STATUS DOS MÉTODOS (2026-08-04, via API):
+  - Payment Method Configuration (default): card/boleto/pix display_preference = ON ✅
+  - Capabilities: `card_payments` ACTIVE ✅, `boleto_payments` ACTIVE ✅,
+    `transfers` ACTIVE ✅; capability `pix` NÃO é solicitável via API
+    (ativação do Pix é pelo dashboard).
   - PIX GATEADO PELO STRIPE: 0 ocorrências de "pix" no objeto da conta (tipo standard)
     e sem opção no dashboard enquanto `charges_enabled=false`. O Pix só aparece em
     Settings → Payment methods APÓS a verificação concluir. Se não aparecer mesmo

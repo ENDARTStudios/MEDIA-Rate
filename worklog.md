@@ -1069,3 +1069,15 @@ Stage Summary:
 - Suites: API 441 (7 testes novos), web 143; build 80/80; verificado em
   producao: GET /api/v1/listas/:slug publico (404 para slug inexistente).
 - Status: DONE.
+
+## [2026-08-04] Stage: Stripe VERIFICADO — configuracao concluida
+- Conta liberada: charges_enabled=true, payouts_enabled=true, card_payments/
+  boleto_payments/transfers ACTIVE. Apple Pay e Google Pay disponiveis.
+- DECISAO: boleto tem minimo de R$ 5,00 — plano Plus (4,90) ficaria impagavel;
+  STRIPE_PAYMENT_METHODS permanece "card" (cards + wallets). Pix segue
+  dashboard-only (capability nao existe via API).
+- Validado: webhook enabled com 9 eventos na URL de producao; 4 variaveis
+  Stripe corretas no Railway (key live, whsec, prices live).
+- PENDENTE Operador: pagamento real de teste (cartao, R$ 4,90) para validar
+  checkout + webhook + trial de ponta a ponta.
+- Status: DONE (aguardando teste real do Operador).
