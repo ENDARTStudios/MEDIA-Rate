@@ -1027,3 +1027,20 @@ Stage Summary:
   atual so tem entradas legadas/mock — sem vinculo com o catalogo).
 - Suites: API 429, web 143.
 - Status: DONE.
+
+## [2026-08-04] Stage: Limites Free + ferramentas (D-132) — cota, historico, export, comparador
+- COTA DIARIA: model UsoDiario + QuotaService (429 com retry_after_seconds) +
+  migracao; aplicada na listagem com sort=score para FREE autenticado
+  (recomendacoes 3/dia); anonimos nao contam; Plus/Premium ilimitado.
+  Web: RateLimitedError usa body.retry_after_seconds como fallback.
+- HISTORICO (Free: 10): POST /api/v1/midias/:id/view (auth, fire-and-forget no
+  MediaDetailClient) grava MediaScoreView; GET /api/v1/historico devolve
+  distintos + score com limite por plano; pagina /historico com banner de
+  upgrade quando limite atingido.
+- EXPORT DADOS (LGPD): pagina /user/data com download JSON e CSV (BOM para
+  Excel) via GET /api/v1/user/data.
+- COMPARADOR DE PERFIS (Premium): GET /api/v1/usuarios/:id/stats (stats
+  publicas agregadas) + pagina /compare lado a lado.
+- Suites: API 434, web 143; build 77/77; migracao 20260804_uso_diario
+  aplicada no deploy.
+- Status: DONE.
