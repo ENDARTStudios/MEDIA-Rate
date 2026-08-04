@@ -13,6 +13,14 @@ import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { api } from "@/lib/http";
+import {
+  AgeRatingBadge,
+  GenreChipRow,
+  SHARED_GENRES,
+  SeriatedScoreTree,
+  AwardsShowcase,
+  FranchiseCarousel,
+} from "@/components/media-rate-ui";
 import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
@@ -28,6 +36,7 @@ export function MediaDetailClient({
 }) {
   const t = useTranslations("catalog");
   const tg = useTranslations("genres");
+  const tm = useTranslations("metadados");
   const locale = useLocale();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const {
@@ -227,6 +236,7 @@ export function MediaDetailClient({
               ["synopsis", t("synopsis")],
               ["cast", t("cast")],
               ["reviews", t("reviews")],
+              ["metadados", tm("title")],
             ].map(([v, l]) => (
               <Tabs.Trigger
                 key={v}
@@ -240,6 +250,64 @@ export function MediaDetailClient({
 
           <Tabs.Content value="synopsis" className="focus-visible:outline-none">
             <SynopsisBlock synopsis={synopsisForLocale(media, locale)} />
+          </Tabs.Content>
+
+          <Tabs.Content value="metadados" className="focus-visible:outline-none">
+            <div className="space-y-8">
+              {/* Classificação indicativa (✅ — sempre quando houver dado). */}
+              {media.classificacaoIndicativa && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                    {tm("classification")}
+                  </h3>
+                  <AgeRatingBadge
+                    rating={media.classificacaoIndicativa as "L" | "10" | "12" | "14" | "16" | "18"}
+                    source={
+                      ["book", "comic", "anime"].includes(media.type) ? "sugerida" : "oficial"
+                    }
+                    perSeason={media.type === "series"}
+                  />
+                </div>
+              )}
+
+              {/* Gêneros (✅ — taxonomia dupla: narrativo compartilhado + específico). */}
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  {tm("genres")}
+                </h3>
+                <GenreChipRow
+                  sharedGenres={media.genres.filter((g) => SHARED_GENRES.includes(g))}
+                  mediaSpecificGenres={media.genres.filter((g) => !SHARED_GENRES.includes(g))}
+                  mediaType={media.type}
+                />
+              </div>
+
+              {/* Nota por unidade seriada (✅ séries; ➖ demais — sem dado → estado honesto). */}
+              {media.type === "series" && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                    {tm("seriatedScores")}
+                  </h3>
+                  <SeriatedScoreTree unitLabel={tm("seasonUnit") ?? "Temporada"} units={[]} />
+                </div>
+              )}
+
+              {/* Prêmios (✅ — sem dado → "Não informado", nunca fabricado). */}
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  {tm("awards")}
+                </h3>
+                <AwardsShowcase awards={[]} />
+              </div>
+
+              {/* Sequências/conteúdo relacionado (✅ — sem dado → "Não informado"). */}
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  {tm("franchise")}
+                </h3>
+                <FranchiseCarousel items={[]} currentMediaId={media.id} />
+              </div>
+            </div>
           </Tabs.Content>
 
           <Tabs.Content value="cast" className="focus-visible:outline-none">

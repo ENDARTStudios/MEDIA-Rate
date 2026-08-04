@@ -163,6 +163,26 @@ function mapConfidence(c: number | null | undefined): Confidence {
 
 const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
 
+/** Mapeia o enum ClassInd da API (DEZ/DOZE/...) para a exibição (10/12/...). */
+function mapClassificacaoIndicativa(value: string | null | undefined): string | null {
+  switch (value) {
+    case "L":
+      return "L";
+    case "DEZ":
+      return "10";
+    case "DOZE":
+      return "12";
+    case "CATORZE":
+      return "14";
+    case "DEZESSEIS":
+      return "16";
+    case "DEZOITO":
+      return "18";
+    default:
+      return value ?? null;
+  }
+}
+
 function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
   const urlsByFonte = new Map(m.fontes.map((f) => [f.fonte, f.url]));
   const sources: SourceRating[] =
@@ -186,6 +206,7 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     type: mapTipo(m.tipo),
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: m.generos,
+    classificacaoIndicativa: mapClassificacaoIndicativa(m.classificacao_indicativa),
     duration: m.duracao_minutos != null ? `${m.duracao_minutos} min` : undefined,
     synopsis: m.sinopse ?? "",
     posterUrl: m.imagem_url,

@@ -75,6 +75,8 @@ export interface Media {
   year: number;
   genres: string[];
   genreSlugs?: string[];
+  /** DJCTQ/ClassInd: 'L' | '10' | '12' | '14' | '16' | '18' (null = não informado). */
+  classificacaoIndicativa?: string | null;
   duration?: string;
   synopsis: string;
   posterUrl: string | null;

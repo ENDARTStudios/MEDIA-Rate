@@ -14,7 +14,6 @@ export interface ReleaseTimelineProps {
 }
 
 export function ReleaseTimeline({ items, className }: ReleaseTimelineProps) {
-
   if (items.length === 0) {
     return (
       <div
