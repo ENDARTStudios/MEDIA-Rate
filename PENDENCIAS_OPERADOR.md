@@ -167,23 +167,26 @@ Depois de feito: responda "feito o item Nº 6"
 
 ---
 
-### [7] ~~Configurar PostHog (analytics)~~ — FEITO (backend; web pendente de integração)
+### [7] ~~Configurar PostHog (analytics)~~ — FEITO (backend + frontend)
 
-Resultado (2026-08-03):
-- Projeto **MEDIA Rate** (id 527617) localizado via CLI do PostHog; Project API key
-  (`phc_...`) obtida e configurada:
-  - Railway (produção): `ANALYTICS_WRITE_KEY` ✅
-  - `.env.local` (dev): `ANALYTICS_WRITE_KEY` ✅ (gitignored)
-  - Host padrão `https://app.posthog.com` (posthog-node no backend).
-- PENDENTE: o frontend ainda NÃO tem integração posthog-js (nenhum uso em apps/web);
-  quando implementada, adicionar `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` e
-  `NEXT_PUBLIC_POSTHOG_HOST` nas variáveis do Vercel.
+Resultado (2026-08-04):
+- Projeto **MEDIA Rate** (id 527617, us.posthog.com); Project API key
+  (`phc_CWNWNF...`) configurada:
+  - Railway (produção): `ANALYTICS_WRITE_KEY` ✅ (eventos do backend:
+    `user_session_start`, `user_registered`, `plan_checkout_*`, `media_score_viewed`)
+  - Vercel (web): `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` + `NEXT_PUBLIC_POSTHOG_HOST`
+    ✅ (já existiam no painel; `PostHogProvider` com pageview por rota + identify
+    de usuário logado; chave confirmada no bundle deployado)
+- Validação: `phc_` presente no chunk JS do site; API do projeto responde com a
+  mesma chave. Eventos `$pageview` aparecem no Live events a partir da primeira
+  visita com o provider ativo.
 
 Por quê: para medir ativação, retenção e conversão (Discovery Q7).
 Onde: https://app.posthog.com
 Passo a passo (aplicado):
 1. Conta e projeto "MEDIA Rate" existentes (criado 2026-07-25) ✅
 2. Project API key copiada via `posthog-cli` (project-get → api_token) ✅
-3. `ANALYTICS_WRITE_KEY` no Railway ✅ (Vercel: pendente até o frontend usar posthog-js)
+3. `ANALYTICS_WRITE_KEY` no Railway ✅
+4. `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` no Vercel ✅
 Como saber que deu certo: faça login no site e veja o evento `user_session_start` no PostHog.
 Depois de feito: responda "feito o item Nº 7"

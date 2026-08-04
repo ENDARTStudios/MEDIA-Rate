@@ -1044,3 +1044,13 @@ Stage Summary:
 - Suites: API 434, web 143; build 77/77; migracao 20260804_uso_diario
   aplicada no deploy.
 - Status: DONE.
+
+## [2026-08-04] Stage: PostHog no frontend ativo (item 3 do Operador)
+- Vars NEXT_PUBLIC_ANALYTICS_WRITE_KEY + NEXT_PUBLIC_POSTHOG_HOST JA existiam
+  no Vercel (11 dias) — faltava o provider. PostHogProvider deployado e a chave
+  phc_ confirmada no bundle JS (chunk 0ihlx31u744wg.js).
+- API do PostHog verificada (projeto MEDIA Rate id 527617, us.posthog.com).
+- Eventos $pageview aparecem no Live events a partir da primeira visita real
+  (curl nao executa JS — pendente apenas a carga real no navegador).
+- PENDENCIAS_OPERADOR item 7 marcado FEITO (backend + frontend).
+- Status: DONE.
