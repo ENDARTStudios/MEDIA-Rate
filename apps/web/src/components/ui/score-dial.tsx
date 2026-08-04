@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { scoreColor } from "@/lib/design-tokens";
 
@@ -34,6 +35,7 @@ export function ScoreDial({
   sources: _sources,
 }: ScoreDialProps) {
   const tScore = useTranslations("scoredial");
+  const shouldReduce = useReducedMotion();
   const config = SIZE_CONFIG[size];
   const circumference = 2 * Math.PI * config.radius;
   const [inView, setInView] = useState(false);
@@ -60,7 +62,7 @@ export function ScoreDial({
   const color = scoreColor(clamped, scale);
   const ringPercent = scale === "0-100" ? clamped / 100 : clamped / 10;
   const fillOffset = circumference - ringPercent * circumference;
-  const displayOffset = inView ? fillOffset : circumference;
+  const displayOffset = shouldReduce || !inView ? fillOffset : circumference;
   const displayValue = scale === "0-100" ? Math.round(clamped) : Math.round(clamped * 10) / 10;
 
   const staticBars = [
@@ -113,7 +115,7 @@ export function ScoreDial({
           strokeDashoffset={displayOffset}
           filter={`url(#glow-${size})`}
           style={{
-            transition: inView ? "stroke-dashoffset 800ms ease-out" : "none",
+            transition: shouldReduce || !inView ? "none" : "stroke-dashoffset 800ms ease-out",
           }}
         />
       </svg>
