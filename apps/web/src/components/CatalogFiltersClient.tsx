@@ -33,7 +33,7 @@ export function CatalogFiltersClient() {
     queryKey: ["generos"],
     queryFn: async () =>
       (await api.get<{ id: number; nome: string; slug: string; total_midias: number }[]>(
-        "/api/v1/generos",
+        "/api/v1/midias/generos",
       )) ?? [],
     staleTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
