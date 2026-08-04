@@ -103,8 +103,19 @@ export class PaymentService {
 
     // 4. Processa baseado no tipo.
     try {
-      const webhookPayload = event.data as WebhookPayload;
-      const usuarioId = webhookPayload?.data?.object?.metadata?.usuario_id;
+      // FIX: `event.data` JÁ é o wrapper { object, previous_attributes? } do
+      // Stripe. Antes, o cast direto `event.data as WebhookPayload` fazia o
+      // código acessar `data.data.object` (undefined) — todos os handlers
+      // eram pulados silenciosamente (SUCESSO sem sincronizar o plano).
+      const raw = event.data as {
+        object?: WebhookPayload["data"]["object"];
+        previous_attributes?: Record<string, unknown>;
+      };
+      const webhookPayload: WebhookPayload = {
+        type: event.type,
+        data: { object: raw?.object ?? {} },
+      };
+      const usuarioId = webhookPayload.data.object.metadata?.usuario_id;
 
       switch (event.type) {
         case "checkout.session.completed":

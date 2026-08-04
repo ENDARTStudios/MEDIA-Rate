@@ -42,7 +42,9 @@ export class MockPaymentGateway implements IPaymentGateway {
     try {
       const parsed = JSON.parse(typeof payload === "string" ? payload : payload.toString());
       type = parsed.type ?? type;
-      data = parsed;
+      // Mesmo shape do gateway real (stripe-payment.gateway): `data` é o
+      // wrapper do evento ({ object, ... }), NÃO o evento inteiro.
+      data = parsed.data ?? parsed;
     } catch {
       // mantém defaults
     }
