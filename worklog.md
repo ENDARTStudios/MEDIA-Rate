@@ -1097,3 +1097,23 @@ Stage Summary:
   90a1c50a... = PLUS/TRIALING ate 11/08 (sub_1U0pHY.../cus_V0qz2O...).
 - Proximos pagamentos sincronizam automaticamente (fix deployado).
 - Status: DONE.
+
+## [2026-08-04] Stage: Addendum 2 — metadados estruturados (Tarefa 5a)
+- 8 componentes novos em media-rate-ui, respeitando a matriz de aplicabilidade:
+  AgeRatingBadge (DJCTQ L/10/12/14/16/18; "sugerida pela editora" p/ livro/HQ/
+  manga; perSeason), SeriatedScoreTree (hierarquia unidade->subunidade; media
+  das subunidades com nota; "Ainda sem votos suficientes"), GenreChipRow+
+  GenreFilterPrompt (taxonomia dupla: narrativo compartilhado + especifico;
+  opcoes mesma midia vs cross-media), OriginBadge (bandeira+rotulo por midia),
+  AwardsShowcase (trofes vencedor/indicado, +X expansivel), FranchiseCarousel+
+  FranchiseOrderToggle (ordem lancamento/cronologica so quando ha dado;
+  "Voce esta aqui").
+- Integracao: aba "Metadados" na ficha tecnica — classificacao (dado real da
+  API mapeado DEZ->10 etc.), generos, e estados honestos "Nao informado" para
+  premios/franquia/notas seriadas (sem dados no backend ainda).
+- Infra de teste: stub de next/navigation + inline do next-intl no vitest.
+- Suites: web 157 (14 novos), build 80/80; deploy Vercel verificado.
+- Dependencia de dados (futuro): origem, premios, franquias e notas por
+  temporada/episodio precisam de fonte no backend para sair do estado
+  "Nao informado".
+- Status: DONE.
