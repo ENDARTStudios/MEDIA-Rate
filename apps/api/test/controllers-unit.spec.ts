@@ -331,11 +331,11 @@ describe("MediaController (unit T8.1)", () => {
     await expect(controller.getBySlug("nao-existe")).rejects.toThrow();
   });
 
-  it("list() com sort=score usa orderBy da relacao scores", async () => {
+  it("list() com sort=score usa orderBy escalar midia.score (desnormalizado)", async () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     await controller.list(undefined, "10", undefined, "score:desc");
     const call = mockPrisma.midia.findMany.mock.calls[0]?.[0];
-    expect(call?.orderBy).toEqual({ scores: { score: "desc" } });
+    expect(call?.orderBy).toEqual({ score: "desc" });
   });
 
   it("list() com sort inválido cai no default created_at desc", async () => {

@@ -177,6 +177,7 @@ describe("MediaScoreService (T4.7)", () => {
             avaliacoes_atualizadas_em: null,
             scores: existingScore ? [{ ...existingScore }] : [],
           }),
+          update: vi.fn().mockResolvedValue({}),
         },
         mediaScore: {
           upsert,
