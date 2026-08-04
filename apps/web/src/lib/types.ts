@@ -125,6 +125,11 @@ export interface CatalogFilters {
   limit?: number;
   /** Cursor da próxima página (paginação cursor-based da API). */
   cursor?: string;
+  /** Filtros avançados (Tarefa 4 do redesign). */
+  anoMin?: number;
+  anoMax?: number;
+  scoreMin?: number;
+  scoreMax?: number;
 }
 
 export interface CatalogResponse {

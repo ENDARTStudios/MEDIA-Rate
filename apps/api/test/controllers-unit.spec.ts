@@ -92,6 +92,29 @@ describe("MediaController (unit T8.1)", () => {
     expect(mockPrisma.midia.findMany).toHaveBeenCalled();
   });
 
+  it("list() com filtros avançados (ano + faixa de score) monta o where", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([]);
+    mockPrisma.midia.count.mockResolvedValue(0);
+    await controller.list(undefined, "20", "FILME", undefined, "2000", "2010", "60", "90");
+    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+      where: Record<string, unknown>;
+    };
+    expect(call.where.tipo).toBe("FILME");
+    expect(call.where.ano_lancamento).toEqual({ gte: 2000, lte: 2010 });
+    expect(call.where.scores).toEqual({ some: { score: { gte: 60, lte: 90 } } });
+  });
+
+  it("list() ignora filtros avançados não numéricos", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([]);
+    mockPrisma.midia.count.mockResolvedValue(0);
+    await controller.list(undefined, "20", undefined, undefined, "abc", "xyz", "nope", "also");
+    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+      where: Record<string, unknown>;
+    };
+    expect(call.where.ano_lancamento).toBeUndefined();
+    expect(call.where.scores).toBeUndefined();
+  });
+
   it("getOne() returns midia", async () => {
     mockPrisma.midia.findUnique.mockResolvedValue({ id: "1", titulo: "A", tipo: "FILME" });
     const result = await controller.getOne("1");

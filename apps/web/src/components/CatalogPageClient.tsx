@@ -9,6 +9,8 @@ import type { MediaType, Media, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
+import { CatalogTypeBar } from "./CatalogTypeBar";
+import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { Button } from "@/components/ui/button";
 import type { MediaItem } from "./MediaCard";
 import { RateLimitedError } from "@/lib/http";
@@ -17,6 +19,14 @@ import { RateLimited } from "@/components/ui/rate-limited";
 type CatalogSort = "title" | "year" | "score";
 
 const PAGE_SIZE = 12;
+
+const FUTURE_TYPES: MediaType[] = ["book", "comic", "anime"];
+
+function asOptionalNumber(value: string | null | undefined): number | undefined {
+  if (value == null || value === "") return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
 
 function asCatalogSort(value: string | undefined): CatalogSort | undefined {
   switch (value) {
@@ -69,12 +79,34 @@ function CatalogContent({
   const type = (sp.get("type") || initialType || undefined) as MediaType | undefined;
   const sort = sp.get("sort") || initialSort || undefined;
   const query = sp.get("q") || initialQuery || undefined;
+  const anoMin = asOptionalNumber(sp.get("anoMin"));
+  const anoMax = asOptionalNumber(sp.get("anoMax"));
+  const scoreMin = asOptionalNumber(sp.get("scoreMin"));
+  const scoreMax = asOptionalNumber(sp.get("scoreMax"));
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
-    queryKey: ["catalog", { type, sort, query }],
-    queryFn: () => getCatalog({ type, search: query, sort: asCatalogSort(sort), limit: PAGE_SIZE }),
+    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax }],
+    queryFn: () =>
+      getCatalog({
+        type,
+        search: query,
+        sort: asCatalogSort(sort),
+        limit: PAGE_SIZE,
+        anoMin,
+        anoMax,
+        scoreMin,
+        scoreMax,
+      }),
     initialData:
-      type === undefined && sort === undefined && query === undefined ? initialData : undefined,
+      type === undefined &&
+      sort === undefined &&
+      query === undefined &&
+      anoMin === undefined &&
+      anoMax === undefined &&
+      scoreMin === undefined &&
+      scoreMax === undefined
+        ? initialData
+        : undefined,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -153,6 +185,15 @@ function CatalogContent({
   }
 
   if (!data || data.items.length === 0) {
+    // Categorias futuras (Livro/HQ/Mangá) sem catálogo: estado vazio com
+    // captura de lead em vez de 404 genérico (Parte 3.2).
+    if (type && FUTURE_TYPES.includes(type)) {
+      return (
+        <div className="py-8">
+          <EmptyStateComingSoon type={type} />
+        </div>
+      );
+    }
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
         <svg
@@ -206,19 +247,39 @@ function CatalogContent({
         </div>
       )}
       <CatalogResults
-        key={filtersKey(type, sort, query)}
+        key={filtersKey(type, sort, query, anoMin, anoMax, scoreMin, scoreMax)}
         pageData={data}
         type={type}
         sort={sort}
         query={query}
+        anoMin={anoMin}
+        anoMax={anoMax}
+        scoreMin={scoreMin}
+        scoreMax={scoreMax}
       />
     </>
   );
 }
 
 /** Chave de remount: qualquer mudança de filtro reinicia a paginação limpa. */
-function filtersKey(type?: string, sort?: string, query?: string): string {
-  return [type ?? "", sort ?? "", query ?? ""].join("|");
+function filtersKey(
+  type?: string,
+  sort?: string,
+  query?: string,
+  anoMin?: number,
+  anoMax?: number,
+  scoreMin?: number,
+  scoreMax?: number,
+): string {
+  return [
+    type ?? "",
+    sort ?? "",
+    query ?? "",
+    anoMin ?? "",
+    anoMax ?? "",
+    scoreMin ?? "",
+    scoreMax ?? "",
+  ].join("|");
 }
 
 /**
@@ -233,11 +294,19 @@ function CatalogResults({
   type,
   sort,
   query,
+  anoMin,
+  anoMax,
+  scoreMin,
+  scoreMax,
 }: {
   pageData: CatalogResponse;
   type?: MediaType;
   sort?: string;
   query?: string;
+  anoMin?: number;
+  anoMax?: number;
+  scoreMin?: number;
+  scoreMax?: number;
 }) {
   const t = useTranslations("catalog");
   const [items, setItems] = useState<MediaItem[]>(() => pageData.items.map(mapToMediaItem));
@@ -257,6 +326,10 @@ function CatalogResults({
         sort: asCatalogSort(sort),
         limit: PAGE_SIZE,
         cursor: nextCursor,
+        anoMin,
+        anoMax,
+        scoreMin,
+        scoreMax,
       });
       setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
       setNextCursor(next.nextCursor ?? null);
@@ -301,24 +374,29 @@ export function CatalogPageClient({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
+    <div>
       <Suspense fallback={null}>
-        <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+        <CatalogTypeBar />
       </Suspense>
-      <aside className="hidden lg:block w-60 shrink-0">
+      <div className="flex flex-col lg:flex-row gap-8">
         <Suspense fallback={null}>
-          <CatalogFiltersClient />
+          <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
         </Suspense>
-      </aside>
-      <div className="flex-1 min-w-0">
-        <Suspense fallback={<CatalogSkeleton count={12} />}>
-          <CatalogContent
-            initialData={initialData}
-            initialType={initialType}
-            initialSort={initialSort}
-            initialQuery={initialQuery}
-          />
-        </Suspense>
+        <aside className="hidden lg:block w-60 shrink-0">
+          <Suspense fallback={null}>
+            <CatalogFiltersClient />
+          </Suspense>
+        </aside>
+        <div className="flex-1 min-w-0">
+          <Suspense fallback={<CatalogSkeleton count={12} />}>
+            <CatalogContent
+              initialData={initialData}
+              initialType={initialType}
+              initialSort={initialSort}
+              initialQuery={initialQuery}
+            />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

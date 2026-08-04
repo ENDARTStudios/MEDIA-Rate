@@ -2,14 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback } from "react";
-import type { MediaType } from "@/lib/types";
-
-const TYPES: { value: MediaType; labelKey: string }[] = [
-  { value: "movie", labelKey: "filme" },
-  { value: "series", labelKey: "serie" },
-  { value: "game", labelKey: "game" },
-];
+import { useCallback, useState } from "react";
 
 const SORT_OPTIONS = [
   { value: "score", labelKey: "sortScore" },
@@ -23,10 +16,15 @@ export function CatalogFiltersClient() {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const type = sp.get("type") ?? "";
   const sort = sp.get("sort") ?? "";
   const query = sp.get("q") ?? "";
+  const anoMin = sp.get("anoMin") ?? "";
+  const anoMax = sp.get("anoMax") ?? "";
+  const scoreMin = sp.get("scoreMin") ?? "";
+  const scoreMax = sp.get("scoreMax") ?? "";
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -40,7 +38,9 @@ export function CatalogFiltersClient() {
 
   const clearAll = () => router.replace(pathname);
 
-  const activeCount = [type, sort, query].filter(Boolean).length;
+  const activeCount = [type, sort, query, anoMin, anoMax, scoreMin, scoreMax].filter(
+    Boolean,
+  ).length;
 
   return (
     <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
@@ -68,27 +68,6 @@ export function CatalogFiltersClient() {
       </div>
 
       <div>
-        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("all")}</label>
-        <div className="flex flex-wrap gap-1.5">
-          <button
-            onClick={() => setParam("type", "")}
-            className={`px-2.5 py-1 rounded-md text-xs transition-colors ${!type ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#1C1C2E] text-[#9CA3AF] hover:text-[#EDE7DC]"}`}
-          >
-            {t("all")}
-          </button>
-          {TYPES.map(({ value, labelKey }) => (
-            <button
-              key={value}
-              onClick={() => setParam("type", type === value ? "" : value)}
-              className={`px-2.5 py-1 rounded-md text-xs transition-colors ${type === value ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#1C1C2E] text-[#9CA3AF] hover:text-[#EDE7DC]"}`}
-            >
-              {t(labelKey)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
         <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("sort")}</label>
         <select
           value={sort}
@@ -102,6 +81,81 @@ export function CatalogFiltersClient() {
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Filtro avançado colapsável (Parte 3.2): ano + faixa de score. */}
+      <div className="border-t border-[#1C1C2E] pt-3">
+        <button
+          type="button"
+          onClick={() => setAdvancedOpen((v) => !v)}
+          aria-expanded={advancedOpen}
+          className="flex w-full items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-[#EDE7DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded"
+        >
+          <span>Filtro avançado</span>
+          <svg
+            className={`h-3.5 w-3.5 transition-transform ${advancedOpen ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {advancedOpen && (
+          <div className="mt-3 space-y-3">
+            <div>
+              <span className="block text-[11px] text-[#6B7280] mb-1.5">Ano</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={anoMin}
+                  onChange={(e) => setParam("anoMin", e.target.value)}
+                  placeholder="De"
+                  aria-label="Ano mínimo"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                />
+                <span className="text-[#6B7280]">–</span>
+                <input
+                  type="number"
+                  value={anoMax}
+                  onChange={(e) => setParam("anoMax", e.target.value)}
+                  placeholder="Até"
+                  aria-label="Ano máximo"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <span className="block text-[11px] text-[#6B7280] mb-1.5">MEDIA Score (0–100)</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={scoreMin}
+                  onChange={(e) => setParam("scoreMin", e.target.value)}
+                  placeholder="Mín."
+                  aria-label="Score mínimo"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                />
+                <span className="text-[#6B7280]">–</span>
+                <input
+                  type="number"
+                  value={scoreMax}
+                  onChange={(e) => setParam("scoreMax", e.target.value)}
+                  placeholder="Máx."
+                  aria-label="Score máximo"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-[#6B7280]">
+                Gênero e "somente com crítica" chegam quando os dados do catálogo cobrirem (decisão
+                documentada).
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

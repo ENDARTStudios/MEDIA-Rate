@@ -787,6 +787,10 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       );
     }
     if (filters?.cursor) params.set("cursor", filters.cursor);
+    if (filters?.anoMin != null) params.set("ano_min", String(filters.anoMin));
+    if (filters?.anoMax != null) params.set("ano_max", String(filters.anoMax));
+    if (filters?.scoreMin != null) params.set("score_min", String(filters.scoreMin));
+    if (filters?.scoreMax != null) params.set("score_max", String(filters.scoreMax));
     params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
     const data = await apiGet<{
       data: ApiMidiaList[];
@@ -798,9 +802,7 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       const items = data.data.map(mediaFromList);
       return {
         items,
-        total:
-          data.total ??
-          items.length + (data.has_more ? 1 : 0), // fallback: aproximação sem total absoluto
+        total: data.total ?? items.length + (data.has_more ? 1 : 0), // fallback: aproximação sem total absoluto
         page: filters?.page ?? 1,
         limit: filters?.limit ?? (items.length || 20),
         hasMore: data.has_more,

@@ -84,6 +84,10 @@ export class MediaController {
     @Query("limit") limit: string | undefined,
     @Query("tipo") tipo: string | undefined,
     @Query("sort") sort: string | undefined,
+    @Query("ano_min") anoMin: string | undefined,
+    @Query("ano_max") anoMax: string | undefined,
+    @Query("score_min") scoreMin: string | undefined,
+    @Query("score_max") scoreMax: string | undefined,
   ): Promise<
     PaginatedResult<{
       id: string;
@@ -100,8 +104,35 @@ export class MediaController {
     });
 
     const where: Record<string, unknown> = {};
-    if (tipo && ["FILME", "SERIE", "GAME", "LIVRO"].includes(tipo)) {
+    if (tipo && ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "HQ"].includes(tipo)) {
       where.tipo = tipo;
+    }
+    // Filtros avançados do catálogo (Tarefa 4 do redesign): ano e faixa de
+    // score — valores numéricos opcionais, ignorados quando inválidos.
+    const anoMinNum = Number(anoMin);
+    const anoMaxNum = Number(anoMax);
+    if (anoMin !== undefined && Number.isFinite(anoMinNum)) {
+      where.ano_lancamento = { ...(where.ano_lancamento as object), gte: anoMinNum };
+    }
+    if (anoMax !== undefined && Number.isFinite(anoMaxNum)) {
+      where.ano_lancamento = { ...(where.ano_lancamento as object), lte: anoMaxNum };
+    }
+    const scoreMinNum = Number(scoreMin);
+    const scoreMaxNum = Number(scoreMax);
+    if (scoreMin !== undefined && Number.isFinite(scoreMinNum)) {
+      where.scores = { ...(where.scores as object), some: { score: { gte: scoreMinNum } } };
+    }
+    if (scoreMax !== undefined && Number.isFinite(scoreMaxNum)) {
+      where.scores = {
+        ...(where.scores as object),
+        some: {
+          ...((where.scores as { some?: object })?.some ?? {}),
+          score: {
+            ...((where.scores as { some?: { score?: object } })?.some?.score ?? {}),
+            lte: scoreMaxNum,
+          },
+        },
+      };
     }
 
     // Allowlist de campos de ordenação (T4.6 sort allowlist).
