@@ -5,9 +5,12 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { MediaScore as MediaScoreType } from "@/lib/types";
 import { scoreColor } from "@/lib/design-tokens";
 import { Bar } from "./Bar";
+import { ConfidenceBadge } from "@/components/media-rate-ui/ConfidenceBadge";
+import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { derivarScores } from "@/lib/media-score-engine";
+import { FONTES_WEB } from "@/lib/source-registry";
 
 interface MediaScoreModuleProps {
   score: MediaScoreType | null;
@@ -72,11 +75,6 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const isStale = updatedAt
     ? new Date(updatedAt).getTime() < Date.now() - 30 * 24 * 3600 * 1000
     : false;
-  const confidenceLabels: Record<string, string> = {
-    high: t("highConfidence"),
-    medium: t("mediumConfidence"),
-    low: t("lowConfidence"),
-  };
 
   return (
     <div
@@ -143,16 +141,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             )}
           </div>
           <div className="flex items-center gap-2 mb-2">
-            <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-              style={{ backgroundColor: `${color}20`, color }}
-            >
-              <span
-                className="inline-block w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: color }}
-              />
-              {confidenceLabels[confidence] ?? t("lowConfidence")}
-            </span>
+            <ConfidenceBadge
+              confidence={confidence}
+              tooltip={confidence === "low" ? t("fewSources") : undefined}
+            />
             {confidence === "low" && (
               <span
                 className="inline-flex items-center text-[#F59E0B] cursor-help"
@@ -191,18 +183,24 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider">
           {t("sources")}
         </p>
-        {sources.map((s) => {
-          const norm = Math.round((s.score / s.maxScore) * 100);
-          return (
-            <div key={s.source} className="flex items-center gap-3 text-xs">
-              <span className="w-20 text-gray-400 capitalize truncate">{s.source}</span>
-              <div className="flex-1 h-1.5 rounded-full bg-[#1C1C2E] overflow-hidden">
-                <div className="h-full rounded-full bg-[#38BDF8]" style={{ width: `${norm}%` }} />
-              </div>
-              <span className="w-8 text-right text-gray-400 tabular-nums">{s.score}</span>
-            </div>
-          );
-        })}
+        {sources.length === 0 ? (
+          <p className="text-xs text-[#6B7280]">{t("noReviews")}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {sources.map((s) => {
+              const meta = FONTES_WEB[s.source];
+              return (
+                <SourceMiniCard
+                  key={s.source}
+                  name={s.source}
+                  ratingOriginal={s.score}
+                  ratingNormalized={Math.round((s.score / s.maxScore) * 100)}
+                  classification={meta?.classificacao}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
