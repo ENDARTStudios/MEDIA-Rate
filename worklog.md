@@ -959,3 +959,14 @@ Stage Summary:
 - Job diario agendado automaticamente para 03:05 local (proximo run
   2026-08-04T03:05Z).
 - Status: DONE.
+
+## [2026-08-04] Stage: Causa raiz do catalogo (24 cards / filtros quebrados)
+- DIAGNOSTICO via logs do Railway: o navegador chamava /api/api/v1/midias
+  (404) — apiGet no cliente montava `/api${path}` com path ja contendo "/api/".
+  A primeira pagina funcionava porque o SSR busca direto no API_BASE; o
+  loadMore e os filtros (client-side) 404avam silenciosamente (fallback null).
+- Fix (113bd28): normalizacao do path no apiGet — cliente usa `/api` + path
+  sem o prefixo duplicado. Impacto amplo: TODAS as chamadas client-side do
+  apiGet (watchlist, busca, detalhes) estavam caindo no fallback mock.
+- Ajustes anteriores mantidos: total real (COUNT) e paginacao por remount.
+- Status: DONE (validar no navegador com hard refresh).
