@@ -922,3 +922,14 @@ Stage Summary:
   letterboxd etc.) permanecem v=0 -> score = S (sem pull), ja protegido.
 - Suites: API 418, typecheck/lint limpos.
 - Status: DONE.
+
+## [2026-08-03] Stage: Catalogo TMDB em producao (item 5 do PENDENCIAS)
+- Seed executado contra o banco de producao via tunel SSH do Railway
+  (railway connect Postgres --tunnel-only -> DATABASE_URL local) com TMDB_API_KEY
+  do Railway: 196 filmes + 195 series inseridos (392 scores placeholder 50).
+- Verificado via API publica: FILME 196, SERIE 195, GAME 1.
+- Observacao: o 500 momentaneo na API foi o restart do deploy dos votos
+  (3cdd1bb) - normal durante o switch.
+- PENDENTE: recalcular scores das novas midias via coleta admin (POST
+  /api/v1/midias/:id/coletar) ou criar o job cron diario (nao existe no codigo).
+- Status: DONE.

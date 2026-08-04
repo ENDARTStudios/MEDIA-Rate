@@ -93,16 +93,22 @@ Depois de feito: responda "feito o item Nº 4"
 
 ---
 
-### [5] Obter chave do TMDB e popular catálogo
+### [5] ~~Obter chave do TMDB e popular catálogo~~ — FEITO (seed executado em produção)
+
+Resultado (2026-08-03):
+- `TMDB_API_KEY` já estava no Railway; seed executado via túnel `railway connect Postgres`
+  (a URL interna não resolve fora da Railway): **196 filmes + 195 séries** inseridos
+  (392 scores placeholder 50). Verificado via API pública.
+- PENDENTE (recálculo): os scores das novas mídias estão neutros (50) até a coleta
+  por mídia (POST /api/v1/midias/:id/coletar, admin) — não existe job cron diário
+  no código (registrado no HANDOFF.md §5/§8).
 
 Por quê: o catálogo de mídias precisa ser populado com filmes e séries reais.
 Onde: https://www.themoviedb.org/settings/api
-Passo a passo:
-1. Crie conta em https://www.themoviedb.org
-2. Vá em Settings → API → Request API Key (escolha "Developer")
-3. Copie a `API Key`
-4. Adicione `TMDB_API_KEY` nas variáveis de ambiente do Railway.
-5. Rode o seed: `cd apps/api && npm run db:seed:tmdb`
+Passo a passo (aplicado):
+1. Conta e API Key TMDB ✅ (já configurada no Railway)
+2. `npm run db:seed:tmdb` contra o banco de produção ✅ (via túnel SSH do Railway)
+3. Verificação: `/api/v1/midias` → 196 FILME + 195 SERIE ✅
 Como saber que deu certo: acesse `/api/v1/midias` e veja 400 mídias (200 filmes + 200 séries).
 Depois de feito: responda "feito o item Nº 5"
 
