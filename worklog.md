@@ -992,3 +992,4 @@ Stage Summary:
 - Suites: API 429, web 143. Pendente: aplicar migracoes + re-seed TMDB em
   producao (via tunel) para popular generos.
 - Status: DONE.
+
