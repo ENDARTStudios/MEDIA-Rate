@@ -885,3 +885,17 @@ Stage Summary:
 - Apos a verificacao do Stripe: ativar Cartao+Pix no dashboard e trocar
   STRIPE_PAYMENT_METHODS para card,pix,boleto (documentado em PENDENCIAS_OPERADOR).
 - Status: DONE (preparado; aguardando verificacao).
+
+## [2026-08-03] Stage: Apple Pay/Google Pay/Link habilitados no dashboard
+- Operador habilitou no dashboard: Apple Pay, Google Pay e Link (config pref=on
+  confirmado via API). Boleto e Cartao seguem pending (verificacao da conta).
+- Testado via API: payment_method_types com link -> rejeitado ("link is invalid")
+  e apple_pay/google_pay -> nao sao tipos validos de sessao (wallets sao exibidas
+  automaticamente no Checkout quando o cartao esta ativo). STRIPE_PAYMENT_METHODS
+  permanece "card" ate a verificacao concluir.
+- Apos verificacao (charges_enabled=true): card/link/wallets/boleto ativam
+  automaticamente; Pix requer ativacao no dashboard (Settings -> Payment methods)
+  e trocar STRIPE_PAYMENT_METHODS para card,pix,boleto. Apple Pay web requer
+  domain association (Settings -> Payment methods -> Apple Pay -> adicionar
+  media-rate-web.vercel.app).
+- Status: DONE (tudo preparado; aguardando verificacao do Stripe).
