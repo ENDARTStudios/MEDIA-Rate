@@ -1,16 +1,23 @@
 export const colors = {
-  bg: "#09090F",
-  cb: "#11111E",
-  bd: "#1C1C2E",
+  bg: "#05050A",
+  cb: "#12121C",
+  ce: "#1B1B2C",
+  bd: "#2A2A3D",
   accent: {
     critics: "#38BDF8",
-    audience: "#F59E0B",
+    audience: "#E11D48",
+    brand: "#E11D48",
     indigo: "#818CF8",
+    sky: "#38BDF8",
+    emerald: "#34D399",
+    amber: "#FBBF24",
+    pink: "#F472B6",
+    violet: "#A78BFA",
   },
   text: {
-    primary: "#EDE7DC",
-    secondary: "#9CA3AF",
-    muted: "#6B7280",
+    primary: "#F5F5F7",
+    secondary: "#A0A0B8",
+    muted: "#6B6B85",
   },
   score: {
     9: "#34D399",
@@ -18,15 +25,25 @@ export const colors = {
     7: "#818CF8",
     6: "#F59E0B",
     5: "#F97316",
-    low: "#EF4444",
+    low: "#F87171",
+    high: "#34D399",
+    medium: "#FBBF24",
+  },
+  media: {
+    movie: "#818CF8",
+    series: "#38BDF8",
+    game: "#34D399",
+    book: "#FBBF24",
+    comic: "#F472B6",
+    anime: "#A78BFA",
   },
   surface: {
-    background: "#09090F",
-    card: "#11111E",
-    elevated: "#1C1C2E",
-    overlay: "rgba(9, 9, 15, 0.92)",
+    background: "#05050A",
+    card: "#12121C",
+    elevated: "#1B1B2C",
+    overlay: "rgba(5, 5, 10, 0.92)",
     ring: "#818CF8",
-    border: "rgba(129,140,248,0.12)",
+    border: "#2A2A3D",
   },
 } as const;
 
@@ -51,16 +68,16 @@ export function scoreLabel(score: number, scale: "0-10" | "0-100" = "0-10"): str
 }
 
 export const elevation = {
-  0: { bg: "#09090F", z: 0, shadow: "none" },
-  1: { bg: "#11111E", z: 10, shadow: "0 1px 2px rgba(0,0,0,0.4)" },
-  2: { bg: "#11111E", z: 20, shadow: "0 2px 8px rgba(0,0,0,0.5)" },
-  3: { bg: "#1C1C2E", z: 30, shadow: "0 4px 16px rgba(0,0,0,0.6), 0 0 1px rgba(129,140,248,0.06)" },
+  0: { bg: "#05050A", z: 0, shadow: "none" },
+  1: { bg: "#12121C", z: 10, shadow: "0 1px 2px rgba(0,0,0,0.4)" },
+  2: { bg: "#12121C", z: 20, shadow: "0 2px 8px rgba(0,0,0,0.5)" },
+  3: { bg: "#1B1B2C", z: 30, shadow: "0 4px 16px rgba(0,0,0,0.6), 0 0 1px rgba(129,140,248,0.06)" },
   floating: {
-    bg: "#1C1C2E",
+    bg: "#1B1B2C",
     z: 40,
     shadow: "0 8px 32px rgba(0,0,0,0.7), 0 0 1px rgba(129,140,248,0.08)",
   },
-  overlay: { bg: "rgba(9,9,15,0.92)", z: 50, shadow: "none" },
+  overlay: { bg: "rgba(5,5,10,0.92)", z: 50, shadow: "none" },
 } as const;
 
 export const motion = {
@@ -208,19 +225,19 @@ export const zIndex = {
 } as const;
 
 export const surface = {
-  background: "#09090F",
-  card: "#11111E",
-  elevated: "#1C1C2E",
-  overlay: "rgba(9, 9, 15, 0.92)",
+  background: "#05050A",
+  card: "#12121C",
+  elevated: "#1B1B2C",
+  overlay: "rgba(5, 5, 10, 0.92)",
   ring: focus.color,
-  border: "rgba(129,140,248,0.12)",
+  border: "#2A2A3D",
 } as const;
 
 export const text = {
-  primary: "#EDE7DC",
-  secondary: "#9CA3AF",
-  muted: "#6B7280",
-  inverse: "#09090F",
+  primary: "#F5F5F7",
+  secondary: "#A0A0B8",
+  muted: "#6B6B85",
+  inverse: "#05050A",
 } as const;
 export const score = {
   9: "#34D399",
@@ -228,7 +245,9 @@ export const score = {
   7: "#818CF8",
   6: "#F59E0B",
   5: "#F97316",
-  low: "#EF4444",
+  low: "#F87171",
+  high: "#34D399",
+  medium: "#FBBF24",
 } as const;
 export const fonts = {
   heading: "'Space Grotesk', sans-serif",
