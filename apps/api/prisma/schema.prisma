@@ -459,10 +459,12 @@ model MediaScoreView {
 
 /// Gênero de mídia (ex: Drama, Ficção Científica, Ação).
 model Genero {
-  id    Int            @id @default(autoincrement())
-  nome  String         @unique @db.VarChar(64)
-  slug  String         @unique @db.VarChar(64)
-  midias MidiaGenero[]
+  id      Int            @id @default(autoincrement())
+  nome    String         @unique @db.VarChar(64)
+  slug    String         @unique @db.VarChar(64)
+  // ID do gênero na TMDB (vínculo do seed do catálogo).
+  tmdb_id Int?           @unique @map("tmdb_id")
+  midias  MidiaGenero[]
 
   @@map("genero")
 }

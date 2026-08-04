@@ -1,0 +1,1 @@
+﻿ALTER TABLE "genero" ADD COLUMN "tmdb_id" INTEGER UNIQUE;

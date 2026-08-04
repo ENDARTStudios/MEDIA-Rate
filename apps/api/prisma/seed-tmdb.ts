@@ -26,6 +26,7 @@ interface TmdbItem {
   runtime?: number;
   episode_run_time?: number[];
   vote_average: number;
+  genre_ids?: number[];
 }
 
 interface TmdbResponse<T> {
@@ -86,6 +87,60 @@ async function fetchTopItems(
   return items.slice(0, total);
 }
 
+interface TmdbGenre {
+  id: number;
+  name: string;
+}
+
+/** Slug simples: minúsculas, sem acentos, espaços → hífen. */
+function slugify(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Sincroniza a tabela `genero` com os gêneros do TMDB (filmes + séries).
+ */
+async function syncGeneros(apiKey: string, prisma: PrismaClient): Promise<Map<number, number>> {
+  const generos = new Map<number, number>();
+  for (const tipo of ["movie", "tv"] as const) {
+    const data = await fetchTmdb<TmdbGenre[]>(`/genre/${tipo}/list`, apiKey);
+    for (const g of data) {
+      const row = await prisma.genero.upsert({
+        where: { tmdb_id: g.id },
+        create: { tmdb_id: g.id, nome: g.name, slug: slugify(g.name) },
+        update: { nome: g.name },
+      });
+      generos.set(g.id, row.id);
+    }
+  }
+  console.log(`[seed:tmdb] ${generos.size} gêneros sincronizados.`);
+  return generos;
+}
+
+/** Cria os vínculos N:N midia↔genero (idempotente). */
+async function linkGeneros(
+  prisma: PrismaClient,
+  midiaId: string,
+  genreIds: number[] | undefined,
+  generos: Map<number, number>,
+): Promise<void> {
+  if (!genreIds) return;
+  for (const gid of genreIds) {
+    const generoId = generos.get(gid);
+    if (!generoId) continue;
+    await prisma.midiaGenero.upsert({
+      where: { midia_id_genero_id: { midia_id: midiaId, genero_id: generoId } },
+      create: { midia_id: midiaId, genero_id: generoId },
+      update: {},
+    });
+  }
+}
+
 async function main(): Promise<void> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey || apiKey === "SUA_CHAVE_AQUI") {
@@ -114,11 +169,14 @@ async function main(): Promise<void> {
     });
     console.log("[seed:tmdb] Mídias TMDB existentes removidas.");
 
+    // Sincroniza gêneros antes de inserir (vínculos N:N em midia_genero).
+    const generos = await syncGeneros(apiKey, prisma);
+
     // Insere filmes.
     let inserted = 0;
     for (const f of filmes) {
       const ano = f.release_date ? Number.parseInt(f.release_date.slice(0, 4), 10) : null;
-      await prisma.midia.upsert({
+      const midia = await prisma.midia.upsert({
         where: {
           fonte_fonte_id: { fonte: "tmdb", fonte_id: String(f.id) },
         },
@@ -143,6 +201,7 @@ async function main(): Promise<void> {
           imagem_url: f.poster_path ? `${TMDB_IMG_BASE}${f.poster_path}` : null,
         },
       });
+      await linkGeneros(prisma, midia.id, f.genre_ids, generos);
       inserted++;
       if (inserted % 20 === 0) {
         console.log(`[seed:tmdb] ${inserted}/${filmes.length} filmes inseridos.`);
@@ -153,7 +212,7 @@ async function main(): Promise<void> {
     let insertedSeries = 0;
     for (const s of series) {
       const ano = s.first_air_date ? Number.parseInt(s.first_air_date.slice(0, 4), 10) : null;
-      await prisma.midia.upsert({
+      const midia = await prisma.midia.upsert({
         where: {
           fonte_fonte_id: { fonte: "tmdb_tv", fonte_id: String(s.id) },
         },
@@ -177,6 +236,7 @@ async function main(): Promise<void> {
           imagem_url: s.poster_path ? `${TMDB_IMG_BASE}${s.poster_path}` : null,
         },
       });
+      await linkGeneros(prisma, midia.id, s.genre_ids, generos);
       insertedSeries++;
       if (insertedSeries % 20 === 0) {
         console.log(`[seed:tmdb] ${insertedSeries}/${series.length} séries inseridas.`);

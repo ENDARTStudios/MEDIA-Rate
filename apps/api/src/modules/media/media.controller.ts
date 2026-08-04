@@ -88,6 +88,7 @@ export class MediaController {
     @Query("ano_max") anoMax: string | undefined,
     @Query("score_min") scoreMin: string | undefined,
     @Query("score_max") scoreMax: string | undefined,
+    @Query("genero") genero: string | undefined,
   ): Promise<
     PaginatedResult<{
       id: string;
@@ -131,6 +132,17 @@ export class MediaController {
             ...((where.scores as { some?: { score?: object } })?.some?.score ?? {}),
             lte: scoreMaxNum,
           },
+        },
+      };
+    }
+    // Filtro por gênero (slug ou id numérico) — relação N:N midia_genero.
+    const generoNum = Number(genero);
+    if (genero !== undefined && genero !== "") {
+      where.generos = {
+        some: {
+          genero: Number.isFinite(generoNum)
+            ? { id: generoNum }
+            : { slug: genero },
         },
       };
     }
@@ -257,6 +269,26 @@ export class MediaController {
         : null,
       fontes: midia.avaliacoes.map((a) => ({ fonte: a.fonte, url: a.url })),
     };
+  }
+
+  @Get("generos")
+  @ApiOperation({ summary: "Lista os gêneros do catálogo (id, nome, slug, total)" })
+  async listGeneros(): Promise<{ id: number; nome: string; slug: string; total_midias: number }[]> {
+    const generos = await this.prisma.genero.findMany({
+      orderBy: { nome: "asc" },
+      select: {
+        id: true,
+        nome: true,
+        slug: true,
+        _count: { select: { midias: true } },
+      },
+    });
+    return generos.map((g) => ({
+      id: g.id,
+      nome: g.nome,
+      slug: g.slug,
+      total_midias: g._count.midias,
+    }));
   }
 
   @Get(":id")

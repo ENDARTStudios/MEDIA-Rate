@@ -34,6 +34,7 @@ function mockRes() {
 function createMockPrisma() {
   return {
     midia: { findMany: vi.fn(), findUnique: vi.fn(), count: vi.fn() },
+    genero: { findMany: vi.fn().mockResolvedValue([]) },
     usuario: { findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     usuarioPapel: { findMany: vi.fn() },
     usuarioPlano: { findUnique: vi.fn(), upsert: vi.fn(), update: vi.fn() },
@@ -113,6 +114,24 @@ describe("MediaController (unit T8.1)", () => {
     };
     expect(call.where.ano_lancamento).toBeUndefined();
     expect(call.where.scores).toBeUndefined();
+  });
+
+  it("list() com filtro de gênero por slug monta o where", async () => {
+    mockPrisma.midia.findMany.mockResolvedValue([]);
+    mockPrisma.midia.count.mockResolvedValue(0);
+    await controller.list(undefined, "20", undefined, undefined, undefined, undefined, undefined, undefined, "ficcao-cientifica");
+    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+      where: Record<string, unknown>;
+    };
+    expect(call.where.generos).toEqual({ some: { genero: { slug: "ficcao-cientifica" } } });
+  });
+
+  it("listGeneros() retorna gêneros com contagem", async () => {
+    mockPrisma.genero.findMany.mockResolvedValue([
+      { id: 1, nome: "Drama", slug: "drama", _count: { midias: 12 } },
+    ]);
+    const result = await controller.listGeneros();
+    expect(result).toEqual([{ id: 1, nome: "Drama", slug: "drama", total_midias: 12 }]);
   });
 
   it("getOne() returns midia", async () => {

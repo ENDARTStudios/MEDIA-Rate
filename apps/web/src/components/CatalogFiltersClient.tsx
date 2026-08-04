@@ -3,6 +3,8 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/http";
 
 const SORT_OPTIONS = [
   { value: "score", labelKey: "sortScore" },
@@ -25,6 +27,17 @@ export function CatalogFiltersClient() {
   const anoMax = sp.get("anoMax") ?? "";
   const scoreMin = sp.get("scoreMin") ?? "";
   const scoreMax = sp.get("scoreMax") ?? "";
+  const genero = sp.get("genero") ?? "";
+
+  const { data: generos } = useQuery({
+    queryKey: ["generos"],
+    queryFn: async () =>
+      (await api.get<{ id: number; nome: string; slug: string; total_midias: number }[]>(
+        "/api/v1/generos",
+      )) ?? [],
+    staleTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -149,9 +162,25 @@ export function CatalogFiltersClient() {
                   className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
               </div>
+            </div>
+            <div>
+              <span className="block text-[11px] text-[#6B7280] mb-1.5">Gênero</span>
+              <select
+                value={genero}
+                onChange={(e) => setParam("genero", e.target.value)}
+                aria-label="Gênero"
+                className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              >
+                <option value="">Todos os gêneros</option>
+                {(generos ?? []).map((g) => (
+                  <option key={g.id} value={g.slug}>
+                    {g.nome} ({g.total_midias})
+                  </option>
+                ))}
+              </select>
               <p className="mt-1.5 text-[11px] text-[#6B7280]">
-                Gênero e "somente com crítica" chegam quando os dados do catálogo cobrirem (decisão
-                documentada).
+                "Somente com crítica" chega quando a listagem expuser o split crítica/público
+                (decisão documentada).
               </p>
             </div>
           </div>

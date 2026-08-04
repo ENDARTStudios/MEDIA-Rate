@@ -130,6 +130,8 @@ export interface CatalogFilters {
   anoMax?: number;
   scoreMin?: number;
   scoreMax?: number;
+  /** Slug do gênero (ex.: "ficcao-cientifica"). */
+  genero?: string;
 }
 
 export interface CatalogResponse {

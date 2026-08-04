@@ -83,9 +83,10 @@ function CatalogContent({
   const anoMax = asOptionalNumber(sp.get("anoMax"));
   const scoreMin = asOptionalNumber(sp.get("scoreMin"));
   const scoreMax = asOptionalNumber(sp.get("scoreMax"));
+  const genero = sp.get("genero") || undefined;
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
-    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax }],
+    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero }],
     queryFn: () =>
       getCatalog({
         type,
@@ -96,6 +97,7 @@ function CatalogContent({
         anoMax,
         scoreMin,
         scoreMax,
+        genero,
       }),
     initialData:
       type === undefined &&
@@ -104,7 +106,8 @@ function CatalogContent({
       anoMin === undefined &&
       anoMax === undefined &&
       scoreMin === undefined &&
-      scoreMax === undefined
+      scoreMax === undefined &&
+      genero === undefined
         ? initialData
         : undefined,
     staleTime: 5 * 60 * 1000,
@@ -247,7 +250,7 @@ function CatalogContent({
         </div>
       )}
       <CatalogResults
-        key={filtersKey(type, sort, query, anoMin, anoMax, scoreMin, scoreMax)}
+        key={filtersKey(type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero)}
         pageData={data}
         type={type}
         sort={sort}
@@ -256,6 +259,7 @@ function CatalogContent({
         anoMax={anoMax}
         scoreMin={scoreMin}
         scoreMax={scoreMax}
+        genero={genero}
       />
     </>
   );
@@ -270,6 +274,7 @@ function filtersKey(
   anoMax?: number,
   scoreMin?: number,
   scoreMax?: number,
+  genero?: string,
 ): string {
   return [
     type ?? "",
@@ -279,6 +284,7 @@ function filtersKey(
     anoMax ?? "",
     scoreMin ?? "",
     scoreMax ?? "",
+    genero ?? "",
   ].join("|");
 }
 
@@ -298,6 +304,7 @@ function CatalogResults({
   anoMax,
   scoreMin,
   scoreMax,
+  genero,
 }: {
   pageData: CatalogResponse;
   type?: MediaType;
@@ -307,6 +314,7 @@ function CatalogResults({
   anoMax?: number;
   scoreMin?: number;
   scoreMax?: number;
+  genero?: string;
 }) {
   const t = useTranslations("catalog");
   const [items, setItems] = useState<MediaItem[]>(() => pageData.items.map(mapToMediaItem));
@@ -330,6 +338,7 @@ function CatalogResults({
         anoMax,
         scoreMin,
         scoreMax,
+        genero,
       });
       setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
       setNextCursor(next.nextCursor ?? null);
