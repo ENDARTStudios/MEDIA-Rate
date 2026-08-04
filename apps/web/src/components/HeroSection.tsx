@@ -10,6 +10,7 @@ import { HoverTextEffect } from "@/components/ui/hover-text-effect";
 import { cinematicEntry, neonGlow } from "@/lib/motion";
 import { getCatalog } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import { HeroIconCluster } from "@/components/hero-icons/HeroIconCluster";
 
 interface HeroSectionProps {
   title: string;
@@ -115,8 +116,11 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
       />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        {/* Porta de entrada do hero: ícones 3D por mídia (addendum §5). */}
+        <HeroIconCluster />
+
         <motion.div
-          className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16"
+          className="mt-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16"
           variants={cinematicEntry}
           initial={reduce ? "visible" : "hidden"}
           animate="visible"
