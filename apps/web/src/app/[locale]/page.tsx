@@ -3,6 +3,8 @@ import { Link } from "@/lib/navigation";
 import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
 import { MediaRail } from "../../components/MediaRail";
+import { ContinueDecision } from "../../components/ContinueDecision";
+import { HomeStats } from "../../components/HomeStats";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
@@ -78,6 +80,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             cta={t("cta")}
             ctaHref="/register"
           />
+
+          <HomeStats />
+
+          <ContinueDecision />
 
           <MediaRail mediaType="FILME" />
           <MediaRail mediaType="SERIE" />

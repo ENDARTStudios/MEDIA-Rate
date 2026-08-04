@@ -1,88 +1,189 @@
 "use client";
 
-import { useRef } from "react";
+/**
+ * Carrossel de mídia com scroll-snap e dados REAIS da API (Parte 3.1).
+ *
+ * - Busca via getCatalog (ordenação por score desc, 10 itens).
+ * - Cabeçalho com CategoryChip (accent da mídia) + contagem real (total).
+ * - Botões de navegação aparecem no hover (desktop); swipe nativo no mobile.
+ * - Fallback: sem dados da API → seção oculta (nada de mock).
+ */
+import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/lib/navigation";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
-import { MOCK_MEDIA } from "@/lib/api";
+import { getCatalog } from "@/lib/api";
+import { CategoryChip } from "@/components/media-rate-ui/CategoryChip";
+import { useQuery } from "@tanstack/react-query";
+import type { MediaType } from "@/lib/types";
 
-const TYPE_MAP: Record<string, "FILME" | "SERIE" | "GAME"> = {
-  movie: "FILME",
-  series: "SERIE",
-  game: "GAME",
-  anime: "SERIE",
+const TYPE_TO_MEDIA: Record<string, MediaType> = {
+  FILME: "movie",
+  SERIE: "series",
+  GAME: "game",
+  LIVRO: "book",
+  COMIC: "comic",
+  ANIME: "anime",
 };
 
-const LABELS: Record<string, string> = {
+const TIPO_LABEL: Record<string, string> = {
+  FILME: "filme",
+  SERIE: "serie",
+  GAME: "game",
+  LIVRO: "livro",
+  COMIC: "comic",
+  ANIME: "anime",
+};
+
+const RAIL_LABEL: Record<string, string> = {
   FILME: "filmes",
   SERIE: "series",
   GAME: "games",
 };
 
-const COLORS: Record<string, string> = {
-  FILME: "#38BDF8",
-  SERIE: "#818CF8",
-  GAME: "#F59E0B",
-};
-
-function buildMediaItems(mediaType: "movie" | "series" | "game"): MediaItem[] {
-  return MOCK_MEDIA.filter((m) => {
-    if (mediaType === "movie") return m.type === "movie";
-    if (mediaType === "series") return m.type === "series" || m.type === "anime";
-    if (mediaType === "game") return m.type === "game";
-    return false;
-  })
-    .slice(0, 8)
-    .map((m) => ({
-      id: m.id,
-      titulo: m.title,
-      tipo: TYPE_MAP[m.type] || "FILME",
-      ano_lancamento: m.year,
-      imagem_url: m.posterUrl,
-      score: m.score?.consolidated ?? null,
-    }));
+function mapToMediaItem(m: {
+  id: string;
+  title: string;
+  type: MediaType;
+  year: number | null;
+  posterUrl: string | null;
+  score?: { consolidated?: number | null } | null;
+}): MediaItem {
+  return {
+    id: m.id,
+    titulo: m.title,
+    tipo:
+      m.type === "movie"
+        ? "FILME"
+        : m.type === "series"
+          ? "SERIE"
+          : m.type === "game"
+            ? "GAME"
+            : m.type === "anime"
+              ? "ANIME"
+              : m.type === "comic"
+                ? "COMIC"
+                : "LIVRO",
+    ano_lancamento: m.year,
+    imagem_url: m.posterUrl,
+    score: m.score?.consolidated ?? null,
+  };
 }
-
-const RAIL_ITEMS: Record<string, MediaItem[]> = {
-  FILME: buildMediaItems("movie"),
-  SERIE: buildMediaItems("series"),
-  GAME: buildMediaItems("game"),
-};
 
 export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME" }) {
   const shouldReduce = useReducedMotion();
   const t = useTranslations("mediarail");
   const railRef = useRef<HTMLDivElement>(null);
-  const items = RAIL_ITEMS[mediaType] || [];
-  const color = COLORS[mediaType];
-  const labelKey = LABELS[mediaType] as "filmes" | "series" | "games";
+  const [hovering, setHovering] = useState(false);
+  const mediaTypeKey = TYPE_TO_MEDIA[mediaType] ?? "movie";
 
-  if (items.length === 0) return null;
+  const { data, isLoading } = useQuery({
+    queryKey: ["home-rail", mediaType],
+    queryFn: () => getCatalog({ type: mediaTypeKey, sort: "score", order: "desc", limit: 10 }),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  if (isLoading || !data || data.items.length === 0) return null;
+
+  const items = data.items.map(mapToMediaItem);
+  const total = data.total;
+
+  function scroll(direction: 1 | -1) {
+    const el = railRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: "smooth" });
+  }
 
   return (
-    <section className="py-10 px-4" aria-labelledby={`rail-${mediaType}`}>
-      <div className="max-w-7xl mx-auto" ref={railRef}>
-        <div className="flex items-center gap-3 mb-5">
+    <section
+      className="py-10 px-4 group/rail"
+      aria-labelledby={`rail-${mediaType}`}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3">
+            <CategoryChip
+              type={mediaTypeKey}
+              count={total}
+              active
+              label={t(TIPO_LABEL[mediaType] as "filme" | "serie" | "game")}
+            />
+            <h2
+              id={`rail-${mediaType}`}
+              className="font-heading text-xl font-bold text-[#F5F5F7] uppercase tracking-wider"
+            >
+              {t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games")}
+            </h2>
+          </div>
+
           <div
-            className="w-1 h-5 rounded-full"
-            style={{ backgroundColor: color }}
-            aria-hidden="true"
-          />
-          <h2
-            id={`rail-${mediaType}`}
-            className="font-heading text-xl font-bold text-[#EDE7DC] uppercase tracking-wider"
+            className="hidden lg:flex items-center gap-2 transition-opacity duration-200"
+            style={{ opacity: hovering ? 1 : 0 }}
+            aria-hidden={!hovering}
           >
-            {t(labelKey)}
-          </h2>
-          <div className="text-xs text-[#6B7280] font-body">
-            {t("count", { count: items.length })}
+            <button
+              type="button"
+              onClick={() => scroll(-1)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2A2A3D] bg-[#12121C] text-[#A0A0B8] transition-colors hover:border-[#3A3A52] hover:text-[#F5F5F7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+              aria-label={`${t("ariaLabel", { title: t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games") })} — anterior`}
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll(1)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2A2A3D] bg-[#12121C] text-[#A0A0B8] transition-colors hover:border-[#3A3A52] hover:text-[#F5F5F7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+              aria-label={`${t("ariaLabel", { title: t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games") })} — próxima`}
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+            <Link
+              href={`/catalog?type=${mediaTypeKey}`}
+              className="ml-1 text-xs font-medium text-[#818CF8] hover:text-[#A5B4FC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded"
+            >
+              {t("ariaLabel", { title: t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games") })}{" "}
+              →
+            </Link>
           </div>
         </div>
 
         <div
+          ref={railRef}
           className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
           role="list"
-          aria-label={t("ariaLabel", { title: t(labelKey) })}
+          aria-label={t("ariaLabel", {
+            title: t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games"),
+          })}
         >
           {items.map((media, i) => (
             <motion.div
