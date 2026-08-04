@@ -142,6 +142,10 @@ Resultado (2026-08-03):
   - Capabilities: `card_payments` requested/pending, `boleto_payments` requested/pending,
     `transfers` requested/pending; capability `pix` NÃO é solicitável via API
     (ativação do Pix é pelo dashboard após a verificação).
+  - PIX GATEADO PELO STRIPE: 0 ocorrências de "pix" no objeto da conta (tipo standard)
+    e sem opção no dashboard enquanto `charges_enabled=false`. O Pix só aparece em
+    Settings → Payment methods APÓS a verificação concluir. Se não aparecer mesmo
+    verificado, pedir a capability `pix` no suporte do Stripe.
 
 Por quê: o Stripe precisa avisar o backend quando um pagamento é confirmado.
 Onde: https://dashboard.stripe.com/webhooks
