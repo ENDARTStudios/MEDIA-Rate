@@ -933,3 +933,19 @@ Stage Summary:
 - PENDENTE: recalcular scores das novas midias via coleta admin (POST
   /api/v1/midias/:id/coletar) ou criar o job cron diario (nao existe no codigo).
 - Status: DONE.
+
+## [2026-08-03] Stage: Job diario do MEDIA Score (coleta + recalc v3)
+- MediaScoreJobService: itera todas as midias (paginado, take 25) chamando
+  coletarEPersistir (mesmo fluxo da rota admin: coleta fontes -> persiste
+  avaliacao_fonte idempotente -> recalcula v3), com throttle
+  (MEDIA_SCORE_JOB_DELAY_MS, default 1200) e guard anti-concorrencia.
+- Agendamento: proxima execucao as MEDIA_SCORE_JOB_TIME (default 03:05 local),
+  re-agenda ao fim do run; ativo apenas em producao (MEDIA_SCORE_JOB_ENABLED).
+- Gatilho admin: POST /api/v1/midias/score-job (fire-and-forget; progresso nos
+  logs do Railway). ColetaProdController refatorado para reutilizar o job
+  (coletarEPersistir); ColetaService movido para o MediaScoreModule (instancia unica).
+- Testes: media-score-job.spec.ts (paginacao, erro parcial, guard, persistencia,
+  idsExternos) + controller spec atualizado. Suites: API 425, lint/typecheck limpos.
+- Proximo: apos deploy, disparar o run inicial (392 midias, ~15-25 min) e validar
+  scores reais no catalogo.
+- Status: DONE (aguardando deploy + run inicial).
