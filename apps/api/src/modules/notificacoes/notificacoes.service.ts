@@ -58,7 +58,13 @@ export class NotificacoesService {
     });
     if (entradas.length === 0) return 0;
 
-    const midiaIds = [...new Set(entradas.map((e) => e.midia_id))];
+    // Watchlist legada pode ter ids não-UUID (ex.: mock "g1") — o cast UUID
+    // falharia; ignora essas entradas no vínculo com o catálogo.
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const midiaIds = [...new Set(entradas.map((e) => e.midia_id))].filter((id) =>
+      UUID_RE.test(id),
+    );
+    if (midiaIds.length === 0) return 0;
     const scores = await this.prisma.mediaScore.findMany({
       where: { midia_id: { in: midiaIds } },
       select: { midia_id: true, score: true },
