@@ -101,8 +101,12 @@ async function apiGet<T>(path: string): Promise<T | null> {
     // Cliente: same-origin (rewrite /api/* → Railway) — CSP connect-src 'self'.
     // Servidor: direto no Railway (sem o hop do rewrite, instável no fetch
     // RSC) — também funciona no build/export, que não tem origin própria.
+    // Os callers passam o caminho completo "/api/v1/..." — no cliente o
+    // prefixo "/api" É o rewrite, então o caminho é normalizado para não
+    // virar "/api/api/v1/..." (404 no proxy).
     const isClient = typeof window !== "undefined";
-    const url = isClient ? `/api${path}` : `${API_BASE}${path}`;
+    const cleanPath = path.startsWith("/api/") ? path.slice(4) : path;
+    const url = isClient ? `/api${cleanPath}` : `${API_BASE}${path}`;
     const controller = isClient ? new AbortController() : null;
     const timer = controller ? setTimeout(() => controller.abort(), API_TIMEOUT_MS) : null;
     try {
