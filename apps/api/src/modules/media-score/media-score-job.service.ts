@@ -125,11 +125,17 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         `Job diário concluído: ${processadas} processadas, ${comErro} com erro em ${segundos}s.`,
       );
     }
-    // D-132: alertas de "score mudou" da watchlist (pós-recálculo).
+    // D-132: alertas de "score mudou" e de "novo título nota alta no seu
+    // gênero" (pós-recálculo).
     try {
       await this.notificacoes.gerarAlertasDeScore();
     } catch (erro) {
       this.logger.warn(`Falha ao gerar alertas de score: ${(erro as Error).message}`);
+    }
+    try {
+      await this.notificacoes.gerarAlertasDeGenero();
+    } catch (erro) {
+      this.logger.warn(`Falha ao gerar alertas de gênero: ${(erro as Error).message}`);
     }
     return { processadas, comErro };
   }

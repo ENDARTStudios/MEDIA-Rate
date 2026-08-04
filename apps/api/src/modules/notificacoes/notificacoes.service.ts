@@ -4,6 +4,12 @@ import { PrismaService } from "../../prisma/prisma.service.js";
 /** Variação mínima de score que dispara o alerta "score mudou". */
 const VARIACAO_MINIMA = 5;
 
+/** Score mínimo para um título novo entrar nos alertas de gênero. */
+const SCORE_GENERO_MINIMO = 75;
+
+/** Janela de "título novo" (coletado no último job diário). */
+const NOVIDADE_MS = 24 * 60 * 60 * 1000;
+
 /**
  * Notificações in-app (D-132 — alertas por mídia da watchlist).
  *
@@ -61,9 +67,7 @@ export class NotificacoesService {
     // Watchlist legada pode ter ids não-UUID (ex.: mock "g1") — o cast UUID
     // falharia; ignora essas entradas no vínculo com o catálogo.
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const midiaIds = [...new Set(entradas.map((e) => e.midia_id))].filter((id) =>
-      UUID_RE.test(id),
-    );
+    const midiaIds = [...new Set(entradas.map((e) => e.midia_id))].filter((id) => UUID_RE.test(id));
     if (midiaIds.length === 0) return 0;
     const scores = await this.prisma.mediaScore.findMany({
       where: { midia_id: { in: midiaIds } },
@@ -99,6 +103,75 @@ export class NotificacoesService {
       }
     }
     this.logger.log(`Alertas de score gerados: ${criadas}`);
+    return criadas;
+  }
+
+  /**
+   * Alertas "novo título nota alta no seu gênero" (D-132 — alertas Plus).
+   *
+   * Preferências de gênero explícitas ainda não existem (PreferenciaUsuario
+   * é blob sem uso) — usa os gêneros da WATCHLIST do usuário como proxy:
+   * quando um título novo (coletado no último job) atinge score ≥ 75 num
+   * gênero presente na watchlist do usuário, cria uma notificação
+   * GENERO_ALTA (deduplicada por usuário+título).
+   */
+  async gerarAlertasDeGenero(): Promise<number> {
+    const desde = new Date(Date.now() - NOVIDADE_MS);
+    const novidades = await this.prisma.midia.findMany({
+      where: {
+        created_at: { gte: desde },
+        score: { gte: SCORE_GENERO_MINIMO },
+        generos: { some: {} },
+      },
+      select: {
+        id: true,
+        titulo: true,
+        score: true,
+        generos: { select: { genero_id: true }, take: 8 },
+      },
+    });
+    if (novidades.length === 0) return 0;
+
+    let criadas = 0;
+    for (const midia of novidades) {
+      const generoIds = midia.generos.map((g) => g.genero_id);
+      // Mídias do catálogo com os mesmos gêneros (join via midia_genero).
+      const relacionadas = await this.prisma.midiaGenero.findMany({
+        where: { genero_id: { in: generoIds } },
+        select: { midia_id: true },
+      });
+      const midiaIdsRelacionadas = relacionadas.map((r) => r.midia_id);
+      // Usuários com ≥1 item da watchlist nessas mídias (proxy de interesse).
+      const usuarios = await this.prisma.watchlistEntry.findMany({
+        where: { midia_id: { in: midiaIdsRelacionadas } },
+        distinct: ["usuario_id"],
+        select: { usuario_id: true },
+      });
+      for (const u of usuarios) {
+        const jaExiste = await this.prisma.notificacao.findFirst({
+          where: {
+            usuario_id: u.usuario_id,
+            midia_id: midia.id,
+            tipo: "GENERO_ALTA",
+          },
+          select: { id: true },
+        });
+        if (jaExiste) continue;
+        const score = midia.score ?? 0;
+        await this.prisma.notificacao.create({
+          data: {
+            usuario_id: u.usuario_id,
+            tipo: "GENERO_ALTA",
+            titulo: `Novo título nota alta: "${midia.titulo}"`,
+            mensagem: `Um título do seu gênero atingiu ${score.toFixed(1)} no MEDIA Score.`,
+            midia_id: midia.id,
+            dados: { score, novidade: true },
+          },
+        });
+        criadas++;
+      }
+    }
+    this.logger.log(`Alertas de gênero gerados: ${criadas}`);
     return criadas;
   }
 

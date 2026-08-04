@@ -96,6 +96,25 @@ interface TmdbGenreList {
   genres: TmdbGenre[];
 }
 
+/** Traduções pt-BR para gêneros que a TMDB só entrega em inglês (lista TV). */
+const TRADUCOES_GENEROS: Record<string, string> = {
+  "Action & Adventure": "Ação e Aventura",
+  "Sci-Fi & Fantasy": "Ficção Científica e Fantasia",
+  "War & Politics": "Guerra e Política",
+  "Kids": "Infantil",
+  "News": "Notícias",
+  "Reality": "Reality Show",
+  "Soap": "Novela",
+  "Talk": "Talk Show",
+  "Crime": "Crime",
+  "Mystery": "Mistério",
+  "Western": "Faroeste",
+  "Animation": "Animação",
+  "Documentary": "Documentário",
+  "Family": "Família",
+  "Comedy": "Comédia",
+};
+
 /** Slug simples: minúsculas, sem acentos, espaços → hífen. */
 function slugify(texto: string): string {
   return texto
@@ -111,16 +130,23 @@ function slugify(texto: string): string {
  */
 async function syncGeneros(apiKey: string, prisma: PrismaClient): Promise<Map<number, number>> {
   const generos = new Map<number, number>();
+  // Prefere o nome da lista de filmes (pt-BR completa); a lista de TV pode
+  // cair no fallback em inglês — o dicionário normaliza.
+  const nomesPorId = new Map<number, string>();
   for (const tipo of ["movie", "tv"] as const) {
     const data = await fetchTmdb<TmdbGenreList>(`/genre/${tipo}/list`, apiKey);
     for (const g of data.genres) {
-      const row = await prisma.genero.upsert({
-        where: { tmdb_id: g.id },
-        create: { tmdb_id: g.id, nome: g.name, slug: slugify(g.name) },
-        update: { nome: g.name },
-      });
-      generos.set(g.id, row.id);
+      const nome = TRADUCOES_GENEROS[g.name] ?? g.name;
+      if (!nomesPorId.has(g.id)) nomesPorId.set(g.id, nome);
     }
+  }
+  for (const [id, nome] of nomesPorId) {
+    const row = await prisma.genero.upsert({
+      where: { tmdb_id: id },
+      create: { tmdb_id: id, nome, slug: slugify(nome) },
+      update: { nome },
+    });
+    generos.set(id, row.id);
   }
   console.log(`[seed:tmdb] ${generos.size} gêneros sincronizados.`);
   return generos;

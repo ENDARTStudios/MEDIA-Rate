@@ -189,7 +189,12 @@ export function Navbar({
             <LocaleSwitcher />
           </div>
 
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-1">
+            {effectiveAuth && (
+              <div className="md:hidden">
+                <NotificationBell />
+              </div>
+            )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-expanded={mobileOpen}
