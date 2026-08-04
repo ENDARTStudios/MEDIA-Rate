@@ -993,3 +993,23 @@ Stage Summary:
   producao (via tunel) para popular generos.
 - Status: DONE.
 
+
+## [2026-08-04] Stage: Deploy do bloco autonomo — fixes de producao (P3009, sort, UUIDs)
+- Migracoes 20260804 com BOM UTF-8 quebraram o prisma migrate deploy (P3009):
+  SQL aplicado manualmente via tunel + `migrate resolve --applied` em producao;
+  BOMs removidos dos arquivos (fix a11a0c2).
+- SORT=SCORE 500 em producao: orderBy de relacao (scores.score) rejeitado pelo
+  runtime do engine Prisma (types gerados suportam, engine nao). Fix definitivo:
+  coluna desnormalizada `midia.score` (ultimo media_score) + migracao com
+  backfill + `recalcularEPersistir` sincroniza + orderBy escalar. Verificado em
+  producao (BG3 90.4 no topo; filmes 84.2/81.2/79.3).
+- UUID de watchlist legada (ids "g1" nao-UUID) quebrava joins e o gerador de
+  alertas: filtros UUID_RE adicionados em watchlist.list e
+  notificacoes.gerarAlertasDeScore.
+- Re-seed TMDB em producao com generos (fix da shape {genres:[...]} do TMDB +
+  link em batch): 390 midias, 27 generos, 1030 vinculos. Job diario re-rodado
+  (391 processadas, 0 erros, 546s) — scores reais restaurados.
+- Alertas SCORE_MUDOU gerados ao fim do job (0 com a watchlist atual — entradas
+  legadas/mock; mecanismo verificado sem erros).
+- Suites: API 429, web 143.
+- Status: DONE.
