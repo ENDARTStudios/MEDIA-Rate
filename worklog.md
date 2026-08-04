@@ -1054,3 +1054,18 @@ Stage Summary:
   (curl nao executa JS — pendente apenas a carga real no navegador).
 - PENDENCIAS_OPERADOR item 7 marcado FEITO (backend + frontend).
 - Status: DONE.
+
+## [2026-08-04] Stage: Listas colaborativas (Premium — D-132, ultima feature)
+- Modelo lista_colaborativa + lista_item (migracao 20260804_listas_colaborativas):
+  slug unico compartilhavel, dono com cascade, item com join manual a midia
+  (VarChar sem FK, padrao watchlist).
+- API /api/v1/listas: POST criar (Premium — 402 upsell p/ FREE), GET minhas,
+  GET :slug (publico via guard whitelist), PATCH/DELETE :slug (dono),
+  POST :slug/itens (qualquer logado), DELETE :slug/itens/:itemId (dono).
+  Slug com dedupe (-2, -3...); Conflict em item duplicado; Forbidden p/ nao-dono.
+- Web: /listas (minhas listas + criar com upsell Premium) e /listas/[slug]
+  (publica: grid de MediaCards, adicionar via busca do catalogo, controles de
+  dono); link "Listas" no menu do usuario; i18n 3 idiomas.
+- Suites: API 441 (7 testes novos), web 143; build 80/80; verificado em
+  producao: GET /api/v1/listas/:slug publico (404 para slug inexistente).
+- Status: DONE.
