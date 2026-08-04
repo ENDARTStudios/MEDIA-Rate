@@ -9,6 +9,7 @@ import { LgpdBanner } from "../../components/LgpdBanner";
 import { DiagPanelLoader } from "../../components/DiagPanelLoader";
 import { PageTransition } from "../../components/PageTransition";
 import { QueryProvider } from "../../providers/query-provider";
+import { PostHogProvider } from "../../components/PostHogProvider";
 import { Toaster } from "sonner";
 import "../globals.css";
 
@@ -70,18 +71,20 @@ export default async function LocaleLayout({
   return (
     <QueryProvider>
       <NextIntlClientProvider>
-        <a href="#main" className="skip-link">
-          {t("skipToContent")}
-        </a>
-        <AuthHeader />
-        <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
-          <PageTransition>{children}</PageTransition>
-        </main>
-        <MotionFooter />
-        <LgpdBanner />
-        <Toaster theme="dark" position="top-right" />
-        {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
-        <DiagPanelLoader />
+        <PostHogProvider>
+          <a href="#main" className="skip-link">
+            {t("skipToContent")}
+          </a>
+          <AuthHeader />
+          <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          <MotionFooter />
+          <LgpdBanner />
+          <Toaster theme="dark" position="top-right" />
+          {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
+          <DiagPanelLoader />
+        </PostHogProvider>
       </NextIntlClientProvider>
     </QueryProvider>
   );
