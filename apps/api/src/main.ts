@@ -42,6 +42,9 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     bufferLogs: true,
   });
+  // Graceful shutdown (dívida técnica Fase 3): SIGTERM/SIGINT disparam os
+  // lifecycle hooks (onModuleDestroy → prisma.$disconnect) no Railway/Vercel.
+  app.enableShutdownHooks();
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("module graph built");
 
