@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   icons: { icon: "/icon.svg" },
 };
 
+// Display/hero (Parte 2.4 do redesign): Cabinet Grotesk/Clash Display não
+// estão disponíveis em next/font/google nem no Fontsource (E404) — mantido
+// Space Grotesk 600-700 como fonte display (geometrica, mesma familia de
+// estetica, ja aprovada). DECISAO registrada para validacao.
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
