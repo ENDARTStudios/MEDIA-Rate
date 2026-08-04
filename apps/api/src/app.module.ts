@@ -18,6 +18,7 @@ import { ColetaModule } from "./modules/media-score/coleta.module.js";
 import { FontesModule } from "./modules/fontes/fontes.module.js";
 import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
+import { NotificacoesModule } from "./modules/notificacoes/notificacoes.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
@@ -50,6 +51,7 @@ const enableDebugRoutes =
     FontesModule,
     PaymentModule,
     LgpdModule,
+    NotificacoesModule,
     WatchlistModule,
     DiscoverModule,
     MetricsModule,

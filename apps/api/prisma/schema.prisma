@@ -113,6 +113,7 @@ model Usuario {
   preferencias         PreferenciaUsuario?
   scores_vistos        MediaScoreView[]
   faturas              Fatura[]
+  notificacoes         Notificacao[]
 
   @@map("usuario")
 }
@@ -434,6 +435,26 @@ model PreferenciaUsuario {
   usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@map("preferencia_usuario")
+}
+
+/// Notificação in-app (D-132 — alertas "score mudou" na watchlist).
+model Notificacao {
+  id         String   @id @default(uuid()) @db.Uuid
+  usuario_id String   @map("usuario_id") @db.Uuid
+  tipo       String   @db.VarChar(32) // ex.: SCORE_MUDOU
+  titulo     String   @db.VarChar(160)
+  mensagem   String   @db.Text
+  midia_id   String?  @map("midia_id") @db.VarChar(255)
+  // JSON auxiliar (ex.: {"score": 82.4, "score_anterior": 71.0}).
+  dados      Json?
+  lida_at    DateTime? @map("lida_at")
+  created_at DateTime @default(now()) @map("created_at")
+
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id, lida_at])
+  @@index([midia_id])
+  @@map("notificacao")
 }
 
 /// Auditoria de visualizações do MEDIA Score (para métricas T1.9).

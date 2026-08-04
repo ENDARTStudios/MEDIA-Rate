@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/commo
 import type { Midia } from "@prisma/client";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { NotificacoesService } from "../notificacoes/notificacoes.service.js";
 import type { ConsultaMedia } from "./adapters/fonte-adapter.interface.js";
 import { ColetaService, type ResultadoColeta } from "./coleta.service.js";
 import { MediaScoreService, type MediaScoreV3Result } from "./media-score.service.js";
@@ -39,6 +40,7 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     private readonly coleta: ColetaService,
     private readonly mediaScore: MediaScoreService,
+    private readonly notificacoes: NotificacoesService,
   ) {}
 
   onModuleInit(): void {
@@ -122,6 +124,12 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       this.logger.log(
         `Job diário concluído: ${processadas} processadas, ${comErro} com erro em ${segundos}s.`,
       );
+    }
+    // D-132: alertas de "score mudou" da watchlist (pós-recálculo).
+    try {
+      await this.notificacoes.gerarAlertasDeScore();
+    } catch (erro) {
+      this.logger.warn(`Falha ao gerar alertas de score: ${(erro as Error).message}`);
     }
     return { processadas, comErro };
   }
