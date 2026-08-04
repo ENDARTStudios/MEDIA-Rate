@@ -650,5 +650,11 @@
     "mixed": "Avaliações mistas",
     "few": "Poucas avaliações",
     "unavailable": "Score indisponível"
+  },
+  "notifications": {
+    "label": "Notificações ({count} não lidas)",
+    "title": "Notificações",
+    "markAllRead": "Marcar todas como lidas",
+    "empty": "Nenhuma notificação"
   }
 }

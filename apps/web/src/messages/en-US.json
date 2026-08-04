@@ -650,5 +650,11 @@
     "mixed": "Mixed reviews",
     "few": "Few ratings",
     "unavailable": "Score unavailable"
+  },
+  "notifications": {
+    "label": "Notifications ({count} unread)",
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications"
   }
 }
