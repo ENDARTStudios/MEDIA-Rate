@@ -123,6 +123,8 @@ export interface CatalogFilters {
   order?: "asc" | "desc";
   page?: number;
   limit?: number;
+  /** Cursor da próxima página (paginação cursor-based da API). */
+  cursor?: string;
 }
 
 export interface CatalogResponse {
@@ -131,6 +133,7 @@ export interface CatalogResponse {
   page: number;
   limit: number;
   hasMore: boolean;
+  nextCursor?: string | null;
 }
 
 export interface WatchlistItem {

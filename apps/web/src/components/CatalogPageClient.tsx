@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { getCatalog } from "@/lib/api";
 import type { MediaType, Media, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
@@ -15,6 +15,8 @@ import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 
 type CatalogSort = "title" | "year" | "score";
+
+const PAGE_SIZE = 12;
 
 function asCatalogSort(value: string | undefined): CatalogSort | undefined {
   switch (value) {
@@ -70,14 +72,51 @@ function CatalogContent({
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ["catalog", { type, sort, query }],
-    queryFn: () => getCatalog({ type, search: query, sort: asCatalogSort(sort) }),
+    queryFn: () => getCatalog({ type, search: query, sort: asCatalogSort(sort), limit: PAGE_SIZE }),
     initialData:
       type === undefined && sort === undefined && query === undefined ? initialData : undefined,
     staleTime: 5 * 60 * 1000,
   });
 
+  // Acumulação das páginas (paginação cursor-based).
+  const [items, setItems] = useState<MediaItem[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+    setItems(data.items.map(mapToMediaItem));
+    setNextCursor(data.nextCursor ?? null);
+    setHasMore(data.hasMore);
+    setLoadMoreError(false);
+  }, [data]);
+
+  async function loadMore() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    setLoadMoreError(false);
+    try {
+      const next = await getCatalog({
+        type,
+        search: query,
+        sort: asCatalogSort(sort),
+        limit: PAGE_SIZE,
+        cursor: nextCursor,
+      });
+      setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
+      setNextCursor(next.nextCursor ?? null);
+      setHasMore(next.hasMore);
+    } catch {
+      setLoadMoreError(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
   if (isLoading && !data) {
-    return <CatalogSkeleton count={12} />;
+    return <CatalogSkeleton count={PAGE_SIZE} />;
   }
 
   if (error instanceof RateLimitedError) {
@@ -138,7 +177,7 @@ function CatalogContent({
           </Button>
         </div>
         <p className="text-sm text-[#9CA3AF] mb-4">{t("count", { count: data.total })}</p>
-        <CatalogGrid medias={data.items.map(mapToMediaItem)} />
+        <CatalogGrid medias={items} />
       </>
     );
   }
@@ -196,7 +235,19 @@ function CatalogContent({
           {t("loadingCatalog")}
         </div>
       )}
-      <CatalogGrid medias={data.items.map(mapToMediaItem)} />
+      <CatalogGrid medias={items} />
+      {hasMore && (
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <Button variant="outline" onClick={loadMore} disabled={loadingMore} className="min-w-44">
+            {loadingMore ? t("loadingCatalog") : t("loadMore")}
+          </Button>
+          {loadMoreError && (
+            <p className="text-sm text-red-400" role="alert">
+              {t("error")}
+            </p>
+          )}
+        </div>
+      )}
     </>
   );
 }

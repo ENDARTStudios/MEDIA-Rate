@@ -782,6 +782,7 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
         `${SORT_TO_API[filters.sort]}:${filters.order === "asc" ? "asc" : "desc"}`,
       );
     }
+    if (filters?.cursor) params.set("cursor", filters.cursor);
     params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
     const data = await apiGet<{
       data: ApiMidiaList[];
@@ -799,6 +800,7 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
         page: filters?.page ?? 1,
         limit: filters?.limit ?? (items.length || 20),
         hasMore: data.has_more,
+        nextCursor: data.next_cursor,
       };
     }
   }
