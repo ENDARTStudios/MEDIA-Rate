@@ -1081,3 +1081,19 @@ Stage Summary:
 - PENDENTE Operador: pagamento real de teste (cartao, R$ 4,90) para validar
   checkout + webhook + trial de ponta a ponta.
 - Status: DONE (aguardando teste real do Operador).
+
+## [2026-08-04] Stage: Pagamento real OK + FIX webhook (plano nunca sincronizava)
+- Operador pagou R$ 4,90 (cs_live_a1cYEL..., assinatura sub_1U0pHY... trialing
+  ate 11/08) mas o Plus nao liberou.
+- CAUSA RAIZ: payment.service.processWebhook fazia `event.data as WebhookPayload`
+  e lia `data.data.object` — o gateway retorna `data` = wrapper do evento
+  ({ object }), entao `data.data` era undefined e TODOS os handlers eram
+  pulados silenciosamente (SUCESSO sem sincronizar). O bug existia desde 618abed
+  (a validacao em modo teste tambem nunca sincronizou o plano de fato).
+- FIX (aeb5583): constroi WebhookPayload com { type, data: { object } } a partir
+  de event.data; MockPaymentGateway alinhado ao shape real (data = parsed.data);
+  3 testes de regressao novos (payment-webhook.spec). Suites: API 444.
+- PLANO SINCRONIZADO MANUALMENTE (pagamento real consumido): usuario
+  90a1c50a... = PLUS/TRIALING ate 11/08 (sub_1U0pHY.../cus_V0qz2O...).
+- Proximos pagamentos sincronizam automaticamente (fix deployado).
+- Status: DONE.
