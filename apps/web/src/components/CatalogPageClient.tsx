@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { getCatalog } from "@/lib/api";
 import type { MediaType, Media, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
@@ -76,44 +76,8 @@ function CatalogContent({
     initialData:
       type === undefined && sort === undefined && query === undefined ? initialData : undefined,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
-
-  // Acumulação das páginas (paginação cursor-based).
-  const [items, setItems] = useState<MediaItem[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [loadMoreError, setLoadMoreError] = useState(false);
-
-  useEffect(() => {
-    if (!data) return;
-    setItems(data.items.map(mapToMediaItem));
-    setNextCursor(data.nextCursor ?? null);
-    setHasMore(data.hasMore);
-    setLoadMoreError(false);
-  }, [data]);
-
-  async function loadMore() {
-    if (!nextCursor || loadingMore) return;
-    setLoadingMore(true);
-    setLoadMoreError(false);
-    try {
-      const next = await getCatalog({
-        type,
-        search: query,
-        sort: asCatalogSort(sort),
-        limit: PAGE_SIZE,
-        cursor: nextCursor,
-      });
-      setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
-      setNextCursor(next.nextCursor ?? null);
-      setHasMore(next.hasMore);
-    } catch {
-      setLoadMoreError(true);
-    } finally {
-      setLoadingMore(false);
-    }
-  }
 
   if (isLoading && !data) {
     return <CatalogSkeleton count={PAGE_SIZE} />;
@@ -177,7 +141,13 @@ function CatalogContent({
           </Button>
         </div>
         <p className="text-sm text-[#9CA3AF] mb-4">{t("count", { count: data.total })}</p>
-        <CatalogGrid medias={items} />
+        <CatalogResults
+          key={filtersKey(type, sort, query)}
+          pageData={data}
+          type={type}
+          sort={sort}
+          query={query}
+        />
       </>
     );
   }
@@ -235,6 +205,71 @@ function CatalogContent({
           {t("loadingCatalog")}
         </div>
       )}
+      <CatalogResults
+        key={filtersKey(type, sort, query)}
+        pageData={data}
+        type={type}
+        sort={sort}
+        query={query}
+      />
+    </>
+  );
+}
+
+/** Chave de remount: qualquer mudança de filtro reinicia a paginação limpa. */
+function filtersKey(type?: string, sort?: string, query?: string): string {
+  return [type ?? "", sort ?? "", query ?? ""].join("|");
+}
+
+/**
+ * Grid acumulável com paginação cursor-based.
+ *
+ * O estado (itens/cursor/hasMore) vive AQUI e é reiniciado por remount
+ * (key = filtros) — sem efeitos de sincronização com a query da página 1.
+ * O loadMore busca a próxima página com o cursor atual e anexa ao grid.
+ */
+function CatalogResults({
+  pageData,
+  type,
+  sort,
+  query,
+}: {
+  pageData: CatalogResponse;
+  type?: MediaType;
+  sort?: string;
+  query?: string;
+}) {
+  const t = useTranslations("catalog");
+  const [items, setItems] = useState<MediaItem[]>(() => pageData.items.map(mapToMediaItem));
+  const [nextCursor, setNextCursor] = useState<string | null>(pageData.nextCursor ?? null);
+  const [hasMore, setHasMore] = useState(pageData.hasMore);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
+
+  async function loadMore() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    setLoadMoreError(false);
+    try {
+      const next = await getCatalog({
+        type,
+        search: query,
+        sort: asCatalogSort(sort),
+        limit: PAGE_SIZE,
+        cursor: nextCursor,
+      });
+      setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
+      setNextCursor(next.nextCursor ?? null);
+      setHasMore(next.hasMore);
+    } catch {
+      setLoadMoreError(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  return (
+    <>
       <CatalogGrid medias={items} />
       {hasMore && (
         <div className="mt-8 flex flex-col items-center gap-3">
