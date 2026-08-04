@@ -899,3 +899,13 @@ Stage Summary:
   domain association (Settings -> Payment methods -> Apple Pay -> adicionar
   media-rate-web.vercel.app).
 - Status: DONE (tudo preparado; aguardando verificacao do Stripe).
+
+## [2026-08-03] Stage: Item 3 aplicado (Apple Pay domain); item 2 bloqueado pela verificacao
+- ITEM 3 DONE: dominio media-rate-web.vercel.app associado ao Apple Pay via API
+  (apwc_1U0X8RL2aUoTXFOyn6LUhiAY, livemode) - botao Apple Pay pronto no browser
+  quando o cartao ativar.
+- ITEM 2 PARCIAL: teste de sessao com boleto -> "boleto is invalid" (igual pix/link);
+  com charges_enabled=false, NENHUM metodo alem de card e aceito na criacao de
+  sessao. STRIPE_PAYMENT_METHODS permanece "card". Quando charges_enabled=true:
+  trocar para card,pix,boleto (1 comando) + ativar Pix no dashboard.
+- Status: DONE (aguardando verificacao do Stripe).
