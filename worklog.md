@@ -844,3 +844,20 @@ Stage Summary:
 - Pendente de validacao do Operador: pagamento de teste 4242 (webhook + trial) e
   evento user_session_start no PostHog (login).
 - Status: DONE.
+
+## [2026-08-03] Stage: Validacao do fluxo de pagamento (teste) + reversao live
+- Pagamento com cartao REAL em modo live falhava com "Erro de processamento" SEM
+  nenhum registro na Stripe (zero PaymentIntent/SetupIntent/customer em 6+ tentativas,
+  2 navegadores) - falha 100% client-side antes da API da Stripe; descartados
+  adaptive pricing (desativado no gateway, d6fc545) e nosso backend (sessoes criadas
+  corretamente).
+- Validacao definitiva em modo TESTE: chave sk_test_ do CLI, webhook de teste criado
+  (whsec_ebMuoM...), prices de teste (price_1U0Tb8.../1U0Tb9...); checkout com 4242
+  FUNCIONOU - webhooks processados (200) e assinatura sub_1U0WcB... trialing ate
+  11/08 (Plus mensal, conta endart.studios@gmail.com). Integracao 100% correta.
+- Variaveis Railway revertidas para LIVE (rk_live + whsec_ live + prices live).
+- Perfil de producao ficou com trial PLUS ate 11/08 (sincronizado pela assinatura
+  de teste) - inofensivo, sem cobranca; sem auto-downgrade apos trial.
+- PENDENTE (cartao real): testar outro cartao/banco; conferir com o banco se o
+  cartao esta habilitado para compras internacionais/3DS; testar em outra rede.
+- Status: DONE.
