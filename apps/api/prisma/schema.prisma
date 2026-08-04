@@ -114,6 +114,7 @@ model Usuario {
   scores_vistos        MediaScoreView[]
   faturas              Fatura[]
   notificacoes         Notificacao[]
+  usos_diarios         UsoDiario[]
 
   @@map("usuario")
 }
@@ -459,6 +460,21 @@ model Notificacao {
   @@index([usuario_id, lida_at])
   @@index([midia_id])
   @@map("notificacao")
+}
+
+/// Contador de uso diário por recurso (quotas de plano — D-132).
+model UsoDiario {
+  id         String   @id @default(uuid()) @db.Uuid
+  usuario_id String   @map("usuario_id") @db.Uuid
+  recurso    String   @db.VarChar(32) // ex.: 'recomendacoes'
+  dia        String   @db.VarChar(10) // YYYY-MM-DD
+  count      Int      @default(0)
+
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, recurso, dia])
+  @@index([usuario_id])
+  @@map("uso_diario")
 }
 
 /// Auditoria de visualizações do MEDIA Score (para métricas T1.9).

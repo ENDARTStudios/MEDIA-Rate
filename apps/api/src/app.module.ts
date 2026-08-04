@@ -19,6 +19,9 @@ import { FontesModule } from "./modules/fontes/fontes.module.js";
 import { PaymentModule } from "./modules/payment/payment.module.js";
 import { LgpdModule } from "./modules/lgpd/lgpd.module.js";
 import { NotificacoesModule } from "./modules/notificacoes/notificacoes.module.js";
+import { QuotaModule } from "./modules/quota/quota.module.js";
+import { HistoricoModule } from "./modules/historico/historico.module.js";
+import { PerfilModule } from "./modules/perfil/perfil.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
@@ -52,6 +55,9 @@ const enableDebugRoutes =
     PaymentModule,
     LgpdModule,
     NotificacoesModule,
+    QuotaModule,
+    HistoricoModule,
+    PerfilModule,
     WatchlistModule,
     DiscoverModule,
     MetricsModule,

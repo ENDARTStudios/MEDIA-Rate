@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { UserDataPage } from "../../../../components/UserDataPage";
+import { ComparePage } from "../../../components/ComparePage";
 
 export async function generateMetadata({
   params,
@@ -8,12 +8,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "dataExport" });
+  const t = await getTranslations({ locale, namespace: "compare" });
   return { title: t("title"), description: t("description") };
 }
 
-export default async function UserDataRoute({ params }: { params: Promise<{ locale: string }> }) {
+export default async function CompareRoute({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <UserDataPage />;
+  return <ComparePage />;
 }

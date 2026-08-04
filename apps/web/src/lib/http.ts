@@ -131,8 +131,19 @@ export async function apiFetch<T = unknown>(path: string, options: FetchOptions 
 
   if (!res.ok) {
     if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get("Retry-After") ?? "5", 10);
-      throw new RateLimitedError(Math.max(1, retryAfter));
+      // Retry-After header (rate limiter) ou body.retry_after_seconds
+      // (quota de plano) — fallback 5s.
+      const headerRetry = parseInt(res.headers.get("Retry-After") ?? "", 10);
+      const bodyRetry =
+        typeof data === "object" && data !== null
+          ? Number((data as { retry_after_seconds?: number }).retry_after_seconds)
+          : NaN;
+      const value = Number.isFinite(headerRetry)
+        ? headerRetry
+        : Number.isFinite(bodyRetry)
+          ? bodyRetry
+          : 5;
+      throw new RateLimitedError(Math.max(1, value));
     }
     const msg =
       typeof data === "object" && data !== null && "message" in data

@@ -7,11 +7,13 @@ import {
   Param,
   Query,
   Body,
+  Req,
   NotFoundException,
   UseGuards,
   UsePipes,
   HttpCode,
 } from "@nestjs/common";
+import type { FastifyRequest } from "fastify";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
@@ -19,6 +21,8 @@ import { slugify } from "../../common/slugify.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { MediaService } from "./media.service.js";
+import { SessionService } from "../auth/session.service.js";
+import { QuotaService } from "../quota/quota.service.js";
 import {
   createMediaSchema,
   updateMediaSchema,
@@ -57,7 +61,17 @@ export class MediaController {
     private readonly prisma: PrismaService,
     private readonly mediaScoreService: MediaScoreService,
     private readonly mediaService: MediaService,
+    private readonly sessionService?: SessionService,
+    private readonly quotaService?: QuotaService,
   ) {}
+
+  /** Resolve o usuário logado via cookie de sessão (opcional — null sem login). */
+  private async usuarioOpcional(req: FastifyRequest): Promise<string | null> {
+    const token = (req.cookies as Record<string, string> | undefined)?.["sess"];
+    if (!token || !this.sessionService) return null;
+    const sessao = await this.sessionService.validateToken(token);
+    return sessao?.sessao.usuario_id ?? null;
+  }
 
   @Get()
   @ApiOperation({ summary: "Lista mídias com paginação cursor-based" })
@@ -89,6 +103,7 @@ export class MediaController {
     @Query("score_min") scoreMin: string | undefined,
     @Query("score_max") scoreMax: string | undefined,
     @Query("genero") genero: string | undefined,
+    @Req() req: FastifyRequest,
   ): Promise<
     PaginatedResult<{
       id: string;
@@ -153,6 +168,18 @@ export class MediaController {
     let orderBy: unknown = { created_at: "desc" as const };
     if (sortResult) {
       orderBy = { [sortResult.field]: sortResult.direction };
+    }
+
+    // D-132: Free tem até 3 "recomendações" (listagem por score) por dia.
+    // Anônimos não contam; Plus/Premium (incl. trial) ilimitado.
+    if (sortResult?.field === "score" && this.quotaService) {
+      const usuarioId = await this.usuarioOpcional(req);
+      if (usuarioId) {
+        const plano = await this.quotaService.planoDe(usuarioId);
+        if (plano === "FREE") {
+          await this.quotaService.usar(usuarioId, "recomendacoes", 3);
+        }
+      }
     }
 
     // Total real da coleção filtrada (exibição "N títulos" no catálogo web).
@@ -284,6 +311,41 @@ export class MediaController {
       slug: g.slug,
       total_midias: g._count.midias,
     }));
+  }
+
+  @Post(":id/view")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Registra uma visualização da ficha técnica (histórico do usuário)" })
+  async registrarView(
+    @Param("id") id: string,
+    @Req() req: FastifyRequest & { user?: { id: string } },
+  ) {
+    const usuarioId = req.user?.id;
+    if (!usuarioId) {
+      throw new NotFoundException({
+        statusCode: 401,
+        error: "Unauthorized",
+        message: "Autenticação necessária.",
+      });
+    }
+    // Nunca quebra a ficha técnica (ids legados não-UUID são ignorados).
+    try {
+      const score = await this.prisma.mediaScore.findFirst({
+        where: { midia_id: id },
+        orderBy: { calculado_em: "desc" },
+        select: { score: true },
+      });
+      await this.prisma.mediaScoreView.create({
+        data: {
+          usuario_id: usuarioId,
+          midia_id: id,
+          score_exibido: score?.score ?? 0,
+        },
+      });
+    } catch {
+      return { ok: false };
+    }
+    return { ok: true };
   }
 
   @Get(":id")

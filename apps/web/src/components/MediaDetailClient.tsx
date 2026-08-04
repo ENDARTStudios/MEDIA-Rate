@@ -11,6 +11,8 @@ import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { api } from "@/lib/http";
 import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
@@ -27,12 +29,20 @@ export function MediaDetailClient({
   const t = useTranslations("catalog");
   const tg = useTranslations("genres");
   const locale = useLocale();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const {
     data: media,
     isLoading,
     error,
     refetch,
   } = useQuery({ queryKey: ["media", slug], queryFn: () => getMediaBySlug(slug), initialData });
+
+  // Histórico (D-132): registra a visualização quando autenticado
+  // (fire-and-forget — nunca quebra a página).
+  useEffect(() => {
+    if (!media?.id || !isAuthenticated) return;
+    void api.post(`/api/v1/midias/${media.id}/view`, {}).catch(() => undefined);
+  }, [media?.id, isAuthenticated]);
 
   if (isLoading) {
     return (

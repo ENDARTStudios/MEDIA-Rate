@@ -656,5 +656,38 @@
     "title": "Notificações",
     "markAllRead": "Marcar todas como lidas",
     "empty": "Nenhuma notificação"
+  },
+  "historico": {
+    "title": "Histórico",
+    "empty": "Você ainda não viu nenhum título.",
+    "exploreCatalog": "Explorar catálogo",
+    "freeLimit": "Plano Free: histórico limitado a {count} títulos. O Plus mostra todo o histórico.",
+    "upgrade": "Fazer upgrade",
+    "retry": "Tentar novamente"
+  },
+  "dataExport": {
+    "title": "Seus dados (LGPD)",
+    "description": "Baixe todos os seus dados pessoais do MEDIA Rate, conforme a LGPD.",
+    "includes": "Inclui conta, watchlist, preferências e histórico de visualizações.",
+    "downloadJson": "Baixar JSON",
+    "downloadCsv": "Baixar CSV",
+    "error": "Não foi possível obter os dados. Tente novamente.",
+    "dangerZone": "Zona de perigo",
+    "deleteWarning": "A exclusão da conta apaga permanentemente seus dados.",
+    "deleteData": "Excluir minha conta",
+    "deleteSoon": "A exclusão via site chega em breve — por enquanto, solicite pelo suporte."
+  },
+  "compare": {
+    "title": "Comparar perfis",
+    "description": "Compare estatísticas públicas de dois perfis (watchlist, tipos, gêneros e score médio).",
+    "userId": "ID do perfil",
+    "compare": "Comparar",
+    "profile": "Perfil",
+    "total": "Total na watchlist",
+    "scoreMedio": "Score médio",
+    "byType": "Por tipo",
+    "topGenres": "Gêneros favoritos",
+    "hint": "Cole o ID de dois perfis para comparar.",
+    "error": "Não foi possível buscar um dos perfis."
   }
 }

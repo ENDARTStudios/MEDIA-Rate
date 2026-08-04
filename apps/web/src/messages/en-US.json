@@ -656,5 +656,38 @@
     "title": "Notifications",
     "markAllRead": "Mark all as read",
     "empty": "No notifications"
+  },
+  "historico": {
+    "title": "History",
+    "empty": "You have not viewed any titles yet.",
+    "exploreCatalog": "Explore catalog",
+    "freeLimit": "Free plan: history limited to {count} titles. Plus shows your full history.",
+    "upgrade": "Upgrade",
+    "retry": "Try again"
+  },
+  "dataExport": {
+    "title": "Your data (LGPD)",
+    "description": "Download all your personal data from MEDIA Rate, per the LGPD.",
+    "includes": "Includes account, watchlist, preferences and view history.",
+    "downloadJson": "Download JSON",
+    "downloadCsv": "Download CSV",
+    "error": "Could not fetch your data. Try again.",
+    "dangerZone": "Danger zone",
+    "deleteWarning": "Deleting your account permanently erases your data.",
+    "deleteData": "Delete my account",
+    "deleteSoon": "On-site deletion is coming soon — for now, request it via support."
+  },
+  "compare": {
+    "title": "Compare profiles",
+    "description": "Compare public stats of two profiles (watchlist, types, genres and average score).",
+    "userId": "Profile ID",
+    "compare": "Compare",
+    "profile": "Profile",
+    "total": "Watchlist total",
+    "scoreMedio": "Avg score",
+    "byType": "By type",
+    "topGenres": "Favorite genres",
+    "hint": "Paste two profile IDs to compare.",
+    "error": "Could not fetch one of the profiles."
   }
 }
