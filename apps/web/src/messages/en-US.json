@@ -39,7 +39,8 @@
     "settings": "Settings",
     "watchlist": "Watchlist",
     "sessionEnded": "Session ended",
-    "footerLinks": "Footer links"
+    "footerLinks": "Footer links",
+    "listas": "Lists"
   },
   "landing": {
     "hero": "Unified score for movies, series and games",
@@ -689,5 +690,33 @@
     "topGenres": "Favorite genres",
     "hint": "Paste two profile IDs to compare.",
     "error": "Could not fetch one of the profiles."
+  },
+  "listas": {
+    "title": "Lists",
+    "create": "New list",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Top 10 horror of the 90s",
+    "descriptionLabel": "Description (optional)",
+    "createSubmit": "Create list",
+    "cancel": "Cancel",
+    "premiumOnly": "Collaborative lists are Premium only.",
+    "upgrade": "Upgrade",
+    "empty": "You have not created any lists yet.",
+    "itemsCount": "{count} items",
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "notFound": "List not found.",
+    "byOwner": "by {owner}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "confirmDelete": "Delete this list? Items will be lost.",
+    "addItem": "Add title",
+    "search": "Search",
+    "searchPlaceholder": "Search the catalog...",
+    "add": "Add",
+    "remove": "Remove",
+    "emptyItems": "No titles yet — add the first one!",
+    "loginToContribute": "Sign in to contribute to this list."
   }
 }

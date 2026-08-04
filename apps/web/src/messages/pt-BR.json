@@ -39,7 +39,8 @@
     "settings": "Configurações",
     "watchlist": "Watchlist",
     "sessionEnded": "Sessão encerrada",
-    "footerLinks": "Links do rodapé"
+    "footerLinks": "Links do rodapé",
+    "listas": "Listas"
   },
   "landing": {
     "hero": "Score unificado de filmes, séries e games",
@@ -689,5 +690,33 @@
     "topGenres": "Gêneros favoritos",
     "hint": "Cole o ID de dois perfis para comparar.",
     "error": "Não foi possível buscar um dos perfis."
+  },
+  "listas": {
+    "title": "Listas",
+    "create": "Nova lista",
+    "titleLabel": "Título",
+    "titlePlaceholder": "Ex.: Top 10 terror dos anos 90",
+    "descriptionLabel": "Descrição (opcional)",
+    "createSubmit": "Criar lista",
+    "cancel": "Cancelar",
+    "premiumOnly": "Listas colaborativas são exclusivas do Premium.",
+    "upgrade": "Fazer upgrade",
+    "empty": "Você ainda não criou listas.",
+    "itemsCount": "{count} itens",
+    "loading": "Carregando...",
+    "error": "Algo deu errado.",
+    "notFound": "Lista não encontrada.",
+    "byOwner": "por {owner}",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "save": "Salvar",
+    "confirmDelete": "Excluir esta lista? Os itens serão perdidos.",
+    "addItem": "Adicionar título",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar título no catálogo...",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "emptyItems": "Nenhum título ainda — adicione o primeiro!",
+    "loginToContribute": "Entre para contribuir com esta lista."
   }
 }

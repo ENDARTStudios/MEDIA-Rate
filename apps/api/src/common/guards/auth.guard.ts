@@ -115,6 +115,8 @@ export class AuthGuard implements CanActivate {
     if (m === "POST" && /^\/api\/v1\/midias\/[^/]+\/coletar$/.test(url)) return true;
     // Job diário do MEDIA Score (gatilho admin via x-admin-token).
     if (m === "POST" && /^\/api\/v1\/midias\/score-job$/.test(url)) return true;
+    // Listas colaborativas: a visualização por slug é pública (compartilhável).
+    if (m === "GET" && /^\/api\/v1\/listas\/[^/]+$/.test(url)) return true;
     return false;
   }
 }

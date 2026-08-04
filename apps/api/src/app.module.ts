@@ -22,6 +22,7 @@ import { NotificacoesModule } from "./modules/notificacoes/notificacoes.module.j
 import { QuotaModule } from "./modules/quota/quota.module.js";
 import { HistoricoModule } from "./modules/historico/historico.module.js";
 import { PerfilModule } from "./modules/perfil/perfil.module.js";
+import { ListasModule } from "./modules/listas/listas.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
@@ -58,6 +59,7 @@ const enableDebugRoutes =
     QuotaModule,
     HistoricoModule,
     PerfilModule,
+    ListasModule,
     WatchlistModule,
     DiscoverModule,
     MetricsModule,

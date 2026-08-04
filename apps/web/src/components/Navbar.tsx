@@ -154,6 +154,13 @@ export function Navbar({
                       >
                         {t("watchlist")}
                       </Link>
+                      <Link
+                        href="/listas"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                      >
+                        {t("listas") ?? "Listas"}
+                      </Link>
                       <hr className="my-1 border-[rgba(129,140,248,0.08)]" />
                       <button
                         onClick={() => {
