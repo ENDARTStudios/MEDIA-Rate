@@ -44,6 +44,10 @@ export class StripePaymentGateway implements IPaymentGateway {
     const session = await this.client.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
+      // Desativa a conversão de moeda automática (adaptive pricing) da conta —
+      // ela adiciona seletor de país/moeda ao Checkout e pode falhar com
+      // "Erro de processamento" sem registrar tentativa de pagamento.
+      adaptive_pricing: { enabled: false },
       customer_email: input.customer_email,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: input.success_url,
