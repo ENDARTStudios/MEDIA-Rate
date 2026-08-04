@@ -1013,3 +1013,17 @@ Stage Summary:
   legadas/mock; mecanismo verificado sem erros).
 - Suites: API 429, web 143.
 - Status: DONE.
+
+## [2026-08-04] Stage: Item 4 — sino mobile, generos pt-BR, alertas por genero
+- Sino de notificacoes no menu mobile do header (antes so desktop).
+- Generos normalizados pt-BR: dicionario no seed (lista TV da TMDB cai em
+  ingles) + backfill em producao (9 generos; verificado: 27 generos, 0 em
+  ingles).
+- Alertas GENERO_ALTA: "novo titulo nota alta no seu genero" (score >= 75,
+  criado nas ultimas 24h) — proxy de interesse = generos da watchlist do
+  usuario (PreferenciaUsuario ainda nao tem uso real). Job diario chama
+  gerarAlertasDeGenero; dedupe por usuario+titulo.
+- Verificado: job rodou (scores re-coletados), alertas 0 esperado (watchlist
+  atual so tem entradas legadas/mock — sem vinculo com o catalogo).
+- Suites: API 429, web 143.
+- Status: DONE.
