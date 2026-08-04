@@ -10,7 +10,7 @@ const SIZES = {
 } as const;
 
 interface LogoProps {
-  variant?: "full" | "compact";
+  variant?: "full" | "compact" | "inline";
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -110,15 +110,24 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
       {variant === "full" && (
         <span className="flex flex-col items-start leading-tight">
           <span
-            className={`font-heading font-bold text-[#EDE7DC] leading-none tracking-tight ${s.media}`}
+            className={`font-heading font-bold text-[#F5F5F7] leading-none tracking-tight ${s.media}`}
           >
             MEDIA
           </span>
           <span
-            className={`font-heading font-medium text-[#9CA3AF] leading-none tracking-wider ${s.rate}`}
+            className={`font-heading font-medium text-[#A0A0B8] leading-none tracking-wider ${s.rate}`}
           >
             Rate
           </span>
+        </span>
+      )}
+
+      {/* Variante inline: "MEDIA Rate" com espaço (fix do diagnóstico do header). */}
+      {variant === "inline" && (
+        <span
+          className={`font-heading font-bold text-[#F5F5F7] leading-none tracking-tight ${s.media}`}
+        >
+          MEDIA <span className="font-medium text-[#A0A0B8]">Rate</span>
         </span>
       )}
     </span>
