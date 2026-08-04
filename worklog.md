@@ -874,3 +874,14 @@ Stage Summary:
   Cartao+Pix em https://dashboard.stripe.com/settings/payment_methods; depois
   refazer pagamento de teste real.
 - Status: DONE (aguardando verificacao do Stripe).
+
+## [2026-08-03] Stage: Metodos de pagamento habilitados (preparacao pos-verificacao)
+- Payment Method Configuration (default) atualizado via API: card/pix/boleto
+  display_preference=ON (disponibilizacao automatica quando a verificacao concluir).
+- Capabilities: card_payments e boleto_payments ja estavam requested (pending);
+  capability pix NAO existe via API (ativacao do Pix e so pelo dashboard apos
+  verificacao). STRIPE_PAYMENT_METHODS testado com pix/boleto: sessao falha com
+  "pix is invalid" enquanto a conta nao esta verificada - mantido "card" no Railway.
+- Apos a verificacao do Stripe: ativar Cartao+Pix no dashboard e trocar
+  STRIPE_PAYMENT_METHODS para card,pix,boleto (documentado em PENDENCIAS_OPERADOR).
+- Status: DONE (preparado; aguardando verificacao).

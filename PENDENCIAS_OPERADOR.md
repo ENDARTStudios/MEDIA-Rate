@@ -132,10 +132,16 @@ Resultado (2026-08-03):
   úteis para contas BR; o "Erro de processamento" no Checkout é causado por isso).
 - AÇÃO do Operador quando a verificação concluir:
   1. https://dashboard.stripe.com/settings/payment_methods (modo Live) → ativar
-     **Cartão** e **Pix**.
-  2. Se quiser Pix no Checkout: setar `STRIPE_PAYMENT_METHODS=card,pix` no Railway
-     (código já suporta via env, default "card").
-  3. Refazer o pagamento de teste real (R$ 4,90) e validar webhook + trial.
+     **Cartão** e **Pix** (o Boleto já está solicitado via API — capability
+     `boleto_payments` requested/pending).
+  2. Se quiser Pix/Boleto no Checkout: setar `STRIPE_PAYMENT_METHODS=card,pix,boleto`
+     no Railway (código já suporta via env; default "card" — NÃO ativar antes da
+     verificação, senão a criação de sessão falha com "pix is invalid").
+- STATUS DOS MÉTODOS (2026-08-03, via API):
+  - Payment Method Configuration (default): card/pix/boleto display_preference = ON ✅
+  - Capabilities: `card_payments` requested/pending, `boleto_payments` requested/pending,
+    `transfers` requested/pending; capability `pix` NÃO é solicitável via API
+    (ativação do Pix é pelo dashboard após a verificação).
 
 Por quê: o Stripe precisa avisar o backend quando um pagamento é confirmado.
 Onde: https://dashboard.stripe.com/webhooks
