@@ -949,3 +949,13 @@ Stage Summary:
 - Proximo: apos deploy, disparar o run inicial (392 midias, ~15-25 min) e validar
   scores reais no catalogo.
 - Status: DONE (aguardando deploy + run inicial).
+
+## [2026-08-04] Stage: Run inicial do job — 392 midias recalculadas (0 erros)
+- Fix necessario: AuthGuard nao liberava POST /midias/score-job (whitelist
+  adicionado, a72d948).
+- Run inicial disparado via admin: 392 processadas, 0 com erro em 554s (~9min).
+- Validado: scores reais v3 no catalogo (ex.: 67.1/69.6/68), votos TMDB
+  fluindo (votosTotal=1153 num titulo FILME) e confianca CS 76 (Alta).
+- Job diario agendado automaticamente para 03:05 local (proximo run
+  2026-08-04T03:05Z).
+- Status: DONE.
