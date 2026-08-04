@@ -787,12 +787,15 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       data: ApiMidiaList[];
       next_cursor: string | null;
       has_more: boolean;
+      total?: number;
     }>(`/api/v1/midias?${params.toString()}`);
     if (data?.data) {
       const items = data.data.map(mediaFromList);
       return {
         items,
-        total: items.length + (data.has_more ? 1 : 0), // aproximação sem total absoluto
+        total:
+          data.total ??
+          items.length + (data.has_more ? 1 : 0), // fallback: aproximação sem total absoluto
         page: filters?.page ?? 1,
         limit: filters?.limit ?? (items.length || 20),
         hasMore: data.has_more,

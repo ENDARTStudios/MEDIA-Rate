@@ -91,7 +91,7 @@ export class MediaController {
       tipo: string;
       ano_lancamento: number | null;
       imagem_url: string | null;
-    }>
+    }> & { total: number }
   > {
     const params: PaginationDtoType = PaginationDto.parse({
       cursor,
@@ -117,27 +117,39 @@ export class MediaController {
       }
     }
 
-    return paginateCursor({
-      prisma: this.prisma,
-      model: "midia",
-      cursor_field: "id",
-      params,
-      where,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- orderBy construído dinamicamente
-      orderBy: orderBy as any,
-      select: {
-        id: true,
-        titulo: true,
-        tipo: true,
-        ano_lancamento: true,
-        imagem_url: true,
-        scores: {
-          select: { score: true },
-          take: 1,
-          orderBy: { calculado_em: "desc" },
+    // Total real da coleção filtrada (exibição "N títulos" no catálogo web).
+    const [resultado, total] = await Promise.all([
+      paginateCursor<{
+        id: string;
+        titulo: string;
+        tipo: string;
+        ano_lancamento: number | null;
+        imagem_url: string | null;
+      }>({
+        prisma: this.prisma,
+        model: "midia",
+        cursor_field: "id",
+        params,
+        where,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- orderBy construído dinamicamente
+        orderBy: orderBy as any,
+        select: {
+          id: true,
+          titulo: true,
+          tipo: true,
+          ano_lancamento: true,
+          imagem_url: true,
+          scores: {
+            select: { score: true },
+            take: 1,
+            orderBy: { calculado_em: "desc" },
+          },
         },
-      },
-    });
+      }),
+      this.prisma.midia.count({ where }),
+    ]);
+
+    return { ...resultado, total };
   }
 
   @Get("slug/:slug")

@@ -23,7 +23,7 @@ describe("Regressao SQL Injection (T024/8.8)", () => {
     // teste, stubamos o Prisma para a query executar contra lista vazia.
     // GET /api/v1/search também é público (mesmo fluxo via $queryRaw).
     const prismaStub = {
-      midia: { findMany: async () => [] },
+      midia: { findMany: async () => [], count: async () => 0 },
       $queryRaw: async () => [],
       // Demais models nunca são consultados neste spec (login falha na
       // validação zod antes de tocar o banco).
