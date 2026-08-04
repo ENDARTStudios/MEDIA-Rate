@@ -71,9 +71,51 @@ export class WatchlistService {
   }
 
   async list(usuarioId: string, coluna?: WatchlistColuna) {
-    return this.prisma.watchlistEntry.findMany({
+    const entries = await this.prisma.watchlistEntry.findMany({
       where: { usuario_id: usuarioId, ...(coluna ? { coluna } : {}) },
       orderBy: { created_at: "desc" },
+    });
+    if (entries.length === 0) return entries;
+
+    // Join manual: watchlist.midia_id é VarChar sem FK — busca as mídias
+    // do catálogo (quando existem) com score e gêneros para o frontend.
+    const midias = await this.prisma.midia.findMany({
+      where: { id: { in: entries.map((e) => e.midia_id) } },
+      select: {
+        id: true,
+        titulo: true,
+        tipo: true,
+        ano_lancamento: true,
+        imagem_url: true,
+        scores: { select: { score: true }, take: 1, orderBy: { calculado_em: "desc" } },
+        generos: { select: { genero: { select: { nome: true } } }, take: 5 },
+      },
+    });
+    const porId = new Map(midias.map((m) => [m.id, m]));
+
+    return entries.map((entry) => {
+      const midia = porId.get(entry.midia_id);
+      return {
+        ...entry,
+        media: midia
+          ? {
+              id: midia.id,
+              title: midia.titulo,
+              posterUrl: midia.imagem_url,
+              type:
+                midia.tipo === "FILME"
+                  ? "movie"
+                  : midia.tipo === "SERIE"
+                    ? "series"
+                    : midia.tipo === "GAME"
+                      ? "game"
+                      : midia.tipo.toLowerCase(),
+              year: midia.ano_lancamento,
+              score: midia.scores[0]?.score ?? null,
+              genres: midia.generos.map((g) => g.genero.nome),
+            }
+          : null,
+      };
     });
   }
 

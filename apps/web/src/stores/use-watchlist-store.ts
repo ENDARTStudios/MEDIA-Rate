@@ -9,6 +9,9 @@ interface WatchlistMedia {
   posterUrl?: string | null;
   type?: string;
   year?: number | null;
+  /** Score consolidado 0–100 (media_score mais recente). */
+  score?: number | null;
+  genres?: string[];
 }
 
 interface WatchlistEntry {

@@ -20,6 +20,8 @@ interface WatchlistMedia {
   posterUrl?: string | null;
   type?: string;
   year?: number | null;
+  /** Score consolidado 0–100 (media_score mais recente). */
+  score?: number | null;
 }
 
 interface WatchlistEntry {
@@ -117,7 +119,15 @@ export function ContinueDecision() {
                   <h3 className="font-heading text-sm font-medium text-[#F5F5F7] truncate">
                     {media.title}
                   </h3>
-                  <p className="text-xs text-[#A0A0B8] mt-0.5">{media.year ?? "—"}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <p className="text-xs text-[#A0A0B8]">{media.year ?? "—"}</p>
+                    {media.score != null && (
+                      <span className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums text-[#F5F5F7] bg-[#1B1B2C] border border-[#2A2A3D]">
+                        {media.score >= 80 ? "🟢" : media.score >= 60 ? "🟡" : "🔴"}{" "}
+                        {Math.round(media.score)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </Link>
             </li>

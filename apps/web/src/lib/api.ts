@@ -939,7 +939,7 @@ export async function getPricingPlans(): Promise<PricingPlan[]> {
     {
       id: "plus",
       name: "Plus",
-      price: 19.9,
+      price: 4.9,
       currency: "BRL",
       period: "monthly",
       features: [
@@ -954,7 +954,7 @@ export async function getPricingPlans(): Promise<PricingPlan[]> {
     {
       id: "premium",
       name: "Premium",
-      price: 39.9,
+      price: 9.9,
       currency: "BRL",
       period: "monthly",
       features: [

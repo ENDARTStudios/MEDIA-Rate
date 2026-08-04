@@ -47,6 +47,7 @@ interface MockWatchlistPrisma {
   };
   midia: {
     findUnique: (args: MockWatchlistArgs) => Promise<Record<string, unknown> | null>;
+    findMany: (args: MockWatchlistArgs) => Promise<Record<string, unknown>[]>;
   };
   usuarioPlano: {
     findUnique: (args: { where: { usuario_id: string } }) => Promise<{ plano: string } | null>;
@@ -277,6 +278,18 @@ function mockPrisma(opts: { plano?: string; prefill?: number } = {}): MockWatchl
               imagem_url: null,
             }
           : null,
+      findMany: async (args: MockWatchlistArgs) => {
+        const ids = (args.where?.id as { in?: string[] } | undefined)?.in ?? [];
+        return ids.map((id) => ({
+          id,
+          titulo: `Title ${id}`,
+          tipo: "FILME",
+          ano_lancamento: 2024,
+          imagem_url: null,
+          scores: [{ score: 70 }],
+          generos: [],
+        }));
+      },
     },
     usuarioPlano: {
       findUnique: async () => (opts.plano ? { plano: opts.plano } : null),

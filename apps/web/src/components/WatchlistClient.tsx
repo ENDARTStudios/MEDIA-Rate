@@ -57,7 +57,7 @@ function entryToMediaItem(
     tipo,
     ano_lancamento: media.year ?? null,
     imagem_url: media.posterUrl ?? null,
-    score: null,
+    score: media.score ?? null,
   };
 }
 
