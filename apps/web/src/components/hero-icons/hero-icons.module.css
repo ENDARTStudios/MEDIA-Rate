@@ -68,7 +68,7 @@
 
 /* Origens dos transforms por variante (one-shots) */
 .shot_clapperboard {
-  transform-origin: bottom center;
+  transform-origin: 50% 88%;
 }
 
 .shot_tv {
@@ -80,7 +80,7 @@
 }
 
 .shot_book {
-  transform-origin: 42% 55%;
+  transform-origin: 10% 50%;
 }
 
 .shot_magazine {
@@ -96,85 +96,100 @@
   user-select: none;
 }
 
-/* --- Partículas (HTML absolutas, invisíveis até a one-shot) --- */
+/* --- Camada de efeitos (partículas HTML sobre o render, visíveis só nas
+ *     one-shots — anime.js anima opacity/transform) --- */
 
-.flash {
+.fxLayer {
   position: absolute;
-  inset: 4%;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 65%);
-  opacity: 0;
+  inset: 0;
   pointer-events: none;
+  overflow: visible;
 }
 
-.scanline {
+.fxLayer > * {
   position: absolute;
-  left: 12%;
-  right: 12%;
-  top: 10%;
-  height: 8%;
-  border-radius: 9999px;
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9), transparent);
+  left: 50%;
+  top: 50%;
   opacity: 0;
-  pointer-events: none;
 }
 
-.spark {
-  position: absolute;
-  width: 7%;
-  aspect-ratio: 1;
-  border-radius: 9999px;
-  opacity: 0;
-  pointer-events: none;
-  box-shadow:
-    0 0 10px currentColor,
-    0 0 22px currentColor;
+.fxFlash {
+  width: 130%;
+  height: 130%;
+  left: -15%;
+  top: -15%;
+  background: radial-gradient(circle, #fff 0%, transparent 60%);
 }
 
-.page {
-  position: absolute;
-  height: 12%;
-  border-radius: 2px;
-  background: linear-gradient(105deg, #ffffff 0%, #e8e1d0 100%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  pointer-events: none;
+.fxScanline {
+  left: 10%;
+  right: 10%;
+  top: -10%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(224, 242, 254, 0.95), transparent);
+  filter: blur(1px);
 }
 
-.dot {
-  position: absolute;
-  width: 6%;
-  aspect-ratio: 1;
-  border-radius: 9999px;
-  background: #f472b6;
-  border: 2px solid #ffffff;
-  opacity: 0;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+.fxGlow {
+  width: 140%;
+  height: 140%;
+  left: -20%;
+  top: -20%;
+  background: radial-gradient(circle, currentColor 0%, transparent 65%);
 }
 
-.burst {
-  position: absolute;
-  left: 42%;
-  top: 38%;
-  width: 16%;
-  aspect-ratio: 1;
-  opacity: 0;
-  pointer-events: none;
-  background: radial-gradient(circle, #fde68a 0%, #f59e0b 100%);
-  clip-path: polygon(
-    50% 0%,
-    61% 35%,
-    98% 35%,
-    68% 57%,
-    79% 91%,
-    50% 70%,
-    21% 91%,
-    32% 57%,
-    2% 35%,
-    39% 35%
-  );
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+.fxRing {
+  width: 70%;
+  height: 70%;
+  margin-left: -35%;
+  margin-top: -35%;
+  border: 4px solid #34d399;
+  border-radius: 50%;
+}
+
+.fxBtn {
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.fxPage {
+  width: 20%;
+  height: 28%;
+  margin-left: -10%;
+  margin-top: -14%;
+  background: #f8fafc;
+  border-radius: 2px 6px 6px 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.fxPow {
+  font: 900 24px/1 system-ui;
+  color: #fde047;
+  text-shadow:
+    2px 2px 0 #f472b6,
+    -2px -2px 0 #a78bfa;
+  margin-left: -28px;
+  margin-top: -14px;
+  white-space: nowrap;
+}
+
+.fxLineWrap {
+  width: 46%;
+  height: 2px;
+  margin-left: -23%;
+  margin-top: -1px;
+}
+
+.fxLine {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #fff, transparent);
+  transform-origin: center;
 }
 
 .label {
