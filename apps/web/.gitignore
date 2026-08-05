@@ -6,3 +6,5 @@ playwright-report/
 
 .vercel
 .env*
+playwright-report/
+test-results/
