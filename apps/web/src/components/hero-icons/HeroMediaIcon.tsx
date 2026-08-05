@@ -1,35 +1,31 @@
 "use client";
 
 /**
- * Hero Media Icon v2 — arquitetura híbrida (T5a-hero-3d-fix-v2).
+ * Hero Media Icon v3 — SVGs ilustrativos premium (T5a-hero-3d-fix-v3).
  *
- * Lucide (ícone central premium) + camadas HTML reais com translateZ:
- *   glow (-60px) · base rotacionada (0px) · ícone (40px) · flare (80px)
+ * Camadas HTML reais com translateZ em pixels (parallax real):
+ *   glow (-60px) → base rotacionada (0px) → arte SVG (40px) → flare (80px)
  *
+ * - Coreografia one-shot rica via Anime.js (data-parts DENTRO dos SVGs):
+ *   claquete: boca abre [-22, 3, 0] + flash [0, 0.6, 0]
+ *   TV: scanline varre a tela + tela acende brightness(1.5)
+ *   controle: 4 botões acendem em elastic stagger + analógicos giram 1 turn
+ *   livro: capa abre rotateY(-25) + linhas de texto revelam em stagger
+ *   HQ: 6 partículas explodem ±40px + ícone dá um punch
  * - Tilt contínuo via Motion (springs 150/15) — apenas com
  *   '(hover: hover) and (pointer: fine)'.
- * - Coreografia one-shot via Anime.js em classes CSS estáveis
- *   (`.hero-flash`, `.hero-scanline`, `.hero-button`, `.hero-line`,
- *   `.hero-dot` — scoped pelo root, sem colisão entre ícones).
- * - prefers-reduced-motion: estático e visualmente rico (glow + base + flare).
+ * - prefers-reduced-motion: estático e visualmente rico (as artes têm
+ *   gradientes, texturas, sombras e detalhes por padrão).
  * - Teclado: focus dispara a one-shot; anel focus-visible no accent.
  * - Touch: toque dispara a one-shot e navega após 700ms; whileTap 0.95.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Clapperboard,
-  Tv,
-  Gamepad2,
-  BookOpen,
-  BookMarked,
-  Sparkles,
-  type LucideIcon,
-} from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { animate } from "animejs";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import styles from "./hero-icons.module.css";
+import { FilmArt, TvArt, GameArt, BookArt, MagazineArt } from "./hero-svg-art";
 import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
 import type { MediaType } from "@/lib/types";
 
@@ -43,12 +39,12 @@ export interface HeroMediaIconProps {
   className?: string;
 }
 
-const ICONS: Record<AnimationVariant, LucideIcon> = {
-  clapperboard: Clapperboard,
-  tv: Tv,
-  controller: Gamepad2,
-  book: BookOpen,
-  magazine: BookMarked,
+const ARTS: Record<AnimationVariant, ComponentType> = {
+  clapperboard: FilmArt,
+  tv: TvArt,
+  controller: GameArt,
+  book: BookArt,
+  magazine: MagazineArt,
 };
 
 const ACCENTS: Record<AnimationVariant, string> = {
@@ -61,30 +57,6 @@ const ACCENTS: Record<AnimationVariant, string> = {
 
 const TOUCH_NAV_DELAY_MS = 700;
 
-/** Posições dos botões do controle (divs absolutas, % do container). */
-const BUTTON_POSITIONS = [
-  { left: "58%", top: "28%" },
-  { left: "74%", top: "44%" },
-  { left: "58%", top: "60%" },
-  { left: "42%", top: "44%" },
-];
-const BUTTON_COLORS = ["#F87171", "#60A5FA", "#FBBF24", "#34D399"];
-
-/** Posições das linhas do livro e partículas da HQ. */
-const LINE_POSITIONS = [
-  { left: "28%", top: "46%", width: "44%" },
-  { left: "28%", top: "54%", width: "36%" },
-  { left: "28%", top: "62%", width: "40%" },
-];
-const DOT_POSITIONS = [
-  { left: "44%", top: "38%" },
-  { left: "56%", top: "34%" },
-  { left: "64%", top: "48%" },
-  { left: "50%", top: "62%" },
-  { left: "38%", top: "56%" },
-  { left: "60%", top: "70%" },
-];
-
 export function HeroMediaIcon({ type, variant, href, label, className }: HeroMediaIconProps) {
   const router = useRouter();
   const shouldReduce = useReducedMotion();
@@ -92,7 +64,7 @@ export function HeroMediaIcon({ type, variant, href, label, className }: HeroMed
   const animRef = useRef<ReturnType<typeof animate>[]>([]);
   const [finePointer, setFinePointer] = useState(false);
   const accent = ACCENTS[variant];
-  const Icon = ICONS[variant];
+  const Art = ARTS[variant];
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -134,81 +106,95 @@ export function HeroMediaIcon({ type, variant, href, label, className }: HeroMed
 
     switch (variant) {
       case "clapperboard": {
-        const icon = el.querySelector(".hero-lucide-icon");
+        // Claquete: boca abre com overshoot e o flash estoura no impacto.
+        const mouth = el.querySelector("[data-part=mouth]");
         const flash = el.querySelector("[data-part=flash]");
-        if (icon)
-          anims.push(animate(icon, { rotate: [-15, 5, 0], duration: 400, ease: "outBack" }));
+        if (mouth)
+          anims.push(animate(mouth, { rotate: [-22, 3, 0], duration: 400, ease: "outQuad" }));
         if (flash)
           anims.push(
-            animate(flash, { opacity: [0, 0.6, 0], duration: 160, delay: 260, ease: "outQuad" }),
+            animate(flash, { opacity: [0, 0.6, 0], duration: 120, delay: 250, ease: "outQuad" }),
           );
         break;
       }
       case "tv": {
+        // TV: scanline varre a tela enquanto ela acende.
         const scan = el.querySelector("[data-part=scanline]");
-        const icon = el.querySelector(".hero-lucide-icon");
+        const screen = el.querySelector("[data-part=screen]");
         if (scan)
           anims.push(
-            animate(scan, { translateY: ["-100%", "400%"], duration: 400, ease: "linear" }),
+            animate(scan, { translateY: ["-100%", "200%"], duration: 400, ease: "linear" }),
           );
-        if (icon)
+        if (screen)
           anims.push(
-            animate(icon, {
+            animate(screen, {
               filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"],
-              duration: 500,
+              duration: 400,
+              ease: "linear",
             }),
           );
         break;
       }
       case "controller": {
-        const botoes = el.querySelectorAll("[data-part=botao]");
-        const icon = el.querySelector(".hero-lucide-icon");
+        // Controle: combo de botões acende em elastic stagger + analógicos giram.
+        const botoes = el.querySelectorAll('[data-part^="button-"]');
+        const analogs = el.querySelectorAll("[data-part=analog]");
         botoes.forEach((b, i) =>
           anims.push(
             animate(b, {
-              opacity: [0.35, 1],
-              scale: [0.9, 1.1, 1],
-              duration: 250,
+              opacity: [0.3, 1],
+              scale: [0.9, 1.05, 1],
               delay: i * 80,
+              duration: 300,
+              ease: "outElastic(1, .6)",
             }),
           ),
         );
-        if (icon)
+        analogs.forEach((a, i) =>
           anims.push(
-            animate(icon, { rotate: [0, -8, 8, 0], duration: 450, delay: 240, ease: "outQuad" }),
-          );
+            animate(a, { rotate: 360, duration: 500, delay: 240 + i * 60, ease: "inOutQuad" }),
+          ),
+        );
         break;
       }
       case "book": {
-        const capa = el.querySelector(".hero-lucide-icon");
-        const linhas = el.querySelectorAll("[data-part=linha]");
-        if (capa) anims.push(animate(capa, { rotateY: [0, -25], duration: 500, ease: "outCubic" }));
+        // Livro: capa abre e as linhas de texto revelam o conteúdo em stagger.
+        const cover = el.querySelector("[data-part=cover]");
+        const linhas = el.querySelectorAll('[data-part^="line-"]');
+        if (cover)
+          anims.push(animate(cover, { rotateY: [0, -25], duration: 500, ease: "inOutQuad" }));
         linhas.forEach((l, i) =>
           anims.push(
-            animate(l, { opacity: [0, 1], translateX: [8, 0], duration: 250, delay: 320 + i * 40 }),
+            animate(l, {
+              opacity: [0, 1],
+              translateY: [10, 0],
+              delay: 300 + i * 40,
+              duration: 300,
+              ease: "inOutQuad",
+            }),
           ),
         );
         break;
       }
       case "magazine": {
-        const dots = el.querySelectorAll("[data-part=dot]");
-        const icon = el.querySelector(".hero-lucide-icon");
+        // HQ: partículas explodem em direções aleatórias e o quadrinho dá um punch.
+        const dots = el.querySelectorAll('[data-part^="dot-"]');
+        const icon = el.querySelector("[data-part=icon]");
         dots.forEach((d, i) =>
           anims.push(
             animate(d, {
-              translateX: [0, (Math.random() - 0.5) * 70],
-              translateY: [0, (Math.random() - 0.5) * 70],
+              translateX: [0, (Math.random() - 0.5) * 80],
+              translateY: [0, (Math.random() - 0.5) * 80],
+              scale: [0, 1.5],
               opacity: [1, 0],
-              scale: [0, 1.4],
+              delay: i * 20,
               duration: 450,
-              delay: i * 25,
               ease: "outQuad",
             }),
           ),
         );
-        anims.push(animate(el, { scale: [1, 1.06, 1], duration: 250, ease: "outQuad" }));
         if (icon)
-          anims.push(animate(icon, { opacity: [1, 0.5, 1], duration: 300, ease: "outQuad" }));
+          anims.push(animate(icon, { scale: [1, 1.08, 1], duration: 250, ease: "outQuad" }));
         break;
       }
     }
@@ -286,57 +272,12 @@ export function HeroMediaIcon({ type, variant, href, label, className }: HeroMed
           />
           {/* Camada 2: base sólida (plataforma) */}
           <div className={styles.base} style={baseStyle} aria-hidden="true" />
-          {/* Camada 3: ícone Lucide */}
+          {/* Camada 3: arte SVG ilustrativa */}
           <div className={styles.icon} aria-hidden="true">
-            <Icon
-              className="hero-lucide-icon"
-              size={64}
-              strokeWidth={1.5}
-              style={{ color: accent }}
-            />
+            <Art />
           </div>
           {/* Camada 4: flare frontal */}
           <div className={styles.flare} aria-hidden="true" />
-
-          {/* Elementos de coreografia (scoped por variante) */}
-          {variant === "clapperboard" && (
-            <div className={styles.flash} data-part="flash" aria-hidden="true" />
-          )}
-          {variant === "tv" && (
-            <div className={styles.scanline} data-part="scanline" aria-hidden="true" />
-          )}
-          {variant === "controller" && (
-            <div className={styles.buttons} aria-hidden="true">
-              {BUTTON_POSITIONS.map((pos, i) => (
-                <span
-                  key={i}
-                  className={styles.button}
-                  data-part="botao"
-                  style={{ ...pos, backgroundColor: BUTTON_COLORS[i] }}
-                />
-              ))}
-            </div>
-          )}
-          {variant === "book" && (
-            <div className={styles.lines} aria-hidden="true">
-              {LINE_POSITIONS.map((pos, i) => (
-                <span key={i} className={styles.line} data-part="linha" style={pos} />
-              ))}
-            </div>
-          )}
-          {variant === "magazine" && (
-            <div className={styles.dots} aria-hidden="true">
-              {DOT_POSITIONS.map((pos, i) => (
-                <span key={i} className={styles.dot} data-part="dot" style={pos} />
-              ))}
-              <Sparkles
-                className="hero-lucide-sparkles absolute"
-                style={{ color: "white", opacity: 0.7, right: "8%", top: "10%" }}
-                size={20}
-                strokeWidth={2}
-              />
-            </div>
-          )}
         </motion.div>
       </div>
 

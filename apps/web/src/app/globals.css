@@ -117,7 +117,36 @@ body {
 /* ==========================================================================
  * Hero icons 3D (Addendum hero) — camadas HTML reais com translateZ.
  * A estrutura vive em components/hero-icons/hero-icons.module.css.
+ *
+ * Alvos de coreografia (data-parts dentro dos SVGs ilustrativos):
+ * transform-box fill-box para rotate/translateY percentual operarem na
+ * própria caixa do elemento SVG (seletores globais — não podem ficar
+ * em CSS modules no Turbopack).
  * ========================================================================== */
+
+[data-part] {
+  transform-box: fill-box;
+}
+
+/* Claquete: a boca gira em torno da dobradiça (canto superior esquerdo). */
+[data-part="mouth"] {
+  transform-origin: 0% 0%;
+}
+
+/* Livro: a capa abre em torno da lombada (borda esquerda). */
+[data-part="cover"] {
+  transform-origin: left center;
+}
+
+/* Flash do claquete: invisível até a one-shot. */
+[data-part="flash"] {
+  opacity: 0;
+}
+
+/* Linhas do livro: invisíveis até a one-shot revelar. */
+[data-part^="line-"] {
+  opacity: 0;
+}
 
 @layer base {
   :root {
