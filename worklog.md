@@ -1216,3 +1216,26 @@ Stage Summary:
   girando, flash estatico opacity 0. 5 svgs / 21 data-parts.
 - Screenshots: evidencia-v3.1-{desktop-static,desktop-hover,mobile,reduced-motion}.png
   (hashs distintos = capturas validas). Build 80/80, suites 159/159.
+
+## [2026-08-05] T5a-hero-3d-fix-v4 — renders 3D pre-renderizados (DONE)
+- D-014 cumprido: ZERO SVG codado a mao no Hero. 5 renders claymorphism
+  glossy gerados proceduralmente (scripts/generate-hero-assets.mjs: SVG cena
+  -> raster Chromium 1200x1200 -> WebP q80): film 30.7 / serie 21.5 / game
+  25.7 / livro 32.8 / hq 26.1 KB (total 137KB < 750KB; cada < 150KB).
+  Paleta por categoria: indigo/sky/emerald/amber/pink (MEDIA_ACCENTS).
+- hero-svg-art.tsx DELETADO; globals.css sem regras de data-part.
+- Componente v4: img webp (next/image, priority no primeiro, w/h 200 explicito,
+  mask-image radial-gradient closest-side 62%) + idle float translateY
+  [0,-8,0] 3.6s easeInOutSine + glow breathing sincronizado, delay i*250ms.
+- One-shots (Anime.js, transforms 3D reais em div HTML): filme rotateX
+  [-28,6,-2,0] origin bottom + translateY impacto + flash 140ms; tv scaleY
+  [1,0.06,1.08,1] + scaleX [1,1.25,0.97,1] + scanline HTML + brightness;
+  game rotateZ [0,-7,6,-5,4,0] + jolts + 4 sparks stagger 70ms; livro rotateY
+  [22,-16,6,0] origin 42% 55% + 3 paginas voando stagger 60ms; hq scale
+  [1,1.14,0.96,1] + rotateZ [0,3,-3,0] + 8 dots radiais + starburst POW.
+- Tilt Motion mantido (springs 150/15, perspective 1000, gate finePointer);
+  reduced-motion: idle e one-shots off; touch: one-shot + nav 700ms.
+- EVIDENCIAS: probe DOM no ar mostra transforms reais em cada one-shot
+  (rotateX+ty, scaleX/scaleY+brightness 1.52, rotateZ+jolts, rotateY 14.6,
+  scale 1.12) + 8 screenshots evidencia-v4-*.png (idle, 5 picos, mobile,
+  reduced-motion) + build 80/80 sem libs 3D + pesos webp.
