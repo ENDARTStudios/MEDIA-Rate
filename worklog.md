@@ -1344,3 +1344,21 @@ metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
   (.gitignore). Tilt/idle/one-shots/particulas intactos.
 - Screenshots: evidencia-v6-{idle,peak-clap,mobile,reduced-motion}.png.
 - Build 80/80; no ar com 5 imgs 104x104 object-fit cover.
+
+## [2026-08-05] Auditoria rigorosa 16+ rotas — Etapas (concluida)
+ETAPA 1 (crawl Playwright em 23 URLs + 5 detalhes): achados B1-B7.
+ETAPA 2 (correcoes, commits c813b79 + cf9f02b):
+- B1: EmptyStateComingSoon usava t(type) -> chaves filme/serie/livro (TIPO_KEY).
+- B2: genero com fallback generoTraduzido (t.has -> rotulo original) + 4 chaves
+  novas nos genres (distopia/classico/realismomagico/ficcaocientificaefantasia)
+  em pt/en/es; aplicado em MediaDetailClient e MediaDetailPage.
+- B5: secoes Livros/HQs&Mangas da home via i18n (landing.rails* + comingSoon)
+  em pt/en/es (antes hardcoded pt).
+- B4: 404 localizado — com app/layout.tsx na raiz, rotas inexistentes caem no
+  not-found ROOT (o [locale]/not-found.tsx nao assume); criado app/not-found.tsx
+  que le x-next-intl-locale + NextIntlClientProvider + Navbar + MotionFooter.
+  Testado localmente em pt/en/es e verificado no ar.
+ETAPA 3 (re-auditoria no ar): B1/B2/B4/B5 OK; B7 nao-e-bug (RSC 200);
+B3 (poster BG3, hash 7/79 errado -> 1/12) segue como PENDENCIA DE BANCO
+(UPDATE midia SET imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg'
+WHERE titulo='Baldur'"'"'s Gate 3') - degrada para placeholder (nao quebra UI).
