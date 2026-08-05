@@ -1239,3 +1239,24 @@ Stage Summary:
   (rotateX+ty, scaleX/scaleY+brightness 1.52, rotateZ+jolts, rotateY 14.6,
   scale 1.12) + 8 screenshots evidencia-v4-*.png (idle, 5 picos, mobile,
   reduced-motion) + build 80/80 sem libs 3D + pesos webp.
+
+## [2026-08-05] Auditoria Home — 7 acoes corrigidas (commit a215ea4)
+P0-1: Lista de fontes UNIFICADA numa versao canonica (11 ativas) em todos os
+  blocos (messages pt/en/es + FAQ JSON-LD da pagina de preco que era a 5a
+  instancia divergente). Antes havia 4+ versoes contraditorias na mesma tela.
+P0-2: OpenLibrary removida de todas as listas (livros ainda em roadmap).
+P0-3: "29 fontes" corrigido: HomeStats agora conta DISTINTAS fontes ativas nas
+  categorias cobertas (movie/series/game) via PESOS_POR_TIPO_WEB+FONTES_WEB,
+  agrupando variantes por site-base (metacritic_user->metacritic, omdb->imdb,
+  etc.) = 11, com lastro no texto da pagina.
+P1-4: Taxonomia alinhada: HQs+Mangas = UMA categoria (?type=comic "HQs &
+  Mangas") na home, igual ao menu/hero (era 3 secoes: Livros/HQs/Mangas).
+P1-5: Subcategoria "Filmes" em Mangas -> "Isekai" (VARIANTE_LABEL.anime);
+  CATEGORY_LABEL.comic "HQs" -> "HQs & Mangas".
+P1-6: Contradicao de Anime removida: "Animes sao cobertos como genero dentro
+  de Series. Livros e quadrinhos/mangas estao no roadmap" (pt-BR; en/es ja ok).
+P1-7: 5 links de categorias do Hero (motion.a com href cru) agora prefixados
+  com locale via useLocale (antes /catalog sem /pt-BR/). Navbar ja usava Link.
+- Validacao: tsc/lint/testes 159/159/build 80/80. Verificado no ar: canonica
+  SteamSpy, OpenLibrary ausente, stat=11, secao unica HQs&Mangas, anime ok,
+  /pt-BR/catalog?type=movie|comic nos links.
