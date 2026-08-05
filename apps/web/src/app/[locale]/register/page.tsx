@@ -49,7 +49,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
               href="/"
               className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
             >
-              <LazyLogo className="w-8 h-8" /> MEDIA Rate
+              <LazyLogo variant="inline" className="w-8 h-8" />
             </Link>
           </div>
 

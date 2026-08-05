@@ -139,7 +139,7 @@ export function RegisterForm() {
   const strength = getPasswordStrength(pw);
 
   const onSubmit = async (d: RegisterData) => {
-    const result = await regStore(d.name, d.email, d.password, d.inviteCode);
+    const result = await regStore(d.name, d.email, d.password);
     if (result.success) {
       toast.success(t("registerSuccess"));
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
@@ -255,22 +255,10 @@ export function RegisterForm() {
               register={register("confirmPassword")}
             />
           </Field>
-          <Field
-            id="auth-register-invite-code"
-            label={t("inviteCodeLabel")}
-            error={errors.inviteCode?.message}
-          >
-            <input
-              id="auth-register-invite-code"
-              {...register("inviteCode")}
-              aria-invalid={!!errors.inviteCode}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
-              placeholder={t("inviteCodePlaceholder")}
-            />
-          </Field>
           <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
             <input
               type="checkbox"
+              id="auth-register-accept-terms"
               {...register("acceptTerms")}
               className="mt-0.5 accent-[#818CF8]"
             />

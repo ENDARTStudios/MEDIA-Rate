@@ -120,8 +120,10 @@ export class MediaController {
     });
 
     const where: Record<string, unknown> = {};
-    if (tipo && ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "HQ"].includes(tipo)) {
-      where.tipo = tipo;
+    // Filtro por tipo: o enum do banco (TipoMidia) usa "COMIC"; "HQ" é aceito
+    // como alias legado. Qualquer outro valor é ignorado (lista completa).
+    if (tipo && ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC", "HQ"].includes(tipo)) {
+      where.tipo = tipo === "HQ" ? "COMIC" : tipo;
     }
     // Filtros avançados do catálogo (Tarefa 4 do redesign): ano e faixa de
     // score — valores numéricos opcionais, ignorados quando inválidos.

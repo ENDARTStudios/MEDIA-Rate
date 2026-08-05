@@ -12,7 +12,6 @@ export const registerSchema = z
     password: z.string().min(6, "Mínimo 6 caracteres"),
     confirmPassword: z.string(),
     acceptTerms: z.boolean().refine((v) => v === true, { message: "Você deve aceitar os termos" }),
-    inviteCode: z.string().uuid().optional(),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Senhas não conferem",

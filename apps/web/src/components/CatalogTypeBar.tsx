@@ -51,7 +51,7 @@ export function CatalogTypeBar() {
       <div className="flex flex-wrap items-center gap-2">
         <CategoryChip
           type="movie"
-          count={counts?.movie}
+          count={counts ? Object.values(counts).reduce((a, b) => a + b, 0) : undefined}
           active={!activeType}
           onClick={() => setType(undefined)}
           label={t("all")}

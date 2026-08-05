@@ -133,26 +133,48 @@ const content: Record<string, InstitutionalContent> = {
       sourceTitle: "Fontes suportadas pela plataforma",
       sourceItems: [
         {
-          name: "IMDb",
-          description:
-            "Dados de avaliação e contexto para títulos audiovisuais, quando disponíveis.",
-        },
-        {
           name: "TMDB",
-          description: "Metadados e sinais de avaliação para filmes e séries, quando disponíveis.",
+          description: "Metadados e sinais de avaliação para filmes e séries.",
         },
         {
-          name: "Rotten Tomatoes e TMDB",
-          description:
-            "Sinais de crítica especializada, quando disponibilizados na integração da obra.",
+          name: "IMDb",
+          description: "Dados de avaliação e contexto para títulos audiovisuais.",
         },
         {
-          name: "IGDB e OpenCritic",
-          description: "Dados de contexto e avaliação para jogos, quando disponíveis.",
+          name: "Rotten Tomatoes",
+          description: "Sinais de crítica especializada para filmes e séries.",
         },
         {
-          name: "Open Library",
-          description: "Categorias adicionais (livros/quadrinhos) planejadas para o futuro.",
+          name: "Metacritic",
+          description: "Sinais de crítica e público para filmes, séries e games.",
+        },
+        {
+          name: "TVMaze",
+          description: "Metadados e avaliações para séries.",
+        },
+        {
+          name: "Letterboxd",
+          description: "Avaliações de público para filmes.",
+        },
+        {
+          name: "Trakt",
+          description: "Avaliações de público para filmes e séries.",
+        },
+        {
+          name: "IGDB",
+          description: "Dados e avaliações para games.",
+        },
+        {
+          name: "OpenCritic",
+          description: "Crítica agregada para games.",
+        },
+        {
+          name: "Steam",
+          description: "Avaliações de público para games (Steam Store).",
+        },
+        {
+          name: "SteamSpy",
+          description: "Sinais de engajamento para games.",
         },
       ],
       transparencyTitle: "Transparência antes de precisão aparente",
@@ -245,25 +267,48 @@ const content: Record<string, InstitutionalContent> = {
       sourceTitle: "Sources supported by the platform",
       sourceItems: [
         {
-          name: "IMDb",
-          description: "Rating and context data for audiovisual titles, when available.",
-        },
-        {
           name: "TMDB",
-          description: "Metadata and rating signals for movies and series, when available.",
+          description: "Metadata and rating signals for movies and series.",
         },
         {
-          name: "Rotten Tomatoes and TMDB",
-          description:
-            "Professional criticism signals, when available through the title integration.",
+          name: "IMDb",
+          description: "Rating and context data for audiovisual titles.",
         },
         {
-          name: "IGDB and OpenCritic",
-          description: "Context and rating data for games, when available.",
+          name: "Rotten Tomatoes",
+          description: "Professional criticism signals for movies and series.",
         },
         {
-          name: "Open Library",
-          description: "Additional categories (books/comics) planned for the future.",
+          name: "Metacritic",
+          description: "Critic and audience signals for movies, series and games.",
+        },
+        {
+          name: "TVMaze",
+          description: "Metadata and ratings for series.",
+        },
+        {
+          name: "Letterboxd",
+          description: "Audience ratings for movies.",
+        },
+        {
+          name: "Trakt",
+          description: "Audience ratings for movies and series.",
+        },
+        {
+          name: "IGDB",
+          description: "Data and ratings for games.",
+        },
+        {
+          name: "OpenCritic",
+          description: "Aggregated criticism for games.",
+        },
+        {
+          name: "Steam",
+          description: "Audience ratings for games (Steam Store).",
+        },
+        {
+          name: "SteamSpy",
+          description: "Engagement signals for games.",
         },
       ],
       transparencyTitle: "Transparency over apparent precision",
@@ -356,27 +401,48 @@ const content: Record<string, InstitutionalContent> = {
       sourceTitle: "Fuentes compatibles con la plataforma",
       sourceItems: [
         {
-          name: "IMDb",
-          description:
-            "Datos de valoración y contexto para títulos audiovisuales, cuando están disponibles.",
-        },
-        {
           name: "TMDB",
-          description:
-            "Metadatos y señales de valoración para películas y series, cuando están disponibles.",
+          description: "Metadatos y señales de valoración para películas y series.",
         },
         {
-          name: "Rotten Tomatoes y TMDB",
-          description:
-            "Señales de crítica especializada, cuando están disponibles en la integración de la obra.",
+          name: "IMDb",
+          description: "Datos de valoración y contexto para títulos audiovisuales.",
         },
         {
-          name: "IGDB y OpenCritic",
-          description: "Datos de contexto y valoración para juegos, cuando están disponibles.",
+          name: "Rotten Tomatoes",
+          description: "Señales de crítica especializada para películas y series.",
         },
         {
-          name: "Open Library",
-          description: "Categorías adicionales (libros/cómics) planeadas para el futuro.",
+          name: "Metacritic",
+          description: "Señales de crítica y público para películas, series y juegos.",
+        },
+        {
+          name: "TVMaze",
+          description: "Metadatos y valoraciones para series.",
+        },
+        {
+          name: "Letterboxd",
+          description: "Valoraciones de público para películas.",
+        },
+        {
+          name: "Trakt",
+          description: "Valoraciones de público para películas y series.",
+        },
+        {
+          name: "IGDB",
+          description: "Datos y valoraciones para juegos.",
+        },
+        {
+          name: "OpenCritic",
+          description: "Crítica agregada para juegos.",
+        },
+        {
+          name: "Steam",
+          description: "Valoraciones de público para juegos (Steam Store).",
+        },
+        {
+          name: "SteamSpy",
+          description: "Señales de engagement para juegos.",
         },
       ],
       transparencyTitle: "Transparencia antes que precisión aparente",
