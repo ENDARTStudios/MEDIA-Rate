@@ -1279,3 +1279,28 @@ ACHADO P2 (dado): poster de "Baldur's Gate 3" no banco vivo aponta para
   placeholder (nao quebra UI). NAO e bug de encoding. Fix: normalizacao
   defensiva adicionada em MediaCard/ImageWithFallback (%2527->%27) + correcao
   do registro no banco (UPDATE imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg').
+
+## [2026-08-05] Auditoria 16 rotas — achados e correcoes (commit 7358f53)
+METODO: Playwright em 16 URLs (status, console, falhas de rede, imagens,
+links sem locale, mojibake, fontes, h1/h2, conteudo).
+TODAS as 16 rotas retornam 200. Login-gated (profile/dashboard/settings/
+watchlist/user/data) redirecionam para login anonimo (esperado).
+ACHADOS CORRIGIDOS:
+1. [P1] catalog?type=comic QUEBRADO: api.ts enviava tipo=HQ, mas o enum do
+   Prisma/API e COMIC -> 500 (tipo=HQ testado: 500; COMIC: 200 com 391 HQs).
+   Fix: TIPO_TO_API.comic="COMIC" + mapTipo aceita COMIC e HQ (legado).
+2. [P1] MISSING_MESSAGE catalog.movie/series/book: CategoryChip chamava
+   t(type) com chaves inglesas; namespace usa filme/serie/livro. Fix:
+   TIPO_KEY map no CategoryChip. (Chips apareciam sem label no catalogo.)
+3. [P1] Metodologia descrevia v2 (50/50, consenso NAO realimenta) enquanto
+   home/about dizem v3 -> institucional-content.ts reescrito p/ v3 com pesos
+   REAIS da API (filmes/series 40/40/20, games 55/35/10, threshold Bayesiano,
+   confianca Alta>=70/Media>=40/Baixa<40) em pt/en/es + chaves mortas
+   scoreV2/methodologyV2 atualizadas.
+4. [P2] Mojibake real no pt-BR: setas "â†'" (=>) em whatIsNotCta/howItWorksCta.
+PENDENCIAS (dados, fora de codigo):
+- Poster BG3 no banco (hash 7/79 errado; correto 1/12) - ja reportado.
+- Catalogo GAME tem apenas 1 titulo no banco (Games1) - cobertura de dados.
+- 401 x2 em todas as paginas (auth/me, watchlist anonimos - esperado).
+VERIFICADO NO AR: catalog?type=comic 200 com 12+ cards e chips rotulados;
+metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
