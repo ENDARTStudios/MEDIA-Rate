@@ -40,6 +40,16 @@ export interface CategoryChipProps {
   className?: string;
 }
 
+/** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/anime/comic). */
+const TIPO_KEY: Record<MediaType, string> = {
+  movie: "filme",
+  series: "serie",
+  game: "game",
+  book: "livro",
+  comic: "comic",
+  anime: "anime",
+};
+
 export function CategoryChip({
   type,
   count,
@@ -51,7 +61,7 @@ export function CategoryChip({
   const t = useTranslations("catalog");
   const Icon = ICONS[type];
   const accent = MEDIA_ACCENTS[type];
-  const resolvedLabel = label ?? t(type);
+  const resolvedLabel = label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime");
 
   return (
     <button

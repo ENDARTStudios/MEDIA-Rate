@@ -135,8 +135,8 @@
     "consensusLabel": "Consenso",
     "highConsensus": "Alto consenso",
     "lowConsensus": "Divergência crítica/público",
-    "scoreV2": "MEDIA Score™ v2",
-    "methodologyV2": "Calculado como média entre Crítica (50%) e Público (50%). O consenso é um indicador qualitativo do gap entre as duas avaliações — não entra no cálculo.",
+    "scoreV2": "MEDIA Score™ v3",
+    "methodologyV2": "Calculado com pesos específicos por tipo (crítica, público e consenso) e estimador Bayesiano que puxa obras com poucos votos para a média do catálogo; o consenso realimenta a nota.",
     "scoreComingSoon": "Em breve — fontes em preparação"
   },
   "dashboard": {
@@ -442,7 +442,7 @@
     "whatIsBody": "O MEDIA Rate é uma plataforma que agrega avaliações de fontes públicas — como TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic e Steam — em um único score consolidado, o MEDIA Score™. Em vez de consultar vários sites para decidir se um filme, série ou game vale seu tempo, você encontra o contexto em um só lugar.",
     "whatIsNotTitle": "O que o MEDIA Rate não é",
     "whatIsNotBody": "O MEDIA Rate <strong>não é uma crítica</strong> nem uma opinião editorial. O MEDIA Score™ não reflete o gosto de um autor — ele é uma <strong>agregação transparente de avaliações públicas</strong>, com metodologia aberta e verificável. Cada score exibe suas fontes, o nível de confiança e o quanto crítica e público concordam.",
-    "whatIsNotCta": "Leia a metodologia completa â†’",
+    "whatIsNotCta": "Leia a metodologia completa →",
     "categoriesTitle": "Categorias cobertas hoje",
     "categoriesIntro": "O foco atual são <strong>três categorias</strong>: Filmes, Séries e Games.",
     "categoriesMovie": "<strong>Filmes:</strong> scores agregados a partir do TMDB, IMDb e Rotten Tomatoes.",
@@ -450,7 +450,7 @@
     "categoriesGame": "<strong>Games:</strong> scores do IGDB, OpenCritic e Steam.",
     "howItWorksTitle": "Como o MEDIA Score™ funciona",
     "howItWorksBody": "O MEDIA Score™ v3 calcula a nota por mídia com pesos específicos (crítica, público e consenso) e um estimador Bayesiano que puxa obras com poucos votos para a média do catálogo. O consenso realimenta a nota; o nível de confiança (Alta/Média/Baixa) e a metodologia completa estão documentados na página de metodologia.",
-    "howItWorksCta": "Ver metodologia â†’",
+    "howItWorksCta": "Ver metodologia →",
     "transparencyTitle": "Transparência e conformidade",
     "transparencyBody": "Cada MEDIA Score™ exibe suas fontes e o nível de confiança. Nenhum score é ocultado — scores com baixa confiança são sinalizados, nunca suprimidos. Seguimos a LGPD: você pode acessar, corrigir, exportar ou excluir seus dados a qualquer momento.",
     "transparencyCta": "Política de Privacidade →",

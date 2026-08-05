@@ -157,6 +157,7 @@ function mapTipo(tipo: string): MediaType {
     case "LIVRO":
       return "book";
     case "HQ":
+    case "COMIC":
       return "comic";
     case "ANIME":
       return "anime";
@@ -806,7 +807,7 @@ const TIPO_TO_API: Record<MediaType, string> = {
   game: "GAME",
   book: "LIVRO",
   anime: "ANIME",
-  comic: "HQ",
+  comic: "COMIC",
 };
 
 const SORT_TO_API: Record<string, string> = {

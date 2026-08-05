@@ -135,8 +135,8 @@
     "consensusLabel": "Consenso",
     "highConsensus": "Alto consenso",
     "lowConsensus": "Divergencia crítica/público",
-    "scoreV2": "MEDIA Score™ v2",
-    "methodologyV2": "Calculado como media entre Crítica (50%) y Público (50%). El consenso es un indicador cualitativo de la brecha entre ambas valoraciones — no entra en el cálculo.",
+    "scoreV2": "MEDIA Score™ v3",
+    "methodologyV2": "Calculado con pesos específicos por tipo (crítica, público y consenso) y un estimador bayesiano que acerca las obras con pocos votos a la media del catálogo; el consenso realimenta la nota.",
     "scoreComingSoon": "Próximamente — fuentes en preparación"
   },
   "dashboard": {

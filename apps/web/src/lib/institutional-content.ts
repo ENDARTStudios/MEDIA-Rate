@@ -74,26 +74,26 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "O que o score representa",
       scoreBody:
         "O score consolidado resume as avaliações disponíveis de uma obra depois de normalizar a escala de cada fonte. Ele é uma ferramenta de contexto: uma nota não substitui uma crítica, não prevê a experiência individual e deve ser lida ao lado das fontes exibidas na ficha da obra.",
-      calculationTitle: "Como o cálculo é composto (v2)",
+      calculationTitle: "Como o cálculo é composto (v3)",
       calculationLead:
-        "O MEDIA Score™ v2 calcula a nota global como a média simples entre crítica e público quando ambos os dados estão disponíveis. Quando apenas uma das fontes existe — como em filmes e séries — o score reflete essa fonte. O consenso entre crítica e público é um indicador separado e informativo: NÃO entra no cálculo da nota.",
+        "O MEDIA Score™ v3 combina crítica, público e consenso com pesos específicos por tipo de mídia (filmes e séries: 40/40/20; games: 55/35/10) e aplica um estimador Bayesiano que puxa obras com poucos votos para a média do catálogo. O consenso realimenta a nota: sinais divergentes entre crítica e público ajustam o score.",
       calculationItems: [
         {
-          label: "Crítica (50%)",
-          body: "Média normalizada das fontes classificadas como crítica especializada. Quando disponível.",
+          label: "Crítica (peso por tipo)",
+          body: "Média normalizada das fontes de crítica especializada — 40% em filmes e séries, 55% em games, quando disponível.",
         },
         {
-          label: "Público (50%)",
-          body: "Média normalizada das fontes classificadas como avaliações de audiência.",
+          label: "Público (peso por tipo)",
+          body: "Média normalizada das fontes de audiência — 40% em filmes e séries, 35% em games.",
         },
         {
-          label: "Consenso (informativo)",
-          body: "Indicador separado que mede a concordância entre crítica e público (0–10). NÃO realimenta o cálculo do score global — serve apenas para contextualizar a divergência.",
+          label: "Consenso (realimenta)",
+          body: "Mede a concordância entre crítica e público e REALIMENTA o score (20% em filmes e séries, 10% em games). Obras com sinais divergentes são corrigidas, evitando notas infladas por discordância.",
         },
       ],
       confidenceTitle: "Nível de confiança",
       confidenceBody:
-        "Além da nota, o sistema calcula um indicador de confiança a partir da cobertura de fontes, do volume de sinais disponíveis, da concordância entre crítica e público e da existência de dados. Uma confiança menor indica que a leitura do score deve ser mais cautelosa.",
+        "Além da nota, o sistema calcula um indicador de confiança (Alta ≥ 70, Média ≥ 40, Baixa < 40) a partir do volume de votos, do número de fontes, da dispersão das notas e da idade dos dados. Scores com baixa confiança são sinalizados com alerta — nunca ocultados.",
       scopeTitle: "Escopo e limitações",
       scopeBody:
         "A disponibilidade de fontes varia por tipo de mídia e por obra. O MEDIA Rate só pode consolidar o que está disponível em suas fontes integradas; por isso, páginas diferentes podem ter escopos de dados distintos. Sempre que possível, a ficha da obra deve exibir o contexto que sustenta a nota.",
@@ -186,26 +186,26 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "What the score represents",
       scoreBody:
         "The consolidated score summarizes the ratings available for a title after normalizing each source scale. It is a context tool: a score does not replace a review, does not predict an individual experience and should be read alongside the sources shown on the title page.",
-      calculationTitle: "How the Calculation Works (v2)",
+      calculationTitle: "How the Calculation Works (v3)",
       calculationLead:
-        "The MEDIA Score™ v2 calculates the global score as the simple average of critics and audience when both are available. When only one source exists — as in movies and series — the score reflects that source. Consensus between critics and audience is a separate, informative indicator: it does NOT factor into the score calculation.",
+        "MEDIA Score™ v3 combines critics, audience and consensus with media-type weights (movies and series: 40/40/20; games: 55/35/10) and applies a Bayesian estimator that pulls titles with few votes toward the catalog average. Consensus feeds back into the score: divergent critic–audience signals adjust the score downward.",
       calculationItems: [
         {
-          label: "Critics (50%)",
-          body: "Normalized average of sources classified as professional criticism. When available.",
+          label: "Critics (weight per type)",
+          body: "Normalized average of professional criticism sources — 40% for movies and series, 55% for games, when available.",
         },
         {
-          label: "Audience (50%)",
-          body: "Normalized average of sources classified as audience ratings.",
+          label: "Audience (weight per type)",
+          body: "Normalized average of audience rating sources — 40% for movies and series, 35% for games.",
         },
         {
-          label: "Consensus (informative)",
-          body: "Separate indicator measuring agreement between critics and audience (0–10). Does NOT feed back into the global score — only provides context on divergence.",
+          label: "Consensus (feeds back)",
+          body: "Measures critic–audience agreement and FEEDS BACK into the score (20% for movies and series, 10% for games). Titles with divergent signals are corrected, avoiding inflated scores.",
         },
       ],
       confidenceTitle: "Confidence level",
       confidenceBody:
-        "Alongside the score, the system calculates a confidence indicator from source coverage, signal volume, critic–audience agreement and data availability. Lower confidence means the score should be interpreted more cautiously.",
+        "Alongside the score, the system calculates a confidence indicator (High ≥ 70, Medium ≥ 40, Low < 40) from vote volume, number of sources, rating dispersion and data age. Low-confidence scores are flagged with a warning — never hidden.",
       scopeTitle: "Scope and limitations",
       scopeBody:
         "Source availability varies by media type and title. MEDIA Rate can only consolidate information available through its integrated sources, so pages can have different data coverage. Whenever possible, the title page should show the context supporting the score.",
@@ -297,26 +297,26 @@ const content: Record<string, InstitutionalContent> = {
       scoreTitle: "Qué representa la puntuación",
       scoreBody:
         "La puntuación consolidada resume las valoraciones disponibles de una obra tras normalizar la escala de cada fuente. Es una herramienta de contexto: una nota no sustituye una crítica, no predice la experiencia individual y debe leerse junto con las fuentes mostradas en la ficha.",
-      calculationTitle: "Cómo Funciona el Cálculo (v2)",
+      calculationTitle: "Cómo Funciona el Cálculo (v3)",
       calculationLead:
-        "El MEDIA Score™ v2 calcula la nota global como el promedio simple entre crítica y público cuando ambos están disponibles. Cuando solo una fuente existe — como en películas y series — la nota refleja esa fuente. El consenso entre crítica y público es un indicador separado e informativo: NO entra en el cálculo de la nota.",
+        "El MEDIA Score™ v3 combina crítica, público y consenso con pesos específicos por tipo de medio (películas y series: 40/40/20; juegos: 55/35/10) y aplica un estimador bayesiano que acerca las obras con pocos votos a la media del catálogo. El consenso realimenta la nota: las señales divergentes entre crítica y público ajustan la puntuación.",
       calculationItems: [
         {
-          label: "Crítica (50%)",
-          body: "Promedio normalizado de fuentes clasificadas como crítica especializada. Cuando está disponible.",
+          label: "Crítica (peso por tipo)",
+          body: "Promedio normalizado de fuentes de crítica especializada — 40% en películas y series, 55% en juegos, cuando está disponible.",
         },
         {
-          label: "Público (50%)",
-          body: "Promedio normalizado de fuentes clasificadas como valoraciones de audiencia.",
+          label: "Público (peso por tipo)",
+          body: "Promedio normalizado de fuentes de audiencia — 40% en películas y series, 35% en juegos.",
         },
         {
-          label: "Consenso (informativo)",
-          body: "Indicador separado que mide la concordancia entre crítica y público (0–10). NO realimenta el cálculo del score global — solo proporciona contexto sobre la divergencia.",
+          label: "Consenso (realimenta)",
+          body: "Mide la concordancia entre crítica y público y REALIMENTA la puntuación (20% en películas y series, 10% en juegos). Las obras con señales divergentes se corrigen, evitando notas infladas.",
         },
       ],
       confidenceTitle: "Nivel de confianza",
       confidenceBody:
-        "Además de la nota, el sistema calcula un indicador de confianza a partir de la cobertura de fuentes, el volumen de señales disponibles, la concordancia entre crítica y público y la disponibilidad de datos. Una confianza menor exige una lectura más cautelosa.",
+        "Además de la nota, el sistema calcula un indicador de confianza (Alta ≥ 70, Media ≥ 40, Baja < 40) a partir del volumen de votos, el número de fuentes, la dispersión de las notas y la antigüedad de los datos. Las puntuaciones de baja confianza se señalan con alerta — nunca se ocultan.",
       scopeTitle: "Alcance y limitaciones",
       scopeBody:
         "La disponibilidad de fuentes varía por tipo de media y por obra. MEDIA Rate solo puede consolidar la información disponible en sus fuentes integradas, por lo que las fichas pueden tener coberturas de datos distintas. Siempre que sea posible, la ficha debe mostrar el contexto que respalda la puntuación.",
