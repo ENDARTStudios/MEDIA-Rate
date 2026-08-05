@@ -1,10 +1,12 @@
 "use client";
 
 /**
- * Seções de carrossel para categorias futuras (addendum §6):
- * Livro, HQ e Mangá usam o LockedComingSoonCard (blur + cadeado + modal
- * de waitlist) em vez de desaparecer — continuidade visual da página e
- * captura de lead.
+ * Seções de carrossel para categorias futuras (addendum §6).
+ *
+ * Taxonomia alinhada ao menu: HQs e Mangás formam UMA categoria
+ * (?type=comic, "HQs & Mangás") — igual ao cluster do Hero e à navegação.
+ * Livro é a outra categoria em roadmap. Ambas usam o LockedComingSoonCard
+ * (blur + cadeado + modal de waitlist) em vez de desaparecer.
  */
 import { useTranslations } from "next-intl";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
@@ -12,8 +14,7 @@ import type { MediaType } from "@/lib/types";
 
 const SECTIONS: { type: MediaType; label: string; count: string }[] = [
   { type: "book", label: "Livros", count: "Em breve" },
-  { type: "comic", label: "HQs", count: "Em breve" },
-  { type: "anime", label: "Mangás", count: "Em breve" },
+  { type: "comic", label: "HQs & Mangás", count: "Em breve" },
 ];
 
 export function ComingSoonRails() {

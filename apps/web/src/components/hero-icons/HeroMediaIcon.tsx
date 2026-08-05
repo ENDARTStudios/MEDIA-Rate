@@ -21,6 +21,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { animate } from "animejs";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { useRouter } from "@/lib/navigation";
@@ -83,6 +84,7 @@ export function HeroMediaIcon({
   className,
 }: HeroMediaIconProps) {
   const router = useRouter();
+  const locale = useLocale();
   const shouldReduce = useReducedMotion();
   const rootRef = useRef<HTMLAnchorElement>(null);
   const shotRef = useRef<HTMLDivElement>(null);
@@ -293,7 +295,7 @@ export function HeroMediaIcon({
   return (
     <motion.a
       ref={rootRef}
-      href={href}
+      href={href.startsWith("/") ? `/${locale}${href}` : href}
       aria-label={`Explorar ${label}`}
       onMouseEnter={playOneShot}
       onMouseMove={handleMouseMove}

@@ -45,7 +45,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         "acceptedAnswer": {
           "@type": "Answer",
           "text":
-            "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
+            "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic e Steam em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
         },
       },
       {
@@ -81,7 +81,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         "acceptedAnswer": {
           "@type": "Answer",
           "text":
-            "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic para filmes e séries; IGDB e OpenCritic para games.",
+            "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, Letterboxd e Trakt para filmes e séries; IGDB, OpenCritic, Steam e SteamSpy para games.",
         },
       },
     ],

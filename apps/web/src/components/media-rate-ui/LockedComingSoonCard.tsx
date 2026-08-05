@@ -20,7 +20,7 @@ const CATEGORY_LABEL: Record<MediaType, string> = {
   series: "Séries",
   game: "Games",
   book: "Livros",
-  comic: "HQs",
+  comic: "HQs & Mangás",
   anime: "Mangás",
 };
 
@@ -34,7 +34,7 @@ export interface LockedComingSoonCardProps {
 const VARIANTE_LABEL: Record<MediaType, string[]> = {
   book: ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
   comic: ["HQs", "Super-heróis", "Indie", "Mangás", "Novidades"],
-  anime: ["Shonen", "Seinen", "Slice of Life", "Filmes", "Novidades"],
+  anime: ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
   movie: ["Filmes"],
   series: ["Séries"],
   game: ["Games"],
