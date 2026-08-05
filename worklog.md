@@ -1388,3 +1388,29 @@ FALSO POSITIVO: "mojibake em massa" nos .tsx era artefato do PowerShell
   (verificado bytes + <title> servido).
 PRE-EXISTENTE: 4 falhas em controllers-unit.spec.ts (getBySlug 500) — falham
   com e sem esta mudanca (fora do escopo).
+
+## [2026-08-05] Auditoria 3 — achados novos (commit 51388fc)
+I. CRITICA NAO POPULA (grave, confirmado): amostra de 5 filmes + 5 series = 0
+   fontes de critica; unico game (BG3) TEM critica (igdb/opencritic).
+   CAUSA RAIZ: adapters metacritic/rottentomatoes/letterboxd/rogerebert sao
+   gated por SCRAPE_NUMERICO_ENABLED==="true" (flag OFF em producao) ->
+   retornam "inativa" e a coleta tolera falhas em silencio. Os adapters estao
+   CONECTADOS em coleta.service.ts (linha 41-68) - so falta habilitar a flag
+   no ambiente da API + rodar a coleta de novo. ACAO DO OPERADOR.
+II. TRAKT nao documentada: corrigido (ja estava nas listas canonicas desde a
+   rodada anterior - home + /sources + FAQ). Verificado no ar.
+III. DIVERGENCIA BAYESIANA sem explicacao: FIX na ficha (MediaScoreModule):
+   quando o score consolidado difere >1.5pt da media simples das fontes,
+   exibe "Ajustado por volume de votos (estimador Bayesiano)..." + link p/
+   /methodology (chaves pt/en/es). No ar na ficha de O Jogo da Morte (84/83
+   vs 72.8 com a nota visivel).
+IV. BREADCRUM p/ filtro quebrado: filtro corrigido na rodada anterior;
+   breadcrumb /pt-BR/catalog?type=series agora retorna series. OK.
+V. CORRIDA DE HIDRATACAO do logo: NAO reproduzida (JS on/off identico).
+   "MEDIARate" = variante "full" do logo (MEDIA empilhado sobre Rate), usada
+   no centro das paginas de auth - design, nao bug.
+VII. Tabela stale: todos os itens ja corrigidos/verificados nas rodadas 1-2.
+CORRECAO PROPIA: ferramenta PowerShell (Set-Content ANSI->UTF8) corrompeu
+   es-ES.json (505 chars) e en-US.json (29) nesta sessao - restaurados do git
+   e reaplicados com editor proprio. LICAO: nunca editar messages/*.json via
+   cmdlets do PowerShell.
