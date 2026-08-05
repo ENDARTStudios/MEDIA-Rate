@@ -1117,3 +1117,20 @@ Stage Summary:
   temporada/episodio precisam de fonte no backend para sair do estado
   "Nao informado".
 - Status: DONE.
+
+## [2026-08-04] Stage: Dados reais dos metadados — franquias e origem
+- FRANQUIAS (Addendum 2 §7): model Franquia + MidiaFranquia (N:N, ordens de
+  lancamento/cronologica) + migracao 20260804_franquias_origem + seed
+  idempotente (13 definicoes; 3 vinculadas no catalogo atual: O Senhor dos
+  Aneis 3, Star Wars 2, Breaking Bad universo 2 = 7 vinculos; as demais com
+  menos de 2 titulos no catalogo foram ignoradas — honesto). API do detalhe
+  expoe franquias com itens; web mapeia e renderiza o FranchiseCarousel
+  (verificado em producao: LOTR com 3 itens, ordens + scores no initialData).
+- ORIGEM (Addendum 2 §5): campo midia.pais_origem (ISO alfa-2) + seed-origem
+  (26 series com pais via origin_country do TMDB; filmes ficam null — ?? na
+  UI). OriginBadge com modo pais-somente (sem produtora).
+- PREMIOS e NOTAS SERIADAS: sem fonte de dado disponivel (nenhuma API fornece
+  premios; temporadas/episodios sem estrutura no backend) — estados honestos
+  "Nao informado" mantidos.
+- Suites: API 444, web 157; deploy verificado.
+- Status: DONE.
