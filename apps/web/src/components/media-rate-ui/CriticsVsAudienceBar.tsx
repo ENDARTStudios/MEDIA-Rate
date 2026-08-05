@@ -61,7 +61,13 @@ export function CriticsVsAudienceBar({
           <span className="font-medium" style={{ color: CRITICS_COLOR }}>
             {t("criticsBar")}
           </span>
-          {c != null && <span className="tabular-nums text-[#A0A0B8]">{c.toFixed(1)}</span>}
+          {c != null ? (
+            <span className="tabular-nums text-[#A0A0B8]">{c.toFixed(1)}</span>
+          ) : (
+            <span className="text-[#6B6B85]" data-testid="sem-critica">
+              {t("semCritica")}
+            </span>
+          )}
         </div>
         <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden" role="presentation">
           {c != null && (

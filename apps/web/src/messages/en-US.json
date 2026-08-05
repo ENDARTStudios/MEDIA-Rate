@@ -142,6 +142,7 @@
     "sources": "Sources",
     "scoreAriaLabel": "Overall score {score} out of {scale}, based on {sources} source{sources, plural, one {} other {s}}",
     "criticsBar": "Critics",
+    "semCritica": "No critics",
     "audienceBar": "Audience",
     "consensusLabel": "Consensus",
     "highConsensus": "High consensus",
