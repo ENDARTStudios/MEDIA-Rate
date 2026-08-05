@@ -19,10 +19,7 @@ interface TmdbItem {
 
 async function fetchTmdb<T>(path: string): Promise<T> {
   const res = await fetch(`${TMDB_BASE}${path}`, {
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_KEY ?? ""}`,
-      accept: "application/json",
-    },
+    headers: { accept: "application/json" },
   });
   if (!res.ok) throw new Error(`TMDB ${res.status}: ${path}`);
   return (await res.json()) as T;
@@ -32,7 +29,7 @@ async function main(): Promise<void> {
   let atualizadas = 0;
   for (let pagina = 1; pagina <= 10; pagina++) {
     const data = await fetchTmdb<{ results: TmdbItem[] }>(
-      `/discover/tv?sort_by=popularity.desc&with_original_language=en|ja|ko|es|pt|fr|de&page=${pagina}`,
+      `/discover/tv?sort_by=popularity.desc&with_original_language=en|ja|ko|es|pt|fr|de&page=${pagina}&api_key=${process.env.TMDB_API_KEY ?? ""}`,
     );
     for (const item of data.results) {
       const pais = item.origin_country?.[0];
