@@ -1491,3 +1491,25 @@ Gaps fechados:
 - MEDIARate grep = 0.
 VERIFICADO NO AR: fonts loaded = Space Grotesk/Inter/JetBrains Mono;
 --font-mono e --color-text-muted 128 128 155 presentes. tsc/lint/159/159/build.
+
+## [2026-08-06] T184-componentes-base (DONE, commit 4c08419)
+6 componentes core da Parte 4 D-203:
+- ScoreDial (NOVO): value/scale/size/showConfidence; faixas relativas a escala
+  (>=8/>=80 verde, >=6/>=60 ambar, <6/<60 vermelho); JetBrains Mono tabular;
+  aria-label "Nota X de Y"; clamp; sem animacao (F7).
+- CategoryChip: consome CATEGORY_TOKENS (T183) via derivacao MEDIA_ACCENTS
+  (mantido p/ compat: EmptyStateComingSoon/LockedComingSoonCard/WatchlistClient/
+  PricingCards); contagem compacta (1200 -> "1,2k"); aria-pressed.
+- MediaCard: barra superior 3px accent da categoria + badge de icone lucide +
+  ScoreDial novo (value/scale); aria-label ja existente mantido.
+- SourceMiniCard: prop scale ("0-10"|"0-100") p/ exibir nota normalizada
+  (X/10 ou X/100); default 0-100 (back-compat).
+- CriticsVsAudienceBar: tooltip de consenso (consensusTooltip pt/en/es) +
+  gradiente visual ponte critica->publico (testid consensus-gradient).
+- ConfidenceBadge: ja conforme (tooltip + aria) - verificado.
+- barrel index.ts: ScoreDial passa a re-exportar o novo (media-rate-ui).
+GATES: 12 testes novos (ScoreDial 7, CategoryChip 3, Bar 2) -> 171/171;
+tsc/lint/build verdes; scale props 3; aria-label 9; ': any' = 0.
+VERIFICADO LOCAL: 21 dials (aria "Nota 8,4 de 10", mono), 21 accent bars,
+chip ativo rgb(129,140,248). DEPLOY: commit no origin; Vercel em fila
+(>11min) - re-verificar no ar.
