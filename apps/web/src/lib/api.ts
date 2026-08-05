@@ -66,8 +66,24 @@ interface ApiMidiaSlug {
   ano_lancamento: number | null;
   imagem_url: string | null;
   classificacao_indicativa: string | null;
+  pais_origem: string | null;
   duracao_minutos: number | null;
   generos: string[];
+  franquias: {
+    id: string;
+    nome: string;
+    slug: string;
+    itens: {
+      midia_id: string;
+      titulo: string;
+      tipo: string;
+      ano_lancamento: number | null;
+      imagem_url: string | null;
+      score: number | null;
+      ordem_lancamento: number;
+      ordem_cronologica: number | null;
+    }[];
+  }[];
   streamings: string[];
   score: ApiScore | null;
   fontes: ApiFonte[];
@@ -207,6 +223,22 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: m.generos,
     classificacaoIndicativa: mapClassificacaoIndicativa(m.classificacao_indicativa),
+    paisOrigem: m.pais_origem ?? null,
+    franquias: (m.franquias ?? []).map((f) => ({
+      id: f.id,
+      nome: f.nome,
+      slug: f.slug,
+      itens: f.itens.map((i) => ({
+        midiaId: i.midia_id,
+        titulo: i.titulo,
+        tipo: mapTipo(i.tipo),
+        ano: i.ano_lancamento,
+        imagemUrl: i.imagem_url,
+        score: i.score,
+        ordemLancamento: i.ordem_lancamento,
+        ordemCronologica: i.ordem_cronologica,
+      })),
+    })),
     duration: m.duracao_minutos != null ? `${m.duracao_minutos} min` : undefined,
     synopsis: m.sinopse ?? "",
     posterUrl: m.imagem_url,

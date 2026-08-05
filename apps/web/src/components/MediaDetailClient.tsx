@@ -20,6 +20,7 @@ import {
   SeriatedScoreTree,
   AwardsShowcase,
   FranchiseCarousel,
+  OriginBadge,
 } from "@/components/media-rate-ui";
 import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import { RateLimitedError } from "@/lib/http";
@@ -292,6 +293,24 @@ export function MediaDetailClient({
                 </div>
               )}
 
+              {/* Origem da produção (⚠️ — só quando houver dado). */}
+              {media.paisOrigem && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                    {tm("origin")}
+                  </h3>
+                  <OriginBadge
+                    countryCode={media.paisOrigem}
+                    roleLabel={
+                      media.type === "game"
+                        ? (tm("roleStudio") ?? "Estúdio")
+                        : (tm("roleStudio") ?? "Estúdio")
+                    }
+                    mediaType={media.type}
+                  />
+                </div>
+              )}
+
               {/* Prêmios (✅ — sem dado → "Não informado", nunca fabricado). */}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
@@ -300,12 +319,31 @@ export function MediaDetailClient({
                 <AwardsShowcase awards={[]} />
               </div>
 
-              {/* Sequências/conteúdo relacionado (✅ — sem dado → "Não informado"). */}
+              {/* Sequências/conteúdo relacionado (✅ — franquia real quando houver). */}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                   {tm("franchise")}
                 </h3>
-                <FranchiseCarousel items={[]} currentMediaId={media.id} />
+                {media.franquias && media.franquias.length > 0 ? (
+                  media.franquias.map((franquia) => (
+                    <FranchiseCarousel
+                      key={franquia.id}
+                      items={franquia.itens.map((i) => ({
+                        midiaId: i.midiaId,
+                        tipo: i.tipo,
+                        titulo: i.titulo,
+                        ano: i.ano,
+                        posterUrl: i.imagemUrl,
+                        score: i.score,
+                        ordemLancamento: i.ordemLancamento,
+                        ordemCronologica: i.ordemCronologica,
+                      }))}
+                      currentMediaId={media.id}
+                    />
+                  ))
+                ) : (
+                  <FranchiseCarousel items={[]} currentMediaId={media.id} />
+                )}
               </div>
             </div>
           </Tabs.Content>

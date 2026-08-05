@@ -229,6 +229,28 @@ export class MediaController {
       streamings: { include: { service: { select: { nome: true } } } },
       scores: true,
       avaliacoes: { select: { fonte: true, url: true } },
+      franquias: {
+        include: {
+          franquia: {
+            include: {
+              midias: {
+                include: {
+                  midia: {
+                    select: {
+                      id: true,
+                      titulo: true,
+                      tipo: true,
+                      ano_lancamento: true,
+                      imagem_url: true,
+                      score: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     };
 
     // 1) id UUID direto (rotas legadas /movie/[id] e cards que linkam por id).
@@ -272,8 +294,25 @@ export class MediaController {
       ano_lancamento: midia.ano_lancamento,
       imagem_url: midia.imagem_url,
       classificacao_indicativa: midia.classificacao_indicativa,
+      pais_origem: midia.pais_origem,
       duracao_minutos: midia.duracao_minutos,
       generos: midia.generos.map((g) => g.genero.nome),
+      // Addendum 2 §7: franquias com ordens (lançamento + cronológica).
+      franquias: midia.franquias.map((mf) => ({
+        id: mf.franquia.id,
+        nome: mf.franquia.nome,
+        slug: mf.franquia.slug,
+        itens: mf.franquia.midias.map((outro) => ({
+          midia_id: outro.midia.id,
+          titulo: outro.midia.titulo,
+          tipo: outro.midia.tipo,
+          ano_lancamento: outro.midia.ano_lancamento,
+          imagem_url: outro.midia.imagem_url,
+          score: outro.midia.score,
+          ordem_lancamento: outro.ordem_lancamento,
+          ordem_cronologica: outro.ordem_cronologica,
+        })),
+      })),
       streamings: midia.streamings.map((s) => s.service.nome),
       score: score
         ? {

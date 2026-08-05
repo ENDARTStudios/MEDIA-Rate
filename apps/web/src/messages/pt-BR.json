@@ -223,7 +223,12 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendações/dia"
+    ],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -748,6 +753,7 @@
     "orderChronological": "Ordem cronológica",
     "orderToggle": "Ordenação da franquia",
     "notInformed": "Não informado",
-    "seasonUnit": "Temporada"
+    "seasonUnit": "Temporada",
+    "roleStudio": "Estúdio"
   }
 }

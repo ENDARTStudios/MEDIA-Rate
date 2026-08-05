@@ -283,6 +283,8 @@ model Midia {
   // Score desnormalizado (último media_score) — permite ordenação escalar
   // por score sem orderBy de relação (quirk do engine Prisma em runtime).
   score                   Float?                 @map("score")
+  // País de origem (ISO 3166-1 alfa-2, ex.: 'US', 'JP') — Addendum 2 §5.
+  pais_origem             String?                @map("pais_origem") @db.VarChar(2)
   tipo                    TipoMidia
   titulo                  String                 @db.Text
   titulo_original         String?                @map("titulo_original") @db.Text
@@ -302,6 +304,7 @@ model Midia {
   generos                 MidiaGenero[]
   streamings              MidiaStreaming[]
   avaliacoes              AvaliacaoFonte[]
+  franquias               MidiaFranquia[]
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
@@ -511,6 +514,34 @@ model ListaItem {
   @@unique([lista_id, midia_id])
   @@index([lista_id])
   @@map("lista_item")
+}
+
+/// Franquia/universo de mídia (Addendum 2 §7) — títulos de qualquer mídia.
+model Franquia {
+  id     String          @id @default(uuid()) @db.Uuid
+  nome   String          @db.VarChar(120)
+  slug   String          @unique @db.VarChar(64)
+  midias MidiaFranquia[]
+
+  @@map("franquia")
+}
+
+/// Vínculo N:N mídia ↔ franquia com ordens de lançamento e cronológica.
+model MidiaFranquia {
+  id               String   @id @default(uuid()) @db.Uuid
+  midia_id         String   @map("midia_id") @db.Uuid
+  franquia_id      String   @map("franquia_id") @db.Uuid
+  // Ordem de lançamento real (sempre presente).
+  ordem_lancamento Int      @map("ordem_lancamento")
+  // Ordem dos eventos na história (null = sem divergência/desconhecida).
+  ordem_cronologica Int?    @map("ordem_cronologica")
+
+  midia            Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+  franquia         Franquia @relation(fields: [franquia_id], references: [id], onDelete: Cascade)
+
+  @@unique([midia_id, franquia_id])
+  @@index([franquia_id])
+  @@map("midia_franquia")
 }
 
 /// Auditoria de visualizações do MEDIA Score (para métricas T1.9).

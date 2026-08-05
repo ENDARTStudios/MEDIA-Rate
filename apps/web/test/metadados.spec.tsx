@@ -7,6 +7,7 @@ import { GenreChipRow } from "@/components/media-rate-ui/GenreChipRow";
 import { AwardsShowcase } from "@/components/media-rate-ui/AwardsShowcase";
 import { FranchiseCarousel } from "@/components/media-rate-ui/FranchiseCarousel";
 import { FranchiseOrderToggle } from "@/components/media-rate-ui/FranchiseOrderToggle";
+import { OriginBadge } from "@/components/media-rate-ui/OriginBadge";
 
 const messages = {
   metadados: {
@@ -216,6 +217,29 @@ describe("Metadados estruturados (Addendum 2)", () => {
     it("sem itens → 'Não informado'", () => {
       renderWithProviders(<FranchiseCarousel items={[]} currentMediaId="m1" />);
       expect(screen.getByText("Não informado")).toBeTruthy();
+    });
+  });
+
+  describe("OriginBadge", () => {
+    it("país-somente (sem produtora) exibe bandeira + país", () => {
+      renderWithProviders(<OriginBadge countryCode="BR" roleLabel="Estúdio" mediaType="series" />);
+      expect(screen.getByText("Estúdio")).toBeTruthy();
+      expect(screen.getByText("Brasil")).toBeTruthy();
+    });
+
+    it("com entidade clicável quando entityId existe", () => {
+      renderWithProviders(
+        <OriginBadge
+          countryCode="US"
+          roleLabel="Estúdio"
+          entityName="A24"
+          entityId="a24"
+          mediaType="movie"
+        />,
+      );
+      const link = screen.getByRole("link");
+      expect(link.getAttribute("href")).toContain("/catalog?type=movie&produtora=a24");
+      expect(screen.getByText("A24")).toBeTruthy();
     });
   });
 

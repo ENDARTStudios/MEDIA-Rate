@@ -77,6 +77,24 @@ export interface Media {
   genreSlugs?: string[];
   /** DJCTQ/ClassInd: 'L' | '10' | '12' | '14' | '16' | '18' (null = não informado). */
   classificacaoIndicativa?: string | null;
+  /** País de origem (ISO 3166-1 alfa-2) — Addendum 2 §5. */
+  paisOrigem?: string | null;
+  /** Franquias/universos do título — Addendum 2 §7. */
+  franquias?: {
+    id: string;
+    nome: string;
+    slug: string;
+    itens: {
+      midiaId: string;
+      titulo: string;
+      tipo: MediaType;
+      ano: number | null;
+      imagemUrl: string | null;
+      score: number | null;
+      ordemLancamento: number;
+      ordemCronologica: number | null;
+    }[];
+  }[];
   duration?: string;
   synopsis: string;
   posterUrl: string | null;

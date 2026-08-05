@@ -223,7 +223,12 @@
     "upgrade": "Upgrade",
     "subscribe": "Subscribe",
     "features": "Features",
-    "freeFeatures": ["Full catalog", "MEDIA Score™", "Watchlist", "3 recommendations/day"],
+    "freeFeatures": [
+      "Full catalog",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recommendations/day"
+    ],
     "plusFeatures": [
       "7-day free trial",
       "Everything in Free",
@@ -748,6 +753,7 @@
     "orderChronological": "Chronological order",
     "orderToggle": "Franchise order",
     "notInformed": "Not informed",
-    "seasonUnit": "Season"
+    "seasonUnit": "Season",
+    "roleStudio": "Studio"
   }
 }

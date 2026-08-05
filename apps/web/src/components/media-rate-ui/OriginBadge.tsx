@@ -15,7 +15,8 @@ export interface OriginBadgeProps {
   countryCode?: string | null;
   /** Rótulo do papel (ex.: "Estúdio", "Editora", "Desenvolvedora"). */
   roleLabel: string;
-  entityName: string;
+  /** Entidade produtora (opcional — sem dado, exibe apenas o país). */
+  entityName?: string;
   entityId?: string;
   /** Publisher (games) — "Desenvolvido por X · Publicado por Y". */
   publisherName?: string;
@@ -51,6 +52,25 @@ const COUNTRY_FLAGS: Record<string, string> = {
   PL: "🇵🇱",
 };
 
+const COUNTRY_NAMES: Record<string, string> = {
+  BR: "Brasil",
+  US: "Estados Unidos",
+  GB: "Reino Unido",
+  JP: "Japão",
+  KR: "Coreia do Sul",
+  FR: "França",
+  DE: "Alemanha",
+  CA: "Canadá",
+  ES: "Espanha",
+  IT: "Itália",
+  MX: "México",
+  AR: "Argentina",
+  PT: "Portugal",
+  CN: "China",
+  SE: "Suécia",
+  PL: "Polônia",
+};
+
 export function OriginBadge({
   countryCode,
   roleLabel,
@@ -62,19 +82,28 @@ export function OriginBadge({
 }: OriginBadgeProps) {
   const t = useTranslations("metadados");
   const flag = countryCode ? (COUNTRY_FLAGS[countryCode.toUpperCase()] ?? "🏳️") : null;
+  const countryName = countryCode
+    ? (COUNTRY_NAMES[countryCode.toUpperCase()] ?? countryCode)
+    : null;
 
   const conteudo = (
     <>
       {flag && <span aria-hidden="true">{flag}</span>}
-      <span className="text-[#A0A0B8]">
-        {roleLabel}: <span className="font-medium text-[#F5F5F7]">{entityName}</span>
-        {publisherName && (
-          <span className="text-[#A0A0B8]">
-            {" "}
-            · {t("publishedBy")}: {publisherName}
-          </span>
-        )}
-      </span>
+      {entityName ? (
+        <span className="text-[#A0A0B8]">
+          {roleLabel}: <span className="font-medium text-[#F5F5F7]">{entityName}</span>
+          {publisherName && (
+            <span className="text-[#A0A0B8]">
+              {" "}
+              · {t("publishedBy")}: {publisherName}
+            </span>
+          )}
+        </span>
+      ) : (
+        <span className="text-[#A0A0B8]">
+          {roleLabel}: <span className="font-medium text-[#F5F5F7]">{countryName ?? "—"}</span>
+        </span>
+      )}
     </>
   );
 
@@ -83,7 +112,7 @@ export function OriginBadge({
       <Link
         href={`/catalog?type=${TYPE_PARAM[mediaType]}&produtora=${entityId}`}
         className={className}
-        aria-label={t("moreFrom", { entity: entityName })}
+        aria-label={t("moreFrom", { entity: entityName ?? countryName ?? "—" })}
       >
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#2A2A3D] bg-[#12121C] px-3 py-1 text-xs transition-colors hover:border-[#3A3A52]">
           {conteudo}
