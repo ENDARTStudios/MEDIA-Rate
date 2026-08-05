@@ -1472,3 +1472,22 @@ API: 440/444 (4 falhas getBySlug pre-existentes, fora do escopo).
   (mesmo baseline no build anterior contra o live; falhas em navigation mobile
   e media-details/elden-ring = titulos de mock fora do DB).
 - Methodology/FAQ v3 ja alinhados (rodada anterior).
+
+## [2026-08-06] T183-tokens-design (DONE, commit d0d4fe0)
+Estado: paleta D-203 (base/surface/border/textos/accents/score/media) JÁ
+estava implementada em design-tokens.ts + globals.css + tailwind.config.
+Gaps fechados:
+- FONTE MONO: JetBrains_Mono adicionada ao next/font/google (--font-mono) p/
+  numeros de score tabular; tailwind fontFamily.mono usa var. Display: Space
+  Grotesk 500-700 (fallback documentado: Clash/Cabinet indisponiveis em
+  next/font e Fontsource — E404); corpo Inter 400-600.
+- CONTRASTE AA: terciario D-203 #6B6B85 = 3.94:1 FALHA AA normal -> token
+  ajustado p/ #80809B (5.31:1) com comentario no codigo (unica divergencia
+  da paleta, documentada). Primario 18.68:1, secundario 7.96:1 (AA ok).
+- BASE: body/scrollbar #09090f (residuo T5.8) -> #05050A (base D-203).
+- CATEGORY_TOKENS: Record<MediaType, {color, icon, labelKey}> com icones
+  lucide (Clapperboard/Tv/Gamepad2/BookOpen/BookImage/BookMarked) exposto em
+  design-tokens.ts p/ CategoryChip/MediaCard/filtros consumirem (T184).
+- MEDIARate grep = 0.
+VERIFICADO NO AR: fonts loaded = Space Grotesk/Inter/JetBrains Mono;
+--font-mono e --color-text-muted 128 128 155 presentes. tsc/lint/159/159/build.
