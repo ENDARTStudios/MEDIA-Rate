@@ -12,7 +12,7 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
-import { genreSlug, titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
+import { genreSlug, titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -185,7 +185,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   <span>
                     {media.genres
                       .slice(0, 3)
-                      .map((g) => tg(genreSlug(g)))
+                      .map((g) => generoTraduzido(tg, g))
                       .join(", ")}
                   </span>
                 </div>

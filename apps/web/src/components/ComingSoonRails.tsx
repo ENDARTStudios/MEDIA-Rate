@@ -12,12 +12,13 @@ import { useTranslations } from "next-intl";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
 import type { MediaType } from "@/lib/types";
 
-const SECTIONS: { type: MediaType; label: string; count: string }[] = [
-  { type: "book", label: "Livros", count: "Em breve" },
-  { type: "comic", label: "HQs & Mangás", count: "Em breve" },
+const SECTIONS: { type: MediaType; labelKey: "railsBooks" | "railsComics"; countKey: "comingSoon" }[] = [
+  { type: "book", labelKey: "railsBooks", countKey: "comingSoon" },
+  { type: "comic", labelKey: "railsComics", countKey: "comingSoon" },
 ];
 
 export function ComingSoonRails() {
+  const t = useTranslations("landing");
   return (
     <>
       {SECTIONS.map((section) => (
@@ -28,9 +29,9 @@ export function ComingSoonRails() {
                 id={`rail-${section.type}`}
                 className="font-heading text-xl font-bold text-[#F5F5F7] uppercase tracking-wider"
               >
-                {section.label}
+                {t(section.labelKey)}
               </h2>
-              <span className="text-xs text-[#6B6B85]">{section.count}</span>
+              <span className="text-xs text-[#6B6B85]">{t(section.countKey)}</span>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
               {[0, 1, 2, 3, 4].map((i) => (

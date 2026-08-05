@@ -90,6 +90,18 @@ export function genreSlug(label: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+/**
+ * Traduz um rótulo de gênero com fallback: se o slug não existir nas
+ * mensagens, exibe o rótulo original em vez de MISSING_MESSAGE.
+ */
+export function generoTraduzido(
+  tg: { has: (key: string) => boolean; (key: string): string },
+  label: string,
+): string {
+  const slug = genreSlug(label);
+  return tg.has(slug) ? tg(slug) : label;
+}
+
 export function titleForLocale(
   media: { title: string; titleLocalized?: LocalizedString; id?: string; slug?: string },
   locale: string,

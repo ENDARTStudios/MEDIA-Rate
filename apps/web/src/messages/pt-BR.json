@@ -52,7 +52,13 @@
     "feature2": "Recomendações personalizadas",
     "feature2Desc": "Algoritmo que aprende seu gosto conforme você consome.",
     "feature3": "Planos para todos",
-    "feature3Desc": "Free, Plus e Premium — comece grátis e faça upgrade quando quiser."
+    "feature3Desc": "Gratuito, Plus e Premium — escolha o que faz sentido para você.",
+    "railsBooks": "Livros",
+    "railsComics": "HQs & Mangás",
+    "comingSoon": "Em breve",
+    "notFoundTitle": "Página não encontrada",
+    "notFoundBody": "O endereço que você tentou acessar não existe ou foi movido. Verifique a URL ou volte para o início.",
+    "notFoundCta": "Voltar para o início"
   },
   "catalog": {
     "title": "Catálogo",
@@ -620,6 +626,10 @@
     "talk": "Talk Show",
     "terror": "Terror",
     "epico": "Épico",
+    "distopia": "Distopia",
+    "classico": "Clássico",
+    "realismomagico": "Realismo Mágico",
+    "ficcaocientificaefantasia": "Ficção Científica e Fantasia",
     "sandbox": "Sandbox",
     "survival": "Survival",
     "creative": "Creative",

@@ -46,6 +46,16 @@ export function EmptyStateComingSoon({
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  /** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/anime/comic). */
+  const TIPO_KEY: Record<MediaType, string> = {
+    movie: "filme",
+    series: "serie",
+    game: "game",
+    book: "livro",
+    comic: "comic",
+    anime: "anime",
+  };
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!onNotify || !email) return;
@@ -80,7 +90,7 @@ export function EmptyStateComingSoon({
         />
       </div>
       <p className="font-heading text-base font-semibold text-[#F5F5F7]">
-        {t(type)} — {t("noResults")}
+        {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")} — {t("noResults")}
       </p>
       <p className="mt-1 max-w-sm text-sm text-[#6B6B85]">
         Esta categoria chega em breve. Cadastre-se para ser avisado.
