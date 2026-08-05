@@ -1,4 +1,4 @@
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -24,6 +24,13 @@ const inter = Inter({
   variable: "--font-sans",
   display: "swap",
 });
+// Números de score (Parte 2.4): mono tabular com 700 para leitura de score.
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const requestHeaders = await headers();
@@ -35,6 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         className={cn(
           spaceGrotesk.variable,
           inter.variable,
+          jetbrainsMono.variable,
           "min-h-screen bg-background text-foreground font-sans antialiased",
         )}
       >

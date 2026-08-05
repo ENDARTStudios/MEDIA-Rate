@@ -78,7 +78,7 @@ const config: Config = {
         display: ["var(--font-heading)", "Space Grotesk", "sans-serif"],
         body: ["var(--font-sans)", "Inter", "sans-serif"],
         sans: ["var(--font-sans)", "Inter", "sans-serif"],
-        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "Fira Code", "monospace"],
       },
       fontSize: {
         "score-xl": ["4.5rem", { lineHeight: "1", letterSpacing: "-0.03em", fontWeight: "700" }],

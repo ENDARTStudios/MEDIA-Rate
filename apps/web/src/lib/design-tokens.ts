@@ -17,7 +17,9 @@ export const colors = {
   text: {
     primary: "#F5F5F7",
     secondary: "#A0A0B8",
-    muted: "#6B6B85",
+    // D-203 define #6B6B85; Ajuste AA: #80809B (5.3:1 sobre #05050A) —
+    // o valor original (3.99:1) falha WCAG AA para texto normal.
+    muted: "#80809B",
   },
   score: {
     9: "#34D399",
@@ -236,7 +238,7 @@ export const surface = {
 export const text = {
   primary: "#F5F5F7",
   secondary: "#A0A0B8",
-  muted: "#6B6B85",
+  muted: "#80809B",
   inverse: "#05050A",
 } as const;
 export const score = {
@@ -254,6 +256,25 @@ export const fonts = {
   body: "'Inter', sans-serif",
   mono: "'JetBrains Mono', 'Fira Code', monospace",
 } as const;
+
+/**
+ * Tokens de categoria (Parte 2.3 da D-203): cor de accent + ícone Lucide
+ * por tipo de mídia. Consumidos por CategoryChip/MediaCard/filtros/hero.
+ */
+import { Clapperboard, Tv, Gamepad2, BookOpen, BookImage, BookMarked } from "lucide-react";
+import type { MediaType } from "@/lib/types";
+
+export const CATEGORY_TOKENS: Record<
+  MediaType,
+  { color: string; icon: typeof Clapperboard; labelKey: string }
+> = {
+  movie: { color: colors.media.movie, icon: Clapperboard, labelKey: "catalog.filme" },
+  series: { color: colors.media.series, icon: Tv, labelKey: "catalog.serie" },
+  game: { color: colors.media.game, icon: Gamepad2, labelKey: "catalog.game" },
+  book: { color: colors.media.book, icon: BookOpen, labelKey: "catalog.livro" },
+  comic: { color: colors.media.comic, icon: BookImage, labelKey: "catalog.comic" },
+  anime: { color: colors.media.anime, icon: BookMarked, labelKey: "catalog.anime" },
+};
 export const shadows = {
   card: elevation[1].shadow,
   elevated: elevation[2].shadow,

@@ -39,7 +39,7 @@
   --color-score-medium: 251 191 36;
   --color-text-primary: 245 245 247;
   --color-text-secondary: 160 160 184;
-  --color-text-muted: 107 107 133;
+  --color-text-muted: 128 128 155;
   --color-ring: 129 140 248;
   --color-border: 42 42 61;
   --font-heading: "Space Grotesk", "Cabinet Grotesk", sans-serif;
@@ -71,7 +71,7 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: #09090f;
+  background-color: #05050a;
 }
 
 ::selection {
@@ -84,7 +84,7 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090f;
+  background: #05050a;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(129, 140, 248, 0.2);
