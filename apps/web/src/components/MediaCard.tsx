@@ -237,6 +237,11 @@ function ImageWithFallback({
 }) {
   const [error, setError] = useState(false);
 
+  // Corrige URL duplamente codificada (ex.: "%2527" -> "%27"), comum em
+  // posters com apóstrofo (ex.: "Baldur's Gate 3") — evita 404 no next/image
+  // e não altera caracteres de um único nível de codificação.
+  const srcNormalizado = src.replace(/%25([0-9A-Fa-f]{2})/g, "%$1");
+
   if (error) {
     return (
       <div
@@ -256,7 +261,7 @@ function ImageWithFallback({
 
   return (
     <Image
-      src={src}
+      src={srcNormalizado}
       alt={alt}
       className={className}
       width={width}
