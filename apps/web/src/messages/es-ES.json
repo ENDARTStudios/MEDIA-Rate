@@ -144,6 +144,7 @@
     "criticsBar": "Crítica",
     "semCritica": "Sin crítica",
     "audienceBar": "Público",
+    "semPublico": "Sin público",
     "consensusLabel": "Consenso",
     "highConsensus": "Alto consenso",
     "lowConsensus": "Divergencia crítica/público",

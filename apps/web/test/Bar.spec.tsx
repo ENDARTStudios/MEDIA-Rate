@@ -6,7 +6,9 @@ import { Bar } from "@/components/Bar";
 const messages = {
   catalog: {
     criticsBar: "Crítica",
+    semCritica: "Sem crítica",
     audienceBar: "Público",
+    semPublico: "Sem público",
     consensusLabel: "Consenso",
     highConsensus: "Alto consenso",
     lowConsensus: "Divergência crítica/público",
@@ -35,10 +37,12 @@ describe("Bar", () => {
     expect(bars[1]).toHaveStyle({ width: "82%" });
   });
 
-  it("só audiência quando criticsScore null", () => {
+  it("só audiência quando criticsScore null — mostra 'Sem crítica' explícito", () => {
     const { container } = renderWithProviders(<Bar criticsScore={null} audienceScore={75} />);
     expect(container.querySelector("[data-testid=bar-dual]")).toBeTruthy();
-    expect(container.textContent).not.toContain("Crítica");
+    expect(container.textContent).toContain("Crítica");
+    expect(container.querySelector("[data-testid=sem-critica]")).toBeTruthy();
+    expect(container.textContent).toContain("Sem crítica");
     expect(container.textContent).toContain("Público");
   });
 
