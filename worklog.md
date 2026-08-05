@@ -1193,3 +1193,26 @@ Stage Summary:
   -hover.png (pico do flash), -mobile.png (390px), -reduced-motion.png + probe
   funcional JSON (5 coreografias) + build 80/80 sem three.js/spline.
 - Suites: 159/159. Commit 8048b88.
+
+## [2026-08-05] T5a-hero-3d-fix-v3.1 — correcao dos icones quebrados (DONE)
+- Operador: NAO usar Lordicon (app DEMO so tem 34 icones genericos sem midia) e
+  corrigir os icones atuais - "pessimo design e animacao, estao quebrados".
+- BUG RAIZ CONFIRMADO no ar: o Anime.js define o CSS `transform` e SUBSTITUI o
+  atributo `transform` do SVG (boca da claquete voava para a origem do viewport,
+  capa girava com origem fora da peca "0px 36px"). Prova: matrix puro (0,0) +
+  attr translate(18,56) ignorado durante a animacao.
+- FIX ESTRUTURAL: pivos embutidos na geometria - <g transform="translate(...)">
+  estatico + <g data-part> com geometria comecando no (0,0) local (= pivor).
+  Elementos animados NAO tem atributo transform.
+- ARTE REDESENHADA (bold): tracos 2.5-3px, formas maiores, gradientes de alto
+  contraste; correcoes geometricas (analogico fora do d-pad e botoes dentro do
+  corpo do controle; scanline vira barra fina no topo da tela; dots dentro da
+  pagina; flash/linhas com opacity por atributo).
+- globals.css reduzido: so [data-part]{transform-box:fill-box} +
+  [data-part^=dot-]{transform-origin:center}.
+- PROVA FUNCIONAL no ar (browser real): boca gira na dobradica (matrix puro =
+  esperado com origem no wrapper; attr=null), capa origin "0px 0px" (lombada),
+  dot origin "5px 5px" (proprio centro), scanline px (8.3px meio-voo), analogico
+  girando, flash estatico opacity 0. 5 svgs / 21 data-parts.
+- Screenshots: evidencia-v3.1-{desktop-static,desktop-hover,mobile,reduced-motion}.png
+  (hashs distintos = capturas validas). Build 80/80, suites 159/159.
