@@ -1414,3 +1414,28 @@ CORRECAO PROPIA: ferramenta PowerShell (Set-Content ANSI->UTF8) corrompeu
    es-ES.json (505 chars) e en-US.json (29) nesta sessao - restaurados do git
    e reaplicados com editor proprio. LICAO: nunca editar messages/*.json via
    cmdlets do PowerShell.
+
+## [2026-08-06] Auditoria 4 — triagem dos 15 achados (commit b478001)
+REAIS CORRIGIDOS:
+- Moeda ES/EUR e EN/USD -> BRL em TODOS os locales (pricing.ts; Stripe cobra
+  R$) + s3b dos Termos en/es em R$. Verificado: ES sem EUR no ar.
+- "Em breve — toque para ser avisado" e "Cadastre-se para ser avisado" eram PT
+  hardcoded em LockedComingSoonCard/EmptyStateComingSoon/WaitlistCaptureModal ->
+  chaves comingSoonTap/comingSoonSubscribe/comingSoonNotify (pt/en/es).
+  Verificado: EN "Coming soon — tap to be notified", ES "Próximamente — toca".
+- Fontes duplicadas na ficha: dedupe defensivo por id em MediaScoreModule
+  (A Odisseia imdb/tmdb/tmdb do mock; nenhum dupe real na API amostrada).
+CONFIRMADOS COMO DADOS (acao de operador, nao codigo):
+- Critica sem dados: adapters gated por SCRAPE_NUMERICO_ENABLED (off em prod).
+- Titulos/sinopses PT em EN/ES: 25/391 obras traduzidas (SEED_I18N) - rails
+  EN mostram PT (Shawshank/Chefao/Demon Slayer confirmados ao vivo); expandir
+  traducao = T177-C4 data work.
+- BG3 sem generos: coleta nao popula generos; precisa UPDATE/seed no banco.
+- Waitlist: sem modelo/endpoint - precisa schema+migration+endpoint (feature).
+FALSOS POSITIVOS (verificados ao vivo):
+- "29 fontes" -> SSR mostra 391 titulos / 11 fontes / 3 categorias (fix ja no ar).
+- /about e /terms OK (200, sem redirect) - extractor do auditor falhou.
+- Chefao 1974 = "Parte II" CORRETAMENTE titulado; Avatar filme 2026 e serie 2005
+  sao obras distintas - nao ha duplicatas reais no banco (0 em amostra de 500).
+- Logo "MEDIARate" = variante full empilhada (design); navbar usa inline.
+- HomeStats era "codigo morto" na home? NAO - renderiza via SSR (391/11/3).
