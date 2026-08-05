@@ -110,7 +110,7 @@ export function MediaRail({ mediaType }: { mediaType: "FILME" | "SERIE" | "GAME"
               type={mediaTypeKey}
               count={total}
               active
-              label={t(TIPO_LABEL[mediaType] as "filme" | "serie" | "game")}
+              label={t(RAIL_LABEL[mediaType] as "filmes" | "series" | "games")}
             />
             <h2
               id={`rail-${mediaType}`}

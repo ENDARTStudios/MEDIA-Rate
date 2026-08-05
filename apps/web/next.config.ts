@@ -66,8 +66,8 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
-              "connect-src 'self'",
+              "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
+              "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com",
               "frame-src 'self'",
               "frame-ancestors 'none'",
               "img-src 'self' data: https:",
