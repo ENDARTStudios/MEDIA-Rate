@@ -1439,3 +1439,17 @@ FALSOS POSITIVOS (verificados ao vivo):
   sao obras distintas - nao ha duplicatas reais no banco (0 em amostra de 500).
 - Logo "MEDIARate" = variante full empilhada (design); navbar usa inline.
 - HomeStats era "codigo morto" na home? NAO - renderiza via SSR (391/11/3).
+
+## [2026-08-06] T195-consolidacao-auditoria4 (DONE, commit a645719)
+GAP 1 — BG3 GENEROS: migration de dados idempotente
+  (20260805193000_t195_bg3_generos) insere RPG/Fantasia/Aventura na genero +
+  vincula via midia_genero (ON CONFLICT DO NOTHING). Aplicada automaticamente
+  pelo docker-entrypoint (migrate deploy). VERIFICADO NO AR: API
+  /midias/slug/baldur-s-gate-3 -> generos [Aventura, Fantasia, RPG]; ficha
+  renderiza "2023 · Aventura, Fantasia, RPG".
+GAP 2 — WATCHLIST: endpoint JA EXISTIA completo (controller AuthGuard + GET/
+  POST/PATCH move/DELETE 204 + Zod + limite FREE 20 + metrics + tests 19/19).
+  Complementado com decorators OpenAPI (@ApiTags/@ApiOperation/@ApiBearerAuth)
+  para documentacao Swagger. VERIFICADO: 401 sem cookie no ar.
+PENDENTE OPERADOR (inalterado): SCRAPE_NUMERICO_ENABLED=true + re-coleta.
+API: 440/444 (4 falhas getBySlug pre-existentes, fora do escopo).
