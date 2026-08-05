@@ -1134,3 +1134,24 @@ Stage Summary:
   "Nao informado" mantidos.
 - Suites: API 444, web 157; deploy verificado.
 - Status: DONE.
+
+## [2026-08-04] Stage: T5a-hero-3d-fix-v2 — icones hibridos (Lucide + camadas HTML)
+- DIAGNOSTICO AO VIVO: os icones v1 ESTAVAM no SSR (nav categorias, hero-icon-svg,
+  explorar) — a captura do Thinker com "2 bytes" era falha de ferramenta, nao do
+  site. Mesmo assim, a critica visual procede (SVGs primitivos) e a arquitetura
+  SVG+camadas era fragil (fill-box inconsistente, parallax nao garantido).
+- v2 HIBRIDO (conforme especificacao): Lucide (Clapperboard/Tv/Gamepad2/BookOpen/
+  BookMarked+Sparkles) + 4 camadas HTML reais com translateZ via CSS module
+  (glow -60px, base 0px rotacionada, icone 40px, flare 80px); tilt Motion
+  (springs 150/15, perspectiva 1000px, gate (hover:hover)); one-shots Anime.js
+  em classes estaveis scoped por root (flash, scanline, botoes stagger,
+  linhas stagger, particulas + punch); reduced-motion estatico rico;
+  teclado (onFocus + focus-visible); touch (one-shot + nav 700ms + whileTap).
+- Cards "Em breve": variacao visual (angulo do gradiente + chip de categoria:
+  Romances/Super-herois/Shonen...); headers renomeados p/ Livros/HQs/Mangas
+  (consistente com o hero "HQs & Mangas").
+- EVIDENCIAS: build 80/80 sem three.js (deps limpas); SSR com nav + lucide-icons
+  + data-part + aria; screenshots de browser ficam com o Operador (sem browser
+  no ambiente Doer).
+- Suites: web 159/159.
+- Status: DONE (aguardando REVIEW com screenshots do Operador).
