@@ -8,7 +8,8 @@
  * (single source of truth) para que a biblioteca tenha a superfície
  * especificada sem duplicar lógica.
  */
-export { ScoreDial } from "@/components/ui/score-dial";
+export { ScoreDial } from "./ScoreDial";
+export type { ScoreDialProps } from "./ScoreDial";
 export type { MediaCard as MediaCardType } from "@/components/MediaCard";
 export { MediaCard } from "@/components/MediaCard";
 export type { MediaItem } from "@/components/MediaCard";

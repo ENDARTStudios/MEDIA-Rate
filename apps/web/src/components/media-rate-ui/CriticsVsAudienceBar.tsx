@@ -46,7 +46,7 @@ export function CriticsVsAudienceBar({
 
   if (c == null && a == null) {
     return (
-      <p className={cn("text-sm text-[#6B6B85]", className)} role="status">
+      <p className={cn("text-sm text-[#80809B]", className)} role="status">
         {t("noRatingsYet")}
       </p>
     );
@@ -103,9 +103,10 @@ export function CriticsVsAudienceBar({
         <div className="flex items-center gap-2 text-xs">
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium",
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium cursor-help",
               highConsensus ? "bg-[#34D399]/10 text-[#34D399]" : "bg-[#F87171]/10 text-[#F87171]",
             )}
+            title={t("consensusTooltip")}
           >
             <span
               className="h-1.5 w-1.5 rounded-full"
@@ -114,8 +115,22 @@ export function CriticsVsAudienceBar({
             />
             {highConsensus ? t("highConsensus") : t("lowConsensus")}
           </span>
-          {!compact && <span className="tabular-nums text-[#6B6B85]">{gap.toFixed(1)}pts</span>}
+          {!compact && <span className="tabular-nums text-[#80809B]">{gap.toFixed(1)}pts</span>}
         </div>
+      )}
+      {/* Gradiente visual do consenso: ponte entre crítica (#38BDF8) e público (#E11D48). */}
+      {c != null && a != null && (
+        <div
+          className="h-1 rounded-full"
+          data-testid="consensus-gradient"
+          style={{
+            background:
+              "linear-gradient(90deg, #38BDF8 0%, #38BDF8 50%, #E11D48 50%, #E11D48 100%)",
+            opacity: 0.55,
+          }}
+          role="presentation"
+          aria-hidden="true"
+        />
       )}
     </div>
   );

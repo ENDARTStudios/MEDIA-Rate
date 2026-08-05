@@ -147,6 +147,7 @@
     "semPublico": "No audience",
     "consensusLabel": "Consensus",
     "highConsensus": "High consensus",
+    "consensusTooltip": "Consensus = how close critics and audience are (the smaller the gap, the higher the consensus).",
     "lowConsensus": "Critics/audience divergence",
     "scoreV2": "MEDIA Score™ v3",
     "methodologyV2": "Calculated with media-type weights (critics, audience and consensus) and a Bayesian estimator that pulls titles with few votes toward the catalog average; consensus feeds back into the score.",

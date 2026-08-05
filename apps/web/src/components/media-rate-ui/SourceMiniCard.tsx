@@ -15,6 +15,8 @@ export interface SourceMiniCardProps {
   ratingOriginal: number | null;
   /** Nota normalizada 0–100 (ou null quando indisponível). */
   ratingNormalized: number | null;
+  /** Escala de apresentação da nota normalizada (0-100 por padrão). */
+  scale?: "0-10" | "0-100";
   classification?: "critica" | "publico";
   url?: string | null;
   className?: string;
@@ -29,11 +31,15 @@ export function SourceMiniCard({
   name,
   ratingOriginal,
   ratingNormalized,
+  scale = "0-100",
   classification,
   url,
   className,
 }: SourceMiniCardProps) {
   const t = useTranslations("catalog");
+
+  const escalaMax = scale === "0-10" ? 10 : 100;
+  const notaNormalizada = ratingNormalized != null ? Math.round(ratingNormalized) : null;
 
   const inner = (
     <div
@@ -57,8 +63,10 @@ export function SourceMiniCard({
               {classification === "critica" ? t("criticsBar") : t("audienceBar")}
             </span>
           ) : null}
-          {ratingNormalized != null && (
-            <span className="text-[11px] text-[#6B6B85]">{ratingNormalized}/100</span>
+          {notaNormalizada != null && (
+            <span className="text-[11px] text-[#80809B]">
+              {notaNormalizada}/{escalaMax}
+            </span>
           )}
         </div>
       </div>
@@ -67,7 +75,7 @@ export function SourceMiniCard({
         <span className="block text-sm font-bold tabular-nums text-[#F5F5F7]">
           {ratingOriginal != null ? ratingOriginal : "—"}
         </span>
-        <span className="block text-[10px] text-[#6B6B85]">orig.</span>
+        <span className="block text-[10px] text-[#80809B]">orig.</span>
       </div>
     </div>
   );

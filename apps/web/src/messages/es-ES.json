@@ -147,6 +147,7 @@
     "semPublico": "Sin público",
     "consensusLabel": "Consenso",
     "highConsensus": "Alto consenso",
+    "consensusTooltip": "Consenso = cuán cerca están crítica y público (menor la brecha, mayor el consenso).",
     "lowConsensus": "Divergencia crítica/público",
     "scoreV2": "MEDIA Score™ v3",
     "methodologyV2": "Calculado con pesos específicos por tipo (crítica, público y consenso) y un estimador bayesiano que acerca las obras con pocos votos a la media del catálogo; el consenso realimenta la nota.",

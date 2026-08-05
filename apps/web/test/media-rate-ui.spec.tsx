@@ -6,12 +6,14 @@ import { CategoryChip } from "@/components/media-rate-ui/CategoryChip";
 import { ConfidenceBadge } from "@/components/media-rate-ui/ConfidenceBadge";
 import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
+import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 
 const messages = {
   catalog: {
     criticsBar: "Crítica",
     audienceBar: "Público",
     consensusLabel: "Consenso",
+    consensusTooltip: "Consenso = proximidade entre crítica e público.",
     highConsensus: "Alto consenso",
     lowConsensus: "Divergência crítica/público",
     noRatingsYet: "Ainda sem avaliações suficientes",
@@ -167,6 +169,89 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
     it("sem onNotify, não renderiza form", () => {
       renderWithProviders(<EmptyStateComingSoon type="anime" />);
       expect(screen.queryByTestId("coming-soon-form")).toBeNull();
+    });
+  });
+
+  describe("ScoreDial (Parte 4 D-203)", () => {
+    it("renderiza valor com aria-label incluindo escala", () => {
+      renderWithProviders(<ScoreDial value={8.4} scale="0-10" size="md" />);
+      expect(screen.getByRole("img", { name: /8,4 de 10/ })).toBeTruthy();
+      expect(screen.getByTestId("score-dial-md")).toBeTruthy();
+    });
+
+    it("escala 0-100 usa max 100 no aria-label", () => {
+      renderWithProviders(<ScoreDial value={90.4} scale="0-100" size="sm" />);
+      expect(screen.getByRole("img", { name: /90,4 de 100/ })).toBeTruthy();
+    });
+
+    it("faixa alta (≥8) usa verde #34D399", () => {
+      const { container } = renderWithProviders(<ScoreDial value={8.2} scale="0-10" />);
+      const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
+      expect(stroke?.getAttribute("stroke")).toBe("#34D399");
+    });
+
+    it("faixa média (≥6) usa âmbar #FBBF24", () => {
+      const { container } = renderWithProviders(<ScoreDial value={6.5} scale="0-10" />);
+      const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
+      expect(stroke?.getAttribute("stroke")).toBe("#FBBF24");
+    });
+
+    it("faixa baixa (<6) usa vermelho #F87171", () => {
+      const { container } = renderWithProviders(<ScoreDial value={4.2} scale="0-10" />);
+      const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
+      expect(stroke?.getAttribute("stroke")).toBe("#F87171");
+    });
+
+    it("limiares relativos à escala 0-100 (≥80 alto, ≥60 médio)", () => {
+      const { container: alto } = renderWithProviders(<ScoreDial value={85} scale="0-100" />);
+      const strokeAlto = alto.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
+      expect(strokeAlto?.getAttribute("stroke")).toBe("#34D399");
+      const { container: medio } = renderWithProviders(<ScoreDial value={62} scale="0-100" />);
+      const strokeMedio = medio.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
+      expect(strokeMedio?.getAttribute("stroke")).toBe("#FBBF24");
+    });
+
+    it("não estoura em valores fora da escala (clamp)", () => {
+      renderWithProviders(<ScoreDial value={120} scale="0-100" />);
+      expect(screen.getByRole("img", { name: /100 de 100/ })).toBeTruthy();
+    });
+  });
+
+  describe("CategoryChip (Parte 4 D-203)", () => {
+    it("estado ativo usa accent da categoria no fundo", () => {
+      renderWithProviders(<CategoryChip type="movie" active />);
+      const chip = screen.getByTestId("category-chip-movie");
+      expect(chip.getAttribute("aria-pressed")).toBe("true");
+      expect(chip.style.backgroundColor).toBe("rgb(129, 140, 248)");
+    });
+
+    it("contagem compacta para valores grandes (1.2k)", () => {
+      renderWithProviders(<CategoryChip type="game" count={1200} />);
+      expect(screen.getByText("1,2k")).toBeTruthy();
+    });
+
+    it("contagem simples para valores pequenos", () => {
+      renderWithProviders(<CategoryChip type="series" count={194} />);
+      expect(screen.getByText("194")).toBeTruthy();
+    });
+  });
+
+  describe("CriticsVsAudienceBar (Parte 4 D-203)", () => {
+    it("tooltip de consenso presente no selo", () => {
+      renderWithProviders(
+        <CriticsVsAudienceBar critics={90} audience={85} scale="0-100" />,
+      );
+      const selo = screen.getByText("Alto consenso");
+      expect(selo.getAttribute("title")).toContain("Consenso");
+    });
+
+    it("gradiente de consenso renderizado quando ambos os lados existem", () => {
+      const { container } = renderWithProviders(
+        <CriticsVsAudienceBar critics={90} audience={85} scale="0-100" />,
+      );
+      const gradiente = container.querySelector("[data-testid=consensus-gradient]");
+      expect(gradiente).toBeTruthy();
+      expect(gradiente?.getAttribute("style")).toContain("38BDF8");
     });
   });
 });

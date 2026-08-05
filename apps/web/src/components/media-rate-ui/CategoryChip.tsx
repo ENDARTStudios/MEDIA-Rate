@@ -8,27 +8,19 @@
  *   book #FBBF24, comic #F472B6, anime #A78BFA.
  * - Estado ativo: fundo/accent no chip; foco visível para teclado.
  */
-import { Clapperboard, Tv, Gamepad2, BookOpen, BookImage, BookMarked } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
 
-const ICONS: Record<MediaType, typeof Clapperboard> = {
-  movie: Clapperboard,
-  series: Tv,
-  game: Gamepad2,
-  book: BookOpen,
-  comic: BookImage,
-  anime: BookMarked,
-};
-
+/** Alias de compatibilidade — fonte única de verdade é CATEGORY_TOKENS (T183). */
 export const MEDIA_ACCENTS: Record<MediaType, string> = {
-  movie: "#818CF8",
-  series: "#38BDF8",
-  game: "#34D399",
-  book: "#FBBF24",
-  comic: "#F472B6",
-  anime: "#A78BFA",
+  movie: CATEGORY_TOKENS.movie.color,
+  series: CATEGORY_TOKENS.series.color,
+  game: CATEGORY_TOKENS.game.color,
+  book: CATEGORY_TOKENS.book.color,
+  comic: CATEGORY_TOKENS.comic.color,
+  anime: CATEGORY_TOKENS.anime.color,
 };
 
 export interface CategoryChipProps {
@@ -50,6 +42,15 @@ const TIPO_KEY: Record<MediaType, string> = {
   anime: "anime",
 };
 
+/** Formato compacto: 1200 → "1.2k". */
+function formatoCompacto(n: number): string {
+  if (n >= 1000) {
+    const v = n / 1000;
+    return `${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(".", ",")}k`;
+  }
+  return String(n);
+}
+
 export function CategoryChip({
   type,
   count,
@@ -59,8 +60,7 @@ export function CategoryChip({
   className,
 }: CategoryChipProps) {
   const t = useTranslations("catalog");
-  const Icon = ICONS[type];
-  const accent = MEDIA_ACCENTS[type];
+  const { color: accent, icon: Icon } = CATEGORY_TOKENS[type];
   const resolvedLabel = label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime");
 
   return (
@@ -88,10 +88,10 @@ export function CategoryChip({
         <span
           className={cn(
             "tabular-nums rounded-full px-1.5 text-[10px] leading-4",
-            active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#6B6B85]",
+            active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#80809B]",
           )}
         >
-          {count}
+          {formatoCompacto(count)}
         </span>
       )}
     </button>
