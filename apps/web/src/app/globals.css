@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg: #05050A;
-  --surface-card: #12121C;
-  --surface-elevated: #1B1B2C;
-  --surface-border: #2A2A3D;
-  --accent-critics: #38BDF8;
-  --accent-audience: #E11D48;
-  --accent-brand: #E11D48;
-  --accent-indigo: #818CF8;
-  --accent-sky: #38BDF8;
-  --accent-emerald: #34D399;
-  --accent-amber: #FBBF24;
-  --accent-pink: #F472B6;
-  --accent-violet: #A78BFA;
+  --bg: #05050a;
+  --surface-card: #12121c;
+  --surface-elevated: #1b1b2c;
+  --surface-border: #2a2a3d;
+  --accent-critics: #38bdf8;
+  --accent-audience: #e11d48;
+  --accent-brand: #e11d48;
+  --accent-indigo: #818cf8;
+  --accent-sky: #38bdf8;
+  --accent-emerald: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-pink: #f472b6;
+  --accent-violet: #a78bfa;
   --color-bg: 5 5 10;
   --color-cb: 18 18 28;
   --color-ce: 27 27 44;
@@ -71,7 +71,7 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: #09090F;
+  background-color: #09090f;
 }
 
 ::selection {
@@ -79,10 +79,20 @@ body {
   color: rgb(var(--color-text-primary));
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #09090F; }
-::-webkit-scrollbar-thumb { background: rgba(129, 140, 248, 0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(129, 140, 248, 0.35); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #09090f;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.35);
+}
 
 *:focus-visible {
   outline: var(--focus-ring) solid rgb(var(--color-ring));
@@ -100,7 +110,30 @@ body {
   color: rgb(var(--color-text-primary));
   border-radius: var(--radius-md);
 }
-.skip-link:focus { left: 0; }
+.skip-link:focus {
+  left: 0;
+}
+
+/* ==========================================================================
+ * Hero icons 3D (Addendum hero, §3) — sistema de camadas SVG.
+ * - transform-box: fill-box → rotações/escalas de elementos SVG giram no
+ *   próprio centro (essencial para a coreografia: boca da claquete, capa do
+ *   livro, analógico do controle).
+ * - preserve-3d no wrapper + translateZ por camada = profundidade real com
+ *   peso de renderização próximo de zero (sem WebGL).
+ * ========================================================================== */
+.hero-icon-svg * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.hero-icon-svg {
+  transform-style: preserve-3d;
+}
+
+.icon-shadow {
+  filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.25));
+}
 
 @layer base {
   :root {
@@ -137,9 +170,15 @@ body {
     --sidebar-border: 240 18% 20%;
     --sidebar-ring: 234 88% 74%;
   }
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
-  html { @apply font-sans; }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
 
 @layer components {
@@ -162,8 +201,8 @@ body {
     inset: 0;
     z-index: -1;
     background-image:
-      linear-gradient(rgba(129,140,248,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(129,140,248,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(129, 140, 248, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(129, 140, 248, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
   }
@@ -177,23 +216,41 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 600px 400px at 50% 0%, rgba(129,140,248,0.06) 0%, transparent 70%);
+    background: radial-gradient(
+      ellipse 600px 400px at 50% 0%,
+      rgba(129, 140, 248, 0.06) 0%,
+      transparent 70%
+    );
     pointer-events: none;
   }
 }
 
 @keyframes beam-h {
-  0%, 100% { opacity: 0; transform: translateX(-100%); }
-  50% { opacity: 1; transform: translateX(100%); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(100%);
+  }
 }
 @keyframes beam-v {
-  0%, 100% { opacity: 0; transform: translateY(-100%); }
-  50% { opacity: 1; transform: translateY(100%); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(100%);
+  }
 }
 
 /* §2.6 — Focus visible: outline em --accent-indigo */
 :focus-visible {
-  outline: 2px solid #818CF8;
+  outline: 2px solid #818cf8;
   outline-offset: 2px;
 }
 

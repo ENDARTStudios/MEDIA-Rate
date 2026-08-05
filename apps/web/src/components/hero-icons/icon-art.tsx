@@ -55,7 +55,7 @@ function BevelGradient({ id, light, dark }: { id: string; light: string; dark: s
 /** Claquete — indigo #818CF8. */
 export function ClapperboardArt({ id }: { id: string }) {
   return (
-    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="h-full w-full">
+    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="hero-icon-svg h-full w-full">
       <defs>
         <BevelGradient id={`${id}-corpo`} light="#A5B4FC" dark="#6366F1" />
         <BevelGradient id={`${id}-boca`} light="#C7D2FE" dark="#818CF8" />
@@ -92,7 +92,7 @@ export function ClapperboardArt({ id }: { id: string }) {
 /** TV — azul #38BDF8. */
 export function TvArt({ id }: { id: string }) {
   return (
-    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="h-full w-full">
+    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="hero-icon-svg h-full w-full">
       <defs>
         <BevelGradient id={`${id}-frame`} light="#7DD3FC" dark="#0284C7" />
         <BevelGradient id={`${id}-tela`} light="#0C4A6E" dark="#082F49" />
@@ -134,7 +134,7 @@ export function ControllerArt({ id }: { id: string }) {
     { x: 66, y: 50 },
   ];
   return (
-    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="h-full w-full">
+    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="hero-icon-svg h-full w-full">
       <defs>
         <BevelGradient id={`${id}-corpo`} light="#6EE7B7" dark="#059669" />
         <BevelGradient id={`${id}-botao`} light="#A7F3D0" dark="#34D399" />
@@ -177,7 +177,7 @@ export function ControllerArt({ id }: { id: string }) {
 /** Livro — âmbar #FBBF24. */
 export function BookArt({ id }: { id: string }) {
   return (
-    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="h-full w-full">
+    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="hero-icon-svg h-full w-full">
       <defs>
         <BevelGradient id={`${id}-capa`} light="#FCD34D" dark="#D97706" />
         <BevelGradient id={`${id}-paginas`} light="#FEF3C7" dark="#FDE68A" />
@@ -218,7 +218,7 @@ export function MagazineArt({ id }: { id: string }) {
     { x: 50, y: 50 },
   ];
   return (
-    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="h-full w-full">
+    <svg viewBox={VIEWBOX} role="img" aria-hidden="true" className="hero-icon-svg h-full w-full">
       <defs>
         <linearGradient id={`${id}-painel`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#F472B6" />
@@ -248,4 +248,3 @@ export function MagazineArt({ id }: { id: string }) {
     </svg>
   );
 }
-

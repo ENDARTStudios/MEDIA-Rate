@@ -232,7 +232,8 @@ export function HeroMediaIcon({ type, variant, href, label, className }: HeroMed
           transformStyle: "preserve-3d",
           ...(finePointer && !shouldReduce ? { rotateX, rotateY } : {}),
         }}
-        className="relative"
+        className="relative icon-shadow"
+        whileTap={{ scale: 0.95 }}
       >
         <div
           className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-200 group-hover:opacity-100"

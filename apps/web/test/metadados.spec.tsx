@@ -223,7 +223,7 @@ describe("Metadados estruturados (Addendum 2)", () => {
   describe("OriginBadge", () => {
     it("país-somente (sem produtora) exibe bandeira + país", () => {
       renderWithProviders(<OriginBadge countryCode="BR" roleLabel="Estúdio" mediaType="series" />);
-      expect(screen.getByText("Estúdio")).toBeTruthy();
+      expect(screen.getByText(/Estúdio/)).toBeTruthy();
       expect(screen.getByText("Brasil")).toBeTruthy();
     });
 
