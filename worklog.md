@@ -1260,3 +1260,22 @@ P1-7: 5 links de categorias do Hero (motion.a com href cru) agora prefixados
 - Validacao: tsc/lint/testes 159/159/build 80/80. Verificado no ar: canonica
   SteamSpy, OpenLibrary ausente, stat=11, secao unica HQs&Mangas, anime ok,
   /pt-BR/catalog?type=movie|comic nos links.
+
+## [2026-08-05] Re-auditoria Home (Pos-correcoes) — resultado
+VERIFICADO NO AR (todas as 7 acoes da auditoria anterior):
+- Fontes unificadas: 11 canonicas (TMDB, IMDb, RT, Metacritic, TVMaze,
+  Letterboxd, Trakt, IGDB, OpenCritic, Steam, SteamSpy) presentes; OpenLibrary/
+  Goodreads/Comic Vine = 0 ocorrencias.
+- Stat fontes = 11 (com lastro no texto).
+- Secao unica "HQs & Mangas" (Livros + HQs&Mangas); sem "Filmes" em Mangas
+  (os spans "Filmes" sao labels legitimos do hero + badges de catalogo).
+- Anime sem contradicao (1 menção, coerente).
+- 52 links internos 100% com prefixo de locale; 0 href vazios; 5 categorias
+  /pt-BR/catalog?type=X retornam 200.
+- Sem mojibake real (artefatos de dupla codificacao todos false).
+- Console: 2x 401 (auth/me, watchlist - esperados p/ anonimo) + 1x 404.
+ACHADO P2 (dado): poster de "Baldur's Gate 3" no banco vivo aponta para
+  hash Wikimedia errado (7/79; correto 1/12) -> next/image 404 -> degrada p/
+  placeholder (nao quebra UI). NAO e bug de encoding. Fix: normalizacao
+  defensiva adicionada em MediaCard/ImageWithFallback (%2527->%27) + correcao
+  do registro no banco (UPDATE imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg').
