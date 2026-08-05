@@ -428,8 +428,8 @@ export function HeroMediaIcon({
               <Image
                 src={src}
                 alt=""
-                width={200}
-                height={200}
+                width={1600}
+                height={900}
                 priority={index === 0}
                 className={styles.render}
                 draggable={false}

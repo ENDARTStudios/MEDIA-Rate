@@ -53,3 +53,4 @@ agent-ctx/
 
 .vercel
 .env*
+apps/web/src/components/hero-icons/*.png
