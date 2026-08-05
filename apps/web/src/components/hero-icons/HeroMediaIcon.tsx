@@ -123,7 +123,7 @@ export function HeroMediaIcon({ type, variant, href, label, className }: HeroMed
         const screen = el.querySelector("[data-part=screen]");
         if (scan)
           anims.push(
-            animate(scan, { translateY: ["-100%", "200%"], duration: 400, ease: "linear" }),
+            animate(scan, { translateY: ["-10px", "50px"], duration: 400, ease: "linear" }),
           );
         if (screen)
           anims.push(
