@@ -1155,3 +1155,21 @@ Stage Summary:
   no ambiente Doer).
 - Suites: web 159/159.
 - Status: DONE (aguardando REVIEW com screenshots do Operador).
+
+## [2026-08-04] Evidence: hero v2 + fixes de console (browser ativo)
+- Capturas reais: evidencia-hero-desktop-static.png, -hover.png, -mobile.png,
+  -reduced-motion.png (na raiz do repo; modelo nao le imagens, Operador/Thinker revisa).
+- Prova funcional via DOM: one-shot roda (rotate overshoot ~6.6deg->0 + flash
+  0->0.6->0 no timing exato, via mouseover); mobile 390px = 5 icones + carrossel
+  scroll-snap + sem tilt (gate touch); reduced-motion = 5 icones estaticos.
+  Nota: headless Chromium reporta pointer:none -> tilt desabilitado na captura
+  (comportamento correto do gate (hover:hover)/(pointer:fine)).
+- BUGS DO CONSOLE (10 erros) -> 2 CORRIGIDOS:
+  1. PostHog bloqueado pela CSP (script-src/connect-src) -> next.config.ts:
+     adicionados https://us-assets.i.posthog.com e https://us.i.posthog.com.
+     Header CSP v2 confirmado no ar.
+  2. MISSING_MESSAGE mediarail.filme/serie/game -> MediaRail.tsx usava TIPO_LABEL
+     no namespace mediarail; RAIL_LABEL (filmes/series/games) ja existia e nao era
+     usado -> trocado.
+  Restantes: 401 /auth/me + /watchlist sao esperados p/ anonimo (nao sao bugs).
+- Suites: 159/159. Commits: dd14a8a (hero), 92763ba (worklog), edda103 (fixes).
