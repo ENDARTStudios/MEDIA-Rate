@@ -1304,3 +1304,29 @@ PENDENCIAS (dados, fora de codigo):
 - 401 x2 em todas as paginas (auth/me, watchlist anonimos - esperado).
 VERIFICADO NO AR: catalog?type=comic 200 com 12+ cards e chips rotulados;
 metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
+
+## [2026-08-05] T5a-hero-3d-fix-v5 — renders PBR polidos + coreografias do Thinker (DONE)
+- Novo padrao de material (zero massinha): plastico glossy com specular cortante
+  (faixa de ambiente), metal escovado (chrome com streaks), vidro com reflexo
+  diagonal, couro envernizado (sheen + relevo dourado), reflexo especular de
+  piso (objeto espelhado + fade + pool de luz do accent) e rim light. 5 cenas
+  reescritas em scripts/generate-hero-assets.mjs: film 24.3 / serie 20.5 /
+  game 27.0 / livro 25.8 / hq 43.3 KB (todos < 150KB, total ~141KB).
+- HQ: revista fina com lombada dobrada na esquerda, canto dobrado, masthead
+  "BRASIL" + caixa "#01" (texto exato em SVG, sem risco de grafia), paineis,
+  bolha, POW.
+- Coreografias do Thinker implementadas (animejs v4 - timeline v3 adaptada p/
+  animate+delays, timings exatos): CLAP (rotateX 0->-30 inQuad -> [-30,8,-3,0]
+  outBack -> squash scaleY -> flash 240ms -> punch + 14 faiscas), CRT (colapso
+  scaleY 0.05/scaleX 1.35 -> outElastic(1,.55) -> scanline full-height -140%~
+  140% -> brightness flicker -> glow + 10 particulas), Rumble (rotateZ 9-8-6-5-3
+  + jolts -> ring 2.3 -> 4 botoes stagger 90 -> punch), Folhear (rotateY
+  24,-16,9,-4 inOutSine 950ms -> glow -> 3 paginas random), POW (punch 1.18 ->
+  starburst outBack entra/segura/sai -> 6 speed-lines wrappers -> 16 particulas
+  meio-tom). particleBurst com random/stagger (v4).
+- Overlays fx-layer (HTML sobre o render, aria-hidden, currentColor=accent);
+  mask do render 62%->70% (reflexos de piso visiveis); origens: claquete 50% 88%,
+  livro 10% 50%.
+- EVIDENCIAS: probe DOM no ar (sin -0.5=-30 exato, colapso 1.35/0.05, rumble,
+  rotateY amortecido, POW elastico, scanline -146->138, flash 0.69, ring 2.3) +
+  8 screenshots evidencia-v5-*.png + build 80/80 sem libs 3D.
