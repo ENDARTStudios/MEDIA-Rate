@@ -1453,3 +1453,22 @@ GAP 2 — WATCHLIST: endpoint JA EXISTIA completo (controller AuthGuard + GET/
   para documentacao Swagger. VERIFICADO: 401 sem cookie no ar.
 PENDENTE OPERADOR (inalterado): SCRAPE_NUMERICO_ENABLED=true + re-coleta.
 API: 440/444 (4 falhas getBySlug pre-existentes, fora do escopo).
+
+## [2026-08-06] T179-media-score-conforme-spec (DONE, dc8445e + fc6aec3)
+- CLASSIFICACOES critic|audience: ja estavam no registry (mapa VII D-198) —
+  metacritic/rottentomatoes/rogerebert/igdb/opencritic = critica; tmdb/omdb/
+  imdb/tvmaze/trakt/letterboxd/rt_audience/metacritic_user/steam/steamspy/
+  igdb_publico = publico. Nenhuma mudanca necessaria (verificado).
+- PESOS PARAMETRICOS: CONFIG_V3 por tipo (movie/series 40/40/20, game 55/35/10)
+  ja era a unica fonte; grep de 40/40/20 em componentes = 0 residuos.
+- GAP FECHADO (o real): Bar (score module) E CriticsVsAudienceBar escondiam
+  silenciosamente a linha de critica quando criticsScore=null. Agora mostram
+  "Sem critica" explicito (data-testid=sem-critica) + "Sem publico" simetrico
+  (semPublico). Chaves pt/en/es + testes atualizados (Bar.spec).
+- VERIFICADO NO AR: BG3 (igdb/opencritic) -> barra Critica 93% preenchida +
+  Consenso alto; O Jogo da Morte (so publico) -> "Critica: Sem critica |
+  Publico: 72.8". Nunca 0, nunca vazio, nunca fabricado.
+- GATES: tsc/lint/159-159/build ok. E2E: 42 passed / 12 failed pre-existentes
+  (mesmo baseline no build anterior contra o live; falhas em navigation mobile
+  e media-details/elden-ring = titulos de mock fora do DB).
+- Methodology/FAQ v3 ja alinhados (rodada anterior).
