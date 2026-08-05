@@ -1,0 +1,151 @@
+/**
+ * Hero Media Icon v2 — arquitetura híbrida (T5a-hero-3d-fix-v2).
+ *
+ * Camadas HTML reais com translateZ em pixels (robusto em todos os
+ * browsers — sem SVG em camadas, sem transform-box: fill-box):
+ *   glow (-60px) → base (0px, rotacionada) → ícone Lucide (40px) → flare (80px)
+ * Seletores de classe estáveis para a coreografia Anime.js (scoped por root).
+ */
+.iconContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  perspective: 1000px;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.glow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 9999px;
+  transform: translateZ(-60px);
+  pointer-events: none;
+}
+
+.base {
+  position: absolute;
+  inset: 12% 18% 0;
+  border-radius: 24px;
+  transform: translateZ(0px) rotateX(58deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 12px 24px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateZ(40px);
+}
+
+.flare {
+  position: absolute;
+  inset: -10%;
+  border-radius: 9999px;
+  transform: translateZ(80px);
+  opacity: 0.3;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.5) 0%, transparent 60%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* --- Coreografia: alvos de classe estáveis (Anime.js, scoped por root) --- */
+
+/* Filme — flash de impacto */
+.flash {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Série — scanline dentro do ícone da TV */
+.scanline {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 22%;
+  top: 0;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.7), transparent);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Game — botões de face (divs absolutas) */
+.buttons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.button {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  opacity: 0.35;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Livro — linhas de texto */
+.lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.line {
+  position: absolute;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+}
+
+/* HQ/Mangá — partículas de meio-tom */
+.dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.dot {
+  position: absolute;
+  width: 8%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: white;
+}
+
+.label {
+  display: block;
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--hero-label, #a0a0b8);
+  transition: color 200ms ease;
+}
+
+@media (min-width: 1024px) {
+  .base {
+    inset: 18% 22% 0;
+  }
+}

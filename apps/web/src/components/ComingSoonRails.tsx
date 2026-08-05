@@ -10,15 +10,13 @@ import { useTranslations } from "next-intl";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
 import type { MediaType } from "@/lib/types";
 
-const SECTIONS: { type: MediaType; labelKey: string; count: string }[] = [
-  { type: "book", labelKey: "livro", count: "Em breve" },
-  { type: "comic", labelKey: "comic", count: "Em breve" },
-  { type: "anime", labelKey: "anime", count: "Em breve" },
+const SECTIONS: { type: MediaType; label: string; count: string }[] = [
+  { type: "book", label: "Livros", count: "Em breve" },
+  { type: "comic", label: "HQs", count: "Em breve" },
+  { type: "anime", label: "Mangás", count: "Em breve" },
 ];
 
 export function ComingSoonRails() {
-  const t = useTranslations("catalog");
-
   return (
     <>
       {SECTIONS.map((section) => (
@@ -29,14 +27,14 @@ export function ComingSoonRails() {
                 id={`rail-${section.type}`}
                 className="font-heading text-xl font-bold text-[#F5F5F7] uppercase tracking-wider"
               >
-                {t(section.labelKey as "livro" | "comic" | "anime")}
+                {section.label}
               </h2>
               <span className="text-xs text-[#6B6B85]">{section.count}</span>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
               {[0, 1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex-shrink-0 w-[160px] sm:w-[180px] snap-start">
-                  <LockedComingSoonCard type={section.type} />
+                  <LockedComingSoonCard type={section.type} variante={i} />
                 </div>
               ))}
             </div>

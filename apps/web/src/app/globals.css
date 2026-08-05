@@ -115,25 +115,9 @@ body {
 }
 
 /* ==========================================================================
- * Hero icons 3D (Addendum hero, §3) — sistema de camadas SVG.
- * - transform-box: fill-box → rotações/escalas de elementos SVG giram no
- *   próprio centro (essencial para a coreografia: boca da claquete, capa do
- *   livro, analógico do controle).
- * - preserve-3d no wrapper + translateZ por camada = profundidade real com
- *   peso de renderização próximo de zero (sem WebGL).
+ * Hero icons 3D (Addendum hero) — camadas HTML reais com translateZ.
+ * A estrutura vive em components/hero-icons/hero-icons.module.css.
  * ========================================================================== */
-.hero-icon-svg * {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.hero-icon-svg {
-  transform-style: preserve-3d;
-}
-
-.icon-shadow {
-  filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.25));
-}
 
 @layer base {
   :root {

@@ -8,8 +8,7 @@
  *   mobile (carrossel horizontal scroll-snap, ~64px).
  * - Cada ícone navega para /catalog?type=X (filtro da categoria).
  */
-import { HeroMediaIcon } from "./HeroMediaIcon";
-import type { AnimationVariant } from "./icon-art";
+import { HeroMediaIcon, type AnimationVariant } from "./HeroMediaIcon";
 import type { MediaType } from "@/lib/types";
 
 const ICONS: {
@@ -40,7 +39,7 @@ export function HeroIconCluster() {
               type={icon.type}
               variant={icon.variant}
               href={icon.href}
-              label={`Explorar ${icon.label}`}
+              label={icon.label}
             />
           </li>
         ))}
