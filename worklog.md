@@ -1173,3 +1173,23 @@ Stage Summary:
      usado -> trocado.
   Restantes: 401 /auth/me + /watchlist sao esperados p/ anonimo (nao sao bugs).
 - Suites: 159/159. Commits: dd14a8a (hero), 92763ba (worklog), edda103 (fixes).
+
+## [2026-08-04] T5a-hero-3d-fix-v3 — SVGs ilustrativos premium (DONE)
+- Substitui Lucide por 5 ilustracoes vetoriais completas (hero-svg-art.tsx):
+  Claquete (madeira texturizada, veios, dobradicas metalicas, listras diagonais,
+  "SCENE 1", flash estrela), TV (moldura metalica, reflexo, antenas, dials, pernas,
+  scanline, conteudo com equalizer), Controle (corpo ergonomico, d-pad, 4 botoes
+  Y/B/A/X coloridos com highlight, 2 analogicos texturizados, gatilhos, grips),
+  Livro (lombada, folhas, marcador rosa, capa com titulo MEDIA RATE + borda dourada,
+  linhas de texto), HQ (4 paineis com bordas pretas, bolha de fala, meio-tom,
+  explosao POW, raio, gradientes vibrantes rosa/roxo).
+- Coreografia EXATA do Addendum (dados comprovados via DOM): boca [-22,3,0]+flash
+  [0,0.6,0] / scanline -100%->200% (matrix 0->80px) + brightness 1.5 / botoes
+  elastic stagger (overshoot 1.05) + analogicos 1 turn / capa rotateY -25 (sin 25.0)
+  + linhas stagger / 6 particulas explodem +-40px (scale 0->1.5, fade) + punch 1.08.
+- transform-box fill-box em globals.css (CSS module rejeita seletores de atributo
+  no Turbopack - erro "Transforming CSS failed" corrigido).
+- EVIDENCIAS (Playwright local, browser real): evidencia-v3-desktop-static.png,
+  -hover.png (pico do flash), -mobile.png (390px), -reduced-motion.png + probe
+  funcional JSON (5 coreografias) + build 80/80 sem three.js/spline.
+- Suites: 159/159. Commit 8048b88.
