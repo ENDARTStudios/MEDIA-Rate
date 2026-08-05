@@ -1,19 +1,15 @@
 /**
- * Hero Media Icon v3 — SVGs ilustrativos premium (T5a-hero-3d-fix-v3).
+ * Hero Media Icon v4 — renders 3D pré-renderizados (T5a-hero-3d-fix-v4).
  *
- * Camadas HTML reais com translateZ em pixels (robusto em todos os
- * browsers — sem transform-box: fill-box em camadas HTML):
- *   glow (-60px) → base (0px, rotacionada) → arte SVG (40px) → flare (80px)
- *
- * Os alvos da coreografia ([data-part]) vivem DENTRO dos SVGs; as regras
- * de transform-box/origin abaixo garantem que rotate/translateY percentual
- * do Anime.js operem na própria caixa do elemento SVG.
+ * viewport (perspective) → stage (tilt Motion, preserve-3d) → shot
+ * (alvo das one-shots, transform-origin por variante) → floatWrap (idle
+ * translateY loop) → render (img webp com mask radial). Partículas HTML
+ * absolutas sobre o render, escondidas até a one-shot.
  */
-.iconContainer {
+.viewport {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  perspective: 1000px;
 }
 
 .stage {
@@ -23,54 +19,163 @@
   transform-style: preserve-3d;
 }
 
-.glow {
+/* --- Idle contínuo (float + glow respirando, sincronizados 3.6s) --- */
+
+.floatWrap {
+  animation: hero-float 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.glowBreath {
   position: absolute;
-  inset: -20%;
+  inset: 6%;
   border-radius: 9999px;
-  transform: translateZ(-60px);
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.4) 0%, transparent 68%);
+  animation: hero-breathe 3.6s ease-in-out infinite;
   pointer-events: none;
 }
 
-.base {
-  position: absolute;
-  inset: 12% 18% 0;
-  border-radius: 24px;
-  transform: translateZ(0px) rotateX(58deg);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 12px 24px rgba(0, 0, 0, 0.45);
-  pointer-events: none;
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
-.icon {
+@keyframes hero-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* --- Render --- */
+
+.shot {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateZ(40px);
-}
-
-.icon svg {
-  width: 72px;
-  height: 72px;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
-}
-
-.flare {
-  position: absolute;
-  inset: -10%;
-  border-radius: 9999px;
-  transform: translateZ(80px);
-  opacity: 0.3;
-  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.5) 0%, transparent 60%);
   pointer-events: none;
-  mix-blend-mode: screen;
 }
 
-/* --- Alvos de coreografia (data-parts dentro dos SVGs) ---
- * Regras globais de transform-box/origin ficam em globals.css
- * (seletores de atributo não são permitidos em CSS modules no Turbopack). */
+/* Origens dos transforms por variante (one-shots) */
+.shot_clapperboard {
+  transform-origin: bottom center;
+}
+
+.shot_tv {
+  transform-origin: center;
+}
+
+.shot_controller {
+  transform-origin: center;
+}
+
+.shot_book {
+  transform-origin: 42% 55%;
+}
+
+.shot_magazine {
+  transform-origin: center;
+}
+
+.render {
+  width: 100%;
+  max-width: 116px;
+  max-height: 116px;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.5));
+  user-select: none;
+}
+
+/* --- Partículas (HTML absolutas, invisíveis até a one-shot) --- */
+
+.flash {
+  position: absolute;
+  inset: 4%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 65%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scanline {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 10%;
+  height: 8%;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spark {
+  position: absolute;
+  width: 7%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px currentColor,
+    0 0 22px currentColor;
+}
+
+.page {
+  position: absolute;
+  height: 12%;
+  border-radius: 2px;
+  background: linear-gradient(105deg, #ffffff 0%, #e8e1d0 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dot {
+  position: absolute;
+  width: 6%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: #f472b6;
+  border: 2px solid #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.burst {
+  position: absolute;
+  left: 42%;
+  top: 38%;
+  width: 16%;
+  aspect-ratio: 1;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, #fde68a 0%, #f59e0b 100%);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
 
 .label {
   display: block;
@@ -83,12 +188,16 @@
 }
 
 @media (min-width: 1024px) {
-  .base {
-    inset: 18% 22% 0;
+  .render {
+    max-width: 148px;
+    max-height: 148px;
   }
+}
 
-  .icon svg {
-    width: 88px;
-    height: 88px;
+/* prefers-reduced-motion: idle desligado (estado = render puro) */
+@media (prefers-reduced-motion: reduce) {
+  .floatWrap,
+  .glowBreath {
+    animation: none;
   }
 }

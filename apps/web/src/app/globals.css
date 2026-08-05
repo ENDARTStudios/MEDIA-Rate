@@ -115,25 +115,9 @@ body {
 }
 
 /* ==========================================================================
- * Hero icons 3D (Addendum hero) — camadas HTML reais com translateZ.
+ * Hero icons 3D (Addendum hero) — renders 3D pré-renderizados (v4, D-014).
  * A estrutura vive em components/hero-icons/hero-icons.module.css.
- *
- * Alvos de coreografia (data-parts dentro dos SVGs ilustrativos):
- * - O pivô de cada peça animada vive na própria geometria (0,0 local,
- *   via wrapper estático) — NUNCA em atributo transform, que o Anime.js
- *   substitui e faz a peça voar para a origem do viewport.
- * - transform-box: fill-box faz o scale das partículas girar em torno
- *   do próprio centro (seletores globais — CSS modules no Turbopack
- *   não aceitam seletores de atributo).
  * ========================================================================== */
-
-[data-part] {
-  transform-box: fill-box;
-}
-
-[data-part^="dot-"] {
-  transform-origin: center;
-}
 
 @layer base {
   :root {

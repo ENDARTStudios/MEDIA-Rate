@@ -33,13 +33,14 @@ export function HeroIconCluster() {
   return (
     <nav aria-label="Categorias de mídia" className="w-full">
       <ul className="flex items-center justify-start gap-6 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none sm:justify-center lg:gap-12">
-        {ICONS.map((icon) => (
+        {ICONS.map((icon, i) => (
           <li key={icon.type} className="flex-shrink-0 snap-start w-20 sm:w-24 lg:w-[120px]">
             <HeroMediaIcon
               type={icon.type}
               variant={icon.variant}
               href={icon.href}
               label={icon.label}
+              index={i}
             />
           </li>
         ))}
