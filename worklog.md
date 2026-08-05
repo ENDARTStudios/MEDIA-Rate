@@ -1330,3 +1330,17 @@ metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
 - EVIDENCIAS: probe DOM no ar (sin -0.5=-30 exato, colapso 1.35/0.05, rumble,
   rotateY amortecido, POW elastico, scanline -146->138, flash 0.69, ring 2.3) +
   8 screenshots evidencia-v5-*.png + build 80/80 sem libs 3D.
+
+## [2026-08-05] T5a-hero-3d-fix-v6 — assets = renders de referencia do Operador
+- Operador: "Ficou um lixo" (v5 procedural) e colocou 5 renders premium de
+  referencia em apps/web/src/components/hero-icons/ (Claquete/Televisao/
+  Controle/Livro/HQ e Manga - 1664x928, fundo escuro de estúdio, 16:9).
+- DECISAO: usar os renders DO OPERADOR como os assets do hero (nao tenho
+  visao de imagem p/ replicar; sao exatamente o set premium desejado).
+  Convertidos p/ WebP q82 (1280w): film 21 / serie 36 / game 30 / livro 50 /
+  hq 50 KB (total ~187KB < 750KB) em public/assets/hero/.
+- Ajuste: quadro quadrado (aspect-ratio 1) com object-fit cover (center 60%)
+  + mask radial 70%; next/image 1600x900. Referencias .png ficam fora do git
+  (.gitignore). Tilt/idle/one-shots/particulas intactos.
+- Screenshots: evidencia-v6-{idle,peak-clap,mobile,reduced-motion}.png.
+- Build 80/80; no ar com 5 imgs 104x104 object-fit cover.
