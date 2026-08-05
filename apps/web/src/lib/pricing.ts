@@ -2,8 +2,9 @@
  * pricing.ts — Fonte única de verdade para planos e preços do MEDIA Rate.
  * Usado por /pricing (PricingCards, PricingTable) e /terms (seção 3).
  *
- * Preço canônico verificado ao vivo em 2026-08-01 via:
- *   curl https://media-rate-web.vercel.app/pt-BR/pricing
+ * Moeda: o Stripe cobra em BRL (R$ 4,90 / R$ 9,90) — por isso TODOS os
+ * locales exibem BRL, evitando a inconsistência legal/UX de mostrar EUR/USD
+ * e cobrar em reais (D-178).
  */
 
 export interface PlanDefinition {
@@ -20,7 +21,7 @@ export const PLANS: PlanDefinition[] = [
     id: "free",
     nameKey: "pricing.freeName",
     price: 0,
-    currency: { "pt-BR": "BRL", "en-US": "USD", "es-ES": "EUR" },
+    currency: { "pt-BR": "BRL", "en-US": "BRL", "es-ES": "BRL" },
     highlighted: false,
     benefits: ["pricing.freeFeature1", "pricing.freeFeature2", "pricing.freeFeature3"],
   },
@@ -28,7 +29,7 @@ export const PLANS: PlanDefinition[] = [
     id: "plus",
     nameKey: "pricing.plusName",
     price: 4.9,
-    currency: { "pt-BR": "BRL", "en-US": "USD", "es-ES": "EUR" },
+    currency: { "pt-BR": "BRL", "en-US": "BRL", "es-ES": "BRL" },
     highlighted: true,
     benefits: [
       "pricing.plusFeature1",
@@ -41,7 +42,7 @@ export const PLANS: PlanDefinition[] = [
     id: "premium",
     nameKey: "pricing.premiumName",
     price: 9.9,
-    currency: { "pt-BR": "BRL", "en-US": "USD", "es-ES": "EUR" },
+    currency: { "pt-BR": "BRL", "en-US": "BRL", "es-ES": "BRL" },
     highlighted: false,
     benefits: [
       "pricing.premiumFeature1",

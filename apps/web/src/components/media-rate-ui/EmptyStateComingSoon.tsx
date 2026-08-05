@@ -93,7 +93,7 @@ export function EmptyStateComingSoon({
         {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")} — {t("noResults")}
       </p>
       <p className="mt-1 max-w-sm text-sm text-[#6B6B85]">
-        Esta categoria chega em breve. Cadastre-se para ser avisado.
+        {t("comingSoonSubscribe")}
       </p>
 
       {onNotify && !sent && (

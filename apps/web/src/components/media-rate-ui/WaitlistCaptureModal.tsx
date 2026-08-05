@@ -51,7 +51,7 @@ export function WaitlistCaptureModal({
             {categoryLabel} — {t("noResults")}
           </Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-[#A0A0B8]">
-            Cadastre-se para ser avisado quando chegar.
+            {t("comingSoonNotify")}
           </Dialog.Description>
 
           {sent ? (

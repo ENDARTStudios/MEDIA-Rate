@@ -69,6 +69,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
   const scale = mediaType === "game" ? "0-100" : "0-10";
   const maxScore = scale === "0-100" ? 100 : 10;
+  // Deduplica fontes por id (defesa contra avaliações duplicadas no banco/mock).
+  const fontesUnicas = sources.filter(
+    (s, i, arr) => arr.findIndex((x) => x.source === s.source) === i,
+  );
   const radius = 52;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (consolidated / maxScore) * circ;
@@ -81,8 +85,9 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   // visivelmente da média simples das fontes exibidas, explica o ajuste
   // por volume de votos no próprio lugar onde o usuário compara os números.
   const mediaSimples100 =
-    sources.length > 0
-      ? sources.reduce((acc, s) => acc + (s.score / s.maxScore) * 100, 0) / sources.length
+    fontesUnicas.length > 0
+      ? fontesUnicas.reduce((acc, s) => acc + (s.score / s.maxScore) * 100, 0) /
+        fontesUnicas.length
       : null;
   const consolidado100 = scale === "0-100" ? consolidated : consolidated * 10;
   const temAjusteBayesiano =
@@ -206,11 +211,11 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider">
           {t("sources")}
         </p>
-        {sources.length === 0 ? (
+        {fontesUnicas.length === 0 ? (
           <p className="text-xs text-[#6B7280]">{t("noReviews")}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {sources.map((s) => {
+            {fontesUnicas.map((s) => {
               const meta = FONTES_WEB[s.source];
               return (
                 <SourceMiniCard
