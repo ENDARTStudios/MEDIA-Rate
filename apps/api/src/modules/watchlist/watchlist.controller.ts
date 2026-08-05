@@ -12,6 +12,7 @@ import {
   HttpCode,
   UnauthorizedException,
 } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import type { FastifyRequest } from "fastify";
 import { WatchlistService } from "./watchlist.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
@@ -25,6 +26,8 @@ import { AuthGuard } from "../../common/guards/auth.guard.js";
 
 type WatchlistRequest = FastifyRequest & { user?: { id: string } };
 
+@ApiTags("watchlist")
+@ApiBearerAuth()
 @Controller("api/v1/watchlist")
 @UseGuards(AuthGuard)
 export class WatchlistController {
@@ -42,11 +45,13 @@ export class WatchlistController {
   }
 
   @Get()
+  @ApiOperation({ summary: "Lista a watchlist do usuário autenticado" })
   async list(@Req() req: WatchlistRequest) {
     return this.service.list(this.userId(req));
   }
 
   @Post()
+  @ApiOperation({ summary: "Adiciona uma mídia à watchlist" })
   @UsePipes(new ZodValidationPipe(addToWatchlistSchema))
   async add(@Req() req: WatchlistRequest, @Body() body: AddToWatchlistDto) {
     this.metrics.incrementWatchlistAdd();
@@ -54,6 +59,7 @@ export class WatchlistController {
   }
 
   @Patch(":id/move")
+  @ApiOperation({ summary: "Move um item entre colunas da watchlist" })
   async move(
     @Req() req: FastifyRequest & { user?: { id: string }; body?: unknown },
     @Param("id") id: string,
@@ -65,6 +71,7 @@ export class WatchlistController {
   }
 
   @Delete(":id")
+  @ApiOperation({ summary: "Remove um item da watchlist" })
   @HttpCode(204)
   async remove(@Req() req: WatchlistRequest, @Param("id") id: string) {
     this.metrics.incrementWatchlistRemove();
