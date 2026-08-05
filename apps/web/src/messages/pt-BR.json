@@ -93,6 +93,8 @@
     "castUnavailable": "Elenco ainda não disponível.",
     "reviews": "Avaliações",
     "noReviews": "Nenhuma avaliação disponível.",
+    "bayesNote": "Ajustado por volume de votos (estimador Bayesiano): obras com poucas avaliações são puxadas para a média do catálogo.",
+    "methodologyLink": "Ver metodologia",
     "whereToWatch": "Onde assistir",
     "whereToPlay": "Onde jogar",
     "streamingUnavailable": "Informações de streaming indisponíveis.",

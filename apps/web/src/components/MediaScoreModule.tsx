@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { Link } from "@/lib/navigation";
 import type { MediaScore as MediaScoreType } from "@/lib/types";
 import { scoreColor } from "@/lib/design-tokens";
 import { Bar } from "./Bar";
@@ -75,6 +76,17 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const isStale = updatedAt
     ? new Date(updatedAt).getTime() < Date.now() - 30 * 24 * 3600 * 1000
     : false;
+
+  // Nota Bayesiana (T5a/MET-03): quando o score consolidado difere
+  // visivelmente da média simples das fontes exibidas, explica o ajuste
+  // por volume de votos no próprio lugar onde o usuário compara os números.
+  const mediaSimples100 =
+    sources.length > 0
+      ? sources.reduce((acc, s) => acc + (s.score / s.maxScore) * 100, 0) / sources.length
+      : null;
+  const consolidado100 = scale === "0-100" ? consolidated : consolidated * 10;
+  const temAjusteBayesiano =
+    mediaSimples100 !== null && Math.abs(consolidado100 - mediaSimples100) > 1.5;
 
   return (
     <div
@@ -177,6 +189,17 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
 
       <div className="pt-3 border-t border-[#1C1C2E]">
         <Bar criticsScore={criticos} audienceScore={publico} consensus={consenso} />
+        {temAjusteBayesiano && (
+          <p className="mt-2 text-xs text-[#6B7280]" data-testid="bayes-note">
+            {t("bayesNote")}{" "}
+            <Link
+              href="/methodology"
+              className="text-[#818CF8] underline underline-offset-2 hover:text-[#A5B4FC]"
+            >
+              {t("methodologyLink")}
+            </Link>
+          </p>
+        )}
       </div>
 
       <div className="space-y-2 pt-3 border-t border-[#1C1C2E]">

@@ -93,6 +93,8 @@
     "castUnavailable": "Cast not yet available.",
     "reviews": "Reviews",
     "noReviews": "No reviews available.",
+    "bayesNote": "Adjusted by vote volume (Bayesian estimator): titles with few ratings are pulled toward the catalog average.",
+    "methodologyLink": "See methodology",
     "whereToWatch": "Where to Watch",
     "whereToPlay": "Where to Play",
     "streamingUnavailable": "Streaming information unavailable.",
