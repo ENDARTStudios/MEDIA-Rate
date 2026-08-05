@@ -1362,3 +1362,29 @@ ETAPA 3 (re-auditoria no ar): B1/B2/B4/B5 OK; B7 nao-e-bug (RSC 200);
 B3 (poster BG3, hash 7/79 errado -> 1/12) segue como PENDENCIA DE BANCO
 (UPDATE midia SET imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg'
 WHERE titulo='Baldur'"'"'s Gate 3') - degrada para placeholder (nao quebra UI).
+
+## [2026-08-05] Auditoria 2 (16 URLs) — acoes P0/P1 (commit b062b2c)
+P0-1 FILTRO DE TIPO (critico): API aceitava "HQ" (Prisma rejeita -> 500) e
+  IGNORAVA "COMIC" silenciosamente -> tipo=COMIC retornava o catalogo inteiro
+  (391 = total, "Quadrinhos391" era vazamento). Fix media.controller.ts:
+  aceita COMIC + HQ como alias. Verified no ar: movie=196, series=194,
+  game=1, comic=0 (sem HQs no banco), Todos=391 (chip all agora soma tipos).
+P0-2 PRECOS TERMS: "R$0/R$4,90/R$9,90" corrompidos para "R)/R,90" nos
+  messages (replace() com $0-$9 como backreference comeu os valores ao gravar).
+  Corrigido pt (R$) e en ($); es ja estava ok (EUR).
+P0-3 REGISTRO: removido campo "Codigo de convite" (contradizia "gratuito, sem
+  convite"; schema + store), logo mobile usa variant inline (antes duplicava
+  "MEDIARate MEDIA Rate"), checkbox ganhou id. Links/rodape ja estavam com
+  locale e "jogar e ler" nao existe (falso positivo do auditor).
+P1-4 AUTH: dashboard/watchlist/profile/settings/user-data TODOS redirecionam
+  307 -> /login identicamente (guard unificado ProtectedPage+middleware).
+  Travamento do auditor nao reproduzivel (transitorio).
+P1-5 FONTES: home ja estava canonica (125 mencoes, sem OpenLibrary); pagina
+  /sources (About) agora lista as 11 canonicas (add Letterboxd/Trakt/SteamSpy,
+  remove Open Library) em pt/en/es.
+P1-6 NOME LEGAL: s5b dos Termos "ENDART Studios" -> "END ART Studios" (3 locales).
+FALSO POSITIVO: "mojibake em massa" nos .tsx era artefato do PowerShell
+  (decodifica UTF-8 como ANSI); arquivos e titles servidos estao limpos
+  (verificado bytes + <title> servido).
+PRE-EXISTENTE: 4 falhas em controllers-unit.spec.ts (getBySlug 500) — falham
+  com e sem esta mudanca (fora do escopo).
