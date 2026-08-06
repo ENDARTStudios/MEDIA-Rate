@@ -1,8 +1,8 @@
-{
+﻿{
   "name": "@media-rate/api",
   "version": "0.1.0",
   "private": true,
-  "description": "MEDIA Rate — backend NestJS.",
+  "description": "MEDIA Rate â€” backend NestJS.",
   "license": "UNLICENSED",
   "type": "module",
   "main": "dist/main.js",
@@ -19,6 +19,7 @@
     "db:generate": "prisma generate",
     "db:seed": "node --import @swc-node/register/esm-register prisma/seed.ts",
     "db:seed:tmdb": "node --import @swc-node/register/esm-register prisma/seed-tmdb.ts",
+    "db:seed:novas-midias": "node --import @swc-node/register/esm-register prisma/seed-novas-midias.ts",
     "db:reset": "prisma migrate reset --force",
     "db:validate": "prisma validate",
     "db:status": "prisma migrate status"
@@ -69,3 +70,4 @@
     "vitest": "^4.1.10"
   }
 }
+
