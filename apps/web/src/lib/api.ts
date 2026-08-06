@@ -846,6 +846,7 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
     if (filters?.scoreMin != null) params.set("score_min", String(filters.scoreMin));
     if (filters?.scoreMax != null) params.set("score_max", String(filters.scoreMax));
     if (filters?.genero) params.set("genero", filters.genero);
+    if (filters?.comCritica) params.set("com_critica", "true");
     params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
     const data = await apiGet<{
       data: ApiMidiaList[];

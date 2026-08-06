@@ -103,6 +103,7 @@ export class MediaController {
     @Query("score_min") scoreMin: string | undefined,
     @Query("score_max") scoreMax: string | undefined,
     @Query("genero") genero: string | undefined,
+    @Query("com_critica") comCritica: string | undefined,
     @Req() req: FastifyRequest,
   ): Promise<
     PaginatedResult<{
@@ -160,6 +161,11 @@ export class MediaController {
           genero: Number.isFinite(generoNum) ? { id: generoNum } : { slug: genero },
         },
       };
+    }
+    // T186: "somente com crítica disponível" — score_critica != null
+    // (classificação critic|audience do T179 persistida no media_score).
+    if (comCritica === "true" || comCritica === "1") {
+      where.score = { score_critica: { not: null } };
     }
 
     // Allowlist de campos de ordenação (T4.6 sort allowlist).

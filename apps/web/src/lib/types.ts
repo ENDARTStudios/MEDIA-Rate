@@ -150,6 +150,8 @@ export interface CatalogFilters {
   anoMax?: number;
   scoreMin?: number;
   scoreMax?: number;
+  /** T186: somente obras com fonte de crítica disponível (score_critica != null). */
+  comCritica?: boolean;
   /** Slug do gênero (ex.: "ficcao-cientifica"). */
   genero?: string;
 }

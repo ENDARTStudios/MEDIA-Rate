@@ -81,6 +81,7 @@ describe("MediaController — quota de recomendações no sort=score", () => {
       undefined,
       undefined,
       undefined,
+      undefined,
       req,
     );
     expect(quota.usar).toHaveBeenCalledWith("user-1", "recomendacoes", 3);
@@ -104,6 +105,7 @@ describe("MediaController — quota de recomendações no sort=score", () => {
       "20",
       undefined,
       "score:desc",
+      undefined,
       undefined,
       undefined,
       undefined,

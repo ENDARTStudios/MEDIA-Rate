@@ -90,7 +90,7 @@ export function EmptyStateComingSoon({
         />
       </div>
       <p className="font-heading text-base font-semibold text-[#F5F5F7]">
-        {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")} — {t("noResults")}
+        {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")} — {t("emConstrucao")}
       </p>
       <p className="mt-1 max-w-sm text-sm text-[#6B6B85]">
         {t("comingSoonSubscribe")}

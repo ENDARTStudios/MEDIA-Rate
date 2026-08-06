@@ -4,7 +4,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
-import { getCatalog } from "@/lib/api";
+import { getCatalog, waitlistNotify } from "@/lib/api";
 import type { MediaType, Media, CatalogResponse } from "@/lib/types";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
@@ -84,9 +84,10 @@ function CatalogContent({
   const scoreMin = asOptionalNumber(sp.get("scoreMin"));
   const scoreMax = asOptionalNumber(sp.get("scoreMax"));
   const genero = sp.get("genero") || undefined;
+  const comCritica = sp.get("com_critica") === "true";
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
-    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero }],
+    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero, comCritica }],
     queryFn: () =>
       getCatalog({
         type,
@@ -98,6 +99,7 @@ function CatalogContent({
         scoreMin,
         scoreMax,
         genero,
+        comCritica,
       }),
     initialData:
       type === undefined &&
@@ -107,7 +109,8 @@ function CatalogContent({
       anoMax === undefined &&
       scoreMin === undefined &&
       scoreMax === undefined &&
-      genero === undefined
+      genero === undefined &&
+      !comCritica
         ? initialData
         : undefined,
     staleTime: 5 * 60 * 1000,
@@ -182,6 +185,7 @@ function CatalogContent({
           type={type}
           sort={sort}
           query={query}
+          comCritica={comCritica}
         />
       </>
     );
@@ -189,11 +193,14 @@ function CatalogContent({
 
   if (!data || data.items.length === 0) {
     // Categorias futuras (Livro/HQ/Mangá) sem catálogo: estado vazio com
-    // captura de lead em vez de 404 genérico (Parte 3.2).
+    // captura de lead em vez de 404 genérico (Parte 3.2 — T186).
     if (type && FUTURE_TYPES.includes(type)) {
       return (
         <div className="py-8">
-          <EmptyStateComingSoon type={type} />
+          <EmptyStateComingSoon
+            type={type}
+            onNotify={(email) => waitlistNotify(email, type)}
+          />
         </div>
       );
     }
@@ -250,7 +257,7 @@ function CatalogContent({
         </div>
       )}
       <CatalogResults
-        key={filtersKey(type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero)}
+        key={filtersKey(type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero, comCritica)}
         pageData={data}
         type={type}
         sort={sort}
@@ -260,6 +267,7 @@ function CatalogContent({
         scoreMin={scoreMin}
         scoreMax={scoreMax}
         genero={genero}
+        comCritica={comCritica}
       />
     </>
   );
@@ -275,6 +283,7 @@ function filtersKey(
   scoreMin?: number,
   scoreMax?: number,
   genero?: string,
+  comCritica?: boolean,
 ): string {
   return [
     type ?? "",
@@ -285,6 +294,7 @@ function filtersKey(
     scoreMin ?? "",
     scoreMax ?? "",
     genero ?? "",
+    comCritica ? "critica" : "",
   ].join("|");
 }
 
@@ -305,6 +315,7 @@ function CatalogResults({
   scoreMin,
   scoreMax,
   genero,
+  comCritica,
 }: {
   pageData: CatalogResponse;
   type?: MediaType;
@@ -315,6 +326,7 @@ function CatalogResults({
   scoreMin?: number;
   scoreMax?: number;
   genero?: string;
+  comCritica?: boolean;
 }) {
   const t = useTranslations("catalog");
   const [items, setItems] = useState<MediaItem[]>(() => pageData.items.map(mapToMediaItem));
@@ -339,6 +351,7 @@ function CatalogResults({
         scoreMin,
         scoreMax,
         genero,
+        comCritica,
       });
       setItems((prev) => [...prev, ...next.items.map(mapToMediaItem)]);
       setNextCursor(next.nextCursor ?? null);

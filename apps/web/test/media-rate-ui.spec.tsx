@@ -28,6 +28,7 @@ const messages = {
     comic: "Quadrinhos",
     anime: "Animes",
     noResults: "Em breve",
+    emConstrucao: "Em construção",
   },
 };
 
@@ -153,7 +154,7 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
       renderWithProviders(<EmptyStateComingSoon type="book" />);
       const el = screen.getByTestId("coming-soon-book");
       expect(el.textContent).toContain("Livros");
-      expect(el.textContent).toContain("Em breve");
+      expect(el.textContent).toContain("Em construção");
     });
 
     it("form de waitlist chama onNotify e mostra confirmação", async () => {

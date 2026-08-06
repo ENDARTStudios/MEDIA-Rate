@@ -77,6 +77,7 @@
     "sortAno": "Año (reciente)",
     "sortScore": "MEDIA Score",
     "noResults": "Sin resultados",
+    "emConstrucao": "En construcción",
     "clearFilters": "Limpiar filtros",
     "error": "Error al cargar catálogo",
     "retry": "Intentar de nuevo",

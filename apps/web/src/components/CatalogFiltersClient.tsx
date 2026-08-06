@@ -28,6 +28,7 @@ export function CatalogFiltersClient() {
   const scoreMin = sp.get("scoreMin") ?? "";
   const scoreMax = sp.get("scoreMax") ?? "";
   const genero = sp.get("genero") ?? "";
+  const comCritica = sp.get("com_critica") === "true";
 
   const { data: generos } = useQuery({
     queryKey: ["generos"],
@@ -179,8 +180,15 @@ export function CatalogFiltersClient() {
                 ))}
               </select>
               <p className="mt-1.5 text-[11px] text-[#6B7280]">
-                "Somente com crítica" chega quando a listagem expuser o split crítica/público
-                (decisão documentada).
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={comCritica}
+                    onChange={(e) => setParam("com_critica", e.target.checked ? "true" : "")}
+                    className="mt-0.5 accent-[#818CF8]"
+                  />
+                  <span>Somente com crítica disponível (split crítica/público do MEDIA Score)</span>
+                </label>
               </p>
             </div>
           </div>
