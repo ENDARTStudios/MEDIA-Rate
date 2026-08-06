@@ -1654,3 +1654,24 @@ MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
 - i18n: todos/filterByType/moveTo (pt/en/es); store: scoreAtAdd/score_at_add.
 - 4 testes novos (chips, filtro, score-delta so com dado, select) -> web
   193/193; API 447/451 (baseline). Build ?. Deploy verificado no ar.
+
+## [2026-08-06] T191-consolidacao-auditoria5 (DONE, commit fbc195b)
+1. MARCA: Logo variant=full agora renderiza "MEDIA Rate" (espaco explicito
+   entre as linhas empilhadas + aria-label "MEDIA Rate"); LazyLogo
+   (dynamic ssr:false) substituido por Logo SSR no register — sem lacuna de
+   hidratacao. Testes via renderToStaticMarkup (SSR puro = exatamente a
+   exigencia de T191: texto identico server/client).
+2. FONTE UNICA DE VERDADE (D-209): lib/sources.ts derivada do registry
+   (FONTES_WEB + PESOS ativos) -> FONTES_ATIVAS {nome, tipo critica|publico,
+   midias} incl. Trakt.tv; /sources e /methodology renderizam do registry
+   (chips tipo+midias); contador da Home = NUM_FONTES_ATIVAS (14). VERIFICADO
+   NO AR: methodology + sources mostram Trakt e a mesma lista; home contador
+   14 consistente.
+3. NOTA BAYESIANA SEMPRE VISIVEL: MediaScoreModule renderiza a explicacao
+   "Ajustado por volume de votos (estimador Bayesiano)" + link /methodology
+   incondicionalmente (o prior aplica a toda obra). VERIFICADO NO AR na ficha.
+4. EVIDENCIA (item IX): consulta de producao — movie score_critica=null,
+   series=null, game=93 (BG3). Critica de filme/serie exige
+   SCRAPE_NUMERICO_ENABLED=true (pendencia operador, escalonada).
+- 8 testes novos (logo SSR 3, registry 4, nota bayesiana 1) -> 201/201;
+  tsc/lint/build verdes.
