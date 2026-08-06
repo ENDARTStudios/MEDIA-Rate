@@ -164,8 +164,15 @@ export class MediaController {
     }
     // T186: "somente com crítica disponível" — score_critica != null
     // (classificação critic|audience do T179 persistida no media_score).
+    // Merge com os filtros de score (where.scores.some é um único some AND).
     if (comCritica === "true" || comCritica === "1") {
-      where.score = { score_critica: { not: null } };
+      where.scores = {
+        ...(where.scores as object),
+        some: {
+          ...((where.scores as { some?: object })?.some ?? {}),
+          score_critica: { not: null },
+        },
+      };
     }
 
     // Allowlist de campos de ordenação (T4.6 sort allowlist).
