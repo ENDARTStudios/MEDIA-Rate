@@ -1729,3 +1729,22 @@ ja respeitavam reduced-motion. Entregues:
 REDESIGN F1-F7 COMPLETO (T183-T194). Restam: T180 (integracoes reais),
 T181 (adaptadores novas midias), T196 (baseline E2E) + pendencias operador
 (SCRAPE_NUMERICO_ENABLED, sign-off juridico EN/ES).
+
+## [2026-08-06] T181-adaptadores-futuras-midias (DONE, 757e849 + 74a6c07 + BOM fix)
+Auditoria de conformidade + gaps:
+- 5 adaptadores ja existiam e estao corretos: jikan (0-10, publico, ativo),
+  anilist (0-100/10, publico, ativo), openlibrary (0-5 x2, publico, gated
+  MEDIA_PREPARACAO_ENABLED), googlebooks (0-5 x2, API key), comicvine
+  (metadados, API key). Registry: classificacao/escalas verificadas.
+- Motor v3 JA tem formulas por midia: LIVRO 0.25/0.55/0.20 + inflacao, HQ
+  0.60 publico + 0.40 consenso editoras, ANIME 0.45/0.45/0.10 + polarizacao.
+- NOVO seed-novas-midias.ts: Duna (LIVRO, openlibrary 4.6 + googlebooks 4.7),
+  Watchmen (COMIC, comicvine 4.6 + comicbookroundup 9.0), Berserk (ANIME,
+  jikan 9.05 + anilist 89) com recalcularEPersistir -> score 0-100 + confianca.
+  Script db:seed:novas-midias. ACAO DO OPERADOR (sem .env local): rodar
+  npm run db:seed:novas-midias no ambiente da API.
+- 6 testes HTTP mockado (jikan/anilist/openlibrary/googlebooks/comicvine;
+  atendeTipo por taxonomia D-198: manga = tipo ANIME) -> API 453/457 baseline.
+- ERRO PROPRIO 3x: PowerShell Set-Content corrompeu package.json (D-210
+  ignorada) — restaurado, corrigido description mojibake pre-existente e BOM
+  via Node/editor; D-210 reforcada (NUNCA Set-Content).
