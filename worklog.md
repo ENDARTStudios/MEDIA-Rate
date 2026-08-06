@@ -1825,3 +1825,26 @@ Fundação de dado dos Addendums 3+4 (G1 — pré-requisito das UIs T199-T201):
   legítimo de "NÃO") — guard real do CI limpo.
 - Arestas curadas só se AMBOS extremos existirem no catálogo (fallback
   seguro — execução real após seeds do Operador).
+
+## [2026-08-07] T198-delta (DONE, commit 20581d3) — escopo ampliado D-213
+Complemento da fundação (núcleo em b9006e7):
+- GENERO NORMALIZADO: schema ganhou tipo (NARRATIVO|SUBGENERO) + midia_alvo
+  + index; migration 20260807_genero_tipo_classificacao; classificação no
+  seed-relacoes (26 narrativos compartilhados — Ação/Drama/Terror/FC... — e
+  14 subgêneros com midia_alvo: RPG/MOBA/FPS/Battle Royale/Roguelike/
+  Metroidvania/Luta/Puzzle/Simulação/Estratégia/Sandbox?GAME, Shonen/
+  Seinen/Isekai?ANIME).
+- ENDPOINT GET /api/v1/catalog?genero=<slug> (DiscoverService.listarPorGenero):
+  NARRATIVO ? qualquer tipo (cross-mídia); SUBGENERO ? restringe a midia_alvo.
+  Response com score (ordena desc) + meta do gênero. Zod validado.
+- /relacoes inclui agora generos do título relacionado (slug/nome/tipo) —
+  pré-condição do agrupamento visual da busca (G2).
+- signal-engine: campo renomeado para enquadramentoCross (normal|
+  reenquadramento) — literal da spec Parte 5; testes atualizados.
+- SEGURANÇA: rate limit 60/min por user+rota no PUT /interacoes (padrão
+  loginRateLimit) + validação Zod de enums já existente.
+- CURADORIA expandida para 11 pares: + The Boys (HQ?série), Better Call
+  Saul?Breaking Bad (SPINOFF_DE), The Lord of the Rings (livro?filme).
+- TESTES: 4 novos catalog-genero (cross-mídia narrativo, restrição
+  subgênero RPG?GAME, Shonen?ANIME, genero inexistente graceful).
+  API 491/491 (29 da fundação + 4 delta), build ?, lint ?, guard encoding ?.
