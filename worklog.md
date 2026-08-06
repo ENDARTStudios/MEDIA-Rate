@@ -1675,3 +1675,23 @@ MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
    SCRAPE_NUMERICO_ENABLED=true (pendencia operador, escalonada).
 - 8 testes novos (logo SSR 3, registry 4, nota bayesiana 1) -> 201/201;
   tsc/lint/build verdes.
+
+## [2026-08-06] T192-reverificacao-pos-deploy (DONE, commit 9e8c07c)
+Lista VII re-verificada contra o build atual (curl + browser):
+1. catalog?type=movie|series|game: CONFIRMADO via Playwright (cards 12/12/1,
+   sem erro; SSR mostra skeleton — verificacao client-side).
+2. /terms precos COM digitos (4,90) sem R,90: CONFIRMADO.
+3. /register: 15 links /pt-BR/ ?, tagline sem "jogar e ler" ?; CONVITE:
+   campo havia sido removido na auditoria 2 — T192 decide manter (Beta
+   Fechada) -> RESTAURADO e localizado (inviteCodeLabel/Placeholder + schema
+   optional max 64).
+4. /dashboard + /watchlist: 307 -> /login, sem "Verificando sessao":
+   CONFIRMADO.
+5. Fontes consistentes (T191): CONFIRMADO (registry unico, 14).
+6. Entidade legal: "END ART Studios" ?; "ENDART" restante = somente o handle
+   do GitHub (URL legitima, nao entidade); CNPJ 45.370.930 apenas em
+   privacy/terms: CONFIRMADO.
+7. <title> pricing limpo ("Planos — MEDIA Rate", sem mojibake): CONFIRMADO.
+- 201/201 testes; tsc/lint/build verdes; deploy verificado no ar.
+- Registrado: catalogo e outras paginas client-side exigem verificacao via
+  browser (curl pega SSR/skeleton).
