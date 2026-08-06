@@ -1513,3 +1513,27 @@ tsc/lint/build verdes; scale props 3; aria-label 9; ': any' = 0.
 VERIFICADO LOCAL: 21 dials (aria "Nota 8,4 de 10", mono), 21 accent bars,
 chip ativo rgb(129,140,248). DEPLOY: commit no origin; Vercel em fila
 (>11min) - re-verificar no ar.
+
+## [2026-08-06] T183a-hero-icons (DONE, commit 20d51e5)
+- 5 icones SVG em camadas em media-rate-ui/icons/ (Clapperboard/Tv/Controller/
+  Book/Magazine): luz 45 superior-esquerda, bisel ~15% (gradiente claro->escuro),
+  sombra propria (feDropShadow 3px/25%), paleta da categoria + 2 tons derivados
+  (Filme #818CF8, Serie #38BDF8, Game #34D399, Livro #FBBF24, HQ #F472B6+
+  #A78BFA). Elementos animaveis com data-part; pivos na geometria (wrapper
+  estatico, sem transform no alvo - licao v3.1).
+- HeroMediaIcon: tilt Motion (rotateX +-8, rotateY +-10, springs 150/15,
+  perspective 800, preserve-3d, translateZ por camada -24/0/+16) SO desktop
+  via matchMedia "(hover: hover) and (pointer: fine)"; one-shot Anime.js por
+  animationVariant (claquete boca -22->0 overshoot + flash 120ms @350ms; TV
+  scanline -100%->100% clip + brightness 1.3; game 4 botoes 80ms + analog 360;
+  livro capa rotateY -25 + 3 linhas + glow; HQ 6 dots explode + punch 1.08),
+  reverse 200ms ao sair; touch: one-shot + nav 700ms + whileTap; keyboard
+  focus dispara one-shot + anel de foco no accent (var); reduced-motion
+  desabilita tilt+one-shot.
+- HeroIconCluster: nav aria-label + ul/li; layout responsivo (desktop 120px
+  gap 48 / tablet 88px gap 24 / mobile 64px scroll-snap).
+- globals.css: camadas do hero + [data-part] transform-box fill-box (scanline).
+- GATES: 7 testes novos (variant data-parts, aria, href, touch timer, cluster
+  nav/5 links) -> 178/178; tsc/lint/build verdes; greps: animationVariant 7,
+  motion 5, matchMedia 2, reduced 3, Explorar 1, icons 5, three/spline 0.
+- NAO integrado na home (T185). Deploy: Vercel fila pendente de verificar.
