@@ -26,6 +26,8 @@ import { ListasModule } from "./modules/listas/listas.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { WaitlistNotifyModule } from "./modules/waitlist-notify/waitlist-notify.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
+import { RelacoesModule } from "./modules/relacoes/relacoes.module.js";
+import { InteracoesModule } from "./modules/interacoes/interacoes.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
@@ -64,6 +66,8 @@ const enableDebugRoutes =
     WatchlistModule,
     WaitlistNotifyModule,
     DiscoverModule,
+    RelacoesModule,
+    InteracoesModule,
     MetricsModule,
     QueueModule.forRoot({
       redis: {

@@ -21,6 +21,7 @@
     "db:seed:tmdb": "node --import @swc-node/register/esm-register prisma/seed-tmdb.ts",
     "db:seed:novas-midias": "node --import @swc-node/register/esm-register prisma/seed-novas-midias.ts",
     "db:seed:games": "node --import @swc-node/register/esm-register prisma/seed-games.ts",
+    "db:seed:relacoes": "node --import @swc-node/register/esm-register prisma/seed-relacoes.ts",
     "db:seed:novas-midias": "node --import @swc-node/register/esm-register prisma/seed-novas-midias.ts",
     "db:reset": "prisma migrate reset --force",
     "db:validate": "prisma validate",

@@ -305,6 +305,8 @@ model Midia {
   streamings              MidiaStreaming[]
   avaliacoes              AvaliacaoFonte[]
   franquias               MidiaFranquia[]
+  relacoes_origem         RelacaoObra[] @relation("RelacaoObraOrigem")
+  relacoes_destino        RelacaoObra[] @relation("RelacaoObraDestino")
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
@@ -387,22 +389,88 @@ model UsuarioMidiaInteracao {
   id          String   @id @default(uuid()) @db.Uuid
   usuario_id  String   @map("usuario_id") @db.Uuid
   midia_id    String   @map("midia_id") @db.Uuid
-  tipo        String   @db.VarChar(32) // 'assistiu', 'avaliou', 'recomendou_receber'
-  // Avaliação do usuário (1–5 estrelas, opcional).
+  // ADDENDUM 4 — Eixo 1: status de consumo (máquina de estados Parte 3).
+  status      StatusConsumo @default(QUERO_CONSUMIR)
+  // ADDENDUM 4 — Eixo 2: reação (opcional; só editável quando o status é
+  // CONCLUIDO ou ABANDONADO — serviço rejeita em QUERO_CONSUMIR/CONSUMINDO).
+  reacao      ReacaoConsumo?
+  // Motivo do abandono (opcional, 3 chips — nunca obrigatório).
+  motivo_abandono MotivoAbandono? @map("motivo_abandono")
+  // Progresso mídia-específico ("T2E5", "pág. 230/400", "42%") — opcional.
+  progresso_detalhe String? @map("progresso_detalhe") @db.VarChar(64)
+  iniciado_em   DateTime? @map("iniciado_em")
+  concluido_em  DateTime? @map("concluido_em")
+  atualizado_em DateTime @default(now()) @updatedAt @map("atualizado_em")
+  // Campos legados (era T2: 'assistiu'/'avaliou'/'recomendou_receber').
+  // Mantidos para o export LGPD (lgpd.service lê a tabela). Nada novo
+  // escreve neles a partir do Addendum 4.
+  tipo        String?  @default("consumo") @db.VarChar(32)
+  // Avaliação do usuário (1–5 estrelas, legado).
   rating      Int?
-  // Comentário livre do usuário. ATENÇÃO: armazenado em plaintext —
-  // a criptografia de coluna (T2.6) NÃO está implementada em produção
-  // (ColumnEncryptionService existe mas não é usado). Pendência aberta.
+  // Comentário livre do usuário (legado). ATENÇÃO: plaintext —
+  // ColumnEncryptionService existe mas não é usado (pendência T2.6).
   comentario  String?  @db.Text
   created_at  DateTime @default(now()) @map("created_at")
 
   usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
 
-  @@unique([usuario_id, midia_id, tipo])
+  @@unique([usuario_id, midia_id])
   @@index([usuario_id])
   @@index([midia_id])
   @@map("usuario_midia_interacao")
+}
+
+/// ADDENDUM 4 — Eixo 1: status de consumo (rótulo exibido conjuga por mídia).
+enum StatusConsumo {
+  QUERO_CONSUMIR
+  CONSUMINDO
+  CONCLUIDO
+  ABANDONADO
+}
+
+/// ADDENDUM 4 — Eixo 2: reação (nunca obrigatória).
+enum ReacaoConsumo {
+  GOSTEI
+  NAO_GOSTEI
+}
+
+/// ADDENDUM 4 — Motivo do abandono (opcional; só "NAO_CURTI" gera peso
+/// negativo no motor de sinal — FALTA_TEMPO/MUDANCA_HUMOR nunca penalizam).
+enum MotivoAbandono {
+  NAO_CURTI
+  FALTA_TEMPO
+  MUDANCA_HUMOR
+}
+
+/// ADDENDUM 3 — grafo de obras relacionadas (1 aresta já ativa a
+/// funcionalidade; não é container de grupo como Franquia/MidiaFranquia).
+model RelacaoObra {
+  id          String      @id @default(uuid()) @db.Uuid
+  origem_id   String      @map("origem_id") @db.Uuid
+  destino_id  String      @map("destino_id") @db.Uuid
+  tipo        TipoRelacao
+  /// Texto curto opcional ("Baseado no livro de 1965").
+  nota_editorial String?  @map("nota_editorial") @db.VarChar(160)
+  criado_em   DateTime    @default(now()) @map("criado_em")
+
+  origem      Midia       @relation("RelacaoObraOrigem", fields: [origem_id], references: [id], onDelete: Cascade)
+  destino     Midia       @relation("RelacaoObraDestino", fields: [destino_id], references: [id], onDelete: Cascade)
+
+  @@unique([origem_id, destino_id])
+  @@index([destino_id])
+  @@index([origem_id])
+  @@map("relacao_obra")
+}
+
+/// ADDENDUM 3 — tipo da aresta (direção: origem é sempre a que aponta).
+enum TipoRelacao {
+  ADAPTACAO_DE
+  SEQUENCIA_DE
+  PREQUELA_DE
+  SPINOFF_DE
+  MESMO_UNIVERSO
+  MESMA_HISTORIA_REAL
 }
 
 /// Colunas do Kanban de Watchlist.
