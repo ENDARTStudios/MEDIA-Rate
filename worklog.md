@@ -1561,3 +1561,21 @@ FRONTEND home:
 - 2 testes carousel (5 locked cards + modal dialog) -> 180/180 web.
 VERIFICADO NO AR: endpoint 201/400/409; home com 6 carousels + cluster 5
 icones + 15 locked cards + 21 dials. TSC/lint/build verdes.
+
+## [2026-08-06] T186-catalogo-redesign (DONE, eaed2fb + 812cfad)
+Estado: barra sticky com chips+contagem, grid 2/3/4/5, filtros avancados
+persistidos na URL ja existiam. Gaps fechados:
+- API com_critica: filtro "somente com critica" via relacao scores
+  (score_critica != null), merge no some com filtros de score. FIX no
+  caminho: 1a versao mirava o campo escalar score (nao filtrava) - corrigido
+  p/ relacao scores. VERIFICADO NO AR: com_critica=true -> total=1 (BG3,
+  unico com critica populada; esperado com SCRAPE off).
+- Frontend: toggle "Somente com critica disponivel" no filtro avancado
+  (com_critica=true na URL, compartilhavel); getCatalog comCritica;
+  CatalogPageClient queryKey/loadMore/filtersKey com o novo filtro;
+  EmptyStateComingSoon com "Em construcao" (chaves pt/en/es) + wire
+  onNotify -> waitlistNotify (endpoint T185). Fix testes posicionais
+  quota.spec (param novo no list).
+VERIFICADO NO AR: catalog?type=book = "Em construcao" + form email waitlist
+(sem 404); game = sticky + 1 card; filtro expandido = toggle + checkbox.
+Testes: API 447/451 (4 pre-existentes), Web 183/183 (3 novos catalog-empty).
