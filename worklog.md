@@ -1848,3 +1848,26 @@ Complemento da fundação (núcleo em b9006e7):
 - TESTES: 4 novos catalog-genero (cross-mídia narrativo, restrição
   subgênero RPG?GAME, Shonen?ANIME, genero inexistente graceful).
   API 491/491 (29 da fundação + 4 delta), build ?, lint ?, guard encoding ?.
+
+## [2026-08-07] T199-ui-descoberta-cross-midia (DONE, commit 8652079)
+5 pontos de contato do Addendum 3 (G2) consumindo /relacoes + /interacoes:
+1. FICHA: RelatedWorksBlock imediatamente abaixo do MediaScoreModule (acima
+   da dobra) — rotulo "Essa história também está em..."; RelatedCard com
+   capa/titulo/icon+tipo (CATEGORY_TOKENS)/MEDIA Score próprio/label de
+   relacao (adaptedFrom/sequelOf/...); 1 aresta ativa; matriz de ausencia
+   (sem relacao ou fonte fora ? nao renderiza).
+2. HOME: BecauseYouConsumed (cliente) acima dos 6 carrosseis — só logado,
+   consome /interacoes (prioriza CONCLUIDO, fallback QUERO_CONSUMIR) ?
+   /relacoes; vazio para visitante.
+3. WATCHLIST: WatchlistCrossPrompt fixo bottom-right (role=status aria-live)
+   após adicionar — "adicionar também" 1 clique (addToWatchlist do store),
+   ate 3 relacoes, dismissivel, estado Adicionado ?.
+4. BUSCA: agrupamento por obra — titulos iguais em midias diferentes (Matrix
+   filme+game+HQ) lado a lado em chips com icones de tipo, acima dos grupos
+   por categoria; navegacao por teclado (flatIdx) cobre os grupos; slugify
+   exportado de lib/api.ts.
+5. lib/api-relations.ts: relacaoFromApi (mapeia imagem_url/ano_lancamento,
+   slug derivado), cache 60s, graceful (erro ? null).
+i18n pt/en/es namespace discovery (17 chaves). Testes 7 (render com 1
+relacao, ausencia, graceful, prompt open/false, labels, mapping) — Web
+218/218, build/lint/tsc ?.
