@@ -1871,3 +1871,30 @@ Complemento da fundação (núcleo em b9006e7):
 i18n pt/en/es namespace discovery (17 chaves). Testes 7 (render com 1
 relacao, ausencia, graceful, prompt open/false, labels, mapping) — Web
 218/218, build/lint/tsc ?.
+
+## [2026-08-07] T200-status-reaction-control (DONE, commit c27de74)
+Interação básica que gera o sinal do motor (Addendum 4, G3) + reconciliação
+do Kanban:
+1. lib/api-interactions.ts — dois eixos independentes (status
+   QUERO_CONSUMIR|CONSUMINDO|CONCLUIDO|ABANDONADO + reação
+   GOSTEI|NAO_GOSTEI|null), valor agnóstico de mídia; máquina de estados
+   espelhando o server T198 (podeTransicionar, reacaoEditavelPara);
+   PUT/GET /interacoes.
+2. stores/use-interaction-store.ts — fonte única por mídia; optimistic +
+   rollback SEM entrada fantasma (hadPrior remove a chave), reação alinhada
+   client/server (só enviada/preservada em CONCLUIDO/ABANDONADO, limpa ao
+   sair de estado final — espelha dto.reacao ?? null, evita 400).
+3. StatusReactionControl — compact (1 toque = QUERO_CONSUMIR, sem menu) em
+   todo MediaCard; full (popover 4 status + 2 reações + motivo de abandono
+   opcional, só habilitado em CONCLUIDO/ABANDONADO) na ficha; iconografia
+   por tokens (QUERO outline, CONSUMINDO anel de progresso, CONCLUIDO check,
+   ABANDONADO pause neutro, GOSTEI/NAO_GOSTEI #34D399/#F87171).
+4. Kanban reconciliado (3 colunas + aba Abandonados como arquivo, drag
+   atualiza status + interação, mover p/ Concluído abre reação, selo de
+   reação no card) via watchlist/WatchlistKanban + WatchlistCard;
+   WatchlistClient reusa helpers compartilhados (sem drift comic/anime).
+i18n pt/en/es namespace interaction; a11y + reduced-motion. Testes 8
+(1-tap QUERO, reações pós-consumo, motivo opcional, drag?status, mover p/
+Concluído abre popover, selo reação, Kanban+aba) — Web 226/226,
+build/typecheck/lint ?.
+
