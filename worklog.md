@@ -1601,3 +1601,23 @@ metadados.spec.tsx). Auditoria de conformidade contra a spec T187:
   itens -> "Nao informado" explicito; nunca fabricado).
 - GATES: metadados 16/16; total 183/183; ': any' = 0; 8/8 componentes;
   i18n metadados completo em pt/en/es (0 chaves faltando); build verde.
+
+## [2026-08-06] T188-ficha-tecnica (DONE, commit e301668)
+Conformidade: a ficha ja implementava a maior parte da Parte 3.3 (hero
+backdrop desfocado + gradiente p/ base, score block 3 elementos via
+MediaScoreModule, grade de fontes SourceMiniCard, tabs sinopse/elenco/
+avaliacoes/metadados, metadados do addendum 2 com matriz de ausencia:
+AgeRatingBadge/GenreChipRow/SeriatedScoreTree/OriginBadge/AwardsShowcase/
+FranchiseCarousel — sem bloco vazio, "Nao informado" p/ obrigatorio sem dado).
+Gaps fechados:
+- WATCHLIST CTA sticky: barra fixa inferior no mobile (testid
+  watchlist-cta-sticky) com titulo+tipo+ano+botao; desktop mantem no hero.
+- PLATAFORMAS com icones (games): plataformaIcon map (PC/Windows->Monitor,
+  PlayStation/Xbox/Switch->Gamepad2, Android/iOS->Smartphone, TV/streaming->Tv,
+  fallback Globe) + testid platforms-section.
+- T197 due diligence (4 E2E): login/register renderizam sem error boundary
+  (h1 Welcome back/Sign up); "Oppenheimer" NAO existe no catalogo (busca
+  funciona p/ titulos reais) — falhas do extractor, nao do build.
+- 2 testes de integracao novos (sticky + plataformas) -> 185/185.
+VERIFICADO NO AR: BG3 = Critica+Publico+Plataforma+sticky; serie = Temporada+
+sticky. tsc/lint/build verdes.
