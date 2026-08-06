@@ -185,6 +185,11 @@
     "games": "Games",
     "favoriteType": "Tipo favorito",
     "tasteProfile": "Perfil de Gosto",
+    "tasteProfileNote": "Perfil por tipo de mídia — gêneros (Ação/Drama/...) chegam com os dados do catálogo.",
+    "releases": "Calendário de lançamentos",
+    "releasesEmpty": "Sem datas de estreia nos próximos 30 dias — volte quando a watchlist tiver lançamentos.",
+    "greeting": "Olá, {name}",
+    "summary": "Você tem {total} títulos na watchlist, {lancamentos} lançam este mês.",
     "loading": "Carregando..."
   },
   "checkout": {

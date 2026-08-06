@@ -1,16 +1,32 @@
 "use client";
 
+/**
+ * Dashboard (Parte 3.4, T189) — cabeçalho pessoal + 4 cards de métrica com
+ * micro-gráficos + timeline de consumo (área empilhada) + radar de gosto +
+ * calendário de lançamentos. Gráficos (Recharts) carregados via dynamic
+ * import ssr:false para não inflar o bundle SSR. Auth-gate via ProtectedPage.
+ */
 import { useEffect, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import dynamic from "next/dynamic";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
-import { TasteRadarChart } from "@/components/media-rate-ui/TasteRadarChart";
-import { ReleaseTimeline } from "@/components/media-rate-ui/ReleaseTimeline";
+
+const MetricCards = dynamic(() => import("./dashboard/MetricCards").then((m) => m.MetricCards), { ssr: false });
+const ConsumptionTimeline = dynamic(
+  () => import("./dashboard/ConsumptionTimeline").then((m) => m.ConsumptionTimeline),
+  { ssr: false },
+);
+const TasteRadar = dynamic(() => import("./dashboard/TasteRadar").then((m) => m.TasteRadar), { ssr: false });
+const ReleaseCalendar = dynamic(
+  () => import("./dashboard/ReleaseCalendar").then((m) => m.ReleaseCalendar),
+  { ssr: false },
+);
 
 const COLUMN_LABELS: Record<string, string> = {
   WANT: "wantToSee",
@@ -47,6 +63,7 @@ export function DashboardContent() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const { entries, isLoading, error, fetchWatchlist } = useWatchlistStore();
+  const userName = useAuthStore((s) => s.user?.name ?? null);
 
   useEffect(() => {
     fetchWatchlist();
@@ -68,8 +85,7 @@ export function DashboardContent() {
     return counts;
   }, [entries]);
 
-  // Série mensal (últimos 6 meses) de itens adicionados, por tipo — área
-  // empilhada + sparklines dos cards de métrica.
+  // Série mensal (últimos 6 meses) — área empilhada + sparklines.
   const monthlySeries = useMemo(() => {
     const now = new Date();
     const months: {
@@ -121,6 +137,18 @@ export function DashboardContent() {
     name: t(TYPE_LABEL[type]),
     value: typeCounts[type] || 0,
   }));
+
+  // Lançamentos nos próximos 30 dias (datas reais quando houver; sem data → 0 honesto).
+  const lancamentos30d = useMemo(() => {
+    const agora = Date.now();
+    const limite = agora + 30 * 24 * 3600 * 1000;
+    return entries.filter((e) => {
+      const data = (e.media as { releaseDate?: string } | null | undefined)?.releaseDate;
+      if (!data) return false;
+      const t0 = new Date(data).getTime();
+      return t0 >= agora && t0 <= limite;
+    }).length;
+  }, [entries]);
 
   if (isLoading && total === 0) {
     return (
@@ -185,114 +213,31 @@ export function DashboardContent() {
       value: t(TYPE_LABEL[favoriteType]),
       color: TYPE_COLORS[favoriteType],
       note: `${t("titulos")}: ${typeCounts[favoriteType]}`,
-      spark: [],
       donut: pieData,
     },
   ];
 
   return (
     <div className="max-w-6xl mx-auto py-16 px-4">
-      <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-2">{t("title")}</h1>
+      {/* Cabeçalho pessoal */}
+      <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-2">
+        {userName ? t("greeting", { name: userName }) : t("title")}
+      </h1>
       <p className="text-sm text-[#A0A0B8] mb-8">
-        {t("totalWatchlist")}: {total} {t("titulos")} · {t("watchingNow")}: {watchingCount}
+        {t("summary", { total, lancamentos: lancamentos30d })}
       </p>
 
-      {/* 4 cards de métrica com micro-gráfico */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {metricCards.map((card) => (
-          <div key={card.label} className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-4">
-            <p className="text-xs text-[#A0A0B8] uppercase tracking-wider mb-2">{card.label}</p>
-            <p
-              className="text-3xl font-heading font-bold tabular-nums"
-              style={{ color: card.color }}
-            >
-              {card.value}
-            </p>
-            <p className="text-xs text-[#6B6B85] mt-1">{card.note}</p>
-            <div className="mt-3 h-8">
-              {card.donut ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={card.donut}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius="55%"
-                      outerRadius="85%"
-                      isAnimationActive={false}
-                    >
-                      {card.donut.map((d) => (
-                        <Cell key={d.name} fill={TYPE_COLORS[d.name.toLowerCase()] ?? "#818CF8"} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : card.spark.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={card.spark}>
-                    <Area
-                      type="monotone"
-                      dataKey="v"
-                      stroke={card.color}
-                      fill={card.color}
-                      fillOpacity={0.15}
-                      strokeWidth={1.5}
-                      isAnimationActive={false}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : null}
-            </div>
-          </div>
-        ))}
-      </div>
+      <MetricCards cards={metricCards} />
 
-      {/* Gráfico principal: consumo por mês (área empilhada por tipo) */}
-      <div className="mb-10 rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
-        <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-6">
-          {t("tasteEvolution")}
-        </h2>
-        {monthlySeries.every((m) => m.total === 0) ? (
-          <p className="text-sm text-[#6B6B85] text-center py-8">{t("tasteEvolutionDesc")}</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={monthlySeries}>
-              <defs>
-                {(["movie", "series", "game"] as const).map((type) => (
-                  <linearGradient key={type} id={`grad-${type}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={TYPE_COLORS[type]} stopOpacity={0.5} />
-                    <stop offset="100%" stopColor={TYPE_COLORS[type]} stopOpacity={0.05} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <Tooltip
-                contentStyle={{
-                  background: "#1B1B2C",
-                  border: "1px solid #2A2A3D",
-                  borderRadius: 8,
-                  color: "#F5F5F7",
-                }}
-              />
-              {(["movie", "series", "game"] as const).map((type) => (
-                <Area
-                  key={type}
-                  type="monotone"
-                  dataKey={type}
-                  stackId="1"
-                  stroke={TYPE_COLORS[type]}
-                  fill={`url(#grad-${type})`}
-                  strokeWidth={1.5}
-                  name={t(TYPE_LABEL[type])}
-                  isAnimationActive={false}
-                />
-              ))}
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+      <ConsumptionTimeline
+        data={monthlySeries}
+        title={t("tasteEvolution")}
+        emptyMessage={t("tasteEvolutionDesc")}
+        labels={{ movie: t("movies"), series: t("series"), game: t("games") }}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        {/* Status */}
+        {/* Distribuição por status */}
         <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
           <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-6">
             {t("statusDistribution")}
@@ -321,25 +266,10 @@ export function DashboardContent() {
           </div>
         </div>
 
-        {/* Radar — perfil (distribuição por tipo; gêneros quando houver dados) */}
-        <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
-          <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
-            {t("tasteProfile")}
-          </h2>
-          <TasteRadarChart data={radarData} color="#818CF8" />
-          <p className="mt-2 text-[11px] text-[#6B6B85]">
-            Perfil por tipo de mídia — gêneros (Ação/Drama/...) chegam com os dados do catálogo.
-          </p>
-        </div>
+        <TasteRadar data={radarData} title={t("tasteProfile")} note={t("tasteProfileNote")} />
       </div>
 
-      {/* Calendário de lançamentos — vazio gracioso (sem datas de estreia no modelo) */}
-      <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
-        <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
-          Calendário de lançamentos
-        </h2>
-        <ReleaseTimeline items={[]} />
-      </div>
+      <ReleaseCalendar items={[]} title={t("releases")} emptyMessage={t("releasesEmpty")} />
     </div>
   );
 }
