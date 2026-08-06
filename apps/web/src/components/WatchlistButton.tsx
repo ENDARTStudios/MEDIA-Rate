@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
+import { WatchlistCrossPrompt } from "./discovery/WatchlistCrossPrompt";
 
 function statusKeys(isGame: boolean): Record<string, string> {
   return isGame
@@ -33,6 +34,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
+  const [crossPromptOpen, setCrossPromptOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const inWatchlist = isInWatchlist(mediaId);
@@ -73,6 +75,8 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
       await addToWatchlist(mediaId);
       setAnimate(true);
       setTimeout(() => setAnimate(false), 300);
+      // T199 (§3.3): prompt cross-mídia no momento de maior intenção.
+      setCrossPromptOpen(true);
     } catch {
       // Falha silenciosa: o store mantém o estado otimista.
     } finally {
@@ -209,6 +213,13 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
           </Link>
         </div>
       )}
+
+      {/* T199 (§3.3): prompt não bloqueante de descoberta cross-mídia. */}
+      <WatchlistCrossPrompt
+        mediaId={mediaId}
+        open={crossPromptOpen}
+        onDismiss={() => setCrossPromptOpen(false)}
+      />
     </div>
   );
 }

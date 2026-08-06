@@ -933,7 +933,7 @@ function applyLocalPagination(items: Media[], filters?: CatalogFilters): Catalog
 }
 
 /** Slug canônico (espelho do slugify da API). */
-function slugify(input: string): string {
+export function slugify(input: string): string {
   return input
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")

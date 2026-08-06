@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { searchMedia } from "@/lib/api";
-import { scoreColor } from "@/lib/design-tokens";
+import { searchMedia, slugify } from "@/lib/api";
+import { scoreColor, CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import type { MediaType } from "@/lib/types";
 
 interface SearchResult {
   id: string;
@@ -13,6 +14,7 @@ interface SearchResult {
   title: string;
   year: number;
   type: string;
+  rawType: string;
   posterUrl: string | null;
   score: number | null;
 }
@@ -74,6 +76,7 @@ export function SearchCommand() {
             title: media.title,
             year: media.year,
             type: tipoLabel(media.type),
+            rawType: media.type,
             posterUrl: media.posterUrl,
             score: media.score?.consolidated ?? null,
           })),
@@ -92,6 +95,25 @@ export function SearchCommand() {
     const group = TYPE_LABELS[r.type] || "Outros";
     if (!grouped[group]) grouped[group] = [];
     grouped[group].push(r);
+  });
+
+  // T199 (§3.5): agrupamento visual por obra — títulos iguais em mídias
+  // diferentes (Matrix filme + game + HQ) aparecem lado a lado com os
+  // ícones de tipo, indicando que são relacionados antes de abrir a ficha.
+  const relatedGroups = new Map<string, SearchResult[]>();
+  results.forEach((r) => {
+    const key = slugify(r.title);
+    if (!relatedGroups.has(key)) relatedGroups.set(key, []);
+    relatedGroups.get(key)!.push(r);
+  });
+  const relatedGroupsList = [...relatedGroups.values()].filter((g) => g.length >= 2);
+  const relatedIds = new Set(relatedGroupsList.flat().map((r) => r.id));
+  const groupedRest: Record<string, SearchResult[]> = {};
+  results.forEach((r) => {
+    if (relatedIds.has(r.id)) return;
+    const group = TYPE_LABELS[r.type] || "Outros";
+    if (!groupedRest[group]) groupedRest[group] = [];
+    groupedRest[group].push(r);
   });
 
   useEffect(() => {
@@ -117,7 +139,9 @@ export function SearchCommand() {
     }
   }, [open]);
 
-  const totalResults = Object.values(grouped).reduce((s, g) => s + g.length, 0);
+  const totalResults =
+    relatedGroupsList.reduce((s, g) => s + g.length, 0) +
+    Object.values(groupedRest).reduce((s, g) => s + g.length, 0);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -130,9 +154,9 @@ export function SearchCommand() {
         setSelectedIdx((i) => Math.max(i - 1, 0));
       }
       if (e.key === "Enter" && totalResults > 0) {
-        const flat = Object.values(grouped).flat();
-        if (flat[selectedIdx]) {
-          router.push(`/media/${flat[selectedIdx].slug}`);
+        const flatAll = [...relatedGroupsList.flat(), ...Object.values(groupedRest).flat()];
+        if (flatAll[selectedIdx]) {
+          router.push(`/media/${flatAll[selectedIdx].slug}`);
           setOpen(false);
         }
       }
@@ -274,7 +298,42 @@ export function SearchCommand() {
               )}
 
               {debouncedQuery.length >= 2 &&
-                Object.entries(grouped).map(([group, items]) => (
+                relatedGroupsList.map((g) => (
+                  <div key={`rel-${slugify(g[0].title)}`}>
+                    <div className="px-4 py-2 text-[10px] text-[#818CF8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
+                      Relacionados
+                    </div>
+                    <div className="flex items-center gap-1.5 px-4 py-2.5">
+                      {g.map((item) => {
+                        const token = CATEGORY_TOKENS[item.rawType as MediaType];
+                        const Icon = token?.icon ?? CATEGORY_TOKENS.movie.icon;
+                        const idx = flatIdx++;
+                        const isSelected = idx === selectedIdx;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              router.push(`/media/${item.slug}`);
+                              setOpen(false);
+                            }}
+                            className={`flex items-center gap-1.5 rounded-full border border-[rgba(129,140,248,0.15)] px-3 py-1.5 text-xs text-[#EDE7DC] transition-colors ${isSelected ? "bg-[#1C1C2E]" : "hover:bg-[#151524]"}`}
+                          >
+                            <Icon
+                              className="h-3.5 w-3.5"
+                              style={{ color: token?.color }}
+                              aria-hidden="true"
+                            />
+                            {item.title}
+                            <span className="text-[#6B7280]">{item.year}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+              {debouncedQuery.length >= 2 &&
+                Object.entries(groupedRest).map(([group, items]) => (
                   <div key={group}>
                     <div className="px-4 py-2 text-[10px] text-[#6B7280] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
                       {group}

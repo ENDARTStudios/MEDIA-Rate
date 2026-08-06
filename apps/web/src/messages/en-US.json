@@ -389,7 +389,7 @@
     "emptyColumn": "No titles here",
     "todos": "All",
     "filterByType": "Filter by media type",
-    "moveTo": "Move to…",
+    "moveTo": "Move to",
     "addToWatchlist": "Add to watchlist",
     "removeFromWatchlist": "Remove from watchlist",
     "queroVer": "Want to Watch",
@@ -407,7 +407,6 @@
     "retry": "Try again",
     "exploreCatalog": "Explore catalog",
     "mediaItem": "Media {id}",
-    "moveTo": "Move to",
     "limitReached": "Free plan limit reached (20 watchlist items).",
     "upgradeCta": "Upgrade to Plus",
     "planFree": "Free plan",
@@ -699,9 +698,6 @@
     "sobrenatural": "Supernatural",
     "psicologico": "Psychological",
     "fantasy": "Fantasy",
-    "distopia": "Dystopia",
-    "classico": "Classic",
-    "realismomagico": "Magical Realism",
     "superheroi": "Superhero",
     "satira": "Satire"
   },
@@ -815,5 +811,20 @@
     "notInformed": "Not informed",
     "seasonUnit": "Season",
     "roleStudio": "Studio"
+  },
+  "discovery": {
+    "relatedWorksTitle": "This story also lives in...",
+    "becauseYouConsumed": "Because you watched/read/played {titulo}",
+    "becauseYouConsumedSub": "The same story in another medium — worth checking out.",
+    "crossPromptTitle": "This also exists in another medium — add it too?",
+    "addToo": "Add",
+    "added": "Added ✓",
+    "dismiss": "Dismiss",
+    "adaptedFrom": "Based on the original work",
+    "sequelOf": "Sequel",
+    "prequelOf": "Prequel",
+    "spinoffOf": "Spin-off",
+    "sameUniverse": "Same universe",
+    "sameRealStory": "Same true story"
   }
 }

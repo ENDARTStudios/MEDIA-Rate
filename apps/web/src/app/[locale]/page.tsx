@@ -11,6 +11,7 @@ import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
 import { StructuredData } from "@/components/StructuredData";
 import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
 import { HomeContentSections } from "@/components/HomeContentSections";
+import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
 
 export async function generateMetadata({
   params,
@@ -84,6 +85,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <HomeStats />
 
           <ContinueDecision />
+
+          {/* T199 (Addendum 3 §3.2): seção logada acima dos carrosséis —
+              cross-mídia por definição; vazia para visitante. */}
+          <BecauseYouConsumed />
 
           {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
               MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +

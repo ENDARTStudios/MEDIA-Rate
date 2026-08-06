@@ -389,7 +389,7 @@
     "emptyColumn": "Sin títulos aquí",
     "todos": "Todos",
     "filterByType": "Filtrar por tipo de medio",
-    "moveTo": "Mover a…",
+    "moveTo": "Mover a",
     "addToWatchlist": "Agregar a watchlist",
     "removeFromWatchlist": "Quitar de watchlist",
     "queroVer": "Quiero Ver",
@@ -407,7 +407,6 @@
     "retry": "Intentar de nuevo",
     "exploreCatalog": "Explorar catálogo",
     "mediaItem": "Medio {id}",
-    "moveTo": "Mover a",
     "limitReached": "Límite del plan Free alcanzado (20 elementos en la watchlist).",
     "upgradeCta": "Mejorar a Plus",
     "planFree": "Plan Free",
@@ -699,9 +698,6 @@
     "sobrenatural": "Sobrenatural",
     "psicologico": "Psicológico",
     "fantasy": "Fantasía",
-    "distopia": "Distopía",
-    "classico": "Clásico",
-    "realismomagico": "Realismo Mágico",
     "superheroi": "Superhéroe",
     "satira": "Sátira"
   },
@@ -815,5 +811,20 @@
     "notInformed": "No informado",
     "seasonUnit": "Temporada",
     "roleStudio": "Estudio"
+  },
+  "discovery": {
+    "relatedWorksTitle": "Esta historia también está en...",
+    "becauseYouConsumed": "Porque viste/leíste/jugaste {titulo}",
+    "becauseYouConsumedSub": "La misma historia en otro formato — merece la pena.",
+    "crossPromptTitle": "Esto también existe en otro formato — ¿lo añades?",
+    "addToo": "Añadir",
+    "added": "Añadido ✓",
+    "dismiss": "Descartar",
+    "adaptedFrom": "Basado en la obra original",
+    "sequelOf": "Secuela",
+    "prequelOf": "Precuela",
+    "spinoffOf": "Spin-off",
+    "sameUniverse": "Mismo universo",
+    "sameRealStory": "Mismo hecho real"
   }
 }

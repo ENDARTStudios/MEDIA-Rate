@@ -28,6 +28,7 @@ import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
+import { RelatedWorksBlock } from "./discovery/RelatedWorksBlock";
 
 export function MediaDetailClient({
   slug,
@@ -255,6 +256,8 @@ const tipoLabel =
                 <ShareButton />
               </div>
               <MediaScoreModule score={media.score} mediaType={media.type} />
+              {/* T199: descoberta cross-mídia acima da dobra — 1 aresta basta. */}
+              <RelatedWorksBlock mediaId={media.id} />
             </div>
           </div>
         </div>
