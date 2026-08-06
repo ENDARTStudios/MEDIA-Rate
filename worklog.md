@@ -1695,3 +1695,20 @@ Lista VII re-verificada contra o build atual (curl + browser):
 - 201/201 testes; tsc/lint/build verdes; deploy verificado no ar.
 - Registrado: catalogo e outras paginas client-side exigem verificacao via
   browser (curl pega SSR/skeleton).
+
+## [2026-08-06] T193-f6-profile-settings-pricing (DONE, commit 20b1728)
+Conformidade: settings ja tinha upsell visual (ScoreDial bloqueado+Lock),
+idioma e sessao; pricing ja tinha toggle mensal/anual com -15%. Gaps:
+- LGPD 2 passos: LgpdControls no settings (export JSON via GET /user/data +
+  DELETE /user/data com confirmacao explicita — NUNCA 1 clique; a11y role=
+  alert; chaves pt/en/es). API de lgpd ja existia (T4.9).
+- MediaUnlockGrid no pricing: grade 6 midias (CATEGORY_TOKENS) x 3 planos
+  (Free: filme+serie; Plus: +game; Premium: tudo); roadmap (livro/HQ/manga)
+  mostra "Em breve" (honesto); game bloqueado no Free = cadeado.
+- Perfil publico: pagina /user/[id] (SSR) consumindo GET /usuarios/:id/stats
+  (agregados, endpoint existente) com 4 cards + generos + distribuicao;
+  ProfileContent ganhou bloco "Compartilhar perfil" com copy-link.
+- ERRO PROPRIO evitado: PowerShell Set-Content corrompeu pt-BR.json DE NOVO
+  (lição registrada) — restaurado do git + reaplicado com editor proprio.
+- 5 testes novos (LGPD 2 passos x2 + export, grid, bloqueio) -> 206/206;
+  tsc/lint/build verdes. No ar: pricing media-unlock-grid + pagina publica 200.
