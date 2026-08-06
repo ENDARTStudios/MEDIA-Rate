@@ -14,7 +14,7 @@ interface WatchlistMedia {
   genres?: string[];
 }
 
-interface WatchlistEntry {
+export interface WatchlistEntry {
   id: string;
   mediaId: string;
   midia_id?: string;
@@ -23,6 +23,9 @@ interface WatchlistEntry {
   media?: WatchlistMedia | null;
   addedAt?: string;
   created_at?: string;
+  /** T190: score da obra no momento da adição (indicador ↑/↓). */
+  scoreAtAdd?: number | null;
+  score_at_add?: number | null;
 }
 
 interface WatchlistState {
@@ -60,6 +63,8 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
         media: e.media ?? null,
         addedAt: e.addedAt ?? e.created_at,
         created_at: e.created_at,
+        scoreAtAdd: e.scoreAtAdd ?? e.score_at_add ?? null,
+        score_at_add: e.score_at_add ?? e.scoreAtAdd ?? null,
       }));
       set({ entries: mapped, isLoading: false });
     } catch (err) {

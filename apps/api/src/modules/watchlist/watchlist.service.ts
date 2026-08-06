@@ -30,11 +30,18 @@ export class WatchlistService {
 
     await this.verificarLimiteFree(usuarioId);
 
+    // T190: guarda o score da obra no momento da adição (indicador ↑/↓).
+    const midia = await this.prisma.midia.findUnique({
+      where: { id: midiaId },
+      select: { score: true },
+    });
+
     return this.prisma.watchlistEntry.create({
       data: {
         usuario_id: usuarioId,
         midia_id: midiaId,
         coluna: dto.coluna ?? "WANT",
+        score_at_add: midia?.score ?? null,
       },
     });
   }

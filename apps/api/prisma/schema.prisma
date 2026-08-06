@@ -420,6 +420,9 @@ model WatchlistEntry {
   midia_id    String           @map("midia_id") @db.VarChar(255)
   coluna      WatchlistColuna  @default(WANT)
   prioridade  Int              @default(0)
+  // T190: score da obra no momento da adição — permite o indicador
+  // "score mudou" (↑/↓) sem fabricar dado. null = sem dado → sem seta.
+  score_at_add Float?          @map("score_at_add")
   created_at  DateTime         @default(now()) @map("created_at")
   updated_at  DateTime         @updatedAt @map("updated_at")
 

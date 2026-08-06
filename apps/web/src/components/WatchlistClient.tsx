@@ -26,6 +26,8 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "@/lib/navigation";
 import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
+import { CategoryChip } from "@/components/media-rate-ui/CategoryChip";
+import type { WatchlistEntry } from "@/stores/use-watchlist-store";
 
 interface ColumnDef {
   key: string;
@@ -61,13 +63,39 @@ function entryToMediaItem(
   };
 }
 
+/**
+ * T190: indicador "score mudou" — compara o score atual com o score no
+ * momento da adição. Sem dado anterior (scoreAtAdd null) → sem seta,
+ * nunca fabricado.
+ */
+function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
+  const atual = entry.media?.score ?? null;
+  const anterior = entry.scoreAtAdd ?? entry.score_at_add ?? null;
+  if (atual == null || anterior == null) return null;
+  const diff = atual - anterior;
+  if (Math.abs(diff) < 0.5) return null;
+  const subiu = diff > 0;
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 text-[10px] font-semibold tabular-nums"
+      style={{ color: subiu ? "#34D399" : "#F87171" }}
+      title={`${subiu ? "Subiu" : "Caiu"} de ${anterior.toFixed(1)} para ${atual.toFixed(1)}`}
+      data-testid="score-delta"
+    >
+      {subiu ? "↑" : "↓"} {Math.abs(diff).toFixed(1)}
+    </span>
+  );
+}
+
 function SortableCard({
   entry,
   onRemove,
+  onMove,
   removing,
 }: {
   entry: ReturnType<typeof useWatchlistStore.getState>["entries"][number];
   onRemove: (entryId: string) => void;
+  onMove: (entryId: string, coluna: string) => void;
   removing: boolean;
 }) {
   const t = useTranslations("watchlist");
@@ -87,8 +115,22 @@ function SortableCard({
       aria-label={item?.titulo ?? entry.id}
     >
       {item && <MediaCard media={item} />}
-      <div className="flex items-center justify-between mt-1 px-1">
-        <span className="text-[10px] text-[#6B6B85]">⠿ arrastar</span>
+      <div className="flex items-center justify-between gap-2 mt-1 px-1">
+        <ScoreDelta entry={entry} />
+        {/* T190: alternativa acessível ao drag — mover por teclado. */}
+        <select
+          value={entry.status ?? entry.coluna ?? "WANT"}
+          onChange={(e) => onMove(entry.id, e.target.value)}
+          aria-label={t("moveTo")}
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 min-w-0 rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-0.5 text-[10px] text-[#A0A0B8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+        >
+          {COLUMNS.map((c) => (
+            <option key={c.key} value={c.key}>
+              {t(c.i18nKey)}
+            </option>
+          ))}
+        </select>
         <button
           onClick={() => onRemove(entry.id)}
           disabled={removing}
@@ -105,12 +147,14 @@ function Column({
   col,
   entries,
   onRemove,
+  onMove,
   removingId,
   t,
 }: {
   col: ColumnDef;
   entries: ReturnType<typeof useWatchlistStore.getState>["entries"];
   onRemove: (entryId: string) => void;
+  onMove: (entryId: string, coluna: string) => void;
   removingId: string | null;
   t: ReturnType<typeof useTranslations>;
 }) {
@@ -146,6 +190,7 @@ function Column({
                 key={entry.id}
                 entry={entry}
                 onRemove={onRemove}
+                onMove={onMove}
                 removing={removingId === entry.id}
               />
             ))}
@@ -244,6 +289,7 @@ export function WatchlistClient() {
   const { entries, isLoading, error, fetchWatchlist, removeItem, moveItem } = useWatchlistStore();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [view, setView] = useState<"kanban" | "lista">("kanban");
+  const [filtroTipo, setFiltroTipo] = useState<"all" | "movie" | "series" | "game">("all");
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -251,14 +297,31 @@ export function WatchlistClient() {
     fetchWatchlist();
   }, []);
 
+  // T190: filtro por mídia dentro da watchlist (chips do catálogo).
+  const filtradas = useMemo(
+    () =>
+      filtroTipo === "all"
+        ? entries
+        : entries.filter((e) => (e.media?.type ?? "movie") === filtroTipo),
+    [entries, filtroTipo],
+  );
+  const filtroCounts = useMemo(() => {
+    const c = { all: entries.length, movie: 0, series: 0, game: 0 };
+    entries.forEach((e) => {
+      const tipo = e.media?.type ?? "movie";
+      if (tipo === "movie" || tipo === "series" || tipo === "game") c[tipo] += 1;
+    });
+    return c;
+  }, [entries]);
+
   const wantItems = useMemo(
     () =>
-      entries
+      filtradas
         .filter((e) => (e.status ?? e.coluna) === "WANT")
         .map((e) => entryToMediaItem(e))
         .filter((m): m is MediaItem => m != null)
         .map((m) => ({ id: m.id, title: m.titulo })),
-    [entries],
+    [filtradas],
   );
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -375,6 +438,14 @@ export function WatchlistClient() {
         </div>
       </div>
 
+      {/* T190: filtro por mídia (chips do catálogo) */}
+      <div className="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label={t("filterByType")}>
+        <CategoryChip type="movie" count={filtroCounts.all} active={filtroTipo === "all"} onClick={() => setFiltroTipo("all")} label={t("todos")} />
+        <CategoryChip type="movie" count={filtroCounts.movie} active={filtroTipo === "movie"} onClick={() => setFiltroTipo("movie")} />
+        <CategoryChip type="series" count={filtroCounts.series} active={filtroTipo === "series"} onClick={() => setFiltroTipo("series")} />
+        <CategoryChip type="game" count={filtroCounts.game} active={filtroTipo === "game"} onClick={() => setFiltroTipo("game")} />
+      </div>
+
       {view === "kanban" ? (
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -382,10 +453,13 @@ export function WatchlistClient() {
               <Column
                 key={col.key}
                 col={col}
-                entries={entries.filter((e) => (e.status ?? e.coluna) === col.key)}
+                entries={filtradas.filter((e) => (e.status ?? e.coluna) === col.key)}
                 onRemove={(entryId) => {
                   setDeleting(entryId);
                   void removeItem(entryId).finally(() => setDeleting(null));
+                }}
+                onMove={(entryId, coluna) => {
+                  void moveItem(entryId, coluna);
                 }}
                 removingId={deleting}
                 t={t}
@@ -395,7 +469,7 @@ export function WatchlistClient() {
         </DndContext>
       ) : (
         <ul className="divide-y divide-[#2A2A3D] rounded-lg border border-[#2A2A3D] bg-[#12121C]">
-          {entries.map((entry) => {
+          {filtradas.map((entry) => {
             const item = entryToMediaItem(entry);
             const status = entry.status ?? entry.coluna ?? "WANT";
             const statusLabel = COLUMNS.find((c) => c.key === status)?.i18nKey ?? "queroVer";
@@ -410,6 +484,7 @@ export function WatchlistClient() {
                       <span className="text-xs text-[#6B6B85]">{item.ano_lancamento ?? "—"}</span>
                     </Link>
                     <span className="text-xs text-[#A0A0B8]">{t(statusLabel)}</span>
+                    <ScoreDelta entry={entry} />
                     <button
                       onClick={() => {
                         setDeleting(entry.id);
