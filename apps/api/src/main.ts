@@ -133,6 +133,15 @@ async function bootstrap(): Promise<void> {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = interacoesRateLimit();
     }
+    // T201 (G4): leituras de inteligência pessoal (autenticadas) — rate limit.
+    if (
+      (routeOptions.url === "/api/v1/discoveries" ||
+        routeOptions.url === "/api/v1/taste/history") &&
+      routeOptions.method === "GET"
+    ) {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = interacoesRateLimit();
+    }
   });
 
   // T021/7.1: CSP com nonce dinamico por requisicao (script-src sem 'unsafe-inline').

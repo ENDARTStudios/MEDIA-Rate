@@ -401,6 +401,10 @@ model UsuarioMidiaInteracao {
   iniciado_em   DateTime? @map("iniciado_em")
   concluido_em  DateTime? @map("concluido_em")
   atualizado_em DateTime @default(now()) @updatedAt @map("atualizado_em")
+  // T201 (G4) — origem da descoberta cross-mídia: a aresta do grafo que
+  // levou o usuário a este título (registrado quando ele aceita o prompt da
+  // watchlist). Null = descoberta não rastreada. SetNull em delete da aresta.
+  origem_relacao_id String? @map("origem_relacao_id") @db.Uuid
   // Campos legados (era T2: 'assistiu'/'avaliou'/'recomendou_receber').
   // Mantidos para o export LGPD (lgpd.service lê a tabela). Nada novo
   // escreve neles a partir do Addendum 4.
@@ -414,10 +418,12 @@ model UsuarioMidiaInteracao {
 
   usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+  origem_relacao RelacaoObra? @relation("InteracaoOrigemRelacao", fields: [origem_relacao_id], references: [id], onDelete: SetNull)
 
   @@unique([usuario_id, midia_id])
   @@index([usuario_id])
   @@index([midia_id])
+  @@index([origem_relacao_id])
   @@map("usuario_midia_interacao")
 }
 
@@ -456,6 +462,8 @@ model RelacaoObra {
 
   origem      Midia       @relation("RelacaoObraOrigem", fields: [origem_id], references: [id], onDelete: Cascade)
   destino     Midia       @relation("RelacaoObraDestino", fields: [destino_id], references: [id], onDelete: Cascade)
+  // T201 (G4) — interações que chegaram a um título através desta aresta.
+  interacoes_origem UsuarioMidiaInteracao[] @relation("InteracaoOrigemRelacao")
 
   @@unique([origem_id, destino_id])
   @@index([destino_id])

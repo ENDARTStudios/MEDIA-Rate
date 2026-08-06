@@ -42,7 +42,11 @@ interface InteractionState {
   setStatus: (
     midiaId: string,
     status: ConsumoStatus,
-    extras?: { reacao?: Reacao | null; motivoAbandono?: MotivoAbandono | null },
+    extras?: {
+      reacao?: Reacao | null;
+      motivoAbandono?: MotivoAbandono | null;
+      origemRelacaoId?: string | null;
+    },
   ) => Promise<void>;
   /** Define/limpa a reação (só CONCLUIDO/ABANDONADO). Com optimistic + rollback. */
   setReaction: (midiaId: string, reacao: Reacao | null) => Promise<void>;
@@ -115,6 +119,7 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       if (eligible && extras?.reacao === undefined) body.reacao = reacaoFinal;
       if (extras?.reacao !== undefined) body.reacao = extras.reacao;
       if (status === "ABANDONADO") body.motivoAbandono = motivoFinal;
+      if (extras?.origemRelacaoId !== undefined) body.origemRelacaoId = extras.origemRelacaoId;
       await upsertInteracao(midiaId, body);
     } catch {
       // Rollback para o estado anterior; se não havia interação, remove.

@@ -73,6 +73,8 @@ export interface UpsertInteracaoPatch {
   status?: ConsumoStatus;
   reacao?: Reacao | null;
   motivoAbandono?: MotivoAbandono | null;
+  /** T201 (G4) — id da aresta do grafo que originou a descoberta cross-mídia. */
+  origemRelacaoId?: string | null;
 }
 
 /** PUT /interacoes — cria/atualiza status+reação (máquina validada no server). */
@@ -84,6 +86,7 @@ export async function upsertInteracao(
   if (patch.status !== undefined) body.status = patch.status;
   if (patch.reacao !== undefined) body.reacao = patch.reacao;
   if (patch.motivoAbandono !== undefined) body.motivoAbandono = patch.motivoAbandono;
+  if (patch.origemRelacaoId !== undefined) body.origemRelacaoId = patch.origemRelacaoId;
 
   const d = await api.put<ApiInteracao>(`/api/v1/interacoes/${encodeURIComponent(midiaId)}`, body);
   return (

@@ -6,7 +6,7 @@
  * calendário de lançamentos. Gráficos (Recharts) carregados via dynamic
  * import ssr:false para não inflar o bundle SSR. Auth-gate via ProtectedPage.
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
@@ -16,15 +16,29 @@ import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
+import { getTasteHistory, type TasteMonth } from "@/lib/api-discoveries";
+import { TrendSummaryPhrase } from "./dashboard/TrendSummaryPhrase";
 
-const MetricCards = dynamic(() => import("./dashboard/MetricCards").then((m) => m.MetricCards), { ssr: false });
+const MetricCards = dynamic(() => import("./dashboard/MetricCards").then((m) => m.MetricCards), {
+  ssr: false,
+});
 const ConsumptionTimeline = dynamic(
   () => import("./dashboard/ConsumptionTimeline").then((m) => m.ConsumptionTimeline),
   { ssr: false },
 );
-const TasteRadar = dynamic(() => import("./dashboard/TasteRadar").then((m) => m.TasteRadar), { ssr: false });
+const TasteRadar = dynamic(() => import("./dashboard/TasteRadar").then((m) => m.TasteRadar), {
+  ssr: false,
+});
 const ReleaseCalendar = dynamic(
   () => import("./dashboard/ReleaseCalendar").then((m) => m.ReleaseCalendar),
+  { ssr: false },
+);
+const DiscoveryFeedCard = dynamic(
+  () => import("./dashboard/DiscoveryFeedCard").then((m) => m.DiscoveryFeedCard),
+  { ssr: false },
+);
+const TasteEvolutionChart = dynamic(
+  () => import("./dashboard/TasteEvolutionChart").then((m) => m.TasteEvolutionChart),
   { ssr: false },
 );
 
@@ -68,6 +82,18 @@ export function DashboardContent() {
   useEffect(() => {
     fetchWatchlist();
   }, [fetchWatchlist]);
+
+  // T201 (G4): evolução do gosto (12 meses) para o chart + frase de tendência.
+  const [taste, setTaste] = useState<TasteMonth[] | null>(null);
+  useEffect(() => {
+    let ativo = true;
+    void getTasteHistory().then((h) => {
+      if (ativo) setTaste(h);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const total = entries.length;
   const statusCounts: Record<string, number> = { WANT: 0, WATCHING: 0, COMPLETED: 0, DROPPED: 0 };
@@ -227,6 +253,9 @@ export function DashboardContent() {
         {t("summary", { total, lancamentos: lancamentos30d })}
       </p>
 
+      {/* T201 (G4): resumo de descobertas cross-mídia no topo do dashboard. */}
+      <DiscoveryFeedCard />
+
       <MetricCards cards={metricCards} />
 
       <ConsumptionTimeline
@@ -267,6 +296,20 @@ export function DashboardContent() {
         </div>
 
         <TasteRadar data={radarData} title={t("tasteProfile")} note={t("tasteProfileNote")} />
+      </div>
+
+      {/* T201 (G4): evolução do gosto por gênero (12 meses) + frase de tendência. */}
+      <div
+        className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6 mb-10"
+        data-testid="taste-evolution-card"
+      >
+        <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-1">
+          {t("tasteEvolutionGenre")}
+        </h2>
+        <div className="mb-4">
+          <TrendSummaryPhrase data={taste} />
+        </div>
+        <TasteEvolutionChart data={taste} />
       </div>
 
       <ReleaseCalendar items={[]} title={t("releases")} emptyMessage={t("releasesEmpty")} />
