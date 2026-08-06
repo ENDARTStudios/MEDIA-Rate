@@ -39,6 +39,7 @@ export class RelacoesService {
             imagem_url: true,
             score: true,
             ano_lancamento: true,
+            generos: { select: { genero: { select: { slug: true, nome: true, tipo: true } } } },
           },
         },
         destino: {
@@ -49,6 +50,7 @@ export class RelacoesService {
             imagem_url: true,
             score: true,
             ano_lancamento: true,
+            generos: { select: { genero: { select: { slug: true, nome: true, tipo: true } } } },
           },
         },
       },

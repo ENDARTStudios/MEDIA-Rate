@@ -88,3 +88,12 @@ export function uploadRateLimit(): { max: number; timeWindow: string } {
 export function discoverRateLimit(): { max: number; timeWindow: string } {
   return { max: 30, timeWindow: "1 minute" };
 }
+
+/**
+ * T198 — PUT /interacoes por usuário: escrita de sinal é operação de alta
+ * fricção proibida de ser spammada (o keyGenerator global já chaveia por
+ * user+rota — aqui só apertamos a janela por rota).
+ */
+export function interacoesRateLimit(): { max: number; timeWindow: string } {
+  return { max: 60, timeWindow: "1 minute" };
+}

@@ -27,11 +27,11 @@ export interface Sinal {
    * a UI reformula o texto ("Você não curtiu a adaptação — o livro tem
    * abordagem diferente. Vale conhecer?"). 'padrao' para o resto.
    */
-  enquadramento: "padrao" | "reenquadramento";
+  enquadramentoCross: "normal" | "reenquadramento";
 }
 
 const REENQUADRA = "reenquadramento" as const;
-const PADRAO = "padrao" as const;
+const PADRAO = "normal" as const;
 
 /** Tabela vinculante do Addendum 4 Parte 5 — cada linha da tabela. */
 export function calcularPesos(i: InteracaoSinal): Sinal {
@@ -43,7 +43,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
         ativaCrossMidia: true,
         intensidadeCrossMidia: 0.5,
         pesoPerfil: 0.2,
-        enquadramento: PADRAO,
+        enquadramentoCross: PADRAO,
       };
 
     case "CONSUMINDO":
@@ -53,7 +53,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
         ativaCrossMidia: false,
         intensidadeCrossMidia: 0,
         pesoPerfil: 0,
-        enquadramento: PADRAO,
+        enquadramentoCross: PADRAO,
       };
 
     case "CONCLUIDO":
@@ -65,7 +65,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
           ativaCrossMidia: true,
           intensidadeCrossMidia: 1.0,
           pesoPerfil: 1.0,
-          enquadramento: PADRAO,
+          enquadramentoCross: PADRAO,
         };
       }
       if (i.reacao === "NAO_GOSTEI") {
@@ -76,7 +76,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
           ativaCrossMidia: true,
           intensidadeCrossMidia: 0.7,
           pesoPerfil: -1.0,
-          enquadramento: REENQUADRA,
+          enquadramentoCross: REENQUADRA,
         };
       }
       // Terminou sem reagir: positivo fraco (engajou).
@@ -85,7 +85,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
         ativaCrossMidia: true,
         intensidadeCrossMidia: 0.5,
         pesoPerfil: 0.3,
-        enquadramento: PADRAO,
+        enquadramentoCross: PADRAO,
       };
 
     case "ABANDONADO":
@@ -97,7 +97,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
           ativaCrossMidia: true,
           intensidadeCrossMidia: 0.7,
           pesoPerfil: -0.8,
-          enquadramento: REENQUADRA,
+          enquadramentoCross: REENQUADRA,
         };
       }
       return {
@@ -105,7 +105,7 @@ export function calcularPesos(i: InteracaoSinal): Sinal {
         ativaCrossMidia: true,
         intensidadeCrossMidia: 0.5,
         pesoPerfil: 0,
-        enquadramento: PADRAO,
+        enquadramentoCross: PADRAO,
       };
   }
 }

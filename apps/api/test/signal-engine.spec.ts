@@ -7,7 +7,7 @@ describe("T198 — signal-engine (tabela de pesos Addendum 4 Parte 5)", () => {
     expect(s.pesoMesmaMidia).toBe(0.25);
     expect(s.ativaCrossMidia).toBe(true);
     expect(s.pesoPerfil).toBe(0.2);
-    expect(s.enquadramento).toBe("padrao");
+    expect(s.enquadramentoCross).toBe("normal");
   });
 
   it("CONSUMINDO: neutro — não ativa cross-mídia (cedo demais)", () => {
@@ -36,7 +36,7 @@ describe("T198 — signal-engine (tabela de pesos Addendum 4 Parte 5)", () => {
     const s = calcularPesos({ status: "CONCLUIDO", reacao: "NAO_GOSTEI", motivoAbandono: null });
     expect(s.pesoMesmaMidia).toBe(-1.0);
     expect(s.ativaCrossMidia).toBe(true);
-    expect(s.enquadramento).toBe("reenquadramento");
+    expect(s.enquadramentoCross).toBe("reenquadramento");
     expect(s.pesoPerfil).toBe(-1.0);
   });
 
@@ -44,7 +44,7 @@ describe("T198 — signal-engine (tabela de pesos Addendum 4 Parte 5)", () => {
     const s = calcularPesos({ status: "ABANDONADO", reacao: null, motivoAbandono: "NAO_CURTI" });
     expect(s.pesoMesmaMidia).toBe(-1.0);
     expect(s.ativaCrossMidia).toBe(true);
-    expect(s.enquadramento).toBe("reenquadramento");
+    expect(s.enquadramentoCross).toBe("reenquadramento");
   });
 
   it("ABANDONADO + FALTA_TEMPO/MUDANCA_HUMOR/sem motivo: NEUTRO — nunca penaliza", () => {
@@ -53,7 +53,7 @@ describe("T198 — signal-engine (tabela de pesos Addendum 4 Parte 5)", () => {
       expect(s.pesoMesmaMidia).toBe(0);
       expect(s.pesoPerfil).toBe(0);
       expect(s.ativaCrossMidia).toBe(true);
-      expect(s.enquadramento).toBe("padrao");
+      expect(s.enquadramentoCross).toBe("normal");
     }
   });
 

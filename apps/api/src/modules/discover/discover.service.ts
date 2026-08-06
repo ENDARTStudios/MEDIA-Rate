@@ -64,4 +64,48 @@ export class DiscoverService {
   async trending(opts: { limit?: number } = {}) {
     return this.discover({ limit: opts.limit ?? 10 });
   }
+
+  /**
+   * Catálogo filtrado por gênero (T198, Addendum 2 Parte 4 + 3 Parte 3):
+   * - gênero NARRATIVO → cross-mídia (qualquer tipo de mídia);
+   * - gênero SUBGENERO  → restrito ao midia_alvo (RPG → só GAME, Shonen → só ANIME).
+   */
+  async listarPorGenero(slug: string, opts: { limit?: number } = {}) {
+    const genero = await this.prisma.genero.findUnique({ where: { slug } });
+    if (!genero) return { genero: null, items: [], total: 0 };
+
+    const items = await this.prisma.midia.findMany({
+      where: {
+        generos: { some: { genero_id: genero.id } },
+        ...(genero.tipo === "SUBGENERO" && genero.midia_alvo ? { tipo: genero.midia_alvo } : {}),
+      },
+      take: Math.min(opts.limit ?? 40, 100),
+      include: {
+        scores: {
+          select: { score: true },
+          where: { score: { gt: 0 } },
+          take: 1,
+          orderBy: { calculado_em: "desc" },
+        },
+      },
+    });
+
+    const enriched = items.map((m) => ({
+      ...m,
+      score: m.scores?.[0]?.score ?? null,
+    }));
+    enriched.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+    return {
+      genero: {
+        id: genero.id,
+        nome: genero.nome,
+        slug: genero.slug,
+        tipo: genero.tipo,
+        midiaAlvo: genero.midia_alvo,
+      },
+      items: enriched,
+      total: enriched.length,
+    };
+  }
 }

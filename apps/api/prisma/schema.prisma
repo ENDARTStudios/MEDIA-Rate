@@ -637,14 +637,26 @@ model MediaScoreView {
 // ===========================================================================
 
 /// Gênero de mídia (ex: Drama, Ficção Científica, Ação).
+/// ADDENDUM 2 Parte 4 + 3 Parte 3 — gênero normalizado com dualidade:
+/// NARRATIVO (compartilhado cross-mídia: Ação, Drama, Terror...) ou
+/// SUBGENERO (específico de mídia: RPG, Shonen... — restrito ao midia_alvo).
+enum GeneroTipo {
+  NARRATIVO
+  SUBGENERO
+}
+
 model Genero {
   id      Int            @id @default(autoincrement())
   nome    String         @unique @db.VarChar(64)
   slug    String         @unique @db.VarChar(64)
   // ID do gênero na TMDB (vínculo do seed do catálogo).
   tmdb_id Int?           @unique @map("tmdb_id")
+  tipo    GeneroTipo     @default(NARRATIVO)
+  // Restrição de mídia para subgêneros (RPG → GAME, Shonen → ANIME, ...).
+  midia_alvo TipoMidia?  @map("midia_alvo")
   midias  MidiaGenero[]
 
+  @@index([tipo])
   @@map("genero")
 }
 

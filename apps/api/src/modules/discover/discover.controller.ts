@@ -16,6 +16,11 @@ const DiscoverQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).optional(),
 });
 
+const CatalogQuerySchema = z.object({
+  genero: z.string().trim().min(1).max(80),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+});
+
 function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (!result.success) {
@@ -43,6 +48,12 @@ export class DiscoverController {
   async discover(@Query() query: unknown) {
     const { tipo, limit } = parseOrThrow(DiscoverQuerySchema, query);
     return this.service.discover({ tipo, limit });
+  }
+
+  @Get("catalog")
+  async catalog(@Query() query: unknown) {
+    const { genero, limit } = parseOrThrow(CatalogQuerySchema, query);
+    return this.service.listarPorGenero(genero, { limit });
   }
 
   @Get("trending")

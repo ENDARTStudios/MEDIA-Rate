@@ -30,7 +30,64 @@ const CURADORIA: CuradoriaItem[] = [
   { origemTitulo: "The Matrix", destinoTitulo: "The Matrix", tipo: "MESMO_UNIVERSO", notaEditorial: "Franquia multiplataforma" },
   { origemTitulo: "A Odisseia", destinoTitulo: "A Odisseia", tipo: "ADAPTACAO_DE", notaEditorial: "Baseado no poema épico de Homero" },
   { origemTitulo: "Os Irmãos Karamazov", destinoTitulo: "Os Irmãos Karamazov", tipo: "ADAPTACAO_DE", notaEditorial: "Baseado no romance de Dostoiévski" },
+  { origemTitulo: "The Boys", destinoTitulo: "The Boys", tipo: "ADAPTACAO_DE", notaEditorial: "Adaptação da HQ de Garth Ennis" },
+  { origemTitulo: "Better Call Saul", destinoTitulo: "Breaking Bad", tipo: "SPINOFF_DE", notaEditorial: "Spin-off de Breaking Bad" },
+  { origemTitulo: "The Lord of the Rings", destinoTitulo: "The Lord of the Rings", tipo: "ADAPTACAO_DE", notaEditorial: "Baseado na obra de J.R.R. Tolkien" },
 ];
+
+/**
+ * Classificação de gêneros (Addendum 2 Parte 4): NARRATIVO = compartilhado
+ * cross-mídia (filtro /catalog?genero= retorna qualquer tipo); SUBGENERO =
+ * específico de mídia (filtro restringe a midia_alvo).
+ */
+const NARRATIVOS = [
+  "acao", "aventura", "comedia", "drama", "terror", "ficcao-cientifica",
+  "fantasia", "romance", "misterio", "crime", "documentario", "animacao",
+  "familia", "guerra", "historia", "musica", "faroeste", "thriller",
+  "acao-e-aventura", "ficcao-cientifica-e-fantasia", "guerra-e-politica",
+  "reality-show", "novela", "talk-show", "noticias", "infantil",
+  "esporte", "cyberpunk", "super-herói", "super-heroi",
+];
+
+const SUBGENEROS: Record<string, "GAME" | "ANIME" | "COMIC"> = {
+  rpg: "GAME",
+  moba: "GAME",
+  fps: "GAME",
+  "battle-royale": "GAME",
+  roguelike: "GAME",
+  metroidvania: "GAME",
+  "luta": "GAME",
+  puzzle: "GAME",
+  simulacao: "GAME",
+  estrategia: "GAME",
+  sandbox: "GAME",
+  shonen: "ANIME",
+  "seinen": "ANIME",
+  isekai: "ANIME",
+  "acao-aventura-games": "GAME",
+};
+
+async function classificarGeneros(prisma: PrismaClient): Promise<void> {
+  const generos = await prisma.genero.findMany({ select: { id: true, slug: true, tipo: true } });
+  let atualizados = 0;
+  for (const g of generos) {
+    if (NARRATIVOS.includes(g.slug)) {
+      if (g.tipo !== "NARRATIVO") {
+        await prisma.genero.update({ where: { id: g.id }, data: { tipo: "NARRATIVO", midia_alvo: null } });
+        atualizados++;
+      }
+      continue;
+    }
+    const alvo = SUBGENEROS[g.slug];
+    if (alvo) {
+      if (g.tipo !== "SUBGENERO" || g.midia_alvo !== alvo) {
+        await prisma.genero.update({ where: { id: g.id }, data: { tipo: "SUBGENERO", midia_alvo: alvo } });
+        atualizados++;
+      }
+    }
+  }
+  console.log(`[seed:relacoes] ${atualizados} gêneros classificados (${NARRATIVOS.length} narrativos / ${Object.keys(SUBGENEROS).length} subgêneros).`);
+}
 
 function slugify(texto: string): string {
   return texto
@@ -99,7 +156,10 @@ async function main(): Promise<void> {
       console.log(`[seed:relacoes] curada: "${c.origemTitulo}" (${origem.tipo}) → "${c.destinoTitulo}" (${destino.tipo}) [${c.tipo}]`);
     }
 
-    console.log(`[seed:relacoes] Concluído: ${criadas} arestas no grafo RelacaoObra.`);
+    console.log(`[seed:relacoes] ${criadas} arestas no grafo RelacaoObra.`);
+
+    // 3) Classificação de gêneros (narrativo vs subgênero com midia_alvo).
+    await classificarGeneros(prisma);
   } finally {
     await prisma.$disconnect();
   }

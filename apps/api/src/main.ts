@@ -11,7 +11,11 @@ import { AppModule } from "./app.module.js";
 import { buildHelmetOptions } from "./common/security.config.js";
 import { buildCspHeader, generateRequestNonce } from "./common/security.config.js";
 import { buildCorsOptions } from "./common/cors.config.js";
-import { buildRateLimitOptions, loginRateLimit } from "./common/rate-limit.config.js";
+import {
+  buildRateLimitOptions,
+  loginRateLimit,
+  interacoesRateLimit,
+} from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
 
@@ -123,6 +127,11 @@ async function bootstrap(): Promise<void> {
     if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = loginRateLimit();
+    }
+    // T198: escrita de interação (status+reação) — 60/min por usuário/rota.
+    if (routeOptions.url.startsWith("/api/v1/interacoes") && routeOptions.method === "PUT") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = interacoesRateLimit();
     }
   });
 
