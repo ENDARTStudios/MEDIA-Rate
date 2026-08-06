@@ -1579,3 +1579,25 @@ persistidos na URL ja existiam. Gaps fechados:
 VERIFICADO NO AR: catalog?type=book = "Em construcao" + form email waitlist
 (sem 404); game = sticky + 1 card; filtro expandido = toggle + checkbox.
 Testes: API 447/451 (4 pre-existentes), Web 183/183 (3 novos catalog-empty).
+
+## [2026-08-06] T187-metadata-components (DONE — conformidade verificada, zero diffs)
+Os 8 componentes do addendum 2 (D-205) JA existiam em media-rate-ui (com
+metadados.spec.tsx). Auditoria de conformidade contra a spec T187:
+- AgeRatingBadge: rating L-18 DJCTQ/ClassInd + descriptors opcionais (nunca
+  inventados) + source oficial|sugerida ("Classificação sugerida pela editora"
+  p/ livro/HQ/manga) + perSeason. OK.
+- SeriatedScoreTree: unitLabel/units; score null -> "Ainda sem votos
+  suficientes" (noVotesYet, nunca 0); unidade sem nota = media das subunidades
+  COM nota (sem-nota fora do denominador); tabular. OK.
+- GenreChipRow+GenreFilterPrompt: taxonomia dupla (SHARED_GENRES +
+  mediaSpecific); popover com 2 opcoes (mesma midia vs cross-media) sem
+  navegacao direta. OK.
+- OriginBadge: bandeira+nome+roleLabel; clicavel mesma midia. OK.
+- AwardsShowcase: ordena vencedores primeiro, max 5 visiveis + "+X" expansivel,
+  trofeu/medalha, tooltip categoria+ano+org. OK.
+- FranchiseCarousel+FranchiseOrderToggle: hasChronological derivado, toggle
+  condicional, "Voce esta aqui", reusa MediaCard (T184). OK.
+- MATRIZ DE APLICABILIDADE: testada em metadados.spec (sem generos/premios/
+  itens -> "Nao informado" explicito; nunca fabricado).
+- GATES: metadados 16/16; total 183/183; ': any' = 0; 8/8 componentes;
+  i18n metadados completo em pt/en/es (0 chaves faltando); build verde.
