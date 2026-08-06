@@ -1621,3 +1621,21 @@ Gaps fechados:
 - 2 testes de integracao novos (sticky + plataformas) -> 185/185.
 VERIFICADO NO AR: BG3 = Critica+Publico+Plataforma+sticky; serie = Temporada+
 sticky. tsc/lint/build verdes.
+
+## [2026-08-06] T189-dashboard (DONE, commit a7f1848)
+Conformidade: DashboardContent ja tinha auth-gate, 4 cards com spark/donut,
+timeline area empilhada, radar (TasteRadarChart), ReleaseTimeline, empty
+states e Recharts. Gaps fechados:
+- ESTRUTURA dashboard/: MetricCards, ConsumptionTimeline, TasteRadar,
+  ReleaseCalendar (4 novos arquivos) consumidos via dynamic import ssr:false
+  (recharts fora do bundle SSR; .then(m => m.X) p/ named exports).
+- CABECALHO PESSOAL: saudacao "Ola, {name}" (useAuthStore user.name) +
+  resumo "Voce tem {total} titulos na watchlist, {lancamentos} lancam este
+  mes" (lancamentos = entries com releaseDate nos proximos 30d; sem data -> 0
+  honesto, nunca fabricado).
+- i18n: greeting/summary/tasteProfileNote/releases/releasesEmpty (pt/en/es).
+- 4 testes novos (saudacao, resumo, empty state, status distribution) ->
+  189/189; tsc/lint/build verdes.
+- Auth-gate verificado: /pt-BR/dashboard anonimo -> 307 redirect.
+- Deploy Vercel em fila (como T184) - re-verificar no ar; chunks dinamicos
+  so carregam na rota autenticada.
