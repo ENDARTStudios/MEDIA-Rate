@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Logo } from "@/components/Logo";
 import { FONTES_ATIVAS, NUM_FONTES_ATIVAS } from "@/lib/sources";
 import { MediaScoreModule } from "@/components/MediaScoreModule";
+import type { MediaScore } from "@/lib/types";
 import { NextIntlClientProvider } from "next-intl";
 
 function mockMatchMedia() {
@@ -116,15 +117,14 @@ describe("T191 — nota Bayesiana sempre visível", () => {
   });
 
   it("renderiza a nota mesmo sem divergência calculada", () => {
-    const score = {
-      score: 7.3,
-      detalhes: [],
+    const score: MediaScore = {
+      consolidated: 7.3,
+      explanation: "",
+      confidence: "medium",
       sources: [],
-      fontes: [],
       criticsScore: null,
       audienceScore: null,
-      consenso: null,
-      confidence: "medium" as const,
+      consensus: null,
       updatedAt: new Date().toISOString(),
     };
     const { container } = render(
