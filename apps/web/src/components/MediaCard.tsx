@@ -11,6 +11,7 @@ import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { WatchlistButton } from "./WatchlistButton";
+import { StatusReactionControl } from "./interaction/StatusReactionControl";
 import type { MediaType } from "@/lib/types";
 
 export interface MediaItem {
@@ -164,6 +165,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
       <div className="absolute top-2 left-12 z-20" onClick={(e) => e.stopPropagation()}>
         <WatchlistButton mediaId={media.id} />
+      </div>
+
+      {/* T200 (§4.1): interação rápida de 1 toque — 1 toque = QUERO_CONSUMIR. */}
+      <div className="absolute bottom-2 left-2 z-20" onClick={(e) => e.stopPropagation()}>
+        <StatusReactionControl midiaId={media.id} mediaType={mediaType} compact />
       </div>
 
       <Link

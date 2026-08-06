@@ -413,7 +413,15 @@
     "planPlus": "Plus plan",
     "planPremium": "Premium plan",
     "trialActive": "Plus trial — ends on {date}",
-    "itemsCount": "{count} of 20 items"
+    "itemsCount": "{count} of 20 items",
+    "tabAtivos": "Active",
+    "tabAbandonados": "Abandoned",
+    "kanbanTabs": "Kanban view",
+    "emptyAbandonados": "No abandoned titles.",
+    "abandonado": "Abandoned",
+    "reactNow": "What did you think?",
+    "gostei": "Liked",
+    "naoGostei": "Disliked"
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",
@@ -826,5 +834,32 @@
     "spinoffOf": "Spin-off",
     "sameUniverse": "Same universe",
     "sameRealStory": "Same true story"
+  },
+  "interaction": {
+    "addStatus": "Want to consume",
+    "updateStatus": "Consumption status",
+    "statusGroup": "Status",
+    "reactionGroup": "Reaction",
+    "reactOptional": "What did you think? (optional)",
+    "motivoOpcional": "Why did you drop it? (optional)",
+    "motivoGroup": "Drop reason",
+    "optionalHint": "Closing without reacting is fine — a reaction is never required.",
+    "queroVer": "Want to watch",
+    "vendo": "Watching",
+    "vi": "Watched",
+    "abandonadoVer": "Dropped",
+    "queroJogar": "Want to play",
+    "jogando": "Playing",
+    "joguei": "Played",
+    "abandonadoJogar": "Dropped",
+    "queroLer": "Want to read",
+    "lendo": "Reading",
+    "li": "Read",
+    "abandonadoLer": "Dropped",
+    "gostei": "Liked",
+    "naoGostei": "Disliked",
+    "motivo_nao_curti": "Didn't like",
+    "motivo_falta_tempo": "No time",
+    "motivo_mudanca_humor": "Changed my mind"
   }
 }

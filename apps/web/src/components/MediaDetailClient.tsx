@@ -22,13 +22,14 @@ import {
   FranchiseCarousel,
   OriginBadge,
 } from "@/components/media-rate-ui";
-import { genreSlug, titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
+import { titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
 import { Monitor, Gamepad2, Smartphone, Tv, Globe } from "lucide-react";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { RelatedWorksBlock } from "./discovery/RelatedWorksBlock";
+import { StatusReactionControl } from "./interaction/StatusReactionControl";
 
 export function MediaDetailClient({
   slug,
@@ -103,16 +104,16 @@ export function MediaDetailClient({
     );
   }
 
-const tipoLabel =
-  media.type === "movie"
-    ? t("filme")
-    : media.type === "series"
-      ? t("serie")
-      : media.type === "game"
-        ? t("game")
-        : media.type === "comic"
-          ? t("comic")
-          : t("livro");
+  const tipoLabel =
+    media.type === "movie"
+      ? t("filme")
+      : media.type === "series"
+        ? t("serie")
+        : media.type === "game"
+          ? t("game")
+          : media.type === "comic"
+            ? t("comic")
+            : t("livro");
 
   const plataformaIcon = (nome: string) => {
     const n = nome.toLowerCase();
@@ -251,6 +252,8 @@ const tipoLabel =
               ) : null}
 
               <div className="flex flex-wrap gap-2">
+                {/* T200: StatusReactionControl completo (status + reação + motivo). */}
+                <StatusReactionControl midiaId={media.id} mediaType={media.type} />
                 <WatchlistButton mediaId={media.id} mediaType={media.type} />
                 <FavoriteButton mediaId={media.id} />
                 <ShareButton />

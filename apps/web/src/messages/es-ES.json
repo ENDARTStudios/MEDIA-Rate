@@ -413,7 +413,15 @@
     "planPlus": "Plan Plus",
     "planPremium": "Plan Premium",
     "trialActive": "Trial Plus — termina el {date}",
-    "itemsCount": "{count} de 20 elementos"
+    "itemsCount": "{count} de 20 elementos",
+    "tabAtivos": "Activos",
+    "tabAbandonados": "Abandonados",
+    "kanbanTabs": "Vista de Kanban",
+    "emptyAbandonados": "Sin títulos abandonados.",
+    "abandonado": "Abandonado",
+    "reactNow": "¿Qué te pareció?",
+    "gostei": "Me gustó",
+    "naoGostei": "No me gustó"
   },
   "privacy": {
     "metaTitle": "Política de Privacidad — MEDIA Rate",
@@ -826,5 +834,32 @@
     "spinoffOf": "Spin-off",
     "sameUniverse": "Mismo universo",
     "sameRealStory": "Mismo hecho real"
+  },
+  "interaction": {
+    "addStatus": "Quiero consumir",
+    "updateStatus": "Estado de consumo",
+    "statusGroup": "Estado",
+    "reactionGroup": "Reacción",
+    "reactOptional": "¿Qué te pareció? (opcional)",
+    "motivoOpcional": "¿Por qué lo abandonaste? (opcional)",
+    "motivoGroup": "Motivo de abandono",
+    "optionalHint": "Cerrar sin reaccionar es válido — la reacción nunca es obligatoria.",
+    "queroVer": "Quiero ver",
+    "vendo": "Viendo",
+    "vi": "Vi",
+    "abandonadoVer": "Abandonado",
+    "queroJogar": "Quiero jugar",
+    "jogando": "Jugando",
+    "joguei": "Jugué",
+    "abandonadoJogar": "Abandonado",
+    "queroLer": "Quiero leer",
+    "lendo": "Leyendo",
+    "li": "Leí",
+    "abandonadoLer": "Abandonado",
+    "gostei": "Me gustó",
+    "naoGostei": "No me gustó",
+    "motivo_nao_curti": "No me gustó",
+    "motivo_falta_tempo": "No tuve tiempo",
+    "motivo_mudanca_humor": "Cambié de opinión"
   }
 }

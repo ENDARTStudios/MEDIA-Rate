@@ -37,8 +37,19 @@ vi.mock("next/image", () => ({
     `<img src="${p.src}" alt="${p.alt ?? ""}" class="${p.className ?? ""}" />`,
 }));
 vi.mock("@/lib/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
   Link: ({ href, children }: { href: string; children: React.ReactNode }) =>
     `<a href="${href}">${children}</a>`,
+}));
+vi.mock("@/stores/use-interaction-store", () => ({
+  useInteractionStore: (sel: (s: unknown) => unknown) =>
+    sel({
+      map: {},
+      fetchAll: vi.fn(async () => undefined),
+      setStatus: vi.fn(async () => undefined),
+      setReaction: vi.fn(async () => undefined),
+      setMotivo: vi.fn(async () => undefined),
+    }),
 }));
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
@@ -72,7 +83,8 @@ vi.mock("@/components/media-rate-ui", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/media-rate-ui")>();
   return {
     ...actual,
-    AgeRatingBadge: ({ rating }: { rating: string }) => `<span data-testid="age-badge">${rating}</span>`,
+    AgeRatingBadge: ({ rating }: { rating: string }) =>
+      `<span data-testid="age-badge">${rating}</span>`,
     GenreChipRow: () => `<div data-testid="genre-chips" />`,
     SeriatedScoreTree: ({ units }: { units: unknown[] }) =>
       `<div data-testid="seriated">${units.length} units</div>`,
@@ -82,8 +94,12 @@ vi.mock("@/components/media-rate-ui", async (importOriginal) => {
   };
 });
 vi.mock("./WatchlistButton", () => ({ WatchlistButton: () => `<button>Watchlist</button>` }));
-vi.mock("./MediaScoreModule", () => ({ MediaScoreModule: () => `<div data-testid="score-module" />` }));
-vi.mock("@/components/ui/button", () => ({ Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>` }));
+vi.mock("./MediaScoreModule", () => ({
+  MediaScoreModule: () => `<div data-testid="score-module" />`,
+}));
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>`,
+}));
 vi.mock("@/components/ui/rate-limited", () => ({ RateLimited: () => `<div />` }));
 vi.mock("@/components/ui/empty-state", () => ({ EmptyState: () => `<div />` }));
 vi.mock("@/components/ui/error-state", () => ({ ErrorState: () => `<div />` }));

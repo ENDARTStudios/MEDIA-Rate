@@ -2,11 +2,43 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
-let watchlistMock = {
+const watchlistMock = {
   entries: [
-    { id: "e1", mediaId: "e1", status: "WANT", media: { id: "e1", type: "movie", title: "Titulo e1", year: 2026, posterUrl: null, score: 75 }, scoreAtAdd: 70 },
-    { id: "e2", mediaId: "e2", status: "WANT", media: { id: "e2", type: "series", title: "Titulo e2", year: 2026, posterUrl: null, score: 80 }, scoreAtAdd: null },
-    { id: "e3", mediaId: "e3", status: "COMPLETED", media: { id: "e3", type: "game", title: "Titulo e3", year: 2026, posterUrl: null, score: 55 }, scoreAtAdd: 60 },
+    {
+      id: "e1",
+      mediaId: "e1",
+      status: "WANT",
+      media: {
+        id: "e1",
+        type: "movie",
+        title: "Titulo e1",
+        year: 2026,
+        posterUrl: null,
+        score: 75,
+      },
+      scoreAtAdd: 70,
+    },
+    {
+      id: "e2",
+      mediaId: "e2",
+      status: "WANT",
+      media: {
+        id: "e2",
+        type: "series",
+        title: "Titulo e2",
+        year: 2026,
+        posterUrl: null,
+        score: 80,
+      },
+      scoreAtAdd: null,
+    },
+    {
+      id: "e3",
+      mediaId: "e3",
+      status: "COMPLETED",
+      media: { id: "e3", type: "game", title: "Titulo e3", year: 2026, posterUrl: null, score: 55 },
+      scoreAtAdd: 60,
+    },
   ],
   isLoading: false,
   error: null,
@@ -30,6 +62,16 @@ vi.mock("@/lib/navigation", () => ({
     `<a href="${href}">${children}</a>`,
 }));
 vi.mock("@/stores/use-watchlist-store", () => ({ useWatchlistStore: () => watchlistMock }));
+vi.mock("@/stores/use-interaction-store", () => ({
+  useInteractionStore: (sel: (s: unknown) => unknown) =>
+    sel({
+      map: {},
+      fetchAll: vi.fn(async () => undefined),
+      setStatus: vi.fn(async () => undefined),
+      setReaction: vi.fn(async () => undefined),
+      setMotivo: vi.fn(async () => undefined),
+    }),
+}));
 vi.mock("@/stores/use-auth-store", () => ({
   useAuthStore: () => ({ user: { plan: "FREE" } }),
 }));
@@ -39,7 +81,14 @@ vi.mock("@/components/MediaCard", () => ({
   MediaCard: ({ media }: { media: { titulo: string } }) => `<div>${media.titulo}</div>`,
 }));
 vi.mock("@/components/media-rate-ui/CategoryChip", () => ({
-  MEDIA_ACCENTS: { movie: "#818CF8", series: "#38BDF8", game: "#34D399", book: "#FBBF24", comic: "#F472B6", anime: "#A78BFA" },
+  MEDIA_ACCENTS: {
+    movie: "#818CF8",
+    series: "#38BDF8",
+    game: "#34D399",
+    book: "#FBBF24",
+    comic: "#F472B6",
+    anime: "#A78BFA",
+  },
   CategoryChip: ({ type, label, active }: { type: string; label?: string; active?: boolean }) => (
     <button data-testid={`chip-${type}`} data-active={active ?? false}>
       {label ?? type}
@@ -47,7 +96,9 @@ vi.mock("@/components/media-rate-ui/CategoryChip", () => ({
   ),
 }));
 vi.mock("@/components/CatalogSkeleton", () => ({ CatalogSkeleton: () => `<div />` }));
-vi.mock("@/components/ui/button", () => ({ Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>` }));
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>`,
+}));
 vi.mock("@/components/ui/rate-limited", () => ({ RateLimited: () => `<div />` }));
 vi.mock("@/lib/http", () => ({ RateLimitedError: class extends Error {} }));
 vi.mock("@/lib/i18n", () => ({ formatDate: (d: string) => d }));
@@ -99,4 +150,3 @@ describe("WatchlistClient (T190)", () => {
     expect(container.querySelectorAll("select").length).toBeGreaterThanOrEqual(3);
   });
 });
-
