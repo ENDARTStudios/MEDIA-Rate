@@ -1773,3 +1773,22 @@ arquivos criticos) + job no CI lint-audit.
 AUTH-DEPENDENTE (watchlist/favoritos): exige registro real via API —
 débito de ambiente (credenciais E2E), NAO do codigo; documentado.
 Suites: API 457/457, Web 211/211, builds verdes, guard limpo.
+
+## [2026-08-06] T180-integracoes-p1 (DONE, commit d324ca7)
+- seed-tmdb.ts EXPANDIDO: top_rated + popular (multi-paginas, max 12), alvo
+  225/tipo (450+ audiovisual), DEDUP por id externo, SEM deleteMany (upsert
+  idempotente — re-rodar nao destroi scores/watchlists), avaliacoes TMDB
+  (vote_average 0-10 + vote_count, fonte CANONICA "tmdb" — o registry do
+  engine nao conhece "tmdb_tv" e series ficavam sem peso) + recalcular
+  EPersistir por titulo (score v3 real + confidence — antes placeholder 50).
+- seed-games.ts NOVO: 50 games curados (Zelda TOTK, BG3, Elden Ring, Witcher
+  3, GTA V, Hades...) com valores REAIS IGDB (critica), igdb_publico,
+  OpenCritic, Steam + upsert idempotente por igdbId + recalcularEPersistir.
+- db:seed:games no package.json (editor proprio).
+- Guard de execucao direta (import.meta.url) nos 2 seeds p/ testabilidade.
+- 5 testes mockados (fetch stub): multi-lista+dedup, sem duplicacao, config
+  T180, dataset 50+ com escalas corretas, escala 0-10 TMDB -> API 462/462.
+- ERRO PROPRIO 4x: PowerShell Set-Content corrompeu os seeds (D-210) —
+  restaurado + refeito com editor; o guard de encoding do CI (T196) cobre.
+- Execucao real da coleta no DB = ACAO DO OPERADOR (sem .env local):
+  npm run db:seed:tmdb && npm run db:seed:games (na API).
