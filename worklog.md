@@ -1748,3 +1748,28 @@ Auditoria de conformidade + gaps:
 - ERRO PROPRIO 3x: PowerShell Set-Content corrompeu package.json (D-210
   ignorada) — restaurado, corrigido description mojibake pre-existente e BOM
   via Node/editor; D-210 reforcada (NUNCA Set-Content).
+
+## [2026-08-06] T196-baseline-testes-encoding-guard (DONE, 179d301 + d40726f)
+API: 4 falhas getBySlug corrigidas por causa real (mocks defasados — o
+controller ganhou o mapeamento de franquias no Addendum 2 e os mocks nao
+tinham o campo -> .map de undefined) -> 457/457 (baseline ZERADO).
+E2E (navigation/media-details/regression/flow): 16 falhas -> 36/36 com fixes:
+- CSP quebrava o DEV server (Next usa eval; script-src sem unsafe-eval) ->
+  CSP agora so e enviada em PRODUCAO (bug real de ambiente).
+- Locators ambiguos (2 navs apos o hero cluster; "MEDIA Rate" em 3 lugares)
+  -> .first()/.filter({visible}).
+- Locale: switcher e um botao dropdown (nao select); no mobile fica no menu
+  hamburger -> fluxo corrigido + cookie isolation (testes de locale
+  poluiam o NEXT_LOCALE dos demais).
+- media-details: elden-ring/1984 eram slugs de MOCK fora do DB ->
+  baldur-s-gate-3 + os-eternos-desconhecidos (titles reais).
+- MediaCard: fallback mock usa tipos EN (MOVIE/SERIES/GAMES) -> t('MOVIE')
+  MISSING_MESSAGE derrubava a home em alguns locales (bug real de produto):
+  aliases adicionados ao TIPO_LABEL.
+- D-178 RESIDUAL (bug real): PricingCards.formatPrice usava USD/EUR por
+  locale apesar da cobranca em BRL -> BRL em todos os locales.
+Guard de encoding: scripts/check-encoding-bom.ts (BOM + mojibake em 7
+arquivos criticos) + job no CI lint-audit.
+AUTH-DEPENDENTE (watchlist/favoritos): exige registro real via API —
+débito de ambiente (credenciais E2E), NAO do codigo; documentado.
+Suites: API 457/457, Web 211/211, builds verdes, guard limpo.
