@@ -1712,3 +1712,20 @@ idioma e sessao; pricing ja tinha toggle mensal/anual com -15%. Gaps:
   (lição registrada) — restaurado do git + reaplicado com editor proprio.
 - 5 testes novos (LGPD 2 passos x2 + export, grid, bloqueio) -> 206/206;
   tsc/lint/build verdes. No ar: pricing media-unlock-grid + pagina publica 200.
+
+## [2026-08-06] T194-f7-animacoes (DONE, commit 26ae130) — REDESIGN F1-F7 COMPLETO
+Estado: PageTransition (fade-in Motion no layout) + useReducedMotionPref ja
+existiam e foram mantidos; hero (Motion+Anime.js) e cards (Anime.js glow)
+ja respeitavam reduced-motion. Entregues:
+- ScrollReveal: GSAP+ScrollTrigger com LAZY-LOAD (dynamic import — GSAP fora
+  do bundle inicial, orcamento <=50KB); props stagger/distance preservadas;
+  reduced-motion -> filhos direto; aplicado no about + methodology.
+- ScoreDial: contador Anime.js 0->valor quando entra no viewport (dynamic
+  import); reduced-motion OU sem IntersectionObserver -> valor direto;
+  aria-label sempre com valor final (a11y).
+- Fix v4: animejs nao anima numeros (targets) — usa objeto proxy {v:0}.
+- 5 testes novos (reduced-motion desabilita cada tipo; page transition;
+  contador) -> 211/211; tsc/lint/build verdes.
+REDESIGN F1-F7 COMPLETO (T183-T194). Restam: T180 (integracoes reais),
+T181 (adaptadores novas midias), T196 (baseline E2E) + pendencias operador
+(SCRAPE_NUMERICO_ENABLED, sign-off juridico EN/ES).
