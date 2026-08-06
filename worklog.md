@@ -1792,3 +1792,36 @@ Suites: API 457/457, Web 211/211, builds verdes, guard limpo.
   restaurado + refeito com editor; o guard de encoding do CI (T196) cobre.
 - Execucao real da coleta no DB = ACAO DO OPERADOR (sem .env local):
   npm run db:seed:tmdb && npm run db:seed:games (na API).
+
+## [2026-08-07] T198-modelo-descoberta-sinal (DONE, commit b9006e7)
+Fundação de dado dos Addendums 3+4 (G1 — pré-requisito das UIs T199-T201):
+- SCHEMA: RelacaoObra (grafo tipado ADAPTACAO_DE/SEQUENCIA_DE/PREQUELA_DE/
+  SPINOFF_DE/MESMO_UNIVERSO/MESMA_HISTORIA_REAL + notaEditorial; UNIQUE
+  (origem,destino); 1 aresta já ativa a funcionalidade — não é container
+  como Franquia). UsuarioMidiaInteracao EVOLUIDA em lugar: status
+  (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO), reacao (GOSTEI/
+  NAO_GOSTEI null), motivo_abandono (NAO_CURTI/FALTA_TEMPO/MUDANCA_HUMOR),
+  progresso_detalhe, iniciado/concluido/atualizado_em; UNIQUE trocada para
+  (usuario_id, midia_id) com dedupe defensivo na migration; campos T2
+  (tipo/rating/comentario) mantidos para o export LGPD (só leitura).
+  Migration 20260807_addendums_3_4 idempotente (IF NOT EXISTS + DO blocks).
+- ENDPOINTS: GET /api/v1/midias/:id/relacoes (bidirecional, 1 query com
+  include, entrega direcao saida/entrada + dados do relacionado com score);
+  POST/DELETE admin @Roles(ADMIN). GET/PUT /api/v1/interacoes(/:midiaId)
+  com máquina de estados (400 em transição inválida; reação só em
+  CONCLUIDO/ABANDONADO; motivo só com ABANDONADO; 404 midia inexistente).
+- signal-engine.ts: tabela de pesos da Parte 5 literal (QUERO=+0.25/
+  cross 0.5; CONSUMINDO=neutro; CONCLUIDO+GOSTEI=+1.0/cross 1.0;
+  CONCLUIDO sem reação=+0.3; CONCLUIDO+NAO_GOSTEI=-1.0 COM reenquadramento
+  (nunca suprime); ABANDONADO+NAO_CURTI=-1.0 reenquadra; ABANDONADO outro/
+  sem motivo=NEUTRO).
+- SEED: wikidata-seed.service (SPARQL P144 em LOTE — 2 queries, timeout
+  15s, retry 3x, graceful degradation) + seed-relacoes.ts (top 100 por
+  score + 8 pares curados Duna/Watchmen/Berserk/1984/Matrix/Odisseia/
+  Karamazov, upsert idempotente, aviso quando título ausente).
+- TESTES: 25 novos (signal-engine 9 — cada linha da tabela; interacoes 11
+  — máquina de estados; relacoes 5 — bidirecional/1 aresta). API 487/487,
+  build ?, lint ?. Falso alarme de mojibake no schema (regex pegava o "Ã"
+  legítimo de "NÃO") — guard real do CI limpo.
+- Arestas curadas só se AMBOS extremos existirem no catálogo (fallback
+  seguro — execução real após seeds do Operador).
