@@ -8,6 +8,7 @@ import { ProtectedPage } from "@/components/ProtectedPage";
 import { Button } from "@/components/ui/button";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { Lock } from "lucide-react";
+import { LgpdControls } from "@/components/settings/LgpdControls";
 
 const NEXT_TIER: Record<string, { plan: "PLUS" | "PREMIUM"; score: number } | null> = {
   FREE: { plan: "PLUS", score: 7.9 },
@@ -109,6 +110,14 @@ export default function SettingsPage() {
                 </Button>
               ))}
             </div>
+          </div>
+
+          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
+            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+              {ts("lgpd")}
+            </h2>
+            <p className="text-sm text-[#A0A0B8] mb-4">{ts("lgpdHint")}</p>
+            <LgpdControls />
           </div>
 
           <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">

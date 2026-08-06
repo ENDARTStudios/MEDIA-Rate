@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
@@ -12,6 +12,7 @@ export function ProfileContent() {
   const tc = useTranslations("common");
   const { user } = useAuthStore();
   const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchWatchlist();
@@ -58,6 +59,30 @@ export function ProfileContent() {
           )}
         </div>
       </div>
+
+      {/* Perfil público compartilhável (T193) — link agregado, sem dados sensíveis. */}
+      {user?.id && (
+        <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5 mb-8">
+          <p className="text-sm font-semibold text-[#F5F5F7] mb-1">{t("shareLink")}</p>
+          <p className="text-xs text-[#80809B] mb-3">{t("shareHint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="rounded-md border border-[#2A2A3D] bg-[#09090F] px-3 py-1.5 text-xs text-[#A0A0B8] break-all">
+              {`${window.location.origin}/pt-BR/user/${user.id}`}
+            </code>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                void navigator.clipboard?.writeText(`${window.location.origin}/pt-BR/user/${user.id}`);
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 1600);
+              }}
+            >
+              {copied ? t("copied") : t("copyLink")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {total === 0 && (
         <div className="text-center py-12 text-[#9CA3AF]">

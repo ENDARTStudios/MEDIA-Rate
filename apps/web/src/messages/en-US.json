@@ -275,7 +275,17 @@
     "feature_assistant": "AI Assistant",
     "feature_marathon": "Marathon planning",
     "feature_insights": "Consumption insights",
-    "feature_profileCompare": "Profile comparison"
+    "feature_profileCompare": "Profile comparison",
+    "media": "Unlocked media",
+    "media_movie": "Movies",
+    "media_series": "Series",
+    "media_game": "Games",
+    "media_book": "Books",
+    "media_comic": "Comics & Manga",
+    "media_anime": "Manga",
+    "unlocked": "Unlocked",
+    "locked": "Locked in this plan",
+    "comingSoonShort": "Soon"
   },
   "footer": {
     "rights": "All rights reserved.",
@@ -593,7 +603,24 @@
     "tasteEmpty": "Complete titles and add ratings to see your taste profile.",
     "badges": "Badges",
     "recentActivity": "Recent Activity",
-    "recentEmpty": "No recent activity."
+    "recentEmpty": "No recent activity.",
+    "movies": "Movies",
+    "series": "Series",
+    "games": "Games",
+    "wantToSee": "Want to see",
+    "avgScore": "Average score",
+    "favoriteGenres": "Favorite genres",
+    "typeDistribution": "Distribution by type",
+    "noData": "Not enough data yet.",
+    "loading": "Loading...",
+    "publicTitle": "Public profile",
+    "publicDesc": "Public consumption stats — aggregated, no sensitive personal data.",
+    "publicNotFound": "Profile not found.",
+    "publicStatsHint": "Public consumption stats (aggregated — no sensitive personal data).",
+    "shareLink": "Share profile",
+    "shareHint": "Your public profile with aggregated stats (no sensitive personal data).",
+    "copyLink": "Copy link",
+    "copied": "Link copied!"
   },
   "settings": {
     "title": "Settings",
@@ -602,6 +629,8 @@
     "email": "Email",
     "language": "Language",
     "languageHint": "Select your preferred language.",
+    "lgpd": "Your data (LGPD)",
+    "lgpdHint": "Export your data or request deletion — always with explicit confirmation, never in one click.",
     "session": "Session"
   },
   "onboarding": {
@@ -708,7 +737,11 @@
     "dangerZone": "Danger zone",
     "deleteWarning": "Deleting your account permanently erases your data.",
     "deleteData": "Delete my account",
-    "deleteSoon": "On-site deletion is coming soon — for now, request it via support."
+    "deleteSoon": "On-site deletion is coming soon — for now, request it via support.",
+    "deleteConfirm": "Are you sure? This action cannot be undone.",
+    "deleteConfirmYes": "I'm sure — delete permanently",
+    "deleteRequested": "Deletion request registered. Your account will be removed shortly.",
+    "cancel": "Cancel"
   },
   "compare": {
     "title": "Compare profiles",

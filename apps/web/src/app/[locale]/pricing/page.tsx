@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { PricingCards } from "../../../components/PricingCards";
 import { PricingTable } from "../../../components/PricingTable";
 import { PricingFAQ } from "../../../components/PricingFAQ";
+import { MediaUnlockGrid } from "../../../components/pricing/MediaUnlockGrid";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 import { serializeJsonLd } from "../../../lib/json-ld";
 
@@ -100,7 +101,8 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         </div>
 
         <PricingCards />
-        <PricingTable />
+          <PricingTable />
+          <MediaUnlockGrid />
         <PricingFAQ />
       </div>
     </>

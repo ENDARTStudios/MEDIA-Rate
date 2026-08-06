@@ -275,7 +275,17 @@
     "feature_assistant": "Asistente IA",
     "feature_marathon": "Planificación de maratones",
     "feature_insights": "Insights de consumo",
-    "feature_profileCompare": "Comparación entre perfiles"
+    "feature_profileCompare": "Comparación entre perfiles",
+    "media": "Medios desbloqueados",
+    "media_movie": "Películas",
+    "media_series": "Series",
+    "media_game": "Juegos",
+    "media_book": "Libros",
+    "media_comic": "Cómics y Mangas",
+    "media_anime": "Mangas",
+    "unlocked": "Desbloqueado",
+    "locked": "Bloqueado en este plan",
+    "comingSoonShort": "Pronto"
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
@@ -593,7 +603,24 @@
     "tasteEmpty": "Completa títulos y añade notas para ver tu perfil de gusto.",
     "badges": "Insignias",
     "recentActivity": "Actividad Reciente",
-    "recentEmpty": "Sin actividad reciente."
+    "recentEmpty": "Sin actividad reciente.",
+    "movies": "Películas",
+    "series": "Series",
+    "games": "Juegos",
+    "wantToSee": "Quiero ver",
+    "avgScore": "Puntuación media",
+    "favoriteGenres": "Géneros favoritos",
+    "typeDistribution": "Distribución por tipo",
+    "noData": "Aún no hay suficientes datos.",
+    "loading": "Cargando...",
+    "publicTitle": "Perfil público",
+    "publicDesc": "Estadísticas públicas de consumo — agregadas, sin datos personales sensibles.",
+    "publicNotFound": "Perfil no encontrado.",
+    "publicStatsHint": "Estadísticas públicas de consumo (agregadas — sin datos personales sensibles).",
+    "shareLink": "Compartir perfil",
+    "shareHint": "Tu perfil público con estadísticas agregadas (sin datos personales sensibles).",
+    "copyLink": "Copiar enlace",
+    "copied": "¡Enlace copiado!"
   },
   "settings": {
     "title": "Configuración",
@@ -602,6 +629,8 @@
     "email": "Email",
     "language": "Idioma",
     "languageHint": "Selecciona tu idioma preferido.",
+    "lgpd": "Tus datos (LGPD)",
+    "lgpdHint": "Exporta tus datos o solicita la eliminación — siempre con confirmación explícita, nunca en un clic.",
     "session": "Sesión"
   },
   "onboarding": {
@@ -708,7 +737,11 @@
     "dangerZone": "Zona de peligro",
     "deleteWarning": "Eliminar tu cuenta borra permanentemente tus datos.",
     "deleteData": "Eliminar mi cuenta",
-    "deleteSoon": "La eliminación en el sitio llegará pronto — por ahora, solicítala por soporte."
+    "deleteSoon": "La eliminación en el sitio llegará pronto — por ahora, solicítala por soporte.",
+    "deleteConfirm": "¿Estás seguro? Esta acción no se puede deshacer.",
+    "deleteConfirmYes": "Estoy seguro — eliminar permanentemente",
+    "deleteRequested": "Solicitud de eliminación registrada. Tu cuenta se eliminará pronto.",
+    "cancel": "Cancelar"
   },
   "compare": {
     "title": "Comparar perfiles",
