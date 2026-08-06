@@ -233,6 +233,7 @@ describe("MediaController (unit T8.1)", () => {
         },
       ],
       avaliacoes: [{ fonte: "tmdb", url: "https://tmdb/x" }],
+      franquias: []
     });
     const result = await controller.getBySlug("792422c1-f982-4380-9d26-a6925120d0ad");
     expect(result.id).toBe("792422c1-f982-4380-9d26-a6925120d0ad");
@@ -263,6 +264,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
+      franquias: []
     });
     const result = await controller.getBySlug("lucifer");
     expect(result.id).toBe("m1");
@@ -289,6 +291,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
+      franquias: []
     });
     mockPrisma.midia.findMany.mockResolvedValue([
       { id: "m1", titulo: "O Poderoso Chefão", titulo_original: null },
@@ -315,6 +318,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
+      franquias: []
     });
     mockPrisma.midia.findMany.mockResolvedValue([
       { id: "m1", titulo: "Frieren e a Jornada para o Além", titulo_original: "Sousou no Frieren" },

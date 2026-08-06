@@ -29,6 +29,12 @@ const TIPO_LABEL: Record<string, string> = {
   LIVRO: "livro",
   ANIME: "anime",
   COMIC: "comic",
+  // Aliases do fallback mock (MOCK_MEDIA usa tipos em inglês) — evita
+  // MISSING_MESSAGE quando a API está indisponível e o mock assume.
+  MOVIE: "filme",
+  SERIES: "serie",
+  GAMES: "game",
+  BOOK: "livro",
 };
 
 const TIPO_ICON: Record<string, string> = {

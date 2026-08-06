@@ -36,9 +36,11 @@ const MEDIA_ICONS: Record<MediaType, typeof Clapperboard> = {
   anime: BookMarked,
 };
 
-function formatPrice(price: number, locale: string) {
-  const currency = locale === "pt-BR" ? "BRL" : locale === "en-US" ? "USD" : "EUR";
-  return new Intl.NumberFormat(locale, {
+function formatPrice(price: number, _locale: string) {
+  // D-178: cobrança é em BRL (Stripe) — todos os locales exibem R$, nunca
+  // USD/EUR (inconsistência legal/UX de mostrar moeda diferente da cobrada).
+  const currency = "BRL";
+  return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency,
     minimumFractionDigits: price === 0 ? 0 : 2,
