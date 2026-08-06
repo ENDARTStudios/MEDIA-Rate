@@ -1639,3 +1639,18 @@ states e Recharts. Gaps fechados:
 - Auth-gate verificado: /pt-BR/dashboard anonimo -> 307 redirect.
 - Deploy Vercel em fila (como T184) - re-verificar no ar; chunks dinamicos
   so carregam na rota autenticada.
+
+## [2026-08-06] T190-watchlist (DONE, commit 7c4e58f)
+Conformidade: Kanban 3 colunas com DnD @dnd-kit (PATCH :id/move persistindo),
+roleta "Sortear" (Anime.js + reduced-motion direto), toggle kanban/lista,
+MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
+- FILTRO POR MIDIA: chips CategoryChip (Todos/Filmes/Series/Games com
+  contagens reais) filtrando colunas/lista/roleta.
+- INDICADOR "SCORE MUDOU": backend ganhou score_at_add (schema+migration
+  idempotente+POST guarda midia.score no momento da adicao; propaga no list
+  via ...entry). UI: seta ?/? + delta quando ha dado anterior (nunca fabrica;
+  sem scoreAtAdd -> sem seta; delta < 0.5 -> sem seta). Kanban + lista.
+- MENU "MOVER PARA...": select por card (alternativa acessivel ao drag).
+- i18n: todos/filterByType/moveTo (pt/en/es); store: scoreAtAdd/score_at_add.
+- 4 testes novos (chips, filtro, score-delta so com dado, select) -> web
+  193/193; API 447/451 (baseline). Build ?. Deploy verificado no ar.
