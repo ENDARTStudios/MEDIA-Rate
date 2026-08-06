@@ -655,3 +655,14 @@ model Fatura {
   @@index([created_at])
   @@map("fatura")
 }
+
+/// Leads de categorias futuras (T185 — captura pública de e-mail).
+model WaitlistNotify {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(254)
+  category  String   @db.VarChar(32)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([email, category])
+  @@map("waitlist_notify")
+}

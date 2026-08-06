@@ -10,7 +10,7 @@ import { HoverTextEffect } from "@/components/ui/hover-text-effect";
 import { cinematicEntry, neonGlow } from "@/lib/motion";
 import { getCatalog } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
-import { HeroIconCluster } from "@/components/hero-icons/HeroIconCluster";
+import { HeroIconCluster } from "@/components/media-rate-ui/HeroIconCluster";
 
 interface HeroSectionProps {
   title: string;

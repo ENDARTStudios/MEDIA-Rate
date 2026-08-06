@@ -11,6 +11,8 @@
 export { HeroMediaIcon } from "./HeroMediaIcon";
 export type { HeroMediaIconProps, AnimationVariant } from "./HeroMediaIcon";
 export { HeroIconCluster } from "./HeroIconCluster";
+export { MediaCarousel } from "./MediaCarousel";
+export type { MediaCarouselProps } from "./MediaCarousel";
 export { ScoreDial } from "./ScoreDial";
 export type { ScoreDialProps } from "./ScoreDial";
 export type { MediaCard as MediaCardType } from "@/components/MediaCard";

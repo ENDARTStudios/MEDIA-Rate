@@ -2,10 +2,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/lib/navigation";
 import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
-import { MediaRail } from "../../components/MediaRail";
+import { MediaCarousel } from "../../components/media-rate-ui/MediaCarousel";
 import { ContinueDecision } from "../../components/ContinueDecision";
 import { HomeStats } from "../../components/HomeStats";
-import { ComingSoonRails } from "../../components/ComingSoonRails";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
@@ -86,11 +85,15 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
           <ContinueDecision />
 
-          <MediaRail mediaType="FILME" />
-          <MediaRail mediaType="SERIE" />
-          <MediaRail mediaType="GAME" />
-
-          <ComingSoonRails />
+          {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
+              MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +
+              waitlist capture. */}
+          <MediaCarousel type="movie" />
+          <MediaCarousel type="series" />
+          <MediaCarousel type="game" />
+          <MediaCarousel type="book" />
+          <MediaCarousel type="comic" />
+          <MediaCarousel type="anime" />
 
           <section className="py-20 px-4 border-t border-[rgba(129,140,248,0.08)]">
             <div className="max-w-2xl mx-auto text-center">

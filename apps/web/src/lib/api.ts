@@ -941,6 +941,21 @@ function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * Captura lead de e-mail para categoria futura (T185 — endpoint público
+ * /api/v1/waitlist-notify). Retorna true se registrado; lança em erro.
+ */
+export async function waitlistNotify(email: string, category: string): Promise<void> {
+  const res = await fetch("/api/v1/waitlist-notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, category }),
+  });
+  if (!res.ok) {
+    throw new Error(`waitlist-notify falhou: ${res.status}`);
+  }
+}
+
 /** Detalhe de mídia: API real primeiro, mock como fallback. */
 export async function getMediaBySlug(slug: string): Promise<Media | null> {
   const api = await apiGet<ApiMidiaSlug>(`/api/v1/midias/slug/${encodeURIComponent(slug)}`);

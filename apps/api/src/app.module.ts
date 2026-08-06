@@ -24,6 +24,7 @@ import { HistoricoModule } from "./modules/historico/historico.module.js";
 import { PerfilModule } from "./modules/perfil/perfil.module.js";
 import { ListasModule } from "./modules/listas/listas.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
+import { WaitlistNotifyModule } from "./modules/waitlist-notify/waitlist-notify.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
@@ -61,6 +62,7 @@ const enableDebugRoutes =
     PerfilModule,
     ListasModule,
     WatchlistModule,
+    WaitlistNotifyModule,
     DiscoverModule,
     MetricsModule,
     QueueModule.forRoot({
