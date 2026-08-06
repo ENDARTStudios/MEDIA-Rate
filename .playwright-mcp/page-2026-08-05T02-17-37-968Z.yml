@@ -1,0 +1,763 @@
+- generic [active] [ref=e1]:
+  - link "Pular para conteúdo principal" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - navigation "Navegação principal" [ref=e3]:
+    - generic [ref=e5]:
+      - link "MEDIA Rate — Página inicial" [ref=e7] [cursor=pointer]:
+        - /url: /pt-BR
+        - generic [ref=e8]: MEDIA Rate
+      - generic [ref=e14]:
+        - button "Buscar mídia..." [ref=e15] [cursor=pointer]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: ⌘
+            - text: K
+        - generic [ref=e21]:
+          - link "Catálogo" [ref=e22] [cursor=pointer]:
+            - /url: /pt-BR/catalog
+          - link "Planos" [ref=e23] [cursor=pointer]:
+            - /url: /pt-BR/pricing
+        - link "Entrar" [ref=e24] [cursor=pointer]:
+          - /url: /pt-BR/login
+        - link "Cadastrar" [ref=e25] [cursor=pointer]:
+          - /url: /pt-BR/register
+        - button "Selecionar idioma" [ref=e27] [cursor=pointer]:
+          - generic [ref=e31]: PT
+  - main [ref=e34]:
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - region [ref=e39]:
+          - generic [ref=e41]:
+            - navigation "Categorias de mídia" [ref=e42]:
+              - list [ref=e43]:
+                - listitem [ref=e44]:
+                  - link "Explorar Filmes" [ref=e45] [cursor=pointer]:
+                    - /url: /catalog?type=movie
+                    - generic [ref=e54]: Filmes
+                - listitem [ref=e55]:
+                  - link "Explorar Séries" [ref=e56] [cursor=pointer]:
+                    - /url: /catalog?type=series
+                    - generic [ref=e63]: Séries
+                - listitem [ref=e64]:
+                  - link "Explorar Games" [ref=e65] [cursor=pointer]:
+                    - /url: /catalog?type=game
+                    - generic [ref=e71]: Games
+                - listitem [ref=e72]:
+                  - link "Explorar Livros" [ref=e73] [cursor=pointer]:
+                    - /url: /catalog?type=book
+                    - generic [ref=e79]: Livros
+                - listitem [ref=e80]:
+                  - link "Explorar HQs & Mangás" [ref=e81] [cursor=pointer]:
+                    - /url: /catalog?type=comic
+                    - generic [ref=e88]: HQs & Mangás
+            - generic [ref=e89]:
+              - generic [ref=e90]:
+                - paragraph [ref=e91]:
+                  - generic [ref=e92]: MEDIA Rate
+                - heading "Score unificado de filmes, séries e games" [level=1] [ref=e93]
+                - paragraph [ref=e94]: "MEDIA Score™ agrega avaliações de fontes públicas em um indicador único por mídia: jogos de 0 a 100, filmes e séries de 0 a 10."
+                - generic [ref=e95]:
+                  - link "Começar grátis" [ref=e96] [cursor=pointer]:
+                    - /url: /pt-BR/register
+                  - link "Explorar catálogo" [ref=e99] [cursor=pointer]:
+                    - /url: /pt-BR/catalog
+              - generic [ref=e1274]:
+                - 'status "Score: 8.7 de 10" [ref=e1275]':
+                  - generic [ref=e1276]: "8.7"
+                  - generic [ref=e1282]:
+                    - generic [ref=e1283]:
+                      - generic [ref=e1284]: Crítica
+                      - generic [ref=e1287]: 40%
+                    - generic [ref=e1288]:
+                      - generic [ref=e1289]: Público
+                      - generic [ref=e1292]: 40%
+                    - generic [ref=e1293]:
+                      - generic [ref=e1294]: Consenso
+                      - generic [ref=e1297]: 20%
+                - paragraph [ref=e1298]: MEDIA Score™
+                - paragraph [ref=e1299]: Aprendendo a LiçãoSéries
+        - region "Estatísticas do catálogo" [ref=e128]:
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - definition [ref=e131]: "391"
+              - term [ref=e132]: títulos no catálogo
+            - generic [ref=e133]:
+              - definition [ref=e134]: "29"
+              - term [ref=e135]: fontes de avaliação
+            - generic [ref=e136]:
+              - definition [ref=e137]: "3"
+              - term [ref=e138]: categorias cobertas
+        - region [ref=e693]:
+          - generic [ref=e694]:
+            - generic [ref=e695]:
+              - generic [ref=e696]:
+                - button "mediarail.filme 196" [pressed] [ref=e697] [cursor=pointer]:
+                  - generic [ref=e703]: mediarail.filme
+                  - generic [ref=e704]: "196"
+                - heading "Filmes" [level=2] [ref=e705]
+              - generic [ref=e706]:
+                - button [ref=e707] [cursor=pointer]
+                - button [ref=e710] [cursor=pointer]
+                - link [ref=e713] [cursor=pointer]:
+                  - /url: /pt-BR/catalog?type=movie
+                  - text: Filmes em destaque →
+            - list "Filmes em destaque" [ref=e714]:
+              - generic [ref=e716] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e719]
+                - 'article "Avatar Aang: O Último Mestre do Ar (Filmes, 2026, MEDIA Score 84.3/100)" [ref=e722]':
+                  - generic [ref=e723]:
+                    - 'img "Capa de Avatar Aang: O Último Mestre do Ar" [ref=e724]'
+                    - generic [ref=e725]:
+                      - generic [ref=e726]: Filmes
+                      - generic [ref=e727]: "2026"
+                    - 'status "Score: 8.4 de 10" [ref=e729]':
+                      - generic [ref=e730]: "8.4"
+                  - generic [ref=e735]:
+                    - 'heading "Avatar Aang: O Último Mestre do Ar" [level=3] [ref=e736]'
+                    - paragraph [ref=e737]: Filmes · 2026
+              - generic [ref=e739] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e742]
+                - article "Um Sonho de Liberdade (Filmes, 1994, MEDIA Score 81.2/100)" [ref=e745]:
+                  - generic [ref=e746]:
+                    - img "Capa de Um Sonho de Liberdade" [ref=e747]
+                    - generic [ref=e748]:
+                      - generic [ref=e749]: Filmes
+                      - generic [ref=e750]: "1994"
+                    - 'status "Score: 8.1 de 10" [ref=e752]':
+                      - generic [ref=e753]: "8.1"
+                  - generic [ref=e758]:
+                    - heading "Um Sonho de Liberdade" [level=3] [ref=e759]
+                    - paragraph [ref=e760]: Filmes · 1994
+              - generic [ref=e762] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e765]
+                - article "O Poderoso Chefão (Filmes, 1972, MEDIA Score 79.3/100)" [ref=e768]:
+                  - generic [ref=e769]:
+                    - img "Capa de O Poderoso Chefão" [ref=e770]
+                    - generic [ref=e771]:
+                      - generic [ref=e772]: Filmes
+                      - generic [ref=e773]: "1972"
+                    - 'status "Score: 7.9 de 10" [ref=e775]':
+                      - generic [ref=e776]: "7.9"
+                  - generic [ref=e781]:
+                    - heading "O Poderoso Chefão" [level=3] [ref=e782]
+                    - paragraph [ref=e783]: Filmes · 1972
+              - generic [ref=e785] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e788]
+                - 'article "Demon Slayer: Kimetsu no Yaiba Castelo Infinito (Filmes, 2025, MEDIA Score 78.7/100)" [ref=e791]':
+                  - generic [ref=e792]:
+                    - 'img "Capa de Demon Slayer: Kimetsu no Yaiba Castelo Infinito" [ref=e793]'
+                    - generic [ref=e794]:
+                      - generic [ref=e795]: Filmes
+                      - generic [ref=e796]: "2025"
+                    - 'status "Score: 7.9 de 10" [ref=e798]':
+                      - generic [ref=e799]: "7.9"
+                  - generic [ref=e804]:
+                    - 'heading "Demon Slayer: Kimetsu no Yaiba Castelo Infinito" [level=3] [ref=e805]'
+                    - paragraph [ref=e806]: Filmes · 2025
+              - generic [ref=e808] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e811]
+                - article "Como Mágica (Filmes, 2026, MEDIA Score 78.6/100)" [ref=e814]:
+                  - generic [ref=e815]:
+                    - img "Capa de Como Mágica" [ref=e816]
+                    - generic [ref=e817]:
+                      - generic [ref=e818]: Filmes
+                      - generic [ref=e819]: "2026"
+                    - 'status "Score: 7.9 de 10" [ref=e821]':
+                      - generic [ref=e822]: "7.9"
+                  - generic [ref=e827]:
+                    - heading "Como Mágica" [level=3] [ref=e828]
+                    - paragraph [ref=e829]: Filmes · 2026
+              - generic [ref=e831] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e834]
+                - article "12 Homens e uma Sentença (Filmes, 1957, MEDIA Score 78.3/100)" [ref=e837]:
+                  - generic [ref=e838]:
+                    - img "Capa de 12 Homens e uma Sentença" [ref=e839]
+                    - generic [ref=e840]:
+                      - generic [ref=e841]: Filmes
+                      - generic [ref=e842]: "1957"
+                    - 'status "Score: 7.8 de 10" [ref=e844]':
+                      - generic [ref=e845]: "7.8"
+                  - generic [ref=e850]:
+                    - heading "12 Homens e uma Sentença" [level=3] [ref=e851]
+                    - paragraph [ref=e852]: Filmes · 1957
+              - generic [ref=e854] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e857]
+                - article "Devoradores de Estrelas (Filmes, 2026, MEDIA Score 78.2/100)" [ref=e860]:
+                  - generic [ref=e861]:
+                    - img "Capa de Devoradores de Estrelas" [ref=e862]
+                    - generic [ref=e863]:
+                      - generic [ref=e864]: Filmes
+                      - generic [ref=e865]: "2026"
+                    - 'status "Score: 7.8 de 10" [ref=e867]':
+                      - generic [ref=e868]: "7.8"
+                  - generic [ref=e873]:
+                    - heading "Devoradores de Estrelas" [level=3] [ref=e874]
+                    - paragraph [ref=e875]: Filmes · 2026
+              - generic [ref=e877] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e880]
+                - article "O Auto da Compadecida (Filmes, 2000, MEDIA Score 78/100)" [ref=e883]:
+                  - generic [ref=e884]:
+                    - img "Capa de O Auto da Compadecida" [ref=e885]
+                    - generic [ref=e886]:
+                      - generic [ref=e887]: Filmes
+                      - generic [ref=e888]: "2000"
+                    - 'status "Score: 7.8 de 10" [ref=e890]':
+                      - generic [ref=e891]: "7.8"
+                  - generic [ref=e896]:
+                    - heading "O Auto da Compadecida" [level=3] [ref=e897]
+                    - paragraph [ref=e898]: Filmes · 2000
+              - generic [ref=e900] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e903]
+                - 'article "O Senhor dos Anéis: O Retorno do Rei (Filmes, 2003, MEDIA Score 77.7/100)" [ref=e906]':
+                  - generic [ref=e907]:
+                    - 'img "Capa de O Senhor dos Anéis: O Retorno do Rei" [ref=e908]'
+                    - generic [ref=e909]:
+                      - generic [ref=e910]: Filmes
+                      - generic [ref=e911]: "2003"
+                    - 'status "Score: 7.8 de 10" [ref=e913]':
+                      - generic [ref=e914]: "7.8"
+                  - generic [ref=e919]:
+                    - 'heading "O Senhor dos Anéis: O Retorno do Rei" [level=3] [ref=e920]'
+                    - paragraph [ref=e921]: Filmes · 2003
+              - generic [ref=e923] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e926]
+                - 'article "O Poderoso Chefão: Parte II (Filmes, 1974, MEDIA Score 77.4/100)" [ref=e929]':
+                  - generic [ref=e930]:
+                    - 'img "Capa de O Poderoso Chefão: Parte II" [ref=e931]'
+                    - generic [ref=e932]:
+                      - generic [ref=e933]: Filmes
+                      - generic [ref=e934]: "1974"
+                    - 'status "Score: 7.7 de 10" [ref=e936]':
+                      - generic [ref=e937]: "7.7"
+                  - generic [ref=e942]:
+                    - 'heading "O Poderoso Chefão: Parte II" [level=3] [ref=e943]'
+                    - paragraph [ref=e944]: Filmes · 1974
+        - region [ref=e945]:
+          - generic [ref=e946]:
+            - generic [ref=e947]:
+              - generic [ref=e948]:
+                - button "mediarail.serie 194" [pressed] [ref=e949] [cursor=pointer]:
+                  - generic [ref=e953]: mediarail.serie
+                  - generic [ref=e954]: "194"
+                - heading "Séries" [level=2] [ref=e955]
+              - generic [ref=e956]:
+                - button [ref=e957] [cursor=pointer]
+                - button [ref=e960] [cursor=pointer]
+                - link [ref=e963] [cursor=pointer]:
+                  - /url: /pt-BR/catalog?type=series
+                  - text: Séries em destaque →
+            - list "Séries em destaque" [ref=e964]:
+              - generic [ref=e966] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e969]
+                - article "Aprendendo a Lição (Séries, 2026, MEDIA Score 87/100)" [ref=e972]:
+                  - generic [ref=e973]:
+                    - img "Capa de Aprendendo a Lição" [ref=e974]
+                    - generic [ref=e975]:
+                      - generic [ref=e976]: Séries
+                      - generic [ref=e977]: "2026"
+                    - 'status "Score: 8.7 de 10" [ref=e979]':
+                      - generic [ref=e980]: "8.7"
+                  - generic [ref=e985]:
+                    - heading "Aprendendo a Lição" [level=3] [ref=e986]
+                    - paragraph [ref=e987]: Séries · 2026
+              - generic [ref=e989] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e992]
+                - article "Breaking Bad (Séries, 2008, MEDIA Score 86.4/100)" [ref=e995]:
+                  - generic [ref=e996]:
+                    - img "Capa de Breaking Bad" [ref=e997]
+                    - generic [ref=e998]:
+                      - generic [ref=e999]: Séries
+                      - generic [ref=e1000]: "2008"
+                    - 'status "Score: 8.6 de 10" [ref=e1002]':
+                      - generic [ref=e1003]: "8.6"
+                  - generic [ref=e1008]:
+                    - heading "Breaking Bad" [level=3] [ref=e1009]
+                    - paragraph [ref=e1010]: Séries · 2008
+              - generic [ref=e1012] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1015]
+                - article "Run BTS! (Séries, 2015, MEDIA Score 82.8/100)" [ref=e1018]:
+                  - generic [ref=e1019]:
+                    - img "Capa de Run BTS!" [ref=e1020]
+                    - generic [ref=e1021]:
+                      - generic [ref=e1022]: Séries
+                      - generic [ref=e1023]: "2015"
+                    - 'status "Score: 8.3 de 10" [ref=e1025]':
+                      - generic [ref=e1026]: "8.3"
+                  - generic [ref=e1031]:
+                    - heading "Run BTS!" [level=3] [ref=e1032]
+                    - paragraph [ref=e1033]: Séries · 2015
+              - generic [ref=e1035] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1038]
+                - article "Band of Brothers (Séries, 2001, MEDIA Score 82.7/100)" [ref=e1041]:
+                  - generic [ref=e1042]:
+                    - img "Capa de Band of Brothers" [ref=e1043]
+                    - generic [ref=e1044]:
+                      - generic [ref=e1045]: Séries
+                      - generic [ref=e1046]: "2001"
+                    - 'status "Score: 8.3 de 10" [ref=e1048]':
+                      - generic [ref=e1049]: "8.3"
+                  - generic [ref=e1054]:
+                    - heading "Band of Brothers" [level=3] [ref=e1055]
+                    - paragraph [ref=e1056]: Séries · 2001
+              - generic [ref=e1058] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1061]
+                - article "Chernobyl (Séries, 2019, MEDIA Score 82.5/100)" [ref=e1064]:
+                  - generic [ref=e1065]:
+                    - img "Capa de Chernobyl" [ref=e1066]
+                    - generic [ref=e1067]:
+                      - generic [ref=e1068]: Séries
+                      - generic [ref=e1069]: "2019"
+                    - 'status "Score: 8.3 de 10" [ref=e1071]':
+                      - generic [ref=e1072]: "8.3"
+                  - generic [ref=e1077]:
+                    - heading "Chernobyl" [level=3] [ref=e1078]
+                    - paragraph [ref=e1079]: Séries · 2019
+              - generic [ref=e1081] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1084]
+                - 'article "Avatar: A Lenda de Aang (Séries, 2005, MEDIA Score 82/100)" [ref=e1087]':
+                  - generic [ref=e1088]:
+                    - 'img "Capa de Avatar: A Lenda de Aang" [ref=e1089]'
+                    - generic [ref=e1090]:
+                      - generic [ref=e1091]: Séries
+                      - generic [ref=e1092]: "2005"
+                    - 'status "Score: 8.2 de 10" [ref=e1094]':
+                      - generic [ref=e1095]: "8.2"
+                  - generic [ref=e1100]:
+                    - 'heading "Avatar: A Lenda de Aang" [level=3] [ref=e1101]'
+                    - paragraph [ref=e1102]: Séries · 2005
+              - generic [ref=e1104] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1107]
+                - article "Frieren e a Jornada para o Além (Séries, 2023, MEDIA Score 81.7/100)" [ref=e1110]:
+                  - generic [ref=e1111]:
+                    - img "Capa de Frieren e a Jornada para o Além" [ref=e1112]
+                    - generic [ref=e1113]:
+                      - generic [ref=e1114]: Séries
+                      - generic [ref=e1115]: "2023"
+                    - 'status "Score: 8.2 de 10" [ref=e1117]':
+                      - generic [ref=e1118]: "8.2"
+                  - generic [ref=e1123]:
+                    - heading "Frieren e a Jornada para o Além" [level=3] [ref=e1124]
+                    - paragraph [ref=e1125]: Séries · 2023
+              - generic [ref=e1127] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1130]
+                - article "Se a Vida Te Der Tangerinas... (Séries, 2025, MEDIA Score 81.5/100)" [ref=e1133]:
+                  - generic [ref=e1134]:
+                    - img "Capa de Se a Vida Te Der Tangerinas..." [ref=e1135]
+                    - generic [ref=e1136]:
+                      - generic [ref=e1137]: Séries
+                      - generic [ref=e1138]: "2025"
+                    - 'status "Score: 8.2 de 10" [ref=e1140]':
+                      - generic [ref=e1141]: "8.2"
+                  - generic [ref=e1146]:
+                    - heading "Se a Vida Te Der Tangerinas..." [level=3] [ref=e1147]
+                    - paragraph [ref=e1148]: Séries · 2025
+              - generic [ref=e1150] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1153]
+                - article "Attack on Titan (Séries, 2013, MEDIA Score 81/100)" [ref=e1156]:
+                  - generic [ref=e1157]:
+                    - img "Capa de Attack on Titan" [ref=e1158]
+                    - generic [ref=e1159]:
+                      - generic [ref=e1160]: Séries
+                      - generic [ref=e1161]: "2013"
+                    - 'status "Score: 8.1 de 10" [ref=e1163]':
+                      - generic [ref=e1164]: "8.1"
+                  - generic [ref=e1169]:
+                    - heading "Attack on Titan" [level=3] [ref=e1170]
+                    - paragraph [ref=e1171]: Séries · 2013
+              - generic [ref=e1173] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1176]
+                - article "Família Soprano (Séries, 1999, MEDIA Score 80.7/100)" [ref=e1179]:
+                  - generic [ref=e1180]:
+                    - img "Capa de Família Soprano" [ref=e1181]
+                    - generic [ref=e1182]:
+                      - generic [ref=e1183]: Séries
+                      - generic [ref=e1184]: "1999"
+                    - 'status "Score: 8.1 de 10" [ref=e1186]':
+                      - generic [ref=e1187]: "8.1"
+                  - generic [ref=e1192]:
+                    - heading "Família Soprano" [level=3] [ref=e1193]
+                    - paragraph [ref=e1194]: Séries · 1999
+        - region [ref=e1195]:
+          - generic [ref=e1196]:
+            - generic [ref=e1197]:
+              - generic [ref=e1198]:
+                - button "mediarail.game 1" [pressed] [ref=e1199] [cursor=pointer]:
+                  - generic [ref=e1202]: mediarail.game
+                  - generic [ref=e1203]: "1"
+                - heading "Games" [level=2] [ref=e1204]
+              - generic [ref=e1205]:
+                - button [ref=e1206] [cursor=pointer]
+                - button [ref=e1209] [cursor=pointer]
+                - link [ref=e1212] [cursor=pointer]:
+                  - /url: /pt-BR/catalog?type=game
+                  - text: Games em destaque →
+            - list "Games em destaque" [ref=e1213]:
+              - generic [ref=e1215] [cursor=pointer]:
+                - button "Adicionar à watchlist" [ref=e1218]
+                - article "Baldur's Gate 3 (Games, 2023, MEDIA Score 90.4/100)" [ref=e1221]:
+                  - generic [ref=e1222]:
+                    - img "Capa de Baldur's Gate 3" [ref=e1223]
+                    - generic [ref=e1224]:
+                      - generic [ref=e1225]: Games
+                      - generic [ref=e1226]: "2023"
+                    - 'status "Score: 90 de 100" [ref=e1228]':
+                      - generic [ref=e1229]: "90"
+                  - generic [ref=e1234]:
+                    - heading "Baldur's Gate 3" [level=3] [ref=e1235]
+                    - paragraph [ref=e1236]: Games · 2023
+        - region [ref=e139]:
+          - generic [ref=e140]:
+            - generic [ref=e141]:
+              - heading "Livros" [level=2] [ref=e142]
+              - generic [ref=e143]: Em breve
+            - generic [ref=e144]:
+              - button "Livros — Nenhum resultado encontrado" [ref=e146] [cursor=pointer]:
+                - generic [ref=e149]:
+                  - generic [ref=e154]: Nenhum resultado encontrado
+                  - generic [ref=e155]: Romances
+                - generic [ref=e156]:
+                  - heading "Livros" [level=3] [ref=e157]
+                  - paragraph [ref=e158]: Em breve — toque para ser avisado
+              - button "Livros — Nenhum resultado encontrado" [ref=e160] [cursor=pointer]:
+                - generic [ref=e163]:
+                  - generic [ref=e168]: Nenhum resultado encontrado
+                  - generic [ref=e169]: Não-ficção
+                - generic [ref=e170]:
+                  - heading "Livros" [level=3] [ref=e171]
+                  - paragraph [ref=e172]: Em breve — toque para ser avisado
+              - button "Livros — Nenhum resultado encontrado" [ref=e174] [cursor=pointer]:
+                - generic [ref=e177]:
+                  - generic [ref=e182]: Nenhum resultado encontrado
+                  - generic [ref=e183]: Clássicos
+                - generic [ref=e184]:
+                  - heading "Livros" [level=3] [ref=e185]
+                  - paragraph [ref=e186]: Em breve — toque para ser avisado
+              - button "Livros — Nenhum resultado encontrado" [ref=e188] [cursor=pointer]:
+                - generic [ref=e191]:
+                  - generic [ref=e196]: Nenhum resultado encontrado
+                  - generic [ref=e197]: Sagas
+                - generic [ref=e198]:
+                  - heading "Livros" [level=3] [ref=e199]
+                  - paragraph [ref=e200]: Em breve — toque para ser avisado
+              - button "Livros — Nenhum resultado encontrado" [ref=e202] [cursor=pointer]:
+                - generic [ref=e205]:
+                  - generic [ref=e210]: Nenhum resultado encontrado
+                  - generic [ref=e211]: Novidades
+                - generic [ref=e212]:
+                  - heading "Livros" [level=3] [ref=e213]
+                  - paragraph [ref=e214]: Em breve — toque para ser avisado
+        - region [ref=e215]:
+          - generic [ref=e216]:
+            - generic [ref=e217]:
+              - heading "HQs" [level=2] [ref=e218]
+              - generic [ref=e219]: Em breve
+            - generic [ref=e220]:
+              - button "HQs — Nenhum resultado encontrado" [ref=e222] [cursor=pointer]:
+                - generic [ref=e225]:
+                  - generic [ref=e230]: Nenhum resultado encontrado
+                  - generic [ref=e231]: HQs
+                - generic [ref=e232]:
+                  - heading "HQs" [level=3] [ref=e233]
+                  - paragraph [ref=e234]: Em breve — toque para ser avisado
+              - button "HQs — Nenhum resultado encontrado" [ref=e236] [cursor=pointer]:
+                - generic [ref=e239]:
+                  - generic [ref=e244]: Nenhum resultado encontrado
+                  - generic [ref=e245]: Super-heróis
+                - generic [ref=e246]:
+                  - heading "HQs" [level=3] [ref=e247]
+                  - paragraph [ref=e248]: Em breve — toque para ser avisado
+              - button "HQs — Nenhum resultado encontrado" [ref=e250] [cursor=pointer]:
+                - generic [ref=e253]:
+                  - generic [ref=e258]: Nenhum resultado encontrado
+                  - generic [ref=e259]: Indie
+                - generic [ref=e260]:
+                  - heading "HQs" [level=3] [ref=e261]
+                  - paragraph [ref=e262]: Em breve — toque para ser avisado
+              - button "HQs — Nenhum resultado encontrado" [ref=e264] [cursor=pointer]:
+                - generic [ref=e267]:
+                  - generic [ref=e272]: Nenhum resultado encontrado
+                  - generic [ref=e273]: Mangás
+                - generic [ref=e274]:
+                  - heading "HQs" [level=3] [ref=e275]
+                  - paragraph [ref=e276]: Em breve — toque para ser avisado
+              - button "HQs — Nenhum resultado encontrado" [ref=e278] [cursor=pointer]:
+                - generic [ref=e281]:
+                  - generic [ref=e286]: Nenhum resultado encontrado
+                  - generic [ref=e287]: Novidades
+                - generic [ref=e288]:
+                  - heading "HQs" [level=3] [ref=e289]
+                  - paragraph [ref=e290]: Em breve — toque para ser avisado
+        - region [ref=e291]:
+          - generic [ref=e292]:
+            - generic [ref=e293]:
+              - heading "Mangás" [level=2] [ref=e294]
+              - generic [ref=e295]: Em breve
+            - generic [ref=e296]:
+              - button "Mangás — Nenhum resultado encontrado" [ref=e298] [cursor=pointer]:
+                - generic [ref=e301]:
+                  - generic [ref=e306]: Nenhum resultado encontrado
+                  - generic [ref=e307]: Shonen
+                - generic [ref=e308]:
+                  - heading "Mangás" [level=3] [ref=e309]
+                  - paragraph [ref=e310]: Em breve — toque para ser avisado
+              - button "Mangás — Nenhum resultado encontrado" [ref=e312] [cursor=pointer]:
+                - generic [ref=e315]:
+                  - generic [ref=e320]: Nenhum resultado encontrado
+                  - generic [ref=e321]: Seinen
+                - generic [ref=e322]:
+                  - heading "Mangás" [level=3] [ref=e323]
+                  - paragraph [ref=e324]: Em breve — toque para ser avisado
+              - button "Mangás — Nenhum resultado encontrado" [ref=e326] [cursor=pointer]:
+                - generic [ref=e329]:
+                  - generic [ref=e334]: Nenhum resultado encontrado
+                  - generic [ref=e335]: Slice of Life
+                - generic [ref=e336]:
+                  - heading "Mangás" [level=3] [ref=e337]
+                  - paragraph [ref=e338]: Em breve — toque para ser avisado
+              - button "Mangás — Nenhum resultado encontrado" [ref=e340] [cursor=pointer]:
+                - generic [ref=e343]:
+                  - generic [ref=e348]: Nenhum resultado encontrado
+                  - generic [ref=e349]: Filmes
+                - generic [ref=e350]:
+                  - heading "Mangás" [level=3] [ref=e351]
+                  - paragraph [ref=e352]: Em breve — toque para ser avisado
+              - button "Mangás — Nenhum resultado encontrado" [ref=e354] [cursor=pointer]:
+                - generic [ref=e357]:
+                  - generic [ref=e362]: Nenhum resultado encontrado
+                  - generic [ref=e363]: Novidades
+                - generic [ref=e364]:
+                  - heading "Mangás" [level=3] [ref=e365]
+                  - paragraph [ref=e366]: Em breve — toque para ser avisado
+        - generic [ref=e368]:
+          - heading "Começar grátis" [level=2] [ref=e1237]:
+            - generic [ref=e1238]: Começar
+            - generic [ref=e1239]: grátis
+          - paragraph [ref=e369]: Comece agora e descubra seu próximo título favorito. Gratuito.
+          - link "Cadastrar" [ref=e370] [cursor=pointer]:
+            - /url: /pt-BR/register
+        - generic [ref=e373]:
+          - generic [ref=e374]:
+            - heading "O que é o MEDIA Rate" [level=2] [ref=e375]
+            - generic [ref=e376]:
+              - generic [ref=e377]:
+                - heading "Proposta de valor da plataforma" [level=3] [ref=e378]
+                - paragraph [ref=e379]: O MEDIA Rate é a primeira plataforma brasileira de score unificado para filmes, séries e games. Consolidamos avaliações de múltiplas fontes públicas em uma única nota transparente, eliminando a necessidade de consultar vários sites para decidir o que assistir ou jogar.
+              - generic [ref=e380]:
+                - heading "Diferença entre agregador de notas e resenha única" [level=3] [ref=e381]
+                - paragraph [ref=e382]: Diferente de um site de críticas tradicional, onde uma única pessoa avalia subjetivamente, o MEDIA Rate agrega milhares de avaliações com peso estatístico. Cada nota reflete a média ponderada da crítica especializada e do público, com transparência total sobre as fontes utilizadas.
+              - generic [ref=e383]:
+                - heading "Categorias de mídia cobertas" [level=3] [ref=e384]
+                - paragraph [ref=e385]: Filmes, séries e games são o foco atual. Animes são cobertos como gênero dentro de Séries. Livros, animes e quadrinhos como categorias próprias estão no roadmap e chegarão em atualizações futuras.
+          - generic [ref=e386]:
+            - heading "Como Funciona o MEDIA Score™" [level=2] [ref=e387]
+            - generic [ref=e388]:
+              - generic [ref=e389]:
+                - heading "Metodologia de cálculo" [level=3] [ref=e390]
+                - paragraph [ref=e391]: "O MEDIA Score™ v3 calcula a nota por mídia com pesos específicos para crítica, público e consenso (ex.: filmes 40/40/20) e aplica um estimador Bayesiano que puxa obras com poucos votos para a média do catálogo. O consenso realimenta a nota e o nível de confiança é exibido com transparência."
+              - generic [ref=e392]:
+                - heading "Fontes de dados e normalização das notas" [level=3] [ref=e393]
+                - paragraph [ref=e394]: Utilizamos TMDB, OpenCritic, IGDB e Steam como fontes primárias. Cada nota bruta é normalizada para a escala 0–100, aplicando limites mínimos de votos e detecção de outliers para garantir qualidade estatística. Fontes abaixo do limiar ou com desvio extremo são excluídas e documentadas com o motivo.
+              - generic [ref=e395]:
+                - heading "Fontes e Cobertura de Dados" [level=3] [ref=e396]
+                - paragraph [ref=e397]: "O MEDIA Rate integra fontes por tipo de mídia: TMDB (filmes e séries), TVMaze (séries), OpenCritic e IGDB (games), Steam (games). A cobertura varia por tipo — filmes têm a base mais ampla; jogos dependem da disponibilidade de dados abertos. Os dados são atualizados periodicamente conforme as APIs das fontes."
+              - generic [ref=e398]:
+                - heading "Nível de confiança e transparência do score" [level=3] [ref=e399]
+                - paragraph [ref=e400]: Cada MEDIA Score™ exibe um indicador de confiança (Alta / Média / Baixa), calculado com base no volume de votos, número de fontes, dispersão das notas e idade dos dados. Scores com baixa confiança são sinalizados com alerta visual, nunca ocultados.
+          - generic [ref=e401]:
+            - heading "Catálogo de Filmes, Séries e Games" [level=2] [ref=e402]
+            - generic [ref=e403]:
+              - generic [ref=e404]:
+                - heading "Navegação por categoria e gênero" [level=3] [ref=e405]
+                - paragraph [ref=e406]: O catálogo do MEDIA Rate permite filtrar por tipo de mídia (Filmes, Séries, Games), gênero, ano de lançamento e ordenar por score, título ou data. A página de catálogo exibe cards com poster, título, ano e MEDIA Score™.
+              - generic [ref=e407]:
+                - heading "Ficha técnica de cada título" [level=3] [ref=e408]
+                - paragraph [ref=e409]: "Cada título possui uma página de detalhe com: poster, sinopse, elenco, gêneros, ano de lançamento, plataformas de streaming, MEDIA Score™ detalhado (Gauge + Barra de crítica vs público), fontes de avaliação e classificação indicativa por região."
+              - generic [ref=e410]:
+                - heading "Temporadas e episódios de séries" [level=3] [ref=e411]
+                - paragraph [ref=e412]: Séries possuem navegação por temporadas (abas horizontais) e episódios (lista expansível). Cada episódio pode ter seu próprio score quando disponível.
+          - generic [ref=e413]:
+            - heading "Busca e Descoberta de Títulos" [level=2] [ref=e414]
+            - generic [ref=e415]:
+              - generic [ref=e416]:
+                - heading "Busca rápida e autocomplete" [level=3] [ref=e417]
+                - paragraph [ref=e418]: A barra de busca com atalho Ctrl+K permite encontrar qualquer título instantaneamente. Resultados incluem score, tipo e ano, com navegação direta para a página de detalhe.
+              - generic [ref=e419]:
+                - heading "Filtros, ordenação e tags" [level=3] [ref=e420]
+                - paragraph [ref=e421]: No catálogo e na página Discover, você pode filtrar por tipo de mídia, ordenar por score (maior/menor), ano ou título, e buscar por palavra-chave.
+              - generic [ref=e422]:
+                - heading "Recomendações personalizadas" [level=3] [ref=e423]
+                - paragraph [ref=e424]: Com base no seu perfil de gosto e histórico, o MEDIA Rate sugere títulos similares aos que você já avaliou ou adicionou à watchlist.
+          - generic [ref=e425]:
+            - heading "Planos e Assinatura" [level=2] [ref=e426]
+            - generic [ref=e427]:
+              - generic [ref=e428]:
+                - heading "Comparativo dos planos Free, Plus e Premium" [level=3] [ref=e429]
+                - paragraph [ref=e430]: O plano Free oferece catálogo limitado e MEDIA Score básico. O plano Plus (R$ 4,90/mês) desbloqueia catálogo completo, watchlist ilimitada e recomendações IA. O Premium (R$ 9,90/mês) adiciona perfil de gosto avançado, listas personalizadas e suporte prioritário.
+              - generic [ref=e431]:
+                - heading "Benefícios exclusivos para assinantes" [level=3] [ref=e432]
+                - paragraph [ref=e433]: Assinantes Plus e Premium têm acesso ao catálogo completo, recomendações personalizadas por IA, exportação de dados e suporte prioritário.
+              - generic [ref=e434]:
+                - heading "Upgrade, downgrade e cancelamento" [level=3] [ref=e435]
+                - paragraph [ref=e436]: Você pode alterar seu plano a qualquer momento. O cancelamento é imediato, sem multas ou aviso prévio.
+          - generic [ref=e437]:
+            - heading "Conta, Cadastro e Personalização" [level=2] [ref=e438]
+            - generic [ref=e439]:
+              - generic [ref=e440]:
+                - heading "Como criar uma conta gratuita" [level=3] [ref=e441]
+                - paragraph [ref=e442]: Clique em "Cadastre-se" no canto superior direito, preencha nome, e-mail e senha. Sua conta Free é criada instantaneamente — sem necessidade de cartão de crédito.
+              - generic [ref=e443]:
+                - heading "Favoritos, watchlist e histórico" [level=3] [ref=e444]
+                - paragraph [ref=e445]: "Adicione qualquer título à sua watchlist com um clique. Organize em colunas: Quero Ver, Vendo, Vi. Acompanhe seu histórico e estatísticas pessoais no Dashboard."
+              - generic [ref=e446]:
+                - heading "Privacidade e proteção de dados (LGPD)" [level=3] [ref=e447]
+                - paragraph [ref=e448]:
+                  - text: Seus dados são protegidos conforme a LGPD. Consulte nossa
+                  - link "Política de Privacidade" [ref=e449] [cursor=pointer]:
+                    - /url: /pt-BR/privacy
+                  - text: .
+          - generic [ref=e450]:
+            - heading "Idiomas e Acesso Internacional" [level=2] [ref=e451]
+            - generic [ref=e452]:
+              - generic [ref=e453]:
+                - heading "Idiomas disponíveis" [level=3] [ref=e454]
+                - paragraph [ref=e455]:
+                  - text: "O MEDIA Rate está disponível em três idiomas:"
+                  - link "Português (Brasil)" [ref=e456] [cursor=pointer]:
+                    - /url: /pt-BR
+                  - text: ","
+                  - link "Inglês (EUA)" [ref=e457] [cursor=pointer]:
+                    - /url: /en-US
+                  - text: e
+                  - link "Espanhol (Espanha)" [ref=e458] [cursor=pointer]:
+                    - /url: /es-ES
+                  - text: .
+              - generic [ref=e459]:
+                - heading "Como alterar o idioma da plataforma" [level=3] [ref=e460]
+                - paragraph [ref=e461]: Use o seletor de idioma no canto superior direito (ícone de globo) para alternar entre Português, Inglês e Espanhol. A troca é instantânea e preserva a página atual.
+              - generic [ref=e462]:
+                - heading "SEO multilíngue e experiência localizada" [level=3] [ref=e463]
+                - paragraph [ref=e464]: Cada idioma possui URLs canônicas, metadados e conteúdo localizados, garantindo indexação correta nos buscadores e uma experiência totalmente adaptada à sua região.
+          - generic [ref=e465]:
+            - heading "Perguntas Frequentes" [level=2] [ref=e466]
+            - generic [ref=e467]:
+              - generic [ref=e468]:
+                - heading "O que é o MEDIA Score™ e como ele é calculado?" [level=3] [ref=e469]
+                - paragraph [ref=e470]: O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, IGDB e OpenLibrary em uma nota única por mídia — jogos de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).
+              - generic [ref=e471]:
+                - heading "Preciso de conta para usar o MEDIA Rate?" [level=3] [ref=e472]
+                - paragraph [ref=e473]: Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente IA exigem plano Plus ou Premium.
+              - generic [ref=e474]:
+                - heading "Posso cancelar minha assinatura quando quiser?" [level=3] [ref=e475]
+                - paragraph [ref=e476]: Sim. Todos os planos pagos podem ser cancelados a qualquer momento, sem multa ou aviso prévio.
+              - generic [ref=e477]:
+                - heading "Posso mudar de plano depois?" [level=3] [ref=e478]
+                - paragraph [ref=e479]: Sim. Você pode fazer upgrade ou downgrade a qualquer momento. O valor é ajustado proporcionalmente.
+              - generic [ref=e480]:
+                - heading "O MEDIA Score é uma crítica?" [level=3] [ref=e481]
+                - paragraph [ref=e482]: Não. O MEDIA Score™ é um indicador consolidado de sinais de avaliação de fontes públicas — não é uma crítica nem opinião editorial. Ele deve ser usado como ponto de partida para descoberta, não como substituto de uma análise individual.
+              - generic [ref=e483]:
+                - heading "Quais fontes de avaliação vocês usam?" [level=3] [ref=e484]
+                - paragraph [ref=e485]: Utilizamos IMDb, Rotten Tomatoes e TMDB para filmes e séries; IGDB e OpenCritic para games.
+            - paragraph [ref=e486]:
+              - link "FAQ completo dos planos →" [ref=e487] [cursor=pointer]:
+                - /url: /pt-BR/pricing#faq
+      - complementary [ref=e488]:
+        - generic [ref=e489]:
+          - generic [ref=e490]: Oppenheimer
+          - generic [ref=e493]: The Last of Us
+          - generic [ref=e496]: Elden Ring
+          - generic [ref=e499]: "Dune: Parte 2"
+          - generic [ref=e502]: Baldur's Gate 3
+          - generic [ref=e505]: Succession
+          - generic [ref=e508]: "Zelda: Tears"
+          - generic [ref=e511]: Breaking Bad
+          - generic [ref=e514]: Red Dead 2
+          - generic [ref=e517]: The Bear
+          - generic [ref=e520]: Barbie
+          - generic [ref=e523]: Cyberpunk 2077
+          - generic [ref=e526]: Alan Wake 2
+          - generic [ref=e529]: Arcane
+          - generic [ref=e532]: God of War Ragnarok
+          - generic [ref=e535]: Better Call Saul
+          - generic [ref=e538]: Pobres Criaturas
+          - generic [ref=e541]: John Wick 4
+          - generic [ref=e544]: Starfield
+          - generic [ref=e547]: "Homem-Aranha: Através do Aranhaverso"
+          - generic [ref=e550]: Missão Impossível
+          - generic [ref=e553]: Anatomia de uma Queda
+          - generic [ref=e556]: Final Fantasy VII Rebirth
+          - generic [ref=e559]: Frieren
+          - generic [ref=e562]: Oppenheimer
+          - generic [ref=e565]: The Last of Us
+          - generic [ref=e568]: Elden Ring
+          - generic [ref=e571]: "Dune: Parte 2"
+          - generic [ref=e574]: Baldur's Gate 3
+          - generic [ref=e577]: Succession
+          - generic [ref=e580]: "Zelda: Tears"
+          - generic [ref=e583]: Breaking Bad
+          - generic [ref=e586]: Red Dead 2
+          - generic [ref=e589]: The Bear
+          - generic [ref=e592]: Barbie
+          - generic [ref=e595]: Cyberpunk 2077
+          - generic [ref=e598]: Alan Wake 2
+          - generic [ref=e601]: Arcane
+          - generic [ref=e604]: God of War Ragnarok
+          - generic [ref=e607]: Better Call Saul
+          - generic [ref=e610]: Pobres Criaturas
+          - generic [ref=e613]: John Wick 4
+          - generic [ref=e616]: Starfield
+          - generic [ref=e619]: "Homem-Aranha: Através do Aranhaverso"
+          - generic [ref=e622]: Missão Impossível
+          - generic [ref=e625]: Anatomia de uma Queda
+          - generic [ref=e628]: Final Fantasy VII Rebirth
+          - generic [ref=e631]: Frieren
+  - contentinfo [ref=e634]:
+    - generic [ref=e635]:
+      - generic [ref=e636]:
+        - generic [ref=e637]:
+          - generic [ref=e638]: MEDIA Rate
+          - paragraph [ref=e639]: Descubra o que assistir e jogar
+        - generic [ref=e640]:
+          - heading "Catálogo" [level=4] [ref=e641]
+          - list [ref=e642]:
+            - listitem [ref=e643]:
+              - link "Catálogo" [ref=e644] [cursor=pointer]:
+                - /url: /pt-BR/catalog
+            - listitem [ref=e645]:
+              - link "Planos" [ref=e646] [cursor=pointer]:
+                - /url: /pt-BR/pricing
+            - listitem [ref=e647]:
+              - link "Sobre" [ref=e648] [cursor=pointer]:
+                - /url: /pt-BR/about
+            - listitem [ref=e649]:
+              - link "MEDIA Score™" [ref=e650] [cursor=pointer]:
+                - /url: /pt-BR/methodology
+        - generic [ref=e651]:
+          - heading "Legal" [level=4] [ref=e652]
+          - list [ref=e653]:
+            - listitem [ref=e654]:
+              - link "Privacidade" [ref=e655] [cursor=pointer]:
+                - /url: /pt-BR/privacy
+            - listitem [ref=e656]:
+              - link "Termos" [ref=e657] [cursor=pointer]:
+                - /url: /pt-BR/terms
+            - listitem [ref=e658]:
+              - link "LGPD" [ref=e659] [cursor=pointer]:
+                - /url: /pt-BR/user/data
+        - generic [ref=e660]:
+          - heading "Social" [level=4] [ref=e661]
+          - link "GitHub" [ref=e663] [cursor=pointer]:
+            - /url: https://github.com/ENDARTStudios/MEDIA-Rate
+      - generic [ref=e664]:
+        - paragraph [ref=e665]: © 2026 MEDIA Rate. Todos os direitos reservados.
+        - paragraph [ref=e666]: MEDIA Score™ · END ART Studios
+  - dialog "Usamos cookies para melhorar sua experiência. Você pode exportar ou excluir seus dados a qualquer momento." [ref=e1240]:
+    - generic [ref=e1241]:
+      - paragraph [ref=e1242]:
+        - text: Usamos cookies para melhorar sua experiência. Você pode exportar ou excluir seus dados a qualquer momento.
+        - link "Privacidade" [ref=e1243] [cursor=pointer]:
+          - /url: /pt-BR/privacy
+      - generic [ref=e1244]:
+        - button "Recusar" [ref=e1245] [cursor=pointer]
+        - button "Aceitar" [ref=e1246] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e1247]
