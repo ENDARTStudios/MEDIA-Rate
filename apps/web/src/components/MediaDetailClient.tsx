@@ -23,6 +23,7 @@ import {
   OriginBadge,
 } from "@/components/media-rate-ui";
 import { genreSlug, titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
+import { Monitor, Gamepad2, Smartphone, Tv, Globe } from "lucide-react";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -101,19 +102,48 @@ export function MediaDetailClient({
     );
   }
 
-  const tipoLabel =
-    media.type === "movie"
-      ? t("filme")
-      : media.type === "series"
-        ? t("serie")
-        : media.type === "game"
-          ? t("game")
-          : media.type === "comic"
-            ? t("comic")
-            : t("livro");
+const tipoLabel =
+  media.type === "movie"
+    ? t("filme")
+    : media.type === "series"
+      ? t("serie")
+      : media.type === "game"
+        ? t("game")
+        : media.type === "comic"
+          ? t("comic")
+          : t("livro");
+
+  const plataformaIcon = (nome: string) => {
+    const n = nome.toLowerCase();
+    if (n.includes("pc") || n.includes("windows")) return Monitor;
+    if (n.includes("playstation")) return Gamepad2;
+    if (n.includes("xbox")) return Gamepad2;
+    if (n.includes("switch")) return Gamepad2;
+    if (n.includes("android") || n.includes("ios") || n.includes("mobile")) return Smartphone;
+    if (n.includes("tv") || n.includes("netflix") || n.includes("prime")) return Tv;
+    return Globe;
+  };
 
   return (
     <article>
+      {/* CTA de watchlist sempre visível: sticky em mobile, fixo no header em desktop. */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-sticky lg:hidden border-t border-[#2A2A3D] bg-[#05050A]/95 backdrop-blur px-4 py-3"
+        data-testid="watchlist-cta-sticky"
+      >
+        <div className="flex items-center justify-between gap-3 max-w-5xl mx-auto">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-[#F5F5F7] truncate">
+              {titleForLocale(media, locale)}
+            </p>
+            <p className="text-xs text-[#80809B]">
+              {tipoLabel} · {media.year}
+            </p>
+          </div>
+          <WatchlistButton mediaId={media.id} mediaType={media.type} />
+        </div>
+      </div>
+
       {/* Hero */}
       <div className="relative bg-[#11111E] overflow-hidden">
         {media.backdropUrl && (
@@ -198,19 +228,23 @@ export function MediaDetailClient({
               </div>
 
               {media.streaming.length > 0 ? (
-                <div>
+                <div data-testid="platforms-section">
                   <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">
                     {media.type === "game" ? t("whereToPlay") : t("whereToWatch")}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {media.streaming.map((s) => (
-                      <span
-                        key={s.name}
-                        className="px-3 py-1.5 bg-[#11111E] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#EDE7DC] font-medium"
-                      >
-                        {s.name}
-                      </span>
-                    ))}
+                    {media.streaming.map((s) => {
+                      const Icon = plataformaIcon(s.name);
+                      return (
+                        <span
+                          key={s.name}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#11111E] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#EDE7DC] font-medium"
+                        >
+                          <Icon className="h-3.5 w-3.5 text-[#818CF8]" aria-hidden="true" />
+                          {s.name}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
