@@ -1537,3 +1537,27 @@ chip ativo rgb(129,140,248). DEPLOY: commit no origin; Vercel em fila
   nav/5 links) -> 178/178; tsc/lint/build verdes; greps: animationVariant 7,
   motion 5, matchMedia 2, reduced 3, Explorar 1, icons 5, three/spline 0.
 - NAO integrado na home (T185). Deploy: Vercel fila pendente de verificar.
+
+## [2026-08-06] T185-home-redesign (DONE, 8a5c8c8 + 255839b)
+BACKEND waitlist-notify:
+- Schema WaitlistNotify (email/category/createdAt, unique email+category) +
+  migration 20260806210000_waitlist_notify (idempotente).
+- POST /api/v1/waitlist-notify: Zod strict (email max 254, category enum
+  book|comic|anime, sem campos extras), rate limit sliding window 10/h por IP
+  (memoria) -> 429, unique -> 409 dup, 201 generico, email normalizado
+  minusculo, nunca retorna emails. Rota publica no AuthGuard
+  (isDefaultPublicPath + waitlist-notify) - fix apos 401 do guard global.
+- 7 testes API (201/400x3/409/429/normalizacao) -> 447/451 (4 getBySlug
+  pre-existentes).
+FRONTEND home:
+- MediaCarousel unificado: 6 categorias na ordem dos icones; Filme/Serie/Game
+  com dados reais (getCatalog score desc 10) + MediaCard; Livro/HQ/Manga com
+  LockedComingSoonCard (blur 4px + cadeado + "Em breve") + WaitlistCaptureModal
+  wire onNotify -> POST waitlist-notify (busy guard). Header com icone flat +
+  nome + contagem no accent; botoes nav hover desktop; scroll-snap + swipe.
+- page.tsx: MediaRail x3 + ComingSoonRails substituidos pelos 6 carousels.
+- HeroSection: cluster trocado p/ media-rate-ui/HeroIconCluster (D-204) acima
+  do headline; gauge ciclico 4s ja existia (reduced-motion estatico).
+- 2 testes carousel (5 locked cards + modal dialog) -> 180/180 web.
+VERIFICADO NO AR: endpoint 201/400/409; home com 6 carousels + cluster 5
+icones + 15 locked cards + 21 dials. TSC/lint/build verdes.
