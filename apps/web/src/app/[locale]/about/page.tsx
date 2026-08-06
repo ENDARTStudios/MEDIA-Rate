@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 import { sanitizeHtml } from "@/lib/sanitize";
 
@@ -45,12 +46,14 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </header>
 
       <div className="space-y-16">
-        <section>
-          <h2 className="font-heading text-2xl font-bold text-[#EDE7DC] mb-4">
-            {t("whatIsTitle")}
-          </h2>
-          <p className="text-[#9CA3AF] leading-relaxed">{t("whatIsBody")}</p>
-        </section>
+        <ScrollReveal>
+          <section>
+            <h2 className="font-heading text-2xl font-bold text-[#EDE7DC] mb-4">
+              {t("whatIsTitle")}
+            </h2>
+            <p className="text-[#9CA3AF] leading-relaxed">{t("whatIsBody")}</p>
+          </section>
+        </ScrollReveal>
 
         <section className="bg-[#11111E] border border-[#1C1C2E] rounded-lg p-8 -mx-2">
           <h2 className="font-heading text-2xl font-bold text-[#EDE7DC] mb-4">

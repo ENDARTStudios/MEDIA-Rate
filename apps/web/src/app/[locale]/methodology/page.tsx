@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
 interface PageProps {
@@ -85,10 +86,12 @@ export default async function MethodologyPage({ params }: PageProps) {
       </header>
 
       <div className="prose prose-invert max-w-none prose-headings:font-heading prose-a:text-primary">
-        <section aria-labelledby="score-title">
-          <h2 id="score-title">{copy.scoreTitle}</h2>
-          <p>{copy.scoreBody}</p>
-        </section>
+        <ScrollReveal>
+          <section aria-labelledby="score-title">
+            <h2 id="score-title">{copy.scoreTitle}</h2>
+            <p>{copy.scoreBody}</p>
+          </section>
+        </ScrollReveal>
 
         <section aria-labelledby="calculation-title">
           <h2 id="calculation-title">{copy.calculationTitle}</h2>

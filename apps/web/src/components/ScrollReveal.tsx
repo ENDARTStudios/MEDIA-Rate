@@ -1,48 +1,79 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap-config";
+/**
+ * ScrollReveal (Parte 5, D-203) — reveal em scroll via GSAP + ScrollTrigger.
+ *
+ * - GSAP lazy-loaded (dynamic import) — fora do bundle inicial (orçamento
+ *   ≤50KB gzipped).
+ * - prefers-reduced-motion: renderiza os filhos direto, sem animação.
+ * - Server-safe: não anima no SSR.
+ */
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 
 export function ScrollReveal({
   children,
+  className,
   stagger = 0.06,
   distance = 40,
-  className,
+  delay = 0,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
+  className?: string;
   stagger?: number;
   distance?: number;
-  className?: string;
+  delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const shouldReduce = useReducedMotionPref();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced || !ref.current) return;
+    setMounted(true);
+    if (shouldReduce || !ref.current) return;
 
-    const ctx = gsap.context(() => {
-      const elements = ref.current?.children;
-      if (!elements || elements.length === 0) return;
+    let cleanup: (() => void) | null = null;
 
-      gsap.set(elements, { opacity: 0, y: distance });
-      ScrollTrigger.batch(elements, {
-        onEnter: (batch) =>
-          gsap.to(batch, {
-            opacity: 1,
-            y: 0,
-            stagger,
-            duration: 0.7,
-            ease: "power3.out",
-          }),
-        start: "top 85%",
+    void (async () => {
+      const mod = await import("gsap");
+      const scrollMod = await import("gsap/ScrollTrigger");
+      const el = ref.current;
+      if (!el) return;
+
+      const gsapCore = mod.gsap ?? mod;
+      gsapCore.registerPlugin(scrollMod.ScrollTrigger);
+
+      const targets = el.querySelectorAll("[data-reveal]").length > 0
+        ? el.querySelectorAll("[data-reveal]")
+        : el;
+      gsapCore.set(targets, { opacity: 0, y: distance });
+      const anim = gsapCore.to(targets, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        delay,
+        stagger,
+        ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
       });
-    }, ref);
+      cleanup = () => {
+        anim.scrollTrigger?.kill();
+        anim.kill();
+      };
+    })();
 
-    return () => ctx.revert();
-  }, [stagger, distance]);
+    return () => {
+      cleanup?.();
+    };
+  }, [shouldReduce, stagger, distance, delay]);
 
   return (
-    <div ref={ref} className={className}>
+    <div
+      ref={ref}
+      className={className}
+      data-testid="scroll-reveal"
+      style={mounted && !shouldReduce ? undefined : { opacity: 1 }}
+    >
       {children}
     </div>
   );

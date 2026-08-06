@@ -11,7 +11,9 @@
  * - showConfidence: exibe rótulo textual da faixa.
  * - Sem animação (F7) — estrutura pronta para prefers-reduced-motion.
  */
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 
 export interface ScoreDialProps {
   value: number;
@@ -41,9 +43,54 @@ export function ScoreDial({ value, scale = "0-10", size = "md", showConfidence =
   const cfg = SIZE_CONFIG[size];
   const circ = 2 * Math.PI * cfg.radius;
   const offset = circ - (clamped / max) * circ;
+  const shouldReduce = useReducedMotionPref();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [display, setDisplay] = useState(clamped);
+
+  // Contador 0 → valor quando entra no viewport (Anime.js lazy) — Part 5.
+  // prefers-reduced-motion: valor final direto, sem animação.
+  useEffect(() => {
+    if (shouldReduce) {
+      setDisplay(clamped);
+      return;
+    }
+    const el = rootRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setDisplay(clamped);
+      return;
+    }
+    let cancel = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting || cancel) return;
+        observer.disconnect();
+        void (async () => {
+          const { animate } = await import("animejs");
+          if (cancel) return;
+          const target = { v: 0 };
+          animate(target, {
+            v: clamped,
+            duration: 800,
+            ease: "outQuad",
+            onUpdate: () => {
+              if (!cancel) setDisplay(Math.round(target.v));
+            },
+          });
+        })();
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(el);
+    return () => {
+      cancel = true;
+      observer.disconnect();
+    };
+  }, [clamped, shouldReduce]);
 
   return (
     <div
+      ref={rootRef}
       className={cn("relative inline-flex items-center justify-center shrink-0", className)}
       role="img"
       aria-label={`Nota ${clamped.toLocaleString("pt-BR")} de ${max}`}
@@ -65,7 +112,7 @@ export function ScoreDial({ value, scale = "0-10", size = "md", showConfidence =
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
         <span className={cn("font-mono font-bold tabular-nums", cfg.number)} style={{ color }}>
-          {clamped.toLocaleString("pt-BR")}
+          {display.toLocaleString("pt-BR")}
         </span>
         {showConfidence && (
           <span className="mt-0.5 text-[9px] uppercase tracking-wider" style={{ color }}>

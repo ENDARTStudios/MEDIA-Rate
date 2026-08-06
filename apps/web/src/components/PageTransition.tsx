@@ -1,55 +1,32 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+/**
+ * PageTransition (Parte 5, D-203) — fade-in curto em cada navegação via
+ * Motion. Sem exit-blocking (AnimatePresence wait): o novo conteúdo apenas
+ * fade-in, evitando layout shift/jank em rotas client-side.
+ * prefers-reduced-motion: render direto, sem transição.
+ */
 import { usePathname } from "next/navigation";
-import { motion as tokens } from "@/lib/design-tokens";
+import { motion } from "motion/react";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const ref = useRef<HTMLDivElement>(null);
-  const preset = tokens.presets.pageEnter;
+  const shouldReduce = useReducedMotionPref();
 
-  // T046: detecta prefers-reduced-motion apos mount para evitar mismatch SSR/cliente.
-  // SSR = sempre false (igual ao servidor). Apos mount, matchMedia decide.
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener?.("change", apply);
-    return () => mq.removeEventListener?.("change", apply);
-  }, []);
-
-  // T045: safety net — se a animacao nao disparar dentro de 800ms,
-  // forca visibilidade (conteudo sempre visivel por default).
-  useEffect(() => {
-    if (reduce) return;
-    const t = setTimeout(() => {
-      if (ref.current && ref.current.style.opacity !== "1") {
-        ref.current.style.opacity = "1";
-        ref.current.style.filter = "none";
-        ref.current.style.transform = "none";
-      }
-    }, 800);
-    return () => clearTimeout(t);
-  }, [pathname, reduce]);
+  if (shouldReduce) {
+    return <>{children}</>;
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        ref={ref}
-        key={pathname}
-        initial={reduce ? false : preset.initial}
-        animate={preset.animate}
-        exit={reduce ? undefined : preset.exit}
-        transition={{
-          duration: reduce ? 0 : tokens.duration.page,
-          ease: tokens.easing.default as [number, number, number, number],
-        }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      data-testid="page-transition"
+    >
+      {children}
+    </motion.div>
   );
 }
