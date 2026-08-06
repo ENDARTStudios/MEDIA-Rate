@@ -1,5 +1,7 @@
-// T4.6: Seed do catálogo via TMDB API.
-// Busca top 200 filmes + top 200 séries em pt-BR e popula tabela `midia`.
+// T4.6/T180: Seed do catálogo via TMDB API — expandido para 500+ títulos.
+// Busca top_rated + popular (múltiplas listas e páginas) de filmes e séries,
+// grava avaliações TMDB (vote_average 0-10 + vote_count) e recalcula o
+// MEDIA Score v3 (recalcularEPersistir) com confidence real.
 //
 // Pré-requisitos:
 // - TMDB_API_KEY definida no .env (obter em https://www.themoviedb.org/settings/api).
@@ -8,10 +10,15 @@
 // Uso: cd apps/api && npm run db:seed:tmdb
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia, type ClassificacaoIndicativa } from "@prisma/client";
+import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
+import { PrismaService } from "../src/prisma/prisma.service.js";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
-const ITEMS_POR_TIPO = 200;
+// T180: alvo ≥450 títulos audiovisuais (225 filmes + 225 séries).
+const ITEMS_POR_TIPO = 225;
+const MAX_PAGES = 12;
+const LISTAS: ("top_rated" | "popular")[] = ["top_rated", "popular"];
 
 interface TmdbItem {
   id: number;
@@ -26,6 +33,7 @@ interface TmdbItem {
   runtime?: number;
   episode_run_time?: number[];
   vote_average: number;
+  vote_count: number;
   genre_ids?: number[];
 }
 
@@ -63,29 +71,40 @@ async function fetchTmdb<T>(
   return res.json() as Promise<T>;
 }
 
-async function fetchTopItems(
+export async function fetchTopItems(
   tipo: "movie" | "tv",
   apiKey: string,
   total: number,
 ): Promise<TmdbItem[]> {
+  const vistos = new Set<number>();
   const items: TmdbItem[] = [];
-  let page = 1;
-  while (items.length < total && page <= 10) {
-    const data = await fetchTmdb<TmdbResponse<TmdbItem>>(`/${tipo}/top_rated`, apiKey, {
-      page: String(page),
-    });
-    if (data.results.length === 0) break;
-    for (const item of data.results) {
-      // Filtra sem poster ou sem overview.
-      if (item.poster_path && item.overview) {
-        items.push(item);
+  // T180: percorre top_rated E popular (dedup por id) até atingir o alvo.
+  for (const lista of LISTAS) {
+    let page = 1;
+    while (items.length < total && page <= MAX_PAGES) {
+      const data = await fetchTmdb<TmdbResponse<TmdbItem>>(`/${tipo}/${lista}`, apiKey, {
+        page: String(page),
+      });
+      if (data.results.length === 0) break;
+      for (const item of data.results) {
+        if (vistos.has(item.id)) continue;
+        vistos.add(item.id);
+        // Filtra sem poster ou sem overview.
+        if (item.poster_path && item.overview) {
+          items.push(item);
+        }
+        if (items.length >= total) break;
       }
-      if (items.length >= total) break;
+      page++;
     }
-    page++;
+    if (items.length >= total) break;
   }
   return items.slice(0, total);
 }
+
+export const TMDB_ITEMS_POR_TIPO = ITEMS_POR_TIPO;
+export const TMDB_LISTAS = LISTAS;
+export const TMDB_MAX_PAGES = MAX_PAGES;
 
 interface TmdbGenre {
   id: number;
@@ -192,14 +211,18 @@ async function main(): Promise<void> {
     const series = await fetchTopItems("tv", apiKey, ITEMS_POR_TIPO);
     console.log(`[seed:tmdb] ${series.length} séries obtidas.`);
 
-    // Limpa mídias existentes (apenas do TMDB).
-    await prisma.midia.deleteMany({
-      where: { OR: [{ fonte: "tmdb" }, { fonte: "tmdb_tv" }] },
-    });
-    console.log("[seed:tmdb] Mídias TMDB existentes removidas.");
+    // T180: sem deleteMany — upsert idempotente por fonte+fonte_id (re-rodar
+    // não duplica nem destrói scores/watchlists existentes).
 
     // Sincroniza gêneros antes de inserir (vínculos N:N em midia_genero).
     const generos = await syncGeneros(apiKey, prisma);
+
+    const scoreSvc = new MediaScoreService(
+      new PrismaService(prisma as never) as never,
+      undefined as never,
+      undefined as never,
+      undefined as never,
+    );
 
     // Insere filmes.
     let inserted = 0;
@@ -231,8 +254,24 @@ async function main(): Promise<void> {
         },
       });
       await linkGeneros(prisma, midia.id, f.genre_ids, generos);
+      // T180: avaliação TMDB (fonte canônica "tmdb", escala 0-10) + score v3.
+      if (f.vote_average > 0) {
+        await prisma.avaliacaoFonte.upsert({
+          where: { midia_id_fonte: { midia_id: midia.id, fonte: "tmdb" } },
+          create: {
+            midia_id: midia.id,
+            fonte: "tmdb",
+            rating: f.vote_average,
+            media_fonte: 7.0,
+            desvio_fonte: 2.0,
+            votos: f.vote_count,
+          },
+          update: { rating: f.vote_average, votos: f.vote_count },
+        });
+      }
+      await scoreSvc.recalcularEPersistir(midia.id).catch(() => undefined);
       inserted++;
-      if (inserted % 20 === 0) {
+      if (inserted % 25 === 0) {
         console.log(`[seed:tmdb] ${inserted}/${filmes.length} filmes inseridos.`);
       }
     }
@@ -266,40 +305,46 @@ async function main(): Promise<void> {
         },
       });
       await linkGeneros(prisma, midia.id, s.genre_ids, generos);
+      // T180: avaliação TMDB com a fonte CANÔNICA "tmdb" (séries também —
+      // o registry do engine não conhece "tmdb_tv").
+      if (s.vote_average > 0) {
+        await prisma.avaliacaoFonte.upsert({
+          where: { midia_id_fonte: { midia_id: midia.id, fonte: "tmdb" } },
+          create: {
+            midia_id: midia.id,
+            fonte: "tmdb",
+            rating: s.vote_average,
+            media_fonte: 7.0,
+            desvio_fonte: 2.0,
+            votos: s.vote_count,
+          },
+          update: { rating: s.vote_average, votos: s.vote_count },
+        });
+      }
+      await scoreSvc.recalcularEPersistir(midia.id).catch(() => undefined);
       insertedSeries++;
-      if (insertedSeries % 20 === 0) {
+      if (insertedSeries % 25 === 0) {
         console.log(`[seed:tmdb] ${insertedSeries}/${series.length} séries inseridas.`);
       }
     }
 
-    // Calcula MEDIA Score placeholder para cada mídia (score neutro = 50).
-    const midias = await prisma.midia.findMany({ select: { id: true } });
-    for (const m of midias) {
-      const existing = await prisma.mediaScore.findUnique({ where: { midia_id: m.id } });
-      if (!existing) {
-        await prisma.mediaScore.create({
-          data: {
-            midia_id: m.id,
-            score: 50,
-            num_fontes: 0,
-            pesos_usados: { tmdb: 0.4, omdb: 0.3, metacritic: 0.3 },
-          },
-        });
-      }
-    }
-
     console.log(
-      `[seed:tmdb] Concluído: ${inserted} filmes + ${insertedSeries} séries + ${midias.length} scores.`,
-    );
-    console.log(
-      "[seed:tmdb] Próximo passo: job diário do MEDIA Score (T4.7) recalcula scores com avaliações reais.",
+      `[seed:tmdb] Concluído: ${inserted} filmes + ${insertedSeries} séries com MEDIA Score v3 recalculado.`,
     );
   } finally {
     await prisma.$disconnect();
   }
 }
 
-main().catch((err) => {
-  console.error("[seed:tmdb] Erro:", err);
-  process.exit(1);
-});
+// Executa somente quando o script é chamado diretamente (permite importar
+// os helpers em testes sem disparar o seed contra o banco).
+const isDirectRun =
+  import.meta.url === new URL(process.argv[1] ?? "", "file:").href ||
+  process.argv[1]?.endsWith("seed-tmdb.ts");
+
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error("[seed:tmdb] Erro:", err);
+    process.exit(1);
+  });
+}
