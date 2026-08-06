@@ -1898,3 +1898,27 @@ i18n pt/en/es namespace interaction; a11y + reduced-motion. Testes 8
 Concluído abre popover, selo reação, Kanban+aba) — Web 226/226,
 build/typecheck/lint ?.
 
+
+## [2026-08-08] T201-dashboard-evolution-discoveries (DONE, commit d00d97c)
+Camada de inteligencia pessoal (Addendum 3 Parte 5, G4):
+1. BACKEND - origem_relacao_id (FK nullable -> RelacaoObra, ON DELETE
+   SET NULL) em usuario_midia_interacao; migration idempotente
+   20260808_descobertas. PUT /interacoes valida (relacao deve conectar a
+   midia, 400 se nao; inexistente -> 400) e grava; preservada em updates
+   parciais de status/reacao.
+2. BACKEND - GET /api/v1/discoveries (DescobertasController, AuthGuard +
+   rate limit): cronologico desc, join unico sem N+1; from = outra ponta da
+   aresta, to = midia descoberta. GET /api/v1/taste/history: 12 meses,
+   pesos normalizados por genero NARRATIVO (soma = 1), join unico.
+3. FRONTEND - lib/api-discoveries.ts (graceful); DiscoveryFeedCard (resumo
+   "N descobertas este ano" + previa, empty state com CTA); TasteEvolutionChart
+   (area empilhada 12 meses, Recharts ssr:false, reduced-motion, radar
+   mantido como snapshot); TrendSummaryPhrase (frase automatica vs 6 meses,
+   limiar 5pp, nunca fabrica numero); pagina /dashboard/discoveries;
+   WatchlistCrossPrompt envia origemRelacaoId ao aceitar "Adicionar tambem".
+i18n pt/en/es (dashboard + reuso discovery). Testes: API 9 novos
+(origem validada/gravada, preservada em update parcial, /discoveries
+mapeia from/to + ignora sem origem, /taste 12 meses normalizado + vazio),
+Web 8 novos (feed + empty + fonte fora, frase up/neutra/sem-dados, chart
+empty, prompt envia origemRelacaoId) - API 500/500, Web 234/234,
+build/typecheck/lint ok.
