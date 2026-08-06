@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 import { RegisterForm } from "@/components/AuthForm";
-import { LazyLogo } from "@/components/lazy";
+import { Logo } from "@/components/Logo";
 import { SocialButtons } from "@/components/SocialButtons";
 import { localizedUrl } from "@/lib/seo";
 
@@ -34,7 +34,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
           aria-hidden="true"
         />
         <div className="relative z-10 max-w-md text-center">
-          <LazyLogo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
+          <Logo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
           <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-4">
             {t("registerTitle")}
           </h1>
@@ -49,7 +49,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
               href="/"
               className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
             >
-              <LazyLogo variant="inline" className="w-8 h-8" />
+              <Logo variant="inline" className="w-8 h-8" />
             </Link>
           </div>
 

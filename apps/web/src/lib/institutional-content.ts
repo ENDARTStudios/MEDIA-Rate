@@ -28,6 +28,8 @@ interface InstitutionalContent {
     calculationItems: { label: string; body: string }[];
     confidenceTitle: string;
     confidenceBody: string;
+    sourceTitle: string;
+    sourceBody: string;
     scopeTitle: string;
     scopeBody: string;
     faqTitle: string;
@@ -94,6 +96,9 @@ const content: Record<string, InstitutionalContent> = {
       confidenceTitle: "Nível de confiança",
       confidenceBody:
         "Além da nota, o sistema calcula um indicador de confiança (Alta ≥ 70, Média ≥ 40, Baixa < 40) a partir do volume de votos, do número de fontes, da dispersão das notas e da idade dos dados. Scores com baixa confiança são sinalizados com alerta — nunca ocultados.",
+      sourceTitle: "Fontes ativas",
+      sourceBody:
+        "A lista abaixo é gerada diretamente do registro de fontes do produto (uma única fonte de verdade) — toda fonte ativa aparece aqui, incluindo Trakt.tv.",
       scopeTitle: "Escopo e limitações",
       scopeBody:
         "A disponibilidade de fontes varia por tipo de mídia e por obra. O MEDIA Rate só pode consolidar o que está disponível em suas fontes integradas; por isso, páginas diferentes podem ter escopos de dados distintos. Sempre que possível, a ficha da obra deve exibir o contexto que sustenta a nota.",
@@ -228,6 +233,9 @@ const content: Record<string, InstitutionalContent> = {
       confidenceTitle: "Confidence level",
       confidenceBody:
         "Alongside the score, the system calculates a confidence indicator (High ≥ 70, Medium ≥ 40, Low < 40) from vote volume, number of sources, rating dispersion and data age. Low-confidence scores are flagged with a warning — never hidden.",
+      sourceTitle: "Active sources",
+      sourceBody:
+        "The list below is generated directly from the product's source registry (a single source of truth) — every active source appears here, including Trakt.tv.",
       scopeTitle: "Scope and limitations",
       scopeBody:
         "Source availability varies by media type and title. MEDIA Rate can only consolidate information available through its integrated sources, so pages can have different data coverage. Whenever possible, the title page should show the context supporting the score.",
@@ -362,6 +370,9 @@ const content: Record<string, InstitutionalContent> = {
       confidenceTitle: "Nivel de confianza",
       confidenceBody:
         "Además de la nota, el sistema calcula un indicador de confianza (Alta ≥ 70, Media ≥ 40, Baja < 40) a partir del volumen de votos, el número de fuentes, la dispersión de las notas y la antigüedad de los datos. Las puntuaciones de baja confianza se señalan con alerta — nunca se ocultan.",
+      sourceTitle: "Fuentes activas",
+      sourceBody:
+        "La lista siguiente se genera directamente del registro de fuentes del producto (una única fuente de verdad) — toda fuente activa aparece aquí, incluida Trakt.tv.",
       scopeTitle: "Alcance y limitaciones",
       scopeBody:
         "La disponibilidad de fuentes varía por tipo de media y por obra. MEDIA Rate solo puede consolidar la información disponible en sus fuentes integradas, por lo que las fichas pueden tener coberturas de datos distintas. Siempre que sea posible, la ficha debe mostrar el contexto que respalda la puntuación.",

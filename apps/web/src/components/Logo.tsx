@@ -64,7 +64,10 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
   const s = SIZES[size];
 
   return (
-    <span className={`inline-flex items-center select-none ${variant === "full" ? s.gap : ""}`}>
+    <span
+      className={`inline-flex items-center select-none ${variant === "full" ? s.gap : ""}`}
+      aria-label="MEDIA Rate"
+    >
       <svg
         viewBox="0 0 40 40"
         className={`${s.symbol} ${className ?? ""} shrink-0`}
@@ -108,7 +111,7 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
       </svg>
 
       {variant === "full" && (
-        <span className="flex flex-col items-start leading-tight">
+        <span className="flex flex-col items-start leading-tight" aria-hidden="true">
           <span
             className={`font-heading font-bold text-[#F5F5F7] leading-none tracking-tight ${s.media}`}
           >
@@ -117,7 +120,7 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
           <span
             className={`font-heading font-medium text-[#A0A0B8] leading-none tracking-wider ${s.rate}`}
           >
-            Rate
+            {" Rate"}
           </span>
         </span>
       )}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
+import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
 interface PageProps {
@@ -81,14 +82,29 @@ export default async function SourcesPage({ params }: PageProps) {
 
         <section aria-labelledby="supported-sources-title">
           <h2 id="supported-sources-title">{copy.sourceTitle}</h2>
+          {/* Fonte única de verdade: FONTES_ATIVAS (lib/sources.ts, D-209).
+              Cada fonte mostra tipo (crítica/público) + mídias cobertas. */}
           <dl className="not-prose mt-6 grid gap-4 sm:grid-cols-2">
-            {copy.sourceItems.map((item) => (
+            {FONTES_ATIVAS.map((fonte) => (
               <div
-                key={item.name}
+                key={fonte.id}
                 className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{item.name}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">{item.description}</dd>
+                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">
+                  {fonte.nome}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      fonte.tipo === "critica"
+                        ? "bg-[#38BDF8]/15 text-[#38BDF8]"
+                        : "bg-[#E11D48]/15 text-[#E11D48]"
+                    }`}
+                  >
+                    {fonte.tipo === "critica" ? "Crítica" : "Público"}
+                  </span>{" "}
+                  {fonte.midias.map((m) => MIDIA_LABEL[m]).join(" · ")}
+                </dd>
               </div>
             ))}
           </dl>

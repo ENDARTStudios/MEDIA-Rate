@@ -10,21 +10,9 @@
  *   que ainda não estão ativas (roadmap).
  */
 import { getCatalog } from "@/lib/api";
-import { FONTES_WEB, PESOS_POR_TIPO_WEB } from "@/lib/source-registry";
+import { NUM_FONTES_ATIVAS } from "@/lib/sources";
 
 const CATEGORIAS_COBERTAS = ["movie", "series", "game"] as const;
-
-function contarFontesAtivas(): number {
-  const ativas = new Set<string>();
-  for (const tipo of CATEGORIAS_COBERTAS) {
-    Object.keys(PESOS_POR_TIPO_WEB[tipo].critica).forEach((id) => ativas.add(id));
-    Object.keys(PESOS_POR_TIPO_WEB[tipo].publico).forEach((id) => ativas.add(id));
-  }
-  // Agrupa variantes de um mesmo site (ex.: "omdb" -> "imdb", "metacritic_user" -> "metacritic").
-  const baseSite = (id: string) =>
-    id === "omdb" ? "imdb" : id.replace(/_(user|audience|publico|dataset)$/, "");
-  return new Set([...ativas].map(baseSite)).size;
-}
 
 export async function HomeStats() {
   const data = await getCatalog({ limit: 1 });
@@ -34,7 +22,7 @@ export async function HomeStats() {
   if (totalTitulos != null) {
     stats.push({ value: totalTitulos.toLocaleString("pt-BR"), label: "títulos no catálogo" });
   }
-  stats.push({ value: String(contarFontesAtivas()), label: "fontes de avaliação" });
+  stats.push({ value: String(NUM_FONTES_ATIVAS), label: "fontes de avaliação" });
   stats.push({ value: String(CATEGORIAS_COBERTAS.length), label: "categorias cobertas" });
 
   return (

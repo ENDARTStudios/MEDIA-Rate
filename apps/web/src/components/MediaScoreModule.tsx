@@ -81,17 +81,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
     ? new Date(updatedAt).getTime() < Date.now() - 30 * 24 * 3600 * 1000
     : false;
 
-  // Nota Bayesiana (T5a/MET-03): quando o score consolidado difere
-  // visivelmente da média simples das fontes exibidas, explica o ajuste
-  // por volume de votos no próprio lugar onde o usuário compara os números.
-  const mediaSimples100 =
-    fontesUnicas.length > 0
-      ? fontesUnicas.reduce((acc, s) => acc + (s.score / s.maxScore) * 100, 0) /
-        fontesUnicas.length
-      : null;
-  const consolidado100 = scale === "0-100" ? consolidated : consolidated * 10;
-  const temAjusteBayesiano =
-    mediaSimples100 !== null && Math.abs(consolidado100 - mediaSimples100) > 1.5;
+  // Nota Bayesiana (D-209/T191): o estimador Bayesiano aplica-se a TODA obra
+  // (puxa as de baixo volume para a média do catálogo) — por isso a
+  // explicação fica SEMPRE visível na ficha, nunca só às vezes.
+  const temAjusteBayesiano = true;
 
   return (
     <div

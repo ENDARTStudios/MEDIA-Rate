@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
+import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
 
 interface PageProps {
@@ -108,6 +109,26 @@ export default async function MethodologyPage({ params }: PageProps) {
         <section aria-labelledby="confidence-title">
           <h2 id="confidence-title">{copy.confidenceTitle}</h2>
           <p>{copy.confidenceBody}</p>
+        </section>
+
+        {/* Fontes ativas — fonte única de verdade (lib/sources.ts, D-209). */}
+        <section aria-labelledby="sources-title">
+          <h2 id="sources-title">{copy.sourceTitle}</h2>
+          <p>{copy.sourceBody}</p>
+          <ul className="not-prose mt-4 grid gap-2 sm:grid-cols-2">
+            {FONTES_ATIVAS.map((fonte) => (
+              <li
+                key={fonte.id}
+                className="flex items-center justify-between rounded-lg border border-surface-border/30 bg-[#11111E] px-4 py-2.5 text-sm"
+              >
+                <span className="font-medium text-[#EDE7DC]">{fonte.nome}</span>
+                <span className="text-xs text-[#9CA3AF]">
+                  {fonte.tipo === "critica" ? "Crítica" : "Público"} ·{" "}
+                  {fonte.midias.map((m) => MIDIA_LABEL[m]).join(" · ")}
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="scope-title">
