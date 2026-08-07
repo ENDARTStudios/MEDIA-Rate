@@ -2104,3 +2104,25 @@ F06 - cache de aplicacao Redis (6.10) - infraestrutura orfa integrada:
   /midias?limit (query na chave), media-score, DELETE invalida, autenticado
   nunca cacheado c/ @fastify/cookie). API 568/568 (65 arquivos),
   tsc/lint/build ok.
+
+## [2026-08-08] T211-graceful-shutdown (DONE, commit c66dfae)
+F06 - graceful shutdown (6.11):
+- DESC: enableShutdownHooks ja existia (dívida Fase 3); GracefulShutdownService
+  existia mas NAO era usado (main.ts nunca o registrava) e tinha bugs:
+  dependia de QueueService, sem timeout, sem idempotencia, exit(0) imediato
+  podia cortar os hooks do Nest. Reescrito e wired:
+  1. GracefulShutdownService: SIGTERM/SIGINT idempotentes (fechando guard),
+     timeout global 30s -> process.exit(1) forcado, logs por etapa
+     (iniciado/completo em Xms/erro/timeout) sem segredos, exit(0) normal,
+     onShutdown injetado (desacoplado do QueueService).
+  2. Wiring main.ts: fecha em sequencia com try/catch POR recurso (erro em
+     um nao impede os demais): app.close (Fastify espera in-flight + hooks),
+     prisma.$disconnect explicito, CacheService.shutdown() (quit com timeout
+     5s + log 'Redis fechado'), QueueService.closeAll (BullMQ se registrado).
+  3. enableShutdownHooks mantido (Nest fecha hooks; idempotente com app.close).
+  4. PrismaService.onModuleDestroy loga 'Prisma desconectado' + try/catch.
+- Testes: 6 novos (unit: registra SIGTERM/SIGINT, normal exit 0 + logs,
+  idempotencia (2o sinal ignorado), timeout 30s exit 1, erro exit 1;
+  integracao: SIGTERM fecha HTTP/Prisma/Redis/filas mesmo com erro isolado
+  no Prisma -> exit 0). Fake timers + spy process.exit/on.
+  API 574/574 (66 arquivos), tsc/lint/build ok.
