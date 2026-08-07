@@ -53,4 +53,7 @@ agent-ctx/
 
 .vercel
 .env*
+# Exceção: .env.example é documentação de configuração (apenas placeholders,
+# nenhum valor real) — entregável do T202 para configurar ambientes do zero.
+!**/.env.example
 apps/web/src/components/hero-icons/*.png
