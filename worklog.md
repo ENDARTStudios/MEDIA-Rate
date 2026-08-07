@@ -2126,3 +2126,33 @@ F06 - graceful shutdown (6.11):
   integracao: SIGTERM fecha HTTP/Prisma/Redis/filas mesmo com erro isolado
   no Prisma -> exit 0). Fake timers + spy process.exit/on.
   API 574/574 (66 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T212-refresh-token (DONE, commit e067f2e)
+F03 - refresh token rotativo + sliding session (gap 3.3):
+- DESC: sessao fixa 7d -> access opaco 256-bit TTL 15min (sliding transparente
+  quando <5min restantes: estende expires_at) + refresh opaco 256-bit TTL
+  30 dias em cookie httpOnly 'refresh' com path /api/v1/auth/refresh.
+- Migration 20260808120000_refresh_token_columns: refresh_token_hash (unique
+  parcial), refresh_token_hash_anterior (detecao de reuse - desvio: 4a coluna
+  alem das 3 do payload, sem ela o reuse nao seria detectavel), refresh_expira_em,
+  refresh_family_id (agrupa rotacoes). Backfill conservador: sessoes existentes
+  ganham family_id + refresh_expira_em = expires_at (7d) - continuam validas
+  mas NAO renovam via /refresh (compatibilidade preservada, testada e2e).
+- POST /auth/refresh: publico (adicionado a lista publica do AuthGuard),
+  rate limit 10/min por IP (refreshRateLimit), rotaciona o par:
+  hash atual -> anterior, novo refresh (mesma familia), novo access.
+  REUSE: token ja rotacionado (hash so em anterior) -> revoga TODAS as
+  sessoes do usuario + audit TOKEN_REFRESH_REUSE_DETECTED (IP + user-agent
+  em dadosDepois) e SESSION_REVOKED_ALL; resposta 401 generica.
+- SessionRotationService funcional (era placeholder da T3.6): rotacionarRefresh
+  + revogarTodasSessoes. SessionService: ACCESS_TTL_MS 15min, REFRESH_TTL_MS
+  30d, sliding 5min; createSession gera o par. Login seta ambos cookies;
+  logout limpa sess+refresh+csrf.
+- Descobertas: e2e precisou do AuthGuard como APP_GUARD (no AppModule, nao
+  no AuthModule); refresh na lista publica do guard senao 401 antes do
+  controller. Specs ajustados (construtor AuthService + SessionRotationService,
+  mock cookieService com setRefreshCookie, cookie-flags 3 clears).
+- Testes: 11 novos (6 unit rotacao/familia/expirado/revogado/reuso/revogarTodas
+  + 5 e2e: login cookies, fluxo completo com reuse e revogacao total (me 401),
+  sem cookie 401, legado valido sem renovar, sliding via /me).
+  API 578/578 (68 arquivos), tsc/lint/build ok.
