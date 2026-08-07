@@ -92,7 +92,10 @@ export class AuthService {
     private readonly mockMail: MockMailService,
   ) {}
 
-  async register(dto: RegisterDtoType, _options: { ip?: string } = {}): Promise<RegisterResult> {
+  async register(
+    dto: RegisterDtoType,
+    options: { ip?: string; user_agent?: string } = {},
+  ): Promise<RegisterResult> {
     // Verifica email único antes de hash (evita hash desnecessário).
     const existing = await this.prisma.usuario.findUnique({
       where: { email: dto.email },
@@ -144,9 +147,10 @@ export class AuthService {
     await this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuario.id,
-      acao: "register",
+      acao: "USER_REGISTERED",
       usuarioId: usuario.id,
-      dadosDepois: { email: dto.email },
+      ipOrigem: options.ip,
+      dadosDepois: { email: dto.email, userAgent: options.user_agent },
     });
 
     this.logger.log(`Usuário registrado (id: ${usuario.id})`);
@@ -189,6 +193,19 @@ export class AuthService {
     }
 
     if (!usuario || !passwordValid) {
+      // T213: trilha de auditoria de falha (lockout é tratado pelo
+      // LockoutService — aqui só registramos; nunca logamos a senha).
+      await this.auditLog.log({
+        entidade: "Usuario",
+        entidadeId: usuario?.id ?? "unknown",
+        acao: "USER_LOGIN_FAILED",
+        ipOrigem: ip,
+        dadosDepois: {
+          email: dto.email,
+          userAgent: options.user_agent,
+          motivo: "invalid_credentials",
+        },
+      });
       // Registra falha para lockout progressivo.
       const result = await this.lockoutService.registerFailure(ip, dto.email);
       if (result.locked) {
@@ -232,9 +249,10 @@ export class AuthService {
     await this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuario.id,
-      acao: "login",
+      acao: "USER_LOGIN_SUCCESS",
       usuarioId: usuario.id,
       ipOrigem: ip,
+      dadosDepois: { userAgent: options.user_agent },
     });
 
     return {
@@ -311,7 +329,10 @@ export class AuthService {
     };
   }
 
-  async forgotPassword(email: string): Promise<{ message: string }> {
+  async forgotPassword(
+    email: string,
+    options: { ip?: string; user_agent?: string } = {},
+  ): Promise<{ message: string }> {
     // Rate limit por email (3/h) — antes de qualquer consulta.
     this.registrarSolicitacaoReset(email);
 
@@ -339,6 +360,8 @@ export class AuthService {
       entidade: "Usuario",
       entidadeId: usuario.id,
       acao: "PASSWORD_RESET_REQUESTED",
+      ipOrigem: options.ip,
+      dadosDepois: { userAgent: options.user_agent },
     });
 
     // Entrega do token via email (mock em dev — token vai para o
@@ -351,7 +374,11 @@ export class AuthService {
     return { message: "Se o email existir, um link de reset será enviado." };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    options: { ip?: string; user_agent?: string } = {},
+  ): Promise<{ message: string }> {
     const tokenHash = createHash("sha256").update(token).digest("hex");
 
     const usuario = await this.prisma.usuario.findFirst({
@@ -391,6 +418,8 @@ export class AuthService {
       entidade: "Usuario",
       entidadeId: usuario.id,
       acao: "PASSWORD_RESET_COMPLETED",
+      ipOrigem: options.ip,
+      dadosDepois: { userAgent: options.user_agent },
     });
 
     this.logger.log(`Senha resetada para usuário ${usuario.id}`);
@@ -417,13 +446,14 @@ export class AuthService {
     this.resetSolicitacoes.set(email, recentes);
   }
 
-  async logoutAudit(usuarioId: string, ip?: string): Promise<void> {
-    await this.auditLog.log({
+  async logoutAudit(usuarioId: string, ip?: string, user_agent?: string): Promise<void> {
+    return this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuarioId,
-      acao: "logout",
+      acao: "USER_LOGOUT",
       usuarioId,
       ipOrigem: ip,
+      dadosDepois: { userAgent: user_agent },
     });
   }
 

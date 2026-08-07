@@ -136,11 +136,11 @@ de evidência**, não por presunção.
 - [x] 3.0 Preflight Auth (deps + env.ts). · evid: `AuthModule` registrado, `PasswordService` Argon2id, `ZodValidationPipe` global
 - [~] 3.1 Token + Cookie + tipos. · evid: Opaque tokens 256-bit (NÃO JWT) — escolha de design por JWT-blacklist. `SessionCookieService` httpOnly/SameSite=Lax/secure
 - [x] 3.2 Rotas Register / Login / Logout. · evid: `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` — 4 endpoints
-- [ ] 3.3 Refresh token flow. · evid: AUSENTE. Sessão fixa 7 dias. `SessionRotationService` é stub placeholder.
+- [x] 3.3 Refresh token flow. · evid: T212 — access opaco 15min (sliding) + refresh rotativo 30 dias com reuse detection (revoga todas as sessões) e compatibilidade legada. Commits e067f2e + 7d4092f.
 - [x] 3.4 Middleware de Autenticação. · evid: `AuthGuard` — valida sessão via `SessionService.validateToken()`, anexa `request.user`
 - [x] 3.5 Middleware RBAC. · evid: `RolesGuard` (`@Roles('ADMIN')`), `PlanGuard` (`@RequirePlan('PLUS')`). Sem `permissions` granular (postergado).
 - [ ] 3.6 Reset de senha. · evid: AUSENTE. Sem endpoints, sem coluna de reset token no schema.
-- [ ] 3.7 Audit logging para auth. · evid: `AuditLogService` existe, mas NÃO wired no `AuthService`. Eventos de auth não registrados no audit_log.
+- [x] 3.7 Audit logging para auth. · evid: T213 — USER_REGISTERED, USER_LOGIN_SUCCESS, USER_LOGIN_FAILED, USER_LOGOUT, PASSWORD_RESET_REQUESTED/COMPLETED + T212 (TOKEN_REFRESHED, TOKEN_REFRESH_REUSE_DETECTED, SESSION_REVOKED_ALL) com IP + user-agent; nunca senha/token; verificarIntegridade() intacto.
 - [x] 3.8 Rate limiting específico para /auth/*. · evid: `rate-limit.config.ts` — 6 req/min para login
 - [ ] 3.9 Testes auth controller/service. · evid: Testes unitários para `SessionService`, `LockoutService`, `SessionCookieService`. ZERO cobertura para `AuthController`, `AuthService`, `AuthGuard`.
 - [ ] 3.10 Documentação API Auth. · evid: Swagger decorators nos controllers, mas sem `docs/api/auth.md` dedicado.

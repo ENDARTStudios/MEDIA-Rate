@@ -280,7 +280,7 @@ describe("AuthService (unit)", () => {
     expect(result.token).toBeDefined();
   });
 
-  it("logoutAudit — chama auditLog com acao logout", async () => {
+  it("logoutAudit — chama auditLog com acao USER_LOGOUT", async () => {
     let loggedAction = "";
     const auditModule = (
       service as unknown as { auditLog: { log: (args: { acao: string }) => Promise<unknown> } }
@@ -289,7 +289,7 @@ describe("AuthService (unit)", () => {
       loggedAction = args.acao;
     };
     await service.logoutAudit("u1", "1.2.3.4");
-    expect(loggedAction).toBe("logout");
+    expect(loggedAction).toBe("USER_LOGOUT");
   });
 
   describe("getMe() — plano e entitlements (D-132)", () => {

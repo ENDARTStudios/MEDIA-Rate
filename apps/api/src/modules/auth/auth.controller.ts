@@ -54,6 +54,7 @@ export class AuthController {
   }> {
     const dto = body as { email: string; password: string; nome?: string; inviteCode?: string };
     const ip = req.ip ?? undefined;
+    const userAgent = req.headers["user-agent"];
 
     if (dto.inviteCode) {
       if (!validInvites.has(dto.inviteCode)) {
@@ -66,7 +67,10 @@ export class AuthController {
     }
 
     this.metrics.incrementRegister();
-    const result = await this.authService.register(dto, { ip });
+    const result = await this.authService.register(dto, {
+      ip,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
 
     if (dto.inviteCode) {
       validInvites.delete(dto.inviteCode);
@@ -221,7 +225,12 @@ export class AuthController {
     this.cookieService.clearSessionCookie(reply);
 
     if (user) {
-      await this.authService.logoutAudit(user.id);
+      const userAgent = req.headers["user-agent"];
+      await this.authService.logoutAudit(
+        user.id,
+        req.ip ?? undefined,
+        typeof userAgent === "string" ? userAgent : undefined,
+      );
     }
 
     return { message: "Logout realizado com sucesso." };
@@ -230,15 +239,29 @@ export class AuthController {
   @Post("forgot-password")
   @HttpCode(200)
   @UsePipes(new ZodValidationPipe(ForgotPasswordDto))
-  async forgotPassword(@Body() body: unknown): Promise<{ message: string }> {
-    return this.authService.forgotPassword((body as { email: string }).email);
+  async forgotPassword(
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+  ): Promise<{ message: string }> {
+    const userAgent = req?.headers?.["user-agent"];
+    return this.authService.forgotPassword((body as { email: string }).email, {
+      ip: req?.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
   }
 
   @Post("reset-password")
   @HttpCode(200)
   @UsePipes(new ZodValidationPipe(ResetPasswordDto))
-  async resetPassword(@Body() body: unknown): Promise<{ message: string }> {
+  async resetPassword(
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+  ): Promise<{ message: string }> {
     const dto = body as { token: string; password: string };
-    return this.authService.resetPassword(dto.token, dto.password);
+    const userAgent = req?.headers?.["user-agent"];
+    return this.authService.resetPassword(dto.token, dto.password, {
+      ip: req?.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
   }
 }
