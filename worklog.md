@@ -2075,3 +2075,32 @@ substituidos por algoritmos:
 - E2e: usuario unico por teste (cache 60s do PlanGuard e por usuario_id).
   15 testes (service 7 + e2e 8 via supertest com PlanGuard real).
   API 556/556 (63 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T210-cache-redis (DONE, commit b6155a6)
+F06 - cache de aplicacao Redis (6.10) - infraestrutura orfa integrada:
+- DESC: CacheService (ioredis) ja existia (usado so pelo lockout); T210
+  integrou aos endpoints de leitura + fallback + invalidacao:
+  1. hashKey(url) = SHA-256 da URL completa (query params incluidos) +
+     prefixo por recurso: midias:<hash> / midias:<id> /
+     midias:<id>:media-score / discover:<hash>.
+  2. readThroughWithStatus: header X-Cache HIT|MISS.
+  3. TTLs por rota: /midias 60s (SO anonimo - lista autenticada consome
+     quota por usuario), /midias/:id 120s, /midias/:id/media-score 300s,
+     /discover 30s (SO anonimo - na_watchlist depende do usuario).
+  4. FALLBACK MEMORIA: Redis indisponivel -> Map local com TTL (set sempre
+     espelha na memoria; get cai na memoria em erro) - app nunca quebra.
+  5. Invalidacao em escrita (create/update/delete ADMIN): del midias:<id> +
+     midias:<id>:media-score + delPattern midias:*/catalog:*/discover:*.
+  6. Endpoints autenticados nunca cacheados (/watchlist, /premium/*,
+     /interacoes, lista autenticada, discover autenticado). Rate limit
+     roda antes do cache (onRoute).
+  7. Client Redis injetavel (constructor 2o arg) p/ testes (vi.mock de
+     ioredis nao funciona com createRequire - descoberta documentada).
+- @Optional() nos novos deps dos controllers (Nest nao aceita opcional
+  sem decorator); usuarioOpcional defensivo p/ req undefined (specs).
+- DECISOES.md D-219: TTLs, chave, invalidacao, fallback, nao-cacheados.
+- Testes: 12 novos (7 unit: hashKey, MISS/HIT, invalidacao, fallback,
+  TTL memoria, delPattern; 5 e2e supertest: X-Cache em /midias/:id,
+  /midias?limit (query na chave), media-score, DELETE invalida, autenticado
+  nunca cacheado c/ @fastify/cookie). API 568/568 (65 arquivos),
+  tsc/lint/build ok.
