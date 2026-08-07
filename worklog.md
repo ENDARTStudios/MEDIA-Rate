@@ -1976,3 +1976,28 @@ com o rating e independente de votos - documentado no engine.
 Verificacao: labels corrompidos 0 nos icones; R$ 4,90 presente; MEDIA Rate
 no register; Favoritar 0; /watchlist na lista privada do middleware;
 Web 236/236; tsc/lint/build ok.
+
+## [2026-08-08] T206-auth-reset-senha (DONE, commit 1cd398d)
+F03 - fluxo completo de reset de senha (gap 3.6, critico Beta Fechada):
+- DESC: schema ja tinha password_reset_token (VarChar(64) unique) +
+  password_reset_expira (migration 20260725210000_add_password_reset) -
+  NENHUMA nova migration necessaria (usado o design existente).
+- forgotPassword: token 256 bits (randomBytes(32).hex) armazenado apenas
+  como SHA-256 (64 hex, cabe no VarChar(64)); expiracao 1h (era 15min);
+  rate limit POR EMAIL 3/h em janela deslizante (429 na 4a; aplicado ANTES
+  da consulta - sem enumeracao por timing); resposta generica p/ email
+  inexistente; audit PASSWORD_RESET_REQUESTED.
+- Entrega: MockMailService (novo) - em dev grava o email mockado em
+  dev-mailbox.log (gitignored; token NUNCA nos logs do app, apenas hash
+  truncado de 12 hex); em producao integracao real fica pendente de operador.
+- resetPassword: valida hash+expiracao (400 se invalido/expirado); senha
+  re-hasheada com argon2id (PasswordService); token anulado (uso unico);
+  TODAS as sessoes ativas revogadas na mesma transacao; audit
+  PASSWORD_RESET_COMPLETED. DTO ResetPasswordDto ja validava min 8
+  (mesma regra do register) - mantido.
+- Testes: 13 novos (hash vs plaintext, expiracao 1h, generico p/ email
+  inexistente, audit ambos, rate limit 429 na 4a + cotas separadas por
+  email, token ausente dos logs, uso unico, sessoes revogadas, DTO curta
+  rejeitada, token valido troca senha) - API 513/513 (59 arquivos),
+  tsc/lint/build ok. Flake pre-existente de rede em novas-midias-adapters
+  descartado (passa isolado e no re-run).
