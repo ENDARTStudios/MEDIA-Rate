@@ -2051,3 +2051,27 @@ F04 - busca full-text (4.5/4.8) em GET /api/v1/discover:
   11: repasse usuarioId, sessao invalida degrada, SQLi 400, q longo, cursor
   nao-uuid; e2e 8 via supertest). Mock de $queryRaw simula o SQL compilado
   (parametros nunca concatenados). API 543/543 (61 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T209-recommendations-engine (DONE, commit 7a03fe6)
+F04 - recommendations engine real (4.3) - stubs do PremiumController
+substituidos por algoritmos:
+- PLUS (GET /api/v1/premium/recommendations): genero+tipo da watchlist com
+  score >= media da watchlist, exclui itens ja presentes, ordena score desc,
+  paginacao cursor (keyset nativo Prisma: orderBy score+id, cursor+skip),
+  motivo explicavel 'Mesmo genero que X na sua watchlist'.
+- PREMIUM (GET /api/v1/premium/ml-personalized): colaborativo simples -
+  usuarios com >=3 itens em comum, ranking por FREQUENCIA agregada (nunca
+  expoe watchlist individual de outros; resposta nao contem outros usuario
+  ids - testado), motivo 'Popular entre usuarios com gosto similar';
+  sem similares -> fallback PLUS; sem candidatos -> fallback PLUS.
+- Watchlist vazia: 200 com mensagem 'Adicione itens a sua watchlist...'.
+- AuthGuard (rota) + PlanGuard (APP_GUARD global) - ordem do app real:
+  AuthGuard global seta req.user ANTES do PlanGuard; 402 Payment Required
+  por contrato D-132 de upsell (payload pedia 403; 402 e o contrato
+  existente que o web usa - desvio documentado).
+- Rate limit 30/min nas duas rotas (onRoute).
+- premium.controller.ts removido (stubs) - rotas migradas para
+  RecommendationsModule; PremiumModule vazio por compatibilidade.
+- E2e: usuario unico por teste (cache 60s do PlanGuard e por usuario_id).
+  15 testes (service 7 + e2e 8 via supertest com PlanGuard real).
+  API 556/556 (63 arquivos), tsc/lint/build ok.
