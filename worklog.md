@@ -2236,3 +2236,33 @@ F04 - CRUD admin de media com soft delete (4.1 + parte do 2.9):
   403 non-admin em POST/PUT/DELETE, zod 400, duplicata 409, update 200,
   delete 200 + GET 404 + list sem a midia + audit, cache invalidado).
   API 612/612 (73 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T216-upload-seguro (DONE, commit 698e33e)
+F06 - upload seguro de posters (6.8):
+- POST /api/v1/midias/:id/upload com @Roles('ADMIN') + RolesGuard (403
+  non-admin). Multipart via @fastify/multipart (instalado; 5MB, 1 arquivo).
+- Validacao por MAGIC BYTES (common/utils/file-validation.util): JPEG
+  (FF D8 FF), PNG (89 50 4E 47), WebP (RIFF+WEBP), GIF (47 49 46 38).
+  415 p/ nao-imagem (testado: .exe renomeado .jpg). Extensao derivada do
+  conteudo; nome = crypto.randomUUID() + ext (NUNCA filename do cliente).
+- Limite 5MB -> 413 (service + limits do multipart).
+- Storage uploads/media/:midiaId/ (fora do codigo executavel); path
+  sanitizado (caminhoArquivo valida UUID.ext — traversal -> null).
+- poster_url atualizado; cache invalidado (T210); audit
+  MEDIA_POSTER_UPLOADED (admin + IP + UA + filename sanitizado).
+- Servimento GET /uploads/media/:midiaId/:filename: publico (lista do
+  AuthGuard), Content-Type do CONTEUDO (EXT_PARA_MIME), Cache-Control
+  public max-age=86400, X-Content-Type-Options nosniff.
+- Rate limit 10/h por admin (janela deslizante no service) + 10/min rota
+  (uploadRateLimit no onRoute) + bodyLimit 50MiB na rota (T020/7.7).
+- Midia inexistente/deletada -> 404 antes do upload.
+- UploadModule importa AuthModule (bug latente: os guards precisavam de
+  SessionService e o modulo antigo nao importava - o app NUNCA teria
+  bootado com o controller novo) e prove AuditLogService.
+- Spec antigo upload-service.spec.ts (contrato velho: PDF/SVG, 10MB,
+  extensao do cliente) removido - supersedido pelos novos (8 unit + 7 e2e).
+- Testes: 15 novos (unit: magic jpeg/png/webp, 415 exe, 413 5MB, nome UUID,
+  salvar, traversal null, rate limit 10/h 429; e2e: upload 201 + audit,
+  403, 415, 413, 404 inexistente/deletada, GET 200 image/jpeg + cache,
+  traversal 404). API 612/612 (73 arquivos), tsc/lint/build ok.
+- Pendencia: ClamAV nao implementado (futuro) - arquitetura pronta.
