@@ -1,8 +1,9 @@
-import { BadRequestException, Controller, Get, Query, Req } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Query, Req, Res, Optional } from "@nestjs/common";
 import { z } from "zod";
-import type { FastifyRequest } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import { DiscoverService } from "./discover.service.js";
 import { SessionService } from "../auth/session.service.js";
+import { CacheService } from "../../common/cache.service.js";
 import { discoverQuerySchema } from "./dto/search-query.dto.js";
 
 const TIPO_MIDIA_VALUES = ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC"] as const;
@@ -42,6 +43,8 @@ export class DiscoverController {
   constructor(
     private readonly service: DiscoverService,
     private readonly sessionService: SessionService,
+    // T210: cache opcional (ausente em testes unitários).
+    @Optional() private readonly cacheService?: CacheService,
   ) {}
 
   @Get("search")
@@ -54,11 +57,26 @@ export class DiscoverController {
    * T208 — busca/catálogo combinado. Endpoint PÚBLICO; se houver sessão
    * válida (cookie 'sess'), marca na_watchlist nos resultados. Falha de
    * sessão → anônimo (nunca 401).
+   *
+   * T210 — cache de 30s APENAS para anônimos: a flag na_watchlist depende
+   * do usuário autenticado e nunca pode ser cacheada entre usuários.
    */
   @Get("discover")
-  async discover(@Req() req: FastifyRequest, @Query() query: unknown) {
+  async discover(
+    @Req() req: FastifyRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) reply?: FastifyReply,
+  ) {
     const params = parseOrThrow(discoverQuerySchema, query);
     const usuarioId = await this.resolverUsuarioOpcional(req);
+    if (!usuarioId && this.cacheService) {
+      const chave = `discover:${this.cacheService.hashKey(req.url)}`;
+      const { value, hit } = await this.cacheService.readThroughWithStatus(chave, 30, () =>
+        this.service.discover({ ...params, usuarioId: null }),
+      );
+      reply?.header("X-Cache", hit ? "HIT" : "MISS");
+      return value;
+    }
     return this.service.discover({ ...params, usuarioId });
   }
 

@@ -8,16 +8,19 @@ import {
   Query,
   Body,
   Req,
+  Res,
   NotFoundException,
   UseGuards,
   UsePipes,
   HttpCode,
+  Optional,
 } from "@nestjs/common";
-import type { FastifyRequest } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify } from "../../common/slugify.js";
+import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { MediaService } from "./media.service.js";
@@ -63,10 +66,14 @@ export class MediaController {
     private readonly mediaService: MediaService,
     private readonly sessionService?: SessionService,
     private readonly quotaService?: QuotaService,
+    // T210: cache de aplicação (opcional — ausente em testes unitários).
+    @Optional() private readonly cacheService?: CacheService,
+    @Optional() private readonly cacheInvalidation?: CacheInvalidationService,
   ) {}
 
   /** Resolve o usuário logado via cookie de sessão (opcional — null sem login). */
-  private async usuarioOpcional(req: FastifyRequest): Promise<string | null> {
+  private async usuarioOpcional(req?: FastifyRequest): Promise<string | null> {
+    if (!req) return null;
     const token = (req.cookies as Record<string, string> | undefined)?.["sess"];
     if (!token || !this.sessionService) return null;
     const sessao = await this.sessionService.validateToken(token);
@@ -105,6 +112,7 @@ export class MediaController {
     @Query("genero") genero: string | undefined,
     @Query("com_critica") comCritica: string | undefined,
     @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<
     PaginatedResult<{
       id: string;
@@ -187,14 +195,54 @@ export class MediaController {
 
     // D-132: Free tem até 3 "recomendações" (listagem por score) por dia.
     // Anônimos não contam; Plus/Premium (incl. trial) ilimitado.
-    if (sortResult?.field === "score" && this.quotaService) {
-      const usuarioId = await this.usuarioOpcional(req);
-      if (usuarioId) {
-        const plano = await this.quotaService.planoDe(usuarioId);
-        if (plano === "FREE") {
-          await this.quotaService.usar(usuarioId, "recomendacoes", 3);
-        }
+    const usuarioId = await this.usuarioOpcional(req);
+    if (sortResult?.field === "score" && this.quotaService && usuarioId) {
+      const plano = await this.quotaService.planoDe(usuarioId);
+      if (plano === "FREE") {
+        await this.quotaService.usar(usuarioId, "recomendacoes", 3);
       }
+    }
+
+    // T210: cache de leitura (60s) APENAS para anônimos — a listagem
+    // autenticada consome quota por usuário e nunca pode ser cacheada.
+    if (!usuarioId && this.cacheService) {
+      const chave = `midias:${this.cacheService.hashKey(req.url)}`;
+      const { value, hit } = await this.cacheService.readThroughWithStatus(chave, 60, async () => {
+        // Total real da coleção filtrada (exibição "N títulos" no catálogo web).
+        const [resultado, total] = await Promise.all([
+          paginateCursor<{
+            id: string;
+            titulo: string;
+            tipo: string;
+            ano_lancamento: number | null;
+            imagem_url: string | null;
+          }>({
+            prisma: this.prisma,
+            model: "midia",
+            cursor_field: "id",
+            params,
+            where,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- orderBy construído dinamicamente
+            orderBy: orderBy as any,
+            select: {
+              id: true,
+              titulo: true,
+              tipo: true,
+              ano_lancamento: true,
+              imagem_url: true,
+              scores: {
+                select: { score: true },
+                take: 1,
+                orderBy: { calculado_em: "desc" },
+              },
+            },
+          }),
+          this.prisma.midia.count({ where }),
+        ]);
+        return { ...resultado, total };
+      });
+      reply.header("X-Cache", hit ? "HIT" : "MISS");
+      return value;
     }
 
     // Total real da coleção filtrada (exibição "N títulos" no catálogo web).
@@ -406,7 +454,10 @@ export class MediaController {
   @ApiOperation({ summary: "Detalhes de uma mídia específica" })
   @ApiResponse({ status: 200, description: "Mídia encontrada." })
   @ApiResponse({ status: 404, description: "Mídia não encontrada." })
-  async getOne(@Param("id") id: string): Promise<{
+  async getOne(
+    @Param("id") id: string,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{
     id: string;
     titulo: string;
     titulo_original: string | null;
@@ -416,22 +467,38 @@ export class MediaController {
     classificacao_indicativa: string | null;
     imagem_url: string | null;
   }> {
-    const midia = await this.prisma.midia.findUnique({ where: { id } });
-    if (!midia) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: "Not Found",
-        message: "Mídia não encontrada.",
-      });
+    // T210: cache 120s (chave por id — dados públicos).
+    const buscar = async () => {
+      const midia = await this.prisma.midia.findUnique({ where: { id } });
+      if (!midia) {
+        throw new NotFoundException({
+          statusCode: 404,
+          error: "Not Found",
+          message: "Mídia não encontrada.",
+        });
+      }
+      return midia;
+    };
+    if (this.cacheService) {
+      const { value, hit } = await this.cacheService.readThroughWithStatus(
+        `midias:${id}`,
+        120,
+        buscar,
+      );
+      reply.header("X-Cache", hit ? "HIT" : "MISS");
+      return value;
     }
-    return midia;
+    return buscar();
   }
 
   @Get(":id/media-score")
   @ApiOperation({ summary: "MEDIA Score™ consolidado para uma mídia" })
   @ApiResponse({ status: 200, description: "Score consolidado com confiança." })
   @ApiResponse({ status: 404, description: "Mídia não encontrada." })
-  async getMediaScore(@Param("id") id: string): Promise<{
+  async getMediaScore(
+    @Param("id") id: string,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{
     midia_id: string;
     score: number;
     criticosScore: number | null;
@@ -444,55 +511,68 @@ export class MediaController {
     pesos_usados: Record<string, number>;
     calculado_em: string;
   }> {
-    const midia = await this.prisma.midia.findUnique({
-      where: { id },
-      include: { scores: true },
-    });
-    if (!midia) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: "Not Found",
-        message: "Mídia não encontrada.",
+    // T210: cache 300s (dados públicos; score atualizado pelo job/invalidação).
+    const calcular = async () => {
+      const midia = await this.prisma.midia.findUnique({
+        where: { id },
+        include: { scores: true },
       });
-    }
-
-    // Se já existe score persistido (job diário ou coleta admin), retorna ele
-    // com os buckets Crítica/Público e campos v3 (MET-03).
-    if (midia.scores.length > 0) {
-      const existing = midia.scores[0];
-      if (!existing) {
-        throw new NotFoundException();
+      if (!midia) {
+        throw new NotFoundException({
+          statusCode: 404,
+          error: "Not Found",
+          message: "Mídia não encontrada.",
+        });
       }
+
+      // Se já existe score persistido (job diário ou coleta admin), retorna ele
+      // com os buckets Crítica/Público e campos v3 (MET-03).
+      if (midia.scores.length > 0) {
+        const existing = midia.scores[0];
+        if (!existing) {
+          throw new NotFoundException();
+        }
+        return {
+          midia_id: id,
+          score: existing.score,
+          criticosScore: existing.score_critica ?? null,
+          publicoScore: existing.score_publico ?? null,
+          consenso: existing.consenso ?? null,
+          indiceConsenso: existing.indice_consenso ?? null,
+          votosTotal: existing.votos_total ?? 0,
+          num_fontes: existing.num_fontes,
+          confianca: normalizarConfianca(existing.confianca),
+          pesos_usados: existing.pesos_usados as Record<string, number>,
+          calculado_em: existing.calculado_em.toISOString(),
+        };
+      }
+
+      // Sem score persistido — calcula on-the-fly (v3: sem fontes = prior C).
+      const result = this.mediaScoreService.calcularScoreV3(midia.tipo, []);
       return {
         midia_id: id,
-        score: existing.score,
-        criticosScore: existing.score_critica ?? null,
-        publicoScore: existing.score_publico ?? null,
-        consenso: existing.consenso ?? null,
-        indiceConsenso: existing.indice_consenso ?? null,
-        votosTotal: existing.votos_total ?? 0,
-        num_fontes: existing.num_fontes,
-        confianca: normalizarConfianca(existing.confianca),
-        pesos_usados: existing.pesos_usados as Record<string, number>,
-        calculado_em: existing.calculado_em.toISOString(),
+        score: result.score,
+        criticosScore: result.criticosScore,
+        publicoScore: result.publicoScore,
+        consenso: result.consenso,
+        indiceConsenso: result.indiceConsenso,
+        votosTotal: result.votosTotal,
+        num_fontes: result.num_fontes,
+        confianca: result.confianca,
+        pesos_usados: result.pesos_usados,
+        calculado_em: new Date().toISOString(),
       };
-    }
-
-    // Sem score persistido — calcula on-the-fly (v3: sem fontes = prior C).
-    const result = this.mediaScoreService.calcularScoreV3(midia.tipo, []);
-    return {
-      midia_id: id,
-      score: result.score,
-      criticosScore: result.criticosScore,
-      publicoScore: result.publicoScore,
-      consenso: result.consenso,
-      indiceConsenso: result.indiceConsenso,
-      votosTotal: result.votosTotal,
-      num_fontes: result.num_fontes,
-      confianca: result.confianca,
-      pesos_usados: result.pesos_usados,
-      calculado_em: new Date().toISOString(),
     };
+    if (this.cacheService) {
+      const { value, hit } = await this.cacheService.readThroughWithStatus(
+        `midias:${id}:media-score`,
+        300,
+        calcular,
+      );
+      reply.header("X-Cache", hit ? "HIT" : "MISS");
+      return value;
+    }
+    return calcular();
   }
 
   @Post()
@@ -500,7 +580,10 @@ export class MediaController {
   @Roles("ADMIN")
   @UsePipes(new ZodValidationPipe(createMediaSchema))
   async create(@Body() body: CreateMediaDto) {
-    return this.mediaService.create(body);
+    const created = await this.mediaService.create(body);
+    // T210: criação invalida catálogo/discover cacheados.
+    await this.cacheInvalidation?.onMediaCreated();
+    return created;
   }
 
   @Put(":id")
@@ -508,7 +591,10 @@ export class MediaController {
   @Roles("ADMIN")
   @UsePipes(new ZodValidationPipe(updateMediaSchema))
   async update(@Param("id") id: string, @Body() body: UpdateMediaDto) {
-    return this.mediaService.update(id, body);
+    const updated = await this.mediaService.update(id, body);
+    // T210: escrita invalida a ficha/score/lista da mídia.
+    await this.cacheInvalidation?.onMediaUpdated(id);
+    return updated;
   }
 
   @Delete(":id")
@@ -517,5 +603,7 @@ export class MediaController {
   @HttpCode(204)
   async remove(@Param("id") id: string) {
     await this.mediaService.remove(id);
+    // T210: remoção invalida cache da mídia + listas.
+    await this.cacheInvalidation?.onMediaUpdated(id);
   }
 }

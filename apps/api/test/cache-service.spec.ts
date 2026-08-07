@@ -94,14 +94,16 @@ describe("CacheService (unit — mock Redis)", () => {
 });
 
 describe("CacheInvalidationService (unit)", () => {
-  it("onMediaUpdated — invalida media + catalog + discover", async () => {
+  it("onMediaUpdated — invalida ficha + score + listas + catalog + discover", async () => {
     const mockCache = {
-      invalidateOnWrite: vi.fn().mockResolvedValue(undefined),
+      del: vi.fn().mockResolvedValue(undefined),
       delPattern: vi.fn().mockResolvedValue(undefined),
     } as unknown as CacheService;
     const svc = new CacheInvalidationService(mockCache);
     await svc.onMediaUpdated("m1");
-    expect(mockCache.invalidateOnWrite).toHaveBeenCalledWith("media:m1");
+    expect(mockCache.del).toHaveBeenCalledWith("midias:m1");
+    expect(mockCache.del).toHaveBeenCalledWith("midias:m1:media-score");
+    expect(mockCache.delPattern).toHaveBeenCalledWith("midias:*");
     expect(mockCache.delPattern).toHaveBeenCalledWith("catalog:*");
     expect(mockCache.delPattern).toHaveBeenCalledWith("discover:*");
   });

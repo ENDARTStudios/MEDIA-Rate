@@ -691,3 +691,21 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
   a reportar votos reais (vote_count/rating_count).
 - Espelho web alinhado a API (I em 0-10, mesma quantizacao, curva sem pre-round).
 - Guardas Number.isFinite + cache TTL do catalogo medio; v1/v2 removidos.
+
+## D-219 cache de aplicacao Redis (T210, Fase 6.10)
+### TTLs por rota (leitura publica)
+- GET /api/v1/midias (lista): 60s — somente ANONIMO (listagem autenticada consome quota por usuario e nunca e cacheada).
+- GET /api/v1/midias/:id (ficha simplificada): 120s.
+- GET /api/v1/midias/:id/media-score: 300s (score muda pelo job/invalidacao).
+- GET /api/v1/discover: 30s — somente ANONIMO (flag na_watchlist depende do usuario).
+### Chave
+- SHA-256 da URL completa (inclui query params: tipo, genero, cursor, limit) com prefixo do recurso: midias:<hash> / midias:<id> / midias:<id>:media-score / discover:<hash>.
+### Invalidacao em escrita
+- create/update/remove de midias (ADMIN): onMediaCreated/onMediaUpdated limpa midias:<id>, midias:<id>:media-score, padrao midias:* (listas), catalog:* e discover:*. TTLs curtos limitam a janela de dado stale.
+### Fallback memoria
+- Redis indisponivel (ioredis lazyConnect + error handler): get/set/del/delPattern degradam para Map local com TTL — a aplicacao nunca quebra por falta de Redis. set() espelha sempre na memoria.
+### Nao cacheado (por design)
+- Endpoints autenticados dependentes do usuario: GET /watchlist, GET /premium/*, GET /interacoes, lista autenticada de /midias (quota), discover autenticado (na_watchlist).
+- Rate limit roda antes do cache (onRoute) — nao e afetado.
+### Header
+- X-Cache: HIT|MISS em endpoints cacheados (verificacao operacional).
