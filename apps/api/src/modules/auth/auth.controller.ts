@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpException,
   Post,
+  Query,
   Req,
   Res,
   UsePipes,
@@ -15,8 +16,10 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService, type LoginResult, type MeResult } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
+import { EmailVerificationService } from "./email-verification.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto.js";
+import { resendVerificationSchema } from "./dto/resend-verification.dto.js";
 import { validInvites } from "../invite/invite.controller.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import { AuthenticatedUser } from "../../common/guards/auth.guard.js";
@@ -38,7 +41,44 @@ export class AuthController {
     private readonly sessionService: SessionService,
     private readonly cookieService: SessionCookieService,
     private readonly metrics: MetricsService,
+    private readonly emailVerification: EmailVerificationService,
   ) {}
+
+  /**
+   * T214 — GET /verify-email?token= : público. Resposta SEMPRE genérica
+   * (200) — não revela se o token é válido ou se o email existe.
+   */
+  @Get("verify-email")
+  @HttpCode(200)
+  async verifyEmail(
+    @Query() query: { token?: string },
+    @Req() req: FastifyRequest,
+  ): Promise<{ message: string }> {
+    const userAgent = req?.headers?.["user-agent"];
+    await this.emailVerification.verificar(query.token ?? "", {
+      ip: req?.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
+    return { message: "Email verificado com sucesso." };
+  }
+
+  /**
+   * T214 — POST /resend-verification : público; rate limit 3/h por email
+   * (service, janela deslizante). Respostas genéricas (sem enumeração).
+   */
+  @Post("resend-verification")
+  @HttpCode(200)
+  @UsePipes(new ZodValidationPipe(resendVerificationSchema))
+  async resendVerification(
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+  ): Promise<{ message: string }> {
+    const userAgent = req?.headers?.["user-agent"];
+    return this.emailVerification.reenviar((body as { email: string }).email, {
+      ip: req?.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
+  }
 
   @Post("register")
   @HttpCode(201)

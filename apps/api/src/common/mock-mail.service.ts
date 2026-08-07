@@ -18,23 +18,37 @@ import * as path from "node:path";
 export class MockMailService {
   private readonly logger = new Logger(MockMailService.name);
 
-  async enviarResetSenha(email: string, token: string): Promise<void> {
-    const hashTruncado = createHash("sha256").update(token).digest("hex").slice(0, 12);
+  private hashTruncado(token: string): string {
+    return createHash("sha256").update(token).digest("hex").slice(0, 12);
+  }
+
+  private entregarMock(tipo: string, email: string, token: string): void {
     if (process.env.NODE_ENV !== "production") {
       try {
         const arquivo = path.join(process.cwd(), "dev-mailbox.log");
         appendFileSync(
           arquivo,
-          `[${new Date().toISOString()}] reset-para=${email} token=${token}\n`,
+          `[${new Date().toISOString()}] ${tipo}=${email} token=${token}\n`,
           "utf8",
         );
       } catch {
-        this.logger.warn("Nao foi possivel gravar dev-mailbox.log (mock email).");
+        this.logger.warn(`Nao foi possivel gravar dev-mailbox.log (mock ${tipo}).`);
       }
-      this.logger.debug(`Reset de senha (mock): email=${email} hash_truncado=${hashTruncado}`);
-      return;
     }
-    // Produção: integração com provedor de email real (pendência de operador).
-    this.logger.debug(`Reset de senha: email=${email} hash_truncado=${hashTruncado}`);
+  }
+
+  async enviarResetSenha(email: string, token: string): Promise<void> {
+    this.entregarMock("reset-para", email, token);
+    this.logger.debug(
+      `Reset de senha (mock): email=${email} hash_truncado=${this.hashTruncado(token)}`,
+    );
+  }
+
+  /** T214: envio do link/token de verificação de email (mock em dev). */
+  async enviarVerificacaoEmail(email: string, token: string): Promise<void> {
+    this.entregarMock("verificar-para", email, token);
+    this.logger.debug(
+      `Verificacao de email (mock): email=${email} hash_truncado=${this.hashTruncado(token)}`,
+    );
   }
 }

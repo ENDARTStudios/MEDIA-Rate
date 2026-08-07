@@ -10,6 +10,7 @@ import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AnalyticsModule } from "../../common/analytics.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
+import { EmailVerificationService } from "./email-verification.service.js";
 
 @Module({
   imports: [PrismaModule, AnalyticsModule],
@@ -20,6 +21,7 @@ import { MockMailService } from "../../common/mock-mail.service.js";
     SessionCookieService,
     LockoutService,
     SessionRotationService,
+    EmailVerificationService,
     PasswordService,
     AuditLogService,
     MockMailService,

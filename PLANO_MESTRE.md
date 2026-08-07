@@ -139,11 +139,12 @@ de evidência**, não por presunção.
 - [x] 3.3 Refresh token flow. · evid: T212 — access opaco 15min (sliding) + refresh rotativo 30 dias com reuse detection (revoga todas as sessões) e compatibilidade legada. Commits e067f2e + 7d4092f.
 - [x] 3.4 Middleware de Autenticação. · evid: `AuthGuard` — valida sessão via `SessionService.validateToken()`, anexa `request.user`
 - [x] 3.5 Middleware RBAC. · evid: `RolesGuard` (`@Roles('ADMIN')`), `PlanGuard` (`@RequirePlan('PLUS')`). Sem `permissions` granular (postergado).
-- [ ] 3.6 Reset de senha. · evid: AUSENTE. Sem endpoints, sem coluna de reset token no schema.
+- [x] 3.6 Reset de senha. · evid: T206 — forgot/reset com token SHA-256 uso único, expiração 1h, rate limit 3/h por email, revogação de sessões, audit PASSWORD_RESET_REQUESTED/COMPLETED. Commit 1cd398d.
 - [x] 3.7 Audit logging para auth. · evid: T213 — USER_REGISTERED, USER_LOGIN_SUCCESS, USER_LOGIN_FAILED, USER_LOGOUT, PASSWORD_RESET_REQUESTED/COMPLETED + T212 (TOKEN_REFRESHED, TOKEN_REFRESH_REUSE_DETECTED, SESSION_REVOKED_ALL) com IP + user-agent; nunca senha/token; verificarIntegridade() intacto.
 - [x] 3.8 Rate limiting específico para /auth/*. · evid: `rate-limit.config.ts` — 6 req/min para login
 - [ ] 3.9 Testes auth controller/service. · evid: Testes unitários para `SessionService`, `LockoutService`, `SessionCookieService`. ZERO cobertura para `AuthController`, `AuthService`, `AuthGuard`.
 - [ ] 3.10 Documentação API Auth. · evid: Swagger decorators nos controllers, mas sem `docs/api/auth.md` dedicado.
+- [x] 3.11 Email verification. · evid: T214 — token opaco 256-bit (SHA-256), TTL 24h, uso único; GET /auth/verify-email e POST /auth/resend-verification públicos com respostas genéricas (sem enumeração); login sem verificação → 403 EMAIL_NOT_VERIFIED; rate limit 3/h por email; backfill marca existentes verificados; audit EMAIL_VERIFICATION_SENT/VERIFIED/RESENT.
 
 **Verificação:**
 - curl `POST /api/v1/auth/login` credenciais válidas → 200 + cookie de sessão. ✅

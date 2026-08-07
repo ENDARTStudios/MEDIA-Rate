@@ -4,6 +4,7 @@ import { AuthController } from "../src/modules/auth/auth.controller.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
+import { EmailVerificationService } from "../src/modules/auth/email-verification.service.js";
 import { MetricsService } from "../src/modules/metrics/metrics.service.js";
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { FastifyReply, FastifyRequest } from "fastify";
@@ -128,6 +129,13 @@ describe("AuthController (unit)", () => {
         { provide: AuthService, useValue: authService },
         { provide: SessionService, useValue: sessionService },
         { provide: SessionCookieService, useValue: cookieService },
+        {
+          provide: EmailVerificationService,
+          useValue: {
+            verificar: async () => ({ ok: true }),
+            reenviar: async () => ({ message: "ok" }),
+          },
+        },
         {
           provide: MetricsService,
           useValue: {

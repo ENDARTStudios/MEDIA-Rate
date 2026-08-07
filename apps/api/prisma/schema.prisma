@@ -95,6 +95,10 @@ model Usuario {
   // T2.11: soft delete agendado pelo endpoint LGPD T4.9.
   dados_para_exclusao_at DateTime?            @map("dados_para_exclusao_at")
   email_verificado_em  DateTime?              @map("email_verificado_em")
+  // T214: token de verificação de email — SHA-256 do token opaco (nunca
+  // plaintext) + expiração 24h; uso único (anulado após verificar).
+  email_verification_token_hash  String?      @map("email_verification_token_hash") @db.VarChar(64)
+  email_verification_expira_em   DateTime?    @map("email_verification_expira_em")
   ultimo_login_em      DateTime?              @map("ultimo_login_em")
   // Fase 3 complemento: reset de senha
   password_reset_token   String?               @unique @map("password_reset_token") @db.VarChar(64)

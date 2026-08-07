@@ -72,6 +72,12 @@ function makeMocks() {
     { capture: vi.fn(), identify: vi.fn() } as any, // analytics
     audit as any, // auditLog
     mail as any, // mockMail
+    {
+      // emailVerification
+      emitirToken: async () => "token-mock",
+      verificar: async () => ({ ok: true }),
+      reenviar: async () => ({ message: "ok" }),
+    } as any,
   );
   return { service, prisma, mail, audit, passwordService, users };
 }

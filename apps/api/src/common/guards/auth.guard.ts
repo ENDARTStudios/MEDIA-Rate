@@ -91,6 +91,8 @@ export class AuthGuard implements CanActivate {
       url.startsWith("/api/v1/auth/forgot-password") ||
       url.startsWith("/api/v1/auth/reset-password") ||
       url.startsWith("/api/v1/auth/refresh") || // T212: público (cookie refresh + rate limit)
+      url.startsWith("/api/v1/auth/verify-email") || // T214: público (token no query)
+      url.startsWith("/api/v1/auth/resend-verification") || // T214: público (rate limit 3/h)
       url.startsWith("/api/v1/echo") || // T1.4 rota de exemplo, não exige auth
       url.startsWith("/api/v1/waitlist-notify") || // T185 lead capture público (rate limit + zod)
       url.startsWith("/api/v1/_force-error") || // T1.6 rota de debug (dev apenas)

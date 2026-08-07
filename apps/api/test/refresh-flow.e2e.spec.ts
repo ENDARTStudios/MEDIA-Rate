@@ -98,13 +98,13 @@ describe("Refresh token flow — e2e via HTTP (T212)", () => {
 
   beforeAll(async () => {
     ctx = makeStore();
-    // Usuário de teste.
+    // Usuário de teste (verificado — pré-existente ao backfill da T214).
     ctx.usuarios.set("user@test.com", {
       id: "u1",
       email: "user@test.com",
       nome: "Teste",
       password_hash: "fake-hash",
-      email_verificado_em: null,
+      email_verificado_em: new Date(),
     });
 
     const moduleRef = await Test.createTestingModule({

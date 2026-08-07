@@ -179,6 +179,7 @@ async function bootstrap(): Promise<void> {
       "/api/v1/auth/forgot-password",
       "/api/v1/auth/reset-password",
       "/api/v1/auth/refresh",
+      "/api/v1/auth/resend-verification",
     ];
     if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};

@@ -111,6 +111,12 @@ function makeMocks() {
     { capture: vi.fn(), identify: vi.fn() } as unknown as AnalyticsService,
     auditLog as unknown as AuditLogService,
     { enviarResetSenha: vi.fn() } as unknown as MockMailService,
+    {
+      // emailVerification
+      emitirToken: async () => "token-mock",
+      verificar: async () => ({ ok: true }),
+      reenviar: async () => ({ message: "ok" }),
+    } as any,
   );
   return { service, prisma, usuarios, sessoes, auditLog, sessionRotation };
 }
@@ -145,7 +151,7 @@ describe("Auth audit logging (T213)", () => {
       email: "user@test.com",
       nome: "T",
       password_hash: "h",
-      email_verificado_em: null,
+      email_verificado_em: new Date(), // T214: verificado
     });
     await m.service.login(
       { email: "user@test.com", password: "Senha123!" },

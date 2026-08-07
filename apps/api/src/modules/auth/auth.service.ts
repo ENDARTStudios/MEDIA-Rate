@@ -16,6 +16,7 @@ import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
+import { EmailVerificationService } from "./email-verification.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
 import { FREE_WATCHLIST_LIMIT } from "../watchlist/watchlist.service.js";
 
@@ -90,6 +91,7 @@ export class AuthService {
     private readonly analytics: AnalyticsService,
     private readonly auditLog: AuditLogService,
     private readonly mockMail: MockMailService,
+    private readonly emailVerification: EmailVerificationService,
   ) {}
 
   async register(
@@ -154,6 +156,22 @@ export class AuthService {
     });
 
     this.logger.log(`Usuário registrado (id: ${usuario.id})`);
+
+    // T214: emite token de verificação de email (envio via mock em dev).
+    // Resposta do register continua 201 SEM expor o token.
+    try {
+      await this.emailVerification.emitirToken(usuario);
+      await this.auditLog.log({
+        entidade: "Usuario",
+        entidadeId: usuario.id,
+        acao: "EMAIL_VERIFICATION_SENT",
+        ipOrigem: options.ip,
+        dadosDepois: { userAgent: options.user_agent },
+      });
+    } catch (err) {
+      this.logger.warn(`Falha ao emitir token de verificação (não-bloqueante): ${String(err)}`);
+    }
+
     return usuario;
   }
 
@@ -227,7 +245,28 @@ export class AuthService {
       });
     }
 
-    // 4. Login bem-sucedido: reseta lockout, cria sessão.
+    // 4. T214: email não verificado → 403 EMAIL_NOT_VERIFIED (sem sessão).
+    if (usuario.email_verificado_em === null) {
+      await this.auditLog.log({
+        entidade: "Usuario",
+        entidadeId: usuario.id,
+        acao: "USER_LOGIN_FAILED",
+        ipOrigem: ip,
+        dadosDepois: {
+          email: dto.email,
+          userAgent: options.user_agent,
+          motivo: "email_not_verified",
+        },
+      });
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: "Forbidden",
+        code: "EMAIL_NOT_VERIFIED",
+        message: "Verifique seu email antes de entrar.",
+      });
+    }
+
+    // 5. Login bem-sucedido: reseta lockout, cria sessão.
     await this.lockoutService.resetOnSuccess(ip, dto.email);
 
     const session: SessionCreationResult = await this.sessionService.createSession({

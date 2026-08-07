@@ -5,6 +5,7 @@ import type { FastifyPluginAsync } from "fastify";
 import cookiePlugin, { type FastifyCookieOptions } from "@fastify/cookie";
 import request from "supertest";
 import { AuthController } from "../src/modules/auth/auth.controller.js";
+import { EmailVerificationService } from "../src/modules/auth/email-verification.service.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
@@ -40,6 +41,13 @@ describe("CSRF Guard (T050)", () => {
           },
         },
         { provide: SessionService, useValue: { revokeSession: async () => true } },
+        {
+          provide: EmailVerificationService,
+          useValue: {
+            verificar: async () => ({ ok: true }),
+            reenviar: async () => ({ message: "ok" }),
+          },
+        },
         {
           provide: SessionCookieService,
           useValue: {
