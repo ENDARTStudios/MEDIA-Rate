@@ -1,6 +1,9 @@
-import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Query, Req } from "@nestjs/common";
 import { z } from "zod";
+import type { FastifyRequest } from "fastify";
 import { DiscoverService } from "./discover.service.js";
+import { SessionService } from "../auth/session.service.js";
+import { discoverQuerySchema } from "./dto/search-query.dto.js";
 
 const TIPO_MIDIA_VALUES = ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC"] as const;
 
@@ -36,7 +39,10 @@ function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
 
 @Controller("api/v1")
 export class DiscoverController {
-  constructor(private readonly service: DiscoverService) {}
+  constructor(
+    private readonly service: DiscoverService,
+    private readonly sessionService: SessionService,
+  ) {}
 
   @Get("search")
   async search(@Query() query: unknown) {
@@ -44,10 +50,16 @@ export class DiscoverController {
     return this.service.search(q, { tipo, limit, offset });
   }
 
+  /**
+   * T208 — busca/catálogo combinado. Endpoint PÚBLICO; se houver sessão
+   * válida (cookie 'sess'), marca na_watchlist nos resultados. Falha de
+   * sessão → anônimo (nunca 401).
+   */
   @Get("discover")
-  async discover(@Query() query: unknown) {
-    const { tipo, limit } = parseOrThrow(DiscoverQuerySchema, query);
-    return this.service.discover({ tipo, limit });
+  async discover(@Req() req: FastifyRequest, @Query() query: unknown) {
+    const params = parseOrThrow(discoverQuerySchema, query);
+    const usuarioId = await this.resolverUsuarioOpcional(req);
+    return this.service.discover({ ...params, usuarioId });
   }
 
   @Get("catalog")
@@ -60,5 +72,17 @@ export class DiscoverController {
   async trending(@Query() query: unknown) {
     const { limit } = parseOrThrow(DiscoverQuerySchema, query);
     return this.service.trending({ limit });
+  }
+
+  private async resolverUsuarioOpcional(req: FastifyRequest): Promise<string | null> {
+    const cookies = (req as unknown as { cookies?: Record<string, string> }).cookies;
+    const token = cookies?.sess;
+    if (!token) return null;
+    try {
+      const result = await this.sessionService.validateToken(token);
+      return result?.sessao?.usuario_id ?? null;
+    } catch {
+      return null;
+    }
   }
 }

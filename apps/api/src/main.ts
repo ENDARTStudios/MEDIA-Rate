@@ -16,6 +16,7 @@ import {
   loginRateLimit,
   interacoesRateLimit,
   watchlistRateLimit,
+  discoverRateLimit,
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
@@ -150,6 +151,14 @@ async function bootstrap(): Promise<void> {
     ) {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = watchlistRateLimit();
+    }
+    // T208: busca (entrada externa) — 30 req/min por rota.
+    if (
+      (routeOptions.url === "/api/v1/discover" || routeOptions.url === "/api/v1/search") &&
+      routeOptions.method === "GET"
+    ) {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = discoverRateLimit();
     }
   });
 

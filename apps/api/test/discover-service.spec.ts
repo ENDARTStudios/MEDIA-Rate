@@ -3,26 +3,159 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { DiscoverService } from "../src/modules/discover/discover.service.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
 
-interface MockDiscoverRow {
+interface MockRow {
   id: string;
   titulo: string;
   tipo: string;
   ano_lancamento: number;
   sinopse: string;
   imagem_url: string | null;
+  genero?: string;
 }
 
 interface MockDiscoverPrisma {
   readonly lastRawQuery: string | undefined;
+  readonly queries: string[];
   $queryRaw: (
     query: { sql: string; values: unknown[] } | string,
-  ) => Promise<(MockDiscoverRow & { total: number })[]>;
+  ) => Promise<Record<string, unknown>[]>;
   midia: {
     findMany: (args: {
       where?: { tipo?: string };
       orderBy?: { score?: unknown };
       take?: number;
-    }) => Promise<MockDiscoverRow[]>;
+    }) => Promise<MockRow[]>;
+  };
+}
+
+const DB: MockRow[] = [
+  {
+    id: "1",
+    titulo: "The Shawshank Redemption",
+    tipo: "FILME",
+    ano_lancamento: 1994,
+    sinopse: "Prison drama",
+    imagem_url: null,
+    genero: "drama",
+  },
+  {
+    id: "2",
+    titulo: "Breaking Bad",
+    tipo: "SERIE",
+    ano_lancamento: 2008,
+    sinopse: "Chemistry teacher",
+    imagem_url: null,
+    genero: "drama",
+  },
+  {
+    id: "3",
+    titulo: "Inception",
+    tipo: "FILME",
+    ano_lancamento: 2010,
+    sinopse: "Dream heist",
+    imagem_url: null,
+    genero: "acao",
+  },
+  {
+    id: "4",
+    titulo: "Interstellar",
+    tipo: "FILME",
+    ano_lancamento: 2014,
+    sinopse: "Space travel",
+    imagem_url: null,
+    genero: "ficcao",
+  },
+  {
+    id: "5",
+    titulo: "Matrix",
+    tipo: "FILME",
+    ano_lancamento: 1999,
+    sinopse: "Red pill",
+    imagem_url: null,
+    genero: "acao",
+  },
+];
+
+function makePrisma(rows: MockRow[] = DB) {
+  let lastRawQuery: string | undefined;
+  const queries: string[] = [];
+  const $queryRaw = async (query: { sql: string; values: unknown[] } | string) => {
+    const sql = typeof query === "string" ? query : query.sql;
+    const values = typeof query === "string" ? [] : query.values;
+    lastRawQuery = sql;
+    queries.push(sql);
+    let compiled = sql;
+    for (const v of values) compiled = compiled.replace(/\?/, JSON.stringify(v));
+
+    // Cursor pre-query (rank do item-cursor).
+    if (sql.includes("AS rank") && sql.includes("m.id =")) {
+      const cursorId = values[0];
+      return rows.some((r) => r.id === cursorId) ? [{ rank: 1 }] : [];
+    }
+    // Total estimado.
+    if (sql.includes("COUNT(*)::int AS total")) {
+      return [{ total: matchedCount(compiled, rows) }];
+    }
+
+    // q só existe em modo busca (tsvector ou pg_trgm) — no modo catálogo o
+    // primeiro parâmetro é o LIMIT.
+    const hasQ = sql.includes("plainto_tsquery") || sql.includes("similarity");
+    const rawQ = hasQ ? (values[0] as string) : "";
+    const q = rawQ ? rawQ.toLowerCase() : "";
+    let results = rows.filter(
+      (m) => !q || m.titulo.toLowerCase().includes(q) || m.sinopse.toLowerCase().includes(q),
+    );
+    const tipoMatch = compiled.match(/tipo = "(\w+)"/);
+    if (tipoMatch) results = results.filter((m) => m.tipo === tipoMatch[1]);
+    const generoMatch = compiled.match(/g\.slug = "([^"]+)"/);
+    if (generoMatch) results = results.filter((m) => m.genero === generoMatch[1]);
+    const cursorMatch = compiled.match(/::real, "([^"]+)"/);
+    if (cursorMatch) results = results.filter((m) => m.id > cursorMatch[1]);
+    // Último LIMIT da query (o primeiro é do LATERAL join interno).
+    const limits = compiled.match(/LIMIT (\d+)/g);
+    const limit = limits ? parseInt(limits[limits.length - 1].replace("LIMIT ", ""), 10) : 20;
+    results = results.slice(0, limit);
+
+    return results.map((r) => ({
+      id: r.id,
+      titulo: r.titulo,
+      tipo: r.tipo,
+      ano_lancamento: r.ano_lancamento,
+      poster_url: r.imagem_url,
+      score: null,
+      na_watchlist: false,
+    }));
+  };
+
+  function matchedCount(compiled: string, allRows: MockRow[]): number {
+    const tipoMatch = compiled.match(/tipo = "(\w+)"/);
+    const generoMatch = compiled.match(/g\.slug = "([^"]+)"/);
+    return allRows.filter(
+      (m) =>
+        (!tipoMatch || m.tipo === tipoMatch[1]) && (!generoMatch || m.genero === generoMatch[1]),
+    ).length;
+  }
+
+  return {
+    get lastRawQuery() {
+      return lastRawQuery;
+    },
+    get queries() {
+      return queries;
+    },
+    $queryRaw,
+    midia: {
+      findMany: async (args: {
+        where?: { tipo?: string };
+        orderBy?: { score?: unknown };
+        take?: number;
+      }) => {
+        let items = [...rows];
+        if (args.where?.tipo) items = items.filter((m) => m.tipo === args.where.tipo);
+        if (args.orderBy?.score) items.sort(() => -1);
+        return items.slice(0, args.take ?? 20);
+      },
+    },
   };
 }
 
@@ -31,7 +164,7 @@ describe("DiscoverService (unit)", () => {
   let prisma: MockDiscoverPrisma;
 
   beforeEach(async () => {
-    prisma = mockPrisma();
+    prisma = makePrisma();
     const module: TestingModule = await Test.createTestingModule({
       providers: [DiscoverService, { provide: PrismaService, useValue: prisma }],
     }).compile();
@@ -45,12 +178,7 @@ describe("DiscoverService (unit)", () => {
   });
 
   it("search — termo sem resultados retorna array vazio", async () => {
-    prisma = mockEmptyPrisma();
-    const module2 = await Test.createTestingModule({
-      providers: [DiscoverService, { provide: PrismaService, useValue: prisma }],
-    }).compile();
-    const svc = module2.get<DiscoverService>(DiscoverService);
-    const result = await svc.search("xyznonexistent999");
+    const result = await service.search("zzzz");
     expect(result.items.length).toBe(0);
     expect(result.total).toBe(0);
   });
@@ -67,135 +195,86 @@ describe("DiscoverService (unit)", () => {
 
   it("search — parametriza o filtro de tipo (Prisma.sql, sem interpolar input)", async () => {
     await service.search("a", { tipo: "FILME" });
-    const rawQuery = prisma.lastRawQuery;
-    expect(rawQuery).toBeDefined();
-    // O valor do tipo nunca aparece concatenado no SQL — sempre como parâmetro.
-    expect(rawQuery.includes("FILME")).toBe(false);
+    expect(prisma.lastRawQuery).toBeDefined();
+    expect(prisma.lastRawQuery?.includes("FILME")).toBe(false);
   });
 
-  it("discover — retorna mídias ordenadas por score", async () => {
-    const result = await service.discover({ limit: 5 });
-    expect(result.items.length).toBeGreaterThan(0);
-    expect(result.items[0].titulo).toBeDefined();
+  // ---------------- T208: discover (tsvector/pg_trgm + cursor) ----------------
+
+  it("discover — busca por título (tsvector) com saída sanitizada", async () => {
+    const result = await service.discover({ q: "inception" });
+    expect(result.itens.length).toBeGreaterThan(0);
+    expect(result.itens[0].titulo).toBe("Inception");
+    // Sanitização: nunca expor campos internos.
+    const chaves = Object.keys(result.itens[0]);
+    expect(chaves).toEqual(
+      expect.arrayContaining([
+        "id",
+        "titulo",
+        "tipo",
+        "ano",
+        "poster_url",
+        "score",
+        "na_watchlist",
+        "slug",
+      ]),
+    );
+    expect(chaves).not.toContain("sinopse");
+    expect(chaves).not.toContain("fonte_id");
+    expect(chaves).not.toContain("created_at");
+    expect(chaves).not.toContain("updated_at");
   });
 
-  it("discover — retorna trending com dados de score", async () => {
+  it("discover — termo curto (<3 chars) usa fallback pg_trgm (similarity %)", async () => {
+    await service.discover({ q: "ma" });
+    expect(prisma.lastRawQuery).toContain("%");
+  });
+
+  it("discover — combina filtro de tipo", async () => {
+    const result = await service.discover({ q: "inception", tipo: "FILME" });
+    expect(result.itens.length).toBeGreaterThan(0);
+    expect(result.itens[0].tipo).toBe("FILME");
+  });
+
+  it("discover — combina filtro de gênero (slug)", async () => {
+    const result = await service.discover({ q: "a", genero: "acao" });
+    expect(result.itens.length).toBeGreaterThan(0);
+    result.itens.forEach((i: { titulo: string }) =>
+      expect(["Inception", "Matrix"]).toContain(i.titulo),
+    );
+  });
+
+  it("discover — q vazio retorna lista paginada (modo catálogo)", async () => {
+    const result = await service.discover({ limit: 2 });
+    expect(result.itens.length).toBe(2);
+    expect(result.total_estimado).toBe(DB.length);
+  });
+
+  it("discover — paginação cursor: próxima página a partir do último id", async () => {
+    const p1 = await service.discover({ limit: 2 });
+    expect(p1.itens.length).toBe(2);
+    expect(p1.proximo_cursor).toBe(p1.itens[1].id);
+    const p2 = await service.discover({ limit: 2, cursor: p1.proximo_cursor });
+    expect(p2.itens.length).toBeGreaterThan(0);
+    expect(p2.itens[0].id).not.toBe(p1.itens[0].id);
+  });
+
+  it("discover — cursor inexistente retorna página vazia (sem fabricar)", async () => {
+    const result = await service.discover({ cursor: "999" });
+    expect(result.itens).toEqual([]);
+    expect(result.total_estimado).toBe(0);
+  });
+
+  it("discover — na_watchlist parametrizado (usuarioId nunca concatenado no SQL)", async () => {
+    await service.discover({ q: "matrix", usuarioId: "user-123" });
+    // A query principal contém o EXISTS da watchlist...
+    expect(prisma.queries.some((q) => q.includes("watchlist_entry"))).toBe(true);
+    // ...mas o valor do usuário NUNCA é concatenado (sempre parâmetro).
+    expect(prisma.queries.some((q) => q.includes("user-123"))).toBe(false);
+  });
+
+  it("discover — trending usa modo catálogo", async () => {
     const result = await service.trending({ limit: 3 });
-    expect(result.items.length).toBeLessThanOrEqual(3);
-    result.items.forEach((m: { titulo: string; tipo: string }) => {
-      expect(m.titulo).toBeDefined();
-      expect(m.tipo).toBeDefined();
-    });
-  });
-
-  it("discover — retorna empty se sem dados", async () => {
-    prisma = mockEmptyPrisma();
-    const module2: TestingModule = await Test.createTestingModule({
-      providers: [DiscoverService, { provide: PrismaService, useValue: prisma }],
-    }).compile();
-    const svc = module2.get<DiscoverService>(DiscoverService);
-    const result = await svc.search("anything");
-    expect(result.items.length).toBe(0);
+    expect(result.itens.length).toBeLessThanOrEqual(3);
   });
 });
-
-function mockPrisma() {
-  const DB = [
-    {
-      id: "1",
-      titulo: "The Shawshank Redemption",
-      tipo: "FILME",
-      ano_lancamento: 1994,
-      sinopse: "Prison drama",
-      imagem_url: null,
-    },
-    {
-      id: "2",
-      titulo: "Breaking Bad",
-      tipo: "SERIE",
-      ano_lancamento: 2008,
-      sinopse: "Chemistry teacher",
-      imagem_url: null,
-    },
-    {
-      id: "3",
-      titulo: "Inception",
-      tipo: "FILME",
-      ano_lancamento: 2010,
-      sinopse: "Dream heist",
-      imagem_url: null,
-    },
-    {
-      id: "4",
-      titulo: "Interstellar",
-      tipo: "FILME",
-      ano_lancamento: 2014,
-      sinopse: "Space travel",
-      imagem_url: null,
-    },
-    {
-      id: "5",
-      titulo: "Shawshank",
-      tipo: "FILME",
-      ano_lancamento: 1994,
-      sinopse: "Test",
-      imagem_url: null,
-    },
-  ];
-
-  let lastRawQuery: string | undefined;
-
-  return {
-    get lastRawQuery() {
-      return lastRawQuery;
-    },
-    // $queryRaw recebe um objeto Query (Prisma.sql template) — captura o SQL
-    // compilado e extrai valores a partir dos placeholders.
-    $queryRaw: async (query: { sql: string; values: unknown[] } | string) => {
-      const sql = typeof query === "string" ? query : query.sql;
-      const values = typeof query === "string" ? [] : query.values;
-      lastRawQuery = sql;
-      let compiled = sql;
-      for (const v of values) {
-        compiled = compiled.replace(/\?/, JSON.stringify(v));
-      }
-      const q = values[0] as string | undefined;
-      const rawQ = q ? q.toLowerCase() : "";
-      let results = DB.filter(
-        (m) => m.titulo.toLowerCase().includes(rawQ) || m.sinopse.toLowerCase().includes(rawQ),
-      );
-      const tipoMatch = compiled.match(/tipo = "(\w+)"/);
-      if (tipoMatch) results = results.filter((m) => m.tipo === tipoMatch[1]);
-      const limitMatch = compiled.match(/LIMIT (\d+)/);
-      const limit = limitMatch ? parseInt(limitMatch[1]) : 20;
-      const offsetMatch = compiled.match(/OFFSET (\d+)/);
-      const offset = offsetMatch ? parseInt(offsetMatch[1]) : 0;
-      const total = results.length;
-      results = results.slice(offset, offset + limit);
-      return results.map((r) => ({ ...r, total }));
-    },
-    midia: {
-      findMany: async (args: {
-        where?: { tipo?: string };
-        orderBy?: { score?: unknown };
-        take?: number;
-      }) => {
-        let items = [...DB];
-        if (args.where?.tipo) items = items.filter((m) => m.tipo === args.where.tipo);
-        if (args.orderBy?.score) items.sort(() => -1);
-        const limit = args.take ?? 20;
-        return items.slice(0, limit);
-      },
-    },
-  };
-}
-
-function mockEmptyPrisma(): MockDiscoverPrisma {
-  return {
-    get lastRawQuery() {
-      return undefined;
-    },
-    $queryRaw: async () => [],
-    midia: { findMany: async () => [] },
-  };
-}
