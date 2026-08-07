@@ -1950,3 +1950,29 @@ F10 - consolidacao final de configuracao de ambiente:
 - .gitattributes *.sh eol=lf (bash nao quebra com CRLF); apps/web/.gitignore ganhou excecao !.env.example.
 - README apps/api: secao Configuracao de Ambiente (separacao, setup local, Railway, variaveis nao lidas).
 Verificacao: validate-env lista faltantes sem valores; OMDB 1x; JWT 0x; 3 .env.example; build API exit 0.
+
+## [2026-08-08] T205-correcoes-auditoria-reverificacao (DONE, commit bb72559)
+F10 - correcoes P0 da auditoria de reverificacao:
+1. ROTULOS CORROMPIDOS (P0-1): textos <text> SVG (SCENE 1, YBAX, MEDIA/RATE,
+   POW!) removidos dos icones de arte (Clapperboard/Controller/Book/Magazine)
+   e substituidos por vetores; FONT/Specular nao usados removidos. Home HTML
+   sem os 4 prefixos.
+2. WATCHLIST AUTH (P0-2): middleware ja redireciona /watchlist sem cookie
+   (307, lista privateRoutePrefixes); canonical /watchlist; logo MEDIA Rate
+   (com espaco). Adicionado timeout global 15s no apiFetch - fim do
+   travamento infinito em 'Verificando sessao' (fetchMe decidia e redireciona).
+3. FILTRO ?type= (P0-3): wiring type->tipo e backend (enum FILME/SERIE/GAME)
+   validados corretos; zero resultados = banco vazio (seeds do Operador
+   pendentes) - documentado, NAO fabricado. Mock dev: 50 filmes + 20 series.
+4. PRECOS /terms (P0-4): s3b com 'R$ 4,90' (espaco apos R$) nos 3 locales.
+5. /register (P0-5): wordmark MEDIA Rate no painel e logo mobile; links ja
+   prefixados por next-intl (navigation Link); campo convite localizado.
+6. CONTROLE UNICO (P0-6): FavoriteButton removido da ficha - so
+   StatusReactionControl (Addendum 4). Favoritar = 0 no page.tsx.
+P1-1 CALIBRACAO BAYESIANA: prior m NAO domina independente do volume -
+convergencia m/(v+m) proporcional a v (2 testes novos: v=10 vs v=1000 vs
+v=1M); offset ~10,5 pts vs media simples = rescale z-score 50+z*25, constante
+com o rating e independente de votos - documentado no engine.
+Verificacao: labels corrompidos 0 nos icones; R$ 4,90 presente; MEDIA Rate
+no register; Favoritar 0; /watchlist na lista privada do middleware;
+Web 236/236; tsc/lint/build ok.
