@@ -4,7 +4,6 @@ import { MediaController } from "../src/modules/media/media.controller.js";
 import { LgpdController } from "../src/modules/lgpd/lgpd.controller.js";
 import { PaymentController } from "../src/modules/payment/payment.controller.js";
 import { AdminController } from "../src/modules/admin/admin.controller.js";
-import { PremiumController } from "../src/modules/premium/premium.controller.js";
 
 function mockReq(user?: { id: string; email: string; nome: string | null; sessao_id: string }) {
   return {
@@ -119,7 +118,17 @@ describe("MediaController (unit T8.1)", () => {
   it("list() com filtro de gênero por slug monta o where", async () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     mockPrisma.midia.count.mockResolvedValue(0);
-    await controller.list(undefined, "20", undefined, undefined, undefined, undefined, undefined, undefined, "ficcao-cientifica");
+    await controller.list(
+      undefined,
+      "20",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "ficcao-cientifica",
+    );
     const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
       where: Record<string, unknown>;
     };
@@ -233,7 +242,7 @@ describe("MediaController (unit T8.1)", () => {
         },
       ],
       avaliacoes: [{ fonte: "tmdb", url: "https://tmdb/x" }],
-      franquias: []
+      franquias: [],
     });
     const result = await controller.getBySlug("792422c1-f982-4380-9d26-a6925120d0ad");
     expect(result.id).toBe("792422c1-f982-4380-9d26-a6925120d0ad");
@@ -264,7 +273,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
-      franquias: []
+      franquias: [],
     });
     const result = await controller.getBySlug("lucifer");
     expect(result.id).toBe("m1");
@@ -291,7 +300,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
-      franquias: []
+      franquias: [],
     });
     mockPrisma.midia.findMany.mockResolvedValue([
       { id: "m1", titulo: "O Poderoso Chefão", titulo_original: null },
@@ -318,7 +327,7 @@ describe("MediaController (unit T8.1)", () => {
       streamings: [],
       scores: [],
       avaliacoes: [],
-      franquias: []
+      franquias: [],
     });
     mockPrisma.midia.findMany.mockResolvedValue([
       { id: "m1", titulo: "Frieren e a Jornada para o Além", titulo_original: "Sousou no Frieren" },
@@ -474,23 +483,5 @@ describe("AdminController (unit T8.1)", () => {
     const result = controller.getStats();
     expect(result.message).toContain("admin");
     expect(result.timestamp).toBeDefined();
-  });
-});
-
-describe("PremiumController (unit T8.1)", () => {
-  let controller: PremiumController;
-
-  beforeEach(() => {
-    controller = new PremiumController();
-  });
-
-  it("getAdvancedRecommendations() returns tier advanced", () => {
-    const result = controller.getAdvancedRecommendations();
-    expect(result.tier).toBe("advanced");
-  });
-
-  it("getMlRecommendations() returns tier ml_personalized", () => {
-    const result = controller.getMlRecommendations();
-    expect(result.tier).toBe("ml_personalized");
   });
 });

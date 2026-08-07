@@ -160,6 +160,15 @@ async function bootstrap(): Promise<void> {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = discoverRateLimit();
     }
+    // T209: recomendações (agregações por usuário) — 30 req/min.
+    if (
+      (routeOptions.url === "/api/v1/premium/recommendations" ||
+        routeOptions.url === "/api/v1/premium/ml-personalized") &&
+      routeOptions.method === "GET"
+    ) {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = discoverRateLimit();
+    }
   });
 
   // T021/7.1: CSP com nonce dinamico por requisicao (script-src sem 'unsafe-inline').

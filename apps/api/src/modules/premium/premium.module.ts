@@ -1,7 +1,8 @@
-import { Module } from "@nestjs/common";
-import { PremiumController } from "./premium.controller.js";
+﻿import { Module } from "@nestjs/common";
 
-@Module({
-  controllers: [PremiumController],
-})
+/**
+ * PremiumModule — rotas premium migradas para RecommendationsModule (T209).
+ * Mantido vazio por compatibilidade de importação (app.module).
+ */
+@Module({})
 export class PremiumModule {}
