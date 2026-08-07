@@ -2025,3 +2025,29 @@ F04 - CRUD de watchlist completo (4.4, Tier 0):
   midia_id nao e UUID estrito (VarChar(255) por ids legados - zod min(1)
   max(255)); PATCH/DELETE usam entryId (contrato do web), nao midiaId.
 Verificacao: API 525/525 (60 arquivos); tsc/lint/build ok; Web 236/236.
+
+## [2026-08-08] T208-discover-search (DONE, commit 65887b1)
+F04 - busca full-text (4.5/4.8) em GET /api/v1/discover:
+- DESC: /search (pg_trgm, offset) ja existia p/ o web — T208 criou o
+  /discover novo com contrato do payload (q/tipo/genero/cursor/limit):
+  1. tsvector + unaccent: colunas geradas STORED titulo_tsv/sinopse_tsv +
+     GIN (migration 20260808_add_search_vector; colunas geradas nao sao
+     modeladas no Prisma — acesso so via $queryRaw). q>=3 chars usa
+     plainto_tsquery('portuguese', unaccent($q)) — nao aceita sintaxe de
+     query + parametrizado; q<3 usa fallback pg_trgm (titulo % q).
+     q vazio = modo catalogo (ordenado por score).
+  2. Filtros combinados: tipo (enum) + genero (slug; EXISTS via midia_genero).
+  3. Paginacao keyset por cursor UUID: (rank, id) < (rankCursor, cursorId),
+     rank calculado na mesma expressao (deterministica); cursor inexistente
+     = pagina vazia (sem fabricar); proximo_cursor = ultimo id se ha mais.
+  4. na_watchlist: auth OPCIONAL (cookie sess via SessionService.validateToken;
+     falha degrada para anonimo, nunca 401) — EXISTS parametrizado
+     (w.midia_id = m.id::text; watchlist.midia_id e varchar).
+  5. Saida sanitizada: id/titulo/tipo/ano/poster_url/score/na_watchlist/slug
+     (sem sinopse, fonte_id, created_at, updated_at).
+  6. Rate limit discoverRateLimit 30/min em /discover e /search (onRoute).
+- Testes: 32 (service 14: tsvector sanitizado, fallback curto, tipo, genero,
+  catalogo, cursor, cursor inexistente, na_watchlist parametrizado; controller
+  11: repasse usuarioId, sessao invalida degrada, SQLi 400, q longo, cursor
+  nao-uuid; e2e 8 via supertest). Mock de $queryRaw simula o SQL compilado
+  (parametros nunca concatenados). API 543/543 (61 arquivos), tsc/lint/build ok.
