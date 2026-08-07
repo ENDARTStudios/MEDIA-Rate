@@ -2178,3 +2178,33 @@ F03 - trilha de auditoria completa de auth (gap 3.7):
 - PLANO_MESTRE: 3.3 (T212) e 3.7 (T213) marcados [x].
 - Testes: 8 novos (eventos com ip/ua, ausencia de segredos, T212 preservado
   no reuse) - API 585/585 (68 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T214-email-verification (DONE, commit c1d7169)
+F03 - email verification (3.11) - ultimo gap da Fase 3:
+- Token opaco 256-bit armazenado como SHA-256 (email_verification_token_hash)
+  + expiracao 24h + uso unico. Migration 20260808130000_email_verification
+  com BACKFILL email_verificado_em = NOW() p/ TODOS os existentes - nenhum
+  login quebra (coluna ja existia, nao-enforced).
+- register: emite token via MockMailService.enviarVerificacaoEmail
+  (dev-mailbox.log em dev; token NUNCA em logs do app - so hash truncado);
+  response 201 SEM expor token; audit EMAIL_VERIFICATION_SENT.
+- GET /auth/verify-email?token= : publico (lista publica do AuthGuard),
+  valida hash+expiracao, marca email_verificado_em, anula token (uso unico);
+  response generica 200 (invalido/expirado NAO revela estado); audit
+  EMAIL_VERIFIED com IP+UA.
+- Login enforcement: email_verificado_em null -> 403 com code
+  EMAIL_NOT_VERIFIED (nao 401) SEM criar sessao + audit USER_LOGIN_FAILED
+  motivo email_not_verified.
+- POST /auth/resend-verification: publico + rate limit 3/h por email
+  (janela deslizante por instancia) + rate limit de rota (loginRateLimit);
+  respostas genericas (email inexistente/verificado nao revelam); audit
+  EMAIL_VERIFICATION_RESENT.
+- Descobertas: specs de login existentes precisaram de usuario verificado
+  (enforcement novo); refresh-flow e2e idem; AuthService ganhou o 9o param
+  (emailVerification) - 4 specs ajustados.
+- PLANO_MESTRE: 3.6 atualizado [x] (T206) e 3.11 adicionado [x].
+- Testes: 12 novos (6 unit: emitir/verificar/uso unico/expirado/reenvio
+  rate limit/generico; 6 e2e: register sem token no body, login sem
+  verificar 403 + sem cookie, verify->login ok, invalido/expirado 200
+  generico, resend 429 na 4a, legado backfill loga).
+  API 597/597 (70 arquivos), tsc/lint/build ok.
