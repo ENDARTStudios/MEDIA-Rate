@@ -86,13 +86,13 @@ describe("SessionCookieService (T3.2 + T049)", () => {
   });
 
   describe("clearSessionCookie()", () => {
-    it("limpa sess + csrf_token com mesmas flags", () => {
+    it("limpa sess + refresh + csrf_token com mesmas flags (T212)", () => {
       process.env.NODE_ENV = "test";
       const { reply, clearCookie } = createMockReply();
 
       svc.clearSessionCookie(reply);
 
-      expect(clearCookie).toHaveBeenCalledTimes(2);
+      expect(clearCookie).toHaveBeenCalledTimes(3);
 
       const [sessName, sessOpts] = clearCookie.mock.calls[0]!;
       expect(sessName).toBe("sess");
@@ -100,7 +100,13 @@ describe("SessionCookieService (T3.2 + T049)", () => {
       expect(sessOpts.sameSite).toBe("lax");
       expect(sessOpts.path).toBe("/");
 
-      const [csrfName, csrfOpts] = clearCookie.mock.calls[1]!;
+      const [refreshName, refreshOpts] = clearCookie.mock.calls[1]!;
+      expect(refreshName).toBe("refresh");
+      expect(refreshOpts.httpOnly).toBe(true);
+      expect(refreshOpts.sameSite).toBe("lax");
+      expect(refreshOpts.path).toBe("/api/v1/auth/refresh");
+
+      const [csrfName, csrfOpts] = clearCookie.mock.calls[2]!;
       expect(csrfName).toBe("csrf_token");
       expect(csrfOpts.path).toBe("/");
     });

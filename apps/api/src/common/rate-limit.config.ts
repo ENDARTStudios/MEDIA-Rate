@@ -98,6 +98,13 @@ export function watchlistRateLimit(): { max: number; timeWindow: string } {
 }
 
 /**
+ * T212 — POST /auth/refresh (público): 10 req/min por IP.
+ */
+export function refreshRateLimit(): { max: number; timeWindow: string } {
+  return { max: 10, timeWindow: "1 minute" };
+}
+
+/**
  * T198 — PUT /interacoes por usuário: escrita de sinal é operação de alta
  * fricção proibida de ser spammada (o keyGenerator global já chaveia por
  * user+rota — aqui só apertamos a janela por rota).

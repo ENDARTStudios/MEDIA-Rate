@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import "@fastify/cookie";
 
 const COOKIE_NAME = "sess";
+const REFRESH_COOKIE_NAME = "refresh";
 const CSRF_COOKIE_NAME = "csrf_token";
 
 @Injectable()
@@ -34,6 +35,18 @@ export class SessionCookieService {
     return csrf;
   }
 
+  /** T212: refresh token rotativo em cookie httpOnly separado (30 dias). */
+  setRefreshCookie(reply: FastifyReply, token: string, expiresAt: Date): void {
+    const isProd = this.isProd();
+    void reply.setCookie(REFRESH_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/api/v1/auth/refresh", // só envia no refresh (menor superfície)
+      expires: expiresAt,
+    });
+  }
+
   clearSessionCookie(reply: FastifyReply): void {
     const isProd = this.isProd();
     void reply.clearCookie(COOKIE_NAME, {
@@ -42,6 +55,12 @@ export class SessionCookieService {
       sameSite: "lax",
       path: "/",
     });
+    void reply.clearCookie(REFRESH_COOKIE_NAME, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/api/v1/auth/refresh",
+    });
     void reply.clearCookie(CSRF_COOKIE_NAME, {
       path: "/",
     });
@@ -49,5 +68,9 @@ export class SessionCookieService {
 
   getCookieName(): string {
     return COOKIE_NAME;
+  }
+
+  getRefreshCookieName(): string {
+    return REFRESH_COOKIE_NAME;
   }
 }

@@ -54,13 +54,24 @@ function makeMocks() {
   };
 
   const service = new AuthService(
-    prisma as any,
-    passwordService,
-    {} as any,
-    {} as any,
-    { capture: vi.fn(), identify: vi.fn() } as any,
-    audit as any,
-    mail as any,
+    prisma as any, // prisma
+    passwordService, // passwordService
+    {} as any, // sessionService
+    {
+      // sessionRotation
+      rotacionarRefresh: async () => ({
+        ok: true,
+        refreshToken: "r",
+        sessaoId: "s",
+        usuarioId: "u",
+        familyId: "f",
+      }),
+      revogarTodasSessoes: async () => 0,
+    } as any,
+    {} as any, // lockoutService
+    { capture: vi.fn(), identify: vi.fn() } as any, // analytics
+    audit as any, // auditLog
+    mail as any, // mockMail
   );
   return { service, prisma, mail, audit, passwordService, users };
 }

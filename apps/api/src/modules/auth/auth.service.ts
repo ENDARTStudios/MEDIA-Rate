@@ -11,6 +11,7 @@ import { randomBytes, createHash } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { PasswordService } from "../../common/password.service.js";
 import { SessionService, type SessionCreationResult } from "./session.service.js";
+import { SessionRotationService } from "./session-rotation.service.js";
 import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
@@ -33,7 +34,9 @@ export interface RegisterResult {
  */
 export interface LoginResult {
   token: string;
+  refreshToken: string;
   expires_at: Date;
+  refresh_expira_em: Date;
   usuario: {
     id: string;
     email: string;
@@ -82,6 +85,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
     private readonly sessionService: SessionService,
+    private readonly sessionRotation: SessionRotationService,
     private readonly lockoutService: LockoutService,
     private readonly analytics: AnalyticsService,
     private readonly auditLog: AuditLogService,
@@ -235,8 +239,75 @@ export class AuthService {
 
     return {
       token: session.token,
+      refreshToken: session.refreshToken,
       expires_at: session.record.expires_at,
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       usuario: { id: usuario.id, email: usuario.email, nome: usuario.nome },
+    };
+  }
+
+  /**
+   * T212 — POST /auth/refresh: rotaciona o refresh token (reuso detectado
+   * revoga TODAS as sessões do usuário) e emite novo par access+refresh.
+   */
+  async refresh(
+    refreshToken: string,
+    options: { ip?: string; user_agent?: string } = {},
+  ): Promise<{
+    token: string;
+    refreshToken: string;
+    expires_at: Date;
+    refresh_expira_em: Date;
+  }> {
+    const access = this.sessionService.generateToken();
+    const accessHash = this.sessionService.hashToken(access);
+    const accessExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    const rot = await this.sessionRotation.rotacionarRefresh({
+      refreshToken,
+      novoAccessHash: accessHash,
+      accessExpiresAt: accessExpires,
+    });
+
+    if (!rot.ok) {
+      if (rot.motivo === "reuso") {
+        // Roubo provável: token já rotacionado sendo usado de novo.
+        await this.auditLog.log({
+          entidade: "Sessao",
+          entidadeId: rot.sessaoId,
+          acao: "TOKEN_REFRESH_REUSE_DETECTED",
+          ipOrigem: options.ip,
+          dadosDepois: { familyId: rot.familyId, userAgent: options.user_agent },
+        });
+        await this.auditLog.log({
+          entidade: "Usuario",
+          entidadeId: rot.usuarioId,
+          acao: "SESSION_REVOKED_ALL",
+          ipOrigem: options.ip,
+          dadosDepois: { userAgent: options.user_agent },
+        });
+        this.logger.warn(`Reuse de refresh detectado (IP ${options.ip ?? "unknown"}).`);
+      }
+      throw new UnauthorizedException({
+        statusCode: 401,
+        error: "Unauthorized",
+        message: "Sessão expirada.",
+      });
+    }
+
+    await this.auditLog.log({
+      entidade: "Sessao",
+      entidadeId: rot.sessaoId,
+      acao: "TOKEN_REFRESHED",
+      ipOrigem: options.ip,
+      dadosDepois: { userAgent: options.user_agent },
+    });
+
+    return {
+      token: access,
+      refreshToken: rot.refreshToken,
+      expires_at: accessExpires,
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     };
   }
 

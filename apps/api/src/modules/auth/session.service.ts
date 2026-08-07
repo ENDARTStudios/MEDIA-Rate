@@ -1,25 +1,28 @@
 import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 
 /**
- * Configuração de sessão.
- * SESSION_TTL_MS: tempo de vida da sessão (default 7 dias — equilíbrio
- * entre segurança e UX). Configurável via SESSION_TTL_HOURS env.
- * SESSION_REFRESH_THRESHOLD_MS: quando renova o cookie (sliding session).
+ * Configuração de sessão (T212, Fase 3.3).
+ * - ACCESS: token opaco 256-bit, TTL 15min (expires_at da sessão), com
+ *   sliding session (renova transparente quando faltam < 5min).
+ * - REFRESH: token opaco 256-bit, TTL 30 dias (refresh_expira_em), rotativo
+ *   a cada uso via POST /auth/refresh; reuse detectado revoga tudo.
  */
-const SESSION_TTL_HOURS = Number.parseInt(process.env.SESSION_TTL_HOURS ?? "168", 10); // 7 dias
-const SESSION_TTL_MS = SESSION_TTL_HOURS * 60 * 60 * 1000;
-const REFRESH_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24h — sliding session renewal threshold
+export const ACCESS_TTL_MS = 15 * 60 * 1000; // 15min
+export const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
+const SLIDING_THRESHOLD_MS = 5 * 60 * 1000; // 5min
 
 /**
  * Resultado da criação de sessão.
- * `token` é o token opaco em texto plano — só existe em memória e no cookie.
- * `record` é o registro persistido no banco (apenas hash).
+ * `token` é o token opaco (access) em texto plano — só existe em memória e no
+ * cookie. `refreshToken` é o refresh rotativo (cookie httpOnly 'refresh').
+ * `record` é o registro persistido no banco (apenas hashes).
  */
 export interface SessionCreationResult {
   token: string;
+  refreshToken: string;
   record: {
     id: string;
     usuario_id: string;
@@ -80,8 +83,8 @@ export class SessionService implements OnApplicationBootstrap {
   }
 
   /**
-   * Cria nova sessão para o usuário.
-   * @returns token em texto (para cookie) + record persistido (com hash).
+   * Cria nova sessão para o usuário — par access (15min) + refresh (30 dias).
+   * @returns tokens em texto (para cookies) + record persistido (hashes).
    */
   async createSession(params: {
     usuario_id: string;
@@ -90,25 +93,30 @@ export class SessionService implements OnApplicationBootstrap {
   }): Promise<SessionCreationResult> {
     const token = this.generateToken();
     const token_hash = this.hashToken(token);
-    const expires_at = new Date(Date.now() + SESSION_TTL_MS);
+    const refreshToken = this.generateToken();
+    const refresh_hash = this.hashToken(refreshToken);
+    const agora = Date.now();
 
     const record = await this.prisma.sessao.create({
       data: {
         usuario_id: params.usuario_id,
         token_hash,
+        refresh_token_hash: refresh_hash,
+        refresh_expira_em: new Date(agora + REFRESH_TTL_MS),
+        refresh_family_id: randomUUID(),
         user_agent: params.user_agent?.slice(0, 1024),
         ip_criacao: params.ip,
-        expires_at,
+        expires_at: new Date(agora + ACCESS_TTL_MS),
       },
       select: { id: true, usuario_id: true, expires_at: true },
     });
 
     this.logger.debug(`Sessão criada para usuário ${params.usuario_id}`);
-    return { token, record };
+    return { token, refreshToken, record };
   }
 
   /**
-   * Valida token opaco: encontra sessão ativa não expirada.
+   * Valida token opaco (access): encontra sessão ativa não expirada.
    * @returns sessão + usuário se válido, null caso contrário.
    */
   async validateToken(token: string): Promise<{
@@ -131,10 +139,10 @@ export class SessionService implements OnApplicationBootstrap {
     if (result.revoked_at !== null) return null;
     if (result.expires_at < new Date()) return null;
 
-    // Sliding session: estende TTL se faltar menos de 24h para expirar.
+    // Sliding session (T212): renova o access transparente se faltar < 5min.
     const msUntilExpiry = result.expires_at.getTime() - Date.now();
-    if (msUntilExpiry < REFRESH_THRESHOLD_MS) {
-      const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
+    if (msUntilExpiry < SLIDING_THRESHOLD_MS) {
+      const newExpiry = new Date(Date.now() + ACCESS_TTL_MS);
       await this.prisma.sessao.update({
         where: { id: result.id },
         data: { expires_at: newExpiry },

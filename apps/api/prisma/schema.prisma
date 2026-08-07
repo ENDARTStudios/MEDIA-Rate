@@ -127,6 +127,14 @@ model Sessao {
   usuario_id  String   @map("usuario_id") @db.Uuid
   // SHA-256 do token opaco gerado com crypto.randomBytes(32).
   token_hash  String   @unique @map("token_hash") @db.VarChar(64)
+  // T212: refresh token rotativo — hash do token ATUAL (nunca plaintext).
+  refresh_token_hash         String?  @unique @map("refresh_token_hash") @db.VarChar(64)
+  // T212: hash do refresh ANTERIOR — detecta reuse (token já rotacionado).
+  refresh_token_hash_anterior String? @map("refresh_token_hash_anterior") @db.VarChar(64)
+  // T212: expiração do refresh (30 dias) — acesso expira em expires_at (15min).
+  refresh_expira_em          DateTime? @map("refresh_expira_em")
+  // T212: família de rotações da mesma sessão (revoga tudo no reuse).
+  refresh_family_id          String?  @map("refresh_family_id") @db.Uuid
   // User-Agent para identificação do dispositivo (não PII direto).
   user_agent  String?  @map("user_agent") @db.Text
   ip_criacao  String?  @map("ip_criacao") @db.Inet

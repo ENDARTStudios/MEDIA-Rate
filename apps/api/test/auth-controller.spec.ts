@@ -42,8 +42,10 @@ interface MockSessionService {
 
 interface MockCookieService {
   getCookieName: () => string;
+  getRefreshCookieName: () => string;
   clearSessionCookie: (reply: FastifyReply) => void;
   setSessionCookie: (reply: FastifyReply, token: string, expiresAt: Date) => string;
+  setRefreshCookie: (reply: FastifyReply, token: string, expiresAt: Date) => void;
 }
 
 function mockReq(ip = "1.2.3.4", userAgent = "test-agent") {
@@ -79,7 +81,9 @@ describe("AuthController (unit)", () => {
       }),
       login: async (dto) => ({
         token: "token-xyz",
+        refreshToken: "refresh-xyz",
         expires_at: new Date(),
+        refresh_expira_em: new Date(),
         usuario: { id: "u1", email: dto.email, nome: null },
       }),
       forgotPassword: async () => ({ message: "ok" }),
@@ -106,10 +110,14 @@ describe("AuthController (unit)", () => {
     };
     cookieService = {
       getCookieName: () => "sess",
+      getRefreshCookieName: () => "refresh",
       clearSessionCookie: () => {
         /* stub de teste */
       },
       setSessionCookie: () => {
+        /* stub de teste */
+      },
+      setRefreshCookie: () => {
         /* stub de teste */
       },
     };

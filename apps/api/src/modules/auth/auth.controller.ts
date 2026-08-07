@@ -104,6 +104,8 @@ export class AuthController {
 
     // T3.2: seta cookie httpOnly Secure SameSite=Lax.
     const csrf = this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
+    // T212: refresh token rotativo em cookie httpOnly (path do /refresh).
+    this.cookieService.setRefreshCookie(reply, result.refreshToken, result.refresh_expira_em);
 
     return {
       usuario: {
@@ -114,6 +116,36 @@ export class AuthController {
       expires_at: result.expires_at.toISOString(),
       csrf_token: csrf,
     };
+  }
+
+  /**
+   * T212 — POST /auth/refresh: público (sem AuthGuard), exige cookie
+   * 'refresh' válido; rotaciona o par (reuso detectado revoga tudo).
+   * Rate limit: 10 req/min por IP (onRoute).
+   */
+  @Post("refresh")
+  @HttpCode(200)
+  async refresh(
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{ ok: boolean }> {
+    const cookies = (req as unknown as { cookies?: Record<string, string> }).cookies;
+    const refreshToken = cookies?.[this.cookieService.getRefreshCookieName()];
+    if (!refreshToken) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        error: "Unauthorized",
+        message: "Sessão expirada.",
+      });
+    }
+    const userAgent = req.headers["user-agent"];
+    const result = await this.authService.refresh(refreshToken, {
+      ip: req.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
+    this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
+    this.cookieService.setRefreshCookie(reply, result.refreshToken, result.refresh_expira_em);
+    return { ok: true };
   }
 
   @Get("me")

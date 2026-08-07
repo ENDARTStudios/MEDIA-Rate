@@ -1,78 +1,173 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, beforeEach } from "vitest";
+import { createHash, randomUUID } from "node:crypto";
 import { SessionRotationService } from "../src/modules/auth/session-rotation.service.js";
 
-describe("SessionRotationService (T3.6)", () => {
-  let svc: SessionRotationService;
+/** Store in-memory com a semântica mínima de "sessao". */
+function makeStore() {
+  const rows = new Map<string, Record<string, unknown>>();
+  const prisma = {
+    sessao: {
+      findUnique: async ({ where }: any) => {
+        if (where.token_hash) {
+          return [...rows.values()].find((r) => r.token_hash === where.token_hash) ?? null;
+        }
+        if (where.refresh_token_hash) {
+          return (
+            [...rows.values()].find((r) => r.refresh_token_hash === where.refresh_token_hash) ??
+            null
+          );
+        }
+        return null;
+      },
+      findFirst: async ({ where }: any) =>
+        [...rows.values()].find(
+          (r) => r.refresh_token_hash_anterior === where.refresh_token_hash_anterior,
+        ) ?? null,
+      update: async ({ where, data }: any) => {
+        const row = rows.get(where.id) ?? [...rows.values()].find((r) => r.id === where.id);
+        if (row) Object.assign(row, data);
+        return row;
+      },
+      updateMany: async ({ where, data }: any) => {
+        let count = 0;
+        for (const r of rows.values()) {
+          if (r.usuario_id === where.usuario_id && r.revoked_at === null) {
+            Object.assign(r, data);
+            count++;
+          }
+        }
+        return { count };
+      },
+    },
+  };
+  return { prisma, rows };
+}
+
+const hash = (t: string) => createHash("sha256").update(t).digest("hex");
+
+describe("SessionRotationService (T212)", () => {
+  let store: ReturnType<typeof makeStore>;
+  let service: SessionRotationService;
 
   beforeEach(() => {
-    svc = new SessionRotationService();
+    store = makeStore();
+    service = new SessionRotationService(store.prisma as any);
   });
 
-  it("inicializa com currentSecret aleatório (32 bytes hex = 64 chars)", () => {
-    const hash = svc.getCurrentSecretHash();
-    expect(hash).toMatch(/^[a-f0-9]{64}$/);
+  it("rotação: token atual válido → novo refresh (mesma família) + novo access hash", async () => {
+    const refreshAtual = service.generateRefreshToken();
+    const familia = randomUUID();
+    store.rows.set("s1", {
+      id: "s1",
+      usuario_id: "u1",
+      token_hash: "access-hash-1",
+      refresh_token_hash: hash(refreshAtual),
+      refresh_token_hash_anterior: null,
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refresh_family_id: familia,
+      revoked_at: null,
+    });
+
+    const novoAccessHash = "access-hash-2";
+    const r = await service.rotacionarRefresh({
+      refreshToken: refreshAtual,
+      novoAccessHash,
+      accessExpiresAt: new Date(Date.now() + 15 * 60 * 1000),
+    });
+
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.refreshToken).not.toBe(refreshAtual);
+    expect(r.familyId).toBe(familia);
+    const row = store.rows.get("s1")!;
+    expect(row.refresh_token_hash_anterior).toBe(hash(refreshAtual)); // antigo vira anterior
+    expect(row.refresh_token_hash).toBe(hash(r.refreshToken)); // novo hash
+    expect(row.token_hash).toBe(novoAccessHash); // access rotacionado junto
   });
 
-  it("nao tem previousSecret na inicializacao", () => {
-    expect(svc.hasPreviousSecret()).toBe(false);
+  it("refresh expirado → inválido (sem revogar)", async () => {
+    const refreshAtual = service.generateRefreshToken();
+    store.rows.set("s1", {
+      id: "s1",
+      usuario_id: "u1",
+      token_hash: "access-hash-1",
+      refresh_token_hash: hash(refreshAtual),
+      refresh_expira_em: new Date(Date.now() - 1000),
+      refresh_family_id: randomUUID(),
+      revoked_at: null,
+    });
+    const r = await service.rotacionarRefresh({ refreshToken: refreshAtual });
+    expect(r).toEqual({ ok: false, motivo: "invalido" });
+    expect(store.rows.get("s1")!.refresh_token_hash).toBe(hash(refreshAtual)); // não rotacionou
   });
 
-  it("apos rotate(): previousSecret existe", () => {
-    svc.rotate();
-    expect(svc.hasPreviousSecret()).toBe(true);
+  it("sessão revogada → inválido", async () => {
+    const refreshAtual = service.generateRefreshToken();
+    store.rows.set("s1", {
+      id: "s1",
+      usuario_id: "u1",
+      token_hash: "access-hash-1",
+      refresh_token_hash: hash(refreshAtual),
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refresh_family_id: randomUUID(),
+      revoked_at: new Date(),
+    });
+    const r = await service.rotacionarRefresh({ refreshToken: refreshAtual });
+    expect(r).toEqual({ ok: false, motivo: "invalido" });
   });
 
-  it("rotate() muda currentSecret", () => {
-    const hash1 = svc.getCurrentSecretHash();
-    svc.rotate();
-    const hash2 = svc.getCurrentSecretHash();
-    expect(hash1).not.toBe(hash2);
+  it("REUSE: token já rotacionado (anterior) → revoga TODAS as sessões do usuário", async () => {
+    const refreshAntigo = service.generateRefreshToken();
+    const refreshNovo = service.generateRefreshToken();
+    store.rows.set("s1", {
+      id: "s1",
+      usuario_id: "u1",
+      token_hash: "access-2",
+      refresh_token_hash: hash(refreshNovo),
+      refresh_token_hash_anterior: hash(refreshAntigo),
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refresh_family_id: randomUUID(),
+      revoked_at: null,
+    });
+    store.rows.set("s2", {
+      id: "s2",
+      usuario_id: "u1",
+      token_hash: "access-outro",
+      refresh_token_hash: hash(service.generateRefreshToken()),
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refresh_family_id: randomUUID(),
+      revoked_at: null,
+    });
+
+    // Usar o token ANTIGO (já rotacionado) = roubo provável.
+    const r = await service.rotacionarRefresh({ refreshToken: refreshAntigo });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.motivo).toBe("reuso");
+    expect(store.rows.get("s1")!.revoked_at).toBeInstanceOf(Date);
+    expect(store.rows.get("s2")!.revoked_at).toBeInstanceOf(Date); // TODAS as sessões
   });
 
-  it("rotate(newSecret) usa secret fornecido", () => {
-    const customSecret = "my-custom-secret-123";
-    svc.rotate(customSecret);
-    // Hash SHA-256 de "my-custom-secret-123"
-    const expectedHash = "ab1a3f5d3e2c1a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b";
-    // Apenas verifica que mudou para algo determinístico (não aleatório)
-    const hash1 = svc.getCurrentSecretHash();
-    svc.rotate(customSecret);
-    const hash2 = svc.getCurrentSecretHash();
-    expect(hash1).toBe(hash2); // mesmo secret = mesmo hash
-    expect(hash1).not.toBe(expectedHash); // só para garantir que não é hardcoded
+  it("token desconhecido → inválido", async () => {
+    const r = await service.rotacionarRefresh({ refreshToken: "token-que-nao-existe" });
+    expect(r).toEqual({ ok: false, motivo: "invalido" });
   });
 
-  it("duas rotacoes seguidas: previous vira previous-previous (perdido)", () => {
-    svc.rotate("secret1");
-    const hash1 = svc.getCurrentSecretHash();
-    svc.rotate("secret2");
-    const hash2 = svc.getCurrentSecretHash();
-    expect(hash1).not.toBe(hash2);
-    // Ainda tem previous (secret1 era current, virou previous; secret2 é current)
-    expect(svc.hasPreviousSecret()).toBe(true);
-  });
-
-  it("verifyWithAnySecret() retorna false (token opaco não usa assinatura)", () => {
-    expect(svc.verifyWithAnySecret("token", "signature")).toBe(false);
-  });
-});
-
-describe("SessionRotationService — design decision (T3.6)", () => {
-  it("documenta que token opaco nao precisa de rotation (nao ha secret para rotacionar)", () => {
-    const svc = new SessionRotationService();
-    // Com token opaco, o que protege a sessao é:
-    // 1. Token aleatório de 256 bits de entropia (impossível de adivinhar).
-    // 2. Hash SHA-256 do token no banco (mesmo com vazamento do banco,
-    //    attacker não consegue derivar o token).
-    // 3. Sessão revogável a qualquer momento (logout T3.5).
-    //
-    // "Session secret" aplicaria a:
-    // - JWT signing key (não usamos JWT)
-    // - Cookie signing key (cookies não são assinados — token tem 256 bits)
-    // - Encryption key (não criptografamos cookie)
-    //
-    // T3.6 é satisfeito conceitualmente pelo design. SessionRotationService
-    // fica como API para futura migração a stateful auth.
-    expect(svc).toBeDefined();
+  it("revogarTodasSessoes: revoga apenas as ativas", async () => {
+    store.rows.set("s1", {
+      id: "s1",
+      usuario_id: "u1",
+      token_hash: "a1",
+      revoked_at: null,
+    });
+    store.rows.set("s2", {
+      id: "s2",
+      usuario_id: "u1",
+      token_hash: "a2",
+      revoked_at: new Date(), // já revogada — não conta
+    });
+    const count = await service.revogarTodasSessoes("u1");
+    expect(count).toBe(1);
   });
 });

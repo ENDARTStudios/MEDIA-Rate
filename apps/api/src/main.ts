@@ -14,6 +14,7 @@ import { buildCorsOptions } from "./common/cors.config.js";
 import {
   buildRateLimitOptions,
   loginRateLimit,
+  refreshRateLimit,
   interacoesRateLimit,
   watchlistRateLimit,
   discoverRateLimit,
@@ -177,10 +178,13 @@ async function bootstrap(): Promise<void> {
       "/api/v1/auth/login",
       "/api/v1/auth/forgot-password",
       "/api/v1/auth/reset-password",
+      "/api/v1/auth/refresh",
     ];
     if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};
-      routeOptions.config.rateLimit = loginRateLimit();
+      // T212: /refresh é público — 10 req/min por IP (rotação é cara).
+      routeOptions.config.rateLimit =
+        routeOptions.url === "/api/v1/auth/refresh" ? refreshRateLimit() : loginRateLimit();
     }
     // T198: escrita de interação (status+reação) — 60/min por usuário/rota.
     if (routeOptions.url.startsWith("/api/v1/interacoes") && routeOptions.method === "PUT") {

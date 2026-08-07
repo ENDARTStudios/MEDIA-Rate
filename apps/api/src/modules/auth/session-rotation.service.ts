@@ -1,69 +1,130 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { PrismaService } from "../../prisma/prisma.service.js";
+import { REFRESH_TTL_MS } from "./session.service.js";
+
+export type RotacaoResult =
+  | {
+      ok: true;
+      refreshToken: string;
+      sessaoId: string;
+      usuarioId: string;
+      familyId: string;
+    }
+  | { ok: false; motivo: "reuso"; sessaoId: string; usuarioId: string; familyId?: string }
+  | { ok: false; motivo: "invalido" };
 
 /**
- * Serviço de rotação de session secret com grace period (T3.6).
+ * SessionRotationService (T212, Fase 3.3) — rotação de refresh token com
+ * detecção de reuse (deixou de ser placeholder da T3.6).
  *
- * Estratégia: mantém 2 secrets simultaneamente (atual + anterior).
- * Tokens gerados com secret anterior ainda são aceitos até expirar.
- * Rotação periódica (manual ou via env) sem derrubar sessões ativas.
- *
- * Uso: SessionService NÃO usa este serviço diretamente (token opaco é
- * aleatório, não assinado). Este serviço é para assinatura de cookies
- * stateless — se no futuro migrarmos para JWT ou cookies assinados,
- * usamos esta classe. Por ora, fica como placeholder documentado que
- * T3.6 foi considerado mas não aplicado (token opaco não precisa de
- * rotação de secret).
- *
- * COMENTÁRIO HONESTO: o critério de pronto T3.6 pede "rotação de session
- * secret sem derrubar sessões ativas (grace period)". Com token opaco,
- * o "secret" não existe — o que protege a sessão é o hash SHA-256 do
- * token no banco. Rotação de secret aplicaria a (a) signing key de JWT,
- * (b) cookie signing key, ou (c) encryption key. Nenhuma das três se
- * aplica ao nosso design. Implementação alternativa: rotação do pepper
- * de senha (ARGON2_SECRET_PEPPER) — mas isso invalida todas as senhas
- * (precisariam rehash). Decisão: T3.6 é satisfeito conceitualmente pelo
- * design de token opaco (não há secret para rotacionar), mas exponho
- * este serviço como API para futura migração e para documentar a decisão.
+ * - Rotação OBRIGATÓRIA a cada uso: o hash atual vira `anterior`, um novo
+ *   refresh é emitido (mesma família).
+ * - REUSE DETECTION: um token já rotacionado (hash que só existe em
+ *   `anterior`) sendo usado de novo indica roubo → revoga TODAS as sessões
+ *   do usuário (a família agrupa as rotações).
+ * - Tokens opacos 256-bit; apenas SHA-256 no banco; nunca em logs.
  */
 @Injectable()
 export class SessionRotationService {
   private readonly logger = new Logger(SessionRotationService.name);
-  private currentSecret: string;
-  private previousSecret: string | null;
 
-  constructor() {
-    // Em produção, viria de env (SESSION_SECRET_CURRENT, SESSION_SECRET_PREVIOUS).
-    // Para Beta, geramos aleatoriamente em startup (perde em restart,
-    // mas sessões opacas sobrevivem porque dependem do banco, não do secret).
-    this.currentSecret = randomBytes(32).toString("hex");
-    this.previousSecret = null;
+  constructor(private readonly prisma: PrismaService) {}
+
+  generateRefreshToken(): string {
+    return randomBytes(32).toString("base64url");
+  }
+
+  hashToken(token: string): string {
+    return createHash("sha256").update(token).digest("hex");
   }
 
   /**
-   * Rotaciona o secret: atual vira previous, novo atual é gerado.
-   * Tokens gerados com previous ainda são aceitos.
+   * Rotaciona o par da sessão identificada pelo refresh token.
+   * - token atual válido → novo refresh (mesma família) + novo access hash.
+   * - token já rotacionado (anterior) → REUSO: revoga todas as sessões.
+   * - desconhecido → inválido (401 genérico).
    */
-  rotate(newSecret?: string): void {
-    this.previousSecret = this.currentSecret;
-    this.currentSecret = newSecret ?? randomBytes(32).toString("hex");
-    this.logger.log("Session secret rotacionado. Previous secret em grace period.");
+  async rotacionarRefresh(params: {
+    refreshToken: string;
+    novoAccessHash?: string;
+    accessExpiresAt?: Date;
+  }): Promise<RotacaoResult> {
+    const hash = this.hashToken(params.refreshToken);
+
+    // 1) Token ATUAL.
+    const sessao = await this.prisma.sessao.findUnique({
+      where: { refresh_token_hash: hash },
+    });
+    if (sessao) {
+      if (sessao.revoked_at !== null) {
+        return { ok: false, motivo: "invalido" };
+      }
+      if (sessao.refresh_expira_em && sessao.refresh_expira_em < new Date()) {
+        return { ok: false, motivo: "invalido" };
+      }
+      const novoRefresh = this.generateRefreshToken();
+      const novoHash = this.hashToken(novoRefresh);
+      const familia = sessao.refresh_family_id ?? randomUUID();
+      await this.prisma.sessao.update({
+        where: { id: sessao.id },
+        data: {
+          refresh_token_hash_anterior: sessao.refresh_token_hash,
+          refresh_token_hash: novoHash,
+          refresh_expira_em: new Date(Date.now() + REFRESH_TTL_MS),
+          refresh_family_id: familia,
+          // Novo access (mesma linha da sessão) — o anterior morre.
+          ...(params.novoAccessHash
+            ? {
+                token_hash: params.novoAccessHash,
+                expires_at: params.accessExpiresAt ?? new Date(Date.now() + 15 * 60 * 1000),
+              }
+            : {}),
+        },
+      });
+      this.logger.log(`Refresh rotacionado (sessão ${sessao.id}; família ${familia.slice(0, 8)}…)`);
+      return {
+        ok: true,
+        refreshToken: novoRefresh,
+        sessaoId: sessao.id,
+        usuarioId: sessao.usuario_id,
+        familyId: familia,
+      };
+    }
+
+    // 2) Token ANTERIOR → reuse (roubo provável): revoga TUDO do usuário.
+    const reuso = await this.prisma.sessao.findFirst({
+      where: { refresh_token_hash_anterior: hash },
+    });
+    if (reuso) {
+      await this.prisma.sessao.updateMany({
+        where: { usuario_id: reuso.usuario_id, revoked_at: null },
+        data: { revoked_at: new Date() },
+      });
+      this.logger.warn(
+        `REUSE de refresh detectado (usuário ${reuso.usuario_id}; família ${String(
+          reuso.refresh_family_id,
+        ).slice(0, 8)}…) — todas as sessões revogadas`,
+      );
+      return {
+        ok: false,
+        motivo: "reuso",
+        sessaoId: reuso.id,
+        usuarioId: reuso.usuario_id,
+        familyId: reuso.refresh_family_id ?? undefined,
+      };
+    }
+
+    return { ok: false, motivo: "invalido" };
   }
 
-  /**
-   * Verifica se um token foi assinado com algum dos secrets ativos.
-   * (Placeholder — token opaco não usa assinatura.)
-   */
-  verifyWithAnySecret(_token: string, _signature: string): boolean {
-    // Não aplicável para token opaco. Mantido para futura migração.
-    return false;
-  }
-
-  getCurrentSecretHash(): string {
-    return createHash("sha256").update(this.currentSecret).digest("hex");
-  }
-
-  hasPreviousSecret(): boolean {
-    return this.previousSecret !== null;
+  /** Revoga todas as sessões ativas do usuário (delete-account/reuso). */
+  async revogarTodasSessoes(usuarioId: string): Promise<number> {
+    const result = await this.prisma.sessao.updateMany({
+      where: { usuario_id: usuarioId, revoked_at: null },
+      data: { revoked_at: new Date() },
+    });
+    this.logger.log(`Todas as sessões do usuário ${usuarioId} revogadas (${result.count}).`);
+    return result.count;
   }
 }
