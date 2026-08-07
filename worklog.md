@@ -1940,3 +1940,13 @@ F09 - analise completa dos arquivos de configuracao:
 - IMPORTANTES: OMDB, OPENCRITIC, GOOGLE_BOOKS, STEAMSPY, TRAKT_CLIENT_ID, REDIS_URL, MEDIA_SCORE_JOB_*, RATE_LIMIT_*, SCRAPE_NUMERICO_ENABLED, MEDIA_PREPARACAO_ENABLED, CSP_TRUSTED_ORIGINS, ARGON2_SECRET_PEPPER, ANALYTICS_WRITE_KEY, POSTHOG_HOST; WEB: NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_ANALYTICS_WRITE_KEY, NEXT_PUBLIC_POSTHOG_HOST.
 - LOCAIS: apps/api/.env NAO existe (criar do exemplo; dotenv NAO le .env.local - chaves em .env.local sao inertes para a API); .env raiz tem DATABASE_URL sqlite (invalido, prisma exige postgres) - corrigir ou remover; apps/api/.env.local DATABASE_URL postgres local falhou auth (P1000) - credenciais devem ser validas.
 Verificacao: OMDB 1x em apps/api/.env.example e na raiz; RATE_LIMIT_* presentes; main.ts documentado (COOKIE_SECRET).
+
+## [2026-08-08] T204-consolidacao-env-deploy (DONE, commit 5051e29)
+F10 - consolidacao final de configuracao de ambiente:
+- TRES .env.example separados por app (Principio do Menor Privilegio):
+  apps/api/.env.example (backend: DATABASE_URL, COOKIE_SECRET, ADMIN_TOKEN, TMDB, TWITCH, STRIPE_*, COMICVINE, COLUMN_ENCRYPTION_KEY, ALLOWED_ORIGINS, CORS_ORIGIN, RATE_LIMIT_*, MEDIA_SCORE_JOB_*, REDIS_URL, fontes, jobs); apps/web/.env.example (novo - so NEXT_PUBLIC_API_URL/SITE_URL/ANALYTICS/POSTHOG); raiz .env.example (so tooling: NODE_ENV, PORT, TURBO_*).
+- Removidos do exemplo da API: JWT_SECRET e IGDB_CLIENT_* (nao lidos; grep 0). OMDB 1x.
+- scripts/validate-env.sh: checa obrigatorias no apps/api/.env (so nomes, nunca valores; exit 1 se faltar). scripts/check-railway-vars.sh: checklist Railway por criticidade + variaveis removiveis.
+- .gitattributes *.sh eol=lf (bash nao quebra com CRLF); apps/web/.gitignore ganhou excecao !.env.example.
+- README apps/api: secao Configuracao de Ambiente (separacao, setup local, Railway, variaveis nao lidas).
+Verificacao: validate-env lista faltantes sem valores; OMDB 1x; JWT 0x; 3 .env.example; build API exit 0.
