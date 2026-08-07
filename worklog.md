@@ -1931,7 +1931,7 @@ F09 - .env.example completo para configurar um ambiente novo do zero:
 - Cada variavel documentada (para que serve, onde obter, obrigatoria/opcional). NENHUM valor real - apenas placeholders. .gitignore: excecao documentada para rastrear .env.example (entregavel do T202).
 Verificacao: JWT|COOKIE no exemplo (5), vars Railway no exemplo (10/8), uso real process.env.COOKIE_SECRET em src (1), build API exit 0.
 
-## [2026-08-08] T203-analisar-env-config (DONE, commit PENDENTE)
+## [2026-08-08] T203-analisar-env-config (DONE, commit fd17890)
 F09 - analise completa dos arquivos de configuracao:
 - CANONICO: apps/api/.env.example (main.ts usa dotenv/config que carrega .env do cwd; scripts npm workspace rodam com cwd=apps/api). .env.example da raiz = referencia legada/monorepo (tem NEXT_PUBLIC_* do web). Sem ConfigModule.
 - CORRECOES: (1) OMDB_API_KEY duplicada NA RAIZ (2x, linhas 116/135) - deduplicada (apps/api nunca teve duplicacao); (2) apps/api/.env.example restaurado completo + adicionadas RATE_LIMIT_API_PER_MIN e RATE_LIMIT_LOGIN_PER_MIN (lidas por rate-limit.config.ts, defaults 100/6); (3) VERCEL_OIDC_TOKEN removido de .env.local (raiz) e apps/web/.env.local (nao estava em apps/api/.env.local).
