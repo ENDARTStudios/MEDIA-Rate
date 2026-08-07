@@ -29,6 +29,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleDestroy(): Promise<void> {
     if (process.env.NODE_ENV === "test" || process.env.SKIP_DB_CONNECT === "true") return;
-    await this.$disconnect();
+    try {
+      await this.$disconnect();
+      // eslint-disable-next-line no-console -- log de shutdown (marco)
+      console.log("[prisma] desconectado");
+    } catch (err) {
+      console.warn(`[prisma] disconnect com erro (ignorado): ${(err as Error).message}`);
+    }
   }
 }

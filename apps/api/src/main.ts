@@ -20,6 +20,9 @@ import {
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
+import { GracefulShutdownService, QueueService } from "./common/queue.service.js";
+import { PrismaService } from "./prisma/prisma.service.js";
+import { CacheService } from "./common/cache.service.js";
 
 async function bootstrap(): Promise<void> {
   const port = Number.parseInt(process.env.PORT ?? "4000", 10);
@@ -48,11 +51,60 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     bufferLogs: true,
   });
-  // Graceful shutdown (dívida técnica Fase 3): SIGTERM/SIGINT disparam os
-  // lifecycle hooks (onModuleDestroy → prisma.$disconnect) no Railway/Vercel.
+  // Graceful shutdown (T211, Fase 6.11): enableShutdownHooks dispara os
+  // lifecycle hooks (onModuleDestroy) e o GracefulShutdownService orquestra
+  // com timeout de 30s + logs por etapa. Idempotente (2º sinal é ignorado).
   app.enableShutdownHooks();
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("module graph built");
+
+  // T211: orquestração explícita — cada recurso fecha com try/catch (erro em
+  // um não impede os demais); timeout global de 30s no service.
+  const shutdownService = new GracefulShutdownService();
+  shutdownService.enableShutdown(async () => {
+    // 1) Fastify: fecha conexões HTTP ativas (aguarda in-flight) + hooks.
+    try {
+      await app.close();
+    } catch (err) {
+      console.warn(`[shutdown] app.close com erro (continuando): ${String(err)}`);
+    }
+    // eslint-disable-next-line no-console -- log de shutdown (marco)
+    console.log("[shutdown] conexões HTTP fechadas");
+
+    // 2) Prisma — desconexão explícita (idempotente com o hook).
+    const prisma = app.get(PrismaService, { strict: false });
+    if (prisma) {
+      try {
+        await prisma.$disconnect();
+        // eslint-disable-next-line no-console -- log de shutdown (marco)
+        console.log("[shutdown] Prisma desconectado");
+      } catch (err) {
+        console.warn(`[shutdown] Prisma com erro (ignorado): ${String(err)}`);
+      }
+    }
+
+    // 3) Redis — quit com timeout de 5s (nunca trava o shutdown).
+    const cache = app.get(CacheService, { strict: false });
+    if (cache) {
+      try {
+        await cache.shutdown();
+      } catch (err) {
+        console.warn(`[shutdown] Redis com erro (ignorado): ${String(err)}`);
+      }
+    }
+
+    // 4) Filas BullMQ (se registradas).
+    const queue = app.get(QueueService, { strict: false });
+    if (queue) {
+      try {
+        await queue.closeAll();
+        // eslint-disable-next-line no-console -- log de shutdown (marco)
+        console.log("[shutdown] filas fechadas");
+      } catch (err) {
+        console.warn(`[shutdown] filas com erro (ignorado): ${String(err)}`);
+      }
+    }
+  });
 
   // T4.8 (webhook Stripe): preserva o corpo bruto (raw) de requests JSON.
   // A assinatura do webhook é calculada sobre os bytes originais — e

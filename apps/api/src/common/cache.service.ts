@@ -145,13 +145,18 @@ export class CacheService implements OnModuleDestroy {
     await this.delPattern(`${key}:*`);
   }
 
-  async onModuleDestroy() {
+  /** T211: encerra o client Redis com timeout de 5s (nunca trava o shutdown). */
+  async shutdown(): Promise<void> {
     try {
-      await this.redis.quit();
-    } catch {
-      /* Redis nao conectado — nada a fechar */
+      await Promise.race([this.redis.quit(), new Promise((resolve) => setTimeout(resolve, 5_000))]);
+      this.logger.log("Redis fechado");
+    } catch (err) {
+      this.logger.warn(`Redis shutdown com erro (ignorado): ${String(err)}`);
     }
-    this.logger.log("Redis connection closed.");
+  }
+
+  async onModuleDestroy() {
+    await this.shutdown();
   }
 }
 

@@ -64,18 +64,47 @@ export class QueueService implements OnModuleDestroy {
   }
 }
 
+/**
+ * GracefulShutdownService (T211, Fase 6.11) — orquestra o encerramento
+ * gracioso em SIGTERM/SIGINT.
+ *
+ * - Idempotente: o 2º sinal não reinicia o shutdown.
+ * - Timeout global de 30s: se onShutdown não completar, força process.exit(1).
+ * - Logs estruturados por etapa (início, completo, erro, timeout).
+ * - NUNCA loga segredos (apenas sinais e durações).
+ * - onShutdown é injetado no wiring (main.ts) — fecha HTTP/Prisma/Redis/filas.
+ */
 @Injectable()
 export class GracefulShutdownService {
   private readonly logger = new Logger(GracefulShutdownService.name);
+  private fechando = false;
+  private static readonly TIMEOUT_MS = 30_000;
 
-  constructor(private readonly queueService: QueueService) {}
-
-  enableShutdown(server: { close: () => Promise<void> | void }): void {
+  enableShutdown(onShutdown: () => Promise<void>): void {
     const shutdown = async (signal: string) => {
-      this.logger.log(`Received ${signal} — shutting down gracefully.`);
-      await this.queueService.closeAll();
-      await server.close();
-      process.exit(0);
+      if (this.fechando) return; // idempotente
+      this.fechando = true;
+      const inicio = Date.now();
+      this.logger.log(`Graceful shutdown iniciado (${signal})`);
+
+      const timer = setTimeout(() => {
+        this.logger.error(
+          `Shutdown excedeu ${GracefulShutdownService.TIMEOUT_MS / 1000}s — forçando saída`,
+        );
+        process.exit(1);
+      }, GracefulShutdownService.TIMEOUT_MS);
+      timer.unref();
+
+      try {
+        await onShutdown();
+        this.logger.log(`Shutdown completo em ${Date.now() - inicio}ms`);
+        clearTimeout(timer);
+        process.exit(0);
+      } catch (err) {
+        this.logger.error(`Erro durante o shutdown: ${String(err)}`);
+        clearTimeout(timer);
+        process.exit(1);
+      }
     };
 
     process.on("SIGTERM", () => shutdown("SIGTERM"));
