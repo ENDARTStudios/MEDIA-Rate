@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   BadRequestException,
+  HttpException,
   Logger,
 } from "@nestjs/common";
 import { randomBytes, createHash } from "crypto";
@@ -13,6 +14,7 @@ import { SessionService, type SessionCreationResult } from "./session.service.js
 import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
+import { MockMailService } from "../../common/mock-mail.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
 import { FREE_WATCHLIST_LIMIT } from "../watchlist/watchlist.service.js";
 
@@ -69,6 +71,13 @@ export interface MeResult {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  // T206: rate limit por email — 3 solicitações de reset por hora (em memória,
+  // por instância; janela deslizante). Aplica-se ANTES da consulta do usuário
+  // (evita enumeração de email por diferença de resposta/timing).
+  private static readonly RESET_MAX_POR_EMAIL = 3;
+  private static readonly RESET_JANELA_MS = 60 * 60 * 1000;
+  private readonly resetSolicitacoes = new Map<string, number[]>();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
@@ -76,6 +85,7 @@ export class AuthService {
     private readonly lockoutService: LockoutService,
     private readonly analytics: AnalyticsService,
     private readonly auditLog: AuditLogService,
+    private readonly mockMail: MockMailService,
   ) {}
 
   async register(dto: RegisterDtoType, _options: { ip?: string } = {}): Promise<RegisterResult> {
@@ -231,12 +241,17 @@ export class AuthService {
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
+    // Rate limit por email (3/h) — antes de qualquer consulta.
+    this.registrarSolicitacaoReset(email);
+
     const usuario = await this.prisma.usuario.findUnique({
       where: { email },
       select: { id: true, email: true },
     });
     if (!usuario) return { message: "Se o email existir, um link de reset será enviado." };
 
+    // Token: 256 bits aleatórios (hex). NUNCA armazenado em texto plano —
+    // apenas o SHA-256 (64 hex, cabe no VarChar(64) da coluna).
     const token = randomBytes(32).toString("hex");
     const tokenHash = createHash("sha256").update(token).digest("hex");
 
@@ -244,18 +259,24 @@ export class AuthService {
       where: { id: usuario.id },
       data: {
         password_reset_token: tokenHash,
-        password_reset_expira: new Date(Date.now() + 15 * 60 * 1000),
+        // T206: expiração de 1 hora.
+        password_reset_expira: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
     await this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuario.id,
-      acao: "password_reset_requested",
+      acao: "PASSWORD_RESET_REQUESTED",
     });
 
-    // NUNCA logar o token de reset em texto plano (equivalente à senha).
-    this.logger.log(`Reset de senha solicitado (usuário ${usuario.id})`);
+    // Entrega do token via email (mock em dev — token vai para o
+    // dev-mailbox.log, NUNCA para os logs do app).
+    await this.mockMail.enviarResetSenha(usuario.email, token);
+
+    this.logger.log(
+      `Reset de senha solicitado (usuário ${usuario.id}; hash truncado: ${tokenHash.slice(0, 12)})`,
+    );
     return { message: "Se o email existir, um link de reset será enviado." };
   }
 
@@ -278,6 +299,8 @@ export class AuthService {
 
     // Transação: troca a senha E revoga todas as sessões ativas do usuário
     // (padrão de segurança pós-reset — sessões antigas não sobrevivem).
+    // O token é anulado (uso único): uma segunda tentativa com o mesmo token
+    // não encontra mais o usuário (password_reset_token = null).
     await this.prisma.$transaction([
       this.prisma.usuario.update({
         where: { id: usuario.id },
@@ -296,11 +319,31 @@ export class AuthService {
     await this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuario.id,
-      acao: "password_reset_completed",
+      acao: "PASSWORD_RESET_COMPLETED",
     });
 
     this.logger.log(`Senha resetada para usuário ${usuario.id}`);
     return { message: "Senha alterada com sucesso." };
+  }
+
+  /** Janela deslizante por email: máximo 3 solicitações na última hora. */
+  private registrarSolicitacaoReset(email: string): void {
+    const agora = Date.now();
+    const recentes = (this.resetSolicitacoes.get(email) ?? []).filter(
+      (t) => agora - t < AuthService.RESET_JANELA_MS,
+    );
+    if (recentes.length >= AuthService.RESET_MAX_POR_EMAIL) {
+      throw new HttpException(
+        {
+          statusCode: 429,
+          error: "Too Many Requests",
+          message: "Muitas solicitações de reset. Tente novamente em uma hora.",
+        },
+        429,
+      );
+    }
+    recentes.push(agora);
+    this.resetSolicitacoes.set(email, recentes);
   }
 
   async logoutAudit(usuarioId: string, ip?: string): Promise<void> {

@@ -7,6 +7,7 @@ import { SessionService } from "../src/modules/auth/session.service.js";
 import { LockoutService } from "../src/modules/auth/lockout.service.js";
 import { AnalyticsService } from "../src/common/analytics.service.js";
 import { AuditLogService } from "../src/common/audit-log.service.js";
+import { MockMailService } from "../src/common/mock-mail.service.js";
 import { ConflictException, UnauthorizedException, BadRequestException } from "@nestjs/common";
 import { createHash } from "crypto";
 
@@ -107,6 +108,14 @@ describe("AuthService (unit)", () => {
           provide: AuditLogService,
           useValue: {
             log: async () => {
+              /* stub de teste */
+            },
+          },
+        },
+        {
+          provide: MockMailService,
+          useValue: {
+            enviarResetSenha: async () => {
               /* stub de teste */
             },
           },

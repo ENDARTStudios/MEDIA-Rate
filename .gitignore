@@ -56,4 +56,7 @@ agent-ctx/
 # Exceção: .env.example é documentação de configuração (apenas placeholders,
 # nenhum valor real) — entregável do T202 para configurar ambientes do zero.
 !**/.env.example
+# T206: caixa de entrada do email mockado em dev (contém tokens de reset
+# brutos — NUNCA commitar; o app log só recebe hash truncado).
+dev-mailbox.log
 apps/web/src/components/hero-icons/*.png
