@@ -252,10 +252,10 @@ export function MediaDetailClient({
               ) : null}
 
               <div className="flex flex-wrap gap-2">
-                {/* T200: StatusReactionControl completo (status + reação + motivo). */}
+                {/* T200/T205: StatusReactionControl completo (status + reação +
+                    motivo) — controle único de salvar/consumo (Addendum 4). */}
                 <StatusReactionControl midiaId={media.id} mediaType={media.type} />
                 <WatchlistButton mediaId={media.id} mediaType={media.type} />
-                <FavoriteButton mediaId={media.id} />
                 <ShareButton />
               </div>
               <MediaScoreModule score={media.score} mediaType={media.type} />
@@ -587,72 +587,4 @@ function WatchlistButton({ mediaId, mediaType }: { mediaId: string; mediaType?: 
     );
   }
   return null;
-}
-
-function FavoriteButton({ mediaId }: { mediaId: string }) {
-  const t = useTranslations("catalog");
-  const { isInWatchlist, addToWatchlist, removeItem, entries, fetchWatchlist } =
-    useWatchlistStore();
-  const [loading, setLoading] = useState(false);
-  const [optimisticFav, setOptimisticFav] = useState(false);
-
-  useEffect(() => {
-    fetchWatchlist().then(() => {
-      setOptimisticFav(isInWatchlist(mediaId));
-    });
-  }, []);
-
-  useEffect(() => {
-    setOptimisticFav(isInWatchlist(mediaId));
-  }, [entries.length]);
-
-  const entryId = entries.find((e) => {
-    const mId = String(e.mediaId ?? e.midia_id ?? e.media?.id ?? "");
-    return mId === mediaId || e.mediaId === mediaId || e.midia_id === mediaId;
-  })?.id;
-
-  if (loading)
-    return (
-      <Button disabled variant="outline" size="sm">
-        ...
-      </Button>
-    );
-  if (optimisticFav) {
-    return (
-      <Button
-        onClick={async () => {
-          setLoading(true);
-          try {
-            if (entryId) await removeItem(entryId);
-            else await removeItem(mediaId);
-          } catch {
-            // Falha silenciosa: o store mantém o estado otimista.
-          }
-          setOptimisticFav(false);
-          setLoading(false);
-        }}
-        variant="outline"
-        size="sm"
-      >
-        ♥ {t("favoriteRemove")}
-      </Button>
-    );
-  }
-  return (
-    <Button
-      onClick={async () => {
-        setLoading(true);
-        try {
-          await addToWatchlist(mediaId, "WANT");
-          setOptimisticFav(true);
-        } finally {
-          setLoading(false);
-        }
-      }}
-      variant="outline"
-      size="sm"
-    >
-      ♡ {t("favoriteAdd")}
-    </Button>
-  );
 }

@@ -1,8 +1,14 @@
-const FONT = "Arial, Helvetica, sans-serif";
-
 function Specular({ x, y, rx, ry }: { x: number; y: number; rx: number; ry: number }) {
   return (
-    <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#FFFFFF" opacity="0.28" transform={`rotate(-20 ${x} ${y})`} />
+    <ellipse
+      cx={x}
+      cy={y}
+      rx={rx}
+      ry={ry}
+      fill="#FFFFFF"
+      opacity="0.28"
+      transform={`rotate(-20 ${x} ${y})`}
+    />
   );
 }
 
@@ -41,18 +47,29 @@ export function ClapperboardIcon() {
       </g>
       <g filter="url(#ic-film-shadow)">
         <rect x="24" y="54" width="72" height="46" rx="9" fill="url(#ic-film-body)" />
-        <rect x="24" y="54" width="72" height="46" rx="9" fill="none" stroke="#3730A3" strokeOpacity="0.5" strokeWidth="1.5" />
+        <rect
+          x="24"
+          y="54"
+          width="72"
+          height="46"
+          rx="9"
+          fill="none"
+          stroke="#3730A3"
+          strokeOpacity="0.5"
+          strokeWidth="1.5"
+        />
       </g>
       <Specular x={34} y={64} rx={18} ry={8} />
-      <text x="60" y="86" textAnchor="middle" fontFamily={FONT} fontSize="11" fontWeight="800" letterSpacing="2" fill="#EEF2FF">
-        SCENE 1
-      </text>
+      <rect x="42" y="79" width="36" height="4" rx="2" fill="#EEF2FF" opacity="0.9" />
       <g transform="translate(28, 50)">
         <g data-part="mouth">
           <rect x="0" y="0" width="64" height="12" rx="4" fill="url(#ic-film-dark)" />
           <rect x="0" y="12" width="64" height="14" fill="#312E81" />
           <g clipPath="url(#ic-film-stripes)">
-            <path d="M-4 28 L10 3 H26 L12 28 Z M20 28 L34 3 H50 L36 28 Z M44 28 L58 3 H74 L60 28 Z" fill="#E0E7FF" />
+            <path
+              d="M-4 28 L10 3 H26 L12 28 Z M20 28 L34 3 H50 L36 28 Z M44 28 L58 3 H74 L60 28 Z"
+              fill="#E0E7FF"
+            />
           </g>
           <rect x="0" y="12" width="64" height="2" fill="#FFFFFF" opacity="0.2" />
         </g>

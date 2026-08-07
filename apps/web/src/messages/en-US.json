@@ -471,7 +471,7 @@
     "s2h": "2. Eligibility",
     "s2b": "You must be at least 13 years old to create an account. Provide only true and current information.",
     "s3h": "3. Plans and Subscription",
-    "s3b": "MEDIA Rate offers three plans: Free (R$0), Plus (R$4.90/month) and Premium (R$9.90/month). Billing is monthly recurring. Payment is processed by Stripe.",
+    "s3b": "MEDIA Rate offers three plans: Free (R$ 0), Plus (R$ 4.90/month) and Premium (R$ 9.90/month). Billing is monthly recurring. Payment is processed by Stripe.",
     "s4h": "4. Cancellation",
     "s4b": "You may cancel your subscription at any time. Cancellation stops automatic renewal.",
     "s5h": "5. Intellectual Property",

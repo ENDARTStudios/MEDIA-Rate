@@ -471,7 +471,7 @@
     "s2h": "2. Elegibilidad",
     "s2b": "Debe tener al menos 13 años para crear una cuenta. Proporcione solo información verdadera y actualizada.",
     "s3h": "3. Planes y Suscripción",
-    "s3b": "MEDIA Rate ofrece tres planes: Free (R$0), Plus (R$4,90/mes) y Premium (R$9,90/mes). La facturación es mensual recurrente. El pago es procesado por Stripe.",
+    "s3b": "MEDIA Rate ofrece tres planes: Free (R$ 0), Plus (R$ 4,90/mes) y Premium (R$ 9,90/mes). La facturación es mensual recurrente. El pago es procesado por Stripe.",
     "s4h": "4. Cancelación",
     "s4b": "Puede cancelar su suscripción en cualquier momento. La cancelación detiene la renovación automática.",
     "s5h": "5. Propiedad Intelectual",

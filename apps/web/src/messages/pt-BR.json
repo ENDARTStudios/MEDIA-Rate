@@ -471,7 +471,7 @@
     "s2h": "2. Elegibilidade",
     "s2b": "Para criar uma conta, você deve ter pelo menos 13 anos de idade. Forneça apenas informações verdadeiras e atualizadas.",
     "s3h": "3. Planos e Assinatura",
-    "s3b": "O MEDIA Rate oferece três planos: Free (R$0), Plus (R$4,90/mês) e Premium (R$9,90/mês). A cobrança é recorrente mensal. O pagamento é processado pelo Stripe.",
+    "s3b": "O MEDIA Rate oferece três planos: Free (R$ 0), Plus (R$ 4,90/mês) e Premium (R$ 9,90/mês). A cobrança é recorrente mensal. O pagamento é processado pelo Stripe.",
     "s4h": "4. Cancelamento",
     "s4b": "Você pode cancelar sua assinatura a qualquer momento. O cancelamento interrompe a renovação automática.",
     "s5h": "5. Propriedade Intelectual",

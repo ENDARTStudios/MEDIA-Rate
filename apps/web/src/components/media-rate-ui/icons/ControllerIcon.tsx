@@ -1,8 +1,14 @@
-const FONT = "Arial, Helvetica, sans-serif";
-
 function Specular({ x, y, rx, ry }: { x: number; y: number; rx: number; ry: number }) {
   return (
-    <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#FFFFFF" opacity="0.28" transform={`rotate(-20 ${x} ${y})`} />
+    <ellipse
+      cx={x}
+      cy={y}
+      rx={rx}
+      ry={ry}
+      fill="#FFFFFF"
+      opacity="0.28"
+      transform={`rotate(-20 ${x} ${y})`}
+    />
   );
 }
 
@@ -37,8 +43,16 @@ export function ControllerIcon() {
           strokeOpacity="0.5"
           strokeWidth="2"
         />
-        <path d="M26 60 C26 80 33 90 44 94 L43 88 C34 84 29 76 29 60 Z" fill="#064E3B" opacity="0.35" />
-        <path d="M94 60 C94 80 87 90 76 94 L77 88 C86 84 91 76 91 60 Z" fill="#064E3B" opacity="0.35" />
+        <path
+          d="M26 60 C26 80 33 90 44 94 L43 88 C34 84 29 76 29 60 Z"
+          fill="#064E3B"
+          opacity="0.35"
+        />
+        <path
+          d="M94 60 C94 80 87 90 76 94 L77 88 C86 84 91 76 91 60 Z"
+          fill="#064E3B"
+          opacity="0.35"
+        />
       </g>
       <Specular x={36} y={30} rx={18} ry={8} />
       <g>
@@ -49,14 +63,27 @@ export function ControllerIcon() {
       <circle data-part="button-2" cx="88" cy="54" r="7" fill="#60A5FA" />
       <circle data-part="button-3" cx="74" cy="70" r="7" fill="#34D399" />
       <circle data-part="button-4" cx="60" cy="54" r="7" fill="#FBBF24" />
-      <text x="74" y="41.5" textAnchor="middle" fontFamily={FONT} fontSize="7" fontWeight="800" fill="#fff">Y</text>
-      <text x="88" y="57.5" textAnchor="middle" fontFamily={FONT} fontSize="7" fontWeight="800" fill="#fff">B</text>
-      <text x="74" y="73.5" textAnchor="middle" fontFamily={FONT} fontSize="7" fontWeight="800" fill="#fff">A</text>
-      <text x="60" y="57.5" textAnchor="middle" fontFamily={FONT} fontSize="7" fontWeight="800" fill="#3F2400">X</text>
+      <circle cx="74" cy="38" r="2.6" fill="#FFFFFF" opacity="0.35" />
+      <circle cx="88" cy="54" r="2.6" fill="#FFFFFF" opacity="0.35" />
+      <circle cx="74" cy="70" r="2.6" fill="#FFFFFF" opacity="0.35" />
+      <circle cx="60" cy="54" r="2.6" fill="#3F2400" opacity="0.4" />
       <g data-part="analog">
         <circle cx="46" cy="78" r="8" fill="url(#ic-game-dark)" />
-        <circle cx="46" cy="78" r="5" fill="none" stroke="#A7F3D0" strokeWidth="1.5" opacity="0.8" />
-        <path d="M46 71 V74 M46 82 V85 M39 78 H42 M50 78 H53" stroke="#A7F3D0" strokeWidth="1.2" opacity="0.8" />
+        <circle
+          cx="46"
+          cy="78"
+          r="5"
+          fill="none"
+          stroke="#A7F3D0"
+          strokeWidth="1.5"
+          opacity="0.8"
+        />
+        <path
+          d="M46 71 V74 M46 82 V85 M39 78 H42 M50 78 H53"
+          stroke="#A7F3D0"
+          strokeWidth="1.2"
+          opacity="0.8"
+        />
       </g>
     </svg>
   );

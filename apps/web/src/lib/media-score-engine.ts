@@ -277,6 +277,13 @@ export interface BucketsDerivados {
  * classifica pela fonte no registro, agrega por z-score ponderado dentro
  * de cada bucket (pesos por tipo) e consolida 0.5×crítica + 0.5×público.
  * Fontes fora do registro ou sem peso para o tipo são ignoradas.
+ *
+ * NOTA (T205, P1-1 — calibração): o rescale z-score (50 + z·25 com
+ * z = (rating−70)/15) gera um OFFSET sistemático vs a média simples das
+ * fontes (~10,5 pts para ratings típicos ~85). Esse offset é constante com
+ * o rating e INDEPENDENTE de votos — não é o prior Bayesiano m (que só
+ * atua via m/(v+m) e converge com o volume real). A diferença observada
+ * entre "média simples" e score agregado é esta normalização, não o prior.
  */
 export function derivarScores(sources: SourceRating[], mediaType?: string): BucketsDerivados {
   const pesos = PESOS_POR_TIPO_WEB[(mediaType ?? "movie") as MediaType] ?? PESOS_POR_TIPO_WEB.movie;

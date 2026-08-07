@@ -1,8 +1,14 @@
-const FONT = "Arial, Helvetica, sans-serif";
-
 function Specular({ x, y, rx, ry }: { x: number; y: number; rx: number; ry: number }) {
   return (
-    <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#FFFFFF" opacity="0.28" transform={`rotate(-20 ${x} ${y})`} />
+    <ellipse
+      cx={x}
+      cy={y}
+      rx={rx}
+      ry={ry}
+      fill="#FFFFFF"
+      opacity="0.28"
+      transform={`rotate(-20 ${x} ${y})`}
+    />
   );
 }
 
@@ -34,7 +40,17 @@ export function TvIcon() {
       <Sombra />
       <g filter="url(#ic-tv-shadow)">
         <rect x="16" y="26" width="88" height="64" rx="10" fill="url(#ic-tv-body)" />
-        <rect x="16" y="26" width="88" height="64" rx="10" fill="none" stroke="#075985" strokeOpacity="0.5" strokeWidth="1.5" />
+        <rect
+          x="16"
+          y="26"
+          width="88"
+          height="64"
+          rx="10"
+          fill="none"
+          stroke="#075985"
+          strokeOpacity="0.5"
+          strokeWidth="1.5"
+        />
       </g>
       <Specular x={26} y={36} rx={16} ry={7} />
       <rect x="26" y="34" width="54" height="40" rx="4" fill="#082F49" />
@@ -43,7 +59,15 @@ export function TvIcon() {
           <path d="M42 48 L56 54 L42 60 Z" fill="#E0F2FE" />
           <rect x="62" y="48" width="3" height="12" rx="1.5" fill="#7DD3FC" opacity="0.8" />
         </g>
-        <rect data-part="scanline" x="26" y="34" width="54" height="10" fill="#FFFFFF" opacity="0.25" />
+        <rect
+          data-part="scanline"
+          x="26"
+          y="34"
+          width="54"
+          height="10"
+          fill="#FFFFFF"
+          opacity="0.25"
+        />
       </g>
       <rect x="16" y="90" width="88" height="8" rx="4" fill="url(#ic-tv-dark)" />
       <path d="M40 26 L26 8 M80 26 L94 8" stroke="#7DD3FC" strokeWidth="2" strokeLinecap="round" />

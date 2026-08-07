@@ -35,6 +35,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
         />
         <div className="relative z-10 max-w-md text-center">
           <Logo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
+          <p className="text-2xl font-heading font-bold text-[#EDE7DC] mb-2">MEDIA Rate</p>
           <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-4">
             {t("registerTitle")}
           </h1>
@@ -49,7 +50,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
               href="/"
               className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
             >
-              <Logo variant="inline" className="w-8 h-8" />
+              <Logo variant="inline" />
             </Link>
           </div>
 

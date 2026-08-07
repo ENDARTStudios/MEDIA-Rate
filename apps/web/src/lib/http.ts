@@ -86,6 +86,10 @@ export interface FetchOptions extends Omit<RequestInit, "body"> {
   auth?: boolean;
 }
 
+// T205: timeout global — evita "Verificando sessão..." infinito quando a API
+// não responde (fetchMe/useRequireAuth conseguem decidir e redirecionar).
+const DEFAULT_TIMEOUT_MS = 15_000;
+
 export async function apiFetch<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
   const base = getBaseUrl();
   const url = `${base}${path}`;
@@ -106,13 +110,27 @@ export async function apiFetch<T = unknown>(path: string, options: FetchOptions 
 
   headers["Accept"] = "application/json";
 
-  const res = await fetch(url, {
-    ...init,
-    method,
-    headers: { ...headers, ...(init.headers as Record<string, string> | undefined) },
-    credentials: "include",
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  const externalSignal = init.signal;
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort();
+    else externalSignal.addEventListener("abort", () => controller.abort(), { once: true });
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      method,
+      headers: { ...headers, ...(init.headers as Record<string, string> | undefined) },
+      credentials: "include",
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (res.status === 401 && auth && !isAuthRoute(path)) {
     // T101: Não forçar redirecionamento global em erros 401, especialmente em rotas públicas.
