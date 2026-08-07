@@ -2001,3 +2001,27 @@ F03 - fluxo completo de reset de senha (gap 3.6, critico Beta Fechada):
   rejeitada, token valido troca senha) - API 513/513 (59 arquivos),
   tsc/lint/build ok. Flake pre-existente de rede em novas-midias-adapters
   descartado (passa isolado e no re-run).
+
+## [2026-08-08] T207-watchlist-crud (DONE, commit 51697ba)
+F04 - CRUD de watchlist completo (4.4, Tier 0):
+- DESC: CRUD ja existia (T190+); gaps fechados pelo T207:
+  1. GET /watchlist agora aceita ?coluna= (validado contra enum WANT/
+     WATCHING/COMPLETED/DROPPED; 400 se invalido) - service ja filtrava,
+     controller nao repassava.
+  2. Limite FREE 20 -> 50 itens (FREE_WATCHLIST_LIMIT) com 403 Forbidden +
+     mensagem clara de upsell (era 402 PAYMENT_REQUIRED; web trata erros
+     genericamente, sem quebra).
+  3. Rate limit watchlist 30 req/min (watchlistRateLimit no onRoute, todos
+     os metodos CRUD).
+  4. Isolamento por usuario mantido (usuario_id = sessao em todas queries).
+- E2E novo via supertest (watchlist.e2e.spec.ts, 10 testes): add 201, zod
+  400, duplicata 409, FREE no limite 403, PLUS ilimitado, filtro coluna,
+  move 200, delete 204, 401 sem auth (AuthGuard fake simula sessao).
+- Controller spec +2 (filtro coluna repassado, 400 invalida); service spec
+  402->403; auth-service.spec watchlist_limit usa a constante.
+- Web: copy 'de 20 itens' -> 'de 50 itens' em pt-BR/en-US/es-ES.
+- Desvios documentados: enum do schema e WANT/WATCHING/COMPLETED/DROPPED
+  (payload usava nomes PT - mantido o enum real que o web ja consome);
+  midia_id nao e UUID estrito (VarChar(255) por ids legados - zod min(1)
+  max(255)); PATCH/DELETE usam entryId (contrato do web), nao midiaId.
+Verificacao: API 525/525 (60 arquivos); tsc/lint/build ok; Web 236/236.
