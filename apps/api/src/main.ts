@@ -5,6 +5,7 @@ import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fa
 import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
+import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
@@ -15,6 +16,7 @@ import {
   buildRateLimitOptions,
   loginRateLimit,
   refreshRateLimit,
+  uploadRateLimit,
   interacoesRateLimit,
   watchlistRateLimit,
   discoverRateLimit,
@@ -163,6 +165,16 @@ async function bootstrap(): Promise<void> {
       hook: "onRequest",
     },
   );
+
+  // T216: @fastify/multipart — upload de posters (1 arquivo, 5MB; validação
+  // adicional por magic bytes no UploadService).
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    multipart as any,
+    {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    },
+  );
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] plugins registered (rate-limit, helmet, cors, cookie)");
 
@@ -171,8 +183,11 @@ async function bootstrap(): Promise<void> {
   // T020/7.7: Upload route com bodyLimit de 50 MiB.
   // Rate limit específico para rotas sensíveis (brute force).
   fastify.addHook("onRoute", (routeOptions) => {
-    if (routeOptions.url === "/api/v1/upload" && routeOptions.method === "POST") {
-      routeOptions.bodyLimit = 52_428_800; // 50 MiB
+    // T216: multipart de upload de poster (5MB validados no service).
+    if (routeOptions.url === "/api/v1/midias/:id/upload" && routeOptions.method === "POST") {
+      routeOptions.bodyLimit = 52_428_800; // 50 MiB (multipart)
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = uploadRateLimit();
     }
     const sensitivePostRoutes = [
       "/api/v1/auth/login",

@@ -262,7 +262,7 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 
 ### Gaps (❌ ausente)
 
-- [ ] 6.8 **Upload seguro**. · evid: ZERO referências a multer, `@fastify/multipart`, S3, Cloudinary. Sem validação MIME, sem ClamAV, sem armazenamento.
+- [x] 6.8 **Upload seguro**. · evid: T216 - POST /midias/:id/upload (admin), validacao por MAGIC BYTES (JPEG/PNG/WebP/GIF; 415), limite 5MB (413), nome UUID server-side, storage uploads/media/:midiaId/, poster_url atualizado, servimento com Content-Type do conteudo, rate limit 10/h por admin + 10/min rota, audit MEDIA_POSTER_UPLOADED. Sem ClamAV (futuro).
 - [ ] 6.9 **Fila assíncrona (BullMQ + Redis)**. · evid: Redis existe em `docker-compose.yml` mas NENHUM código usa. Sem `@nestjs/bull`, sem processadores, sem filas.
 - [ ] 6.10 **Cache Redis**. · evid: Sem `@nestjs/cache-manager`, sem `ioredis`, sem cache em qualquer módulo. Redis é infraestrutura órfã.
 - [ ] 6.11 **Graceful shutdown**. · evid: Sem `enableShutdownHooks()`, sem handlers SIGTERM/SIGINT. Apenas `PrismaService.$disconnect()` no `onModuleDestroy`.
