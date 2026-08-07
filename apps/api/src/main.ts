@@ -15,6 +15,7 @@ import {
   buildRateLimitOptions,
   loginRateLimit,
   interacoesRateLimit,
+  watchlistRateLimit,
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
@@ -141,6 +142,14 @@ async function bootstrap(): Promise<void> {
     ) {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = interacoesRateLimit();
+    }
+    // T207: watchlist (CRUD autenticado) — 30 req/min por usuário/rota.
+    if (
+      routeOptions.url.startsWith("/api/v1/watchlist") &&
+      ["GET", "POST", "PATCH", "DELETE"].includes(String(routeOptions.method))
+    ) {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = watchlistRateLimit();
     }
   });
 

@@ -90,6 +90,14 @@ export function discoverRateLimit(): { max: number; timeWindow: string } {
 }
 
 /**
+ * T207 — watchlist (CRUD por usuário): 30 req/min por rota (o keyGenerator
+ * global já chaveia por user+rota).
+ */
+export function watchlistRateLimit(): { max: number; timeWindow: string } {
+  return { max: 30, timeWindow: "1 minute" };
+}
+
+/**
  * T198 — PUT /interacoes por usuário: escrita de sinal é operação de alta
  * fricção proibida de ser spammada (o keyGenerator global já chaveia por
  * user+rota — aqui só apertamos a janela por rota).

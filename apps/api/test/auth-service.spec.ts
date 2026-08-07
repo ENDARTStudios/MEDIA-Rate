@@ -10,6 +10,7 @@ import { AuditLogService } from "../src/common/audit-log.service.js";
 import { MockMailService } from "../src/common/mock-mail.service.js";
 import { ConflictException, UnauthorizedException, BadRequestException } from "@nestjs/common";
 import { createHash } from "crypto";
+import { FREE_WATCHLIST_LIMIT } from "../src/modules/watchlist/watchlist.service.js";
 
 interface MockUser {
   id: string;
@@ -276,13 +277,13 @@ describe("AuthService (unit)", () => {
   });
 
   describe("getMe() — plano e entitlements (D-132)", () => {
-    it("usuário FREE retorna plano FREE + watchlist_limit 20", async () => {
+    it("usuário FREE retorna plano FREE + watchlist_limit (T207: 50)", async () => {
       const result = await service.getMe("u1");
       expect(result.id).toBe("u1");
       expect(result.plano).toBe("FREE");
       expect(result.status).toBe("ATIVA");
       expect(result.trial_ends_at).toBeNull();
-      expect(result.watchlist_limit).toBe(20);
+      expect(result.watchlist_limit).toBe(FREE_WATCHLIST_LIMIT);
     });
 
     it("usuário PLUS em trial retorna trial_ends_at e sem limite", async () => {

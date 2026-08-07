@@ -10,10 +10,10 @@ import type { AddToWatchlistDto } from "./dto/watchlist.dto.js";
 import type { WatchlistColuna } from "@prisma/client";
 
 /**
- * Limite de itens na watchlist do plano FREE (D-132 monetização).
+ * Limite de itens na watchlist do plano FREE (D-132 monetização; T207: 50).
  * Plus/Premium (incluindo trial) não têm limite.
  */
-export const FREE_WATCHLIST_LIMIT = 20;
+export const FREE_WATCHLIST_LIMIT = 50;
 
 @Injectable()
 export class WatchlistService {
@@ -63,16 +63,17 @@ export class WatchlistService {
       where: { usuario_id: usuarioId },
     });
     if (count >= FREE_WATCHLIST_LIMIT) {
+      // T207: 403 Forbidden (plano não permite) com mensagem clara de upsell.
       throw new HttpException(
         {
-          statusCode: HttpStatus.PAYMENT_REQUIRED,
-          error: "Payment Required",
+          statusCode: HttpStatus.FORBIDDEN,
+          error: "Forbidden",
           message: `O plano Free permite até ${FREE_WATCHLIST_LIMIT} itens na watchlist. Faça upgrade para o Plus para itens ilimitados.`,
           current_plan: "FREE",
           required_plan: "PLUS",
           watchlist_limit: FREE_WATCHLIST_LIMIT,
         },
-        HttpStatus.PAYMENT_REQUIRED,
+        HttpStatus.FORBIDDEN,
       );
     }
   }

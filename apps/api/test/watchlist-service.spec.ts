@@ -140,14 +140,14 @@ describe("WatchlistService (unit)", () => {
       expect(result.midia_id).toBe("media-x");
     });
 
-    it("add — FREE no limite lança 402 Payment Required", async () => {
+    it("add — FREE no limite lança 403 Forbidden (T207)", async () => {
       prisma = mockPrisma({ prefill: FREE_WATCHLIST_LIMIT });
       service = await buildService(prisma);
       const err = await service
         .add("user-1", { midia_id: "media-x", coluna: "WANT" })
         .catch((e) => e);
       expect(err).toBeInstanceOf(HttpException);
-      expect(err.getStatus()).toBe(402);
+      expect(err.getStatus()).toBe(403);
       expect(err.getResponse().required_plan).toBe("PLUS");
     });
 

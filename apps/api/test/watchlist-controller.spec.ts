@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { CanActivate } from "@nestjs/common";
+import { CanActivate, BadRequestException } from "@nestjs/common";
 import { WatchlistController } from "../src/modules/watchlist/watchlist.controller.js";
 import { WatchlistService } from "../src/modules/watchlist/watchlist.service.js";
 import { MetricsService } from "../src/modules/metrics/metrics.service.js";
@@ -82,6 +82,17 @@ describe("WatchlistController (unit)", () => {
   it("GET / — retorna lista vazia", async () => {
     const result = await controller.list(mockReq());
     expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("GET /?coluna=WANT — repassa o filtro de coluna ao service", async () => {
+    const listSpy = vi.spyOn(service, "list").mockResolvedValue([]);
+    await controller.list(mockReq(), "WANT");
+    expect(listSpy).toHaveBeenCalledWith("user-1", "WANT");
+    listSpy.mockRestore();
+  });
+
+  it("GET /?coluna=INVALIDA — lança BadRequestException", async () => {
+    await expect(controller.list(mockReq(), "INVALIDA")).rejects.toThrow(BadRequestException);
   });
 
   it("POST / — adiciona mídia", async () => {

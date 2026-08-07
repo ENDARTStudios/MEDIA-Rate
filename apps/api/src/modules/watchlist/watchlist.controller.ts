@@ -6,11 +6,13 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
   UsePipes,
   HttpCode,
   UnauthorizedException,
+  BadRequestException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import type { FastifyRequest } from "fastify";
@@ -45,9 +47,14 @@ export class WatchlistController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista a watchlist do usuário autenticado" })
-  async list(@Req() req: WatchlistRequest) {
-    return this.service.list(this.userId(req));
+  @ApiOperation({ summary: "Lista a watchlist do usuário autenticado (com filtro por coluna)" })
+  async list(@Req() req: WatchlistRequest, @Query("coluna") coluna?: string) {
+    // T207: filtro opcional por coluna do Kanban — valor validado contra o enum.
+    const COLUNAS = ["WANT", "WATCHING", "COMPLETED", "DROPPED"] as const;
+    if (coluna !== undefined && !(COLUNAS as readonly string[]).includes(coluna)) {
+      throw new BadRequestException(`Coluna inválida. Valores aceitos: ${COLUNAS.join(", ")}.`);
+    }
+    return this.service.list(this.userId(req), coluna as (typeof COLUNAS)[number] | undefined);
   }
 
   @Post()
