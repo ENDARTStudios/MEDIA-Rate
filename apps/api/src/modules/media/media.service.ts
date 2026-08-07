@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { CreateMediaDto, UpdateMediaDto } from "./dto/media.dto.js";
 import type { ClassificacaoIndicativa } from "@prisma/client";
@@ -51,19 +51,74 @@ function mapUpdateDto(dto: UpdateMediaDto) {
 export class MediaService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * T215: unicidade por (fonte, fonte_id) — POST duplicado → 409.
+   * Mídia soft-deletada NÃO bloqueia o id (pode ser recriada).
+   */
+  private async verificarUnicidade(dto: {
+    fonte?: string;
+    fonte_id?: string;
+    excluirId?: string;
+  }): Promise<void> {
+    const fonte = dto.fonte ?? "manual";
+    const fonte_id = dto.fonte_id ?? "manual";
+    const existente = await this.prisma.midia.findFirst({
+      where: {
+        fonte,
+        fonte_id,
+        deleted_at: null,
+        ...(dto.excluirId ? { id: { not: dto.excluirId } } : {}),
+      },
+      select: { id: true },
+    });
+    if (existente) {
+      throw new ConflictException({
+        statusCode: 409,
+        error: "Conflict",
+        message: "Mídia com esta fonte/fonte_id já existe.",
+      });
+    }
+  }
+
   async create(dto: CreateMediaDto) {
+    await this.verificarUnicidade(dto);
     return this.prisma.midia.create({ data: mapCreateDto(dto) });
   }
 
   async update(id: string, dto: UpdateMediaDto) {
-    const midia = await this.prisma.midia.findUnique({ where: { id } });
+    const midia = await this.prisma.midia.findFirst({
+      where: { id, deleted_at: null },
+      select: { id: true, fonte: true, fonte_id: true },
+    });
     if (!midia) throw new NotFoundException("Mídia não encontrada.");
+    if (dto.fonte !== undefined || dto.fonte_id !== undefined) {
+      // Unicidade com os valores RESULTANTES (dto + estado atual).
+      await this.verificarUnicidade({
+        fonte: dto.fonte ?? midia.fonte,
+        fonte_id: dto.fonte_id ?? midia.fonte_id,
+        excluirId: id,
+      });
+    }
     return this.prisma.midia.update({ where: { id }, data: mapUpdateDto(dto) });
   }
 
+  /** T215: soft delete — marca deleted_at, nunca remove a linha. */
   async remove(id: string) {
-    const midia = await this.prisma.midia.findUnique({ where: { id } });
+    const midia = await this.prisma.midia.findFirst({
+      where: { id, deleted_at: null },
+      select: { id: true },
+    });
     if (!midia) throw new NotFoundException("Mídia não encontrada.");
-    await this.prisma.midia.delete({ where: { id } });
+    return this.prisma.midia.update({
+      where: { id },
+      data: { deleted_at: new Date() },
+    });
+  }
+
+  /** T215: auxiliar de leitura — mídia ativa por id (ou null). */
+  async findAtiva(id: string) {
+    return this.prisma.midia.findFirst({
+      where: { id, deleted_at: null },
+    });
   }
 }

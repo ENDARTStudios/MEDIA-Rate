@@ -11,7 +11,6 @@ import {
   Res,
   NotFoundException,
   UseGuards,
-  UsePipes,
   HttpCode,
   Optional,
 } from "@nestjs/common";
@@ -21,6 +20,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify } from "../../common/slugify.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { MediaService } from "./media.service.js";
@@ -69,6 +69,7 @@ export class MediaController {
     // T210: cache de aplicação (opcional — ausente em testes unitários).
     @Optional() private readonly cacheService?: CacheService,
     @Optional() private readonly cacheInvalidation?: CacheInvalidationService,
+    @Optional() private readonly auditLog?: AuditLogService,
   ) {}
 
   /** Resolve o usuário logado via cookie de sessão (opcional — null sem login). */
@@ -128,7 +129,7 @@ export class MediaController {
       direction: "forward",
     });
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deleted_at: null }; // T215: soft delete
     // Filtro por tipo: o enum do banco (TipoMidia) usa "COMIC"; "HQ" é aceito
     // como alias legado. Qualquer outro valor é ignorado (lista completa).
     if (tipo && ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC", "HQ"].includes(tipo)) {
@@ -345,6 +346,14 @@ export class MediaController {
         message: "Mídia não encontrada.",
       });
     }
+    if (midia.deleted_at) {
+      // T215: soft delete — mídia deletada é tratada como inexistente.
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Mídia não encontrada.",
+      });
+    }
 
     const score = midia.scores[0];
     return {
@@ -470,7 +479,8 @@ export class MediaController {
     // T210: cache 120s (chave por id — dados públicos).
     const buscar = async () => {
       const midia = await this.prisma.midia.findUnique({ where: { id } });
-      if (!midia) {
+      if (!midia || midia.deleted_at) {
+        // T215: soft delete — deletada = inexistente.
         throw new NotFoundException({
           statusCode: 404,
           error: "Not Found",
@@ -517,7 +527,8 @@ export class MediaController {
         where: { id },
         include: { scores: true },
       });
-      if (!midia) {
+      if (!midia || midia.deleted_at) {
+        // T215: soft delete — deletada = inexistente.
         throw new NotFoundException({
           statusCode: 404,
           error: "Not Found",
@@ -578,32 +589,98 @@ export class MediaController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("ADMIN")
-  @UsePipes(new ZodValidationPipe(createMediaSchema))
-  async create(@Body() body: CreateMediaDto) {
+  async create(
+    @Body(new ZodValidationPipe(createMediaSchema)) body: CreateMediaDto,
+    @Req() req: FastifyRequest,
+  ) {
     const created = await this.mediaService.create(body);
     // T210: criação invalida catálogo/discover cacheados.
     await this.cacheInvalidation?.onMediaCreated();
-    return created;
+    // T215: trilha de auditoria (admin + IP + UA).
+    await this.auditLog?.log({
+      entidade: "Midia",
+      entidadeId: created.id,
+      acao: "MEDIA_CREATED",
+      usuarioId: (req as FastifyRequest & { user?: { id: string } }).user?.id,
+      ipOrigem: req?.ip ?? undefined,
+      dadosDepois: { userAgent: this.userAgentDe(req) },
+    });
+    return sanitizarMidia(created);
   }
 
   @Put(":id")
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("ADMIN")
-  @UsePipes(new ZodValidationPipe(updateMediaSchema))
-  async update(@Param("id") id: string, @Body() body: UpdateMediaDto) {
+  async update(
+    @Param("id") id: string,
+    // Pipe no nível do body (não @UsePipes de método — senão o @Param string
+    // também seria validado contra o schema e rejeitado com 400).
+    @Body(new ZodValidationPipe(updateMediaSchema)) body: UpdateMediaDto,
+    @Req() req: FastifyRequest,
+  ) {
     const updated = await this.mediaService.update(id, body);
     // T210: escrita invalida a ficha/score/lista da mídia.
     await this.cacheInvalidation?.onMediaUpdated(id);
-    return updated;
+    await this.auditLog?.log({
+      entidade: "Midia",
+      entidadeId: id,
+      acao: "MEDIA_UPDATED",
+      usuarioId: (req as FastifyRequest & { user?: { id: string } }).user?.id,
+      ipOrigem: req?.ip ?? undefined,
+      dadosDepois: { userAgent: this.userAgentDe(req) },
+    });
+    return sanitizarMidia(updated);
   }
 
   @Delete(":id")
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("ADMIN")
-  @HttpCode(204)
-  async remove(@Param("id") id: string) {
-    await this.mediaService.remove(id);
+  @HttpCode(200)
+  async remove(@Param("id") id: string, @Req() req: FastifyRequest) {
+    const removida = await this.mediaService.remove(id);
     // T210: remoção invalida cache da mídia + listas.
     await this.cacheInvalidation?.onMediaUpdated(id);
+    await this.auditLog?.log({
+      entidade: "Midia",
+      entidadeId: id,
+      acao: "MEDIA_DELETED",
+      usuarioId: (req as FastifyRequest & { user?: { id: string } }).user?.id,
+      ipOrigem: req?.ip ?? undefined,
+      dadosDepois: {
+        userAgent: this.userAgentDe(req),
+        deleted_at: removida.deleted_at?.toISOString(),
+      },
+    });
+    return { ok: true, message: "Mídia removida (soft delete)." };
   }
+
+  private userAgentDe(req: FastifyRequest): string | undefined {
+    const ua = req?.headers?.["user-agent"];
+    return typeof ua === "string" ? ua : undefined;
+  }
+}
+
+/** T215: resposta sanitizada — nunca expõe fonte_id/created_at/deleted_at. */
+function sanitizarMidia(m: {
+  id: string;
+  titulo: string;
+  titulo_original: string | null;
+  tipo: string;
+  sinopse: string | null;
+  ano_lancamento: number | null;
+  classificacao_indicativa: unknown;
+  imagem_url: string | null;
+  duracao_minutos: number | null;
+}) {
+  return {
+    id: m.id,
+    titulo: m.titulo,
+    titulo_original: m.titulo_original,
+    tipo: m.tipo,
+    sinopse: m.sinopse,
+    ano_lancamento: m.ano_lancamento,
+    classificacao_indicativa: m.classificacao_indicativa,
+    imagem_url: m.imagem_url,
+    duracao_minutos: m.duracao_minutos,
+  };
 }

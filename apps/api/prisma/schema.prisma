@@ -307,6 +307,8 @@ model Midia {
   // URL de pôster/capa.
   imagem_url              String?                @map("imagem_url") @db.Text
   duracao_minutos         Int?                   @map("duracao_minutos")
+  // T215 (2.9): soft delete — NULL = ativa; data = deletada (preservada).
+  deleted_at              DateTime?              @map("deleted_at")
   created_at              DateTime               @default(now()) @map("created_at")
   updated_at              DateTime               @updatedAt @map("updated_at")
 

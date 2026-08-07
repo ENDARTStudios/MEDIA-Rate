@@ -169,7 +169,7 @@ describe("Cache de aplicação — e2e via HTTP (T210)", () => {
     await request(app.getHttpServer()).get("/api/v1/midias?limit=5");
     await request(app.getHttpServer()).get("/api/v1/midias?limit=5");
     const del = await request(app.getHttpServer()).delete("/api/v1/midias/abc");
-    expect(del.status).toBe(204);
+    expect(del.status).toBe(200); // T215: soft delete → 200 com body
     const r = await request(app.getHttpServer()).get("/api/v1/midias?limit=5");
     expect(r.headers["x-cache"]).toBe("MISS");
   });

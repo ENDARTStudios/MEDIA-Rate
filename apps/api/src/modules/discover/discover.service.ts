@@ -123,7 +123,7 @@ export class DiscoverService {
       const cursorRow = await this.prisma.$queryRaw<{ rank: number }[]>(Prisma.sql`
         SELECT ${rankSql} AS rank
         FROM "midia" m ${lateralScore}
-        WHERE m.id = ${opts.cursor}::uuid
+        WHERE m.id = ${opts.cursor}::uuid AND m.deleted_at IS NULL
       `);
       const cursorRank = cursorRow[0]?.rank;
       if (cursorRank == null) {
@@ -137,14 +137,14 @@ export class DiscoverService {
              m.imagem_url AS poster_url, s.score,
              ${watchlistSql} AS na_watchlist
       FROM "midia" m ${lateralScore}
-      WHERE 1=1 ${matchSql} ${tipoSql} ${generoSql} ${cursorSql}
+      WHERE m.deleted_at IS NULL ${matchSql} ${tipoSql} ${generoSql} ${cursorSql}
       ${orderSql}
       LIMIT ${limit + 1}
     `);
 
     const totalRows = await this.prisma.$queryRaw<{ total: number }[]>(Prisma.sql`
       SELECT COUNT(*)::int AS total FROM "midia" m
-      WHERE 1=1 ${matchSql} ${tipoSql} ${generoSql}
+      WHERE m.deleted_at IS NULL ${matchSql} ${tipoSql} ${generoSql}
     `);
 
     const temMais = rows.length > limit;

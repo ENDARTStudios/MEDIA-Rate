@@ -170,7 +170,7 @@ de evidência**, não por presunção.
 
 REST versionado `/api/v1`. 7 módulos em `apps/api/src/modules/<nome>/`. Zero referências ao projeto antigo "Almanaque dos Clubes".
 
-- [x] 4.1 CRUD `media` (GET list + GET por ID). · evid: `MediaController` — `GET /midias` (cursor paginação, filtro tipo, sort) + `GET /midias/:id`. Faltam POST/PUT/DELETE para admin.
+- [x] 4.1 CRUD `media` (GET list + GET por ID). · evid: T215 — GET /midias (cursor, filtro tipo, sort) + GET /midias/:id + POST/PUT/DELETE admin com @Roles('ADMIN'), validação Zod, soft delete (deleted_at + índice parcial, filtro em TODAS as leituras inclusive discover), unicidade (fonte,fonte_id) → 409, invalidação de cache, audit MEDIA_CREATED/UPDATED/DELETED, resposta sanitizada.
 - [x] 4.2 CRUD `media_scores`. · evid: `GET /midias/:id/media-score` via `MediaScoreService` (z-score ponderado, weights por tipo, fontes configuráveis).
 - [ ] 4.3 Módulo `recommendations`. · evid: `PremiumController` — 2 stubs hardcoded (`GET /premium/recommendations` PLUS, `GET /premium/ml-personalized` PREMIUM). Sem algoritmo real.
 - [ ] 4.4 Módulo `watchlist`. · evid: AUSENTE. Prisma schema tem `WatchlistEntry` + `WatchlistColuna` enum (Sprint 2). LGPD export lê a tabela. Sem controller/service para CRUD (add/remove/list).

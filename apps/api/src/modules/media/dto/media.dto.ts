@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const createMediaSchema = z.object({
-  titulo: z.string().min(1).max(500),
-  titulo_original: z.string().max(500).optional(),
+  titulo: z.string().min(1).max(300),
+  titulo_original: z.string().max(300).optional(),
   tipo: z.enum(["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC"]),
   sinopse: z.string().min(1).max(5000),
-  ano_lancamento: z.number().int().min(1800).max(2030),
+  ano_lancamento: z.number().int().min(1800).max(2100),
   classificacao_indicativa: z.number().int().min(0).max(18).optional(),
   duracao: z.string().max(32).optional(),
   imagem_url: z.string().url().max(2048).nullable().optional(),
