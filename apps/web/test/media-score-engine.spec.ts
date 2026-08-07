@@ -388,3 +388,44 @@ describe("derivarScores — Crítica vs Público (CRIT-02)", () => {
     expect(r.criticosScore).toBeNull();
   });
 });
+
+describe("P1-1 — Calibração Bayesiana (auditoria de reverificação)", () => {
+  it("o pull do prior é proporcional ao volume — não domina independente de v", () => {
+    // S = 9.2 (crit 9/pub 9/I 10), C = 7, movie m = 60.
+    const base = { criticosScore: 9, publicoScore: 9, mediaType: "movie" } as const;
+    const vPoucos = calculateGlobalScore({ ...base, votos: 10 });
+    const vMil = calculateGlobalScore({ ...base, votos: 1000 });
+    const vMilhao = calculateGlobalScore({ ...base, votos: 1_000_000 });
+
+    // v=10 → pull m/(v+m) ≈ 86% → perto de C (7)
+    expect(vPoucos).toBeLessThan(7.5);
+    // v=1000 → pull ≈ 5.7% → perto de S (9.2)
+    expect(vMil).toBeGreaterThan(9);
+    // v=1M → pull ≈ 0 → S exato
+    expect(vMilhao).toBe(9.2);
+    // convergência monotônica e proporcional ao volume real
+    expect(vPoucos).toBeLessThan(vMil);
+    expect(vMil).toBeLessThan(vMilhao);
+  });
+
+  it("diferença ~10,5 pts vs média simples é o rescale z-score (50 + z·25), não o prior", () => {
+    // Uma única fonte 85/100 → rating100=85 → z=(85−70)/15=1 → raw=50+25=75.
+    // O offset (85 → 75 ≈ 10 pts) é CONSTANTE com o rating, independente de
+    // votos — explica o ~10,5–10,75 observado entre média simples e score
+    // agregado em títulos com volumes diferentes (mesmo rating → mesmo offset).
+    const movie = derivarScores([{ source: "metacritic", score: 85, maxScore: 100 }], "movie");
+    const series = derivarScores([{ source: "metacritic", score: 85, maxScore: 100 }], "series");
+    expect(movie.criticosScore).toBe(75);
+    expect(series.criticosScore).toBe(75);
+
+    // Com v alto, o score agregado S=75 NÃO é puxado pelo prior (C não muda o offset).
+    const agregado = calculateGlobalScore({
+      criticosScore: 7.5,
+      publicoScore: null,
+      votos: 5000,
+      mediaType: "movie",
+    });
+    expect(agregado).toBeGreaterThan(7.4);
+    expect(agregado).toBeLessThan(7.6);
+  });
+});
