@@ -2208,3 +2208,31 @@ F03 - email verification (3.11) - ultimo gap da Fase 3:
   verificar 403 + sem cookie, verify->login ok, invalido/expirado 200
   generico, resend 429 na 4a, legado backfill loga).
   API 597/597 (70 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T215-admin-media-crud (DONE, commit 1ac8e27)
+F04 - CRUD admin de media com soft delete (4.1 + parte do 2.9):
+- POST/PUT/DELETE /midias com @Roles('ADMIN') + RolesGuard (403 p/ non-admin
+  testado em POST/PUT/DELETE). DTOs Zod (titulo max 300, ano 1800-2100).
+- Unicidade (fonte, fonte_id) -> 409: create e update (update usa valores
+  RESULTANTES dto+estado atual - bug de defaults "manual" corrigido no
+  service durante o TDD).
+- Migration 20260808140000_media_soft_delete: deleted_at + indice parcial.
+  DELETE = SOFT (marca deleted_at; prisma delete() NUNCA chamado - testado).
+- Filtro deleted_at IS NULL em TODAS as leituras: list (where), getOne,
+  getBySlug, media-score (404 se deletada), discover (main+total+cursor
+  raw SQL).
+- Cache invalidado em escrita (T210 reusado); DELETE agora 200 com body
+  (verificacao do payload pedia 200; cache.e2e atualizado 204->200).
+- Audit MEDIA_CREATED/UPDATED/DELETED com admin id + IP + UA.
+- Resposta sanitizada (sem fonte_id/created_at/updated_at/deleted_at).
+- DESCOBERTA IMPORTANTE: @UsePipes no metodo valida TODOS os params — o
+  @Param (string) era validado contra o schema e rejeitado com 400
+  ("expected object, received string"). Pipe movido para @Body(new
+  ZodValidationPipe(...)). Bug existia no PUT desde antes do T215 (nunca
+  coberto por e2e).
+- Spec antigo media-crud-service atualizado (hard delete -> soft delete).
+- Testes: 14 novos (7 unit service: create/409/update parcial+404/409
+  unicidade/soft delete/404/findAtiva; 7 e2e: create sanitizado+audit,
+  403 non-admin em POST/PUT/DELETE, zod 400, duplicata 409, update 200,
+  delete 200 + GET 404 + list sem a midia + audit, cache invalidado).
+  API 612/612 (73 arquivos), tsc/lint/build ok.
