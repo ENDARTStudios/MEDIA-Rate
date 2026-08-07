@@ -2156,3 +2156,25 @@ F03 - refresh token rotativo + sliding session (gap 3.3):
   + 5 e2e: login cookies, fluxo completo com reuse e revogacao total (me 401),
   sem cookie 401, legado valido sem renovar, sliding via /me).
   API 578/578 (68 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T213-audit-logging-auth (DONE, commit adba4d2)
+F03 - trilha de auditoria completa de auth (gap 3.7):
+- AuditLogService (append-only SHA-256 chain) wired em TODOS os eventos:
+  USER_REGISTERED, USER_LOGIN_SUCCESS, USER_LOGIN_FAILED (motivo
+  invalid_credentials + email p/ auditoria; entidadeId 'unknown' p/ usuario
+  inexistente), USER_LOGOUT, PASSWORD_RESET_REQUESTED/COMPLETED (nomes do
+  T206 preservados). T212 preservados: TOKEN_REFRESHED,
+  TOKEN_REFRESH_REUSE_DETECTED, SESSION_REVOKED_ALL.
+- IP + user-agent em TODOS os eventos (controller repassa req.ip + UA em
+  register/forgot/reset/logout).
+- NUNCA senha/token/PII desnecessaria: testado via JSON.stringify de todos
+  os payloads de audit (senha, token de reset e refresh ausentes).
+- Sem nova tabela; verificarIntegridade() intacto; LockoutService intocado
+  (audit apenas registra a falha).
+- Confirmacao pedida pelo Thinker: LgpdService (delete-account) revoga TODAS
+  as sessoes via updateMany em sessao (linha 185) — refresh token vive na
+  MESMA linha, logo delete-account revoga access E refresh. Nenhuma mudanca
+  necessaria.
+- PLANO_MESTRE: 3.3 (T212) e 3.7 (T213) marcados [x].
+- Testes: 8 novos (eventos com ip/ua, ausencia de segredos, T212 preservado
+  no reuse) - API 585/585 (68 arquivos), tsc/lint/build ok.
