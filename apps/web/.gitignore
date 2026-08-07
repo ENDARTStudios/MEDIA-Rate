@@ -6,5 +6,8 @@ playwright-report/
 
 .vercel
 .env*
+# Exceção: .env.example é documentação de configuração (apenas placeholders,
+# nenhum valor real) — entregável do T204 para configurar ambientes do zero.
+!.env.example
 playwright-report/
 test-results/
