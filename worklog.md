@@ -1922,3 +1922,11 @@ mapeia from/to + ignora sem origem, /taste 12 meses normalizado + vazio),
 Web 8 novos (feed + empty + fonte fora, frase up/neutra/sem-dados, chart
 empty, prompt envia origemRelacaoId) - API 500/500, Web 234/234,
 build/typecheck/lint ok.
+
+## [2026-08-08] T202-atualizar-env-example (DONE, commit c8b9b4d)
+F09 - .env.example completo para configurar um ambiente novo do zero:
+- INCONSISTENCIA RESOLVIDA: o codigo le COOKIE_SECRET (main.ts assina o cookie de sessao; sem ela o boot falha em producao). JWT_SECRET NAO e lida pelo codigo (mantida por compatibilidade com o Railway, documentada como tal). IGDB_CLIENT_ID/SECRET tambem nao sao lidas (IGDB autentica via TWITCH_CLIENT_ID/SECRET - igdb.adapter).
+- ADICIONADAS (Railway + codigo): JWT_SECRET, TMDB_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_PLUS_ID, STRIPE_PRICE_PREMIUM_ID, STRIPE_PAYMENT_METHODS, CORS_ORIGIN, ALLOWED_ORIGINS, REDIS_URL, COMICVINE_API_KEY, ADMIN_TOKEN, STEAMSPY_API_KEY, HOST, CSP_TRUSTED_ORIGINS, COLUMN_ENCRYPTION_KEY, ARGON2_*, SESSION_TTL_HOURS, MEDIA_SCORE_JOB_*, LOG_LEVEL, SWAGGER_ENABLED, SKIP_DB_CONNECT, ANALYTICS_WRITE_KEY, POSTHOG_HOST.
+- MANTIDAS: NODE_ENV, PORT, DATABASE_URL, COOKIE_SECRET, ADMIN_TOKEN, ENABLE_DEBUG_ROUTES, OMDB_API_KEY, TRAKT_CLIENT_ID, OPENCRITIC_API_KEY, COMICVINE_API_KEY, GOOGLE_BOOKS_API_KEY, SCRAPE_NUMERICO_ENABLED, MEDIA_PREPARACAO_ENABLED, IMDB_DATASET_PATH, REDIS_HOST/PORT/PASSWORD.
+- Cada variavel documentada (para que serve, onde obter, obrigatoria/opcional). NENHUM valor real - apenas placeholders. .gitignore: excecao documentada para rastrear .env.example (entregavel do T202).
+Verificacao: JWT|COOKIE no exemplo (5), vars Railway no exemplo (10/8), uso real process.env.COOKIE_SECRET em src (1), build API exit 0.
