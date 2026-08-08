@@ -2296,3 +2296,35 @@ F09 - observabilidade (9.5.1 + 9.5.2):
   envio/fallback/erro silencioso; 5 e2e: admin 200 Prometheus + interceptor
   alimenta, 403 sem auth, IP allowlist, X-Admin-Token, sem PII).
   API 624/624 (75 arquivos), tsc/lint/build ok. Base pronta p/ T218 (alertas).
+
+## [2026-08-08] T218-observabilidade-alertas (DONE, commit e4316e2)
+F09 - alertas de observabilidade (9.5.3 + guia 9.5.4):
+- AlertsService (metrics/alerts.service.ts): ring buffers de timestamps em
+  memoria (sem dependencia externa). Thresholds:
+  - 5xx_rate: 5xx > 1% do total em janela deslizante de 5min (CRITICAL).
+  - auth_failures: falhas de login > 50 em 1min (WARNING).
+  - HISTERESE 10%: resolve apenas abaixo de 90% do threshold (0.9% e 45)
+    — evita flapping (testado: 0.95% permanece active; 0.67% resolve).
+  - Transicoes active/resolved: log Pino error/info + audit
+    ALERT_TRIGGERED/ALERT_RESOLVED (nunca dados de usuario).
+  - Alimentado pelos eventos EXISTENTES (sem segundo pipeline):
+    MetricsInterceptor -> registrarRequisicao (5xx + total); AuthService ->
+    registrarFalhaAuth nos DOIS caminhos de USER_LOGIN_FAILED
+    (invalid_credentials e email_not_verified).
+- AlertsController: GET /api/v1/admin/alerts/status com
+  @UseGuards(AuthGuard, RolesGuard) + @Roles('ADMIN') -> 403 non-admin;
+  retorna { alertas: [{nome, estado, threshold, valorAtual, janela,
+  ultimoDisparo}], atualizadoEm }.
+- MetricsModule: providers AlertsService + AuditLogService, importa
+  AuthModule (guards precisam de SessionService — mesmo padrao do T216).
+- docs/OBSERVABILITY.md: secao de alertas (thresholds, histerese, canal:
+  log critico + Loki + endpoint, sem servico externo pago) + guia
+  UptimeRobot free passo a passo (monitor HTTP(s) em /api/v1/health,
+  intervalo 5min, Down 2 times) — criacao da conta = pendencia do
+  Operador (9.5.4 marcado [~]).
+- PLANO_MESTRE: 9.5.3 [x], 9.5.4 [~] (guia pronto).
+- Testes: 8 novos (6 unit com fake timers: threshold exato, histerese
+  entre/abaixo, janelas 5min/1min expiram e resolvem, transicoes +
+  audit, status inicial resolved; 2 e2e: admin 200 com 2 alertas na
+  estrutura esperada, non-admin 403). Specs de auth ajustados (param
+  alerts no AuthService). API 632/632 (77 arquivos), tsc/lint/build ok.
