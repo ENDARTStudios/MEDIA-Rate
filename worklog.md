@@ -2328,3 +2328,27 @@ F09 - alertas de observabilidade (9.5.3 + guia 9.5.4):
   audit, status inicial resolved; 2 e2e: admin 200 com 2 alertas na
   estrutura esperada, non-admin 403). Specs de auth ajustados (param
   alerts no AuthService). API 632/632 (77 arquivos), tsc/lint/build ok.
+
+## [2026-08-08] T219-dast-cron-semanal (DONE, commit fd46ca9)
+F08 - DAST contínuo em produção/staging (gap 8.6):
+- .github/workflows/dast-weekly.yml: cron '0 3 * * 1' (segunda 03:00 UTC)
+  + workflow_dispatch. zaproxy/action-baseline@v0.13.0 (MESMA ferramenta do
+  CI de PR - sem nova dependencia). Alvo: vars.DAST_TARGET_URL com fallback
+  DAST_FALLBACK_TARGET (documentado em docs/SECURITY.md); se NENHUM
+  definido -> falha com ::error:: clara (nunca escanear alvo errado em
+  silencio). fail_action: true; issue automatica via actions/github-script
+  para achados high/critical (template: alvo, data, evidencias do
+  zap-report.json, recomendacao, labels security+dast); medium/low apenas
+  log. Sem segredos (so GITHUB_TOKEN + vars). Artefato zap-report.json
+  (30 dias de retencao).
+- test/dast/zap-baseline.sh: execucao manual local via imagem oficial
+  ghcr.io/zaproxy/zaproxy (docker), usa as regras versionadas, gera
+  zap-report-local.html. bash -n OK.
+- test/dast/zap-rules.conf: supressoes versionadas COM comentario
+  (CSP/timestamps/X-Frame apenas para localhost dev — nao para prod).
+- docs/SECURITY.md (novo): frequencia/canais do DAST, como interpretar o
+  relatorio, como marcar false positive, SLA P1-P4 (triagem/mitigacao)
+  alinhado a docs/INCIDENT_RESPONSE.md, execucao manual.
+- Verificacao: YAML validado (js-yaml: jobs zap-baseline-weekly, cron ok);
+  bash -n exit 0. PLANO_MESTRE 8.6 [x].
+- Sem TDD (requires_tdd false) — infraestrutura de CI + docs.
