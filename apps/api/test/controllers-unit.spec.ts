@@ -96,7 +96,7 @@ describe("MediaController (unit T8.1)", () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     mockPrisma.midia.count.mockResolvedValue(0);
     await controller.list(undefined, "20", "FILME", undefined, "2000", "2010", "60", "90");
-    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+    const call = mockPrisma.midia.findMany.mock.calls[0]?.[0] as {
       where: Record<string, unknown>;
     };
     expect(call.where.tipo).toBe("FILME");
@@ -108,7 +108,7 @@ describe("MediaController (unit T8.1)", () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     mockPrisma.midia.count.mockResolvedValue(0);
     await controller.list(undefined, "20", undefined, undefined, "abc", "xyz", "nope", "also");
-    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+    const call = mockPrisma.midia.findMany.mock.calls[0]?.[0] as {
       where: Record<string, unknown>;
     };
     expect(call.where.ano_lancamento).toBeUndefined();
@@ -129,7 +129,7 @@ describe("MediaController (unit T8.1)", () => {
       undefined,
       "ficcao-cientifica",
     );
-    const call = mockPrisma.midia.findMany.mock.calls[0]![0] as {
+    const call = mockPrisma.midia.findMany.mock.calls[0]?.[0] as {
       where: Record<string, unknown>;
     };
     expect(call.where.generos).toEqual({ some: { genero: { slug: "ficcao-cientifica" } } });
@@ -476,12 +476,14 @@ describe("AdminController (unit T8.1)", () => {
   let controller: AdminController;
 
   beforeEach(() => {
-    controller = new AdminController();
+    controller = new AdminController({
+      getStats: async () => ({ value: {}, hit: false }),
+    } as never);
   });
 
-  it("getStats() returns message with timestamp", () => {
-    const result = controller.getStats();
-    expect(result.message).toContain("admin");
-    expect(result.timestamp).toBeDefined();
+  it("getStats() delega ao AdminService (stats reais — T221)", async () => {
+    const reply = { header: () => undefined } as never;
+    const result = await controller.getStats({} as never, reply);
+    expect(result).toEqual({});
   });
 });
