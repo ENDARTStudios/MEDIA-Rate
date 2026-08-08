@@ -2413,3 +2413,26 @@ F04 - admin stats reais (4.7) - ULTIMA tarefa do caminho critico p/ Open Beta:
   cache key/TTL; 2 e2e: admin 200 MISS->HIT + audit, 403).
   API 638/638 (79 arquivos), tsc/lint/build ok.
 - PLANO_MESTRE 4.7 [x] - caminho critico para Open Beta COMPLETO.
+
+## [2026-08-08] T222-fix-seeds-prisma-paths (DONE, commit bc96251)
+F02 - corrige bugs reais descobertos na execucao dos seeds pelo Operador:
+- BUG 1 (PrismaClientConstructorValidationError: Unknown property
+  _originalClient em seed-games): seed-games/tmdb/novas-midias instanciavam
+  `new PrismaService(prisma as never)` — o construtor do PrismaService
+  (que EXTENDS PrismaClient) recebia o client como OPTIONS -> rejeitado
+  pelo Prisma v6. Correcao: passar o PrismaClient CRU ao MediaScoreService
+  (sem envolver no service NestJS) — mesmo padrao de seed-franquias e
+  seed-origem. Imports de PrismaService removidos.
+- BUG 2 (Cannot find module ../src/modules/prisma/prisma.service.js em
+  seed-novas-midias): path inexistente (o real e src/prisma/). Import
+  removido junto com o uso.
+- VERIFICADO: os 4 seeds (tmdb/games/novas-midias/relacoes) rodam ate a
+  CONEXAO com DB invalido (PrismaClientInitializationError) — nenhum erro
+  de import/constructor; seed-tmdb chega ao check de TMDB_API_KEY;
+  _originalClient = 0 em src; nenhum `new PrismaService(<args>)` em src
+  (DI nao instancia manualmente); tsc ok; API 638/638 (src intocado).
+- Sem TDD (requires_tdd false — scripts de bootstrap; verificacao = rodar
+  cada seed e confirmar que completam a fase de instanciacao).
+- Operador: pode rodar os 5 comandos na Shell do Railway — os bugs de
+  codigo estao resolvidos; so resta o bloqueio de rede (resolvido pela
+  Shell).
