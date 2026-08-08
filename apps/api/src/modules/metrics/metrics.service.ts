@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Registry, Counter, Histogram, collectDefaultMetrics } from "prom-client";
+import { AlertsService } from "./alerts.service.js";
 
 interface MetricsSnapshot {
   uptime_seconds: number;
@@ -71,7 +72,7 @@ export class MetricsService {
     registers: [this.registry],
   });
 
-  constructor() {
+  constructor(private readonly alerts: AlertsService) {
     try {
       collectDefaultMetrics({ register: this.registry, prefix: "app_" });
     } catch (err) {
@@ -94,6 +95,8 @@ export class MetricsService {
       this.counters.requests_5xx++;
     }
     this.counters.requests_total++;
+    // T218: alimenta os alertas (janela deslizante 5xx / total).
+    this.alerts.registrarRequisicao(status);
   }
 
   incrementRequest() {

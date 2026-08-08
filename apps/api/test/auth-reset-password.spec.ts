@@ -78,6 +78,7 @@ function makeMocks() {
       verificar: async () => ({ ok: true }),
       reenviar: async () => ({ message: "ok" }),
     } as any,
+    { registrarFalhaAuth: () => undefined } as any, // alerts
   );
   return { service, prisma, mail, audit, passwordService, users };
 }

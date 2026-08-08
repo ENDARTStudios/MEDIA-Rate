@@ -74,3 +74,39 @@ curl -H "X-Admin-Token: <ADMIN_TOKEN>" http://localhost:4000/metrics
 
 - Alertas (taxa de erro 5xx, latência p95, uptime check).
 - Dashboard Grafana versionado no repo.
+
+## Alertas (T218, 9.5.3)
+
+Alertas calculados a partir das métricas existentes — sem segundo pipeline:
+
+| Alerta | Threshold | Janela | Severidade |
+|---|---|---|---|
+| `5xx_rate` | 5xx > 1% do total | 5min deslizante | CRITICAL |
+| `auth_failures` | falhas de login > 50 | 1min deslizante | WARNING |
+
+- **Histerese de 10%**: resolve apenas quando cair abaixo de 90% do
+  threshold (`5xx_rate < 0.9%`, `auth_failures < 45`) — evita flapping.
+- Janelas: ring buffers de timestamps em memória (sem dependência externa).
+- Transição → log Pino `error` (active) / `info` (resolved) + audit_log
+  (`ALERT_TRIGGERED` / `ALERT_RESOLVED`). Nunca loga dados de usuário.
+- **Status**: `GET /api/v1/admin/alerts/status` (RBAC `@Roles('ADMIN')`;
+  non-admin → 403) retorna `{ alertas: [{nome, estado, threshold,
+  valorAtual, janela, ultimoDisparo}], atualizadoEm }`.
+- **Canal de alerta**: log crítico + Loki (já configurado) + endpoint de
+  status. Nenhum serviço externo pago (PagerDuty/Opsgenie) sem aprovação
+  do Operador.
+
+### UptimeRobot free (9.5.4) — guia para o Operador
+
+A criação da conta é **ação do Operador** (serviço externo). Passo a passo:
+
+1. Crie uma conta gratuita em https://uptimerobot.com.
+2. Add New Monitor → **HTTP(s)**.
+3. URL: `https://<api-do-mediarate>/api/v1/health` (o `/health` não exige
+   auth e é excluído do log de requisições).
+4. Interval: **5 minutes** (plano free) · Timeout: 30s.
+5. Alert when down → marque **Down 2 times** (evita falso positivo em
+   restart) e **Notify**: email.
+6. (Opcional) o `health-check.yml` do GitHub Actions já faz cron a cada 5
+   minutos como fallback.
+

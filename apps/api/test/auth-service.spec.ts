@@ -6,6 +6,7 @@ import { PasswordService } from "../src/common/password.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionRotationService } from "../src/modules/auth/session-rotation.service.js";
 import { EmailVerificationService } from "../src/modules/auth/email-verification.service.js";
+import { AlertsService } from "../src/modules/metrics/alerts.service.js";
 import { LockoutService } from "../src/modules/auth/lockout.service.js";
 import { AnalyticsService } from "../src/common/analytics.service.js";
 import { AuditLogService } from "../src/common/audit-log.service.js";
@@ -145,6 +146,10 @@ describe("AuthService (unit)", () => {
             verificar: async () => ({ ok: true }),
             reenviar: async () => ({ message: "ok" }),
           },
+        },
+        {
+          provide: AlertsService,
+          useValue: { registrarFalhaAuth: () => undefined },
         },
       ],
     }).compile();

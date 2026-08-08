@@ -7,7 +7,7 @@ describe("MetricsService (T217)", () => {
   let metrics: MetricsService;
 
   beforeEach(() => {
-    metrics = new MetricsService();
+    metrics = new MetricsService({ registrarRequisicao: () => undefined } as any);
   });
 
   it("registrarRequisicao: incrementa http_requests_total por método/rota/status", async () => {

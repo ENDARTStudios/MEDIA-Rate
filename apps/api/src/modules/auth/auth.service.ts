@@ -17,6 +17,7 @@ import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.servic
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
+import { AlertsService } from "../metrics/alerts.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
 import { FREE_WATCHLIST_LIMIT } from "../watchlist/watchlist.service.js";
 
@@ -92,6 +93,7 @@ export class AuthService {
     private readonly auditLog: AuditLogService,
     private readonly mockMail: MockMailService,
     private readonly emailVerification: EmailVerificationService,
+    private readonly alerts: AlertsService,
   ) {}
 
   async register(
@@ -224,6 +226,8 @@ export class AuthService {
           motivo: "invalid_credentials",
         },
       });
+      // T218: alimenta o alerta de falhas de autenticação (janela 1min).
+      this.alerts.registrarFalhaAuth();
       // Registra falha para lockout progressivo.
       const result = await this.lockoutService.registerFailure(ip, dto.email);
       if (result.locked) {
@@ -258,6 +262,8 @@ export class AuthService {
           motivo: "email_not_verified",
         },
       });
+      // T218: falha de auth também alimenta o alerta (janela 1min).
+      this.alerts.registrarFalhaAuth();
       throw new ForbiddenException({
         statusCode: 403,
         error: "Forbidden",

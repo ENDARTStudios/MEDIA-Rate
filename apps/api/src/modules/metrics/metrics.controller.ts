@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Req,
-  Res,
-  HttpException,
-  HttpStatus,
-  ForbiddenException,
-} from "@nestjs/common";
+import { Controller, Get, Req, Res, ForbiddenException } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { MetricsService } from "./metrics.service.js";
 import { PrismaService } from "../../prisma/prisma.service.js";
