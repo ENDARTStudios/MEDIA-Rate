@@ -2352,3 +2352,33 @@ F08 - DAST contínuo em produção/staging (gap 8.6):
 - Verificacao: YAML validado (js-yaml: jobs zap-baseline-weekly, cron ok);
   bash -n exit 0. PLANO_MESTRE 8.6 [x].
 - Sem TDD (requires_tdd false) — infraestrutura de CI + docs.
+
+## [2026-08-08] T220-k6-1000-vus (DONE, commit 415e0cb)
+F08 - teste de carga k6 escalado (gap 8.7):
+- k6-scripts/load-test.js: executor ramping-vus com stages do k6
+  (0->1000 VUs em 5min, sustain 10min, ramp-down 5min); 3 cenarios MANTIDOS
+  (healthCheck, catalogBrowse, checkoutFlow) distribuidos por faixa de
+  __VU no default() (600/250/150 = VUS_MAX); thresholds:
+  http_req_duration p95<500ms, http_req_failed<1%, http_reqs>10000,
+  latency_ms p95<500, errors rate<0.05 (compat T8.4).
+- k6-scripts/config.js (novo): BASE_URL (env -e), VUS_MAX=1000, STAGES,
+  distribuicao.
+- DESCOBERTAS (probes locais com k6 v2):
+  (1) CLI --vus/--duration SOBRESCREVE scenarios ("cli level configuration
+  overrode scenarios configuration entirely") — o smoke de 30s/10 VUs nao
+  segue os stages;
+  (2) exec.test.options NAO e acessivel no init context (GoError) — a
+  deteccao de smoke foi movida para RUNTIME (default()): com override o
+  cenario vira "default" (constant-vus, sem stages.load);
+  (3) no smoke os execs rodam SEM sleep de leitura (validacao de script nao
+  precisa de think time) — acumula volume e valida todos os thresholds;
+  (4) o rate limit global (100/min) 429s o load test — alvo de carga precisa
+  de RATE_LIMIT_API_PER_MIN elevado (documentado).
+- Smoke test VALIDADO localmente (API dist bootada com SKIP_DB_CONNECT +
+  RATE_LIMIT_API_PER_MIN=1000000): exit 0, p95=4.5ms, error 0%,
+  http_reqs=109654 (>10k), checks 100%.
+- docs/LOAD_TESTING.md (novo): instalacao (brew/apt/choco/docker),
+  smoke + run completo + alvo customizado, interpretacao (p95, error rate,
+  throughput), quando executar (pre-Open Beta, pos-mudancas de performance),
+  seguranca (nunca producao sem autorizacao), nota do rate limit do alvo.
+- PLANO_MESTRE 8.7 [x]. Sem TDD (requires_tdd false - infra de teste).
