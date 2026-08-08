@@ -1,100 +1,116 @@
 /* eslint-disable no-undef */
-// k6 load test — MEDIA Rate API (T8.4)
+// k6 load test — MEDIA Rate API (T8.4 → T220, gap 8.7)
 //
-// 3 cenários:
-// 1. Health check: 100 VUs por 30s (sem auth)
-// 2. Catálogo: 50 VUs por 30s (sem auth, GET /api/v1/midias)
-// 3. Checkout: 10 VUs por 20s (com auth — precisa de cookie de sessão)
+// 3 cenários (mantidos do T8.4):
+// 1. healthCheck — /health (sem auth)
+// 2. catalogBrowse — GET /api/v1/midias?limit=20 (sem auth)
+// 3. checkoutFlow — POST /api/v1/checkout (cookie mockado)
 //
-// Uso: k6 run k6-scripts/load-test.js
+// Escala (T220): ramp-up 0 → 1000 VUs em 5min, sustain 10min, ramp-down 5min.
+// Os VUs são distribuídos por faixa de __VU (600 públicas / 250 catálogo /
+// 150 checkout). Thresholds: p95 < 500ms, error < 1%, http_reqs > 10000.
 //
-// Pré-requisitos:
-// - API rodando em http://localhost:4000 (ou setar API_BASE_URL)
-// - k6 instalado: https://k6.io/docs/getting-started/installation/
+// Uso:
+//   Smoke test (rápido): k6 run --vus 10 --duration 30s k6-scripts/load-test.js
+//   Teste completo:     k6 run k6-scripts/load-test.js
+//   Alvo customizado:   k6 run -e BASE_URL=https://staging... k6-scripts/load-test.js
+//
+// NUNCA execute contra produção sem autorização explícita do Operador.
 
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Rate, Trend } from "k6/metrics";
+import exec from "k6/execution";
+import {
+  BASE_URL,
+  VUS_MAX,
+  STAGES,
+  HEALTH_VUS,
+  CATALOG_VUS,
+} from "./config.js";
 
-const API_BASE_URL = __ENV.API_BASE_URL || "http://localhost:4000";
-
-// Métricas customizadas
+// Métricas customizadas (compat T8.4)
 const errorRate = new Rate("errors");
 const latencyMs = new Trend("latency_ms");
 
-// Configuração dos cenários
+// Detecção de SMOKE em RUNTIME (k6/execution não expõe options no init):
+// quando o CLI sobrescreve com --vus/--duration, o cenário "load"
+// (ramping-vus com stages) é trocado por "default" (constant-vus). No smoke,
+// os execs rodam SEM o sleep de leitura do usuário — validação de script
+// não precisa de think time — para acumular volume e validar thresholds.
+function isSmoke() {
+  const sc = exec.test.options.scenarios;
+  return !(sc && sc.load && sc.load.stages && sc.load.stages.length > 0);
+}
+
 export const options = {
   scenarios: {
-    // Cenário 1: Health check — 100 VUs por 30s
-    health_check: {
-      executor: "constant-vus",
-      vus: 100,
-      duration: "30s",
-      exec: "healthCheck",
-      tags: { scenario: "health" },
-    },
-    // Cenário 2: Catálogo — 50 VUs por 30s
-    catalog: {
-      executor: "constant-vus",
-      vus: 50,
-      duration: "30s",
-      exec: "catalogBrowse",
-      startTime: "30s", // após health_check
-      tags: { scenario: "catalog" },
-    },
-    // Cenário 3: Checkout — 10 VUs por 20s (com auth)
-    checkout: {
-      executor: "constant-vus",
-      vus: 10,
-      duration: "20s",
-      exec: "checkoutFlow",
-      startTime: "60s", // após catalog
-      tags: { scenario: "checkout" },
+    // Cenário único com ramp-up progressivo (0 → VUS_MAX em 5min).
+    load: {
+      executor: "ramping-vus",
+      exec: "default",
+      stages: STAGES,
+      tags: { scenario: "load" },
     },
   },
   thresholds: {
-    // 95% das requisições devem ter latência < 500ms
-    latency_ms: ["p(95)<500"],
-    // Taxa de erro < 5%
-    errors: ["rate<0.05"],
-    // 99% das requisições HTTP devem ter sucesso
+    // Critério Open Beta: p95 < 500ms.
+    http_req_duration: ["p(95)<500"],
+    // Erros < 1% do total de requisições.
     http_req_failed: ["rate<0.01"],
+    // Volume mínimo por execução completa (10k requisições).
+    http_reqs: ["count>10000"],
+    // Compat T8.4.
+    latency_ms: ["p(95)<500"],
+    errors: ["rate<0.05"],
   },
 };
 
-// Cenário 1: Health check
-export function healthCheck() {
-  const res = http.get(`${API_BASE_URL}/health`);
+// Roteia cada VU para um cenário conforme a faixa de __VU.
+export default function () {
+  const smoke = isSmoke();
+  if (__VU <= HEALTH_VUS) {
+    healthCheck(smoke);
+  } else if (__VU <= HEALTH_VUS + CATALOG_VUS) {
+    catalogBrowse(smoke);
+  } else {
+    checkoutFlow(smoke);
+  }
+}
+
+// Cenário 1: Health check — páginas públicas.
+export function healthCheck(smoke = false) {
+  const res = http.get(`${BASE_URL}/health`);
   errorRate.add(res.status !== 200);
   latencyMs.add(res.timings.duration);
   check(res, {
     "status is 200": (r) => r.status === 200,
     "body has status ok": (r) => r.json("status") === "ok",
   });
-  sleep(0.1);
+  if (!smoke) sleep(0.1);
 }
 
-// Cenário 2: Catálogo (GET /api/v1/midias com paginação)
-export function catalogBrowse() {
-  const res = http.get(`${API_BASE_URL}/api/v1/midias?limit=20`);
+// Cenário 2: Catálogo / busca (GET /api/v1/midias com paginação).
+export function catalogBrowse(smoke = false) {
+  const res = http.get(`${BASE_URL}/api/v1/midias?limit=20`);
   errorRate.add(res.status !== 200);
   latencyMs.add(res.timings.duration);
   check(res, {
     "status is 200": (r) => r.status === 200,
     "has data array": (r) => Array.isArray(r.json("data")),
   });
-  sleep(0.5); // simula tempo de leitura do usuário
+  if (!smoke) sleep(0.5); // simula tempo de leitura do usuário
 }
 
-// Cenário 3: Checkout (POST /api/v1/checkout com Idempotency-Key)
-// Em produção, precisa de cookie de sessão. No teste, usa cookie mockado.
-export function checkoutFlow() {
-  // Em produção, o cookie vem do login. Aqui usamos um cookie mock.
+// Cenário 3: Checkout (POST /api/v1/checkout com Idempotency-Key).
+// Em load test, esperamos 200 (checkout criado) ou 401 (não autenticado —
+// esperado sem sessão real). Error rate considera ambos válidos.
+export function checkoutFlow(smoke = false) {
   const params = {
     headers: {
       "Content-Type": "application/json",
       "Idempotency-Key": `k6-${__VU}-${__ITER}-${Date.now()}`,
-      "Cookie": "sess=mock-session-token-for-load-test",
+      Cookie: "sess=mock-session-token-for-load-test",
     },
   };
 
@@ -104,13 +120,12 @@ export function checkoutFlow() {
     cancel_url: "https://app.example.com/cancel",
   });
 
-  const res = http.post(`${API_BASE_URL}/api/v1/checkout`, body, params);
-  // Em load test, esperamos 200 (checkout criado) ou 401 (não autenticado — esperado sem sessão real).
+  const res = http.post(`${BASE_URL}/api/v1/checkout`, body, params);
   errorRate.add(res.status !== 200 && res.status !== 401);
   latencyMs.add(res.timings.duration);
   check(res, {
     "status is 200 or 401": (r) => r.status === 200 || r.status === 401,
     "response has body": (r) => r.body !== null,
   });
-  sleep(1); // simula tempo entre tentativas de checkout
+  if (!smoke) sleep(1); // simula tempo entre tentativas de checkout
 }
