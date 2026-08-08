@@ -332,7 +332,7 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 - [x] 8.3 Testes E2E (Playwright) para fluxos críticos. · evid: `apps/web/playwright.config.ts`, 5 arquivos de teste (48 testes). T023 implementado.
 - [x] 8.4 SAST: CodeQL no GitHub Actions. · evid: `.github/workflows/ci.yml:93-106`.
 - [x] 8.5 `npm audit` quebra build se high/critical. · evid: `.github/workflows/ci.yml:38`.
-- [~] 8.6 DAST: OWASP ZAP com cron semanal. · evid: CI `zaproxy/action-baseline@v0.13.0` (PR only). Script local `test/dast/zap-baseline.sh`. Gap: sem cron semanal.
+- [x] 8.6 DAST: OWASP ZAP com cron semanal. · evid: T219 - dast-weekly.yml (cron segunda 03:00 UTC + workflow_dispatch, zaproxy/action-baseline@v0.13.0, alvo via vars.DAST_TARGET_URL com fallback documentado, falha clara se ausente, fail_action + issue automatica p/ high/critical via github-script, medium/low so log, sem segredos); test/dast/zap-baseline.sh (manual local via Docker); test/dast/zap-rules.conf (supressoes versionadas com comentario); docs/SECURITY.md (frequencia, interpretacao, false positive, SLA P1-P4 alinhado a INCIDENT_RESPONSE.md).
 - [~] 8.7 Testes de carga (k6) simulando 1.000 usuários. · evid: `k6-scripts/load-test.js` (3 cenários, 100 VUs). Gap: 100 VUs (não 1.000).
 - [x] 8.8 Testes de regressão de segurança: headers, SQL injection, XSS, CSRF. · evid: 14+ arquivos de segurança incluindo `test/security/csrf.spec.ts` (SameSite=Lax, httpOnly, Secure, OPTIONS) e `test/security/sql-injection.spec.ts` (7 payloads clássicos em busca, login, forgot-password — todos rejeitados sem 500 nem stack trace). T024 implementado.
 - [~] 8.9 Testes do pipeline de IA: N/A — IA/RAG postergado (Fase 6.5).

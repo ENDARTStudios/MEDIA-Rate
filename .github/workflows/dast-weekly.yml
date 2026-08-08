@@ -1,0 +1,100 @@
+name: DAST Weekly
+# T219 (8.6): varredura de segurança contínua em produção/staging.
+# - Cron: segunda-feira 03:00 UTC (zaproxy/action-baseline@v0.13.0, mesmo do CI).
+# - Target: vars.DAST_TARGET_URL (fallback: vars.DAST_FALLBACK_TARGET documentado).
+#   Se nenhum estiver definido → falha com mensagem clara (nunca escanear
+#   alvo errado silenciosamente).
+# - Achados high/critical novos → fail_action + issue automática (template).
+#   Medium/low → apenas log.
+# - Nenhum segredo: roda só com GITHUB_TOKEN + vars.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  zap-baseline-weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolver alvo do DAST
+        id: target
+        run: |
+          TARGET="${{ vars.DAST_TARGET_URL }}"
+          if [ -z "$TARGET" ]; then
+            TARGET="${{ vars.DAST_FALLBACK_TARGET }}"
+          fi
+          if [ -z "$TARGET" ]; then
+            echo "::error::DAST_TARGET_URL (ou DAST_FALLBACK_TARGET) não definido. Configure a variável do repositório — o workflow se recusa a escanear um alvo errado."
+            exit 1
+          fi
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "Alvo do DAST: $TARGET"
+
+      - name: ZAP Baseline Scan (semanal)
+        id: zap
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: ${{ steps.target.outputs.target }}
+          cmd_options: "-a -j -r zap-report.json"
+          rules_file_name: test/dast/zap-rules.conf
+          fail_action: true
+          issue_title: "OWASP ZAP (semanal): achados high/critical em ${{ steps.target.outputs.target }}"
+
+      - name: Abrir issue automática para achados high/critical
+        if: failure() && steps.zap.conclusion == 'failure'
+        uses: actions/github-script@v7
+        env:
+          DAST_TARGET: ${{ steps.target.outputs.target }}
+        with:
+          script: |
+            const fs = require('fs');
+            const alvo = process.env.DAST_TARGET || 'desconhecido';
+            let evidencias = 'Relatório não disponível.';
+            try {
+              evidencias = fs.readFileSync('zap-report.json', 'utf8').slice(0, 6000);
+            } catch (err) {
+              evidencias = 'Falha ao ler zap-report.json: ' + String(err);
+            }
+            const body = [
+              '## DAST semanal — achados high/critical',
+              '',
+              `- **Alvo:** \`${alvo}\``,
+              `- **Data:** ${new Date().toISOString()}`,
+              `- **Trigger:** cron semanal / workflow_dispatch`,
+              '',
+              '## Evidência (resumo do relatório ZAP)',
+              '',
+              '```json',
+              evidencias,
+              '```',
+              '',
+              '## Recomendação',
+              '',
+              '1. Reproduza o achado e confirme se é explorável no ambiente alvo.',
+              '2. Se **false positive**, adicione a regra em `test/dast/zap-rules.conf` (formato: `scan_id regex nome`) e feche esta issue com o motivo.',
+              '3. Se **confirmado**, trate conforme SLA em `docs/SECURITY.md` (P1: triagem ≤ 1 dia útil; P2: triagem ≤ 3 dias).',
+              '4. Referencie esta issue no PR da correção.',
+              '',
+              '> Nenhuma credencial ou token é incluído nesta issue (o workflow roda apenas com GITHUB_TOKEN).',
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `DAST semanal: achados high/critical em ${alvo} (${new Date().toISOString().slice(0, 10)})`,
+              body,
+              labels: ['security', 'dast'],
+            });
+
+      - name: Upload do relatório ZAP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-weekly-report
+          path: zap-report.json
+          retention-days: 30
