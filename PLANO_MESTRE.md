@@ -367,8 +367,8 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 - [~] 9.4 Plataforma de deploy. · evid: Vercel (frontend) + Railway (backend) definidos em `deploy.yml`. `DECISOES.md` não tem decisão formal de plataforma. Sem `vercel.json`, `railway.json`, `fly.toml`. Domínio `mediarate.app` pendente (`PENDENCIAS_OPERADOR.md` item 4).
 
 ### Observabilidade (9.5)
-- [ ] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos. · evid: AUSENTE. Apenas Pino logger local com `nestjs-pino`. Sem configuração de Loki, Grafana, ou log aggregation nativa do Railway/Vercel.
-- [ ] 9.5.2 Métricas: Prometheus + Grafana ou Better Stack. · evid: AUSENTE. Zero referências a Prometheus/Grafana/Better Stack no código ou workflows.
+- [x] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos. · evid: T217 - Pino + redact (ja existia); LokiStream (batch 200/2s, POST /loki/api/v1/push, label job=media-rate-api) quando LOKI_URL definida; sem LOKI_URL, stdout (logs nativos Railway). docker-compose com loki:2.9 + grafana:10.4. docs/OBSERVABILITY.md. Sem configuração de Loki, Grafana, ou log aggregation nativa do Railway/Vercel.
+- [x] 9.5.2 Métricas: Prometheus + Grafana ou Better Stack. · evid: T217 - prom-client: http_requests_total (counter method/route/status), http_request_duration_seconds (histograma buckets 0.01..5), http_errors_total (5xx); coleta automatica via MetricsInterceptor (global); GET /metrics em formato Prometheus protegido por RBAC (sessao ADMIN) OU METRICS_ALLOW_IPS OU X-Admin-Token; sem PII (testado).k no código ou workflows.
 - [~] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min. · evid: `health-check.yml` — abre/fecha GitHub issues automaticamente em falha de uptime (monitoramento binário: up/down). Sem alertas baseados em métricas (threshold de 5xx ou auth failures).
 - [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: `health-check.yml` — cron a cada 5 minutos via GitHub Actions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
 

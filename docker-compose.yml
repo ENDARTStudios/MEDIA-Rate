@@ -49,6 +49,25 @@ services:
       timeout: 3s
       retries: 5
 
+  # T217 (9.5.1): observabilidade local — Loki (logs) + Grafana (dashboard).
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: mediarate-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: mediarate-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin_dev
+    ports:
+      - "3000:3000"
+
 volumes:
   pgdata:
   minio_data:

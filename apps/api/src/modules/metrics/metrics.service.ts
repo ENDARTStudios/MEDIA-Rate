@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
+import { Registry, Counter, Histogram, collectDefaultMetrics } from "prom-client";
 
 interface MetricsSnapshot {
   uptime_seconds: number;
@@ -16,8 +17,23 @@ interface MetricsSnapshot {
   timestamp: string;
 }
 
+/**
+ * MetricsService (T217, 9.5.2) — métricas Prometheus.
+ *
+ * - http_requests_total: counter por {método, rota, status} — alimentado
+ *   pelo MetricsInterceptor (intercepta toda requisição).
+ * - http_request_duration_seconds: histograma (buckets 0.01..5).
+ * - http_errors_total: counter de respostas 5xx.
+ * - Coleta também métricas de processo (default metrics do prom-client:
+ *   event loop, memória, etc.).
+ * - getMetrics() retorna o formato de texto Prometheus.
+ * - Métricas apenas de INFRA — nunca PII/contagem de usuários/emails.
+ * - Contadores legados (watchlist_adds, auth_*) mantidos para compat.
+ */
 @Injectable()
 export class MetricsService {
+  private readonly logger = new Logger(MetricsService.name);
+  private readonly registry = new Registry();
   private counters = {
     requests_total: 0,
     requests_5xx: 0,
@@ -32,6 +48,53 @@ export class MetricsService {
   };
 
   private startTime = Date.now();
+
+  readonly httpRequestsTotal = new Counter({
+    name: "http_requests_total",
+    help: "Total de requisições HTTP por método, rota e status.",
+    labelNames: ["method", "route", "status"] as const,
+    registers: [this.registry],
+  });
+
+  readonly httpRequestDurationSeconds = new Histogram({
+    name: "http_request_duration_seconds",
+    help: "Duração das requisições HTTP em segundos.",
+    labelNames: ["method", "route"] as const,
+    buckets: [0.01, 0.05, 0.1, 0.5, 1, 5],
+    registers: [this.registry],
+  });
+
+  readonly httpErrorsTotal = new Counter({
+    name: "http_errors_total",
+    help: "Total de respostas com erro 5xx.",
+    labelNames: ["method", "route", "status"] as const,
+    registers: [this.registry],
+  });
+
+  constructor() {
+    try {
+      collectDefaultMetrics({ register: this.registry, prefix: "app_" });
+    } catch (err) {
+      this.logger.warn(`collectDefaultMetrics falhou (não-bloqueante): ${String(err)}`);
+    }
+  }
+
+  /** T217: registra uma requisição finalizada (do interceptor). */
+  registrarRequisicao(params: {
+    method: string;
+    route: string;
+    status: number;
+    duracaoSegundos: number;
+  }): void {
+    const { method, route, status } = params;
+    this.httpRequestsTotal.inc({ method, route, status: String(status) });
+    this.httpRequestDurationSeconds.observe({ method, route }, params.duracaoSegundos);
+    if (status >= 500) {
+      this.httpErrorsTotal.inc({ method, route, status: String(status) });
+      this.counters.requests_5xx++;
+    }
+    this.counters.requests_total++;
+  }
 
   incrementRequest() {
     this.counters.requests_total++;
@@ -64,6 +127,12 @@ export class MetricsService {
     this.counters.db_errors++;
   }
 
+  /** T217: formato de texto Prometheus (GET /metrics). */
+  async getMetricsText(): Promise<string> {
+    return this.registry.metrics();
+  }
+
+  /** Snapshot legado (compat) — usado por health/ops antigos. */
   async getMetrics(): Promise<MetricsSnapshot> {
     const mem = process.memoryUsage();
     return {

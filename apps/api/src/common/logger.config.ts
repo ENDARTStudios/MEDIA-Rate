@@ -1,7 +1,8 @@
 import type { Params } from "nestjs-pino";
+import { buildLokiStream } from "./loki-stream.js";
 
 /**
- * Configuracao do logger estruturado (T1.8).
+ * Configuracao do logger estruturado (T1.8 + T217 9.5.1).
  *
  * - Usa pino (mais rapido que winston, JSON nativo).
  * - Nivel controlado por LOG_LEVEL (default 'info').
@@ -10,15 +11,19 @@ import type { Params } from "nestjs-pino";
  *   password_hash, secret*, token*, sessionId, stripe*.
  * - Em producao: transport='stdio' (JSON puro, fast). Em dev: transport
  *   'pino-pretty' para legibilidade.
+ * - LOKI_URL definida → adiciona stream Loki (batched) além do console.
+ *   Sem LOKI_URL → apenas stdout (logs nativos do Railway).
  * - Exclui rotas de healthcheck do log de request (ruido).
  */
 export function buildLoggerConfig(): Params {
   const isProduction = process.env.NODE_ENV === "production";
   const logLevel = process.env.LOG_LEVEL ?? (isProduction ? "info" : "debug");
+  const loki = buildLokiStream();
 
   return {
     pinoHttp: {
       level: logLevel,
+      stream: loki ?? undefined,
       transport: isProduction
         ? undefined
         : {
