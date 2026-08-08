@@ -9,7 +9,7 @@
  */
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia } from "@prisma/client";
-import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
+import { recalcularScoreSeed } from "./seed-lib.js";
 
 interface GameSeed {
   nome: string;
@@ -86,14 +86,8 @@ async function main(): Promise<void> {
   console.log("[seed:games] Conectado ao banco.");
 
   try {
-    // T222: PrismaClient cru (não envolver em PrismaService — o construtor
-    // do PrismaService não aceita um client como options).
-    const scoreSvc = new MediaScoreService(
-      prisma as never,
-      undefined as never,
-      undefined as never,
-      undefined as never,
-    );
+    // T222 v2: recálculo de score via seed-lib (sem MediaScoreService/src).
+    const recalc = (midiaId: string) => recalcularScoreSeed(prisma, midiaId);
 
     let inseridos = 0;
     for (const g of GAMES) {
@@ -125,7 +119,7 @@ async function main(): Promise<void> {
         });
       }
 
-      const score = await scoreSvc.recalcularEPersistir(midia.id).catch(() => null);
+      const score = await recalc(midia.id).catch(() => null);
       if (score) {
         console.log(
           `[seed:games] ${g.nome}: score=${score.score?.toFixed(1)}/100 critica=${score.criticosScore?.toFixed(1) ?? "null"} confianca=${score.confianca?.toFixed(0)}`,

@@ -14,7 +14,7 @@
  * - Berserk (mangá): Jikan/MyAnimeList ~9.05/10 · AniList ~89/100
  */
 import { PrismaClient } from "@prisma/client";
-import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
+import { recalcularScoreSeed } from "./seed-lib.js";
 
 const prisma = new PrismaClient();
 
@@ -61,9 +61,8 @@ const REAL: Record<
 };
 
 async function main() {
-  // T222: PrismaClient cru (não envolver em PrismaService — o construtor
-  // não aceita um client como options).
-  const scoreSvc = new MediaScoreService(prisma as never, undefined as never, undefined as never, undefined as never);
+  // T222 v2: recálculo de score via seed-lib (sem MediaScoreService/src).
+  const recalc = (midiaId: string) => recalcularScoreSeed(prisma, midiaId);
 
   for (const [slug, dados] of Object.entries(REAL)) {
     const existente = await prisma.midia.findFirst({ where: { titulo: dados.titulo } });
@@ -86,7 +85,7 @@ async function main() {
         data: { midia_id: midia.id, fonte: f.fonte, rating: f.rating, media_fonte: f.media_fonte, desvio_fonte: f.desvio_fonte, votos: f.votos },
       });
     }
-    const resultado = await scoreSvc.recalcularEPersistir(midia.id);
+      const resultado = await recalc(midia.id);
     console.log(
       `${dados.titulo} (${dados.tipo}): score=${resultado?.score?.toFixed(1)}/100 publico=${resultado?.publicoScore?.toFixed(1)} critica=${resultado?.criticosScore ?? "null"} confianca=${resultado?.confianca?.toFixed(0)}`,
     );

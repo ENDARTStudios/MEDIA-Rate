@@ -10,7 +10,7 @@
 // Uso: cd apps/api && npm run db:seed:tmdb
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia, type ClassificacaoIndicativa } from "@prisma/client";
-import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
+import { recalcularScoreSeed } from "./seed-lib.js";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
@@ -216,13 +216,8 @@ async function main(): Promise<void> {
     // Sincroniza gêneros antes de inserir (vínculos N:N em midia_genero).
     const generos = await syncGeneros(apiKey, prisma);
 
-    // T222: PrismaClient cru (não envolver em PrismaService).
-    const scoreSvc = new MediaScoreService(
-      prisma as never,
-      undefined as never,
-      undefined as never,
-      undefined as never,
-    );
+    // T222 v2: recálculo de score via seed-lib (sem MediaScoreService).
+    const recalc = (midiaId: string) => recalcularScoreSeed(prisma, midiaId);
 
     // Insere filmes.
     let inserted = 0;
@@ -269,7 +264,7 @@ async function main(): Promise<void> {
           update: { rating: f.vote_average, votos: f.vote_count },
         });
       }
-      await scoreSvc.recalcularEPersistir(midia.id).catch(() => undefined);
+      await recalc(midia.id).catch(() => undefined);
       inserted++;
       if (inserted % 25 === 0) {
         console.log(`[seed:tmdb] ${inserted}/${filmes.length} filmes inseridos.`);
@@ -321,7 +316,7 @@ async function main(): Promise<void> {
           update: { rating: s.vote_average, votos: s.vote_count },
         });
       }
-      await scoreSvc.recalcularEPersistir(midia.id).catch(() => undefined);
+      await recalc(midia.id).catch(() => undefined);
       insertedSeries++;
       if (insertedSeries % 25 === 0) {
         console.log(`[seed:tmdb] ${insertedSeries}/${series.length} séries inseridas.`);

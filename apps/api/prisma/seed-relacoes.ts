@@ -11,7 +11,7 @@
  */
 /* eslint-disable no-console */
 import { PrismaClient } from "@prisma/client";
-import { WikidataSeedService } from "../src/modules/relacoes/wikidata-seed.service.js";
+import { buscarArestasWikidata } from "./seed-lib.js";
 
 interface CuradoriaItem {
   origemTitulo: string;
@@ -110,8 +110,7 @@ async function main(): Promise<void> {
       select: { id: true, titulo: true },
     });
     console.log(`[seed:relacoes] Wikidata P144 sobre top ${top.length} do catálogo...`);
-    const wd = new WikidataSeedService();
-    const arestasWikidata = await wd.buscarArestas(top);
+    const arestasWikidata = await buscarArestasWikidata(top);
     console.log(`[seed:relacoes] ${arestasWikidata.length} arestas inferidas via Wikidata.`);
 
     let criadas = 0;
