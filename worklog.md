@@ -2266,3 +2266,33 @@ F06 - upload seguro de posters (6.8):
   403, 415, 413, 404 inexistente/deletada, GET 200 image/jpeg + cache,
   traversal 404). API 612/612 (73 arquivos), tsc/lint/build ok.
 - Pendencia: ClamAV nao implementado (futuro) - arquitetura pronta.
+
+## [2026-08-08] T217-observabilidade-logs-metricas (DONE, commit 27b113f)
+F09 - observabilidade (9.5.1 + 9.5.2):
+- LOGS: Pino + redact ja existiam (T1.8). Novo LokiStream
+  (common/loki-stream.ts): batch 200 linhas ou 2s, POST JSON a
+  /loki/api/v1/push com label job=media-rate-api, quando LOKI_URL definida;
+  sem LOKI_URL -> stdout (logs nativos do Railway capturam). Pino redact
+  aplica ANTES do stream — segredos nunca chegam ao Loki (testado: stream
+  recebe '[Redacted]'). Falha de envio silenciosa. docker-compose: loki:2.9
+  + grafana:10.4 (portas 3100/3000). docs/OBSERVABILITY.md (stack, acesso,
+  protecao, producao, T218).
+- METRICAS: prom-client (instalado) no MetricsService:
+  http_requests_total (counter method/route/status),
+  http_request_duration_seconds (histograma buckets 0.01/0.05/0.1/0.5/1/5),
+  http_errors_total (5xx), + default metrics (app_*). Coleta automatica via
+  MetricsInterceptor global (main.ts) — tap (sucesso) + catchError (status
+  de HttpException). GET /metrics agora em formato Prometheus (text/plain):
+  protegido por RBAC (sessao ADMIN via prisma) OU METRICS_ALLOW_IPS
+  (IP allowlist env) OU X-Admin-Token legado — 403 caso contrario; sem PII
+  (regex testado: sem emails/password/authorization).
+- Contadores legados (watchlist_adds, auth_*) mantidos (compat).
+- DESCOBERTAS: (1) interceptor registrado via app.useGlobalInterceptors
+  com app.get(MetricsService) antes do init NAO alimentava o mesmo
+  singleton do controller no e2e — trocado para APP_INTERCEPTOR via DI
+  (mesmo container); (2) rotas nao registradas (404) nao passam pelo
+  interceptor — teste usa 2 chamadas a /metrics (a 2a inclui a 1a).
+- Testes: 12 novos (7 unit: counters/histograma/5xx/sem-PII + LokiStream
+  envio/fallback/erro silencioso; 5 e2e: admin 200 Prometheus + interceptor
+  alimenta, 403 sem auth, IP allowlist, X-Admin-Token, sem PII).
+  API 624/624 (75 arquivos), tsc/lint/build ok. Base pronta p/ T218 (alertas).
