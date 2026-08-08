@@ -2382,3 +2382,34 @@ F08 - teste de carga k6 escalado (gap 8.7):
   throughput), quando executar (pre-Open Beta, pos-mudancas de performance),
   seguranca (nunca producao sem autorizacao), nota do rate limit do alvo.
 - PLANO_MESTRE 8.7 [x]. Sem TDD (requires_tdd false - infra de teste).
+
+## [2026-08-08] T221-admin-stats-real (DONE, commit 8fd692d)
+F04 - admin stats reais (4.7) - ULTIMA tarefa do caminho critico p/ Open Beta:
+- GET /api/v1/admin/stats substitui o stub hardcoded por metricas REAIS:
+  AdminService (novo) com Promise.all (UMA execucao paralela de 8 queries):
+  - usuarios: total + ativos_7d (ultimo_login_em >= 7d), excluindo soft
+    delete LGPD (dados_para_exclusao_at null);
+  - midias: total + por_tipo (groupBy), excluindo deleted_at (soft delete
+    T215 - testado o filtro na chamada);
+  - watchlists: total_entries + usuarios_com_watchlist (groupBy);
+  - sessoes: ativas (expires_at > NOW + revoked_at null);
+  - planos: free/plus/premium (groupBy status ATIVA, lowercased).
+- Resposta tipada (dto/stats-response.dto) SEM PII; banco vazio -> zeros
+  (resiliente - testado).
+- Cache 60s via CacheService (chave admin:stats, readThroughWithStatus):
+  X-Cache MISS -> HIT na 2a chamada (verificado e2e).
+- @Roles('ADMIN') + guards globais (AuthGuard+RolesGuard do AppModule -
+  e2e registra os fakes como APP_GUARD, pois o controller nao tem
+  @UseGuards); 403 non-admin testado.
+- Audit ADMIN_STATS_VIEWED (admin id + IP + UA).
+- AdminModule importa AuthModule (padrao T216 - guards precisam de
+  SessionService) e prove AuditLogService.
+- controllers-unit.spec: stub removido, teste de delegacao ao service;
+  3 non-null assertions pre-existentes corrigidas (mock.calls[0]![0] ->
+  ?.[0]).
+- DESCOBERTA: e2e precisou registrar os guards como APP_GUARD (nao
+  overrideGuard) porque o AdminController depende dos globais do AppModule.
+- Testes: 5 novos (3 unit: contagens corretas, zeros + filtro deleted_at,
+  cache key/TTL; 2 e2e: admin 200 MISS->HIT + audit, 403).
+  API 638/638 (79 arquivos), tsc/lint/build ok.
+- PLANO_MESTRE 4.7 [x] - caminho critico para Open Beta COMPLETO.
