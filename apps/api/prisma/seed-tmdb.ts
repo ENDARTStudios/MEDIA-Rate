@@ -11,7 +11,6 @@
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia, type ClassificacaoIndicativa } from "@prisma/client";
 import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
-import { PrismaService } from "../src/prisma/prisma.service.js";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
@@ -217,8 +216,9 @@ async function main(): Promise<void> {
     // Sincroniza gêneros antes de inserir (vínculos N:N em midia_genero).
     const generos = await syncGeneros(apiKey, prisma);
 
+    // T222: PrismaClient cru (não envolver em PrismaService).
     const scoreSvc = new MediaScoreService(
-      new PrismaService(prisma as never) as never,
+      prisma as never,
       undefined as never,
       undefined as never,
       undefined as never,

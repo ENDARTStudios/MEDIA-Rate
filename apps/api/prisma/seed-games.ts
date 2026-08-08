@@ -10,7 +10,6 @@
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia } from "@prisma/client";
 import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
-import { PrismaService } from "../src/prisma/prisma.service.js";
 
 interface GameSeed {
   nome: string;
@@ -87,8 +86,10 @@ async function main(): Promise<void> {
   console.log("[seed:games] Conectado ao banco.");
 
   try {
+    // T222: PrismaClient cru (não envolver em PrismaService — o construtor
+    // do PrismaService não aceita um client como options).
     const scoreSvc = new MediaScoreService(
-      new PrismaService(prisma as never) as never,
+      prisma as never,
       undefined as never,
       undefined as never,
       undefined as never,

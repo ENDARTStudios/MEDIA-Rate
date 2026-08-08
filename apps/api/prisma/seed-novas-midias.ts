@@ -15,7 +15,6 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { MediaScoreService } from "../src/modules/media-score/media-score.service.js";
-import { PrismaService } from "../src/modules/prisma/prisma.service.js";
 
 const prisma = new PrismaClient();
 
@@ -62,8 +61,9 @@ const REAL: Record<
 };
 
 async function main() {
-  const prismaSvc = new PrismaService(prisma as never);
-  const scoreSvc = new MediaScoreService(prismaSvc as never, undefined as never, undefined as never, undefined as never);
+  // T222: PrismaClient cru (não envolver em PrismaService — o construtor
+  // não aceita um client como options).
+  const scoreSvc = new MediaScoreService(prisma as never, undefined as never, undefined as never, undefined as never);
 
   for (const [slug, dados] of Object.entries(REAL)) {
     const existente = await prisma.midia.findFirst({ where: { titulo: dados.titulo } });
