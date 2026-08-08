@@ -2436,3 +2436,28 @@ F02 - corrige bugs reais descobertos na execucao dos seeds pelo Operador:
 - Operador: pode rodar os 5 comandos na Shell do Railway — os bugs de
   codigo estao resolvidos; so resta o bloqueio de rede (resolvido pela
   Shell).
+
+## [2026-08-08] T222-fix-seeds-standalone (DONE, commit 8df0706)
+F02 - seeds STANDALONE (causa raiz do Console Railway):
+- CAUSA: a imagem de producao so embarca dist/, node_modules/ e prisma/
+  (Dockerfile com prune) — SEM src/. Seeds importavam ../src/... ->
+  'cannot be resolved' no Console.
+- CORRECAO:
+  1. Novo prisma/seed-lib.ts (sem imports de src/): logica Wikidata SPARQL
+     P144 extraida de wikidata-seed.service.ts como funcoes puras
+     (slugify/escapeLabel/consultarWikidata/buscarArestasWikidata) +
+     recalcularScoreSeed (recalculo minimo v3 p/ seeds: sem avaliacoes =
+     prior 7.0; com avaliacoes = media aritmetica — documentado como
+     seed-scope, o engine completo com z-scores vive no app; persiste
+     midia_score + desnormaliza midia.score, mesmo contrato).
+  2. seed-tmdb/games/novas-midias: MediaScoreService (de src/) removido,
+     usam recalcularScoreSeed.
+  3. seed-relacoes: WikidataSeedService (de src/) removido, usa
+     buscarArestasWikidata.
+- VERIFICADO: grep '../src' em prisma/seed-*.ts = 0; os 4 seeds rodam ate
+  a CONEXAO (PrismaClientInitializationError com DB invalido — sem erros
+  de import/constructor; tmdb chega ao check de TMDB_API_KEY); seed-lib
+  importa OK via swc; build exit 0; src intocado (API 638/638).
+- Sem TDD (scripts de bootstrap). Push dispara deploy no Railway.
+- Operador: apos o deploy, rodar no Console:
+  npm run db:seed:tmdb && npm run db:seed:games && npm run db:seed:novas-midias && npm run db:seed:relacoes
