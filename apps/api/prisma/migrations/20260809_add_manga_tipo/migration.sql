@@ -1,14 +1,13 @@
--- T231 (D-233): regra de domínio — anime NÃO é categoria.
+-- T231 (D-233/D-236): regra de domínio — anime NÃO é categoria.
 --   • Animação japonesa (anime) = SERIE;
 --   • Quadrinho japonês (mangá) = MANGA (categoria própria).
---   • Valor ANIME do enum fica DEPRECATED no banco (ADD VALUE é seguro;
---     REMOVE VALUE seria destrutivo/difícil em Postgres) — nunca exposto.
-
--- 1) Novo valor MANGA no enum (idempotente, mesmo padrão de 20260725).
+--   • Valor ANIME do enum fica DEPRECATED no banco (nunca exposto).
+--
+-- D-236: esta migration contém APENAS o ADD VALUE. O Postgres exige que
+-- o novo valor do enum seja COMMITADO antes de ser USADO (E55P04: "unsafe
+-- use of new value") — o Prisma envolve cada migration em UMA transação,
+-- então ADD VALUE + UPDATE no mesmo arquivo falha com
+--   ERROR: unsafe use of new value "MANGA" of enum type "TipoMidia"
+-- Os UPDATEs de reclassificação ficam na migration irmã
+-- 20260809_add_manga_tipo_dados (transação separada, valor já commitado).
 ALTER TYPE "TipoMidia" ADD VALUE IF NOT EXISTS 'MANGA';
-
--- 2) Reclassificação dos dados: obras de quadrinho japonês → MANGA.
---    No catálogo atual, 'ANIME' só tem Berserk (jikan/berserk, mangá).
---    Se existir animação japonesa classificada ANIME, vira SERIE (regra).
-UPDATE "midia" SET "tipo" = 'MANGA' WHERE "tipo" = 'ANIME' AND "fonte" = 'jikan';
-UPDATE "midia" SET "tipo" = 'SERIE' WHERE "tipo" = 'ANIME' AND "fonte" <> 'jikan';

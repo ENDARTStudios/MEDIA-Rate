@@ -147,6 +147,30 @@ propria 'Mangas' (chip distinto de 'Quadrinhos'). IMPLEMENTACAO:
   retornam Berserk; discover?tipo=ANIME -> 400; seed-novas-midias faz
   update-tipo; aresta Berserk MANGA <-> SERIE preservada.
 
+## D-236 ADD VALUE de enum exige migration separada dos UPDATEs (T232)
+Falha de healthcheck dos deploys pós-T231 (produção presa no T230; Vercel
+no T231 -> mismatch). CAUSA RAIZ reproduzida localmente com docker: o
+Prisma envolve cada migration em UMA transação e o Postgres proíbe USAR
+valor de enum na MESMA transação em que o ADD VALUE ocorreu:
+  ERROR: unsafe use of new value "MANGA" of enum type "TipoMidia"
+  hint: New enum values must be committed before they can be used.
+A migration 20260809_add_manga_tipo original fazia ADD VALUE + UPDATEs no
+mesmo arquivo; a validação do T231 usou psql -f (autocommit por
+statement), por isso passou — lição: validar migrations SEMPRE com
+`prisma migrate deploy`, nunca psql cru. CORREÇÃO: duas migrations —
+20260809_add_manga_tipo (SÓ o ADD VALUE, commita sozinho) +
+20260809_add_manga_tipo_dados (UPDATEs de reclassificação, transação
+separada). VALIDAÇÃO docker local (boot real): DB pós-T230 + deploy exit
+0; entrypoint completo sobe; /health 200; re-run idempotente ("No pending
+migrations"); Berserk ANIME -> MANGA e Berserk (1997) ANIME -> SERIE;
+/midias?tipo=MANGA retorna Berserk. O Operador deve rodar `npx prisma
+migrate resolve --rolled-back 20260809_add_manga_tipo` no Console ANTES
+do novo deploy (linha failed do deploy anterior). ACHADO PRÉ-EXISTENTE
+(não bloqueante): DB virgem falha em 20260803_media_score_v3 (ordem
+lexicográfica antes de 20260803_persistencia_avaliacoes que cria
+avaliacao_fonte) — produção nunca sofreu porque o banco foi migrado
+incrementalmente; documentado para correção futura.
+
 ## D-235 re-coleta de critica exige SCRAPE_NUMERICO_ENABLED no Railway (T231 pos)
 Diagnostico do Passo 2 (critica 'Sem critica' em producao): a ficha do
 Coringa mostra criticosScore=null com 2 fontes publico (tmdb/trakt) — os
