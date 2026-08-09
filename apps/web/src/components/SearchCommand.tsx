@@ -51,6 +51,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function SearchCommand() {
   const t = useTranslations("catalog");
+  // T246: hint de tecla por plataforma (⌘ no Mac, Ctrl no Windows/Linux).
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad/.test(navigator.platform ?? "");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -122,7 +126,15 @@ export function SearchCommand() {
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      // T246: Ctrl+K (Windows/Linux) e ⌘K (Mac) — paridade; case-insensitive
+      // ('k' ou 'K' com Caps Lock); nunca dispara com foco em campo editável.
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        const alvo = e.target as HTMLElement | null;
+        const editavel =
+          alvo instanceof HTMLInputElement ||
+          alvo instanceof HTMLTextAreaElement ||
+          (alvo?.isContentEditable ?? false);
+        if (editavel) return;
         e.preventDefault();
         setOpen(true);
       }
@@ -204,7 +216,8 @@ export function SearchCommand() {
         </svg>
         <span>{t("search") ?? "Buscar"}</span>
         <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
-          <span className="text-[10px]">⌘</span>K
+          {/* T246: hint por plataforma — ⌘ K no Mac, Ctrl K no Windows/Linux. */}
+          <span className="text-[10px]">{isMac ? "⌘" : "Ctrl"}</span>K
         </kbd>
       </button>
 

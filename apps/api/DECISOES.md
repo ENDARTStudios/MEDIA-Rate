@@ -337,7 +337,30 @@ TESTES: i18n-estrutural.spec.ts (6: chaves singulares/plurais presentes,
 EN/ES sem termos PT, EN Movies/Series/..., ES Películas/Series/...,
 footer.lgpd sem 'LGPD' cru). hero-icons.spec atualizado (comic ->
 Quadrinhos). e2e t243-i18n-home valida as 3 homes (pós-deploy).
-Web 271/271, tsc + build exit 0. Faixa 'em alta' com titulo_original em
+Web 271/271, tsc + build exit 0.
+
+## D-249/D-250 diretrizes do Operador: Ctrl+K, moeda por locale, RGPD (T246-T248)
+Diretrizes de negocio (2026-08-09, autoridade do Operador):
+(1) MOEDA (D-249): mesmo valor numerico sem conversao (0/4,90/9,90) com
+simbolo por locale — pt-BR 'R$', en-US '$', es-ES '€'; separador decimal
+por locale (pt/es '4,90', en '4.90'). lib/pricing.ts: symbolForLocale +
+formatPlanPrice; PricingCards importa PLANS de pricing.ts (fonte unica);
+toggle mensal/anual agora rotula 'mes' e 'ano' distintos (antes ambas
+'mes'); terms.s3b com simbolo por locale. Substitui a politica 'BRL
+explicito' do T242.
+(2) RGPD (D-250): es-ES privacy com RGPD completo (bases art. 6,
+direitos arts. 15-22, reclamacao a AEPD, aplicacao art. 3.2) SEM LGPD;
+pt-BR mantem LGPD pura sem RGPD; en-US neutro (lei brasileira, sem
+siglas); Terms com foro Osasco/SP nos 3 locales (lei regente Brasil).
+(3) CTRL+K (T246): handler ja aceitava ctrlKey||metaKey; adicionado
+case-insensitive ('K' caps), guarda de nao-disparar com foco em input/
+textarea/contentEditable, e hint por plataforma (⌘ K no Mac, Ctrl K no
+Windows/Linux).
+TESTES: ctrlk.spec.tsx (4), site-config.spec atualizado (simbolos por
+locale), rgpd-locale.spec.ts (6). Web 281/281, tsc + build exit 0.
+OPERADOR: preencher placeholder de representante/DPO na UE no es-ES
+quando aplicavel (secao 1 da privacy es-ES).
+ Faixa 'em alta' com titulo_original em
 EN/ES: depende de expor titulo_original no discover (API change) —
 deixado como melhoria futura documentada; titleForLocale já cobre via
 SEED_I18N para os títulos mapeados.

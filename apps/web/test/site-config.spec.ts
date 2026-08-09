@@ -17,31 +17,34 @@ const LOCALES: Record<string, Locale> = {
   "es-ES": esES as unknown as Locale,
 };
 
-describe("T242 — preços e marca com fonte única (pricing.ts)", () => {
-  it("PLANS define Plus 4.9 e Premium 9.9 em BRL — valores únicos", () => {
+describe("T242/T247 — preços e marca com fonte única (pricing.ts)", () => {
+  it("PLANS define Plus 4.9 e Premium 9.9 — valores únicos sem conversão", () => {
     const plus = PLANS.find((p) => p.id === "plus");
     const premium = PLANS.find((p) => p.id === "premium");
     expect(plus?.price).toBe(4.9);
     expect(premium?.price).toBe(9.9);
-    expect(plus?.currency["pt-BR"]).toBe("BRL");
-    expect(plus?.currency["en-US"]).toBe("BRL");
-    expect(plus?.currency["es-ES"]).toBe("BRL");
   });
 
-  it("formatPlanPrice produz R$ idêntico em valor nos 3 locales (sem '(R,90)')", () => {
+  it("T247: formatPlanPrice usa símbolo por locale (R$/$/€) com o MESMO valor", () => {
+    const casos: Record<string, [string, string]> = {
+      "pt-BR": ["R$ 4,90", "R$ 9,90"],
+      "en-US": ["$ 4.90", "$ 9.90"],
+      "es-ES": ["€ 4,90", "€ 9,90"],
+    };
+    for (const [loc, [plus, premium]] of Object.entries(casos)) {
+      expect(formatPlanPrice(4.9, loc)).toBe(plus);
+      expect(formatPlanPrice(9.9, loc)).toBe(premium);
+      // Nunca o bug '(R,90)' (quebra de template).
+      expect(formatPlanPrice(4.9, loc)).not.toContain("(R,");
+    }
+    // Valor numérico idêntico nos 3 (sem conversão).
     for (const loc of ["pt-BR", "en-US", "es-ES"] as const) {
-      const plus = formatPlanPrice(4.9, loc);
-      const premium = formatPlanPrice(9.9, loc);
-      // Nunca o bug '(R,90)' (quebra de template) nem valor divergente.
-      expect(plus).not.toContain("(R,");
-      expect(premium).not.toContain("(R,");
-      expect(plus).toContain("4");
-      expect(premium).toContain("9");
-      console.log(`[${loc}] plus=${plus} premium=${premium}`);
+      expect(formatPlanPrice(4.9, loc)).toContain("4");
+      expect(formatPlanPrice(9.9, loc)).toContain("9");
     }
   });
 
-  it("terms.s3b (seção de planos) usa 4,90/9,90 nos 3 locales — sem hardcode divergente", () => {
+  it("terms.s3b (seção de planos) usa símbolo por locale e valores 4,90/9,90", () => {
     for (const [loc, msgs] of Object.entries(LOCALES)) {
       const s3b = msgs.terms?.s3b ?? "";
       expect(s3b).toContain("4");
@@ -52,6 +55,10 @@ describe("T242 — preços e marca com fonte única (pricing.ts)", () => {
       // Marca presente.
       expect(msgs.footer?.copyright ?? "").toContain("END ART Studios");
     }
+    // Símbolo por locale no s3b (T247).
+    expect(LOCALES["pt-BR"].terms.s3b).toContain("R$");
+    expect(LOCALES["en-US"].terms.s3b).toContain("$");
+    expect(LOCALES["es-ES"].terms.s3b).toContain("€");
   });
 
   it("footer.lgpd usa rótulo neutro por locale (nunca 'LGPD' cru em EN/ES)", () => {

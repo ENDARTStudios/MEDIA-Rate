@@ -9,14 +9,9 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { Clapperboard, Tv, Gamepad2, BookOpen, BookImage, BookMarked, Lock } from "lucide-react";
 import type { MediaType } from "@/lib/types";
 import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
+import { formatPlanPrice, PLANS } from "@/lib/pricing";
 
 type Billing = "monthly" | "annual";
-
-const PLANS = [
-  { id: "free", price: 0, highlighted: false },
-  { id: "plus", price: 4.9, highlighted: true },
-  { id: "premium", price: 9.9, highlighted: false },
-] as const;
 
 const ANNUAL_DISCOUNT = 0.85;
 
@@ -35,17 +30,6 @@ const MEDIA_ICONS: Record<MediaType, typeof Clapperboard> = {
   comic: BookImage,
   manga: BookMarked,
 };
-
-function formatPrice(price: number, _locale: string) {
-  // D-178: cobrança é em BRL (Stripe) — todos os locales exibem R$, nunca
-  // USD/EUR (inconsistência legal/UX de mostrar moeda diferente da cobrada).
-  const currency = "BRL";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: price === 0 ? 0 : 2,
-  }).format(price);
-}
 
 function MediaUnlockRow({ planId }: { planId: string }) {
   const unlocked = PLAN_MEDIA[planId] ?? [];
@@ -118,7 +102,9 @@ export function PricingCards() {
                 : "bg-[#1B1B2C] text-[#A0A0B8] hover:text-[#F5F5F7]"
             }`}
           >
-            {t("month")}
+            {/* T247: toggle com rótulos DISTINTOS — 'mês' e 'ano' (antes as
+                duas opções mostravam 'mês'). */}
+            {b === "annual" ? t("year") : t("month")}
             {b === "annual" && (
               <span
                 className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
@@ -172,8 +158,8 @@ export function PricingCards() {
                       className="text-4xl font-heading font-bold text-[#F5F5F7] tabular-nums"
                     >
                       {billing === "annual" && plan.price > 0
-                        ? formatPrice(annualTotal, locale)
-                        : formatPrice(price, locale)}
+                        ? formatPlanPrice(annualTotal, locale)
+                        : formatPlanPrice(price, locale)}
                     </motion.span>
                   </AnimatePresence>
                   <span className="text-sm text-[#A0A0B8]">
@@ -185,7 +171,7 @@ export function PricingCards() {
                     ? t("noCard")
                     : billing === "annual"
                       ? t("savePercent", { pct: 15 })
-                      : `${formatPrice(plan.price * 12 * ANNUAL_DISCOUNT, locale)}/${t("year")} (${t("savePercent", { pct: 15 })})`}
+                      : `${formatPlanPrice(plan.price * 12 * ANNUAL_DISCOUNT, locale)}/${t("year")} (${t("savePercent", { pct: 15 })})`}
                 </p>
               </div>
 
