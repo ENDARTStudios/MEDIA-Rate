@@ -311,7 +311,7 @@
     "contact": "Contacto",
     "about": "Acerca de",
     "legal": "Legal",
-    "lgpd": "LGPD",
+    "lgpd": "Sus datos",
     "social": "Social",
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
@@ -389,7 +389,7 @@
   },
   "home": {
     "metaTitle": "MEDIA Rate — Descubre qué ver y jugar",
-    "metaDescription": "Plataforma de descubrimiento de medios con MEDIA Score™ unificado para películas, series, juegos y filmes.",
+    "metaDescription": "Plataforma de descubrimiento de medios con MEDIA Score™ unificado para películas, series y juegos.",
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Puntuación unificada de entretenimiento.",
     "ctaText": "Comienza ahora y descubre tu próximo título favorito. Gratis.",

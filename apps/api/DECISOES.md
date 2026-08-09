@@ -303,6 +303,23 @@ search-topo.spec.ts (paleta) e crosscheck-auditoria.spec.ts (T237/T238)
 passam a fazer parte da suite e2e permanente (PLAYWRIGHT_BASE_URL aponta
 producao).
 
+## D-247 auditoria tri-idioma: diagnostico com fonte unica (T242)
+DIAGNOSTICO com evidencia UI (Playwright contra producao): pagina
+/pricing mostra R$ 0/4,90/9,90/49,98/100,98 identicos em pt-BR/en-US/
+es-ES — os achados II da auditoria (precos quebrados '(R,90)', '8,90/
+14,90', 'ENDART' so em pt-BR, contadores '14 vs 11'/'8 vs 11') NAO se
+reproduzem no bundle atual (artefato de build antigo, mesmo padrao T240).
+Fonte de verdade ja existia por construcao: lib/pricing.ts (PLANS +
+formatPlanPrice BRL) e lib/sources.ts (NUM_FONTES_ATIVAS derivado). 
+CORRECOES REAIS aplicadas: (1) footer.lgpd neutro por locale (pt 'Seus
+dados (LGPD)', en 'Your data', es 'Sus datos') — antes 'LGPD' cru nos 3;
+(2) meta es-ES home 'juegos y filmes' -> 'películas, series y juegos'.
+PENDENTE da DECISAO 1 (RGPD): a meta de privacy es-ES cita apenas LGPD —
+aplicar enquadramento legal conforme escolha do Operador. Testes:
+site-config.spec.ts (4: valores PLANS unicos; formatPlanPrice sem
+'(R,90)' nos 3 locales; terms.s3b com 4,90/9,90 e marca 'END ART
+Studios'; footer.lgpd neutro). Web 265/265, tsc + build exit 0.
+
 ## D-246 seed-posters: OAuth Twitch exigia POST, seed usava GET (T236)
 Check booleano do Operador (twitch: true, gbooks: true) provou que as
 chaves EXISTEM no env do Railway — o seed-posters reportava 'sem
