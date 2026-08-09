@@ -83,6 +83,15 @@ const DB: MockRow[] = [
     imagem_url: null,
     genero: "acao",
   },
+  {
+    id: "7",
+    titulo: "Coração Partido",
+    tipo: "FILME",
+    ano_lancamento: 2021,
+    sinopse: "Drama",
+    imagem_url: null,
+    genero: "drama",
+  },
 ];
 
 function makePrisma(rows: MockRow[] = DB) {
@@ -351,5 +360,39 @@ describe("DiscoverService (unit)", () => {
     const result = await service.discover({ q: "Inception" });
     expect(result.itens.length).toBeGreaterThan(0);
     expect(result.itens[0].titulo).toBe("Inception");
+  });
+
+  // ---------------- T229: verificação de paridade no /search (produção) ----------------
+
+  it("T229 — /search: termo SEM acento encontra título COM acento (Coração Partido por 'coracao')", async () => {
+    const semAcento = await service.search("coracao");
+    const comAcento = await service.search("coração");
+    expect(semAcento.items.length).toBeGreaterThan(0);
+    // Não-regressão do caso real do Operador: 'coracao' acha 'Coração Partido'.
+    expect(
+      semAcento.items.some((i: { titulo: string }) => i.titulo === "Coração Partido"),
+    ).toBe(true);
+    // Paridade no /search (mesmo conjunto para as duas grafias).
+    const idsSem = semAcento.items.map((i: { id: string }) => i.id).sort();
+    const idsCom = comAcento.items.map((i: { id: string }) => i.id).sort();
+    expect(idsCom).toEqual(idsSem);
+  });
+
+  it("T229 — /search: termo SEM acento encontra sinopse COM acento (John Wick por 'acao')", async () => {
+    const result = await service.search("acao");
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(
+      result.items.some((i: { titulo: string }) => i.titulo.includes("John Wick")),
+    ).toBe(true);
+  });
+
+  it("T229 — /search: paridade 'acao' ≡ 'ação' retorna conjunto não-vazio idêntico", async () => {
+    const semAcento = await service.search("acao");
+    const comAcento = await service.search("ação");
+    expect(semAcento.items.length).toBeGreaterThan(0);
+    expect(comAcento.items.length).toBe(semAcento.items.length);
+    const idsSem = semAcento.items.map((i: { id: string }) => i.id).sort();
+    const idsCom = comAcento.items.map((i: { id: string }) => i.id).sort();
+    expect(idsCom).toEqual(idsSem);
   });
 });

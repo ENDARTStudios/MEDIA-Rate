@@ -95,10 +95,26 @@ export function ListaViewPage({ slug }: { slug: string }) {
   async function buscar() {
     if (!busca.trim()) return;
     try {
-      const data = await api.get<{ data: ResultadoBusca[] }>(
-        `/api/v1/search?q=${encodeURIComponent(busca)}`,
+      // /api/v1/search delega ao discover normalizado (T227/T229) e retorna
+      // { items: [{ id, titulo, tipo, ano_lancamento, imagem_url, slug }] }.
+      const data = await api.get<{
+        items: {
+          id: string;
+          titulo: string;
+          tipo: string;
+          ano_lancamento: number | null;
+          imagem_url: string | null;
+        }[];
+      }>(`/api/v1/search?q=${encodeURIComponent(busca)}`);
+      setResultados(
+        (data?.items ?? []).map((it) => ({
+          id: it.id,
+          title: it.titulo,
+          type: it.tipo,
+          posterUrl: it.imagem_url,
+          year: it.ano_lancamento,
+        })),
       );
-      setResultados(data?.data ?? []);
     } catch {
       setResultados([]);
     }

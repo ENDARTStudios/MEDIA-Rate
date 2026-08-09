@@ -84,6 +84,26 @@ upsert inclui calculado_em: new Date() a cada run; (3) regra de display no
 frontend: explanation/sampleSize derivam de sources.length (a lista
 exibida), nunca de num_fontes solto. Fonte sem fator de escala conhecido
 nao entra em detalhes (display nunca inventa nota). Validado com docker
-local: ficha Terraria score 90.75 + num_fontes 4 + detalhes array 4
+local: ficha Terraria score 90.75 + num_fontes 4 +   detalhes array 4
 entradas + fontes (avaliacoes) 4 + calculado_em do run atual.
+
+## D-230 verificacao em producao obrigatoria antes de fechar (T229)
+Segunda ocorrencia de 'validacao local verde, producao diferente' (1a:
+tsconfig no container, T224; 2a: paridade de busca, T227/T229). REGRA:
+tarefa que altera comportamento visivel ao usuario so fecha com evidencia
+EM PRODUCAO: curl nos endpoints afetados + confirmacao do build servido
+(hash/commit no Vercel) anexados ao STATUS. Sem evidencia de producao o
+Thinker nao aprova. DIAGNOSTICO T229: os 3 endpoints de producao
+(/discover?q=acao, ?q=acao, /search?q=acao) ja retornavam o MESMO conjunto
+nao-vazio (5 titulos) e o JS servido no Vercel ja continha as marcas do
+c5b355a (searchbox -> /discover) — o print do Operador era pre-deploy ou
+cache; nenhuma correcao de busca necessaria na API.
+
+## D-231 ListaViewPage consumia /search com formato inexistente (T229)
+ListaViewPage.buscar() esperava { data: ResultadoBusca[] } (camelCase) mas
+/api/v1/search retorna { items: [{id, titulo, tipo, ano_lancamento,
+imagem_url, slug}] } — a busca de 'adicionar item' da pagina de lista
+nunca retornava resultados (ou quebrava em silencio). Corrigido para o
+formato real; herda a normalizacao de acentos do /search delegado (T227).
+
 
