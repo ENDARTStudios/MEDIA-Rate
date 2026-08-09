@@ -51,7 +51,9 @@ export class DiscoverService {
   /**
    * T208 — busca/catálogo combinado (GET /api/v1/discover).
    *
-   * - q >= 3 chars: full-text com tsvector + unaccent (GIN indexado);
+   * - q >= 3 chars: full-text com tsvector (acentos normalizados por
+   *   translate() built-in na coluna gerada e no termo — T223/D-224, sem
+   *   unaccent em colunas geradas);
    * - q < 3 chars: fallback pg_trgm (similaridade, GIN trigram indexado);
    * - q ausente/vazio: modo catálogo (lista paginada por score);
    * - filtros combinados: tipo + genero;
@@ -110,7 +112,16 @@ export class DiscoverService {
       rankSql = Prisma.sql`similarity(m.titulo, ${q})`;
       orderSql = Prisma.sql`ORDER BY similarity(m.titulo, ${q}) DESC, m.id ASC`;
     } else {
-      const tsq = Prisma.sql`plainto_tsquery('portuguese', unaccent(${q}))`;
+      // Full-text: tsvector + dictionary 'portuguese'. Acentos são
+      // removidos com translate() (built-in IMMUTABLE) TANTO na coluna
+      // gerada (migration 20260809) QUANTO no termo de busca, para que
+      // 'ação' e 'acao' cruzem nos dois sentidos — o dictionary
+      // 'portuguese' NÃO normaliza acentos (T223/D-224).
+      // plainto_tsquery não aceita sintaxe de query (injeção neutralizada)
+      // + Prisma parametriza o termo. Sem unaccent() (T223/D-224).
+      const tsq = Prisma.sql`plainto_tsquery('portuguese', translate(${q},
+        'ÁÀÂÃÄÅáàâãäåÉÈÊËéèêëÍÌÎÏíìîïÓÒÔÕÖóòôõöÚÙÛÜúùûüÇçÑñ',
+        'AAAAAAaaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuCcNn'))`;
       matchSql = Prisma.sql`AND (m.titulo_tsv @@ ${tsq} OR m.sinopse_tsv @@ ${tsq})`;
       rankSql = Prisma.sql`ts_rank(m.titulo_tsv, ${tsq})`;
       orderSql = Prisma.sql`ORDER BY ts_rank(m.titulo_tsv, ${tsq}) DESC, m.id ASC`;
