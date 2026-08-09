@@ -221,4 +221,21 @@ busca acao≡ação 5 itens idênticos. LIMITAÇÃO registrada: Railway CLI não
 instalada na máquina do Doer — retrigger/status de deployment ficam com o
 Operador (painel).
 
+## D-240 posters backfill: fonte por tipo + graceful degradation (T226)
+Seed novo `npm run db:seed:posters` preenche poster_url apenas onde
+NULL/vazio (NUNCA sobrescreve — TMDB cobre filmes/séries). Fontes por
+tipo: GAME → IGDB cover (OAuth client-credentials Twitch,
+TWITCH_CLIENT_ID/SECRET; fonte_id é o id numérico IGDB); LIVRO → Google
+Books (GOOGLE_BOOKS_API_KEY) com fallback OpenLibrary covers (sem chave,
+por cover_i); MANGA → Jikan (público, busca por título); COMIC →
+OpenLibrary. POLÍTICA: delay ≥300ms por fonte; máx. 1 retry; falha → log
+do título e continua (nunca aborta lote); só URLs https armazenadas;
+nenhum segredo em logs; resumo final com contadores
+(preenchidos/falhos/sem fonte). VALIDAÇÃO: 12 testes unitários com fetch
+mockado por fonte (sucesso/404/timeout/sem chave/fonte_id não-numérico);
+docker local SEM chaves → exit 0 com skips graciosos; OpenLibrary
+preencheu Duna e Watchmen mesmo sem chaves; re-run idempotente (só vê o
+que ainda está NULL); pôsteres existentes (TMDB/IGDB) intocados. Script
+excluído do caminho de boot (não roda no entrypoint) — só via Console.
+
 
