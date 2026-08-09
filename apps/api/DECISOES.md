@@ -270,4 +270,20 @@ Verificacao producao (D-230): /search?q=sonho -> 27 (Um Sonho de
 Liberdade 1o); ?q=cavaleiro -> 7 (O Cavaleiro dos Sete Reinos).
 Web 247/247, tsc + build exit 0.
 
+## D-244 buscador do topo e os 3 sintomas da auditoria: VIVOS em producao (T240)
+DIAGNOSTICO com evidencia UI real (Playwright contra media-rate-web.vercel.app,
+nao so curl): os 3 sintomas da auditoria do Operador estao CORRIGIDOS em
+producao — (1) paleta do topo: 'acao' lista os 5 titulos (Em Movimento,
+Coringa, Os SUPERtontos, Taxi Driver, Mortal Kombat Legends) e 'acao' o
+mesmo conjunto (paridade); (2) 'Quero consumir': botao de watchlist visivel
+na ficha (T238 vivo, aria-label 'Add to watchlist'); (3) filtro lateral:
+digitacao rapida 'cavaleiro' preservada e 'O Cavaleiro dos Sete Reinos'
+filtrado (T237 vivo). O bundle Vercel NAO estava stale — os prints do
+Operador eram pre-deploy do af5b271 (T233) ou cache de browser. LIÇAO
+METODOLOGICA (terceira variante do 'validou onde nao era o lugar'): testes
+web de producao devem ser UI (Playwright), nunca so curl — o e2e
+search-topo.spec.ts (paleta) e crosscheck-auditoria.spec.ts (T237/T238)
+passam a fazer parte da suite e2e permanente (PLAYWRIGHT_BASE_URL aponta
+producao).
+
 
