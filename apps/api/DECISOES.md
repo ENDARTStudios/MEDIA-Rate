@@ -185,4 +185,21 @@ Railway do 739f565 (T231) NAO subiu (uptime ~11.7h = ultimo deploy
 ed30b9d): API ainda sem filtro MANGA e Berserk como ANIME — pendente de
 redeploy.
 
+## D-237 searchbox renderiza so a resposta da API; fallback mock removido (T233)
+O print do Operador ('acao'->zero; 'acao'->'Coração Partido') foi do
+/search antigo (pg_trgm, pre-T227) — o codigo atual ja usava /discover
+normalizado e a producao (Vercel rewrite) responde 5 == 5 titulos para
+acao/acao. MAS restava o fallback mock por SUBSTRING client-side em
+searchMedia (MOCK_MEDIA.filter(includes)) e no getCatalog com search
+(applyCatalogFilters) — comportamento divergente do backend normalizado.
+REGRA (T233): a searchbox renderiza EXCLUSIVAMENTE a resposta do
+/api/v1/discover; fallback offline foi REMOVIDO do caminho de busca (API
+fora -> lista vazia + 'Nenhum resultado', nunca resultados falsos de
+mock); mock permanece apenas para catalogo sem busca (demo/offline).
+Testes: search-box.spec.tsx (4 cenarios: q sem acento renderiza os itens
+da API; q com acento mesmo conjunto; API vazia -> 'Nenhum resultado';
+API 500 -> sem fallback mock). Verificacao em producao (D-230): curl via
+Vercel rewrite /api/v1/discover?q=acao e ?q=ação -> 5 itens identicos.
+Web 240/240, tsc + build exit 0.
+
 

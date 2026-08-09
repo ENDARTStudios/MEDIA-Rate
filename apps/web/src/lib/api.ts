@@ -883,6 +883,13 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
 
   await delay(400);
   maybeThrow();
+  // T233: com busca textual ativa, o fallback mock NUNCA é usado — o
+  // applyCatalogFilters filtra por substring client-side (sensível a
+  // acentos, diverge do /search normalizado). API fora do ar → lista
+  // vazia; o mock só serve para catálogo sem busca (demo/offline).
+  if (filters?.search) {
+    return { items: [], total: 0, page: filters?.page ?? 1, limit: filters?.limit ?? 12, hasMore: false };
+  }
   return applyCatalogFilters(MOCK_MEDIA, filters);
 }
 
@@ -1020,7 +1027,11 @@ function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
   };
 }
 
-/** Busca global: /discover normalizado (T227) com fallback para o mock. */
+/** Busca global: /discover normalizado (T227) — SEM fallback local por
+ * substring (T233: a UI deve renderizar exclusivamente a resposta da API;
+ * "Coração Partido" para "ação" era resultado de filtro client-side que
+ * divergia do backend). API fora do ar → [] (a UI mostra "Nenhum
+ * resultado", nunca resultados falsos de mock). */
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
   if (!q || q.length < 2) return [];
   const data = await apiGet<{ itens: ApiDiscoverItem[] }>(
@@ -1032,13 +1043,7 @@ export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
       relevance: 1 - i * 0.01,
     }));
   }
-
-  await delay(250);
-  maybeThrow();
-  const lower = q.toLowerCase();
-  return MOCK_MEDIA.filter((m) => m.title.toLowerCase().includes(lower))
-    .slice(0, 10)
-    .map((m, i) => ({ media: m, relevance: 1 - i * 0.1 }));
+  return [];
 }
 
 export async function getTrending(): Promise<Media[]> {
