@@ -303,4 +303,22 @@ search-topo.spec.ts (paleta) e crosscheck-auditoria.spec.ts (T237/T238)
 passam a fazer parte da suite e2e permanente (PLAYWRIGHT_BASE_URL aponta
 producao).
 
+## D-246 seed-posters: OAuth Twitch exigia POST, seed usava GET (T236)
+Check booleano do Operador (twitch: true, gbooks: true) provou que as
+chaves EXISTEM no env do Railway — o seed-posters reportava 'sem
+TWITCH_CLIENT_ID/SECRET' por OUTRA causa. CAUSA RAIZ: o fluxo OAuth do
+Twitch exige POST form-urlencoded com header accept: application/json; o
+seed usava getJson (GET) no endpoint de token → o token nunca era emitido
+mesmo com chaves válidas (o adapter real do app usa postJson). CORRECAO:
+novo postForm no seed-posters (POST + body form-urlencoded + accept),
+usado no obterTokenTwitch; warn agora DISTINGUE 'chaves ausentes' de
+'OAuth falhou (credenciais presentes, token não emitido)' — o diagnóstico
+anterior confundia os dois. Log de presença de chaves (booleanos, nunca
+valores) no resumo do seed. Testes: caso de sucesso agora assere method
+POST + body com grant_type (mock); caso 401 do token → null graceful.
+Validado em docker com chaves fake: env twitch=true e warn correto
+(OAuth falhou, não 'sem chaves'). API 661+ testes, tsc exit 0. Operador
+deve re-rodar npm run db:seed:posters no Console (env real) — resumo deve
+mostrar preenchidos>0 para GAME.
+
 

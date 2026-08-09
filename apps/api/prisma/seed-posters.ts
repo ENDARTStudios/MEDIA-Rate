@@ -57,6 +57,34 @@ async function getJson<T>(url: string, headers: Record<string, string> = {}, ret
   }
 }
 
+/** POST form-urlencoded → JSON (o OAuth do Twitch exige POST — GET retorna null). */
+async function postForm<T>(url: string, corpo: URLSearchParams, retry = 0): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: corpo.toString(),
+    });
+    if (!res.ok) {
+      if (retry < RETRY_MAX) {
+        await delay(DELAY_MS);
+        return postForm<T>(url, corpo, retry + 1);
+      }
+      return null;
+    }
+    return (await res.json()) as T;
+  } catch {
+    if (retry < RETRY_MAX) {
+      await delay(DELAY_MS);
+      return postForm<T>(url, corpo, retry + 1);
+    }
+    return null;
+  }
+}
+
 /** URL https válida ou null (nunca armazena http/não-imagem). */
 export function urlSegura(raw: string | null | undefined): string | null {
   if (!raw) return null;
@@ -84,11 +112,12 @@ async function obterTokenTwitch(): Promise<string | null> {
     client_secret: secret,
     grant_type: "client_credentials",
   });
-  const dados = await getJson<TokenTwitch>("https://id.twitch.tv/oauth2/token", {
-    "content-type": "application/x-www-form-urlencoded",
-  });
+  // T236: OAuth do Twitch exige POST com body form-urlencoded — antes o
+  // seed usava GET (getJson) e o token nunca era emitido mesmo com chaves
+  // válidas no env (causa raiz do "sem TWITCH_CLIENT_ID/SECRET" em produção).
+  const dados = await postForm<TokenTwitch>("https://id.twitch.tv/oauth2/token", corpo);
   if (!dados?.access_token) return null;
-  tokenTwitch = { token: dados.access_token, expiraEm: Date.now() + (dados.expires_in ?? 3600) * 1000 };
+  tokenTwitch = { token: dados.access_token, expiraEm: Date.now() + ((dados.expires_in ?? 3600) - 60) * 1000 };
   return dados.access_token;
 }
 
@@ -100,7 +129,16 @@ interface IgdbGame {
 async function capaIgdb(gameId: string, titulo: string): Promise<string | null> {
   const token = await obterTokenTwitch();
   if (!token) {
-    console.warn(`[posters] sem TWITCH_CLIENT_ID/SECRET — pulando capa IGDB para "${titulo}"`);
+    const temChaves = Boolean(
+      process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET,
+    );
+    // T236: distinguir "chaves ausentes" de "autenticação falhou" — o
+    // diagnóstico anterior (warn genérico) confundia os dois casos.
+    console.warn(
+      temChaves
+        ? `[posters] OAuth Twitch falhou para "${titulo}" (credenciais presentes, token não emitido)`
+        : `[posters] sem TWITCH_CLIENT_ID/SECRET — pulando capa IGDB para "${titulo}"`,
+    );
     return null;
   }
   // fonte_id é o id numérico do IGDB (seed-games grava String(igdbId)).
@@ -231,6 +269,11 @@ async function preencher() {
     await delay(DELAY_MS); // rate limit por fonte
   }
 
+  // T236: diagnóstico de presença das chaves (booleanos apenas, NUNCA
+  // valores) — o check booleano do Operador provou que existem no env.
+  console.log(
+    `[posters] env: twitch=${Boolean(process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET)} gbooks=${Boolean(process.env.GOOGLE_BOOKS_API_KEY)}`,
+  );
   console.log(
     `[posters] resumo: ${contadores.preenchidos} preenchidos / ${contadores.falhos} falhos / ${contadores.semFonte} sem fonte (não-GAME/LIVRO/COMIC/MANGA)`,
   );

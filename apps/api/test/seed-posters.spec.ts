@@ -52,9 +52,13 @@ describe("T226 — seed-posters: fontes por tipo (D-240)", () => {
   describe("GAME → IGDB cover (OAuth Twitch)", () => {
     it("sucesso: usa token e retorna cover https (cover.url com //)", async () => {
       let chamadas = 0;
-      mockFetch((url) => {
+      mockFetch((url, init) => {
         chamadas++;
         if (url.includes("id.twitch.tv")) {
+          // T236: o token do Twitch exige POST form-urlencoded — o mock
+          // deve receber method POST e body com client_id/secret.
+          expect(init?.method).toBe("POST");
+          expect(String(init?.body)).toContain("grant_type=client_credentials");
           return Promise.resolve(jsonRes({ access_token: "tok123", expires_in: 3600 }));
         }
         return Promise.resolve(jsonRes([{ id: 588, cover: { url: "//images.igdb.com/igdb/image/upload/t_cover_big/gta5.jpg" } }]));
@@ -66,6 +70,19 @@ describe("T226 — seed-posters: fontes por tipo (D-240)", () => {
 
       expect(chamadas).toBe(2);
       expect(capa).toBe("https://images.igdb.com/igdb/image/upload/t_cover_big/gta5.jpg");
+    });
+
+    it("T236: chaves presentes mas token endpoint retorna erro → null (graceful)", async () => {
+      process.env.TWITCH_CLIENT_ID = "cid";
+      process.env.TWITCH_CLIENT_SECRET = "sec";
+      mockFetch((url) => {
+        if (url.includes("id.twitch.tv")) {
+          return Promise.resolve(new Response("unauthorized", { status: 401 }));
+        }
+        return Promise.resolve(jsonRes([{}]));
+      });
+      const capa = await capaIgdb("588", "GTA V");
+      expect(capa).toBeNull();
     });
 
     it("404/erro → null (graceful, não lança)", async () => {
