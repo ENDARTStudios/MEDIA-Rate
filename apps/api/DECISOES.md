@@ -15,3 +15,26 @@ por teste. translate() e aplicado TANTO na coluna gerada (migration
 plainto_tsquery('portuguese', translate(q, ...))). A original foi
 desabilitada (movida para migrations-disabled/).
 
+## D-225 seeds no container: tsconfig standalone + bugs de dados pre-existentes (T224)
+Causa raiz: o @swc-node/register (ESM) deriva TSCONFIG_PATH de
+join(cwd, 'tsconfig.json') e o oxc-resolver FALHA a resolucao de imports
+relativos .js->.ts quando o arquivo nao existe — a imagem de producao nao
+tinha tsconfig.json (tsconfig.base.json tambem nao esta na imagem, entao
+extends quebraria). SOLUCAO A (minima): apps/api/tsconfig.seeds.json
+(versao FLAT, sem extends, module/moduleResolution NodeNext) copiado para
+/app/tsconfig.json no estagio runner do Dockerfile. Validado com docker
+build + docker run local: os 4 seeds resolvem e executam no container.
+ACHADOS ADICIONAIS (bugs de dados pre-existentes de T180/T222, descobertos
+pela validacao docker obrigatoria — nao e resolucao, e impediam execucao
+real): (1) seed-lib.ts usava prisma.midiaScore (nao existe; o correto e
+mediaScore) — crashava no recalculo; (2) seed-games/novas-midias passavam
+`slug` ao midia.create, mas Midia NAO tem coluna slug (slug e derivado
+client-side via slugify no discover.service); (3) seed-novas-midias omitia
+fonte/fonte_id obrigatorios no create (agora fonte = primeira fonte
+curada, fonte_id = slug); (4) logs usavam score.score etc. sobre retorno
+number de recalcularScoreSeed (ajustado para number). Nenhuma logica de
+negocio alterada. Seeds validados no container: games 51 titulos/190
+avaliacoes/51 scores (exit 0), novas-midias 3 titulos (exit 0), relacoes
+(exit 0, 0 arestas sem rede), tmdb (exit 1 no guard de TMDB_API_KEY ausente
+— comportamento esperado, NAO erro de resolucao).
+

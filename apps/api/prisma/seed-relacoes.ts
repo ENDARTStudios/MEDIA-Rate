@@ -68,7 +68,7 @@ const SUBGENEROS: Record<string, "GAME" | "ANIME" | "COMIC"> = {
 };
 
 async function classificarGeneros(prisma: PrismaClient): Promise<void> {
-  const generos = await prisma.genero.findMany({ select: { id: true, slug: true, tipo: true } });
+  const generos = await prisma.genero.findMany({ select: { id: true, slug: true, tipo: true, midia_alvo: true } });
   let atualizados = 0;
   for (const g of generos) {
     if (NARRATIVOS.includes(g.slug)) {

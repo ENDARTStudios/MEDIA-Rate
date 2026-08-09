@@ -73,7 +73,8 @@ async function main() {
     const midia = await prisma.midia.create({
       data: {
         id: crypto.randomUUID(),
-        slug,
+        fonte: dados.fontes[0]?.fonte ?? "openlibrary",
+        fonte_id: slug,
         titulo: dados.titulo,
         tipo: dados.tipo,
         ano_lancamento: dados.ano,
@@ -87,7 +88,7 @@ async function main() {
     }
       const resultado = await recalc(midia.id);
     console.log(
-      `${dados.titulo} (${dados.tipo}): score=${resultado?.score?.toFixed(1)}/100 publico=${resultado?.publicoScore?.toFixed(1)} critica=${resultado?.criticosScore ?? "null"} confianca=${resultado?.confianca?.toFixed(0)}`,
+      `${dados.titulo} (${dados.tipo}): score=${resultado?.toFixed(1) ?? "null"}/100`,
     );
   }
   await prisma.$disconnect();

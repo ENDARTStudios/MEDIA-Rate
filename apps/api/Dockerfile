@@ -29,6 +29,10 @@ COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/apps/api/dist ./dist
 COPY --from=builder --chown=node:node /app/apps/api/package.json ./
 COPY --from=builder --chown=node:node /app/apps/api/prisma ./prisma
+# T224: seeds rodam via @swc-node/register (ESM), que exige tsconfig.json
+# no cwd para mapear imports relativos .js -> .ts (ex.: ./seed-lib.js).
+# tsconfig.base.json nao existe na imagem -> usar versao flat standalone.
+COPY --from=builder --chown=node:node /app/apps/api/tsconfig.seeds.json /app/tsconfig.json
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 

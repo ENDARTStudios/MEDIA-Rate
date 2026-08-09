@@ -168,7 +168,7 @@ export async function recalcularScoreSeed(
     detalhes: { origem: "seed" } as Record<string, string>,
   };
 
-  await prisma.midiaScore.upsert({
+  await prisma.mediaScore.upsert({
     where: { midia_id: midiaId },
     create: { midia_id: midiaId, ...data },
     update: data,

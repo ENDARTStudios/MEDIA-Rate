@@ -98,7 +98,6 @@ async function main(): Promise<void> {
           fonte_id: String(g.igdbId),
           tipo: "GAME" as TipoMidia,
           titulo: g.nome,
-          slug: g.slug,
           ano_lancamento: g.ano,
           imagem_url: null,
         },
@@ -120,10 +119,8 @@ async function main(): Promise<void> {
       }
 
       const score = await recalc(midia.id).catch(() => null);
-      if (score) {
-        console.log(
-          `[seed:games] ${g.nome}: score=${score.score?.toFixed(1)}/100 critica=${score.criticosScore?.toFixed(1) ?? "null"} confianca=${score.confianca?.toFixed(0)}`,
-        );
+      if (score != null) {
+        console.log(`[seed:games] ${g.nome}: score=${score.toFixed(1)}/100`);
       }
       inseridos++;
     }
