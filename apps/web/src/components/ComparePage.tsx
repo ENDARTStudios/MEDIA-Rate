@@ -19,17 +19,20 @@ interface PerfilStats {
   score_medio: number | null;
 }
 
-const TIPO_LABEL: Record<string, string> = {
-  FILME: "Filmes",
-  SERIE: "Séries",
-  GAME: "Games",
-  LIVRO: "Livros",
-  COMIC: "HQs",
-  ANIME: "Mangás",
+// T243: rótulos de tipo via chaves i18n do namespace catalog (nunca PT).
+const TIPO_LABEL_KEY: Record<string, string> = {
+  FILME: "filme",
+  SERIE: "serie",
+  GAME: "game",
+  LIVRO: "livro",
+  COMIC: "comic",
+  MANGA: "manga",
+  ANIME: "manga",
 };
 
 function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
   const t = useTranslations("compare");
+  const tc = useTranslations("catalog");
   const score = stats.score_medio;
   return (
     <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6 flex-1">
@@ -75,7 +78,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
             key={tipo}
             className="rounded-full border border-[#2A2A3D] bg-[#1B1B2C] px-2.5 py-1 text-xs text-[#F5F5F7]"
           >
-            {TIPO_LABEL[tipo] ?? tipo}: {count}
+            {tc(TIPO_LABEL_KEY[tipo] ?? "") || tipo}: {count}
           </span>
         ))}
       </div>

@@ -320,6 +320,28 @@ site-config.spec.ts (4: valores PLANS unicos; formatPlanPrice sem
 '(R,90)' nos 3 locales; terms.s3b com 4,90/9,90 e marca 'END ART
 Studios'; footer.lgpd neutro). Web 265/265, tsc + build exit 0.
 
+## D-248 i18n estrutural: categorias por locale (T243)
+Menu/ícones de categorias e a paleta de busca exibiam rótulos PT
+hardcoded em EN/ES ('Filmes/Séries/HQs & Mangás'). CORRECOES:
+- HeroIconCluster (home/hero): labels via chaves i18n catalog.filme/serie/
+  game/livro/comic/manga — comic agora é 'Quadrinhos'/'Comics'/'Cómics'
+  (não mais 'HQs & Mangás' — alinhado ao T231 em que mangá é categoria
+  própria).
+- SearchCommand (paleta): tipoLabel usa chaves singulares
+  catalog.typeMovie/typeSerie/typeGame/typeBook/typeComic/typeManga
+  (adicionadas nos 3 locales); agrupamento por r.type traduzido.
+- ComparePage: TIPO_LABEL PT (com mojibake) -> chaves catalog; MANGA
+  adicionado.
+- typeSerie/typeBook/typeComic/typeManga adicionados aos 3 locales.
+TESTES: i18n-estrutural.spec.ts (6: chaves singulares/plurais presentes,
+EN/ES sem termos PT, EN Movies/Series/..., ES Películas/Series/...,
+footer.lgpd sem 'LGPD' cru). hero-icons.spec atualizado (comic ->
+Quadrinhos). e2e t243-i18n-home valida as 3 homes (pós-deploy).
+Web 271/271, tsc + build exit 0. Faixa 'em alta' com titulo_original em
+EN/ES: depende de expor titulo_original no discover (API change) —
+deixado como melhoria futura documentada; titleForLocale já cobre via
+SEED_I18N para os títulos mapeados.
+
 ## D-246 seed-posters: OAuth Twitch exigia POST, seed usava GET (T236)
 Check booleano do Operador (twitch: true, gbooks: true) provou que as
 chaves EXISTEM no env do Railway — o seed-posters reportava 'sem

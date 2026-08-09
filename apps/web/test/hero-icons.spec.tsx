@@ -13,7 +13,13 @@ const catalogMessages = {
     game: "Games",
     livro: "Livros",
     comic: "Quadrinhos",
-    anime: "Animes",
+    manga: "Mangás",
+    typeMovie: "Filme",
+    typeSerie: "Série",
+    typeGame: "Game",
+    typeBook: "Livro",
+    typeComic: "HQ",
+    typeManga: "Mangá",
     noResults: "Em breve",
     comingSoonTap: "Em breve — toque para ser avisado",
     comingSoonNotify: "Cadastre-se para ser avisado quando chegar.",
@@ -23,7 +29,7 @@ const catalogMessages = {
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
-    <NextIntlClientProvider locale="pt-BR" messages={{ catalog: {}, common: {} }}>
+    <NextIntlClientProvider locale="pt-BR" messages={catalogMessages}>
       {ui}
     </NextIntlClientProvider>,
   );
@@ -138,14 +144,14 @@ describe("HeroIconCluster (D-204)", () => {
     expect(screen.getByRole("link", { name: "Explorar Séries" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Explorar Games" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Explorar Livros" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Explorar HQs & Mangás" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Explorar Quadrinhos" })).toBeTruthy();
   });
 
   it("cada link aponta para o filtro de catálogo correto", () => {
     renderWithProviders(<HeroIconCluster />);
     const movie = screen.getByRole("link", { name: "Explorar Filmes" });
     expect(movie.getAttribute("href")).toContain("type=movie");
-    const comic = screen.getByRole("link", { name: "Explorar HQs & Mangás" });
+    const comic = screen.getByRole("link", { name: "Explorar Quadrinhos" });
     expect(comic.getAttribute("href")).toContain("type=comic");
   });
 });

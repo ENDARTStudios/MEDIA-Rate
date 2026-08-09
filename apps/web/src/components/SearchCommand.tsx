@@ -19,22 +19,25 @@ interface SearchResult {
   score: number | null;
 }
 
-const TYPE_LABELS: Record<string, string> = { Filme: "Filmes", Série: "Séries", Game: "Games" };
-
-function tipoLabel(tipo: string): string {
-  return tipo === "movie"
-    ? "Filme"
-    : tipo === "series"
-      ? "Série"
-      : tipo === "game"
-        ? "Game"
-        : tipo === "manga"
-          ? "Mangá"
-          : tipo === "book"
-            ? "Livro"
-            : tipo === "comic"
-              ? "HQ"
-              : tipo;
+// T243: rótulos de tipo via chaves i18n (catalog.typeMovie/typeSerie/...)
+// — nunca strings PT hardcoded (EN/ES mostravam 'Filme/Série/Game').
+function tipoLabel(tipo: string, t: (key: string) => string): string {
+  switch (tipo) {
+    case "movie":
+      return t("typeMovie");
+    case "series":
+      return t("typeSerie");
+    case "game":
+      return t("typeGame");
+    case "manga":
+      return t("typeManga");
+    case "book":
+      return t("typeBook");
+    case "comic":
+      return t("typeComic");
+    default:
+      return tipo;
+  }
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -75,7 +78,7 @@ export function SearchCommand() {
             slug: media.slug,
             title: media.title,
             year: media.year,
-            type: tipoLabel(media.type),
+            type: tipoLabel(media.type, t),
             rawType: media.type,
             posterUrl: media.posterUrl,
             score: media.score?.consolidated ?? null,
@@ -92,7 +95,8 @@ export function SearchCommand() {
 
   const grouped: Record<string, SearchResult[]> = {};
   results.forEach((r) => {
-    const group = TYPE_LABELS[r.type] || "Outros";
+    // T243: agrupa pelo rótulo JÁ traduzido (r.type) — nunca por chave PT.
+    const group = r.type || "Outros";
     if (!grouped[group]) grouped[group] = [];
     grouped[group].push(r);
   });
@@ -111,7 +115,7 @@ export function SearchCommand() {
   const groupedRest: Record<string, SearchResult[]> = {};
   results.forEach((r) => {
     if (relatedIds.has(r.id)) return;
-    const group = TYPE_LABELS[r.type] || "Outros";
+    const group = r.type || "Outros";
     if (!groupedRest[group]) groupedRest[group] = [];
     groupedRest[group].push(r);
   });
