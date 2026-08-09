@@ -238,4 +238,20 @@ preencheu Duna e Watchmen mesmo sem chaves; re-run idempotente (só vê o
 que ainda está NULL); pôsteres existentes (TMDB/IGDB) intocados. Script
 excluído do caminho de boot (não roda no entrypoint) — só via Console.
 
+## D-242 Quero consumir funcional: ficha usa WatchlistButton completo (T238)
+CAUSA RAIZ: a ficha de mídia definia um WatchlistButton LOCAL (no
+MediaDetailClient) que retornava null quando a mídia NÃO estava na
+watchlist — o botão de adicionar nunca aparecia; e quando estava, o
+clique REMOVIA (comportamento inverso). O componente importado
+(WatchlistButton.tsx, com add/move/remove/dropdown/feedback) existia mas
+era sombreado pelo local. CORREÇÃO: removido o local morto; a ficha usa o
+importado. NO COMPONENTE: 401 (anônimo) → redirect /login?callbackUrl=
+(com retorno à ficha), nunca silencioso; 409 (duplicata) → estado "já
+está na watchlist" (justAdded), não erro; feedback visual (coração cheio +
+animação + tooltip). Testes: consume-button.spec.tsx (4 cenários: 201
+adiciona e muda estado; 401 redireciona com callback; 409 sem crash/sem
+redirect; dropdown move via PATCH /move). Verificação produção (D-230):
+POST/GET /api/v1/watchlist anônimo → 401 (contrato T207 correto; o
+frontend redireciona). Web 244/244, tsc + build exit 0.
+
 

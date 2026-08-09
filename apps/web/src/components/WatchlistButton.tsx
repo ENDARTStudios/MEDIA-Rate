@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter, usePathname } from "next/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { ApiError } from "@/lib/http";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { WatchlistCrossPrompt } from "./discovery/WatchlistCrossPrompt";
@@ -35,7 +37,10 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
   const [crossPromptOpen, setCrossPromptOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const inWatchlist = isInWatchlist(mediaId);
   const status = getEntryStatus(mediaId);
@@ -45,6 +50,12 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
 
   const isGame = mediaType === "game";
   const labels = statusKeys(isGame);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const timer = setTimeout(() => setJustAdded(false), 1500);
+    return () => clearTimeout(timer);
+  }, [justAdded]);
 
   useEffect(() => {
     function handleClickOutside(e: globalThis.MouseEvent) {
@@ -74,11 +85,24 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     try {
       await addToWatchlist(mediaId);
       setAnimate(true);
+      setJustAdded(true);
       setTimeout(() => setAnimate(false), 300);
       // T199 (§3.3): prompt cross-mídia no momento de maior intenção.
       setCrossPromptOpen(true);
-    } catch {
-      // Falha silenciosa: o store mantém o estado otimista.
+    } catch (err) {
+      // T238: 401 (anônimo) → login com retorno à ficha; nunca silencioso.
+      if (err instanceof ApiError && err.status === 401) {
+        const search = typeof window !== "undefined" ? window.location.search : "";
+        const callbackUrl = encodeURIComponent(pathname + search);
+        router.replace(`/login?callbackUrl=${callbackUrl}`);
+        return;
+      }
+      // T238: 409 (duplicata) → estado "já está na watchlist", não erro.
+      if (err instanceof ApiError && err.status === 409) {
+        setJustAdded(true);
+        return;
+      }
+      // Falha silenciosa: o store mantém o estado otimista (rollback feito).
     } finally {
       setLoading(false);
     }
@@ -109,6 +133,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   }
 
   const statusLabel = status ? t(labels[status] ?? labels.WANT) : "";
+  const titleLabel = inWatchlist ? statusLabel : justAdded ? t("inWatchlist") : t("addToWatchlist");
 
   return (
     <div ref={ref} className={`relative ${className}`}>
@@ -122,8 +147,8 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
             ? "bg-[#EF4444]/15 text-[#EF4444] hover:bg-[#EF4444]/25"
             : "bg-[#11111E]/80 text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
         }`}
-        title={inWatchlist ? statusLabel : t("addToWatchlist")}
-        aria-label={inWatchlist ? statusLabel : t("addToWatchlist")}
+        title={titleLabel}
+        aria-label={titleLabel}
         disabled={loading}
       >
         {loading ? (

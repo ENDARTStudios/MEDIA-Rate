@@ -9,7 +9,7 @@ import { getMediaBySlug } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
 import { Button } from "@/components/ui/button";
-import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { WatchlistButton } from "./WatchlistButton";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { api } from "@/lib/http";
@@ -540,51 +540,4 @@ function EmptySection({ message }: { message: string }) {
       <p className="text-sm text-[#6B7280]">{message}</p>
     </div>
   );
-}
-
-function WatchlistButton({ mediaId, mediaType }: { mediaId: string; mediaType?: string }) {
-  const { isInWatchlist, getEntryStatus, removeItem, entries } = useWatchlistStore();
-  const t = useTranslations("watchlist");
-  const [loading, setLoading] = useState(false);
-  const inList = isInWatchlist(mediaId);
-  const status = getEntryStatus(mediaId);
-  const entryId = entries.find((e) => e.mediaId === mediaId)?.id;
-
-  const isGame = mediaType === "game";
-  const wantLabel = isGame ? t("queroJogar") : t("queroVer");
-  const watchingLabel = isGame ? t("jogando") : t("vendo");
-  const completedLabel = isGame ? t("joguei") : t("vi");
-
-  if (loading)
-    return (
-      <Button disabled variant="secondary" size="sm">
-        ...
-      </Button>
-    );
-  if (inList && entryId) {
-    return (
-      <Button
-        onClick={async () => {
-          setLoading(true);
-          try {
-            await removeItem(entryId);
-          } finally {
-            setLoading(false);
-          }
-        }}
-        variant="secondary"
-        size="sm"
-      >
-        ✓{" "}
-        {status === "WANT"
-          ? wantLabel
-          : status === "WATCHING"
-            ? watchingLabel
-            : status === "COMPLETED"
-              ? completedLabel
-              : t("removeFromWatchlist")}
-      </Button>
-    );
-  }
-  return null;
 }
