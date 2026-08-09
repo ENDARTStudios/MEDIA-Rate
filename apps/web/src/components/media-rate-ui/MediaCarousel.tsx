@@ -51,11 +51,11 @@ const TIPO_KEY: Record<MediaType, string> = {
   game: "game",
   book: "livro",
   comic: "comic",
-  anime: "anime",
+  manga: "manga",
 };
 
 /** Categorias sem catálogo ativo → cards bloqueados + waitlist. */
-const ROADMAP: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
+const ROADMAP: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
 
 export interface MediaCarouselProps {
   type: MediaType;
@@ -114,7 +114,7 @@ export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
             id={`carousel-${type}`}
             className="font-heading text-lg font-bold text-[#F5F5F7] uppercase tracking-wider"
           >
-            {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")}
+            {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga")}
           </h2>
           {total != null && total > 0 && (
             <span className="tabular-nums text-xs text-[#80809B]">{total}</span>
@@ -145,7 +145,7 @@ export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
           <div
             ref={listRef}
             className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
-            aria-label={t(TIPO_KEY[type] as "livro" | "comic" | "anime")}
+            aria-label={t(TIPO_KEY[type] as "livro" | "comic" | "manga")}
           >
             {[0, 1, 2, 3, 4].map((i) => (
               <div key={i} className="w-[160px] sm:w-[180px] flex-shrink-0 snap-start">

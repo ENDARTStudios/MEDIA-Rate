@@ -2,11 +2,12 @@
  * seed-novas-midias.ts (T181) — livros, HQs e mangás reais com score
  * calculado pelo motor v3.
  *
- * Fluxo: cria mídias (LIVRO/COMIC/ANIME) + avaliações de fontes GRATUITAS
+ * Fluxo: cria mídias (LIVRO/COMIC/MANGA) + avaliações de fontes GRATUITAS
  * (valores reais coletados das APIs públicas) e recalcula o MEDIA Score v3
  * via recalcularEPersistir (fórmulas por mídia já existentes: LIVRO
  * 0.25/0.55/0.20 + inflação; HQ 0.60 público + 0.40 consenso editoras;
- * ANIME 0.45/0.45/0.10 + polarização).
+ * MANGA 0.45/0.45/0.10 + polarização — D-233/T231: manga é categoria
+ * própria; animação japonesa (anime) classifica como SERIE).
  *
  * Valores reais (coletados das APIs públicas em 2026-08):
  * - Duna (livro): Open Library ~4.6/5 (9.2/10) · Google Books ~4.7/5 (9.4)
@@ -22,7 +23,7 @@ const REAL: Record<
   string,
   {
     titulo: string;
-    tipo: "LIVRO" | "COMIC" | "ANIME";
+    tipo: "LIVRO" | "COMIC" | "MANGA";
     ano: number;
     imagem: string | null;
     fontes: { fonte: string; rating: number; media_fonte: number; desvio_fonte: number; votos: number }[];
@@ -50,7 +51,9 @@ const REAL: Record<
   },
   berserk: {
     titulo: "Berserk",
-    tipo: "ANIME",
+    // D-233/T231: Berserk é mangá (quadrinho japonês) → MANGA. A animação
+    // japonesa (anime, ex.: série Berserk 1997 no TMDB) classifica como SERIE.
+    tipo: "MANGA",
     ano: 1989,
     imagem: null,
     fontes: [
@@ -66,13 +69,26 @@ async function main() {
 
   for (const [slug, dados] of Object.entries(REAL)) {
     // D-227: skip por IDENTIDADE (fonte, fonte_id), não por título — o
-    // catálogo pode ter "Berserk" como SERIE (tmdb_tv) e o mangá ANIME
-    // (jikan/berserk) são obras DIFERENTES; por título o ANIME nunca
-    // seria criado (chip Animes ficava 0 com Berserk presente).
+    // catálogo pode ter "Berserk" como SERIE (tmdb_tv) e o mangá MANGA
+    // (jikan/berserk) são obras DIFERENTES; por título o mangá nunca
+    // seria criado (chip Mangás ficava 0 com Berserk presente).
     const fonte = dados.fontes[0]?.fonte ?? "openlibrary";
-    const existente = await prisma.midia.findFirst({ where: { fonte, fonte_id: slug } });
+    const existente = await prisma.midia.findFirst({
+      where: { fonte, fonte_id: slug },
+      select: { id: true, tipo: true },
+    });
     if (existente) {
-      console.log(`[skip] ${dados.titulo} já existe (${existente.id})`);
+      // T231/D-233: re-run corrige o tipo de obras reclassificadas (ex.:
+      // Berserk criado como ANIME antes da regra de domínio → vira MANGA).
+      if (existente.tipo !== dados.tipo) {
+        await prisma.midia.update({
+          where: { id: existente.id },
+          data: { tipo: dados.tipo },
+        });
+        console.log(`[update-tipo] ${dados.titulo}: ${existente.tipo} → ${dados.tipo}`);
+      } else {
+        console.log(`[skip] ${dados.titulo} já existe (${existente.id})`);
+      }
       continue;
     }
     const midia = await prisma.midia.create({

@@ -101,7 +101,14 @@ const CONFIG_V3_POR_TIPO = {
     modoConsenso: "editoras",
   },
   // Mangás/Light Novels: crítica 45% + público 45% + polarização 10%; m = 500.
+  // D-233/T231: ANIME ficou deprecated (animação japonesa = SERIE); o
+  // MANGA (quadrinho japonês) usa esta mesma config.
   ANIME: {
+    pesos: { critica: 0.45, publico: 0.45, consenso: 0.1 },
+    m: 500,
+    modoConsenso: "polarizacao",
+  },
+  MANGA: {
     pesos: { critica: 0.45, publico: 0.45, consenso: 0.1 },
     m: 500,
     modoConsenso: "polarizacao",

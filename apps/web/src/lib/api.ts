@@ -159,8 +159,12 @@ function mapTipo(tipo: string): MediaType {
     case "HQ":
     case "COMIC":
       return "comic";
+    case "MANGA":
+      return "manga";
     case "ANIME":
-      return "anime";
+      // D-233/T231: ANIME ficou deprecated no banco; animação japonesa
+      // classifica como série (Berserk 1997, Jujutsu Kaisen, etc.).
+      return "series";
     default:
       return "movie";
   }
@@ -178,7 +182,7 @@ function mapConfidence(c: number | null | undefined): Confidence {
   return "low";
 }
 
-const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
+const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
 
 /** Mapeia o enum ClassInd da API (DEZ/DOZE/...) para a exibição (10/12/...). */
 function mapClassificacaoIndicativa(value: string | null | undefined): string | null {
@@ -346,7 +350,10 @@ function anime(
     id,
     slug,
     title,
-    type: "anime",
+    // D-233/T231: animação japonesa (anime) NÃO é categoria — classifica
+    // como SÉRIE. Mocks de animes (Jujutsu Kaisen, Frieren, etc.) seguem
+    // a regra de domínio; mangá é categoria própria ("manga").
+    type: "series",
     year,
     genres,
     synopsis: synopsis.slice(0, 200),
@@ -804,12 +811,14 @@ export function getCatalogSync(filters?: CatalogFilters): CatalogResponse {
   return applyCatalogFilters(MOCK_MEDIA, filters);
 }
 
+// D-233/T231: manga é categoria própria (MANGA); não há tipo "anime"
+// exposto — animação japonesa é SERIE.
 const TIPO_TO_API: Record<MediaType, string> = {
   movie: "FILME",
   series: "SERIE",
   game: "GAME",
   book: "LIVRO",
-  anime: "ANIME",
+  manga: "MANGA",
   comic: "COMIC",
 };
 

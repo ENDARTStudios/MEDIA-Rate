@@ -30,7 +30,7 @@ const TYPE_PARAM: Record<MediaType, string> = {
   game: "game",
   book: "book",
   comic: "comic",
-  anime: "anime",
+  manga: "manga",
 };
 
 const COUNTRY_FLAGS: Record<string, string> = {

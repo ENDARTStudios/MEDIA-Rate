@@ -30,7 +30,7 @@ function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): s
 }
 
 /** Tipos em preparação (§IX P2) — fontes ainda não ativadas. */
-const TIPOS_PREPARACAO = new Set(["book", "comic", "anime"]);
+const TIPOS_PREPARACAO = new Set(["book", "comic", "manga"]);
 
 export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");

@@ -50,6 +50,6 @@ export const MIDIA_LABEL: Record<MediaType, string> = {
   series: "Séries",
   game: "Games",
   book: "Livros",
-  comic: "HQs & Mangás",
-  anime: "Mangás",
+  comic: "Quadrinhos",
+  manga: "Mangás",
 };

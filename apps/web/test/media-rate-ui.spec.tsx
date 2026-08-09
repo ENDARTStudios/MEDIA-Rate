@@ -168,7 +168,7 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
     });
 
     it("sem onNotify, não renderiza form", () => {
-      renderWithProviders(<EmptyStateComingSoon type="anime" />);
+      renderWithProviders(<EmptyStateComingSoon type="manga" />);
       expect(screen.queryByTestId("coming-soon-form")).toBeNull();
     });
   });

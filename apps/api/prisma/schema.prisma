@@ -34,7 +34,11 @@ enum TipoMidia {
   SERIE
   GAME
   LIVRO
+  /// D-233: ANIME ficou deprecated no banco (animação japonesa = SERIE;
+  /// quadrinho japonês = MANGA). Valor mantido para não quebrar enums
+  /// existentes; nunca é exposto em API/filtros/frontend.
   ANIME
+  MANGA
   COMIC
 }
 

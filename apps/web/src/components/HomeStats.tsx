@@ -6,7 +6,7 @@
  *   (Filmes, Séries, Games) — derivadas de PESOS_POR_TIPO_WEB + FONTES_WEB,
  *   com variantes (metacritic_user, rottentomatoes_audience, igdb_publico…)
  *   agrupadas no site-base. Assim o número bate com o texto da página
- *   (mesma lista canônica de fontes) e ignora fontes de livros/HQ/anime
+ *   (mesma lista canônica de fontes) e ignora fontes de livros/HQ/mangá
  *   que ainda não estão ativas (roadmap).
  */
 import { getCatalog } from "@/lib/api";

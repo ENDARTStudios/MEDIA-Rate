@@ -22,8 +22,8 @@ function mapToMediaItem(media: Media): MediaItem {
           ? "SERIE"
           : media.type === "game"
             ? "GAME"
-            : media.type === "anime"
-              ? "ANIME"
+            : media.type === "manga"
+              ? "MANGA"
               : media.type === "comic"
                 ? "COMIC"
                 : "LIVRO",

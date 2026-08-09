@@ -24,7 +24,7 @@ const TYPE_TO_MEDIA: Record<string, MediaType> = {
   GAME: "game",
   LIVRO: "book",
   COMIC: "comic",
-  ANIME: "anime",
+  MANGA: "manga",
 };
 
 const TIPO_LABEL: Record<string, string> = {
@@ -33,7 +33,7 @@ const TIPO_LABEL: Record<string, string> = {
   GAME: "game",
   LIVRO: "livro",
   COMIC: "comic",
-  ANIME: "anime",
+  MANGA: "manga",
 };
 
 const RAIL_LABEL: Record<string, string> = {
@@ -60,8 +60,8 @@ function mapToMediaItem(m: {
           ? "SERIE"
           : m.type === "game"
             ? "GAME"
-            : m.type === "anime"
-              ? "ANIME"
+            : m.type === "manga"
+              ? "MANGA"
               : m.type === "comic"
                 ? "COMIC"
                 : "LIVRO",

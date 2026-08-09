@@ -98,7 +98,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <MediaCarousel type="game" />
           <MediaCarousel type="book" />
           <MediaCarousel type="comic" />
-          <MediaCarousel type="anime" />
+          <MediaCarousel type="manga" />
 
           <section className="py-20 px-4 border-t border-[rgba(129,140,248,0.08)]">
             <div className="max-w-2xl mx-auto text-center">

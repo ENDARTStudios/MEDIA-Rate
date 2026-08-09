@@ -131,9 +131,16 @@ export class MediaController {
 
     const where: Record<string, unknown> = { deleted_at: null }; // T215: soft delete
     // Filtro por tipo: o enum do banco (TipoMidia) usa "COMIC"; "HQ" é aceito
-    // como alias legado. Qualquer outro valor é ignorado (lista completa).
-    if (tipo && ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC", "HQ"].includes(tipo)) {
-      where.tipo = tipo === "HQ" ? "COMIC" : tipo;
+    // como alias legado. D-233/T231: "MANGA" é categoria própria; "ANIME"
+    // ficou deprecated (animação japonesa = SERIE, quadrinho japonês =
+    // MANGA) e é mapeado para MANGA quando consultado — nunca exposto.
+    // Qualquer outro valor é ignorado (lista completa).
+    const TIPO_ALIASES: Record<string, string> = { HQ: "COMIC", ANIME: "MANGA" };
+    if (
+      tipo &&
+      ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "MANGA", "COMIC", "HQ"].includes(tipo)
+    ) {
+      where.tipo = TIPO_ALIASES[tipo] ?? tipo;
     }
     // Filtros avançados do catálogo (Tarefa 4 do redesign): ano e faixa de
     // score — valores numéricos opcionais, ignorados quando inválidos.

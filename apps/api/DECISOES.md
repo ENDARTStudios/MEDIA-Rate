@@ -120,4 +120,31 @@ caminho real do healthcheck e GET /health (monitor UptimeRobot ativo em
 producao usa /health); removidas todas as mencões ao caminho com prefixo
 api/v1 em OBSERVABILITY, MANUAL_DO_OPERADOR, PLANO_MESTRE e worklog.
 
+## D-234 mangas como categoria propria; ANIME deprecated (T231)
+Regra de dominio do Operador (D-233): anime (animacao japonesa) NAO e
+categoria — classifica como SERIE; manga (quadrinho japones) e categoria
+propria 'Mangas' (chip distinto de 'Quadrinhos'). IMPLEMENTACAO:
+- enum TipoMidia: ADD VALUE 'MANGA' (migration 20260809_add_manga_tipo);
+  'ANIME' fica DEPRECATED no banco (remover enum Postgres e destrutivo) —
+  nunca exposto em API/filtros/frontend.
+- dados: UPDATE midia SET tipo='MANGA' WHERE tipo='ANIME' AND fonte='jikan'
+  (Berserk); demais ANIME -> SERIE.
+- API: filtro tipo=MANGA no /midias; /discover e DTO aceitam MANGA e
+  REJEITAM ANIME (400); tipo=ANIME vira alias para MANGA no /midias
+  (compatibilidade); dominioDoTipo(ANIME|MANGA) -> anime_manga (fontes
+  jikan/anilist/kitsu/mangadex); CONFIG_V3 MANGA = config ANIME antiga.
+- seeds: Berserk -> MANGA; skip por (fonte,fonte_id) com update de tipo em
+  re-run (ANIME antigo vira MANGA); SUBGENEROS shonen/seinen/isekai ->
+  MANGA.
+- frontend: MediaType 'anime' -> 'manga' em toda a cadeia (chips, carrossel,
+  mocks de animes viram series, pricing, watchlist, i18n 'Mangás'/'Manga'
+  nos 3 locales); mocks de animacao japonesa (Jujutsu Kaisen etc.) viram
+  SERIE. LIÇÃO DE PROCESSO: Set-Content no PowerShell reescreve arquivos
+  Latin-1 como UTF-8 e quebra o parser do Turbopack (rope) — editar com
+  ferramenta que preserva encoding.
+- validado com docker local: migration reclassifica 2 linhas (jikan->MANGA,
+  tmdb_tv->SERIE), 0 ANIME restantes; /midias?tipo=MANGA e ?tipo=ANIME
+  retornam Berserk; discover?tipo=ANIME -> 400; seed-novas-midias faz
+  update-tipo; aresta Berserk MANGA <-> SERIE preservada.
+
 

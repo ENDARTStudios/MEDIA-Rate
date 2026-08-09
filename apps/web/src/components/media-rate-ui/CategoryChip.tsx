@@ -20,7 +20,7 @@ export const MEDIA_ACCENTS: Record<MediaType, string> = {
   game: CATEGORY_TOKENS.game.color,
   book: CATEGORY_TOKENS.book.color,
   comic: CATEGORY_TOKENS.comic.color,
-  anime: CATEGORY_TOKENS.anime.color,
+  manga: CATEGORY_TOKENS.manga.color,
 };
 
 export interface CategoryChipProps {
@@ -32,14 +32,14 @@ export interface CategoryChipProps {
   className?: string;
 }
 
-/** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/anime/comic). */
+/** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/manga/comic). */
 const TIPO_KEY: Record<MediaType, string> = {
   movie: "filme",
   series: "serie",
   game: "game",
   book: "livro",
   comic: "comic",
-  anime: "anime",
+  manga: "manga",
 };
 
 /** Formato compacto: 1200 → "1.2k". */
@@ -61,7 +61,7 @@ export function CategoryChip({
 }: CategoryChipProps) {
   const t = useTranslations("catalog");
   const { color: accent, icon: Icon } = CATEGORY_TOKENS[type];
-  const resolvedLabel = label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime");
+  const resolvedLabel = label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga");
 
   return (
     <button

@@ -50,7 +50,7 @@ describe("Catalog empty state (T186)", () => {
   });
 
   it("sem onNotify, o form de captura não renderiza", () => {
-    renderWithProviders(<EmptyStateComingSoon type="anime" />);
+    renderWithProviders(<EmptyStateComingSoon type="manga" />);
     expect(screen.queryByLabelText("E-mail")).toBeNull();
   });
 });

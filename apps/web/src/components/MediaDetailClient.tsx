@@ -304,7 +304,7 @@ export function MediaDetailClient({
                   <AgeRatingBadge
                     rating={media.classificacaoIndicativa as "L" | "10" | "12" | "14" | "16" | "18"}
                     source={
-                      ["book", "comic", "anime"].includes(media.type) ? "sugerida" : "oficial"
+                      ["book", "comic", "manga"].includes(media.type) ? "sugerida" : "oficial"
                     }
                     perSeason={media.type === "series"}
                   />

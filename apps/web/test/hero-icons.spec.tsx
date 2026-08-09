@@ -151,7 +151,7 @@ describe("HeroIconCluster (D-204)", () => {
 });
 
 describe("MediaCarousel (T185)", () => {
-  function renderCarousel(type: "book" | "comic" | "anime") {
+  function renderCarousel(type: "book" | "comic" | "manga") {
     const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     return render(
       <QueryClientProvider client={qc}>

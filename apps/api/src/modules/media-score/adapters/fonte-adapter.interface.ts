@@ -56,6 +56,10 @@ export function dominioDoTipo(tipo: string): DominioMidia | null {
     case "HQ":
       return "hq";
     case "ANIME":
+    case "MANGA":
+      // D-233/T231: ANIME ficou deprecated (animação japonesa = SERIE);
+      // MANGA (quadrinho japonês) mantém o mesmo domínio de fontes
+      // (jikan/anilist/kitsu/mangadex/animeplanet).
       return "anime_manga";
     default:
       return null;

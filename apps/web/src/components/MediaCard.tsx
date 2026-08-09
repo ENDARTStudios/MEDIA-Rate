@@ -28,7 +28,7 @@ const TIPO_LABEL: Record<string, string> = {
   SERIE: "serie",
   GAME: "game",
   LIVRO: "livro",
-  ANIME: "anime",
+  MANGA: "manga",
   COMIC: "comic",
   // Aliases do fallback mock (MOCK_MEDIA usa tipos em inglês) — evita
   // MISSING_MESSAGE quando a API está indisponível e o mock assume.
@@ -53,7 +53,7 @@ const TIPO_TO_MEDIA: Record<string, MediaType> = {
   SERIE: "series",
   GAME: "game",
   LIVRO: "book",
-  ANIME: "anime",
+  MANGA: "manga",
   COMIC: "comic",
 };
 

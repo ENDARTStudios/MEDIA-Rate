@@ -24,7 +24,7 @@ const ANNUAL_DISCOUNT = 0.85;
 const PLAN_MEDIA: Record<string, MediaType[]> = {
   free: ["movie", "series", "game"],
   plus: ["movie", "series", "game", "book", "comic"],
-  premium: ["movie", "series", "game", "book", "comic", "anime"],
+  premium: ["movie", "series", "game", "book", "comic", "manga"],
 };
 
 const MEDIA_ICONS: Record<MediaType, typeof Clapperboard> = {
@@ -33,7 +33,7 @@ const MEDIA_ICONS: Record<MediaType, typeof Clapperboard> = {
   game: Gamepad2,
   book: BookOpen,
   comic: BookImage,
-  anime: BookMarked,
+  manga: BookMarked,
 };
 
 function formatPrice(price: number, _locale: string) {
@@ -49,7 +49,7 @@ function formatPrice(price: number, _locale: string) {
 
 function MediaUnlockRow({ planId }: { planId: string }) {
   const unlocked = PLAN_MEDIA[planId] ?? [];
-  const all: MediaType[] = ["movie", "series", "game", "book", "comic", "anime"];
+  const all: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
   return (
     <div
       className="flex items-center justify-center gap-2 py-3"

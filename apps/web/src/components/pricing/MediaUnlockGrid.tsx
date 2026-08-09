@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
 
-const MEDIAS: MediaType[] = ["movie", "series", "game", "book", "comic", "anime"];
+const MEDIAS: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
 
 /** O que cada plano libera (Free: filme+série; Plus: +game; Premium: tudo). */
 const PLANO_LIBERA: Record<"free" | "plus" | "premium", Set<MediaType>> = {
@@ -54,7 +54,7 @@ export function MediaUnlockGrid() {
                 </td>
                 {planos.map((plano) => {
                   const libera = PLANO_LIBERA[plano].has(media);
-                  const emBreve = media === "book" || media === "comic" || media === "anime";
+                  const emBreve = media === "book" || media === "comic" || media === "manga";
                   return (
                     <td key={plano} className="py-3 px-3 text-center">
                       {libera ? (

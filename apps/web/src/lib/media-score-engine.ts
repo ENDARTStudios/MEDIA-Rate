@@ -71,7 +71,7 @@ export const CONFIG_V3: Record<MediaType, ConfigV3> = {
     modoConsenso: "editoras",
   },
   // Mangás/Light Novels: crítica 45% + público 45% + polarização 10%; m = 500.
-  anime: {
+  manga: {
     escala: "0-10",
     m: 500,
     pesos: { critica: 0.45, publico: 0.45, consenso: 0.1 },

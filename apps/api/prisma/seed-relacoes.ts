@@ -98,7 +98,7 @@ const NARRATIVOS = [
   "esporte", "cyberpunk", "super-herói", "super-heroi",
 ];
 
-const SUBGENEROS: Record<string, "GAME" | "ANIME" | "COMIC"> = {
+const SUBGENEROS: Record<string, "GAME" | "ANIME" | "MANGA" | "COMIC"> = {
   rpg: "GAME",
   moba: "GAME",
   fps: "GAME",
@@ -110,9 +110,11 @@ const SUBGENEROS: Record<string, "GAME" | "ANIME" | "COMIC"> = {
   simulacao: "GAME",
   estrategia: "GAME",
   sandbox: "GAME",
-  shonen: "ANIME",
-  "seinen": "ANIME",
-  isekai: "ANIME",
+  // D-233/T231: Shonen/Seinen/Isekai são gêneros de mangá (quadrinho
+  // japonês) → MANGA; animação japonesa classifica como SERIE.
+  shonen: "MANGA",
+  "seinen": "MANGA",
+  isekai: "MANGA",
   "acao-aventura-games": "GAME",
 };
 

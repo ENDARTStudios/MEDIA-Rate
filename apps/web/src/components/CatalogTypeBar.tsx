@@ -11,7 +11,9 @@ import { getCatalog } from "@/lib/api";
 import { CategoryChip } from "@/components/media-rate-ui/CategoryChip";
 import type { MediaType } from "@/lib/types";
 
-const TYPES: MediaType[] = ["movie", "series", "game", "book", "comic", "anime"];
+// D-233/T231: "anime" não é categoria — animação japonesa é série;
+// mangá (quadrinho japonês) é categoria própria.
+const TYPES: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
 
 export function CatalogTypeBar() {
   const t = useTranslations("catalog");

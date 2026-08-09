@@ -1,4 +1,6 @@
-export type MediaType = "movie" | "series" | "game" | "book" | "anime" | "comic";
+// D-233/T231: "manga" é categoria própria (quadrinho japonês); "anime"
+// (animação japonesa) não é categoria — classifica como "series".
+export type MediaType = "movie" | "series" | "game" | "book" | "manga" | "comic";
 
 export type Confidence = "high" | "medium" | "low";
 

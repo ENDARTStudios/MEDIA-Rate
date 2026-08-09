@@ -37,7 +37,7 @@ export const colors = {
     game: "#34D399",
     book: "#FBBF24",
     comic: "#F472B6",
-    anime: "#A78BFA",
+    manga: "#A78BFA",
   },
   surface: {
     background: "#05050A",
@@ -273,7 +273,7 @@ export const CATEGORY_TOKENS: Record<
   game: { color: colors.media.game, icon: Gamepad2, labelKey: "catalog.game" },
   book: { color: colors.media.book, icon: BookOpen, labelKey: "catalog.livro" },
   comic: { color: colors.media.comic, icon: BookImage, labelKey: "catalog.comic" },
-  anime: { color: colors.media.anime, icon: BookMarked, labelKey: "catalog.anime" },
+  manga: { color: colors.media.manga, icon: BookMarked, labelKey: "catalog.manga" },
 };
 export const shadows = {
   card: elevation[1].shadow,

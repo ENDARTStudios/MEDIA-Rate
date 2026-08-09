@@ -79,8 +79,8 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
                     ? "GAME"
                     : item.tipo === "comic"
                       ? "COMIC"
-                      : item.tipo === "anime"
-                        ? "ANIME"
+                      : item.tipo === "manga"
+                        ? "MANGA"
                         : "LIVRO",
             ano_lancamento: item.ano,
             imagem_url: item.posterUrl,

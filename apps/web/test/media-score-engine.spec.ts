@@ -37,9 +37,9 @@ describe("Configuração v3 por mídia (MET-03)", () => {
     expect(CONFIG_V3.comic.pesos).toEqual({ critica: 0, publico: 0.6, consenso: 0.4 });
     expect(CONFIG_V3.comic.m).toBe(250);
     expect(CONFIG_V3.comic.modoConsenso).toBe("editoras");
-    expect(CONFIG_V3.anime.pesos).toEqual({ critica: 0.45, publico: 0.45, consenso: 0.1 });
-    expect(CONFIG_V3.anime.m).toBe(500);
-    expect(CONFIG_V3.anime.modoConsenso).toBe("polarizacao");
+    expect(CONFIG_V3.manga.pesos).toEqual({ critica: 0.45, publico: 0.45, consenso: 0.1 });
+    expect(CONFIG_V3.manga.m).toBe(500);
+    expect(CONFIG_V3.manga.modoConsenso).toBe("polarizacao");
   });
 });
 
@@ -132,12 +132,12 @@ describe("Fórmula v3 — estimador Bayesiano", () => {
     expect(normal).toBe(8.4);
   });
 
-  it("anime: índice de polarização penaliza distribuição bimodal", () => {
+  it("manga: índice de polarização penaliza distribuição bimodal", () => {
     const bimodal = calculateGlobalScore({
       criticosScore: 9,
       publicoScore: 7,
       votos: 10000,
-      mediaType: "anime",
+      mediaType: "manga",
       distribuicaoNotas: [
         { nota: 1, votos: 400 },
         { nota: 10, votos: 600 },
@@ -147,7 +147,7 @@ describe("Fórmula v3 — estimador Bayesiano", () => {
       criticosScore: 9,
       publicoScore: 7,
       votos: 10000,
-      mediaType: "anime",
+      mediaType: "manga",
       distribuicaoNotas: [
         { nota: 5, votos: 500 },
         { nota: 6, votos: 500 },
@@ -376,13 +376,13 @@ describe("derivarScores — Crítica vs Público (CRIT-02)", () => {
     expect(imdb?.classificacao).toBe("publico");
   });
 
-  it("anime usa pesos do bucket público (jikan/anilist)", () => {
+  it("manga usa pesos do bucket público (jikan/anilist)", () => {
     const r = derivarScores(
       [
         { source: "jikan", score: 9.0, maxScore: 10 },
         { source: "anilist", score: 90, maxScore: 100 },
       ],
-      "anime",
+      "manga",
     );
     expect(r.publicoScore).not.toBeNull();
     expect(r.criticosScore).toBeNull();

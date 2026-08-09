@@ -20,7 +20,8 @@ type CatalogSort = "title" | "year" | "score";
 
 const PAGE_SIZE = 12;
 
-const FUTURE_TYPES: MediaType[] = ["book", "comic", "anime"];
+// D-233/T231: "anime" não é categoria — mangá (quadrinho japonês) é.
+const FUTURE_TYPES: MediaType[] = ["book", "comic", "manga"];
 
 function asOptionalNumber(value: string | null | undefined): number | undefined {
   if (value == null || value === "") return undefined;
@@ -50,8 +51,8 @@ function mapToMediaItem(media: Media): MediaItem {
           ? "SERIE"
           : media.type === "game"
             ? "GAME"
-            : media.type === "anime"
-              ? "ANIME"
+            : media.type === "manga"
+              ? "MANGA"
               : media.type === "comic"
                 ? "COMIC"
                 : "LIVRO",

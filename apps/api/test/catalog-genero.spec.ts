@@ -56,21 +56,21 @@ describe("T198 — catalog por gênero (Addendum 2 Parte 4 + 3 Parte 3)", () => 
     expect(r.items[0].tipo).toBe("GAME");
   });
 
-  it("subgênero Shonen → só ANIME", async () => {
+  it("subgênero Shonen → só MANGA (D-233/T231: mangá é categoria própria)", async () => {
     generos.set("shonen", {
       id: 3,
       slug: "shonen",
       nome: "Shonen",
       tipo: "SUBGENERO",
-      midia_alvo: "ANIME",
+      midia_alvo: "MANGA",
     });
     midias.push(
-      { id: "a1", tipo: "ANIME", score: 80, scores: [{ score: 80 }] },
+      { id: "a1", tipo: "MANGA", score: 80, scores: [{ score: 80 }] },
       { id: "g1", tipo: "GAME", score: 90, scores: [{ score: 90 }] },
     );
     const r = await service.listarPorGenero("shonen", {});
     expect(r.items.length).toBe(1);
-    expect(r.items[0].tipo).toBe("ANIME");
+    expect(r.items[0].tipo).toBe("MANGA");
   });
 
   it("gênero inexistente → genero null e lista vazia (graceful)", async () => {

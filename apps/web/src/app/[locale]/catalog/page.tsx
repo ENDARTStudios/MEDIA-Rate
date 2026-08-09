@@ -13,7 +13,7 @@ function asMediaType(value: string | undefined): MediaType | undefined {
     case "series":
     case "game":
     case "book":
-    case "anime":
+    case "manga":
     case "comic":
       return value;
     default:

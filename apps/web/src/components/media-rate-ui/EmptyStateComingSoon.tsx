@@ -22,7 +22,7 @@ const ICONS: Record<MediaType, typeof Clapperboard> = {
   game: Gamepad2,
   book: BookOpen,
   comic: BookImage,
-  anime: BookMarked,
+  manga: BookMarked,
 };
 
 export interface EmptyStateComingSoonProps {
@@ -46,14 +46,14 @@ export function EmptyStateComingSoon({
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  /** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/anime/comic). */
+  /** Chaves do namespace "catalog" por tipo (filme/serie/game/livro/manga/comic). */
   const TIPO_KEY: Record<MediaType, string> = {
     movie: "filme",
     series: "serie",
     game: "game",
     book: "livro",
     comic: "comic",
-    anime: "anime",
+    manga: "manga",
   };
 
   async function handleSubmit(e: FormEvent) {
@@ -90,7 +90,7 @@ export function EmptyStateComingSoon({
         />
       </div>
       <p className="font-heading text-base font-semibold text-[#F5F5F7]">
-        {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "anime")} — {t("emConstrucao")}
+        {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga")} — {t("emConstrucao")}
       </p>
       <p className="mt-1 max-w-sm text-sm text-[#6B6B85]">
         {t("comingSoonSubscribe")}

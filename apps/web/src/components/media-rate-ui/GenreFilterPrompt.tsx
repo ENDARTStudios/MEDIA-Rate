@@ -24,7 +24,7 @@ const TYPE_PARAM: Record<MediaType, string> = {
   game: "game",
   book: "book",
   comic: "comic",
-  anime: "anime",
+  manga: "manga",
 };
 
 const MEDIA_LABEL: Record<MediaType, string> = {
@@ -33,7 +33,7 @@ const MEDIA_LABEL: Record<MediaType, string> = {
   game: "Games",
   book: "Livros",
   comic: "HQs",
-  anime: "Mangás",
+  manga: "Mangás",
 };
 
 export function GenreFilterPrompt({

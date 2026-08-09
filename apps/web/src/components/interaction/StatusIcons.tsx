@@ -152,7 +152,7 @@ export function conjugacaoPara(mediaType: MediaType | string | undefined): Conju
       return "jogar";
     case "book":
     case "comic":
-    case "anime":
+    case "manga":
       return "ler";
     default:
       return "ver";

@@ -48,13 +48,16 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
     expect(notas[0].rating).toBe(89);
   });
 
-  it("jikan/anilist: ativos sem gate e atendem anime/mangá (tipo ANIME)", () => {
+  it("jikan/anilist: ativos sem gate e atendem anime/mangá (tipos ANIME e MANGA)", () => {
     expect(new JikanAdapter().ativo()).toBe(true);
     expect(new AniListAdapter().ativo()).toBe(true);
     expect(new JikanAdapter().atendeTipo("ANIME")).toBe(true);
     expect(new AniListAdapter().atendeTipo("ANIME")).toBe(true);
-    // Mangá integra a categoria HQ nesta taxonomia (D-198) — jikan/anilist
-    // não atendem HQ diretamente (correto).
+    // D-233/T231: MANGA (quadrinho japonês) é categoria própria e mantém o
+    // mesmo domínio de fontes (anime_manga) — jikan/anilist atendem.
+    expect(new JikanAdapter().atendeTipo("MANGA")).toBe(true);
+    expect(new AniListAdapter().atendeTipo("MANGA")).toBe(true);
+    // HQ ocidental (comicvine/amazon) não é atendida por jikan/anilist.
     expect(new JikanAdapter().atendeTipo("HQ")).toBe(false);
   });
 

@@ -16,12 +16,12 @@ const schemaTypeByMediaType: Record<MediaType, string> = {
   series: "TVSeries",
   game: "VideoGame",
   book: "Book",
-  anime: "TVSeries",
+  manga: "Book",
   comic: "Book",
 };
 
 /** Tipos em preparação (§IX P2) — fontes ainda não ativadas: não indexar. */
-const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "anime"]);
+const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
 
 function descriptionFor(media: Media): string {
   return media.synopsis.trim().slice(0, 160);

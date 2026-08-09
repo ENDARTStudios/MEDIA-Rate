@@ -6,7 +6,9 @@ import { SessionService } from "../auth/session.service.js";
 import { CacheService } from "../../common/cache.service.js";
 import { discoverQuerySchema } from "./dto/search-query.dto.js";
 
-const TIPO_MIDIA_VALUES = ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "COMIC"] as const;
+// D-233/T231: MANGA é categoria própria; ANIME ficou deprecated no banco
+// (animação japonesa = SERIE, quadrinho japonês = MANGA) e não é exposto.
+const TIPO_MIDIA_VALUES = ["FILME", "SERIE", "GAME", "LIVRO", "MANGA", "COMIC"] as const;
 
 const SearchQuerySchema = z.object({
   q: z.string().trim().min(1, "Informe um termo de busca.").max(200, "Termo de busca muito longo."),

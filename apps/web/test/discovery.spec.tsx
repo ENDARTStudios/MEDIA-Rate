@@ -28,7 +28,7 @@ const messages = {
     game: "Game",
     livro: "Livro",
     comic: "HQ",
-    anime: "Anime",
+    manga: "Mangá",
   },
 };
 

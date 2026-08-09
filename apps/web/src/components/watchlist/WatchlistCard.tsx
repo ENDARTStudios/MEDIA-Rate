@@ -15,7 +15,7 @@ const TIPO_MAP: Record<string, string> = {
   game: "GAME",
   book: "LIVRO",
   comic: "COMIC",
-  anime: "ANIME",
+  manga: "MANGA",
 };
 
 export function entryToMediaItem(e: WatchlistEntry): MediaItem | null {
@@ -30,8 +30,8 @@ export function entryToMediaItem(e: WatchlistEntry): MediaItem | null {
           ? "GAME"
           : media.type === "comic"
             ? "COMIC"
-            : media.type === "anime"
-              ? "ANIME"
+            : media.type === "manga"
+              ? "MANGA"
               : "FILME";
   return {
     id: String(media.id),

@@ -23,7 +23,7 @@ import { WatchlistCard, interactionMidiaToItem } from "./WatchlistCard";
 interface ColumnDef {
   key: string;
   i18nKey: string;
-  accentKey: "movie" | "series" | "game" | "book" | "comic" | "anime";
+  accentKey: "movie" | "series" | "game" | "book" | "comic" | "manga";
 }
 
 const COLUMNS: ColumnDef[] = [

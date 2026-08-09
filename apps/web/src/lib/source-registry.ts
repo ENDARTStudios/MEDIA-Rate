@@ -131,7 +131,7 @@ export const PESOS_POR_TIPO_WEB: Record<
     critica: { comicbookroundup: 1 },
     publico: { comicvine: 0.6, amazon: 0.4 },
   },
-  anime: {
+  manga: {
     critica: {},
     publico: { jikan: 0.3, anilist: 0.3, kitsu: 0.2, mangadex: 0.2 },
   },
