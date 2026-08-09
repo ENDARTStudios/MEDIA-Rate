@@ -147,4 +147,18 @@ propria 'Mangas' (chip distinto de 'Quadrinhos'). IMPLEMENTACAO:
   retornam Berserk; discover?tipo=ANIME -> 400; seed-novas-midias faz
   update-tipo; aresta Berserk MANGA <-> SERIE preservada.
 
+## D-235 re-coleta de critica exige SCRAPE_NUMERICO_ENABLED no Railway (T231 pos)
+Diagnostico do Passo 2 (critica 'Sem critica' em producao): a ficha do
+Coringa mostra criticosScore=null com 2 fontes publico (tmdb/trakt) — os
+adaptadores de CRITICA (metacritic, rottentomatoes, letterboxd,
+rogerebert) sao gateados por SCRAPE_NUMERICO_ENABLED=true (ativo() ->
+false sem o gate -> 'pulada: inativa' no coletarTudo). SEM o gate no
+Railway, NEM o job diario (03:05 UTC) NEM o gatilho POST
+/api/v1/midias/score-job coletam critica — re-coleta sozinha nao resolve.
+ACAO necessaria do Operador: setar SCRAPE_NUMERICO_ENABLED=true no Railway
+e re-disparar o job (ou aguardar o ciclo). Confirmado tambem que o deploy
+Railway do 739f565 (T231) NAO subiu (uptime ~11.7h = ultimo deploy
+ed30b9d): API ainda sem filtro MANGA e Berserk como ANIME — pendente de
+redeploy.
+
 
