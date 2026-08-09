@@ -28,12 +28,20 @@ describe("HTTPS Redirect (T1.1) — producao", () => {
     app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
-  });
+    // T230: AppModule completo — timeout explícito (contenda de 80 arquivos
+    // paralelos pode estourar o default de 5s).
+  }, 60_000);
 
   afterAll(async () => {
     process.env.NODE_ENV = "test";
     delete process.env.SKIP_DB_CONNECT;
-    await app.close();
+    // T230: defensivo — se o beforeAll falhou, app pode não existir.
+    if (!app) return;
+    try {
+      await app.close();
+    } catch {
+      // teardown falho ignorado
+    }
   });
 
   it("GET /health com x-forwarded-proto: http → 308 redirect para https", async () => {
@@ -83,10 +91,17 @@ describe("HTTPS Redirect (T1.1) — desenvolvimento", () => {
     app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
-  });
+    // T230: AppModule completo — timeout explícito.
+  }, 60_000);
 
   afterAll(async () => {
-    await app.close();
+    // T230: defensivo — se o beforeAll falhou, app pode não existir.
+    if (!app) return;
+    try {
+      await app.close();
+    } catch {
+      // teardown falho ignorado
+    }
   });
 
   it("GET /health em dev nao redireciona mesmo com x-forwarded-proto: http", async () => {

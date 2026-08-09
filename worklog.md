@@ -2319,7 +2319,8 @@ F09 - alertas de observabilidade (9.5.3 + guia 9.5.4):
   AuthModule (guards precisam de SessionService — mesmo padrao do T216).
 - docs/OBSERVABILITY.md: secao de alertas (thresholds, histerese, canal:
   log critico + Loki + endpoint, sem servico externo pago) + guia
-  UptimeRobot free passo a passo (monitor HTTP(s) em /api/v1/health,
+  UptimeRobot free passo a passo (monitor HTTP(s) em /health � caminho
+  REAL corrigido no T230; o caminho com prefixo api/v1 nao existe),
   intervalo 5min, Down 2 times) — criacao da conta = pendencia do
   Operador (9.5.4 marcado [~]).
 - PLANO_MESTRE: 9.5.3 [x], 9.5.4 [~] (guia pronto).

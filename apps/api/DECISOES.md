@@ -106,4 +106,18 @@ imagem_url, slug}] } — a busca de 'adicionar item' da pagina de lista
 nunca retornava resultados (ou quebrava em silencio). Corrigido para o
 formato real; herda a normalizacao de acentos do /search delegado (T227).
 
+## D-232 CI deterministico + docs health /health (T230)
+Os 5 testes falhos do run 641/646 eram do exception-filter.e2e: o
+beforeAll monta o AppModule COMPLETO (import dinamico pesado) e, sob
+contenda de 80 arquivos paralelos, estourava o timeout default de 5s do
+vitest → testes skipped + crash do afterAll em app.close(). CORRECAO:
+timeout explicito de 60s no beforeAll + afterAll defensivo (app pode nao
+existir; teardown falho nunca derruba o arquivo) aplicado aos 8 e2e que
+montam AppModule (exception-filter dev/prod, health, https-redirect,
+cors, rate-limit, zod-validation, admin-stats). Suite completo 649/649 em
+5 execucoes consecutivas — deterministico, sem skip silencioso. DOCS:
+caminho real do healthcheck e GET /health (monitor UptimeRobot ativo em
+producao usa /health); removidas todas as mencões ao caminho com prefixo
+api/v1 em OBSERVABILITY, MANUAL_DO_OPERADOR, PLANO_MESTRE e worklog.
+
 

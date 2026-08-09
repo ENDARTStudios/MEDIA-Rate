@@ -110,10 +110,19 @@ describe("GET /api/v1/admin/stats — e2e (T221)", () => {
     app = moduleRef.createNestApplication<NestFastifyApplication>(adapter);
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
-  });
+    // T230: AppModule completo — timeout explícito (contenda de 80 arquivos
+    // paralelos pode estourar o default de 5s).
+  }, 60_000);
 
   afterAll(async () => {
-    await app.close();
+    // T230: defensivo — se o beforeAll falhou, app pode não existir; e
+    // falha de teardown não deve derrubar o arquivo.
+    if (!app) return;
+    try {
+      await app.close();
+    } catch {
+      // teardown falho ignorado
+    }
   });
 
   beforeEach(() => {

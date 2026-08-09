@@ -8,6 +8,10 @@ import { GlobalExceptionFilter } from "../src/common/global-exception.filter.js"
 describe("Global Exception Filter (T1.6) — desenvolvimento", () => {
   let app: NestFastifyApplication;
 
+  // T230: o beforeAll monta o AppModule COMPLETO (import dinâmico pesado).
+  // Sob contenda de 80 arquivos paralelos, o timeout padrão (5s) estoura
+  // intermitentemente → testes skipped + crash no afterAll. Timeout
+  // explícito de 60s torna o e2e determinístico sem skip silencioso.
   beforeAll(async () => {
     process.env.NODE_ENV = "test";
     // Rotas de debug são montadas na avaliação do AppModule — por isso o
@@ -28,10 +32,18 @@ describe("Global Exception Filter (T1.6) — desenvolvimento", () => {
     app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
-  });
+  }, 60_000);
 
   afterAll(async () => {
-    await app.close();
+    // T230: defensivo — se o beforeAll falhou, app pode não ter sido
+    // criada; close() numa referência inválida mascara o erro real.
+    if (!app) return;
+    try {
+      await app.close();
+    } catch {
+      // Fechamento falho no teardown não deve derrubar o arquivo: o
+      // resultado do TESTE já foi registrado.
+    }
   });
 
   it("GET /api/v1/_force-error/http-exception → 409 com shape padrao", async () => {

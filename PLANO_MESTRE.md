@@ -44,7 +44,7 @@ de evidência**, não por presunção.
 - Next.js 16 App Router + TypeScript estrito + TailwindCSS 3
 - Fastify 5 + Prisma 5 + TypeScript estrito (apps/api)
 - Prisma schema (PostgreSQL canônico + SQLite sandbox)
-- Rotas `/api/v1/health`, `/api/v1/auth/*`, `/api/v1/checkout`
+- Rotas `/health`, `/api/v1/auth/*`, `/api/v1/checkout` (T230: health � `GET /health` � o caminho com prefixo api/v1 n�o existe)
 - Helmet, CORS, validação Zod, tratamento de erros sem stack trace
 - Frontend: 17 rotas, 47 páginas SSG, i18n pt-BR/en-US/es-ES
 - ⚠️ Faltam: rate limit, ESLint de segurança, Dependabot, testes automatizados
@@ -370,10 +370,10 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 - [x] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos. · evid: T217 - Pino + redact (ja existia); LokiStream (batch 200/2s, POST /loki/api/v1/push, label job=media-rate-api) quando LOKI_URL definida; sem LOKI_URL, stdout (logs nativos Railway). docker-compose com loki:2.9 + grafana:10.4. docs/OBSERVABILITY.md. Sem configuração de Loki, Grafana, ou log aggregation nativa do Railway/Vercel.
 - [x] 9.5.2 Métricas: Prometheus + Grafana ou Better Stack. · evid: T217 - prom-client: http_requests_total (counter method/route/status), http_request_duration_seconds (histograma buckets 0.01..5), http_errors_total (5xx); coleta automatica via MetricsInterceptor (global); GET /metrics em formato Prometheus protegido por RBAC (sessao ADMIN) OU METRICS_ALLOW_IPS OU X-Admin-Token; sem PII (testado).k no código ou workflows.
 - [x] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min. · evid: T218 — AlertsService com ring buffers em memória, histerese 10% (resolve < 90% do threshold), log Pino error/info + audit ALERT_TRIGGERED/RESOLVED; GET /api/v1/admin/alerts/status com @Roles('ADMIN') (403 non-admin); alimentado pelo MetricsInterceptor (5xx/total) e AuthService (auth failures); sem serviço externo pago. docs/OBSERVABILITY.md. GitHub issues automaticamente em falha de uptime (monitoramento binário: up/down). Sem alertas baseados em métricas (threshold de 5xx ou auth failures).
-- [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: T218 — guia passo a passo em docs/OBSERVABILITY.md (monitor HTTP(s) em /api/v1/health, intervalo 5min, Down 2 times); `health-check.yml` (cron 5min via GitHub Actions) já cobre como fallback. Criação da conta UptimeRobot = pendência do Operador.ctions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
+- [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: T218 — guia passo a passo em docs/OBSERVABILITY.md (monitor HTTP(s) em /health (caminho real, T230), intervalo 5min, Down 2 times); `health-check.yml` (cron 5min via GitHub Actions) já cobre como fallback. Criação da conta UptimeRobot = pendência do Operador.ctions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
 
 ### Infraestrutura (9.6–9.9)
-- [x] 9.6 Healthcheck HTTP no deploy (`/api/v1/health`). · evid: `apps/api/src/health/` — health controller. `GET /health` retorna `{ status: "ok", uptime, version }`. Teste `test/health.e2e.spec.ts`. `deploy.yml` e `health-check.yml` verificam o endpoint.
+- [x] 9.6 Healthcheck HTTP no deploy (`GET /health`). · evid: `apps/api/src/health/` — health controller. `GET /health` retorna `{ status: "ok", uptime, version }`. Teste `test/health.e2e.spec.ts`. `deploy.yml` e `health-check.yml` verificam o endpoint.
 - [x] 9.7 Backup automático do PostgreSQL (diário, retenção 30 dias). · evid: `scripts/backup-db.sh` — script bash com `pg_dump -F c`, retenção de 30 dias via `find -mtime +30 -delete`. `deploy.yml` chama o script antes de migration. Backup diário configurável via cron job no servidor. T026 implementado.
 - [x] 9.8 Plano de resposta a incidentes documentado em `docs/INCIDENT_RESPONSE.md`. · evid: Plano completo com níveis de severidade (P1–P4), fluxo de resposta (reconhecimento → triagem → contenção → diagnóstico → correção → verificação), playbooks (rollback, revogação de sessões, bloqueio de emergência), recuperação (restauração de backup, migração reversa), comunicação (issues GitHub, postmortem). T026 implementado.
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue. · evid: 170 linhas. Cobre uptime, troubleshooting, deploy manual, contatos, senhas.
@@ -467,7 +467,7 @@ de evidência**, não por presunção.
 - Next.js 16 App Router + TypeScript estrito + TailwindCSS 3
 - Fastify 5 + Prisma 5 + TypeScript estrito (apps/api)
 - Prisma schema (PostgreSQL canônico + SQLite sandbox)
-- Rotas `/api/v1/health`, `/api/v1/auth/*`, `/api/v1/checkout`
+- Rotas `/health`, `/api/v1/auth/*`, `/api/v1/checkout` (T230: health � `GET /health` � o caminho com prefixo api/v1 n�o existe)
 - Helmet, CORS, validação Zod, tratamento de erros sem stack trace
 - Frontend: 17 rotas, 47 páginas SSG, i18n pt-BR/en-US/es-ES
 - ⚠️ Faltam: rate limit, ESLint de segurança, Dependabot, testes automatizados
@@ -793,10 +793,10 @@ Stack: Next.js 16 + TypeScript + TailwindCSS 3 + shadcn/ui + Motion + GSAP + Ani
 - [x] 9.5.1 Logs centralizados: Loki (gratuito) ou logs nativos. · evid: T217 - Pino + redact (ja existia); LokiStream (batch 200/2s, POST /loki/api/v1/push, label job=media-rate-api) quando LOKI_URL definida; sem LOKI_URL, stdout (logs nativos Railway). docker-compose com loki:2.9 + grafana:10.4. docs/OBSERVABILITY.md. Sem configuração de Loki, Grafana, ou log aggregation nativa do Railway/Vercel.
 - [x] 9.5.2 Métricas: Prometheus + Grafana ou Better Stack. · evid: T217 - prom-client: http_requests_total (counter method/route/status), http_request_duration_seconds (histograma buckets 0.01..5), http_errors_total (5xx); coleta automatica via MetricsInterceptor (global); GET /metrics em formato Prometheus protegido por RBAC (sessao ADMIN) OU METRICS_ALLOW_IPS OU X-Admin-Token; sem PII (testado).k no código ou workflows.
 - [x] 9.5.3 Alertas: erros 5xx > 1% em 5 min, falhas de auth > 50 em 1 min. · evid: T218 — AlertsService com ring buffers em memória, histerese 10% (resolve < 90% do threshold), log Pino error/info + audit ALERT_TRIGGERED/RESOLVED; GET /api/v1/admin/alerts/status com @Roles('ADMIN') (403 non-admin); alimentado pelo MetricsInterceptor (5xx/total) e AuthService (auth failures); sem serviço externo pago. docs/OBSERVABILITY.md. GitHub issues automaticamente em falha de uptime (monitoramento binário: up/down). Sem alertas baseados em métricas (threshold de 5xx ou auth failures).
-- [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: T218 — guia passo a passo em docs/OBSERVABILITY.md (monitor HTTP(s) em /api/v1/health, intervalo 5min, Down 2 times); `health-check.yml` (cron 5min via GitHub Actions) já cobre como fallback. Criação da conta UptimeRobot = pendência do Operador.ctions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
+- [~] 9.5.4 Uptime check externo (UptimeRobot free). · evid: T218 — guia passo a passo em docs/OBSERVABILITY.md (monitor HTTP(s) em /health (caminho real, T230), intervalo 5min, Down 2 times); `health-check.yml` (cron 5min via GitHub Actions) já cobre como fallback. Criação da conta UptimeRobot = pendência do Operador.ctions (monitoramento self-hosted, não externo). Sem UptimeRobot ou similar externo.
 
 ### Infraestrutura (9.6–9.9)
-- [x] 9.6 Healthcheck HTTP no deploy (`/api/v1/health`). · evid: `apps/api/src/health/` — health controller. `GET /health` retorna `{ status: "ok", uptime, version }`. Teste `test/health.e2e.spec.ts`. `deploy.yml` e `health-check.yml` verificam o endpoint.
+- [x] 9.6 Healthcheck HTTP no deploy (`GET /health`). · evid: `apps/api/src/health/` — health controller. `GET /health` retorna `{ status: "ok", uptime, version }`. Teste `test/health.e2e.spec.ts`. `deploy.yml` e `health-check.yml` verificam o endpoint.
 - [x] 9.7 Backup automático do PostgreSQL (diário, retenção 30 dias). · evid: `scripts/backup-db.sh` — script bash com `pg_dump -F c`, retenção de 30 dias via `find -mtime +30 -delete`. `deploy.yml` chama o script antes de migration. Backup diário configurável via cron job no servidor. T026 implementado.
 - [x] 9.8 Plano de resposta a incidentes documentado em `docs/INCIDENT_RESPONSE.md`. · evid: Plano completo com níveis de severidade (P1–P4), fluxo de resposta (reconhecimento → triagem → contenção → diagnóstico → correção → verificação), playbooks (rollback, revogação de sessões, bloqueio de emergência), recuperação (restauração de backup, migração reversa), comunicação (issues GitHub, postmortem). T026 implementado.
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue. · evid: 170 linhas. Cobre uptime, troubleshooting, deploy manual, contatos, senhas.

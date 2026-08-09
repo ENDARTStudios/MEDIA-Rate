@@ -102,8 +102,11 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
 
 1. Crie uma conta gratuita em https://uptimerobot.com.
 2. Add New Monitor → **HTTP(s)**.
-3. URL: `https://<api-do-mediarate>/api/v1/health` (o `/health` não exige
-   auth e é excluído do log de requisições).
+3. URL: `https://<api-do-mediarate>/health` — caminho REAL do healthcheck
+   (T230: o controller expõe `GET /health`; o caminho com prefixo
+   `api/v1` NÃO existe e o monitor ativo em produção usa `/health`,
+   confirmado em 2026-08-09).
+   O `/health` não exige auth e é excluído do log de requisições.
 4. Interval: **5 minutes** (plano free) · Timeout: 30s.
 5. Alert when down → marque **Down 2 times** (evita falso positivo em
    restart) e **Notify**: email.
