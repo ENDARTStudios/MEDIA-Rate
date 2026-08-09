@@ -74,6 +74,15 @@ const DB: MockRow[] = [
     imagem_url: null,
     genero: "acao",
   },
+  {
+    id: "6",
+    titulo: "John Wick 4: Baba Yaga",
+    tipo: "FILME",
+    ano_lancamento: 2023,
+    sinopse: "Ação de tirar o fôlego",
+    imagem_url: null,
+    genero: "acao",
+  },
 ];
 
 function makePrisma(rows: MockRow[] = DB) {
@@ -101,9 +110,22 @@ function makePrisma(rows: MockRow[] = DB) {
     // primeiro parâmetro é o LIMIT.
     const hasQ = sql.includes("plainto_tsquery") || sql.includes("similarity");
     const rawQ = hasQ ? (values[0] as string) : "";
-    const q = rawQ ? rawQ.toLowerCase() : "";
+    // T223/T227: espelha o translate() do backend — acentos removidos nos
+    // DOIS lados (coluna gerada e termo) → 'acao' e 'ação' casam igual.
+    const q = rawQ ? rawQ.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     let results = rows.filter(
-      (m) => !q || m.titulo.toLowerCase().includes(q) || m.sinopse.toLowerCase().includes(q),
+      (m) =>
+        !q ||
+        m.titulo
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(q) ||
+        m.sinopse
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(q),
     );
     const tipoMatch = compiled.match(/tipo = "(\w+)"/);
     if (tipoMatch) results = results.filter((m) => m.tipo === tipoMatch[1]);
@@ -130,10 +152,29 @@ function makePrisma(rows: MockRow[] = DB) {
   function matchedCount(compiled: string, allRows: MockRow[]): number {
     const tipoMatch = compiled.match(/tipo = "(\w+)"/);
     const generoMatch = compiled.match(/g\.slug = "([^"]+)"/);
-    return allRows.filter(
-      (m) =>
-        (!tipoMatch || m.tipo === tipoMatch[1]) && (!generoMatch || m.genero === generoMatch[1]),
-    ).length;
+    // T227: o COUNT do discover inclui o matchSql de q — extrai o termo do
+    // SQL COMPILADO (valores já substituídos) e filtra normalizado.
+    const termoMatch = compiled.match(
+      /plainto_tsquery\('portuguese', translate\("([^"]*)"/,
+    );
+    const termo = termoMatch?.[1];
+    const norm = (s: string) =>
+      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return allRows.filter((m) => {
+      if (tipoMatch && m.tipo !== tipoMatch[1]) return false;
+      if (generoMatch && m.genero !== generoMatch[1]) return false;
+      if (termo != null) {
+        const q = norm(termo);
+        if (
+          q &&
+          !norm(m.titulo).includes(q) &&
+          !norm(m.sinopse).includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    }).length;
   }
 
   return {
@@ -240,7 +281,7 @@ describe("DiscoverService (unit)", () => {
     const result = await service.discover({ q: "a", genero: "acao" });
     expect(result.itens.length).toBeGreaterThan(0);
     result.itens.forEach((i: { titulo: string }) =>
-      expect(["Inception", "Matrix"]).toContain(i.titulo),
+      expect(["Inception", "Matrix", "John Wick 4: Baba Yaga"]).toContain(i.titulo),
     );
   });
 
@@ -276,5 +317,39 @@ describe("DiscoverService (unit)", () => {
   it("discover — trending usa modo catálogo", async () => {
     const result = await service.trending({ limit: 3 });
     expect(result.itens.length).toBeLessThanOrEqual(3);
+  });
+
+  // ---------------- T227: paridade de acentos (busca normalizada) ----------------
+
+  it("T227 — 'acao' e 'ação' retornam o MESMO conjunto no discover (translate nos dois lados)", async () => {
+    const semAcento = await service.discover({ q: "acao" });
+    const comAcento = await service.discover({ q: "ação" });
+    const idsSem = semAcento.itens.map((i: { id: string }) => i.id).sort();
+    const idsCom = comAcento.itens.map((i: { id: string }) => i.id).sort();
+    expect(idsCom).toEqual(idsSem);
+    expect(idsSem.length).toBeGreaterThan(0);
+    // Pelo menos John Wick (sinopse "Ação") aparece nas duas buscas.
+    expect(semAcento.itens.some((i: { titulo: string }) => i.titulo.includes("John Wick"))).toBe(true);
+  });
+
+  it("T227 — /search (legado) delega ao discover: paridade 'acao' ≡ 'ação' e formato items/total", async () => {
+    const semAcento = await service.search("acao");
+    const comAcento = await service.search("ação");
+    const idsSem = semAcento.items.map((i: { id: string }) => i.id).sort();
+    const idsCom = comAcento.items.map((i: { id: string }) => i.id).sort();
+    expect(idsCom).toEqual(idsSem);
+    expect(semAcento.items.length).toBeGreaterThan(0);
+    // Formato legado preservado (catálogo web espera items + total).
+    expect(semAcento.items[0]).toHaveProperty("titulo");
+    expect(semAcento.items[0]).toHaveProperty("ano_lancamento");
+    expect(semAcento.items[0]).toHaveProperty("imagem_url");
+    expect(semAcento.items[0]).toHaveProperty("slug");
+    expect(semAcento.total).toBeGreaterThan(0);
+  });
+
+  it("T227 — busca por título exato continua funcionando (sem regressão)", async () => {
+    const result = await service.discover({ q: "Inception" });
+    expect(result.itens.length).toBeGreaterThan(0);
+    expect(result.itens[0].titulo).toBe("Inception");
   });
 });

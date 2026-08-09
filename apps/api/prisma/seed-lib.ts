@@ -13,7 +13,7 @@
 //     engine completo com z-scores vive no app, não no seed).
 // ============================================================
 
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 // ---------- Wikidata SPARQL (P144) ----------
 
@@ -134,10 +134,48 @@ export async function buscarArestasWikidata(
 // ---------- Score mínimo (v3, prior) ----------
 
 /**
+ * Fator para normalizar o rating bruto de cada fonte para a escala 0–100
+ * (espelho do source-registry do app — aqui STANDALONE, sem import de src/).
+ * Fonte ausente do mapa → não incluída em detalhes (display coerente).
+ */
+const FATOR_RATING_100: Record<string, number> = {
+  tmdb: 10, // 0–10
+  omdb: 10, // 0–10
+  trakt: 10, // 0–10
+  letterboxd: 10, // 0–10
+  tvmaze: 10, // 0–10
+  openlibrary: 20, // 0–5
+  googlebooks: 20, // 0–5
+  goodreads: 20, // 0–5
+  skoob: 10, // 0–10
+  comicvine: 10, // 0–10
+  jikan: 10, // 0–10
+  mangadex: 10, // 0–10
+  animeplanet: 20, // 0–5
+  igdb: 1, // 0–100
+  igdb_publico: 1,
+  opencritic: 1,
+  steam: 1,
+  metacritic: 1,
+  metacritic_user: 1,
+  rottentomatoes: 1,
+  rottentomatoes_audience: 1,
+  comicbookroundup: 1, // 0–100%
+  anilist: 1,
+  kitsu: 1,
+};
+
+/**
  * Recálculo de score para seeds: mídias recém-criadas NÃO têm avaliações
  * → score v3 = prior do catálogo (7.0, num_fontes 0). Com avaliações,
  * média aritmética simples (aproximação seed-scope). Persiste em
  * media_score e desnormaliza em midia.score (mesmo contrato do app).
+ *
+ * T228: detalhes é SEMPRE um array com UMA entrada por avaliação real
+ * ({fonte, rating_original, rating_100}) — o controller (e o frontend)
+ * exibem a lista a partir desse array; num_fontes deriva da MESMA lista,
+ * nunca de campo solto. calculado_em é refrescado a cada run (upsert
+ * update inclui now()) — ficha nunca mostra data stale após re-run.
  */
 export async function recalcularScoreSeed(
   prisma: PrismaClient,
@@ -145,7 +183,10 @@ export async function recalcularScoreSeed(
 ): Promise<number> {
   const midia = await prisma.midia.findUnique({
     where: { id: midiaId },
-    select: { id: true, avaliacoes: { select: { rating: true } } },
+    select: {
+      id: true,
+      avaliacoes: { select: { fonte: true, rating: true } },
+    },
   });
   if (!midia) return 7;
 
@@ -158,6 +199,20 @@ export async function recalcularScoreSeed(
         )
       : 7; // v3 sem fontes = prior C (7.0)
 
+  // T228: detalhes = array coerente com as avaliações reais (uma entrada
+  // por fonte com nota na escala 0–100) — fonte de verdade do display.
+  const detalhes = avaliacoes.flatMap((a) => {
+    const fator = FATOR_RATING_100[a.fonte];
+    if (!fator) return [];
+    return [
+      {
+        fonte: a.fonte,
+        rating_original: a.rating ?? 0,
+        rating_100: Math.round((a.rating ?? 0) * fator * 10) / 10,
+      },
+    ];
+  });
+
   const data = {
     score,
     num_fontes,
@@ -168,7 +223,8 @@ export async function recalcularScoreSeed(
     indice_consenso: null,
     votos_total: 0,
     confianca: 0,
-    detalhes: { origem: "seed" } as Record<string, string>,
+    detalhes: detalhes as unknown as Prisma.InputJsonValue,
+    calculado_em: new Date(),
   };
 
   await prisma.mediaScore.upsert({

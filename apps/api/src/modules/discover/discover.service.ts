@@ -23,29 +23,34 @@ interface DiscoverRow {
 export class DiscoverService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * T227: /search legado NÃO pode divergir do /discover — delega para a
+   * MESMA busca normalizada (tsvector + translate() nos dois lados para
+   * q >= 3; pg_trgm para q < 3), mantendo o formato de resposta antigo
+   * (items/total) para o catálogo da web. Paridade de acentos é binária:
+   * 'acao' e 'ação' retornam o mesmo conjunto. Offset é ignorado (o
+   * discover usa paginação keyset por cursor; o web pagina localmente).
+   */
   async search(q: string, opts: SearchOptions = {}) {
-    const limit = Math.min(opts.limit ?? 20, 100);
-    const offset = opts.offset ?? 0;
-    // Parametrizado via Prisma.sql — nunca interpolar input do usuário no SQL.
-    const tipoFilter = opts.tipo ? Prisma.sql`AND tipo = ${opts.tipo}::"TipoMidia"` : Prisma.empty;
-
-    const results: (Record<string, unknown> & { total: number })[] = await this.prisma
-      .$queryRaw(Prisma.sql`
-      SELECT id, titulo, tipo, ano_lancamento, sinopse, imagem_url,
-             COUNT(*) OVER()::int AS total
-      FROM "midia"
-      WHERE (titulo % ${q} OR sinopse % ${q}) ${tipoFilter}
-      ORDER BY similarity(titulo, ${q}) DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `);
-
-    const total = results.length > 0 ? (results[0]?.total ?? 0) : 0;
-    // Slug canônico por item (frontend navega por URL amigável).
-    const items = results.map((r) => ({
-      ...r,
-      slug: slugify(String(r.titulo ?? "")),
-    }));
-    return { items, total, limit, offset };
+    const { itens, total_estimado } = await this.discover({
+      q,
+      tipo: opts.tipo,
+      limit: opts.limit,
+    });
+    return {
+      items: itens.map((i) => ({
+        id: i.id,
+        titulo: i.titulo,
+        tipo: i.tipo,
+        ano_lancamento: i.ano,
+        sinopse: null,
+        imagem_url: i.poster_url,
+        slug: i.slug,
+      })),
+      total: total_estimado,
+      limit: opts.limit ?? 20,
+      offset: opts.offset ?? 0,
+    };
   }
 
   /**
@@ -80,7 +85,7 @@ export class DiscoverService {
     const q = opts.q?.trim() ?? "";
 
     const lateralScore = Prisma.sql`LEFT JOIN LATERAL (
-      SELECT score FROM "midia_score" ms
+      SELECT score FROM "media_score" ms
       WHERE ms.midia_id = m.id AND ms.score > 0
       ORDER BY ms.calculado_em DESC LIMIT 1
     ) s ON true`;

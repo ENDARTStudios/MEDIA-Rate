@@ -249,11 +249,14 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
           consolidated: m.score.score,
           confidence,
           sources,
+          // T228: número exibido = lista exibida — a explanation deriva da
+          // lista REAL de fontes (detalhes), nunca de num_fontes solto que
+          // possa divergir (ex.: seed antigo gravava detalhes não-array).
           explanation: emPreparacao
             ? "Tipo em preparação — fontes ainda não ativadas."
-            : m.score.num_fontes > 0
-              ? `MEDIA Score™ consolidado a partir de ${m.score.num_fontes} ${
-                  m.score.num_fontes === 1 ? "fonte" : "fontes"
+            : sources.length > 0
+              ? `MEDIA Score™ consolidado a partir de ${sources.length} ${
+                  sources.length === 1 ? "fonte" : "fontes"
                 }.`
               : "Sem avaliações suficientes das fontes ainda.",
           updatedAt: m.score.calculado_em,
@@ -262,7 +265,7 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
           consensus: m.score.consenso,
           indiceConsenso: m.score.indiceConsenso ?? null,
           votosTotal: m.score.votosTotal ?? 0,
-          sampleSize: m.score.num_fontes,
+          sampleSize: sources.length > 0 ? sources.length : m.score.num_fontes,
           algorithmVersion: "v3",
           confidenceScore: m.score.confianca,
         }
@@ -818,7 +821,9 @@ const SORT_TO_API: Record<string, string> = {
 
 /**
  * Catálogo real da API (paginação cursor) com fallback para o mock local.
- * Busca textual usa /api/v1/search (similarity); lista usa /api/v1/midias.
+ * Busca textual usa /api/v1/search (T227: delegado ao discover normalizado —
+ * translate() nos dois lados, mesma paridade de acentos); lista usa
+ * /api/v1/midias.
  */
 export async function getCatalog(filters?: CatalogFilters): Promise<CatalogResponse> {
   if (filters?.search) {
@@ -967,15 +972,54 @@ export async function getMediaBySlug(slug: string): Promise<Media | null> {
   return MOCK_MEDIA.find((m) => m.slug === slug) ?? MOCK_MEDIA.find((m) => m.id === slug) ?? null;
 }
 
-/** Busca global: API (similarity) com fallback para o mock. */
+/** Item de /api/v1/discover (T227: busca normalizada com translate()). */
+interface ApiDiscoverItem {
+  id: string;
+  titulo: string;
+  tipo: string;
+  ano: number | null;
+  poster_url: string | null;
+  score: number | null;
+  na_watchlist: boolean;
+  slug: string;
+}
+
+function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
+  return {
+    id: it.id,
+    slug: it.slug,
+    title: it.titulo,
+    type: mapTipo(it.tipo),
+    year: it.ano ?? new Date().getFullYear(),
+    genres: [],
+    synopsis: "",
+    posterUrl: it.poster_url,
+    backdropUrl: null,
+    score:
+      it.score != null
+        ? {
+            consolidated: it.score,
+            confidence: "low",
+            sources: [],
+            explanation: "Consulte os detalhes para ver as fontes do score.",
+          }
+        : null,
+    cast: [],
+    crew: [],
+    reviews: [],
+    streaming: [],
+  };
+}
+
+/** Busca global: /discover normalizado (T227) com fallback para o mock. */
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
   if (!q || q.length < 2) return [];
-  const data = await apiGet<{ items: ApiSearchItem[] }>(
-    `/api/v1/search?q=${encodeURIComponent(q)}&limit=15`,
+  const data = await apiGet<{ itens: ApiDiscoverItem[] }>(
+    `/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`,
   );
-  if (data?.items?.length) {
-    return data.items.map((it, i) => ({
-      media: mediaFromSearchItem(it),
+  if (data?.itens?.length) {
+    return data.itens.map((it, i) => ({
+      media: mediaFromDiscoverItem(it),
       relevance: 1 - i * 0.01,
     }));
   }

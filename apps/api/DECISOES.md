@@ -56,3 +56,34 @@ pulava por titulo (`findFirst({ titulo })`) e o seed-tmdb ja tinha criado
 gravado; skip agora e por (fonte, fonte_id). Wikidata tbm casa
 titulo_original. Validado com docker local (padrao T224).
 
+## D-228 busca: um unico comportamento normalizado (T227)
+A searchbox da web chamava /api/v1/search (pg_trgm somente no titulo) —
+'acao' retornava zero e 'acao' resultado fraco. REGRA: nao pode existir
+dois comportamentos de busca em producao. /search (consumido pelo
+catalogo web) agora DELEGA ao discover (mesma busca normalizada T223:
+tsvector + translate() nos dois lados para q>=3; pg_trgm para q<3),
+mantendo o formato antigo (items/total/ano_lancamento/imagem_url). A
+searchbox passa a usar /api/v1/discover?q=. Paridade de acentos e
+criterio BINARIO: 'acao' e 'acao' retornam o mesmo conjunto. ACHADO:
+discover.service.ts consultava "midia_score" (tabela inexistente — o
+correto e "media_score"); nunca exercitado em producao porque a searchbox
+usava /search; corrigido junto (500 em /discover). Validado com docker
+local: /discover e /search retornam John Wick 4 para 'acao' e 'acao';
+titulo exato 'Um Sonho de Liberdade' sem regressao.
+
+## D-229 score x fontes: numero exibido = lista exibida (T228)
+A ficha mostrava 'consolidado a partir de 2 fontes' (num_fontes do
+media_score) com a lista FONTES vazia e 'atualizado ha 4 dias' apos re-run
+de seeds. CAUSA: o seed gravava media_score.detalhes como OBJETO
+({origem:"seed"}) enquanto o controller so expoe array (Array.isArray) —
+a lista nascia vazia; e o upsert do seed nao atualizava calculado_em.
+CORRECAO: (1) seed-lib recalcularScoreSeed grava detalhes como ARRAY com
+UMA entrada por avaliacao real ({fonte, rating_original, rating_100} via
+fator de escala por fonte) — num_fontes deriva da MESMA lista; (2) o
+upsert inclui calculado_em: new Date() a cada run; (3) regra de display no
+frontend: explanation/sampleSize derivam de sources.length (a lista
+exibida), nunca de num_fontes solto. Fonte sem fator de escala conhecido
+nao entra em detalhes (display nunca inventa nota). Validado com docker
+local: ficha Terraria score 90.75 + num_fontes 4 + detalhes array 4
+entradas + fontes (avaliacoes) 4 + calculado_em do run atual.
+
