@@ -202,4 +202,23 @@ API 500 -> sem fallback mock). Verificacao em producao (D-230): curl via
 Vercel rewrite /api/v1/discover?q=acao e ?q=ação -> 5 itens identicos.
 Web 240/240, tsc + build exit 0.
 
+## D-238 deploy Railway ACTIVE com linha rolled-back — cenarios (a)+(b) (T235)
+Diagnóstico com evidência: uptime da API resetou para ~40min e os
+endpoints novos respondem — o deploy do 3231115 SUBIU após o Operador
+rodar o resolve --rolled-back. CENÁRIO OCORRIDO: (a) os deploys T231/D-235
+falharam PRÉ-resolve (P3009: linha failed bloqueia) — resolvido pelo
+resolve do Operador; (b) REPRODUZIDO em docker que a linha rolled-back com
+CHECKSUM ANTIGO NÃO bloqueia o migrate deploy (Prisma valida checksum
+apenas de migrations APPLIED, não de rolled-back): DB pos-T230 com enum
+sem MANGA + Berserk ANIME + linha rolled-back + checksum antigo →
+migrate deploy exit 0 reaplicando as migrations irmãs; boot real do
+entrypoint sobe; /health 200; /midias?tipo=MANGA retorna Berserk. NENHUMA
+escrita em produção foi necessária além do resolve já feito — não houve
+delete de linha. VALIDAÇÃO FINAL em produção (D-230): /midias?tipo=MANGA
+→ 200 total=1 (Berserk MANGA); /discover?tipo=MANGA → 200; contagens por
+tipo 225/225/52/1/1/1 (0 ANIME); ficha berserk tipo=MANGA score 72.1;
+busca acao≡ação 5 itens idênticos. LIMITAÇÃO registrada: Railway CLI não
+instalada na máquina do Doer — retrigger/status de deployment ficam com o
+Operador (painel).
+
 
