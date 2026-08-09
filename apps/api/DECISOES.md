@@ -270,6 +270,23 @@ Verificacao producao (D-230): /search?q=sonho -> 27 (Um Sonho de
 Liberdade 1o); ?q=cavaleiro -> 7 (O Cavaleiro dos Sete Reinos).
 Web 247/247, tsc + build exit 0.
 
+## D-245 watchlist fala a lingua de cada midia (T239)
+Regra de produto: filmes/series -> ver; games -> jogar; livros/HQs/mangas
+-> ler; DROPPED -> 'Abandonei' comum. Enums da API inalterados (so
+rotulos). IMPLEMENTACAO: modulo central lib/watchlist-labels.ts com
+conjugacaoPorTipo + colunaLabelKey (retorna chave i18n), aplicado em
+WatchlistCard (select por-card), WatchlistButton (dropdown da ficha) e
+WatchlistClient (lista); StatusReactionControl ja usava statusLabelKey por
+tipo. i18n: chaves queroLer/lendo/li/zerei/abandonei adicionadas ao
+namespace watchlist nos 3 locales (antes so existiam em interaction).
+Testes: watchlist-labels.spec.ts — matriz 12 casos tipo x coluna x 3
+locales + conjugacaoPorTipo + fallback (14 testes). E2E watchlist-labels:
+ficha de game carrega com botao de watchlist (UI producao, D-230). LICAO:
+registerAndLogin contra producao da redirect loop (registro nao disponivel
+em prod) — a verificacao UI logada do popover fica com o Operador; a
+matriz por tipo esta coberta pelos unitarios. Web 261/261, tsc + build
+exit 0.
+
 ## D-244 buscador do topo e os 3 sintomas da auditoria: VIVOS em producao (T240)
 DIAGNOSTICO com evidencia UI real (Playwright contra media-rate-web.vercel.app,
 nao so curl): os 3 sintomas da auditoria do Operador estao CORRIGIDOS em

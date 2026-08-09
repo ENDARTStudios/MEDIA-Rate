@@ -10,6 +10,7 @@ import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
+import { colunaLabelKey } from "@/lib/watchlist-labels";
 import { formatDate } from "@/lib/i18n";
 import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
@@ -289,8 +290,7 @@ export function WatchlistClient() {
           {filtradas.map((entry) => {
             const item = entryToMediaItem(entry);
             const status = entry.status ?? entry.coluna ?? "WANT";
-            const statusLabel =
-              { WANT: "queroVer", WATCHING: "vendo", COMPLETED: "vi" }[status] ?? "queroVer";
+            const statusLabel = colunaLabelKey(entry.media?.type, status);
             return (
               <li key={entry.id} className="flex items-center gap-4 px-4 py-3">
                 {item ? (

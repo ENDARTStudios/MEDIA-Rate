@@ -7,6 +7,7 @@ import { useInteractionStore } from "@/stores/use-interaction-store";
 import { REACOES, type Reacao } from "@/lib/api-interactions";
 import { ReactionGlyph } from "@/components/interaction/StatusIcons";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
+import { colunaLabelKey } from "@/lib/watchlist-labels";
 import type { WatchlistEntry } from "@/stores/use-watchlist-store";
 
 const TIPO_MAP: Record<string, string> = {
@@ -64,11 +65,7 @@ export function interactionMidiaToItem(midia: {
   };
 }
 
-function statusKey(isGame: boolean): Record<string, string> {
-  return isGame
-    ? { WANT: "queroJogar", WATCHING: "jogando", COMPLETED: "joguei" }
-    : { WANT: "queroVer", WATCHING: "vendo", COMPLETED: "vi" };
-}
+/** T239: chave i18n do rótulo por tipo de mídia (ver/jogar/ler + DROPPED). */
 
 /** T190: indicador "score mudou" — compara score atual com o da adição. */
 export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
@@ -118,8 +115,6 @@ export function WatchlistCard({
   const inter = useInteractionStore((s) => s.map[entry.mediaId]);
   const setReaction = useInteractionStore((s) => s.setReaction);
   const reacao = inter?.reacao ?? null;
-  const isGame = mediaType === "game";
-  const labels = statusKey(isGame);
   const item = entryToMediaItem(entry);
 
   function react(r: Reacao) {
@@ -162,7 +157,7 @@ export function WatchlistCard({
         >
           {["WANT", "WATCHING", "COMPLETED"].map((c) => (
             <option key={c} value={c}>
-              {t(labels[c] ?? labels.WANT)}
+              {t(colunaLabelKey(mediaType, c))}
             </option>
           ))}
         </select>

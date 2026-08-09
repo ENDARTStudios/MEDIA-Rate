@@ -4,16 +4,11 @@ import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { colunaLabelKey } from "@/lib/watchlist-labels";
 import { ApiError } from "@/lib/http";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { WatchlistCrossPrompt } from "./discovery/WatchlistCrossPrompt";
-
-function statusKeys(isGame: boolean): Record<string, string> {
-  return isGame
-    ? { WANT: "queroJogar", WATCHING: "jogando", COMPLETED: "joguei" }
-    : { WANT: "queroVer", WATCHING: "vendo", COMPLETED: "vi" };
-}
 
 interface Props {
   mediaId: string;
@@ -47,9 +42,6 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
   const entry = entries.find(
     (e) => e.mediaId === mediaId || e.midia_id === mediaId || (e.media && e.media.id === mediaId),
   );
-
-  const isGame = mediaType === "game";
-  const labels = statusKeys(isGame);
 
   useEffect(() => {
     if (!justAdded) return;
@@ -132,7 +124,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     }
   }
 
-  const statusLabel = status ? t(labels[status] ?? labels.WANT) : "";
+  const statusLabel = status ? t(colunaLabelKey(mediaType, status)) : "";
   const titleLabel = inWatchlist ? statusLabel : justAdded ? t("inWatchlist") : t("addToWatchlist");
 
   return (
@@ -191,7 +183,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
             }}
             className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
           >
-            {t(labels.WANT)}
+            {t(colunaLabelKey(mediaType, "WANT"))}
           </button>
           <button
             onClick={(e) => {
@@ -200,7 +192,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
             }}
             className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
           >
-            {t(labels.WATCHING)}
+            {t(colunaLabelKey(mediaType, "WATCHING"))}
           </button>
           <button
             onClick={(e) => {
@@ -209,7 +201,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
             }}
             className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
           >
-            {t(labels.COMPLETED)}
+            {t(colunaLabelKey(mediaType, "COMPLETED"))}
           </button>
           <button
             onClick={(e) => {
