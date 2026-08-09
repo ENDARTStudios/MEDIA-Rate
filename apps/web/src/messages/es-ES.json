@@ -90,7 +90,7 @@
     "loadingCatalog": "Actualizando catálogo...",
     "catalogAria": "Catálogo de medios",
     "synopsisUnavailable": "Sinopsis no disponible.",
-    "cast": "Elenco",
+    "cast": "Reparto",
     "castUnavailable": "Elenco no disponible aún.",
     "reviews": "Reseñas",
     "noReviews": "No hay reseñas disponibles.",
@@ -219,7 +219,16 @@
     "subscribe": "Suscribirse a {plan}",
     "redirecting": "Redirigiendo a Stripe...",
     "success": "¡Suscripción activada!",
-    "canceled": "Pago cancelado"
+    "canceled": "Pago cancelado",
+    "plusB1": "Watchlist de hasta 100 elementos",
+    "plusB2": "Recomendaciones avanzadas",
+    "plusB3": "Historial de MEDIA Score",
+    "plusB4": "Sin anuncios",
+    "premB1": "Watchlist ilimitada",
+    "premB2": "Recomendaciones ML personalizadas",
+    "premB3": "Historial de MEDIA Score",
+    "premB4": "Filtros avanzados",
+    "premB5": "Sin anuncios"
   },
   "lgpd": {
     "banner": "Usamos cookies para mejorar tu experiencia. Puedes exportar o eliminar tus datos en cualquier momento.",
@@ -401,7 +410,16 @@
   },
   "catalogFilters": {
     "filters": "Filtros",
-    "clearAll": "Limpiar todos"
+    "clearAll": "Limpiar todos",
+    "advancedFilters": "Filtros avanzados",
+    "anoMin": "Desde",
+    "anoMax": "Hasta",
+    "scoreMin": "Mín.",
+    "scoreMax": "Máx.",
+    "genero": "Género",
+    "todosGeneros": "Todos los géneros",
+    "somenteCritica": "Solo con crítica disponible (división crítica/público del MEDIA Score)",
+    "anoLabel": "Año"
   },
   "watchlist": {
     "title": "Watchlist",
@@ -468,7 +486,15 @@
     "s7h": "7. Seguridad",
     "s7b": "Adoptamos medidas técnicas para proteger sus datos: contraseñas con hash criptográfico, cookies de sesión httpOnly/Secure/SameSite, comunicación exclusivamente mediante HTTPS y cifrado de datos sensibles a nivel de aplicación.",
     "s8h": "8. Cambios en esta Política",
-    "s8b": "Esta política puede actualizarse periódicamente. Los cambios significativos serán comunicados por email o notificación en la plataforma."
+    "s8b": "Esta política puede actualizarse periódicamente. Los cambios significativos serán comunicados por email o notificación en la plataforma.",
+    "s9h": "9. Transferencias Internacionales",
+    "s9b": "Sus datos pueden ser tratados en servidores situados fuera de su país (por ejemplo, infraestructura en la nube en Estados Unidos y la Unión Europea, y procesadores de pago en varios países). Aplicamos salvaguardas adecuadas: contratos con subencargados, cláusulas contractuales tipo cuando proceda y cifrado en tránsito y en reposo.",
+    "s10h": "10. Autoridad de Protección de Datos",
+    "s10b": "Puede presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) — aepd.es — o ante la autoridad de protección de datos competente de su jurisdicción.",
+    "s11h": "11. Derecho a Reclamar",
+    "s11b": "Tiene derecho a presentar una reclamación ante la autoridad de protección de datos de su jurisdicción, sin perjuicio de las vías administrativas o judiciales.",
+    "s12h": "12. Representante en la Unión Europea",
+    "s12b": "Por el volumen reducido de tratamiento, no designamos representante en la UE en los términos del art. 27.2.a del RGPD, manteniendo el contacto del responsable accesible. [Si se designa representante, completar aquí: nombre y datos de contacto del representante]."
   },
   "terms": {
     "metaTitle": "Términos de Uso — MEDIA Rate",

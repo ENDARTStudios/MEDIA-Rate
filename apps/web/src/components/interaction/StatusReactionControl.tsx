@@ -138,6 +138,12 @@ export function StatusReactionControl({
 
   // ---- modo compacto: só o ícone rápido ---------------------------------
   if (compact) {
+    const labelAtual = status
+      ? t(statusLabelKey(mediaType, status))
+      : // T249 (C1): sem status, o rótulo principal respeita o vocabulário
+        // por tipo — 'Quero Jogar'/'Quero Ver'/'Quero Ler' (antes 'addStatus'
+        // genérico 'Quero consumir'/'Want to consume'/'Quiero consumir').
+        t(statusLabelKey(mediaType, "QUERO_CONSUMIR"));
     return (
       <button
         type="button"
@@ -145,8 +151,8 @@ export function StatusReactionControl({
           e.stopPropagation();
           handleTap();
         }}
-        aria-label={status ? t(statusLabelKey(mediaType, status)) : t("addStatus")}
-        title={status ? t(statusLabelKey(mediaType, status)) : t("addStatus")}
+        aria-label={labelAtual}
+        title={labelAtual}
         className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
           status
             ? "bg-[#11111E]/85 text-[#EDE7DC] hover:bg-[#1C1C2E]"
@@ -160,7 +166,10 @@ export function StatusReactionControl({
   }
 
   // ---- modo completo: botão + popover -----------------------------------
-  const displayLabel = status ? t(statusLabelKey(mediaType, status)) : t("addStatus");
+  // T249 (C1): rótulo principal por tipo quando sem status.
+  const displayLabel = status
+    ? t(statusLabelKey(mediaType, status))
+    : t(statusLabelKey(mediaType, "QUERO_CONSUMIR"));
 
   return (
     <div ref={popoverRef} className={`relative inline-block ${className}`}>

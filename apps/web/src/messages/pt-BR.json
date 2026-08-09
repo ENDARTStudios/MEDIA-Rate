@@ -219,7 +219,16 @@
     "subscribe": "Assinar {plan}",
     "redirecting": "Redirecionando para o Stripe...",
     "success": "Assinatura ativada!",
-    "canceled": "Pagamento cancelado"
+    "canceled": "Pagamento cancelado",
+    "plusB1": "Watchlist até 100 itens",
+    "plusB2": "Recomendações avançadas",
+    "plusB3": "Histórico de MEDIA Score",
+    "plusB4": "Sem anúncios",
+    "premB1": "Watchlist ilimitada",
+    "premB2": "Recomendações ML personalizadas",
+    "premB3": "Histórico de MEDIA Score",
+    "premB4": "Filtros avançados",
+    "premB5": "Sem anúncios"
   },
   "lgpd": {
     "banner": "Usamos cookies para melhorar sua experiência. Você pode exportar ou excluir seus dados a qualquer momento.",
@@ -401,7 +410,16 @@
   },
   "catalogFilters": {
     "filters": "Filtros",
-    "clearAll": "Limpar todos"
+    "clearAll": "Limpar todos",
+    "advancedFilters": "Filtro avançado",
+    "anoMin": "De",
+    "anoMax": "Até",
+    "scoreMin": "Mín.",
+    "scoreMax": "Máx.",
+    "genero": "Gênero",
+    "todosGeneros": "Todos os gêneros",
+    "somenteCritica": "Somente com crítica disponível (split crítica/público do MEDIA Score)",
+    "anoLabel": "Ano"
   },
   "watchlist": {
     "title": "Watchlist",
@@ -468,7 +486,15 @@
     "s7h": "7. Segurança",
     "s7b": "Adotamos medidas técnicas para proteger seus dados: senhas com hash criptográfico, sessão via cookie httpOnly/Secure/SameSite, comunicação exclusivamente via HTTPS e criptografia de dados sensíveis em nível de aplicação.",
     "s8h": "8. Alterações nesta Política",
-    "s8b": "Esta política pode ser atualizada periodicamente. Alterações significativas serão comunicadas por email ou notificação na plataforma."
+    "s8b": "Esta política pode ser atualizada periodicamente. Alterações significativas serão comunicadas por email ou notificação na plataforma.",
+    "s9h": "9. Transferências Internacionais",
+    "s9b": "Seus dados podem ser processados em servidores localizados fora do Brasil (por exemplo, infraestrutura de nuvem nos Estados Unidos e na União Europeia, e processadores de pagamento em múltiplos países). Nessas transferências, aplicamos salvaguardas adequadas: contratos com subprocessadores, cláusulas contratuais padrão quando aplicável e criptografia em trânsito e em repouso.",
+    "s10h": "10. Autoridade de Proteção de Dados",
+    "s10b": "Você pode apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD) — gov.br/anpd — se considerar que o tratamento de seus dados viola a LGPD.",
+    "s11h": "11. Direito de Reclamar",
+    "s11b": "Você tem o direito de apresentar reclamação à autoridade de proteção de dados de sua jurisdição, sem prejuízo de vias administrativas ou judiciais.",
+    "s12h": "12. Aviso Legal",
+    "s12b": "Este conteúdo é informativo e não substitui consultoria jurídica especializada."
   },
   "terms": {
     "metaTitle": "Termos de Uso — MEDIA Rate",

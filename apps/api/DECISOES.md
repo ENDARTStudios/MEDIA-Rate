@@ -360,6 +360,28 @@ TESTES: ctrlk.spec.tsx (4), site-config.spec atualizado (simbolos por
 locale), rgpd-locale.spec.ts (6). Web 281/281, tsc + build exit 0.
 OPERADOR: preencher placeholder de representante/DPO na UE no es-ES
 quando aplicavel (secao 1 da privacy es-ES).
+
+## D-251 fechamento da auditoria: UI/i18n, rotas, juridico (T249-T251)
+T249 (C1+C2+M3): o rotulo principal do botao da watchlist usava
+interaction.addStatus generico ('Quero consumir'/'Want to consume'/
+'Quiero consumir') — agora usa statusLabelKey(mediaType,
+'QUERO_CONSUMIR') que resolve por tipo (Quero Jogar/Ver/Ler, 3 locales);
+checkout page tinha beneficios hardcoded PT -> chaves i18n; CatalogFilters
+'Filtro avancado'/'Ano'/'Genero' etc. -> chaves catalogFilters; es-ES
+catalog.cast 'Elenco' -> 'Reparto'.
+T251 (C3): colisao de slug real (Berserk MANGA e SERIE, Duna LIVRO e
+FILME com o mesmo slug) — /media/duna-livro e /media/berserk-manga davam
+404 porque o sufixo de tipo nao era suportado. CORRECAO: parseSlugDiscriminado
+(common/slugify.ts) — slug '{slug}-{tipo}' (filme/serie/game/livro/comic/
+manga/hq) filtra por tipo na resolucao; slugs puros continuam resolvendo o
+primeiro (compatibilidade com URLs indexadas). Validado em docker: 6
+variantes de slug retornam o tipo correto. 9 testes unitarios do parser.
+T250 (I1-I4): privacy ganhou secoes 9-12 nos 3 locales — transferencias
+internacionais (safeguards: contratos/subprocessadores/criptografia),
+autoridade de protecao (ANPD pt, AEPD es, FTC en), direito de reclamar,
+disclaimer informativo; es-ES tem secao de representante na UE (art.
+27.2.a com placeholder). 6 testes privacy-compliance.
+Web 297/297, API tests 34/34, tsc + builds exit 0.
  Faixa 'em alta' com titulo_original em
 EN/ES: depende de expor titulo_original no discover (API change) —
 deixado como melhoria futura documentada; titleForLocale já cobre via

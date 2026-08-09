@@ -18,7 +18,7 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
-import { slugify } from "../../common/slugify.js";
+import { slugify, parseSlugDiscriminado } from "../../common/slugify.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 
@@ -333,14 +333,18 @@ export class MediaController {
       : null;
     if (!midia) {
       // 2) slugify sobre titulo/titulo_original (catálogo real).
-      const slugLimpo = slugify(slug);
+      // T251: suporta slug DISCRIMINADO "{slug}-{tipo}" (ex.: berserk-manga,
+      // duna-livro) para desambiguar colisões (há Berserk MANGA e SERIE, e
+      // Duna LIVRO e FILME com o mesmo slug). Sem sufixo, resolve o primeiro.
+      const { slug: slugLimpo, tipo: tipoFiltro } = parseSlugDiscriminado(slug);
       const candidatos = await this.prisma.midia.findMany({
-        select: { id: true, titulo: true, titulo_original: true },
+        select: { id: true, titulo: true, titulo_original: true, tipo: true },
       });
       const alvo = candidatos.find(
         (c) =>
-          slugify(c.titulo) === slugLimpo ||
-          (c.titulo_original != null && slugify(c.titulo_original) === slugLimpo),
+          (slugify(c.titulo) === slugLimpo ||
+            (c.titulo_original != null && slugify(c.titulo_original) === slugLimpo)) &&
+          (tipoFiltro == null || c.tipo === tipoFiltro),
       );
       if (alvo) {
         midia = await this.prisma.midia.findUnique({ where: { id: alvo.id }, include });

@@ -219,7 +219,16 @@
     "subscribe": "Subscribe to {plan}",
     "redirecting": "Redirecting to Stripe...",
     "success": "Subscription activated!",
-    "canceled": "Payment canceled"
+    "canceled": "Payment canceled",
+    "plusB1": "Watchlist up to 100 items",
+    "plusB2": "Advanced recommendations",
+    "plusB3": "MEDIA Score history",
+    "plusB4": "Ad-free",
+    "premB1": "Unlimited watchlist",
+    "premB2": "Personalized ML recommendations",
+    "premB3": "MEDIA Score history",
+    "premB4": "Advanced filters",
+    "premB5": "Ad-free"
   },
   "lgpd": {
     "banner": "We use cookies to improve your experience. You can export or delete your data anytime.",
@@ -401,7 +410,16 @@
   },
   "catalogFilters": {
     "filters": "Filters",
-    "clearAll": "Clear all"
+    "clearAll": "Clear all",
+    "advancedFilters": "Advanced filters",
+    "anoMin": "From",
+    "anoMax": "To",
+    "scoreMin": "Min.",
+    "scoreMax": "Max.",
+    "genero": "Genre",
+    "todosGeneros": "All genres",
+    "somenteCritica": "Only with critic score available (MEDIA Score critic/audience split)",
+    "anoLabel": "Year"
   },
   "watchlist": {
     "title": "Watchlist",
@@ -468,7 +486,15 @@
     "s7h": "7. Security",
     "s7b": "We employ technical measures to protect your data: cryptographically hashed passwords, httpOnly/Secure/SameSite session cookies, HTTPS-only communication and application-level encryption of sensitive data.",
     "s8h": "8. Changes to This Policy",
-    "s8b": "This policy may be updated periodically. Significant changes will be communicated via email or platform notification."
+    "s8b": "This policy may be updated periodically. Significant changes will be communicated via email or platform notification.",
+    "s9h": "9. International Transfers",
+    "s9b": "Your data may be processed on servers located outside your country (for example, cloud infrastructure in the United States and the European Union, and payment processors in multiple countries). For these transfers we apply appropriate safeguards: contracts with subprocessors, standard contractual clauses where applicable, and encryption in transit and at rest.",
+    "s10h": "10. Data Protection Authority",
+    "s10b": "You may lodge a complaint with the data protection authority competent for your jurisdiction, or with the U.S. Federal Trade Commission (FTC) for consumer protection matters.",
+    "s11h": "11. Right to Lodge a Complaint",
+    "s11b": "You have the right to lodge a complaint with the data protection authority of your jurisdiction, without prejudice to administrative or judicial remedies.",
+    "s12h": "12. Legal Notice",
+    "s12b": "This content is for information purposes only and does not replace specialized legal advice."
   },
   "terms": {
     "metaTitle": "Terms of Use — MEDIA Rate",

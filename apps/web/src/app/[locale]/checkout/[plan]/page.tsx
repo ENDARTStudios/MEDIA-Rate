@@ -89,19 +89,19 @@ export default function CheckoutPage({
         <ul className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
           {planKey === "PLUS" && (
             <>
-              <li>✓ Watchlist até 100 itens</li>
-              <li>✓ Recomendações avançadas</li>
-              <li>✓ Histórico de MEDIA Score</li>
-              <li>✓ Sem anúncios</li>
+              <li>✓ {t("plusB1")}</li>
+              <li>✓ {t("plusB2")}</li>
+              <li>✓ {t("plusB3")}</li>
+              <li>✓ {t("plusB4")}</li>
             </>
           )}
           {planKey === "PREMIUM" && (
             <>
-              <li>✓ Watchlist ilimitada</li>
-              <li>✓ Recomendações ML personalizadas</li>
-              <li>✓ Histórico de MEDIA Score</li>
-              <li>✓ Filtros avançados</li>
-              <li>✓ Sem anúncios</li>
+              <li>✓ {t("premB1")}</li>
+              <li>✓ {t("premB2")}</li>
+              <li>✓ {t("premB3")}</li>
+              <li>✓ {t("premB4")}</li>
+              <li>✓ {t("premB5")}</li>
             </>
           )}
         </ul>
