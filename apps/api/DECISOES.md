@@ -254,4 +254,20 @@ redirect; dropdown move via PATCH /move). Verificação produção (D-230):
 POST/GET /api/v1/watchlist anônimo → 401 (contrato T207 correto; o
 frontend redireciona). Web 244/244, tsc + build exit 0.
 
+## D-243 filtro de catalogo: input local + debounce (T237)
+CAUSA RAIZ: o input de busca do CatalogFiltersClient era controlado por
+sp.get("q") (URL) e cada tecla fazia router.replace — o replace e
+assincrono e o re-render com a URL antiga 'voltava' o input, perdendo
+caracteres na digitacao rapida. CORRECAO: (1) input 100% estado local
+(draftQuery); (2) debounce 300ms antes de commitar q para a URL (que
+alimenta o react-query do catalogo); (3) guarda de hidratacao — a URL so
+sobrescreve o draft quando o valor commitado difere (back/forward/link),
+nunca durante digitacao; (4) sem chamada por tecla (so apos pausa).
+Testes catalog-search.spec.tsx (3 cenarios: rajada 0ms preserva texto
+inteiro e commita uma vez; rajada dentro do debounce nao gera chamadas
+intermediarias; hidratacao da URL nao sobrescreve digitacao em andamento).
+Verificacao producao (D-230): /search?q=sonho -> 27 (Um Sonho de
+Liberdade 1o); ?q=cavaleiro -> 7 (O Cavaleiro dos Sete Reinos).
+Web 247/247, tsc + build exit 0.
+
 

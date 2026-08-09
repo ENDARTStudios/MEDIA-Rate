@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
 
@@ -11,6 +11,10 @@ const SORT_OPTIONS = [
   { value: "year", labelKey: "sortAno" },
   { value: "title", labelKey: "sortTitulo" },
 ];
+
+/** Debounce da busca textual (T237): sem ele, cada tecla vira um
+ * router.replace e a digitação rápida perde caracteres. */
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function CatalogFiltersClient() {
   const t = useTranslations("catalog");
@@ -29,6 +33,35 @@ export function CatalogFiltersClient() {
   const scoreMax = sp.get("scoreMax") ?? "";
   const genero = sp.get("genero") ?? "";
   const comCritica = sp.get("com_critica") === "true";
+
+  // T237: o input de busca é 100% ESTADO LOCAL — nunca controlado pela URL
+  // diretamente (o router.replace é assíncrono e "voltaria" o valor a cada
+  // tecla). O estado local vira URL apenas após o debounce.
+  const [draftQuery, setDraftQuery] = useState(query);
+  const lastCommitted = useRef(query);
+
+  // Hidrata o draft quando a URL muda por fora (back/forward/link) — mas
+  // NUNCA sobrescreve digitação em andamento (draft ≠ último commitado).
+  useEffect(() => {
+    if (query !== lastCommitted.current) {
+      lastCommitted.current = query;
+      setDraftQuery(query);
+    }
+  }, [query]);
+
+  // Debounce: após pausa na digitação, commita o termo para a URL (que
+  // alimenta o react-query do catálogo). Atrasos extras (AbortController)
+  // não são necessários: a URL só muda após o debounce, então não há
+  // respostas fora de ordem sobrescrevendo o input.
+  useEffect(() => {
+    if (draftQuery === lastCommitted.current) return;
+    const timer = setTimeout(() => {
+      lastCommitted.current = draftQuery;
+      setParam("q", draftQuery);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftQuery]);
 
   const { data: generos } = useQuery({
     queryKey: ["generos"],
@@ -74,8 +107,8 @@ export function CatalogFiltersClient() {
         <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("search")}</label>
         <input
           type="search"
-          value={query}
-          onChange={(e) => setParam("q", e.target.value)}
+          value={draftQuery}
+          onChange={(e) => setDraftQuery(e.target.value)}
           placeholder={t("search")}
           className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         />
