@@ -38,3 +38,21 @@ avaliacoes/51 scores (exit 0), novas-midias 3 titulos (exit 0), relacoes
 (exit 0, 0 arestas sem rede), tmdb (exit 1 no guard de TMDB_API_KEY ausente
 — comportamento esperado, NAO erro de resolucao).
 
+## D-227 curadorias de seed resolvem por (fonte, fonte_id); titulo e fallback (T225)
+O seed-relacoes casava pares por TITULO EXATO e o catalogo usa titulos
+localizados pt-BR (seed-tmdb language=pt-BR grava "Duna") enquanto a
+curadoria conhecia os nomes originais ("Dune") — resultado: grafo
+cross-midia com 2 arestas em producao (feature flagship invisivel).
+REGRA: cada par curado referencia a IDENTIDADE (fonte, fonte_id) que os
+proprios seeds gravam (seed-tmdb: "tmdb"/"tmdb_tv" + id numerico da API;
+seed-novas-midias: primeira fonte curada + slug); titulo normalizado
+(lowercase, sem acentos, slug de titulo/titulo_original) e APENAS fallback
+para pares sem ids, com log de unmatched sempre explicito (nunca
+silencioso) e self-pair registrado. IDs TMDB verificados na API: Dune
+438631, Dune: Part Two 693134, Watchmen 13183, Matrix 603, Breaking Bad
+1396, Better Call Saul 82856. ACHADO CHIP ANIMES 0: seed-novas-midias
+pulava por titulo (`findFirst({ titulo })`) e o seed-tmdb ja tinha criado
+"Berserk" como SERIE (tmdb_tv/2509) — o ANIME (jikan/berserk) nunca era
+gravado; skip agora e por (fonte, fonte_id). Wikidata tbm casa
+titulo_original. Validado com docker local (padrao T224).
+

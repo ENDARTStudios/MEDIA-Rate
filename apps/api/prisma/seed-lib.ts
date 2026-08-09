@@ -93,17 +93,20 @@ async function consultarWikidata(
 /**
  * Popula arestas ADAPTACAO_DE a partir do Wikidata, cruzando por rótulo
  * com o catálogo local. origem = obra adaptação; destino = obra base.
- * @param catalogo [{id, titulo}] mídias existentes (top N do catálogo).
+ * @param catalogo [{id, titulo, titulo_original}] mídias existentes.
  */
 export async function buscarArestasWikidata(
-  catalogo: { id: string; titulo: string }[],
+  catalogo: { id: string; titulo: string; titulo_original?: string | null }[],
 ): Promise<{ origemId: string; destinoId: string; tipo: "ADAPTACAO_DE" }[]> {
   if (catalogo.length === 0) return [];
 
   const porSlug = new Map<string, string>();
   for (const m of catalogo) {
-    const slug = slugify(m.titulo);
-    if (!porSlug.has(slug)) porSlug.set(slug, m.id);
+    for (const t of [m.titulo, m.titulo_original]) {
+      if (!t) continue;
+      const slug = slugify(t);
+      if (!porSlug.has(slug)) porSlug.set(slug, m.id);
+    }
   }
   const titulos = catalogo.map((m) => m.titulo);
 

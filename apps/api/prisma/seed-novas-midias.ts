@@ -65,7 +65,12 @@ async function main() {
   const recalc = (midiaId: string) => recalcularScoreSeed(prisma, midiaId);
 
   for (const [slug, dados] of Object.entries(REAL)) {
-    const existente = await prisma.midia.findFirst({ where: { titulo: dados.titulo } });
+    // D-227: skip por IDENTIDADE (fonte, fonte_id), não por título — o
+    // catálogo pode ter "Berserk" como SERIE (tmdb_tv) e o mangá ANIME
+    // (jikan/berserk) são obras DIFERENTES; por título o ANIME nunca
+    // seria criado (chip Animes ficava 0 com Berserk presente).
+    const fonte = dados.fontes[0]?.fonte ?? "openlibrary";
+    const existente = await prisma.midia.findFirst({ where: { fonte, fonte_id: slug } });
     if (existente) {
       console.log(`[skip] ${dados.titulo} já existe (${existente.id})`);
       continue;
@@ -73,7 +78,7 @@ async function main() {
     const midia = await prisma.midia.create({
       data: {
         id: crypto.randomUUID(),
-        fonte: dados.fontes[0]?.fonte ?? "openlibrary",
+        fonte,
         fonte_id: slug,
         titulo: dados.titulo,
         tipo: dados.tipo,
