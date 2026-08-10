@@ -20,6 +20,7 @@
  * Uso: npm run db:seed:posters
  */
 import { PrismaClient } from "@prisma/client";
+import { logHttpErro, postApigql, obterTokenTwitch } from "./igdb-http.js";
 
 const prisma = new PrismaClient();
 
@@ -46,50 +47,11 @@ const contadores: Contadores = { preenchidos: 0, falhos: 0, ignorados: 0, semFon
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** POST body APGQL (IGDB) → JSON. O IGDB v4 exige POST com a query no body. */
-async function postApigql<T>(
+async function getJson<T>(
   url: string,
-  query: string,
-  headers: Record<string, string>,
+  headers: Record<string, string> = {},
   retry = 0,
 ): Promise<T | null> {
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain",
-        ...headers,
-      },
-      body: query,
-    });
-    if (!res.ok) {
-      // T257: surfacing do status HTTP do IGDB (D-230).
-      logHttpErro("igdb", url, res);
-      if (retry < RETRY_MAX) {
-        await delay(DELAY_MS);
-        return postApigql<T>(url, query, headers, retry + 1);
-      }
-      return null;
-    }
-    return (await res.json()) as T;
-  } catch (err) {
-    console.warn(`[posters] IGDB falhou: ${url.slice(0, 80)} (${String(err).slice(0, 120)})`);
-    if (retry < RETRY_MAX) {
-      await delay(DELAY_MS);
-      return postApigql<T>(url, query, headers, retry + 1);
-    }
-    return null;
-  }
-}
-
-/** Loga o status HTTP real de falhas (T257 — surfacing, nunca só 'sem capa'). */
-function logHttpErro(fonte: string, url: string, res: Response): void {
-  const status = res.status;
-  const trecho = res.statusText ?? "";
-  console.warn(`[posters] ${fonte} erro HTTP ${status}: ${trecho.slice(0, 200)}`);
-}
-
-async function getJson<T>(url: string, headers: Record<string, string> = {}, retry = 0): Promise<T | null> {
   try {
     const res = await fetch(url, { headers });
     if (!res.ok) {
@@ -112,37 +74,6 @@ async function getJson<T>(url: string, headers: Record<string, string> = {}, ret
   }
 }
 
-/** POST form-urlencoded → JSON (o OAuth do Twitch exige POST — GET retorna null). */
-async function postForm<T>(url: string, corpo: URLSearchParams, retry = 0): Promise<T | null> {
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/x-www-form-urlencoded",
-      },
-      body: corpo.toString(),
-    });
-    if (!res.ok) {
-      // T257: surfacing do status HTTP do OAuth (D-230).
-      logHttpErro("oauth", url, res);
-      if (retry < RETRY_MAX) {
-        await delay(DELAY_MS);
-        return postForm<T>(url, corpo, retry + 1);
-      }
-      return null;
-    }
-    return (await res.json()) as T;
-  } catch (err) {
-    console.warn(`[posters] OAuth falhou: ${url.slice(0, 80)} (${String(err).slice(0, 120)})`);
-    if (retry < RETRY_MAX) {
-      await delay(DELAY_MS);
-      return postForm<T>(url, corpo, retry + 1);
-    }
-    return null;
-  }
-}
-
 /** URL https válida ou null (nunca armazena http/não-imagem). */
 export function urlSegura(raw: string | null | undefined): string | null {
   if (!raw) return null;
@@ -152,32 +83,8 @@ export function urlSegura(raw: string | null | undefined): string | null {
 }
 
 // ---------- GAME: IGDB cover (OAuth Twitch client-credentials) ----------
-
-interface TokenTwitch {
-  access_token?: string;
-  expires_in?: number;
-}
-
-let tokenTwitch: { token: string; expiraEm: number } | null = null;
-
-async function obterTokenTwitch(): Promise<string | null> {
-  if (tokenTwitch && Date.now() < tokenTwitch.expiraEm) return tokenTwitch.token;
-  const clientId = process.env.TWITCH_CLIENT_ID ?? "";
-  const secret = process.env.TWITCH_CLIENT_SECRET ?? "";
-  if (!clientId || !secret) return null;
-  const corpo = new URLSearchParams({
-    client_id: clientId,
-    client_secret: secret,
-    grant_type: "client_credentials",
-  });
-  // T236: OAuth do Twitch exige POST com body form-urlencoded — antes o
-  // seed usava GET (getJson) e o token nunca era emitido mesmo com chaves
-  // válidas no env (causa raiz do "sem TWITCH_CLIENT_ID/SECRET" em produção).
-  const dados = await postForm<TokenTwitch>("https://id.twitch.tv/oauth2/token", corpo);
-  if (!dados?.access_token) return null;
-  tokenTwitch = { token: dados.access_token, expiraEm: Date.now() + ((dados.expires_in ?? 3600) - 60) * 1000 };
-  return dados.access_token;
-}
+// O cliente HTTP (postApigql/postForm/obterTokenTwitch/logHttpErro) vive em
+// ./igdb-http.ts (T276/D-265) — compartilhado com seed-games e o auditor.
 
 interface IgdbGame {
   id?: number;
@@ -192,9 +99,7 @@ interface IgdbCover {
 async function capaIgdb(gameId: string, titulo: string): Promise<string | null> {
   const token = await obterTokenTwitch();
   if (!token) {
-    const temChaves = Boolean(
-      process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET,
-    );
+    const temChaves = Boolean(process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET);
     // T236: distinguir "chaves ausentes" de "autenticação falhou" — o
     // diagnóstico anterior (warn genérico) confundia os dois casos.
     console.warn(
@@ -208,7 +113,7 @@ async function capaIgdb(gameId: string, titulo: string): Promise<string | null> 
   if (!/^\d+$/.test(gameId)) return null;
   const headers = {
     "client-id": process.env.TWITCH_CLIENT_ID ?? "",
-    authorization: `Bearer ${token}`,
+    "authorization": `Bearer ${token}`,
   };
   // T257: o IGDB v4 exige POST com body APGQL e retorna `cover` como ID
   // (não expande url) na query de games — a URL fica na tabela `covers`.
@@ -242,7 +147,7 @@ interface GoogleBooksItem {
   volumeInfo?: { imageLinks?: { thumbnail?: string; smallThumbnail?: string } };
 }
 
-async function capaGoogleBooks(titulo: string, fonteId: string): Promise<string | null> {
+async function capaGoogleBooks(titulo: string, _fonteId: string): Promise<string | null> {
   const key = process.env.GOOGLE_BOOKS_API_KEY ?? "";
   if (!key) return null;
   const params = new URLSearchParams({ q: `intitle:${titulo}`, maxResults: "3" });
@@ -286,10 +191,7 @@ async function capaJikan(titulo: string): Promise<string | null> {
  * MESMO título via /discover e reutiliza o poster do TMDB (ex.: mangá
  * Berserk usa o poster da série Berserk). Nunca lança.
  */
-async function capaObraRelacionada(
-  prisma: PrismaClient,
-  titulo: string,
-): Promise<string | null> {
+async function capaObraRelacionada(prisma: PrismaClient, titulo: string): Promise<string | null> {
   try {
     const relacionadas = await prisma.midia.findMany({
       where: { titulo: { contains: titulo, mode: "insensitive" }, imagem_url: { not: null } },
@@ -387,7 +289,9 @@ async function preencher() {
       console.log(`[posters] ${m.titulo} (${fonte}) → ${capa}`);
     } else {
       contadores.falhos++;
-      console.warn(`[posters] sem capa: ${m.titulo} (${fonte})`);
+      // T276/D-265: evidência individual do falho (id + fonte) — cada falho
+      // remanescente exige justificativa (cover inexistente no IGDB).
+      console.warn(`[posters] sem capa: ${m.titulo} (${fonte}, id=${m.fonte_id})`);
     }
     await delay(DELAY_MS); // rate limit por fonte
   }
