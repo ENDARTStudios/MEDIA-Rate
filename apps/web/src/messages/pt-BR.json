@@ -193,7 +193,8 @@
     "notifyDone": "Cadastrado! Avisaremos quando chegar.",
     "cancelar": "Cancelar",
     "catalogDesc": "Explore nosso catálogo de filmes, séries e games com o MEDIA Score™ unificado. Filtre por gênero, tipo e nota para encontrar seu próximo título favorito. Compare avaliações da crítica e do público em um único lugar.",
-    "comingSoonTag": "Em breve"
+    "comingSoonTag": "Em breve",
+    "continueDecision": "Continue a decisão"
   },
   "dashboard": {
     "title": "Dashboard",

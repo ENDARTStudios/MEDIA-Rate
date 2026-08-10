@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { gsap } from "@/lib/gsap-config";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { HoverTextEffect } from "@/components/ui/hover-text-effect";
 import { cinematicEntry, neonGlow } from "@/lib/motion";
 import { getCatalog } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import { titleForLocale } from "@/lib/i18n-content";
 import { HeroIconCluster } from "@/components/media-rate-ui/HeroIconCluster";
 
 interface HeroSectionProps {
@@ -30,7 +31,8 @@ const CYCLE_MS = 4000;
 
 export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps) {
   const t = useTranslations("hero");
-const tc = useTranslations("catalog");
+  const tc = useTranslations("catalog");
+  const locale = useLocale();
   const [reduce, setReduce] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const dialRef = useRef<HTMLDivElement>(null);
@@ -74,7 +76,8 @@ const tc = useTranslations("catalog");
         const item = data?.items[0];
         if (!item?.score?.consolidated) return null;
         return {
-          title: item.title,
+          // T: título por locale — EN/ES usam o titulo_original do TMDB.
+          title: titleForLocale(item, locale),
           score: normalizeDisplayScore(item.score.consolidated, tp.api),
           scale: tp.scale,
           typeKey: tp.key,

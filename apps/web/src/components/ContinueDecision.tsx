@@ -75,7 +75,7 @@ export function ContinueDecision() {
           id="continue-decision-title"
           className="font-heading text-xl font-bold text-[#F5F5F7] uppercase tracking-wider mb-5"
         >
-          Continue a decisão
+          {t("continueDecision")}
         </h2>
         <ul className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
           {items.map((media) => (

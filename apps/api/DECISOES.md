@@ -507,3 +507,15 @@ rotulo de tipo via chaves catalog (Filmes->Movies/Pelculas) e escala
 review sources). Nao altera scores/thumbnails nem seeds; fallback mantem
 titulo PT quando sem original (mock/ausente). Validacao: 301/301 web,
 build ok, API tests verdes.
+
+## D-260 operador: hero titulo locale, badge card, Continue a decisao i18n
+Reporte do Operador (4 pontos): (1) busca do topo — verificado funcional
+(playwright: 'sonho' retorna em 3 locales; provavel cache/pre-deploy);
+(2) titulos PT — carrossel ja corrigido D-259; HERO ainda mostrava PT
+(HeroSection usava item.title cru) -> agora titleForLocale com
+titleLocalized; (3) 'Continue a decisao' PT hardcoded -> chave
+catalog.continueDecision (EN 'Continue your decision', ES 'Continua tu
+decision'); (4) cards: badge de categoria sobreposto pelo coracao
+(badge movido de top-2 para top-12 left-2), nota ScoreDial de sm para md
+(legivel), botao '+' verificado funcional (clique -> /login anonimo, com
+tooltip 'Quero ver'). Validacao: 301/301 web, builds ok, API tsc ok.

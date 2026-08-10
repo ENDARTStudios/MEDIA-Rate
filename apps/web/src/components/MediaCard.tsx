@@ -199,9 +199,11 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
             style={{ backgroundColor: category.color }}
             aria-hidden="true"
           />
-          {/* Badge de categoria (ícone lucide + accent). */}
+          {/* Badge de categoria (ícone lucide + accent). T: deslocado para
+              top-12 (abaixo do coração top-2 left-2) — antes ficava no MESMO
+              canto e o coração o sobrepunha (bug visual reportado). */}
           <span
-            className="absolute top-2 left-2 z-20 flex h-7 w-7 items-center justify-center rounded-full"
+            className="absolute top-12 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full"
             style={{ backgroundColor: `${category.color}22`, color: category.color }}
             aria-hidden="true"
           >
@@ -254,10 +256,11 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
 
           {media.score != null && (
             <div className="absolute top-2 right-2 z-20">
-              {/* T262: escala única 0-100 (games já 0-100; demais normalizados). */}
+              {/* T262: escala única 0-100 (games já 0-100; demais normalizados).
+                  T: size md para a nota ficar legível (antes sm, pequena). */}
               <ScoreDial
                 value={score100(media.score)}
-                size="sm"
+                size="md"
                 scale="0-100"
               />
             </div>
