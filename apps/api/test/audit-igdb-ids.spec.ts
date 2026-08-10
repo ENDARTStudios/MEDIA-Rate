@@ -26,12 +26,17 @@ import {
   nomeConfere,
   normalizarTitulo,
   resetTokenTwitch,
+  resetCacheNomes,
 } from "../prisma/igdb-http.js";
 import { resolverIdIgdb, GAMES_CURADOS } from "../prisma/seed-games.js";
 import {
   reconciliarBanco,
   mesclarDuplicados,
   corrigirRegistro,
+  classificarDivergencia,
+  resolverIdAudit,
+  GROUND_TRUTHS,
+  CURATED_SLUGS,
   type LinhaAuditoria,
 } from "../prisma/audit-igdb-ids.js";
 
@@ -109,6 +114,7 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     resetTokenTwitch();
+    resetCacheNomes();
   });
 
   describe("Ground-truth mantido (T268)", () => {
@@ -316,6 +322,116 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
         where: { id: "de" },
         data: expect.objectContaining({ deleted_at: expect.any(Date) }),
       });
+    });
+
+    it("GROUND-TRUTH protegido: apply nunca sobrescreve id curado imutável", async () => {
+      const prisma = mockPrisma({
+        midia: {
+          findUnique: vi.fn(async () => ({ id: "a", titulo: "Hades" })),
+          update: vi.fn(async () => ({})),
+        },
+      });
+      expect(GROUND_TRUTHS.has(127762)).toBe(true);
+      const res = await corrigirRegistro(prisma, {
+        nome: "Hades",
+        idCurado: 127762,
+        idIgdb: 999999,
+      });
+      expect(res.acao).toBe("ok");
+      expect(prisma.midia.update).not.toHaveBeenCalled();
+      expect(prisma.midia.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("T283 — classificação por nome (D-276)", () => {
+    it("LOOKUP_CORRETO: nome do lookup confere, curado não", () => {
+      const c = classificarDivergencia("Overwatch 2", "Some Other Game", "Overwatch 2");
+      expect(c).toBe("LOOKUP_CORRETO");
+    });
+
+    it("CURADO_CORRETO: nome do curado confere, lookup não (caso Hades)", () => {
+      const c = classificarDivergencia("Hades", "Hades", "Hades II");
+      expect(c).toBe("CURADO_CORRETO");
+    });
+
+    it("AMBÍGUO: ambos conferem (ids duplicados) ou nenhum (ids órfãos)", () => {
+      expect(classificarDivergencia("Celeste", "Celeste", "Celeste")).toBe("AMBIGUO");
+      expect(classificarDivergencia("Celeste", null, "Some Other Game")).toBe("AMBIGUO");
+    });
+
+    it("CURATED_SLUGS cobre os 3 NAO_ENCONTRADO com slug canônico", () => {
+      expect(CURATED_SLUGS.get("Baldur's Gate 3")).toBe("baldurs-gate-3");
+      expect(CURATED_SLUGS.get("Divinity: Original Sin 2")).toBe("divinity-original-sin-2");
+      expect(CURATED_SLUGS.get("Overwatch 2")).toBe("overwatch-2");
+    });
+  });
+
+  describe("T283 — resolverIdAudit (slug → nome+ano → slugCurado)", () => {
+    function stubIgdb(handler: (body: string) => Promise<Response>) {
+      process.env.TWITCH_CLIENT_ID = "cid";
+      process.env.TWITCH_CLIENT_SECRET = "sec";
+      mockFetch((url, init) => {
+        if (url.includes("id.twitch.tv"))
+          return Promise.resolve(jsonRes({ access_token: "tok", expires_in: 3600 }));
+        if (url.includes("api.igdb.com")) return handler(String(init?.body ?? ""));
+        return Promise.resolve(jsonRes([]));
+      });
+    }
+
+    it("slug do seed resolve direto", async () => {
+      stubIgdb((body) =>
+        body.includes('where slug = "elden-ring"')
+          ? Promise.resolve(jsonRes([{ id: 119133, slug: "elden-ring" }]))
+          : Promise.resolve(jsonRes([])),
+      );
+      const res = await resolverIdAudit("elden-ring", "Elden Ring", 2022);
+      expect(res?.id).toBe(119133);
+      expect(res?.via).toBe("slug");
+    });
+
+    it("slug falha → nome+ano resolve (com preferência de ano)", async () => {
+      stubIgdb((body) => {
+        if (body.includes("where slug")) return Promise.resolve(jsonRes([]));
+        if (body.includes("search")) {
+          return Promise.resolve(
+            jsonRes([
+              { id: 111, name: "Overwatch", slug: "overwatch", first_release_date: 1451692800 },
+              { id: 222, name: "Overwatch 2", slug: "overwatch-2", first_release_date: 1661990400 },
+            ]),
+          );
+        }
+        return Promise.resolve(jsonRes([]));
+      });
+      const res = await resolverIdAudit("overwatch", "Overwatch 2", 2022);
+      expect(res?.id).toBe(222);
+      expect(res?.via).toBe("nome");
+    });
+
+    it("slug e nome falham → slugCurado resolve (caso BG3)", async () => {
+      stubIgdb((body) => {
+        if (body.includes('where slug = "baldur-s-gate-3"')) return Promise.resolve(jsonRes([]));
+        if (body.includes('where slug = "baldurs-gate-3"'))
+          return Promise.resolve(jsonRes([{ id: 1086940, slug: "baldurs-gate-3" }]));
+        if (body.includes("search")) return Promise.resolve(jsonRes([]));
+        return Promise.resolve(jsonRes([]));
+      });
+      const res = await resolverIdAudit("baldur-s-gate-3", "Baldur's Gate 3", 2023);
+      expect(res?.id).toBe(1086940);
+      expect(res?.via).toBe("slugCurado");
+    });
+
+    it("três vias esgotadas → null (NAO_ENCONTRADO)", async () => {
+      stubIgdb(() => Promise.resolve(jsonRes([])));
+      const res = await resolverIdAudit("nope-slug", "Jogo Inexistente", 1999);
+      expect(res).toBeNull();
+    });
+
+    it("sem credenciais IGDB → null (auditoria reporta indisponível, nunca lixo)", async () => {
+      delete process.env.TWITCH_CLIENT_ID;
+      delete process.env.TWITCH_CLIENT_SECRET;
+      mockFetch(() => Promise.resolve(jsonRes([])));
+      const res = await resolverIdAudit("elden-ring", "Elden Ring", 2022);
+      expect(res).toBeNull();
     });
   });
 });

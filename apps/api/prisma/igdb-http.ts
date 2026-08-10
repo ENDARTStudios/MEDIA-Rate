@@ -29,6 +29,7 @@ export interface IgdbJogoBasico {
   id?: number;
   name?: string;
   slug?: string;
+  first_release_date?: number;
 }
 
 export function logHttpErro(fonte: string, url: string, res: Response): void {
@@ -148,10 +149,17 @@ export async function buscarIdPorSlug(slug: string): Promise<{ id: number; slug:
   return j?.id ? { id: j.id, slug: j.slug ?? slug } : null;
 }
 
-/** Candidatos por nome: 'search "X"; fields id,name,slug; limit 5;'. */
-export async function buscarCandidatosPorNome(nome: string): Promise<IgdbJogoBasico[]> {
+/** Candidatos por nome: 'search "X"; fields id,name,slug,first_release_date; limit 5;'. */
+export async function buscarCandidatosPorNome(
+  nome: string,
+  ano?: number,
+): Promise<IgdbJogoBasico[]> {
   const nomeLimpo = nome.replace(/[":\\]/g, " ");
-  return (await consultarGames(`search "${nomeLimpo}"; fields id,name,slug; limit 5;`)) ?? [];
+  const campos =
+    ano != null
+      ? "fields id,name,slug,first_release_date; limit 8;"
+      : "fields id,name,slug; limit 5;";
+  return (await consultarGames(`search "${nomeLimpo}"; ${campos}`)) ?? [];
 }
 
 /** Normaliza título para casamento (sem acentos/caixa/pontuação). */
@@ -167,8 +175,14 @@ export function normalizarTitulo(texto: string): string {
 /**
  * Melhor candidato por sobreposição de tokens do nome normalizado.
  * Exige ≥ 50% de sobreposição — sem falso positivo com nomes genéricos.
+ * Quando `ano` é informado, candidatos do mesmo ano têm preferência
+ * (desempata "Overwatch" vs "Overwatch 2", sequências e remakes).
  */
-export function melhorCandidato(nome: string, candidatos: IgdbJogoBasico[]): IgdbJogoBasico | null {
+export function melhorCandidato(
+  nome: string,
+  candidatos: IgdbJogoBasico[],
+  ano?: number,
+): IgdbJogoBasico | null {
   const alvo = normalizarTitulo(nome);
   if (!alvo) return null;
   const tokens = new Set(alvo.split(" "));
@@ -180,13 +194,37 @@ export function melhorCandidato(nome: string, candidatos: IgdbJogoBasico[]): Igd
     const tokensC = new Set(nomeC.split(" "));
     let acertos = 0;
     for (const t of tokensC) if (t && tokens.has(t)) acertos++;
-    const score = acertos / Math.max(tokens.size, 1);
+    let score = acertos / Math.max(tokens.size, 1);
+    if (ano != null && c.first_release_date != null) {
+      const anoC = new Date(c.first_release_date * 1000).getUTCFullYear();
+      if (anoC === ano) score += 0.15;
+    }
     if (score > melhorScore) {
       melhor = c;
       melhorScore = score;
     }
   }
   return melhorScore >= 0.5 ? melhor : null;
+}
+
+const cacheNomePorId = new Map<number, IgdbJogoBasico | null>();
+
+/** Limpa o cache de nomes por id (usado em testes). */
+export function resetCacheNomes(): void {
+  cacheNomePorId.clear();
+}
+
+/**
+ * T283/D-276: nome/slug de um jogo pelo id IGDB, com cache em memória
+ * (ids repetem entre seed × lookup; ~88 queries únicas no máximo).
+ * Retorna null em falha/não-encontrado — nunca lança.
+ */
+export async function buscarNomePorId(id: number): Promise<IgdbJogoBasico | null> {
+  if (cacheNomePorId.has(id)) return cacheNomePorId.get(id) ?? null;
+  const jogos = await consultarGames(`fields id,name,slug; where id = ${id}; limit 1;`);
+  const j = jogos && jogos[0]?.id ? jogos[0] : null;
+  cacheNomePorId.set(id, j);
+  return j;
 }
 
 /**

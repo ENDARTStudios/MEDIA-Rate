@@ -22,9 +22,11 @@ import { GAMES_CURADOS } from "./seed-games.js";
 import {
   buscarIdPorSlug,
   buscarCandidatosPorNome,
+  buscarNomePorId,
   melhorCandidato,
   nomeConfere,
   normalizarTitulo,
+  resetCacheNomes,
   resetTokenTwitch,
 } from "./igdb-http.js";
 
@@ -32,6 +34,42 @@ const DELAY_MS = 300;
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export type StatusAuditoria = "OK" | "DIVERGENCIA" | "NAO_ENCONTRADO" | "IGDB_INDISPONIVEL";
+
+/**
+ * T283/D-276 — classificação de cada divergência pelos NOMES dos dois ids:
+ * - LOOKUP_CORRETO: o nome do lookup confere estrito com o título e o do
+ *   id curado NÃO confere → seguro aplicar (fonte_id := id_igdb).
+ * - CURADO_CORRETO: o nome do id curado confere e o do lookup não → manter
+ *   o curado (ex.: Hades, onde 127762 é ground-truth e diverge do slug).
+ * - AMBÍGUO: ambos ou nenhum confere → curadoria manual, sem ação automática.
+ */
+export type Classificacao = "LOOKUP_CORRETO" | "CURADO_CORRETO" | "AMBIGUO";
+
+/** Ground-truths verificados externamente — o apply NUNCA os sobrescreve. */
+export const GROUND_TRUTHS: ReadonlySet<number> = new Set([119133, 1879, 127762]);
+
+/**
+ * Slugs canônicos de curadoria para jogos que o lookup por slug/nome do seed
+ * não resolve. O id continua DERIVADO do lookup por slug (nunca lista de ids).
+ * Evidência pública: https://www.igdb.com/games/<slug>
+ */
+export const CURATED_SLUGS: ReadonlyMap<string, string> = new Map([
+  ["Baldur's Gate 3", "baldurs-gate-3"],
+  ["Divinity: Original Sin 2", "divinity-original-sin-2"],
+  ["Overwatch 2", "overwatch-2"],
+]);
+
+export function classificarDivergencia(
+  titulo: string,
+  nomeCurado: string | null | undefined,
+  nomeLookup: string | null | undefined,
+): Classificacao {
+  const curadoConfere = nomeConfere(titulo, nomeCurado ? { name: nomeCurado } : null);
+  const lookupConfere = nomeConfere(titulo, nomeLookup ? { name: nomeLookup } : null);
+  if (lookupConfere && !curadoConfere) return "LOOKUP_CORRETO";
+  if (curadoConfere && !lookupConfere) return "CURADO_CORRETO";
+  return "AMBIGUO";
+}
 
 export interface LinhaAuditoria {
   nome: string;
@@ -41,6 +79,8 @@ export interface LinhaAuditoria {
   status: StatusAuditoria;
   nomeIgdb: string | null;
   slugIgdb: string | null;
+  classificacao?: Classificacao;
+  nomeCurado?: string | null;
 }
 
 export interface Orfao {
@@ -218,6 +258,13 @@ export async function corrigirRegistro(
   linha: Pick<LinhaAuditoria, "nome" | "idCurado" | "idIgdb">,
 ): Promise<{ acao: "merge" | "update" | "ok" | "pulado" }> {
   if (linha.idIgdb == null || linha.idIgdb === linha.idCurado) return { acao: "ok" };
+  // T283/D-276: ground-truths são imutáveis por apply (assert defensivo).
+  if (GROUND_TRUTHS.has(linha.idCurado)) {
+    console.warn(
+      `[audit] ASSERT: id curado ${linha.idCurado} ("${linha.nome}") é GROUND-TRUTH — apply nunca o sobrescreve`,
+    );
+    return { acao: "ok" };
+  }
   const idErrado = String(linha.idCurado);
   const idCerto = String(linha.idIgdb);
   const errada = await prisma.midia.findUnique({
@@ -244,6 +291,46 @@ export async function corrigirRegistro(
   return { acao: "update" };
 }
 
+/**
+ * T283/D-276 — resolução do id por 3 vias, nesta ordem:
+ * 1. slug do seed; 2. busca por nome (com ano); 3. slug curado (CURATED_SLUGS).
+ * Retorna null (NAO_ENCONTRADO) só depois de esgotar as três. Sem rate limit
+ * interno — o main() aplica o delay entre chamadas.
+ */
+export async function resolverIdAudit(
+  slug: string,
+  nome: string,
+  ano: number,
+): Promise<{
+  id: number;
+  via: "slug" | "nome" | "slugCurado";
+  nome?: string;
+  slug?: string;
+} | null> {
+  const porSlug = await buscarIdPorSlug(slug);
+  if (porSlug) return { id: porSlug.id, via: "slug", slug: porSlug.slug };
+
+  const candidatos = await buscarCandidatosPorNome(nome, ano);
+  if (candidatos !== null) {
+    const melhor = melhorCandidato(nome, candidatos, ano);
+    if (melhor?.id && nomeConfere(nome, melhor)) {
+      return {
+        id: melhor.id,
+        via: "nome",
+        nome: melhor.name ?? undefined,
+        slug: melhor.slug ?? undefined,
+      };
+    }
+  }
+
+  const slugCurado = CURATED_SLUGS.get(nome);
+  if (slugCurado && slugCurado !== slug) {
+    const porSlugCurado = await buscarIdPorSlug(slugCurado);
+    if (porSlugCurado) return { id: porSlugCurado.id, via: "slugCurado", slug: porSlugCurado.slug };
+  }
+  return null;
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const aplicar = args.includes("--apply-db");
@@ -251,12 +338,13 @@ async function main(): Promise<void> {
   resetTokenTwitch();
 
   const prisma = new PrismaClient();
+  resetCacheNomes();
   const linhas: LinhaAuditoria[] = [];
   let divergencias = 0;
   let naoEncontrados = 0;
   let indisponiveis = 0;
 
-  console.log("[audit] Consultando IGDB por slug/nome para cada game do seed…");
+  console.log("[audit] Consultando IGDB por slug/nome/slug-curado para cada game do seed…");
   for (const g of GAMES_CURADOS) {
     let linha: LinhaAuditoria = {
       nome: g.nome,
@@ -267,43 +355,35 @@ async function main(): Promise<void> {
       nomeIgdb: null,
       slugIgdb: null,
     };
-    const porSlug = await buscarIdPorSlug(g.slug);
+    const res = await resolverIdAudit(g.slug, g.nome, g.ano);
     await delay(DELAY_MS);
-    if (porSlug) {
+    if (res) {
       linha = {
         ...linha,
-        idIgdb: porSlug.id,
-        status: porSlug.id === g.igdbId ? "OK" : "DIVERGENCIA",
-        nomeIgdb: null,
-        slugIgdb: porSlug.slug,
+        idIgdb: res.id,
+        status: res.id === g.igdbId ? "OK" : "DIVERGENCIA",
+        nomeIgdb: res.nome ?? null,
+        slugIgdb: res.slug ?? null,
       };
     } else {
-      const candidatos = await buscarCandidatosPorNome(g.nome);
-      await delay(DELAY_MS);
-      if (candidatos === null) {
-        linha.status = "IGDB_INDISPONIVEL";
-      } else {
-        const melhor = melhorCandidato(g.nome, candidatos);
-        // D-265: só considera encontrado com casamento ESTRITO; o melhor
-        // candidato é reportado para o Operador conferir manualmente.
-        if (melhor?.id && nomeConfere(g.nome, melhor)) {
-          linha = {
-            ...linha,
-            idIgdb: melhor.id,
-            status: melhor.id === g.igdbId ? "OK" : "DIVERGENCIA",
-            nomeIgdb: melhor.name ?? null,
-            slugIgdb: melhor.slug ?? null,
-          };
-        } else {
-          linha.status = "NAO_ENCONTRADO";
-          linha.nomeIgdb = melhor?.name ?? null;
-        }
-      }
+      linha.status = "NAO_ENCONTRADO";
     }
     linhas.push(linha);
     if (linha.status === "DIVERGENCIA") divergencias++;
     if (linha.status === "NAO_ENCONTRADO") naoEncontrados++;
     if (linha.status === "IGDB_INDISPONIVEL") indisponiveis++;
+  }
+
+  // T283: classifica cada divergência pelos NOMES de id_curado e id_igdb.
+  console.log("[audit] Classificando divergências pelos nomes (id_curado × id_igdb)…");
+  for (const l of linhas) {
+    if (l.status !== "DIVERGENCIA" || l.idIgdb == null) continue;
+    const nomeCurado = await buscarNomePorId(l.idCurado);
+    await delay(DELAY_MS);
+    const nomeLookup = await buscarNomePorId(l.idIgdb);
+    await delay(DELAY_MS);
+    l.nomeCurado = nomeCurado?.name ?? null;
+    l.classificacao = classificarDivergencia(l.nome, l.nomeCurado, nomeLookup?.name);
   }
 
   const banco = await prisma.midia.findMany({
@@ -315,11 +395,11 @@ async function main(): Promise<void> {
   const rec = reconciliarBanco(banco, linhas);
 
   // ---------- Relatório ----------
-  console.log("\n=== AUDITORIA IGDB (T276/D-265) ===");
-  console.log("seed | id_curado | id_igdb | status | nome_igdb | slug_igdb");
+  console.log("\n=== AUDITORIA IGDB (T283/D-276) ===");
+  console.log("seed | id_curado | id_igdb | status | class | nome_curado | nome_igdb | slug_igdb");
   for (const l of linhas) {
     console.log(
-      `${l.nome} | ${l.idCurado} | ${l.idIgdb ?? "-"} | ${l.status} | ${l.nomeIgdb ?? "-"} | ${l.slugIgdb ?? "-"}`,
+      `${l.nome} | ${l.idCurado} | ${l.idIgdb ?? "-"} | ${l.status} | ${l.classificacao ?? "-"} | ${l.nomeCurado ?? "-"} | ${l.nomeIgdb ?? "-"} | ${l.slugIgdb ?? "-"}`,
     );
   }
   console.log("\n=== RECONCILIAÇÃO SEED x BANCO ===");
@@ -331,23 +411,50 @@ async function main(): Promise<void> {
     `faltando no banco: ${rec.faltando.length} — ${rec.faltando.map((f) => f.nome).join(", ") || "nenhum"}`,
   );
 
+  const contaClass = (c: Classificacao) =>
+    linhas.filter((l) => l.status === "DIVERGENCIA" && l.classificacao === c).length;
+  const aplicaveis = contaClass("LOOKUP_CORRETO");
+  const manter = contaClass("CURADO_CORRETO");
+  const ambiguos = contaClass("AMBIGUO");
+
   if (!aplicar) {
     console.log(
       `\n[audit] RESUMO: ${linhas.length} games | ${divergencias} divergências | ${naoEncontrados} não encontrados | ${indisponiveis} IGDB indisponível | ${rec.orfaos.length} órfãos`,
     );
-    console.log("[audit] Read-only. Rode com --apply-db para corrigir fonte_id/merge.");
+    console.log(
+      `[audit] CLASSIFICAÇÃO: ${aplicaveis} LOOKUP_CORRETO (aplicável) | ${manter} CURADO_CORRETO (manter) | ${ambiguos} AMBÍGUO (curadoria manual)`,
+    );
+    if (ambiguos > 0) {
+      console.log(
+        `[audit] AMBÍGUOS (sem ação automática): ${
+          linhas
+            .filter((l) => l.status === "DIVERGENCIA" && l.classificacao === "AMBIGUO")
+            .map(
+              (l) =>
+                `"${l.nome}" (curado ${l.idCurado}→"${l.nomeCurado}" / lookup ${l.idIgdb}→"${l.nomeIgdb}")`,
+            )
+            .join("; ") || "nenhum"
+        }`,
+      );
+    }
+    console.log("[audit] Read-only. Rode com --apply-db para corrigir SOMENTE LOOKUP_CORRETO.");
     await prisma.$disconnect();
     process.exit(divergencias > 0 || rec.orfaos.length > 0 ? 1 : 0);
   }
 
-  // ---------- Apply: correções por divergência + merge de órfãos ----------
-  console.log("\n=== APLICANDO CORREÇÕES (--apply-db) ===");
+  // ---------- Apply: SOMENTE divergências LOOKUP_CORRETO + merge de órfãos ----------
+  console.log("\n=== APLICANDO CORREÇÕES (--apply-db, apenas LOOKUP_CORRETO) ===");
   for (const l of linhas) {
-    if (l.idIgdb != null && l.idIgdb !== l.idCurado) {
-      const res = await corrigirRegistro(prisma, l);
-      if (res.acao === "pulado") {
-        console.log(`[audit] pulado (sem registro errado): "${l.nome}"`);
-      }
+    if (l.status !== "DIVERGENCIA" || l.idIgdb == null) continue;
+    if (l.classificacao !== "LOOKUP_CORRETO") {
+      console.log(
+        `[audit] mantido: "${l.nome}" (${l.classificacao ?? "sem classificação"}) — sem ação automática`,
+      );
+      continue;
+    }
+    const res = await corrigirRegistro(prisma, l);
+    if (res.acao === "pulado") {
+      console.log(`[audit] pulado (sem registro errado): "${l.nome}"`);
     }
   }
 
