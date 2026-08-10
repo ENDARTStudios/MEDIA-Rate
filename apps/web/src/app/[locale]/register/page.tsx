@@ -35,7 +35,6 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
         />
         <div className="relative z-10 max-w-md text-center">
           <Logo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
-          <p className="text-2xl font-heading font-bold text-[#EDE7DC] mb-2">MEDIA Rate</p>
           <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-4">
             {t("registerTitle")}
           </h1>

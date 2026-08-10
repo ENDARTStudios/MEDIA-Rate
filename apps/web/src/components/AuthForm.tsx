@@ -281,7 +281,7 @@ export function RegisterForm() {
               <Link href="/terms" className="text-[#818CF8] underline" target="_blank">
                 {t("termsLink")}
               </Link>{" "}
-              e a{" "}
+              {t("consentAnd")}{" "}
               <Link href="/privacy" className="text-[#818CF8] underline" target="_blank">
                 {t("privacyLink")}
               </Link>

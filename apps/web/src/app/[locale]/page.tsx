@@ -10,8 +10,13 @@ import { LayeredBackground } from "../../components/ui/layered-background";
 import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
 import { StructuredData } from "@/components/StructuredData";
 import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
+import { getCatalog } from "@/lib/api";
 import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
+
+// T274: ISR curto (≤ 60s, alinhado ao cache Redis da API) — os carrosséis
+// revalidam no servidor sem chamada nova por request.
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -70,6 +75,16 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     "foundingDate": "2025",
   };
 
+  // T274: os carrosséis ativos buscam no server (ISR) e hidratam o cliente —
+  // o HTML SSR já sai com os títulos, sem depender de JS para o primeiro
+  // paint/crawlers. Ordem/limite idênticos ao queryFn do MediaCarousel.
+  const [carouselMovie, carouselSeries, carouselGame] = await Promise.all([
+    getCatalog({ type: "movie", sort: "score", order: "desc", limit: 10 }),
+    getCatalog({ type: "series", sort: "score", order: "desc", limit: 10 }),
+    getCatalog({ type: "game", sort: "score", order: "desc", limit: 10 }),
+  ]);
+  const carousels = { movie: carouselMovie, series: carouselSeries, game: carouselGame } as const;
+
   return (
     <LayeredBackground>
       <StructuredData data={[websiteJsonLd, orgJsonLd]} />
@@ -92,10 +107,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
           {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
               MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +
-              waitlist capture. */}
-          <MediaCarousel type="movie" />
-          <MediaCarousel type="series" />
-          <MediaCarousel type="game" />
+              waitlist capture. T274: ativos com initialData do server. */}
+          <MediaCarousel type="movie" initialData={carousels.movie} />
+          <MediaCarousel type="series" initialData={carousels.series} />
+          <MediaCarousel type="game" initialData={carousels.game} />
           <MediaCarousel type="book" />
           <MediaCarousel type="comic" />
           <MediaCarousel type="manga" />

@@ -12,6 +12,8 @@ import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { derivarScores } from "@/lib/media-score-engine";
 import { FONTES_WEB } from "@/lib/source-registry";
+import { isPreviewTipo } from "@/lib/api";
+import type { MediaType } from "@/lib/types";
 
 interface MediaScoreModuleProps {
   score: MediaScoreType | null;
@@ -29,13 +31,12 @@ function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): s
   return t("monthsAgo", { months });
 }
 
-/** Tipos em preparação (§IX P2) — fontes ainda não ativadas. */
-const TIPOS_PREPARACAO = new Set(["book", "comic", "manga"]);
-
+/** T272: "em preparação" vem da mesma fonte de verdade da API layer
+ * (isPreviewTipo em lib/api.ts) — nunca hardcoda a lista de tipos aqui. */
 export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
-  const emPreparacao = mediaType ? TIPOS_PREPARACAO.has(mediaType) : false;
+  const emPreparacao = mediaType ? isPreviewTipo(mediaType as MediaType) : false;
 
   if (!score) {
     return (
@@ -90,9 +91,11 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
 
   // T269: explanation por locale (nunca hardcoded PT — antes aparecia
   // 'consolidado a partir de N fontes' em EN/ES).
-  const explanationLocal = explanation ?? (fontesUnicas.length > 0
-    ? t("scoreConsolidado", { n: fontesUnicas.length })
-    : t("scoreSemFontes"));
+  const explanationLocal =
+    explanation ??
+    (fontesUnicas.length > 0
+      ? t("scoreConsolidado", { n: fontesUnicas.length })
+      : t("scoreSemFontes"));
 
   return (
     <div
@@ -189,7 +192,9 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
               )}
             </p>
           )}
-          {explanationLocal && <p className="text-xs text-gray-400 leading-relaxed">{explanationLocal}</p>}
+          {explanationLocal && (
+            <p className="text-xs text-gray-400 leading-relaxed">{explanationLocal}</p>
+          )}
         </div>
       </div>
 

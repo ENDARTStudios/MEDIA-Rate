@@ -3,6 +3,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "../../i18n/routing";
+import { localeOpenGraph } from "../../lib/seo";
 import { AuthHeader } from "../../components/AuthHeader";
 import { MotionFooter } from "../../components/MotionFooter";
 import { LgpdBanner } from "../../components/LgpdBanner";
@@ -20,6 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://media-rate-web.vercel.app";
+  const th = await getTranslations({ locale, namespace: "home" });
 
   // Constroi alternates dinamicamente com base no roteamento
   const alternates: Record<string, string> = {};
@@ -31,17 +33,17 @@ export async function generateMetadata({
   return {
     title: {
       template: "%s | MEDIA Rate",
-      default: "MEDIA Rate — Descubra o que assistir e jogar",
+      default: th("metaTitle"),
     },
-    description:
-      "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
+    description: th("metaDescription"),
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: alternates,
     },
     openGraph: {
       siteName: "MEDIA Rate",
-      locale: locale,
+      // T273: og:locale exige underscore (pt_BR/en_US/es_ES), nunca hífen.
+      locale: localeOpenGraph(locale),
       type: "website",
     },
     twitter: {

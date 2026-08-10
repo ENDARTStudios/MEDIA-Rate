@@ -12,7 +12,7 @@ import { MediaScoreBadge } from "./MediaScoreBadge";
 import { Related } from "./Related";
 import { ScoreTrend } from "./ScoreTrend";
 import { RateLimitedError } from "@/lib/http";
-import { genreSlug, titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
+import { titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -27,6 +27,7 @@ function toMediaItem(m: Media): MediaItem {
     ano_lancamento: m.year,
     imagem_url: m.posterUrl,
     score: m.score?.consolidated ?? null,
+    preview: m.preview,
   };
 }
 

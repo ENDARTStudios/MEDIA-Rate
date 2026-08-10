@@ -157,6 +157,8 @@
     "scoreV2": "MEDIA Score™ v3",
     "methodologyV2": "Calculated with media-type weights (critics, audience and consensus) and a Bayesian estimator that pulls titles with few votes toward the catalog average; consensus feeds back into the score.",
     "scoreComingSoon": "Coming soon — sources in preparation",
+    "previewBadge": "Preview — sources in preparation",
+    "exploreCategory": "Explore {label}",
     "variant_book": [
       "Novels",
       "Non-fiction",
@@ -411,6 +413,11 @@
     "inviteCodeLabel": "invite code (optional)",
     "inviteCodePlaceholder": "Invite UUID (Closed Beta)",
     "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
+    "socialComingSoon": "Social login coming soon",
+    "socialIntegrating": "We're integrating social login. Soon you'll sign in with one click.",
+    "consentAnd": "and",
     "tagline": "Discover, rate and organize all your entertainment."
   },
   "hero": {

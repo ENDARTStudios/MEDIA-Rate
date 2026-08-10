@@ -45,7 +45,7 @@ describe("T242/T247 — preços e marca com fonte única (pricing.ts)", () => {
   });
 
   it("terms.s3b (seção de planos) usa símbolo por locale e valores 4,90/9,90", () => {
-    for (const [loc, msgs] of Object.entries(LOCALES)) {
+    for (const msgs of Object.values(LOCALES)) {
       const s3b = msgs.terms?.s3b ?? "";
       expect(s3b).toContain("4");
       expect(s3b).toContain("9");
@@ -62,7 +62,7 @@ describe("T242/T247 — preços e marca com fonte única (pricing.ts)", () => {
   });
 
   it("footer.lgpd usa rótulo neutro por locale (nunca 'LGPD' cru em EN/ES)", () => {
-    expect(LOCALES["pt-BR"].footer?.lgpd).toBe("Seus dados (LGPD)");
+    expect(LOCALES["pt-BR"].footer?.lgpd).toBe("Seus dados");
     expect(LOCALES["en-US"].footer?.lgpd).toBe("Your data");
     expect(LOCALES["es-ES"].footer?.lgpd).toBe("Sus datos");
   });

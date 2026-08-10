@@ -1,8 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLocale } from "next-intl";
 import { MediaDetailPage } from "@/components/MediaDetailPage";
 import { serializeJsonLd } from "@/lib/json-ld";
+import { titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import type { Media } from "@/lib/types";
 
 const Seasons = dynamic(
@@ -15,11 +17,12 @@ const Episodes = dynamic(
 );
 
 export function TVDetailWrapper({ id, media }: { id: string; media: Media | null }) {
+  const locale = useLocale();
   const jsonLd = media && {
     "@context": "https://schema.org",
     "@type": "TVSeries",
-    "name": media.title,
-    "description": media.synopsis?.substring(0, 200),
+    "name": titleForLocale(media, locale),
+    "description": synopsisForLocale(media, locale).slice(0, 200),
     "image": media.posterUrl,
     "datePublished": String(media.year),
     "genre": media.genres?.slice(0, 3),

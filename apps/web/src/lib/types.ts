@@ -74,6 +74,9 @@ export interface Media {
   title: string;
   titleLocalized?: LocalizedString;
   type: MediaType;
+  /** Tipos cujas fontes de avaliação ainda não foram ativadas (D-230).
+   *  Exposta pela camada de API; a UI nunca hardcoda a lista de tipos. */
+  preview?: boolean;
   year: number;
   genres: string[];
   genreSlugs?: string[];

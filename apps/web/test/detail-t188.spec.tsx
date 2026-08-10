@@ -23,7 +23,10 @@ const mediaMock = {
   score: null,
 };
 
-vi.mock("@/lib/api", () => ({ getMediaBySlug: vi.fn() }));
+vi.mock("@/lib/api", () => ({
+  getMediaBySlug: vi.fn(),
+  isPreviewTipo: (tipo: string) => ["book", "comic", "manga"].includes(tipo),
+}));
 vi.mock("next-intl", () => ({
   useTranslations: () => {
     const t = (key: string) => key;

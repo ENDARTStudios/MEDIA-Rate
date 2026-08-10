@@ -20,6 +20,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
@@ -49,8 +50,16 @@ const ICONS: Record<AnimationVariant, () => React.ReactNode> = {
 
 const TOUCH_NAV_DELAY_MS = 700;
 
-export function HeroMediaIcon({ type, animationVariant, href, label, className }: HeroMediaIconProps) {
+export function HeroMediaIcon({
+  type,
+  animationVariant,
+  href,
+  label,
+  className,
+}: HeroMediaIconProps) {
   const shouldReduce = useReducedMotion();
+  const locale = useLocale();
+  const t = useTranslations("catalog");
   const rootRef = useRef<HTMLAnchorElement>(null);
   const animRef = useRef<ReturnType<typeof animate>[]>([]);
   const [finePointer, setFinePointer] = useState(false);
@@ -99,18 +108,24 @@ export function HeroMediaIcon({ type, animationVariant, href, label, className }
       case "clapperboard": {
         const mouth = el.querySelector("[data-part=mouth]");
         const flash = el.querySelector("[data-part=flash]");
-        if (mouth) anims.push(animate(mouth, { rotate: [-22, -3, 0], duration: 500, ease: "outBack" }));
-        if (flash)
-          anims.push(animate(flash, { opacity: [0, 0.4, 0], duration: 120, delay: 350 }));
+        if (mouth)
+          anims.push(animate(mouth, { rotate: [-22, -3, 0], duration: 500, ease: "outBack" }));
+        if (flash) anims.push(animate(flash, { opacity: [0, 0.4, 0], duration: 120, delay: 350 }));
         break;
       }
       case "tv": {
         const scan = el.querySelector("[data-part=scanline]");
         const screen = el.querySelector("[data-part=screen]");
-        if (scan) anims.push(animate(scan, { translateY: ["-100%", "100%"], duration: 400, ease: "linear" }));
+        if (scan)
+          anims.push(
+            animate(scan, { translateY: ["-100%", "100%"], duration: 400, ease: "linear" }),
+          );
         if (screen)
           anims.push(
-            animate(screen, { filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"], duration: 400 }),
+            animate(screen, {
+              filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"],
+              duration: 400,
+            }),
           );
         break;
       }
@@ -127,14 +142,18 @@ export function HeroMediaIcon({ type, animationVariant, href, label, className }
           ),
         );
         const analog = el.querySelector("[data-part=analog]");
-        if (analog) anims.push(animate(analog, { rotate: 360, duration: 500, delay: 240, ease: "inOutQuad" }));
+        if (analog)
+          anims.push(
+            animate(analog, { rotate: 360, duration: 500, delay: 240, ease: "inOutQuad" }),
+          );
         break;
       }
       case "book": {
         const cover = el.querySelector("[data-part=cover]");
         const linhas = el.querySelectorAll("[data-part^=line-]");
         const glow = el.querySelector("[data-part=glow]");
-        if (cover) anims.push(animate(cover, { rotateY: [0, -25], duration: 500, ease: "inOutQuad" }));
+        if (cover)
+          anims.push(animate(cover, { rotateY: [0, -25], duration: 500, ease: "inOutQuad" }));
         linhas.forEach((l, i) =>
           anims.push(animate(l, { opacity: [0, 1], delay: 300 + i * 40, duration: 250 })),
         );
@@ -197,8 +216,10 @@ export function HeroMediaIcon({ type, animationVariant, href, label, className }
   return (
     <motion.a
       ref={rootRef}
-      href={href}
-      aria-label={`Explorar ${label}`}
+      // T273: href com prefixo do locale ativo (localePrefix: "always") e
+      // aria-label localizado — nunca "Explorar" PT hardcoded em EN/ES.
+      href={href.startsWith("/") ? `/${locale}${href}` : href}
+      aria-label={t("exploreCategory", { label })}
       onMouseEnter={playOneShot}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -228,7 +249,11 @@ export function HeroMediaIcon({ type, animationVariant, href, label, className }
             aria-hidden="true"
           />
           {/* Corpo (meio) */}
-          <div className="hero-icon-layer hero-icon-layer--body" style={{ transform: "translateZ(0px)" }} aria-hidden="true">
+          <div
+            className="hero-icon-layer hero-icon-layer--body"
+            style={{ transform: "translateZ(0px)" }}
+            aria-hidden="true"
+          >
             <Art />
           </div>
           {/* Destaque (mais à frente) */}

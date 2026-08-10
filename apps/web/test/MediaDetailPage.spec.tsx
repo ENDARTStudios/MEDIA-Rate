@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 
 vi.mock("@/lib/api", () => ({
   getMediaBySlug: vi.fn(),
+  isPreviewTipo: (tipo: string) => ["book", "comic", "manga"].includes(tipo),
 }));
 
 vi.mock("next-intl", () => ({

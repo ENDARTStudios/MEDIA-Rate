@@ -23,6 +23,8 @@ const catalogMessages = {
     noResults: "Em breve",
     comingSoonTap: "Em breve — toque para ser avisado",
     comingSoonNotify: "Cadastre-se para ser avisado quando chegar.",
+    catalogAria: "Catálogo de mídias",
+    exploreCategory: "Explorar {label}",
   },
   common: {},
 };
@@ -65,10 +67,15 @@ describe("HeroMediaIcon (D-204)", () => {
 
   it("renderiza aria-label 'Explorar <label>' e href correto", () => {
     renderWithProviders(
-      <HeroMediaIcon type="movie" animationVariant="clapperboard" href="/catalog?type=movie" label="Filmes" />,
+      <HeroMediaIcon
+        type="movie"
+        animationVariant="clapperboard"
+        href="/catalog?type=movie"
+        label="Filmes"
+      />,
     );
     const link = screen.getByRole("link", { name: "Explorar Filmes" });
-    expect(link.getAttribute("href")).toBe("/catalog?type=movie");
+    expect(link.getAttribute("href")).toBe("/pt-BR/catalog?type=movie");
   });
 
   it("cada variant renderiza o SVG com os data-parts da coreografia", () => {
@@ -105,7 +112,12 @@ describe("HeroMediaIcon (D-204)", () => {
 
   it("foco via teclado dispara a one-shot (data-part animado existe)", () => {
     renderWithProviders(
-      <HeroMediaIcon type="movie" animationVariant="clapperboard" href="/catalog?type=movie" label="Filmes" />,
+      <HeroMediaIcon
+        type="movie"
+        animationVariant="clapperboard"
+        href="/catalog?type=movie"
+        label="Filmes"
+      />,
     );
     const link = screen.getByRole("link", { name: "Explorar Filmes" });
     link.focus();
@@ -115,7 +127,12 @@ describe("HeroMediaIcon (D-204)", () => {
 
   it("touch: toque dispara one-shot e navega após ~700ms", () => {
     renderWithProviders(
-      <HeroMediaIcon type="game" animationVariant="controller" href="/catalog?type=game" label="Games" />,
+      <HeroMediaIcon
+        type="game"
+        animationVariant="controller"
+        href="/catalog?type=game"
+        label="Games"
+      />,
     );
     const link = screen.getByRole("link", { name: "Explorar Games" });
     const spy = vi.spyOn(window, "setTimeout");
@@ -125,7 +142,12 @@ describe("HeroMediaIcon (D-204)", () => {
 
   it("prefers-reduced-motion desabilita animações (sem error em hover)", () => {
     renderWithProviders(
-      <HeroMediaIcon type="movie" animationVariant="clapperboard" href="/catalog?type=movie" label="Filmes" />,
+      <HeroMediaIcon
+        type="movie"
+        animationVariant="clapperboard"
+        href="/catalog?type=movie"
+        label="Filmes"
+      />,
     );
     const link = screen.getByRole("link", { name: "Explorar Filmes" });
     fireEvent.mouseEnter(link);
@@ -137,7 +159,7 @@ describe("HeroMediaIcon (D-204)", () => {
 describe("HeroIconCluster (D-204)", () => {
   it("renderiza nav/ul/li com 5 ícones e aria-labels", () => {
     const { container } = renderWithProviders(<HeroIconCluster />);
-    const nav = container.querySelector('nav[aria-label="Categorias de mídia"]');
+    const nav = container.querySelector('nav[aria-label="Catálogo de mídias"]');
     expect(nav).toBeTruthy();
     expect(nav?.querySelectorAll("li").length).toBe(5);
     expect(screen.getByRole("link", { name: "Explorar Filmes" })).toBeTruthy();

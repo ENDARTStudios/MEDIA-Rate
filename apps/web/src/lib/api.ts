@@ -185,6 +185,15 @@ function mapConfidence(c: number | null | undefined): Confidence {
 
 const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
 
+/**
+ * T272/D-230: flag única de "prévia — fontes em preparação", derivada na
+ * camada de API (nunca hardcoda por tipo em componente). A ficha
+ * (MediaScoreModule) e o MediaCard usam esta mesma fonte de verdade.
+ */
+export function isPreviewTipo(tipo: MediaType): boolean {
+  return TIPOS_PREPARACAO.has(tipo);
+}
+
 /** Mapeia o enum ClassInd da API (DEZ/DOZE/...) para a exibição (10/12/...). */
 function mapClassificacaoIndicativa(value: string | null | undefined): string | null {
   switch (value) {
@@ -219,13 +228,14 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     }) ?? [];
 
   const confidence = mapConfidence(m.score?.confianca);
-  const emPreparacao = TIPOS_PREPARACAO.has(mapTipo(m.tipo));
+  const preview = isPreviewTipo(mapTipo(m.tipo));
 
   return {
     id: m.id,
     slug: fallbackSlug ?? m.slug,
     title: m.titulo,
     type: mapTipo(m.tipo),
+    preview,
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: m.generos,
     classificacaoIndicativa: mapClassificacaoIndicativa(m.classificacao_indicativa),
@@ -883,7 +893,13 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
   // acentos, diverge do /search normalizado). API fora do ar → lista
   // vazia; o mock só serve para catálogo sem busca (demo/offline).
   if (filters?.search) {
-    return { items: [], total: 0, page: filters?.page ?? 1, limit: filters?.limit ?? 12, hasMore: false };
+    return {
+      items: [],
+      total: 0,
+      page: filters?.page ?? 1,
+      limit: filters?.limit ?? 12,
+      hasMore: false,
+    };
   }
   return applyCatalogFilters(MOCK_MEDIA, filters);
 }
@@ -894,6 +910,7 @@ function mediaFromSearchItem(it: ApiSearchItem): Media {
     slug: it.slug,
     title: it.titulo,
     type: mapTipo(it.tipo),
+    preview: isPreviewTipo(mapTipo(it.tipo)),
     year: it.ano_lancamento ?? new Date().getFullYear(),
     genres: [],
     synopsis: it.sinopse ?? "",
@@ -913,8 +930,11 @@ function mediaFromList(m: ApiMidiaList): Media {
     slug: slugify(m.titulo),
     title: m.titulo,
     // D-248/T: título original (EN) para exibir em en/es via titleForLocale.
-    titleLocalized: m.titulo_original ? { pt: m.titulo, en: m.titulo_original, es: m.titulo_original } : undefined,
+    titleLocalized: m.titulo_original
+      ? { pt: m.titulo, en: m.titulo_original, es: m.titulo_original }
+      : undefined,
     type: mapTipo(m.tipo),
+    preview: isPreviewTipo(mapTipo(m.tipo)),
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: [],
     synopsis: "",
@@ -1005,7 +1025,9 @@ function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
     title: it.titulo,
     // D-248/T: título original (EN do TMDB) exposto para o titleForLocale
     // exibir em en-US/es-ES (a home mostrava nomes PT em todos os idiomas).
-    titleLocalized: it.titulo_original ? { pt: it.titulo, en: it.titulo_original, es: it.titulo_original } : undefined,
+    titleLocalized: it.titulo_original
+      ? { pt: it.titulo, en: it.titulo_original, es: it.titulo_original }
+      : undefined,
     type: mapTipo(it.tipo),
     year: it.ano ?? new Date().getFullYear(),
     genres: [],
@@ -1041,7 +1063,9 @@ export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
   // resultado; não-ok/timeout lança para o SearchCommand mostrar retry.
   const isClient = typeof window !== "undefined";
   const cleanPath = `/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`.slice(4);
-  const url = isClient ? `/api${cleanPath}` : `${API_BASE}/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`;
+  const url = isClient
+    ? `/api${cleanPath}`
+    : `${API_BASE}/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`;
   const res = await fetch(url, { ...(isClient ? {} : { next: { revalidate: 300 } }) });
   if (!res.ok) throw new Error(`Busca falhou (HTTP ${res.status})`);
   const data = (await res.json()) as { itens: ApiDiscoverItem[] };

@@ -40,6 +40,21 @@ function asCatalogSort(value: string | undefined): CatalogSort | undefined {
   }
 }
 
+/** T274: valida ?type= por enum — valores inválidos são ignorados (undefined). */
+function asMediaType(value: string | undefined): MediaType | undefined {
+  switch (value) {
+    case "movie":
+    case "series":
+    case "game":
+    case "book":
+    case "manga":
+    case "comic":
+      return value;
+    default:
+      return undefined;
+  }
+}
+
 function mapToMediaItem(media: Media): MediaItem {
   return {
     id: media.id,
@@ -59,16 +74,19 @@ function mapToMediaItem(media: Media): MediaItem {
     ano_lancamento: media.year,
     imagem_url: media.posterUrl,
     score: media.score?.consolidated ?? null,
+    preview: media.preview,
   };
 }
 
 function CatalogContent({
   initialData,
+  initialDataKey,
   initialType,
   initialSort,
   initialQuery,
 }: {
   initialData?: CatalogResponse;
+  initialDataKey?: string;
   initialType?: string;
   initialSort?: string;
   initialQuery?: string;
@@ -77,7 +95,7 @@ function CatalogContent({
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const type = (sp.get("type") || initialType || undefined) as MediaType | undefined;
+  const type = asMediaType(sp.get("type") || initialType);
   const sort = sp.get("sort") || initialSort || undefined;
   const query = sp.get("q") || initialQuery || undefined;
   const anoMin = asOptionalNumber(sp.get("anoMin"));
@@ -87,8 +105,27 @@ function CatalogContent({
   const genero = sp.get("genero") || undefined;
   const comCritica = sp.get("com_critica") === "true";
 
+  // T274: assinatura dos filtros atuais — só semeia com initialData quando
+  // coincide com o fetch feito no server (crawlers/primeiro paint veem o
+  // grid filtrado no HTML SSR; mudanças client-side seguem só com fetch).
+  const currentDataKey = JSON.stringify({
+    type: type ?? null,
+    sort: sort ?? null,
+    query: query ?? null,
+    anoMin: anoMin ?? null,
+    anoMax: anoMax ?? null,
+    scoreMin: scoreMin ?? null,
+    scoreMax: scoreMax ?? null,
+    genero: genero ?? null,
+    comCritica,
+  });
+  const temInitialData = initialDataKey != null && initialDataKey === currentDataKey;
+
   const { data, isLoading, error, isFetching, refetch } = useQuery({
-    queryKey: ["catalog", { type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero, comCritica }],
+    queryKey: [
+      "catalog",
+      { type, sort, query, anoMin, anoMax, scoreMin, scoreMax, genero, comCritica },
+    ],
     queryFn: () =>
       getCatalog({
         type,
@@ -102,18 +139,7 @@ function CatalogContent({
         genero,
         comCritica,
       }),
-    initialData:
-      type === undefined &&
-      sort === undefined &&
-      query === undefined &&
-      anoMin === undefined &&
-      anoMax === undefined &&
-      scoreMin === undefined &&
-      scoreMax === undefined &&
-      genero === undefined &&
-      !comCritica
-        ? initialData
-        : undefined,
+    initialData: temInitialData ? initialData : undefined,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -198,10 +224,7 @@ function CatalogContent({
     if (type && FUTURE_TYPES.includes(type)) {
       return (
         <div className="py-8">
-          <EmptyStateComingSoon
-            type={type}
-            onNotify={(email) => waitlistNotify(email, type)}
-          />
+          <EmptyStateComingSoon type={type} onNotify={(email) => waitlistNotify(email, type)} />
         </div>
       );
     }
@@ -385,11 +408,13 @@ function CatalogResults({
 
 export function CatalogPageClient({
   initialData,
+  initialDataKey,
   initialType,
   initialSort,
   initialQuery,
 }: {
   initialData?: CatalogResponse;
+  initialDataKey?: string;
   initialType?: string;
   initialSort?: string;
   initialQuery?: string;
@@ -414,6 +439,7 @@ export function CatalogPageClient({
           <Suspense fallback={<CatalogSkeleton count={12} />}>
             <CatalogContent
               initialData={initialData}
+              initialDataKey={initialDataKey}
               initialType={initialType}
               initialSort={initialSort}
               initialQuery={initialQuery}

@@ -30,6 +30,7 @@ function mapToMediaItem(media: Media): MediaItem {
     ano_lancamento: media.year,
     imagem_url: media.posterUrl,
     score: media.score?.consolidated ?? null,
+    preview: media.preview,
   };
 }
 

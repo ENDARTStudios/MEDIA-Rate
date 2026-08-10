@@ -10,6 +10,7 @@ import { normalizeDisplayScore } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
+import { isPreviewTipo } from "@/lib/api";
 import { WatchlistButton } from "./WatchlistButton";
 import { StatusReactionControl } from "./interaction/StatusReactionControl";
 import type { MediaType } from "@/lib/types";
@@ -22,6 +23,9 @@ export interface MediaItem {
   ano_lancamento: number | null;
   imagem_url: string | null;
   score?: number | null;
+  /** T272: flag "prévia — fontes em preparação" vinda da camada de API.
+   *  Quando ausente, o MediaCard deriva via isPreviewTipo (mesma fonte da ficha). */
+  preview?: boolean;
 }
 
 const TIPO_LABEL: Record<string, string> = {
@@ -142,6 +146,10 @@ export function MediaCard({ media }: { media: MediaItem }) {
   const aspectRatio = "aspect-[2/3]";
   const mediaType = TIPO_TO_MEDIA[media.tipo] ?? "movie";
   const category = CATEGORY_TOKENS[mediaType];
+  // T272: flag única de prévia — a flag da API (quando presente) ou a mesma
+  // fonte de verdade que a ficha usa (isPreviewTipo). Nunca hardcoda a lista
+  // de tipos neste componente.
+  const preview = media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie");
   // Score na escala NATIVA do engine: games/mangás 0-100; demais 0-10.
   // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
   const scoreExibido = media.score != null ? normalizeDisplayScore(media.score, mediaType) : null;
@@ -154,7 +162,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
     {
       title: media.titulo,
       id: media.id,
-      titleLocalized: media.titulo_original ? { pt: media.titulo, en: media.titulo_original, es: media.titulo_original } : undefined,
+      titleLocalized: media.titulo_original
+        ? { pt: media.titulo, en: media.titulo_original, es: media.titulo_original }
+        : undefined,
     },
     useLocale(),
   );
@@ -259,15 +269,25 @@ export function MediaCard({ media }: { media: MediaItem }) {
             <span className="text-xs text-[#9CA3AF] mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
+          {/* T272: selo de "prévia — fontes em preparação" para itens cujas
+              fontes ainda não estão ativas (paridade com a ficha, D-230). */}
+          {preview && (
+            <span
+              className="absolute top-3 left-1/2 -translate-x-1/2 z-20 inline-flex items-center rounded-full border border-dashed border-[#F59E0B]/50 bg-[#09090F]/85 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[#F59E0B]"
+              aria-label={t("previewBadge")}
+              data-testid="preview-badge"
+            >
+              {t("previewBadge")}
+            </span>
+          )}
+
           {scoreExibido != null && (
-            <div className="absolute top-2 right-2 z-20">
+            <div className={`absolute top-2 right-2 z-20 ${preview ? "opacity-45" : ""}`}>
               {/* Score na escala NATIVA do tipo (games/mangás 0-100; demais
-                  0-10) — o T262 que forçava 0-100 em tudo foi revertido. */}
-              <ScoreDial
-                value={scoreExibido}
-                size="md"
-                scale={escala}
-              />
+                  0-10) — o T262 que forçava 0-100 em tudo foi revertido.
+                  T272: score de item preview fica esmaecido para não competir
+                  com scores ativos. */}
+              <ScoreDial value={scoreExibido} size="md" scale={escala} />
             </div>
           )}
         </div>

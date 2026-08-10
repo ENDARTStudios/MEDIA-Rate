@@ -157,6 +157,8 @@
     "scoreV2": "MEDIA Score™ v3",
     "methodologyV2": "Calculado com pesos específicos por tipo (crítica, público e consenso) e estimador Bayesiano que puxa obras com poucos votos para a média do catálogo; o consenso realimenta a nota.",
     "scoreComingSoon": "Em breve — fontes em preparação",
+    "previewBadge": "Prévia — fontes em preparação",
+    "exploreCategory": "Explorar {label}",
     "variant_book": [
       "Romances",
       "Não-ficção",
@@ -371,7 +373,7 @@
     "contact": "Contato",
     "about": "Sobre",
     "legal": "Legal",
-    "lgpd": "Seus dados (LGPD)",
+    "lgpd": "Seus dados",
     "social": "Social",
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
@@ -411,6 +413,11 @@
     "inviteCodeLabel": "Código de convite (opcional)",
     "inviteCodePlaceholder": "UUID do convite (Beta Fechada)",
     "or": "ou",
+    "continueWithGoogle": "Continuar com Google",
+    "continueWithApple": "Continuar com Apple",
+    "socialComingSoon": "Login social em breve",
+    "socialIntegrating": "Estamos integrando o login social. Em breve você entra com um clique.",
+    "consentAnd": "e a",
     "tagline": "Descubra, avalie e organize todo seu entretenimento."
   },
   "hero": {

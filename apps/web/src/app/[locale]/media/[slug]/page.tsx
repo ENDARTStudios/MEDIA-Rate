@@ -4,7 +4,9 @@ import { setRequestLocale } from "next-intl/server";
 import { MediaDetailClient } from "@/components/MediaDetailClient";
 import { StructuredData } from "@/components/StructuredData";
 import { getMediaBySlug } from "@/lib/api";
+import { isPreviewTipo } from "@/lib/api";
 import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
+import { titleForLocale, synopsisForLocale } from "@/lib/i18n-content";
 import type { Media, MediaType } from "@/lib/types";
 
 interface Props {
@@ -20,11 +22,8 @@ const schemaTypeByMediaType: Record<MediaType, string> = {
   comic: "Book",
 };
 
-/** Tipos em preparação (§IX P2) — fontes ainda não ativadas: não indexar. */
-const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
-
-function descriptionFor(media: Media): string {
-  return media.synopsis.trim().slice(0, 160);
+function descriptionFor(media: Media, locale: string): string {
+  return synopsisForLocale(media, locale).trim().slice(0, 160);
 }
 
 function mediaStructuredData(media: Media, locale: string, pageUrl: string) {
@@ -35,8 +34,8 @@ function mediaStructuredData(media: Media, locale: string, pageUrl: string) {
     "@type": schemaType,
     "@id": `${pageUrl}#media`,
     "url": pageUrl,
-    "name": media.title,
-    "description": media.synopsis,
+    "name": titleForLocale(media, locale),
+    "description": synopsisForLocale(media, locale),
     "inLanguage": locale,
     "genre": media.genres,
     ...(media.posterUrl ? { image: media.posterUrl } : {}),
@@ -57,9 +56,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const pageUrl = localizedUrl(locale, `/media/${media.slug}`);
-  const description = descriptionFor(media);
-  const title = `${media.title} (${media.year}) — MEDIA Rate`;
-  const emPreparacao = TIPOS_PREPARACAO.has(media.type);
+  const description = descriptionFor(media, locale);
+  const tituloLocal = titleForLocale(media, locale);
+  const title = `${tituloLocal} (${media.year}) — MEDIA Rate`;
+  const emPreparacao = isPreviewTipo(media.type);
 
   return {
     title,
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       locale: localeOpenGraph(locale),
       images: media.posterUrl
-        ? [{ url: media.posterUrl, width: 600, height: 900, alt: media.title }]
+        ? [{ url: media.posterUrl, width: 600, height: 900, alt: tituloLocal }]
         : [],
       siteName: "MEDIA Rate",
     },

@@ -26,13 +26,17 @@ const ICONS: { type: MediaType; variant: AnimationVariant; href: string; labelKe
 export function HeroIconCluster() {
   const t = useTranslations("catalog");
   return (
-    <nav aria-label="Categorias de mídia" className="w-full" data-testid="hero-icon-cluster">
+    <nav aria-label={t("catalogAria")} className="w-full" data-testid="hero-icon-cluster">
       <ul className="hero-icon-cluster-list">
         {ICONS.map((icon) => {
           const accent = CATEGORY_TOKENS[icon.type].color;
           const label = t(icon.labelKey);
           return (
-            <li key={icon.type} className="hero-icon-cluster-item" style={{ ["--item-accent" as string]: accent }}>
+            <li
+              key={icon.type}
+              className="hero-icon-cluster-item"
+              style={{ ["--item-accent" as string]: accent }}
+            >
               <HeroMediaIcon
                 type={icon.type}
                 animationVariant={icon.variant}

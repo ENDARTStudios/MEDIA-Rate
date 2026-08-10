@@ -19,7 +19,7 @@ import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { getCatalog, waitlistNotify } from "@/lib/api";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
-import type { MediaType } from "@/lib/types";
+import type { MediaType, CatalogResponse } from "@/lib/types";
 
 // T258: chaves por MediaType (lowercase) e por tipo da API — o bug era
 // `type.toUpperCase()` gerar "SERIES" (plural) que não existia no mapa e o
@@ -70,9 +70,12 @@ export interface MediaCarouselProps {
   type: MediaType;
   count?: number;
   className?: string;
+  /** T274: dados buscados no server (ISR ≤ 60s) para o HTML SSR já conter o
+   *  carrossel — crawlers e primeiro paint veem conteúdo sem JS. */
+  initialData?: CatalogResponse | null;
 }
 
-export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
+export function MediaCarousel({ type, count, className, initialData }: MediaCarouselProps) {
   const t = useTranslations("catalog");
   const listRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
@@ -83,9 +86,15 @@ export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
     queryFn: () =>
       ROADMAP.has(type)
         ? null
-        : getCatalog({ type: TYPE_TO_API[type] ?? TYPE_TO_API[type.toUpperCase()] ?? "movie", sort: "score", order: "desc", limit: 10 }),
+        : getCatalog({
+            type: TYPE_TO_API[type] ?? TYPE_TO_API[type.toUpperCase()] ?? "movie",
+            sort: "score",
+            order: "desc",
+            limit: 10,
+          }),
     staleTime: 5 * 60 * 1000,
     enabled: !ROADMAP.has(type),
+    initialData: ROADMAP.has(type) ? undefined : (initialData ?? undefined),
   });
 
   const items: MediaItem[] = (data?.items ?? []).map(mapToMediaItem);
@@ -177,9 +186,7 @@ export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
                 <MediaCard media={m} />
               </div>
             ))}
-            {items.length === 0 && (
-              <p className="py-12 text-sm text-[#80809B]">{t("noResults")}</p>
-            )}
+            {items.length === 0 && <p className="py-12 text-sm text-[#80809B]">{t("noResults")}</p>}
           </div>
         )}
       </div>
