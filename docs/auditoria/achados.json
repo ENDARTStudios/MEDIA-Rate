@@ -1,0 +1,1170 @@
+{
+  "achados": [
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:00.186Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:00.354Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:00.614Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "/pt-BR",
+      "severidade": "info",
+      "tipo": "home-imgs",
+      "evidencia": "total de <img>: 20",
+      "ts": "2026-08-10T02:18:00.750Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/login?_rsc=zHBpLLiBJuHgIFdI net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:00.786Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR?_rsc=zHBpLLiBJuHgIFdI net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:00.789Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/register?_rsc=O3nJLAPqW1GCze7B net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:01.018Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:01.140Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:01.497Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Livros'",
+      "ts": "2026-08-10T02:18:01.750Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Mangás'",
+      "ts": "2026-08-10T02:18:01.752Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Entrar'",
+      "ts": "2026-08-10T02:18:01.754Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Catálogo'",
+      "ts": "2026-08-10T02:18:01.755Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES",
+      "severidade": "info",
+      "tipo": "home-imgs",
+      "evidencia": "total de <img>: 20",
+      "ts": "2026-08-10T02:18:01.855Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/pricing?_rsc=a6VxOLxgZphFo1nK net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:01.961Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Livros'",
+      "ts": "2026-08-10T02:18:02.947Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US",
+      "severidade": "importante",
+      "tipo": "i18n-PT-em-ENES",
+      "evidencia": "home contém 'Mangás'",
+      "ts": "2026-08-10T02:18:02.949Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:03.152Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US",
+      "severidade": "info",
+      "tipo": "home-imgs",
+      "evidencia": "total de <img>: 20",
+      "ts": "2026-08-10T02:18:03.828Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:06.141Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:06.174Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:06.176Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/login?_rsc=2C66WHQpRyolFnS4 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.178Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:06.185Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:06.250Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/pricing?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.311Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/login?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.317Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:06.319Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/register?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.321Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.323Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:06.628Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/privacy?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.967Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/35e09b56-ebca-40e2-9236-41a7961766d6?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.970Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/100afece-b598-4005-ad12-7d5294d15853?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:06.972Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:06.974Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/17bdd3af-c48c-492d-9586-8834005c1513?_rsc=2C66WHQpRyolFnS4 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.152Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/catalog",
+      "severidade": "info",
+      "tipo": "catalog-cards",
+      "evidencia": "cards visíveis: 12",
+      "ts": "2026-08-10T02:18:07.388Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:07.605Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:07.607Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "/pt-BR/catalog",
+      "severidade": "info",
+      "tipo": "catalog-cards",
+      "evidencia": "cards visíveis: 12",
+      "ts": "2026-08-10T02:18:07.618Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/100afece-b598-4005-ad12-7d5294d15853?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.628Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/17bdd3af-c48c-492d-9586-8834005c1513?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.641Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/76102787-a76a-4602-9120-6add6178e751?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.645Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/35e09b56-ebca-40e2-9236-41a7961766d6?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.652Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/100afece-b598-4005-ad12-7d5294d15853?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.655Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:07.709Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/542690c2-0944-46c3-b7dd-da28c343eb32?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.733Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:07.772Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/6a99b3b4-5056-4136-a5db-baf5be496e45?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.811Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/17bdd3af-c48c-492d-9586-8834005c1513?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.828Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/bc9b979c-271b-4e11-a660-8fe4a37ec708?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.831Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/1793a1d1-7a00-420e-81d2-5d3e04acfe80?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.851Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/6a99b3b4-5056-4136-a5db-baf5be496e45?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.865Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:07.875Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/bc9b979c-271b-4e11-a660-8fe4a37ec708?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:07.911Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/7d4dda05-3f59-467a-96a8-8b9933535174?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.088Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/a6229ebe-c63d-447d-9702-9e9afda9ec7e?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.122Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/media/a6229ebe-c63d-447d-9702-9e9afda9ec7e?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.140Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:08.185Z"
+    },
+    {
+      "locale": "pt-BR",
+      "url": "https://media-rate-web.vercel.app/pt-BR/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/pt-BR/pricing?_rsc=9ylWkhU0BFMbyLYl net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.290Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/76102787-a76a-4602-9120-6add6178e751?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.583Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/100afece-b598-4005-ad12-7d5294d15853?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.887Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/542690c2-0944-46c3-b7dd-da28c343eb32?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:08.891Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:08.919Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/bc9b979c-271b-4e11-a660-8fe4a37ec708?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.102Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/1793a1d1-7a00-420e-81d2-5d3e04acfe80?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.105Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/7d4dda05-3f59-467a-96a8-8b9933535174?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.107Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:09.122Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US/catalog",
+      "severidade": "info",
+      "tipo": "catalog-cards",
+      "evidencia": "cards visíveis: 12",
+      "ts": "2026-08-10T02:18:09.170Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/pricing?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.488Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.496Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/8afb2dfc-8691-472e-bccb-32510b1cf3be?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.662Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/7b28ed69-0156-4a8d-af05-c0aa0812ec7b?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.829Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/d85bc592-b47f-4987-9dd6-8ac49398d9f5?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.890Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/cce1516d-733f-403f-8c7a-a0fb6d344de0?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:09.913Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/catalog?type=movie",
+      "severidade": "info",
+      "tipo": "catalog-movie",
+      "evidencia": "cards: 12",
+      "ts": "2026-08-10T02:18:10.007Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/0af58cf9-695f-4fc3-8df5-f2c308897f94?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.098Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/7fa2fee3-8bc1-41db-8c4c-aa80770ecfaa?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.126Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/privacy?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.191Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/login?_rsc=emhu5Bd2tphBNHNv net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.271Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/register?_rsc=emhu5Bd2tphBNHNv net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.280Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:10.301Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/privacy?_rsc=emhu5Bd2tphBNHNv net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.473Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/login?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.504Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:10.512Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:10.934Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/catalog?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.954Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/pricing?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.959Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/register?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:10.961Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:11.149Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/96f3a707-fb42-41d8-bc0d-f222263e8841?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.255Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/8afb2dfc-8691-472e-bccb-32510b1cf3be?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.260Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/catalog?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.366Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/7b28ed69-0156-4a8d-af05-c0aa0812ec7b?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.409Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/d85bc592-b47f-4987-9dd6-8ac49398d9f5?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.430Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/cce1516d-733f-403f-8c7a-a0fb6d344de0?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.433Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/c75690e9-cf0b-4c79-9194-0e21aac6aa1c?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.443Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/b6415e07-391e-4302-bb90-060150bc9af3?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.592Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US/catalog?type=movie",
+      "severidade": "info",
+      "tipo": "catalog-movie",
+      "evidencia": "cards: 12",
+      "ts": "2026-08-10T02:18:11.595Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/7fa2fee3-8bc1-41db-8c4c-aa80770ecfaa?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.608Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/0af58cf9-695f-4fc3-8df5-f2c308897f94?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.641Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/a6229ebe-c63d-447d-9702-9e9afda9ec7e?_rsc=RW-S4TTevre_MyAq net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.685Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=movie",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/pricing?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:11.781Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/catalog?type=manga",
+      "severidade": "info",
+      "tipo": "catalog-manga",
+      "evidencia": "cards: 1",
+      "ts": "2026-08-10T02:18:11.920Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:12.269Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/register?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:12.473Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:12.499Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:12.500Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:12.586Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/login?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:12.696Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:12.705Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/media/bc9b979c-271b-4e11-a660-8fe4a37ec708?_rsc=y9WUsL1eNsAeLXw5 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:12.840Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=manga",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/a6229ebe-c63d-447d-9702-9e9afda9ec7e?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:12.888Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "/en-US/catalog?type=manga",
+      "severidade": "info",
+      "tipo": "catalog-manga",
+      "evidencia": "cards: 1",
+      "ts": "2026-08-10T02:18:13.466Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/catalog?type=book",
+      "severidade": "info",
+      "tipo": "catalog-book",
+      "evidencia": "cards: 1",
+      "ts": "2026-08-10T02:18:13.716Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:14.033Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:14.120Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/pricing",
+      "severidade": "info",
+      "tipo": "pricing-precos",
+      "evidencia": "preços: € 0 | € 4,90 | € 49,98 | € 9,90 | € 100,98",
+      "ts": "2026-08-10T02:18:14.199Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/pricing",
+      "severidade": "info",
+      "tipo": "pricing-toggle-ano",
+      "evidencia": "'ano' no toggle: true",
+      "ts": "2026-08-10T02:18:14.220Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/pricing",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/login?_rsc=BXOr787tyE5f8kND net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:14.294Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:14.319Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/pricing",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:14.350Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/pricing",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:14.569Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:14.584Z"
+    },
+    {
+      "locale": "en-US",
+      "url": "https://media-rate-web.vercel.app/en-US/catalog?type=book",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/en-US/media/bc9b979c-271b-4e11-a660-8fe4a37ec708?_rsc=o7z0W0BtoP-d73RY net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:14.639Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/terms",
+      "severidade": "info",
+      "tipo": "terms-secoes",
+      "evidencia": "seções numeradas: 7",
+      "ts": "2026-08-10T02:18:15.120Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/terms",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:15.309Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/terms",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:15.526Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/privacy",
+      "severidade": "info",
+      "tipo": "privacy-secoes",
+      "evidencia": "seções numeradas: 12",
+      "ts": "2026-08-10T02:18:16.094Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/privacy",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:16.329Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/privacy",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:16.531Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/privacy",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES?_rsc=CGO_0hmc-oXHXRqj net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:16.677Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/media/terraria",
+      "severidade": "info",
+      "tipo": "ficha-game",
+      "evidencia": "status btn presente: 1",
+      "ts": "2026-08-10T02:18:17.181Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/terraria",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:17.365Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/terraria",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:17.612Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/terraria",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/register?_rsc=FNH-LmeiTPz52sN- net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:17.857Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/terraria",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/login?_rsc=FNH-LmeiTPz52sN- net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:17.898Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 400 ()",
+      "ts": "2026-08-10T02:18:18.185Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "/es-ES/media/duna-livro",
+      "severidade": "info",
+      "tipo": "ficha-duna-livro",
+      "evidencia": "URL final: https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "ts": "2026-08-10T02:18:18.193Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/methodology?_rsc=R-0cXcoxDOomAVk0 net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:18.407Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:18.426Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 401 ()",
+      "ts": "2026-08-10T02:18:18.639Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/media/duna-livro",
+      "severidade": "importante",
+      "tipo": "request-failed",
+      "evidencia": "https://media-rate-web.vercel.app/es-ES/register?_rsc=N-SNcynK6JXUuANh net::ERR_ABORTED",
+      "ts": "2026-08-10T02:18:18.951Z"
+    },
+    {
+      "locale": "es-ES",
+      "url": "https://media-rate-web.vercel.app/es-ES/pagina-inexistente-xyz",
+      "severidade": "importante",
+      "tipo": "console.error",
+      "evidencia": "Failed to load resource: the server responded with a status of 404 ()",
+      "ts": "2026-08-10T02:18:19.049Z"
+    }
+  ],
+  "screenshots": [
+    "docs\\auditoria\\es-ES-home.png",
+    "docs\\auditoria\\pt-BR-home.png",
+    "docs\\auditoria\\en-US-home.png",
+    "docs\\auditoria\\es-ES-catalog.png",
+    "docs\\auditoria\\pt-BR-catalog.png",
+    "docs\\auditoria\\en-US-catalog.png",
+    "docs\\auditoria\\es-ES-pricing.png",
+    "docs\\auditoria\\es-ES-terms.png",
+    "docs\\auditoria\\es-ES-privacy.png",
+    "docs\\auditoria\\es-ES-ficha-game.png",
+    "docs\\auditoria\\es-ES-ficha-livro.png",
+    "docs\\auditoria\\es-ES-404.png"
+  ]
+}

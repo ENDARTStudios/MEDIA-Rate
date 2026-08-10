@@ -382,6 +382,23 @@ autoridade de protecao (ANPD pt, AEPD es, FTC en), direito de reclamar,
 disclaimer informativo; es-ES tem secao de representante na UE (art.
 27.2.a com placeholder). 6 testes privacy-compliance.
 Web 297/297, API tests 34/34, tsc + builds exit 0.
+
+## D-252 auditoria de producao automatizada (T252)
+Playwright + curl contra producao (3 locales x paginas publicas), relatorio
+em docs/AUDITORIA-PRODUCAO-2026-08.md + screenshots em docs/auditoria/.
+REGISSAO DO DEPLOY d4ba1f8: tudo verde em producao — /media/duna-livro e
+/berserk-manga 200 (T251); ficha game com botao (T249); pricing simbolo por
+locale R$/$/€ + toggle mes/ano (T247); privacy 12 secoes (T248/T250);
+?type=movie/manga/book = 12/1/1 cards; home 20 imgs; nav traduzida.
+UNICO ACHADO REAL: LockedComingSoonCard (home secoes Livros/Quadrinhos/
+Mangas) com rotulos PT hardcoded em EN/ES — 'Livros'/'HQs & Mangas'/
+'Romances' — confirma o T241 pendente (corrigir via i18n). FALSOS
+POSITIVOS descartados: nav es-ES 'Catalogo'/'Entrar' (chaves ES legitimas,
+palavras identicas PT/ES); catalog-movie=0 e home-imgs=0 (timing RSC, diag
+confirmou 12 cards/20 imgs); request-failed ?_rsc (aborts RSC normais);
+console 401 /auth/me e /watchlist (esperados p/ anonimo). LIÇAO: checklist
+de i18n deve excluir termos PT/ES compartilhados para evitar falsos
+positivos.
  Faixa 'em alta' com titulo_original em
 EN/ES: depende de expor titulo_original no discover (API change) —
 deixado como melhoria futura documentada; titleForLocale já cobre via
