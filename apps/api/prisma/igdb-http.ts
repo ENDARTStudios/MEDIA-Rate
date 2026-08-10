@@ -195,7 +195,11 @@ export function melhorCandidato(
     let acertos = 0;
     for (const t of tokensC) if (t && tokens.has(t)) acertos++;
     let score = acertos / Math.max(tokens.size, 1);
-    if (ano != null && c.first_release_date != null) {
+    // T283: match EXATO (conjuntos de tokens idênticos) domina qualquer
+    // variante — evita "Minecraft" → "Minecraft Tower Defence" por boost de ano.
+    if (acertos === tokens.size && tokensC.size === tokens.size) {
+      score = 2.0;
+    } else if (ano != null && c.first_release_date != null) {
       const anoC = new Date(c.first_release_date * 1000).getUTCFullYear();
       if (anoC === ano) score += 0.15;
     }
@@ -213,6 +217,20 @@ const cacheNomePorId = new Map<number, IgdbJogoBasico | null>();
 export function resetCacheNomes(): void {
   cacheNomePorId.clear();
 }
+
+/**
+ * T283/D-276 — slugs canônicos do IGDB para jogos cujo slug do seed não
+ * resolve (romanos: baldurs-gate-iii/divinity-original-sin-ii; sufixo IGDB:
+ * minecraft--1; e Overwatch 2 sem entrada própria — canônico é "overwatch").
+ * O id continua DERIVADO do lookup por slug (nunca lista de ids).
+ * Evidência verificada ao vivo: https://www.igdb.com/games/<slug>
+ */
+export const CURATED_SLUGS: ReadonlyMap<string, string> = new Map([
+  ["Baldur's Gate 3", "baldurs-gate-iii"],
+  ["Divinity: Original Sin 2", "divinity-original-sin-ii"],
+  ["Minecraft", "minecraft--1"],
+  ["Overwatch 2", "overwatch"],
+]);
 
 /**
  * T283/D-276: nome/slug de um jogo pelo id IGDB, com cache em memória

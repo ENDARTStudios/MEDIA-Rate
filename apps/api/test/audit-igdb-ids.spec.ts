@@ -27,6 +27,7 @@ import {
   normalizarTitulo,
   resetTokenTwitch,
   resetCacheNomes,
+  CURATED_SLUGS,
 } from "../prisma/igdb-http.js";
 import { resolverIdIgdb, GAMES_CURADOS } from "../prisma/seed-games.js";
 import {
@@ -36,7 +37,6 @@ import {
   classificarDivergencia,
   resolverIdAudit,
   GROUND_TRUTHS,
-  CURATED_SLUGS,
   type LinhaAuditoria,
 } from "../prisma/audit-igdb-ids.js";
 
@@ -118,11 +118,11 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
   });
 
   describe("Ground-truth mantido (T268)", () => {
-    it("Elden Ring/Terraria/Hades com ids já corrigidos", () => {
+    it("Elden Ring/Terraria/Hades com ids verificados (T268 corrigido: Hades=80529)", () => {
       const porSlug = new Map(GAMES_CURADOS.map((g) => [g.slug, g.igdbId]));
       expect(porSlug.get("elden-ring")).toBe(119133);
       expect(porSlug.get("terraria")).toBe(1879);
-      expect(porSlug.get("hades")).toBe(127762);
+      expect(porSlug.get("hades")).toBe(80529);
     });
 
     it("lista do seed não tem slugs duplicados (uma entrada por game)", () => {
@@ -281,6 +281,19 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       expect(res).toEqual({ movidos: 3, isolado: true });
       expect(prisma.midia.delete).not.toHaveBeenCalled();
     });
+
+    it("reativa o canônico soft-deleted (estado misto de produção)", async () => {
+      const prisma = mockPrisma();
+      await mesclarDuplicados(prisma, "de-id", "para-id");
+      expect(prisma.midia.update).toHaveBeenCalledWith({
+        where: { id: "para-id" },
+        data: { deleted_at: null },
+      });
+      expect(prisma.midia.update).toHaveBeenCalledWith({
+        where: { id: "de-id" },
+        data: expect.objectContaining({ deleted_at: expect.any(Date), score: null }),
+      });
+    });
   });
 
   describe("corrigirRegistro — update ou merge", () => {
@@ -331,10 +344,10 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
           update: vi.fn(async () => ({})),
         },
       });
-      expect(GROUND_TRUTHS.has(127762)).toBe(true);
+      expect(GROUND_TRUTHS.has(80529)).toBe(true);
       const res = await corrigirRegistro(prisma, {
         nome: "Hades",
-        idCurado: 127762,
+        idCurado: 80529,
         idIgdb: 999999,
       });
       expect(res.acao).toBe("ok");
@@ -345,11 +358,11 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
 
   describe("T283 — classificação por nome (D-276)", () => {
     it("LOOKUP_CORRETO: nome do lookup confere, curado não", () => {
-      const c = classificarDivergencia("Overwatch 2", "Some Other Game", "Overwatch 2");
+      const c = classificarDivergencia("Overwatch 2", "The Beasts of 9500", "Overwatch 2");
       expect(c).toBe("LOOKUP_CORRETO");
     });
 
-    it("CURADO_CORRETO: nome do curado confere, lookup não (caso Hades)", () => {
+    it("CURADO_CORRETO: nome do curado confere, lookup não", () => {
       const c = classificarDivergencia("Hades", "Hades", "Hades II");
       expect(c).toBe("CURADO_CORRETO");
     });
@@ -359,10 +372,28 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       expect(classificarDivergencia("Celeste", null, "Some Other Game")).toBe("AMBIGUO");
     });
 
-    it("CURATED_SLUGS cobre os 3 NAO_ENCONTRADO com slug canônico", () => {
-      expect(CURATED_SLUGS.get("Baldur's Gate 3")).toBe("baldurs-gate-3");
-      expect(CURATED_SLUGS.get("Divinity: Original Sin 2")).toBe("divinity-original-sin-2");
-      expect(CURATED_SLUGS.get("Overwatch 2")).toBe("overwatch-2");
+    it("CURATED_SLUGS cobre os 4 NAO_ENCONTRADO com slugs canônicos do IGDB", () => {
+      expect(CURATED_SLUGS.get("Baldur's Gate 3")).toBe("baldurs-gate-iii");
+      expect(CURATED_SLUGS.get("Divinity: Original Sin 2")).toBe("divinity-original-sin-ii");
+      expect(CURATED_SLUGS.get("Minecraft")).toBe("minecraft--1");
+      expect(CURATED_SLUGS.get("Overwatch 2")).toBe("overwatch");
+    });
+  });
+
+  describe("T283 — melhorCandidato com token único (caso Minecraft)", () => {
+    it("match exato domina variantes mesmo com boost de ano", () => {
+      const candidatos = [
+        {
+          id: 240149,
+          name: "Minecraft Tower Defence",
+          slug: "minecraft-tower-defence",
+          first_release_date: 1314835200,
+        },
+        { id: 135400, name: "Minecraft", slug: "minecraft--1", first_release_date: 1293840000 },
+      ];
+      const melhor = melhorCandidato("Minecraft", candidatos, 2011);
+      expect(melhor?.id).toBe(135400);
+      expect(nomeConfere("Minecraft", melhor)).toBe(true);
     });
   });
 
@@ -407,16 +438,16 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       expect(res?.via).toBe("nome");
     });
 
-    it("slug e nome falham → slugCurado resolve (caso BG3)", async () => {
+    it("slug e nome falham → slugCurado resolve (caso BG3, romanos)", async () => {
       stubIgdb((body) => {
         if (body.includes('where slug = "baldur-s-gate-3"')) return Promise.resolve(jsonRes([]));
-        if (body.includes('where slug = "baldurs-gate-3"'))
-          return Promise.resolve(jsonRes([{ id: 1086940, slug: "baldurs-gate-3" }]));
+        if (body.includes('where slug = "baldurs-gate-iii"'))
+          return Promise.resolve(jsonRes([{ id: 119171, slug: "baldurs-gate-iii" }]));
         if (body.includes("search")) return Promise.resolve(jsonRes([]));
         return Promise.resolve(jsonRes([]));
       });
       const res = await resolverIdAudit("baldur-s-gate-3", "Baldur's Gate 3", 2023);
-      expect(res?.id).toBe(1086940);
+      expect(res?.id).toBe(119171);
       expect(res?.via).toBe("slugCurado");
     });
 

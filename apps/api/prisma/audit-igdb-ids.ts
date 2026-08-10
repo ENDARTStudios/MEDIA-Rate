@@ -28,6 +28,7 @@ import {
   normalizarTitulo,
   resetCacheNomes,
   resetTokenTwitch,
+  CURATED_SLUGS,
 } from "./igdb-http.js";
 
 const DELAY_MS = 300;
@@ -45,18 +46,21 @@ export type StatusAuditoria = "OK" | "DIVERGENCIA" | "NAO_ENCONTRADO" | "IGDB_IN
  */
 export type Classificacao = "LOOKUP_CORRETO" | "CURADO_CORRETO" | "AMBIGUO";
 
-/** Ground-truths verificados externamente — o apply NUNCA os sobrescreve. */
-export const GROUND_TRUTHS: ReadonlySet<number> = new Set([119133, 1879, 127762]);
-
 /**
- * Slugs canônicos de curadoria para jogos que o lookup por slug/nome do seed
- * não resolve. O id continua DERIVADO do lookup por slug (nunca lista de ids).
- * Evidência pública: https://www.igdb.com/games/<slug>
+ * Ground-truths VERIFICADOS ao vivo no IGDB (2026-08-10) — o apply NUNCA os
+ * sobrescreve. Inclui a correção do T268: "Hades" é 80529 (127762 é
+ * "Wrecker"); BG3=119171 (baldurs-gate-iii), Divinity=11800
+ * (divinity-original-sin-ii), Minecraft=135400 (minecraft--1), Overwatch 2
+ * =8173 (entrada canônica "Overwatch" — não há entry separada de OW2).
  */
-export const CURATED_SLUGS: ReadonlyMap<string, string> = new Map([
-  ["Baldur's Gate 3", "baldurs-gate-3"],
-  ["Divinity: Original Sin 2", "divinity-original-sin-2"],
-  ["Overwatch 2", "overwatch-2"],
+export const GROUND_TRUTHS: ReadonlySet<number> = new Set([
+  119133, // Elden Ring
+  1879, // Terraria
+  80529, // Hades
+  135400, // Minecraft
+  119171, // Baldur's Gate 3
+  11800, // Divinity: Original Sin 2
+  8173, // Overwatch 2 / Overwatch
 ]);
 
 export function classificarDivergencia(
@@ -241,6 +245,13 @@ export async function mesclarDuplicados(
 
   const movidos =
     af.length + ints.length + wl.length + itens.length + gens.length + strs.length + franq.length;
+  // T283: reativa o canônico caso esteja soft-deleted (estado misto de
+  // produção: o registro CORRETO foi isolado como órfão por apply anterior —
+  // ex.: BG3 119171 e Hades 127762). O órfão (deId) é isolado logo abaixo.
+  await prisma.midia.update({
+    where: { id: paraId },
+    data: { deleted_at: null },
+  });
   // Isola o órfão (flag deleted_at — preservado, nunca excluído aqui).
   await prisma.midia.update({
     where: { id: deId },

@@ -15,6 +15,7 @@ import {
   buscarCandidatosPorNome,
   melhorCandidato,
   nomeConfere,
+  CURATED_SLUGS,
 } from "./igdb-http.js";
 
 interface GameSeed {
@@ -44,6 +45,7 @@ export async function resolverIdIgdb(
   slug: string,
   nome: string,
   idCurado: number,
+  ano?: number,
 ): Promise<number> {
   try {
     const porSlug = await buscarIdPorSlug(slug);
@@ -55,8 +57,8 @@ export async function resolverIdIgdb(
       }
       return porSlug.id;
     }
-    const candidatos = await buscarCandidatosPorNome(nome);
-    const melhor = melhorCandidato(nome, candidatos);
+    const candidatos = await buscarCandidatosPorNome(nome, ano);
+    const melhor = melhorCandidato(nome, candidatos, ano);
     // T276: só auto-corrige com casamento ESTRITO de nome — nunca grava um
     // id de um jogo com nome próximo (falso positivo).
     if (melhor?.id && nomeConfere(nome, melhor)) {
@@ -64,6 +66,17 @@ export async function resolverIdIgdb(
         `[seed:games] ${nome}: slug "${slug}" sem match — re-mapeado por nome → id ${melhor.id} (IGDB: "${melhor.name}" / "${melhor.slug}")`,
       );
       return melhor.id;
+    }
+    // T283: slug curado canônico (romanos/sufixos IGDB) antes do fallback.
+    const slugCurado = CURATED_SLUGS.get(nome);
+    if (slugCurado && slugCurado !== slug) {
+      const porSlugCurado = await buscarIdPorSlug(slugCurado);
+      if (porSlugCurado) {
+        console.warn(
+          `[seed:games] ${nome}: resolvido por slug curado "${slugCurado}" → id ${porSlugCurado.id}`,
+        );
+        return porSlugCurado.id;
+      }
     }
     console.warn(
       melhor?.id
@@ -97,7 +110,7 @@ const GAMES: GameSeed[] = [
     nome: "Baldur's Gate 3",
     slug: "baldur-s-gate-3",
     ano: 2023,
-    igdbId: 1086940,
+    igdbId: 119171,
     igdb: { rating: 95, votos: 2100 },
     igdbPublico: { rating: 93, votos: 26000 },
     opencritic: { rating: 96, votos: 130 },
@@ -181,7 +194,7 @@ const GAMES: GameSeed[] = [
     nome: "Hades",
     slug: "hades",
     ano: 2020,
-    igdbId: 127762,
+    igdbId: 80529,
     igdb: { rating: 92, votos: 1100 },
     igdbPublico: { rating: 91, votos: 12000 },
     opencritic: { rating: 93, votos: 90 },
@@ -517,7 +530,7 @@ const GAMES: GameSeed[] = [
     nome: "Divinity: Original Sin 2",
     slug: "divinity-original-sin-2",
     ano: 2017,
-    igdbId: 48842,
+    igdbId: 11800,
     igdb: { rating: 91, votos: 900 },
     igdbPublico: { rating: 92, votos: 8000 },
     opencritic: { rating: 93, votos: 90 },
@@ -589,7 +602,7 @@ const GAMES: GameSeed[] = [
     nome: "Minecraft",
     slug: "minecraft",
     ano: 2011,
-    igdbId: 1139,
+    igdbId: 135400,
     igdb: { rating: 88, votos: 1500 },
     igdbPublico: { rating: 92, votos: 15000 },
     opencritic: { rating: 88, votos: 70 },
@@ -625,7 +638,7 @@ const GAMES: GameSeed[] = [
     nome: "Overwatch 2",
     slug: "overwatch-2",
     ano: 2022,
-    igdbId: 133193,
+    igdbId: 8173,
     igdb: { rating: 79, votos: 900 },
     igdbPublico: { rating: 80, votos: 9000 },
     opencritic: { rating: 80, votos: 90 },
@@ -707,8 +720,8 @@ async function main(): Promise<void> {
 
     let inseridos = 0;
     for (const g of GAMES) {
-      // T276: id IGDB derivado do lookup (slug/nome) — fallback curado.
-      const igdbId = await resolverIdIgdb(g.slug, g.nome, g.igdbId);
+      // T276: id IGDB derivado do lookup (slug/nome/slugCurado) — fallback curado.
+      const igdbId = await resolverIdIgdb(g.slug, g.nome, g.igdbId, g.ano);
       await delay(DELAY_MS); // rate limit IGDB
 
       const midia = await prisma.midia.upsert({
