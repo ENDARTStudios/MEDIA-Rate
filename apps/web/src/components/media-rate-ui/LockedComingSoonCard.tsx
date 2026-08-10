@@ -15,13 +15,24 @@ import type { MediaType } from "@/lib/types";
 import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
 import { WaitlistCaptureModal } from "@/components/media-rate-ui/WaitlistCaptureModal";
 
-const CATEGORY_LABEL: Record<MediaType, string> = {
-  movie: "Filmes",
-  series: "Séries",
-  game: "Games",
-  book: "Livros",
-  comic: "HQs & Mangás",
-  manga: "Mangás",
+// T254: chaves i18n dos rótulos de categoria (plurais — catalog.filme/...).
+const CATEGORY_KEY: Record<MediaType, string> = {
+  movie: "filme",
+  series: "serie",
+  game: "game",
+  book: "livro",
+  comic: "comic",
+  manga: "manga",
+};
+
+/** Chave da lista de variações por tipo (arrays i18n, via t.raw). */
+const VARIANTE_KEY: Record<MediaType, string> = {
+  movie: "variant_movie",
+  series: "variant_series",
+  game: "variant_game",
+  book: "variant_book",
+  comic: "variant_comic",
+  manga: "variant_manga",
 };
 
 export interface LockedComingSoonCardProps {
@@ -31,20 +42,13 @@ export interface LockedComingSoonCardProps {
   onNotify?: (email: string) => Promise<void> | void;
 }
 
-const VARIANTE_LABEL: Record<MediaType, string[]> = {
-  book: ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
-  comic: ["HQs", "Super-heróis", "Indie", "Mangás", "Novidades"],
-  manga: ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
-  movie: ["Filmes"],
-  series: ["Séries"],
-  game: ["Games"],
-};
-
 export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedComingSoonCardProps) {
   const t = useTranslations("catalog");
   const [modalOpen, setModalOpen] = useState(false);
   const accent = MEDIA_ACCENTS[type];
-  const rotulo = VARIANTE_LABEL[type][variante % VARIANTE_LABEL[type].length];
+  const categoria = t(CATEGORY_KEY[type]);
+  const variacoes = (t.raw(VARIANTE_KEY[type]) as string[]) ?? [];
+  const rotulo = variacoes[variante % Math.max(variacoes.length, 1)] ?? categoria;
 
   return (
     <>
@@ -52,7 +56,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
         type="button"
         onClick={() => setModalOpen(true)}
         className="group block w-full rounded-md border border-[#2A2A3D] bg-[#12121C] text-left overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
-        aria-label={`${CATEGORY_LABEL[type]} — ${t("noResults")}`}
+        aria-label={`${categoria} — ${t("noResults")}`}
         data-testid={`locked-card-${type}`}
       >
         <div className="aspect-[2/3] bg-[#1B1B2C] relative overflow-hidden">
@@ -84,7 +88,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
         </div>
         <div className="p-3">
           <h3 className="font-heading text-sm font-medium text-[#F5F5F7]">
-            {CATEGORY_LABEL[type]}
+            {categoria}
           </h3>
           <p className="text-xs text-[#6B6B85] mt-0.5">{t("comingSoonTap")}</p>
         </div>
@@ -93,7 +97,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
       <WaitlistCaptureModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        categoryLabel={CATEGORY_LABEL[type]}
+        categoryLabel={categoria}
         onNotify={onNotify}
       />
     </>

@@ -20,7 +20,7 @@ vi.mock("@prisma/client", () => ({
   }),
 }));
 
-import { urlSegura, capaIgdb, capaGoogleBooks, capaJikan, capaOpenLibrary } from "../prisma/seed-posters.js";
+import { urlSegura, capaIgdb, capaGoogleBooks, capaJikan, capaOpenLibrary, capaObraRelacionada } from "../prisma/seed-posters.js";
 
 function mockFetch(handler: (url: string, init?: RequestInit) => Promise<Response>) {
   vi.stubGlobal("fetch", vi.fn(handler));
@@ -155,6 +155,29 @@ describe("T226 — seed-posters: fontes por tipo (D-240)", () => {
     it("404 → null (graceful)", async () => {
       mockFetch(() => Promise.resolve(new Response("nada", { status: 404 })));
       const capa = await capaJikan("Berserk");
+      expect(capa).toBeNull();
+    });
+  });
+
+  describe("T255 — MANGA fallback por obra relacionada", () => {
+    it("usa poster da série com o mesmo título quando o mangá não tem capa", async () => {
+      const prisma = {
+        midia: {
+          findMany: vi.fn(async () => [
+            { imagem_url: "https://image.tmdb.org/t/p/w500/berserk-serie.jpg" },
+          ]),
+        },
+      };
+      const capa = await capaObraRelacionada(prisma as unknown as import("@prisma/client").PrismaClient, "Berserk");
+      expect(capa).toBe("https://image.tmdb.org/t/p/w500/berserk-serie.jpg");
+      expect(prisma.midia.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ titulo: expect.objectContaining({ contains: "Berserk" }) }) }),
+      );
+    });
+
+    it("sem relacionada com pôster → null", async () => {
+      const prisma = { midia: { findMany: vi.fn(async () => []) } };
+      const capa = await capaObraRelacionada(prisma as unknown as import("@prisma/client").PrismaClient, "Xyz");
       expect(capa).toBeNull();
     });
   });

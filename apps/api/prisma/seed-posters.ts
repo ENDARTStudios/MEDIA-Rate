@@ -188,17 +188,40 @@ interface JikanResponse {
 }
 
 async function capaJikan(titulo: string): Promise<string | null> {
+  // T255: User-Agent + retries — o Jikan (Cloudflare) responde 504 sem UA.
   const dados = await getJson<JikanResponse>(
     `https://api.jikan.moe/v4/manga?q=${encodeURIComponent(titulo)}&limit=1`,
+    { "User-Agent": "media-rate-seed/1.0" },
   );
   const item = dados?.data?.[0];
   const img = item?.images?.webp?.large_image_url ?? item?.images?.webp?.image_url;
   return urlSegura(img);
 }
 
+/**
+ * T255: fallback de pôster para MANGA sem capa — busca a série/obra com o
+ * MESMO título via /discover e reutiliza o poster do TMDB (ex.: mangá
+ * Berserk usa o poster da série Berserk). Nunca lança.
+ */
+async function capaObraRelacionada(
+  prisma: PrismaClient,
+  titulo: string,
+): Promise<string | null> {
+  try {
+    const relacionadas = await prisma.midia.findMany({
+      where: { titulo: { contains: titulo, mode: "insensitive" }, imagem_url: { not: null } },
+      take: 1,
+      select: { imagem_url: true },
+    });
+    return urlSegura(relacionadas[0]?.imagem_url);
+  } catch {
+    return null;
+  }
+}
+
 // ---------- Exportadas para teste (T226: fetch mockado por fonte) ----------
 
-export { capaIgdb, capaGoogleBooks, capaJikan, capaOpenLibrary };
+export { capaIgdb, capaGoogleBooks, capaJikan, capaOpenLibrary, capaObraRelacionada };
 
 // ---------- COMIC/LIVRO fallback: OpenLibrary covers (sem chave) ----------
 
@@ -248,6 +271,9 @@ async function preencher() {
         break;
       case "MANGA":
         capa = await capaJikan(m.titulo);
+        // T255: fallback por obra relacionada (ex.: mangá Berserk usa o
+        // poster da série Berserk) quando o Jikan não retorna capa.
+        if (!capa) capa = await capaObraRelacionada(prisma, m.titulo);
         break;
       case "COMIC":
         capa = await capaOpenLibrary(m.titulo);

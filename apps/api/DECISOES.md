@@ -205,7 +205,7 @@ Web 240/240, tsc + build exit 0.
 ## D-238 deploy Railway ACTIVE com linha rolled-back — cenarios (a)+(b) (T235)
 Diagnóstico com evidência: uptime da API resetou para ~40min e os
 endpoints novos respondem — o deploy do 3231115 SUBIU após o Operador
-rodar o resolve --rolled-back. CENÁRIO OCORRIDO: (a) os deploys T231/D-235
+rodar o resolve --rolled-back. CENÝRIO OCORRIDO: (a) os deploys T231/D-235
 falharam PRÉ-resolve (P3009: linha failed bloqueia) — resolvido pelo
 resolve do Operador; (b) REPRODUZIDO em docker que a linha rolled-back com
 CHECKSUM ANTIGO NÃO bloqueia o migrate deploy (Prisma valida checksum
@@ -228,7 +228,7 @@ tipo: GAME → IGDB cover (OAuth client-credentials Twitch,
 TWITCH_CLIENT_ID/SECRET; fonte_id é o id numérico IGDB); LIVRO → Google
 Books (GOOGLE_BOOKS_API_KEY) com fallback OpenLibrary covers (sem chave,
 por cover_i); MANGA → Jikan (público, busca por título); COMIC →
-OpenLibrary. POLÍTICA: delay ≥300ms por fonte; máx. 1 retry; falha → log
+OpenLibrary. POLÝTICA: delay ≥300ms por fonte; máx. 1 retry; falha → log
 do título e continua (nunca aborta lote); só URLs https armazenadas;
 nenhum segredo em logs; resumo final com contadores
 (preenchidos/falhos/sem fonte). VALIDAÇÃO: 12 testes unitários com fetch
@@ -439,3 +439,17 @@ fichas EN/ES (dados TMDB gravados so em pt-BR; exigiria re-coleta
 multi-idioma, nao e bug de UI); game (Terraria) e manga (Berserk) sem
 poster (imagem_url vazio � T245 pendente, credencial IGDB/Jikan). TESTES:
 fichas-auditoria.spec.ts (4). Web 301/301, tsc + build exit 0.
+
+## D-254 T254 (LockedComingSoonCard i18n) + T255 (poster mangas por obra relacionada)
+T254: LockedComingSoonCard (home Livros/Quadrinhos/Mangas) tinha
+CATEGORY_LABEL e VARIANTE_LABEL hardcoded PT. Corrigido: CATEGORY via
+chaves catalog.filme/serie/game/livro/comic/manga; variantes via arrays
+i18n variant_book/comic/manga/movie/series/game nos 3 locales (t.raw).
+EN: Books/Novels/Comics/New releases; ES: Libros/Novelas/Comics/
+Novedades. T255: manga (Berserk) sem poster � Jikan com 504 constante;
+adicionado User-Agent + retries no capaJikan e FALLBACK por obra
+relacionada (capaObraRelacionada): usa o poster TMDB de outra midia com o
+mesmo titulo (manga Berserk <- serie Berserk). Validado em docker: manga
+ganhou poster da serie. Game (Terraria) permanece dependente da credencial
+IGDB/Twitch no env (T245). TESTES: seed-posters 15 (2 novos fallback).
+Web 301/301, API tests verdes, tsc + builds exit 0.

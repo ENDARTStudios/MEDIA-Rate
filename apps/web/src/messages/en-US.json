@@ -156,7 +156,36 @@
     "lowConsensus": "Critics/audience divergence",
     "scoreV2": "MEDIA Score™ v3",
     "methodologyV2": "Calculated with media-type weights (critics, audience and consensus) and a Bayesian estimator that pulls titles with few votes toward the catalog average; consensus feeds back into the score.",
-    "scoreComingSoon": "Coming soon — sources in preparation"
+    "scoreComingSoon": "Coming soon — sources in preparation",
+    "variant_book": [
+      "Novels",
+      "Non-fiction",
+      "Classics",
+      "Sagas",
+      "New releases"
+    ],
+    "variant_comic": [
+      "Comics",
+      "Superheroes",
+      "Indie",
+      "New releases"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "New releases"
+    ],
+    "variant_movie": [
+      "Movies"
+    ],
+    "variant_series": [
+      "Series"
+    ],
+    "variant_game": [
+      "Games"
+    ]
   },
   "dashboard": {
     "title": "Dashboard",
