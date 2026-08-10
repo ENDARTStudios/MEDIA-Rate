@@ -453,3 +453,20 @@ mesmo titulo (manga Berserk <- serie Berserk). Validado em docker: manga
 ganhou poster da serie. Game (Terraria) permanece dependente da credencial
 IGDB/Twitch no env (T245). TESTES: seed-posters 15 (2 novos fallback).
 Web 301/301, API tests verdes, tsc + builds exit 0.
+
+## D-257 T257: fluxo IGDB no seed-posters — POST APGQL + cover id + surfacing
+Re-seed em producao (D-256): 51/51 GAMEs 'sem capa' com twitch=true.
+DIAGNOSTICO (T257): (1) o seed usava GET sem body para o IGDB, mas o v4
+exige POST com query APGQL no body — a query nunca era enviada; (2)
+`fields cover.url` num so passo nunca funciona: games retorna cover como
+ID (tabela covers tem a URL); (3) getJson/postForm engoliam o status
+HTTP (violava D-230). CORRECAO: novo postApigql (POST + body APGQL) para
+games (`fields cover; where id = X;`) e covers (`fields url; where id =
+Y;`); User-Agent; logHttpErro loga 'oauth/igdb erro HTTP <status>' em
+qualquer nao-2xx. Validado: mock do fluxo de 2 passos (oauth ? games ?
+covers) e docker com chaves fake mostra 'oauth erro HTTP 400: Bad
+Request' (surfacing real). TESTES: seed-posters 16 (novo: fluxo 2 passos
++ cover objeto). RESTO: se com chaves reais o OAuth retornar 401, e
+credencial invalida/nao-autorizada (escalar ao Operador); se 200 e 0
+covers, dado IGDB sem cover. Operador: re-rodar db:seed:posters apos
+deploy e conferir o log (status HTTP visivel).

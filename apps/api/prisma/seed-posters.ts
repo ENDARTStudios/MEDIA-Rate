@@ -37,10 +37,55 @@ const contadores: Contadores = { preenchidos: 0, falhos: 0, ignorados: 0, semFon
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** POST body APGQL (IGDB) → JSON. O IGDB v4 exige POST com a query no body. */
+async function postApigql<T>(
+  url: string,
+  query: string,
+  headers: Record<string, string>,
+  retry = 0,
+): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+        ...headers,
+      },
+      body: query,
+    });
+    if (!res.ok) {
+      // T257: surfacing do status HTTP do IGDB (D-230).
+      logHttpErro("igdb", url, res);
+      if (retry < RETRY_MAX) {
+        await delay(DELAY_MS);
+        return postApigql<T>(url, query, headers, retry + 1);
+      }
+      return null;
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    console.warn(`[posters] IGDB falhou: ${url.slice(0, 80)} (${String(err).slice(0, 120)})`);
+    if (retry < RETRY_MAX) {
+      await delay(DELAY_MS);
+      return postApigql<T>(url, query, headers, retry + 1);
+    }
+    return null;
+  }
+}
+
+/** Loga o status HTTP real de falhas (T257 — surfacing, nunca só 'sem capa'). */
+function logHttpErro(fonte: string, url: string, res: Response): void {
+  const status = res.status;
+  const trecho = res.statusText ?? "";
+  console.warn(`[posters] ${fonte} erro HTTP ${status}: ${trecho.slice(0, 200)}`);
+}
+
 async function getJson<T>(url: string, headers: Record<string, string> = {}, retry = 0): Promise<T | null> {
   try {
     const res = await fetch(url, { headers });
     if (!res.ok) {
+      // T257: surfacing do status HTTP real (D-230) — nunca engolir.
+      logHttpErro("GET", url, res);
       if (retry < RETRY_MAX) {
         await delay(DELAY_MS);
         return getJson<T>(url, headers, retry + 1);
@@ -48,7 +93,8 @@ async function getJson<T>(url: string, headers: Record<string, string> = {}, ret
       return null;
     }
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    console.warn(`[posters] GET falhou: ${url.slice(0, 120)} (${String(err).slice(0, 120)})`);
     if (retry < RETRY_MAX) {
       await delay(DELAY_MS);
       return getJson<T>(url, headers, retry + 1);
@@ -69,6 +115,8 @@ async function postForm<T>(url: string, corpo: URLSearchParams, retry = 0): Prom
       body: corpo.toString(),
     });
     if (!res.ok) {
+      // T257: surfacing do status HTTP do OAuth (D-230).
+      logHttpErro("oauth", url, res);
       if (retry < RETRY_MAX) {
         await delay(DELAY_MS);
         return postForm<T>(url, corpo, retry + 1);
@@ -76,7 +124,8 @@ async function postForm<T>(url: string, corpo: URLSearchParams, retry = 0): Prom
       return null;
     }
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    console.warn(`[posters] OAuth falhou: ${url.slice(0, 80)} (${String(err).slice(0, 120)})`);
     if (retry < RETRY_MAX) {
       await delay(DELAY_MS);
       return postForm<T>(url, corpo, retry + 1);
@@ -123,7 +172,12 @@ async function obterTokenTwitch(): Promise<string | null> {
 
 interface IgdbGame {
   id?: number;
-  cover?: { url?: string };
+  cover?: { id?: number } | number;
+}
+
+interface IgdbCover {
+  id?: number;
+  url?: string;
 }
 
 async function capaIgdb(gameId: string, titulo: string): Promise<string | null> {
@@ -143,14 +197,30 @@ async function capaIgdb(gameId: string, titulo: string): Promise<string | null> 
   }
   // fonte_id é o id numérico do IGDB (seed-games grava String(igdbId)).
   if (!/^\d+$/.test(gameId)) return null;
-  const corpo = `fields cover.url; where id = ${gameId};`;
-  const dados = await getJson<IgdbGame[]>("https://api.igdb.com/v4/games", {
+  const headers = {
     "client-id": process.env.TWITCH_CLIENT_ID ?? "",
     authorization: `Bearer ${token}`,
-    "content-type": "text/plain",
-  });
-  const cover = dados?.[0]?.cover?.url;
-  return urlSegura(cover);
+  };
+  // T257: o IGDB v4 exige POST com body APGQL e retorna `cover` como ID
+  // (não expande url) na query de games — a URL fica na tabela `covers`.
+  // Antes usava GET (sem body) + `fields cover.url` num só passo: sempre
+  // undefined → 51/51 falhos com token válido.
+  const games = await postApigql<IgdbGame[]>(
+    "https://api.igdb.com/v4/games",
+    `fields cover; where id = ${gameId};`,
+    headers,
+  );
+  if (!games || games.length === 0) return null;
+  const cover = games[0]?.cover;
+  const coverId = typeof cover === "number" ? cover : cover?.id;
+  if (!coverId) return null;
+  const covers = await postApigql<IgdbCover[]>(
+    "https://api.igdb.com/v4/covers",
+    `fields url; where id = ${coverId};`,
+    headers,
+  );
+  const coverObj = covers?.find((c) => c.id === coverId) ?? covers?.[0];
+  return urlSegura(coverObj?.url);
 }
 
 // ---------- LIVRO: Google Books (com fallback OpenLibrary) ----------

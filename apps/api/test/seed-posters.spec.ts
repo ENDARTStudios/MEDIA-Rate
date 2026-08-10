@@ -50,7 +50,7 @@ describe("T226 — seed-posters: fontes por tipo (D-240)", () => {
   });
 
   describe("GAME → IGDB cover (OAuth Twitch)", () => {
-    it("sucesso: usa token e retorna cover https (cover.url com //)", async () => {
+    it("sucesso: POST APGQL em games → cover id → covers → url https", async () => {
       let chamadas = 0;
       mockFetch((url, init) => {
         chamadas++;
@@ -61,15 +61,42 @@ describe("T226 — seed-posters: fontes por tipo (D-240)", () => {
           expect(String(init?.body)).toContain("grant_type=client_credentials");
           return Promise.resolve(jsonRes({ access_token: "tok123", expires_in: 3600 }));
         }
-        return Promise.resolve(jsonRes([{ id: 588, cover: { url: "//images.igdb.com/igdb/image/upload/t_cover_big/gta5.jpg" } }]));
+        // T257: o IGDB v4 exige POST com body APGQL; games retorna cover como
+        // ID e a URL vem da query em /covers.
+        expect(init?.method).toBe("POST");
+        const body = String(init?.body ?? "");
+        if (url.includes("/v4/games")) {
+          expect(body).toContain("fields cover");
+          expect(body).toContain("where id = 588");
+          return Promise.resolve(jsonRes([{ id: 588, cover: 1024 }]));
+        }
+        if (url.includes("/v4/covers")) {
+          expect(body).toContain("fields url");
+          expect(body).toContain("where id = 1024");
+          return Promise.resolve(jsonRes([{ id: 1024, url: "//images.igdb.com/igdb/image/upload/t_cover_big/gta5.jpg" }]));
+        }
+        return Promise.resolve(jsonRes([]));
       });
       process.env.TWITCH_CLIENT_ID = "cid";
       process.env.TWITCH_CLIENT_SECRET = "sec";
 
       const capa = await capaIgdb("588", "Grand Theft Auto V");
 
-      expect(chamadas).toBe(2);
+      expect(chamadas).toBe(3); // oauth + games + covers
       expect(capa).toBe("https://images.igdb.com/igdb/image/upload/t_cover_big/gta5.jpg");
+    });
+
+    it("cover como objeto {id} também funciona (variante da resposta)", async () => {
+      mockFetch((url) => {
+        if (url.includes("id.twitch.tv")) return Promise.resolve(jsonRes({ access_token: "tok", expires_in: 3600 }));
+        if (url.includes("/v4/games")) return Promise.resolve(jsonRes([{ id: 588, cover: { id: 777 } }]));
+        if (url.includes("/v4/covers")) return Promise.resolve(jsonRes([{ id: 777, url: "//img.example.com/c.jpg" }]));
+        return Promise.resolve(jsonRes([]));
+      });
+      process.env.TWITCH_CLIENT_ID = "cid";
+      process.env.TWITCH_CLIENT_SECRET = "sec";
+      const capa = await capaIgdb("588", "X");
+      expect(capa).toBe("https://img.example.com/c.jpg");
     });
 
     it("T236: chaves presentes mas token endpoint retorna erro → null (graceful)", async () => {
