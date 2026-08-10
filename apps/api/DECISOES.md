@@ -549,3 +549,19 @@ REVERTIDO: escala NATIVA por tipo — games/mangas 0-100, demais 0-10
 (MediaCard, MediaScoreModule, HeroSection). Validacao: 301/301 web, builds
 ok, api tests ok. OPERADOR: re-rodar db:seed:posters para corrigir
 t_thumb->cover_big; hard-refresh.
+
+## D-263 normalizarImagem na API + capture Ctrl+K + estado real verificado
+Operador ainda reporta mesmos 3 erros apos D-262. VERIFICADO em texto
+(Playwright, deploy atual 49e9c2d): busca 'sonho' retorna em 3 locales;
+catalogo/ficha/game EN sem termos PT; UNICO bug real = poster de games
+ainda t_thumb (banco nao re-seedado; o fix D-262 so corrige ao re-rodar).
+CORRECOES: (1) normalizarImagem (common/normalizar-imagem.ts) aplicado nos
+serializers da API (media controller ficha+lista, discover) — converte
+t_thumb -> t_cover_big na resposta, corrigindo os posters SEM re-seed; (2)
+capture:true no keydown do Ctrl+K (Firefox/Edge interceptam Ctrl+K na
+barra de endereco antes do site — sem capture o atalho pode nao chegar).
+OS DEMAIS ERROS REPORTADOS (busca vazia, traducao mista) NAO se reproduzem
+no deploy atual — provavelmente cache de navegador (bundle antigo). Testes:
+normalizar-imagem.spec (3). Validacao: 301/301 web, builds ok, api tests.
+OPERADOR: limpar cache/hard-refresh; apos deploy da API, posters de games
+corrigem sem re-seed.

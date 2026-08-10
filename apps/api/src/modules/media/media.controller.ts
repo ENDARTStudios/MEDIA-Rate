@@ -19,6 +19,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify, parseSlugDiscriminado } from "../../common/slugify.js";
+import { normalizarImagem } from "../../common/normalizar-imagem.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 
@@ -378,7 +379,7 @@ export class MediaController {
       tipo: midia.tipo,
       sinopse: midia.sinopse,
       ano_lancamento: midia.ano_lancamento,
-      imagem_url: midia.imagem_url,
+      imagem_url: normalizarImagem(midia.imagem_url),
       classificacao_indicativa: midia.classificacao_indicativa,
       pais_origem: midia.pais_origem,
       duracao_minutos: midia.duracao_minutos,
@@ -694,7 +695,7 @@ function sanitizarMidia(m: {
     sinopse: m.sinopse,
     ano_lancamento: m.ano_lancamento,
     classificacao_indicativa: m.classificacao_indicativa,
-    imagem_url: m.imagem_url,
+    imagem_url: normalizarImagem(m.imagem_url),
     duracao_minutos: m.duracao_minutos,
   };
 }

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { Prisma, type TipoMidia } from "@prisma/client";
 import { slugify } from "../../common/slugify.js";
+import { normalizarImagem } from "../../common/normalizar-imagem.js";
 
 interface SearchOptions {
   tipo?: TipoMidia;
@@ -175,7 +176,7 @@ export class DiscoverService {
       titulo_original: r.titulo_original,
       tipo: r.tipo,
       ano: r.ano_lancamento,
-      poster_url: r.poster_url,
+      poster_url: normalizarImagem(r.poster_url),
       score: r.score,
       na_watchlist: r.na_watchlist === true,
       slug: slugify(String(r.titulo ?? "")),

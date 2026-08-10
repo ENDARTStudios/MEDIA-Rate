@@ -143,8 +143,11 @@ export function SearchCommand() {
         setQuery("");
       }
     };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
+    // D-262: capture=true intercepta Ctrl+K ANTES do navegador (Firefox/Edge
+    // abrem a busca de endereço no Ctrl+K) — sem capture o atalho pode não
+    // chegar ao site.
+    window.addEventListener("keydown", h, { capture: true });
+    return () => window.removeEventListener("keydown", h, { capture: true });
   }, [open]);
 
   useEffect(() => {
