@@ -423,3 +423,19 @@ deve re-rodar npm run db:seed:posters no Console (env real) â€” resumo deve
 mostrar preenchidos>0 para GAME.
 
 
+
+## D-253 auditoria de fichas (6 tipos x 3 locales): manga breadcrumb + generos compostos
+Auditoria Playwright das 6 fichas (filme/serie/game/livro/HQ/manga) x 3
+locales. ACHADOS CORRIGIDOS: (1) breadcrumb do MANGA (Berserk) mostrava
+'Livros' — o tipoLabel do MediaDetailClient nao tinha caso 'manga',
+caindo em t('livro'); adicionado caso manga (Mangas/Manga/Manga). (2)
+generos compostos ('Acao e Aventura', 'Animacao e Aventura') retornavam
+label PT em EN/ES — slug 'acaoeaventura'/'animacaoeaventura' sem chave no
+namespace genres; adicionadas 6 chaves compostas x 3 locales. CONFIRMADOS
+OK: rotulo por tipo (Quero jogar/ver/ler), abas traduzidas (Synopsis/
+Cast/Reviews/Metadata), Share, cross-midia (Duna livro -> Duna: Parte
+Dois), footer/banner cookies. DIVIDA conhecida (D-248): sinopse em PT nas
+fichas EN/ES (dados TMDB gravados so em pt-BR; exigiria re-coleta
+multi-idioma, nao e bug de UI); game (Terraria) e manga (Berserk) sem
+poster (imagem_url vazio — T245 pendente, credencial IGDB/Jikan). TESTES:
+fichas-auditoria.spec.ts (4). Web 301/301, tsc + build exit 0.

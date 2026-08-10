@@ -758,7 +758,13 @@
     "psicologico": "Psicológico",
     "fantasy": "Fantasía",
     "superheroi": "Superhéroe",
-    "satira": "Sátira"
+    "satira": "Sátira",
+    "acaoeaventura": "Acción y Aventura",
+    "animacaoeaventura": "Animación y Aventura",
+    "aventuraefantasia": "Aventura y Fantasía",
+    "dramaeromance": "Drama y Romance",
+    "comediaedrama": "Comedia y Drama",
+    "fantasiaeaventura": "Fantasía y Aventura"
   },
   "scoreContext": {
     "high": "Alta confianza",

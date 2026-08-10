@@ -113,7 +113,9 @@ export function MediaDetailClient({
           ? t("game")
           : media.type === "comic"
             ? t("comic")
-            : t("livro");
+            : media.type === "manga"
+              ? t("manga")
+              : t("livro");
 
   const plataformaIcon = (nome: string) => {
     const n = nome.toLowerCase();
