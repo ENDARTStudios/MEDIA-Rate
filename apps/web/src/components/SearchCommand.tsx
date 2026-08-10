@@ -297,19 +297,19 @@ export function SearchCommand() {
             <div className="max-h-[50vh] overflow-y-auto">
               {debouncedQuery.length < 2 && (
                 <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                  Digite pelo menos 2 letras para buscar...
+                  {t("paletaMinChars")}
                 </div>
               )}
 
               {debouncedQuery.length >= 2 && searching && (
-                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">Buscando...</div>
+                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">{t("paletaSearching")}</div>
               )}
 
               {debouncedQuery.length >= 2 && !searching && totalResults === 0 && (
                 <div className="px-4 py-10 text-center">
-                  <p className="text-sm text-[#9CA3AF] mb-1">Nenhum resultado encontrado.</p>
+                  <p className="text-sm text-[#9CA3AF] mb-1">{t("paletaEmpty")}</p>
                   <p className="text-xs text-[#6B7280]">
-                    Tente outro título ou explore o catálogo.
+                    {t("paletaEmptyHint")}
                   </p>
                 </div>
               )}

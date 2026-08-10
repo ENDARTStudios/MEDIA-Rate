@@ -533,3 +533,19 @@ percepcao de 'quebrado'. CORRECAO: adicionados os 4 hosts ao
 images.remotePatterns. PERCEPCAO do Operador provavelmente cache de
 navegador (bundle ja atual) + cards sem imagem. OPERADOR: hard-refresh
 (Ctrl+Shift+R) e limpar cache do site apos deploy.
+
+## D-262 busca paleta i18n + revert T262 (escala nativa) + IGDB cover_big
+Reporte do Operador (3): (1) busca Ctrl+K 'Nenhum resultado' — VERIFICADO
+funcional (playwright: sonho/sonho de/shawshank/redemption retornam; 'aaa'
+retorna vazio correto). Texto 'Nenhum resultado encontrado'/'Buscando...'/
+'Digite pelo menos 2 letras' estavam hardcoded PT na paleta — internacionalizados
+(paletaEmpty/paletaSearching/paletaMinChars/paletaEmptyHint, 3 locales).
+(2) imagens de games 'erradas': seed-posters gravava URL IGDB t_thumb
+(miniatura ~90px) — agora normaliza para t_cover_big (capa 264x374) e
+corrige URLs ja gravadas com t_thumb no re-seed.
+(3) MEDIA Score 'igual aos games em tudo': o T262 havia forçado escala
+0-100 em TODOS os tipos (multiplicando 0-10 por 10 — dados errados).
+REVERTIDO: escala NATIVA por tipo — games/mangas 0-100, demais 0-10
+(MediaCard, MediaScoreModule, HeroSection). Validacao: 301/301 web, builds
+ok, api tests ok. OPERADOR: re-rodar db:seed:posters para corrigir
+t_thumb->cover_big; hard-refresh.

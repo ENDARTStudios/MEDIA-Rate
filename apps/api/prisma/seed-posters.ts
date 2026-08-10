@@ -229,7 +229,11 @@ async function capaIgdb(gameId: string, titulo: string): Promise<string | null> 
     headers,
   );
   const coverObj = covers?.find((c) => c.id === coverId) ?? covers?.[0];
-  return urlSegura(coverObj?.url);
+  // O IGDB devolve '//images.igdb.com/igdb/image/upload/t_thumb/xxx.jpg'
+  // (miniatura ~90px) — normaliza para t_cover_big (capa ~264x374) para os
+  // cards exibirem a capa correta (D-262: imagens de games 'erradas').
+  const url = coverObj?.url?.replace("t_thumb", "t_cover_big");
+  return urlSegura(url);
 }
 
 // ---------- LIVRO: Google Books (com fallback OpenLibrary) ----------
@@ -325,6 +329,20 @@ async function capaOpenLibrary(titulo: string): Promise<string | null> {
 // ---------- Principal ----------
 
 async function preencher() {
+  // D-262: corrige URLs IGDB ja gravadas como t_thumb (miniatura) → t_cover_big.
+  const comThumb = await prisma.midia.findMany({
+    where: { imagem_url: { contains: "images.igdb.com", mode: "insensitive" } },
+    select: { id: true, imagem_url: true },
+  });
+  for (const m of comThumb) {
+    const novo = m.imagem_url?.replace("t_thumb", "t_cover_big");
+    if (novo && novo !== m.imagem_url) {
+      await prisma.midia.update({ where: { id: m.id }, data: { imagem_url: novo } });
+      contadores.preenchidos++;
+      console.log(`[posters] igdb thumb→cover: ${m.id}`);
+    }
+  }
+
   // Fonte de verdade: apenas midias SEM poster (imagem_url null/vazio).
   const semPoster = await prisma.midia.findMany({
     where: {

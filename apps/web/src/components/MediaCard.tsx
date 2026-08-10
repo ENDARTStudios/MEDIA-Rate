@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
-import { score100 } from "@/lib/score-utils";
+import { normalizeDisplayScore } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -62,8 +62,6 @@ export function MediaCard({ media }: { media: MediaItem }) {
   const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
   const tipoLabel = TIPO_LABEL[media.tipo] ?? media.tipo;
-  // T262: escala única 0-100 no anel e label.
-const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 10) / 10}/100` : "—";
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -144,6 +142,13 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
   const aspectRatio = "aspect-[2/3]";
   const mediaType = TIPO_TO_MEDIA[media.tipo] ?? "movie";
   const category = CATEGORY_TOKENS[mediaType];
+  // Score na escala NATIVA do engine: games/mangás 0-100; demais 0-10.
+  // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
+  const scoreExibido = media.score != null ? normalizeDisplayScore(media.score, mediaType) : null;
+  const escala = mediaType === "game" || mediaType === "manga" ? "0-100" : "0-10";
+  const maxScore = escala === "0-100" ? 100 : 10;
+  const scoreLabel =
+    scoreExibido != null ? `${Math.round(scoreExibido * 10) / 10}/${maxScore}` : "—";
   // T: título por locale — usa titulo_original (EN do TMDB) em en/es.
   const tituloLocal = titleForLocale(
     {
@@ -254,14 +259,14 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
             <span className="text-xs text-[#9CA3AF] mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
-          {media.score != null && (
+          {scoreExibido != null && (
             <div className="absolute top-2 right-2 z-20">
-              {/* T262: escala única 0-100 (games já 0-100; demais normalizados).
-                  T: size md para a nota ficar legível (antes sm, pequena). */}
+              {/* Score na escala NATIVA do tipo (games/mangás 0-100; demais
+                  0-10) — o T262 que forçava 0-100 em tudo foi revertido. */}
               <ScoreDial
-                value={score100(media.score)}
+                value={scoreExibido}
                 size="md"
-                scale="0-100"
+                scale={escala}
               />
             </div>
           )}

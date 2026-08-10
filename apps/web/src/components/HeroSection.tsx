@@ -64,10 +64,10 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
   useEffect(() => {
     let ativo = true;
     const tipos: { key: string; api: "movie" | "series" | "game"; scale: "0-10" | "0-100" }[] = [
-      // T: chaves i18n (catalog.filme/serie/game) — o rótulo do tipo é
-      // traduzido no render via t, nunca 'Filmes' cru em EN/ES.
-      { key: "filme", api: "movie", scale: "0-100" },
-      { key: "serie", api: "series", scale: "0-100" },
+      // T: chaves i18n (catalog.filme/serie/game). Escala NATIVA: games
+      // 0-100, filmes/séries 0-10 (reverte T262 que forçava 0-100).
+      { key: "filme", api: "movie", scale: "0-10" },
+      { key: "serie", api: "series", scale: "0-10" },
       { key: "game", api: "game", scale: "0-100" },
     ];
     void Promise.all(

@@ -20,6 +20,12 @@ const messages = {
     livro: "Livro",
     comic: "HQ",
     manga: "Mangá",
+    paletaMinChars: "Digite pelo menos 2 letras para buscar...",
+    paletaSearching: "Buscando...",
+    paletaEmpty: "Nenhum resultado encontrado.",
+    paletaEmptyHint: "Tente outro título ou explore o catálogo.",
+    noResults: "Nenhum resultado encontrado",
+    comingSoonTap: "Em breve",
   },
 };
 
