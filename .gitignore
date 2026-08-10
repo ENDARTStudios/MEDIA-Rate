@@ -51,6 +51,14 @@ uploads/
 # Diretorios de trabalho do agente
 agent-ctx/
 
+# T278: artefatos acidentais de ferramentas IA / curls — nunca commitar
+mnt/
+.agent-log
+-w
+agent-logs/
+outputs/
+.claude/
+
 .vercel
 .env*
 # Exceção: .env.example é documentação de configuração (apenas placeholders,
