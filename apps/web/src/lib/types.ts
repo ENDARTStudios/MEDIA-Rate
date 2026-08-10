@@ -53,7 +53,7 @@ export interface MediaScore {
   consolidated: number;
   confidence: Confidence;
   sources: SourceRating[];
-  explanation: string;
+  explanation: string | null;
   updatedAt?: string;
   criticsScore?: number | null;
   audienceScore?: number | null;

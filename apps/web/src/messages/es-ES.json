@@ -200,7 +200,10 @@
     "paletaEmpty": "Sin resultados.",
     "paletaEmptyHint": "Prueba con otro título o explora el catálogo.",
     "paletaError": "No se pudo buscar ahora.",
-    "paletaErrorHint": "Comprueba tu conexión e inténtalo de nuevo."
+    "paletaErrorHint": "Comprueba tu conexión e inténtalo de nuevo.",
+    "scoreConsolidado": "MEDIA Score™ consolidado a partir de {n, plural, one {# fuente} other {# fuentes}}.",
+    "scoreSemFontes": "Aún no hay suficientes reseñas de nuestras fuentes.",
+    "orig": "orig."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -965,6 +968,7 @@
     "naoGostei": "No me gustó",
     "motivo_nao_curti": "No me gustó",
     "motivo_falta_tempo": "No tuve tiempo",
-    "motivo_mudanca_humor": "Cambié de opinión"
+    "motivo_mudanca_humor": "Cambié de opinión",
+    "dismiss": "Descartar"
   }
 }

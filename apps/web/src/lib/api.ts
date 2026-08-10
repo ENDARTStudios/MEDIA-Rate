@@ -254,16 +254,10 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
           consolidated: m.score.score,
           confidence,
           sources,
-          // T228: número exibido = lista exibida — a explanation deriva da
-          // lista REAL de fontes (detalhes), nunca de num_fontes solto que
-          // possa divergir (ex.: seed antigo gravava detalhes não-array).
-          explanation: emPreparacao
-            ? "Tipo em preparação — fontes ainda não ativadas."
-            : sources.length > 0
-              ? `MEDIA Score™ consolidado a partir de ${sources.length} ${
-                  sources.length === 1 ? "fonte" : "fontes"
-                }.`
-              : "Sem avaliações suficientes das fontes ainda.",
+          // T269: explanation é montada no MediaScoreModule via i18n
+          // (next-intl) — nunca hardcoded PT aqui (aparecia 'consolidado a
+          // partir de...' em EN/ES).
+          explanation: null,
           updatedAt: m.score.calculado_em,
           criticsScore: m.score.criticosScore,
           audienceScore: m.score.publicoScore,

@@ -582,3 +582,26 @@ trata erro -> paletaError (retry visivel, D-230); chaves paletaError nos
 depois cover_id do MESMO game) confirmado correto; normalizarImagem
 (D-263) entrega t_cover_big; aguardando deploy Railway (uptime atual =
 pre-D-263, capas ainda t_thumb na API). Validacao: 301/301 web, build ok.
+
+## D-265 T266/T268/T269: acoes autenticadas com erro visivel + ids IGDB + ficha i18n
+T266 (acoes autenticadas): setStatus/setReaction/setMotivo do interaction
+store tinham catch { rollback } SILENCIOSO — clique em 'Quero ver'/
+'Assistindo' falhava (500/401 logado) e nada aparecia. Agora: store expoe
+lastError (nunca engole, D-230); StatusReactionControl mostra erro com
+retry no popover (role=alert, chave dismiss) e limpa ao reabrir. Busca
+logada: mesmo padrao — erros de fetch agora lancam e a paleta mostra
+paletaError (T263).
+T268 (ids IGDB): seed-games tinha ids errados (Elden Ring 121956 = outro
+jogo 'Lockheart Indigo'; Terraria 2534; Hades 28227). Corrigidos para
+ground-truth: Elden Ring=119133, Terraria=1879, Hades=127762. Upsert por
+(fonte,fonte_id) — Operador re-rodar seed-games+posters; registros antigos
+com ids errados permanecem ate limpeza manual.
+T269 (ficha i18n): explanation 'consolidado a partir de N fontes' era
+hardcoded PT no api.ts — movida para i18n (scoreConsolidado com
+pluralizacao next-intl nos 3 locales, scoreSemFontes); rotulo de fonte
+usa meta.rotulo (nunca id cru como 'igdb_publico'); 'orig.' via chave.
+T270 (titulos/sinopses multi-idioma): schema so tem titulo_original; a
+sinopse/titulo localizado (en/es) exige migration aditiva + re-coleta TMDB
+multi-idioma (job longo) — documento como pendente com plano (colunas
+titulo_en/titulo_es/sinopse_en/sinopse_es, upsert por fonte,fonte_id).
+Validacao: 301/301 web, builds ok, api tests ok.

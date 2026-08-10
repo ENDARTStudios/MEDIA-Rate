@@ -58,6 +58,9 @@ export function StatusReactionControl({
   const setStatus = useInteractionStore((s) => s.setStatus);
   const setReaction = useInteractionStore((s) => s.setReaction);
   const setMotivo = useInteractionStore((s) => s.setMotivo);
+  // T266: erro de escrita exposto (nunca silencioso — D-230).
+  const interactionError = useInteractionStore((s) => s.lastError);
+  const clearInteractionError = useInteractionStore((s) => s.clearError);
 
   const status: ConsumoStatus | null = entry?.status ?? currentStatus ?? null;
   const reacao: Reacao | null = entry?.reacao ?? currentReaction ?? null;
@@ -118,6 +121,7 @@ export function StatusReactionControl({
       void setStatus(midiaId, "QUERO_CONSUMIR");
       return;
     }
+    clearInteractionError();
     setOpen(true);
   }
 
@@ -211,6 +215,22 @@ export function StatusReactionControl({
           className="absolute left-0 z-popover mt-2 w-56 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-3 shadow-floating"
           data-testid="status-popover"
         >
+          {interactionError && (
+            <div
+              role="alert"
+              className="mb-2 rounded-md bg-red-500/10 border border-red-500/30 px-2 py-1.5 text-xs text-red-300"
+            >
+              {interactionError}
+              <button
+                type="button"
+                onClick={clearInteractionError}
+                className="ml-2 underline"
+                aria-label={t("dismiss") ?? "Dismiss"}
+              >
+                ✕
+              </button>
+            </div>
+          )}
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#80809B]">
             {t("updateStatus")}
           </p>

@@ -75,7 +75,7 @@ export function SourceMiniCard({
         <span className="block text-sm font-bold tabular-nums text-[#F5F5F7]">
           {ratingOriginal != null ? ratingOriginal : "—"}
         </span>
-        <span className="block text-[10px] text-[#80809B]">orig.</span>
+              <span className="block text-[10px] text-[#80809B]">{t("orig")}</span>
       </div>
     </div>
   );

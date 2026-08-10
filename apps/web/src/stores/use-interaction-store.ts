@@ -36,6 +36,10 @@ interface InteractionState {
   map: Record<string, InteractionEntry>;
   loaded: boolean;
   loading: boolean;
+  /** T266: último erro de escrita (nunca engolido em silêncio — D-230). */
+  lastError: string | null;
+  /** Limpa o erro (ex.: ao abrir o popover de novo). */
+  clearError: () => void;
   /** Hidrata o mapa a partir de GET /interacoes (lista do usuário). */
   fetchAll: () => Promise<void>;
   /** Muda o status (ex.: 1-tap QUERO_CONSUMIR) com optimistic + rollback. */
@@ -62,6 +66,8 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
   map: {},
   loaded: false,
   loading: false,
+  lastError: null,
+  clearError: () => set({ lastError: null }),
 
   fetchAll: async () => {
     if (get().loaded) return;
@@ -121,7 +127,7 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       if (status === "ABANDONADO") body.motivoAbandono = motivoFinal;
       if (extras?.origemRelacaoId !== undefined) body.origemRelacaoId = extras.origemRelacaoId;
       await upsertInteracao(midiaId, body);
-    } catch {
+    } catch (err) {
       // Rollback para o estado anterior; se não havia interação, remove.
       set((s) => {
         if (hadPrior) return { map: { ...s.map, [midiaId]: prev } };
@@ -129,6 +135,10 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
           map: Object.fromEntries(Object.entries(s.map).filter(([k]) => k !== midiaId)),
         };
       });
+      // T266: NUNCA engolir erro em silêncio (D-230) — expõe no estado para
+      // o StatusReactionControl mostrar mensagem de retry.
+      const msg = err instanceof Error ? err.message : "Falha ao atualizar status";
+      set({ lastError: msg });
     }
   },
 
@@ -140,8 +150,10 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
     }));
     try {
       await upsertInteracao(midiaId, { reacao });
-    } catch {
+    } catch (err) {
       set((s) => ({ map: { ...s.map, [midiaId]: prev } }));
+      const msg = err instanceof Error ? err.message : "Falha ao atualizar reação";
+      set({ lastError: msg });
     }
   },
 
@@ -153,8 +165,10 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
     }));
     try {
       await upsertInteracao(midiaId, { motivoAbandono: motivo });
-    } catch {
+    } catch (err) {
       set((s) => ({ map: { ...s.map, [midiaId]: prev } }));
+      const msg = err instanceof Error ? err.message : "Falha ao atualizar motivo";
+      set({ lastError: msg });
     }
   },
 }));

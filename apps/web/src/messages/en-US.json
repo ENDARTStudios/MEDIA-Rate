@@ -200,7 +200,10 @@
     "paletaEmpty": "No results found.",
     "paletaEmptyHint": "Try another title or browse the catalog.",
     "paletaError": "Couldn't search right now.",
-    "paletaErrorHint": "Check your connection and try again."
+    "paletaErrorHint": "Check your connection and try again.",
+    "scoreConsolidado": "MEDIA Score™ consolidated from {n, plural, one {# source} other {# sources}}.",
+    "scoreSemFontes": "Not enough ratings from our sources yet.",
+    "orig": "orig."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -967,6 +970,7 @@
     "naoGostei": "Disliked",
     "motivo_nao_curti": "Didn't like",
     "motivo_falta_tempo": "No time",
-    "motivo_mudanca_humor": "Changed my mind"
+    "motivo_mudanca_humor": "Changed my mind",
+    "dismiss": "Dismiss"
   }
 }

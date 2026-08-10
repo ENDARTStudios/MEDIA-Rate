@@ -88,6 +88,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   // explicação fica SEMPRE visível na ficha, nunca só às vezes.
   const temAjusteBayesiano = true;
 
+  // T269: explanation por locale (nunca hardcoded PT — antes aparecia
+  // 'consolidado a partir de N fontes' em EN/ES).
+  const explanationLocal = explanation ?? (fontesUnicas.length > 0
+    ? t("scoreConsolidado", { n: fontesUnicas.length })
+    : t("scoreSemFontes"));
+
   return (
     <div
       className="bg-[#11111E] rounded-2xl p-6 border border-[#1C1C2E] space-y-5"
@@ -183,7 +189,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
               )}
             </p>
           )}
-          {explanation && <p className="text-xs text-gray-400 leading-relaxed">{explanation}</p>}
+          {explanationLocal && <p className="text-xs text-gray-400 leading-relaxed">{explanationLocal}</p>}
         </div>
       </div>
 
@@ -212,10 +218,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {fontesUnicas.map((s) => {
               const meta = FONTES_WEB[s.source];
+              // T269: rótulo amigável (nunca o id cru como 'igdb_publico').
+              const nomeFonte = meta?.rotulo ?? s.source;
               return (
                 <SourceMiniCard
                   key={s.source}
-                  name={s.source}
+                  name={nomeFonte}
                   ratingOriginal={s.score}
                   ratingNormalized={Math.round((s.score / s.maxScore) * 100)}
                   classification={meta?.classificacao}
