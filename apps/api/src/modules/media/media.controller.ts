@@ -235,6 +235,7 @@ export class MediaController {
             select: {
               id: true,
               titulo: true,
+              titulo_original: true,
               tipo: true,
               ano_lancamento: true,
               imagem_url: true,
@@ -258,6 +259,7 @@ export class MediaController {
       paginateCursor<{
         id: string;
         titulo: string;
+        titulo_original: string | null;
         tipo: string;
         ano_lancamento: number | null;
         imagem_url: string | null;
@@ -272,6 +274,7 @@ export class MediaController {
         select: {
           id: true,
           titulo: true,
+          titulo_original: true,
           tipo: true,
           ano_lancamento: true,
           imagem_url: true,

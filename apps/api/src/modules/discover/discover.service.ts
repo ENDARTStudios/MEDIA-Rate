@@ -12,6 +12,7 @@ interface SearchOptions {
 interface DiscoverRow {
   id: string;
   titulo: string;
+  titulo_original: string | null;
   tipo: string;
   ano_lancamento: number | null;
   poster_url: string | null;
@@ -149,7 +150,7 @@ export class DiscoverService {
     }
 
     const rows = await this.prisma.$queryRaw<DiscoverRow[]>(Prisma.sql`
-      SELECT m.id, m.titulo, m.tipo, m.ano_lancamento,
+      SELECT m.id, m.titulo, m.titulo_original, m.tipo, m.ano_lancamento,
              m.imagem_url AS poster_url, s.score,
              ${watchlistSql} AS na_watchlist
       FROM "midia" m ${lateralScore}
@@ -171,6 +172,7 @@ export class DiscoverService {
     const itens = pagina.map((r) => ({
       id: r.id,
       titulo: r.titulo,
+      titulo_original: r.titulo_original,
       tipo: r.tipo,
       ano: r.ano_lancamento,
       poster_url: r.poster_url,

@@ -11,22 +11,25 @@
  */
 import { getCatalog } from "@/lib/api";
 import { NUM_FONTES_ATIVAS } from "@/lib/sources";
+import { getTranslations } from "next-intl/server";
 
 const CATEGORIAS_COBERTAS = ["movie", "series", "game"] as const;
 
 export async function HomeStats() {
+  const t = await getTranslations("home");
   const data = await getCatalog({ limit: 1 });
   const totalTitulos = data?.total ?? null;
 
   const stats: { value: string; label: string }[] = [];
   if (totalTitulos != null) {
-    stats.push({ value: totalTitulos.toLocaleString("pt-BR"), label: "títulos no catálogo" });
+    // T: rótulos via i18n (EN: 'titles in catalog'; ES: 'títulos en el catálogo').
+    stats.push({ value: totalTitulos.toLocaleString("pt-BR"), label: t("statsTitulos") });
   }
-  stats.push({ value: String(NUM_FONTES_ATIVAS), label: "fontes de avaliação" });
-  stats.push({ value: String(CATEGORIAS_COBERTAS.length), label: "categorias cobertas" });
+  stats.push({ value: String(NUM_FONTES_ATIVAS), label: t("statsFontes") });
+  stats.push({ value: String(CATEGORIAS_COBERTAS.length), label: t("statsCategorias") });
 
   return (
-    <section className="px-4 pb-4" aria-label="Estatísticas do catálogo">
+    <section className="px-4 pb-4" aria-label={t("statsAria")}>
       <dl className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-12 gap-y-4">
         {stats.map((s) => (
           <div key={s.label} className="text-center">

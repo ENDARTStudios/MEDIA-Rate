@@ -92,6 +92,7 @@ interface ApiMidiaSlug {
 interface ApiMidiaList {
   id: string;
   titulo: string;
+  titulo_original?: string | null;
   tipo: string;
   ano_lancamento: number | null;
   imagem_url: string | null;
@@ -917,6 +918,8 @@ function mediaFromList(m: ApiMidiaList): Media {
     id: m.id,
     slug: slugify(m.titulo),
     title: m.titulo,
+    // D-248/T: título original (EN) para exibir em en/es via titleForLocale.
+    titleLocalized: m.titulo_original ? { pt: m.titulo, en: m.titulo_original, es: m.titulo_original } : undefined,
     type: mapTipo(m.tipo),
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: [],
@@ -992,6 +995,7 @@ export async function getMediaBySlug(slug: string): Promise<Media | null> {
 interface ApiDiscoverItem {
   id: string;
   titulo: string;
+  titulo_original?: string | null;
   tipo: string;
   ano: number | null;
   poster_url: string | null;
@@ -1005,6 +1009,9 @@ function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
     id: it.id,
     slug: it.slug,
     title: it.titulo,
+    // D-248/T: título original (EN do TMDB) exposto para o titleForLocale
+    // exibir em en-US/es-ES (a home mostrava nomes PT em todos os idiomas).
+    titleLocalized: it.titulo_original ? { pt: it.titulo, en: it.titulo_original, es: it.titulo_original } : undefined,
     type: mapTipo(it.tipo),
     year: it.ano ?? new Date().getFullYear(),
     genres: [],

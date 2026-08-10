@@ -494,3 +494,16 @@ T262: escala unica 0-100 — MediaCard e MediaScoreModule usam score100()
 T257 (ajuste cache): API cacheia /midias 60s anonimo (T210); pos-re-seed
 o poster pode demorar 60s — documentado (seed standalone nao invalida).
 Validacao: 301/301 web, build exit 0, API tests verdes.
+
+## D-259 HOME: titulos por locale (titulo_original via discover/lista) + hero/stats i18n
+Operador reportou nomes de midias PT em todos os idiomas. CAUSA RAIZ: a
+API nao expunha titulo_original no /discover nem na lista /midias — o
+titleForLocale caia no titulo PT. CORRECAO: (1) discover e /midias agora
+retornam titulo_original; (2) mediaFromDiscoverItem/mediaFromList/mapToMediaItem
+propagam titleLocalized {pt,en,es}; (3) MediaCard usa titleForLocale com
+titleLocalized (EN/ES mostram titulo original do TMDB); (4) HeroSection
+rotulo de tipo via chaves catalog (Filmes->Movies/Pelculas) e escala
+0-100 (T262); (5) HomeStats labels via chaves home (titles in catalog/
+review sources). Nao altera scores/thumbnails nem seeds; fallback mantem
+titulo PT quando sem original (mock/ausente). Validacao: 301/301 web,
+build ok, API tests verdes.

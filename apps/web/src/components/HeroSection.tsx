@@ -30,6 +30,7 @@ const CYCLE_MS = 4000;
 
 export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps) {
   const t = useTranslations("hero");
+const tc = useTranslations("catalog");
   const [reduce, setReduce] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const dialRef = useRef<HTMLDivElement>(null);
@@ -61,9 +62,11 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
   useEffect(() => {
     let ativo = true;
     const tipos: { key: string; api: "movie" | "series" | "game"; scale: "0-10" | "0-100" }[] = [
-      { key: "Filmes", api: "movie", scale: "0-10" },
-      { key: "Séries", api: "series", scale: "0-10" },
-      { key: "Games", api: "game", scale: "0-100" },
+      // T: chaves i18n (catalog.filme/serie/game) — o rótulo do tipo é
+      // traduzido no render via t, nunca 'Filmes' cru em EN/ES.
+      { key: "filme", api: "movie", scale: "0-100" },
+      { key: "serie", api: "series", scale: "0-100" },
+      { key: "game", api: "game", scale: "0-100" },
     ];
     void Promise.all(
       tipos.map(async (tp) => {
@@ -203,7 +206,8 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
                   {item && (
                     <p className="mt-1 max-w-[220px] truncate text-sm font-medium text-[#F5F5F7]">
                       {item.title}
-                      <span className="ml-1.5 text-[#6B6B85]">{item.typeKey}</span>
+                      {/* T: rótulo do tipo traduzido (Movies/Series/Games). */}
+                      <span className="ml-1.5 text-[#6B6B85]">{tc(item.typeKey)}</span>
                     </p>
                   )}
                 </motion.div>

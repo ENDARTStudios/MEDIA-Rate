@@ -443,7 +443,11 @@
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Unified entertainment score.",
     "ctaText": "Start now and discover your next favorite title. Free.",
-    "ctaTitle": "Get started free"
+    "ctaTitle": "Get started free",
+    "statsTitulos": "titles in catalog",
+    "statsFontes": "review sources",
+    "statsCategorias": "categories covered",
+    "statsAria": "Catalog statistics"
   },
   "catalogFilters": {
     "filters": "Filters",

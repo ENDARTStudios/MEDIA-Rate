@@ -17,6 +17,7 @@ import type { MediaType } from "@/lib/types";
 export interface MediaItem {
   id: string;
   titulo: string;
+  titulo_original?: string | null;
   tipo: string;
   ano_lancamento: number | null;
   imagem_url: string | null;
@@ -143,6 +144,15 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
   const aspectRatio = "aspect-[2/3]";
   const mediaType = TIPO_TO_MEDIA[media.tipo] ?? "movie";
   const category = CATEGORY_TOKENS[mediaType];
+  // T: título por locale — usa titulo_original (EN do TMDB) em en/es.
+  const tituloLocal = titleForLocale(
+    {
+      title: media.titulo,
+      id: media.id,
+      titleLocalized: media.titulo_original ? { pt: media.titulo, en: media.titulo_original, es: media.titulo_original } : undefined,
+    },
+    useLocale(),
+  );
   const CategoryIcon = category.icon;
 
   return (
@@ -180,7 +190,7 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
         href={`/media/${media.id}`}
         className="relative z-10 block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
-        aria-label={`${titleForLocale({ title: media.titulo, id: media.id }, useLocale())} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
+        aria-label={`${tituloLocal} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
         <div className={`${aspectRatio} bg-[#1C1C2E] relative overflow-hidden`}>
           {/* Barra superior de accent da categoria (Parte 2.3 D-203). */}
@@ -256,7 +266,7 @@ const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 1
 
         <div className="p-3 bg-[#11111E] rounded-b-md">
           <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">
-            {titleForLocale({ title: media.titulo, id: media.id }, useLocale())}
+            {tituloLocal}
           </h3>
           <p className="text-xs text-[#9CA3AF] mt-1">
             {t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}

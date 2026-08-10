@@ -443,7 +443,11 @@
     "metaOgTitle": "MEDIA Rate",
     "metaOgDescription": "Puntuación unificada de entretenimiento.",
     "ctaText": "Comienza ahora y descubre tu próximo título favorito. Gratis.",
-    "ctaTitle": "Empezar gratis"
+    "ctaTitle": "Empezar gratis",
+    "statsTitulos": "títulos en el catálogo",
+    "statsFontes": "fuentes de reseñas",
+    "statsCategorias": "categorías cubiertas",
+    "statsAria": "Estadísticas del catálogo"
   },
   "catalogFilters": {
     "filters": "Filtros",

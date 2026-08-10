@@ -443,7 +443,11 @@
     "metaTitle": "MEDIA Rate — Descubra o que assistir e jogar",
     "metaDescription": "Plataforma de descoberta de mídia com MEDIA Score™ unificado para filmes, séries e games.",
     "metaOgTitle": "MEDIA Rate",
-    "metaOgDescription": "Score unificado de entretenimento."
+    "metaOgDescription": "Score unificado de entretenimento.",
+    "statsTitulos": "títulos no catálogo",
+    "statsFontes": "fontes de avaliação",
+    "statsCategorias": "categorias cobertas",
+    "statsAria": "Estatísticas do catálogo"
   },
   "catalogFilters": {
     "filters": "Filtros",
