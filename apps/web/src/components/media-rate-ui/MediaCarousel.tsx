@@ -21,9 +21,16 @@ import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
 import type { MediaType } from "@/lib/types";
 
+// T258: chaves por MediaType (lowercase) e por tipo da API — o bug era
+// `type.toUpperCase()` gerar "SERIES" (plural) que não existia no mapa e o
+// fallback silencioso `?? "movie"` fazer a seção SERIES carregar FILMES.
 const TYPE_TO_API: Record<string, "movie" | "series" | "game"> = {
+  movie: "movie",
+  series: "series",
+  game: "game",
   FILME: "movie",
   SERIE: "series",
+  SERIES: "series",
   GAME: "game",
 };
 
@@ -74,7 +81,7 @@ export function MediaCarousel({ type, count, className }: MediaCarouselProps) {
     queryFn: () =>
       ROADMAP.has(type)
         ? null
-        : getCatalog({ type: TYPE_TO_API[type.toUpperCase()] ?? "movie", sort: "score", order: "desc", limit: 10 }),
+        : getCatalog({ type: TYPE_TO_API[type] ?? TYPE_TO_API[type.toUpperCase()] ?? "movie", sort: "score", order: "desc", limit: 10 }),
     staleTime: 5 * 60 * 1000,
     enabled: !ROADMAP.has(type),
   });

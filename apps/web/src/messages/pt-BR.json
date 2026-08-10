@@ -185,7 +185,15 @@
     ],
     "variant_game": [
       "Games"
-    ]
+    ],
+    "comingSoonEmailPlaceholder": "seu@email.com",
+    "comingSoonEmailLabel": "E-mail",
+    "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
+    "notifyButton": "Avisar-me",
+    "notifyDone": "Cadastrado! Avisaremos quando chegar.",
+    "cancelar": "Cancelar",
+    "catalogDesc": "Explore nosso catálogo de filmes, séries e games com o MEDIA Score™ unificado. Filtre por gênero, tipo e nota para encontrar seu próximo título favorito. Compare avaliações da crítica e do público em um único lugar.",
+    "comingSoonTag": "Em breve"
   },
   "dashboard": {
     "title": "Dashboard",

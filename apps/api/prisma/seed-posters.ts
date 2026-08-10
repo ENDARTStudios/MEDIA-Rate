@@ -26,6 +26,15 @@ const prisma = new PrismaClient();
 const DELAY_MS = 300;
 const RETRY_MAX = 1;
 
+// T257 (ajuste de cache): a API cacheia /midias por 60s para anônimos
+// (CacheService T210, chave `midias:${hash}`). Após re-seed, o catálogo
+// pode servir o registro antigo (sem pôster) por até 60s. O seed NÃO
+// importa src/ (standalone), então não invalida via CacheService — o TTL
+// expira sozinho; para forçar revalidação imediata o Operador pode, no
+// Console, rodar um segundo seed após 60s (idempotente, só-null) ou
+// aguardar a expiração natural. Documentado como limitação conhecida
+// (D-257).
+
 interface Contadores {
   preenchidos: number;
   falhos: number;
@@ -373,6 +382,8 @@ async function preencher() {
   console.log(
     `[posters] resumo: ${contadores.preenchidos} preenchidos / ${contadores.falhos} falhos / ${contadores.semFonte} sem fonte (não-GAME/LIVRO/COMIC/MANGA)`,
   );
+  // T257: cache da API expira em 60s — sem ação extra; o Operador confere
+  // o pôster após a expiração natural (limitação documentada D-257).
   await prisma.$disconnect();
 }
 

@@ -103,7 +103,7 @@ export function EmptyStateComingSoon({
           data-testid="coming-soon-form"
         >
           <label htmlFor={`coming-soon-email-${type}`} className="sr-only">
-            E-mail
+            {t("comingSoonEmailLabel")}
           </label>
           <input
             id={`coming-soon-email-${type}`}
@@ -111,7 +111,7 @@ export function EmptyStateComingSoon({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="seu@email.com"
+            placeholder={t("comingSoonEmailPlaceholder")}
             className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
           />
           <button
@@ -120,13 +120,13 @@ export function EmptyStateComingSoon({
             className="shrink-0 rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
             style={{ backgroundColor: accent }}
           >
-            {busy ? "..." : "Avisar-me"}
+            {busy ? "..." : t("notifyButton")}
           </button>
         </form>
       )}
       {sent && (
         <p className="mt-4 text-sm font-medium" style={{ color: "#34D399" }} role="status">
-          Cadastrado! Avisaremos quando chegar.
+          {t("notifyDone")}
         </p>
       )}
     </div>

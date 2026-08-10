@@ -470,3 +470,27 @@ Request' (surfacing real). TESTES: seed-posters 16 (novo: fluxo 2 passos
 credencial invalida/nao-autorizada (escalar ao Operador); se 200 e 0
 covers, dado IGDB sem cover. Operador: re-rodar db:seed:posters apos
 deploy e conferir o log (status HTTP visivel).
+
+## D-258 T258-T262: series duplicadas, i18n catalogo, gate, UI, escala unica
+T258: home SERIES carregava FILMES — MediaCarousel usava
+TYPE_TO_API[type.toUpperCase()] = "SERIES" (inexistente) e o fallback
+silencioso ?? "movie" puxava filmes. Corrigido: mapeamento direto por
+MediaType (series->series) + aliases SERIE/SERIES. API ja retornava
+series corretas (SK8/Friends) — bug so no frontend.
+T259: catalogo EN tinha paragrafo PT hardcoded (catalogDesc) + notify-state
+com 'Avisar-me'/'seu@email.com' PT no EmptyStateComingSoon e
+WaitlistCaptureModal. Adicionadas chaves i18n: catalogDesc,
+notifyButton, notifyDone, comingSoonEmailPlaceholder, comingSoonEmailLabel,
+cancelar, comingSoonTag (3 locales).
+T260: o gate 'under construction' so dispara com data.items vazio — com
+count>0 (manga=1, book=1, comic=1) a grade renderiza; confirmado em
+producao (Berserk listado em ?type=manga).
+T261: quick-add reposicionado (bottom-right, longe do meta tipo/ano);
+badge do locked card usa comingSoonTag ('Em breve'/'Coming soon'/
+'Proximamente', nao noResults); variant_comic sem 'Comics' duplicado
+('Graphic novels'/'Novelas graficas').
+T262: escala unica 0-100 — MediaCard e MediaScoreModule usam score100()
+(0-10 -> x10); scale sempre '0-100'; label /100 coerente.
+T257 (ajuste cache): API cacheia /midias 60s anonimo (T210); pos-re-seed
+o poster pode demorar 60s — documentado (seed standalone nao invalida).
+Validacao: 301/301 web, build exit 0, API tests verdes.

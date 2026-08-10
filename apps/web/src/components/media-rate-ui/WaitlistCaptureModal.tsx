@@ -61,7 +61,7 @@ export function WaitlistCaptureModal({
           ) : (
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
               <label htmlFor="waitlist-email" className="sr-only">
-                E-mail
+                {t("comingSoonEmailLabel")}
               </label>
               <input
                 id="waitlist-email"
@@ -69,7 +69,7 @@ export function WaitlistCaptureModal({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder={t("comingSoonEmailPlaceholder")}
                 className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
               />
               <div className="flex gap-2">
@@ -78,14 +78,14 @@ export function WaitlistCaptureModal({
                   disabled={busy}
                   className="flex-1 rounded-md bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] transition-opacity disabled:opacity-50"
                 >
-                  {busy ? "..." : "Avisar-me"}
+                  {busy ? "..." : t("notifyButton")}
                 </button>
                 <Dialog.Close asChild>
                   <button
                     type="button"
                     className="rounded-md border border-[#2A2A3D] px-4 py-2 text-sm text-[#A0A0B8] hover:text-[#F5F5F7] transition-colors"
                   >
-                    Cancelar
+                    {t("cancelar")}
                   </button>
                 </Dialog.Close>
               </div>

@@ -56,7 +56,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
         type="button"
         onClick={() => setModalOpen(true)}
         className="group block w-full rounded-md border border-[#2A2A3D] bg-[#12121C] text-left overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
-        aria-label={`${categoria} — ${t("noResults")}`}
+        aria-label={`${categoria} — ${t("comingSoonTag")}`}
         data-testid={`locked-card-${type}`}
       >
         <div className="aspect-[2/3] bg-[#1B1B2C] relative overflow-hidden">
@@ -79,7 +79,10 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
               <Lock className="h-4 w-4" />
             </span>
             <span className="text-xs font-semibold uppercase tracking-widest text-[#A0A0B8]">
-              {t("noResults")}
+              {/* T261: badge do cadeado usa copy coming-soon ('Em breve'/
+                  'Coming soon'/'Próximamente'), nunca 'noResults' (copy de
+                  busca vazia). */}
+              {t("comingSoonTag")}
             </span>
             <span className="rounded-full bg-black/30 px-2 py-0.5 text-[10px] text-[#F5F5F7]">
               {rotulo}

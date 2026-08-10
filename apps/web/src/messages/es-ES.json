@@ -165,7 +165,7 @@
       "Novedades"
     ],
     "variant_comic": [
-      "Cómics",
+      "Novelas gráficas",
       "Superhéroes",
       "Indie",
       "Novedades"
@@ -185,7 +185,15 @@
     ],
     "variant_game": [
       "Juegos"
-    ]
+    ],
+    "comingSoonEmailPlaceholder": "tu@email.com",
+    "comingSoonEmailLabel": "Correo electrónico",
+    "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
+    "notifyButton": "Avísame",
+    "notifyDone": "¡Registrado! Te avisaremos cuando llegue.",
+    "cancelar": "Cancelar",
+    "catalogDesc": "Explora nuestro catálogo de películas, series y juegos con el MEDIA Score™ unificado. Filtra por género, tipo y nota para encontrar tu próximo título favorito. Compara las reseñas de crítica y público en un solo lugar.",
+    "comingSoonTag": "Próximamente"
   },
   "dashboard": {
     "title": "Dashboard",

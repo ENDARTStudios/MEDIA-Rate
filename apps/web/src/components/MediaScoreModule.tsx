@@ -9,7 +9,7 @@ import { Bar } from "./Bar";
 import { ConfidenceBadge } from "@/components/media-rate-ui/ConfidenceBadge";
 import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import { score100 } from "@/lib/score-utils";
 import { derivarScores } from "@/lib/media-score-engine";
 import { FONTES_WEB } from "@/lib/source-registry";
 
@@ -66,9 +66,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const publico = audienceScore ?? derivado.publicoScore;
   const consenso = consensus ?? derivado.consenso;
 
-  const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
-  const scale = mediaType === "game" ? "0-100" : "0-10";
-  const maxScore = scale === "0-100" ? 100 : 10;
+  // T262: escala única 0-100 em todos os tipos — normaliza 0-10 → 0-100
+  // (games já vêm 0-100). Antes movies/manga/books exibiam 0-10 e games
+  // 0-100 (escalas mistas na mesma UI).
+  const consolidated = score100(rawConsolidated);
+  const scale = "0-100";
+  const maxScore = 100;
   // Deduplica fontes por id (defesa contra avaliações duplicadas no banco/mock).
   const fontesUnicas = sources.filter(
     (s, i, arr) => arr.findIndex((x) => x.source === s.source) === i,

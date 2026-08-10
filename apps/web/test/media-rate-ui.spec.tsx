@@ -28,6 +28,11 @@ const messages = {
     comic: "Quadrinhos",
     anime: "Animes",
     noResults: "Em breve",
+    notifyButton: "Avisar-me",
+    notifyDone: "Cadastrado! Avisaremos quando chegar.",
+    comingSoonEmailPlaceholder: "seu@email.com",
+    comingSoonEmailLabel: "E-mail",
+    comingSoonTag: "Em breve",
     emConstrucao: "Em construção",
   },
 };

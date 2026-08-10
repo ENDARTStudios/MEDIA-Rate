@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import { score100 } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -61,7 +61,8 @@ export function MediaCard({ media }: { media: MediaItem }) {
   const t = useTranslations("catalog");
   const shouldReduce = useReducedMotion();
   const tipoLabel = TIPO_LABEL[media.tipo] ?? media.tipo;
-  const scoreLabel = media.score != null ? `${media.score}/100` : "—";
+  // T262: escala única 0-100 no anel e label.
+const scoreLabel = media.score != null ? `${Math.round(score100(media.score) * 10) / 10}/100` : "—";
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -163,12 +164,15 @@ export function MediaCard({ media }: { media: MediaItem }) {
         aria-hidden="true"
       />
 
-      <div className="absolute top-2 left-12 z-20" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute top-2 left-2 z-20" onClick={(e) => e.stopPropagation()}>
         <WatchlistButton mediaId={media.id} />
       </div>
 
-      {/* T200 (§4.1): interação rápida de 1 toque — 1 toque = QUERO_CONSUMIR. */}
-      <div className="absolute bottom-2 left-2 z-20" onClick={(e) => e.stopPropagation()}>
+      {/* T200 (§4.1): interação rápida de 1 toque — 1 toque = QUERO_CONSUMIR.
+          T261: posicionado no canto inferior-DIREITO do pôster (bottom-2
+          right-2), abaixo do ScoreDial, para NÃO sobrepor o meta tipo/ano
+          exibido no overlay à esquerda. */}
+      <div className="absolute bottom-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
         <StatusReactionControl midiaId={media.id} mediaType={mediaType} compact />
       </div>
 
@@ -240,10 +244,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
           {media.score != null && (
             <div className="absolute top-2 right-2 z-20">
+              {/* T262: escala única 0-100 (games já 0-100; demais normalizados). */}
               <ScoreDial
-                value={normalizeDisplayScore(media.score, mediaType)}
+                value={score100(media.score)}
                 size="sm"
-                scale={mediaType === "game" ? "0-100" : "0-10"}
+                scale="0-100"
               />
             </div>
           )}
