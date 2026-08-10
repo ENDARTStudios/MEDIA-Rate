@@ -2,12 +2,31 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type * as NextIntl from "next-intl";
 
 let watchlistMock = {
   entries: [
-    { id: "e1", mediaId: "m1", status: "WANT", addedAt: "2026-07-01T00:00:00Z", media: { id: "m1", type: "movie" } },
-    { id: "e2", mediaId: "m2", status: "WATCHING", addedAt: "2026-07-15T00:00:00Z", media: { id: "m2", type: "series" } },
-    { id: "e3", mediaId: "m3", status: "COMPLETED", addedAt: "2026-06-10T00:00:00Z", media: { id: "m3", type: "game" } },
+    {
+      id: "e1",
+      mediaId: "m1",
+      status: "WANT",
+      addedAt: "2026-07-01T00:00:00Z",
+      media: { id: "m1", type: "movie" },
+    },
+    {
+      id: "e2",
+      mediaId: "m2",
+      status: "WATCHING",
+      addedAt: "2026-07-15T00:00:00Z",
+      media: { id: "m2", type: "series" },
+    },
+    {
+      id: "e3",
+      mediaId: "m3",
+      status: "COMPLETED",
+      addedAt: "2026-06-10T00:00:00Z",
+      media: { id: "m3", type: "game" },
+    },
   ],
   isLoading: false,
   error: null,
@@ -15,7 +34,7 @@ let watchlistMock = {
 };
 
 vi.mock("next-intl", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next-intl")>();
+  const actual = await importOriginal<typeof NextIntl>();
   return {
     ...actual,
     useTranslations: () => {
@@ -28,9 +47,10 @@ vi.mock("next-intl", async (importOriginal) => {
 });
 
 vi.mock("next/dynamic", () => ({
-  default: () => function Dynamic() {
-    return null;
-  },
+  default: () =>
+    function Dynamic() {
+      return null;
+    },
 }));
 
 vi.mock("@/stores/use-watchlist-store", () => ({
@@ -43,7 +63,9 @@ vi.mock("@/lib/navigation", () => ({
   Link: ({ href, children }: { href: string; children: React.ReactNode }) =>
     `<a href="${href}">${children}</a>`,
 }));
-vi.mock("@/components/ui/button", () => ({ Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>` }));
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>`,
+}));
 vi.mock("@/components/ui/rate-limited", () => ({ RateLimited: () => `<div />` }));
 vi.mock("@/components/ui/error-state", () => ({ ErrorState: () => `<div />` }));
 
@@ -64,9 +86,27 @@ describe("DashboardContent (T189)", () => {
   beforeEach(() => {
     watchlistMock = {
       entries: [
-        { id: "e1", mediaId: "m1", status: "WANT", addedAt: "2026-07-01T00:00:00Z", media: { id: "m1", type: "movie" } },
-        { id: "e2", mediaId: "m2", status: "WATCHING", addedAt: "2026-07-15T00:00:00Z", media: { id: "m2", type: "series" } },
-        { id: "e3", mediaId: "m3", status: "COMPLETED", addedAt: "2026-06-10T00:00:00Z", media: { id: "m3", type: "game" } },
+        {
+          id: "e1",
+          mediaId: "m1",
+          status: "WANT",
+          addedAt: "2026-07-01T00:00:00Z",
+          media: { id: "m1", type: "movie" },
+        },
+        {
+          id: "e2",
+          mediaId: "m2",
+          status: "WATCHING",
+          addedAt: "2026-07-15T00:00:00Z",
+          media: { id: "m2", type: "series" },
+        },
+        {
+          id: "e3",
+          mediaId: "m3",
+          status: "COMPLETED",
+          addedAt: "2026-06-10T00:00:00Z",
+          media: { id: "m3", type: "game" },
+        },
       ],
       isLoading: false,
       error: null,

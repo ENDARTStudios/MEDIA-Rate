@@ -1,9 +1,24 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchTopItems, TMDB_ITEMS_POR_TIPO, TMDB_LISTAS, TMDB_MAX_PAGES } from "../prisma/seed-tmdb.js";
+import {
+  fetchTopItems,
+  TMDB_ITEMS_POR_TIPO,
+  TMDB_LISTAS,
+  TMDB_MAX_PAGES,
+} from "../prisma/seed-tmdb.js";
 import { GAMES_CURADOS } from "../prisma/seed-games.js";
 
 function tmdbItem(id: number, titulo: string, votos: number) {
-  return { id, title: titulo, original_title: titulo, overview: "sinopse", release_date: "2020-01-01", poster_path: "/p.jpg", vote_average: 8.5, vote_count: votos };
+  return {
+    id,
+    title: titulo,
+    original_title: titulo,
+    overview: "sinopse",
+    release_date: "2020-01-01",
+    poster_path: "/p.jpg",
+    vote_average: 8.5,
+    vote_count: votos,
+  };
 }
 
 describe("T180 — seed-expansao (HTTP mockado)", () => {
@@ -12,7 +27,6 @@ describe("T180 — seed-expansao (HTTP mockado)", () => {
       "fetch",
       vi.fn(async (url: string) => {
         const u = new URL(String(url));
-        const lista = u.pathname.includes("top_rated") ? "top_rated" : "popular";
         const page = Number(u.searchParams.get("page") ?? "1");
         const results =
           page === 1
@@ -37,7 +51,13 @@ describe("T180 — seed-expansao (HTTP mockado)", () => {
   it("não duplica quando a mesma obra aparece nas duas listas", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({ ok: true, json: async () => ({ results: [tmdbItem(7, "Repetido", 50)], total_pages: 1 }) }) as Response),
+      vi.fn(
+        async () =>
+          ({
+            ok: true,
+            json: async () => ({ results: [tmdbItem(7, "Repetido", 50)], total_pages: 1 }),
+          }) as Response,
+      ),
     );
     const items = await fetchTopItems("movie", "chave", 5);
     expect(items.filter((i) => i.id === 7).length).toBe(1);

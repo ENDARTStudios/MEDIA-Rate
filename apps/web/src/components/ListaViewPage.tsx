@@ -89,7 +89,6 @@ export function ListaViewPage({ slug }: { slug: string }) {
   useEffect(() => {
     void carregar();
     // carregar depende de slug — re-executa ao navegar entre listas
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   async function buscar() {

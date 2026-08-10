@@ -12,7 +12,11 @@ import { useTranslations } from "next-intl";
 import { LockedComingSoonCard } from "@/components/media-rate-ui/LockedComingSoonCard";
 import type { MediaType } from "@/lib/types";
 
-const SECTIONS: { type: MediaType; labelKey: "railsBooks" | "railsComics"; countKey: "comingSoon" }[] = [
+const SECTIONS: {
+  type: MediaType;
+  labelKey: "railsBooks" | "railsComics";
+  countKey: "comingSoon";
+}[] = [
   { type: "book", labelKey: "railsBooks", countKey: "comingSoon" },
   { type: "comic", labelKey: "railsComics", countKey: "comingSoon" },
 ];

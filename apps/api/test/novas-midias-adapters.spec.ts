@@ -11,8 +11,6 @@ function consulta(titulo: string, tipo = "ANIME"): ConsultaMedia {
 }
 
 describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
-  const mocks: Record<string, ReturnType<typeof vi.fn>> = {};
-
   beforeEach(() => {
     vi.mock("node:https", () => ({}));
     vi.mock("node:http", () => ({}));
@@ -31,7 +29,9 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
 
   it("jikan: rating 0–10 (público) direto da API", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
-    vi.mocked(fetchJson).mockResolvedValue({ data: [{ score: 9.05, scored_by: 380000, url: "https://myanimelist.net/anime/1" }] });
+    vi.mocked(fetchJson).mockResolvedValue({
+      data: [{ score: 9.05, scored_by: 380000, url: "https://myanimelist.net/anime/1" }],
+    });
     const adapter = new JikanAdapter();
     const notas = await adapter.coletar(consulta("Berserk"));
     expect(notas[0].fonte).toBe("jikan");
@@ -41,7 +41,9 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
 
   it("anilist: averageScore 0–100 ÷10 na exibição (escala 0-100 registrada)", async () => {
     const { postJson } = await import("../src/modules/media-score/adapters/http.utils.js");
-    vi.mocked(postJson).mockResolvedValue({ data: { Media: { averageScore: 89, siteUrl: "https://anilist.co/anime/1" } } });
+    vi.mocked(postJson).mockResolvedValue({
+      data: { Media: { averageScore: 89, siteUrl: "https://anilist.co/anime/1" } },
+    });
     const adapter = new AniListAdapter();
     const notas = await adapter.coletar(consulta("Berserk"));
     expect(notas[0].fonte).toBe("anilist");
@@ -63,7 +65,9 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
 
   it("openlibrary: rating 0–5 (público) ×2 na normalização pelo motor", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
-    vi.mocked(fetchJson).mockResolvedValue({ docs: [{ ratings_average: 4.6, ratings_count: 42000 }] });
+    vi.mocked(fetchJson).mockResolvedValue({
+      docs: [{ ratings_average: 4.6, ratings_count: 42000 }],
+    });
     const adapter = new OpenLibraryAdapter();
     const notas = await adapter.coletar(consulta("Duna", "LIVRO"));
     expect(notas[0].fonte).toBe("openlibrary");
@@ -72,7 +76,9 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
 
   it("googlebooks: rating 0–5 (público)", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
-    vi.mocked(fetchJson).mockResolvedValue({ items: [{ volumeInfo: { averageRating: 4.7, ratingsCount: 9800 } }] });
+    vi.mocked(fetchJson).mockResolvedValue({
+      items: [{ volumeInfo: { averageRating: 4.7, ratingsCount: 9800 } }],
+    });
     const adapter = new GoogleBooksAdapter();
     const notas = await adapter.coletar(consulta("Duna", "LIVRO"));
     expect(notas[0].fonte).toBe("googlebooks");

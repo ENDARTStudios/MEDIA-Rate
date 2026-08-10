@@ -113,9 +113,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
-              {ts("lgpd")}
-            </h2>
+            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">{ts("lgpd")}</h2>
             <p className="text-sm text-[#A0A0B8] mb-4">{ts("lgpdHint")}</p>
             <LgpdControls />
           </div>

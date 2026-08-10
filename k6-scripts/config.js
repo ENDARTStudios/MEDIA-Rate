@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // ============================================================
 // T220 (8.7) — configuração central do load test k6.
 // Sobrescreva sem editar: k6 run -e BASE_URL=... -e VUS_MAX=...

@@ -3,13 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageTransition } from "@/components/PageTransition";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
+import type * as MotionReact from "motion/react";
 
 // next/navigation mock para PageTransition (usePathname)
 vi.mock("next/navigation", () => ({ usePathname: () => "/pt-BR" }));
 
 let reduced = false;
 vi.mock("motion/react", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("motion/react")>();
+  const actual = await importOriginal<typeof MotionReact>();
   return {
     ...actual,
     useReducedMotion: () => reduced,

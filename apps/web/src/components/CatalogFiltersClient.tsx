@@ -60,7 +60,6 @@ export function CatalogFiltersClient() {
       setParam("q", draftQuery);
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftQuery]);
 
   const { data: generos } = useQuery({

@@ -161,15 +161,6 @@ const FRANQUIAS: DefFranquia[] = [
   },
 ];
 
-function slugify(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 async function main(): Promise<void> {
   let vinculadas = 0;
   let franquiasCriadas = 0;
@@ -184,7 +175,9 @@ async function main(): Promise<void> {
       if (midia) midias.push(midia);
     }
     if (midias.length < 2) {
-      console.log(`[seed:franquias] ${def.nome}: ${midias.length} título(s) no catálogo — ignorada.`);
+      console.log(
+        `[seed:franquias] ${def.nome}: ${midias.length} título(s) no catálogo — ignorada.`,
+      );
       continue;
     }
     const franquia = await prisma.franquia.upsert({
@@ -218,9 +211,7 @@ async function main(): Promise<void> {
     }
     console.log(`[seed:franquias] ${def.nome}: ${midias.length} títulos vinculados.`);
   }
-  console.log(
-    `[seed:franquias] concluído: ${franquiasCriadas} franquias, ${vinculadas} vínculos.`,
-  );
+  console.log(`[seed:franquias] concluído: ${franquiasCriadas} franquias, ${vinculadas} vínculos.`);
 }
 
 main()

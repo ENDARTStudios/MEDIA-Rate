@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // ============================================================
 // T222 v2 — biblioteca compartilhada dos seeds (STANDALONE).
 // SEM imports de src/ — roda localmente e dentro do container de
@@ -66,7 +65,7 @@ async function consultarWikidata(
       url.searchParams.set("query", query);
       const res = await fetch(url, {
         headers: {
-          Accept: "application/sparql-results+json",
+          "Accept": "application/sparql-results+json",
           "User-Agent": "media-rate-seed/1.0",
         },
         signal: AbortSignal.timeout(WIKIDATA_TIMEOUT_MS),
@@ -177,10 +176,7 @@ const FATOR_RATING_100: Record<string, number> = {
  * nunca de campo solto. calculado_em é refrescado a cada run (upsert
  * update inclui now()) — ficha nunca mostra data stale após re-run.
  */
-export async function recalcularScoreSeed(
-  prisma: PrismaClient,
-  midiaId: string,
-): Promise<number> {
+export async function recalcularScoreSeed(prisma: PrismaClient, midiaId: string): Promise<number> {
   const midia = await prisma.midia.findUnique({
     where: { id: midiaId },
     select: {
@@ -194,9 +190,7 @@ export async function recalcularScoreSeed(
   const num_fontes = avaliacoes.length;
   const score =
     num_fontes > 0
-      ? Number(
-          (avaliacoes.reduce((acc, a) => acc + (a.rating ?? 0), 0) / num_fontes).toFixed(2),
-        )
+      ? Number((avaliacoes.reduce((acc, a) => acc + (a.rating ?? 0), 0) / num_fontes).toFixed(2))
       : 7; // v3 sem fontes = prior C (7.0)
 
   // T228: detalhes = array coerente com as avaliações reais (uma entrada

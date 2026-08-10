@@ -1,9 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { LgpdControls } from "@/components/settings/LgpdControls";
 import { MediaUnlockGrid } from "@/components/pricing/MediaUnlockGrid";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const messages = {
   dataExport: {
@@ -41,7 +40,11 @@ vi.mock("@/lib/http", () => ({
 }));
 
 function renderUi(ui: React.ReactElement) {
-  return render(<NextIntlClientProvider locale="pt-BR" messages={messages}>{ui}</NextIntlClientProvider>);
+  return render(
+    <NextIntlClientProvider locale="pt-BR" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
 }
 
 describe("LgpdControls (T193)", () => {

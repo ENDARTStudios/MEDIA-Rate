@@ -43,9 +43,8 @@ export function ScrollReveal({
       const gsapCore = mod.gsap ?? mod;
       gsapCore.registerPlugin(scrollMod.ScrollTrigger);
 
-      const targets = el.querySelectorAll("[data-reveal]").length > 0
-        ? el.querySelectorAll("[data-reveal]")
-        : el;
+      const targets =
+        el.querySelectorAll("[data-reveal]").length > 0 ? el.querySelectorAll("[data-reveal]") : el;
       gsapCore.set(targets, { opacity: 0, y: distance });
       const anim = gsapCore.to(targets, {
         opacity: 1,

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import type * as NextIntl from "next-intl";
 
 const interactionMock = vi.hoisted(() => ({
   setStatus: vi.fn(async () => undefined),
@@ -16,7 +17,7 @@ const apiDiscoveriesMock = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next-intl")>();
+  const actual = await importOriginal<typeof NextIntl>();
   const t = (key: string, params?: Record<string, unknown>) =>
     params ? `${key}:${JSON.stringify(params)}` : key;
   t.has = () => false;

@@ -13,7 +13,13 @@ import { CatalogFiltersClient } from "@/components/CatalogFiltersClient";
  */
 
 const messages = {
-  catalog: { search: "Buscar", sort: "Ordenar", sortScore: "Score", sortAno: "Ano", sortTitulo: "Título" },
+  catalog: {
+    search: "Buscar",
+    sort: "Ordenar",
+    sortScore: "Score",
+    sortAno: "Ano",
+    sortTitulo: "Título",
+  },
   catalogFilters: { filters: "Filtros", clearAll: "Limpar tudo" },
   common: {},
 };
@@ -32,7 +38,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("next-intl/navigation", () => ({
   createNavigation: () => ({
     Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    redirect: () => {},
+    redirect: () => undefined,
     usePathname: () => "/pt-BR/catalog",
     useRouter: () => routerMock,
     getPathname: () => "/pt-BR/catalog",
@@ -94,9 +100,12 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
     expect((input as HTMLInputElement).value).toBe("liberdade");
 
     // Após o debounce, a URL recebe o termo completo (uma única vez).
-    await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledWith(expect.stringContaining("q=liberdade"));
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(routerMock.replace).toHaveBeenCalledWith(expect.stringContaining("q=liberdade"));
+      },
+      { timeout: 1000 },
+    );
   });
 
   it("digitação contínua não gera chamada por tecla (só após pausa)", async () => {
@@ -111,9 +120,12 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
     expect(routerMock.replace).not.toHaveBeenCalled();
 
     // Após a pausa (debounce), um único commit com o valor final.
-    await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledTimes(1);
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(routerMock.replace).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 1000 },
+    );
     // URLSearchParams.toString() codifica espaço como '+'.
     expect(routerMock.replace.mock.calls[0][0]).toContain("q=sonho+de+lib");
   });

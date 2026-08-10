@@ -90,9 +90,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
           </div>
         </div>
         <div className="p-3">
-          <h3 className="font-heading text-sm font-medium text-[#F5F5F7]">
-            {categoria}
-          </h3>
+          <h3 className="font-heading text-sm font-medium text-[#F5F5F7]">{categoria}</h3>
           <p className="text-xs text-[#6B6B85] mt-0.5">{t("comingSoonTap")}</p>
         </div>
       </button>

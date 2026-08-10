@@ -10,7 +10,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
-const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
 interface TmdbItem {
   id: number;

@@ -73,7 +73,9 @@ export function ProfileContent() {
               size="sm"
               variant="outline"
               onClick={() => {
-                void navigator.clipboard?.writeText(`${window.location.origin}/pt-BR/user/${user.id}`);
+                void navigator.clipboard?.writeText(
+                  `${window.location.origin}/pt-BR/user/${user.id}`,
+                );
                 setCopied(true);
                 window.setTimeout(() => setCopied(false), 1600);
               }}

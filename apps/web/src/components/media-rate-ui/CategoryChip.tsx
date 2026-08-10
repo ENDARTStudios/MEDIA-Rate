@@ -61,7 +61,8 @@ export function CategoryChip({
 }: CategoryChipProps) {
   const t = useTranslations("catalog");
   const { color: accent, icon: Icon } = CATEGORY_TOKENS[type];
-  const resolvedLabel = label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga");
+  const resolvedLabel =
+    label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga");
 
   return (
     <button

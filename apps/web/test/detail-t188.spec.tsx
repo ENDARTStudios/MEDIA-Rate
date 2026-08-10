@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type * as TanStackQuery from "@tanstack/react-query";
+import type * as MediaRateUi from "@/components/media-rate-ui";
 
 const mediaMock = {
   id: "m1",
@@ -55,7 +57,7 @@ vi.mock("@/stores/use-interaction-store", () => ({
     }),
 }));
 vi.mock("@tanstack/react-query", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@tanstack/react-query")>();
+  const actual = await importOriginal<typeof TanStackQuery>();
   return {
     ...actual,
     useQuery: () => ({ data: mediaMock, isLoading: false, error: null, refetch: vi.fn() }),
@@ -83,7 +85,7 @@ vi.mock("@/lib/http", () => ({
   RateLimitedError: class extends Error {},
 }));
 vi.mock("@/components/media-rate-ui", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/media-rate-ui")>();
+  const actual = await importOriginal<typeof MediaRateUi>();
   return {
     ...actual,
     AgeRatingBadge: ({ rating }: { rating: string }) =>

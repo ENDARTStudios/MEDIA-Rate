@@ -43,19 +43,47 @@ function renderWithProviders(ui: React.ReactElement) {
 function mockDiscover(itens: unknown[]) {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () =>
-      new Response(JSON.stringify({ itens, total_estimado: itens.length }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify({ itens, total_estimado: itens.length }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
     ),
   );
 }
 
 const ITENS_ACAO = [
-  { id: "1", titulo: "Em Movimento", tipo: "SERIE", ano: 2023, poster_url: null, score: 8.47, na_watchlist: false, slug: "em-movimento" },
-  { id: "2", titulo: "Coringa", tipo: "FILME", ano: 2019, poster_url: null, score: 7.9, na_watchlist: false, slug: "coringa" },
-  { id: "3", titulo: "Taxi Driver: Motorista de Táxi", tipo: "FILME", ano: 1976, poster_url: null, score: 8.2, na_watchlist: false, slug: "taxi-driver" },
+  {
+    id: "1",
+    titulo: "Em Movimento",
+    tipo: "SERIE",
+    ano: 2023,
+    poster_url: null,
+    score: 8.47,
+    na_watchlist: false,
+    slug: "em-movimento",
+  },
+  {
+    id: "2",
+    titulo: "Coringa",
+    tipo: "FILME",
+    ano: 2019,
+    poster_url: null,
+    score: 7.9,
+    na_watchlist: false,
+    slug: "coringa",
+  },
+  {
+    id: "3",
+    titulo: "Taxi Driver: Motorista de Táxi",
+    tipo: "FILME",
+    ano: 1976,
+    poster_url: null,
+    score: 8.2,
+    na_watchlist: false,
+    slug: "taxi-driver",
+  },
 ];
 
 async function abrirBuscaETipar(texto: string) {

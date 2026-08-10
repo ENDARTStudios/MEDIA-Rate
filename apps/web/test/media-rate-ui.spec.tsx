@@ -244,9 +244,7 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
 
   describe("CriticsVsAudienceBar (Parte 4 D-203)", () => {
     it("tooltip de consenso presente no selo", () => {
-      renderWithProviders(
-        <CriticsVsAudienceBar critics={90} audience={85} scale="0-100" />,
-      );
+      renderWithProviders(<CriticsVsAudienceBar critics={90} audience={85} scale="0-100" />);
       const selo = screen.getByText("Alto consenso");
       expect(selo.getAttribute("title")).toContain("Consenso");
     });

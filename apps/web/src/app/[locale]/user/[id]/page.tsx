@@ -17,7 +17,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: t("publicTitle"),
     description: t("publicDesc"),
     alternates: { canonical: url, languages: localizedAlternates("/user") },
-    openGraph: { title: t("publicTitle"), description: t("publicDesc"), url, locale: localeOpenGraph(locale), type: "profile" },
+    openGraph: {
+      title: t("publicTitle"),
+      description: t("publicDesc"),
+      url,
+      locale: localeOpenGraph(locale),
+      type: "profile",
+    },
   };
 }
 

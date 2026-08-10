@@ -27,15 +27,6 @@ const TYPE_TO_MEDIA: Record<string, MediaType> = {
   MANGA: "manga",
 };
 
-const TIPO_LABEL: Record<string, string> = {
-  FILME: "filme",
-  SERIE: "serie",
-  GAME: "game",
-  LIVRO: "livro",
-  COMIC: "comic",
-  MANGA: "manga",
-};
-
 const RAIL_LABEL: Record<string, string> = {
   FILME: "filmes",
   SERIE: "series",

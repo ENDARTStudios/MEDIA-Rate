@@ -8,7 +8,6 @@
  */
 import { useTranslations } from "next-intl";
 import { Lock } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
 

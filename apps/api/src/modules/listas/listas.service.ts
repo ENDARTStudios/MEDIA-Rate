@@ -68,7 +68,14 @@ export class ListasService {
     const listas = await this.prisma.listaColaborativa.findMany({
       where: { dono_id: usuarioId },
       orderBy: { criada_at: "desc" },
-      select: { id: true, titulo: true, descricao: true, slug: true, criada_at: true, _count: { select: { itens: true } } },
+      select: {
+        id: true,
+        titulo: true,
+        descricao: true,
+        slug: true,
+        criada_at: true,
+        _count: { select: { itens: true } },
+      },
     });
     return listas.map((l) => ({
       id: l.id,
@@ -86,7 +93,11 @@ export class ListasService {
       include: { dono: { select: { id: true, nome: true } } },
     });
     if (!lista) {
-      throw new NotFoundException({ statusCode: 404, error: "Not Found", message: "Lista não encontrada." });
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Lista não encontrada.",
+      });
     }
 
     const itens = await this.prisma.listaItem.findMany({
@@ -98,7 +109,14 @@ export class ListasService {
     const midias = midiaIds.length
       ? await this.prisma.midia.findMany({
           where: { id: { in: midiaIds } },
-          select: { id: true, titulo: true, tipo: true, ano_lancamento: true, imagem_url: true, score: true },
+          select: {
+            id: true,
+            titulo: true,
+            tipo: true,
+            ano_lancamento: true,
+            imagem_url: true,
+            score: true,
+          },
         })
       : [];
     const porId = new Map(midias.map((m) => [m.id, m]));
@@ -129,7 +147,11 @@ export class ListasService {
     };
   }
 
-  async editar(usuarioId: string, slug: string, dto: { titulo?: string; descricao?: string | null }) {
+  async editar(
+    usuarioId: string,
+    slug: string,
+    dto: { titulo?: string; descricao?: string | null },
+  ) {
     const lista = await this.buscarDono(usuarioId, slug);
     return this.prisma.listaColaborativa.update({
       where: { id: lista.id },
@@ -146,13 +168,21 @@ export class ListasService {
     await this.prisma.listaColaborativa.delete({ where: { id: lista.id } });
   }
 
-  async adicionarItem(usuarioId: string, slug: string, dto: { midia_id: string; observacao?: string }) {
+  async adicionarItem(
+    usuarioId: string,
+    slug: string,
+    dto: { midia_id: string; observacao?: string },
+  ) {
     const lista = await this.prisma.listaColaborativa.findUnique({
       where: { slug },
       select: { id: true },
     });
     if (!lista) {
-      throw new NotFoundException({ statusCode: 404, error: "Not Found", message: "Lista não encontrada." });
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Lista não encontrada.",
+      });
     }
     const existente = await this.prisma.listaItem.findUnique({
       where: { lista_id_midia_id: { lista_id: lista.id, midia_id: dto.midia_id } },
@@ -178,7 +208,11 @@ export class ListasService {
       select: { id: true },
     });
     if (!item) {
-      throw new NotFoundException({ statusCode: 404, error: "Not Found", message: "Item não encontrado." });
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Item não encontrado.",
+      });
     }
     await this.prisma.listaItem.delete({ where: { id: item.id } });
   }
@@ -189,7 +223,11 @@ export class ListasService {
       select: { id: true, dono_id: true },
     });
     if (!lista) {
-      throw new NotFoundException({ statusCode: 404, error: "Not Found", message: "Lista não encontrada." });
+      throw new NotFoundException({
+        statusCode: 404,
+        error: "Not Found",
+        message: "Lista não encontrada.",
+      });
     }
     if (lista.dono_id !== usuarioId) {
       throw new ForbiddenException("Apenas o dono da lista pode fazer isso.");

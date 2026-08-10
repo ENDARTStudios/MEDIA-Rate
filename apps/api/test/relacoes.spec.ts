@@ -8,9 +8,13 @@ function mockPrisma() {
   const existentes = ["midia-1", "midia-2", "filme-1", "livro-1"];
   const prisma = {
     midia: {
-      findUnique: vi.fn(async ({ where }: any) => (existentes.includes(where.id) ? { id: where.id } : null)),
+      findUnique: vi.fn(async ({ where }: any) =>
+        existentes.includes(where.id) ? { id: where.id } : null,
+      ),
       findMany: vi.fn(async ({ where }: any) =>
-        (where?.id?.in ?? []).filter((id: string) => existentes.includes(id)).map((id: string) => ({ id })),
+        (where?.id?.in ?? [])
+          .filter((id: string) => existentes.includes(id))
+          .map((id: string) => ({ id })),
       ),
     },
     relacaoObra: {
@@ -85,7 +89,12 @@ describe("T198 — relacoes.service (grafo Addendum 3 Parte 2)", () => {
   });
 
   it("criar: upsert idempotente por (origem, destino)", async () => {
-    const dto = { origemId: "midia-1", destinoId: "midia-2", tipo: "ADAPTACAO_DE" as const, notaEditorial: "x" };
+    const dto = {
+      origemId: "midia-1",
+      destinoId: "midia-2",
+      tipo: "ADAPTACAO_DE" as const,
+      notaEditorial: "x",
+    };
     prisma.midia.findMany.mockResolvedValue([{ id: "midia-1" }, { id: "midia-2" }]);
     const a1 = await service.criar(dto);
     const a2 = await service.criar(dto);

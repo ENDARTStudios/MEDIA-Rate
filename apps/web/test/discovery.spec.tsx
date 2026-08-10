@@ -43,11 +43,12 @@ function renderWithProviders(ui: React.ReactElement) {
 function mockRelacoes(relacoes: unknown[]) {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () =>
-      new Response(JSON.stringify({ midiaId: "m1", relacoes }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify({ midiaId: "m1", relacoes }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
     ),
   );
 }
@@ -90,7 +91,10 @@ describe("T199 — descoberta cross-mídia", () => {
   });
 
   it("RelatedWorksBlock oculta o bloco quando a fonte falha (graceful)", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 500 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 500 })),
+    );
     const { container } = renderWithProviders(<RelatedWorksBlock mediaId="m3" />);
     await waitFor(() => expect(container.querySelector("[data-testid=related-works]")).toBeNull());
   });

@@ -51,7 +51,6 @@ export function ListasPage() {
   useEffect(() => {
     void carregar();
     // carregar depende de isAuthenticated — re-executa no login/logout
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   async function criar() {

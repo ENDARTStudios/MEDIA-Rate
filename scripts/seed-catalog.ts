@@ -1,6 +1,9 @@
+/* global process, console */
 // One-off seed script — generates api.ts with 100 titles
 // Run: npx tsx scripts/seed-catalog.ts
 // DO NOT COMMIT the API key — uses .env.local
+
+import { writeFileSync } from "node:fs";
 
 const API_KEY = (() => {
   const key = process.env.TMDB_API_KEY;
@@ -27,11 +30,11 @@ interface TMDBItem {
   genre_ids?: number[];
 }
 
-async function fetchTMDB(path: string): Promise<any> {
+async function fetchTMDB(path: string): Promise<{ results: TMDBItem[] }> {
   const url = `${BASE}${path}${path.includes("?") ? "&" : "?"}api_key=${API_KEY}&language=pt-BR`;
   const r = await fetch(url);
   if (!r.ok) throw new Error(`TMDB error ${r.status}`);
-  return r.json();
+  return (await r.json()) as { results: TMDBItem[] };
 }
 
 function slugify(s: string) {
@@ -44,8 +47,8 @@ function slugify(s: string) {
 function mapMovie(m: TMDBItem, genres: string[]) {
   return {
     id: String(m.id),
-    slug: slugify(m.title!),
-    title: m.title!,
+    slug: slugify(m.title ?? ""),
+    title: m.title ?? "",
     type: "movie",
     year: Number((m.release_date || "2024").split("-")[0]),
     genres,
@@ -64,8 +67,8 @@ function mapMovie(m: TMDBItem, genres: string[]) {
 function mapSeries(s: TMDBItem, genres: string[]) {
   return {
     id: String(s.id),
-    slug: slugify(s.name!),
-    title: s.name!,
+    slug: slugify(s.name ?? ""),
+    title: s.name ?? "",
     type: "series",
     year: Number((s.first_air_date || "2024").split("-")[0]),
     genres,
@@ -84,7 +87,6 @@ function mapSeries(s: TMDBItem, genres: string[]) {
 function synthScore(vote: number) {
   const c = Math.round(vote * 10);
   const imdb = Math.round(vote * 10 + (Math.random() - 0.5) * 5);
-  const rt = Math.round(Math.min(100, vote * 10 + Math.random() * 10));
   const mc = Math.round(Math.min(100, vote * 10 + (Math.random() - 0.5) * 10));
   return {
     consolidated: c,
@@ -117,7 +119,7 @@ function synthStreaming() {
 
 async function main() {
   console.log("Fetching movies...");
-  const movies: any[] = [];
+  const movies: ReturnType<typeof mapMovie>[] = [];
   for (let p = 1; p <= 3; p++) {
     const data = await fetchTMDB(`/movie/popular?page=${p}`);
     for (const m of data.results) movies.push(mapMovie(m, ["Drama"]));
@@ -126,7 +128,7 @@ async function main() {
   console.log(`Movies: ${movies.length}`);
 
   console.log("Fetching series...");
-  const series: any[] = [];
+  const series: ReturnType<typeof mapSeries>[] = [];
   for (let p = 1; p <= 1; p++) {
     const data = await fetchTMDB(`/tv/popular?page=${p}`);
     for (const s of data.results) series.push(mapSeries(s, ["Drama"]));
@@ -138,7 +140,7 @@ async function main() {
   console.log(`Total: ${total.length}`);
 
   const output = `export const SEED_MEDIA = ${JSON.stringify(total, null, 2)};\n`;
-  require("fs").writeFileSync("apps/web/src/lib/seed-data.ts", output);
+  writeFileSync("apps/web/src/lib/seed-data.ts", output);
   console.log("Written to apps/web/src/lib/seed-data.ts");
 }
 

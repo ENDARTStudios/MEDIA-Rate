@@ -121,7 +121,12 @@ function makePrisma(rows: MockRow[] = DB) {
     const rawQ = hasQ ? (values[0] as string) : "";
     // T223/T227: espelha o translate() do backend — acentos removidos nos
     // DOIS lados (coluna gerada e termo) → 'acao' e 'ação' casam igual.
-    const q = rawQ ? rawQ.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+    const q = rawQ
+      ? rawQ
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+      : "";
     let results = rows.filter(
       (m) =>
         !q ||
@@ -163,22 +168,19 @@ function makePrisma(rows: MockRow[] = DB) {
     const generoMatch = compiled.match(/g\.slug = "([^"]+)"/);
     // T227: o COUNT do discover inclui o matchSql de q — extrai o termo do
     // SQL COMPILADO (valores já substituídos) e filtra normalizado.
-    const termoMatch = compiled.match(
-      /plainto_tsquery\('portuguese', translate\("([^"]*)"/,
-    );
+    const termoMatch = compiled.match(/plainto_tsquery\('portuguese', translate\("([^"]*)"/);
     const termo = termoMatch?.[1];
     const norm = (s: string) =>
-      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      s
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
     return allRows.filter((m) => {
       if (tipoMatch && m.tipo !== tipoMatch[1]) return false;
       if (generoMatch && m.genero !== generoMatch[1]) return false;
       if (termo != null) {
         const q = norm(termo);
-        if (
-          q &&
-          !norm(m.titulo).includes(q) &&
-          !norm(m.sinopse).includes(q)
-        ) {
+        if (q && !norm(m.titulo).includes(q) && !norm(m.sinopse).includes(q)) {
           return false;
         }
       }
@@ -338,7 +340,9 @@ describe("DiscoverService (unit)", () => {
     expect(idsCom).toEqual(idsSem);
     expect(idsSem.length).toBeGreaterThan(0);
     // Pelo menos John Wick (sinopse "Ação") aparece nas duas buscas.
-    expect(semAcento.itens.some((i: { titulo: string }) => i.titulo.includes("John Wick"))).toBe(true);
+    expect(semAcento.itens.some((i: { titulo: string }) => i.titulo.includes("John Wick"))).toBe(
+      true,
+    );
   });
 
   it("T227 — /search (legado) delega ao discover: paridade 'acao' ≡ 'ação' e formato items/total", async () => {
@@ -369,9 +373,9 @@ describe("DiscoverService (unit)", () => {
     const comAcento = await service.search("coração");
     expect(semAcento.items.length).toBeGreaterThan(0);
     // Não-regressão do caso real do Operador: 'coracao' acha 'Coração Partido'.
-    expect(
-      semAcento.items.some((i: { titulo: string }) => i.titulo === "Coração Partido"),
-    ).toBe(true);
+    expect(semAcento.items.some((i: { titulo: string }) => i.titulo === "Coração Partido")).toBe(
+      true,
+    );
     // Paridade no /search (mesmo conjunto para as duas grafias).
     const idsSem = semAcento.items.map((i: { id: string }) => i.id).sort();
     const idsCom = comAcento.items.map((i: { id: string }) => i.id).sort();
@@ -381,9 +385,7 @@ describe("DiscoverService (unit)", () => {
   it("T229 — /search: termo SEM acento encontra sinopse COM acento (John Wick por 'acao')", async () => {
     const result = await service.search("acao");
     expect(result.items.length).toBeGreaterThan(0);
-    expect(
-      result.items.some((i: { titulo: string }) => i.titulo.includes("John Wick")),
-    ).toBe(true);
+    expect(result.items.some((i: { titulo: string }) => i.titulo.includes("John Wick"))).toBe(true);
   });
 
   it("T229 — /search: paridade 'acao' ≡ 'ação' retorna conjunto não-vazio idêntico", async () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import type * as NextIntl from "next-intl";
 
 const interactionMock = vi.hoisted(() => {
   const state = {
@@ -18,7 +19,7 @@ const interactionMock = vi.hoisted(() => {
 const authMock = vi.hoisted(() => ({ isAuthenticated: true }));
 
 vi.mock("next-intl", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next-intl")>();
+  const actual = await importOriginal<typeof NextIntl>();
   return {
     ...actual,
     useTranslations: () => (key: string) => key,

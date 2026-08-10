@@ -6,7 +6,6 @@ function mockPrisma() {
   const listas: Record<string, { id: string; dono_id: string; slug: string; titulo: string }> = {
     "lista-1": { id: "lista-1", dono_id: "user-1", slug: "top-terror", titulo: "Top Terror" },
   };
-  const itens: { id: string; lista_id: string; midia_id: string }[] = [];
   return {
     listaColaborativa: {
       findUnique: vi.fn(async ({ where }: { where: { slug?: string; id?: string } }) => {
@@ -15,16 +14,29 @@ function mockPrisma() {
         }
         return listas[where.id as string] ?? null;
       }),
-      findMany: vi.fn(async () => Object.values(listas).map((l) => ({ ...l, _count: { itens: 0 } }))),
-      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: "nova", ...data })),
-      update: vi.fn(async () => ({ id: "lista-1", titulo: "Novo", descricao: null, slug: "top-terror" })),
+      findMany: vi.fn(async () =>
+        Object.values(listas).map((l) => ({ ...l, _count: { itens: 0 } })),
+      ),
+      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+        id: "nova",
+        ...data,
+      })),
+      update: vi.fn(async () => ({
+        id: "lista-1",
+        titulo: "Novo",
+        descricao: null,
+        slug: "top-terror",
+      })),
       delete: vi.fn(async () => ({})),
     },
     listaItem: {
       findUnique: vi.fn(async () => null),
       findFirst: vi.fn(async () => null),
       findMany: vi.fn(async () => []),
-      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: "item-1", ...data })),
+      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+        id: "item-1",
+        ...data,
+      })),
       delete: vi.fn(async () => ({})),
     },
     midia: {
@@ -86,15 +98,16 @@ describe("ListasService — listas colaborativas (D-132)", () => {
   it("editar de não-dono → Forbidden", async () => {
     const prisma = mockPrisma();
     const service = new ListasService(prisma as never, {} as never);
-    await expect(service.editar("user-2", "top-terror", { titulo: "X" })).rejects.toThrow(
-      /dono/,
-    );
+    await expect(service.editar("user-2", "top-terror", { titulo: "X" })).rejects.toThrow(/dono/);
   });
 
   it("adicionarItem de qualquer usuário logado funciona", async () => {
     const prisma = mockPrisma();
     const service = new ListasService(prisma as never, {} as never);
-    const result = await service.adicionarItem("user-2", "top-terror", { midia_id: "m1", observacao: "clássico" });
+    const result = await service.adicionarItem("user-2", "top-terror", {
+      midia_id: "m1",
+      observacao: "clássico",
+    });
     expect(result.lista_id).toBe("lista-1");
     expect(result.adicionado_por).toBe("user-2");
     expect(result.observacao).toBe("clássico");

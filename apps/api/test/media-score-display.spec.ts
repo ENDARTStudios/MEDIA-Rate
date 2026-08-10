@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { recalcularScoreSeed } from "../prisma/seed-lib.js";
@@ -33,14 +34,16 @@ function makePrisma(estado: { midia: MockMidia | null; calculadoEm?: Date }) {
       }),
     },
     mediaScore: {
-      upsert: vi.fn(async (args: {
-        where: { midia_id: string };
-        create: Record<string, unknown>;
-        update: Record<string, unknown>;
-      }) => {
-        mediaScoreUpserts.push({ create: args.create, update: args.update });
-        return { midia_id: args.where.midia_id, ...args.create };
-      }),
+      upsert: vi.fn(
+        async (args: {
+          where: { midia_id: string };
+          create: Record<string, unknown>;
+          update: Record<string, unknown>;
+        }) => {
+          mediaScoreUpserts.push({ create: args.create, update: args.update });
+          return { midia_id: args.where.midia_id, ...args.create };
+        },
+      ),
     },
   };
   return { prisma, mediaScoreUpserts, midiaUpdates };
@@ -67,7 +70,11 @@ describe("T228 — recalcularScoreSeed: display score×fontes coerente", () => {
 
     expect(score).toBe(48.98); // média aritmética (8.95+89)/2
     const data = mediaScoreUpserts[0]!.update as Record<string, unknown>;
-    const detalhes = data.detalhes as { fonte: string; rating_original: number; rating_100: number }[];
+    const detalhes = data.detalhes as {
+      fonte: string;
+      rating_original: number;
+      rating_100: number;
+    }[];
     expect(Array.isArray(detalhes)).toBe(true);
     expect(detalhes).toHaveLength(2);
     expect(detalhes[0]).toMatchObject({ fonte: "tmdb", rating_original: 8.95, rating_100: 89.5 });

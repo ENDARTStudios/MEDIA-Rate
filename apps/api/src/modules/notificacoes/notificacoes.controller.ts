@@ -1,7 +1,15 @@
-import { Controller, Get, Param, Patch, Post, Query, Req, UnauthorizedException } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { FastifyRequest } from "fastify";
-import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { NotificacoesService } from "./notificacoes.service.js";
 
 type NotificacaoRequest = FastifyRequest & { user?: { id: string } };

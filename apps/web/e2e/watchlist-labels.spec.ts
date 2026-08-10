@@ -11,7 +11,9 @@ import { test, expect } from "@playwright/test";
 test("T239: ficha de game carrega com botão de watchlist visível", async ({ page }) => {
   await page.goto("/media/terraria");
   const btn = page
-    .locator('button[aria-label*="add" i], button[aria-label*="quero" i], button[aria-label*="want" i]')
+    .locator(
+      'button[aria-label*="add" i], button[aria-label*="quero" i], button[aria-label*="want" i]',
+    )
     .filter({ visible: true })
     .first();
   await expect(btn).toBeVisible({ timeout: 10_000 });

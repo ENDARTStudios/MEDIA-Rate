@@ -39,7 +39,10 @@ export class WaitlistNotifyController {
   ): Promise<{ ok: true }> {
     const ip = req.ip ?? "desconhecido";
     if (!this.service.permitirPorIp(ip)) {
-      throw new HttpException("Muitas solicitações. Tente novamente mais tarde.", HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        "Muitas solicitações. Tente novamente mais tarde.",
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
     await this.service.registrar(body.email.toLowerCase(), body.category);
     return { ok: true };

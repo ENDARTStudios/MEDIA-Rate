@@ -21,13 +21,7 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 import { Rate, Trend } from "k6/metrics";
 import exec from "k6/execution";
-import {
-  BASE_URL,
-  VUS_MAX,
-  STAGES,
-  HEALTH_VUS,
-  CATALOG_VUS,
-} from "./config.js";
+import { BASE_URL, STAGES, HEALTH_VUS, CATALOG_VUS } from "./config.js";
 
 // Métricas customizadas (compat T8.4)
 const errorRate = new Rate("errors");
@@ -110,7 +104,7 @@ export function checkoutFlow(smoke = false) {
     headers: {
       "Content-Type": "application/json",
       "Idempotency-Key": `k6-${__VU}-${__ITER}-${Date.now()}`,
-      Cookie: "sess=mock-session-token-for-load-test",
+      "Cookie": "sess=mock-session-token-for-load-test",
     },
   };
 

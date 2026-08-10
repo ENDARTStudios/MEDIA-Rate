@@ -1,3 +1,4 @@
+/* global Buffer, console */
 /**
  * Gera os 5 renders do Hero no padrão PBR polido (T5a-hero-3d-fix-v5):
  * plástico glossy com specular cortante, metal escovado, vidro com reflexo,
@@ -39,11 +40,11 @@ const ENV = (x, y, w, h, rot, o = 0.35) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="#ffffff" opacity="${o}" transform="rotate(${rot} ${x} ${y})" filter="url(#envBlur)"/>`;
 
 /** Bevel de plástico: luz no topo-esquerda, sombra embaixo-direita. */
-const BEVEL = (d, rx, base) =>
+const BEVEL = (d, _rx, _base) =>
   `<path d="${d}" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="5" stroke-linecap="round" transform="translate(-4,-4)"/><path d="${d}" fill="none" stroke="#000000" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" transform="translate(4,4)"/>`;
 
 /** Reflexo especular do piso (objeto espelhado + fade). */
-function REFLECT(objId, mirrorY, cx, cy, rx, ry, accent, blurStd = 14) {
+function REFLECT(objId, mirrorY, cx, cy, rx, ry, accent, _blurStd = 14) {
   return `
   <mask id="refmask"><rect x="0" y="${cy - ry}" width="1200" height="${ry * 2}" fill="url(#refFade)"/></mask>
   <g clip-path="url(#refClip)" mask="url(#refmask)" filter="url(#refBlur)">
@@ -54,7 +55,17 @@ function REFLECT(objId, mirrorY, cx, cy, rx, ry, accent, blurStd = 14) {
 }
 
 const DEFS_CORE = `
-  ${R("refFade", [["0%", "#ffffff", 0.95], ["55%", "#ffffff", 0.35], ["100%", "#ffffff", 0]], "50%", "0%", "100%")}
+  ${R(
+    "refFade",
+    [
+      ["0%", "#ffffff", 0.95],
+      ["55%", "#ffffff", 0.35],
+      ["100%", "#ffffff", 0],
+    ],
+    "50%",
+    "0%",
+    "100%",
+  )}
   ${BLUR("refBlur", 12)}${BLUR("refBlur2", 40)}
   ${BLUR("specBlur", 2.5)}${BLUR("envBlur", 3)}${BLUR("rimBlur", 26)}
   ${SHADOW}
@@ -71,10 +82,55 @@ function filmScene() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
   <defs>
     ${DEFS_CORE}
-    ${R("glowPool", [["0%", "#818CF8", 0.5], ["60%", "#818CF8", 0.12], ["100%", "#818CF8", 0]], "50%", "78%", "48%")}
-    ${L("plasticBody", [["0%", "#7C6CF0"], ["35%", "#4F46E5"], ["72%", "#3730A3"], ["100%", "#1E1B4B"]], "0%", "0%", "100%", "100%")}
-    ${L("plasticDark", [["0%", "#312E81"], ["100%", "#17143A"]], "0%", "0%", "100%", "100%")}
-    ${L("chrome", [["0%", "#E8EBF5"], ["22%", "#9AA0B8"], ["50%", "#F4F6FB"], ["78%", "#6B7286"], ["100%", "#C7CCDF"]], "0%", "0%", "100%", "100%")}
+    ${R(
+      "glowPool",
+      [
+        ["0%", "#818CF8", 0.5],
+        ["60%", "#818CF8", 0.12],
+        ["100%", "#818CF8", 0],
+      ],
+      "50%",
+      "78%",
+      "48%",
+    )}
+    ${L(
+      "plasticBody",
+      [
+        ["0%", "#7C6CF0"],
+        ["35%", "#4F46E5"],
+        ["72%", "#3730A3"],
+        ["100%", "#1E1B4B"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "plasticDark",
+      [
+        ["0%", "#312E81"],
+        ["100%", "#17143A"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "chrome",
+      [
+        ["0%", "#E8EBF5"],
+        ["22%", "#9AA0B8"],
+        ["50%", "#F4F6FB"],
+        ["78%", "#6B7286"],
+        ["100%", "#C7CCDF"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
     <clipPath id="stripes"><rect x="0" y="0" width="600" height="210" rx="18"/></clipPath>
   </defs>
   <rect width="1200" height="1200" fill="url(#glowPool)"/>
@@ -142,12 +198,78 @@ function serieScene() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
   <defs>
     ${DEFS_CORE}
-    ${R("glowPool", [["0%", "#38BDF8", 0.5], ["60%", "#38BDF8", 0.12], ["100%", "#38BDF8", 0]], "50%", "78%", "48%")}
-    ${L("graphite", [["0%", "#4A4E5C"], ["30%", "#23252F"], ["75%", "#141519"], ["100%", "#0A0B0D"]], "0%", "0%", "100%", "100%")}
-    ${L("metalEdge", [["0%", "#9AA0B8"], ["40%", "#3E4254"], ["60%", "#7C8298"], ["100%", "#22242F"]], "0%", "0%", "100%", "100%")}
-    ${L("screenGlass", [["0%", "#0E2A52"], ["45%", "#08204B"], ["100%", "#030A1E"]], "0%", "0%", "100%", "100%")}
-    ${L("chromeKnob", [["0%", "#D9DEEF"], ["35%", "#7C8298"], ["55%", "#E8EBF5"], ["100%", "#4A4E5C"]], "0%", "0%", "100%", "100%")}
-    ${R("screenGlow", [["0%", "#38BDF8", 0.7], ["100%", "#38BDF8", 0]], "50%", "50%", "60%")}
+    ${R(
+      "glowPool",
+      [
+        ["0%", "#38BDF8", 0.5],
+        ["60%", "#38BDF8", 0.12],
+        ["100%", "#38BDF8", 0],
+      ],
+      "50%",
+      "78%",
+      "48%",
+    )}
+    ${L(
+      "graphite",
+      [
+        ["0%", "#4A4E5C"],
+        ["30%", "#23252F"],
+        ["75%", "#141519"],
+        ["100%", "#0A0B0D"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "metalEdge",
+      [
+        ["0%", "#9AA0B8"],
+        ["40%", "#3E4254"],
+        ["60%", "#7C8298"],
+        ["100%", "#22242F"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "screenGlass",
+      [
+        ["0%", "#0E2A52"],
+        ["45%", "#08204B"],
+        ["100%", "#030A1E"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "chromeKnob",
+      [
+        ["0%", "#D9DEEF"],
+        ["35%", "#7C8298"],
+        ["55%", "#E8EBF5"],
+        ["100%", "#4A4E5C"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${R(
+      "screenGlow",
+      [
+        ["0%", "#38BDF8", 0.7],
+        ["100%", "#38BDF8", 0],
+      ],
+      "50%",
+      "50%",
+      "60%",
+    )}
   </defs>
   <rect width="1200" height="1200" fill="url(#glowPool)"/>
   ${RIM(930, 230, 250, "#38BDF8")}
@@ -214,11 +336,65 @@ function gameScene() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
   <defs>
     ${DEFS_CORE}
-    ${R("glowPool", [["0%", "#34D399", 0.5], ["60%", "#34D399", 0.12], ["100%", "#34D399", 0]], "50%", "78%", "48%")}
-    ${R("softTouch", [["0%", "#4A4E5C"], ["38%", "#232530"], ["100%", "#0C0D12"]], "42%", "26%", "95%")}
-    ${L("emeraldGrip", [["0%", "#6EE7B7"], ["30%", "#10B981"], ["70%", "#047857"], ["100%", "#022C22"]], "0%", "0%", "100%", "100%")}
-    ${L("stick", [["0%", "#8E94AC"], ["100%", "#2E3140"]], "0%", "0%", "100%", "100%")}
-    ${L("metalTrig", [["0%", "#C7CCDF"], ["40%", "#6B7286"], ["60%", "#9AA0B8"], ["100%", "#3E4254"]], "0%", "0%", "100%", "100%")}
+    ${R(
+      "glowPool",
+      [
+        ["0%", "#34D399", 0.5],
+        ["60%", "#34D399", 0.12],
+        ["100%", "#34D399", 0],
+      ],
+      "50%",
+      "78%",
+      "48%",
+    )}
+    ${R(
+      "softTouch",
+      [
+        ["0%", "#4A4E5C"],
+        ["38%", "#232530"],
+        ["100%", "#0C0D12"],
+      ],
+      "42%",
+      "26%",
+      "95%",
+    )}
+    ${L(
+      "emeraldGrip",
+      [
+        ["0%", "#6EE7B7"],
+        ["30%", "#10B981"],
+        ["70%", "#047857"],
+        ["100%", "#022C22"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "stick",
+      [
+        ["0%", "#8E94AC"],
+        ["100%", "#2E3140"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "metalTrig",
+      [
+        ["0%", "#C7CCDF"],
+        ["40%", "#6B7286"],
+        ["60%", "#9AA0B8"],
+        ["100%", "#3E4254"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
   </defs>
   <rect width="1200" height="1200" fill="url(#glowPool)"/>
   ${RIM(930, 240, 250, "#34D399")}
@@ -283,12 +459,75 @@ function livroScene() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
   <defs>
     ${DEFS_CORE}
-    ${R("glowPool", [["0%", "#FBBF24", 0.5], ["60%", "#FBBF24", 0.12], ["100%", "#FBBF24", 0]], "50%", "78%", "48%")}
-    ${L("leather", [["0%", "#E8A05C"], ["30%", "#B45309"], ["70%", "#7C2D12"], ["100%", "#451A03"]], "0%", "0%", "100%", "100%")}
-    ${L("leatherSheen", [["0%", "#ffffff", 0.5], ["45%", "#ffffff", 0.08], ["100%", "#ffffff", 0]], "0%", "0%", "100%", "100%")}
-    ${L("ivory", [["0%", "#FEFBF2"], ["100%", "#E8E0CC"]], "0%", "0%", "100%", "100%")}
-    ${L("satin", [["0%", "#F9A8D4"], ["45%", "#DB2777"], ["100%", "#9D174D"]], "0%", "0%", "100%", "100%")}
-    ${R("pageGlow", [["0%", "#FDE68A", 0.85], ["100%", "#FDE68A", 0]], "50%", "50%", "55%")}
+    ${R(
+      "glowPool",
+      [
+        ["0%", "#FBBF24", 0.5],
+        ["60%", "#FBBF24", 0.12],
+        ["100%", "#FBBF24", 0],
+      ],
+      "50%",
+      "78%",
+      "48%",
+    )}
+    ${L(
+      "leather",
+      [
+        ["0%", "#E8A05C"],
+        ["30%", "#B45309"],
+        ["70%", "#7C2D12"],
+        ["100%", "#451A03"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "leatherSheen",
+      [
+        ["0%", "#ffffff", 0.5],
+        ["45%", "#ffffff", 0.08],
+        ["100%", "#ffffff", 0],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "ivory",
+      [
+        ["0%", "#FEFBF2"],
+        ["100%", "#E8E0CC"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "satin",
+      [
+        ["0%", "#F9A8D4"],
+        ["45%", "#DB2777"],
+        ["100%", "#9D174D"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${R(
+      "pageGlow",
+      [
+        ["0%", "#FDE68A", 0.85],
+        ["100%", "#FDE68A", 0],
+      ],
+      "50%",
+      "50%",
+      "55%",
+    )}
   </defs>
   <rect width="1200" height="1200" fill="url(#glowPool)"/>
   ${RIM(930, 250, 250, "#FBBF24")}
@@ -347,12 +586,74 @@ function hqScene() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
   <defs>
     ${DEFS_CORE}
-    ${R("glowPool", [["0%", "#F472B6", 0.5], ["60%", "#F472B6", 0.12], ["100%", "#F472B6", 0]], "50%", "78%", "48%")}
-    ${L("magCover", [["0%", "#F472B6"], ["45%", "#C026D3"], ["80%", "#7E22CE"], ["100%", "#581C87"]], "0%", "0%", "100%", "100%")}
-    ${L("panelA", [["0%", "#F472B6"], ["100%", "#A855F7"]], "0%", "0%", "100%", "100%")}
-    ${L("panelB", [["0%", "#A855F7"], ["100%", "#6366F1"]], "0%", "0%", "100%", "100%")}
-    ${R("burst", [["0%", "#FDE68A"], ["100%", "#F59E0B"]], "50%", "50%", "70%")}
-    ${L("paperGloss", [["0%", "#ffffff", 0.4], ["50%", "#ffffff", 0.05], ["100%", "#ffffff", 0]], "0%", "0%", "100%", "100%")}
+    ${R(
+      "glowPool",
+      [
+        ["0%", "#F472B6", 0.5],
+        ["60%", "#F472B6", 0.12],
+        ["100%", "#F472B6", 0],
+      ],
+      "50%",
+      "78%",
+      "48%",
+    )}
+    ${L(
+      "magCover",
+      [
+        ["0%", "#F472B6"],
+        ["45%", "#C026D3"],
+        ["80%", "#7E22CE"],
+        ["100%", "#581C87"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "panelA",
+      [
+        ["0%", "#F472B6"],
+        ["100%", "#A855F7"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${L(
+      "panelB",
+      [
+        ["0%", "#A855F7"],
+        ["100%", "#6366F1"],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
+    ${R(
+      "burst",
+      [
+        ["0%", "#FDE68A"],
+        ["100%", "#F59E0B"],
+      ],
+      "50%",
+      "50%",
+      "70%",
+    )}
+    ${L(
+      "paperGloss",
+      [
+        ["0%", "#ffffff", 0.4],
+        ["50%", "#ffffff", 0.05],
+        ["100%", "#ffffff", 0],
+      ],
+      "0%",
+      "0%",
+      "100%",
+      "100%",
+    )}
   </defs>
   <rect width="1200" height="1200" fill="url(#glowPool)"/>
   ${RIM(930, 250, 250, "#F472B6")}
@@ -414,10 +715,19 @@ function hqScene() {
 
 /* ================================ render ================================ */
 
-const scenes = { film: filmScene, serie: serieScene, game: gameScene, livro: livroScene, hq: hqScene };
+const scenes = {
+  film: filmScene,
+  serie: serieScene,
+  game: gameScene,
+  livro: livroScene,
+  hq: hqScene,
+};
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1200, height: 1200 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({
+  viewport: { width: 1200, height: 1200 },
+  deviceScaleFactor: 1,
+});
 
 for (const [name, scene] of Object.entries(scenes)) {
   const svg = scene();

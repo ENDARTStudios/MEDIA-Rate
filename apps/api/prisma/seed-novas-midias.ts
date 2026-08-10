@@ -26,7 +26,13 @@ const REAL: Record<
     tipo: "LIVRO" | "COMIC" | "MANGA";
     ano: number;
     imagem: string | null;
-    fontes: { fonte: string; rating: number; media_fonte: number; desvio_fonte: number; votos: number }[];
+    fontes: {
+      fonte: string;
+      rating: number;
+      media_fonte: number;
+      desvio_fonte: number;
+      votos: number;
+    }[];
   }
 > = {
   duna: {
@@ -104,13 +110,18 @@ async function main() {
     });
     for (const f of dados.fontes) {
       await prisma.avaliacaoFonte.create({
-        data: { midia_id: midia.id, fonte: f.fonte, rating: f.rating, media_fonte: f.media_fonte, desvio_fonte: f.desvio_fonte, votos: f.votos },
+        data: {
+          midia_id: midia.id,
+          fonte: f.fonte,
+          rating: f.rating,
+          media_fonte: f.media_fonte,
+          desvio_fonte: f.desvio_fonte,
+          votos: f.votos,
+        },
       });
     }
-      const resultado = await recalc(midia.id);
-    console.log(
-      `${dados.titulo} (${dados.tipo}): score=${resultado?.toFixed(1) ?? "null"}/100`,
-    );
+    const resultado = await recalc(midia.id);
+    console.log(`${dados.titulo} (${dados.tipo}): score=${resultado?.toFixed(1) ?? "null"}/100`);
   }
   await prisma.$disconnect();
 }

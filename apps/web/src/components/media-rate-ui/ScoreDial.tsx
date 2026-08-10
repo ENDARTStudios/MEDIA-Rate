@@ -29,14 +29,23 @@ const SIZE_CONFIG = {
   lg: { ring: "h-24 w-24", number: "text-3xl", stroke: 6, radius: 38 },
 } as const;
 
-function scoreBand(value: number, scale: "0-10" | "0-100"): { color: string; label: "high" | "medium" | "low" } {
+function scoreBand(
+  value: number,
+  scale: "0-10" | "0-100",
+): { color: string; label: "high" | "medium" | "low" } {
   const n = scale === "0-100" ? value / 10 : value;
   if (n >= 8) return { color: "#34D399", label: "high" };
   if (n >= 6) return { color: "#FBBF24", label: "medium" };
   return { color: "#F87171", label: "low" };
 }
 
-export function ScoreDial({ value, scale = "0-10", size = "md", showConfidence = false, className }: ScoreDialProps) {
+export function ScoreDial({
+  value,
+  scale = "0-10",
+  size = "md",
+  showConfidence = false,
+  className,
+}: ScoreDialProps) {
   const max = scale === "0-100" ? 100 : 10;
   const clamped = Math.max(0, Math.min(max, value));
   const { color, label } = scoreBand(clamped, scale);
@@ -97,7 +106,14 @@ export function ScoreDial({ value, scale = "0-10", size = "md", showConfidence =
       data-testid={`score-dial-${size}`}
     >
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
-        <circle cx="30" cy="30" r={cfg.radius} fill="none" stroke="rgba(148,163,255,0.12)" strokeWidth={cfg.stroke} />
+        <circle
+          cx="30"
+          cy="30"
+          r={cfg.radius}
+          fill="none"
+          stroke="rgba(148,163,255,0.12)"
+          strokeWidth={cfg.stroke}
+        />
         <circle
           cx="30"
           cy="30"

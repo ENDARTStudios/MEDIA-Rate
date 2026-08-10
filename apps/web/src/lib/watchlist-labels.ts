@@ -29,10 +29,7 @@ export function conjugacaoPorTipo(tipo: string | undefined): "ver" | "jogar" | "
 }
 
 /** Chave i18n do rótulo da coluna para uma mídia (DROPPED comum a todos). */
-export function colunaLabelKey(
-  tipo: string | undefined,
-  coluna: WatchlistColuna | string,
-): string {
+export function colunaLabelKey(tipo: string | undefined, coluna: WatchlistColuna | string): string {
   if (coluna === "DROPPED") return "abandonei";
   const verbo = conjugacaoPorTipo(tipo);
   switch (coluna) {

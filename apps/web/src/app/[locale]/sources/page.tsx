@@ -90,9 +90,7 @@ export default async function SourcesPage({ params }: PageProps) {
                 key={fonte.id}
                 className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">
-                  {fonte.nome}
-                </dt>
+                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{fonte.nome}</dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${

@@ -26,9 +26,11 @@ function mockMatchMedia() {
   // jsdom define getTotalLength como getter não-sobrescrevível — redefine via
   // defineProperty (configurable) para o anime do Logo não quebrar o teste.
   try {
-    const proto = (globalThis as Record<string, unknown>).SVGPathElement as {
-      prototype: object;
-    } | undefined;
+    const proto = (globalThis as Record<string, unknown>).SVGPathElement as
+      | {
+          prototype: object;
+        }
+      | undefined;
     if (proto?.prototype) {
       Object.defineProperty(proto.prototype, "getTotalLength", {
         configurable: true,

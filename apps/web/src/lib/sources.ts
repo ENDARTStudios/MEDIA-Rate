@@ -26,7 +26,10 @@ function fonteUsadaEm(tipo: (typeof TIPOS_COBERTOS)[number], fonteId: string): b
   return fonteId in bucket.critica || fonteId in bucket.publico;
 }
 
-function tipoDaFonte(tipo: (typeof TIPOS_COBERTOS)[number], fonteId: string): "critica" | "publico" {
+function tipoDaFonte(
+  tipo: (typeof TIPOS_COBERTOS)[number],
+  fonteId: string,
+): "critica" | "publico" {
   return fonteId in PESOS_POR_TIPO_WEB[tipo].critica ? "critica" : "publico";
 }
 

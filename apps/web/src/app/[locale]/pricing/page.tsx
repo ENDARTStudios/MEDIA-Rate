@@ -101,8 +101,8 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         </div>
 
         <PricingCards />
-          <PricingTable />
-          <MediaUnlockGrid />
+        <PricingTable />
+        <MediaUnlockGrid />
         <PricingFAQ />
       </div>
     </>

@@ -53,8 +53,7 @@ export function SearchCommand() {
   const t = useTranslations("catalog");
   // T246: hint de tecla por plataforma (⌘ no Mac, Ctrl no Windows/Linux).
   const isMac =
-    typeof navigator !== "undefined" &&
-    /Mac|iPhone|iPad/.test(navigator.platform ?? "");
+    typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform ?? "");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -120,8 +119,12 @@ export function SearchCommand() {
   const relatedGroups = new Map<string, SearchResult[]>();
   results.forEach((r) => {
     const key = slugify(r.title);
-    if (!relatedGroups.has(key)) relatedGroups.set(key, []);
-    relatedGroups.get(key)!.push(r);
+    const grupo = relatedGroups.get(key);
+    if (grupo) {
+      grupo.push(r);
+    } else {
+      relatedGroups.set(key, [r]);
+    }
   });
   const relatedGroupsList = [...relatedGroups.values()].filter((g) => g.length >= 2);
   const relatedIds = new Set(relatedGroupsList.flat().map((r) => r.id));
@@ -314,7 +317,9 @@ export function SearchCommand() {
               )}
 
               {debouncedQuery.length >= 2 && searching && (
-                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">{t("paletaSearching")}</div>
+                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                  {t("paletaSearching")}
+                </div>
               )}
 
               {debouncedQuery.length >= 2 && searchError && (
@@ -327,9 +332,7 @@ export function SearchCommand() {
               {debouncedQuery.length >= 2 && !searching && !searchError && totalResults === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="text-sm text-[#9CA3AF] mb-1">{t("paletaEmpty")}</p>
-                  <p className="text-xs text-[#6B7280]">
-                    {t("paletaEmptyHint")}
-                  </p>
+                  <p className="text-xs text-[#6B7280]">{t("paletaEmptyHint")}</p>
                 </div>
               )}
 

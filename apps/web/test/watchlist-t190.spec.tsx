@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import type * as NextIntl from "next-intl";
 
 const watchlistMock = {
   entries: [
@@ -48,7 +49,7 @@ const watchlistMock = {
 };
 
 vi.mock("next-intl", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next-intl")>();
+  const actual = await importOriginal<typeof NextIntl>();
   return {
     ...actual,
     useTranslations: () => (key: string) => key,
@@ -104,16 +105,6 @@ vi.mock("@/lib/http", () => ({ RateLimitedError: class extends Error {} }));
 vi.mock("@/lib/i18n", () => ({ formatDate: (d: string) => d }));
 
 import { WatchlistClient } from "@/components/WatchlistClient";
-
-function entry(id: string, status: string, type: string, scoreAtAdd?: number, score?: number) {
-  return {
-    id,
-    mediaId: id,
-    status,
-    media: { id, type, title: `Titulo ${id}`, year: 2026, posterUrl: null, score: score ?? null },
-    scoreAtAdd: scoreAtAdd ?? null,
-  };
-}
 
 function renderWatchlist() {
   return render(

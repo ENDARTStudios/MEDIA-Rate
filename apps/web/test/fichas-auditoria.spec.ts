@@ -21,8 +21,12 @@ describe("Auditoria fichas — mangá e gêneros compostos", () => {
 
   it("gênero 'Ação e Aventura' traduzido nos 3 locales", () => {
     expect(generoTraduzido(tg(G(JSON.stringify(ptBR))), "Ação e Aventura")).toBe("Ação e Aventura");
-    expect(generoTraduzido(tg(G(JSON.stringify(enUS))), "Ação e Aventura")).toBe("Action and Adventure");
-    expect(generoTraduzido(tg(G(JSON.stringify(esES))), "Ação e Aventura")).toBe("Acción y Aventura");
+    expect(generoTraduzido(tg(G(JSON.stringify(enUS))), "Ação e Aventura")).toBe(
+      "Action and Adventure",
+    );
+    expect(generoTraduzido(tg(G(JSON.stringify(esES))), "Ação e Aventura")).toBe(
+      "Acción y Aventura",
+    );
   });
 
   it("gênero 'Animação' traduzido nos 3 locales", () => {

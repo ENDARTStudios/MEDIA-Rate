@@ -18,13 +18,31 @@ const LOCALES: Record<string, Locale> = {
 
 /** Termos PT que NÃO podem aparecer como valor de chave em EN/ES
  * (exclui 'Games' — idêntico em EN — e 'Game', válido em ambos). */
-const TERMOS_PROIBIDOS_EN_ES = ["Filmes", "Séries", "Livros", "Quadrinhos", "Mangás", "Filme", "Série", "Livro", "Mangá", "HQ"];
+const TERMOS_PROIBIDOS_EN_ES = [
+  "Filmes",
+  "Séries",
+  "Livros",
+  "Quadrinhos",
+  "Mangás",
+  "Filme",
+  "Série",
+  "Livro",
+  "Mangá",
+  "HQ",
+];
 
 describe("T243 — i18n estrutural: categorias por locale", () => {
   it("chaves singulares de tipo existem nos 3 locales (typeMovie..typeManga)", () => {
     for (const [loc, msgs] of Object.entries(LOCALES)) {
       const c = msgs.catalog;
-      for (const k of ["typeMovie", "typeSerie", "typeGame", "typeBook", "typeComic", "typeManga"]) {
+      for (const k of [
+        "typeMovie",
+        "typeSerie",
+        "typeGame",
+        "typeBook",
+        "typeComic",
+        "typeManga",
+      ]) {
         expect(c[k], `${loc}.catalog.${k}`).toBeTruthy();
       }
     }

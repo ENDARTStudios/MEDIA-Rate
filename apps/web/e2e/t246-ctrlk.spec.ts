@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 /**
  * T246 — Ctrl+K (Windows/Linux) e ⌘K (Mac) abrem a paleta e a busca
@@ -12,11 +12,13 @@ const CINCO_TITULOS = [
   "Mortal Kombat Legends: A Vingança de Scorpion",
 ];
 
-async function abrirComTecla(page: import("@playwright/test").Page, modifier: "Control" | "Meta") {
+async function abrirComTecla(page: Page, modifier: "Control" | "Meta") {
   await page.goto("/");
   await page.waitForTimeout(1000);
   await page.keyboard.press(`${modifier}+KeyK`);
-  const input = page.locator('input[placeholder*="buscar" i], input[placeholder*="search" i]').first();
+  const input = page
+    .locator('input[placeholder*="buscar" i], input[placeholder*="search" i]')
+    .first();
   await input.waitFor({ timeout: 8_000 });
   return input;
 }

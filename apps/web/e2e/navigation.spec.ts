@@ -87,4 +87,3 @@ test.describe("Navegacao e i18n", () => {
     expect(count).toBeGreaterThan(0);
   });
 });
-

@@ -23,7 +23,10 @@ export default async function NotFound() {
       <div className="min-h-screen bg-[#05050A] text-[#EDE7DC]">
         <Navbar />
         <main className="flex flex-col items-center justify-center px-4 py-32 text-center">
-          <p className="font-heading text-7xl font-bold tabular-nums text-[#818CF8]" aria-hidden="true">
+          <p
+            className="font-heading text-7xl font-bold tabular-nums text-[#818CF8]"
+            aria-hidden="true"
+          >
             404
           </p>
           <h1 className="mt-4 font-heading text-2xl font-semibold">{t("notFoundTitle")}</h1>

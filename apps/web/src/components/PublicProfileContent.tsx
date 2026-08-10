@@ -29,9 +29,7 @@ export function PublicProfileContent({ userId }: { userId: string }) {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">
-        {t("loading")}
-      </div>
+      <div className="max-w-3xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">{t("loading")}</div>
     );
   }
 
@@ -46,12 +44,10 @@ export function PublicProfileContent({ userId }: { userId: string }) {
     );
   }
 
-  const tipoLabels: Record<string, string> = { FILME: t("movies"), SERIE: t("series"), GAME: t("games") };
-  const colunaLabels: Record<string, string> = {
-    WANT: t("wantToSee"),
-    WATCHING: t("watching"),
-    COMPLETED: t("completed"),
-    DROPPED: t("dropped"),
+  const tipoLabels: Record<string, string> = {
+    FILME: t("movies"),
+    SERIE: t("series"),
+    GAME: t("games"),
   };
 
   return (
@@ -127,7 +123,9 @@ export function PublicProfileContent({ userId }: { userId: string }) {
                 <div key={tipo}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-[#F5F5F7]">{tipoLabels[tipo] ?? tipo}</span>
-                    <span className="text-[#A0A0B8] tabular-nums">{count} ({pct}%)</span>
+                    <span className="text-[#A0A0B8] tabular-nums">
+                      {count} ({pct}%)
+                    </span>
                   </div>
                   <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden">
                     <div

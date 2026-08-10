@@ -31,9 +31,7 @@ export const SUFIXOS_TIPO_SLUG: Record<string, string> = {
  * diferentes. Retorna o slug limpo e o tipo filtro (ou null se não houver
  * sufixo reconhecido). Função pura — testável.
  */
-export function parseSlugDiscriminado(
-  slug: string,
-): { slug: string; tipo: string | null } {
+export function parseSlugDiscriminado(slug: string): { slug: string; tipo: string | null } {
   const limpo = slugify(slug);
   const ultimoHifen = limpo.lastIndexOf("-");
   if (ultimoHifen > 0) {

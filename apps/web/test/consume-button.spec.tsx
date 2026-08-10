@@ -48,7 +48,12 @@ const httpMock = vi.hoisted(() => ({
       this.status = status;
     }
   },
-  api: {} as { post: ReturnType<typeof vi.fn>; get: ReturnType<typeof vi.fn>; patch: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> },
+  api: {} as {
+    post: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    patch: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  },
 }));
 httpMock.api.post = httpMock.post;
 httpMock.api.get = httpMock.get;
@@ -69,7 +74,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("next-intl/navigation", () => ({
   createNavigation: () => ({
     Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    redirect: () => {},
+    redirect: () => undefined,
     usePathname: () => "/media/duna",
     useRouter: () => routerMock,
     getPathname: () => "/media/duna",
@@ -119,7 +124,9 @@ describe("WatchlistButton (T238) — Quero consumir funcional", () => {
     fireEvent.click(screen.getByRole("button", { name: /adicionar à watchlist/i }));
 
     await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledWith(expect.stringContaining("/login?callbackUrl="));
+      expect(routerMock.replace).toHaveBeenCalledWith(
+        expect.stringContaining("/login?callbackUrl="),
+      );
     });
     // O texto do callback contém o caminho da ficha.
     const arg = routerMock.replace.mock.calls[0][0] as string;

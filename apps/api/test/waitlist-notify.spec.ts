@@ -22,7 +22,10 @@ describe("WaitlistNotifyController (unit)", () => {
   });
 
   it("201: cria lead com email+categoria válidos", async () => {
-    const res = await controller.notificar(mockReq(), { email: "eu@exemplo.com", category: "book" });
+    const res = await controller.notificar(mockReq(), {
+      email: "eu@exemplo.com",
+      category: "book",
+    });
     expect(res).toEqual({ ok: true });
     expect(service.registrar).toHaveBeenCalledWith("eu@exemplo.com", "book");
   });

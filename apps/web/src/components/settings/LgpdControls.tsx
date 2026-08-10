@@ -25,7 +25,9 @@ export function LgpdControls() {
       const data = await api.get<unknown>("/api/v1/user/data");
       if (data == null) throw new Error(t("error"));
       const filename = `media-rate-dados-${new Date().toISOString().slice(0, 10)}.json`;
-      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+      );
       const a = document.createElement("a");
       a.href = url;
       a.download = filename;
@@ -68,7 +70,11 @@ export function LgpdControls() {
         </Button>
 
         {!confirmDelete ? (
-          <Button variant="destructive" onClick={() => setConfirmDelete(true)} disabled={busy != null}>
+          <Button
+            variant="destructive"
+            onClick={() => setConfirmDelete(true)}
+            disabled={busy != null}
+          >
             {t("deleteData")}
           </Button>
         ) : (

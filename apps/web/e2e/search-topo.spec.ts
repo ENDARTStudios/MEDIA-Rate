@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 /**
  * T240 — buscador geral do topo (paleta ⌘K) deve retornar os resultados
@@ -15,13 +15,17 @@ const CINCO_TITULOS = [
   "Mortal Kombat Legends: A Vingança de Scorpion",
 ];
 
-async function abrirPaletaETipar(page: import("@playwright/test").Page, texto: string) {
+async function abrirPaletaETipar(page: Page, texto: string) {
   await page.goto("/");
   // Paleta ⌘K: botão com aria-label de busca no navbar.
-  const botao = page.locator('button[aria-label*="buscar" i], button[aria-label*="search" i]').first();
+  const botao = page
+    .locator('button[aria-label*="buscar" i], button[aria-label*="search" i]')
+    .first();
   await botao.waitFor({ timeout: 10_000 });
   await botao.click();
-  const input = page.locator('input[placeholder*="buscar" i], input[placeholder*="search" i]').first();
+  const input = page
+    .locator('input[placeholder*="buscar" i], input[placeholder*="search" i]')
+    .first();
   await input.waitFor({ timeout: 5_000 });
   await input.pressSequentially(texto, { delay: 0 });
   return input;

@@ -23,13 +23,13 @@ describe("Zod Validation (T1.4)", () => {
     });
     await app.init();
     await (app.getHttpAdapter().getInstance() as unknown as { ready: () => Promise<void> }).ready();
-    // T230: AppModule completo — timeout explícito (contenda de 80 arquivos
+    // T230: AppModule completo ï¿½ timeout explï¿½cito (contenda de 80 arquivos
     // paralelos pode estourar o default de 5s).
   }, 60_000);
 
   afterAll(async () => {
-    // T230: defensivo — se o beforeAll falhou, app pode não existir; e
-    // falha de teardown não deve derrubar o arquivo.
+    // T230: defensivo ï¿½ se o beforeAll falhou, app pode nï¿½o existir; e
+    // falha de teardown nï¿½o deve derrubar o arquivo.
     if (!app) return;
     try {
       await app.close();

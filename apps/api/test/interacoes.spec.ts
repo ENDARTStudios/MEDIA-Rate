@@ -6,16 +6,24 @@ import { InteracoesService } from "../src/modules/interacoes/interacoes.service.
 function mockPrisma() {
   const estado: any[] = [];
   const prisma = {
-    midia: { findUnique: vi.fn(async ({ where }: any) => (where.id === "midia-1" ? { id: "midia-1" } : null)) },
+    midia: {
+      findUnique: vi.fn(async ({ where }: any) =>
+        where.id === "midia-1" ? { id: "midia-1" } : null,
+      ),
+    },
     usuarioMidiaInteracao: {
       findUnique: vi.fn(async ({ where }: any) => {
         const k = where.usuario_id_midia_id;
-        return estado.find((e) => e.usuario_id === k.usuario_id && e.midia_id === k.midia_id) ?? null;
+        return (
+          estado.find((e) => e.usuario_id === k.usuario_id && e.midia_id === k.midia_id) ?? null
+        );
       }),
       findMany: vi.fn(async () => estado),
       upsert: vi.fn(async ({ create, update }: any) => {
         const k = create ? { usuario_id: create.usuario_id, midia_id: create.midia_id } : null;
-        const idx = estado.findIndex((e) => k && e.usuario_id === k.usuario_id && e.midia_id === k.midia_id);
+        const idx = estado.findIndex(
+          (e) => k && e.usuario_id === k.usuario_id && e.midia_id === k.midia_id,
+        );
         if (idx >= 0) {
           estado[idx] = { ...estado[idx], ...update };
           return estado[idx];
@@ -31,11 +39,10 @@ function mockPrisma() {
 
 describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)", () => {
   let prisma: any;
-  let estado: any[];
   let service: InteracoesService;
 
   beforeEach(() => {
-    ({ prisma, estado } = mockPrisma());
+    ({ prisma } = mockPrisma());
     service = new InteracoesService(prisma);
   });
 
@@ -62,14 +69,20 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
   });
 
   it("reação em QUERO_CONSUMIR/CONSUMINDO → 400 (só após consumo real)", async () => {
-    await expect(service.upsert("user-1", "midia-1", { status: "QUERO_CONSUMIR", reacao: "GOSTEI" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.upsert("user-1", "midia-1", { status: "QUERO_CONSUMIR", reacao: "GOSTEI" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
     await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
-    await expect(service.upsert("user-1", "midia-1", { reacao: "NAO_GOSTEI" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.upsert("user-1", "midia-1", { reacao: "NAO_GOSTEI" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("CONSUMINDO → QUERO_CONSUMIR é transição inválida → 400", async () => {
     await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
-    await expect(service.upsert("user-1", "midia-1", { status: "QUERO_CONSUMIR" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.upsert("user-1", "midia-1", { status: "QUERO_CONSUMIR" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("motivo de abandono só é válido com status ABANDONADO → 400", async () => {
@@ -79,7 +92,10 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
   });
 
   it("ABANDONADO com FALTA_TEMPO é aceito e não gera sinal negativo (motor)", async () => {
-    const r = await service.upsert("user-1", "midia-1", { status: "ABANDONADO", motivoAbandono: "FALTA_TEMPO" });
+    const r = await service.upsert("user-1", "midia-1", {
+      status: "ABANDONADO",
+      motivoAbandono: "FALTA_TEMPO",
+    });
     expect(r.status).toBe("ABANDONADO");
     expect(r.motivo_abandono).toBe("FALTA_TEMPO");
   });
@@ -97,7 +113,9 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
   });
 
   it("mídia inexistente → 404", async () => {
-    await expect(service.upsert("user-1", "midia-inexistente", {})).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.upsert("user-1", "midia-inexistente", {})).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it("listar retorna interações do usuário", async () => {
