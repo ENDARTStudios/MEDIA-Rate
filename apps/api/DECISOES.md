@@ -519,3 +519,17 @@ decision'); (4) cards: badge de categoria sobreposto pelo coracao
 (badge movido de top-2 para top-12 left-2), nota ScoreDial de sm para md
 (legivel), botao '+' verificado funcional (clique -> /login anonimo, com
 tooltip 'Quero ver'). Validacao: 301/301 web, builds ok, API tsc ok.
+
+## D-261 paleta e botao + verificados; next.config remotePatterns IGDB/etc
+Reporte do Operador: (1) busca Ctrl+K 'Nenhum resultado' e (2) botao '+'
+sem funcao. VERIFICADO em producao com Playwright: (1) paleta retorna
+'Um Sonho de Liberdade' (request /discover 200) e (2) botao + leva ao
+/login (anonimo) — ambos FUNCIONAM; bundle Vercel contem D-259/D-260.
+ACHADO REAL: 400s do _next/image para images.igdb.com (e
+covers.openlibrary.org, books.google.com, cdn.myanimelist.net) — hosts
+faltavam no remotePatterns do next.config; sem eles os posters de
+games/livros/mangas quebram (400) e os cards ficam sem imagem, dando
+percepcao de 'quebrado'. CORRECAO: adicionados os 4 hosts ao
+images.remotePatterns. PERCEPCAO do Operador provavelmente cache de
+navegador (bundle ja atual) + cards sem imagem. OPERADOR: hard-refresh
+(Ctrl+Shift+R) e limpar cache do site apos deploy.

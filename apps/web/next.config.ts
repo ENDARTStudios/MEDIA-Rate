@@ -29,6 +29,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "steamcdn-a.akamaihd.net" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "cdn.akamai.steamstatic.com" },
+      // Pôsteres do seed-posters (T226/T255): IGDB, OpenLibrary, Google
+      // Books, MyAnimeList (Jikan) — sem esses, o _next/image retorna 400
+      // e os cards de games/livros/mangás ficam sem imagem.
+      { protocol: "https", hostname: "images.igdb.com" },
+      { protocol: "https", hostname: "covers.openlibrary.org" },
+      { protocol: "https", hostname: "books.google.com" },
+      { protocol: "https", hostname: "cdn.myanimelist.net" },
     ],
   },
   poweredByHeader: false,
