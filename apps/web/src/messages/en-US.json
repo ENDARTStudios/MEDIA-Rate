@@ -198,7 +198,9 @@
     "paletaMinChars": "Type at least 2 letters to search...",
     "paletaSearching": "Searching...",
     "paletaEmpty": "No results found.",
-    "paletaEmptyHint": "Try another title or browse the catalog."
+    "paletaEmptyHint": "Try another title or browse the catalog.",
+    "paletaError": "Couldn't search right now.",
+    "paletaErrorHint": "Check your connection and try again."
   },
   "dashboard": {
     "title": "Dashboard",

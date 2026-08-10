@@ -59,6 +59,7 @@ export function SearchCommand() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const debouncedQuery = useDebounce(query, 250);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +74,7 @@ export function SearchCommand() {
     }
     let cancelled = false;
     setSearching(true);
+    setSearchError(false);
     searchMedia(debouncedQuery)
       .then((r) => {
         if (cancelled) return;
@@ -88,6 +90,13 @@ export function SearchCommand() {
             score: media.score?.consolidated ?? null,
           })),
         );
+      })
+      .catch(() => {
+        // T263: erro de rede/API → estado de erro visível (retry), nunca
+        // "Nenhum resultado" silencioso (D-230).
+        if (cancelled) return;
+        setResults([]);
+        setSearchError(true);
       })
       .finally(() => {
         if (!cancelled) setSearching(false);
@@ -308,7 +317,14 @@ export function SearchCommand() {
                 <div className="px-4 py-10 text-center text-sm text-[#6B7280]">{t("paletaSearching")}</div>
               )}
 
-              {debouncedQuery.length >= 2 && !searching && totalResults === 0 && (
+              {debouncedQuery.length >= 2 && searchError && (
+                <div className="px-4 py-10 text-center">
+                  <p className="text-sm text-[#F87171] mb-1">{t("paletaError")}</p>
+                  <p className="text-xs text-[#6B7280]">{t("paletaErrorHint")}</p>
+                </div>
+              )}
+
+              {debouncedQuery.length >= 2 && !searching && !searchError && totalResults === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="text-sm text-[#9CA3AF] mb-1">{t("paletaEmpty")}</p>
                   <p className="text-xs text-[#6B7280]">

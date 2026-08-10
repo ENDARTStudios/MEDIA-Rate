@@ -1041,9 +1041,16 @@ function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
  * resultado", nunca resultados falsos de mock). */
 export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
   if (!q || q.length < 2) return [];
-  const data = await apiGet<{ itens: ApiDiscoverItem[] }>(
-    `/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`,
-  );
+  // T263: busca direto (fetch) para SURFACE de erros — apiGet engole
+  // status não-ok como null e o modal mostraria "Nenhum resultado" mesmo
+  // com a API fora (erro silencioso, viola D-230). Aqui 200 vazio = nenhum
+  // resultado; não-ok/timeout lança para o SearchCommand mostrar retry.
+  const isClient = typeof window !== "undefined";
+  const cleanPath = `/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`.slice(4);
+  const url = isClient ? `/api${cleanPath}` : `${API_BASE}/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`;
+  const res = await fetch(url, { ...(isClient ? {} : { next: { revalidate: 300 } }) });
+  if (!res.ok) throw new Error(`Busca falhou (HTTP ${res.status})`);
+  const data = (await res.json()) as { itens: ApiDiscoverItem[] };
   if (data?.itens?.length) {
     return data.itens.map((it, i) => ({
       media: mediaFromDiscoverItem(it),

@@ -565,3 +565,20 @@ no deploy atual — provavelmente cache de navegador (bundle antigo). Testes:
 normalizar-imagem.spec (3). Validacao: 301/301 web, builds ok, api tests.
 OPERADOR: limpar cache/hard-refresh; apos deploy da API, posters de games
 corrigem sem re-seed.
+
+## D-264 T264/T263/T265: home verificado (fixes presentes) + busca surfacing + es-ES
+Auditoria independente do Thinker sugeriu que fixes nao estavam na home.
+VERIFICADO com Playwright em TEXTO (deploy 023b19b): home EN sem termos PT
+(stats/hero/locked cards todos EN), SERIES mostra series reais (Breaking
+Bad, Band of Brothers — nao mais filmes), score nativo. Os fixes T254/
+T258/T261/T262 ESTAVAM no bundle; a auditoria do Thinker pegou bundle
+antigo/cache. T264: unificacao confirmada (home usa MediaCarousel->MediaCard
+->LockedComingSoonCard compartilhados); corrigido unico achado real:
+es-ES howCoverageBody 'e IMDb' -> 'y IMDb' (PT em ES). T263: searchMedia
+agora usa fetch direto com SURFACE de erro (apiGet engolia nao-ok como
+null e o modal mostrava 'Nenhum resultado' mesmo com API fora); SearchCommand
+trata erro -> paletaError (retry visivel, D-230); chaves paletaError nos
+3 locales. T265: mapeamento titulo<->cover IGDB por ID (where id = gameId,
+depois cover_id do MESMO game) confirmado correto; normalizarImagem
+(D-263) entrega t_cover_big; aguardando deploy Railway (uptime atual =
+pre-D-263, capas ainda t_thumb na API). Validacao: 301/301 web, build ok.

@@ -198,7 +198,9 @@
     "paletaMinChars": "Escribe al menos 2 letras para buscar...",
     "paletaSearching": "Buscando...",
     "paletaEmpty": "Sin resultados.",
-    "paletaEmptyHint": "Prueba con otro título o explora el catálogo."
+    "paletaEmptyHint": "Prueba con otro título o explora el catálogo.",
+    "paletaError": "No se pudo buscar ahora.",
+    "paletaErrorHint": "Comprueba tu conexión e inténtalo de nuevo."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -614,7 +616,7 @@
     "howSourcesTitle": "Fuentes de datos y normalización de notas",
     "howSourcesBody": "Utilizamos TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, Letterboxd, Trakt, IGDB, OpenCritic, Steam y SteamSpy como fuentes primarias. Cada nota bruta se normaliza a la escala 0-100.",
     "howCoverageTitle": "Fuentes y Cobertura de Datos",
-    "howCoverageBody": "MEDIA Rate integra fuentes por tipo de medio: TMDB e IMDb (películas y series), Rotten Tomatoes, Metacritic, Letterboxd y Trakt (películas y series), TVMaze (series), IGDB, OpenCritic, Steam y SteamSpy (juegos).",
+    "howCoverageBody": "MEDIA Rate integra fuentes por tipo de medio: TMDB y IMDb (películas y series), Rotten Tomatoes, Metacritic, Letterboxd y Trakt (películas y series), TVMaze (series), IGDB, OpenCritic, Steam y SteamSpy (juegos).",
     "howConfidenceTitle": "Nivel de confianza y transparencia del score",
     "howConfidenceBody": "Cada MEDIA Score muestra un indicador de confianza (Alta / Media / Baja), calculado según el volumen de votos, número de fuentes y dispersión de notas.",
     "catalogTitle": "Catálogo de Películas, Series y Juegos",

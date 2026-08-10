@@ -24,6 +24,8 @@ const messages = {
     paletaSearching: "Buscando...",
     paletaEmpty: "Nenhum resultado encontrado.",
     paletaEmptyHint: "Tente outro título ou explore o catálogo.",
+    paletaError: "Não foi possível buscar agora.",
+    paletaErrorHint: "Verifique sua conexão e tente novamente.",
     noResults: "Nenhum resultado encontrado",
     comingSoonTap: "Em breve",
   },
@@ -103,16 +105,18 @@ describe("SearchCommand (T233) — renderiza a resposta do /discover sem filtro 
     });
   });
 
-  it("API fora do ar (500) → 'Nenhum resultado', sem fallback mock", async () => {
+  it("API fora do ar (500) → estado de ERRO visível (retry), nunca 'Nenhum resultado'", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response("erro", { status: 500 })),
     );
     await abrirBuscaETipar("acao");
 
+    // T263: 500 → erro visível (não 'Nenhum resultado' silencioso).
     await waitFor(() => {
-      expect(screen.getByText(/nenhum resultado/i)).toBeTruthy();
+      expect(screen.getByText(/não foi possível buscar/i)).toBeTruthy();
     });
+    expect(screen.queryByText(/nenhum resultado/i)).toBeNull();
     // Sem resultados falsos de MOCK_MEDIA (ex.: títulos que contêm "acao").
     expect(screen.queryByText(/Jujutsu/i)).toBeNull();
   });
