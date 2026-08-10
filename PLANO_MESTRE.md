@@ -1,87 +1,87 @@
-# PLANO_MESTRE.md — MEDIA Rate
+# PLANO_MESTRE.md ï¿½ MEDIA Rate
 
-> Gerado sob PROTOCOLO_MESTRE.md v2.0 (Seção 5).
+> Gerado sob PROTOCOLO_MESTRE.md v2.0 (Seï¿½ï¿½o 5).
 > Conflito entre este arquivo e o Protocolo: o Protocolo vence.
-> Atualização 2026-08-10: consolidação — removida duplicação e atualizados os
-> itens concluídos com evidência do repositório (T180–T278).
+> Atualizaï¿½ï¿½o 2026-08-10: consolidaï¿½ï¿½o ï¿½ removida duplicaï¿½ï¿½o e atualizados os
+> itens concluï¿½dos com evidï¿½ncia do repositï¿½rio (T180ï¿½T278).
 
 ---
 
 ## ?? PROGRESSO GERAL (CHECKLIST RESUMIDA)
 
-- [x] Fase 0 – Setup `[CONCLUÍDA — 9/9]` ? (2026-07-25)
-- [x] Fase 1 – Infra base `[CONCLUÍDA — 9/9, NestJS 11 + Fastify 5]` ?
-- [~] Fase 2 – Dados `[PARCIAL — 20/21, 3 gaps de governança]` ??
-- [x] Fase 3 – Auth `[CONCLUÍDA — 11/11, RBAC granular postergado]` ?
-- [x] Fase 4 – APIs `[CONCLUÍDA — watchlist/discover/recommendations/admin reais]` ?
-- [x] Fase 5 – Frontend `[CONCLUÍDA — rotas públicas/privadas, i18n 3 locales, SSR parity]` ?
-- [~] Fase 6 – Avançado `[PARCIAL — cache/shutdown/upload ok; BullMQ e IA/RAG postergados D-017]` ??
-- [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ?
-- [~] Fase 8 – Testes/segurança `[PARCIAL — 690 API + 309 web; IA pipeline N/A]` ??
-- [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ??
+- [x] Fase 0 ï¿½ Setup `[CONCLUï¿½DA ï¿½ 9/9]` ? (2026-07-25)
+- [x] Fase 1 ï¿½ Infra base `[CONCLUï¿½DA ï¿½ 9/9, NestJS 11 + Fastify 5]` ?
+- [~] Fase 2 ï¿½ Dados `[PARCIAL ï¿½ 20/21, 3 gaps de governanï¿½a]` ??
+- [x] Fase 3 ï¿½ Auth `[CONCLUï¿½DA ï¿½ 11/11, RBAC granular postergado]` ?
+- [x] Fase 4 ï¿½ APIs `[CONCLUï¿½DA ï¿½ watchlist/discover/recommendations/admin reais]` ?
+- [x] Fase 5 ï¿½ Frontend `[CONCLUï¿½DA ï¿½ rotas pï¿½blicas/privadas, i18n 3 locales, SSR parity]` ?
+- [~] Fase 6 ï¿½ Avanï¿½ado `[PARCIAL ï¿½ cache/shutdown/upload ok; BullMQ e IA/RAG postergados D-017]` ??
+- [x] Fase 7 ï¿½ Hardening `[CONCLUï¿½DA ï¿½ 10/10 (2 N/A condicionais documentados)]` ?
+- [~] Fase 8 ï¿½ Testes/seguranï¿½a `[PARCIAL ï¿½ 690 API + 309 web; IA pipeline N/A]` ??
+- [~] Fase 9 ï¿½ CI/CD e deploy `[PARCIAL ï¿½ pipeline + observabilidade ok; domï¿½nio e UptimeRobot pendentes]` ??
 
-> **Convenção:** `[x]` só com evidência real de verificação (PROTOCOLO_MESTRE.md Seção 6). `[~]` = parcialmente feito, com gap documentado.
+> **Convenï¿½ï¿½o:** `[x]` sï¿½ com evidï¿½ncia real de verificaï¿½ï¿½o (PROTOCOLO_MESTRE.md Seï¿½ï¿½o 6). `[~]` = parcialmente feito, com gap documentado.
 
 ---
 
 ## Resumo do Discovery (DECISOES.md, 2026-07-25)
 
-- **Produto:** Plataforma de descoberta de entretenimento — filmes, séries, games, livros, mangás, HQs. MEDIA Score™ consolidado de múltiplas fontes, IA de recomendação, perfil de gosto, watchlist Kanban.
-- **Escala:** 1.000 ? 10.000 ? 50k usuários no Ano 1. Monorepo npm workspaces (apps/web + apps/api).
+- **Produto:** Plataforma de descoberta de entretenimento ï¿½ filmes, sï¿½ries, games, livros, mangï¿½s, HQs. MEDIA Scoreï¿½ consolidado de mï¿½ltiplas fontes, IA de recomendaï¿½ï¿½o, perfil de gosto, watchlist Kanban.
+- **Escala:** 1.000 ? 10.000 ? 50k usuï¿½rios no Ano 1. Monorepo npm workspaces (apps/web + apps/api).
 - **Login:** Sim. **Assinatura:** Sim (Free/Plus/Premium). **Upload:** Sim (admin/posters).
-- **Marca:** "MEDIA Rate". **Domínio:** Vercel preview (mediarate.app pendente — PENDENCIAS_OPERADOR.md).
-- **Monetização:** Free com anúncios + limite de 50 itens na watchlist. Plus (R$8,90/mês) e Premium (R$14,90/mês) sem anúncios.
-- **Confidence Engine:** Thresholds — high ? 70, medium ? 40, low < 40.
+- **Marca:** "MEDIA Rate". **Domï¿½nio:** Vercel preview (mediarate.app pendente ï¿½ PENDENCIAS_OPERADOR.md).
+- **Monetizaï¿½ï¿½o:** Free com anï¿½ncios + limite de 50 itens na watchlist. Plus (R$8,90/mï¿½s) e Premium (R$14,90/mï¿½s) sem anï¿½ncios.
+- **Confidence Engine:** Thresholds ï¿½ high ? 70, medium ? 40, low < 40.
 
 ---
 
-## FASE 0 — SETUP `[OBRIGATÓRIO]` `[CONCLUÍDA — 9/9]`
+## FASE 0 ï¿½ SETUP `[OBRIGATï¿½RIO]` `[CONCLUï¿½DA ï¿½ 9/9]`
 
 - [x] 0.1 Repo Git com `.gitignore` (exclui `.env`, `node_modules`, segredos, artefatos `mnt/`, `.agent-log`, `-w`).
 - [x] 0.2 Stack: TypeScript + Node.js + Next.js (web) + Fastify + Prisma + PostgreSQL. Monorepo npm workspaces.
 - [x] 0.3 `package.json` raiz + `apps/web` + `apps/api` (npm workspaces).
 - [x] 0.4 `docker-compose.yml` com `postgres:16-alpine` + `redis:7-alpine` + Loki/Grafana.
 - [x] 0.5 `.env.example` sem valor real (placeholders).
-- [x] 0.6 Dependências fixadas por `package-lock.json` (`npm ci` em CI).
+- [x] 0.6 Dependï¿½ncias fixadas por `package-lock.json` (`npm ci` em CI).
 - [x] 0.7 ESLint + Prettier flat config (`eslint.config.mjs`). `npm run lint` verde (0 erros) desde T277.
 - [x] 0.8 Dependabot ativo (`.github/dependabot.yml`).
-- [x] 0.9 `SECURITY.md` com política de divulgação responsável.
+- [x] 0.9 `SECURITY.md` com polï¿½tica de divulgaï¿½ï¿½o responsï¿½vel.
 
 ---
 
-## FASE 1 — INFRA BASE `[CONCLUÍDA — 9/9]`
+## FASE 1 ï¿½ INFRA BASE `[CONCLUï¿½DA ï¿½ 9/9]`
 
 - [x] 1.1 Fastify + TypeScript estrito + Pino com `redact`.
 - [x] 1.2 `@fastify/helmet` com CSP/HSTS/X-Frame-Options/X-Content-Type-Options.
 - [x] 1.3 `@fastify/rate-limit` por IP/rota (100 req/min global, 6/min login).
 - [x] 1.4 Logger Pino estruturado + redaction (teste `logger-redact.spec.ts`).
-- [x] 1.5 Validação Zod em todos os endpoints de escrita.
+- [x] 1.5 Validaï¿½ï¿½o Zod em todos os endpoints de escrita.
 - [x] 1.6 CORS restrito (dev localhost; prod origem oficial).
-- [x] 1.7 Sanitização de saída (stack nunca exposto).
+- [x] 1.7 Sanitizaï¿½ï¿½o de saï¿½da (stack nunca exposto).
 - [x] 1.8 `GET /health` (status/uptime/version, sem detalhes internos).
-- [x] 1.9 Handler global de erros sem stack trace (resposta genérica 5xx).
+- [x] 1.9 Handler global de erros sem stack trace (resposta genï¿½rica 5xx).
 
 ---
 
-## FASE 2 — DADOS `[~ PARCIAL — 20/21, 3 gaps de governança]`
+## FASE 2 ï¿½ DADOS `[~ PARCIAL ï¿½ 20/21, 3 gaps de governanï¿½a]`
 
-- [x] 2.1 Prisma schema canônico (PostgreSQL, 20+ models).
+- [x] 2.1 Prisma schema canï¿½nico (PostgreSQL, 20+ models).
 - [x] 2.2 Migrations versionadas aplicadas.
-- [x] 2.3 Tabelas de domínio: `midia`, `media_score`, `genero`, `streaming_service`, `midia_genero`, `midia_streaming`.
-- [~] 2.4 Tabelas de auth: `usuario`, `roles`, `user_roles`, `sessions`, `watchlist_entry` ?; `permissions` granulares ? (postergado — RBAC via `@Roles`/`@RequirePlan`).
+- [x] 2.3 Tabelas de domï¿½nio: `midia`, `media_score`, `genero`, `streaming_service`, `midia_genero`, `midia_streaming`.
+- [~] 2.4 Tabelas de auth: `usuario`, `roles`, `user_roles`, `sessions`, `watchlist_entry` ?; `permissions` granulares ? (postergado ï¿½ RBAC via `@Roles`/`@RequirePlan`).
 - [x] 2.5 Tabelas de billing: `fatura`, planos Free/Plus/Premium, `payment_events`.
 - [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`).
-- [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
-- [x] 2.8 Senha/token com argon2id (custo ? 12, memória 19MiB).
-- [x] 2.9 Soft delete: `Midia.deleted_at` (T215, migration `20260808140000_media_soft_delete` + índice parcial) e `Usuario.dados_para_exclusao_at` (LGPD).
-- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, não wired nas colunas.
-- [x] 2.11 Seed de admin + usuários (free/plus/premium).
-- [x] 2.12 Índices em todas as FKs + colunas de busca.
+- [ ] 2.7 Tabelas de governanï¿½a: `data_sources` (procedï¿½ncia), `entity_revisions` (versionamento). **AUSENTES** ï¿½ gap aberto.
+- [x] 2.8 Senha/token com argon2id (custo ? 12, memï¿½ria 19MiB).
+- [x] 2.9 Soft delete: `Midia.deleted_at` (T215, migration `20260808140000_media_soft_delete` + ï¿½ndice parcial) e `Usuario.dados_para_exclusao_at` (LGPD).
+- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, nï¿½o wired nas colunas.
+- [x] 2.11 Seed de admin + usuï¿½rios (free/plus/premium).
+- [x] 2.12 ï¿½ndices em todas as FKs + colunas de busca.
 - [x] 2.13 Unicidades documentadas (`@@unique`: email, fonte+fonte_id, midia_id, usuario+midia, etc.).
-- [x] 2.14 `TipoMidia` com MANGA (D-233: anime é SERIE; mangá categoria própria 'Mangás').
-- [x] 2.15 Search vector: `tsvector` com `translate()` IMMUTABLE (migration `20260809_fix_search_vector`, causa raiz 42P17/unaccent resolvida — D-224).
+- [x] 2.14 `TipoMidia` com MANGA (D-233: anime ï¿½ SERIE; mangï¿½ categoria prï¿½pria 'Mangï¿½s').
+- [x] 2.15 Search vector: `tsvector` com `translate()` IMMUTABLE (migration `20260809_fix_search_vector`, causa raiz 42P17/unaccent resolvida ï¿½ D-224).
 
-**Verificação:**
+**Verificaï¿½ï¿½o:**
 - `prisma migrate dev` roda limpo em PostgreSQL ?
 - Seeds idempotentes por `(fonte, fonte_id)` (T276: seed-games lookup-driven via IGDB por slug) ?
 - Auditoria de ids IGDB: `npm run db:audit:igdb` (exaustiva, D-265) ?
@@ -90,77 +90,77 @@
 
 | # | Gap | Impacto |
 |---|---|---|
-| 1 | `permissions` granulares | RBAC sem granularidade fina (só roles/planos) — postergado |
-| 2 | `data_sources` | Procedência de dados não rastreável como entidade |
-| 3 | `entity_revisions` | Versionamento de entidades não implementado |
+| 1 | `permissions` granulares | RBAC sem granularidade fina (sï¿½ roles/planos) ï¿½ postergado |
+| 2 | `data_sources` | Procedï¿½ncia de dados nï¿½o rastreï¿½vel como entidade |
+| 3 | `entity_revisions` | Versionamento de entidades nï¿½o implementado |
 
 ---
 
-## FASE 3 — AUTH `[CONCLUÍDA — 11/11]`
+## FASE 3 ï¿½ AUTH `[CONCLUï¿½DA ï¿½ 11/11]`
 
-**Arquitetura:** Tokens opacos (SHA-256) sobre cookies httpOnly — NÃO JWT (blacklistability).
+**Arquitetura:** Tokens opacos (SHA-256) sobre cookies httpOnly ï¿½ Nï¿½O JWT (blacklistability).
 
 - [x] 3.0 Preflight Auth (AuthModule, PasswordService Argon2id, ZodValidationPipe).
 - [x] 3.1 Token + Cookie (opacos 256-bit, `SessionCookieService` httpOnly/SameSite=Lax/secure).
 - [x] 3.2 Register / Login / Logout / me (4 endpoints).
 - [x] 3.3 Refresh token (T212): access opaco 15min sliding + refresh rotativo 30 dias com reuse detection.
-- [x] 3.4 AuthGuard (valida sessão, anexa `request.user`).
-- [x] 3.5 RBAC: `RolesGuard` + `PlanGuard` (sem permissions granulares — postergado).
-- [x] 3.6 Reset de senha (T206): token uso único, expiração 1h, rate limit, revogação de sessões, audit.
+- [x] 3.4 AuthGuard (valida sessï¿½o, anexa `request.user`).
+- [x] 3.5 RBAC: `RolesGuard` + `PlanGuard` (sem permissions granulares ï¿½ postergado).
+- [x] 3.6 Reset de senha (T206): token uso ï¿½nico, expiraï¿½ï¿½o 1h, rate limit, revogaï¿½ï¿½o de sessï¿½es, audit.
 - [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse.
-- [x] 3.8 Rate limit específico /auth (6 req/min login).
+- [x] 3.8 Rate limit especï¿½fico /auth (6 req/min login).
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
-- [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
-- [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
+- [x] 3.10 Documentaï¿½ï¿½o API Auth: `docs/api/auth.md`.
+- [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso ï¿½nico, 403 EMAIL_NOT_VERIFIED no login, backfill.
 
-**Verificação:**
-- Login válido ? 200 + cookie ?; lockout progressivo ?; `/me` sem cookie ? 401 ?
+**Verificaï¿½ï¿½o:**
+- Login vï¿½lido ? 200 + cookie ?; lockout progressivo ?; `/me` sem cookie ? 401 ?
 - Email verification enforced no login (T214) ?
 
 ---
 
-## FASE 4 — APIs/CRUDs `[CONCLUÍDA]`
+## FASE 4 ï¿½ APIs/CRUDs `[CONCLUï¿½DA]`
 
-REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, auth, discover, fontes, historico, interacoes, invite, lgpd, listas, media, media-score, metrics, notificacoes, payment, perfil, premium, quota, recommendations, relacoes, upload.
+REST versionado `/api/v1`. Mï¿½dulos em `apps/api/src/modules/<nome>/`: admin, auth, discover, fontes, historico, interacoes, invite, lgpd, listas, media, media-score, metrics, notificacoes, payment, perfil, premium, quota, recommendations, relacoes, upload.
 
-- [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade ? 409, invalidação de cache, audit.
-- [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confiança, explicabilidade.
-- [x] 4.3 Módulo `recommendations`: serviço real (`RecommendationsService` + controller + DTO + testes e2e) — stubs substituídos.
-- [x] 4.4 Módulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, score_at_add).
-- [x] 4.5 Módulo `discover/search`: busca real com `?q=` e paridade de acentos.
-- [x] 4.6 Módulo `billing`: checkout Stripe (Idempotency-Key) + webhook HMAC; faturas persistidas.
-- [x] 4.7 Módulo `admin` (T221): `/admin/stats` com métricas REAIS (usuários, mídias, watchlists, sessões, planos), cache 60s, RBAC, audit.
+- [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade ? 409, invalidaï¿½ï¿½o de cache, audit.
+- [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confianï¿½a, explicabilidade.
+- [x] 4.3 Mï¿½dulo `recommendations`: serviï¿½o real (`RecommendationsService` + controller + DTO + testes e2e) ï¿½ stubs substituï¿½dos.
+- [x] 4.4 Mï¿½dulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, score_at_add).
+- [x] 4.5 Mï¿½dulo `discover/search`: busca real com `?q=` e paridade de acentos.
+- [x] 4.6 Mï¿½dulo `billing`: checkout Stripe (Idempotency-Key) + webhook HMAC; faturas persistidas.
+- [x] 4.7 Mï¿½dulo `admin` (T221): `/admin/stats` com mï¿½tricas REAIS (usuï¿½rios, mï¿½dias, watchlists, sessï¿½es, planos), cache 60s, RBAC, audit.
 - [x] 4.8 Busca textual PostgreSQL: `tsvector` + `translate()` IMMUTABLE (fix D-224).
-- [x] 4.9 Paginação cursor-based (`?cursor=` + `lastCursorId`).
+- [x] 4.9 Paginaï¿½ï¿½o cursor-based (`?cursor=` + `lastCursorId`).
 - [x] 4.10 Query parametrizada (Prisma).
 - [x] 4.11 OpenAPI (Swagger decorators).
-- [x] 4.12 Idempotência (Idempotency-Key + `stripe_event_id` UNIQUE).
-- [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
+- [x] 4.12 Idempotï¿½ncia (Idempotency-Key + `stripe_event_id` UNIQUE).
+- [x] 4.13 Endpoints extras: LGPD export/exclusï¿½o, historico, perfil, quota, notificaï¿½ï¿½es, listas colaborativas, interaï¿½ï¿½es, fontes/coleta, metrics, relacoes.
 
-**Verificação:** `npm run test` (API) — 690 testes, 84 arquivos. Zero referências ao projeto antigo "Almanaque dos Clubes".
+**Verificaï¿½ï¿½o:** `npm run test` (API) ï¿½ 690 testes, 84 arquivos. Zero referï¿½ncias ao projeto antigo "Almanaque dos Clubes".
 
 ---
 
-## FASE 5 — FRONTEND `[CONCLUÍDA]`
+## FASE 5 ï¿½ FRONTEND `[CONCLUï¿½DA]`
 
 Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + shadcn/ui.
 
-- [x] 5.1-5.3 Cliente HTTP, CSRF (SameSite + X-CSRF-Token), páginas públicas/privadas.
-- [x] 5.4-5.6 ProtectedPage, CSP, DOMPurify (privacy), sessão sem localStorage.
-- [x] 5.7-5.9 Acessibilidade WCAG 2.1 AA, responsivo mobile-first, animações premium.
+- [x] 5.1-5.3 Cliente HTTP, CSRF (SameSite + X-CSRF-Token), pï¿½ginas pï¿½blicas/privadas.
+- [x] 5.4-5.6 ProtectedPage, CSP, DOMPurify (privacy), sessï¿½o sem localStorage.
+- [x] 5.7-5.9 Acessibilidade WCAG 2.1 AA, responsivo mobile-first, animaï¿½ï¿½es premium.
 - [x] 5.10-5.12 Design system (Dark OLED #0B0B1E, accent rose #E11D48), SEO (metadata/JSON-LD/OG/Twitter), i18n 3 locales.
-- [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`.
+- [x] 5.13 SSR parity (T274): catï¿½logo `?type=` filtrado no server, carrossï¿½is com ISR `revalidate=60`.
 - [x] 5.14 Gate i18n-leak no CI (T271/T273): e2e SSR + teste estrutural (0 strings PT em EN/ES, og:locale underscore, footer "Seus dados/Your data/Sus datos").
-- [x] 5.15 Selo "prévia" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` único em `lib/api.ts`).
+- [x] 5.15 Selo "prï¿½via" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` ï¿½nico em `lib/api.ts`).
 
-**Verificação:** `next build` ?; vitest web 309/309 (42 arquivos); e2e Playwright (i18n-leak, ctrlk, search-topo, etc.).
+**Verificaï¿½ï¿½o:** `next build` ?; vitest web 309/309 (42 arquivos); e2e Playwright (i18n-leak, ctrlk, search-topo, etc.).
 
 ---
 
-## FASE 6 — AVANÇADO `[~ PARCIAL]`
+## FASE 6 ï¿½ AVANï¿½ADO `[~ PARCIAL]`
 
 - [x] 6.0 Rate limiting (100/min global, 6/min login, sliding window Redis).
-- [x] 6.1 CSP / Helmet (HSTS 1-ano, nonce dinâmico).
+- [x] 6.1 CSP / Helmet (HSTS 1-ano, nonce dinï¿½mico).
 - [x] 6.2 CORS allowlist.
 - [x] 6.3 HTTPS redirect (308 via x-forwarded-proto).
 - [x] 6.4 Dependabot (weekly, grupos prod/dev).
@@ -170,99 +170,99 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 6.8 Upload seguro (T216): magic bytes, 5MB, UUID server-side, rate limit, audit.
 - [x] 6.9 Cache Redis (T210 `CacheService`): `cache.service.ts` + `cache.module.ts`, TTL 60s `/midias`, Redis com fallback local.
 - [x] 6.10 Graceful shutdown (T211): `app.enableShutdownHooks()` + testes.
-- [~] 6.11 Fila assíncrona (BullMQ 6.9): **postergado** — sem caso de uso concreto (D-017). Redis presente no docker-compose.
-- [~] 6.12 IA/RAG (6.5.1–6.5.4): **postergado** (D-017) — embeddings, pipeline RAG, LLM e citação de fontes quando houver caso de uso.
-- [x] 6.13 Exportação de dados (LGPD): export completo + exclusão com 30 dias de carência + cancelamento.
-- [~] 6.14 Feature flags: não implementado (tabela `feature_flags` ausente) — gap aberto.
-- [~] 6.15 WebSocket: condicional — postergado.
+- [~] 6.11 Fila assÃ­ncrona (BullMQ 6.9): **postergado** ï¿½ sem caso de uso concreto (D-017). Redis presente no docker-compose.
+- [~] 6.12 IA/RAG (6.5.1ï¿½6.5.4): **postergado** (D-017) ï¿½ embeddings, pipeline RAG, LLM e citaÃ§Ã£o de fontes quando houver caso de uso.
+- [x] 6.13 ExportaÃ§Ã£o de dados (LGPD): export completo + exclusï¿½o com 30 dias de carÃ´ncia + cancelamento.
+- [~] 6.14 Feature flags: nÃ£o implementado (tabela `feature_flags` ausente) ï¿½ gap aberto.
+- [~] 6.15 WebSocket: condicional ï¿½ postergado.
 
 ---
 
-## FASE 7 — HARDENING `[CONCLUÍDA — 10/10, 2 N/A condicionais]`
+## FASE 7 ï¿½ HARDENING `[CONCLUï¿½DA ï¿½ 10/10, 2 N/A condicionais]`
 
-- [x] 7.1 CSP restritiva + nonce dinâmico + SRI (N/A: zero scripts CDN; fontes self-hosted).
+- [x] 7.1 CSP restritiva + nonce dinï¿½mico + SRI (N/A: zero scripts CDN; fontes self-hosted).
 - [x] 7.2 X-Frame-Options: DENY.
-- [x] 7.3 Rate limit avançado (user+IP+rota, sliding window Redis ZSET).
-- [x] 7.4 `npm audit --audit-level=high` no CI (T277: 0 vulns — override js-yaml 5.2.3 sob @nestjs/swagger).
-- [x] 7.5 Proteção força bruta distribuída (lockout Redis, contador global por IP).
+- [x] 7.3 Rate limit avanï¿½ado (user+IP+rota, sliding window Redis ZSET).
+- [x] 7.4 `npm audit --audit-level=high` no CI (T277: 0 vulns ï¿½ override js-yaml 5.2.3 sob @nestjs/swagger).
+- [x] 7.5 Proteï¿½ï¿½o forï¿½a bruta distribuï¿½da (lockout Redis, contador global por IP).
 - [x] 7.6 TRACE/CONNECT rejeitados (405).
-- [x] 7.7 Limite de payload (1 MiB padrão, 50 MiB upload).
-- [~] 7.8 Rotação de segredos de sessão (90 dias): dispensa documentada pelo design de token opaco (`session-rotation.service.ts` registra o rationale) — sem secret para rotacionar.
-- [~] 7.9 Vault/Infisical: N/A — secret manager nativo da plataforma de deploy.
-- [~] 7.10 DNSSEC/CAA/HSTS preload: N/A — depende de domínio próprio (HSTS `preload: true` já configurado).
+- [x] 7.7 Limite de payload (1 MiB padrï¿½o, 50 MiB upload).
+- [~] 7.8 Rotaï¿½ï¿½o de segredos de sessï¿½o (90 dias): dispensa documentada pelo design de token opaco (`session-rotation.service.ts` registra o rationale) ï¿½ sem secret para rotacionar.
+- [~] 7.9 Vault/Infisical: N/A ï¿½ secret manager nativo da plataforma de deploy.
+- [~] 7.10 DNSSEC/CAA/HSTS preload: N/A ï¿½ depende de domï¿½nio prï¿½prio (HSTS `preload: true` jï¿½ configurado).
 
-**Verificação:** helm, rate-limit Redis, audit, bodyLimit, TRACE 405, CSP nonce, lockout Redis — todos com testes dedicados.
+**Verificaï¿½ï¿½o:** helm, rate-limit Redis, audit, bodyLimit, TRACE 405, CSP nonce, lockout Redis ï¿½ todos com testes dedicados.
 
 ---
 
-## FASE 8 — TESTES/SEGURANÇA `[~ PARCIAL]`
+## FASE 8 ï¿½ TESTES/SEGURANï¿½A `[~ PARCIAL]`
 
-- [x] 8.1 Testes unitários (Vitest): **690 testes API (84 arquivos) + 309 web (42 arquivos)**. Coverage gate no CI (`vitest --coverage`).
-- [x] 8.2 Testes de integração (Supertest/Fastify inject) com auth.
-- [x] 8.3 Testes E2E Playwright (fluxos críticos + gate i18n-leak 7/7).
+- [x] 8.1 Testes unitï¿½rios (Vitest): **690 testes API (84 arquivos) + 309 web (42 arquivos)**. Coverage gate no CI (`vitest --coverage`).
+- [x] 8.2 Testes de integraï¿½ï¿½o (Supertest/Fastify inject) com auth.
+- [x] 8.3 Testes E2E Playwright (fluxos crï¿½ticos + gate i18n-leak 7/7).
 - [x] 8.4 SAST: CodeQL no CI.
 - [x] 8.5 `npm audit --audit-level=high` quebra build (T277: 0 vulnerabilidades).
 - [x] 8.6 DAST: OWASP ZAP semanal (dast-weekly.yml) + script local Docker.
-- [x] 8.7 Testes de carga k6 (ramp 0?1000 VUs, 3 cenários, thresholds).
-- [x] 8.8 Regressão de segurança: headers, SQL injection (7 payloads), XSS, CSRF.
-- [~] 8.9 Pipeline de IA: N/A — IA/RAG postergado (Fase 6).
+- [x] 8.7 Testes de carga k6 (ramp 0?1000 VUs, 3 cenï¿½rios, thresholds).
+- [x] 8.8 Regressï¿½o de seguranï¿½a: headers, SQL injection (7 payloads), XSS, CSRF.
+- [~] 8.9 Pipeline de IA: N/A ï¿½ IA/RAG postergado (Fase 6).
 
 ---
 
-## FASE 9 — CI/CD E DEPLOY `[~ PARCIAL]`
+## FASE 9 ï¿½ CI/CD E DEPLOY `[~ PARCIAL]`
 
 ### Pipeline CI (9.1)
 - [x] 9.1.1 Lint + typecheck em todo PR (`npm run lint` verde desde T277).
-- [x] 9.1.2 Testes unitários + integração (`vitest --coverage`).
+- [x] 9.1.2 Testes unitï¿½rios + integraï¿½ï¿½o (`vitest --coverage`).
 - [x] 9.1.3 SAST (CodeQL) + dependency scan (`npm audit` + Trivy).
 - [x] 9.1.4 Docker multi-stage (`apps/api/Dockerfile`) com prune de dev deps.
 - [x] 9.1.5 Scan de imagem Trivy (CRITICAL/HIGH, exit 1, SARIF).
 - [~] 9.1.6 Deploy em staging: Vercel Preview + Railway; sem staging separado.
 
-### Secrets e Deploy (9.2–9.4)
-- [~] 9.2 Secrets no CI (8 variáveis via `${{ secrets.X }}`, nunca em código).
-- [~] 9.3 Deploy blue-green/rolling (Vercel atômico + Railway rolling, condicionados a secrets).
-- [~] 9.4 Plataforma: **Vercel (web) + Railway (api) em produção** ?; domínio `mediarate.app` pendente; branch protection da main pendente (governança Operador).
+### Secrets e Deploy (9.2ï¿½9.4)
+- [~] 9.2 Secrets no CI (8 variï¿½veis via `${{ secrets.X }}`, nunca em cï¿½digo).
+- [~] 9.3 Deploy blue-green/rolling (Vercel atï¿½mico + Railway rolling, condicionados a secrets).
+- [~] 9.4 Plataforma: **Vercel (web) + Railway (api) em produï¿½ï¿½o** ?; domï¿½nio `mediarate.app` pendente; branch protection da main pendente (governanï¿½a Operador).
 
 ### Observabilidade (9.5)
 - [x] 9.5.1 Logs centralizados (T217): LokiStream opcional via `LOKI_URL`; stdout (Railway) como fallback.
-- [x] 9.5.2 Métricas (T217): prom-client (http_requests_total, duration, errors), `GET /metrics` protegido, sem PII.
+- [x] 9.5.2 Mï¿½tricas (T217): prom-client (http_requests_total, duration, errors), `GET /metrics` protegido, sem PII.
 - [x] 9.5.3 Alertas (T218): ring buffers 5xx>1%/auth>50, histerese, audit ALERT_TRIGGERED/RESOLVED, `/admin/alerts/status`.
 - [~] 9.5.4 Uptime check externo: UptimeRobot pendente (guia em docs/OBSERVABILITY.md; `health-check.yml` cobre como fallback).
 
-### Infraestrutura (9.6–9.9)
+### Infraestrutura (9.6ï¿½9.9)
 - [x] 9.6 Healthcheck HTTP (`GET /health`).
-- [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
+- [x] 9.7 Backup PostgreSQL diï¿½rio (scripts/backup-db.sh, retenï¿½ï¿½o 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
 
-**Verificação:**
+**Verificaï¿½ï¿½o:**
 - Lint ?, audit 0 vulns ?, testes 690+309 ?, build ? (T277 restaura CI localmente)
-- Logs/Métricas/Alertas implementados (T217/T218) ?
+- Logs/Mï¿½tricas/Alertas implementados (T217/T218) ?
 
 ---
 
-## Marcos de Lançamento (Definition of Done por marco)
+## Marcos de Lanï¿½amento (Definition of Done por marco)
 
-| Marco | Critério | Fases exigidas |
+| Marco | Critï¿½rio | Fases exigidas |
 |-------|----------|----------------|
-| **Beta Fechada** (100 usuários) | Catálogo + detalhes + MEDIA Score™ + login + watchlist | Fases 0–5 |
-| **Open Beta** (1.000 usuários) | + recomendações + billing Free/Plus/Premium + observabilidade | Fases 0–8 (parcial), 9.1–9.6 |
-| **v1.0** (público) | + IA RAG com citações + assistente IA + ETL automático + DAST + hardening | Todas as fases |
+| **Beta Fechada** (100 usuï¿½rios) | Catï¿½logo + detalhes + MEDIA Scoreï¿½ + login + watchlist | Fases 0ï¿½5 |
+| **Open Beta** (1.000 usuï¿½rios) | + recomendaï¿½ï¿½es + billing Free/Plus/Premium + observabilidade | Fases 0ï¿½8 (parcial), 9.1ï¿½9.6 |
+| **v1.0** (pï¿½blico) | + IA RAG com citaï¿½ï¿½es + assistente IA + ETL automï¿½tico + DAST + hardening | Todas as fases |
 
 ---
 
-## Convenções de commit
+## Convenï¿½ï¿½es de commit
 
-- `feat:` nova funcionalidade · `fix:` correção de bug · `security:` correção de segurança · `test:` testes · `chore:` manutenção (deps, configs) · `docs:` documentação
-- Commits atômicos por tarefa, referenciando o ID (ex.: `fix(T276): ...`).
+- `feat:` nova funcionalidade ï¿½ `fix:` correï¿½ï¿½o de bug ï¿½ `security:` correï¿½ï¿½o de seguranï¿½a ï¿½ `test:` testes ï¿½ `chore:` manutenï¿½ï¿½o (deps, configs) ï¿½ `docs:` documentaï¿½ï¿½o
+- Commits atï¿½micos por tarefa, referenciando o ID (ex.: `fix(T276): ...`).
 
 ---
 
-## Próxima tarefa (PROTOCOLO_MESTRE.md Seção 6)
+## Prï¿½xima tarefa (PROTOCOLO_MESTRE.md Seï¿½ï¿½o 6)
 
 O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior prioridade:
-1. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
-2. **Fase 6.11/6.12** — BullMQ e IA/RAG (ambos postergados por D-017; reavaliar com caso de uso).
-3. **Fase 6.14** — feature flags.
-4. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot, re-seed de produção T276 (6 passos no Console Railway).
+1. **Fase 2.7** ï¿½ tabelas `data_sources` / `entity_revisions` (governanï¿½a).
+2. **Fase 6.11/6.12** ï¿½ BullMQ e IA/RAG (ambos postergados por D-017; reavaliar com caso de uso).
+3. **Fase 6.14** ï¿½ feature flags.
+4. **Pendï¿½ncias do Operador:** billing Railway, domï¿½nio mediarate.app, branch protection da main, UptimeRobot, re-seed de produï¿½ï¿½o T276 (6 passos no Console Railway).

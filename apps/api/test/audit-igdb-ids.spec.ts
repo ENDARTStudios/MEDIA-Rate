@@ -33,7 +33,7 @@ import {
   mesclarDuplicados,
   corrigirRegistro,
   type LinhaAuditoria,
-} from "../scripts/audit-igdb-ids.js";
+} from "../prisma/audit-igdb-ids.js";
 
 function jsonRes(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

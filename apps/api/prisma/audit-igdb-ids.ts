@@ -18,7 +18,7 @@
  */
 /* eslint-disable no-console */
 import { PrismaClient } from "@prisma/client";
-import { GAMES_CURADOS } from "../prisma/seed-games.js";
+import { GAMES_CURADOS } from "./seed-games.js";
 import {
   buscarIdPorSlug,
   buscarCandidatosPorNome,
@@ -26,7 +26,7 @@ import {
   nomeConfere,
   normalizarTitulo,
   resetTokenTwitch,
-} from "../prisma/igdb-http.js";
+} from "./igdb-http.js";
 
 const DELAY_MS = 300;
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
