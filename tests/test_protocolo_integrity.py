@@ -8,6 +8,12 @@ e estão corretamente formatados.
 import os
 import sys
 import re
+import json
+import subprocess
+
+# Windows cp1252 não suporta ✓/✗/⊘ no stdout — força UTF-8.
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,6 +25,8 @@ REQUIRED_FILES = [
     ".kilo/hooks/danger-guard.py",
     ".kilo/hooks/conventional-commit-guard.py",
     ".kilo/scripts/gerar_sync_simbiotico.py",
+    ".claude/schemas/status.schema.json",
+    ".claude/scripts/validar_status.py",
     "PLANO_MESTRE.md",
     "DECISOES.md",
     "worklog.md",
@@ -74,6 +82,39 @@ def check_hooks_executable():
                 errors.append(f"[PERMISSÃO] {hook} não é executável (chmod +x)")
     return errors
 
+
+# T297/D-280: STATUS inválido de exemplo — deve ser REJEITADO pelo validator.
+_STATUS_INVALIDO = {
+    "sync": {"projeto": "p", "fase": "f", "tarefa_atual": "t", "ultimo_status": "DONE",
+             "proxima_acao": "x", "responsavel": "Doer"},
+    "tarefa_id": "T-exemplo",
+    "fase": "f11",
+    "status": "DONE",
+    # commit ausente; evidencia commit_hash sem dados.hash; metricas zeradas.
+    "evidencia": [{"tipo": "commit_hash", "resumo": "sem hash", "dados": {}}],
+    "metricas": {"inicio_utc": "2026-08-10T21:00:00Z", "fim_utc": "2026-08-10T21:00:00Z",
+                 "duracao_minutos": 0},
+}
+
+def check_status_validator():
+    """T297: o script validar_status.py existe e REJEITA um STATUS inválido."""
+    script = os.path.join(BASE, ".claude", "scripts", "validar_status.py")
+    if not os.path.exists(script):
+        return ["[T297] .claude/scripts/validar_status.py ausente"]
+    try:
+        proc = subprocess.run(
+            [sys.executable, script],
+            input=json.dumps(_STATUS_INVALIDO),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except Exception as e:  # noqa: BLE001
+        return [f"[T297] validar_status.py falhou ao executar: {e}"]
+    if proc.returncode == 0:
+        return ["[T297] validator aceitou um STATUS inválido (deveria rejeitar)"]
+    return []
+
 def main():
     print("=== Teste de Integridade do Protocolo Kilo ===\n")
 
@@ -114,7 +155,14 @@ def main():
             print("  ✓ Todos os hooks são executáveis.")
         all_errors.extend(errors)
 
-    print("\n[5/5] Verificando estrutura do projeto...")
+    print("\n[5/5] Verificando validator de STATUS (T297)…")
+    errors = check_status_validator()
+    for e in errors:
+        print(f"  ✗ {e}")
+    if not errors:
+        print("  ✓ validator de STATUS presente e rejeita STATUS inválido.")
+
+    print("\n[6/6] Verificando estrutura do projeto...")
     if os.path.exists(os.path.join(BASE, "apps/web/next.config.ts")):
         print("  ✓ Frontend Next.js detectado (apps/web)")
     else:

@@ -217,7 +217,15 @@ Se `responsavel` for `Doer`:
 7. Implementar o mínimo necessário.
 8. Rodar verificação.
 9. Capturar evidência real.
-10. Emitir `STATUS` válido contra `.claude/schemas/status.schema.json`.
+10. **T297/D-280 — gate de forma obrigatório:** antes de emitir qualquer
+    `STATUS`, o Doer roda o validator e cola a saída no handoff:
+    `python .claude/scripts/validar_status.py <status.json>`
+    (ou via stdin). A saída `validator: OK` é condição para o `STATUS`
+    ser aceito; qualquer desvio de schema/regras cruzadas
+    (ex.: DONE sem `duracao_minutos > 0`, evidencia sem `dados.hash`,
+    `passed+failed > total`) = `schema_valido: fail` → `REJECTED`,
+    sem novo aviso (D-280 — gate é tooling, não promessa).
+11. Emitir `STATUS` válido contra `.claude/schemas/status.schema.json`.
 
 ### 5.4 Thinker revisa
 
