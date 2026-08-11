@@ -38,3 +38,8 @@ ALTER TABLE "temporada" DISABLE ROW LEVEL SECURITY;
 -- 4) T299: exceção de leitura ADMIN (nova migration 20260811_rls_leitura_admin)
 DROP POLICY IF EXISTS "watchlist_read_admin" ON "watchlist_entry";
 DROP POLICY IF EXISTS "discovery_read_admin" ON "discovery_event";
+
+-- 5) T301: RLS em usuario_midia_interacao
+DROP POLICY IF EXISTS "interacao_tenant_user" ON "usuario_midia_interacao";
+DROP POLICY IF EXISTS "interacao_read_admin" ON "usuario_midia_interacao";
+ALTER TABLE "usuario_midia_interacao" DISABLE ROW LEVEL SECURITY;
