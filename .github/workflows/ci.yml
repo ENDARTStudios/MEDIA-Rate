@@ -36,6 +36,8 @@ jobs:
         run: node --import @swc-node/register/esm-register scripts/check-encoding-bom.ts
       - name: ESLint
         run: npm run lint
+      - name: Security Gate (T294 â€” scan de segredos + NEXT_PUBLIC)
+        run: npm run security:gate
       - name: npm audit (T9.2 â€” bloqueia merge se houver high/critical)
         run: npm audit --audit-level=high
 
@@ -176,4 +178,4 @@ jobs:
           path: apps/web/playwright-report/
           retention-days: 30
 
-  # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) — habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; até lá, drill docker documentado em docs/ROLLBACK_RLS.md é a verificação.
+  # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) ï¿½ habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; atï¿½ lï¿½, drill docker documentado em docs/ROLLBACK_RLS.md ï¿½ a verificaï¿½ï¿½o.
