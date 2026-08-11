@@ -8,5 +8,8 @@ import { AuthModule } from "../auth/auth.module.js";
   imports: [PrismaModule, AuthModule],
   controllers: [WatchlistController],
   providers: [WatchlistService],
+  // T286: DiscoveryModule injeta o WatchlistService para assinar o hook
+  // onReacaoRegistrada.
+  exports: [WatchlistService],
 })
 export class WatchlistModule {}

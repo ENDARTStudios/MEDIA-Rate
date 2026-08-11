@@ -36,6 +36,8 @@ export class AdminService {
       usuariosComWatchlist,
       sessoesAtivas,
       planos,
+      totalDiscoveryEvents,
+      usuariosComDiscovery,
     ] = await Promise.all([
       // Usuários: exclui soft-delete agendado (LGPD).
       this.prisma.usuario.count({ where: { dados_para_exclusao_at: null } }),
@@ -60,6 +62,10 @@ export class AdminService {
         where: { status: "ATIVA" },
         _count: { _all: true },
       }),
+      this.prisma.discoveryEvent.count(),
+      this.prisma.discoveryEvent
+        .groupBy({ by: ["usuario_id"], _count: { _all: true } })
+        .then((r) => r.length),
     ]);
 
     const porTipoMap: Record<string, number> = {};
@@ -77,6 +83,10 @@ export class AdminService {
       watchlists: { total_entries: totalEntries, usuarios_com_watchlist: usuariosComWatchlist },
       sessoes: { ativas: sessoesAtivas },
       planos: planosMap,
+      descobertas: {
+        total_eventos: totalDiscoveryEvents,
+        usuarios_com_evento: usuariosComDiscovery,
+      },
     };
   }
 }

@@ -979,5 +979,25 @@
     "motivo_falta_tempo": "Não tive tempo",
     "motivo_mudanca_humor": "Mudei de humor",
     "dismiss": "Dispensar"
+  },
+  "discoveries": {
+    "metaTitle": "Descobertas — MEDIA Rate",
+    "metaDescription": "Obras relacionadas às que você gostou, via grafo cross-mídia.",
+    "title": "Descobertas",
+    "subtitle": "Títulos relacionados aos que você concluiu e curtiu.",
+    "loginHint": "Entre para ver suas descobertas.",
+    "login": "Entrar",
+    "loading": "Carregando…",
+    "error": "Não foi possível carregar o feed. Tente novamente.",
+    "emptyTitle": "Nenhuma descoberta ainda",
+    "emptyHint": "Conclua e curta uma obra que tenha relação com outras (adaptação, sequência, mesmo universo) para ver o feed aqui.",
+    "loadMore": "Carregar mais",
+    "relatedTo": "Porque você gostou de {titulo}",
+    "relation_adaptacao_de": "Adaptação de",
+    "relation_sequencia_de": "Sequência de",
+    "relation_prequela_de": "Prequela de",
+    "relation_spinoff_de": "Spin-off de",
+    "relation_mesmo_universo": "Mesmo universo de",
+    "relation_mesma_historia_real": "Mesma história real de"
   }
 }

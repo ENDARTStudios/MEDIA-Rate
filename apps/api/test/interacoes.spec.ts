@@ -33,6 +33,10 @@ function mockPrisma() {
         return novo;
       }),
     },
+    // T286 — descobertas() consulta DiscoveryEvents além das interações.
+    discoveryEvent: {
+      findMany: vi.fn(async () => []),
+    },
   };
   return { prisma, estado };
 }

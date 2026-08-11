@@ -188,6 +188,8 @@ export class InteracoesService {
    * T201 (G4) — GET /discoveries: descobertas cross-mídia do usuário, em
    * ordem cronológica descendente. Derivado de interações com
    * origem_relacao_id (join com relacao_obra + mídias) — UMA query, sem N+1.
+   * T286: UNION com DiscoveryEvents (reação GOSTEI → obras relacionadas),
+   * mesmo shape Descoberta, sem duplicar to_media_id.
    */
   async descobertas(usuarioId: string): Promise<Descoberta[]> {
     const interacoes = await this.prisma.usuarioMidiaInteracao.findMany({
@@ -228,7 +230,7 @@ export class InteracoesService {
       },
     });
 
-    return interacoes.flatMap((i) => {
+    const daInteracao: Descoberta[] = interacoes.flatMap((i) => {
       const rel = i.origem_relacao;
       if (!rel) return [];
       // "from" é a ponta da aresta que NÃO é a mídia interagida (a origem
@@ -254,6 +256,48 @@ export class InteracoesService {
         } satisfies Descoberta,
       ];
     });
+
+    // T286 — eventos derivados de reações GOSTEI (idempotentes).
+    const eventos = await this.prisma.discoveryEvent.findMany({
+      where: { usuario_id: usuarioId },
+      orderBy: { created_em: "desc" },
+      select: {
+        relation_type: true,
+        created_em: true,
+        from_media: {
+          select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
+        },
+        to_media: {
+          select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
+        },
+      },
+    });
+    const daReacao: Descoberta[] = eventos.map((e) => {
+      const mediaSel = (m: typeof e.to_media) => ({
+        id: m.id,
+        titulo: m.titulo,
+        tipo: m.tipo,
+        imagemUrl: m.imagem_url,
+        score: m.score,
+      });
+      return {
+        fromMediaId: e.from_media.id,
+        fromMediaType: e.from_media.tipo,
+        toMediaId: e.to_media.id,
+        toMediaType: e.to_media.tipo,
+        relationType: e.relation_type,
+        discoveredAt: e.created_em,
+        fromMedia: mediaSel(e.from_media),
+        toMedia: mediaSel(e.to_media),
+      } satisfies Descoberta;
+    });
+
+    // Merge sem duplicar to_media_id (a interação vence em estabilidade).
+    const vistos = new Set(daInteracao.map((d) => d.toMediaId));
+    const extra = daReacao.filter((d) => !vistos.has(d.toMediaId));
+    return [...daInteracao, ...extra].sort(
+      (a, b) => new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime(),
+    );
   }
 
   /**

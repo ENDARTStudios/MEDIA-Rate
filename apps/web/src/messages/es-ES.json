@@ -977,5 +977,25 @@
     "motivo_falta_tempo": "No tuve tiempo",
     "motivo_mudanca_humor": "Cambié de opinión",
     "dismiss": "Descartar"
+  },
+  "discoveries": {
+    "metaTitle": "Descubrimientos — MEDIA Rate",
+    "metaDescription": "Obras relacionadas con las que te gustaron, vía el grafo cross-media.",
+    "title": "Descubrimientos",
+    "subtitle": "Títulos relacionados con los que completaste y te gustaron.",
+    "loginHint": "Inicia sesión para ver tus descubrimientos.",
+    "login": "Iniciar sesión",
+    "loading": "Cargando…",
+    "error": "No se pudo cargar el feed. Inténtalo de nuevo.",
+    "emptyTitle": "Aún no hay descubrimientos",
+    "emptyHint": "Completa y dale me gusta a una obra que tenga relación con otras (adaptación, secuela, mismo universo) para verla aquí.",
+    "loadMore": "Cargar más",
+    "relatedTo": "Porque te gustó {titulo}",
+    "relation_adaptacao_de": "Adaptación de",
+    "relation_sequencia_de": "Secuela de",
+    "relation_prequela_de": "Precuela de",
+    "relation_spinoff_de": "Spin-off de",
+    "relation_mesmo_universo": "Mismo universo que",
+    "relation_mesma_historia_real": "Misma historia real que"
   }
 }

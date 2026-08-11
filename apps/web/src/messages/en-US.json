@@ -979,5 +979,25 @@
     "motivo_falta_tempo": "No time",
     "motivo_mudanca_humor": "Changed my mind",
     "dismiss": "Dismiss"
+  },
+  "discoveries": {
+    "metaTitle": "Discoveries — MEDIA Rate",
+    "metaDescription": "Works related to the ones you loved, via the cross-media graph.",
+    "title": "Discoveries",
+    "subtitle": "Titles related to the ones you completed and loved.",
+    "loginHint": "Sign in to see your discoveries.",
+    "login": "Sign in",
+    "loading": "Loading…",
+    "error": "Could not load the feed. Try again.",
+    "emptyTitle": "No discoveries yet",
+    "emptyHint": "Complete and love a title that has relations to others (adaptation, sequel, same universe) to see it here.",
+    "loadMore": "Load more",
+    "relatedTo": "Because you loved {titulo}",
+    "relation_adaptacao_de": "Adaptation of",
+    "relation_sequencia_de": "Sequel to",
+    "relation_prequela_de": "Prequel to",
+    "relation_spinoff_de": "Spin-off of",
+    "relation_mesmo_universo": "Same universe as",
+    "relation_mesma_historia_real": "Same real story as"
   }
 }

@@ -55,6 +55,8 @@ function makePrisma(zerado = false) {
     entries: zerado ? 0 : 2100,
     comWatchlist: zerado ? 0 : 80,
     sessoes: zerado ? 0 : 33,
+    discoveryEvents: zerado ? 0 : 42,
+    comDiscovery: zerado ? 0 : 7,
     planos: zerado
       ? []
       : [
@@ -78,6 +80,11 @@ function makePrisma(zerado = false) {
     },
     sessao: { count: async () => base.sessoes },
     usuarioPlano: { groupBy: async () => base.planos },
+    // T286 — métrica de Descobertas.
+    discoveryEvent: {
+      count: async () => base.discoveryEvents ?? 0,
+      groupBy: async () => Array.from({ length: base.comDiscovery ?? 0 }, () => ({})),
+    },
   };
 }
 

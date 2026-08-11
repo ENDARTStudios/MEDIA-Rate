@@ -23,4 +23,9 @@ export interface AdminStatsResponse {
     plus: number;
     premium: number;
   };
+  // T286 — feed "Descobertas": agregados anonimizados (nunca PII).
+  descobertas: {
+    total_eventos: number;
+    usuarios_com_evento: number;
+  };
 }

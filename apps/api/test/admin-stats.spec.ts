@@ -12,6 +12,8 @@ function makeMocks(
     usuariosComWatchlist?: number;
     sessoesAtivas?: number;
     planos?: { plano: string; _count: { _all: number } }[];
+    discoveryTotal?: number;
+    usuariosComDiscovery?: number;
   } = {},
 ) {
   const prisma = {
@@ -33,6 +35,13 @@ function makeMocks(
     sessao: { count: vi.fn(async () => dados.sessoesAtivas ?? 0) },
     usuarioPlano: {
       groupBy: vi.fn(async () => dados.planos ?? []),
+    },
+    // T286 — métrica de Descobertas (agregados anonimizados).
+    discoveryEvent: {
+      count: vi.fn(async () => dados.discoveryTotal ?? 0),
+      groupBy: vi.fn(async () =>
+        Array.from({ length: dados.usuariosComDiscovery ?? 0 }, () => ({})),
+      ),
     },
   };
   const cache = {

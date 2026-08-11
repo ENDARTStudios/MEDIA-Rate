@@ -121,6 +121,7 @@ model Usuario {
   preferencias         PreferenciaUsuario?
   scores_vistos        MediaScoreView[]
   faturas              Fatura[]
+  discovery_events     DiscoveryEvent[]
   notificacoes         Notificacao[]
   usos_diarios         UsoDiario[]
   listas               ListaColaborativa[]
@@ -325,6 +326,9 @@ model Midia {
   franquias               MidiaFranquia[]
   relacoes_origem         RelacaoObra[] @relation("RelacaoObraOrigem")
   relacoes_destino        RelacaoObra[] @relation("RelacaoObraDestino")
+  // T286 — eventos de descoberta gerados a partir de reações GOSTEI.
+  discovery_from          DiscoveryEvent[] @relation("DiscoveryFrom")
+  discovery_to            DiscoveryEvent[] @relation("DiscoveryTo")
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
@@ -487,6 +491,27 @@ model RelacaoObra {
   @@index([destino_id])
   @@index([origem_id])
   @@map("relacao_obra")
+}
+
+/// ADDENDUM 3/4 (T286) — evento de descoberta cross-mídia: gerado quando um
+/// usuário reage GOSTEI a uma obra CONCLUÍDA que tem aresta no grafo
+/// RelacaoObra; o feed "Descobertas" transforma o grafo em superfície.
+/// UNIQUE (usuario_id, to_media_id) garante idempotência (nunca duplica).
+model DiscoveryEvent {
+  id            String      @id @default(uuid()) @db.Uuid
+  usuario_id    String      @map("usuario_id") @db.Uuid
+  from_media_id String      @map("from_media_id") @db.Uuid
+  to_media_id   String      @map("to_media_id") @db.Uuid
+  relation_type TipoRelacao
+  created_em    DateTime    @default(now()) @map("created_em")
+
+  usuario       Usuario     @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  from_media    Midia       @relation("DiscoveryFrom", fields: [from_media_id], references: [id], onDelete: Cascade)
+  to_media      Midia       @relation("DiscoveryTo", fields: [to_media_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, to_media_id])
+  @@index([usuario_id, created_em])
+  @@map("discovery_event")
 }
 
 /// ADDENDUM 3 — tipo da aresta (direção: origem é sempre a que aponta).
