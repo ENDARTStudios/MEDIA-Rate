@@ -87,6 +87,16 @@ interface ApiMidiaSlug {
   streamings: string[];
   score: ApiScore | null;
   fontes: ApiFonte[];
+  // T287 (Addendum 2): contexto da obra.
+  origem_editorial?: string | null;
+  classificacoes_regiao?: { regiao: string; valor: string; fonte: string }[];
+  premios?: {
+    nome: string;
+    categoria: string;
+    ano: number;
+    venceu: boolean;
+    organizacao: string;
+  }[];
 }
 
 interface ApiMidiaList {
@@ -240,6 +250,20 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     genres: m.generos,
     classificacaoIndicativa: mapClassificacaoIndicativa(m.classificacao_indicativa),
     paisOrigem: m.pais_origem ?? null,
+    // T287: origem editorial + classificação por região + prêmios.
+    origemEditorial: m.origem_editorial ?? null,
+    classificacoesRegiao: (m.classificacoes_regiao ?? []).map((c) => ({
+      regiao: c.regiao,
+      valor: c.valor,
+      fonte: c.fonte,
+    })),
+    premios: (m.premios ?? []).map((p) => ({
+      nome: p.nome,
+      categoria: p.categoria,
+      ano: p.ano,
+      venceu: p.venceu,
+      organizacao: p.organizacao,
+    })),
     franquias: (m.franquias ?? []).map((f) => ({
       id: f.id,
       nome: f.nome,

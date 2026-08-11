@@ -309,6 +309,9 @@ model Midia {
   ano_lancamento          Int?                   @map("ano_lancamento")
   // T2.7: enum brasileiro.
   classificacao_indicativa ClassificacaoIndicativa? @map("classificacao_indicativa")
+  // T287 (Addendum 2): origem editorial da obra (mídia original da qual
+  // deriva, ex.: filme adaptado de livro → LIVRO). ORIGINAL = obra própria.
+  origem_editorial     OrigemEditorial?  @map("origem_editorial")
   // URL de pôster/capa.
   imagem_url              String?                @map("imagem_url") @db.Text
   duracao_minutos         Int?                   @map("duracao_minutos")
@@ -329,6 +332,9 @@ model Midia {
   // T286 — eventos de descoberta gerados a partir de reações GOSTEI.
   discovery_from          DiscoveryEvent[] @relation("DiscoveryFrom")
   discovery_to            DiscoveryEvent[] @relation("DiscoveryTo")
+  // T287 (Addendum 2) — contexto da obra: classificação por região + prêmios.
+  classificacoes_regiao   ClassificacaoRegiao[]
+  premios                 Premio[]
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
@@ -512,6 +518,54 @@ model DiscoveryEvent {
   @@unique([usuario_id, to_media_id])
   @@index([usuario_id, created_em])
   @@map("discovery_event")
+}
+
+/// T287 (Addendum 2) — origem editorial (mídia de origem da obra).
+enum OrigemEditorial {
+  FILME
+  SERIE
+  GAME
+  LIVRO
+  HQ
+  MANGA
+  ORIGINAL
+}
+
+/// T287 (Addendum 2) — classificação indicativa POR REGIÃO.
+enum RegiaoClassificacao {
+  BR
+  US
+  ES
+}
+
+/// T287 — classificação indicativa por região (BR/US/ES), valor livre da
+/// certificação local + fonte (TMDB/IGDB). Unique (midia, regiao).
+model ClassificacaoRegiao {
+  midia_id String  @map("midia_id") @db.Uuid
+  regiao   RegiaoClassificacao @map("regiao")
+  valor    String  @db.VarChar(32)
+  fonte    String  @db.VarChar(32)
+
+  midia    Midia   @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@id([midia_id, regiao])
+  @@map("classificacao_regiao")
+}
+
+/// T287 (Addendum 2) — prêmios da obra (UML da Arquitetura: Award).
+model Premio {
+  id           String  @id @default(uuid()) @db.Uuid
+  midia_id     String  @map("midia_id") @db.Uuid
+  nome         String  @db.VarChar(160)
+  categoria    String  @db.VarChar(160)
+  ano          Int
+  venceu       Boolean @default(true)
+  organizacao  String  @db.VarChar(120)
+
+  midia        Midia   @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@index([midia_id])
+  @@map("premio")
 }
 
 /// ADDENDUM 3 — tipo da aresta (direção: origem é sempre a que aponta).

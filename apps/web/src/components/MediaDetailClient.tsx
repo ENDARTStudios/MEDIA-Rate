@@ -313,6 +313,67 @@ export function MediaDetailClient({
                 </div>
               )}
 
+              {/* T287 — origem editorial + classificação da região do locale + prêmios. */}
+              {(() => {
+                const regiaoLocale = locale === "pt-BR" ? "BR" : locale === "es-ES" ? "ES" : "US";
+                const classificacaoLocal = media.classificacoesRegiao?.find(
+                  (c) => c.regiao === regiaoLocale,
+                );
+                const temContexto =
+                  media.origemEditorial || classificacaoLocal || (media.premios?.length ?? 0) > 0;
+                if (!temContexto) return null;
+                return (
+                  <div className="space-y-6">
+                    {media.origemEditorial && (
+                      <div>
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                          {tm("originTitle")}
+                        </h3>
+                        <span className="inline-flex items-center rounded-full border border-[#2A2A3D] bg-[#1C1C2E] px-2.5 py-1 text-xs text-[#EDE7DC]">
+                          {tm(`origin_${media.origemEditorial.toLowerCase()}`)}
+                        </span>
+                      </div>
+                    )}
+                    {classificacaoLocal && (
+                      <div>
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                          {tm("regionalRating")}
+                        </h3>
+                        <p className="text-sm text-[#EDE7DC]">
+                          <AgeRatingBadge
+                            rating={
+                              classificacaoLocal.valor as "L" | "10" | "12" | "14" | "16" | "18"
+                            }
+                            source="oficial"
+                          />
+                        </p>
+                      </div>
+                    )}
+                    {media.premios && media.premios.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                          {tm("awards")}
+                        </h3>
+                        <ul className="space-y-1.5">
+                          {media.premios.map((p) => (
+                            <li key={`${p.nome}-${p.ano}`} className="text-sm text-[#EDE7DC]">
+                              <span className={p.venceu ? "text-[#FBBF24]" : "text-[#9CA3AF]"}>
+                                {p.venceu ? "★ " : ""}
+                              </span>
+                              {p.nome}
+                              <span className="text-[#80809B]">
+                                {" "}
+                                · {p.organizacao} · {p.ano}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Gêneros (✅ — taxonomia dupla: narrativo compartilhado + específico). */}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">

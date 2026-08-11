@@ -933,7 +933,16 @@
     "orderToggle": "Ordenação da franquia",
     "notInformed": "Não informado",
     "seasonUnit": "Temporada",
-    "roleStudio": "Estúdio"
+    "roleStudio": "Estúdio",
+    "originTitle": "Origem",
+    "regionalRating": "Classificação regional",
+    "origin_filme": "Filme",
+    "origin_serie": "Série",
+    "origin_game": "Jogo",
+    "origin_livro": "Livro",
+    "origin_hq": "HQ",
+    "origin_manga": "Mangá",
+    "origin_original": "Obra original"
   },
   "discovery": {
     "relatedWorksTitle": "Essa história também está em...",

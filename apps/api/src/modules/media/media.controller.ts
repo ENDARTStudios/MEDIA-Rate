@@ -21,6 +21,7 @@ import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify, parseSlugDiscriminado } from "../../common/slugify.js";
 import { normalizarImagem } from "../../common/normalizar-imagem.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
+import type { Prisma } from "@prisma/client";
 import { AuditLogService } from "../../common/audit-log.service.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
@@ -304,6 +305,15 @@ export class MediaController {
       streamings: { include: { service: { select: { nome: true } } } },
       scores: true,
       avaliacoes: { select: { fonte: true, url: true } },
+      // T287 (Addendum 2): contexto da obra — classificação por região + prêmios.
+      classificacoes_regiao: { select: { regiao: true, valor: true, fonte: true } },
+      premios: {
+        select: { nome: true, categoria: true, ano: true, venceu: true, organizacao: true },
+        orderBy: [
+          { ano: "desc" },
+          { venceu: "desc" },
+        ] satisfies Prisma.PremioOrderByWithRelationInput[],
+      },
       franquias: {
         include: {
           franquia: {
@@ -383,6 +393,20 @@ export class MediaController {
       ano_lancamento: midia.ano_lancamento,
       imagem_url: normalizarImagem(midia.imagem_url),
       classificacao_indicativa: midia.classificacao_indicativa,
+      // T287: classificação por região, prêmios e origem editorial.
+      origem_editorial: midia.origem_editorial,
+      classificacoes_regiao: (midia.classificacoes_regiao ?? []).map((c) => ({
+        regiao: c.regiao,
+        valor: c.valor,
+        fonte: c.fonte,
+      })),
+      premios: (midia.premios ?? []).map((p) => ({
+        nome: p.nome,
+        categoria: p.categoria,
+        ano: p.ano,
+        venceu: p.venceu,
+        organizacao: p.organizacao,
+      })),
       pais_origem: midia.pais_origem,
       duracao_minutos: midia.duracao_minutos,
       generos: midia.generos.map((g) => g.genero.nome),

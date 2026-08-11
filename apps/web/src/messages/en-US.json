@@ -933,7 +933,16 @@
     "orderToggle": "Franchise order",
     "notInformed": "Not informed",
     "seasonUnit": "Season",
-    "roleStudio": "Studio"
+    "roleStudio": "Studio",
+    "originTitle": "Origin",
+    "regionalRating": "Regional rating",
+    "origin_filme": "Movie",
+    "origin_serie": "Series",
+    "origin_game": "Game",
+    "origin_livro": "Book",
+    "origin_hq": "Comic",
+    "origin_manga": "Manga",
+    "origin_original": "Original work"
   },
   "discovery": {
     "relatedWorksTitle": "This story also lives in...",

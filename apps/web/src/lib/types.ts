@@ -77,6 +77,16 @@ export interface Media {
   /** Tipos cujas fontes de avaliação ainda não foram ativadas (D-230).
    *  Exposta pela camada de API; a UI nunca hardcoda a lista de tipos. */
   preview?: boolean;
+  /** T287 (Addendum 2): contexto da obra. */
+  origemEditorial?: string | null;
+  classificacoesRegiao?: { regiao: string; valor: string; fonte: string }[];
+  premios?: {
+    nome: string;
+    categoria: string;
+    ano: number;
+    venceu: boolean;
+    organizacao: string;
+  }[];
   year: number;
   genres: string[];
   genreSlugs?: string[];
