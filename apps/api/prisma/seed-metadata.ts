@@ -7,6 +7,7 @@
 // Uso: npm run db:seed:metadata
 
 import { PrismaClient } from "@prisma/client";
+import { bootstrapRlsSeed } from "../src/common/rls-context.js";
 import { consultarGames } from "./igdb-http.js";
 
 const prisma = new PrismaClient();
@@ -190,6 +191,7 @@ async function origemGame(
 }
 
 async function main(): Promise<void> {
+  await bootstrapRlsSeed(prisma);
   let classificacoes = 0;
   let premios = 0;
   let origens = 0;

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
 import type { EventoReacaoRegistrada } from "../watchlist/watchlist.service.js";
 
 /** Limite máximo do feed (paginação por cursor). */
@@ -33,36 +34,38 @@ export class DiscoveryService {
   }
 
   private async gerarEventosParaObra(usuarioId: string, midiaId: string): Promise<void> {
-    const relacoes = await this.prisma.relacaoObra.findMany({
-      where: {
-        OR: [{ origem_id: midiaId }, { destino_id: midiaId }],
-      },
-      select: {
-        id: true,
-        tipo: true,
-        origem_id: true,
-        destino_id: true,
-      },
-    });
-    if (relacoes.length === 0) return;
-
-    for (const r of relacoes) {
-      // "to" = a obra relacionada (o outro lado da aresta).
-      const toMediaId = r.origem_id === midiaId ? r.destino_id : r.origem_id;
-      // upsert idempotente: primeiro evento da obra vence; não duplica.
-      await this.prisma.discoveryEvent.upsert({
+    await comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const relacoes = await tx.relacaoObra.findMany({
         where: {
-          usuario_id_to_media_id: { usuario_id: usuarioId, to_media_id: toMediaId },
+          OR: [{ origem_id: midiaId }, { destino_id: midiaId }],
         },
-        create: {
-          usuario_id: usuarioId,
-          from_media_id: midiaId,
-          to_media_id: toMediaId,
-          relation_type: r.tipo,
+        select: {
+          id: true,
+          tipo: true,
+          origem_id: true,
+          destino_id: true,
         },
-        update: {},
       });
-    }
+      if (relacoes.length === 0) return;
+
+      for (const r of relacoes) {
+        // "to" = a obra relacionada (o outro lado da aresta).
+        const toMediaId = r.origem_id === midiaId ? r.destino_id : r.origem_id;
+        // upsert idempotente: primeiro evento da obra vence; não duplica.
+        await tx.discoveryEvent.upsert({
+          where: {
+            usuario_id_to_media_id: { usuario_id: usuarioId, to_media_id: toMediaId },
+          },
+          create: {
+            usuario_id: usuarioId,
+            from_media_id: midiaId,
+            to_media_id: toMediaId,
+            relation_type: r.tipo,
+          },
+          update: {},
+        });
+      }
+    });
   }
 
   /** Feed paginado do usuário (cursor por created_em+id). */

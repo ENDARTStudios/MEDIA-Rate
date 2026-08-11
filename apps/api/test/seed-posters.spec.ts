@@ -16,6 +16,7 @@ vi.mock("@prisma/client", () => ({
         update: vi.fn(async () => ({})),
       },
       $disconnect: vi.fn(async () => undefined),
+      $executeRawUnsafe: vi.fn(async () => []),
     };
   }),
 }));

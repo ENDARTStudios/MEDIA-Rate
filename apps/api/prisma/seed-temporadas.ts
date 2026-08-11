@@ -5,6 +5,7 @@
 // graciosa sem TMDB_API_KEY. Uso: npm run db:seed:temporadas
 
 import { PrismaClient } from "@prisma/client";
+import { bootstrapRlsSeed } from "../src/common/rls-context.js";
 
 const prisma = new PrismaClient();
 const DELAY_MS = 300;
@@ -28,6 +29,7 @@ interface TmdbEpisodio {
 }
 
 async function main(): Promise<void> {
+  await bootstrapRlsSeed(prisma);
   const key = process.env.TMDB_API_KEY ?? "";
   if (!key) {
     console.log("[seed:temporadas] TMDB_API_KEY ausente — ausência graciosa");

@@ -10,6 +10,7 @@
 /* eslint-disable no-console */
 import { PrismaClient, type TipoMidia } from "@prisma/client";
 import { recalcularScoreSeed } from "./seed-lib.js";
+import { bootstrapRlsSeed } from "../src/common/rls-context.js";
 import {
   buscarIdPorSlug,
   buscarCandidatosPorNome,
@@ -713,6 +714,8 @@ export const GAMES_CURADOS = GAMES;
 async function main(): Promise<void> {
   const prisma = new PrismaClient();
   console.log("[seed:games] Conectado ao banco.");
+  // T290: bootstrap do contexto RLS (tenant default + role ADMIN).
+  await bootstrapRlsSeed(prisma);
 
   try {
     // T222 v2: recálculo de score via seed-lib (sem MediaScoreService/src).

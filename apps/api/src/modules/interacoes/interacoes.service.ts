@@ -7,6 +7,7 @@ import type {
   TipoRelacao,
 } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 
 /**
@@ -192,112 +193,114 @@ export class InteracoesService {
    * mesmo shape Descoberta, sem duplicar to_media_id.
    */
   async descobertas(usuarioId: string): Promise<Descoberta[]> {
-    const interacoes = await this.prisma.usuarioMidiaInteracao.findMany({
-      where: { usuario_id: usuarioId, origem_relacao_id: { not: null } },
-      orderBy: { atualizado_em: "desc" },
-      include: {
-        midia: {
-          select: {
-            id: true,
-            titulo: true,
-            tipo: true,
-            imagem_url: true,
-            score: true,
-          },
-        },
-        origem_relacao: {
-          include: {
-            origem: {
-              select: {
-                id: true,
-                titulo: true,
-                tipo: true,
-                imagem_url: true,
-                score: true,
-              },
-            },
-            destino: {
-              select: {
-                id: true,
-                titulo: true,
-                tipo: true,
-                imagem_url: true,
-                score: true,
-              },
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const interacoes = await tx.usuarioMidiaInteracao.findMany({
+        where: { usuario_id: usuarioId, origem_relacao_id: { not: null } },
+        orderBy: { atualizado_em: "desc" },
+        include: {
+          midia: {
+            select: {
+              id: true,
+              titulo: true,
+              tipo: true,
+              imagem_url: true,
+              score: true,
             },
           },
+          origem_relacao: {
+            include: {
+              origem: {
+                select: {
+                  id: true,
+                  titulo: true,
+                  tipo: true,
+                  imagem_url: true,
+                  score: true,
+                },
+              },
+              destino: {
+                select: {
+                  id: true,
+                  titulo: true,
+                  tipo: true,
+                  imagem_url: true,
+                  score: true,
+                },
+              },
+            },
+          },
         },
-      },
-    });
-
-    const daInteracao: Descoberta[] = interacoes.flatMap((i) => {
-      const rel = i.origem_relacao;
-      if (!rel) return [];
-      // "from" é a ponta da aresta que NÃO é a mídia interagida (a origem
-      // do consumo); "to" é a mídia descoberta (a interagida).
-      const from = rel.origem_id === i.midia_id ? rel.destino : rel.origem;
-      const mediaSel = (m: typeof from) => ({
-        id: m.id,
-        titulo: m.titulo,
-        tipo: m.tipo,
-        imagemUrl: m.imagem_url,
-        score: m.score,
       });
-      return [
-        {
-          fromMediaId: from.id,
-          fromMediaType: from.tipo,
-          toMediaId: i.midia_id,
-          toMediaType: i.midia.tipo,
-          relationType: rel.tipo,
-          discoveredAt: i.atualizado_em,
-          fromMedia: mediaSel(from),
-          toMedia: mediaSel(i.midia),
-        } satisfies Descoberta,
-      ];
-    });
 
-    // T286 — eventos derivados de reações GOSTEI (idempotentes).
-    const eventos = await this.prisma.discoveryEvent.findMany({
-      where: { usuario_id: usuarioId },
-      orderBy: { created_em: "desc" },
-      select: {
-        relation_type: true,
-        created_em: true,
-        from_media: {
-          select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
-        },
-        to_media: {
-          select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
-        },
-      },
-    });
-    const daReacao: Descoberta[] = eventos.map((e) => {
-      const mediaSel = (m: typeof e.to_media) => ({
-        id: m.id,
-        titulo: m.titulo,
-        tipo: m.tipo,
-        imagemUrl: m.imagem_url,
-        score: m.score,
+      const daInteracao: Descoberta[] = interacoes.flatMap((i) => {
+        const rel = i.origem_relacao;
+        if (!rel) return [];
+        // "from" é a ponta da aresta que NÃO é a mídia interagida (a origem
+        // do consumo); "to" é a mídia descoberta (a interagida).
+        const from = rel.origem_id === i.midia_id ? rel.destino : rel.origem;
+        const mediaSel = (m: typeof from) => ({
+          id: m.id,
+          titulo: m.titulo,
+          tipo: m.tipo,
+          imagemUrl: m.imagem_url,
+          score: m.score,
+        });
+        return [
+          {
+            fromMediaId: from.id,
+            fromMediaType: from.tipo,
+            toMediaId: i.midia_id,
+            toMediaType: i.midia.tipo,
+            relationType: rel.tipo,
+            discoveredAt: i.atualizado_em,
+            fromMedia: mediaSel(from),
+            toMedia: mediaSel(i.midia),
+          } satisfies Descoberta,
+        ];
       });
-      return {
-        fromMediaId: e.from_media.id,
-        fromMediaType: e.from_media.tipo,
-        toMediaId: e.to_media.id,
-        toMediaType: e.to_media.tipo,
-        relationType: e.relation_type,
-        discoveredAt: e.created_em,
-        fromMedia: mediaSel(e.from_media),
-        toMedia: mediaSel(e.to_media),
-      } satisfies Descoberta;
-    });
 
-    // Merge sem duplicar to_media_id (a interação vence em estabilidade).
-    const vistos = new Set(daInteracao.map((d) => d.toMediaId));
-    const extra = daReacao.filter((d) => !vistos.has(d.toMediaId));
-    return [...daInteracao, ...extra].sort(
-      (a, b) => new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime(),
-    );
+      // T286 — eventos derivados de reações GOSTEI (idempotentes).
+      const eventos = await tx.discoveryEvent.findMany({
+        where: { usuario_id: usuarioId },
+        orderBy: { created_em: "desc" },
+        select: {
+          relation_type: true,
+          created_em: true,
+          from_media: {
+            select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
+          },
+          to_media: {
+            select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
+          },
+        },
+      });
+      const daReacao: Descoberta[] = eventos.map((e) => {
+        const mediaSel = (m: typeof e.to_media) => ({
+          id: m.id,
+          titulo: m.titulo,
+          tipo: m.tipo,
+          imagemUrl: m.imagem_url,
+          score: m.score,
+        });
+        return {
+          fromMediaId: e.from_media.id,
+          fromMediaType: e.from_media.tipo,
+          toMediaId: e.to_media.id,
+          toMediaType: e.to_media.tipo,
+          relationType: e.relation_type,
+          discoveredAt: e.created_em,
+          fromMedia: mediaSel(e.from_media),
+          toMedia: mediaSel(e.to_media),
+        } satisfies Descoberta;
+      });
+
+      // Merge sem duplicar to_media_id (a interação vence em estabilidade).
+      const vistos = new Set(daInteracao.map((d) => d.toMediaId));
+      const extra = daReacao.filter((d) => !vistos.has(d.toMediaId));
+      return [...daInteracao, ...extra].sort(
+        (a, b) => new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime(),
+      );
+    });
   }
 
   /**

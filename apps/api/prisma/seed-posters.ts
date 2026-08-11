@@ -20,6 +20,7 @@
  * Uso: npm run db:seed:posters
  */
 import { PrismaClient } from "@prisma/client";
+import { bootstrapRlsSeed } from "../src/common/rls-context.js";
 import { logHttpErro, postApigql, obterTokenTwitch } from "./igdb-http.js";
 
 const prisma = new PrismaClient();
@@ -231,6 +232,7 @@ async function capaOpenLibrary(titulo: string): Promise<string | null> {
 // ---------- Principal ----------
 
 async function preencher() {
+  await bootstrapRlsSeed(prisma);
   // D-262: corrige URLs IGDB ja gravadas como t_thumb (miniatura) → t_cover_big.
   const comThumb = await prisma.midia.findMany({
     where: { imagem_url: { contains: "images.igdb.com", mode: "insensitive" } },

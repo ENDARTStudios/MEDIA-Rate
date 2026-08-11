@@ -740,3 +740,17 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 - CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalidação de cache.
 - Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em preparação'), nunca 500.
 - Cache Redis 60s; rollout_percent clampado 0-100; tenant_overrides JSONB validado como mapa booleano.
+
+---
+
+## [2026-08-11] T290 — RLS aprovado (D-284) e implementado
+
+- Aprovacao do Operador registrada (APROVO T290). Escopo: watchlist_entry/discovery_event (isolamento tenant+usuario), midia (SELECT publico por tenant; escrita CURATOR/ADMIN), classificacao/premio/temporada (escrita CURATOR/ADMIN).
+- Contexto por transacao via SET LOCAL (app.current_user_id/tenant_id/role); sem BYPASSRLS; seeds com bootstrap proprio (tenant default + ADMIN).
+- **Premortem (risco alto) e mitigações:**
+  1. Seed/job sem contexto falha ? mitigado: bootstrap em todos os seeds + teste;
+  2. Query administrativa sem contexto retorna vazio ? mitigado: wire via comContextoRls nos servicos de watchlist/discovery/descobertas + auditoria listada no STATUS;
+  3. Pooler reusa SET de sessao ? mitigado: SET LOCAL transacional (nao vaza);
+  4. Rollback necessario ? script em docs/ROLLBACK_RLS.md testado em docker (drill verde 2026-08-11).
+- **Drill docker (evidencia):** isolamento A?B verde (B le 0/atualiza 0, A le 1), midia USER negado/CURATOR ok, rollback restaura acesso.
+- Deploy da migration somente quando o Operador disparar (gatilho mantido, D-284).
