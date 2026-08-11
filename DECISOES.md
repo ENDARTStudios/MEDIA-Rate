@@ -709,3 +709,14 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 - Rate limit roda antes do cache (onRoute) â€” nao e afetado.
 ### Header
 - X-Cache: HIT|MISS em endpoints cacheados (verificacao operacional).
+
+---
+
+## [2026-08-11] T289 — tenant_id aditivo (multi-tenancy leve, Arquitetura §4)
+
+- tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001' adicionado em midia, watchlist_entry, discovery_event, classificacao_regiao, premio e temporada.
+- Default CONSTANTE por design: NOT NULL com default constante nao reescreve a tabela no PG11+ (custo ~zero agora, alto depois) — D-283/Arquitetura §4.
+- NENHUM filtro de tenant adicionado nas queries; tenant_id NUNCA exposto em respostas da API.
+- SEM indice em tenant_id (1 tenant unico ? seletividade inutil; evitaria custo de escrita).
+- RLS e filtros ficam para a T290, que exige aprovacao explicita do Operador (D-279) + premortem + teste de isolamento usuario A?B.
+- DEFAULT_TENANT_ID documentado no .env.example (constante publica, nao segredo).

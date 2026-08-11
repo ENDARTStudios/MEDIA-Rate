@@ -48,14 +48,22 @@ export class WatchlistService {
       select: { score: true },
     });
 
-    return this.prisma.watchlistEntry.create({
-      data: {
-        usuario_id: usuarioId,
-        midia_id: midiaId,
-        coluna: dto.coluna ?? "WANT",
-        score_at_add: midia?.score ?? null,
-      },
-    });
+    return this.prisma.watchlistEntry
+      .create({
+        data: {
+          usuario_id: usuarioId,
+          midia_id: midiaId,
+          coluna: dto.coluna ?? "WANT",
+          score_at_add: midia?.score ?? null,
+        },
+      })
+      .then((e) => this.semTenant(e));
+  }
+
+  /** T289: tenant_id é infraestrutura — nunca exposto na resposta. */
+  private semTenant(entry: Record<string, unknown>) {
+    const { tenant_id: _tenantId, ...resto } = entry;
+    return resto;
   }
 
   /**
@@ -122,8 +130,10 @@ export class WatchlistService {
 
     return entries.map((entry) => {
       const midia = porId.get(entry.midia_id);
+      // T289: tenant_id é infraestrutura — nunca exposto na resposta.
+      const { tenant_id: _tenantId, ...entryPublico } = entry;
       return {
-        ...entry,
+        ...entryPublico,
         media: midia
           ? {
               id: midia.id,
@@ -154,10 +164,12 @@ export class WatchlistService {
       throw new NotFoundException("Entrada da watchlist não encontrada.");
     }
 
-    return this.prisma.watchlistEntry.update({
-      where: { id: entryId },
-      data: { coluna },
-    });
+    return this.prisma.watchlistEntry
+      .update({
+        where: { id: entryId },
+        data: { coluna },
+      })
+      .then((e) => this.semTenant(e));
   }
 
   /**
@@ -194,7 +206,7 @@ export class WatchlistService {
       });
     }
 
-    return atualizada;
+    return this.semTenant(atualizada);
   }
 
   async remove(usuarioId: string, entryId: string) {

@@ -312,6 +312,9 @@ model Midia {
   // T287 (Addendum 2): origem editorial da obra (mídia original da qual
   // deriva, ex.: filme adaptado de livro → LIVRO). ORIGINAL = obra própria.
   origem_editorial     OrigemEditorial?  @map("origem_editorial")
+  // T289 (Arquitetura §4): multi-tenancy leve — default constante, sem
+  // filtro nas queries ainda (RLS na T290, gated). Nunca exposto na API.
+  tenant_id            String            @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
   // URL de pôster/capa.
   imagem_url              String?                @map("imagem_url") @db.Text
   duracao_minutos         Int?                   @map("duracao_minutos")
@@ -512,6 +515,7 @@ model DiscoveryEvent {
   to_media_id   String      @map("to_media_id") @db.Uuid
   relation_type TipoRelacao
   created_em    DateTime    @default(now()) @map("created_em")
+  tenant_id     String      @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
 
   usuario       Usuario     @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   from_media    Midia       @relation("DiscoveryFrom", fields: [from_media_id], references: [id], onDelete: Cascade)
@@ -547,6 +551,7 @@ model ClassificacaoRegiao {
   regiao   RegiaoClassificacao @map("regiao")
   valor    String  @db.VarChar(32)
   fonte    String  @db.VarChar(32)
+  tenant_id String  @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
 
   midia    Midia   @relation(fields: [midia_id], references: [id], onDelete: Cascade)
 
@@ -563,6 +568,7 @@ model Premio {
   ano          Int
   venceu       Boolean @default(true)
   organizacao  String  @db.VarChar(120)
+  tenant_id    String  @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
 
   midia        Midia   @relation(fields: [midia_id], references: [id], onDelete: Cascade)
 
@@ -577,7 +583,8 @@ model Temporada {
   numero     Int
   titulo     String?     @db.Text
   ano        Int?
-  poster_url String?     @map("poster_url") @db.Text
+  poster_url String?     @map("poster_url")
+  tenant_id  String      @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
 
   midia      Midia       @relation(fields: [midia_id], references: [id], onDelete: Cascade)
   episodios  Episodio[]
@@ -638,6 +645,8 @@ model WatchlistEntry {
   reacao             ReacaoConsumo?   @map("reacao")
   motivo_abandono    MotivoAbandono?  @map("motivo_abandono")
   progresso_detalhe  String?          @map("progresso_detalhe")
+  // T289: multi-tenancy leve (default constante; RLS na T290).
+  tenant_id          String           @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
   created_at  DateTime         @default(now()) @map("created_at")
   updated_at  DateTime         @updatedAt @map("updated_at")
 
