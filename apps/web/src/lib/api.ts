@@ -1066,7 +1066,11 @@ export async function searchMedia(q: string): Promise<MediaSearchResult[]> {
   const url = isClient
     ? `/api${cleanPath}`
     : `${API_BASE}/api/v1/discover?q=${encodeURIComponent(q)}&limit=15`;
-  const res = await fetch(url, { ...(isClient ? {} : { next: { revalidate: 300 } }) });
+  // T279: o cliente envia a sessão explicitamente (credentials include) —
+  // o discover autenticado marca na_watchlist; anônimo segue sem flag.
+  const res = await fetch(url, {
+    ...(isClient ? { credentials: "include" as const } : { next: { revalidate: 300 } }),
+  });
   if (!res.ok) throw new Error(`Busca falhou (HTTP ${res.status})`);
   const data = (await res.json()) as { itens: ApiDiscoverItem[] };
   if (data?.itens?.length) {

@@ -104,7 +104,7 @@ export class DiscoverService {
     const watchlistSql = opts.usuarioId
       ? Prisma.sql`EXISTS (
           SELECT 1 FROM "watchlist_entry" w
-          WHERE w.midia_id = m.id::text AND w.usuario_id = ${opts.usuarioId}
+          WHERE w.midia_id = m.id::text AND w.usuario_id = ${opts.usuarioId}::uuid
         )`
       : Prisma.sql`false`;
 

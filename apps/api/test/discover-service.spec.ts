@@ -320,7 +320,12 @@ describe("DiscoverService (unit)", () => {
   it("discover — na_watchlist parametrizado (usuarioId nunca concatenado no SQL)", async () => {
     await service.discover({ q: "matrix", usuarioId: "user-123" });
     // A query principal contém o EXISTS da watchlist...
-    expect(prisma.queries.some((q) => q.includes("watchlist_entry"))).toBe(true);
+    const wlQuery = prisma.queries.find((q) => q.includes("watchlist_entry"));
+    expect(wlQuery).toBeTruthy();
+    // T279: usuario_id é UUID no banco — sem o cast ::uuid o Postgres
+    // responde 42883 ("operator does not exist: uuid = text") e o discover
+    // autenticado falha em produção.
+    expect(wlQuery).toMatch(/usuario_id = \?::uuid/);
     // ...mas o valor do usuário NUNCA é concatenado (sempre parâmetro).
     expect(prisma.queries.some((q) => q.includes("user-123"))).toBe(false);
   });
