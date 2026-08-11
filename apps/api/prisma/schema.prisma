@@ -74,6 +74,7 @@ enum PapelNome {
   USER
   ADMIN
   MODERADOR
+  CURATOR
 }
 
 /// Finalidades de consentimento LGPD (T2.11).

@@ -720,3 +720,13 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 - SEM indice em tenant_id (1 tenant unico ? seletividade inutil; evitaria custo de escrita).
 - RLS e filtros ficam para a T290, que exige aprovacao explicita do Operador (D-279) + premortem + teste de isolamento usuario A?B.
 - DEFAULT_TENANT_ID documentado no .env.example (constante publica, nao segredo).
+
+---
+
+## [2026-08-11] T291 — role CURATOR (Arquitetura §3)
+
+- Nova role CURATOR: curadoria de conteudo (MediaRelation, Award, classificacao, genero) separada de ADMIN (sem acesso a usuarios/billing/flags).
+- Endpoints: POST /api/v1/curadoria/relacoes|premios|classificacoes|generos — @Roles('CURATOR','ADMIN'), Zod, audit_log em toda mutacao, rate limit 10/min por usuario.
+- Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; — ou via tooling admin futuro.
+- Matriz de autorizacao testada: anonimo 401; FREE/PLUS/PREMIUM 403; CURATOR/ADMIN 200.
+- Promocao de role NUNCA via endpoint (elevation of privilege); curador nao acessa /admin/stats.

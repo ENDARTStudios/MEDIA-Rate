@@ -30,6 +30,7 @@ import { RelacoesModule } from "./modules/relacoes/relacoes.module.js";
 import { InteracoesModule } from "./modules/interacoes/interacoes.module.js";
 import { RecommendationsModule } from "./modules/recommendations/recommendations.module.js";
 import { DiscoveryModule } from "./modules/discovery/discovery.module.js";
+import { CuradoriaModule } from "./modules/curadoria/curadoria.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
@@ -57,6 +58,7 @@ const enableDebugRoutes =
     PremiumModule,
     RecommendationsModule,
     DiscoveryModule,
+    CuradoriaModule,
     MediaScoreModule,
     MediaModule,
     FontesModule,
