@@ -730,3 +730,13 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 - Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; — ou via tooling admin futuro.
 - Matriz de autorizacao testada: anonimo 401; FREE/PLUS/PREMIUM 403; CURATOR/ADMIN 200.
 - Promocao de role NUNCA via endpoint (elevation of privilege); curador nao acessa /admin/stats.
+
+---
+
+## [2026-08-11] T292 — feature flags leves (Arquitetura §7)
+
+- Decisao: tabela propria (feature_flags) AGORA, SEM servico externo (GrowthBook/Unleash) — evita infra/custo no estagio atual (billing apertado); reavaliar ferramenta self-host quando houver >10 flags ou multiplos times.
+- Avaliacao server-side unica e deterministica (hash usuarioId+key ? bucket estavel; anonimo usa IP-hash documentado); nunca exposta no frontend.
+- CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalidação de cache.
+- Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em preparação'), nunca 500.
+- Cache Redis 60s; rollout_percent clampado 0-100; tenant_overrides JSONB validado como mapa booleano.

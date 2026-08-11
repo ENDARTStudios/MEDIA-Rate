@@ -612,6 +612,20 @@ model Episodio {
   @@map("episodio")
 }
 
+/// T292 (Arquitetura §7) — feature flags leves em tabela (sem infra externa).
+/// Avaliação server-side determinística; mudanças auditadas (admin only).
+model FeatureFlag {
+  key              String   @id @db.VarChar(64)
+  enabled          Boolean  @default(true)
+  rollout_percent  Int      @default(100)
+  plan_gate        String?  @map("plan_gate") @db.VarChar(16)
+  tenant_overrides Json?    @default("{}")
+  updated_em       DateTime @updatedAt @map("updated_em")
+  updated_by       String?  @map("updated_by") @db.Uuid
+
+  @@map("feature_flags")
+}
+
 /// ADDENDUM 3 — tipo da aresta (direção: origem é sempre a que aponta).
 enum TipoRelacao {
   ADAPTACAO_DE
