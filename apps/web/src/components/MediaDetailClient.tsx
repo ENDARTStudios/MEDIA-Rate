@@ -8,6 +8,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { getMediaBySlug } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { MediaScoreModule } from "./MediaScoreModule";
+import { SeasonTabs } from "./media/SeasonTabs";
 import { Button } from "@/components/ui/button";
 import { WatchlistButton } from "./WatchlistButton";
 import { useEffect, useState } from "react";
@@ -518,6 +519,9 @@ export function MediaDetailClient({
             )}
           </Tabs.Content>
         </Tabs.Root>
+
+        {/* T288 — temporadas/episódios reais (só séries; ausência graciosa). */}
+        {media.type === "series" && <SeasonTabs midiaId={media.id} />}
       </div>
     </article>
   );

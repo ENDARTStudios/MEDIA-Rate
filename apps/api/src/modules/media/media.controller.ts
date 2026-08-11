@@ -542,6 +542,54 @@ export class MediaController {
     return buscar();
   }
 
+  /** T288 — temporadas/episódios reais de uma série (público). */
+  @Get(":id/temporadas")
+  @ApiOperation({ summary: "Temporadas e episódios de uma série (T288)" })
+  @ApiResponse({ status: 200, description: "Temporadas com episódios e notas." })
+  @ApiResponse({ status: 404, description: "Mídia não encontrada." })
+  async getTemporadas(@Param("id") id: string) {
+    const midia = await this.prisma.midia.findFirst({
+      where: { id, deleted_at: null },
+      select: { id: true },
+    });
+    if (!midia) {
+      throw new NotFoundException("Mídia não encontrada.");
+    }
+    const temporadas = await this.prisma.temporada.findMany({
+      where: { midia_id: id },
+      orderBy: { numero: "asc" },
+      select: {
+        numero: true,
+        titulo: true,
+        ano: true,
+        poster_url: true,
+        episodios: {
+          orderBy: { numero: "asc" },
+          select: {
+            numero: true,
+            titulo: true,
+            data_exibicao: true,
+            nota_publico: true,
+            nota_critica: true,
+          },
+        },
+      },
+    });
+    return temporadas.map((t) => ({
+      numero: t.numero,
+      titulo: t.titulo,
+      ano: t.ano,
+      poster_url: t.poster_url,
+      episodios: t.episodios.map((e) => ({
+        numero: e.numero,
+        titulo: e.titulo,
+        data_exibicao: e.data_exibicao?.toISOString() ?? null,
+        nota_publico: e.nota_publico,
+        nota_critica: e.nota_critica,
+      })),
+    }));
+  }
+
   @Get(":id/media-score")
   @ApiOperation({ summary: "MEDIA Score™ consolidado para uma mídia" })
   @ApiResponse({ status: 200, description: "Score consolidado com confiança." })

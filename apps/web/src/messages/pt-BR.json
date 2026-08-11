@@ -942,7 +942,10 @@
     "origin_livro": "Livro",
     "origin_hq": "HQ",
     "origin_manga": "Mangá",
-    "origin_original": "Obra original"
+    "origin_original": "Obra original",
+    "seasons": "Temporadas",
+    "seasonLabel": "T{numero}",
+    "loadingSeasons": "Carregando temporadas…"
   },
   "discovery": {
     "relatedWorksTitle": "Essa história também está em...",

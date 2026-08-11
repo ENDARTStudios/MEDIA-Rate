@@ -335,6 +335,8 @@ model Midia {
   // T287 (Addendum 2) — contexto da obra: classificação por região + prêmios.
   classificacoes_regiao   ClassificacaoRegiao[]
   premios                 Premio[]
+  // T288 — temporadas/episódios reais (TMDB) com notas.
+  temporadas              Temporada[]
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
 
@@ -566,6 +568,40 @@ model Premio {
 
   @@index([midia_id])
   @@map("premio")
+}
+
+/// T288 — temporada de série (TMDB). Unique (midia, numero).
+model Temporada {
+  id         String      @id @default(uuid()) @db.Uuid
+  midia_id   String      @map("midia_id") @db.Uuid
+  numero     Int
+  titulo     String?     @db.Text
+  ano        Int?
+  poster_url String?     @map("poster_url") @db.Text
+
+  midia      Midia       @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+  episodios  Episodio[]
+
+  @@unique([midia_id, numero])
+  @@index([midia_id])
+  @@map("temporada")
+}
+
+/// T288 — episódio com notas (0-10 público; crítica nullable). Unique (temporada, numero).
+model Episodio {
+  id            String     @id @default(uuid()) @db.Uuid
+  temporada_id  String     @map("temporada_id") @db.Uuid
+  numero        Int
+  titulo        String     @db.Text
+  data_exibicao DateTime?  @map("data_exibicao")
+  nota_publico  Float?     @map("nota_publico")
+  nota_critica  Float?     @map("nota_critica")
+
+  temporada     Temporada  @relation(fields: [temporada_id], references: [id], onDelete: Cascade)
+
+  @@unique([temporada_id, numero])
+  @@index([temporada_id])
+  @@map("episodio")
 }
 
 /// ADDENDUM 3 — tipo da aresta (direção: origem é sempre a que aponta).
