@@ -1,4 +1,3 @@
-import type { PrismaService } from "../prisma/prisma.service.js";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 export const DEFAULT_TENANT = "00000000-0000-0000-0000-000000000001";
