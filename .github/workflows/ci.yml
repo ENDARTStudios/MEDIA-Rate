@@ -175,3 +175,5 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report/
           retention-days: 30
+
+  # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) — habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; até lá, drill docker documentado em docs/ROLLBACK_RLS.md é a verificação.

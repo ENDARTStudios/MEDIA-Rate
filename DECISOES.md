@@ -754,3 +754,14 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
   4. Rollback necessario ? script em docs/ROLLBACK_RLS.md testado em docker (drill verde 2026-08-11).
 - **Drill docker (evidencia):** isolamento A?B verde (B le 0/atualiza 0, A le 1), midia USER negado/CURATOR ok, rollback restaura acesso.
 - Deploy da migration somente quando o Operador disparar (gatilho mantido, D-284).
+
+---
+
+## [2026-08-11] T299 — leituras agregadas/per-user sob RLS (D-285)
+
+- Excecao de LEITURA para ADMIN em watchlist_entry/discovery_event (policy watchlist_read_admin/discovery_read_admin, USING only; WITH CHECK de escrita permanece owner-only).
+- admin stats wireado via comContextoRls (role ADMIN + tenant default) — contagens nao-zero sob RLS.
+- recommendations leem usuario_midia_interacao (FORA do escopo RLS) + midia (SELECT publico com fallback do tenant default) — nao esvaziadas; teste sob RLS cobre admin stats.
+- Deploy da migration RLS (20260811_rls + rls_leitura_admin) so apos R299 APPROVED + gatilho do Operador (D-284/D-285).
+
+- Spec rls-isolation: habilitação em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy — media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilitação CI volta quando T234 fechar.

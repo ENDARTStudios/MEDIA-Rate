@@ -34,3 +34,7 @@ ALTER TABLE "temporada" DISABLE ROW LEVEL SECURITY;
 ```
 
 **Drill (2026-08-11, docker postgres:16):** habilita → isolamento A≠B verde (B lê 0 / atualiza 0; A lê 1) → midia USER negado / CURATOR ok → rollback (DROP POLICY + DISABLE) → acesso totalmente restaurado (app vê todas as linhas; USER insere midia). Exit code de cada passo verificado.
+
+-- 4) T299: exce��o de leitura ADMIN (nova migration 20260811_rls_leitura_admin)
+DROP POLICY IF EXISTS "watchlist_read_admin" ON "watchlist_entry";
+DROP POLICY IF EXISTS "discovery_read_admin" ON "discovery_event";
