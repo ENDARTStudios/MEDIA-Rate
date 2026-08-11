@@ -229,4 +229,25 @@ describe("RecommendationsService (T209)", () => {
     expect(r.recomendacoes).toEqual([]);
     expect(r.mensagem).toContain("Adicione itens à sua watchlist");
   });
+
+  it("T280 — todas as consultas de midia excluem soft-deleted (deleted_at: null)", async () => {
+    const ctx = makePrisma([
+      { usuario_id: "u1", midia_id: "m2" },
+      { usuario_id: "u2", midia_id: "m2" },
+      { usuario_id: "u2", midia_id: "m3" },
+    ]);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
+    }).compile();
+    const svc = module.get<RecommendationsService>(RecommendationsService);
+
+    await svc.recomendarPorGenero("u1", {});
+    await svc.colaborativo("u1", {});
+
+    const chamadas = ctx.midia.findMany.mock.calls as { where?: Record<string, unknown> }[][];
+    expect(chamadas.length).toBeGreaterThan(0);
+    for (const [args] of chamadas) {
+      expect(args?.where?.deleted_at, "findMany deve filtrar deleted_at: null").toBeNull();
+    }
+  });
 });

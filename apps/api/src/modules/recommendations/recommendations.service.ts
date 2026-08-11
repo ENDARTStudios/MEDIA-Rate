@@ -70,7 +70,7 @@ export class RecommendationsService {
     const idsDaLista = watchlist.map((w) => w.midia_id);
 
     const minhasMidias = await this.prisma.midia.findMany({
-      where: { id: { in: idsDaLista } },
+      where: { id: { in: idsDaLista }, deleted_at: null },
       select: {
         id: true,
         titulo: true,
@@ -98,6 +98,7 @@ export class RecommendationsService {
       where: {
         OR: condicoes,
         NOT: { id: { in: idsDaLista } },
+        deleted_at: null,
         ...(media > 0 ? { score: { gte: media } } : {}),
       },
       ...(opts.cursor ? { cursor: { id: opts.cursor }, skip: 1 } : {}),
@@ -190,7 +191,7 @@ export class RecommendationsService {
     }
 
     const midias = await this.prisma.midia.findMany({
-      where: { id: { in: ordenados } },
+      where: { id: { in: ordenados }, deleted_at: null },
       select: SELECAO_MIDIA,
     });
     const porId = new Map(midias.map((m) => [m.id, m]));

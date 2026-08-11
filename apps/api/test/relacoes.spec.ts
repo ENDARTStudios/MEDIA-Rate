@@ -8,6 +8,9 @@ function mockPrisma() {
   const existentes = ["midia-1", "midia-2", "filme-1", "livro-1"];
   const prisma = {
     midia: {
+      findFirst: vi.fn(async ({ where }: any) =>
+        existentes.includes(where.id) ? { id: where.id } : null,
+      ),
       findUnique: vi.fn(async ({ where }: any) =>
         existentes.includes(where.id) ? { id: where.id } : null,
       ),

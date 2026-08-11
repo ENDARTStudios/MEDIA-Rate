@@ -20,8 +20,9 @@ export class RelacoesService {
    * (sem N+1 de requisições por aresta).
    */
   async listarBidirecional(midiaId: string) {
-    const midia = await this.prisma.midia.findUnique({
-      where: { id: midiaId },
+    // T280: mídia soft-deletada não resolve o grafo (404).
+    const midia = await this.prisma.midia.findFirst({
+      where: { id: midiaId, deleted_at: null },
       select: { id: true },
     });
     if (!midia) {
@@ -83,7 +84,7 @@ export class RelacoesService {
     }
     const ids = new Set([dto.origemId, dto.destinoId]);
     const existentes = await this.prisma.midia.findMany({
-      where: { id: { in: [...ids] } },
+      where: { id: { in: [...ids] }, deleted_at: null },
       select: { id: true },
     });
     if (existentes.length !== 2) {
