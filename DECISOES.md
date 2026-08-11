@@ -765,3 +765,13 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 - Deploy da migration RLS (20260811_rls + rls_leitura_admin) so apos R299 APPROVED + gatilho do Operador (D-284/D-285).
 
 - Spec rls-isolation: habilitação em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy — media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilitação CI volta quando T234 fechar.
+
+---
+
+## [2026-08-11] T300 — cobertura RLS (D-286)
+
+Relatorio de cobertura (models com FK usuario x RLS):
+- COM RLS (escopo D-284/D-285): watchlist_entry, discovery_event (isolamento tenant+usuario), midia (SELECT publico/escrita CURATOR/ADMIN), classificacao_regiao, premio, temporada (escrita CURATOR/ADMIN).
+- SEM RLS — tabelas de conta/billing/audit (Sessao, UsuarioPapel, UsuarioPlano, Fatura, EventoPagamento, ConsentimentoUsuario, PreferenciaUsuario, Notificacao, UsoDiario, AuditLog, Entitlement, PlanoEntitlement, ListaColaborativa): protegidas pela camada de sessao/auth (guards + owner-checks testados); FORA do escopo RLS aprovado (D-284) para nao duplicar a superficie de auth no banco.
+- **DECISAO — usuario_midia_interacao SEM policy RLS (excecao documentada):** a tabela alimenta o filtro COLABORATIVO de recommendations, que legitima ler sinais agregados de outros usuarios (anonimizado, sem PII). RLS por-usuario quebraria o core de recomendacao. A API de interacoes (upsert/list) ja impoe owner-only na camada de servico (testes verdes); leituras agregadas nao expoem PII. Ficam como superficie de isolamento: watchlist/discovery (RLS) + interacoes (app-layer). Se no futuro houver necessidade, adicionar policy com leitura agregada por role dedicada + drill.
+- Auditoria concluida: nenhuma outra tabela com dado de usuario fora da classificacao acima.
