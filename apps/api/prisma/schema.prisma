@@ -517,6 +517,12 @@ model WatchlistEntry {
   // T190: score da obra no momento da adição — permite o indicador
   // "score mudou" (↑/↓) sem fabricar dado. null = sem dado → sem seta.
   score_at_add Float?          @map("score_at_add")
+  // T285 (Addendum 4): sinal de reação, motivo de abandono e progresso.
+  // Reutiliza os enums do domínio de interação (ReacaoConsumo/MotivoAbandono)
+  // para manter UM vocabulário (T285 nunca duplica enum — D-236).
+  reacao             ReacaoConsumo?   @map("reacao")
+  motivo_abandono    MotivoAbandono?  @map("motivo_abandono")
+  progresso_detalhe  String?          @map("progresso_detalhe")
   created_at  DateTime         @default(now()) @map("created_at")
   updated_at  DateTime         @updatedAt @map("updated_at")
 

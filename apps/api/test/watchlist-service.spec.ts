@@ -296,3 +296,73 @@ function mockPrisma(opts: { plano?: string; prefill?: number } = {}): MockWatchl
     },
   };
 }
+
+describe("WatchlistService T285 — reação/motivo/progresso", () => {
+  let service: WatchlistService;
+  let prisma: MockWatchlistPrisma;
+
+  beforeEach(async () => {
+    prisma = mockPrisma();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [WatchlistService, { provide: PrismaService, useValue: prisma }],
+    }).compile();
+    service = module.get<WatchlistService>(WatchlistService);
+    service.onReacaoRegistrada = undefined;
+  });
+
+  it("registra reação/motivo/progresso em entrada própria", async () => {
+    await service.add("user-1", { midia_id: "media-1", coluna: "COMPLETED" });
+    const listadas = await service.list("user-1");
+    const entry = listadas[0];
+
+    const r = await service.registrarReacao("user-1", entry.id, {
+      reacao: "GOSTEI",
+      progresso_detalhe: "temporada 1 completa",
+    });
+    expect(r.reacao).toBe("GOSTEI");
+    expect(r.progresso_detalhe).toBe("temporada 1 completa");
+  });
+
+  it("entrada de outro usuário → 404 (não vaza existência)", async () => {
+    await service.add("user-1", { midia_id: "media-1" });
+    const listadas = await service.list("user-1");
+    const entry = listadas[0];
+    await expect(service.registrarReacao("user-2", entry.id, { reacao: "GOSTEI" })).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it("dispara hook onReacaoRegistrada quando reacao presente", async () => {
+    const eventos: unknown[] = [];
+    service.onReacaoRegistrada = async (e) => {
+      eventos.push(e);
+    };
+    await service.add("user-1", { midia_id: "media-1" });
+    const entry = (await service.list("user-1"))[0];
+
+    await service.registrarReacao("user-1", entry.id, {
+      reacao: "NAO_GOSTEI",
+      motivo_abandono: "FALTA_TEMPO",
+    });
+    expect(eventos).toHaveLength(1);
+    expect(eventos[0]).toMatchObject({
+      usuarioId: "user-1",
+      entryId: entry.id,
+      midiaId: "media-1",
+      reacao: "NAO_GOSTEI",
+      motivoAbandono: "FALTA_TEMPO",
+    });
+  });
+
+  it("só motivo (sem reacao) NÃO dispara hook", async () => {
+    let disparou = false;
+    service.onReacaoRegistrada = async () => {
+      disparou = true;
+    };
+    await service.add("user-1", { midia_id: "media-1" });
+    const entry = (await service.list("user-1"))[0];
+
+    await service.registrarReacao("user-1", entry.id, { motivo_abandono: "MUDANCA_HUMOR" });
+    expect(disparou).toBe(false);
+  });
+});

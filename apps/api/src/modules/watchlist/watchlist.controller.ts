@@ -22,7 +22,9 @@ import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import {
   addToWatchlistSchema,
   moveWatchlistSchema,
+  registrarReacaoSchema,
   type AddToWatchlistDto,
+  type RegistrarReacaoDto,
 } from "./dto/watchlist.dto.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 
@@ -75,6 +77,17 @@ export class WatchlistController {
     const coluna = moveWatchlistSchema.parse(body).coluna;
     this.metrics.incrementWatchlistMove();
     return this.service.move(this.userId(req), id, coluna);
+  }
+
+  @Patch(":id")
+  @ApiOperation({ summary: "Registra reação/motivo/progresso de uma entrada (T285)" })
+  async registrarReacao(
+    @Req() req: WatchlistRequest,
+    @Param("id") id: string,
+    // Pipe no PARÂMETRO (não no método) — evita validar o @Param contra o schema do body.
+    @Body(new ZodValidationPipe(registrarReacaoSchema)) body: RegistrarReacaoDto,
+  ) {
+    return this.service.registrarReacao(this.userId(req), id, body);
   }
 
   @Delete(":id")

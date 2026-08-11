@@ -218,4 +218,56 @@ describe("Watchlist CRUD — e2e via HTTP (T207)", () => {
     const res = await request(app.getHttpServer()).get("/api/v1/watchlist");
     expect(res.status).toBe(401);
   });
+
+  describe("T285 — PATCH /watchlist/:id (reação/motivo/progresso)", () => {
+    it("persiste reação + progresso (200)", async () => {
+      const created = await request(app.getHttpServer())
+        .post("/api/v1/watchlist")
+        .send({ midia_id: randomUUID(), coluna: "COMPLETED" });
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/watchlist/${created.body.id}`)
+        .send({ reacao: "GOSTEI", progresso_detalhe: "temporada 1 completa" });
+      expect(res.status).toBe(200);
+      expect(res.body.reacao).toBe("GOSTEI");
+      expect(res.body.progresso_detalhe).toBe("temporada 1 completa");
+    });
+
+    it("motivo de abandono aceito com o vocabulário do domínio (200)", async () => {
+      const created = await request(app.getHttpServer())
+        .post("/api/v1/watchlist")
+        .send({ midia_id: randomUUID() });
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/watchlist/${created.body.id}`)
+        .send({ motivo_abandono: "FALTA_TEMPO" });
+      expect(res.status).toBe(200);
+      expect(res.body.motivo_abandono).toBe("FALTA_TEMPO");
+    });
+
+    it("reação inválida → 400 (Zod)", async () => {
+      const created = await request(app.getHttpServer())
+        .post("/api/v1/watchlist")
+        .send({ midia_id: randomUUID() });
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/watchlist/${created.body.id}`)
+        .send({ reacao: "TALVEZ" });
+      expect(res.status).toBe(400);
+    });
+
+    it("sem reacao nem motivo → 400 (refine)", async () => {
+      const created = await request(app.getHttpServer())
+        .post("/api/v1/watchlist")
+        .send({ midia_id: randomUUID() });
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/watchlist/${created.body.id}`)
+        .send({ progresso_detalhe: "só progresso" });
+      expect(res.status).toBe(400);
+    });
+
+    it("entrada inexistente (ou de outro usuário) → 404", async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/watchlist/${randomUUID()}`)
+        .send({ reacao: "GOSTEI" });
+      expect(res.status).toBe(404);
+    });
+  });
 });

@@ -6,8 +6,8 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
-import type { AddToWatchlistDto } from "./dto/watchlist.dto.js";
-import type { WatchlistColuna } from "@prisma/client";
+import type { AddToWatchlistDto, RegistrarReacaoDto } from "./dto/watchlist.dto.js";
+import type { WatchlistColuna, ReacaoConsumo, MotivoAbandono } from "@prisma/client";
 
 /**
  * Limite de itens na watchlist do plano FREE (D-132 monetização; T207: 50).
@@ -15,8 +15,20 @@ import type { WatchlistColuna } from "@prisma/client";
  */
 export const FREE_WATCHLIST_LIMIT = 50;
 
+/** Evento de reação registrada (T285) — consumido pela T286 (DiscoveryEvent). */
+export interface EventoReacaoRegistrada {
+  usuarioId: string;
+  entryId: string;
+  midiaId: string;
+  reacao: ReacaoConsumo;
+  motivoAbandono?: MotivoAbandono | null;
+}
+
 @Injectable()
 export class WatchlistService {
+  /** Hook de domínio (T285): a T286 assina para derivar DiscoveryEvents. */
+  onReacaoRegistrada?: (evento: EventoReacaoRegistrada) => Promise<void> | void;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async add(usuarioId: string, dto: AddToWatchlistDto) {
@@ -146,6 +158,43 @@ export class WatchlistService {
       where: { id: entryId },
       data: { coluna },
     });
+  }
+
+  /**
+   * T285 (Addendum 4): registra reação/motivo/progresso em uma entrada do
+   * usuário autenticado. Owner-only: entrada alheia → 404 (não vaza
+   * existência). Quando `reacao` é GOSTEI/NAO_GOSTEI numa obra concluída,
+   * dispara o hook `onReacaoRegistrada` (a T286 deriva DiscoveryEvents).
+   */
+  async registrarReacao(usuarioId: string, entryId: string, dto: RegistrarReacaoDto) {
+    const entry = await this.prisma.watchlistEntry.findFirst({
+      where: { id: entryId, usuario_id: usuarioId },
+      select: { id: true, midia_id: true, coluna: true },
+    });
+    if (!entry) {
+      throw new NotFoundException("Entrada da watchlist não encontrada.");
+    }
+
+    const atualizada = await this.prisma.watchlistEntry.update({
+      where: { id: entry.id },
+      data: {
+        reacao: dto.reacao ?? null,
+        motivo_abandono: dto.motivo_abandono ?? null,
+        progresso_detalhe: dto.progresso_detalhe ?? null,
+      },
+    });
+
+    if (dto.reacao && this.onReacaoRegistrada) {
+      await this.onReacaoRegistrada({
+        usuarioId,
+        entryId: entry.id,
+        midiaId: entry.midia_id,
+        reacao: dto.reacao,
+        motivoAbandono: dto.motivo_abandono ?? null,
+      });
+    }
+
+    return atualizada;
   }
 
   async remove(usuarioId: string, entryId: string) {
