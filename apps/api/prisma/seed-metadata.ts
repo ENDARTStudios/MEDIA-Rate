@@ -49,6 +49,60 @@ export function mapearIdadeIGDB(ages: { rating?: number; category?: number }[]):
   return maxBr;
 }
 
+// ---------------------------------------------------------------------------
+// T298 — classificação indicativa US/ES via TMDB certifications (release_dates).
+// Severidade com MAPA EXPLÍCITO (D-283) — nunca comparação de strings.
+// ---------------------------------------------------------------------------
+
+/** US certifications → severidade (G < PG < PG-13 < R < NC-17). */
+export const SEVERIDADE_US: Record<string, number> = {
+  "G": 0,
+  "PG": 1,
+  "PG-13": 2,
+  "R": 3,
+  "NC-17": 4,
+};
+
+/** ES certifications → severidade (APTA < 7 < 12 < 16 < 18). */
+export const SEVERIDADE_ES: Record<string, number> = {
+  "APTA": 0,
+  "A": 0,
+  "TP": 0,
+  "7": 1,
+  "12": 2,
+  "13": 3,
+  "16": 4,
+  "18": 5,
+};
+
+interface TmdbRelease {
+  certification?: string;
+}
+
+/**
+ * T298 — escolhe a certificação mais restritiva de uma região a partir das
+ * release_dates do TMDB. `mapa` = mapa de severidade da região; retorna null
+ * se a região não tiver certificação conhecida (ausência graciosa).
+ */
+export function melhorCertificacao(
+  releases: TmdbRelease[],
+  mapa: Record<string, number>,
+): string | null {
+  let melhor: string | null = null;
+  let maxSev = -1;
+  for (const r of releases) {
+    const cert = (r.certification ?? "").trim();
+    if (!cert) continue;
+    const sev = mapa[cert];
+    if (sev === undefined) continue;
+    if (sev > maxSev) {
+      melhor = cert;
+      maxSev = sev;
+    }
+  }
+  return melhor;
+}
+
 interface IgdbAgeRating {
   rating?: number;
   category?: number;
@@ -186,8 +240,62 @@ async function main(): Promise<void> {
     classificacoes++;
   }
 
+  // 3) T298 — FILME/SÉRIE: certificações US/ES via TMDB release_dates.
+  const tmdbKey = process.env.TMDB_API_KEY ?? "";
+  const regioes = [
+    { regiao: "US" as const, mapa: SEVERIDADE_US },
+    { regiao: "ES" as const, mapa: SEVERIDADE_ES },
+  ];
+  if (tmdbKey) {
+    const audiovisual = await prisma.midia.findMany({
+      where: { fonte: "tmdb", tipo: { in: ["FILME", "SERIE"] }, deleted_at: null },
+      select: { id: true, fonte_id: true, tipo: true },
+      take: 100,
+    });
+    for (const m of audiovisual) {
+      const path =
+        m.tipo === "FILME"
+          ? `movie/${m.fonte_id}/release_dates`
+          : `tv/${m.fonte_id}/content_ratings`;
+      const url = `https://api.themoviedb.org/3/${path}?api_key=${tmdbKey}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          await delay(DELAY_MS);
+          continue;
+        }
+        const dados = (await res.json()) as {
+          results?: { iso_3166_1?: string; release_dates?: TmdbRelease[] }[];
+        };
+        const porRegiao = new Map<string, TmdbRelease[]>();
+        for (const r of dados.results ?? []) {
+          if (!r.iso_3166_1) continue;
+          const atuais = porRegiao.get(r.iso_3166_1) ?? [];
+          atuais.push(...(r.release_dates ?? []));
+          porRegiao.set(r.iso_3166_1, atuais);
+        }
+        for (const { regiao, mapa } of regioes) {
+          const releases = porRegiao.get(regiao === "US" ? "US" : "ES") ?? [];
+          const melhor = melhorCertificacao(releases, mapa);
+          if (!melhor) continue;
+          await prisma.classificacaoRegiao.upsert({
+            where: { midia_id_regiao: { midia_id: m.id, regiao } },
+            create: { midia_id: m.id, regiao, valor: melhor, fonte: "TMDB" },
+            update: { valor: melhor },
+          });
+          classificacoes++;
+        }
+        await delay(DELAY_MS);
+      } catch {
+        await delay(DELAY_MS); // ausência graciosa
+      }
+    }
+  } else {
+    console.log("[seed:metadata] TMDB_API_KEY ausente — pulando US/ES (ausência graciosa)");
+  }
+
   console.log(
-    `[seed:metadata] origens=${origens} premios=${premios} classificacoes_br=${classificacoes}`,
+    `[seed:metadata] origens=${origens} premios=${premios} classificacoes=${classificacoes}`,
   );
   await prisma.$disconnect();
 }
