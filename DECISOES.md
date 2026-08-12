@@ -777,3 +777,12 @@ Relatorio de cobertura (models com FK usuario x RLS):
 - Auditoria concluida: nenhuma outra tabela com dado de usuario fora da classificacao acima.
 
 - [T301] Excecao da T300 FECHADA: usuario_midia_interacao com RLS owner-only + excecao FOR SELECT ADMIN (interacao_tenant_user/interacao_read_admin). Recommendations rodam o caminho agregado via comContextoRls(role ADMIN); interacoes via owner. 100% das tabelas de conteudo de usuario com RLS.
+
+---
+
+## [2026-08-11] T296 — hero com identidade (Addendum 1) — verificacao
+
+- A hero ja entregue (T185/T273/T274) atende a identidade do Addendum 1: icones 3D-em-camadas por categoria (SVG inline, sem biblioteca 3D em runtime), gauge ciclico multi-midia com escalas nativas, prefers-reduced-motion respeitado, stats i18n (contagem real + NUM_FONTES_ATIVAS).
+- Verificacao T296 (SSR nos 3 locales + suites): hero renderiza em pt-BR/en-US/es-ES com o cluster de 6 icones; web 305/305; typecheck/lint limpos.
+- Baseline de performance (estrutural): LCP = h1 acima da dobra (texto estatico, sem fetch de imagem); icones = SVG inline (zero requisicoes); CLS controlado por dimensoes fixas em CSS do cluster; sem three.js/GSAP-runtime extra.
+- Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
