@@ -69,6 +69,8 @@ jobs:
         run: node --import @swc-node/register/esm-register scripts/check-encoding-bom.ts
       - name: ESLint
         run: npm run lint
+      - name: Security Gate bundle scan (T302 - .next/static buildado)
+        run: npm run security:gate -- --bundle apps/web/.next/static || npm run security:gate -- --bundle .next/static
       - name: Security Gate (T294 — scan de segredos + NEXT_PUBLIC)
         run: npm run security:gate
       - name: npm audit (T9.2 — bloqueia merge se houver high/critical)

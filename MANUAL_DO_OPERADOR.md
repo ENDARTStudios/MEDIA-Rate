@@ -185,3 +185,11 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 - **"Metodologia unificada"**: IMPRECISO � estrutura assim�trica (criticsScore null para Filme/S�rie)
 
 **algorithmVersion/confidenceScore**: S� em tooltip t�cnico (<details>Detalhes t�cnicos</details> no MediaScoreModule). NUNCA na UI principal.
+
+## SECURITY GATE (T294/T302) — como rodar e o que fazer se falhar
+
+- Local: `npm run security:gate` (repo) e `npm run security:gate -- --bundle .next/static` (bundle buildado).
+- O que faz: varre arquivos commitados por padrões de segredo real; valida que NEXT_PUBLIC_* são placeholders; modo bundle cobre o env real embutido no build.
+- No CI: passo bloqueante no job lint-audit + bundle scan no build + job security-rls (RLS isolation A≠B com postgres service).
+- Compliance: tests/security/compliance.spec.ts (HSTS max-age >= 1 ano, LGPD/RGPD/AEPD nas páginas de privacidade, matriz CURATOR/ADMIN).
+- Se FALHAR: o output lista o arquivo/padrão mascarado (nunca o segredo). Remova o segredo do repo, rotacione se foi exposto, e rode o gate de novo até OK. Não bypass com --no-verify.

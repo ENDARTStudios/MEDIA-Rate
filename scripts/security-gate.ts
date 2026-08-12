@@ -63,20 +63,36 @@ function coletarArquivos(dir: string, acumulador: string[]): void {
       if (!IGNORAR.has(e)) coletarArquivos(caminho, acumulador);
     } else if (ARQUIVOS_IGNORAR_POR_NOME.includes(e) || IGNORAR.has(e)) {
       // cache/integridade — ignora
-    } else if (![".png", ".jpg", ".jpeg", ".webp", ".ico", ".svg", ".lock", ".woff", ".woff2", ".ttf", ".eot"].some((ext) => caminho.endsWith(ext))) {
+    } else if (
+      ![
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+        ".ico",
+        ".svg",
+        ".lock",
+        ".woff",
+        ".woff2",
+        ".ttf",
+        ".eot",
+      ].some((ext) => caminho.endsWith(ext))
+    ) {
       acumulador.push(caminho);
     }
   }
 }
 
 function main(): number {
+  // T302: alvo posicional (fixture/test) ou --bundle <dir>; default ".".
+  const bundleArg = process.argv.indexOf("--bundle");
+  const alvo = bundleArg >= 0 ? process.argv[bundleArg + 1] : (process.argv[2] ?? ".");
   const findings: string[] = [];
   const arquivos: string[] = [];
-  coletarArquivos(".", arquivos);
+  coletarArquivos(alvo, arquivos);
 
   for (const f of arquivos) {
     const conteudo = readFileSync(f, "utf8");
-    // Ignora o próprio gate e exemplos documentados.
     if (f.endsWith("security-gate.ts")) continue;
     for (const re of PADROES) {
       const m = conteudo.match(re);
@@ -87,24 +103,28 @@ function main(): number {
     }
   }
 
-  // NEXT_PUBLIC_* no .env.example do web deve ser placeholder (vazio), nunca segredo.
+  // NEXT_PUBLIC_* (env real embutido no bundle) deve ser placeholder, nunca segredo.
   for (const envPath of ENV_EXEMPLE) {
-    if (arquivos.includes(envPath) || true) {
-      try {
-        const linhas = readFileSync(envPath, "utf8").split("\n");
-        for (const linha of linhas) {
-          const m = linha.match(/^NEXT_PUBLIC_([A-Z0-9_]+)=(.+)$/);
-          if (m && m[2].trim().length > 0 && !/^#|\{\{|<|>|placeholder|sua|your|exemplo|example|https?:\/\//i.test(m[2])) {
-            findings.push(`[NEXT_PUBLIC não-placeholder] ${envPath}: NEXT_PUBLIC_${m[1]}=*** (valor real — jamais expor segredo no bundle)`);
-          }
+    try {
+      const linhas = readFileSync(envPath, "utf8").split("\n");
+      for (const linha of linhas) {
+        const m = linha.match(/^NEXT_PUBLIC_([A-Z0-9_]+)=(.+)$/);
+        if (
+          m &&
+          m[2].trim().length > 0 &&
+          !/^#|\{\{|<|>|placeholder|sua|your|exemplo|example|https?:\/\//i.test(m[2])
+        ) {
+          findings.push(
+            `[NEXT_PUBLIC não-placeholder] ${envPath}: NEXT_PUBLIC_${m[1]}=*** (valor real — jamais expor segredo no bundle)`,
+          );
         }
-      } catch {
-        /* ausente */
       }
+    } catch {
+      /* ausente */
     }
   }
 
-  console.log("=== SECURITY GATE (T294) ===");
+  console.log(`=== SECURITY GATE (T294/T302) — ${bundleArg >= 0 ? `bundle: ${alvo}` : alvo} ===`);
   console.log(`Arquivos varridos: ${arquivos.length}`);
   if (findings.length === 0) {
     console.log("security-gate: OK — nenhum segredo/placeholder quebrado.");
