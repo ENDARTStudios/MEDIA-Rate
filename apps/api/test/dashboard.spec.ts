@@ -49,8 +49,8 @@ describe("DashboardService (T295)", () => {
     const svc = new DashboardService(mockPrisma(interacoes) as any);
     const r = await svc.stats("u1", "PREMIUM");
     expect(r.evolucao).toHaveLength(12);
-    expect(r.evolucao![11].mes).toBe(mesAtual);
-    expect(r.evolucao![11].total).toBe(1);
-    expect(r.evolucao![0].total).toBe(0);
+    expect(r.evolucao?.[11]?.mes).toBe(mesAtual);
+    expect(r.evolucao?.[11]?.total).toBe(1);
+    expect(r.evolucao?.[0]?.total).toBe(0);
   });
 });
