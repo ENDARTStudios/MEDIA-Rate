@@ -32,6 +32,7 @@ import { RecommendationsModule } from "./modules/recommendations/recommendations
 import { DiscoveryModule } from "./modules/discovery/discovery.module.js";
 import { CuradoriaModule } from "./modules/curadoria/curadoria.module.js";
 import { FeatureFlagsModule } from "./modules/flags/feature-flags.module.js";
+import { DashboardModule } from "./modules/dashboard/dashboard.module.js";
 import { MetricsModule } from "./modules/metrics/metrics.module.js";
 import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
@@ -61,6 +62,7 @@ const enableDebugRoutes =
     DiscoveryModule,
     CuradoriaModule,
     FeatureFlagsModule,
+    DashboardModule,
     MediaScoreModule,
     MediaModule,
     FontesModule,

@@ -1,8 +1,6 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { ProtectedPage } from "@/components/ProtectedPage";
-import { DashboardContent } from "@/components/DashboardContent";
-import { localizedAlternates, localizedUrl } from "@/lib/seo";
+import { DashboardClient } from "../../../components/dashboard/DashboardClient";
 
 export async function generateMetadata({
   params,
@@ -10,22 +8,28 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
   return {
-    title: "Dashboard — MEDIA Rate",
-    alternates: {
-      canonical: localizedUrl(locale, "/dashboard"),
-      languages: localizedAlternates("/dashboard"),
-    },
-    robots: { index: false, follow: false },
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    robots: { index: false, follow: true },
   };
 }
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("dashboard");
+
   return (
-    <ProtectedPage>
-      <DashboardContent />
-    </ProtectedPage>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">{t("title")}</h1>
+      <p className="text-[#9CA3AF] mb-6 max-w-2xl">{t("subtitle")}</p>
+      <DashboardClient />
+    </div>
   );
 }

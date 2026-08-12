@@ -259,7 +259,22 @@
     "trendPhraseUp": "Tu gusto por {genre} creció {pct}% en los últimos 6 meses",
     "trendPhraseDown": "Tu gusto por {genre} bajó {pct}% en los últimos 6 meses",
     "trendNeutral": "Tu gusto se mantuvo estable en los últimos 6 meses.",
-    "trendNoData": "Aún no hay datos suficientes para identificar tendencias de gusto."
+    "trendNoData": "Aún no hay datos suficientes para identificar tendencias de gusto.",
+    "metaTitle": "Panel — MEDIA Rate",
+    "metaDescription": "Tu radar de gustos y la evolución de tu consumo.",
+    "subtitle": "Tu radar de gustos y cómo evoluciona tu consumo.",
+    "loginHint": "Inicia sesión para ver tu panel.",
+    "login": "Iniciar sesión",
+    "error": "No se pudo cargar el panel. Inténtalo de nuevo.",
+    "upgradeTitle": "El panel es Plus/Premium",
+    "upgradeHint": "El radar de gustos es de Plus; la evolución temporal es de Premium.",
+    "upgrade": "Ver planes",
+    "emptyHint": "Interactúa con títulos para ver tu radar aquí.",
+    "radar": "Radar de gustos",
+    "radarTable": "Radar de gustos por tipo y género",
+    "evolution": "Evolución (12 meses)",
+    "evolutionTable": "Interacciones completadas por mes",
+    "premiumHint": "Mejora a Premium para ver la evolución de tu consumo en el tiempo."
   },
   "checkout": {
     "title": "Mejora de plan",

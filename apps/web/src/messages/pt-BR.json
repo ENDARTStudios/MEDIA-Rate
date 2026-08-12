@@ -259,7 +259,22 @@
     "trendPhraseUp": "Seu gosto por {genre} cresceu {pct}% nos últimos 6 meses",
     "trendPhraseDown": "Seu gosto por {genre} caiu {pct}% nos últimos 6 meses",
     "trendNeutral": "Seu gosto se manteve estável nos últimos 6 meses.",
-    "trendNoData": "Sem dados suficientes para identificar tendências de gosto ainda."
+    "trendNoData": "Sem dados suficientes para identificar tendências de gosto ainda.",
+    "metaTitle": "Dashboard — MEDIA Rate",
+    "metaDescription": "Seu radar de gosto e a evolução do seu consumo.",
+    "subtitle": "Seu radar de gosto e a evolução do seu consumo.",
+    "loginHint": "Entre para ver seu dashboard.",
+    "login": "Entrar",
+    "error": "Não foi possível carregar o dashboard. Tente novamente.",
+    "upgradeTitle": "Dashboard é Plus/Premium",
+    "upgradeHint": "O radar de gosto é do plano Plus; a evolução temporal é do Premium.",
+    "upgrade": "Ver planos",
+    "emptyHint": "Interaja com títulos para ver seu radar aqui.",
+    "radar": "Radar de gosto",
+    "radarTable": "Radar de gosto por tipo e gênero",
+    "evolution": "Evolução (12 meses)",
+    "evolutionTable": "Interações concluídas por mês",
+    "premiumHint": "Atualize para o Premium e veja a evolução temporal do seu consumo."
   },
   "checkout": {
     "title": "Upgrade de plano",

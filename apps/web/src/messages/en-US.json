@@ -259,7 +259,22 @@
     "trendPhraseUp": "Your taste for {genre} grew {pct}% in the last 6 months",
     "trendPhraseDown": "Your taste for {genre} dropped {pct}% in the last 6 months",
     "trendNeutral": "Your taste stayed stable over the last 6 months.",
-    "trendNoData": "Not enough data to identify taste trends yet."
+    "trendNoData": "Not enough data to identify taste trends yet.",
+    "metaTitle": "Dashboard — MEDIA Rate",
+    "metaDescription": "Your taste radar and consumption evolution.",
+    "subtitle": "Your taste radar and how your consumption evolves.",
+    "loginHint": "Sign in to see your dashboard.",
+    "login": "Sign in",
+    "error": "Could not load the dashboard. Try again.",
+    "upgradeTitle": "Dashboard is Plus/Premium",
+    "upgradeHint": "The taste radar is Plus; the time evolution is Premium.",
+    "upgrade": "See plans",
+    "emptyHint": "Interact with titles to see your radar here.",
+    "radar": "Taste radar",
+    "radarTable": "Taste radar by type and genre",
+    "evolution": "Evolution (12 months)",
+    "evolutionTable": "Completed interactions per month",
+    "premiumHint": "Upgrade to Premium to see your consumption evolution over time."
   },
   "checkout": {
     "title": "Plan upgrade",
