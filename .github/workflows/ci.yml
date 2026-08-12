@@ -21,6 +21,39 @@ env:
   NODE_VERSION: "20"
 
 jobs:
+
+  # T234/T299: spec de isolamento RLS com postgres de service (migrate deploy em DB virgem).
+  security-rls:
+    name: RLS Isolation (T290/T299/T301)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: rls_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL_RLS_TEST: postgresql://postgres@localhost:5432/rls_test
+      DATABASE_URL: postgresql://postgres@localhost:5432/rls_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Aplica migrations em DB virgem (T234 - ordem verificada)
+        run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: RLS isolation (A=B)
+        run: npx vitest run apps/api/tests/security/rls-isolation.e2e.spec.ts
+
   # Job 1: Lint + Audit (rápido, roda primeiro)
   lint-audit:
     name: Lint & Audit

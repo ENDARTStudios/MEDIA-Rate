@@ -8,8 +8,8 @@ ADD COLUMN     "detalhes" JSONB,
 ADD COLUMN     "score_critica" DOUBLE PRECISION,
 ADD COLUMN     "score_publico" DOUBLE PRECISION;
 
--- CreateTable
-CREATE TABLE "avaliacao_fonte" (
+-- CreateTable (T234: idempotente — criada antes em 20260802_avaliacao_fonte_early)
+CREATE TABLE IF NOT EXISTS "avaliacao_fonte" (
     "id" UUID NOT NULL,
     "midia_id" UUID NOT NULL,
     "fonte" VARCHAR(32) NOT NULL,
@@ -22,8 +22,8 @@ CREATE TABLE "avaliacao_fonte" (
     CONSTRAINT "avaliacao_fonte_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE INDEX "avaliacao_fonte_midia_id_idx" ON "avaliacao_fonte"("midia_id");
+-- CreateIndex (T234: idempotente)
+CREATE INDEX IF NOT EXISTS "avaliacao_fonte_midia_id_idx" ON "avaliacao_fonte"("midia_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "avaliacao_fonte_midia_id_fonte_key" ON "avaliacao_fonte"("midia_id", "fonte");

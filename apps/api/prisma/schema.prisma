@@ -449,6 +449,8 @@ model UsuarioMidiaInteracao {
   // ColumnEncryptionService existe mas não é usado (pendência T2.6).
   comentario  String?  @db.Text
   created_at  DateTime @default(now()) @map("created_at")
+  // T289/T301: tenant_id (RLS em usuario_midia_interacao).
+  tenant_id   String   @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
 
   usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   midia       Midia    @relation(fields: [midia_id], references: [id], onDelete: Cascade)
