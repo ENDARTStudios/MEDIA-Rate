@@ -3,11 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * T290 (D-284) — teste de ISOLAMENTO RLS (gate de segurança §10 / T294).
- * Requer DATABASE_URL_RLS_TEST (ex.: docker postgres com a migration RLS
- * aplicada). Sem a env, o teste SKIPPA (CI sem banco RLS dedicado).
+ * Requer DATABASE_URL_RLS_TEST (postgres service no CI: migrate deploy em DB
+ * virgem). Sem a env, o teste SKIPPA.
  *
- * O drill docker completo (habilitar → isolar → rollback) é documentado em
- * apps/api/docs/ROLLBACK_RLS.md e foi executado manualmente em 2026-08-11.
+ * T303: o spec roda num papel NAO-superuser (mediarate_rls_app, criado no
+ * beforeAll) — a conexao default (postgres) tem BYPASSRLS e nao testaria nada.
  */
 const URL_RLS = process.env.DATABASE_URL_RLS_TEST ?? "";
 
