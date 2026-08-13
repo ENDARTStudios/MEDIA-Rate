@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
+import * as Sentry from "@sentry/nextjs";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { getLastCorrelationId } from "@/lib/http";
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };
@@ -11,10 +13,19 @@ interface ErrorBoundaryProps {
 
 export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   const t = useTranslations("common");
+  const locale = useLocale();
 
   useEffect(() => {
     console.error("[ErrorBoundary]", error);
-  }, [error]);
+    // T293: reporta ao Sentry com locale + correlationId (liga UI → API).
+    Sentry.captureException(error, {
+      extra: {
+        correlation_id: getLastCorrelationId() ?? undefined,
+        digest: error.digest,
+      },
+      tags: { locale },
+    });
+  }, [error, locale]);
 
   return (
     <div

@@ -1,5 +1,30 @@
 const SESSION_EXPIRED_EVENT = "mediarate:session-expired";
 
+// T293: correlationId do último erro de API (header X-Correlation-Id), para o
+// ErrorBoundary anexar ao evento do Sentry e ligar UI → API.
+const CORRELATION_KEY = "mediarate:correlationId";
+function readCorrelationStore(): string | null {
+  if (typeof sessionStorage === "undefined") return null;
+  try {
+    return sessionStorage.getItem(CORRELATION_KEY);
+  } catch {
+    return null;
+  }
+}
+function writeCorrelationStore(id: string | null) {
+  if (typeof sessionStorage === "undefined") return;
+  try {
+    if (id) sessionStorage.setItem(CORRELATION_KEY, id);
+    else sessionStorage.removeItem(CORRELATION_KEY);
+  } catch {
+    // sessionStorage indisponível (ex: modo privado) — segue sem id.
+  }
+}
+
+export function getLastCorrelationId(): string | null {
+  return readCorrelationStore();
+}
+
 // T057 cross-domain fix: sessionStorage sobrevive ao Next.js SSR→client.
 // csrf_token nao e credencial de sessao — e seguro em sessionStorage.
 const CSRF_KEY = "mediarate:csrf";
@@ -131,6 +156,11 @@ export async function apiFetch<T = unknown>(path: string, options: FetchOptions 
   } finally {
     clearTimeout(timeoutId);
   }
+
+  // T293: guarda o correlationId (X-Correlation-Id) de qualquer resposta da
+  // API — erros de UI reportados ao Sentry apontam para o erro de API.
+  const corrId = res.headers.get("x-correlation-id") ?? res.headers.get("x-request-id");
+  if (corrId) writeCorrelationStore(corrId);
 
   if (res.status === 401 && auth && !isAuthRoute(path)) {
     // T101: Não forçar redirecionamento global em erros 401, especialmente em rotas públicas.

@@ -4,6 +4,23 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Decisão: Sentry integrado (T293 / "Feito C" do Operador)
+
+**DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto � não é segredo.
+
+**Decisão:** Sentry no free tier (5k erros/mês). Web via `@sentry/nextjs` (configs client/server/edge + `withSentryConfig`; sem DSN em dev, NO-OP � não quebra build/dev). API via `@sentry/node` v10 (tracing embutido; `@sentry/tracing` v7 deprecated NÃO é usado).
+
+**Integração:**
+- API: `initSentry()` em `main.ts` antes dos controllers; `GlobalExceptionFilter` captura 5xx com `correlationId`, `userId`, `path`, `method` e devolve `sentryEventId` no body; respostas de erro incluem `X-Correlation-Id`.
+- Web: `ErrorBoundary` reporta ao Sentry com tag `locale` e `correlation_id` (do último erro de API via `http.ts`), ligando UI → API.
+- Redação de PII: `beforeSend` redige Authorization/cookie/password/token (mesma política do Pino logger), em API e web.
+- Endpoint de teste `GET /api/v1/admin/sentry-test` (ADMIN-only, flag-gated `admin-sentry-test`, off por padrão) � valida o pipeline de ponta a ponta.
+- Amostragem: sampleRate 1.0; tracesSampleRate 0.1 em produção (1.0 em dev).
+
+**Riscos residuais:** volume free tier (Open Beta cabe); revisão periódica dos eventos para ajustar redação se surgir novo tipo de PII.
+
+---
+
 ## [2026-08-13] Decisão: Termos e Condições como produto + aceite obrigatório no cadastro (D-295 / T306)
 
 **Versão dos Termos publicada:** v1.0 (13/08/2026) em pt-BR, en-US e es-ES.

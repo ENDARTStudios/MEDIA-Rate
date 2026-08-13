@@ -476,9 +476,12 @@ describe("AdminController (unit T8.1)", () => {
   let controller: AdminController;
 
   beforeEach(() => {
-    controller = new AdminController({
-      getStats: async () => ({ value: {}, hit: false }),
-    } as never);
+    controller = new AdminController(
+      {
+        getStats: async () => ({ value: {}, hit: false }),
+      } as never,
+      { avaliavel: async () => false } as never,
+    );
   });
 
   it("getStats() delega ao AdminService (stats reais — T221)", async () => {

@@ -46,6 +46,7 @@
     "@nestjs/platform-fastify": "^11.1.28",
     "@nestjs/swagger": "^11.4.6",
     "@prisma/client": "^6.19.3",
+    "@sentry/node": "^10.70.0",
     "@swc/helpers": "^0.5.23",
     "argon2": "^0.41.1",
     "bullmq": "^5.81.2",

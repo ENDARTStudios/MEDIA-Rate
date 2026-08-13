@@ -23,6 +23,7 @@ import {
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
+import { initSentry } from "./common/sentry.js";
 import { MetricsInterceptor } from "./common/interceptors/metrics.interceptor.js";
 import { MetricsService } from "./modules/metrics/metrics.service.js";
 import { GracefulShutdownService, QueueService } from "./common/queue.service.js";
@@ -37,6 +38,9 @@ async function bootstrap(): Promise<void> {
     .split(",")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
+
+  // T293: Sentry antes dos controllers (captura erros de boot também).
+  initSentry();
 
   // COOKIE_SECRET: obrigatório em produção — falhar no boot é melhor do que
   // rodar com segredo conhecido.

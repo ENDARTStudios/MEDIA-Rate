@@ -1,8 +1,9 @@
-import { Controller, Get, Req, Res, Optional } from "@nestjs/common";
+import { Controller, Get, Req, Res, Optional, NotFoundException } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { Roles } from "../../common/decorators/roles.decorator.js";
 import { AdminService } from "./admin.service.js";
+import { FeatureFlagService } from "../flags/feature-flags.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 
@@ -12,6 +13,8 @@ import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
  *
  * GET /api/v1/admin/stats — métricas REAIS de operação (contagens
  * agregadas), com cache 60s (X-Cache HIT/MISS). Nunca expõe PII.
+ * GET /api/v1/admin/sentry-test — T293: dispara erro proposital para
+ * validar o pipeline do Sentry (flag `admin-sentry-test`, off por padrão).
  */
 @ApiTags("admin")
 @ApiBearerAuth()
@@ -19,6 +22,7 @@ import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
+    private readonly flags: FeatureFlagService,
     @Optional() private readonly auditLog?: AuditLogService,
   ) {}
 
@@ -47,5 +51,29 @@ export class AdminController {
     });
 
     return value;
+  }
+
+  /**
+   * T293 — valida o pipeline Sentry de ponta a ponta: o erro 500 gerado aqui
+   * passa pelo GlobalExceptionFilter, que captura no Sentry e devolve o
+   * `sentryEventId` no corpo (visível no painel do Operador em segundos).
+   * Flag-gated: `admin-sentry-test` (criar via /flags, off por padrão).
+   */
+  @Get("sentry-test")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Dispara erro de teste para validar o pipeline do Sentry (flag)" })
+  async sentryTest(@Req() req: FastifyRequest): Promise<void> {
+    const user = (req as FastifyRequest & { user?: { id?: string } }).user;
+    const habilitado = await this.flags.avaliavel(
+      "admin-sentry-test",
+      { id: user?.id ?? "" },
+      { ip: req.ip },
+    );
+    if (!habilitado) {
+      throw new NotFoundException(
+        "Endpoint de teste do Sentry desabilitado (flag admin-sentry-test).",
+      );
+    }
+    throw new Error("T293 sentry-test: erro proposital para validar o pipeline do Sentry");
   }
 }

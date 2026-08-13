@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { randomUUID } from "node:crypto";
+import { capturarSentry } from "./sentry.js";
 
 interface ErrorResponseBody {
   statusCode: number;
@@ -15,6 +16,8 @@ interface ErrorResponseBody {
   message: string;
   correlationId: string;
   timestamp: string;
+  // T293: presente apenas quando o erro é 5xx e o Sentry está habilitado.
+  sentryEventId?: string;
 }
 
 /**
@@ -136,12 +139,27 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.warn(internalMessage, logContext);
     }
 
+    // T293: Sentry apenas em 5xx, com correlationId ligando UI → API.
+    const user = (request as FastifyRequest & { user?: { id?: string } }).user;
+    const sentryEventId =
+      statusCode >= 500
+        ? capturarSentry(exception, {
+            correlationId,
+            userId: user?.id,
+            path: request.url,
+            method: request.method,
+            statusCode,
+            error,
+          })
+        : undefined;
+
     const body: ErrorResponseBody = {
       statusCode,
       error,
       message,
       correlationId,
       timestamp: new Date().toISOString(),
+      ...(sentryEventId ? { sentryEventId } : {}),
     };
 
     // Preserva details de validacao em nao-producao.
@@ -151,6 +169,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     void response.header("X-Request-Id", correlationId);
+    void response.header("X-Correlation-Id", correlationId);
     void response.status(statusCode).send(body);
   }
 }
