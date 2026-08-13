@@ -6,6 +6,10 @@ import { api, ApiError } from "@/lib/http";
 interface WatchlistMedia {
   id?: string;
   title?: string;
+  /** T310: título original (fallback de localização até T311). */
+  tituloOriginal?: string;
+  /** T310: dados parciais → candidato a "re-sincronizar". */
+  dadosParciais?: boolean;
   posterUrl?: string | null;
   type?: string;
   year?: number | null;
@@ -60,7 +64,13 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
         midia_id: e.midia_id,
         status: e.status ?? e.coluna ?? "WANT",
         coluna: e.coluna ?? e.status,
-        media: e.media ?? null,
+        media: e.media
+          ? {
+              ...e.media,
+              tituloOriginal: e.media.tituloOriginal ?? e.media.title ?? undefined,
+              dadosParciais: e.media.dadosParciais ?? false,
+            }
+          : null,
         addedAt: e.addedAt ?? e.created_at,
         created_at: e.created_at,
         scoreAtAdd: e.scoreAtAdd ?? e.score_at_add ?? null,

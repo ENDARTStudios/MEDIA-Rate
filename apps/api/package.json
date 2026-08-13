@@ -27,6 +27,7 @@
     "db:seed:metadata": "node --import @swc-node/register/esm-register prisma/seed-metadata.ts",
     "db:seed:temporadas": "node --import @swc-node/register/esm-register prisma/seed-temporadas.ts",
     "db:provision:test-users": "node --import @swc-node/register/esm-register prisma/provision-test-users.ts",
+    "db:reparo:watchlist": "node --import @swc-node/register/esm-register prisma/seed-reparo-watchlist.ts",
     "db:reset": "prisma migrate reset --force",
     "db:validate": "prisma validate",
     "db:status": "prisma migrate status"

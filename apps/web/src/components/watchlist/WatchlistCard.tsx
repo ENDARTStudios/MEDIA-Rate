@@ -19,28 +19,65 @@ const TIPO_MAP: Record<string, string> = {
   manga: "MANGA",
 };
 
-export function entryToMediaItem(e: WatchlistEntry): MediaItem | null {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** T310: humaniza um id não-UUID tipo slug ("the-last-of-us" → "The last of us"). */
+export function humanizarId(id: string): string | null {
+  if (!id) return null;
+  if (UUID_RE.test(id)) return null; // UUID nunca vira título
+  if (/^\d+$/.test(id)) return null; // id numérico puro não é legível
+  if (!/[a-z]/i.test(id)) return null;
+  return id
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (c) => c.toUpperCase());
+}
+
+/**
+ * T310: fallback chain de título — localizado → original → id humanizado →
+ * null (a UI mostra o rótulo i18n "título indisponível"). Nunca o UUID cru.
+ */
+export function tituloHumano(
+  media?: { title?: string; tituloOriginal?: string } | null,
+  id?: string,
+): string | null {
+  const titulo = media?.title?.trim();
+  if (titulo) return titulo;
+  const original = media?.tituloOriginal?.trim();
+  if (original) return original;
+  if (id) return humanizarId(id);
+  return null;
+}
+
+export function entryToMediaItem(
+  e: WatchlistEntry,
+  tituloFallback: string | null = null,
+): MediaItem | null {
   const media = e.media;
-  if (!media?.id || !media.title) return null;
+  if (!e.mediaId) return null;
   const tipo =
-    media.type === "movie"
+    media?.type === "movie"
       ? "FILME"
-      : media.type === "series"
+      : media?.type === "series"
         ? "SERIE"
-        : media.type === "game"
+        : media?.type === "game"
           ? "GAME"
-          : media.type === "comic"
+          : media?.type === "comic"
             ? "COMIC"
-            : media.type === "manga"
+            : media?.type === "manga"
               ? "MANGA"
               : "FILME";
   return {
-    id: String(media.id),
-    titulo: media.title,
+    id: String(media?.id ?? e.mediaId),
+    // T310: fallback chain — título localizado → original → id humanizado →
+    // rótulo i18n; nunca o UUID/slug cru na superfície visível.
+    titulo: tituloHumano(media, e.mediaId) ?? tituloFallback ?? "…",
     tipo,
-    ano_lancamento: media.year ?? null,
-    imagem_url: media.posterUrl ?? null,
-    score: media.score ?? null,
+    ano_lancamento: media?.year ?? null,
+    imagem_url: media?.posterUrl ?? null,
+    score: media?.score ?? null,
   };
 }
 
@@ -115,7 +152,10 @@ export function WatchlistCard({
   const inter = useInteractionStore((s) => s.map[entry.mediaId]);
   const setReaction = useInteractionStore((s) => s.setReaction);
   const reacao = inter?.reacao ?? null;
-  const item = entryToMediaItem(entry);
+  // T310: fallback chain nunca expõe UUID cru — humaniza o id quando é
+  // slug-like e cai no rótulo i18n "título indisponível".
+  const tituloFinal = tituloHumano(entry.media, entry.mediaId) ?? t("tituloIndisponivel");
+  const item = entryToMediaItem(entry, tituloFinal);
 
   function react(r: Reacao) {
     void setReaction(entry.mediaId, reacao === r ? null : r);
@@ -130,7 +170,7 @@ export function WatchlistCard({
       {...listeners}
       className={`max-w-[200px] cursor-grab touch-none rounded-md ${isDragging ? "opacity-60 ring-2 ring-[#818CF8]" : ""}`}
       role="listitem"
-      aria-label={item?.titulo ?? entry.mediaId}
+      aria-label={tituloFinal}
       data-testid="watchlist-card"
     >
       {item && <MediaCard media={item} />}

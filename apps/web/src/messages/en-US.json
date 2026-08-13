@@ -537,7 +537,8 @@
     "abandonado": "Abandoned",
     "reactNow": "What did you think?",
     "gostei": "Liked",
-    "naoGostei": "Disliked"
+    "naoGostei": "Disliked",
+    "tituloIndisponivel": "Title unavailable"
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",

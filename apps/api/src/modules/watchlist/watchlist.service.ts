@@ -123,6 +123,7 @@ export class WatchlistService {
         select: {
           id: true,
           titulo: true,
+          titulo_original: true,
           tipo: true,
           ano_lancamento: true,
           imagem_url: true,
@@ -136,26 +137,47 @@ export class WatchlistService {
         const midia = porId.get(entry.midia_id);
         // T289: tenant_id é infraestrutura — nunca exposto na resposta.
         const { tenant_id: _tenantId, ...entryPublico } = entry;
+        if (!midia) {
+          // T310: entrada sem mídia resolvível (id externo não-UUID ou órfã).
+          // NUNCA expor o id cru como título — a UI aplica a fallback chain
+          // (título → original → id humanizado → i18n "título indisponível").
+          return {
+            ...entryPublico,
+            media: {
+              id: entry.midia_id,
+              title: null,
+              tituloOriginal: null,
+              type: undefined,
+              year: null,
+              posterUrl: null,
+              score: null,
+              genres: [],
+              dados_parciais: true,
+            },
+          };
+        }
         return {
           ...entryPublico,
-          media: midia
-            ? {
-                id: midia.id,
-                title: midia.titulo,
-                posterUrl: midia.imagem_url,
-                type:
-                  midia.tipo === "FILME"
-                    ? "movie"
-                    : midia.tipo === "SERIE"
-                      ? "series"
-                      : midia.tipo === "GAME"
-                        ? "game"
-                        : midia.tipo.toLowerCase(),
-                year: midia.ano_lancamento,
-                score: midia.scores[0]?.score ?? null,
-                genres: midia.generos.map((g) => g.genero.nome),
-              }
-            : null,
+          media: {
+            id: midia.id,
+            title: midia.titulo,
+            tituloOriginal: midia.titulo_original,
+            posterUrl: midia.imagem_url,
+            type:
+              midia.tipo === "FILME"
+                ? "movie"
+                : midia.tipo === "SERIE"
+                  ? "series"
+                  : midia.tipo === "GAME"
+                    ? "game"
+                    : midia.tipo.toLowerCase(),
+            year: midia.ano_lancamento,
+            score: midia.scores[0]?.score ?? null,
+            genres: midia.generos.map((g) => g.genero.nome),
+            // T310: flag para "re-sincronizar" — dados parciais quando não há
+            // título original (proxy de localização até T311).
+            dados_parciais: !midia.titulo_original,
+          },
         };
       });
     });

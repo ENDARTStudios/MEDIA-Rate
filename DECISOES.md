@@ -4,6 +4,21 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Fix: watchlist sem "código" (T310 / D-308)
+
+**Sintoma (�14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".
+
+**Diagnóstico (produção, 70 entries):** 15 entradas com `midia_id` não-UUID (ids externos TMDB/IGDB como `124364`, e ids de aresta `g4`/`g2` do grafo cross-mídia) + 5 UUIDs órfãos (mídia inexistente). O serializer devolvia `media: null` para essas, e o `entryToMediaItem` retornava null sem título ? cartão vazio com aria-label = UUID cru.
+
+**Correção:**
+- **API** (`watchlist.service.list`): entrada sem mídia resolvível devolve `media` objeto (title:null + `dados_parciais:true`), nunca null; mídias encontradas ganham `tituloOriginal` + `dados_parciais` (quando sem original).
+- **UI** (`WatchlistCard`): fallback chain `titulo ? titulo_original ? id humanizado (slug-like) ? i18n "Título indisponível"`; UUID e id numérico puro NUNCA viram título. aria-label usa o fallback.
+- **Reparo não-destrutivo** (`prisma/seed-reparo-watchlist.ts`, `db:reparo:watchlist`, D-275): re-link por `fonte_id` ? canônica (4 re-linkadas, 1 colisão preservada); sem match/órfãs ficam para o fallback UI. Nenhuma entrada de usuário excluída.
+
+**Verificado:** produção 15?11 não-UUID após reparo; fallback unit 5/5 (humanizarId, chain, nunca UUID); e2e contrato (media sempre objeto). Web 312/312, API 759/759.
+
+---
+
 ## [2026-08-13] Fix: duração de sessão � 7 dias + sliding renewal (T316/D-307)
 
 **Sintoma (�14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.

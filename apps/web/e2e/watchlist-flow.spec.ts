@@ -79,3 +79,26 @@ test("T308: fluxo de status de consumo persiste (4 status + reação)", async ({
   expect(entry).toBeTruthy();
   expect(entry).toMatchObject({ status: "ABANDONADO" });
 });
+
+test("T310: watchlist nunca expõe título cru (media sempre objeto com title ou dados_parciais)", async ({
+  page,
+}) => {
+  test.skip(!FREE_EMAIL || !FREE_PASSWORD, "TEST_USER_FREE_* ausente");
+  await login(page);
+
+  const res = await api<{ media?: { title?: string | null; dados_parciais?: boolean } }[]>(
+    page,
+    "GET",
+    "/api/v1/watchlist",
+  );
+  expect(res.status).toBe(200);
+  const itens = res.body ?? [];
+  for (const it of itens) {
+    // T310: media nunca é null; se não há título, a flag dados_parciais permite
+    // a UI aplicar a fallback chain (nunca o UUID cru como texto visível).
+    expect(it.media).toBeTruthy();
+    if (it.media && !it.media.title) {
+      expect(it.media.dados_parciais).toBe(true);
+    }
+  }
+});
