@@ -15,12 +15,16 @@ export class SessionCookieService {
 
   setSessionCookie(reply: FastifyReply, token: string, expiresAt: Date): string {
     const isProd = this.isProd();
+    const ttlSegundos = Math.max(1, Math.round((expiresAt.getTime() - Date.now()) / 1000));
     void reply.setCookie(COOKIE_NAME, token, {
       httpOnly: true,
       secure: isProd,
       sameSite: "lax",
       path: "/",
       expires: expiresAt,
+      // T316: Max-Age explícito = TTL server-side (7 dias) — o cookie persiste
+      // no browser e fechar o navegador NÃO desloga mais.
+      maxAge: ttlSegundos,
     });
 
     // T049: CSRF double-submit cookie — não-httpOnly para o JS do frontend ler.
@@ -44,6 +48,24 @@ export class SessionCookieService {
       sameSite: "lax",
       path: "/api/v1/auth/refresh", // só envia no refresh (menor superfície)
       expires: expiresAt,
+    });
+  }
+
+  /**
+   * T316: renovação sliding — re-seta SÓ o cookie 'sess' (com o novo TTL),
+   * sem rotacionar o CSRF (o front guarda o csrf em sessionStorage; rotacionar
+   * aqui quebraria a CSRF até o próximo login).
+   */
+  renovarSessionCookie(reply: FastifyReply, token: string, expiresAt: Date): void {
+    const isProd = this.isProd();
+    const ttlSegundos = Math.max(1, Math.round((expiresAt.getTime() - Date.now()) / 1000));
+    void reply.setCookie(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+      expires: expiresAt,
+      maxAge: ttlSegundos,
     });
   }
 

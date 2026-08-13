@@ -4,15 +4,19 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
 
 /**
- * Configuração de sessão (T212, Fase 3.3).
- * - ACCESS: token opaco 256-bit, TTL 15min (expires_at da sessão), com
- *   sliding session (renova transparente quando faltam < 5min).
+ * Configuração de sessão (T212, Fase 3.3 + T316/D-307).
+ * - ACCESS: token opaco 256-bit, TTL configurável (SESSION_TTL_HOURS, default
+ *   168h = 7 dias) em expires_at, com sliding session: renova (DB + cookie)
+ *   quando faltam < 50% do TTL (~1 renovação a cada TTL/2 — ≫ 1/hora, sem
+ *   write amplification por request).
  * - REFRESH: token opaco 256-bit, TTL 30 dias (refresh_expira_em), rotativo
  *   a cada uso via POST /auth/refresh; reuse detectado revoga tudo.
  */
-export const ACCESS_TTL_MS = 15 * 60 * 1000; // 15min
+const SESSION_TTL_HOURS = Number(process.env.SESSION_TTL_HOURS) || 168;
+export const SESSION_TTL_MS = SESSION_TTL_HOURS * 60 * 60 * 1000; // 7 dias por padrão
+export const ACCESS_TTL_MS = SESSION_TTL_MS; // compat: access = sessão (T316)
 export const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
-const SLIDING_THRESHOLD_MS = 5 * 60 * 1000; // 5min
+const SLIDING_THRESHOLD_MS = SESSION_TTL_MS / 2; // renova quando < 50% do TTL
 
 /**
  * Resultado da criação de sessão.
@@ -28,6 +32,14 @@ export interface SessionCreationResult {
     usuario_id: string;
     expires_at: Date;
   };
+}
+
+/** Resultado da validação: sessão + usuário + flag de renovação (T316). */
+export interface SessionValidationResult {
+  sessao: { id: string; usuario_id: string; expires_at: Date };
+  usuario: { id: string; email: string; nome: string | null };
+  /** true quando a sessão foi estendida (sliding) — o guard re-seta o cookie. */
+  renovada: boolean;
 }
 
 /**
@@ -106,7 +118,7 @@ export class SessionService implements OnApplicationBootstrap {
         refresh_family_id: randomUUID(),
         user_agent: params.user_agent?.slice(0, 1024),
         ip_criacao: params.ip,
-        expires_at: new Date(agora + ACCESS_TTL_MS),
+        expires_at: new Date(agora + SESSION_TTL_MS),
       },
       select: { id: true, usuario_id: true, expires_at: true },
     });
@@ -117,12 +129,11 @@ export class SessionService implements OnApplicationBootstrap {
 
   /**
    * Valida token opaco (access): encontra sessão ativa não expirada.
+   * T316: sliding renova a sessão quando faltam < 50% do TTL e sinaliza
+   * `renovada` para o guard re-setar o cookie no browser.
    * @returns sessão + usuário se válido, null caso contrário.
    */
-  async validateToken(token: string): Promise<{
-    sessao: { id: string; usuario_id: string; expires_at: Date };
-    usuario: { id: string; email: string; nome: string | null };
-  } | null> {
+  async validateToken(token: string): Promise<SessionValidationResult | null> {
     if (typeof token !== "string" || token.length === 0) {
       return null;
     }
@@ -139,15 +150,19 @@ export class SessionService implements OnApplicationBootstrap {
     if (result.revoked_at !== null) return null;
     if (result.expires_at < new Date()) return null;
 
-    // Sliding session (T212): renova o access transparente se faltar < 5min.
+    // Sliding session (T212/T316): renova se faltar < 50% do TTL. A
+    // renovação é naturalmente rate-limited (~1 a cada TTL/2) — não vira
+    // write por request.
+    let renovada = false;
     const msUntilExpiry = result.expires_at.getTime() - Date.now();
     if (msUntilExpiry < SLIDING_THRESHOLD_MS) {
-      const newExpiry = new Date(Date.now() + ACCESS_TTL_MS);
+      const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
       await this.prisma.sessao.update({
         where: { id: result.id },
         data: { expires_at: newExpiry },
       });
       result.expires_at = newExpiry;
+      renovada = true;
     }
 
     return {
@@ -161,6 +176,7 @@ export class SessionService implements OnApplicationBootstrap {
         email: result.usuario.email,
         nome: result.usuario.nome,
       },
+      renovada,
     };
   }
 

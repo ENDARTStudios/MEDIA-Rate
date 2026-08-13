@@ -4,6 +4,20 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Fix: duração de sessão � 7 dias + sliding renewal (T316/D-307)
+
+**Sintoma (�14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.
+
+**Correção:**
+- `SESSION_TTL_HOURS` (default 168 = 7 dias) passou a ser lido de env; `SESSION_TTL_MS` = 7d (era 15min hardcoded). `createSession`/rotação usam o novo TTL.
+- Cookie `sess` agora com `Max-Age=604800` (+Expires) � persiste no browser; fechar navegador não desloga.
+- Sliding renewal: `validateToken` renova quando faltam < 50% do TTL (3,5d) e retorna `renovada`; o AuthGuard re-seta o cookie `sess` no browser (sem rotacionar CSRF � o front guarda csrf em sessionStorage). Rate-limit natural: ~1 renovação por TTL/2 (? 1/hora), sem write por request.
+- Revogação/logout e refresh rotativo (30d) inalterados.
+
+**Verificado (DB real, API compilada):** login ? `sess` com `Max-Age=604800` e Expires +7d; sessão envelhecida para +3d ? request autenticado 200 + Set-Cookie renovado (`SLIDING RENEWAL OK`). Testes: e2e `session-duration.e2e.spec.ts` (7) + sliding em `session-token.spec.ts`. API 759/759.
+
+---
+
 ## [2026-08-13] Fix: busca por prefixo/autocomplete (T309)
 
 **Sintoma (�14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.

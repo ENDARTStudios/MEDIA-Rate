@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { PrismaService } from "../../prisma/prisma.service.js";
-import { REFRESH_TTL_MS } from "./session.service.js";
+import { REFRESH_TTL_MS, SESSION_TTL_MS } from "./session.service.js";
 
 export type RotacaoResult =
   | {
@@ -77,7 +77,7 @@ export class SessionRotationService {
           ...(params.novoAccessHash
             ? {
                 token_hash: params.novoAccessHash,
-                expires_at: params.accessExpiresAt ?? new Date(Date.now() + 15 * 60 * 1000),
+                expires_at: params.accessExpiresAt ?? new Date(Date.now() + SESSION_TTL_MS),
               }
             : {}),
         },

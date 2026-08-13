@@ -193,3 +193,10 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 - No CI: passo bloqueante no job lint-audit + bundle scan no build + job security-rls (RLS isolation A≠B com postgres service).
 - Compliance: tests/security/compliance.spec.ts (HSTS max-age >= 1 ano, LGPD/RGPD/AEPD nas páginas de privacidade, matriz CURATOR/ADMIN).
 - Se FALHAR: o output lista o arquivo/padrão mascarado (nunca o segredo). Remova o segredo do repo, rotacione se foi exposto, e rode o gate de novo até OK. Não bypass com --no-verify.
+
+## Sessão — duração e renovação (T316)
+
+- **Duração**: a sessão (`sess` cookie httpOnly/Secure/SameSite=Lax) dura **7 dias** (Max-Age=604800), configurável via `SESSION_TTL_HOURS` (default 168). O refresh (`refresh` cookie) dura 30 dias.
+- **Renovação (sliding)**: enquanto o usuário está ativo, quando faltam < 50% do TTL a sessão é estendida para +7 dias no banco e o cookie é re-setado no browser. Fechar o navegador NÃO desloga mais; a sessão ativa não expira por inatividade curta.
+- **Logout**: revoga a sessão no banco e limpa os cookies (mantido).
+- **Como verificar em produção**: logar → o Set-Cookie de `sess` traz `Max-Age=604800`; fazer login e, após ~4 dias, o cookie é renovado automaticamente no próximo request autenticado.

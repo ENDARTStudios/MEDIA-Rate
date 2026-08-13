@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { AuthGuard } from "../src/common/guards/auth.guard.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
+import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
 import { Reflector } from "@nestjs/core";
 import { UnauthorizedException, type ExecutionContext } from "@nestjs/common";
 
@@ -38,6 +39,7 @@ describe("AuthGuard (unit)", () => {
       providers: [
         AuthGuard,
         { provide: SessionService, useValue: { validateToken: async () => null } },
+        { provide: SessionCookieService, useValue: { renovarSessionCookie: () => undefined } },
         { provide: Reflector, useValue: { getAllAndOverride: () => undefined } },
       ],
     }).compile();
@@ -66,6 +68,7 @@ describe("AuthGuard (unit)", () => {
       providers: [
         AuthGuard,
         { provide: SessionService, useValue: mockSession },
+        { provide: SessionCookieService, useValue: { renovarSessionCookie: () => undefined } },
         { provide: Reflector, useValue: { getAllAndOverride: () => undefined } },
       ],
     }).compile();

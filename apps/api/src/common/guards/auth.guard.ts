@@ -4,9 +4,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 
 import { SessionService } from "../../modules/auth/session.service.js";
+import { SessionCookieService } from "../../modules/auth/session-cookie.service.js";
 
 /**
  * Contexto de usuário autenticado (anexado a request.user).
@@ -34,7 +35,10 @@ export interface AuthenticatedUser {
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(
+    private readonly sessionService: SessionService,
+    private readonly sessionCookie: SessionCookieService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<
@@ -69,6 +73,14 @@ export class AuthGuard implements CanActivate {
         error: "Unauthorized",
         message: "Sessão inválida ou expirada.",
       });
+    }
+
+    // T316: sliding renewal — se a sessão foi estendida (faltava < 50% do
+    // TTL), re-seta o cookie 'sess' no browser com o novo TTL (sem rotacionar
+    // CSRF). Fechar o navegador NÃO desloga; a sessão ativa nunca expira.
+    if (result.renovada) {
+      const reply = context.switchToHttp().getResponse<FastifyReply>();
+      this.sessionCookie.renovarSessionCookie(reply, token, result.sessao.expires_at);
     }
 
     request.user = {
