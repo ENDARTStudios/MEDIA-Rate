@@ -1,0 +1,1 @@
+﻿-- T304: reconciliação de histórico — migration renomeada para 20260809_fix_search_vector após aplicada em produção. Placeholder vazio (o SQL real já está aplicado no banco).

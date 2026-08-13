@@ -216,10 +216,13 @@ async function main(): Promise<void> {
       origens++;
     }
     for (const p of c.premios ?? []) {
-      await prisma.premio.upsert({
-        where: { id: `seed-${midia.id}-${p.nome}` },
-        create: { id: `seed-${midia.id}-${p.nome}`, midia_id: midia.id, ...p },
-        update: {},
+      const existente = await prisma.premio.findFirst({
+        where: { midia_id: midia.id, nome: p.nome },
+        select: { id: true },
+      });
+      if (existente) continue;
+      await prisma.premio.create({
+        data: { midia_id: midia.id, ...p },
       });
       premios++;
     }

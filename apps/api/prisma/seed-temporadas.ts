@@ -38,7 +38,7 @@ async function main(): Promise<void> {
   }
 
   const series = await prisma.midia.findMany({
-    where: { tipo: "SERIE", fonte: "tmdb", deleted_at: null },
+    where: { tipo: "SERIE", fonte: { in: ["tmdb", "tmdb_tv"] }, deleted_at: null },
     orderBy: { score: "desc" },
     take: TOP_SERIES,
     select: { id: true, fonte_id: true, titulo: true },
