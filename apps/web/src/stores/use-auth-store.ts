@@ -34,6 +34,7 @@ interface AuthState {
     name: string,
     email: string,
     password: string,
+    aceitouTermos: boolean,
     inviteCode?: string,
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -86,10 +87,15 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  register: async (name, email, password, inviteCode?) => {
+  register: async (name, email, password, aceitouTermos, inviteCode?) => {
     set({ isLoading: true, error: null });
     try {
-      const payload: Record<string, string> = { nome: name, email, password };
+      const payload: Record<string, string | boolean> = {
+        nome: name,
+        email,
+        password,
+        aceitouTermos,
+      };
       if (inviteCode) payload.inviteCode = inviteCode;
       await api.post("/api/v1/auth/register", payload, { auth: false });
       // Auto-login after registration (same session context).

@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   BadRequestException,
+  UnprocessableEntityException,
   HttpException,
   Logger,
 } from "@nestjs/common";
@@ -100,6 +101,16 @@ export class AuthService {
     dto: RegisterDtoType,
     options: { ip?: string; user_agent?: string } = {},
   ): Promise<RegisterResult> {
+    // T306 (D-295): aceite obrigatório dos Termos antes de qualquer trabalho.
+    if (dto.aceitouTermos !== true) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        error: "Unprocessable Entity",
+        code: "TERMS_NOT_ACCEPTED",
+        message: "É necessário aceitar os Termos e Condições.",
+      });
+    }
+
     // Verifica email único antes de hash (evita hash desnecessário).
     const existing = await this.prisma.usuario.findUnique({
       where: { email: dto.email },
@@ -122,6 +133,7 @@ export class AuthService {
           email: dto.email,
           password_hash,
           nome: dto.nome ?? null,
+          termos_aceitos_em: new Date(),
         },
         select: { id: true, email: true, nome: true, created_at: true },
       });

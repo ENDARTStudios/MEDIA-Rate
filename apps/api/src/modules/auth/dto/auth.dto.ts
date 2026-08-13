@@ -10,6 +10,10 @@ export const RegisterDto = z.object({
   password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres.").max(128),
   nome: z.string().min(2).max(255).optional(),
   inviteCode: z.string().uuid().optional(),
+  // T306 (D-295): aceite dos Termos. Validado no service (422 se !== true) —
+  // aqui é opcional para que a ausência chegue ao service e devolva 422,
+  // não 400 do pipe.
+  aceitouTermos: z.boolean().optional(),
 });
 
 export type RegisterDtoType = z.infer<typeof RegisterDto>;

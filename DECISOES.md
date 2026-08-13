@@ -4,6 +4,31 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Decisão: Termos e Condições como produto + aceite obrigatório no cadastro (D-295 / T306)
+
+**Versão dos Termos publicada:** v1.0 (13/08/2026) em pt-BR, en-US e es-ES.
+
+**Decisão:** Os 3 documentos entregues pelo Operador são publicados como produto (páginas SSR `/terms` nos 3 locales), **sem os marcadores de revisão jurídica** (`[?? REVISAR COM ADVOGADO]` / `[?? REQUIRES LEGAL REVIEW]` / `[?? REQUIERE REVISI�N LEGAL]`) � instrução do Operador: "Considere revisado com advogado". O aceite vira exigência de cadastro.
+
+**Parâmetros finais travados:**
+- Idade mínima (Cláusula 3.2): **14 anos**.
+- Aviso prévio de alteração de planos (Cláusula 5.1): **30 dias**.
+- Comunicações oficiais (Cláusula 12.1): **48h**.
+- Antecedência para alterações nos Termos (Cláusula 13.1): **30 dias**.
+
+**Implementação:** coluna `Usuario.termos_aceitos_em` (write-once no register; migration aditiva `20260813_termos_aceite`); `RegisterDto.aceitouTermos`; `auth.service.register` valida `aceitouTermos === true` (senão 422 `TERMS_NOT_ACCEPTED`) e persiste o timestamp; checkbox obrigatório no register (sem pré-seleção, submit desabilitado até marcar); LGPD export (`/user/data`) inclui o timestamp.
+
+**Conteúdo do texto (armazenamento):** via `messages/<locale>.json` no namespace `terms` (padrão já usado por `/privacy`), **não** em `public/docs/*.md` como listado na tarefa � decisão de implementação que mantém o padrão i18n do projeto.
+
+**Observações:**
+- Placeholder `[domínio]` (e demais dados de negócio: e-mail, endereço, CNPJ, foro) permanece nos textos até o Operador fechar o domínio oficial (item 4 do PENDENCIAS_OPERADOR.md). Uma T307 curta substitui quando registrado.
+- Aceite em register social (Google/Apple) **não** implementado nesta tarefa � follow-up registrado: consentimento explícito em OAuth segue o padrão da plataforma social (documentar quando implementar).
+- Revisão jurídica externa recomendada para expansão UE ativa é decisão de negócio, não gate técnico.
+
+---
+
+
+
 ## [2026-07-18] Discovery (parcial — registrado a partir da ordem PLAN-01)
 
 **Origem:** Restrições e critérios de pronto fornecidos inline na ordem PLAN-01 do Thinker/Operador. As 7 perguntas do Discovery (Seção 4 do `PROTOCOLO_MESTRE.md`) não foram todas respondidas explicitamente — ver pendências abaixo.
@@ -12,7 +37,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 - **Q4 (login/pagamento/dado sensível/upload):** projeto tem **login**. Pagamento, dado sensível adicional e upload **não confirmados** (assumido como "não" até o Thinker registrar o contrário).
 - **Domínio/modelo arquitetural:** monolito modular.
 - **Stack confirmada:** Next.js/React + TypeScript (front), NestJS (back), PostgreSQL (banco).
-- **Itens condicionais EXCLUÍDOS pelo Discovery:** microsserviços, Redis, fila assíncrona (BullMQ/Kafka/RabbitMQ), WebSocket, 2FA/TOTP, DNSSEC/CAA/HSTS preload, secret manager dedicado (Vault/Infisical).
+- **Itens condicionais EXCLUÝDOS pelo Discovery:** microsserviços, Redis, fila assíncrona (BullMQ/Kafka/RabbitMQ), WebSocket, 2FA/TOTP, DNSSEC/CAA/HSTS preload, secret manager dedicado (Vault/Infisical).
 - **Indício de domínio:** a ordem menciona "classificação indicativa (rating)" como campo a verificar no schema — sugere projeto de catálogo/mídia/conteúdo com faixa etária (formato brasileiro). **Não confirmado explicitamente pelo Discovery.**
 
 ### Pendências de Discovery (Thinker deve completar antes da Fase 0)
@@ -551,7 +576,7 @@ O ScoreDial é o componente-âncora do produto: anel SVG com preenchimento propo
 
 ## [2026-07-27] D-069 — T077: noindex investigado como bug-provável (meta robots = index,follow já presente)
 
-Motivo: Crawl do Screaming Frog reportou 100% de páginas com noindex. Investigação via `curl -I` e `grep meta robots` revelou que o meta robots `<meta name="robots" content="index, follow"/>` JÁ está presente no `<head>` via `generateMetadata()` (adicionado na T074 para páginas públicas). O noindex reportado pelo crawl pode ser: (a) falso positivo do SF (crawl feito antes do deploy T074 → cache), (b) header X-Robots-Tag injetado pelo Vercel em runtime (nenhum encontrado no curl atual), ou (c) alguma página que perdeu o robots no SSR (todas as páginas SSG verificadas têm meta robots). Correção definitiva na T078 se o re-crawl confirmar persistência. Veto aberto: não corrigir dentro da T077 (é tarefa de diagnóstico).
+Motivo: Crawl do Screaming Frog reportou 100% de páginas com noindex. Investigação via `curl -I` e `grep meta robots` revelou que o meta robots `<meta name="robots" content="index, follow"/>` JÝ está presente no `<head>` via `generateMetadata()` (adicionado na T074 para páginas públicas). O noindex reportado pelo crawl pode ser: (a) falso positivo do SF (crawl feito antes do deploy T074 → cache), (b) header X-Robots-Tag injetado pelo Vercel em runtime (nenhum encontrado no curl atual), ou (c) alguma página que perdeu o robots no SSR (todas as páginas SSG verificadas têm meta robots). Correção definitiva na T078 se o re-crawl confirmar persistência. Veto aberto: não corrigir dentro da T077 (é tarefa de diagnóstico).
 
 ---
 

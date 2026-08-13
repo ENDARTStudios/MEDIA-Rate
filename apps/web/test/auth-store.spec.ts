@@ -63,7 +63,7 @@ describe("Auth Store (T052)", () => {
       .spyOn(http.api, "get")
       .mockResolvedValue({ id: "u1", email: "t@t.com", nome: "User" });
 
-    const result = await useAuthStore.getState().register("User", "t@t.com", "pass");
+    const result = await useAuthStore.getState().register("User", "t@t.com", "pass", true);
     expect(result.success).toBe(true);
     // Deve ter chamado /register E /login
     const calls = postSpy.mock.calls;
@@ -75,7 +75,7 @@ describe("Auth Store (T052)", () => {
 
   it("register com erro → success=false", async () => {
     mockApiError(409, "Email já cadastrado.");
-    const result = await useAuthStore.getState().register("User", "x@x.com", "pass");
+    const result = await useAuthStore.getState().register("User", "x@x.com", "pass", true);
     expect(result.success).toBe(false);
     expect(result.error).toBe("Email já cadastrado.");
   });
@@ -120,7 +120,7 @@ describe("Auth Store (T052)", () => {
 
   it("sem localStorage apos register", async () => {
     mockApi();
-    await useAuthStore.getState().register("A", "b@b.com", "pass");
+    await useAuthStore.getState().register("A", "b@b.com", "pass", true);
     expect(localStorage.getItem("mediarate-auth")).toBeNull();
   });
 });

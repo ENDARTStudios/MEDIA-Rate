@@ -133,13 +133,15 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterData>({ resolver: zodResolver(registerSchema), mode: "onBlur" });
 
   const strength = getPasswordStrength(pw);
+  const acceptTermsAccepted = watch("acceptTerms");
 
   const onSubmit = async (d: RegisterData) => {
-    const result = await regStore(d.name, d.email, d.password, d.inviteCode);
+    const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode);
     if (result.success) {
       toast.success(t("registerSuccess"));
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
@@ -273,6 +275,7 @@ export function RegisterForm() {
             <input
               type="checkbox"
               id="auth-register-accept-terms"
+              aria-required="true"
               {...register("acceptTerms")}
               className="mt-0.5 accent-[#818CF8]"
             />
@@ -296,7 +299,7 @@ export function RegisterForm() {
             type="submit"
             className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]"
             size="lg"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !acceptTermsAccepted}
           >
             {isSubmitting ? t("cadastrando") : t("registerButton")}
           </Button>

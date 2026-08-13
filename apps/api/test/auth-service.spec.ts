@@ -11,7 +11,12 @@ import { LockoutService } from "../src/modules/auth/lockout.service.js";
 import { AnalyticsService } from "../src/common/analytics.service.js";
 import { AuditLogService } from "../src/common/audit-log.service.js";
 import { MockMailService } from "../src/common/mock-mail.service.js";
-import { ConflictException, UnauthorizedException, BadRequestException } from "@nestjs/common";
+import {
+  ConflictException,
+  UnauthorizedException,
+  BadRequestException,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { createHash } from "crypto";
 import { FREE_WATCHLIST_LIMIT } from "../src/modules/watchlist/watchlist.service.js";
 
@@ -24,6 +29,7 @@ interface MockUser {
   password_reset_expira: Date | null;
   ultimo_login_em: Date | null;
   email_verificado_em?: Date | null;
+  termos_aceitos_em?: Date | null;
   plano?: { plano: string; status: string; trial_ends_at: Date | null };
 }
 
@@ -162,13 +168,30 @@ describe("AuthService (unit)", () => {
       email: "new@test.com",
       password: "Senha@123",
       nome: "Novo",
+      aceitouTermos: true,
     });
     expect(result.email).toBe("new@test.com");
+    // T306: timestamp de aceite persistido no create.
+    const created = userMap.get("new@test.com");
+    expect(created?.termos_aceitos_em).toBeInstanceOf(Date);
+  });
+
+  it("register — sem aceite dos termos lança UnprocessableEntityException (422)", async () => {
+    await expect(
+      service.register({ email: "no-terms@test.com", password: "Senha@123", aceitouTermos: false }),
+    ).rejects.toThrow(UnprocessableEntityException);
+    await expect(
+      service.register({ email: "no-terms2@test.com", password: "Senha@123" }),
+    ).rejects.toThrow(UnprocessableEntityException);
   });
 
   it("register — email duplicado lança ConflictException", async () => {
     await expect(
-      service.register({ email: "exists@test.com", password: "Senha@123" }),
+      service.register({
+        email: "exists@test.com",
+        password: "Senha@123",
+        aceitouTermos: true,
+      }),
     ).rejects.toThrow(ConflictException);
   });
 
@@ -457,6 +480,7 @@ function mockPrisma(users: Map<string, MockUser>) {
                 password_reset_expira: null,
                 ultimo_login_em: null,
                 email_verificado_em: null,
+                termos_aceitos_em: a.data?.termos_aceitos_em ?? null,
               };
               users.set(email, u);
               return u;

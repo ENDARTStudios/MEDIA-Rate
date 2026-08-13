@@ -58,6 +58,7 @@ export class LgpdService {
           email: true,
           nome: true,
           email_verificado_em: true,
+          termos_aceitos_em: true,
           ultimo_login_em: true,
           created_at: true,
           updated_at: true,

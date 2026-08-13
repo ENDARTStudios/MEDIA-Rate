@@ -92,7 +92,13 @@ export class AuthController {
     nome: string | null;
     created_at: string;
   }> {
-    const dto = body as { email: string; password: string; nome?: string; inviteCode?: string };
+    const dto = body as {
+      email: string;
+      password: string;
+      nome?: string;
+      inviteCode?: string;
+      aceitouTermos?: boolean;
+    };
     const ip = req.ip ?? undefined;
     const userAgent = req.headers["user-agent"];
 
