@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, UsePipes } from "@nestjs/common";
+import { Controller, Get, Post, Delete, Param, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { RelacoesService, type CriarRelacaoDto } from "./relacoes.service.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
@@ -19,9 +19,13 @@ export class RelacoesController {
   @Post()
   @ApiBearerAuth()
   @Roles("ADMIN")
-  @UsePipes(new ZodValidationPipe(criarRelacaoSchema))
   @ApiOperation({ summary: "Admin — cria aresta de relação (1 aresta ativa a funcionalidade)" })
-  async criar(@Param("id") _id: string, @Body() body: CriarRelacaoDto) {
+  async criar(
+    @Param("id") _id: string,
+    // T308: pipe no PARÂMETRO (o @UsePipes no método validaria o @Param string
+    // contra o schema do body — "expected object, received string").
+    @Body(new ZodValidationPipe(criarRelacaoSchema)) body: CriarRelacaoDto,
+  ) {
     return this.service.criar(body);
   }
 

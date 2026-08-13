@@ -6,7 +6,6 @@ import {
   Body,
   Req,
   UseGuards,
-  UsePipes,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
@@ -47,11 +46,13 @@ export class InteracoesController {
 
   @Put(":midiaId")
   @ApiOperation({ summary: "Cria/atualiza status+reação de uma mídia" })
-  @UsePipes(new ZodValidationPipe(upsertInteracaoSchema))
   async put(
     @Req() req: InteracaoRequest,
     @Param("midiaId") midiaId: string,
-    @Body() body: UpsertInteracaoDto,
+    // T308: pipe no PARÂMETRO (não no método) — @UsePipes no método validaria
+    // o @Param (string) contra o schema do body e quebraria com "expected
+    // object, received string". Mesmo padrão do watchlist PATCH.
+    @Body(new ZodValidationPipe(upsertInteracaoSchema)) body: UpsertInteracaoDto,
   ) {
     return this.service.upsert(this.userId(req), midiaId, body);
   }

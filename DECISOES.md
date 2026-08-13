@@ -4,6 +4,18 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Fix: "expected object, received string" no fluxo de interação (T308)
+
+**Sintoma (produção):** `PUT /api/v1/interacoes/:midiaId` retornava 400 `Validation failed at '': Invalid input: expected object, received string`; botão Quero ver/status quebrado; dashboard/perfil vazios por falta de interação persistida.
+
+**Diagnóstico (reproduzido em produção e no build compilado local):** o pipe `ZodValidationPipe` estava aplicado no **método** (`@UsePipes`), então o Nest validava TODOS os parâmetros � incluindo o `@Param("midiaId")` (string) � contra o schema `z.object` do body. O POST/PATCH funcionavam porque seus pipes já eram no parâmetro (`@Body(new ZodValidationPipe(...))`, padrão do watchlist PATCH).
+
+**Correção (na ponta certa, sem afrouxar validação):** pipe movido para `@Body(new ZodValidationPipe(...))` em `interacoes.controller.ts` (PUT) e `relacoes.controller.ts` (POST `/midias/:id/relacoes` � mesmo bug de classe). O @Param string nunca mais é validado contra o schema do body.
+
+**Extras:** store web mapeia erro 400 para mensagem amigável (Zod raw nunca aparece na UI; detalhe técnico fica no corpo + `X-Correlation-Id` + Sentry/log). Regressão: `test/interacoes-http.e2e.spec.ts` (HTTP) e `apps/web/e2e/watchlist-flow.spec.ts` (4 status + reação; vermelho em produção antes do deploy � prova que o spec detecta o bug).
+
+---
+
 ## [2026-08-13] Decisão: Domínio oficial mediarate.app + T307 (D-303)
 
 **Domínio oficial:** `https://mediarate.app` (compra direta na Vercel = DNS/SSL automáticos; `media-rate-web.vercel.app` faz 307 para o novo domínio durante a transição ~30 dias).

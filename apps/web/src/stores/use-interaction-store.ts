@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { api } from "@/lib/http";
+import { api, ApiError } from "@/lib/http";
 import {
   reacaoEditavelPara,
   upsertInteracao,
@@ -60,6 +60,19 @@ interface InteractionState {
 
 function empty(): InteractionEntry {
   return { status: "QUERO_CONSUMIR", reacao: null, motivoAbandono: null };
+}
+
+/**
+ * T308: erros de validação (400) nunca mostram o texto Zod raw na UI — o
+ * detalhe técnico (schema/message + correlationId) fica no corpo da resposta
+ * e no header X-Correlation-Id (http.ts), além do log/Sentry do backend.
+ */
+function mensagemAmigavel(err: unknown, fallback: string): string {
+  if (err instanceof ApiError && err.status === 400) {
+    return "Não foi possível salvar. Verifique os dados e tente novamente.";
+  }
+  if (err instanceof ApiError) return err.message;
+  return err instanceof Error ? err.message : fallback;
 }
 
 export const useInteractionStore = create<InteractionState>()((set, get) => ({
@@ -137,7 +150,7 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       });
       // T266: NUNCA engolir erro em silêncio (D-230) — expõe no estado para
       // o StatusReactionControl mostrar mensagem de retry.
-      const msg = err instanceof Error ? err.message : "Falha ao atualizar status";
+      const msg = mensagemAmigavel(err, "Falha ao atualizar status");
       set({ lastError: msg });
     }
   },
@@ -152,7 +165,7 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       await upsertInteracao(midiaId, { reacao });
     } catch (err) {
       set((s) => ({ map: { ...s.map, [midiaId]: prev } }));
-      const msg = err instanceof Error ? err.message : "Falha ao atualizar reação";
+      const msg = mensagemAmigavel(err, "Falha ao atualizar reação");
       set({ lastError: msg });
     }
   },
@@ -167,7 +180,7 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       await upsertInteracao(midiaId, { motivoAbandono: motivo });
     } catch (err) {
       set((s) => ({ map: { ...s.map, [midiaId]: prev } }));
-      const msg = err instanceof Error ? err.message : "Falha ao atualizar motivo";
+      const msg = mensagemAmigavel(err, "Falha ao atualizar motivo");
       set({ lastError: msg });
     }
   },
