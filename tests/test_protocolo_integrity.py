@@ -96,6 +96,29 @@ _STATUS_INVALIDO = {
                  "duracao_minutos": 0},
 }
 
+
+def check_migrations_e55p04():
+    """D-293/D-236: nenhuma migration pode misturar ALTER TYPE ... ADD VALUE
+    com DML (INSERT/UPDATE/DELETE/SELECT) no mesmo arquivo — PG12+ responde
+    E55P04 ('unsafe use of new enum value') e a migration falha em produção."""
+    base = os.path.join(BASE, "apps", "api", "prisma", "migrations")
+    erros = []
+    if not os.path.isdir(base):
+        return ["[E55P04] diretorio de migrations nao encontrado"]
+    for folder in sorted(os.listdir(base)):
+        mfile = os.path.join(base, folder, "migration.sql")
+        if not os.path.exists(mfile):
+            continue
+        raw = open(mfile, "r", encoding="utf-8").read()
+        # remove linhas de comentario (-- ...) antes do scan de DML
+        sem_comentarios = "\n".join(l for l in raw.splitlines() if not l.strip().startswith("--"))
+        conteudo = sem_comentarios.upper()
+        has_add_value = "ALTER TYPE" in conteudo and "ADD VALUE" in conteudo
+        has_dml = any(tok in conteudo for tok in ["INSERT INTO", "UPDATE ", "DELETE FROM", "SELECT ", "DROP POLICY", "CREATE POLICY"])
+        if has_add_value and has_dml:
+            erros.append(f"[E55P04] {folder}: ALTER TYPE ADD VALUE + DML no mesmo arquivo (D-236)")
+    return erros
+
 def check_status_validator():
     """T297: o script validar_status.py existe e REJEITA um STATUS inválido."""
     script = os.path.join(BASE, ".claude", "scripts", "validar_status.py")
@@ -155,14 +178,20 @@ def main():
             print("  ✓ Todos os hooks são executáveis.")
         all_errors.extend(errors)
 
-    print("\n[5/5] Verificando validator de STATUS (T297)…")
+    print("\n[5/6] Verificando validator de STATUS (T297)…")
     errors = check_status_validator()
     for e in errors:
         print(f"  ✗ {e}")
     if not errors:
         print("  ✓ validator de STATUS presente e rejeita STATUS inválido.")
 
-    print("\n[6/6] Verificando estrutura do projeto...")
+    print("\n[6/6] Verificando migrations (E55P04/D-236)…")
+    for e in check_migrations_e55p04():
+        print(f"  \u2717 {e}")
+    if not check_migrations_e55p04():
+        print("  \u2713 migrations sem ADD VALUE + DML misturados.")
+
+    print("\n[7/6] Verificando estrutura do projeto...")
     if os.path.exists(os.path.join(BASE, "apps/web/next.config.ts")):
         print("  ✓ Frontend Next.js detectado (apps/web)")
     else:
