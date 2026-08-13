@@ -20,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://media-rate-web.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app";
   const th = await getTranslations({ locale, namespace: "home" });
 
   // Constroi alternates dinamicamente com base no roteamento

@@ -9,7 +9,7 @@ export async function generateMetadata({
   return {
     title: "Watchlist — MEDIA Rate",
     description: "Sua lista de mídias para assistir e jogar.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/watchlist` },
+    alternates: { canonical: `https://mediarate.app/${locale}/watchlist` },
     robots: { index: false, follow: false },
   };
 }

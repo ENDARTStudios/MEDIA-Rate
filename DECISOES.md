@@ -4,6 +4,20 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Decisão: Domínio oficial mediarate.app + T307 (D-303)
+
+**Domínio oficial:** `https://mediarate.app` (compra direta na Vercel = DNS/SSL automáticos; `media-rate-web.vercel.app` faz 307 para o novo domínio durante a transição ~30 dias).
+
+**T307 concluído:**
+- Termos (s1b) nos 3 locales: `[domínio]`/`[domain]`/`[dominio]` → `https://mediarate.app`. Demais placeholders de dados de negócio (e-mail, endereço, CNPJ, foro) permanecem até o Operador preencher.
+- `seo.ts` (siteUrl), canonical/OG, JSON-LD, `robots.ts` e sitemap: base passou de `https://media-rate-web.vercel.app` para `https://mediarate.app` (12 arquivos).
+- CORS produção (Railway `ALLOWED_ORIGINS`): `https://mediarate.app` adicionado (mantendo os vercel.app durante o 307).
+- e2e `register-terms`: passa a exigir `mediarate.app` presente e placeholder ausente.
+
+**Pendência do Operador:** billing address da Vercel (evita suspensão do Hobby) + validação final §14 em `https://mediarate.app`.
+
+---
+
 ## [2026-08-13] Decisão: Sentry integrado (T293 / "Feito C" do Operador)
 
 **DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto � não é segredo.

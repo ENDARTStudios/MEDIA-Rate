@@ -12,7 +12,7 @@ export async function generateMetadata({
   return {
     title: "Descobrir — MEDIA Rate",
     description: "Descubra novas mídias no MEDIA Rate.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/discover` },
+    alternates: { canonical: `https://mediarate.app/${locale}/discover` },
     robots: { index: true, follow: true },
   };
 }

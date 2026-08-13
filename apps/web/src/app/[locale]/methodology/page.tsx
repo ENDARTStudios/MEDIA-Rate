@@ -53,8 +53,8 @@ export default async function MethodologyPage({ params }: PageProps) {
       "name": copy.metaTitle,
       "description": copy.metaDescription,
       "inLanguage": locale,
-      "isPartOf": { "@id": "https://media-rate-web.vercel.app/#website" },
-      "about": { "@id": "https://media-rate-web.vercel.app/#organization" },
+      "isPartOf": { "@id": "https://mediarate.app/#website" },
+      "about": { "@id": "https://mediarate.app/#organization" },
     },
     {
       "@context": "https://schema.org",

@@ -9,7 +9,7 @@ export async function generateMetadata({
   return {
     title: "Perfil — MEDIA Rate",
     description: "Gerencie seu perfil e preferências pessoais.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/profile` },
+    alternates: { canonical: `https://mediarate.app/${locale}/profile` },
     robots: { index: false, follow: false },
   };
 }

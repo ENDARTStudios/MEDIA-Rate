@@ -1,8 +1,9 @@
 import { routing } from "@/i18n/routing";
 
-export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://media-rate-web.vercel.app"
-).replace(/\/$/, "");
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app").replace(
+  /\/$/,
+  "",
+);
 
 export function localizedUrl(locale: string, pathname = ""): string {
   const normalizedPath = pathname && !pathname.startsWith("/") ? `/${pathname}` : pathname;

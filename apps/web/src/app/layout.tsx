@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://media-rate-web.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app"),
   icons: { icon: "/icon.svg" },
 };
 

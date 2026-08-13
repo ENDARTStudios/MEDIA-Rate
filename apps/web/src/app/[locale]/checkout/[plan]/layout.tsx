@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Checkout ${planName} — MEDIA Rate`,
     description: `Assine o plano ${planName} do MEDIA Rate.`,
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/checkout/${plan}` },
+    alternates: { canonical: `https://mediarate.app/${locale}/checkout/${plan}` },
   };
 }
 

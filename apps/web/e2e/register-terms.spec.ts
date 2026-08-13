@@ -25,8 +25,9 @@ for (const locale of LOCALES) {
     for (const m of MARKERS) {
       expect(body).not.toContain(m);
     }
-    // Placeholder de domínio permanece até o Operador fechar o domínio (D-295).
-    expect(body).toContain(DOMAIN_PLACEHOLDER[locale]);
+    // T307: domínio oficial no texto; placeholder de domínio removido.
+    expect(body).toContain("mediarate.app");
+    expect(body).not.toContain(DOMAIN_PLACEHOLDER[locale]);
   });
 
   test(`(b) /${locale}/register exige aceite (checkbox sem pré-seleção)`, async ({ page }) => {

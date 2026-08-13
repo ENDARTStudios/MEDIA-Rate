@@ -52,7 +52,7 @@ export default async function SourcesPage({ params }: PageProps) {
       "name": copy.metaTitle,
       "description": copy.metaDescription,
       "inLanguage": locale,
-      "isPartOf": { "@id": "https://media-rate-web.vercel.app/#website" },
+      "isPartOf": { "@id": "https://mediarate.app/#website" },
     },
     {
       "@context": "https://schema.org",

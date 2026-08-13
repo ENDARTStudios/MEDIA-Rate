@@ -9,7 +9,7 @@ export async function generateMetadata({
   return {
     title: "Seus Dados — MEDIA Rate",
     description: "Exporte ou exclua seus dados pessoais (LGPD).",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/user/data` },
+    alternates: { canonical: `https://mediarate.app/${locale}/user/data` },
     robots: { index: false, follow: false },
   };
 }

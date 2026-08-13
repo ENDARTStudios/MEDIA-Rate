@@ -12,7 +12,7 @@ export async function generateMetadata({
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/discoveries` },
+    alternates: { canonical: `https://mediarate.app/${locale}/discoveries` },
     robots: { index: false, follow: true },
   };
 }

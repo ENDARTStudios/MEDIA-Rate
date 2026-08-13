@@ -9,7 +9,7 @@ export async function generateMetadata({
   return {
     title: "Dashboard — MEDIA Rate",
     description: "Seu painel de controle. Watchlist, favoritos e estatísticas.",
-    alternates: { canonical: `https://media-rate-web.vercel.app/${locale}/dashboard` },
+    alternates: { canonical: `https://mediarate.app/${locale}/dashboard` },
     robots: { index: false, follow: false },
   };
 }
