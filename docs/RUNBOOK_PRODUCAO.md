@@ -58,26 +58,38 @@ quem não verificou retorna `403 EMAIL_NOT_VERIFIED`, auth.service.ts) e com o
 - `TEST_USER_ADMIN_EMAIL` / `TEST_USER_ADMIN_PASSWORD`
 
 Quando uma credencial está ausente, o teste correspondente é **skipado** (o spec
-continua rodando os demais). Os fluxos (d) e (e) criam usuário descartável via UI
-e não dependem dessas variáveis.
+continua rodando os demais). Os fluxos (d) e (e) reusam as contas provisionadas
+(free/plus) — **não** usam registro via UI (que loopa em produção, ver abaixo).
 
 > ⚠️ **NUNCA** usar `npm run db:seed` em produção para criar os usuários: o seed
 > principal **apaga todas as tabelas** (midia, temporada, episodio, watchlist,
 > usuario…). O provisionamento de contas de teste em produção deve ser um
-> upsert pontual e idempotente (email → cria/atualiza com `email_verificado_em`,
-> plano e senha), com consentimento explícito do Operador.
+> upsert pontual e idempotente, com consentimento explícito do Operador.
+
+### Provisionar contas (upsert não-destrutivo)
+
+```bash
+# apps/api — via tunel (railway connect postgres --tunnel-only) apontando
+# DATABASE_URL para 127.0.0.1:PORT/railway. NUNCA via db:seed (destrutivo).
+TEST_USERS_PASSWORD="Senha@123" npm run db:provision:test-users
+```
+
+Cria/atualiza `free@/plus@/premium@/admin@mediarate.test` (verificados, plano
+correto; admin com papel ADMIN) e adiciona interações de consumo para Plus/Premium
+— o radar só renderiza com dados de `usuario_midia_interacao` (DashboardClient) e
+o sparkline temporal exige `CONCLUIDO`/`CONSUMINDO`.
 
 ### Como rodar localmente
 
 ```bash
-# apps/web
-# Origem WEB (Vercel). A origem Railway é só API.
+# apps/web — Origem WEB (Vercel). A origem Railway é só API.
+# Use --workers=1: o submit do form de login é estável sem paralelismo.
 PLAYWRIGHT_BASE_URL="https://media-rate-end-art-studios.vercel.app/pt-BR" \
 TEST_USER_FREE_EMAIL="..." TEST_USER_FREE_PASSWORD="..." \
 TEST_USER_PLUS_EMAIL="..." TEST_USER_PLUS_PASSWORD="..." \
 TEST_USER_PREMIUM_EMAIL="..." TEST_USER_PREMIUM_PASSWORD="..." \
 TEST_USER_ADMIN_EMAIL="..." TEST_USER_ADMIN_PASSWORD="..." \
-npx playwright test e2e/authenticated-spotchecks.spec.ts --project=chromium
+npx playwright test e2e/authenticated-spotchecks.spec.ts --project=chromium --workers=1
 ```
 
 ### Observação: registro → /dashboard em produção (T303)

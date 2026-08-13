@@ -11,13 +11,12 @@ import { test, expect, type Page, type BrowserContext } from "@playwright/test";
  *   (e) RLS A≠B → B tenta PATCH na watchlist de A → bloqueado (404/403/0 linhas)
  *   (f) Admin   → GET /api/v1/admin/stats → contagens agregadas não-zero
  *
- * Contas de plano (a/b/c/f) vêm de env (TEST_USER_{FREE,PLUS,PREMIUM,ADMIN}_{EMAIL,PASSWORD})
- * e os testes são SKIPed quando as credenciais não estão presentes — assim o spec
- * roda em CI/local sem contas provisionadas. Os fluxos (d)/(e) usam a criação de
- * usuário descartável via UI (padrão do repo) e nunca hardcode credenciais.
+ * Contas vêm de env (TEST_USER_{FREE,PLUS,PREMIUM,ADMIN}_{EMAIL,PASSWORD}) e os
+ * testes são SKIPed quando as credenciais não estão presentes — assim o spec
+ * roda em CI/local sem contas provisionadas. Os fluxos (d)/(e) reusam as contas
+ * provisionadas (free/plus) — o registro via UI cai em loop em produção (T303).
  */
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000/pt-BR";
-const PWD = "TesteForte123!";
 
 const SHOTS_DIR = "e2e/screenshots";
 const REQUIRED = ["FREE", "PLUS", "PREMIUM", "ADMIN"] as const;
@@ -30,32 +29,43 @@ function creds(prefix: (typeof REQUIRED)[number]): { email: string; password: st
 
 async function uiLogin(page: Page, email: string, password: string): Promise<void> {
   await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+  // Aguarda hidratacao do form (evita submit nativo GET que quebra o login).
+  await page.waitForTimeout(1500);
   await page.locator('input[name="email"]').first().fill(email);
   await page.locator('input[type="password"]').first().fill(password);
   await page.locator('button[type="submit"]').first().click();
   await page.waitForURL("**/dashboard", { timeout: 20_000 });
 }
 
-async function registerFresh(page: Page, name: string, email: string): Promise<void> {
-  await page.goto(`${BASE}/register`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1200);
-  await page.locator('input[name="name"], input[name="nome"]').first().fill(name);
-  await page.locator('input[name="email"]').first().fill(email);
-  const pwdInputs = page.locator('input[type="password"]');
-  await pwdInputs.first().fill(PWD);
-  if ((await pwdInputs.count()) > 1) await pwdInputs.nth(1).fill(PWD);
-  const chk = page.locator('input[type="checkbox"]').first();
-  if ((await chk.count()) > 0) await chk.check().catch(() => {});
-  await page
-    .locator('button:has-text("Cadastrar")')
-    .first()
-    .click()
-    .catch(() => page.locator('button[type="submit"]').first().click());
-  await page.waitForURL("**/dashboard", { timeout: 20_000 });
-}
-
 async function shot(page: Page, name: string): Promise<void> {
   await page.screenshot({ path: `${SHOTS_DIR}/${name}.png`, fullPage: false });
+}
+
+/** Fetch same-origin na pagina (carrega cookies de sessao + CSRF), como o app faz. */
+async function apiJson<T = unknown>(
+  page: Page,
+  method: "GET" | "POST" | "PATCH",
+  path: string,
+  body?: unknown,
+): Promise<{ status: number; body: T }> {
+  const csrf = await page.evaluate(() => sessionStorage.getItem("mediarate:csrf") ?? "");
+  return page.evaluate(
+    async ({ method, path, body, csrf }) => {
+      const r = await fetch(path, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          ...(method !== "GET" && csrf ? { "X-CSRF-Token": csrf } : {}),
+        },
+        credentials: "include",
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const text = await r.text();
+      return { status: r.status, body: text ? (JSON.parse(text) as unknown) : null };
+    },
+    { method, path, body, csrf },
+  ) as Promise<{ status: number; body: T }>;
 }
 
 const freeCreds = creds("FREE");
@@ -94,53 +104,60 @@ test.describe("T305 spot-checks autenticados", () => {
     await shot(page, "t305-c-premium-radar-temporal");
   });
 
-  // (d) Ctrl+K logado → busca "duna" → >=1 resultado
+  // (d) Ctrl+K logado → busca "duna" → >=1 resultado.
+  // Usa conta provisionada (register via UI cai em loop em produção, T303).
   test("(d) Ctrl+K logado retorna resultado para 'duna'", async ({ page }) => {
-    const email = `t305-ctrlk-${Date.now()}@test.com`;
-    await registerFresh(page, "T305 CtrlK", email);
+    test.skip(!freeCreds, "TEST_USER_FREE_* ausente");
+    await uiLogin(page, freeCreds!.email, freeCreds!.password);
     await page.keyboard.press("Control+KeyK");
     const input = page.locator('[role="dialog"] input').first();
     await input.waitFor({ timeout: 8_000 });
     await input.pressSequentially("duna", { delay: 50 });
-    // resultados são <button> com título; espera >=1
     await page.locator('[role="dialog"] button').first().waitFor({ timeout: 12_000 });
     const count = await page.locator('[role="dialog"] button').count();
     expect(count).toBeGreaterThanOrEqual(1);
     await shot(page, "t305-d-ctrlk-duna");
   });
 
-  // (e) RLS A≠B — B não consegue PATCH na watchlist de A
+  // (e) RLS A≠B — B não consegue PATCH na watchlist de A.
+  // A=free, B=plus (contas provisionadas). Registro via UI loopa em produção.
   test("(e) RLS: B nao altera watchlist de A", async ({ browser }) => {
+    test.skip(!freeCreds || !plusCreds, "TEST_USER_FREE_*/PLUS_* ausente");
     const ctxA: BrowserContext = await browser.newContext();
     const ctxB: BrowserContext = await browser.newContext();
     const pageA = await ctxA.newPage();
     const pageB = await ctxB.newPage();
     try {
-      const emailA = `t305-rls-a-${Date.now()}@test.com`;
-      await registerFresh(pageA, "RLS A", emailA);
+      await uiLogin(pageA, freeCreds!.email, freeCreds!.password);
 
-      // Descobre uma midia do catalogo para anexar a watchlist de A.
-      const cat = await pageA.request.get(`${BASE}/api/v1/midias`);
-      const midiaId = await cat
-        .json()
-        .then((d) => d[0]?.id ?? d.items?.[0]?.id ?? d.data?.[0]?.id)
-        .catch(() => undefined);
-      test.skip(!midiaId, "sem midia no catalogo para anexar");
-      expect(midiaId).toBeTruthy();
+      // Idempotente: reusa entrada existente de A; cria apenas na 1a execucao.
+      let entryId: string | undefined;
+      const lista = await apiJson<unknown>(pageA, "GET", "/api/v1/watchlist");
+      const listaArr = Array.isArray(lista.body)
+        ? (lista.body as { id?: string }[])
+        : (lista.body as { data?: { id?: string }[] })?.data ?? [];
+      const existente = listaArr[0]?.id;
+      if (existente) {
+        entryId = existente;
+      } else {
+        const cat = await apiJson<{ data?: { id: string }[] }>(pageA, "GET", "/api/v1/midias");
+        const midiaId = cat.body?.data?.[0]?.id;
+        test.skip(!midiaId, "sem midia no catalogo para anexar");
+        expect(midiaId).toBeTruthy();
+        const add = await apiJson<{ id?: string }>(pageA, "POST", "/api/v1/watchlist", {
+          midia_id: midiaId,
+          coluna: "WANT",
+        });
+        expect([200, 201]).toContain(add.status);
+        entryId = add.body?.id;
+      }
+      expect(entryId).toBeTruthy();
 
-      const add = await pageA.request.post(`${BASE}/api/v1/watchlist`, {
-        data: { midia_id: midiaId, coluna: "WANT" },
+      await uiLogin(pageB, plusCreds!.email, plusCreds!.password);
+      const res = await apiJson(pageB, "PATCH", `/api/v1/watchlist/${entryId}`, {
+        reacao: "GOSTEI",
       });
-      expect(add.ok()).toBeTruthy();
-      const entryId = await add.json().then((d) => d.id ?? d.entry?.id);
-
-      // Login de B (contexto isolado) e tenta alterar a entrada de A.
-      const emailB = `t305-rls-b-${Date.now()}@test.com`;
-      await registerFresh(pageB, "RLS B", emailB);
-      const res = await pageB.request.patch(`${BASE}/api/v1/watchlist/${entryId}`, {
-        data: { reacao: "GOSTEI" },
-      });
-      expect([404, 403, 401]).toContain(res.status());
+      expect([404, 403, 401]).toContain(res.status);
       await shot(pageB, "t305-e-rls-ab");
     } finally {
       await ctxA.close();
@@ -153,11 +170,13 @@ test.describe("T305 spot-checks autenticados", () => {
     test.skip(!adminCreds, "TEST_USER_ADMIN_* ausente");
     await uiLogin(page, adminCreds!.email, adminCreds!.password);
     await page.waitForTimeout(2000);
-    const res = await page.request.get(`${BASE}/api/v1/admin/stats`);
-    expect(res.ok()).toBeTruthy();
-    const body = (await res.json()) as Record<string, number>;
-    const nonZero = Object.values(body).some((v) => typeof v === "number" && v > 0);
-    expect(nonZero).toBeTruthy();
+    const res = await apiJson<{
+      usuarios?: { total?: number };
+      midias?: { total?: number };
+    }>(page, "GET", "/api/v1/admin/stats");
+    expect(res.status).toBe(200);
+    expect(res.body?.usuarios?.total ?? 0).toBeGreaterThan(0);
+    expect(res.body?.midias?.total ?? 0).toBeGreaterThan(0);
     await shot(page, "t305-f-admin-stats");
   });
 });
