@@ -26,6 +26,10 @@ const IGNORAR = new Set([
   "SECURITY.md",
   "scripts",
   "k6-scripts",
+  // T303: fixtures de teste (tests/security/fixtures/proibida/) contêm
+  // segredos FAKE de propósito para validar o scanner — não são segredos reais
+  // e nunca devem derrubar o gate no scan do repo inteiro.
+  "tests",
 ]);
 
 /** Arquivos cujos hashes de integridade/cache não são segredos. */
