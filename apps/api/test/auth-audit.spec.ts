@@ -136,7 +136,7 @@ describe("Auth audit logging (T213)", () => {
 
   it("register → USER_REGISTERED com ip + user-agent e sem senha", async () => {
     await m.service.register(
-      { email: "novo@test.com", password: "Senha123!", nome: "Novo" },
+      { email: "novo@test.com", password: "Senha123!", nome: "Novo", aceitouTermos: true },
       { ip: IP, user_agent: UA },
     );
     const call = acoes().find((a) => a.acao === "USER_REGISTERED");

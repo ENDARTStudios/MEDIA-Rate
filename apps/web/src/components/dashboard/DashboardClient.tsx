@@ -39,7 +39,13 @@ function RadarSVG({ dados }: { dados: Record<string, number> }) {
         return (
           <g key={nome}>
             <line x1={cx} y1={cy} x2={x} y2={y} stroke="#2A2A3D" />
-            <text x={cx + (raio + 16) * Math.cos(ang)} y={cy + (raio + 16) * Math.sin(ang)} textAnchor="middle" fontSize="10" fill="#9CA3AF">
+            <text
+              x={cx + (raio + 16) * Math.cos(ang)}
+              y={cy + (raio + 16) * Math.sin(ang)}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#9CA3AF"
+            >
               {nome}
             </text>
           </g>
@@ -110,7 +116,11 @@ export function DashboardClient() {
 
   if (loading) return <div className="py-8 text-[#9CA3AF]">{t("loading")}</div>;
   if (error)
-    return <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">{t("error")}</div>;
+    return (
+      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
+        {t("error")}
+      </div>
+    );
 
   if (!stats || stats.upgrade) {
     return (
@@ -141,7 +151,9 @@ export function DashboardClient() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">{t("radar")}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+          {t("radar")}
+        </h2>
         <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
         <table className="sr-only">
           <caption>{t("radarTable")}</caption>

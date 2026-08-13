@@ -21,7 +21,9 @@ async function main(): Promise<void> {
   const temporada = await prisma.temporada.count();
   const episodio = await prisma.episodio.count();
   const watchlist = await prisma.watchlistEntry.count();
-  console.log(`[audit-prod] midias=${midia} temporadas=${temporada} episodios=${episodio} watchlist=${watchlist}`);
+  console.log(
+    `[audit-prod] midias=${midia} temporadas=${temporada} episodios=${episodio} watchlist=${watchlist}`,
+  );
   await prisma.$disconnect();
 }
 

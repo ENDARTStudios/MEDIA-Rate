@@ -55,7 +55,7 @@ async function apiJson<T = unknown>(
         method,
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json",
           ...(method !== "GET" && csrf ? { "X-CSRF-Token": csrf } : {}),
         },
         credentials: "include",
@@ -135,7 +135,7 @@ test.describe("T305 spot-checks autenticados", () => {
       const lista = await apiJson<unknown>(pageA, "GET", "/api/v1/watchlist");
       const listaArr = Array.isArray(lista.body)
         ? (lista.body as { id?: string }[])
-        : (lista.body as { data?: { id?: string }[] })?.data ?? [];
+        : ((lista.body as { data?: { id?: string }[] })?.data ?? []);
       const existente = listaArr[0]?.id;
       if (existente) {
         entryId = existente;

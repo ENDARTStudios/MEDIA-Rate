@@ -44,21 +44,25 @@ describe("T242/T247 — preços e marca com fonte única (pricing.ts)", () => {
     }
   });
 
-  it("terms.s3b (seção de planos) usa símbolo por locale e valores 4,90/9,90", () => {
-    for (const msgs of Object.values(LOCALES)) {
-      const s3b = msgs.terms?.s3b ?? "";
-      expect(s3b).toContain("4");
-      expect(s3b).toContain("9");
+  // T306 (D-295): a seção de Planos é a 5 (s5b); os Termos oficiais NÃO
+  // embutem preços — referenciam a página de Planos/Pricing (valores ficam no
+  // formatPlanPrice). Valores divergentes da auditoria nunca aparecem.
+  it("terms.s5b (seção de planos) referencia a página de Planos por locale", () => {
+    const refs: Record<string, string> = {
+      "pt-BR": "página de Planos",
+      "en-US": "Pricing page",
+      "es-ES": "página de Precios",
+    };
+    for (const [loc, msgs] of Object.entries(LOCALES)) {
+      const s5b = msgs.terms?.s5b ?? "";
+      expect(s5b.toLowerCase()).toContain("plan");
+      expect(s5b.toLowerCase()).toContain(refs[loc].toLowerCase());
       // Nunca os valores divergentes da auditoria (8,90/14,90).
-      expect(s3b).not.toContain("8,90");
-      expect(s3b).not.toContain("14,90");
+      expect(s5b).not.toContain("8,90");
+      expect(s5b).not.toContain("14,90");
       // Marca presente.
       expect(msgs.footer?.copyright ?? "").toContain("END ART Studios");
     }
-    // Símbolo por locale no s3b (T247).
-    expect(LOCALES["pt-BR"].terms.s3b).toContain("R$");
-    expect(LOCALES["en-US"].terms.s3b).toContain("$");
-    expect(LOCALES["es-ES"].terms.s3b).toContain("€");
   });
 
   it("footer.lgpd usa rótulo neutro por locale (nunca 'LGPD' cru em EN/ES)", () => {

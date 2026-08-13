@@ -133,7 +133,7 @@ describe("Email verification — e2e via HTTP (T214)", () => {
   it("register → 201 sem token no body; token no mailbox; audit EMAIL_VERIFICATION_SENT", async () => {
     const res = await request(app.getHttpServer())
       .post("/api/v1/auth/register")
-      .send({ email: "novo@test.com", password: "Senha123!" });
+      .send({ email: "novo@test.com", password: "Senha123!", aceitouTermos: true });
     expect(res.status).toBe(201);
     expect(JSON.stringify(res.body)).not.toContain("token");
     expect(MAILBOX.some((m) => m.email === "novo@test.com")).toBe(true);

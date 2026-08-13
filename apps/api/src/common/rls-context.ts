@@ -38,10 +38,7 @@ export async function comContextoRls<T>(
       `SELECT set_config('app.current_tenant_id', $1, true)`,
       ctx.tenantId ?? DEFAULT_TENANT,
     );
-    await tx.$executeRawUnsafe(
-      `SELECT set_config('app.current_user_role', $1, true)`,
-      ctx.role,
-    );
+    await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_role', $1, true)`, ctx.role);
     return fn(tx);
   });
 }
