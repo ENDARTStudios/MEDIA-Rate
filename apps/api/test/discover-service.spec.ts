@@ -16,6 +16,7 @@ interface MockRow {
 interface MockDiscoverPrisma {
   readonly lastRawQuery: string | undefined;
   readonly queries: string[];
+  readonly lastValues: unknown[];
   $queryRaw: (
     query: { sql: string; values: unknown[] } | string,
   ) => Promise<Record<string, unknown>[]>;
@@ -96,11 +97,13 @@ const DB: MockRow[] = [
 
 function makePrisma(rows: MockRow[] = DB) {
   let lastRawQuery: string | undefined;
+  let lastValues: unknown[] = [];
   const queries: string[] = [];
   const $queryRaw = async (query: { sql: string; values: unknown[] } | string) => {
     const sql = typeof query === "string" ? query : query.sql;
     const values = typeof query === "string" ? [] : query.values;
     lastRawQuery = sql;
+    lastValues = values;
     queries.push(sql);
     let compiled = sql;
     for (const v of values) compiled = compiled.replace(/\?/, JSON.stringify(v));
@@ -115,14 +118,16 @@ function makePrisma(rows: MockRow[] = DB) {
       return [{ total: matchedCount(compiled, rows) }];
     }
 
-    // q só existe em modo busca (tsvector ou pg_trgm) — no modo catálogo o
-    // primeiro parâmetro é o LIMIT.
-    const hasQ = sql.includes("plainto_tsquery") || sql.includes("similarity");
+    // q só existe em modo busca (tsvector/to_tsquery ou pg_trgm) — no modo
+    // catálogo o primeiro parâmetro é o LIMIT.
+    const hasQ = sql.includes("to_tsquery") || sql.includes("similarity");
     const rawQ = hasQ ? (values[0] as string) : "";
-    // T223/T227: espelha o translate() do backend — acentos removidos nos
-    // DOIS lados (coluna gerada e termo) → 'acao' e 'ação' casam igual.
+    // T223/T227/T309: espelha o translate() do backend — acentos removidos
+    // nos DOIS lados; prefixo `:*` do último token vira match de prefixo.
     const q = rawQ
       ? rawQ
+          .replace(/:\*$/g, "")
+          .replace(/ & /g, " ")
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .toLowerCase()
@@ -166,10 +171,13 @@ function makePrisma(rows: MockRow[] = DB) {
   function matchedCount(compiled: string, allRows: MockRow[]): number {
     const tipoMatch = compiled.match(/tipo = "(\w+)"/);
     const generoMatch = compiled.match(/g\.slug = "([^"]+)"/);
-    // T227: o COUNT do discover inclui o matchSql de q — extrai o termo do
-    // SQL COMPILADO (valores já substituídos) e filtra normalizado.
-    const termoMatch = compiled.match(/plainto_tsquery\('portuguese', translate\("([^"]*)"/);
-    const termo = termoMatch?.[1];
+    // T227/T309: o COUNT do discover inclui o matchSql de q — extrai o termo
+    // do SQL COMPILADO (valores já substituídos) e filtra normalizado.
+    // to_tsquery com prefixo: 'bers:*' → 'bers'; 'breaking & ba:*' → 'breaking ba'.
+    const termoMatch = compiled.match(
+      /(?:plainto_tsquery|to_tsquery)\('portuguese', translate\("([^"]*)"/,
+    );
+    const termo = termoMatch?.[1]?.replace(/:\*$/g, "").replace(/ & /g, " ");
     const norm = (s: string) =>
       s
         .normalize("NFD")
@@ -194,6 +202,9 @@ function makePrisma(rows: MockRow[] = DB) {
     },
     get queries() {
       return queries;
+    },
+    get lastValues() {
+      return lastValues;
     },
     $queryRaw,
     midia: {
@@ -275,6 +286,37 @@ describe("DiscoverService (unit)", () => {
     expect(chaves).not.toContain("fonte_id");
     expect(chaves).not.toContain("created_at");
     expect(chaves).not.toContain("updated_at");
+  });
+
+  // ---------------- T309: prefixo (autocomplete) ----------------
+
+  it("discover — prefixo 'shaws' retorna Shawshank (match parcial)", async () => {
+    const result = await service.discover({ q: "shaws" });
+    expect(result.itens.some((i) => i.titulo === "The Shawshank Redemption")).toBe(true);
+  });
+
+  it("discover — multi-token 'breaking ba' casa Breaking Bad (prefixo no último)", async () => {
+    const result = await service.discover({ q: "breaking ba" });
+    expect(result.itens.some((i) => i.titulo === "Breaking Bad")).toBe(true);
+  });
+
+  it("discover — q >= 3 monta to_tsquery com ':*' no último token", async () => {
+    await service.discover({ q: "breaking ba" });
+    const sql = prisma.lastRawQuery;
+    expect(sql).toContain("to_tsquery('portuguese'");
+    // O tsquery (primeiro parâmetro) tem prefixo só no último token.
+    const tsquery = prisma.lastValues[0] as string;
+    expect(tsquery).toBe("breaking & ba:*");
+  });
+
+  it("discover — operadores de tsquery são sanitizados (sem injeção)", async () => {
+    await service.discover({ q: "Breaking | Bad & ! : *" });
+    const tsquery = prisma.lastValues[0] as string;
+    // Só letras/números + ' & ' + ':*' — nada de operadores tsquery.
+    expect(tsquery).toBe("Breaking & Bad:*");
+    expect(tsquery).not.toMatch(/[|!]/);
+    const sql = prisma.lastRawQuery;
+    expect(sql).not.toMatch(/translate\("Breaking \|/);
   });
 
   it("discover — termo curto (<3 chars) usa fallback pg_trgm (similarity %)", async () => {

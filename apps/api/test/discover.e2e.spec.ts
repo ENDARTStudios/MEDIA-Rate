@@ -50,8 +50,13 @@ function mockPrisma() {
     if (sql.includes("COUNT(*)::int AS total")) {
       return [{ total: ROWS.length }];
     }
-    const hasQ = sql.includes("plainto_tsquery") || sql.includes("similarity");
-    const q = hasQ ? String(values[0] ?? "").toLowerCase() : "";
+    const hasQ = sql.includes("to_tsquery") || sql.includes("similarity");
+    const q = hasQ
+      ? String(values[0] ?? "")
+          .replace(/:\*$/g, "")
+          .replace(/ & /g, " ")
+          .toLowerCase()
+      : "";
     let results = ROWS.filter(
       (m) => !q || m.titulo.toLowerCase().includes(q) || m.sinopse.toLowerCase().includes(q),
     );

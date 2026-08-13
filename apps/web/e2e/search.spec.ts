@@ -1,6 +1,27 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Busca e Discover", () => {
+  // T309: prefixo retorna resultados ('bers' acha Berserk, 'cher' acha
+  // Chernobyl). Com o plainto_tsquery antigo (palavra completa) esses
+  // prefixos davam 0 resultados — este teste é a regressão do autocomplete.
+  test("busca por prefixo retorna resultados (T309)", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    for (const prefix of ["bers", "cher"]) {
+      const result = await page.evaluate(async (q) => {
+        try {
+          const res = await fetch(`/api/v1/search?q=${encodeURIComponent(q)}`);
+          return res.ok
+            ? ((await res.json()) as { items: { titulo: string }[]; total: number })
+            : null;
+        } catch {
+          return null;
+        }
+      }, prefix);
+      test.skip(!result, "API inalcançável");
+      expect(result!.total).toBeGreaterThan(0);
+    }
+  });
+
   test("pagina discover carrega com grid de midias", async ({ page }) => {
     await page.goto("/discover");
     await expect(

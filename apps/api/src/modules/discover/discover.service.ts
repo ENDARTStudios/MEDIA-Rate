@@ -10,6 +10,33 @@ interface SearchOptions {
   offset?: number;
 }
 
+// T223/D-224: translate() built-in (IMMUTABLE) — a mesma normalização da
+// coluna gerada é aplicada no termo de busca ('ação' e 'acao' cruzam).
+const ACENTOS = "ÁÀÂÃÄÅáàâãäåÉÈÊËéèêëÍÌÎÏíìîïÓÒÔÕÖóòôõöÚÙÛÜúùûüÇçÑñ";
+const SEM_ACENTOS = "AAAAAAaaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuCcNn";
+
+/** Normaliza um termo para comparação ILIKE (sem acentos, minúsculo). */
+function normalizarTermo(termo: string): string {
+  return termo
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+/**
+ * T309 — monta o tsquery com prefix matching no ÚLTIMO token:
+ * 'bers' → `bers:*`; 'breaking ba' → `breaking & ba:*`. Sanitização de
+ * tokens só-letras/números neutraliza operadores de tsquery (& | ! : *).
+ */
+function montarTsqueryPrefixo(q: string): Prisma.Sql {
+  const tokens = q.match(/[\p{L}\p{N}]+/gu) ?? [];
+  if (tokens.length === 0) {
+    return Prisma.sql`plainto_tsquery('portuguese', '')`;
+  }
+  const tsquery = tokens.map((t, i) => (i === tokens.length - 1 ? `${t}:*` : t)).join(" & ");
+  return Prisma.sql`to_tsquery('portuguese', translate(${tsquery}, ${ACENTOS}, ${SEM_ACENTOS}))`;
+}
+
 interface DiscoverRow {
   id: string;
   titulo: string;
@@ -119,19 +146,18 @@ export class DiscoverService {
       rankSql = Prisma.sql`similarity(m.titulo, ${q})`;
       orderSql = Prisma.sql`ORDER BY similarity(m.titulo, ${q}) DESC, m.id ASC`;
     } else {
-      // Full-text: tsvector + dictionary 'portuguese'. Acentos são
-      // removidos com translate() (built-in IMMUTABLE) TANTO na coluna
-      // gerada (migration 20260809) QUANTO no termo de busca, para que
-      // 'ação' e 'acao' cruzem nos dois sentidos — o dictionary
-      // 'portuguese' NÃO normaliza acentos (T223/D-224).
-      // plainto_tsquery não aceita sintaxe de query (injeção neutralizada)
-      // + Prisma parametriza o termo. Sem unaccent() (T223/D-224).
-      const tsq = Prisma.sql`plainto_tsquery('portuguese', translate(${q},
-        'ÁÀÂÃÄÅáàâãäåÉÈÊËéèêëÍÌÎÏíìîïÓÒÔÕÖóòôõöÚÙÛÜúùûüÇçÑñ',
-        'AAAAAAaaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuCcNn'))`;
+      // T309: full-text com prefixo no último token (sensação de autocomplete).
+      // to_tsquery + tokens sanitizados (só letras/números — neutraliza
+      // operadores & | ! : * de tsquery); translate() nos dois lados mantém
+      // a paridade de acentos (T223/D-224). Bônus de igualdade: título que
+      // COMEÇA com o termo normalizado fica na frente de match de token.
+      const tsq = montarTsqueryPrefixo(q);
+      const normQ = normalizarTermo(q);
       matchSql = Prisma.sql`AND (m.titulo_tsv @@ ${tsq} OR m.sinopse_tsv @@ ${tsq})`;
-      rankSql = Prisma.sql`ts_rank(m.titulo_tsv, ${tsq})`;
-      orderSql = Prisma.sql`ORDER BY ts_rank(m.titulo_tsv, ${tsq}) DESC, m.id ASC`;
+      rankSql = Prisma.sql`ts_rank(m.titulo_tsv, ${tsq})
+        + CASE WHEN translate(m.titulo, ${ACENTOS}, ${SEM_ACENTOS}) ILIKE ${`${normQ}%`}
+          THEN 0.05 ELSE 0 END`;
+      orderSql = Prisma.sql`ORDER BY ${rankSql} DESC, m.id ASC`;
     }
 
     // Cursor keyset sobre (rank, id): busca o rank do item-cursor na mesma

@@ -4,6 +4,21 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-13] Fix: busca por prefixo/autocomplete (T309)
+
+**Sintoma (�14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.
+
+**Causa:** a busca full-text (q >= 3) usava `plainto_tsquery('portuguese', ...)`, que exige lexema exato (palavra completa).
+
+**Correção (discover.service.ts, sem mudar o tsvector 20260809 nem o contrato da API):**
+- `montarTsqueryPrefixo(q)`: tokens sanitizados via `[\p{L}\p{N}]+` (neutraliza operadores `& | ! : *` de tsquery) e `to_tsquery('portuguese', translate('t1 & ... & ultimo:*', ...))` � prefixo `:*` só no último token ('bers' �' `bers:*`; 'breaking ba' �' `breaking & ba:*`).
+- Bônus de igualdade no rank: título que começa com o termo normalizado ganha +0.05 (match exato/prefixo de título na frente de match parcial de token). `plainto_tsquery('')` para query sem tokens (seguro).
+- translate() nos dois lados mantém a paridade de acentos (T223/D-224).
+
+**Verificação (DB real, API compilada):** 'bers'�'Berserk, 'cher'�'Chernobyl, 'duna'�'Dune, 'brea'�'Breaking Bad; query com operadores (`Breaking | Bad & ! : *`) sanitizada sem erro. Testes: 4 novos unit (prefixo, multi-token, SQL com `:*`, sanitização) + e2e web search prefixo (regressão). API 752/752.
+
+---
+
 ## [2026-08-13] Fix: "expected object, received string" no fluxo de interação (T308)
 
 **Sintoma (produção):** `PUT /api/v1/interacoes/:midiaId` retornava 400 `Validation failed at '': Invalid input: expected object, received string`; botão Quero ver/status quebrado; dashboard/perfil vazios por falta de interação persistida.
