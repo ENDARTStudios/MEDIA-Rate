@@ -19,6 +19,7 @@ import { REACOES } from "@/lib/api-interactions";
 import { MediaCard } from "@/components/MediaCard";
 import { ReactionGlyph, StatusGlyph } from "@/components/interaction/StatusIcons";
 import { WatchlistCard, interactionMidiaToItem } from "./WatchlistCard";
+import { colunaLabelKey, colunaNeutraLabelKey } from "@/lib/watchlist-labels";
 
 interface ColumnDef {
   key: string;
@@ -60,6 +61,7 @@ function Column({
   removingId,
   pendingReaction,
   onReactionDone,
+  tipoFiltro,
 }: {
   col: ColumnDef;
   entries: WatchlistEntry[];
@@ -68,10 +70,17 @@ function Column({
   removingId: string | null;
   pendingReaction: string | null;
   onReactionDone: () => void;
+  tipoFiltro: "all" | "movie" | "series" | "game";
 }) {
   const t = useTranslations("watchlist");
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
   const accent = MEDIA_ACCENTS[col.accentKey];
+  // T320/D-309: cabeçalho usa o label do TIPO quando há filtro ativo; senão
+  // neutro (Quero consumir/Consumindo/Concluído/Abandonado).
+  const tituloColuna =
+    tipoFiltro !== "all"
+      ? t(colunaLabelKey(tipoFiltro, col.key))
+      : t(colunaNeutraLabelKey(col.key));
 
   return (
     <div
@@ -80,7 +89,7 @@ function Column({
       data-testid={`watchlist-column-${col.key}`}
     >
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-[#F5F5F7]">{t(col.i18nKey)}</h2>
+        <h2 className="text-sm font-semibold text-[#F5F5F7]">{tituloColuna}</h2>
         <span
           className="text-xs px-2 py-0.5 rounded-full"
           style={{ backgroundColor: `${accent}1A`, color: accent }}
@@ -125,11 +134,13 @@ export function WatchlistKanban({
   onRemove,
   onMove,
   removingId,
+  tipoFiltro = "all",
 }: {
   entries: WatchlistEntry[];
   onRemove: (entryId: string) => void;
   onMove: (entryId: string, coluna: string) => void;
   removingId: string | null;
+  tipoFiltro?: "all" | "movie" | "series" | "game";
 }) {
   const t = useTranslations("watchlist");
   const [view, setView] = useState<"ativos" | "abandonados">("ativos");
@@ -207,6 +218,7 @@ export function WatchlistKanban({
                 removingId={removingId}
                 pendingReaction={pendingReaction}
                 onReactionDone={() => setPendingReaction(null)}
+                tipoFiltro={tipoFiltro}
               />
             ))}
           </div>

@@ -284,6 +284,7 @@ export function WatchlistClient() {
             void moveItem(entryId, coluna);
           }}
           removingId={deleting}
+          tipoFiltro={filtroTipo}
         />
       ) : (
         <ul className="divide-y divide-[#2A2A3D] rounded-lg border border-[#2A2A3D] bg-[#12121C]">

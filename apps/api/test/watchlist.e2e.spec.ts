@@ -62,6 +62,10 @@ function inMemoryPrisma() {
         [...midias.values()].filter((m) => !where?.id?.in || where.id.in.includes(m.id)),
     },
     usuarioPlano: { findUnique: async ({ where }: any) => planos.get(where.usuario_id) ?? null },
+    // T320/D-309: add/move sincronizam a interação (status derivado da coluna).
+    usuarioMidiaInteracao: {
+      upsert: async ({ create }: any) => ({ ...create, id: "inter-" + randomUUID() }),
+    },
   };
   return { prisma, entries, midias, planos };
 }

@@ -538,7 +538,10 @@
     "reactNow": "O que achou?",
     "gostei": "Gostei",
     "naoGostei": "Não gostei",
-    "tituloIndisponivel": "Título indisponível"
+    "tituloIndisponivel": "Título indisponível",
+    "queroConsumir": "Quero consumir",
+    "consumindo": "Consumindo",
+    "concluido": "Concluído"
   },
   "privacy": {
     "metaTitle": "Política de Privacidade — MEDIA Rate",

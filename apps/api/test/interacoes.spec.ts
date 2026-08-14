@@ -37,6 +37,10 @@ function mockPrisma() {
     discoveryEvent: {
       findMany: vi.fn(async () => []),
     },
+    // T320/D-309: status dirige a coluna do Kanban (sync no mesmo tx).
+    watchlistEntry: {
+      updateMany: vi.fn(async () => ({ count: 0 })),
+    },
   };
   return { prisma, estado };
 }
@@ -127,5 +131,26 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
     const lista = await service.listar("user-1");
     expect(lista.length).toBe(1);
     expect(lista[0].midia_id).toBe("midia-1");
+  });
+
+  it("T320 — mudar status sincroniza a coluna da watchlist no mesmo tx", async () => {
+    await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
+    expect(prisma.watchlistEntry.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ usuario_id: "user-1", midia_id: "midia-1" }),
+        data: { coluna: "WATCHING" },
+      }),
+    );
+    // CONCLUIDO → COMPLETED.
+    await service.upsert("user-1", "midia-1", { status: "CONCLUIDO" });
+    expect(prisma.watchlistEntry.updateMany).toHaveBeenLastCalledWith(
+      expect.objectContaining({ data: { coluna: "COMPLETED" } }),
+    );
+    // ABANDONADO → DROPPED (via CONSUMINDO, transição válida).
+    await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
+    await service.upsert("user-1", "midia-1", { status: "ABANDONADO" });
+    expect(prisma.watchlistEntry.updateMany).toHaveBeenLastCalledWith(
+      expect.objectContaining({ data: { coluna: "DROPPED" } }),
+    );
   });
 });

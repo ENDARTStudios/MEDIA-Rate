@@ -43,3 +43,22 @@ export function colunaLabelKey(tipo: string | undefined, coluna: WatchlistColuna
       return "queroVer";
   }
 }
+
+/**
+ * T320/D-309: rótulo NEUTRO do cabeçalho de coluna (quando não há filtro de
+ * tipo ativo) — Quero consumir/Consumindo/Concluído/Abandonado.
+ */
+export function colunaNeutraLabelKey(coluna: WatchlistColuna | string): string {
+  switch (coluna) {
+    case "WANT":
+      return "queroConsumir";
+    case "WATCHING":
+      return "consumindo";
+    case "COMPLETED":
+      return "concluido";
+    case "DROPPED":
+      return "abandonado";
+    default:
+      return "queroConsumir";
+  }
+}

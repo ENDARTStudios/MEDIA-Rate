@@ -8,6 +8,7 @@ import type {
 } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
+import { STATUS_PARA_COLUNA } from "../../common/status-coluna.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 
 /**
@@ -170,7 +171,7 @@ export class InteracoesService {
         atualizado_em: agora,
       };
 
-      return tx.usuarioMidiaInteracao.upsert({
+      const interacao = await tx.usuarioMidiaInteracao.upsert({
         where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
         create: data,
         update: {
@@ -186,6 +187,16 @@ export class InteracoesService {
           atualizado_em: agora,
         },
       });
+
+      // T320/D-309: fonte única de verdade — status dirige a coluna do Kanban
+      // no MESMO transaction (a entrada da watchlist pode não existir — então
+      // não cria implicitamente; só alinha quando existe).
+      await tx.watchlistEntry.updateMany({
+        where: { usuario_id: usuarioId, midia_id: midiaId },
+        data: { coluna: STATUS_PARA_COLUNA[proximoStatus] },
+      });
+
+      return interacao;
     });
   }
 

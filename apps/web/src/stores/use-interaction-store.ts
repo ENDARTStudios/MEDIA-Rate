@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { api, ApiError } from "@/lib/http";
+import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import {
   reacaoEditavelPara,
   upsertInteracao,
@@ -140,6 +141,12 @@ export const useInteractionStore = create<InteractionState>()((set, get) => ({
       if (status === "ABANDONADO") body.motivoAbandono = motivoFinal;
       if (extras?.origemRelacaoId !== undefined) body.origemRelacaoId = extras.origemRelacaoId;
       await upsertInteracao(midiaId, body);
+      // T320/D-309: status dirige a coluna — após persistir, re-sincroniza a
+      // watchlist para o card mover de bloco no Kanban.
+      void useWatchlistStore
+        .getState()
+        .fetchWatchlist()
+        .catch(() => undefined);
     } catch (err) {
       // Rollback para o estado anterior; se não havia interação, remove.
       set((s) => {

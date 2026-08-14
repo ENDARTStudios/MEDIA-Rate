@@ -12,6 +12,7 @@ function mockPrisma() {
     },
     relacaoObra: { findUnique: vi.fn(), findMany: vi.fn() },
     usuarioMidiaInteracao: { findUnique: vi.fn(), findMany: vi.fn(), upsert: vi.fn() },
+    watchlistEntry: { updateMany: vi.fn(async () => ({ count: 0 })) },
     // T286 — descobertas() faz UNION com DiscoveryEvents.
     discoveryEvent: { findMany: vi.fn(async () => []) },
   };

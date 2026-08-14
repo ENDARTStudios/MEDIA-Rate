@@ -538,7 +538,10 @@
     "reactNow": "What did you think?",
     "gostei": "Liked",
     "naoGostei": "Disliked",
-    "tituloIndisponivel": "Title unavailable"
+    "tituloIndisponivel": "Title unavailable",
+    "queroConsumir": "Want to consume",
+    "consumindo": "Consuming",
+    "concluido": "Completed"
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",

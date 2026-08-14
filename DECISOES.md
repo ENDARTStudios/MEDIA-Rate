@@ -4,6 +4,22 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-14] Fix P0: watchlist � status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
+
+**Sintoma (bug report Operador):** games mostravam "Quero ver/Vendo/Vi"; clicar no status não movia o card de bloco; botão do canto do card morto.
+
+**Causa raiz (duas fontes de verdade):** o botão de Status de Consumo gravava em `usuario_midia_interacao.status`, mas o Kanban agrupava por `watchlist_entry.coluna` (setada só no add, nunca sincronizada). Labels dos cabeçalhos eram fixos de filme/série.
+
+**Correção:**
+- **Fonte única de verdade** (`src/common/status-coluna.ts`): mapas bidirecionais `STATUS_PARA_COLUNA`/`COLUNA_PARA_STATUS`. `interacoes.upsert` sincroniza a coluna da watchlist no MESMO tx (status dirige a coluna); `watchlist.add`/`move` sincronizam a interação no MESMO tx (coluna dirige o status). Cliente: interaction store re-sincroniza a watchlist após mudar status.
+- **Labels por tipo:** cabeçalhos de coluna usam label do tipo quando há filtro ativo, senão neutro (`queroConsumir/consumindo/concluido` novos nos 3 locales); chip do card já era type-aware (colunaLabelKey).
+- **Botão rápido do card:** canto abre MENU de status (4 colunas + Remover) � mesmo handler, nada morto.
+- **Reparo idempotente** (`prisma/seed-reparo-status-coluna.ts`, `db:reparo:status-coluna`): alinha coluna�"status em produção (8 colunas alinhadas, 34 interações criadas, 28 puladas não-UUID; nenhuma exclusão).
+
+**Verificado:** unit interacoes (sync coluna por status) + watchlist e2e mocks atualizados; e2e `watchlist-sync.spec.ts` (bidirecional via API). API 760/760, web 312/312.
+
+---
+
 ## [2026-08-13] Fix: watchlist sem "código" (T310 / D-308)
 
 **Sintoma (�14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".

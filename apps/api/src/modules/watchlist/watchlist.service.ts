@@ -7,9 +7,12 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
+import { COLUNA_PARA_STATUS } from "../../common/status-coluna.js";
 import type { Prisma } from "@prisma/client";
 import type { AddToWatchlistDto, RegistrarReacaoDto } from "./dto/watchlist.dto.js";
 import type { WatchlistColuna, ReacaoConsumo, MotivoAbandono } from "@prisma/client";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Limite de itens na watchlist do plano FREE (D-132 monetização; T207: 50).
@@ -51,12 +54,31 @@ export class WatchlistService {
         select: { score: true },
       });
 
+      const coluna = (dto.coluna ?? "WANT") as WatchlistColuna;
+
+      // T320/D-309: fonte única de verdade — a coluna dirige o status da
+      // interação no MESMO transaction (o card aparece no Kanban com o status
+      // correto). Só sincroniza quando midia_id é UUID (interação tem FK).
+      if (UUID_RE.test(midiaId)) {
+        const status = COLUNA_PARA_STATUS[coluna];
+        await tx.usuarioMidiaInteracao.upsert({
+          where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+          create: {
+            usuario_id: usuarioId,
+            midia_id: midiaId,
+            status,
+            atualizado_em: new Date(),
+          },
+          update: { status, atualizado_em: new Date() },
+        });
+      }
+
       return tx.watchlistEntry
         .create({
           data: {
             usuario_id: usuarioId,
             midia_id: midiaId,
-            coluna: dto.coluna ?? "WANT",
+            coluna,
             score_at_add: midia?.score ?? null,
           },
         })
@@ -113,7 +135,6 @@ export class WatchlistService {
       });
       if (entries.length === 0) return entries;
 
-      const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const midiaIds = entries.map((e) => e.midia_id).filter((id) => UUID_RE.test(id));
       if (midiaIds.length === 0) {
         return entries.map((entry) => ({ ...entry, media: null }));
@@ -132,7 +153,6 @@ export class WatchlistService {
         },
       });
       const porId = new Map(midias.map((m) => [m.id, m]));
-
       return entries.map((entry) => {
         const midia = porId.get(entry.midia_id);
         // T289: tenant_id é infraestrutura — nunca exposto na resposta.
@@ -190,6 +210,22 @@ export class WatchlistService {
       });
       if (!entry) {
         throw new NotFoundException("Entrada da watchlist não encontrada.");
+      }
+
+      // T320/D-309: fonte única de verdade — a coluna dirige o status da
+      // interação no MESMO transaction (drag e select nunca divergem).
+      if (UUID_RE.test(entry.midia_id)) {
+        const status = COLUNA_PARA_STATUS[coluna];
+        await tx.usuarioMidiaInteracao.upsert({
+          where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: entry.midia_id } },
+          create: {
+            usuario_id: usuarioId,
+            midia_id: entry.midia_id,
+            status,
+            atualizado_em: new Date(),
+          },
+          update: { status, atualizado_em: new Date() },
+        });
       }
 
       return tx.watchlistEntry

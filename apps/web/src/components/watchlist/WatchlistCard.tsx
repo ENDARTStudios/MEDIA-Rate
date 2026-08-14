@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslations } from "next-intl";
@@ -7,7 +8,7 @@ import { useInteractionStore } from "@/stores/use-interaction-store";
 import { REACOES, type Reacao } from "@/lib/api-interactions";
 import { ReactionGlyph } from "@/components/interaction/StatusIcons";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
-import { colunaLabelKey } from "@/lib/watchlist-labels";
+import { colunaLabelKey, type WatchlistColuna } from "@/lib/watchlist-labels";
 import type { WatchlistEntry } from "@/stores/use-watchlist-store";
 
 const TIPO_MAP: Record<string, string> = {
@@ -156,6 +157,10 @@ export function WatchlistCard({
   // slug-like e cai no rótulo i18n "título indisponível".
   const tituloFinal = tituloHumano(entry.media, entry.mediaId) ?? t("tituloIndisponivel");
   const item = entryToMediaItem(entry, tituloFinal);
+  // T320/D-309: botão rápido do canto abre o MENU de status (mesmo handler do
+  // dropdown da ficha) — estado único, nunca handler morto.
+  const [menuAberto, setMenuAberto] = useState(false);
+  const OPCOES_STATUS: WatchlistColuna[] = ["WANT", "WATCHING", "COMPLETED", "DROPPED"];
 
   function react(r: Reacao) {
     void setReaction(entry.mediaId, reacao === r ? null : r);
@@ -201,14 +206,57 @@ export function WatchlistCard({
             </option>
           ))}
         </select>
-        <button
-          onClick={() => onRemove(entry.id)}
-          disabled={removing}
-          aria-label={t("removeFromWatchlist")}
-          className="text-xs text-[#6B6B85] hover:text-red-400 transition-colors"
-        >
-          {removing ? "..." : t("removeFromWatchlist")}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuAberto((v) => !v);
+            }}
+            aria-label={t("moveTo")}
+            aria-expanded={menuAberto}
+            className="text-xs text-[#6B6B85] hover:text-[#F5F5F7] transition-colors px-1"
+          >
+            ⋮
+          </button>
+          {menuAberto && (
+            <div
+              role="menu"
+              data-testid="card-status-menu"
+              className="absolute right-0 bottom-full mb-1 z-20 min-w-[140px] rounded-md border border-[#2A2A3D] bg-[#1A1A28] p-1 shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {OPCOES_STATUS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={(entry.status ?? entry.coluna) === c}
+                  onClick={() => {
+                    onMove(entry.id, c);
+                    setMenuAberto(false);
+                  }}
+                  className="block w-full text-left rounded px-2 py-1 text-[11px] text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                >
+                  {t(colunaLabelKey(mediaType, c))}
+                </button>
+              ))}
+              <div className="my-1 border-t border-[#2A2A3D]" />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  onRemove(entry.id);
+                  setMenuAberto(false);
+                }}
+                disabled={removing}
+                className="block w-full text-left rounded px-2 py-1 text-[11px] text-red-400 hover:bg-[#2A2A3D]"
+              >
+                {removing ? "..." : t("removeFromWatchlist")}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Reação rápida — habilitada ao mover para Concluído/Abandonado. */}
