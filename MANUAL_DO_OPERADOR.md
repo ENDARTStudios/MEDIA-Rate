@@ -200,3 +200,14 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 - **Renovação (sliding)**: enquanto o usuário está ativo, quando faltam < 50% do TTL a sessão é estendida para +7 dias no banco e o cookie é re-setado no browser. Fechar o navegador NÃO desloga mais; a sessão ativa não expira por inatividade curta.
 - **Logout**: revoga a sessão no banco e limpa os cookies (mantido).
 - **Como verificar em produção**: logar → o Set-Cookie de `sess` traz `Max-Age=604800`; fazer login e, após ~4 dias, o cookie é renovado automaticamente no próximo request autenticado.
+
+## Como testar o Sentry (T315)
+
+**O que é o "sample event":** ao abrir um projeto novo, o Sentry cria um evento de demonstração (tag `sample_event=yes`, url example.com, breadcrumbs antigos). Ele NÃO é erro do MEDIA Rate — arquive-o (botão Archive no issue) e ignore.
+
+**Teste real em 3 passos (após um deploy com o SDK ativo):**
+1. Ligar a flag de teste: `POST /api/v1/admin/flags` com `{ "key": "admin-sentry-test", "enabled": true, "rollout_percent": 100 }` (autenticado como admin).
+2. Abrir `GET /api/v1/admin/sentry-test` (logado como admin). A resposta é 500 proposital com `sentryEventId` (32 chars) e `correlationId` — o eventId não-vazio prova que o SDK enviou.
+3. Abrir o painel do Sentry → Issues: o erro real do MEDIA Rate aparece em segundos (com correlationId). Depois, desligar a flag: `PATCH /api/v1/admin/flags/admin-sentry-test` com `{ "enabled": false, "rollout_percent": 0 }`.
+
+**Envs:** `SENTRY_DSN` (Railway) e `NEXT_PUBLIC_SENTRY_DSN` (Vercel) — identificadores públicos do projeto (vão no bundle do cliente por design). NUNCA colá-los em logs/chat além da exceção única D-306.

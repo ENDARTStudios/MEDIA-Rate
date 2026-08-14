@@ -4,6 +4,20 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-14] Fix: Sentry e2e � teste real comprovado; web e API compartilham DSN (T315/D-306)
+
+**Achado:** o "erro" do Sentry era o sample de onboarding (tag sample_event=yes, url example.com); nenhum evento real tinha chegado. O bundle web tinha o SDK mas N�O o DSN inline � a env `NEXT_PUBLIC_SENTRY_DSN` da Vercel existia com valor vazio/placeholder.
+
+**Correção:**
+- Vercel env re-setada via CLI com o MESMO DSN do projeto (exceção D-306: Operador criou 1 projeto Sentry javascript-nextjs � web e API compartilham o DSN na Open Beta; separar projetos é backlog).
+- **Teste real na API de produção (PIPELINE OK):** flag `admin-sentry-test` ON �' `GET /api/v1/admin/sentry-test` �' **500 + sentryEventId (32 chars) + correlationId + X-Correlation-Id** �' flag OFF confirmada (enabled:false).
+- Deploy web com o env correto via push em main (deploy automático do projeto media-rate).
+- MANUAL_DO_OPERADOR: seção "Como testar o Sentry" (3 passos) + explicação do sample event.
+
+**Lembrete operacional:** `vercel --prod` a partir de `apps/web` está linkado ao projeto **almanaque-dos-clubes** (NÃO usar; usar push em main que dispara o deploy de media-rate). Rollback aplicado no almanaque após deploy acidental.
+
+---
+
 ## [2026-08-14] Fix: consistência de Perfil/Configurações (T321/D-310)
 
 **Achados (Operador):** plano PLUS em Configurações vs Free no Perfil; Perfil de Gosto e Atividades recentes mortas; Configurações no meio do menu.
