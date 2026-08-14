@@ -212,3 +212,4 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 
 **Envs:** `SENTRY_DSN` (Railway) e `NEXT_PUBLIC_SENTRY_DSN` (Vercel) — identificadores públicos do projeto (vão no bundle do cliente por design). NUNCA colá-los em logs/chat além da exceção única D-306.
 **Verificação do bundle web (sem segredos):** após o deploy, grep no JS de produção pelo host `ingest*.sentry.io` — presença prova que o `NEXT_PUBLIC_SENTRY_DSN` foi embutido no build (rebuild via commit+push se ausente).
+**Nota:** ao setar `NEXT_PUBLIC_SENTRY_DSN` via CLI, usar `vercel env add ... --value "<dsn>"` (não stdin — o stdin grava placeholder `[SENSITIVE]`).
