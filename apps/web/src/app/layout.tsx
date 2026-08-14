@@ -2,6 +2,7 @@ import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { SentryClientInit } from "@/components/SentryClientInit";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app"),
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           "min-h-screen bg-background text-foreground font-sans antialiased",
         )}
       >
+        <SentryClientInit />
         {children}
       </body>
     </html>
