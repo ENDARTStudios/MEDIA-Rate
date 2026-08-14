@@ -79,7 +79,8 @@ const nextConfig: NextConfig = {
                   value: [
                     "default-src 'self'",
                     "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
-                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com",
+                    // T315: Sentry precisa enviar para o ingest (us/eu/de).
+                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io",
                     "frame-src 'self'",
                     "frame-ancestors 'none'",
                     "img-src 'self' data: https:",
