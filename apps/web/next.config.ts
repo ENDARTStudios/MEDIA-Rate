@@ -79,8 +79,10 @@ const nextConfig: NextConfig = {
                   value: [
                     "default-src 'self'",
                     "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
-                    // T315: Sentry precisa enviar para o ingest (us/eu/de).
-                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io",
+                    // T315: Sentry ingest (regiões us/eu/de — o host é
+                    // o<org>.ingest.<região>.sentry.io, logo o wildcard precisa
+                    // cobrir cada região explicitamente).
+                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
                     "frame-src 'self'",
                     "frame-ancestors 'none'",
                     "img-src 'self' data: https:",
