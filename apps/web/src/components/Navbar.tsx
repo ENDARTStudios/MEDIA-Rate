@@ -126,26 +126,13 @@ export function Navbar({
                       className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown"
                       onMouseLeave={() => setMenuOpen(false)}
                     >
-                      <Link
-                        href="/profile"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
-                      >
-                        {t("profile")}
-                      </Link>
+                      {/* T321: ordem de navegação termina em Configurações. */}
                       <Link
                         href="/dashboard"
                         onClick={() => setMenuOpen(false)}
                         className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
                       >
                         {t("dashboard")}
-                      </Link>
-                      <Link
-                        href="/settings"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
-                      >
-                        {t("settings")}
                       </Link>
                       <Link
                         href="/watchlist"
@@ -155,11 +142,32 @@ export function Navbar({
                         {t("watchlist")}
                       </Link>
                       <Link
+                        href="/discoveries"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                      >
+                        {t("descobertas") ?? "Descobertas"}
+                      </Link>
+                      <Link
                         href="/listas"
                         onClick={() => setMenuOpen(false)}
                         className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
                       >
                         {t("listas") ?? "Listas"}
+                      </Link>
+                      <Link
+                        href="/profile"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                      >
+                        {t("profile")}
+                      </Link>
+                      <Link
+                        href="/settings"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                      >
+                        {t("settings")}
                       </Link>
                       <hr className="my-1 border-[rgba(129,140,248,0.08)]" />
                       <button

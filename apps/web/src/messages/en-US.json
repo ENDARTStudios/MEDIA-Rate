@@ -40,7 +40,8 @@
     "watchlist": "Watchlist",
     "sessionEnded": "Session ended",
     "footerLinks": "Footer links",
-    "listas": "Lists"
+    "listas": "Lists",
+    "descobertas": "Discoveries"
   },
   "landing": {
     "hero": "Unified score for movies, series and games",
@@ -775,7 +776,12 @@
     "shareLink": "Share profile",
     "shareHint": "Your public profile with aggregated stats (no sensitive personal data).",
     "copyLink": "Copy link",
-    "copied": "Link copied!"
+    "copied": "Link copied!",
+    "justNow": "just now",
+    "minutesAgo": "{n} min ago",
+    "hoursAgo": "{n} h ago",
+    "daysAgo": "{n} d ago",
+    "tituloIndisponivel": "Title unavailable"
   },
   "settings": {
     "title": "Settings",

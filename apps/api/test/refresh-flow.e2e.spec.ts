@@ -25,9 +25,11 @@ function makeStore() {
   const prisma = {
     usuario: {
       findUnique: async ({ where }: any) => {
-        if (where.email) return usuarios.get(where.email) ?? null;
-        if (where.id) return [...usuarios.values()].find((u) => u.id === where.id) ?? null;
-        return null;
+        const u = where.email
+          ? usuarios.get(where.email) ?? null
+          : [...usuarios.values()].find((x) => x.id === where.id) ?? null;
+        // T321: getMe lê created_at — default seguro no mock.
+        return u ? { ...u, created_at: u.created_at ?? new Date() } : null;
       },
       update: async ({ where, data }: any) => {
         const u = [...usuarios.values()].find((x) => x.id === where.id);

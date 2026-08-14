@@ -40,7 +40,8 @@
     "watchlist": "Watchlist",
     "sessionEnded": "Sesión cerrada",
     "footerLinks": "Enlaces del pie de página",
-    "listas": "Listas"
+    "listas": "Listas",
+    "descobertas": "Descubrimientos"
   },
   "landing": {
     "hero": "Puntuación unificada de películas, series y juegos",
@@ -775,7 +776,12 @@
     "shareLink": "Compartir perfil",
     "shareHint": "Tu perfil público con estadísticas agregadas (sin datos personales sensibles).",
     "copyLink": "Copiar enlace",
-    "copied": "¡Enlace copiado!"
+    "copied": "¡Enlace copiado!",
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {n} min",
+    "hoursAgo": "hace {n} h",
+    "daysAgo": "hace {n} d",
+    "tituloIndisponivel": "Título no disponible"
   },
   "settings": {
     "title": "Configuración",

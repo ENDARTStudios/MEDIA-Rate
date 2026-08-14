@@ -58,6 +58,8 @@ export interface MeResult {
   status: string;
   trial_ends_at: string | null;
   watchlist_limit: number | null;
+  /** T321: membro desde (ISO) — exibido no Perfil. */
+  created_at: string;
 }
 
 /**
@@ -525,6 +527,9 @@ export class AuthService {
         id: true,
         email: true,
         nome: true,
+        // T321: data de criação para "Membro desde" no Perfil (mesma fonte
+        // única de plano — subscription).
+        created_at: true,
         plano: {
           select: {
             plano: true,
@@ -551,6 +556,8 @@ export class AuthService {
       status: usuario.plano?.status ?? "ATIVA",
       trial_ends_at: usuario.plano?.trial_ends_at?.toISOString() ?? null,
       watchlist_limit: plano === "FREE" ? FREE_WATCHLIST_LIMIT : null,
+      // T321: membro desde (ISO) — exibido no Perfil.
+      created_at: usuario.created_at.toISOString(),
     };
   }
 }

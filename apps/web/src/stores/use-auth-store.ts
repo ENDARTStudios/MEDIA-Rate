@@ -12,6 +12,8 @@ interface User {
   subscriptionStatus?: string;
   trialEndsAt?: string | null;
   watchlistLimit?: number | null;
+  /** T321: membro desde (ISO) — exibido no Perfil. */
+  createdAt?: string;
 }
 
 interface MeResponse {
@@ -22,6 +24,7 @@ interface MeResponse {
   status?: string;
   trial_ends_at?: string | null;
   watchlist_limit?: number | null;
+  created_at?: string;
 }
 
 interface AuthState {
@@ -53,6 +56,7 @@ function mapUser(apiUser: MeResponse | null): User | null {
     subscriptionStatus: apiUser.status,
     trialEndsAt: apiUser.trial_ends_at,
     watchlistLimit: apiUser.watchlist_limit,
+    createdAt: apiUser.created_at,
   };
 }
 

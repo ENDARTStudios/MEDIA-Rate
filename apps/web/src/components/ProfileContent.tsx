@@ -1,21 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { api } from "@/lib/http";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
+import { generoLabel, type Locale } from "@/lib/genero-labels";
+import { statusLabelKey } from "@/components/interaction/StatusIcons";
+import { ReactionGlyph } from "@/components/interaction/StatusIcons";
+import { tituloHumano } from "@/components/watchlist/WatchlistCard";
+import type { ConsumoStatus } from "@/lib/api-interactions";
+
+interface StatsShape {
+  generos?: Record<string, number>;
+  tipos?: Record<string, number>;
+}
+
+interface Atividade {
+  midia_id?: string;
+  status?: string;
+  reacao?: string | null;
+  atualizado_em?: string;
+  midia?: { id?: string; titulo?: string | null; tipo?: string } | null;
+}
+
+function tempoRelativo(
+  iso: string | undefined,
+  t: (k: string, vals?: Record<string, unknown>) => string,
+): string {
+  if (!iso) return "—";
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return t("justNow");
+  if (min < 60) return t("minutesAgo", { n: min });
+  const h = Math.floor(min / 60);
+  if (h < 24) return t("hoursAgo", { n: h });
+  return t("daysAgo", { n: Math.floor(h / 24) });
+}
 
 export function ProfileContent() {
   const t = useTranslations("profile");
   const tc = useTranslations("common");
+  const locale = useLocale() as Locale;
   const { user } = useAuthStore();
   const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
+  const [stats, setStats] = useState<StatsShape | null>(null);
+  const [atividades, setAtividades] = useState<Atividade[] | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchWatchlist();
+    void api
+      .get<StatsShape>("/api/v1/user/stats")
+      .then(setStats)
+      .catch(() => undefined);
+    void api
+      .get<Atividade[]>("/api/v1/interacoes")
+      .then((d) => setAtividades(Array.isArray(d) ? d : []))
+      .catch(() => undefined);
   }, [fetchWatchlist]);
 
   const total = entries.length;
@@ -32,6 +76,20 @@ export function ProfileContent() {
     { name: t("marathonerTitle"), desc: t("marathonerDesc"), unlocked: completed >= 3 },
     { name: t("activeTitle"), desc: t("activeDesc"), unlocked: watching >= 1 },
   ];
+
+  // T321: top gêneros do /user/stats com labels localizados.
+  const topGeneros = useMemo(() => {
+    const g = stats?.generos ?? {};
+    return Object.entries(g)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+  }, [stats]);
+
+  // T321: últimas 10 atividades (ordem do API: atualizado_em desc).
+  const ultimasAtividades = useMemo(() => (atividades ?? []).slice(0, 10), [atividades]);
+  const membroDesde = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString(locale, { month: "short", year: "numeric" })
+    : "—";
 
   if (isLoading && total === 0) {
     return (
@@ -50,7 +108,7 @@ export function ProfileContent() {
             {user?.name ?? t("user")}
           </h1>
           <p className="text-sm text-[#9CA3AF]">
-            {t("planFreeSince", { plan: "Free", date: "Jan 2026" })}
+            {t("planFreeSince", { plan: user?.plan ?? "FREE", date: membroDesde })}
           </p>
           {total > 0 && (
             <p className="text-xs text-[#6B7280] mt-1">
@@ -118,10 +176,24 @@ export function ProfileContent() {
 
           <div className="mb-12">
             <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
-              {t("tasteProfile")}
+              {t("favoriteGenres")}
             </h2>
             <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
-              <p className="text-sm text-[#6B7280] text-center py-8">{t("tasteEmpty")}</p>
+              {topGeneros.length === 0 ? (
+                <p className="text-sm text-[#6B7280] text-center py-8">{t("tasteEmpty")}</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {topGeneros.map(([g, n]) => (
+                    <span
+                      key={g}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-3 py-1 text-sm font-medium text-[#818CF8]"
+                    >
+                      {generoLabel(g, locale)}
+                      <span className="text-xs opacity-70 tabular-nums">{n}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -146,8 +218,40 @@ export function ProfileContent() {
             <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">
               {t("recentActivity")}
             </h2>
-            <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)] text-center text-sm text-[#6B7280]">
-              {t("recentEmpty")}
+            <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
+              {ultimasAtividades.length === 0 ? (
+                <p className="text-sm text-[#6B7280] text-center py-8">{t("recentEmpty")}</p>
+              ) : (
+                <ul className="divide-y divide-[#2A2A3D]">
+                  {ultimasAtividades.map((a, i) => {
+                    const tipo = a.midia?.tipo?.toLowerCase();
+                    const st = a.status as ConsumoStatus | undefined;
+                    const label = st ? statusLabelKey(tipo, st) : undefined;
+                    const titulo =
+                      tituloHumano(
+                        { title: a.midia?.titulo ?? undefined },
+                        a.midia?.id ?? a.midia_id,
+                      ) ??
+                      t("tituloIndisponivel") ??
+                      "…";
+                    return (
+                      <li key={a.midia_id ?? i} className="flex items-center gap-3 py-2.5">
+                        {a.reacao && (
+                          <ReactionGlyph reacao={a.reacao as "GOSTEI" | "NAO_GOSTEI"} size={16} />
+                        )}
+                        <span className="text-sm text-[#F5F5F7] truncate">{titulo}</span>
+                        {label && <span className="text-xs text-[#9CA3AF] shrink-0">{label}</span>}
+                        <span className="ml-auto text-xs text-[#6B7280] shrink-0">
+                          {tempoRelativo(
+                            a.atualizado_em,
+                            t as (k: string, vals?: Record<string, unknown>) => string,
+                          )}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
         </>

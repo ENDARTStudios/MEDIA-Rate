@@ -30,6 +30,7 @@ interface MockUser {
   ultimo_login_em: Date | null;
   email_verificado_em?: Date | null;
   termos_aceitos_em?: Date | null;
+  created_at?: Date;
   plano?: { plano: string; status: string; trial_ends_at: Date | null };
 }
 
@@ -391,13 +392,19 @@ function mockPrisma(users: Map<string, MockUser>) {
   return {
     usuario: {
       findUnique: async (args: MockUserArgs) => {
+        let u: MockUser | null = null;
         if (args.where.id) {
-          for (const u of users.values()) {
-            if (u.id === args.where.id) return u;
+          for (const x of users.values()) {
+            if (x.id === args.where.id) {
+              u = x;
+              break;
+            }
           }
-          return null;
+        } else {
+          u = users.get(args.where.email ?? "") ?? null;
         }
-        return users.get(args.where.email ?? "") ?? null;
+        // T321: getMe agora lê created_at — default seguro no mock.
+        return u ? { ...u, created_at: u.created_at ?? new Date() } : null;
       },
       findFirst: async (args: MockUserArgs) => {
         for (const u of users.values()) {

@@ -4,6 +4,23 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
+## [2026-08-14] Fix: consistência de Perfil/Configurações (T321/D-310)
+
+**Achados (Operador):** plano PLUS em Configurações vs Free no Perfil; Perfil de Gosto e Atividades recentes mortas; Configurações no meio do menu.
+
+**Causa:** Perfil tinha o plano HARDCODED ("Free"); seções sempre com empty state; ordem do menu não seguia a diretiva.
+
+**Correção:**
+- **Fonte única de plano:** `getMe` (subscription) passou a retornar `created_at`; Perfil agora lê `user.plan` (mesmo campo de Configurações). "Membro desde" usa a data real.
+- **Perfil de Gosto vivo:** top gêneros de `/user/stats` com labels localizados (`lib/genero-labels.ts`, fallback ao nome do banco); empty state só com zero dados.
+- **Atividades recentes vivas:** últimas 10 interações (status type-aware + reação + data relativa i18n + título via fallback chain T310).
+- **Menu do usuário:** ordem Dashboard ? Watchlist ? Descobertas ? Listas ? Perfil ? **Configurações** (último); Sair separado abaixo do divisor.
+- e2e `profile-consistency.spec.ts` (plano idêntico nas duas telas + ordem do menu).
+
+**Verificado:** API 760/760, web 312/312, lint 0, typecheck OK.
+
+---
+
 ## [2026-08-14] Fix P0: watchlist � status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
 
 **Sintoma (bug report Operador):** games mostravam "Quero ver/Vendo/Vi"; clicar no status não movia o card de bloco; botão do canto do card morto.
