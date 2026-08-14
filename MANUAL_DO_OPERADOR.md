@@ -211,3 +211,4 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 3. Abrir o painel do Sentry → Issues: o erro real do MEDIA Rate aparece em segundos (com correlationId). Depois, desligar a flag: `PATCH /api/v1/admin/flags/admin-sentry-test` com `{ "enabled": false, "rollout_percent": 0 }`.
 
 **Envs:** `SENTRY_DSN` (Railway) e `NEXT_PUBLIC_SENTRY_DSN` (Vercel) — identificadores públicos do projeto (vão no bundle do cliente por design). NUNCA colá-los em logs/chat além da exceção única D-306.
+**Verificação do bundle web (sem segredos):** após o deploy, grep no JS de produção pelo host `ingest*.sentry.io` — presença prova que o `NEXT_PUBLIC_SENTRY_DSN` foi embutido no build (rebuild via commit+push se ausente).
