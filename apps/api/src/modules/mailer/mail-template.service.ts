@@ -25,6 +25,16 @@ const TEMPLATES: Record<MailTipo, Template> = {
     html: "<p>Sua assinatura foi cancelada e seu acesso ao plano foi encerrado.</p>",
     text: "Sua assinatura foi cancelada e seu acesso ao plano foi encerrado.",
   },
+  verificacao_email: {
+    subject: "Verifique seu email — MEDIA Rate",
+    html: "<p>Seu código de verificação: <strong>{token}</strong></p>",
+    text: "Seu código de verificação: {token}",
+  },
+  reset_senha: {
+    subject: "Redefina sua senha — MEDIA Rate",
+    html: "<p>Seu código de redefinição de senha: <strong>{token}</strong></p>",
+    text: "Seu código de redefinição de senha: {token}",
+  },
 };
 
 /** Escapa caracteres HTML — impede injeção de markup via variável. */

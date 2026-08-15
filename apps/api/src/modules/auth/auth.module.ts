@@ -9,11 +9,12 @@ import { PasswordService } from "../../common/password.service.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AnalyticsModule } from "../../common/analytics.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
+import { MailerModule } from "../mailer/mailer.module.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
 
 @Module({
-  imports: [PrismaModule, AnalyticsModule],
+  imports: [PrismaModule, AnalyticsModule, MailerModule],
   controllers: [AuthController],
   providers: [
     AuthService,

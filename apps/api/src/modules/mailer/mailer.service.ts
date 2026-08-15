@@ -12,7 +12,8 @@ import { MailTemplateService } from "./mail-template.service.js";
 
 export const MAIL_TRANSPORT = Symbol("MAIL_TRANSPORT");
 
-export type MailTipo = "trial_will_end" | "subscription_cancelled";
+export type MailTipo =
+  "trial_will_end" | "subscription_cancelled" | "verificacao_email" | "reset_senha";
 
 export interface MailMessage {
   to: string;
@@ -39,18 +40,24 @@ export class MailerService {
 
   /**
    * Renderiza + envia um email transacional (idempotente por TTL).
+   *
+   * - `opts.dedupeTtlMs`: janela de dedupe por (destinatário + tipo). Default
+   *   24h. `0` desativa (fluxos de auth já têm rate limit próprio 3/h — o
+   *   reenvio legítimo de um novo token não pode ser suprimido por dedupe).
    * Retorna { enviado: false } quando suprimido por dedupe ou sem destinatário.
    */
   async enviar(
     tipo: MailTipo,
     destinatario: string,
     vars: Record<string, string>,
+    opts: { dedupeTtlMs?: number } = {},
   ): Promise<{ enviado: boolean }> {
     if (!destinatario) return { enviado: false };
 
+    const ttl = opts.dedupeTtlMs ?? DEDUPE_TTL_MS;
     const key = `${destinatario}:${tipo}`;
     const ultimo = this.sentKeys.get(key);
-    if (ultimo !== undefined && ultimo > Date.now() - DEDUPE_TTL_MS) {
+    if (ttl > 0 && ultimo !== undefined && ultimo > Date.now() - ttl) {
       this.logger.debug(`Email ${tipo} suprimido (dedupe) para ${destinatario}`);
       return { enviado: false };
     }

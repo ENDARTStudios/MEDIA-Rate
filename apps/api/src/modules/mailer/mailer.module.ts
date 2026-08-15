@@ -27,9 +27,12 @@ export class MockMailTransport implements MailTransport {
     if (process.env.NODE_ENV !== "production") {
       try {
         const arquivo = path.join(process.cwd(), "dev-mailbox.log");
+        // T342: dev-mailbox.log É a "caixa de entrada" mock (não um log de
+        // servidor) — por isso grava o corpo do email (onde vive o token de
+        // verificação/reset). O logger do servidor abaixo NÃO grava o corpo.
         appendFileSync(
           arquivo,
-          `[${new Date().toISOString()}] para=${message.to} assunto=${message.subject}\n`,
+          `[${new Date().toISOString()}] para=${message.to} assunto=${message.subject} corpo=${message.text}\n`,
           "utf8",
         );
       } catch {
