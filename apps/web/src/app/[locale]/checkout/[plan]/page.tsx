@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../../../stores/use-auth-store";
+import { getCsrfToken } from "../../../../lib/http";
 
 /**
  * Página de checkout Stripe (T5.3).
@@ -39,12 +40,16 @@ export default function CheckoutPage({
     setLoading(true);
     setError(null);
     try {
+      // T325: CSRF double-submit — o guard global exige X-CSRF-Token em POST.
+      const csrf = getCsrfToken();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "Idempotency-Key": crypto.randomUUID(),
+      };
+      if (csrf) headers["X-CSRF-Token"] = csrf;
       const response = await fetch("/api/v1/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": crypto.randomUUID(),
-        },
+        headers,
         credentials: "include", // envia cookie httpOnly de sessão
         body: JSON.stringify({
           plano: planKey,

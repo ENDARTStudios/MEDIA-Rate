@@ -6,6 +6,7 @@ import { PrismaModule } from "./prisma/prisma.module.js";
 import { AuthGuard } from "./common/guards/auth.guard.js";
 import { RolesGuard } from "./common/guards/roles.guard.js";
 import { PlanGuard } from "./common/guards/plan.guard.js";
+import { CsrfGuard } from "./common/guards/csrf.guard.js";
 import { HealthModule } from "./health/health.module.js";
 import { EchoModule } from "./echo/echo.module.js";
 import { DebugModule } from "./debug/debug.module.js";
@@ -91,8 +92,9 @@ const enableDebugRoutes =
     InviteModule,
   ],
   providers: [
-    // Guards globais (ordem importa: Auth → Roles → Plan)
+    // Guards globais (ordem importa: Auth → CSRF → Roles → Plan)
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: CsrfGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: PlanGuard },
   ],

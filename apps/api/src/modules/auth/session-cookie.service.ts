@@ -28,12 +28,17 @@ export class SessionCookieService {
     });
 
     // T049: CSRF double-submit cookie — não-httpOnly para o JS do frontend ler.
+    // T325: mesma TTL do 'sess' (7 dias) — sem isso, fechar o navegador limpa o
+    // csrf_token (cookie de sessão) enquanto o 'sess' persiste, e toda escrita
+    // autenticada falharia 403 até um novo login.
     const csrf = randomBytes(32).toString("hex");
     void reply.setCookie(CSRF_COOKIE_NAME, csrf, {
       httpOnly: false,
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      expires: expiresAt,
+      maxAge: ttlSegundos,
     });
 
     return csrf;
