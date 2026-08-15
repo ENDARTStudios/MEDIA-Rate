@@ -249,6 +249,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T343 — escritas de billing sob `comContextoRls` (role SERVICE, commit `1742cbc`) — prepara FORCE RLS em `usuario_plano` (T344/T345 aguardam Postgres de teste)
 - [x] T329 — painel de diagnóstico interno read-only (commit `c00d075`): `GET /api/v1/admin/diagnostics` @Roles(ADMIN) + página `/admin/diagnostics`
 - [x] T346 — perf HIGH original: DiagPanel web dispara chamadas só quando ativo `?diag=1` (commit `f0b5c87`) — eliminado 2 requests por pageview
+- [x] T342 — mailer transacional nos fluxos de auth (verificação/reset, commit `3aaad1d`): MockMailService vira facade do MailerService + templates com escape + dedupe off
 - [x] 1. T285 — reações (Gostei/Não gostei), motivo de abandono e progresso (Addendum 4): migration aditiva + PATCH + prompt i18n + hook onReacaoRegistrada · evid: R285
 - [x] 2. T286 — DiscoveryEvent + feed Descobertas (Addenda 3/4): eventos idempotentes + GET /discoveries + página + métrica no admin · evid: R286
 - [x] 3. T287 — classificação indicativa + prêmios + origem (Addendum 2) com seed TMDB/IGDB · evid: R287
