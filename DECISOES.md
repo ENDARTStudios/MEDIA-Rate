@@ -949,3 +949,12 @@ Relatorio de cobertura (models com FK usuario x RLS):
 - Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
 
 - [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 — ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
+
+---
+
+## [2026-08-15] D-320 — Diretriz de custo zero (supersede D-319 em ferramentas pagas)
+
+- Ordem do Operador: custo zero. Só ferramentas gratuitas/open-source. Datadog, NewRelic e Codecov tier pago são **descartados do escopo ativo** — reavaliar apenas com retorno financeiro comprovado (nova fase, não pendência).
+- Stack gratuita: OpenTelemetry (coletor) + Grafana Cloud free tier (ou Jaeger self-hosted), Sentry free tier, coverage v8, Knip/Stryker/Arch-contract/Comilint/Biome.
+- Regra permanente: qualquer proposta futura de ferramenta paga exige justificativa de ROI + aprovação explícita do Operador.
+- PENDENCIAS_OPERADOR.md não ganha itens de ferramentas pagas.
