@@ -1,0 +1,18 @@
+# T352 (D-319/D-320) — lint de commits (comilint/commitlint).
+# Complementa o conventional-commit-guard: valida o CORPO além do título.
+# Um commit feat/fix com mais de 5 arquivos alterados exige corpo explicativo.
+
+extends:
+  - conventional
+
+rules:
+  body-required:
+    level: error
+    when:
+      type: [feat, fix, security]
+      files-changed-gt: 5
+  header-max-length:
+    level: error
+    length: 72
+  no-secrets-in-body:
+    level: error

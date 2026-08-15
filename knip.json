@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    "apps/api": {
+      "entry": ["src/main.ts", "prisma/**/*.ts"],
+      "project": ["src/**/*.ts", "prisma/**/*.ts", "test/**/*.ts"]
+    },
+    "apps/web": {
+      "entry": ["src/app/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "test/**/*.{ts,tsx}"]
+    }
+  },
+  "ignore": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.e2e.spec.ts",
+    "**/*.test.ts",
+    "dist/**",
+    ".next/**",
+    "coverage/**"
+  ]
+}
