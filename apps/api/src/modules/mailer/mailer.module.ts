@@ -8,6 +8,23 @@ import {
   type MailTransport,
 } from "./mailer.service.js";
 import { MailTemplateService } from "./mail-template.service.js";
+import { ResendMailTransport } from "./resend-mail.transport.js";
+
+/**
+ * T348 — seleção do transporte de email (provider-agnostic).
+ *
+ * - `MAIL_PROVIDER=resend` + `RESEND_API_KEY` presente → ResendMailTransport
+ *   (entrega REAL, gateada apenas no segredo).
+ * - Qualquer outro caso → MockMailTransport (nunca envia; dev-mailbox.log).
+ */
+export function criarTransport(): MailTransport {
+  const provider = process.env.MAIL_PROVIDER;
+  const apiKey = process.env.RESEND_API_KEY;
+  if (provider === "resend" && apiKey) {
+    return new ResendMailTransport(apiKey, process.env.MAIL_FROM ?? "no-reply@mediarate.app");
+  }
+  return new MockMailTransport();
+}
 
 /**
  * T341 — transporte mock (default). NUNCA envia email real:
@@ -47,7 +64,7 @@ export class MockMailTransport implements MailTransport {
   providers: [
     MailTemplateService,
     MailerService,
-    { provide: MAIL_TRANSPORT, useClass: MockMailTransport },
+    { provide: MAIL_TRANSPORT, useFactory: criarTransport },
   ],
   exports: [MailerService],
 })
