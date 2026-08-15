@@ -1,5 +1,21 @@
 # MANUAL DO OPERADOR — MEDIA Rate
 
+## 0. Runbook de destravamento (F11)
+
+As 6 pendências atuais do Operador estão consolidadas, passo a passo, em um
+único documento: **`docs/RUNBOOK_OPERADOR_FINAL.md`**. Ordem e destrava:
+
+1. **Postgres de teste local** (`docker compose up -d postgres`) → destrava T344/T345 (RLS).
+2. **`prisma migrate deploy`** em produção → aplica `trial_used_at`.
+3. **`db:reparo:orfaos`** em produção → fim dos "Título indisponível" (T322).
+4. **Conferir deploys T341/T342** → health 200 + commit `3aaad1d` no ar.
+5. **Mailer real** → escolher provedor e colar credenciais (exige `T348-mailer-real` do Doer).
+6. **Validar verificação de novo usuário** → fim do beco `EMAIL_NOT_VERIFIED`.
+
+> Comandos copiáveis, saída esperada e troubleshooting de 1 linha por passo estão
+> no runbook completo. Este manual mantém o restante (deploy, operação, runbooks
+> antigos) abaixo.
+
 ## 1. Arquitetura
 
 - **Frontend**: Next.js 16 (App Router) hospedado no Vercel (`media-rate-web.vercel.app`)
