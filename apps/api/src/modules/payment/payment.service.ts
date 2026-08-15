@@ -9,6 +9,7 @@ import {
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { createHash } from "node:crypto";
+import { comContextoRls, ROLE_SERVICE } from "../../common/rls-context.js";
 import {
   PAYMENT_GATEWAY,
   type IPaymentGateway,
@@ -205,25 +206,28 @@ export class PaymentService {
       plano === "PLUS" && currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
     const status = trialEndsAt && trialEndsAt.getTime() > Date.now() ? "TRIALING" : "ATIVA";
 
-    await this.prisma.usuarioPlano.upsert({
-      where: { usuario_id: usuarioId },
-      create: {
-        usuario_id: usuarioId,
-        plano,
-        status,
-        stripe_subscription_id: subscriptionId ?? null,
-        stripe_customer_id: customerId ?? null,
-        current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
-        trial_ends_at: trialEndsAt,
-      },
-      update: {
-        plano,
-        status,
-        stripe_subscription_id: subscriptionId ?? undefined,
-        stripe_customer_id: customerId ?? undefined,
-        current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
-        trial_ends_at: trialEndsAt ?? undefined,
-      },
+    // T343: escrita de billing sob contexto RLS de serviço (prepara FORCE RLS).
+    await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+      await tx.usuarioPlano.upsert({
+        where: { usuario_id: usuarioId },
+        create: {
+          usuario_id: usuarioId,
+          plano,
+          status,
+          stripe_subscription_id: subscriptionId ?? null,
+          stripe_customer_id: customerId ?? null,
+          current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
+          trial_ends_at: trialEndsAt,
+        },
+        update: {
+          plano,
+          status,
+          stripe_subscription_id: subscriptionId ?? undefined,
+          stripe_customer_id: customerId ?? undefined,
+          current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+          trial_ends_at: trialEndsAt ?? undefined,
+        },
+      });
     });
 
     // T327: trial único — marca a primeira ativação (idempotente).
@@ -252,24 +256,27 @@ export class PaymentService {
 
     if (status === "trialing") {
       const trialEndsAt = currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
-      await this.prisma.usuarioPlano.upsert({
-        where: { usuario_id: usuarioId },
-        create: {
-          usuario_id: usuarioId,
-          plano,
-          status: "TRIALING",
-          stripe_subscription_id: object.id ?? null,
-          stripe_customer_id: (object.customer as string | null) ?? null,
-          current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
-          trial_ends_at: trialEndsAt,
-        },
-        update: {
-          plano,
-          status: "TRIALING",
-          stripe_subscription_id: object.id ?? undefined,
-          current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
-          trial_ends_at: trialEndsAt ?? undefined,
-        },
+      // T343: escrita de billing sob contexto RLS de serviço.
+      await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+        await tx.usuarioPlano.upsert({
+          where: { usuario_id: usuarioId },
+          create: {
+            usuario_id: usuarioId,
+            plano,
+            status: "TRIALING",
+            stripe_subscription_id: object.id ?? null,
+            stripe_customer_id: (object.customer as string | null) ?? null,
+            current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
+            trial_ends_at: trialEndsAt,
+          },
+          update: {
+            plano,
+            status: "TRIALING",
+            stripe_subscription_id: object.id ?? undefined,
+            current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+            trial_ends_at: trialEndsAt ?? undefined,
+          },
+        });
       });
       // T327: trial único — marca a primeira ativação (idempotente).
       if (trialEndsAt) {
@@ -284,14 +291,17 @@ export class PaymentService {
     }
 
     if (status === "active") {
-      await this.prisma.usuarioPlano.update({
-        where: { usuario_id: usuarioId },
-        data: {
-          plano,
-          status: "ATIVA",
-          current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
-          trial_ends_at: null,
-        },
+      // T343: escrita de billing sob contexto RLS de serviço.
+      await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+        await tx.usuarioPlano.update({
+          where: { usuario_id: usuarioId },
+          data: {
+            plano,
+            status: "ATIVA",
+            current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+            trial_ends_at: null,
+          },
+        });
       });
       this.logger.log(`Trial encerrado — assinatura ${plano} ativa para usuário ${usuarioId}`);
     }
@@ -301,9 +311,12 @@ export class PaymentService {
    * Marca aviso de fim de trial enviado (customer.subscription.trial_will_end).
    */
   private async marcarTrialNotificado(usuarioId: string): Promise<void> {
-    await this.prisma.usuarioPlano.update({
-      where: { usuario_id: usuarioId },
-      data: { trial_notified_at: new Date() },
+    // T343: escrita de billing sob contexto RLS de serviço.
+    await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+      await tx.usuarioPlano.update({
+        where: { usuario_id: usuarioId },
+        data: { trial_notified_at: new Date() },
+      });
     });
     this.logger.log(`Fim de trial notificado para usuário ${usuarioId}`);
     // T341: email transacional de aviso de fim de trial (Plus).
@@ -315,9 +328,12 @@ export class PaymentService {
    * trial_used_at ainda é null, então reenvios de webhook não sobrescrevem).
    */
   private async marcarTrialUsado(usuarioId: string): Promise<void> {
-    await this.prisma.usuarioPlano.updateMany({
-      where: { usuario_id: usuarioId, trial_used_at: null },
-      data: { trial_used_at: new Date() },
+    // T343: escrita de billing sob contexto RLS de serviço.
+    await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+      await tx.usuarioPlano.updateMany({
+        where: { usuario_id: usuarioId, trial_used_at: null },
+        data: { trial_used_at: new Date() },
+      });
     });
   }
 
@@ -325,15 +341,18 @@ export class PaymentService {
    * Cancela assinatura (downgrade para FREE).
    */
   private async cancelarAssinatura(usuarioId: string): Promise<void> {
-    await this.prisma.usuarioPlano.update({
-      where: { usuario_id: usuarioId },
-      data: {
-        plano: "FREE",
-        status: "CANCELADA",
-        cancela_em: new Date(),
-        trial_ends_at: null,
-        trial_notified_at: null,
-      },
+    // T343: escrita de billing sob contexto RLS de serviço.
+    await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
+      await tx.usuarioPlano.update({
+        where: { usuario_id: usuarioId },
+        data: {
+          plano: "FREE",
+          status: "CANCELADA",
+          cancela_em: new Date(),
+          trial_ends_at: null,
+          trial_notified_at: null,
+        },
+      });
     });
     this.logger.log(`Assinatura cancelada para usuário ${usuarioId} (downgrade para FREE)`);
     // T341: email transacional de cancelamento.

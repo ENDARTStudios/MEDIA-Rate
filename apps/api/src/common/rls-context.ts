@@ -2,6 +2,9 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 
 export const DEFAULT_TENANT = "00000000-0000-0000-0000-000000000001";
 
+/** T343: role de serviço interno (webhooks de billing) — sem bypass global. */
+export const ROLE_SERVICE = "SERVICE";
+
 type TxRls = Prisma.TransactionClient;
 
 export interface RlsContexto {
