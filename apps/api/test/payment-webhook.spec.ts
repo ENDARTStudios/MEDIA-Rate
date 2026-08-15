@@ -14,7 +14,11 @@ function montarService() {
       create: vi.fn().mockResolvedValue({ id: "evt-db" }),
       update: vi.fn().mockResolvedValue({}),
     },
-    usuarioPlano: { upsert: upsertPlano, update: vi.fn().mockResolvedValue({}) },
+    usuarioPlano: {
+      upsert: upsertPlano,
+      update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+    },
   };
   const gateway = {
     constructWebhookEvent: vi.fn(),

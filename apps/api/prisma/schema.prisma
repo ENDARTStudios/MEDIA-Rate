@@ -231,6 +231,8 @@ model UsuarioPlano {
   // D-132: trial de 7 dias do Plus (Stripe trial_period_days).
   trial_ends_at         DateTime?        @map("trial_ends_at")
   trial_notified_at     DateTime?        @map("trial_notified_at")
+  // T327: data da primeira ativação de trial — garante trial único por usuário.
+  trial_used_at         DateTime?        @map("trial_used_at")
   created_at            DateTime         @default(now()) @map("created_at")
   updated_at            DateTime         @updatedAt @map("updated_at")
 

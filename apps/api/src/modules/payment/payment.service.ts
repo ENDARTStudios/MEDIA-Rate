@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { Inject, Injectable, Logger, BadRequestException, ConflictException } from "@nestjs/common";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { createHash } from "node:crypto";
@@ -31,12 +31,28 @@ export class PaymentService {
 
   /**
    * Cria sessão de checkout para upgrade de plano.
-   * Plano PLUS inicia com trial de 7 dias (D-132).
+   * Plano PLUS inicia com trial de 7 dias (D-132) — trial único por usuário
+   * (T327): se já usado, bloqueia com 409 (nunca converte em cobrança).
    */
   async createCheckout(
     dto: CreateCheckoutDtoType,
     usuario: { id: string; email: string },
   ): Promise<CheckoutSession> {
+    if (dto.plano === "PLUS") {
+      const plano = await this.prisma.usuarioPlano.findUnique({
+        where: { usuario_id: usuario.id },
+        select: { trial_used_at: true },
+      });
+      if (plano?.trial_used_at) {
+        throw new ConflictException({
+          statusCode: 409,
+          error: "Conflict",
+          message: "Você já utilizou o período de trial do Plus.",
+          trial_already_used: true,
+        });
+      }
+    }
+
     const session = await this.gateway.createCheckoutSession({
       plano: dto.plano,
       customer_email: usuario.email,
@@ -201,6 +217,11 @@ export class PaymentService {
       },
     });
 
+    // T327: trial único — marca a primeira ativação (idempotente).
+    if (trialEndsAt) {
+      await this.marcarTrialUsado(usuarioId);
+    }
+
     this.logger.log(
       `Assinatura ${plano} ${status} para usuário ${usuarioId}${
         trialEndsAt ? ` (trial até ${trialEndsAt.toISOString()})` : ""
@@ -241,6 +262,10 @@ export class PaymentService {
           trial_ends_at: trialEndsAt ?? undefined,
         },
       });
+      // T327: trial único — marca a primeira ativação (idempotente).
+      if (trialEndsAt) {
+        await this.marcarTrialUsado(usuarioId);
+      }
       this.logger.log(
         `Trial ${plano} registrado para usuário ${usuarioId}${
           trialEndsAt ? ` (até ${trialEndsAt.toISOString()})` : ""
@@ -272,6 +297,17 @@ export class PaymentService {
       data: { trial_notified_at: new Date() },
     });
     this.logger.log(`Fim de trial notificado para usuário ${usuarioId}`);
+  }
+
+  /**
+   * T327: marca a primeira ativação de trial (idempotente — só grava quando
+   * trial_used_at ainda é null, então reenvios de webhook não sobrescrevem).
+   */
+  private async marcarTrialUsado(usuarioId: string): Promise<void> {
+    await this.prisma.usuarioPlano.updateMany({
+      where: { usuario_id: usuarioId, trial_used_at: null },
+      data: { trial_used_at: new Date() },
+    });
   }
 
   /**

@@ -22,8 +22,10 @@ function createMockPrisma(): {
     update: vi.fn(),
   };
   const usuarioPlano = {
+    findUnique: vi.fn(),
     upsert: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
   };
   const prisma = { eventoPagamento, usuarioPlano } as unknown as PrismaService;
   return { prisma, eventoPagamento, usuarioPlano };
