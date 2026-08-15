@@ -2,13 +2,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Reflector } from "@nestjs/core";
 import { IdempotencyInterceptor } from "../src/common/interceptors/idempotency.interceptor.js";
-import type { PrismaService } from "../src/prisma/prisma.service.js";
+import { IdempotencyStore } from "../src/common/idempotency/idempotency.store.js";
 import type { ExecutionContext, CallHandler } from "@nestjs/common";
 import { of, firstValueFrom } from "rxjs";
-
-function createMockPrisma(): PrismaService {
-  return {} as PrismaService;
-}
 
 function createExecutionContext(
   headers: Record<string, string>,
@@ -35,8 +31,7 @@ describe("IdempotencyInterceptor (T4.3)", () => {
 
   beforeEach(() => {
     reflector = new Reflector();
-    const prisma = createMockPrisma();
-    interceptor = new IdempotencyInterceptor(reflector, prisma);
+    interceptor = new IdempotencyInterceptor(reflector, new IdempotencyStore());
   });
 
   it("permite passar se rota não é @Idempotent()", async () => {

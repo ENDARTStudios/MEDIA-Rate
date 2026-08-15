@@ -7,60 +7,52 @@ import {
 } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
 
-import { PrismaService } from "../../prisma/prisma.service.js";
 import { IDEMPOTENT_KEY } from "../decorators/idempotent.decorator.js";
+import { IdempotencyStore } from "../idempotency/idempotency.store.js";
+
+/** Métodos que mudam estado — só esses fazem sentido para idempotência. */
+const METODOS_MUTAVEIS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 /**
- * Cache em memória para idempotência (T4.3).
+ * T326 — Interceptor de idempotência (header `Idempotency-Key`).
  *
- * Em produção multi-instância, migrar para PostgreSQL (tabela
- * `idempotencia_registro`) ou Redis (excluído por Restrição #1).
- * Para Beta single-instance, Map em memória é suficiente.
- *
- * TTL: 24h (conforme RFC draft-ietf-httpapi-idempotency-key-header).
- */
-const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;
-
-interface IdempotencyCacheEntry {
-  response: unknown;
-  expires_at: number;
-}
-
-/**
- * Interceptor de idempotência (T4.3).
- *
- * - Lê metadata @Idempotent() via Reflector.
- * - Se rota é idempotente, exige header `Idempotency-Key`.
- * - Verifica cache em memória; se hit, retorna resposta cacheada.
- * - Se miss, executa handler e cacheia resposta.
+ * - Só atua em métodos mutantes e APÓS autenticação (req.user presente).
+ * - Rota marcada com @Idempotent(): a chave é OBRIGATÓRIA (400 se ausente).
+ * - Demais rotas mutantes autenticadas: se a chave ESTIVER presente, o replay
+ *   da mesma chave retorna a resposta cacheada sem re-executar o caso de uso;
+ *   sem chave, segue sem idempotência (contrato HTTP inalterado).
+ * - A chave de cache é composta por user_id + método + URL + chave, e é
+ *   hasheada no store (nunca guardamos a chave crua nem o corpo).
  */
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
-  private readonly cache = new Map<string, IdempotencyCacheEntry>();
-
   constructor(
     private readonly reflector: Reflector,
-    private readonly prisma: PrismaService,
+    private readonly store: IdempotencyStore,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest<FastifyRequest>();
+    const method = (request.method ?? "GET").toUpperCase();
+    if (!METODOS_MUTAVEIS.has(method)) {
+      return next.handle();
+    }
+
     const isIdempotent = this.reflector.getAllAndOverride<boolean>(IDEMPOTENT_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!isIdempotent) {
-      return next.handle();
-    }
 
-    const request = context.switchToHttp().getRequest<FastifyRequest>();
-    const idempotencyKey = request.headers["idempotency-key"] as string | undefined;
+    const raw = request.headers["idempotency-key"];
+    const key = Array.isArray(raw) ? raw[0] : raw;
 
-    if (!idempotencyKey || idempotencyKey.length === 0) {
+    // Rota @Idempotent() exige a chave (contrato preservado).
+    if (isIdempotent && (!key || key.length === 0)) {
       throw new BadRequestException({
         statusCode: 400,
         error: "Bad Request",
@@ -68,42 +60,35 @@ export class IdempotencyInterceptor implements NestInterceptor {
       });
     }
 
-    // Chave de cache composta: método + path + idempotency-key + user_id.
-    const userId = (request as unknown as { user?: { id: string } }).user?.id ?? "anonymous";
-    const cacheKey = `${request.method}:${request.url}:${userId}:${idempotencyKey}`;
+    const userId = (request as unknown as { user?: { id: string } }).user?.id;
+    // Sem autenticação ou sem chave → sem idempotência (passa direto).
+    if (!userId || !key || key.length === 0) {
+      return next.handle();
+    }
+    if (key.length > 256) {
+      throw new BadRequestException({
+        statusCode: 400,
+        error: "Bad Request",
+        message: "Header 'Idempotency-Key' muito longo.",
+      });
+    }
 
-    // Verifica cache.
-    const cached = this.cache.get(cacheKey);
-    if (cached && cached.expires_at > Date.now()) {
-      // Retorna resposta cacheada — handler não executa.
-      // Observable.of está deprecated; usamos new Observable.
+    const composite = `${userId}:${method}:${request.url}:${key}`;
+
+    const cached = this.store.get(composite);
+    if (cached !== undefined) {
+      // Replay: retorna a resposta cacheada sem re-executar o handler.
       return new Observable<unknown>((subscriber) => {
-        subscriber.next(cached.response);
+        subscriber.next(cached);
         subscriber.complete();
       });
     }
 
-    // Executa handler e cacheia resposta.
     return next.handle().pipe(
       tap((response) => {
-        this.cache.set(cacheKey, {
-          response,
-          expires_at: Date.now() + IDEMPOTENCY_TTL_MS,
-        });
-        // Cleanup periódico (lazy).
-        if (this.cache.size > 1000) {
-          this.cleanup();
-        }
+        // Só cacheia resposta de sucesso — erro propaga sem gravar (tap não roda no erro).
+        this.store.set(composite, response);
       }),
     );
-  }
-
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [key, entry] of this.cache) {
-      if (entry.expires_at < now) {
-        this.cache.delete(key);
-      }
-    }
   }
 }
