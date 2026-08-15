@@ -245,6 +245,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T325 — correção HIGH #1: CsrfGuard global em métodos mutantes (commit `0917a41`) + cookie csrf persistente + checkout envia X-CSRF-Token
 - [x] T326 — correção HIGH #2: IdempotencyInterceptor global (mutante+autenticado+Idempotency-Key, commit `5b56f5d`) com `IdempotencyStore` (hash + TTL 24h)
 - [x] T327 — correção HIGH #3: trial único por usuário (`trial_used_at`, commit `b7b4db2`) — gate 409 no checkout PLUS + marca idempotente na ativação
+- [x] T341 — mailer transacional provider-agnostic p/ eventos de pagamento (commit `73ee2cd`): MailerService + MailTemplateService (escape HTML) + MockMailTransport + dedupe 24h
 - [x] 1. T285 — reações (Gostei/Não gostei), motivo de abandono e progresso (Addendum 4): migration aditiva + PATCH + prompt i18n + hook onReacaoRegistrada · evid: R285
 - [x] 2. T286 — DiscoveryEvent + feed Descobertas (Addenda 3/4): eventos idempotentes + GET /discoveries + página + métrica no admin · evid: R286
 - [x] 3. T287 — classificação indicativa + prêmios + origem (Addendum 2) com seed TMDB/IGDB · evid: R287
