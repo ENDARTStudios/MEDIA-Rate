@@ -1,4 +1,11 @@
-import { Inject, Injectable, Logger, BadRequestException, ConflictException } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  Logger,
+  BadRequestException,
+  ConflictException,
+  Optional,
+} from "@nestjs/common";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { createHash } from "node:crypto";
@@ -9,6 +16,7 @@ import {
 } from "./domain/gateway/payment-gateway.port.js";
 import { WebhookSignatureError } from "./domain/gateway/payment-gateway.port.js";
 import { CreateCheckoutDtoType, WebhookPayload } from "./dto/payment.dto.js";
+import { MailerService } from "../mailer/mailer.service.js";
 
 /**
  * Serviço de pagamento (T4.8 use case).
@@ -27,6 +35,7 @@ export class PaymentService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(PAYMENT_GATEWAY) private readonly gateway: IPaymentGateway,
+    @Optional() private readonly mailer?: MailerService,
   ) {}
 
   /**
@@ -297,6 +306,8 @@ export class PaymentService {
       data: { trial_notified_at: new Date() },
     });
     this.logger.log(`Fim de trial notificado para usuário ${usuarioId}`);
+    // T341: email transacional de aviso de fim de trial (Plus).
+    await this.notificarEmail(usuarioId, "trial_will_end", { plano: "Plus" });
   }
 
   /**
@@ -325,6 +336,27 @@ export class PaymentService {
       },
     });
     this.logger.log(`Assinatura cancelada para usuário ${usuarioId} (downgrade para FREE)`);
+    // T341: email transacional de cancelamento.
+    await this.notificarEmail(usuarioId, "subscription_cancelled", {});
+  }
+
+  /**
+   * T341: resolve o email do usuário e dispara o email transacional (no-op
+   * quando o mailer não está injetado — mantém testes/instâncias sem mailer
+   * funcionando sem quebrar).
+   */
+  private async notificarEmail(
+    usuarioId: string,
+    tipo: "trial_will_end" | "subscription_cancelled",
+    vars: Record<string, string>,
+  ): Promise<void> {
+    if (!this.mailer) return;
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      select: { email: true },
+    });
+    if (!usuario?.email) return;
+    await this.mailer.enviar(tipo, usuario.email, vars);
   }
 
   /**

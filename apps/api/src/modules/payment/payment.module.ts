@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { PaymentController } from "./payment.controller.js";
 import { PaymentService } from "./payment.service.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
+import { MailerModule } from "../mailer/mailer.module.js";
 import { MockPaymentGateway } from "./adapter/mock-payment.gateway.js";
 import { StripePaymentGateway } from "./adapter/stripe-payment.gateway.js";
 import { PAYMENT_GATEWAY } from "./domain/gateway/payment-gateway.port.js";
@@ -14,7 +15,7 @@ import { PAYMENT_GATEWAY } from "./domain/gateway/payment-gateway.port.js";
  * - Seleção automática baseada em STRIPE_SECRET_KEY env.
  */
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, MailerModule],
   controllers: [PaymentController],
   providers: [
     PaymentService,
