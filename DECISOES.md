@@ -949,3 +949,30 @@ Relatorio de cobertura (models com FK usuario x RLS):
 - Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
 
 - [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 — ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
+
+---
+
+## [2026-08-15] D-317 — Workflow Issues+PRs no GitHub (padrão oficial)
+
+- Toda tarefa do PLANO_MESTRE vira Issue (label por fase, milestone "Open Beta Hardenada").
+- Todo commit do Doer vai para branch `feature/<tarefa-id>` e vira PR com `Closes #<issue>`; main só recebe merge via PR (CI verde + review do Thinker no GitHub).
+- Criação de Issue/PR via `gh` CLI (GITHUB_TOKEN do CI) — sem depender do Operador. Documentado em `docs/WORKFLOW_GITHUB.md` + templates `.github/{PULL_REQUEST_TEMPLATE.md, ISSUE_TEMPLATE/tarefa.md}` + `CONTRIBUTING.md`.
+- Exceção: `chore:` de reconciliação de estado (PLANO_MESTRE/DECISOES) segue push direto em main.
+
+---
+
+## [2026-08-15] D-318 — Motion Principles obrigatórios de UI (kylezantos/design-principles)
+
+- Skeleton proporcional ao conteúdo, lazy-load nativo (`loading=lazy` + blur placeholder), transições de rota (View Transitions API), botão async com loading+disabled, progresso não-bloqueante em todo conteúdo assíncrono.
+- Respeitar `prefers-reduced-motion` (reduced = fade 100ms; none = só mudança de estado). Reutilizar Motion/GSAP/Anime.js (sem nova lib).
+- Documentado em `docs/UI_MOTION_PRINCIPLES.md`; aplicação faseada (públicas primeiro). Lighthouse > 90 é gate.
+
+---
+
+## [2026-08-15] D-319 — Stack observabilidade+qualidade expandida
+
+- **Adotar agora (sem custo):** OpenTelemetry (traces/metrics/logs, backend-agnostic), Knip (código/deps não usadas), Stryker (mutation testing), Arch-contract (regras de arquitetura), Comilint (lint de commits).
+- **Mantém:** Sentry (T293/T315), Playwright (T023), coverage v8 (T024).
+- **Pendência do Operador (custo):** Datadog vs NewRelic; Codecov (free open-source / ~US$10 privado); endpoint OTLP de produção.
+- **Avaliar antes de substituir:** Biome vs ESLint+Prettier (benchmark real >2x + sem perder regras de segurança).
+- Jobs CI novos entram como warning-only por 1 sprint, depois bloqueantes. Documentado em `docs/STACK_OBSERVABILIDADE_QUALIDADE.md`.

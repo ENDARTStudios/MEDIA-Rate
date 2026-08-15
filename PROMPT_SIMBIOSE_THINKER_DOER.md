@@ -212,7 +212,10 @@ Se `responsavel` for `Doer`:
 2. Se inválida ou ambígua: `STATUS: BLOCKED` com `erro_codigo: AMBIGUOUS_SPEC`.
 3. Se válida: ack imediato.
 4. Marcar `[> T000-slug]` no `PLANO_MESTRE.md`.
-5. Commit de checkpoint.
+5. **D-317 (workflow GitHub):** criar branch `feature/<tarefa-id>` e commitar
+   nela (exceção: `chore:` de reconciliação de estado segue push direto em
+   `main`). Ao concluir, abrir PR com `Closes #<issue>` — ver
+   `docs/WORKFLOW_GITHUB.md`.
 6. Emitir `STATUS: IN_PROGRESS`.
 7. Implementar o mínimo necessário.
 8. Rodar verificação.
