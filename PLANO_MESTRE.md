@@ -243,6 +243,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T322 — reparo de órfãos curtidos (commit `065550c`): script `db:reparo:orfaos` + endpoint `PATCH /watchlist/:id/relink` + CTA "Buscar substituta"; run em produção pendente do Operador
 - [x] T323 — triagem da revisão externa (15 HIGH confirmados) em `docs/REVISAO_EXTERNA_TRIAGEM.md` · tarefas T325–T341 priorizadas
 - [x] T325 — correção HIGH #1: CsrfGuard global em métodos mutantes (commit `0917a41`) + cookie csrf persistente + checkout envia X-CSRF-Token
+- [x] T326 — correção HIGH #2: IdempotencyInterceptor global (mutante+autenticado+Idempotency-Key, commit `5b56f5d`) com `IdempotencyStore` (hash + TTL 24h)
 - [x] 1. T285 — reações (Gostei/Não gostei), motivo de abandono e progresso (Addendum 4): migration aditiva + PATCH + prompt i18n + hook onReacaoRegistrada · evid: R285
 - [x] 2. T286 — DiscoveryEvent + feed Descobertas (Addenda 3/4): eventos idempotentes + GET /discoveries + página + métrica no admin · evid: R286
 - [x] 3. T287 — classificação indicativa + prêmios + origem (Addendum 2) com seed TMDB/IGDB · evid: R287
