@@ -542,7 +542,10 @@
     "tituloIndisponivel": "Título indisponível",
     "queroConsumir": "Quero consumir",
     "consumindo": "Consumindo",
-    "concluido": "Concluído"
+    "concluido": "Concluído",
+    "buscarSubstituta": "Buscar substituta",
+    "relinkPlaceholder": "Busque o título correto...",
+    "relinkError": "Não foi possível re-vincular. Tente novamente."
   },
   "privacy": {
     "metaTitle": "Política de Privacidade — MEDIA Rate",

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslations } from "next-intl";
 import { useInteractionStore } from "@/stores/use-interaction-store";
+import { useWatchlistStore } from "@/stores/use-watchlist-store";
+import { searchMedia } from "@/lib/api";
 import { REACOES, type Reacao } from "@/lib/api-interactions";
 import { ReactionGlyph } from "@/components/interaction/StatusIcons";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
@@ -126,6 +128,89 @@ export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
 }
 
 /**
+ * T322: fluxo de recuperação de item órfão — busca o título correto e
+ * re-vincula a entrada à mídia canônica escolhida (preserva reação/status).
+ */
+function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: string }) {
+  const t = useTranslations("watchlist");
+  const relinkItem = useWatchlistStore((s) => s.relinkItem);
+  const [aberto, setAberto] = useState(false);
+  const [query, setQuery] = useState("");
+  const [resultados, setResultados] = useState<{ id: string; title: string; year: number }[]>([]);
+  const [erro, setErro] = useState(false);
+
+  useEffect(() => {
+    if (!aberto) return;
+    if (query.trim().length < 2) {
+      setResultados([]);
+      return;
+    }
+    let cancelado = false;
+    setErro(false);
+    const timer = setTimeout(() => {
+      searchMedia(query)
+        .then((r) => {
+          if (cancelado) return;
+          setResultados(
+            r
+              .slice(0, 8)
+              .map(({ media }) => ({ id: media.id, title: media.title, year: media.year })),
+          );
+        })
+        .catch(() => {
+          if (!cancelado) setErro(true);
+        });
+    }, 250);
+    return () => {
+      cancelado = true;
+      clearTimeout(timer);
+    };
+  }, [aberto, query]);
+
+  if (!aberto) {
+    return (
+      <button
+        type="button"
+        data-testid="relink-cta"
+        onClick={() => {
+          setAberto(true);
+          setQuery(palpite);
+        }}
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-[10px] text-[#818CF8] hover:bg-[#2A2A3D] transition-colors"
+      >
+        {t("buscarSubstituta")}
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-1 space-y-1" data-testid="relink-search">
+      <input
+        autoFocus
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={t("relinkPlaceholder")}
+        aria-label={t("buscarSubstituta")}
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-[10px] text-[#EDE7DC] placeholder-[#6B7280] outline-none focus:border-[#818CF8]"
+      />
+      {erro && <p className="text-[10px] text-red-400">{t("relinkError")}</p>}
+      <div className="max-h-32 overflow-y-auto rounded border border-[#2A2A3D]">
+        {resultados.map((r) => (
+          <button
+            key={r.id}
+            type="button"
+            onClick={() => void relinkItem(entryId, r.id)}
+            className="block w-full text-left rounded px-1.5 py-1 text-[10px] text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+          >
+            {r.title} <span className="text-[#6B7280]">{r.year}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Card do Kanban (T200, §7): título/poster + status + selo de reação (👍/👎)
  * sobreposto + reação rápida (habilitada ao mover para Concluído/Abandonado).
  */
@@ -155,8 +240,12 @@ export function WatchlistCard({
   const reacao = inter?.reacao ?? null;
   // T310: fallback chain nunca expõe UUID cru — humaniza o id quando é
   // slug-like e cai no rótulo i18n "título indisponível".
-  const tituloFinal = tituloHumano(entry.media, entry.mediaId) ?? t("tituloIndisponivel");
-  const item = entryToMediaItem(entry, tituloFinal);
+  const tituloResolvido = tituloHumano(entry.media, entry.mediaId);
+  const ehOrfao = !tituloResolvido;
+  const tituloFinal = tituloResolvido ?? t("tituloIndisponivel");
+  const item = ehOrfao ? null : entryToMediaItem(entry, tituloFinal);
+  // T322: melhor palpite de título para pré-preencher a busca de recuperação.
+  const palpite = humanizarId(entry.mediaId) ?? "";
   // T320/D-309: botão rápido do canto abre o MENU de status (mesmo handler do
   // dropdown da ficha) — estado único, nunca handler morto.
   const [menuAberto, setMenuAberto] = useState(false);
@@ -178,7 +267,18 @@ export function WatchlistCard({
       aria-label={tituloFinal}
       data-testid="watchlist-card"
     >
-      {item && <MediaCard media={item} />}
+      {item ? (
+        <MediaCard media={item} />
+      ) : (
+        // T322: órfão sem título resolvível — NUNCA um beco "Título
+        // indisponível" estático; oferece a recuperação "Buscar substituta".
+        <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
+          <span className="text-center text-[10px] leading-tight text-[#6B6B85]">
+            {tituloFinal}
+          </span>
+          <BuscarSubstituta entryId={entry.id} palpite={palpite} />
+        </div>
+      )}
 
       {/* Selo de reação sobreposto + ações */}
       <div className="mt-1 flex items-center justify-between gap-2 px-1">

@@ -542,7 +542,10 @@
     "tituloIndisponivel": "Title unavailable",
     "queroConsumir": "Want to consume",
     "consumindo": "Consuming",
-    "concluido": "Completed"
+    "concluido": "Completed",
+    "buscarSubstituta": "Find substitute",
+    "relinkPlaceholder": "Search for the correct title...",
+    "relinkError": "Could not re-link. Please try again."
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",

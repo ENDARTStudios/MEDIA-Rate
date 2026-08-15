@@ -41,6 +41,7 @@ interface WatchlistState {
   addToWatchlist: (mediaId: string, status?: string) => Promise<void>;
   moveItem: (entryId: string, newStatus: string) => Promise<void>;
   removeItem: (entryId: string) => Promise<void>;
+  relinkItem: (entryId: string, mediaId: string) => Promise<void>;
   isInWatchlist: (mediaId: string) => boolean;
   getEntryStatus: (mediaId: string) => string | null;
 }
@@ -132,6 +133,18 @@ export const useWatchlistStore = create<WatchlistState>()((set, get) => ({
       await get().fetchWatchlist();
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Erro ao remover item";
+      set({ error: msg });
+      throw err;
+    }
+  },
+
+  relinkItem: async (entryId, mediaId) => {
+    set({ error: null });
+    try {
+      await api.patch(`/api/v1/watchlist/${entryId}/relink`, { midia_id: mediaId });
+      await get().fetchWatchlist();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Erro ao re-vincular item";
       set({ error: msg });
       throw err;
     }

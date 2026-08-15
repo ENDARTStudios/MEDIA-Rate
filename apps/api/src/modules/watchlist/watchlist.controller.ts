@@ -23,8 +23,10 @@ import {
   addToWatchlistSchema,
   moveWatchlistSchema,
   registrarReacaoSchema,
+  relinkWatchlistSchema,
   type AddToWatchlistDto,
   type RegistrarReacaoDto,
+  type RelinkWatchlistDto,
 } from "./dto/watchlist.dto.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 
@@ -96,5 +98,15 @@ export class WatchlistController {
   async remove(@Req() req: WatchlistRequest, @Param("id") id: string) {
     this.metrics.incrementWatchlistRemove();
     await this.service.remove(this.userId(req), id);
+  }
+
+  @Patch(":id/relink")
+  @ApiOperation({ summary: "Re-linka um item órfão para uma mídia canônica (T322)" })
+  async relink(
+    @Req() req: WatchlistRequest,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(relinkWatchlistSchema)) body: RelinkWatchlistDto,
+  ) {
+    return this.service.relink(this.userId(req), id, body.midia_id);
   }
 }

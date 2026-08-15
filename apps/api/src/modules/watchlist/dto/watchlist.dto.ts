@@ -25,6 +25,20 @@ export const registrarReacaoSchema = z
     message: "Informe pelo menos reacao ou motivo_abandono.",
   });
 
+/**
+ * T322: re-link de um item órfão para uma mídia canônica escolhida pelo
+ * usuário (fluxo "Buscar substituta"). midia_id deve ser UUID canônico.
+ */
+export const relinkWatchlistSchema = z.object({
+  midia_id: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "midia_id deve ser UUID válido.",
+    ),
+});
+
 export type AddToWatchlistDto = z.infer<typeof addToWatchlistSchema>;
 export type MoveWatchlistDto = z.infer<typeof moveWatchlistSchema>;
 export type RegistrarReacaoDto = z.infer<typeof registrarReacaoSchema>;
+export type RelinkWatchlistDto = z.infer<typeof relinkWatchlistSchema>;

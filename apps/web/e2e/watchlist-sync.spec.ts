@@ -81,3 +81,31 @@ test("T320: status dirige a coluna e a coluna dirige o status", async ({ page })
   const i = (inter.body ?? []).find((x) => x.midia_id === midiaId);
   expect(i?.status).toBe("QUERO_CONSUMIR");
 });
+
+test("T322: órfão não-UUID re-vincula para canônica (recovery owner-only)", async ({ page }) => {
+  test.skip(!FREE_EMAIL || !FREE_PASSWORD, "TEST_USER_FREE_* ausente");
+  await login(page);
+
+  const cat = await api<{ data?: { id: string }[] }>(page, "GET", "/api/v1/midias");
+  const midiaId = cat.body?.data?.[0]?.id;
+  test.skip(!midiaId, "sem mídia no catálogo");
+
+  // Órfão: midia_id não-UUID (id externo/aresta de grafo) — sem mídia resolvível.
+  const add = await api<{ id?: string; midia_id?: string }>(page, "POST", "/api/v1/watchlist", {
+    midia_id: "orphan-e2e-t322",
+    coluna: "COMPLETED",
+  });
+  expect(add.status).toBe(201);
+  const orphanId = add.body?.id;
+  test.skip(!orphanId, "não criou entrada órfã");
+
+  // Recovery: re-linka a entrada para a mídia canônica escolhida.
+  const relink = await api(page, "PATCH", `/api/v1/watchlist/${orphanId}/relink`, {
+    midia_id: midiaId,
+  });
+  expect(relink.status).toBe(200);
+
+  const wl = await api<{ id?: string; midia_id?: string }[]>(page, "GET", "/api/v1/watchlist");
+  const entry = (wl.body ?? []).find((e) => e.id === orphanId);
+  expect(entry?.midia_id).toBe(midiaId);
+});

@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  BadRequestException,
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
@@ -273,6 +274,96 @@ export class WatchlistService {
       }
 
       return this.semTenant(atualizada);
+    });
+  }
+
+  /**
+   * T322: re-linka um item órfão (sem mídia resolvível) para uma mídia
+   * canônica escolhida pelo usuário (fluxo "Buscar substituta"). Preserva o
+   * sinal do usuário (reação/motivo/progresso) e recria a interação na mídia
+   * nova. Owner-only: entrada alheia → 404; midia_id não-UUID → 400.
+   */
+  async relink(usuarioId: string, entryId: string, midiaId: string) {
+    if (!UUID_RE.test(midiaId)) {
+      throw new BadRequestException("midia_id deve ser um UUID canônico.");
+    }
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const entry = await tx.watchlistEntry.findFirst({
+        where: { id: entryId, usuario_id: usuarioId },
+      });
+      if (!entry) {
+        throw new NotFoundException("Entrada da watchlist não encontrada.");
+      }
+      const canonica = await tx.midia.findUnique({
+        where: { id: midiaId },
+        select: { id: true },
+      });
+      if (!canonica) {
+        throw new NotFoundException("Mídia canônica não encontrada.");
+      }
+
+      // Colisão: usuário já tem a mídia canônica em OUTRA entrada → merge
+      // não-destrutivo (mantém a mais recente e preserva o sinal da antiga).
+      const duplicata = await tx.watchlistEntry.findFirst({
+        where: { usuario_id: usuarioId, midia_id: midiaId, id: { not: entryId } },
+      });
+
+      let sobreviventeId = entry.id;
+      if (duplicata) {
+        const recente = entry.created_at >= duplicata.created_at ? entry : duplicata;
+        const antiga = recente.id === entry.id ? duplicata : entry;
+        await tx.watchlistEntry.update({
+          where: { id: recente.id },
+          data: {
+            reacao: recente.reacao ?? antiga.reacao,
+            motivo_abandono: recente.motivo_abandono ?? antiga.motivo_abandono,
+            progresso_detalhe: recente.progresso_detalhe ?? antiga.progresso_detalhe,
+          },
+        });
+        await tx.watchlistEntry.delete({ where: { id: antiga.id } });
+        sobreviventeId = recente.id;
+      } else {
+        await tx.watchlistEntry.update({
+          where: { id: entryId },
+          data: { midia_id: midiaId },
+        });
+      }
+
+      const sobrevivente = await tx.watchlistEntry.findUnique({ where: { id: sobreviventeId } });
+      if (!sobrevivente) {
+        throw new NotFoundException("Entrada não encontrada após re-link.");
+      }
+
+      // Sincroniza o sinal de interação na mídia nova (fonte única T320).
+      const status = COLUNA_PARA_STATUS[sobrevivente.coluna as WatchlistColuna] ?? "QUERO_CONSUMIR";
+      await tx.usuarioMidiaInteracao.upsert({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+        create: {
+          usuario_id: usuarioId,
+          midia_id: midiaId,
+          status,
+          reacao: sobrevivente.reacao ?? null,
+          motivo_abandono: sobrevivente.motivo_abandono ?? null,
+          progresso_detalhe: sobrevivente.progresso_detalhe ?? null,
+          atualizado_em: new Date(),
+        },
+        update: {
+          status,
+          reacao: sobrevivente.reacao ?? null,
+          motivo_abandono: sobrevivente.motivo_abandono ?? null,
+          progresso_detalhe: sobrevivente.progresso_detalhe ?? null,
+          atualizado_em: new Date(),
+        },
+      });
+
+      // Remove a interação órfã da mídia antiga (se era UUID distinta).
+      if (UUID_RE.test(entry.midia_id) && entry.midia_id !== midiaId) {
+        await tx.usuarioMidiaInteracao.deleteMany({
+          where: { usuario_id: usuarioId, midia_id: entry.midia_id },
+        });
+      }
+
+      return this.semTenant(sobrevivente);
     });
   }
 
