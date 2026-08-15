@@ -96,14 +96,20 @@ export function DiagPanel() {
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onRejection);
 
-    testMe().then(() => testWatchlist());
-
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("error", onError);
       window.removeEventListener("unhandledrejection", onRejection);
     };
   }, []);
+
+  // T346: só dispara as chamadas de diagnóstico quando o painel está ativo
+  // (?diag=1). Antes, o effect de mount chamava testMe/testWatchlist em TODA
+  // página, mesmo com o painel oculto — 2 requests por pageview (perf HIGH).
+  useEffect(() => {
+    if (!enabled) return;
+    void testMe().then(() => testWatchlist());
+  }, [enabled]);
 
   if (!enabled) return null;
 
