@@ -146,40 +146,36 @@ com `railway up` do commit anterior ou re-deploy.
 
 ## Passo 5 — Mailer real (fecha o último achado HIGH)
 
-**⚠️ Estado atual (honesto):** o mailer de T341/T342 usa `MockMailTransport` —
-NÃO há transporte SMTP/Resend implementado ainda. Ou seja, **não existe variável
-de ambiente de provedor para colar hoje**; o transporte real é uma tarefa de
-implementação pendente do Doer.
+**✅ Estado atual:** o transporte Resend **já está implementado** (T348,
+`ResendMailTransport` + `criarTransport()`). A entrega real é **gateada apenas na
+chave** — o `MailerModule` usa Resend quando `MAIL_PROVIDER=resend` E
+`RESEND_API_KEY` presente; caso contrário, mock (nunca envia).
 
-**O que fazer (ordem):**
-1. **Escolha o provedor:** Resend (mais simples, API HTTP), SendGrid ou SMTP
-   genérico (ex.: Postmark/Mailgun).
-2. **Crie a conta** e valide um domínio remetente (ex.: `mediarate.app`).
-3. **Informe ao Doer** qual provedor escolheu + as credenciais (na UI do
-   Railway/Vercel, **nunca no chat**). O Doer implementa o transport
-   (`T348-mailer-real`) que lerá os nomes de env abaixo.
-4. **Cole as variáveis** no Railway (Settings → Variables):
+**O que fazer (agora é só colar 2 variáveis):**
 
-| Variável proposta | Provider | Exemplo |
-|---|---|---|
-| `MAIL_PROVIDER` | todos | `resend` \| `smtp` \| `sendgrid` |
-| `MAIL_FROM` | todos | `no-reply@mediarate.app` |
-| `RESEND_API_KEY` | Resend | `<COLE_AQUI>` |
-| `SENDGRID_API_KEY` | SendGrid | `<COLE_AQUI>` |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | SMTP | `<COLE_AQUI>` |
+1. Crie conta gratuita em https://resend.com e valide um domínio remetente
+   (ex.: `mediarate.app`) ou use o email de teste do próprio painel.
+2. Copie a API key (https://resend.com/api-keys).
+3. Cole no **Railway** (Settings → Variables) — **UI apenas, nunca no chat**:
 
-5. **Teste de entrega real:** após o Doer implementar o transport, dispare um
-   reset de senha (`POST /api/v1/auth/forgot-password`) com o seu próprio email
-   e confirme que chega no inbox.
+| Variável | Valor |
+|---|---|
+| `MAIL_PROVIDER` | `resend` |
+| `MAIL_FROM` | `no-reply@mediarate.app` (ou o domínio validado) |
+| `RESEND_API_KEY` | `<COLE_AQUI>` |
+
+4. **Teste de entrega real:** dispare um reset de senha
+   (`POST /api/v1/auth/forgot-password`) com o seu próprio email e confirme que
+   chega no inbox.
 
 **Critério de sucesso:** um email de verificação/reset chega na sua caixa de
 entrada (não apenas no `dev-mailbox.log`).
 
-**Se falhar:** "email não chega" → ver `MAIL_FROM` + domínio validado no provedor
-+ logs do Railway (o mailer loga `Email <tipo> enviado para <destino>`).
+**Se falhar:** "email não chega" → confirme o domínio validado no Resend, o
+`MAIL_FROM` e os logs do Railway (o transport loga `[mail-resend] para=...` em
+sucesso; em erro, `Resend devolveu HTTP <status>`).
 
-**Depois de feito:** responda "feito o passo 5" (ou "provider escolhido: X" para
-o Doer implementar o transport).
+**Depois de feito:** responda "feito o passo 5".
 
 ---
 

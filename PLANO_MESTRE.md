@@ -253,6 +253,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T347 — runbook único do Operador (commit `f8778a7`): `docs/RUNBOOK_OPERADOR_FINAL.md` (6 passos: Postgres teste → migrate → reparo T322 → deploys → mailer real → verificação)
 - [x] T349 — infra: portas parametrizadas no compose + Postgres de teste em 5434 (commit `19c9b02`) — desbloqueia T344/T345
 - [x] T344/T345 — RLS FORCE em `usuario_plano` (owner+SERVICE+ADMIN) + isolamento A≠B (commit `a893f64`): leitores sob `comContextoRls`, teste e2e real `rls-usuario-plano.e2e.spec.ts` 5/5
+- [x] T348 — transport real do mailer (Resend, commit `b7f913a`): `ResendMailTransport` (fetch nativo) + `criarTransport()` (resend se `MAIL_PROVIDER=resend`+`RESEND_API_KEY`, senão mock) — entrega real gateada só na chave do Operador
 - [x] 1. T285 — reações (Gostei/Não gostei), motivo de abandono e progresso (Addendum 4): migration aditiva + PATCH + prompt i18n + hook onReacaoRegistrada · evid: R285
 - [x] 2. T286 — DiscoveryEvent + feed Descobertas (Addenda 3/4): eventos idempotentes + GET /discoveries + página + métrica no admin · evid: R286
 - [x] 3. T287 — classificação indicativa + prêmios + origem (Addendum 2) com seed TMDB/IGDB · evid: R287
