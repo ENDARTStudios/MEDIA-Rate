@@ -13,6 +13,8 @@ interface OpenCriticDetalhe {
   name?: string;
   medianScore?: number;
   topCriticScore?: number;
+  /** Quantidade de reviews de crítica contadas no medianScore. */
+  numReviews?: number;
   url?: string;
 }
 
@@ -81,12 +83,15 @@ export class OpenCriticAdapter implements FonteAdapter {
     const rating = detalhe.medianScore ?? detalhe.topCriticScore;
     if (!rating || rating <= 0) return [];
     const stats = estatisticas("0-100");
+    const votos =
+      detalhe.numReviews != null && detalhe.numReviews > 0 ? detalhe.numReviews : undefined;
     return [
       {
         fonte: this.id,
         rating,
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos,
         url: detalhe.url ?? `https://opencritic.com/game/${item.id}`,
       },
     ];

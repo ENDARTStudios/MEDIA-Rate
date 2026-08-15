@@ -131,6 +131,7 @@ describe("OpenCriticAdapter — busca por critérios com apóstrofo (medianScore
           id: 9136,
           name: "Baldur's Gate 3",
           medianScore: 91,
+          numReviews: 142,
           url: "https://opencritic.com/game/9136/baldurs-gate-3",
         },
       },
@@ -142,10 +143,32 @@ describe("OpenCriticAdapter — busca por critérios com apóstrofo (medianScore
     expect(notas).toHaveLength(1);
     expect(notas[0].fonte).toBe("opencritic");
     expect(notas[0].rating).toBe(91);
+    expect(notas[0].votos).toBe(142);
     expect(notas[0].url).toBe("https://opencritic.com/game/9136/baldurs-gate-3");
     const [buscaUrl, detalheUrl] = vi.mocked(fetch).mock.calls.map(([u]) => String(u));
     expect(buscaUrl).toContain("/game/search?criteria=");
     expect(detalheUrl).toContain("/game/9136");
+  });
+
+  it("deixa votos indefinido quando o detalhe não traz numReviews", async () => {
+    vi.stubEnv("OPENCRITIC_API_KEY", "teste");
+    mockFetch([
+      { body: [{ id: 9136, name: "Baldur's Gate 3", dist: 0.277 }] },
+      {
+        body: {
+          id: 9136,
+          name: "Baldur's Gate 3",
+          medianScore: 91,
+          url: "https://opencritic.com/game/9136/baldurs-gate-3",
+        },
+      },
+    ]);
+    const notas = await new OpenCriticAdapter().coletar({
+      tipo: "GAME",
+      titulo: "Baldurs Gate 3",
+    });
+    expect(notas[0].rating).toBe(91);
+    expect(notas[0].votos).toBeUndefined();
   });
 
   it("fica inativo sem chave", () => {

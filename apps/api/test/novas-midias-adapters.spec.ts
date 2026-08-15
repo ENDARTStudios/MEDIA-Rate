@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { ConsultaMedia } from "../src/modules/media-score/adapters/fonte-adapter.interface.js";
 import { JikanAdapter } from "../src/modules/media-score/adapters/jikan.adapter.js";
 import { AniListAdapter } from "../src/modules/media-score/adapters/anilist.adapter.js";
+import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
 import { OpenLibraryAdapter } from "../src/modules/media-score/adapters/openlibrary.adapter.js";
 import { GoogleBooksAdapter } from "../src/modules/media-score/adapters/googlebooks.adapter.js";
 import { ComicVineAdapter } from "../src/modules/media-score/adapters/comicvine.adapter.js";
@@ -42,12 +43,53 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   it("anilist: averageScore 0–100 ÷10 na exibição (escala 0-100 registrada)", async () => {
     const { postJson } = await import("../src/modules/media-score/adapters/http.utils.js");
     vi.mocked(postJson).mockResolvedValue({
-      data: { Media: { averageScore: 89, siteUrl: "https://anilist.co/anime/1" } },
+      data: {
+        Media: {
+          averageScore: 89,
+          siteUrl: "https://anilist.co/anime/1",
+          statistics: { scoreDistribution: [{ amount: 160000 }, { amount: 100000 }] },
+        },
+      },
     });
     const adapter = new AniListAdapter();
     const notas = await adapter.coletar(consulta("Berserk"));
     expect(notas[0].fonte).toBe("anilist");
     expect(notas[0].rating).toBe(89);
+    expect(notas[0].votos).toBe(260000);
+  });
+
+  it("anilist: votos indefinido quando scoreDistribution ausente", async () => {
+    const { postJson } = await import("../src/modules/media-score/adapters/http.utils.js");
+    vi.mocked(postJson).mockResolvedValue({
+      data: { Media: { averageScore: 89, siteUrl: "https://anilist.co/anime/1" } },
+    });
+    const adapter = new AniListAdapter();
+    const notas = await adapter.coletar(consulta("Berserk"));
+    expect(notas[0].rating).toBe(89);
+    expect(notas[0].votos).toBeUndefined();
+  });
+
+  it("kitsu: averageRating 0–100 com ratingCount como votos", async () => {
+    const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
+    vi.mocked(fetchJson).mockResolvedValue({
+      data: [{ attributes: { averageRating: "82.3", ratingCount: 12800 } }],
+    });
+    const adapter = new KitsuAdapter();
+    const notas = await adapter.coletar(consulta("Berserk"));
+    expect(notas[0].fonte).toBe("kitsu");
+    expect(notas[0].rating).toBe(82.3);
+    expect(notas[0].votos).toBe(12800);
+  });
+
+  it("kitsu: votos indefinido quando ratingCount null", async () => {
+    const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
+    vi.mocked(fetchJson).mockResolvedValue({
+      data: [{ attributes: { averageRating: "82.3", ratingCount: null } }],
+    });
+    const adapter = new KitsuAdapter();
+    const notas = await adapter.coletar(consulta("Berserk"));
+    expect(notas[0].rating).toBe(82.3);
+    expect(notas[0].votos).toBeUndefined();
   });
 
   it("jikan/anilist: ativos sem gate e atendem anime/mangá (tipos ANIME e MANGA)", () => {

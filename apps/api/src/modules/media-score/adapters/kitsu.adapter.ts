@@ -3,7 +3,7 @@ import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
 import { fetchJson } from "./http.utils.js";
 
 interface KitsuMedia {
-  data?: { attributes?: { averageRating?: string | null } }[];
+  data?: { attributes?: { averageRating?: string | null; ratingCount?: number | null } }[];
 }
 
 /** Kitsu — API pública; averageRating "82.3" (0–100) → ÷10. */
@@ -27,12 +27,14 @@ export class KitsuAdapter implements FonteAdapter {
     const nota = media?.attributes?.averageRating;
     if (nota == null || nota === "") return [];
     const stats = estatisticas("0-100");
+    const ratingCount = Number(media?.attributes?.ratingCount ?? 0);
     return [
       {
         fonte: this.id,
         rating: Number.parseFloat(nota),
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
+        votos: ratingCount > 0 ? ratingCount : undefined,
       },
     ];
   }
