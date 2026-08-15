@@ -9,9 +9,14 @@
 
 ## Passo 1 — Postgres de teste local (destrava T344/T345 do Doer)
 
+> D-315: este passo é executado pelo **Doer**, não pelo Operador.
+
 **Por quê:** as tarefas de RLS (`usuario_plano` com `FORCE ROW LEVEL SECURITY` e
-o teste de isolamento A≠B) exigem um PostgreSQL real. A migração e o teste não
-podem ser validados sem banco.
+o teste de isolamento A≠B) exigem um PostgreSQL real.
+
+**Conflito de porta conhecido:** o projeto "Almanaque" (docker) ocupa a `5432`
+e um Postgres nativo do Windows ocupa a `5433`. Por isso o `docker-compose.yml`
+está parametrizado e o `.env` local usa **5434/6380**.
 
 **Comando:**
 ```bash
@@ -26,21 +31,28 @@ docker compose up -d postgres
 
 **Critério de sucesso:**
 ```bash
-docker ps --filter "name=mediarate-db" --format "{{.Names}} {{.Status}}"
-# → mediarate-db Up X seconds (healthy)
+docker compose ps
+# → mediarate-db  postgres:16-alpine  Up (healthy)  0.0.0.0:5434->5432/tcp
 ```
 
-**Variável de ambiente local** (criar `apps/api/.env.local` ou exportar, valores
-do `docker-compose.yml` — já usados nos drills T234/T303):
+**Variável de ambiente local** (`apps/api/.env.local`, valores do
+`docker-compose.yml`):
 ```
-DATABASE_URL=postgresql://mediarate:mediarate_dev@localhost:5432/mediarate?schema=public
+DATABASE_URL=postgresql://mediarate:mediarate_dev@localhost:5434/mediarate?schema=public
 ```
 
-**Se falhar:** `docker compose up -d postgres` com erro de porta → pare o que
-ocupa a 5432 (`netstat -ano | findstr :5432`) ou mude a porta em
-`docker-compose.yml`.
+**Validar o banco:**
+```bash
+cd apps/api
+npx prisma migrate deploy   # aplica as migrations no banco 5434
+npx prisma migrate status   # → Database schema is up to date!
+```
 
-**Depois de feito:** responda "feito o passo 1" — o Doer roda T344/T345.
+**Se falhar (conflito de porta):** outra coisa já usa 5434 → edite `POSTGRES_PORT`
+no `.env` raiz para outra porta livre (ex.: `55432`) e repita. **Nunca** pare os
+containers do Almanaque nem o Postgres nativo do Windows.
+
+**Depois de feito:** o Doer segue imediatamente para T344/T345 (sem nova ordem).
 
 ---
 
