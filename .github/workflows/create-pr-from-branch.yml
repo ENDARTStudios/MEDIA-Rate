@@ -1,0 +1,69 @@
+name: Auto-create PR from feature branch
+
+# T353 (D-321): cria PR automaticamente quando uma branch feature/* é pushada.
+# O Operador nunca precisa clicar em URLs — PRs aparecem sozinhos na aba
+# Pull Requests. Usa o GITHUB_TOKEN nativo (permissões mínimas).
+#
+# Exceção (D-317): branches chore/* NÃO viram PR (push direto de reconciliação).
+
+on:
+  push:
+    branches:
+      - "feature/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    name: Create PR (if not exists)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create PR (idempotente)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          BASE="main"
+
+          # Idempotência: não cria duplicata se já houver PR aberta.
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq 'length' || echo "0")
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "PR já existe para $BRANCH — pulando."
+            exit 0
+          fi
+
+          # Título = assunto do último commit (conventional commit).
+          TITLE=$(git log -1 --pretty=%s)
+
+          # Número da tarefa extraído do nome da branch (feature/T351-... → 351).
+          TASK_ID=$(echo "$BRANCH" | sed -E 's/^feature\///; s/-.*//')
+
+          # Corpo padrão com menção à issue (se existir, o número é o ID da tarefa).
+          BODY=$(cat <<EOF
+Closes #${TASK_ID}
+
+## Descrição
+<!-- gerado automaticamente a partir de ${BRANCH} -->
+
+## Evidência
+- [ ] Testes verdes
+- [ ] Lint + typecheck verdes
+
+> PR criada automaticamente pelo workflow create-pr-from-branch.yml (T353/D-321).
+EOF
+)
+
+          gh pr create \
+            --base "$BASE" \
+            --head "$BRANCH" \
+            --title "$TITLE" \
+            --body "$BODY"
+          echo "PR criada para $BRANCH → $BASE"
