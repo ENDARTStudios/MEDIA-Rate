@@ -140,6 +140,10 @@ export class AuthService {
         select: { id: true, email: true, nome: true, created_at: true },
       });
 
+      // T344: contexto RLS de serviço para a escrita do plano (FORCE RLS).
+      await tx.$executeRawUnsafe("SELECT set_config('app.current_user_id', $1, true)", user.id);
+      await tx.$executeRawUnsafe("SELECT set_config('app.current_user_role', 'SERVICE', true)");
+
       // Plano FREE default
       await tx.usuarioPlano.create({
         data: { usuario_id: user.id, plano: "FREE", status: "ATIVA" },

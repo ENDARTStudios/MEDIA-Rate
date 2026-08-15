@@ -34,6 +34,7 @@ function makeMocks() {
     usuarioPlano: { create: async () => ({}) },
     papel: { findUnique: async () => ({ id: "p1", nome: "USER" }) },
     usuarioPapel: { create: async () => ({}) },
+    $executeRawUnsafe: async () => undefined,
     $transaction: async (arg: any) => {
       if (typeof arg === "function") return arg(prisma);
       for (const op of arg) await op; // forma array (resetPassword)

@@ -55,6 +55,7 @@ interface MockTransactionContext {
   usuarioPapel: { create: () => Promise<unknown> };
   usuarioPlano: { create: () => Promise<unknown> };
   papel: { findUnique: () => Promise<unknown> };
+  $executeRawUnsafe: () => Promise<unknown>;
 }
 
 type MockTransactionInput =
@@ -497,6 +498,7 @@ function mockPrisma(users: Map<string, MockUser>) {
           usuarioPapel: { create: async () => ({}) },
           usuarioPlano: { create: async () => ({}) },
           papel: { findUnique: async () => ({ id: 1, nome: "USER" }) },
+          $executeRawUnsafe: async () => undefined,
         });
       }
       // Forma array (resetPassword): executa cada operação em sequência.

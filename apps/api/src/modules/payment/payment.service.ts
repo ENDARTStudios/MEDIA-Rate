@@ -49,10 +49,16 @@ export class PaymentService {
     usuario: { id: string; email: string },
   ): Promise<CheckoutSession> {
     if (dto.plano === "PLUS") {
-      const plano = await this.prisma.usuarioPlano.findUnique({
-        where: { usuario_id: usuario.id },
-        select: { trial_used_at: true },
-      });
+      // T344: leitura do próprio plano sob contexto RLS (FORCE RLS).
+      const plano = await comContextoRls(
+        this.prisma,
+        { usuarioId: usuario.id, role: "USER" },
+        (tx) =>
+          tx.usuarioPlano.findUnique({
+            where: { usuario_id: usuario.id },
+            select: { trial_used_at: true },
+          }),
+      );
       if (plano?.trial_used_at) {
         throw new ConflictException({
           statusCode: 409,

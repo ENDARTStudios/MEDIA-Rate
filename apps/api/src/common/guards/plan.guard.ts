@@ -10,6 +10,7 @@ import { Reflector } from "@nestjs/core";
 import { FastifyRequest } from "fastify";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../rls-context.js";
 import { PLAN_KEY, PLAN_RANK } from "../decorators/require-plan.decorator.js";
 import type { AuthenticatedUser } from "./auth.guard.js";
 
@@ -96,11 +97,16 @@ export class PlanGuard implements CanActivate {
       return { plano: cached.plano, status: cached.status };
     }
 
-    // Busca no banco.
-    const usuarioPlano = await this.prisma.usuarioPlano.findUnique({
-      where: { usuario_id },
-      select: { plano: true, status: true },
-    });
+    // Busca no banco sob contexto RLS do próprio usuário (T344 — FORCE RLS).
+    const usuarioPlano = await comContextoRls(
+      this.prisma,
+      { usuarioId: usuario_id, role: "USER" },
+      (tx) =>
+        tx.usuarioPlano.findUnique({
+          where: { usuario_id },
+          select: { plano: true, status: true },
+        }),
+    );
     if (!usuarioPlano) {
       // Sem registro de plano = FREE (defensivo, não deveria acontecer).
       return { plano: "FREE", status: "ATIVA" };

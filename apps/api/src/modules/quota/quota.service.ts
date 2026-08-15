@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
 
 /**
  * Quotas diárias por plano (D-132 — limites Free).
@@ -16,10 +17,12 @@ export class QuotaService {
 
   /** Plano do usuário (FREE quando sem registro — defensivo). */
   async planoDe(usuarioId: string): Promise<string> {
-    const registro = await this.prisma.usuarioPlano.findUnique({
-      where: { usuario_id: usuarioId },
-      select: { plano: true },
-    });
+    const registro = await comContextoRls(this.prisma, { usuarioId, role: "USER" }, (tx) =>
+      tx.usuarioPlano.findUnique({
+        where: { usuario_id: usuarioId },
+        select: { plano: true },
+      }),
+    );
     return registro?.plano ?? "FREE";
   }
 

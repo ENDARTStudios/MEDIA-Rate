@@ -3,6 +3,7 @@ import type { FastifyRequest } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { DashboardService } from "./dashboard.service.js";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
 
 type DashboardRequest = FastifyRequest & { user?: { id: string } };
 
@@ -35,10 +36,12 @@ export class DashboardController {
   }
 
   private async planoDo(usuarioId: string): Promise<string | null> {
-    const up = await this.prisma.usuarioPlano.findUnique({
-      where: { usuario_id: usuarioId },
-      select: { plano: true },
-    });
+    const up = await comContextoRls(this.prisma, { usuarioId, role: "USER" }, (tx) =>
+      tx.usuarioPlano.findUnique({
+        where: { usuario_id: usuarioId },
+        select: { plano: true },
+      }),
+    );
     return up?.plano ?? "FREE";
   }
 }

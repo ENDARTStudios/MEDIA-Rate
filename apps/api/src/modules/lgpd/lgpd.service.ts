@@ -1,6 +1,7 @@
 import { Injectable, Logger, ConflictException } from "@nestjs/common";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
 
 /**
  * Serviço LGPD (T4.9 — direitos do titular).
@@ -69,16 +70,18 @@ export class LgpdService {
         where: { usuario_id },
         include: { papel: { select: { nome: true } } },
       }),
-      this.prisma.usuarioPlano.findUnique({
-        where: { usuario_id },
-        select: {
-          plano: true,
-          status: true,
-          current_period_end: true,
-          created_at: true,
-          // NÃO incluir stripe_subscription_id (PII financeira).
-        },
-      }),
+      comContextoRls(this.prisma, { usuarioId: usuario_id, role: "USER" }, (tx) =>
+        tx.usuarioPlano.findUnique({
+          where: { usuario_id },
+          select: {
+            plano: true,
+            status: true,
+            current_period_end: true,
+            created_at: true,
+            // NÃO incluir stripe_subscription_id (PII financeira).
+          },
+        }),
+      ),
       this.prisma.consentimentoUsuario.findMany({
         where: { usuario_id },
         select: {
