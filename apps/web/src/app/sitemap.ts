@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
+import { listMediaSlugs } from "@/lib/api";
 
 const publicRoutes: {
   pathname: string;
@@ -18,8 +19,8 @@ const publicRoutes: {
   { pathname: "/terms", changeFrequency: "monthly", priority: 0.3 },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return publicRoutes.flatMap((route) =>
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = publicRoutes.flatMap((route) =>
     routing.locales.map((locale) => ({
       url: localizedUrl(locale, route.pathname),
       changeFrequency: route.changeFrequency,
@@ -29,4 +30,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       },
     })),
   );
+
+  // T336: entradas dinâmicas do catálogo (uma URL por locale). Falha da API →
+  // sitemap segue só com as rotas estáticas (nunca expõe mídia mock).
+  const slugs = await listMediaSlugs();
+  const media = slugs.flatMap((slug) =>
+    routing.locales.map((locale) => ({
+      url: localizedUrl(locale, `/media/${slug}`),
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+      alternates: {
+        languages: localizedAlternates(`/media/${slug}`),
+      },
+    })),
+  );
+
+  return [...base, ...media];
 }

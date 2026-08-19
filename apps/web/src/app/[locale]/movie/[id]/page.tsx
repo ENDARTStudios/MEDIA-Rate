@@ -1,25 +1,15 @@
-import { setRequestLocale } from "next-intl/server";
-import type { Metadata } from "next";
-import { MovieDetailWrapper } from "@/components/MovieDetailWrapper";
-import { generateDetailMetadata } from "@/lib/detail-metadata";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getMediaBySlug } from "@/lib/api";
 
-export async function generateMetadata({
-  params,
-}: {
+interface Props {
   params: Promise<{ locale: string; id: string }>;
-}): Promise<Metadata> {
-  const { locale, id } = await params;
-  return generateDetailMetadata({ locale, id, type: "movie" });
 }
 
-export default async function MovieDetailPage({
-  params,
-}: {
-  params: Promise<{ locale: string; id: string }>;
-}) {
+// T338: rota legada /movie/[id] — redirect permanente para o canônico
+// /media/[slug] (remove página client-only duplicada e indexável).
+export default async function MovieDetailRedirect({ params }: Props) {
   const { locale, id } = await params;
-  setRequestLocale(locale);
   const media = await getMediaBySlug(id);
-  return <MovieDetailWrapper id={id} media={media} />;
+  if (!media) notFound();
+  permanentRedirect(`/${locale}/media/${media.slug}`);
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 import { ListaViewPage } from "../../../../components/ListaViewPage";
 
 export async function generateMetadata({
@@ -7,9 +8,17 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "listas" });
-  return { title: `${t("title")} — MEDIA Rate`, description: t("title") };
+  const pathname = `/listas/${slug}`;
+  return {
+    title: `${t("title")} — MEDIA Rate`,
+    description: t("title"),
+    alternates: {
+      canonical: localizedUrl(locale, pathname),
+      languages: localizedAlternates(pathname),
+    },
+  };
 }
 
 export default async function ListaSlugRoute({

@@ -9,14 +9,17 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "profile" });
-  const url = localizedUrl(locale, "/user");
+  // T340: canonical era "/user" (rota inexistente → 404). Apontar para a
+  // página real /user/[id].
+  const pathname = `/user/${id}`;
+  const url = localizedUrl(locale, pathname);
 
   return {
     title: t("publicTitle"),
     description: t("publicDesc"),
-    alternates: { canonical: url, languages: localizedAlternates("/user") },
+    alternates: { canonical: url, languages: localizedAlternates(pathname) },
     openGraph: {
       title: t("publicTitle"),
       description: t("publicDesc"),

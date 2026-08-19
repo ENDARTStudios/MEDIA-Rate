@@ -1005,6 +1005,34 @@ export function slugify(input: string): string {
 }
 
 /**
+ * T336: lista todos os slugs do catálogo (paginação cursor) para o sitemap.
+ * Sem fallback para mock — se a API falhar, retorna [] (SEO nunca expõe
+ * mídia fake).
+ */
+export async function listMediaSlugs(): Promise<string[]> {
+  const slugs = new Set<string>();
+  let cursor: string | null = null;
+  // Cap de segurança: ~50 páginas × 100 = 5.000 títulos.
+  for (let i = 0; i < 50; i++) {
+    const params = new URLSearchParams({ limit: "100" });
+    if (cursor) params.set("cursor", cursor);
+    const data = await apiGet<{
+      data: { titulo: string }[];
+      next_cursor: string | null;
+      has_more: boolean;
+    }>(`/api/v1/midias?${params.toString()}`);
+    if (!data?.data?.length) break;
+    for (const m of data.data) {
+      const s = slugify(m.titulo);
+      if (s) slugs.add(s);
+    }
+    if (!data.has_more || !data.next_cursor) break;
+    cursor = data.next_cursor;
+  }
+  return [...slugs];
+}
+
+/**
  * Captura lead de e-mail para categoria futura (T185 — endpoint público
  * /api/v1/waitlist-notify). Retorna true se registrado; lança em erro.
  */

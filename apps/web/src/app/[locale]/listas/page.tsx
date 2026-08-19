@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 import { ListasPage } from "../../../components/ListasPage";
 
 export async function generateMetadata({
@@ -9,7 +10,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "listas" });
-  return { title: t("title"), description: t("title") };
+  return {
+    title: t("title"),
+    description: t("title"),
+    alternates: {
+      canonical: localizedUrl(locale, "/listas"),
+      languages: localizedAlternates("/listas"),
+    },
+  };
 }
 
 export default async function ListasRoute({ params }: { params: Promise<{ locale: string }> }) {
