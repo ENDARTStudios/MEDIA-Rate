@@ -1,0 +1,69 @@
+# GitHub Actions — Observabilidade & Qualidade (T352 / D-319+D-320)
+#
+# Jobs warning-only: NÃO bloqueiam o merge (continue-on-error). Após 1 sprint
+# estável, viram bloqueantes (remover continue-on-error).
+# - otel-smoke: valida que o OpenTelemetry SDK da API inicia (export console).
+# - knip: código/deps não usadas (monorepo).
+# - commitlint: lint de mensagens de commit (conventional).
+
+name: Observability & Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  otel-smoke:
+    name: OTel smoke (API)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: OTel SDK inicia (console exporter)
+        working-directory: apps/api
+        run: node --import @swc-node/register/esm-register -e "import('./src/common/otel.js').then(m => console.log('otel-sdk-started:', !!m.otelSdk))"
+
+  knip:
+    name: Knip (dead code/deps)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Knip
+        run: npx --yes knip
+
+  commitlint:
+    name: Commit message lint (conventional)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Conventional commit check (títulos)
+        run: |
+          git log --format=%s origin/main..HEAD | while IFS= read -r msg; do
+            if ! echo "$msg" | grep -Eq '^(feat|fix|security|test|chore|docs|refactor|ci|perf|revert)(\(.+\))?: .+'; then
+              echo "commit fora do padrão conventional: $msg"
+              exit 1
+            fi
+          done

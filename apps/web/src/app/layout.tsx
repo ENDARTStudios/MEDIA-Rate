@@ -1,8 +1,10 @@
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
+import { routing } from "@/i18n/routing";
 import { SentryClientInit } from "@/components/SentryClientInit";
+import { HtmlLang } from "@/components/HtmlLang";
+import { OtelBrowserInit } from "@/components/OtelBrowserInit";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app"),
@@ -33,12 +35,11 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const requestHeaders = await headers();
-  const locale = requestHeaders.get("x-next-intl-locale") || "pt-BR";
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // T331: sem `await headers()` aqui (desligava ISR/estático globalmente).
+  // <html lang> é corrigido por locale via <HtmlLang /> (cliente, no mount).
   return (
-    <html lang={locale} className="dark" suppressHydrationWarning>
+    <html lang={routing.defaultLocale} className="dark" suppressHydrationWarning>
       <body
         className={cn(
           spaceGrotesk.variable,
@@ -48,6 +49,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         )}
       >
         <SentryClientInit />
+        <HtmlLang />
+        <OtelBrowserInit />
         {children}
       </body>
     </html>
