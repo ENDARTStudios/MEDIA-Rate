@@ -9,6 +9,9 @@ build/
 out/
 .next/
 coverage/
+*.tsbuildinfo
+coverage-out.txt
+cov*.txt
 
 # Ambiente e segredos (NUNCA commitar)
 .env
@@ -41,6 +44,7 @@ pnpm-debug.log*
 
 # Testes
 .nyc_output/
+.stryker-tmp/
 
 # Skills locais (do ambiente, nao do projeto)
 skills/
@@ -61,6 +65,8 @@ outputs/
 
 .vercel
 .env*
+# Runtime checkout do agente (nunca faz parte do repositório do produto).
+deepseek-harness/
 # Exceção: .env.example é documentação de configuração (apenas placeholders,
 # nenhum valor real) — entregável do T202 para configurar ambientes do zero.
 !**/.env.example

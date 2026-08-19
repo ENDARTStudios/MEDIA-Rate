@@ -23,6 +23,9 @@ export default tseslint.config(
       "apps/api/dist/**",
       "**/*.md",
       "**/*.json",
+      // Runtime checkout do agente: não faz parte do produto e polui o lint
+      // (dezenas de milhares de erros de prettier em código de terceiros).
+      "deepseek-harness/**",
     ],
   },
 

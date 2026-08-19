@@ -1,3 +1,4 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-*.sh text eol=lf
+# Auto detect text files and perform LF normalization.
+# eol=lf: força LF também no checkout (Windows/autocrlf) — o prettier exige
+# endOfLine lf e o lint quebra quando arquivos texto saem como CRLF.
+* text=auto eol=lf

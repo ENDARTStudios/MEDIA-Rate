@@ -26,8 +26,8 @@ function makeStore() {
     usuario: {
       findUnique: async ({ where }: any) => {
         const u = where.email
-          ? usuarios.get(where.email) ?? null
-          : [...usuarios.values()].find((x) => x.id === where.id) ?? null;
+          ? (usuarios.get(where.email) ?? null)
+          : ([...usuarios.values()].find((x) => x.id === where.id) ?? null);
         // T321: getMe lê created_at — default seguro no mock.
         return u ? { ...u, created_at: u.created_at ?? new Date() } : null;
       },
