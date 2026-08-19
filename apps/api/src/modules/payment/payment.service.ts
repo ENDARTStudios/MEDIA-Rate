@@ -123,12 +123,16 @@ export class PaymentService {
     // 3. Persiste evento (idempotência) ANTES de processar.
     // Se processamento falhar, evento fica marcado como erro mas não reprocessa.
     const payload_hash = createHash("sha256").update(payload).digest("hex");
+    // T335: o objeto Stripe cru contém PII (email/nome/endereço/telefone do
+    // cliente). Persistir apenas metadados não-PII; o payload_hash (SHA-256)
+    // já cobre integridade/auditoria do evento bruto.
+    const obj = (event.data as { object?: { object?: string; id?: string } })?.object;
     const evento = await this.prisma.eventoPagamento.create({
       data: {
         stripe_event_id: event.id,
         tipo: this.mapEventType(event.type),
         payload_hash,
-        payload_raw: event.data as object,
+        payload_raw: { object: obj?.object ?? null, id: obj?.id ?? null },
         resultado: "PROCESSANDO",
       },
     });

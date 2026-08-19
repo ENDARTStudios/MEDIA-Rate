@@ -159,6 +159,8 @@ model Sessao {
 
   @@index([usuario_id])
   @@index([expires_at])
+  // T333: detecção de reuse do refresh (era seq scan a cada /auth/refresh).
+  @@index([refresh_token_hash_anterior])
   @@map("sessao")
 }
 

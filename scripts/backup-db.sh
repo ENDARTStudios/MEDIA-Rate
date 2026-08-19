@@ -56,12 +56,26 @@ if command -v pg_dump &> /dev/null; then
     echo "[backup] ERRO: Arquivo de backup não foi criado."
     exit 1
   fi
+
+  # T332: valida o dump (pg_restore --list) — um backup que não restaura não
+  # é backup. Falha em voz alta se o arquivo estiver corrompido/incompleto.
+  if command -v pg_restore &> /dev/null; then
+    if ! pg_restore --list "$BACKUP_FILE" > /dev/null 2>&1; then
+      echo "[backup] ERRO: validação do dump falhou (pg_restore --list)." >&2
+      exit 1
+    fi
+    echo "[backup] Dump validado (pg_restore --list OK)."
+  else
+    echo "[backup] AVISO: pg_restore ausente — validação do dump pulada." >&2
+  fi
 else
-  echo "[backup] pg_dump não encontrado — usando backup via URL direta (Railway/Neon)."
-  echo "[backup] Railway: railway connect postgres → pg_dump"
-  echo "[backup] Neon: usar neonctl backup create"
-  echo "[backup] Criando arquivo de placeholder para CI."
-  echo "Backup placeholder — pg_dump não disponível no ambiente atual." > "$BACKUP_FILE"
+  # T332: NUNCA fabricar um "backup" placeholder com exit 0 — um backup que
+  # finge sucesso é pior que nenhum (falsa sensação de segurança). Sem pg_dump,
+  # falha em voz alta para o scheduler de cron/CI enxergar o erro.
+  echo "[backup] ERRO: pg_dump não encontrado no PATH. Backup NÃO realizado." >&2
+  echo "[backup] Instale o cliente postgresql (pg_dump) ou rode o backup em um"
+  echo "[backup] ambiente com pg_dump. Railway: 'railway connect postgres' + pg_dump."
+  exit 1
 fi
 
 # Remove backups antigos (retenção de $RETENTION_DAYS dias)

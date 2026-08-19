@@ -55,7 +55,7 @@ export class RecommendationsService {
     usuarioId: string,
     opts: { limit?: number; cursor?: string | null } = {},
   ): Promise<RecomendacoesResult> {
-    return comContextoRls(this.prisma, { usuarioId, role: "ADMIN" }, async (tx) => {
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const limit = Math.min(opts.limit ?? 20, LIMITE_MAX);
 
       const watchlist = await tx.watchlistEntry.findMany({
@@ -71,7 +71,7 @@ export class RecommendationsService {
       }
       const idsDaLista = watchlist.map((w) => w.midia_id);
 
-      const minhasMidias = await this.prisma.midia.findMany({
+      const minhasMidias = await tx.midia.findMany({
         where: { id: { in: idsDaLista }, deleted_at: null },
         select: {
           id: true,
@@ -138,7 +138,7 @@ export class RecommendationsService {
     usuarioId: string,
     opts: { limit?: number } = {},
   ): Promise<RecomendacoesResult> {
-    return comContextoRls(this.prisma, { usuarioId, role: "ADMIN" }, async (tx) => {
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const limit = Math.min(opts.limit ?? 20, LIMITE_MAX);
 
       const minhaLista = await tx.watchlistEntry.findMany({
