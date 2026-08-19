@@ -1,3 +1,6 @@
+// T352: OpenTelemetry deve iniciar ANTES de qualquer outro import (instrumenta
+// http/fastify/prisma no require-time).
+import "./common/otel.js";
 import "reflect-metadata";
 import "dotenv/config";
 import { NestFactory } from "@nestjs/core";
