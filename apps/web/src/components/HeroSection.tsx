@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations, useLocale } from "next-intl";
-import { gsap } from "@/lib/gsap-config";
 import { ScoreDial } from "@/components/ui/score-dial";
-import { HoverTextEffect } from "@/components/ui/hover-text-effect";
-import { cinematicEntry, neonGlow } from "@/lib/motion";
+import { cinematicEntry } from "@/lib/motion";
 import { getCatalog } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -34,8 +32,6 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
   const tc = useTranslations("catalog");
   const locale = useLocale();
   const [reduce, setReduce] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const dialRef = useRef<HTMLDivElement>(null);
 
   // Gauge cíclico multi-mídia: um título real por categoria (score desc).
   const [cyclic, setCyclic] = useState<CyclicItem[]>([]);
@@ -48,18 +44,6 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
     mq.addEventListener?.("change", apply);
     return () => mq.removeEventListener?.("change", apply);
   }, []);
-
-  useEffect(() => {
-    if (reduce || !sectionRef.current) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".hero-bg-glow",
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 2, ease: "power2.out" },
-      );
-    }, sectionRef);
-    return () => ctx.revert();
-  }, [reduce]);
 
   useEffect(() => {
     let ativo = true;
@@ -101,12 +85,10 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
     return () => clearInterval(timer);
   }, [reduce, cyclic.length]);
 
-  const glow = neonGlow();
   const item = cyclic[current] ?? null;
 
   return (
     <section
-      ref={sectionRef}
       className="relative overflow-hidden min-h-[80vh] flex items-center"
       aria-labelledby="hero-title"
     >
@@ -121,20 +103,22 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        {/* Porta de entrada do hero: ícones 3D por mídia (addendum §5). */}
-        <HeroIconCluster />
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+        <div className="mb-10 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-[#80809B]">
+          <span className="h-px w-8 bg-[#818CF8]" aria-hidden="true" />
+          <span>{t("brandName")}</span>
+          <span className="text-[#818CF8]">/</span>
+          <span>MEDIA SCORE</span>
+        </div>
 
         <motion.div
-          className="mt-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16"
+          className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20"
           variants={cinematicEntry}
           initial={reduce ? "visible" : "hidden"}
           animate="visible"
         >
           <div className="flex-1 text-center lg:text-left max-w-2xl">
-            <p className="text-xs text-[#818CF8] font-heading uppercase tracking-[0.2em] mb-3">
-              <HoverTextEffect>{t("brandName")}</HoverTextEffect>
-            </p>
+            <p className="mb-4 text-sm font-medium text-[#818CF8]">Descubra o próximo item para sua lista</p>
             <h1
               id="hero-title"
               className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#F5F5F7] tracking-tight leading-[1.05] mb-6"
@@ -155,7 +139,6 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
               <Link
                 href={ctaHref}
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"
-                style={reduce ? undefined : glow}
               >
                 {cta}
                 <svg
@@ -182,7 +165,7 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
             </div>
           </div>
 
-          <div ref={dialRef} className="flex-shrink-0">
+          <div className="flex-shrink-0">
             <div className="relative">
               <div
                 className="absolute inset-0 rounded-full bg-[#818CF8] opacity-[0.08] blur-[60px] scale-125"
@@ -218,6 +201,14 @@ export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps)
             </div>
           </div>
         </motion.div>
+
+        <div className="mt-14 border-t border-[#2A2A3D] pt-5">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-[#80809B]">Explore por formato</p>
+            <p className="hidden text-xs text-[#80809B] sm:block">Uma nota. Várias formas de consumir.</p>
+          </div>
+          <HeroIconCluster />
+        </div>
       </div>
     </section>
   );

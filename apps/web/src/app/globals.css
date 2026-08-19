@@ -119,93 +119,67 @@ body {
  * A estrutura vive em components/hero-icons/hero-icons.module.css.
  * ========================================================================== */
 
-/* ==========================================================================
- * Hero icons 3D-em-camadas (addendum 1, D-204) — T183a.
- * Camadas com translateZ diferenciado (perspective 800 no viewport);
- * layout do cluster: desktop linha / tablet / mobile carrossel scroll-snap.
- * ========================================================================== */
-
-.hero-icon-viewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-}
-
-.hero-icon-stage {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-}
-
-.hero-icon-layer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-icon-layer svg {
-  width: 100%;
-  height: 100%;
-}
-
-.hero-icon-layer--bg {
-  border-radius: 9999px;
-  background: radial-gradient(circle, var(--hero-accent) 0%, transparent 65%);
-  opacity: 0.45;
-}
-
-.hero-icon-layer--fg {
-  pointer-events: none;
-  border-radius: 9999px;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.16) 0%, transparent 55%);
-  mix-blend-mode: screen;
-}
-
-/* Alvos de coreografia SVG: translateY/rotate percentuais operam na própria caixa. */
-[data-part] {
-  transform-box: fill-box;
-}
-
+/* Hero media rail — cartões planos, estáveis e acionáveis. */
 .hero-icon-cluster-list {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
-  gap: 48px;
+  gap: 0.75rem;
   padding: 0;
   margin: 0;
   list-style: none;
 }
-
-.hero-icon-cluster-item {
-  width: 120px;
-  flex-shrink: 0;
+.hero-icon-cluster-item { flex: 1 1 0; min-width: 0; }
+.hero-media-card {
+  position: relative;
+  display: flex;
+  min-height: 9.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--background)));
+  padding: 0.875rem;
+  color: hsl(var(--foreground));
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
-
-@media (max-width: 1023px) {
-  .hero-icon-cluster-list {
-    gap: 24px;
-  }
-  .hero-icon-cluster-item {
-    width: 88px;
-  }
+.hero-media-card::after {
+  position: absolute;
+  right: -1.5rem;
+  bottom: -2rem;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  background: var(--hero-accent);
+  content: "";
+  opacity: 0.12;
+  filter: blur(1.5rem);
+  transition: transform 300ms ease, opacity 300ms ease;
 }
-
+.hero-media-card:hover, .hero-media-card:focus-visible {
+  border-color: var(--hero-accent);
+  background: hsl(var(--card));
+  box-shadow: 0 0 0 1px var(--hero-accent), 0 1rem 2.5rem hsl(var(--background) / 0.45);
+}
+.hero-media-card:hover::after, .hero-media-card:focus-visible::after { opacity: 0.28; transform: scale(1.35); }
+.hero-media-card-index { color: var(--hero-accent); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; }
+.hero-media-card-art { display: grid; place-items: center; height: 4.25rem; color: var(--hero-accent); }
+.hero-media-card-art svg { width: 4.25rem; height: 4.25rem; filter: drop-shadow(0 0.5rem 0.75rem hsl(var(--background) / 0.5)); transition: transform 300ms ease; }
+.hero-media-card:hover .hero-media-card-art svg, .hero-media-card:focus-visible .hero-media-card-art svg { transform: scale(1.08) rotate(-3deg); }
+.hero-media-card-label { position: relative; z-index: 1; font-size: 0.75rem; font-weight: 600; }
+.hero-media-card-arrow { position: absolute; right: 0.75rem; bottom: 0.7rem; color: var(--hero-accent); font-size: 1rem; opacity: 0; transition: opacity 180ms ease, transform 180ms ease; }
+.hero-media-card:hover .hero-media-card-arrow, .hero-media-card:focus-visible .hero-media-card-arrow { opacity: 1; transform: translate(2px, -2px); }
 @media (max-width: 767px) {
-  .hero-icon-cluster-list {
-    justify-content: flex-start;
-    overflow-x: auto;
-    gap: 16px;
-    padding-bottom: 8px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  .hero-icon-cluster-item {
-    width: 64px;
-    scroll-snap-align: start;
-  }
+  .hero-icon-cluster-list { justify-content: flex-start; overflow-x: auto; gap: 0.625rem; padding-bottom: 0.5rem; scroll-snap-type: x mandatory; }
+  .hero-icon-cluster-item { flex: 0 0 7.25rem; scroll-snap-align: start; }
+  .hero-media-card { min-height: 8.5rem; padding: 0.75rem; }
+  .hero-media-card-art { height: 3.5rem; }
+  .hero-media-card-art svg { width: 3.5rem; height: 3.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-media-card, .hero-media-card::after, .hero-media-card-art svg, .hero-media-card-arrow { transition: none; }
 }
 
 @layer base {
