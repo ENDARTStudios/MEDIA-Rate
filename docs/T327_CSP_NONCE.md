@@ -1,5 +1,29 @@
 # T327 — CSP sem `unsafe-inline` (nonce) — validação no preview
 
+> **DECISÃO FINAL (D-330, 2026-08-20):** Operador escolheu **opção B** —
+> **NÃO mergear** esta branch. O web mantém `script-src 'unsafe-inline'` em
+> troca de **ISR/estático** (SEO/performance). Exceção de segurança **aceita
+> formalmente** pelo Operador (§8), com mitigações em camadas e gatilhos de
+> reavaliação abaixo.
+>
+> Branch `feature/T327-csp-nonce` (commit `4f9257c`) permanece **pronta na
+> prateleira**, sem merge.
+
+## Mitigações em camadas (enquanto `unsafe-inline` estiver ativo)
+
+- React escapa HTML por padrão (XSS via render é neutralizado).
+- `sanitize-html`/DOMPurify em qualquer HTML dinâmico (privacy).
+- Sem conteúdo de usuário (UGC) em HTML nas páginas públicas.
+- CSP forte (nonce) já ativa no **backend** (T021/helmet).
+
+## Gatilhos de reavaliação (reabrir esta branch quando qualquer um ocorrer)
+
+1. Next.js suportar **nonce + geração estática/ISR** ao mesmo tempo.
+2. Entrada de **UGC rico em HTML** (comentários/descrições de usuário).
+3. Nova ordem do Operador.
+
+---
+
 > Branch `feature/T327-csp-nonce`. **NÃO mergear em main** até validar no
 > preview da Vercel (padrão T290). Se a validação falhar, manter `unsafe-inline`
 > (fallback) e documentar o motivo.
