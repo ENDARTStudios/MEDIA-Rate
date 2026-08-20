@@ -33,6 +33,7 @@
     "profile": "Profile",
     "admin": "Admin",
     "mainNav": "Main navigation",
+    "planBadgeAria": "Plan {plano}",
     "homeAria": "MEDIA Rate — Home page",
     "openMenu": "Open menu",
     "dashboard": "Dashboard",
@@ -42,6 +43,27 @@
     "footerLinks": "Footer links",
     "listas": "Lists",
     "descobertas": "Discoveries"
+  },
+  "billing": {
+    "successTitle": "Payment confirmed!",
+    "successSubtitle": "Your plan has been updated. Enjoy!",
+    "successPlusTitle": "Congratulations, you're Plus!",
+    "successPlusSubtitle": "Unlimited recommendations and release alerts unlocked.",
+    "successPremiumTitle": "Congratulations, you're Premium!",
+    "successPremiumSubtitle": "Profile comparison, collaborative lists and export unlocked.",
+    "startExploring": "Start exploring"
+  },
+  "welcome": {
+    "eyebrow": "Welcome",
+    "title": "Welcome to MEDIA Rate!",
+    "titleWithName": "Welcome, {nome}!",
+    "step1Title": "Add your first title",
+    "step1Desc": "Build your watchlist and organize what you want to watch.",
+    "step2Title": "Explore the catalog",
+    "step2Desc": "Discover movies, series and games with the MEDIA Score™.",
+    "step3Title": "Personalize your profile",
+    "step3Desc": "Tune your preferences for better recommendations.",
+    "cta": "Start now"
   },
   "landing": {
     "heroEyebrow": "MEDIA Score™",

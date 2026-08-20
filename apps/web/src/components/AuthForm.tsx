@@ -144,8 +144,8 @@ export function RegisterForm() {
     const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode);
     if (result.success) {
       toast.success(t("registerSuccess"));
-      const cb = new URLSearchParams(window.location.search).get("callbackUrl");
-      router.replace(getSafeCallbackUrl(cb));
+      // T364: primeiro contato acolhedor — /welcome (exibida 1 vez).
+      router.replace("/welcome");
     } else {
       toast.error(result.error || t("registerError"));
     }

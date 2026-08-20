@@ -12,6 +12,7 @@ import { GradientMenu } from "./ui/gradient-menu";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { NotificationBell } from "./NotificationBell";
+import { PlanBadge } from "./ui/PlanBadge";
 import { toast } from "sonner";
 
 const NAV_ITEMS = [
@@ -114,8 +115,9 @@ export function Navbar({
                     onClick={() => setMenuOpen(!menuOpen)}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors"
                   >
-                    <span className="w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8] shrink-0">
+                    <span className="relative w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8] shrink-0">
                       {effectiveUser?.name?.[0] ?? "?"}
+                      <PlanBadge plan={user?.plan} />
                     </span>
                     <span className="min-w-[40px]">
                       {effectiveUser?.name?.split(" ")[0] ?? t("profile")}
