@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -296,6 +297,35 @@ export function WatchlistClient() {
               <li key={entry.id} className="flex items-center gap-4 px-4 py-3">
                 {item ? (
                   <>
+                    {/* T373: miniatura do pôster na visão de lista (antes só texto). */}
+                    <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded bg-[#1C1C2E]">
+                      {item.imagem_url ? (
+                        <Image
+                          src={item.imagem_url}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="44px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[#6B6B85]">
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
                     <Link href={`/media/${item.id}`} className="flex-1 min-w-0">
                       <span className="block truncate text-sm font-medium text-[#F5F5F7] hover:text-[#818CF8]">
                         {item.titulo}
