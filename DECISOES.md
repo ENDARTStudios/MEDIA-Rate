@@ -958,3 +958,14 @@ Relatorio de cobertura (models com FK usuario x RLS):
 - Justificativa: free tier (50 GB traces/mes, retencao 14d) e mais que suficiente para a escala (1k->50k); zero manutencao (SaaS); OTLP/HTTP nativo; UI rica (Tempo traces + dashboards + alerting). Jaeger exige servidor + storage + updates + disco + backup - custo operacional desproporcional.
 - Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/AVALIACAO_BACKEND_OTEL.md.
 - Codigo OTel ja pronto e inerte: API (apps/api/src/common/otel.ts) e web (apps/web/src/lib/otel-browser.ts) so ativam quando o endpoint e definido.
+## [2026-08-20] Decisao: D-344 — boa pratica de secrets (comparacao programatica + rotacao)
+
+**Contexto:** T377 revelou typo no client ID do Google (539 vs 559) — validacao visual nao pegou. Alem disso, ailway variables --json sem filtro expôs secrets no transcript (ADMIN_TOKEN, COMICVINE_API_KEY).
+
+**Decisao:**
+1. Secrets colados devem ser comparados PROGRAMATICAMENTE (diff/hash caractere a caractere), nunca visualmente.
+2. Rotacao de ADMIN_TOKEN autorizada (T378): novo valor nunca em log/transcript, apenas hash SHA-256 para auditoria.
+3. COMICVINE_API_KEY avaliada: chave de leitura publica (sem write/delete) → rotacao opcional; rotacionar se o provedor expuser permissao sensivel.
+4. Boa pratica documentada em docs/BOAS_PRATICAS_SECRETS.md.
+
+**Impacto:** T378 emitida e executada; lição permanente registrada para futuras tarefas com secrets.
