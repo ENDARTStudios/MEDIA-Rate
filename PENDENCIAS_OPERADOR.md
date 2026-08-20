@@ -4,6 +4,31 @@ Fila de ações manuais que só o Operador pode executar (cliques em painel de t
 
 ---
 
+## ⚡ ATUAL (2026-08-20, D-330/T357) — 3 ações pendentes
+
+> Verificação do Doer em produção: `/health` → 200 ✅ · `/api/v1/midias` →
+> 200 (504 títulos) · **porém sem campo `slug`** → os commits T328/T330 ainda
+> **não estão no GitHub** (o `main` local está 6 commits à frente de `origin/main`).
+
+### [A] Push + deploy (desbloqueia T328/T330)
+```bash
+git push origin main                 # 6 commits locais (T328/T330/T331/...)
+# Railway auto-deploy roda `prisma migrate deploy` no boot (aplica as migrations)
+```
+
+### [B] Seed de slugs em produção (T330)
+```bash
+# via túnel (o hostname interno não resolve fora da Railway):
+railway connect Postgres
+npm run db:seed:slugs                # idempotente; colar a contagem no STATUS
+```
+
+### [C] Grafana (opcional, não-bloqueante)
+- Conta Grafana Cloud criada + `OTEL_EXPORTER_OTLP_ENDPOINT`/`HEADERS` setados (D-330: "OK").
+- Conferir traces em **Grafana → Explore → Traces** (validação visual, opcional).
+
+---
+
 ### [1] ~~Rotacionar segredos expostos no "Initial commit"~~ — INVESTIGADO: nada real foi exposto
 
 Resultado da investigação (2026-08-03):
