@@ -44,9 +44,11 @@
     "descobertas": "Descubrimientos"
   },
   "landing": {
-    "hero": "Puntuación unificada de películas, series y juegos",
-    "heroSubtitle": "MEDIA Score™ agrega calificaciones de fuentes públicas en un indicador único por medio: juegos de 0 a 100, películas y series de 0 a 10.",
-    "cta": "Empezar gratis",
+    "heroEyebrow": "MEDIA Score™",
+    "hero": "Se acabó el “¿qué veo hoy?”",
+    "heroSubtitle": "El MEDIA Score™ condensa IMDb, Rotten Tomatoes, TMDB, Metacritic y más en un único número confiable — para películas, series y juegos.",
+    "cta": "Empieza gratis",
+    "ctaSecondary": "Ver el score en acción",
     "features": "Características",
     "feature1": "MEDIA Score™ consolidado",
     "feature1Desc": "Calificaciones de TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic y Steam en un solo lugar.",

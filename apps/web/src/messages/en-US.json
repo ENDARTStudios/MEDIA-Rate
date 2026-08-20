@@ -44,9 +44,11 @@
     "descobertas": "Discoveries"
   },
   "landing": {
-    "hero": "Unified score for movies, series and games",
-    "heroSubtitle": "MEDIA Score™ aggregates ratings from public sources into a single indicator per media: games 0-100, movies and series 0-10.",
-    "cta": "Get started free",
+    "heroEyebrow": "MEDIA Score™",
+    "hero": "The end of “what should I watch?”",
+    "heroSubtitle": "MEDIA Score™ distills IMDb, Rotten Tomatoes, TMDB, Metacritic and more into a single trustworthy number — for movies, series and games.",
+    "cta": "Start free",
+    "ctaSecondary": "See the score in action",
     "features": "Features",
     "feature1": "Consolidated MEDIA Score™",
     "feature1Desc": "Ratings from TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic and Steam in one place.",

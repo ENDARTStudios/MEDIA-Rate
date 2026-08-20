@@ -1,222 +1,142 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { AnimatePresence, motion } from "motion/react";
-import { useTranslations, useLocale } from "next-intl";
-import { gsap } from "@/lib/gsap-config";
-import { ScoreDial } from "@/components/ui/score-dial";
-import { HoverTextEffect } from "@/components/ui/hover-text-effect";
-import { cinematicEntry, neonGlow } from "@/lib/motion";
-import { getCatalog } from "@/lib/api";
-import { normalizeDisplayScore } from "@/lib/score-utils";
-import { titleForLocale } from "@/lib/i18n-content";
-import { HeroIconCluster } from "@/components/media-rate-ui/HeroIconCluster";
+import { motion, useReducedMotion } from "motion/react";
+import { ScoreShowcase, type ShowcaseItem } from "@/components/landing/ScoreShowcase";
 
 interface HeroSectionProps {
+  eyebrow: string;
   title: string;
   subtitle: string;
   cta: string;
   ctaHref: string;
+  ctaSecondary: string;
+  ctaSecondaryHref: string;
+  showcaseItems: ShowcaseItem[];
 }
 
-interface CyclicItem {
-  title: string;
-  score: number;
-  scale: "0-10" | "0-100";
-  typeKey: string;
-}
+const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", "OpenCritic"];
 
-const CYCLE_MS = 4000;
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
 
-export function HeroSection({ title, subtitle, cta, ctaHref }: HeroSectionProps) {
-  const t = useTranslations("hero");
-  const tc = useTranslations("catalog");
-  const locale = useLocale();
-  const [reduce, setReduce] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const dialRef = useRef<HTMLDivElement>(null);
+const item = {
+  hidden: { opacity: 0, y: 22, filter: "blur(6px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const },
+  },
+};
 
-  // Gauge cíclico multi-mídia: um título real por categoria (score desc).
-  const [cyclic, setCyclic] = useState<CyclicItem[]>([]);
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener?.("change", apply);
-    return () => mq.removeEventListener?.("change", apply);
-  }, []);
-
-  useEffect(() => {
-    if (reduce || !sectionRef.current) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".hero-bg-glow",
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 2, ease: "power2.out" },
-      );
-    }, sectionRef);
-    return () => ctx.revert();
-  }, [reduce]);
-
-  useEffect(() => {
-    let ativo = true;
-    const tipos: { key: string; api: "movie" | "series" | "game"; scale: "0-10" | "0-100" }[] = [
-      // T: chaves i18n (catalog.filme/serie/game). Escala NATIVA: games
-      // 0-100, filmes/séries 0-10 (reverte T262 que forçava 0-100).
-      { key: "filme", api: "movie", scale: "0-10" },
-      { key: "serie", api: "series", scale: "0-10" },
-      { key: "game", api: "game", scale: "0-100" },
-    ];
-    void Promise.all(
-      tipos.map(async (tp) => {
-        const data = await getCatalog({ type: tp.api, sort: "score", order: "desc", limit: 1 });
-        const item = data?.items[0];
-        if (!item?.score?.consolidated) return null;
-        return {
-          // T: título por locale — EN/ES usam o titulo_original do TMDB.
-          title: titleForLocale(item, locale),
-          score: normalizeDisplayScore(item.score.consolidated, tp.api),
-          scale: tp.scale,
-          typeKey: tp.key,
-        } satisfies CyclicItem;
-      }),
-    ).then((resultados) => {
-      if (!ativo) return;
-      const itens = resultados.filter((r): r is CyclicItem => r != null);
-      if (itens.length > 0) setCyclic(itens);
-    });
-    return () => {
-      ativo = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (reduce || cyclic.length < 2) return;
-    const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % cyclic.length);
-    }, CYCLE_MS);
-    return () => clearInterval(timer);
-  }, [reduce, cyclic.length]);
-
-  const glow = neonGlow();
-  const item = cyclic[current] ?? null;
+/**
+ * T358 (D-333) — Hero reformulada: mostra o produto em ação.
+ * ESQUERDA = eyebrow + H1 emocional + sub concreto + 2 CTAs + strip de fontes.
+ * DIREITA = ScoreShowcase (deck vivo de mídias reais com o anel do score).
+ * Sem ícones genéricos e sem nomes flutuantes (removidos).
+ */
+export function HeroSection({
+  eyebrow,
+  title,
+  subtitle,
+  cta,
+  ctaHref,
+  ctaSecondary,
+  ctaSecondaryHref,
+  showcaseItems,
+}: HeroSectionProps) {
+  const shouldReduce = useReducedMotion();
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden min-h-[80vh] flex items-center"
-      aria-labelledby="hero-title"
-    >
-      <div className="hero-bg-glow absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#818CF8] opacity-[0.04] blur-[150px]" />
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-[#38BDF8] opacity-[0.03] blur-[120px]" />
-        <div className="absolute bottom-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-[#34D399] opacity-[0.02] blur-[100px]" />
+    <section className="relative overflow-hidden" aria-labelledby="hero-title">
+      {/* Camadas de gradiente radial + glow rose (D-333) */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(225,29,72,0.08)_0%,transparent_55%)]" />
+        <div className="absolute left-1/2 top-1/4 h-[820px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E11D48] opacity-[0.05] blur-[140px]" />
+        <div className="absolute bottom-0 right-1/4 h-[360px] w-[360px] rounded-full bg-[#818CF8] opacity-[0.04] blur-[110px]" />
       </div>
 
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.04)_0%,transparent_60%)]"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        {/* Porta de entrada do hero: ícones 3D por mídia (addendum §5). */}
-        <HeroIconCluster />
-
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
         <motion.div
-          className="mt-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16"
-          variants={cinematicEntry}
-          initial={reduce ? "visible" : "hidden"}
+          className="max-w-xl"
+          variants={container}
+          initial={shouldReduce ? "visible" : "hidden"}
           animate="visible"
         >
-          <div className="flex-1 text-center lg:text-left max-w-2xl">
-            <p className="text-xs text-[#818CF8] font-heading uppercase tracking-[0.2em] mb-3">
-              <HoverTextEffect>{t("brandName")}</HoverTextEffect>
-            </p>
-            <h1
-              id="hero-title"
-              className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#F5F5F7] tracking-tight leading-[1.05] mb-6"
+          <motion.p
+            variants={item}
+            className="mb-4 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]"
+          >
+            {eyebrow}
+          </motion.p>
+
+          <motion.h1
+            id="hero-title"
+            variants={item}
+            className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-[#F5F5F7] sm:text-5xl lg:text-6xl"
+          >
+            {title}
+          </motion.h1>
+
+          <motion.p
+            variants={item}
+            className="mt-6 text-base leading-relaxed text-[#A0A0B8] sm:text-lg"
+          >
+            {subtitle}
+          </motion.p>
+
+          <motion.div variants={item} className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href={ctaHref}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E11D48]"
             >
-              {title.split(".").map((line, i) => (
-                <span key={i}>
-                  {i > 0 && <br />}
-                  {line.trim()}
-                </span>
-              ))}
-            </h1>
-
-            <p className="text-base sm:text-lg text-[#A0A0B8] max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">
-              {subtitle}
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                href={ctaHref}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"
-                style={reduce ? undefined : glow}
-              >
-                {cta}
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-              <Link
-                href="/catalog"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg border border-[#2A2A3D] text-[#F5F5F7] font-semibold text-sm hover:bg-[#12121C] transition-colors"
-              >
-                {t("exploreCatalog")}
-              </Link>
-            </div>
-          </div>
-
-          <div ref={dialRef} className="flex-shrink-0">
-            <div className="relative">
-              <div
-                className="absolute inset-0 rounded-full bg-[#818CF8] opacity-[0.08] blur-[60px] scale-125"
+              {cta}
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
                 aria-hidden="true"
-              />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={item ? `${item.title}-${item.typeKey}` : "default"}
-                  className="relative z-10 flex flex-col items-center"
-                  initial={reduce ? false : { opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={reduce ? undefined : { opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                >
-                  <ScoreDial
-                    score={item?.score ?? (item ? item.score : 7)}
-                    size="lg"
-                    showBreakdown
-                    scale={item?.scale ?? "0-10"}
-                  />
-                  <p className="mt-4 max-w-[220px] text-center text-xs text-[#A0A0B8] font-heading uppercase tracking-widest">
-                    {t("mediaScore")}
-                  </p>
-                  {item && (
-                    <p className="mt-1 max-w-[220px] truncate text-sm font-medium text-[#F5F5F7]">
-                      {item.title}
-                      {/* T: rótulo do tipo traduzido (Movies/Series/Games). */}
-                      <span className="ml-1.5 text-[#6B6B85]">{tc(item.typeKey)}</span>
-                    </p>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <Link
+              href={ctaSecondaryHref}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2A2A3D] px-8 py-3.5 text-sm font-semibold text-[#F5F5F7] transition-colors hover:bg-[#12121C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+            >
+              {ctaSecondary}
+            </Link>
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className="mt-8 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]"
+          >
+            {SOURCES_STRIP.map((s) => (
+              <span key={s} className="flex items-center gap-2.5">
+                <span className="h-1 w-1 rounded-full bg-[#2A2A3D]" aria-hidden="true" />
+                {s}
+              </span>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          className="flex justify-center lg:justify-end"
+          initial={shouldReduce ? { opacity: 1 } : { opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <ScoreShowcase items={showcaseItems} />
         </motion.div>
       </div>
     </section>

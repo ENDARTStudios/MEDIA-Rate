@@ -7,12 +7,15 @@ import { ContinueDecision } from "../../components/ContinueDecision";
 import { HomeStats } from "../../components/HomeStats";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
-import { HomeVerticalMarquee } from "../../components/HomeVerticalMarquee";
 import { StructuredData } from "@/components/StructuredData";
 import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
-import { getCatalog } from "@/lib/api";
+import { getCatalog, getMediaBySlug } from "@/lib/api";
+import { normalizeDisplayScore } from "@/lib/score-utils";
+import { titleForLocale } from "@/lib/i18n-content";
 import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
+import type { ShowcaseItem } from "@/components/landing/ScoreShowcase";
+import type { MediaType } from "@/lib/types";
 
 // T274: ISR curto (≤ 60s, alinhado ao cache Redis da API) — os carrosséis
 // revalidam no servidor sem chamada nova por request.
@@ -50,12 +53,23 @@ export async function generateMetadata({
   };
 }
 
+const SHOWCASE_ORDER: {
+  api: "movie" | "series" | "game";
+  key: "filme" | "serie" | "game";
+  scale: "0-10" | "0-100";
+}[] = [
+  { api: "movie", key: "filme", scale: "0-10" },
+  { api: "series", key: "serie", scale: "0-10" },
+  { api: "game", key: "game", scale: "0-100" },
+];
+
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("landing");
   const tNav = await getTranslations("nav");
   const th = await getTranslations("home");
+  const tCatalog = await getTranslations("catalog");
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -85,73 +99,96 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   ]);
   const carousels = { movie: carouselMovie, series: carouselSeries, game: carouselGame } as const;
 
+  // T358: showcase da Hero — top-1 de cada categoria + detalhe (crítica/público/
+  // fontes). Busca no server (ISR) para LCP seguro com a 1ª imagem priority.
+  const tops = await Promise.all(
+    SHOWCASE_ORDER.map((s) => getCatalog({ type: s.api, sort: "score", order: "desc", limit: 1 })),
+  );
+  const details = await Promise.all(
+    tops.map((c) => (c.items[0]?.slug ? getMediaBySlug(c.items[0].slug) : Promise.resolve(null))),
+  );
+  const showcaseItems: ShowcaseItem[] = [];
+  details.forEach((d, i) => {
+    if (!d?.score) return;
+    const order = SHOWCASE_ORDER[i];
+    showcaseItems.push({
+      title: titleForLocale(d, locale),
+      posterUrl: d.posterUrl,
+      type: d.type as MediaType,
+      score: normalizeDisplayScore(d.score.consolidated, order.api),
+      scale: order.scale,
+      critics: d.score.criticsScore ?? null,
+      audience: d.score.audienceScore ?? null,
+      sources: (d.score.sources ?? []).map((s) => s.source),
+      typeLabel: tCatalog(order.key),
+    });
+  });
+
   return (
     <LayeredBackground>
       <StructuredData data={[websiteJsonLd, orgJsonLd]} />
-      <div className="flex">
-        <div className="flex-1 min-w-0">
-          <HeroSection
-            title={t("hero")}
-            subtitle={t("heroSubtitle")}
-            cta={t("cta")}
-            ctaHref="/register"
-          />
+      <HeroSection
+        eyebrow={t("heroEyebrow")}
+        title={t("hero")}
+        subtitle={t("heroSubtitle")}
+        cta={t("cta")}
+        ctaHref="/register"
+        ctaSecondary={t("ctaSecondary")}
+        ctaSecondaryHref="/catalog"
+        showcaseItems={showcaseItems}
+      />
 
-          <HomeStats />
+      <HomeStats />
 
-          <ContinueDecision />
+      <ContinueDecision />
 
-          {/* T199 (Addendum 3 §3.2): seção logada acima dos carrosséis —
-              cross-mídia por definição; vazia para visitante. */}
-          <BecauseYouConsumed />
+      {/* T199 (Addendum 3 §3.2): seção logada acima dos carrosséis —
+          cross-mídia por definição; vazia para visitante. */}
+      <BecauseYouConsumed />
 
-          {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
-              MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +
-              waitlist capture. T274: ativos com initialData do server. */}
-          <MediaCarousel type="movie" initialData={carousels.movie} />
-          <MediaCarousel type="series" initialData={carousels.series} />
-          <MediaCarousel type="game" initialData={carousels.game} />
-          <MediaCarousel type="book" />
-          <MediaCarousel type="comic" />
-          <MediaCarousel type="manga" />
+      {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
+          MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +
+          waitlist capture. T274: ativos com initialData do server. */}
+      <MediaCarousel type="movie" initialData={carousels.movie} />
+      <MediaCarousel type="series" initialData={carousels.series} />
+      <MediaCarousel type="game" initialData={carousels.game} />
+      <MediaCarousel type="book" />
+      <MediaCarousel type="comic" />
+      <MediaCarousel type="manga" />
 
-          <section className="py-20 px-4 border-t border-[rgba(129,140,248,0.08)]">
-            <div className="max-w-2xl mx-auto text-center">
-              <LazyAnimatedHeading
-                as="h2"
-                className="font-heading text-3xl font-bold mb-6 text-[#EDE7DC]"
-              >
-                {t("cta")}
-              </LazyAnimatedHeading>
-              <p className="text-[#9CA3AF] mb-8 leading-relaxed">{th("ctaText")}</p>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#818CF8] text-[#0F172A] font-semibold text-sm hover:brightness-110 transition-all"
-              >
-                {tNav("register")}
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-            </div>
-          </section>
-
-          <HomeContentSections />
+      <section className="border-t border-[rgba(129,140,248,0.08)] px-4 py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <LazyAnimatedHeading
+            as="h2"
+            className="mb-6 font-heading text-3xl font-bold text-[#EDE7DC]"
+          >
+            {t("cta")}
+          </LazyAnimatedHeading>
+          <p className="mb-8 leading-relaxed text-[#9CA3AF]">{th("ctaText")}</p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+          >
+            {tNav("register")}
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Link>
         </div>
+      </section>
 
-        <HomeVerticalMarquee />
-      </div>
+      <HomeContentSections />
     </LayeredBackground>
   );
 }

@@ -8,9 +8,6 @@
  * (single source of truth) para que a biblioteca tenha a superfície
  * especificada sem duplicar lógica.
  */
-export { HeroMediaIcon } from "./HeroMediaIcon";
-export type { HeroMediaIconProps, AnimationVariant } from "./HeroMediaIcon";
-export { HeroIconCluster } from "./HeroIconCluster";
 export { MediaCarousel } from "./MediaCarousel";
 export type { MediaCarouselProps } from "./MediaCarousel";
 export { ScoreDial } from "./ScoreDial";
