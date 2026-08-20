@@ -78,12 +78,13 @@ const nextConfig: NextConfig = {
                   key: "Content-Security-Policy",
                   value: [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
+                    // T361: Google Identity Services (script + iframe do botão).
+                    "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com https://accounts.google.com",
                     // T315: Sentry ingest (regiões us/eu/de — o host é
                     // o<org>.ingest.<região>.sentry.io, logo o wildcard precisa
                     // cobrir cada região explicitamente).
                     "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
-                    "frame-src 'self'",
+                    "frame-src 'self' https://accounts.google.com",
                     "frame-ancestors 'none'",
                     "img-src 'self' data: https:",
                     "style-src 'self' 'unsafe-inline'",

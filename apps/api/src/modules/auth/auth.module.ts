@@ -12,6 +12,7 @@ import { AuditLogService } from "../../common/audit-log.service.js";
 import { MailerModule } from "../mailer/mailer.module.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
+import { GoogleAuthService } from "./google-auth.service.js";
 
 @Module({
   imports: [PrismaModule, AnalyticsModule, MailerModule],
@@ -23,6 +24,7 @@ import { EmailVerificationService } from "./email-verification.service.js";
     LockoutService,
     SessionRotationService,
     EmailVerificationService,
+    GoogleAuthService,
     PasswordService,
     AuditLogService,
     MockMailService,

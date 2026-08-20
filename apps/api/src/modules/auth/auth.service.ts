@@ -332,6 +332,92 @@ export class AuthService {
   }
 
   /**
+   * T361 — login social (Google): cria/recupera o usuário pelo email (o
+   * Google já validou o email, então marca email_verificado_em) e cria a
+   * sessão como no login por senha. Email novo → conta FREE automática.
+   */
+  async googleLogin(
+    email: string,
+    nome: string | null,
+    options: { ip?: string; user_agent?: string } = {},
+  ): Promise<LoginResult> {
+    const ip = options.ip ?? "unknown";
+
+    let usuario = await this.prisma.usuario.findUnique({
+      where: { email },
+      select: { id: true, email: true, nome: true },
+    });
+
+    if (!usuario) {
+      usuario = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.usuario.create({
+          data: {
+            email,
+            nome,
+            // Social: sem senha. Placeholder aleatório (nunca usado para login
+            // por senha — o usuário entra via Google).
+            password_hash: randomBytes(32).toString("hex"),
+            termos_aceitos_em: new Date(),
+            email_verificado_em: new Date(), // Google já validou o email.
+          },
+          select: { id: true, email: true, nome: true },
+        });
+        await tx.$executeRawUnsafe("SELECT set_config('app.current_user_id', $1, true)", user.id);
+        await tx.$executeRawUnsafe("SELECT set_config('app.current_user_role', 'SERVICE', true)");
+        await tx.usuarioPlano.create({
+          data: { usuario_id: user.id, plano: "FREE", status: "ATIVA" },
+        });
+        const papelUser = await tx.papel.findUnique({ where: { nome: "USER" } });
+        if (papelUser) {
+          await tx.usuarioPapel.create({
+            data: { usuario_id: user.id, papel_id: papelUser.id },
+          });
+        }
+        return user;
+      });
+
+      this.analytics.capture(usuario.id, AnalyticsEvents.USER_REGISTERED, {
+        plan: "free",
+        provider: "google",
+        has_name: nome != null,
+      });
+      this.analytics.identify(usuario.id, { plan: "free", role: "user" });
+    }
+
+    const session: SessionCreationResult = await this.sessionService.createSession({
+      usuario_id: usuario.id,
+      user_agent: options.user_agent,
+      ip,
+    });
+
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: { ultimo_login_em: new Date() },
+    });
+
+    this.analytics.capture(usuario.id, AnalyticsEvents.USER_SESSION_START, {
+      provider: "google",
+      has_verified_email: true,
+    });
+    await this.auditLog.log({
+      entidade: "Usuario",
+      entidadeId: usuario.id,
+      acao: "USER_LOGIN_SOCIAL",
+      usuarioId: usuario.id,
+      ipOrigem: ip,
+      dadosDepois: { provider: "google", userAgent: options.user_agent },
+    });
+
+    return {
+      token: session.token,
+      refreshToken: session.refreshToken,
+      expires_at: session.record.expires_at,
+      refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      usuario: { id: usuario.id, email: usuario.email, nome: usuario.nome },
+    };
+  }
+
+  /**
    * T212 — POST /auth/refresh: rotaciona o refresh token (reuso detectado
    * revoga TODAS as sessões do usuário) e emite novo par access+refresh.
    */

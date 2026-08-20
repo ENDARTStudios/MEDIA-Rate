@@ -17,6 +17,7 @@ import { AuthService, type LoginResult, type MeResult } from "./auth.service.js"
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
+import { GoogleAuthService } from "./google-auth.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto.js";
 import { resendVerificationSchema } from "./dto/resend-verification.dto.js";
@@ -42,6 +43,7 @@ export class AuthController {
     private readonly cookieService: SessionCookieService,
     private readonly metrics: MetricsService,
     private readonly emailVerification: EmailVerificationService,
+    private readonly googleAuth: GoogleAuthService,
   ) {}
 
   /**
@@ -155,6 +157,52 @@ export class AuthController {
     // T3.2: seta cookie httpOnly Secure SameSite=Lax.
     const csrf = this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
     // T212: refresh token rotativo em cookie httpOnly (path do /refresh).
+    this.cookieService.setRefreshCookie(reply, result.refreshToken, result.refresh_expira_em);
+
+    return {
+      usuario: {
+        id: result.usuario.id,
+        email: result.usuario.email,
+        nome: result.usuario.nome,
+      },
+      expires_at: result.expires_at.toISOString(),
+      csrf_token: csrf,
+    };
+  }
+
+  /**
+   * T361 — POST /auth/google/callback: login social Google.
+   * Recebe o ID token (credential) do Google Identity Services, valida
+   * server-side (GoogleAuthService) e cria/recupera a conta + sessão.
+   */
+  @Post("google/callback")
+  @HttpCode(200)
+  async googleCallback(
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{
+    usuario: { id: string; email: string; nome: string | null };
+    expires_at: string;
+    csrf_token: string;
+  }> {
+    const { credential } = body as { credential?: string };
+    if (!credential) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        error: "Unauthorized",
+        message: "Credencial ausente.",
+      });
+    }
+
+    const profile = await this.googleAuth.verify(credential);
+    const userAgent = req.headers["user-agent"];
+    const result = await this.authService.googleLogin(profile.email, profile.nome, {
+      ip: req.ip ?? undefined,
+      user_agent: typeof userAgent === "string" ? userAgent : undefined,
+    });
+
+    const csrf = this.cookieService.setSessionCookie(reply, result.token, result.expires_at);
     this.cookieService.setRefreshCookie(reply, result.refreshToken, result.refresh_expira_em);
 
     return {
