@@ -37,6 +37,15 @@ Registrado por **D-344** (2026-08-20), após o incidente do client ID do Google
    reextraia o valor vivo, compare caractere a caractere e corrija a fonte
    divergente; só declare pronto com confirmação do usuário no fluxo real.
 
+6. **Número do projeto ≠ prefixo do client ID (D-347).**
+   Em IDs OAuth do Google (`<prefixo>-<sufixo>.apps.googleusercontent.com`),
+   o prefixo pode **diferir** do número do projeto (ex.: projeto
+   `824768632559`, client `824768632539-…`). Não "corrija" um valor porque
+   ele parece divergir do número do projeto — a fonte autoritativa é a
+   **página Clientes → "ID do cliente"** (copiado via botão, nunca redigitado).
+   IDs parecidos (539 vs 559) são armadilha de leitura visual; usar cópia ou
+   extração programática.
+
 ## Procedimento de rotação (exemplo: ADMIN_TOKEN)
 
 ```powershell
