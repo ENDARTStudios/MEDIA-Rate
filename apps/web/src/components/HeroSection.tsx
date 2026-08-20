@@ -3,6 +3,7 @@
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { ScoreShowcase, type ShowcaseItem } from "@/components/landing/ScoreShowcase";
+import { CategoryIconRow } from "@/components/landing/CategoryIconRow";
 
 interface HeroSectionProps {
   eyebrow: string;
@@ -127,6 +128,11 @@ export function HeroSection({
                 {s}
               </span>
             ))}
+          </motion.div>
+
+          {/* T370: 5 ícones canônicos remodelados (line fino + glow rose). */}
+          <motion.div variants={item}>
+            <CategoryIconRow />
           </motion.div>
         </motion.div>
 
