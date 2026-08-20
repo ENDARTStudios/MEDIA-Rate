@@ -28,6 +28,15 @@ Registrado por **D-344** (2026-08-20), após o incidente do client ID do Google
    imediatamente (NIST SP 800-57). O valor antigo é invalidado e o novo é
    registrado apenas pelo hash SHA-256.
 
+5. **Configuração correta ≠ integração funcionando (D-345).**
+   Ter o client_id/segredo "igual ao Console" NÃO prova que a integração
+   externa funciona. A única evidência válida de conclusão é o **fluxo real
+   de ponta a ponta** (ex.: popup do Google abre + login cria sessão, testado
+   em janela anônima). Erros como `401 invalid_client / "The OAuth client was
+   not found"` são inequívocos: o valor enviado não existe no provedor —
+   reextraia o valor vivo, compare caractere a caractere e corrija a fonte
+   divergente; só declare pronto com confirmação do usuário no fluxo real.
+
 ## Procedimento de rotação (exemplo: ADMIN_TOKEN)
 
 ```powershell
