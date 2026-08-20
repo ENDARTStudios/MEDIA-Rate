@@ -42,6 +42,7 @@ interface AuthState {
     password: string,
     aceitouTermos: boolean,
     inviteCode?: string,
+    locale?: string,
   ) => Promise<{ success: boolean; error?: string; needsVerification?: boolean }>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
@@ -95,7 +96,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  register: async (name, email, password, aceitouTermos, inviteCode?) => {
+  register: async (name, email, password, aceitouTermos, inviteCode?, locale?) => {
     set({ isLoading: true, error: null });
     try {
       const payload: Record<string, string | boolean> = {
@@ -105,6 +106,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         aceitouTermos,
       };
       if (inviteCode) payload.inviteCode = inviteCode;
+      if (locale) payload.locale = locale;
       await api.post("/api/v1/auth/register", payload, { auth: false });
       // Auto-login. T360: se o email ainda não foi verificado (Resend),
       // o login devolve 403 EMAIL_NOT_VERIFIED → sinaliza para o form.

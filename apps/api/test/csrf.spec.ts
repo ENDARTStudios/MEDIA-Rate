@@ -6,6 +6,7 @@ import cookiePlugin, { type FastifyCookieOptions } from "@fastify/cookie";
 import request from "supertest";
 import { AuthController } from "../src/modules/auth/auth.controller.js";
 import { EmailVerificationService } from "../src/modules/auth/email-verification.service.js";
+import { GoogleAuthService } from "../src/modules/auth/google-auth.service.js";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
@@ -73,6 +74,10 @@ describe("CSRF Guard (T050)", () => {
               /* stub de teste */
             },
           },
+        },
+        {
+          provide: GoogleAuthService,
+          useValue: { verify: async () => ({ email: "g@test.com", nome: null }) },
         },
       ],
     }).compile();

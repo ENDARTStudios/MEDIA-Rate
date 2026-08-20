@@ -14,6 +14,8 @@ export const RegisterDto = z.object({
   // aqui é opcional para que a ausência chegue ao service e devolva 422,
   // não 400 do pipe.
   aceitouTermos: z.boolean().optional(),
+  // T376: locale do usuário para o email de verificação com link i18n.
+  locale: z.enum(["pt-BR", "en-US", "es-ES"]).optional(),
 });
 
 export type RegisterDtoType = z.infer<typeof RegisterDto>;

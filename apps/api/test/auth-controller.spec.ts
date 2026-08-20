@@ -5,6 +5,7 @@ import { AuthService } from "../src/modules/auth/auth.service.js";
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { SessionCookieService } from "../src/modules/auth/session-cookie.service.js";
 import { EmailVerificationService } from "../src/modules/auth/email-verification.service.js";
+import { GoogleAuthService } from "../src/modules/auth/google-auth.service.js";
 import { MetricsService } from "../src/modules/metrics/metrics.service.js";
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { FastifyReply, FastifyRequest } from "fastify";
@@ -149,6 +150,10 @@ describe("AuthController (unit)", () => {
               /* stub de teste */
             },
           },
+        },
+        {
+          provide: GoogleAuthService,
+          useValue: { verify: async () => ({ email: "g@test.com", nome: null }) },
         },
       ],
     }).compile();

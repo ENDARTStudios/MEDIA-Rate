@@ -37,8 +37,18 @@ export class EmailVerificationService {
     return createHash("sha256").update(token).digest("hex");
   }
 
-  /** Gera + persiste o token e envia o email. Retorna true se houve envio. */
-  async emitirToken(usuario: { id: string; email: string }): Promise<string> {
+  /** T376: base pública do site (para montar o link de verificação). */
+  private get siteUrl(): string {
+    const raw = process.env.SITE_URL ?? "https://mediarate.app";
+    return raw.replace(/\/+$/, "");
+  }
+
+  /**
+   * Gera + persiste o token e envia o email. Retorna o token bruto.
+   * T376 (D-343): o email agora leva um LINK clicável (código como fallback),
+   * com locale do usuário quando conhecido (default pt-BR).
+   */
+  async emitirToken(usuario: { id: string; email: string }, locale = "pt-BR"): Promise<string> {
     const token = this.generateToken();
     await this.prisma.usuario.update({
       where: { id: usuario.id },
@@ -47,7 +57,11 @@ export class EmailVerificationService {
         email_verification_expira_em: new Date(Date.now() + VERIFY_TTL_MS),
       },
     });
-    await this.mail.enviarVerificacaoEmail(usuario.email, token);
+    const link = `${this.siteUrl}/${locale}/verificar-email?token=${token}`;
+    await this.mail.enviarVerificacaoEmail(usuario.email, token, {
+      link,
+      lang: locale.split("-")[0] ?? "pt",
+    });
     this.logger.debug(
       `Token de verificação emitido (usuário ${usuario.id}; hash ${this.hashToken(token).slice(0, 12)})`,
     );
@@ -94,7 +108,7 @@ export class EmailVerificationService {
   /** Reenvio com rate limit 3/h por email; respostas genéricas. */
   async reenviar(
     email: string,
-    options: { ip?: string; user_agent?: string } = {},
+    options: { ip?: string; user_agent?: string; locale?: string } = {},
   ): Promise<{ message: string }> {
     this.registrarReenvio(email);
 
@@ -109,7 +123,7 @@ export class EmailVerificationService {
       return { message: generico };
     }
 
-    await this.emitirToken(usuario);
+    await this.emitirToken(usuario, options.locale ?? "pt-BR");
     await this.auditLog.log({
       entidade: "Usuario",
       entidadeId: usuario.id,

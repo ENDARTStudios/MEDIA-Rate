@@ -50,7 +50,15 @@ describe("EmailVerificationService (T214)", () => {
     const u = m.usuarios.get("user@test.com")!;
     expect(u.email_verification_token_hash).toBe(hash(raw));
     expect(u.email_verification_token_hash).not.toBe(raw);
-    expect(m.mail.enviarVerificacaoEmail).toHaveBeenCalledWith("user@test.com", raw);
+    // T376: email agora leva link + lang (código como fallback).
+    expect(m.mail.enviarVerificacaoEmail).toHaveBeenCalledWith(
+      "user@test.com",
+      raw,
+      expect.objectContaining({
+        link: expect.stringContaining("/pt-BR/verificar-email?token="),
+        lang: "pt",
+      }),
+    );
     const expira = u.email_verification_expira_em as Date;
     expect(expira.getTime() - Date.now()).toBeGreaterThan(23 * 60 * 60 * 1000);
   });

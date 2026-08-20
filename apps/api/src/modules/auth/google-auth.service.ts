@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 export interface GoogleProfile {
@@ -16,6 +16,7 @@ export interface GoogleProfile {
  */
 @Injectable()
 export class GoogleAuthService {
+  private readonly logger = new Logger(GoogleAuthService.name);
   private readonly issuer = "https://accounts.google.com";
   private readonly jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
@@ -42,7 +43,15 @@ export class GoogleAuthService {
         email,
         nome: typeof payload.name === "string" ? payload.name : null,
       };
-    } catch {
+    } catch (err) {
+      // T377 (D-343): diagnóstico mascarado — só o motivo/claim, nunca o token.
+      const code =
+        typeof err === "object" && err !== null ? (err as { code?: string }).code : undefined;
+      const claim =
+        typeof err === "object" && err !== null ? (err as { claim?: string }).claim : undefined;
+      this.logger.warn(
+        `Google ID token inválido: code=${code ?? "unknown"} claim=${claim ?? "n/a"} aud=${clientId.slice(0, 12)}…`,
+      );
       throw new UnauthorizedException({
         statusCode: 401,
         error: "Unauthorized",

@@ -2,7 +2,7 @@
 
 import { useForm, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/lib/navigation";
 import { useState } from "react";
@@ -126,6 +126,7 @@ export function LoginForm() {
 
 export function RegisterForm() {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const router = useRouter();
   const { register: regStore } = useAuthStore();
   const [pw, setPw] = useState("");
@@ -141,7 +142,7 @@ export function RegisterForm() {
   const acceptTermsAccepted = watch("acceptTerms");
 
   const onSubmit = async (d: RegisterData) => {
-    const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode);
+    const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode, locale);
     if (result.success) {
       if (result.needsVerification) {
         // T360: email de verificação enviado — usuário precisa confirmar.

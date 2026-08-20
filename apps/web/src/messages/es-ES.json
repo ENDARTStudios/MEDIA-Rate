@@ -185,35 +185,12 @@
     "scoreComingSoon": "Próximamente — fuentes en preparación",
     "previewBadge": "Previo — fuentes en preparación",
     "exploreCategory": "Explorar {label}",
-    "variant_book": [
-      "Novelas",
-      "No ficción",
-      "Clásicos",
-      "Sagas",
-      "Novedades"
-    ],
-    "variant_comic": [
-      "Novelas gráficas",
-      "Superhéroes",
-      "Indie",
-      "Novedades"
-    ],
-    "variant_manga": [
-      "Shonen",
-      "Seinen",
-      "Slice of Life",
-      "Isekai",
-      "Novedades"
-    ],
-    "variant_movie": [
-      "Películas"
-    ],
-    "variant_series": [
-      "Series"
-    ],
-    "variant_game": [
-      "Juegos"
-    ],
+    "variant_book": ["Novelas", "No ficción", "Clásicos", "Sagas", "Novedades"],
+    "variant_comic": ["Novelas gráficas", "Superhéroes", "Indie", "Novedades"],
+    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novedades"],
+    "variant_movie": ["Películas"],
+    "variant_series": ["Series"],
+    "variant_game": ["Juegos"],
     "comingSoonEmailPlaceholder": "tu@email.com",
     "comingSoonEmailLabel": "Correo electrónico",
     "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
@@ -365,12 +342,7 @@
     "upgrade": "Mejorar",
     "subscribe": "Suscribirse",
     "features": "Funcionalidades",
-    "freeFeatures": [
-      "Catálogo completo",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recomendaciones/día"
-    ],
+    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendaciones/día"],
     "plusFeatures": [
       "Prueba gratis de 7 días",
       "Todo del Free",
@@ -463,7 +435,15 @@
     "socialComingSoon": "Inicio de sesión social próximamente",
     "socialIntegrating": "Estamos integrando el inicio de sesión social. Pronto podrás entrar con un clic.",
     "consentAnd": "y la",
-    "tagline": "Descubre, valora y organiza todo tu entretenimiento."
+    "tagline": "Descubre, valora y organiza todo tu entretenimiento.",
+    "verifyTitle": "Verificando tu email…",
+    "verifySuccess": "¡Email verificado! Tu cuenta está activa.",
+    "verifySuccessCta": "Entrar",
+    "verifyError": "Este enlace no es válido o ha expirado.",
+    "verifyResendHint": "Ingresa tu email para recibir un nuevo enlace.",
+    "verifyResendButton": "Reenviar enlace",
+    "verifyResendSent": "¡Nuevo enlace enviado! Revisa tu bandeja (y el spam).",
+    "verifyResendError": "No se pudo reenviar. Intenta de nuevo."
   },
   "hero": {
     "brandName": "MEDIA Rate",

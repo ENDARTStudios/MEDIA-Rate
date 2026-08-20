@@ -34,9 +34,18 @@ export class MockMailService {
     );
   }
 
-  /** T214: envio do token de verificação de email via mailer (mock). */
-  async enviarVerificacaoEmail(email: string, token: string): Promise<void> {
-    await this.mailer.enviar("verificacao_email", email, { token }, { dedupeTtlMs: 0 });
+  /** T214/T376: envio do link de verificação de email via mailer. */
+  async enviarVerificacaoEmail(
+    email: string,
+    token: string,
+    opts: { link?: string; lang?: string } = {},
+  ): Promise<void> {
+    await this.mailer.enviar(
+      "verificacao_email",
+      email,
+      { token, link: opts.link ?? "", lang: opts.lang ?? "pt" },
+      { dedupeTtlMs: 0 },
+    );
     this.logger.debug(
       `Verificacao de email (mailer): email=${email} hash_truncado=${this.hashTruncado(token)}`,
     );

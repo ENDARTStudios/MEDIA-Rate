@@ -183,7 +183,7 @@ export class AuthService {
     // T214: emite token de verificação de email (envio via mock em dev).
     // Resposta do register continua 201 SEM expor o token.
     try {
-      await this.emailVerification.emitirToken(usuario);
+      await this.emailVerification.emitirToken(usuario, dto.locale ?? "pt-BR");
       await this.auditLog.log({
         entidade: "Usuario",
         entidadeId: usuario.id,

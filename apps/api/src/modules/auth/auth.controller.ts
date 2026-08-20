@@ -55,13 +55,16 @@ export class AuthController {
   async verifyEmail(
     @Query() query: { token?: string },
     @Req() req: FastifyRequest,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string; ok: boolean }> {
     const userAgent = req?.headers?.["user-agent"];
-    await this.emailVerification.verificar(query.token ?? "", {
+    const resultado = await this.emailVerification.verificar(query.token ?? "", {
       ip: req?.ip ?? undefined,
       user_agent: typeof userAgent === "string" ? userAgent : undefined,
     });
-    return { message: "Email verificado com sucesso." };
+    // T376: `ok` permite a página /verificar-email distinguir sucesso/erro.
+    // A mensagem segue genérica (sem revelar existência de email) e o status
+    // é sempre 200 — o token (single-use, 256-bit) é o segredo, não o email.
+    return { message: "Email verificado com sucesso.", ok: resultado.ok };
   }
 
   /**
@@ -76,9 +79,11 @@ export class AuthController {
     @Req() req: FastifyRequest,
   ): Promise<{ message: string }> {
     const userAgent = req?.headers?.["user-agent"];
-    return this.emailVerification.reenviar((body as { email: string }).email, {
+    const { email, locale } = body as { email: string; locale?: string };
+    return this.emailVerification.reenviar(email, {
       ip: req?.ip ?? undefined,
       user_agent: typeof userAgent === "string" ? userAgent : undefined,
+      locale,
     });
   }
 
@@ -100,6 +105,7 @@ export class AuthController {
       nome?: string;
       inviteCode?: string;
       aceitouTermos?: boolean;
+      locale?: "pt-BR" | "en-US" | "es-ES";
     };
     const ip = req.ip ?? undefined;
     const userAgent = req.headers["user-agent"];
