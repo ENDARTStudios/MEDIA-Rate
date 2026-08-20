@@ -46,6 +46,14 @@ Registrado por **D-344** (2026-08-20), após o incidente do client ID do Google
    IDs parecidos (539 vs 559) são armadilha de leitura visual; usar cópia ou
    extração programática.
 
+7. **Endpoint de auth anônimo novo exige checklist (D-348).**
+   Toda rota nova de auth que aceita request SEM sessão deve: (a) entrar na
+   allowlist de rotas públicas do `AuthGuard` (`isDefaultPublicPath`), (b)
+   ganhar teste de regressão de rota pública no `auth-guard.spec.ts`, e (c)
+   ter log de diagnóstico mascarado distinto do erro genérico (o `401
+   "Autenticação necessária"` do guard é diferente do `401 "Credencial Google
+   inválida"` do validador jose — sem isso, o debug confunde as camadas).
+
 ## Procedimento de rotação (exemplo: ADMIN_TOKEN)
 
 ```powershell

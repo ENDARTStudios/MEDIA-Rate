@@ -58,3 +58,11 @@ jobs:
 
 - Necessário: segredo `DATABASE_URL` (já existe no GitHub) + bucket R2/S3
   (`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`) + retenção (30 dias já no script).
+
+## T380 — DATABASE_URL privada (verificacao 2026-08-20)
+
+- A API conecta no Postgres pela rede PRIVADA do Railway (host ailway.internal),
+  sem egress fees — alinhado a diretriz de custo zero (D-320).
+- DATABASE_PUBLIC_URL (proxy TCP) fica reservado APENAS para ferramentas
+  externas do Operador (psql/Client locais), documentado no MANUAL.
+- Nenhuma alteracao necessaria: a referencia ja apontava para o host privado.

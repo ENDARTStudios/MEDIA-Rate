@@ -969,3 +969,14 @@ Relatorio de cobertura (models com FK usuario x RLS):
 4. Boa pratica documentada em docs/BOAS_PRATICAS_SECRETS.md.
 
 **Impacto:** T378 emitida e executada; lição permanente registrada para futuras tarefas com secrets.
+
+## [2026-08-20] Decisao: D-348 — item 15 fechado + regra de allowlist do AuthGuard
+
+**Contexto:** O login Google fechou com tres causas encadeadas: (1) NEXT_PUBLIC_* nao inlineada sem redeploy; (2) client ID "corrigido" para o valor errado (numero do projeto != prefixo do client, D-347); (3) a rota /auth/google/callback nunca esteve na allowlist de rotas publicas do AuthGuard — a request morria antes do controller com 401 "Autenticacao necessaria".
+
+**Decisao:**
+1. Item 15 da ordem de 17 itens: FECHADO (evidencia de ponta a ponta do Operador).
+2. Regra permanente: endpoint de auth anonimo novo exige (a) entrada na allowlist do AuthGuard, (b) teste de regressao de rota publica, (c) log de diagnostico mascarado distinto do erro generico.
+3. Itens ainda abertos: 6/7/8 (catalogo livros/HQs/mangas = Fase C T367-T369) e 11 (Descobertas = T381). Itens 3/5/9/10 ja implementados (T365/T366/T373/T374).
+
+**Impacto:** Fila = T381 + Fase C + T380; nenhuma pendencia do Operador.
