@@ -64,10 +64,69 @@ function Sparkline({ evolucao }: { evolucao: { mes: string; total: number }[] })
   const pts = vals
     .map((v, i) => `${(i / Math.max(1, vals.length - 1)) * w},${h - (v / max) * h}`)
     .join(" ");
+  const area = `0,${h} ${pts} ${w},${h}`;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" role="img" aria-label="Temporal">
-      <polyline points={pts} fill="none" stroke="#E11D48" strokeWidth="2" />
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="w-full"
+      role="img"
+      aria-label="Temporal"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#E11D48" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#E11D48" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill="url(#spark-fill)" />
+      <polyline
+        points={pts}
+        fill="none"
+        stroke="#E11D48"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+      />
+      {vals.map((v, i) => (
+        <circle
+          key={i}
+          cx={(i / Math.max(1, vals.length - 1)) * w}
+          cy={h - (v / max) * h}
+          r={vals.length > 12 ? 0 : 3}
+          fill="#E11D48"
+        />
+      ))}
     </svg>
+  );
+}
+
+/** T374 — barras horizontais densas (tipos/gêneros) sem dependências. */
+function HBarList({ data, color = "#818CF8" }: { data: Record<string, number>; color?: string }) {
+  const entradas = Object.entries(data)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+  if (entradas.length === 0) return null;
+  const max = Math.max(1, ...entradas.map(([, v]) => v));
+  return (
+    <ul className="space-y-2.5">
+      {entradas.map(([nome, valor]) => (
+        <li key={nome} className="flex items-center gap-3">
+          <span className="w-28 shrink-0 truncate text-xs text-[#A0A0B8]" title={nome}>
+            {nome}
+          </span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#1C1C2E]">
+            <div
+              className="h-full rounded-full transition-[width] duration-500"
+              style={{ width: `${Math.max(2, (valor / max) * 100)}%`, backgroundColor: color }}
+            />
+          </div>
+          <span className="w-8 shrink-0 text-right text-xs font-semibold text-[#EDE7DC]">
+            {valor}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -148,48 +207,92 @@ export function DashboardClient() {
     );
   }
 
+  const totalSinais = Object.values(stats.tipos).reduce((a, b) => a + b, 0);
+  const tiposAtivos = Object.entries(stats.tipos).filter(([, v]) => v > 0);
+  const destaque = [...Object.entries(stats.tipos), ...Object.entries(stats.generos)].sort(
+    (a, b) => b[1] - a[1],
+  )[0];
+
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-          {t("radar")}
-        </h2>
-        <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
-        <table className="sr-only">
-          <caption>{t("radarTable")}</caption>
-          <tbody>
-            {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
-              <tr key={k}>
-                <th scope="row">{k}</th>
-                <td>{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-      {stats.evolucao ? (
+    <div className="space-y-6">
+      {/* T374: resumo em cartões (KPIs densos) + radar/evolução + barras. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
+          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("signalTotal")}</p>
+          <p className="mt-1 font-heading text-3xl font-bold text-[#EDE7DC]">{totalSinais}</p>
+        </div>
+        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
+          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("byType")}</p>
+          <p className="mt-1 font-heading text-3xl font-bold text-[#EDE7DC]">
+            {tiposAtivos.length}
+          </p>
+        </div>
+        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
+          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("topCategory")}</p>
+          <p className="mt-1 truncate font-heading text-xl font-bold text-[#E11D48]">
+            {destaque ? destaque[0] : "—"}
+          </p>
+          {destaque && <p className="text-xs text-[#80809B]">{destaque[1]}</p>}
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("evolution")}
+            {t("radar")}
           </h2>
-          <Sparkline evolucao={stats.evolucao} />
-          <table className="mt-4 w-full text-sm text-[#9CA3AF]">
-            <caption className="sr-only">{t("evolutionTable")}</caption>
+          <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
+          <table className="sr-only">
+            <caption>{t("radarTable")}</caption>
             <tbody>
-              {stats.evolucao.map((e) => (
-                <tr key={e.mes}>
-                  <td>{e.mes}</td>
-                  <td className="text-right text-[#EDE7DC]">{e.total}</td>
+              {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
+                <tr key={k}>
+                  <th scope="row">{k}</th>
+                  <td>{v}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </section>
-      ) : (
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-[#9CA3AF] text-sm">
-          {t("premiumHint")}
+        {stats.evolucao ? (
+          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+              {t("evolution")}
+            </h2>
+            <Sparkline evolucao={stats.evolucao} />
+            <table className="mt-4 w-full text-sm text-[#9CA3AF]">
+              <caption className="sr-only">{t("evolutionTable")}</caption>
+              <tbody>
+                {stats.evolucao.map((e) => (
+                  <tr key={e.mes}>
+                    <td>{e.mes}</td>
+                    <td className="text-right text-[#EDE7DC]">{e.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : (
+          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-[#9CA3AF] text-sm">
+            {t("premiumHint")}
+          </section>
+        )}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+            {t("byType")}
+          </h2>
+          <HBarList data={stats.tipos} color="#818CF8" />
         </section>
-      )}
+        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+            {t("byGenre")}
+          </h2>
+          <HBarList data={stats.generos} color="#E11D48" />
+        </section>
+      </div>
     </div>
   );
 }

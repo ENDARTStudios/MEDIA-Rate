@@ -71,6 +71,7 @@
     "heroSubtitle": "MEDIA Score™ distills IMDb, Rotten Tomatoes, TMDB, Metacritic and more into a single trustworthy number — for movies, series and games.",
     "cta": "Start free",
     "ctaSecondary": "See the score in action",
+    "ctaTrust": "Free forever · No credit card required",
     "features": "Features",
     "feature1": "Consolidated MEDIA Score™",
     "feature1Desc": "Ratings from TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic and Steam in one place.",
@@ -299,7 +300,10 @@
     "radarTable": "Taste radar by type and genre",
     "evolution": "Evolution (12 months)",
     "evolutionTable": "Completed interactions per month",
-    "premiumHint": "Upgrade to Premium to see your consumption evolution over time."
+    "premiumHint": "Upgrade to Premium to see your consumption evolution over time.",
+    "byGenre": "By Genre",
+    "signalTotal": "Signals",
+    "topCategory": "Top"
   },
   "checkout": {
     "title": "Plan upgrade",

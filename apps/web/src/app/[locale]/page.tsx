@@ -135,6 +135,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         ctaHref="/register"
         ctaSecondary={t("ctaSecondary")}
         ctaSecondaryHref="/catalog"
+        ctaTrust={t("ctaTrust")}
         showcaseItems={showcaseItems}
       />
 

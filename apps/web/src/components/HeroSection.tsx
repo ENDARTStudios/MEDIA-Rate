@@ -13,6 +13,7 @@ interface HeroSectionProps {
   ctaHref: string;
   ctaSecondary: string;
   ctaSecondaryHref: string;
+  ctaTrust: string;
   showcaseItems: ShowcaseItem[];
 }
 
@@ -47,6 +48,7 @@ export function HeroSection({
   ctaHref,
   ctaSecondary,
   ctaSecondaryHref,
+  ctaTrust,
   showcaseItems,
 }: HeroSectionProps) {
   const shouldReduce = useReducedMotion();
@@ -117,6 +119,21 @@ export function HeroSection({
               {ctaSecondary}
             </Link>
           </motion.div>
+
+          {/* T371: microcopy de conversão (zero fricção) sob os CTAs. */}
+          <motion.p variants={item} className="mt-3 flex items-center gap-2 text-xs text-[#6B6B85]">
+            <svg
+              className="h-3.5 w-3.5 text-[#34D399]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            {ctaTrust}
+          </motion.p>
 
           <motion.div
             variants={item}
