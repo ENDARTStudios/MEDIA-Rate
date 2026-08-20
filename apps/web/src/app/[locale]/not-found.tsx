@@ -4,11 +4,14 @@ import { Navbar } from "@/components/Navbar";
 import { MotionFooter } from "@/components/MotionFooter";
 
 interface PageProps {
-  params: Promise<{ locale: string }>;
+  // T331: com renderização estática, o not-found é pré-renderizado SEM o
+  // contexto de [locale] → params pode vir undefined. Fallback para o default.
+  params?: Promise<{ locale: string }>;
 }
 
 export default async function NotFound({ params }: PageProps) {
-  const { locale } = await params;
+  const resolved = await params;
+  const locale = resolved?.locale ?? "pt-BR";
   setRequestLocale(locale);
   const t = await getTranslations("landing");
 
