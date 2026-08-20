@@ -89,6 +89,16 @@ describe("AuthGuard (unit)", () => {
     expect(result).toBe(true);
   });
 
+  it("POST /api/v1/auth/google/callback — público (valida ID token no controller)", async () => {
+    const { context } = mockContext({
+      hasCookie: false,
+      method: "POST",
+      url: "/api/v1/auth/google/callback",
+    });
+    const result = await guard.canActivate(context);
+    expect(result).toBe(true);
+  });
+
   it("/health — retorna true", async () => {
     const { context } = mockContext({ hasCookie: false, url: "/health" });
     const result = await guard.canActivate(context);

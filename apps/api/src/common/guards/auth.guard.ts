@@ -105,6 +105,7 @@ export class AuthGuard implements CanActivate {
       url.startsWith("/api/v1/auth/refresh") || // T212: público (cookie refresh + rate limit)
       url.startsWith("/api/v1/auth/verify-email") || // T214: público (token no query)
       url.startsWith("/api/v1/auth/resend-verification") || // T214: público (rate limit 3/h)
+      url.startsWith("/api/v1/auth/google/callback") || // T361: público (valida ID token no controller)
       url.startsWith("/api/v1/echo") || // T1.4 rota de exemplo, não exige auth
       url.startsWith("/uploads/") || // T216: posters servidos publicamente
       url.startsWith("/api/v1/waitlist-notify") || // T185 lead capture público (rate limit + zod)
