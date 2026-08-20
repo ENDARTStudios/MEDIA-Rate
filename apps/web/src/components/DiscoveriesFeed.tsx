@@ -3,7 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/lib/navigation";
 import { api } from "@/lib/http";
+import { getCatalog } from "@/lib/api";
+import type { Media } from "@/lib/types";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRouter } from "@/lib/navigation";
 
@@ -31,6 +34,7 @@ export function DiscoveriesFeed() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [items, setItems] = useState<Descoberta[]>([]);
+  const [highlights, setHighlights] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -53,6 +57,15 @@ export function DiscoveriesFeed() {
     }
     void carregar();
   }, [isAuthenticated, carregar]);
+
+  // T381: fallback útil quando o usuário ainda não tem descobertas —
+  // destaques por score do catálogo (nunca tela morta).
+  useEffect(() => {
+    if (!isAuthenticated || items.length > 0) return;
+    getCatalog({ sort: "score", order: "desc", limit: 6 })
+      .then((r) => setHighlights(r.items))
+      .catch(() => setHighlights([]));
+  }, [isAuthenticated, items.length]);
 
   if (!isAuthenticated) {
     return (
@@ -83,9 +96,58 @@ export function DiscoveriesFeed() {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
-        <p className="text-lg font-medium text-[#EDE7DC] mb-1">{t("emptyTitle")}</p>
-        <p>{t("emptyHint")}</p>
+      <div>
+        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
+          <p className="text-lg font-medium text-[#EDE7DC] mb-1">{t("emptyTitle")}</p>
+          <p className="mb-4">{t("emptyHint")}</p>
+          <Link
+            href="/catalog"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-all hover:brightness-110"
+          >
+            {t("exploreCatalog")}
+          </Link>
+        </div>
+
+        {highlights.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-heading text-lg font-semibold text-[#F5F5F7]">
+              {t("fallbackTitle")}
+            </h2>
+            <p className="mb-4 text-sm text-[#A0A0B8]">{t("fallbackHint")}</p>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {highlights.map((h) => (
+                <li key={h.id}>
+                  <Link
+                    href={`/media/${h.id}`}
+                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#11111E] p-3 transition-colors hover:border-[#818CF8]/50"
+                  >
+                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+                      {h.posterUrl ? (
+                        <Image
+                          src={h.posterUrl}
+                          alt={h.title}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[10px] text-[#6B6B85]">
+                          {h.title.slice(0, 3).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[#EDE7DC]">{h.title}</p>
+                      <p className="text-xs text-[#80809B]">
+                        {h.type} · {h.year}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }
