@@ -101,6 +101,7 @@ interface ApiMidiaSlug {
 
 interface ApiMidiaList {
   id: string;
+  slug?: string | null;
   titulo: string;
   titulo_original?: string | null;
   tipo: string;
@@ -951,7 +952,8 @@ function mediaFromSearchItem(it: ApiSearchItem): Media {
 function mediaFromList(m: ApiMidiaList): Media {
   return {
     id: m.id,
-    slug: slugify(m.titulo),
+    // T330: slug vem do servidor (canônico); fallback para slugify local (compat).
+    slug: m.slug ?? slugify(m.titulo),
     title: m.titulo,
     // D-248/T: título original (EN) para exibir em en/es via titleForLocale.
     titleLocalized: m.titulo_original

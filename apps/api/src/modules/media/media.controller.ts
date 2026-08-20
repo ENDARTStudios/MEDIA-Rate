@@ -21,7 +21,7 @@ import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify, parseSlugDiscriminado } from "../../common/slugify.js";
 import { normalizarImagem } from "../../common/normalizar-imagem.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, TipoMidia } from "@prisma/client";
 import { AuditLogService } from "../../common/audit-log.service.js";
 
 import { MediaScoreService } from "../media-score/media-score.service.js";
@@ -119,6 +119,7 @@ export class MediaController {
   ): Promise<
     PaginatedResult<{
       id: string;
+      slug: string | null;
       titulo: string;
       tipo: string;
       ano_lancamento: number | null;
@@ -222,6 +223,7 @@ export class MediaController {
         const [resultado, total] = await Promise.all([
           paginateCursor<{
             id: string;
+            slug: string | null;
             titulo: string;
             tipo: string;
             ano_lancamento: number | null;
@@ -236,6 +238,7 @@ export class MediaController {
             orderBy: orderBy as any,
             select: {
               id: true,
+              slug: true,
               titulo: true,
               titulo_original: true,
               tipo: true,
@@ -260,6 +263,7 @@ export class MediaController {
     const [resultado, total] = await Promise.all([
       paginateCursor<{
         id: string;
+        slug: string | null;
         titulo: string;
         titulo_original: string | null;
         tipo: string;
@@ -275,6 +279,7 @@ export class MediaController {
         orderBy: orderBy as any,
         select: {
           id: true,
+          slug: true,
           titulo: true,
           titulo_original: true,
           tipo: true,
@@ -352,18 +357,36 @@ export class MediaController {
       // Duna LIVRO e FILME com o mesmo slug). Sem sufixo, resolve o primeiro.
       // T280: candidatos excluem soft-deleted — título apagado não resolve.
       const { slug: slugLimpo, tipo: tipoFiltro } = parseSlugDiscriminado(slug);
-      const candidatos = await this.prisma.midia.findMany({
-        where: { deleted_at: null },
-        select: { id: true, titulo: true, titulo_original: true, tipo: true },
+      // T330: fast path indexado pelo slug persistido (sem full scan).
+      const alvoIndexado = await this.prisma.midia.findFirst({
+        where: {
+          slug: slugLimpo,
+          deleted_at: null,
+          ...(tipoFiltro ? { tipo: tipoFiltro as TipoMidia } : {}),
+        },
+        select: { id: true },
       });
-      const alvo = candidatos.find(
-        (c) =>
-          (slugify(c.titulo) === slugLimpo ||
-            (c.titulo_original != null && slugify(c.titulo_original) === slugLimpo)) &&
-          (tipoFiltro == null || c.tipo === tipoFiltro),
-      );
-      if (alvo) {
-        midia = await this.prisma.midia.findUnique({ where: { id: alvo.id }, include });
+      if (alvoIndexado) {
+        midia = await this.prisma.midia.findUnique({ where: { id: alvoIndexado.id }, include });
+      } else {
+        // Fallback (legado): títulos sem slug persistido (pré-backfill) ou
+        // resolvidos por titulo_original. Raro após o backfill.
+        const candidatos = await this.prisma.midia.findMany({
+          where: {
+            deleted_at: null,
+            ...(tipoFiltro ? { tipo: tipoFiltro as TipoMidia } : {}),
+            OR: [{ slug: null }, { titulo_original: { not: null } }],
+          },
+          select: { id: true, titulo: true, titulo_original: true },
+        });
+        const alvo = candidatos.find(
+          (c) =>
+            slugify(c.titulo) === slugLimpo ||
+            (c.titulo_original != null && slugify(c.titulo_original) === slugLimpo),
+        );
+        if (alvo) {
+          midia = await this.prisma.midia.findUnique({ where: { id: alvo.id }, include });
+        }
       }
     }
     if (!midia) {

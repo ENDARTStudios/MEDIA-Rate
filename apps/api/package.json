@@ -25,6 +25,7 @@
     "db:seed:posters": "node --import @swc-node/register/esm-register prisma/seed-posters.ts",
     "db:audit:igdb": "node --import @swc-node/register/esm-register prisma/audit-igdb-ids.ts",
     "db:seed:metadata": "node --import @swc-node/register/esm-register prisma/seed-metadata.ts",
+    "db:seed:slugs": "node --import @swc-node/register/esm-register prisma/seed-slug-backfill.ts",
     "db:seed:temporadas": "node --import @swc-node/register/esm-register prisma/seed-temporadas.ts",
     "db:provision:test-users": "node --import @swc-node/register/esm-register prisma/provision-test-users.ts",
     "db:reparo:watchlist": "node --import @swc-node/register/esm-register prisma/seed-reparo-watchlist.ts",

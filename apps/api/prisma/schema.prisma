@@ -312,6 +312,10 @@ model Midia {
   pais_origem             String?                @map("pais_origem") @db.VarChar(2)
   tipo                    TipoMidia
   titulo                  String                 @db.Text
+  // T330: slug canônico (slugify(titulo)) indexado — elimina full scan no
+  // getBySlug. NÃO é @unique (colisões de título desambiguam por tipo via
+  // parseSlugDiscriminado "{slug}-{tipo}").
+  slug                    String?                @map("slug") @db.VarChar(300)
   titulo_original         String?                @map("titulo_original") @db.Text
   sinopse                 String?                @db.Text
   ano_lancamento          Int?                   @map("ano_lancamento")
@@ -354,6 +358,7 @@ model Midia {
   @@unique([fonte, fonte_id])
   @@index([tipo])
   @@index([titulo])
+  @@index([slug])
   @@index([score])
   @@map("midia")
 }

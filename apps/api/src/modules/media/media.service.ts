@@ -1,7 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { comContextoRls } from "../../common/rls-context.js";
+import { slugify } from "../../common/slugify.js";
 import { CreateMediaDto, UpdateMediaDto } from "./dto/media.dto.js";
-import type { ClassificacaoIndicativa } from "@prisma/client";
+import type { ClassificacaoIndicativa, Prisma } from "@prisma/client";
 
 const NR_TO_CLASSIFICACAO: Record<number, ClassificacaoIndicativa> = {
   0: "L",
@@ -15,6 +17,8 @@ const NR_TO_CLASSIFICACAO: Record<number, ClassificacaoIndicativa> = {
 function mapCreateDto(dto: CreateMediaDto) {
   return {
     titulo: dto.titulo,
+    // T330: persiste o slug canônico (indexado) para lookup O(1) no getBySlug.
+    slug: slugify(dto.titulo),
     titulo_original: dto.titulo_original ?? null,
     tipo: dto.tipo,
     sinopse: dto.sinopse,
@@ -32,7 +36,7 @@ function mapCreateDto(dto: CreateMediaDto) {
 
 function mapUpdateDto(dto: UpdateMediaDto) {
   return {
-    ...(dto.titulo !== undefined && { titulo: dto.titulo }),
+    ...(dto.titulo !== undefined && { titulo: dto.titulo, slug: slugify(dto.titulo) }),
     ...(dto.titulo_original !== undefined && { titulo_original: dto.titulo_original }),
     ...(dto.tipo !== undefined && { tipo: dto.tipo }),
     ...(dto.sinopse !== undefined && { sinopse: dto.sinopse }),
@@ -55,14 +59,13 @@ export class MediaService {
    * T215: unicidade por (fonte, fonte_id) — POST duplicado → 409.
    * Mídia soft-deletada NÃO bloqueia o id (pode ser recriada).
    */
-  private async verificarUnicidade(dto: {
-    fonte?: string;
-    fonte_id?: string;
-    excluirId?: string;
-  }): Promise<void> {
+  private async verificarUnicidade(
+    client: Prisma.TransactionClient,
+    dto: { fonte?: string; fonte_id?: string; excluirId?: string },
+  ): Promise<void> {
     const fonte = dto.fonte ?? "manual";
     const fonte_id = dto.fonte_id ?? "manual";
-    const existente = await this.prisma.midia.findFirst({
+    const existente = await client.midia.findFirst({
       where: {
         fonte,
         fonte_id,
@@ -80,38 +83,46 @@ export class MediaService {
     }
   }
 
+  // T328: escritas sob comContextoRls(role ADMIN) — com FORCE RLS as policies
+  // de escrita (midia_*_curator) exigem current_user_role IN ('CURATOR','ADMIN').
   async create(dto: CreateMediaDto) {
-    await this.verificarUnicidade(dto);
-    return this.prisma.midia.create({ data: mapCreateDto(dto) });
+    return comContextoRls(this.prisma, { role: "ADMIN" }, async (tx) => {
+      await this.verificarUnicidade(tx, dto);
+      return tx.midia.create({ data: mapCreateDto(dto) });
+    });
   }
 
   async update(id: string, dto: UpdateMediaDto) {
-    const midia = await this.prisma.midia.findFirst({
-      where: { id, deleted_at: null },
-      select: { id: true, fonte: true, fonte_id: true },
-    });
-    if (!midia) throw new NotFoundException("Mídia não encontrada.");
-    if (dto.fonte !== undefined || dto.fonte_id !== undefined) {
-      // Unicidade com os valores RESULTANTES (dto + estado atual).
-      await this.verificarUnicidade({
-        fonte: dto.fonte ?? midia.fonte,
-        fonte_id: dto.fonte_id ?? midia.fonte_id,
-        excluirId: id,
+    return comContextoRls(this.prisma, { role: "ADMIN" }, async (tx) => {
+      const midia = await tx.midia.findFirst({
+        where: { id, deleted_at: null },
+        select: { id: true, fonte: true, fonte_id: true },
       });
-    }
-    return this.prisma.midia.update({ where: { id }, data: mapUpdateDto(dto) });
+      if (!midia) throw new NotFoundException("Mídia não encontrada.");
+      if (dto.fonte !== undefined || dto.fonte_id !== undefined) {
+        // Unicidade com os valores RESULTANTES (dto + estado atual).
+        await this.verificarUnicidade(tx, {
+          fonte: dto.fonte ?? midia.fonte,
+          fonte_id: dto.fonte_id ?? midia.fonte_id,
+          excluirId: id,
+        });
+      }
+      return tx.midia.update({ where: { id }, data: mapUpdateDto(dto) });
+    });
   }
 
   /** T215: soft delete — marca deleted_at, nunca remove a linha. */
   async remove(id: string) {
-    const midia = await this.prisma.midia.findFirst({
-      where: { id, deleted_at: null },
-      select: { id: true },
-    });
-    if (!midia) throw new NotFoundException("Mídia não encontrada.");
-    return this.prisma.midia.update({
-      where: { id },
-      data: { deleted_at: new Date() },
+    return comContextoRls(this.prisma, { role: "ADMIN" }, async (tx) => {
+      const midia = await tx.midia.findFirst({
+        where: { id, deleted_at: null },
+        select: { id: true },
+      });
+      if (!midia) throw new NotFoundException("Mídia não encontrada.");
+      return tx.midia.update({
+        where: { id },
+        data: { deleted_at: new Date() },
+      });
     });
   }
 

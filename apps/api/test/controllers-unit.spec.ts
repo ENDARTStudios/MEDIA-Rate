@@ -32,7 +32,7 @@ function mockRes() {
 
 function createMockPrisma() {
   return {
-    midia: { findMany: vi.fn(), findUnique: vi.fn(), count: vi.fn() },
+    midia: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), count: vi.fn() },
     genero: { findMany: vi.fn().mockResolvedValue([]) },
     usuario: { findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     usuarioPapel: { findMany: vi.fn() },
