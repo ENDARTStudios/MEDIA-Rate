@@ -949,3 +949,12 @@ Relatorio de cobertura (models com FK usuario x RLS):
 - Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
 
 - [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 — ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
+
+---
+
+## [2026-08-19] T355 - backend OpenTelemetry (D-327)
+
+- DECISAO: usar Grafana Cloud free tier como backend de traces OTel (D-320: custo zero). Jaeger self-hosted fica como alternativa documentada (privacidade estrita/on-prem), nao e o padrao agora.
+- Justificativa: free tier (50 GB traces/mes, retencao 14d) e mais que suficiente para a escala (1k->50k); zero manutencao (SaaS); OTLP/HTTP nativo; UI rica (Tempo traces + dashboards + alerting). Jaeger exige servidor + storage + updates + disco + backup - custo operacional desproporcional.
+- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/AVALIACAO_BACKEND_OTEL.md.
+- Codigo OTel ja pronto e inerte: API (apps/api/src/common/otel.ts) e web (apps/web/src/lib/otel-browser.ts) so ativam quando o endpoint e definido.

@@ -1,14 +1,17 @@
 # DEFERIDOS_APROVACAO.md — MEDIA Rate
 
-> Itens de segurança/perf **deferidos** (D-323, 2026-08-19). NADA aqui foi
-> aplicado. Postura defensiva (padrão T290): o código/scripts abaixo estão
-> **prontos para o Operador aprovar e aplicar manualmente**, após teste em
-> staging/Postgres de teste (porta 5434, T349).
->
-> Regra de ouro: **não** colocar as migrations destes itens em
-> `apps/api/prisma/migrations/` — o `Dockerfile` roda `prisma migrate deploy`
-> no boot e aplicaria sem aprovação. Aplicar manualmente via
-> `railway connect postgres` / `psql`.
+> **STATUS (2026-08-19, D-326):**
+> - ✅ **T328** (FORCE RLS catálogo) — **APLICADO** (migration `20260819_rls_catalogo_force`
+>   + `media.service` refatorado para `comContextoRls`). Typecheck + 42 testes verdes.
+> - ✅ **T330** (slug indexado) — **APLICADO** (migration `20260819_midia_slug` +
+>   `db:seed:slugs` backfill + `getBySlug`/`list` usam slug + web usa slug do servidor).
+>   Typecheck + 57 testes verdes.
+> - ⏳ **T327** (CSP sem `unsafe-inline`) — **PENDENTE de validação em browser**
+>   (nonce no App Router + PostHog/Sentry inline exigem Playwright/staging).
+
+> Regra de ouro: migrations deste arquivo NÃO vão para `apps/api/prisma/migrations/`
+> sem o refactor prévio correspondente — o `Dockerfile` roda `prisma migrate deploy`
+> no boot. (T328/T330 já têm refactor + testes; T327 não é migration.)
 
 ---
 
