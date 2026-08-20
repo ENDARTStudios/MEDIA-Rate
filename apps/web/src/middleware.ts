@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
@@ -24,8 +24,41 @@ function isPrivateRoute(pathname: string): boolean {
   );
 }
 
+/**
+ * T327 (D-326): CSP com nonce por requisição, sem `unsafe-inline` em
+ * script-src. Substitui o header estático de next.config.ts.
+ * - nonce = btoa(crypto.randomUUID()) por request.
+ * - `x-nonce` no request (o layout pode ler via headers()).
+ * - `strict-dynamic` permite que scripts nonce'd carreguem chunks dinâmicos.
+ * ⚠️ Trade-off (docs/T327_CSP_NONCE.md): nonce por request → páginas dinâmicas
+ * (desabilita ISR/estático do T331). Validar em preview antes de merge.
+ */
+function cspHeader(nonce: string): string {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://us-assets.i.posthog.com`,
+    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
+    "frame-src 'self'",
+    "frame-ancestors 'none'",
+    "img-src 'self' data: https:",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self' data:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
 export default function middleware(request: NextRequest) {
-  const response = intlMiddleware(request);
+  const nonce = btoa(crypto.randomUUID());
+  const csp = cspHeader(nonce);
+
+  // Injeta o nonce no request (a página/layout lê via headers()).
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  const response = intlMiddleware(new NextRequest(request, { headers: requestHeaders }));
+
   const pathname = request.nextUrl.pathname;
 
   if (isPrivateRoute(pathname)) {
@@ -35,11 +68,13 @@ export default function middleware(request: NextRequest) {
       const loginUrl = new URL(`/${locale}/login`, request.url);
       const redirect = NextResponse.redirect(loginUrl);
       redirect.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+      redirect.headers.set("Content-Security-Policy", csp);
       return redirect;
     }
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }
 
+  response.headers.set("Content-Security-Policy", csp);
   return response;
 }
 

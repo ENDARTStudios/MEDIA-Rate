@@ -60,7 +60,8 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
-    const isProduction = process.env.NODE_ENV === "production";
+    // T327: CSP movida para src/middleware.ts (nonce por requisição, sem
+    // `unsafe-inline` em script-src). Aqui ficam só os headers estáticos.
     return [
       {
         source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
@@ -70,32 +71,6 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-          // CSP é header de PRODUÇÃO (Next dev usa eval — o header quebraria
-          // o dev server; T196). Em dev, não envia CSP.
-          ...(isProduction
-            ? [
-                {
-                  key: "Content-Security-Policy",
-                  value: [
-                    "default-src 'self'",
-                    "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
-                    // T315: Sentry ingest (regiões us/eu/de — o host é
-                    // o<org>.ingest.<região>.sentry.io, logo o wildcard precisa
-                    // cobrir cada região explicitamente).
-                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
-                    "frame-src 'self'",
-                    "frame-ancestors 'none'",
-                    "img-src 'self' data: https:",
-                    "style-src 'self' 'unsafe-inline'",
-                    "font-src 'self' data:",
-                    "object-src 'none'",
-                    "base-uri 'self'",
-                    "form-action 'self'",
-                    "upgrade-insecure-requests",
-                  ].join("; "),
-                },
-              ]
-            : []),
         ],
       },
     ];
