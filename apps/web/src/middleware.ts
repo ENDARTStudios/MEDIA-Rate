@@ -31,7 +31,14 @@ export default function middleware(request: NextRequest) {
   if (isPrivateRoute(pathname)) {
     const sessCookie = request.cookies.get("sess")?.value;
     if (!sessCookie) {
-      const locale = pathname.split("/")[1] || "pt-BR";
+      // T359: `pathname.split("/")[1]` assumia locale sempre presente — para
+      // /dashboard (sem prefixo) extraía "dashboard" e gerava /dashboard/login,
+      // que é private (prefixo /dashboard) → loop infinito (ERR_TOO_MANY_REDIRECTS).
+      // Só usa o segmento se for um locale válido; senão cai no default.
+      const segment = pathname.split("/")[1] ?? "";
+      const locale = (routing.locales as readonly string[]).includes(segment)
+        ? segment
+        : routing.defaultLocale;
       const loginUrl = new URL(`/${locale}/login`, request.url);
       const redirect = NextResponse.redirect(loginUrl);
       redirect.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

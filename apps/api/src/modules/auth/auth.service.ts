@@ -136,6 +136,10 @@ export class AuthService {
           password_hash,
           nome: dto.nome ?? null,
           termos_aceitos_em: new Date(),
+          // T359 (D-334): auto-verifica enquanto o envio real não está ativo
+          // (mock em dev; Resend em produção é a T360). Sem isso o login()
+          // retorna 403 EMAIL_NOT_VERIFIED e o registro redireciona em loop.
+          email_verificado_em: new Date(),
         },
         select: { id: true, email: true, nome: true, created_at: true },
       });
