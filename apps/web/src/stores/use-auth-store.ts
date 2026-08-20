@@ -32,14 +32,17 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; code?: string }>;
   register: (
     name: string,
     email: string,
     password: string,
     aceitouTermos: boolean,
     inviteCode?: string,
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; needsVerification?: boolean }>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   setInitialUser: (name: string) => void;
@@ -83,8 +86,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     } catch (e) {
       if (e instanceof ApiError) {
         const msg = e.message || "Credenciais inválidas.";
+        const code = (e.body as { code?: string } | undefined)?.code;
         set({ isLoading: false, error: msg });
-        return { success: false, error: msg };
+        return { success: false, error: msg, code };
       }
       set({ isLoading: false, error: "Erro ao fazer login." });
       return { success: false, error: "Erro ao fazer login." };
@@ -102,9 +106,17 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       };
       if (inviteCode) payload.inviteCode = inviteCode;
       await api.post("/api/v1/auth/register", payload, { auth: false });
-      // Auto-login after registration (same session context).
-      await get().login(email, password);
-      return { success: true };
+      // Auto-login. T360: se o email ainda não foi verificado (Resend),
+      // o login devolve 403 EMAIL_NOT_VERIFIED → sinaliza para o form.
+      const loginResult = await get().login(email, password);
+      if (!loginResult.success) {
+        set({ isLoading: false });
+        if (loginResult.code === "EMAIL_NOT_VERIFIED") {
+          return { success: true, needsVerification: true };
+        }
+        return { success: false, error: loginResult.error };
+      }
+      return { success: true, needsVerification: false };
     } catch (e) {
       set({ isLoading: false });
       if (e instanceof ApiError) {

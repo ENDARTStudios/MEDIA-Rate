@@ -143,9 +143,15 @@ export function RegisterForm() {
   const onSubmit = async (d: RegisterData) => {
     const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode);
     if (result.success) {
-      toast.success(t("registerSuccess"));
-      // T364: primeiro contato acolhedor — /welcome (exibida 1 vez).
-      router.replace("/welcome");
+      if (result.needsVerification) {
+        // T360: email de verificação enviado — usuário precisa confirmar.
+        toast.info(t("checkEmail"));
+        router.replace("/login");
+      } else {
+        toast.success(t("registerSuccess"));
+        // T364: primeiro contato acolhedor — /welcome (exibida 1 vez).
+        router.replace("/welcome");
+      }
     } else {
       toast.error(result.error || t("registerError"));
     }

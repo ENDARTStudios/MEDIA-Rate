@@ -447,6 +447,7 @@
     "hasAccount": "Já tem conta?",
     "signIn": "Entrar",
     "registerSuccess": "Conta criada! Bem-vindo ao MEDIA Rate.",
+    "checkEmail": "Conta criada! Enviamos um link de verificação para o seu email. Confira (e o spam) para entrar.",
     "registerError": "Erro ao criar conta",
     "showPassword": "Mostrar senha",
     "hidePassword": "Ocultar senha",
