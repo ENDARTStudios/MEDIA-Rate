@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PlanThemeProvider } from "@/components/layout/PlanThemeProvider";
 
 export async function generateMetadata({
   params,
@@ -15,5 +16,5 @@ export async function generateMetadata({
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <PlanThemeProvider>{children}</PlanThemeProvider>;
 }
