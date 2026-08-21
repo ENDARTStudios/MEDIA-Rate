@@ -116,11 +116,7 @@ export function StatusReactionControl({
       requireAuth();
       return;
     }
-    // 1 toque = QUERO_CONSUMIR, sem abrir menu.
-    if (status == null) {
-      void setStatus(midiaId, "QUERO_CONSUMIR");
-      return;
-    }
+    // T384: o "+" SEMPRE abre o menu de status (nunca adiciona direto).
     clearInteractionError();
     setOpen(true);
   }
@@ -140,7 +136,7 @@ export function StatusReactionControl({
     void setMotivo(midiaId, motivo === m ? null : m);
   }
 
-  // ---- modo compacto: só o ícone rápido ---------------------------------
+  // ---- modo compacto: ícone rápido que ABRE o menu (T384) ---------------
   if (compact) {
     const labelAtual = status
       ? t(statusLabelKey(mediaType, status))
@@ -149,23 +145,68 @@ export function StatusReactionControl({
         // genérico 'Quero consumir'/'Want to consume'/'Quiero consumir').
         t(statusLabelKey(mediaType, "QUERO_CONSUMIR"));
     return (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleTap();
-        }}
-        aria-label={labelAtual}
-        title={labelAtual}
-        className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-          status
-            ? "bg-[#11111E]/85 text-[#EDE7DC] hover:bg-[#1C1C2E]"
-            : "bg-[#11111E]/85 text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
-        } ${className}`}
-        data-testid="status-quick"
-      >
-        {status ? <StatusGlyph status={status} size={16} /> : <AddGlyph size={16} />}
-      </button>
+      <div ref={popoverRef} className={`relative ${className}`}>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleTap();
+          }}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label={labelAtual}
+          title={labelAtual}
+          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+            status
+              ? "bg-[#11111E]/85 text-[#EDE7DC] hover:bg-[#1C1C2E]"
+              : "bg-[#11111E]/85 text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+          }`}
+          data-testid="status-quick"
+        >
+          {status ? <StatusGlyph status={status} size={16} /> : <AddGlyph size={16} />}
+        </button>
+
+        {open && (
+          <motion.div
+            initial={shouldReduce ? false : { opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
+            role="dialog"
+            aria-label={t("updateStatus")}
+            className="absolute left-0 z-popover mt-2 w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
+            data-testid="status-popover"
+          >
+            <div className="grid grid-cols-1 gap-1" role="group" aria-label={t("statusGroup")}>
+              {CONSUMO_STATUSES.map((s) => {
+                const disabled = !podeTransicionar(status, s);
+                const active = status === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      handleSelectStatus(s);
+                      setOpen(false);
+                    }}
+                    disabled={disabled}
+                    aria-pressed={active}
+                    className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      disabled
+                        ? "cursor-not-allowed text-[#4A4A60]"
+                        : active
+                          ? "bg-[#2A2A3D] text-[#EDE7DC]"
+                          : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
+                    }`}
+                  >
+                    <StatusGlyph status={s} size={13} filled={active} />
+                    {t(statusLabelKey(mediaType, s))}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </div>
     );
   }
 

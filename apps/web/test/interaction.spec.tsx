@@ -10,6 +10,7 @@ const interactionMock = vi.hoisted(() => {
     setStatus: vi.fn(async () => undefined),
     setReaction: vi.fn(async () => undefined),
     setMotivo: vi.fn(async () => undefined),
+    clearError: vi.fn(),
     clearLocal: vi.fn(),
     fetchAll: vi.fn(async () => undefined),
   };
@@ -77,11 +78,12 @@ describe("T200 — StatusReactionControl", () => {
     interactionMock.fetchAll.mockClear();
   });
 
-  it("compact: 1 toque = QUERO_CONSUMIR, sem abrir menu", () => {
+  it("compact: '+' abre o menu de status (T384), sem adicionar direto", () => {
     render(<StatusReactionControl midiaId="m1" mediaType="movie" compact />);
     fireEvent.click(screen.getByTestId("status-quick"));
-    expect(interactionMock.setStatus).toHaveBeenCalledWith("m1", "QUERO_CONSUMIR");
-    expect(screen.queryByTestId("status-popover")).toBeNull();
+    // Não adiciona direto — abre o popover de status.
+    expect(interactionMock.setStatus).not.toHaveBeenCalled();
+    expect(screen.getByTestId("status-popover")).toBeTruthy();
   });
 
   it("full: reações NÃO aparecem quando o status é QUERO (pré-consumo)", () => {
