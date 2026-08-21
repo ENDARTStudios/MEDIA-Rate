@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { DashboardClient } from "../../../components/dashboard/DashboardClient";
+import { PlanCelebration } from "../../../components/ui/PlanCelebration";
 
 export async function generateMetadata({
   params,
@@ -26,6 +27,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">{t("title")}</h1>
       <p className="text-[#9CA3AF] mb-6 max-w-2xl">{t("subtitle")}</p>
       <DashboardClient />
+      <PlanCelebration />
     </div>
   );
 }
