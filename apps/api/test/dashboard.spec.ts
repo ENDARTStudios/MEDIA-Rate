@@ -12,10 +12,12 @@ function mockPrisma(interacoes: any[]) {
 }
 
 describe("DashboardService (T295)", () => {
-  it("FREE → upgrade sem dados (nunca recebe payload de stats)", async () => {
+  it("FREE → módulos base (total/tipos/gêneros), sem radar gateado no payload", async () => {
     const svc = new DashboardService(mockPrisma([]) as any);
     const r = await svc.stats("u1", "FREE");
-    expect(r.upgrade).toBe(true);
+    expect(r.upgrade).toBe(false);
+    expect(r.plano).toBe("FREE");
+    expect(r.total).toBe(0);
     expect(r.tipos).toEqual({});
     expect(r.evolucao).toBeNull();
   });

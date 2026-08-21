@@ -5,6 +5,7 @@ import { comContextoRls } from "../../common/rls-context.js";
 export interface UserStats {
   plano: string;
   upgrade: boolean;
+  total: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
@@ -21,10 +22,6 @@ export class DashboardService {
 
   async stats(usuarioId: string, plano: string | null): Promise<UserStats> {
     const planoEfetivo = plano ?? "FREE";
-    if (planoEfetivo === "FREE") {
-      return { plano: "FREE", upgrade: true, tipos: {}, generos: {}, evolucao: null };
-    }
-
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const interacoes = await tx.usuarioMidiaInteracao.findMany({
         where: { usuario_id: usuarioId },
@@ -66,7 +63,14 @@ export class DashboardService {
         evolucao = [...buckets.entries()].map(([mes, total]) => ({ mes, total }));
       }
 
-      return { plano: planoEfetivo, upgrade: false, tipos, generos, evolucao };
+      return {
+        plano: planoEfetivo,
+        upgrade: false,
+        total: interacoes.length,
+        tipos,
+        generos,
+        evolucao,
+      };
     });
   }
 }

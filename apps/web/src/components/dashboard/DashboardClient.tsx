@@ -9,6 +9,7 @@ import { useRouter } from "@/lib/navigation";
 interface UserStats {
   plano: string;
   upgrade: boolean;
+  total: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
@@ -181,23 +182,19 @@ export function DashboardClient() {
       </div>
     );
 
-  if (!stats || stats.upgrade) {
+  if (!stats) {
     return (
       <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
-        <p className="text-lg font-medium text-[#EDE7DC] mb-1">{t("upgradeTitle")}</p>
-        <p className="mb-4">{t("upgradeHint")}</p>
-        <button
-          type="button"
-          onClick={() => router.push("/pricing")}
-          className="rounded-lg bg-[#E11D48] px-4 py-2 text-sm text-white hover:bg-[#C31442]"
-        >
-          {t("upgrade")}
-        </button>
+        <p className="mb-4">{t("error")}</p>
       </div>
     );
   }
 
-  const temDados = Object.keys(stats.tipos).length > 0 || Object.keys(stats.generos).length > 0;
+  // T386 (D-355): módulos BASE para TODOS os planos; radar = Plus, evolução
+  // temporal = Premium (gateados inline, nunca página bloqueada).
+  const ehPlus = stats.plano === "PLUS" || stats.plano === "PREMIUM";
+  const temDados =
+    stats.total > 0 || Object.keys(stats.tipos).length > 0 || Object.keys(stats.generos).length > 0;
   if (!temDados) {
     return (
       <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
@@ -207,7 +204,7 @@ export function DashboardClient() {
     );
   }
 
-  const totalSinais = Object.values(stats.tipos).reduce((a, b) => a + b, 0);
+  const totalSinais = stats.total;
   const tiposAtivos = Object.entries(stats.tipos).filter(([, v]) => v > 0);
   const destaque = [...Object.entries(stats.tipos), ...Object.entries(stats.generos)].sort(
     (a, b) => b[1] - a[1],
@@ -237,23 +234,39 @@ export function DashboardClient() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("radar")}
-          </h2>
-          <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
-          <table className="sr-only">
-            <caption>{t("radarTable")}</caption>
-            <tbody>
-              {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
-                <tr key={k}>
-                  <th scope="row">{k}</th>
-                  <td>{v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        {ehPlus ? (
+          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+              {t("radar")}
+            </h2>
+            <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
+            <table className="sr-only">
+              <caption>{t("radarTable")}</caption>
+              <tbody>
+                {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
+                  <tr key={k}>
+                    <th scope="row">{k}</th>
+                    <td>{v}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : (
+          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-sm text-[#9CA3AF]">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+              {t("radar")}
+            </h2>
+            <p className="mb-3">{t("upgradeHint")}</p>
+            <button
+              type="button"
+              onClick={() => router.push("/pricing")}
+              className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110"
+            >
+              {t("upgrade")}
+            </button>
+          </section>
+        )}
         {stats.evolucao ? (
           <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
