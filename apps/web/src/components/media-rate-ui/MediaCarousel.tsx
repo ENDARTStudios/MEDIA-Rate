@@ -36,6 +36,7 @@ const TYPE_TO_API: Record<string, "movie" | "series" | "game"> = {
 
 function mapToMediaItem(m: {
   id: string;
+  slug?: string | null;
   title: string;
   titleLocalized?: { pt: string; en: string; es: string };
   type: string;
@@ -45,6 +46,7 @@ function mapToMediaItem(m: {
 }): MediaItem {
   return {
     id: m.id,
+    slug: m.slug,
     titulo: m.title,
     titulo_original: m.titleLocalized?.en ?? m.title,
     tipo: m.type.toUpperCase(),
