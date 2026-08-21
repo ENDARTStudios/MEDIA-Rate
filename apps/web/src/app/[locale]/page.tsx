@@ -92,12 +92,23 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   // T274: os carrosséis ativos buscam no server (ISR) e hidratam o cliente —
   // o HTML SSR já sai com os títulos, sem depender de JS para o primeiro
   // paint/crawlers. Ordem/limite idênticos ao queryFn do MediaCarousel.
-  const [carouselMovie, carouselSeries, carouselGame] = await Promise.all([
-    getCatalog({ type: "movie", sort: "score", order: "desc", limit: 10 }),
-    getCatalog({ type: "series", sort: "score", order: "desc", limit: 10 }),
-    getCatalog({ type: "game", sort: "score", order: "desc", limit: 10 }),
-  ]);
-  const carousels = { movie: carouselMovie, series: carouselSeries, game: carouselGame } as const;
+  const [carouselMovie, carouselSeries, carouselGame, carouselBook, carouselComic, carouselManga] =
+    await Promise.all([
+      getCatalog({ type: "movie", sort: "score", order: "desc", limit: 10 }),
+      getCatalog({ type: "series", sort: "score", order: "desc", limit: 10 }),
+      getCatalog({ type: "game", sort: "score", order: "desc", limit: 10 }),
+      getCatalog({ type: "book", sort: "score", order: "desc", limit: 10 }),
+      getCatalog({ type: "comic", sort: "score", order: "desc", limit: 10 }),
+      getCatalog({ type: "manga", sort: "score", order: "desc", limit: 10 }),
+    ]);
+  const carousels = {
+    movie: carouselMovie,
+    series: carouselSeries,
+    game: carouselGame,
+    book: carouselBook,
+    comic: carouselComic,
+    manga: carouselManga,
+  } as const;
 
   // T358: showcase da Hero — top-1 de cada categoria + detalhe (crítica/público/
   // fontes). Busca no server (ISR) para LCP seguro com a 1ª imagem priority.
@@ -153,9 +164,9 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       <MediaCarousel type="movie" initialData={carousels.movie} />
       <MediaCarousel type="series" initialData={carousels.series} />
       <MediaCarousel type="game" initialData={carousels.game} />
-      <MediaCarousel type="book" />
-      <MediaCarousel type="comic" />
-      <MediaCarousel type="manga" />
+      <MediaCarousel type="book" initialData={carousels.book} />
+      <MediaCarousel type="comic" initialData={carousels.comic} />
+      <MediaCarousel type="manga" initialData={carousels.manga} />
 
       <section className="border-t border-[rgba(129,140,248,0.08)] px-4 py-20">
         <div className="mx-auto max-w-2xl text-center">

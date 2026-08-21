@@ -24,14 +24,29 @@ import type { MediaType, CatalogResponse } from "@/lib/types";
 // T258: chaves por MediaType (lowercase) e por tipo da API — o bug era
 // `type.toUpperCase()` gerar "SERIES" (plural) que não existia no mapa e o
 // fallback silencioso `?? "movie"` fazer a seção SERIES carregar FILMES.
-const TYPE_TO_API: Record<string, "movie" | "series" | "game"> = {
+const TYPE_TO_API: Record<string, "movie" | "series" | "game" | "book" | "comic" | "manga"> = {
   movie: "movie",
   series: "series",
   game: "game",
+  book: "book",
+  comic: "comic",
+  manga: "manga",
   FILME: "movie",
   SERIE: "series",
   SERIES: "series",
   GAME: "game",
+  LIVRO: "book",
+  COMIC: "comic",
+  MANGA: "manga",
+};
+
+const TIPO_TO_ITEM: Record<string, string> = {
+  movie: "FILME",
+  series: "SERIE",
+  game: "GAME",
+  book: "LIVRO",
+  comic: "COMIC",
+  manga: "MANGA",
 };
 
 function mapToMediaItem(m: {
@@ -49,7 +64,7 @@ function mapToMediaItem(m: {
     slug: m.slug,
     titulo: m.title,
     titulo_original: m.titleLocalized?.en ?? m.title,
-    tipo: m.type.toUpperCase(),
+    tipo: TIPO_TO_ITEM[m.type] ?? m.type.toUpperCase(),
     ano_lancamento: m.year,
     imagem_url: m.posterUrl,
     score: m.score?.consolidated ?? null,
@@ -65,8 +80,9 @@ const TIPO_KEY: Record<MediaType, string> = {
   manga: "manga",
 };
 
-/** Categorias sem catálogo ativo → cards bloqueados + waitlist. */
-const ROADMAP: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
+/** T383b (D-351): a home NUNCA bloqueia um tipo que já tem itens no catálogo.
+ *  Com o seed da Fase C, livros/HQs/mangás passam a exibir cards reais. */
+const ROADMAP: ReadonlySet<MediaType> = new Set([]);
 
 export interface MediaCarouselProps {
   type: MediaType;

@@ -23,6 +23,15 @@ export function CategoryIconRow() {
           const token = CATEGORY_TOKENS[type];
           const Icon = token.icon;
           const label = t(token.labelKey.replace(/^catalog\./, ""));
+          // T383b: 5º tile (HQs & Mangás) em duo-tone rosa→roxo.
+          const duo = type === "comic";
+          const bg = duo
+            ? "linear-gradient(135deg, rgba(244,114,182,0.16), rgba(167,139,250,0.16))"
+            : `${token.color}14`;
+          const glow = duo
+            ? "0 0 22px rgba(244,114,182,0.16), 0 0 22px rgba(167,139,250,0.16)"
+            : `0 0 22px ${token.color}1f`;
+          const border = duo ? "rgba(216,143,236,0.45)" : `${token.color}40`;
           return (
             <li key={type}>
               <Link
@@ -33,17 +42,17 @@ export function CategoryIconRow() {
                 <span
                   className="flex h-16 w-16 items-center justify-center rounded-2xl border transition-all duration-200 group-hover:-translate-y-1 group-focus-visible:-translate-y-1"
                   style={{
-                    color: token.color,
-                    borderColor: `${token.color}40`,
-                    backgroundColor: `${token.color}14`,
-                    boxShadow: `0 0 22px ${token.color}1f`,
+                    color: duo ? "#E4B6E8" : token.color,
+                    borderColor: border,
+                    backgroundImage: bg,
+                    boxShadow: glow,
                   }}
                 >
                   <Icon className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />
                 </span>
                 <span
                   className="text-xs font-medium transition-colors"
-                  style={{ color: token.color }}
+                  style={{ color: duo ? "#E4B6E8" : token.color }}
                 >
                   {label}
                 </span>
