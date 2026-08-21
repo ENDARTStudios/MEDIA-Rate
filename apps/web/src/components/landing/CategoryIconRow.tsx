@@ -8,27 +8,45 @@ import type { MediaType } from "@/lib/types";
 const ORDER: MediaType[] = ["movie", "series", "game", "book", "comic"];
 
 /**
- * T370 (D-334/D-340) — os 5 ícones canônicos voltam, REMODELADOS:
- * line/stroke fino, 48px, cinza → glow rose no hover/focus, integrados à
- * hero (não como cluster grotesco). Cada um navega para /catalog?type=X.
+ * T382 (D-350) — os 5 ícones canônicos remodelados com a COR do token de cada
+ * tipo (filme indigo, série sky, game emerald, livro âmbar, quadrinhos rosa),
+ * tiles de 64px com glow + rótulo i18n + lift no hover. Cada tile ancora no
+ * catálogo filtrado (/catalog?type=…).
  */
 export function CategoryIconRow() {
   const t = useTranslations("catalog");
 
   return (
     <nav aria-label={t("catalogAria")} className="mt-8" data-testid="category-icon-row">
-      <ul className="flex items-center gap-6">
+      <ul className="flex flex-wrap items-start gap-x-5 gap-y-4">
         {ORDER.map((type) => {
           const token = CATEGORY_TOKENS[type];
           const Icon = token.icon;
+          const label = t(token.labelKey.replace(/^catalog\./, ""));
           return (
             <li key={type}>
               <Link
                 href={`/catalog?type=${type}`}
-                className="group flex h-12 w-12 items-center justify-center rounded-xl border border-[rgba(129,140,248,0.12)] text-[#80809B] transition-all duration-200 hover:border-[#E11D48]/50 hover:text-[#E11D48] hover:shadow-[0_0_16px_rgba(225,29,72,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E11D48]"
-                aria-label={t(token.labelKey)}
+                className="group flex flex-col items-center gap-2 focus-visible:outline-none"
+                aria-label={label}
               >
-                <Icon className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />
+                <span
+                  className="flex h-16 w-16 items-center justify-center rounded-2xl border transition-all duration-200 group-hover:-translate-y-1 group-focus-visible:-translate-y-1"
+                  style={{
+                    color: token.color,
+                    borderColor: `${token.color}40`,
+                    backgroundColor: `${token.color}14`,
+                    boxShadow: `0 0 22px ${token.color}1f`,
+                  }}
+                >
+                  <Icon className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />
+                </span>
+                <span
+                  className="text-xs font-medium transition-colors"
+                  style={{ color: token.color }}
+                >
+                  {label}
+                </span>
               </Link>
             </li>
           );
