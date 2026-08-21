@@ -54,6 +54,13 @@ Registrado por **D-344** (2026-08-20), após o incidente do client ID do Google
    "Autenticação necessária"` do guard é diferente do `401 "Credencial Google
    inválida"` do validador jose — sem isso, o debug confunde as camadas).
 
+8. **Fonte externa nova de imagem → atualizar `remotePatterns` no mesmo commit (D-356).**
+   Ao adicionar um adapter/seed que busca imagens de um domínio novo (ex.:
+   AniList `s4.anilist.co`, ComicVine `comicvine.gamespot.com`), adicionar o
+   host à whitelist `images.remotePatterns` do `next.config.ts` NO MESMO
+   commit. Sem isso, o `next/image` devolve 400 e os cards ficam quebrados —
+   o que parecia "bug de frontend" era whitelist desatualizada.
+
 ## Procedimento de rotação (exemplo: ADMIN_TOKEN)
 
 ```powershell
