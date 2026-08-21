@@ -49,7 +49,12 @@ const LIVROS: Item[] = [
   ["frankenstein", "Frankenstein", 1818, 3.9],
   ["dracula", "Drácula", 1897, 4.0],
   ["o-medico-e-o-monstro", "O Médico e o Monstro", 1886, 3.9],
-  ["narnia-o-leao-a-feiticeira-e-o-guarda-roupa", "As Crônicas de Nárnia: O Leão, a Feiticeira e o Guarda-Roupa", 1950, 4.3],
+  [
+    "narnia-o-leao-a-feiticeira-e-o-guarda-roupa",
+    "As Crônicas de Nárnia: O Leão, a Feiticeira e o Guarda-Roupa",
+    1950,
+    4.3,
+  ],
   ["o-alquimista", "O Alquimista", 1988, 3.8],
   ["a-menina-que-roubava-livros", "A Menina que Roubava Livros", 2005, 4.3],
   ["a-culpa-e-das-estrelas", "A Culpa é das Estrelas", 2012, 4.2],
@@ -153,21 +158,39 @@ const MANGAS: Item[] = [
 function fontesLivro(r: number) {
   return [
     { fonte: "openlibrary", rating: r, media_fonte: 3.8, desvio_fonte: 0.9, votos: 18000 },
-    { fonte: "googlebooks", rating: Math.min(5, r + 0.1), media_fonte: 4.0, desvio_fonte: 0.8, votos: 4200 },
+    {
+      fonte: "googlebooks",
+      rating: Math.min(5, r + 0.1),
+      media_fonte: 4.0,
+      desvio_fonte: 0.8,
+      votos: 4200,
+    },
   ];
 }
 
 function fontesHq(r: number) {
   return [
     { fonte: "comicvine", rating: r, media_fonte: 3.7, desvio_fonte: 0.9, votos: 2200 },
-    { fonte: "comicbookroundup", rating: Math.round(r * 2 * 10) / 10, media_fonte: 7.6, desvio_fonte: 1.2, votos: 3400 },
+    {
+      fonte: "comicbookroundup",
+      rating: Math.round(r * 2 * 10) / 10,
+      media_fonte: 7.6,
+      desvio_fonte: 1.2,
+      votos: 3400,
+    },
   ];
 }
 
 function fontesManga(r: number) {
   return [
     { fonte: "jikan", rating: r, media_fonte: 7.4, desvio_fonte: 1.4, votos: 220000 },
-    { fonte: "anilist", rating: Math.round(r * 10), media_fonte: 71, desvio_fonte: 16, votos: 180000 },
+    {
+      fonte: "anilist",
+      rating: Math.round(r * 10),
+      media_fonte: 71,
+      desvio_fonte: 16,
+      votos: 180000,
+    },
   ];
 }
 
@@ -176,7 +199,13 @@ async function seedItem(
   titulo: string,
   tipo: "LIVRO" | "COMIC" | "MANGA",
   ano: number,
-  fontes: { fonte: string; rating: number; media_fonte: number; desvio_fonte: number; votos: number }[],
+  fontes: {
+    fonte: string;
+    rating: number;
+    media_fonte: number;
+    desvio_fonte: number;
+    votos: number;
+  }[],
 ): Promise<"criado" | "skip"> {
   const fonte = fontes[0]?.fonte ?? "openlibrary";
   const existente = await prisma.midia.findFirst({
@@ -218,15 +247,18 @@ async function main() {
 
   for (const [slug, titulo, ano, rating] of LIVROS) {
     const r = await seedItem(slug, titulo, "LIVRO", ano, fontesLivro(rating));
-    r === "criado" ? criados++ : pulados++;
+    if (r === "criado") criados++;
+    else pulados++;
   }
   for (const [slug, titulo, ano, rating] of HQS) {
     const r = await seedItem(slug, titulo, "COMIC", ano, fontesHq(rating));
-    r === "criado" ? criados++ : pulados++;
+    if (r === "criado") criados++;
+    else pulados++;
   }
   for (const [slug, titulo, ano, rating] of MANGAS) {
     const r = await seedItem(slug, titulo, "MANGA", ano, fontesManga(rating));
-    r === "criado" ? criados++ : pulados++;
+    if (r === "criado") criados++;
+    else pulados++;
   }
 
   console.log(`[fase-c] criados=${criados} pulados=${pulados}`);
