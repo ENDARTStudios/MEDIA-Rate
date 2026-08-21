@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "covers.openlibrary.org" },
       { protocol: "https", hostname: "books.google.com" },
       { protocol: "https", hostname: "cdn.myanimelist.net" },
+      // T383 (Fase C): capas de mangás (AniList) e HQs (ComicVine) —
+      // sem esses domínios o next/image retorna 400 e os cards quebram.
+      { protocol: "https", hostname: "s4.anilist.co" },
+      { protocol: "https", hostname: "comicvine.gamespot.com" },
+      { protocol: "https", hostname: "static.comicvine.com" },
     ],
   },
   poweredByHeader: false,
