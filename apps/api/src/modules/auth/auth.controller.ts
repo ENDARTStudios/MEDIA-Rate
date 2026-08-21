@@ -191,6 +191,7 @@ export class AuthController {
     usuario: { id: string; email: string; nome: string | null };
     expires_at: string;
     csrf_token: string;
+    is_new_user: boolean;
   }> {
     const { credential } = body as { credential?: string };
     if (!credential) {
@@ -219,6 +220,7 @@ export class AuthController {
       },
       expires_at: result.expires_at.toISOString(),
       csrf_token: csrf,
+      is_new_user: result.isNewUser === true,
     };
   }
 

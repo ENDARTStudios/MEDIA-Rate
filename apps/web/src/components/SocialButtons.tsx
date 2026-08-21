@@ -56,7 +56,7 @@ export function SocialButtons() {
           if (busy) return;
           setBusy(true);
           try {
-            const data = await api.post<{ csrf_token?: string }>(
+            const data = await api.post<{ csrf_token?: string; is_new_user?: boolean }>(
               "/api/v1/auth/google/callback",
               { credential: response.credential },
               { auth: false },
@@ -67,7 +67,8 @@ export function SocialButtons() {
               document.cookie = "mr_auth=1; SameSite=Lax; Secure; Path=/; max-age=86400";
             }
             toast.success(t("loginSuccess"));
-            router.replace("/dashboard");
+            // T389: primeiro login Google também cai na /welcome (acolhimento).
+            router.replace(data.is_new_user ? "/welcome" : "/dashboard");
           } catch {
             toast.error(t("loginError"));
           } finally {

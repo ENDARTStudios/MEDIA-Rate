@@ -45,6 +45,8 @@ export interface LoginResult {
     email: string;
     nome: string | null;
   };
+  /** T389: true quando o login social criou uma conta nova (rota para /welcome). */
+  isNewUser?: boolean;
 }
 
 /**
@@ -346,6 +348,7 @@ export class AuthService {
       where: { email },
       select: { id: true, email: true, nome: true },
     });
+    const isNewUser = !usuario;
 
     if (!usuario) {
       usuario = await this.prisma.$transaction(async (tx) => {
@@ -413,6 +416,7 @@ export class AuthService {
       expires_at: session.record.expires_at,
       refresh_expira_em: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       usuario: { id: usuario.id, email: usuario.email, nome: usuario.nome },
+      isNewUser,
     };
   }
 
