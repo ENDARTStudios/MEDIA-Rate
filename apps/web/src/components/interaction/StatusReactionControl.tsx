@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown } from "lucide-react";
@@ -166,46 +167,54 @@ export function StatusReactionControl({
           {status ? <StatusGlyph status={status} size={16} /> : <AddGlyph size={16} />}
         </button>
 
-        {open && (
-          <motion.div
-            initial={shouldReduce ? false : { opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
-            role="dialog"
-            aria-label={t("updateStatus")}
-            className="absolute left-0 z-popover mt-2 w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
-            data-testid="status-popover"
-          >
-            <div className="grid grid-cols-1 gap-1" role="group" aria-label={t("statusGroup")}>
-              {CONSUMO_STATUSES.map((s) => {
-                const disabled = !podeTransicionar(status, s);
-                const active = status === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => {
-                      handleSelectStatus(s);
-                      setOpen(false);
-                    }}
-                    disabled={disabled}
-                    aria-pressed={active}
-                    className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
-                      disabled
-                        ? "cursor-not-allowed text-[#4A4A60]"
-                        : active
-                          ? "bg-[#2A2A3D] text-[#EDE7DC]"
-                          : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
-                    }`}
-                  >
-                    <StatusGlyph status={s} size={13} filled={active} />
-                    {t(statusLabelKey(mediaType, s))}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
+        {open &&
+          createPortal(
+            <motion.div
+              initial={shouldReduce ? false : { opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
+              role="dialog"
+              aria-label={t("updateStatus")}
+              className="w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
+              style={{
+                position: "fixed",
+                zIndex: 70,
+                top: (popoverRef.current?.getBoundingClientRect().bottom ?? 0) + 8,
+                left: popoverRef.current?.getBoundingClientRect().left ?? 0,
+              }}
+              data-testid="status-popover"
+            >
+              <div className="grid grid-cols-1 gap-1" role="group" aria-label={t("statusGroup")}>
+                {CONSUMO_STATUSES.map((s) => {
+                  const disabled = !podeTransicionar(status, s);
+                  const active = status === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        handleSelectStatus(s);
+                        setOpen(false);
+                      }}
+                      disabled={disabled}
+                      aria-pressed={active}
+                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                        disabled
+                          ? "cursor-not-allowed text-[#4A4A60]"
+                          : active
+                            ? "bg-[#2A2A3D] text-[#EDE7DC]"
+                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
+                      }`}
+                    >
+                      <StatusGlyph status={s} size={13} filled={active} />
+                      {t(statusLabelKey(mediaType, s))}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>,
+            document.body,
+          )}
       </div>
     );
   }

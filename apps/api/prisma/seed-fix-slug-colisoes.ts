@@ -30,7 +30,6 @@ async function main() {
     if (midias.length < 2) continue;
 
     // A mais antiga mantém o slug base; as demais ganham sufixo do tipo.
-    const base = midias[0];
     const usados = new Set<string>([slug]);
     for (const m of midias.slice(1)) {
       let novo = `${slug}-${SUFIXO[m.tipo] ?? "outro"}`;
