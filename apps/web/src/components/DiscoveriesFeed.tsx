@@ -27,13 +27,25 @@ interface Descoberta {
   toMedia: MidiaDescoberta;
 }
 
+interface GrafoSugestao {
+  id: string;
+  titulo: string;
+  tipo: string;
+  ano: number | null;
+  poster_url: string | null;
+  score: number | null;
+  motivo: "franquia" | "adaptacao" | "autor" | "genero";
+}
+
 /** T286 — feed "Descobertas" (GET /api/v1/discoveries, T201+T286):
- *  obra descoberta (toMedia) + contexto "porque você gostou de X". */
+ *  obra descoberta (toMedia) + contexto "porque você gostou de X".
+ *  T387b — recomendações por grafo (GET /premium/graph) com chips. */
 export function DiscoveriesFeed() {
   const t = useTranslations("discoveries");
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [items, setItems] = useState<Descoberta[]>([]);
+  const [grafo, setGrafo] = useState<GrafoSugestao[]>([]);
   const [highlights, setHighlights] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -48,6 +60,11 @@ export function DiscoveriesFeed() {
     } finally {
       setLoading(false);
     }
+    // T387b: grafo de relações (qualquer plano).
+    api
+      .get<{ recomendacoes: GrafoSugestao[] }>("/api/v1/premium/graph")
+      .then((r) => setGrafo(r.recomendacoes ?? []))
+      .catch(() => setGrafo([]));
   }, []);
 
   useEffect(() => {
@@ -107,6 +124,46 @@ export function DiscoveriesFeed() {
             {t("exploreCatalog")}
           </Link>
         </div>
+
+        {grafo.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-4 font-heading text-lg font-semibold text-[#F5F5F7]">
+              {t("fallbackTitle")}
+            </h2>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {grafo.map((g) => (
+                <li key={g.id}>
+                  <Link
+                    href={`/media/${g.id}`}
+                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#11111E] p-3 transition-colors hover:border-[#818CF8]/50"
+                  >
+                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+                      {g.poster_url ? (
+                        <Image
+                          src={g.poster_url}
+                          alt={g.titulo}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[10px] text-[#6B6B85]">
+                          {g.titulo.slice(0, 3).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[#EDE7DC]">{g.titulo}</p>
+                      <span className="mt-1 inline-block rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-2 py-0.5 text-[10px] text-[#A5B0FF]">
+                        {t(`motivo_${g.motivo}`)}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {highlights.length > 0 && (
           <div className="mt-8">

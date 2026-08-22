@@ -1070,6 +1070,10 @@
     "relation_prequela_de": "Prequel to",
     "relation_spinoff_de": "Spin-off of",
     "relation_mesmo_universo": "Same universe as",
-    "relation_mesma_historia_real": "Same real story as"
+    "relation_mesma_historia_real": "Same real story as",
+    "motivo_franquia": "Same universe",
+    "motivo_adaptacao": "Adaptation",
+    "motivo_autor": "Same author",
+    "motivo_genero": "Same genre"
   }
 }
