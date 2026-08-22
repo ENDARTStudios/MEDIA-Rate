@@ -2,18 +2,16 @@
  * Prova social da Home (Parte 3.1) — contadores REAIS vindos da API.
  *
  * - Títulos no catálogo: total real da listagem (/api/v1/midias).
- * - Fontes de avaliação: DISTINTAS fontes ativas nas categorias cobertas
- *   (Filmes, Séries, Games) — derivadas de PESOS_POR_TIPO_WEB + FONTES_WEB,
- *   com variantes (metacritic_user, rottentomatoes_audience, igdb_publico…)
- *   agrupadas no site-base. Assim o número bate com o texto da página
- *   (mesma lista canônica de fontes) e ignora fontes de livros/HQ/mangá
- *   que ainda não estão ativas (roadmap).
+ * - Fontes de avaliação: DISTINTAS fontes ativas (derivadas de
+ *   PESOS_POR_TIPO_WEB + FONTES_WEB).
+ * - Categorias: T394 — 6 tipos ativos (Filme/Série/Game/Livro/HQ/Mangá).
  */
 import { getCatalog } from "@/lib/api";
 import { NUM_FONTES_ATIVAS } from "@/lib/sources";
 import { getTranslations } from "next-intl/server";
 
-const CATEGORIAS_COBERTAS = ["movie", "series", "game"] as const;
+// T394: 6 tipos cobertos (F13 destravou Livro/HQ/Mangá).
+const CATEGORIAS_COBERTAS = ["movie", "series", "game", "book", "comic", "manga"] as const;
 
 export async function HomeStats() {
   const t = await getTranslations("home");

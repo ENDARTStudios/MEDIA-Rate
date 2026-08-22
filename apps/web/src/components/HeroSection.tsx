@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { ScoreShowcase, type ShowcaseItem } from "@/components/landing/ScoreShowcase";
 import { CategoryIconRow } from "@/components/landing/CategoryIconRow";
+import type { MediaType } from "@/lib/types";
 
 interface HeroSectionProps {
   eyebrow: string;
@@ -52,6 +54,11 @@ export function HeroSection({
   showcaseItems,
 }: HeroSectionProps) {
   const shouldReduce = useReducedMotion();
+  // T394: tile ativo troca o showcase para o top-1 da categoria.
+  const [activeType, setActiveType] = useState<MediaType | null>(null);
+  const showcaseFiltrado = activeType
+    ? showcaseItems.filter((i) => i.type === activeType)
+    : showcaseItems;
 
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
@@ -147,9 +154,9 @@ export function HeroSection({
             ))}
           </motion.div>
 
-          {/* T370: 5 ícones canônicos remodelados (line fino + glow rose). */}
+          {/* T394: 6 ícones protagonistas que trocam o showcase. */}
           <motion.div variants={item}>
-            <CategoryIconRow />
+            <CategoryIconRow activeType={activeType} onSelect={setActiveType} />
           </motion.div>
         </motion.div>
 
@@ -159,7 +166,7 @@ export function HeroSection({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <ScoreShowcase items={showcaseItems} />
+          <ScoreShowcase key={activeType ?? "all"} items={showcaseFiltrado} />
         </motion.div>
       </div>
     </section>

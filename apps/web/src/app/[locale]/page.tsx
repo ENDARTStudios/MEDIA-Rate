@@ -53,14 +53,18 @@ export async function generateMetadata({
   };
 }
 
+// T394: showcase da Hero cobre os 6 tipos (só game usa 0-100).
 const SHOWCASE_ORDER: {
-  api: "movie" | "series" | "game";
-  key: "filme" | "serie" | "game";
+  api: "movie" | "series" | "game" | "book" | "comic" | "manga";
+  key: "filme" | "serie" | "game" | "livro" | "comic" | "manga";
   scale: "0-10" | "0-100";
 }[] = [
   { api: "movie", key: "filme", scale: "0-10" },
   { api: "series", key: "serie", scale: "0-10" },
   { api: "game", key: "game", scale: "0-100" },
+  { api: "book", key: "livro", scale: "0-10" },
+  { api: "comic", key: "comic", scale: "0-10" },
+  { api: "manga", key: "manga", scale: "0-10" },
 ];
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
