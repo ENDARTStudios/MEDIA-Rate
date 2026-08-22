@@ -1001,3 +1001,17 @@ Itens binarios ([x]/[ ]) para fechar o Lote A em STATUS unico e revisavel:
 - Retomada contratada: proxima janela inicia DIRETO do T400 (migracao -> backfill -> cadeia canonica -> e2e "The Thing" -> T398-restante -> e2e menu -> recapturas -> STATUS unico do Lote A com D-370).
 - Sem STATUS intermediario e sem perguntas; janela esgotou de novo -> checkpoint + PARCIAL.
 - Lote B (T394-T397) so apos APPROVED do Lote A + gate visual do Operador.
+
+## [2026-08-22] Decisao: D-374 — residuais do D-370 sao trabalho do Doer; e2e de auth usa usuario provisionado verificado
+
+- Registro novo em producao fica NAO verificado (T360/T376) -> auto-login 403 por design. E2e contra producao deve LOGAR com usuario provisionado VERIFICADO (seed provision-test-users), senha forte via env, nunca impressa.
+- Indice UNIQUE cheio de midia.slug dependia de NULLar slug no soft-delete -> trocar por indice PARCIAL (WHERE deleted_at IS NULL).
+- STATUS final de fechamento deve ser schema-valido (evidencia array; checklist D-370 em dados; sem propriedades de topo extras).
+
+## [2026-08-22] Decisao: D-375 — interacao x watchlist (dual-write transacional)
+
+- usuario_midia_interacao e a FONTE DE VERDADE de status; watchlist_entry e a PROJECAO do Kanban.
+- Todo caminho de escrita de status (menu '+', StatusReactionControl, drag&drop, endpoints watchlist) deve upsertar a interacao E a projecao no MESMO transaction.
+- interacoes.service.upsert: watchlistEntry.updateMany -> upsert (cria a projecao se nao existir) — corrige o menu '+' que persistia a interacao mas nao alimentava o Kanban.
+- Remover da lista = delete watchlist_entry + status da interacao NULL (historico/avaliacoes preservados).
+- NAO dropar watchlist_entry (destrutivo -> Operador, 8). Estado-alvo (kanban lendo direto de interacoes, aposentando a projecao) fica como candidato futuro T4xx, NAO implementado agora.

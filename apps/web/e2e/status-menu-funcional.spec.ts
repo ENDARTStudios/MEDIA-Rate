@@ -35,7 +35,8 @@ test.describe("T401 — menu de status funcional", () => {
     await expect(colWatching).toContainText(titulo.slice(0, 12), { timeout: 20_000 });
 
     // 'Remover' → some da coluna.
-    await colWatching.getByTestId("watchlist-card").first().locator("button").first().click();
+    const card = colWatching.getByTestId("watchlist-card").first();
+    await card.getByRole("button", { name: /Mover para/i }).click();
     const menu = page.getByTestId("card-status-menu").first();
     await expect(menu).toBeVisible({ timeout: 5_000 });
     await menu.getByRole("menuitem", { name: /Remover/i }).click();
