@@ -27,7 +27,8 @@ export async function registerAndLogin(
   await page.locator('input[name="acceptTerms"]').check();
   await page.locator('button[type="submit"]').click();
 
-  await page.waitForURL("**/dashboard", { timeout: 10_000 });
+  // T364: primeiro contato (register) cai em /welcome; retorno cai em /dashboard.
+  await page.waitForURL(/\/(welcome|dashboard)$/, { timeout: 10_000 });
 }
 
 /**
@@ -41,7 +42,8 @@ export async function login(page: Page, email: string, password: string): Promis
   await page.locator('input[name="password"]').first().fill(password);
   await page.locator('button[type="submit"]').first().click();
 
-  await page.waitForURL("**/dashboard", { timeout: 10_000 });
+  // is_new_user ainda não acolhido → /welcome; caso contrário /dashboard.
+  await page.waitForURL(/\/(welcome|dashboard)$/, { timeout: 10_000 });
 }
 
 /**

@@ -9,11 +9,9 @@ fs.mkdirSync(OUT, { recursive: true });
 const BASE = "https://mediarate.app";
 
 const alvos = [
-  { nome: "landing-pt-desktop", url: `${BASE}/pt-BR`, vp: { w: 1280, h: 800 } },
-  { nome: "landing-pt-mobile", url: `${BASE}/pt-BR`, vp: { w: 390, h: 844 } },
-  { nome: "catalog-comic-desktop", url: `${BASE}/pt-BR/catalog?type=comic`, vp: { w: 1280, h: 800 } },
-  { nome: "detail-comic-desktop", url: `${BASE}/pt-BR/media/watchmen`, vp: { w: 1280, h: 800 } },
-  { nome: "detail-manga-mobile", url: `${BASE}/pt-BR/media/berserk`, vp: { w: 390, h: 844 } },
+  { nome: "detail-en-us", url: `${BASE}/en-US/media/o-enigma-de-outro-mundo`, vp: { w: 1280, h: 800 } },
+  { nome: "catalog-en-us", url: `${BASE}/en-US/catalog`, vp: { w: 1280, h: 800 } },
+  { nome: "detail-en-us-mobile", url: `${BASE}/en-US/media/o-enigma-de-outro-mundo`, vp: { w: 390, h: 844 } },
 ];
 
 (async () => {
