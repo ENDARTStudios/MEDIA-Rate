@@ -118,7 +118,8 @@ async function main() {
     let es: { title: string | null; overview: string | null } | null = null;
 
     if (m.tipo === "FILME" || m.tipo === "SERIE") {
-      if (m.fonte === "tmdb") {
+      // filmes = fonte 'tmdb'; séries = 'tmdb_tv' (seed-tmdb).
+      if (m.fonte === "tmdb" || m.fonte === "tmdb_tv") {
         en = await tmdbPorId(m.fonte_id, m.tipo, "en-US");
         es = await tmdbPorId(m.fonte_id, m.tipo, "es-ES");
       }
