@@ -1,5 +1,4 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import dynamic from "next/dynamic";
 import { Link } from "@/lib/navigation";
 import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
@@ -20,16 +19,12 @@ import { normalizeDisplayScore } from "@/lib/score-utils";
 import { titleForLocale } from "@/lib/i18n-content";
 import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
+import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
 import type { ShowcaseItem } from "@/components/landing/ScoreShowcase";
 import type { MediaType } from "@/lib/types";
 
-// T405: carrosséis abaixo da dobra carregam via dynamic (code-split) — o SSR
-// mantém o conteúdo (initialData) para crawlers, mas o JS/hydration saem do
-// caminho crítico (TBT alto na home). Placeholder com altura estável (CLS 0).
-const MediaCarousel = dynamic(
-  () => import("../../components/media-rate-ui/MediaCarousel").then((m) => m.MediaCarousel),
-  { loading: () => <div className="h-[380px]" aria-hidden="true" /> },
-);
+// T405 (D-380): MediaCarousel agora é SERVER COMPONENT (import estático) —
+// os 60 cards saem como HTML puro no SSR, sem hidratação do shell.
 
 // T274: ISR curto (≤ 60s, alinhado ao cache Redis da API) — os carrosséis
 // revalidam no servidor sem chamada nova por request.
@@ -178,15 +173,34 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           cross-mídia por definição; vazia para visitante. */}
       <BecauseYouConsumed />
 
-      {/* 6 carrosséis na ordem dos ícones do hero (T185): ativos com
-          MediaCard; Livro/HQ/Mangá em roadmap com cards bloqueados +
-          waitlist capture. T274: ativos com initialData do server. */}
-      <MediaCarousel type="movie" initialData={carousels.movie} />
-      <MediaCarousel type="series" initialData={carousels.series} />
-      <MediaCarousel type="game" initialData={carousels.game} />
-      <MediaCarousel type="book" initialData={carousels.book} />
-      <MediaCarousel type="comic" initialData={carousels.comic} />
-      <MediaCarousel type="manga" initialData={carousels.manga} />
+      {/* 6 carrosséis na ordem dos ícones do hero (T185) — server components
+          com initialData do server (ISR); cards sem hidratação (D-380). */}
+      <MediaCarousel
+        type="movie"
+        initialData={carousels.movie}
+        tCatalog={tCatalog}
+        locale={locale}
+      />
+      <MediaCarousel
+        type="series"
+        initialData={carousels.series}
+        tCatalog={tCatalog}
+        locale={locale}
+      />
+      <MediaCarousel type="game" initialData={carousels.game} tCatalog={tCatalog} locale={locale} />
+      <MediaCarousel type="book" initialData={carousels.book} tCatalog={tCatalog} locale={locale} />
+      <MediaCarousel
+        type="comic"
+        initialData={carousels.comic}
+        tCatalog={tCatalog}
+        locale={locale}
+      />
+      <MediaCarousel
+        type="manga"
+        initialData={carousels.manga}
+        tCatalog={tCatalog}
+        locale={locale}
+      />
 
       <section className="border-t border-[rgba(129,140,248,0.08)] px-4 py-20">
         <div className="mx-auto max-w-2xl text-center">

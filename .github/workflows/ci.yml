@@ -9,8 +9,26 @@ name: CI
 on:
   push:
     branches: [main]
+    # D-382: economia de Actions — ignora pushes só de evidência/docs.
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - "**/*.md"
+      - ".claude/**"
+      - "docs/screenshots/**"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - "**/*.md"
+      - ".claude/**"
+      - "docs/screenshots/**"
+
+# D-382: um run por ref — cancela runs supersedadas do mesmo ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
