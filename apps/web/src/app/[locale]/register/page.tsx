@@ -4,7 +4,7 @@ import { Link } from "@/lib/navigation";
 import { RegisterForm } from "@/components/AuthForm";
 import { Logo } from "@/components/Logo";
 import { SocialButtons } from "@/components/SocialButtons";
-import { localizedUrl } from "@/lib/seo";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -14,9 +14,13 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return {
-    title: t("registerTitle") + " — MEDIA Rate",
+    // T406: sem "— MEDIA Rate" manual + languages p/ hreflang.
+    title: t("registerTitle"),
     description: t("registerSubtitle"),
-    alternates: { canonical: localizedUrl(locale, "/register") },
+    alternates: {
+      canonical: localizedUrl(locale, "/register"),
+      languages: localizedAlternates("/register"),
+    },
     robots: { index: true, follow: true },
   };
 }

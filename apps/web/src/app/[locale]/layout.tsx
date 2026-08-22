@@ -45,6 +45,16 @@ export async function generateMetadata({
       // T273: og:locale exige underscore (pt_BR/en_US/es_ES), nunca hífen.
       locale: localeOpenGraph(locale),
       type: "website",
+      // T406: fallback de og:image para TODAS as páginas sem imagem própria
+      // (auditoria T403 achou og:image ausente em 11 páginas).
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "MEDIA Rate",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",

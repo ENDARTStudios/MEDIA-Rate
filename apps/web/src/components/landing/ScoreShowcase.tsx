@@ -103,8 +103,11 @@ export function ScoreShowcase({ items }: ScoreShowcaseProps) {
                 alt=""
                 fill
                 priority={current === 0}
+                // T405: sizes explícito + fetchPriority alto — o pôster é o LCP
+                // da home; sem isso o browser escolhia o srcset maior (3840w).
+                sizes="(max-width: 1023px) 80vw, 360px"
+                fetchPriority={current === 0 ? "high" : "auto"}
                 className="object-cover"
-                sizes="360px"
               />
             ) : (
               <div className="h-full w-full bg-gradient-to-br from-[#1B1B2C] to-[#0B0B1E]" />

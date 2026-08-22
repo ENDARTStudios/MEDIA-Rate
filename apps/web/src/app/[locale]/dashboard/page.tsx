@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { DashboardClient } from "../../../components/dashboard/DashboardClient";
 import { PlanCelebration } from "../../../components/ui/PlanCelebration";
+import { localizedAlternates, localizedUrl } from "../../../lib/seo";
 
 export async function generateMetadata({
   params,
@@ -13,6 +14,12 @@ export async function generateMetadata({
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    // T406: alternates (hreflang) — página privada, mas contrato de metadata
+    // consistente; robots mantém noindex.
+    alternates: {
+      canonical: localizedUrl(locale, "/dashboard"),
+      languages: localizedAlternates("/dashboard"),
+    },
     robots: { index: false, follow: true },
   };
 }

@@ -4,7 +4,7 @@ import { Link } from "@/lib/navigation";
 import { LoginForm } from "@/components/AuthForm";
 import { LazyLogo } from "@/components/lazy";
 import { SocialButtons } from "@/components/SocialButtons";
-import { localizedUrl } from "@/lib/seo";
+import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -14,9 +14,14 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return {
-    title: t("loginTitle") + " — MEDIA Rate",
+    // T406: sem "— MEDIA Rate" manual (o template do layout já acrescenta a marca).
+    title: t("loginTitle"),
     description: t("loginSubtitle"),
-    alternates: { canonical: localizedUrl(locale, "/login") },
+    // T406: languages para o hreflang (antes só canonical → hreflang perdido).
+    alternates: {
+      canonical: localizedUrl(locale, "/login"),
+      languages: localizedAlternates("/login"),
+    },
     robots: { index: true, follow: true },
   };
 }

@@ -4,6 +4,7 @@ import { CatalogPageClient } from "../../../components/CatalogPageClient";
 import { getCatalog } from "../../../lib/api";
 import type { MediaType } from "../../../lib/types";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
+import { serializeJsonLd } from "../../../lib/json-ld";
 
 type CatalogSort = "title" | "year" | "score";
 
@@ -45,7 +46,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return {
-    title: "Catálogo — MEDIA Rate",
+    // T406: sem "— MEDIA Rate" manual (o template do layout já acrescenta).
+    title: "Catálogo",
     description: "Explore filmes, séries e games no MEDIA Rate.",
     alternates: {
       canonical: localizedUrl(locale, "/catalog"),
@@ -116,17 +118,33 @@ export default async function CatalogPage({
     comCritica,
   });
 
+  // T406: structured data (WebPage) — auditoria T403 achou JSON-LD ausente.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Catálogo — MEDIA Rate",
+    "description": "Explore filmes, séries e games no MEDIA Rate.",
+    "url": localizedUrl(locale, "/catalog"),
+    "inLanguage": locale,
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-[#EDE7DC]">{t("title")}</h1>
-      <p className="text-[#9CA3AF] mb-6 max-w-2xl">{t("catalogDesc")}</p>
-      <CatalogPageClient
-        initialData={initialData}
-        initialDataKey={initialDataKey}
-        initialType={sp.type}
-        initialSort={sp.sort}
-        initialQuery={sp.q}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-    </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-[#EDE7DC]">{t("title")}</h1>
+        <p className="text-[#9CA3AF] mb-6 max-w-2xl">{t("catalogDesc")}</p>
+        <CatalogPageClient
+          initialData={initialData}
+          initialDataKey={initialDataKey}
+          initialType={sp.type}
+          initialSort={sp.sort}
+          initialQuery={sp.q}
+        />
+      </div>
+    </>
   );
 }

@@ -92,7 +92,9 @@ const nextConfig: NextConfig = {
                     "frame-src 'self' https://accounts.google.com",
                     "frame-ancestors 'none'",
                     "img-src 'self' data: https:",
-                    "style-src 'self' 'unsafe-inline'",
+                    // T404: GSI injeta folha de estilo externa (accounts.google.com/gsi/style)
+                    // — sem ela o botão do Google renderiza sem estilo (achado A2 da T403).
+                    "style-src 'self' 'unsafe-inline' https://accounts.google.com",
                     "font-src 'self' data:",
                     "object-src 'none'",
                     "base-uri 'self'",

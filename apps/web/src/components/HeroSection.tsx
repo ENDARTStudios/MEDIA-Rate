@@ -162,9 +162,11 @@ export function HeroSection({
 
         <motion.div
           className="flex justify-center lg:justify-end"
-          initial={shouldReduce ? { opacity: 1 } : { opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          // T405: o showcase contém o LCP (pôster) — sem fade/delay de entrada
+          // para o pôster pintar imediatamente (antes: opacity 0 + delay 0.25s).
+          initial={shouldReduce ? { opacity: 1 } : { opacity: 1 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
         >
           <ScoreShowcase key={activeType ?? "all"} items={showcaseFiltrado} />
         </motion.div>

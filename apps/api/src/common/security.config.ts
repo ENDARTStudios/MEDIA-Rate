@@ -50,7 +50,8 @@ export function buildCspHeader(params: {
   );
   directives.push("frame-src 'self' https://js.stripe.com");
   directives.push("img-src 'self' data: https:");
-  directives.push("style-src 'self' 'unsafe-inline'");
+  // T404: GSI injeta folha de estilo externa (accounts.google.com/gsi/style).
+  directives.push("style-src 'self' 'unsafe-inline' https://accounts.google.com");
   directives.push("font-src 'self' data:");
   directives.push("object-src 'none'");
   directives.push("base-uri 'self'");

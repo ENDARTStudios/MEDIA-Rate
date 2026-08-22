@@ -1,8 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import dynamic from "next/dynamic";
 import { Link } from "@/lib/navigation";
 import type { Metadata } from "next";
 import { HeroSection } from "../../components/HeroSection";
-import { MediaCarousel } from "../../components/media-rate-ui/MediaCarousel";
 import { ContinueDecision } from "../../components/ContinueDecision";
 import { HomeStats } from "../../components/HomeStats";
 import { LazyAnimatedHeading } from "../../components/lazy";
@@ -16,6 +16,14 @@ import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
 import type { ShowcaseItem } from "@/components/landing/ScoreShowcase";
 import type { MediaType } from "@/lib/types";
+
+// T405: carrosséis abaixo da dobra carregam via dynamic (code-split) — o SSR
+// mantém o conteúdo (initialData) para crawlers, mas o JS/hydration saem do
+// caminho crítico (TBT alto na home). Placeholder com altura estável (CLS 0).
+const MediaCarousel = dynamic(
+  () => import("../../components/media-rate-ui/MediaCarousel").then((m) => m.MediaCarousel),
+  { loading: () => <div className="h-[380px]" aria-hidden="true" /> },
+);
 
 // T274: ISR curto (≤ 60s, alinhado ao cache Redis da API) — os carrosséis
 // revalidam no servidor sem chamada nova por request.
