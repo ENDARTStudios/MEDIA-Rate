@@ -188,12 +188,18 @@ export class InteracoesService {
         },
       });
 
-      // T320/D-309: fonte única de verdade — status dirige a coluna do Kanban
-      // no MESMO transaction (a entrada da watchlist pode não existir — então
-      // não cria implicitamente; só alinha quando existe).
-      await tx.watchlistEntry.updateMany({
-        where: { usuario_id: usuarioId, midia_id: midiaId },
-        data: { coluna: STATUS_PARA_COLUNA[proximoStatus] },
+      // D-375: dual-write transacional — usuario_midia_interacao é a fonte de
+      // verdade de status; watchlist_entry é a projeção do Kanban. Cria a
+      // projeção se não existir (antes só alinhava quando já existia — o menu
+      // '+' prometia o item no Kanban e não entregava).
+      await tx.watchlistEntry.upsert({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+        create: {
+          usuario_id: usuarioId,
+          midia_id: midiaId,
+          coluna: STATUS_PARA_COLUNA[proximoStatus],
+        },
+        update: { coluna: STATUS_PARA_COLUNA[proximoStatus] },
       });
 
       return interacao;

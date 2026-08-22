@@ -37,9 +37,13 @@ function mockPrisma() {
     discoveryEvent: {
       findMany: vi.fn(async () => []),
     },
-    // T320/D-309: status dirige a coluna do Kanban (sync no mesmo tx).
+    // D-375: dual-write — status dirige a projeção do Kanban (upsert no mesmo tx).
     watchlistEntry: {
-      updateMany: vi.fn(async () => ({ count: 0 })),
+      upsert: vi.fn(async ({ where, create, update }: any) => {
+        const k = where.usuario_id_midia_id;
+        const coluna = (update ?? create)?.coluna ?? "WANT";
+        return { id: "w1", usuario_id: k.usuario_id, midia_id: k.midia_id, coluna };
+      }),
     },
   };
   return { prisma, estado };
@@ -133,24 +137,27 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
     expect(lista[0].midia_id).toBe("midia-1");
   });
 
-  it("T320 — mudar status sincroniza a coluna da watchlist no mesmo tx", async () => {
+  it("D-375 — mudar status cria/sincroniza a projeção do Kanban no mesmo tx", async () => {
     await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
-    expect(prisma.watchlistEntry.updateMany).toHaveBeenCalledWith(
+    expect(prisma.watchlistEntry.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ usuario_id: "user-1", midia_id: "midia-1" }),
-        data: { coluna: "WATCHING" },
+        where: expect.objectContaining({
+          usuario_id_midia_id: { usuario_id: "user-1", midia_id: "midia-1" },
+        }),
+        create: expect.objectContaining({ coluna: "WATCHING" }),
+        update: { coluna: "WATCHING" },
       }),
     );
     // CONCLUIDO → COMPLETED.
     await service.upsert("user-1", "midia-1", { status: "CONCLUIDO" });
-    expect(prisma.watchlistEntry.updateMany).toHaveBeenLastCalledWith(
-      expect.objectContaining({ data: { coluna: "COMPLETED" } }),
+    expect(prisma.watchlistEntry.upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({ update: { coluna: "COMPLETED" } }),
     );
     // ABANDONADO → DROPPED (via CONSUMINDO, transição válida).
     await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
     await service.upsert("user-1", "midia-1", { status: "ABANDONADO" });
-    expect(prisma.watchlistEntry.updateMany).toHaveBeenLastCalledWith(
-      expect.objectContaining({ data: { coluna: "DROPPED" } }),
+    expect(prisma.watchlistEntry.upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({ update: { coluna: "DROPPED" } }),
     );
   });
 });
