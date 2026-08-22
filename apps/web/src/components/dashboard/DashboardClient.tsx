@@ -13,6 +13,9 @@ interface UserStats {
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
+  // T396: streak + histograma de scores (todos os planos).
+  streak: number;
+  histograma: { faixa: string; total: number }[];
 }
 
 /** T295 — SVG radar próprio (5-8 eixos) + sparkline temporal, sem deps. */
@@ -190,9 +193,7 @@ export function DashboardClient() {
     );
   }
 
-  // T386 (D-355): módulos BASE para TODOS os planos; radar = Plus, evolução
-  // temporal = Premium (gateados inline, nunca página bloqueada).
-  const ehPlus = stats.plano === "PLUS" || stats.plano === "PREMIUM";
+  // T396 (D-376): radar, evolução, streak e histograma para TODOS os planos.
   const temDados =
     stats.total > 0 || Object.keys(stats.tipos).length > 0 || Object.keys(stats.generos).length > 0;
   if (!temDados) {
@@ -234,39 +235,23 @@ export function DashboardClient() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {ehPlus ? (
-          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-              {t("radar")}
-            </h2>
-            <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
-            <table className="sr-only">
-              <caption>{t("radarTable")}</caption>
-              <tbody>
-                {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
-                  <tr key={k}>
-                    <th scope="row">{k}</th>
-                    <td>{v}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ) : (
-          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-sm text-[#9CA3AF]">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
-              {t("radar")}
-            </h2>
-            <p className="mb-3">{t("upgradeHint")}</p>
-            <button
-              type="button"
-              onClick={() => router.push("/pricing")}
-              className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110"
-            >
-              {t("upgrade")}
-            </button>
-          </section>
-        )}
+        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+            {t("radar")}
+          </h2>
+          <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
+          <table className="sr-only">
+            <caption>{t("radarTable")}</caption>
+            <tbody>
+              {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
+                <tr key={k}>
+                  <th scope="row">{k}</th>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
         {stats.evolucao ? (
           <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
@@ -304,6 +289,26 @@ export function DashboardClient() {
             {t("byGenre")}
           </h2>
           <HBarList data={stats.generos} color="#E11D48" />
+        </section>
+      </div>
+
+      {/* T396: streak (dias consecutivos) + histograma de scores — todos os planos. */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+            {t("streak")}
+          </h2>
+          <p className="font-heading text-4xl font-bold text-[#34D399]">{stats.streak}</p>
+          <p className="mt-1 text-xs text-[#80809B]">{t("streakHint")}</p>
+        </section>
+        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+            {t("scoreHistogram")}
+          </h2>
+          <HBarList
+            data={Object.fromEntries(stats.histograma.map((h) => [h.faixa, h.total]))}
+            color="#38BDF8"
+          />
         </section>
       </div>
     </div>

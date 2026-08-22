@@ -280,7 +280,10 @@
     "premiumHint": "Upgrade to Premium to see your consumption evolution over time.",
     "byGenre": "By Genre",
     "signalTotal": "Signals",
-    "topCategory": "Top"
+    "topCategory": "Top",
+    "streak": "Day streak",
+    "streakHint": "consecutive days with activity",
+    "scoreHistogram": "Score histogram"
   },
   "checkout": {
     "title": "Plan upgrade",

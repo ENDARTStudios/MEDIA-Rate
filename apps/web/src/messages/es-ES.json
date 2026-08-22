@@ -280,7 +280,10 @@
     "premiumHint": "Mejora a Premium para ver la evolución de tu consumo en el tiempo.",
     "byGenre": "Por Género",
     "signalTotal": "Señales",
-    "topCategory": "Destacado"
+    "topCategory": "Destacado",
+    "streak": "Racha de días",
+    "streakHint": "días consecutivos con actividad",
+    "scoreHistogram": "Histograma de notas"
   },
   "checkout": {
     "title": "Mejora de plan",
