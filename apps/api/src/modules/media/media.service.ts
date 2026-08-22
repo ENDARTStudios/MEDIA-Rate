@@ -139,7 +139,9 @@ export class MediaService {
       if (!midia) throw new NotFoundException("Mídia não encontrada.");
       return tx.midia.update({
         where: { id },
-        data: { deleted_at: new Date() },
+        // T401 (D-374): NULLa o slug no soft-delete (defesa em profundidade
+        // junto ao índice parcial UNIQUE de ativos).
+        data: { deleted_at: new Date(), slug: null },
       });
     });
   }

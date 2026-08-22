@@ -74,3 +74,6 @@ deepseek-harness/
 # brutos — NUNCA commitar; o app log só recebe hash truncado).
 dev-mailbox.log
 apps/web/src/components/hero-icons/*.png
+
+# e2e test password (local, nunca commitado)
+.e2e-pass

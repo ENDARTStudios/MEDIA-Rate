@@ -1,41 +1,44 @@
 import { test, expect } from "@playwright/test";
-import { registerAndLogin } from "./helpers/auth";
+import { login } from "./helpers/auth";
 
 /**
- * T399/T400 (regressão do P1 do menu): o '+' ABRE o menu de status e a opção
- * persiste na watchlist; 'Remover' tira o item. Fecha D-370.5:
- * abrir → 'Assistindo' → watchlist; 'Remover' → some.
+ * T401 (D-374): fecha D-370.5. Usuário de teste VERIFICADO provisionado.
+ * Menu '+' do CARD (T399): abrir → 'Assistindo' → watchlist; 'Remover' → some.
  */
-test.describe("T400 — menu de status funcional", () => {
-  const email = `status-menu-${Date.now()}@example.com`;
-  const password = "Menu@Pass1";
+test.describe("T401 — menu de status funcional", () => {
+  const email = process.env.E2E_TEST_EMAIL ?? "free@mediarate.test";
+  const password = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
 
   test.beforeEach(async ({ page }) => {
-    await registerAndLogin(page, { name: "Menu User", email, password });
+    await login(page, email, password);
   });
 
-  test("abrir menu → 'Assistindo' persiste; 'Remover' tira da watchlist", async ({ page }) => {
-    // Ficha do filme (título PT 'O Enigma de Outro Mundo') — controle completo.
-    await page.goto("/pt-BR/media/o-enigma-de-outro-mundo", { waitUntil: "domcontentloaded" });
+  test("abrir menu '+' do card → 'Assistindo' persiste; 'Remover' tira", async ({ page }) => {
+    await page.goto("/pt-BR/catalog?type=movie", { waitUntil: "domcontentloaded" });
 
-    const control = page.getByTestId("status-control-full").first();
-    await control.click({ timeout: 15_000 });
+    // Título do primeiro card.
+    const firstCard = page.locator('a[role="article"]').first();
+    const titulo = (await firstCard.locator("h3").first().innerText({ timeout: 15_000 })).trim();
+
+    // Abre o popover do '+' compacto e seleciona 'Assistindo' (CONSUMINDO).
+    await page.getByTestId("status-quick").first().click({ timeout: 15_000 });
     const popover = page.getByTestId("status-popover");
     await expect(popover).toBeVisible({ timeout: 5_000 });
-
-    // Seleciona 'Assistindo' (CONSUMINDO) — persiste e fecha o popover.
     await popover.getByRole("button", { name: /Assistindo/i }).click();
+    await expect(popover).toBeHidden({ timeout: 5_000 });
+    // Aguarda o upsert persistir (otimista + fetch da watchlist).
+    await page.waitForTimeout(1200);
 
-    // Watchlist: coluna 'Assistindo' (key=watching) contém o filme.
+    // Watchlist: coluna 'Assistindo' (key=WATCHING) contém o filme.
     await page.goto("/pt-BR/watchlist", { waitUntil: "domcontentloaded" });
-    const colWatching = page.getByTestId("watchlist-column-watching");
-    await expect(colWatching).toContainText("Enigma", { timeout: 20_000 });
+    const colWatching = page.getByTestId("watchlist-column-WATCHING");
+    await expect(colWatching).toContainText(titulo.slice(0, 12), { timeout: 20_000 });
 
     // 'Remover' → some da coluna.
-    await colWatching.locator("button").first().click();
+    await colWatching.getByTestId("watchlist-card").first().locator("button").first().click();
     const menu = page.getByTestId("card-status-menu").first();
     await expect(menu).toBeVisible({ timeout: 5_000 });
     await menu.getByRole("menuitem", { name: /Remover/i }).click();
-    await expect(colWatching).not.toContainText("Enigma", { timeout: 15_000 });
+    await expect(colWatching).not.toContainText(titulo.slice(0, 12), { timeout: 15_000 });
   });
 });

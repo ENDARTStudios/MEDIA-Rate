@@ -313,9 +313,10 @@ model Midia {
   tipo                    TipoMidia
   titulo                  String                 @db.Text
   // T330: slug canônico (slugify(titulo)) indexado — elimina full scan no
-  // getBySlug. T398 (restante): @unique — pré-condição 0 duplicados cumprida
-  // por seed-fix-slug-colisoes (colisões entre tipos ganham sufixo "-{tipo}").
-  slug                    String?                @unique @map("slug") @db.VarChar(300)
+  // getBySlug. T401 (D-374): unicidade de ATIVOS é garantida por índice
+  // parcial UNIQUE WHERE deleted_at IS NULL (raw migration — Prisma não
+  // expressa índice parcial), não por @unique cheio.
+  slug                    String?                @map("slug") @db.VarChar(300)
   titulo_original         String?                @map("titulo_original") @db.Text
   sinopse                 String?                @db.Text
   // T400 (localização): título/sinopse por locale (en/es), nullable. Cadeia
@@ -365,6 +366,7 @@ model Midia {
   @@unique([fonte, fonte_id])
   @@index([tipo])
   @@index([titulo])
+  @@index([slug])
   @@index([score])
   @@map("midia")
 }
