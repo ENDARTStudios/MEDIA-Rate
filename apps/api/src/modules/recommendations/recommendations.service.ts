@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { Prisma, type TipoMidia } from "@prisma/client";
+import { relacionadasDe, type FonteRelacao } from "./relation-graph.js";
 
 const LIMITE_MAX = 50;
 
@@ -130,6 +131,90 @@ export class RecommendationsService {
       });
 
       return { recomendacoes, proximo_cursor: temMais && ultimo ? String(ultimo.id) : null };
+    });
+  }
+
+  /**
+   * T387b (F13) — recomendações por grafo de relações (qualquer plano):
+   * franquia +3, adaptação +2, autor +2, gênero +1. RLS owner-only.
+   */
+  async recomendarPorGrafo(
+    usuarioId: string,
+    opts: { limit?: number } = {},
+  ): Promise<RecomendacoesResult> {
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const limit = Math.min(opts.limit ?? 20, LIMITE_MAX);
+
+      const watchlist = await tx.watchlistEntry.findMany({
+        where: { usuario_id: usuarioId },
+        select: { midia_id: true },
+      });
+      const idsWatch = watchlist.map((w) => w.midia_id);
+      if (idsWatch.length === 0) {
+        return {
+          recomendacoes: [],
+          proximo_cursor: null,
+          mensagem: "Adicione itens à sua watchlist para receber recomendações",
+        };
+      }
+
+      const sel = {
+        id: true,
+        titulo: true,
+        titulo_original: true,
+        tipo: true,
+        ano_lancamento: true,
+        imagem_url: true,
+        score: true,
+        generos: { select: { genero: { select: { slug: true } } } },
+        relacoes_origem: { where: { tipo: "ADAPTACAO_DE" }, select: { destino_id: true } },
+      } as const;
+
+      const [minhas, todas] = await Promise.all([
+        tx.midia.findMany({ where: { id: { in: idsWatch }, deleted_at: null }, select: sel }),
+        tx.midia.findMany({ where: { deleted_at: null }, select: sel }),
+      ]);
+
+      const toFonte = (m: (typeof todas)[number]): FonteRelacao => ({
+        id: m.id,
+        titulo: m.titulo,
+        generos: m.generos.map((g) => g.genero.slug),
+        franquia: m.titulo_original ?? m.titulo,
+        autores: [],
+        adaptacoes: m.relacoes_origem.map((r) => r.destino_id),
+      });
+
+      const candidatos = todas.map(toFonte);
+      const porId = new Map(todas.map((m) => [m.id, m]));
+
+      const rank = new Map<string, { motivo: string; score: number }>();
+      for (const m of minhas) {
+        for (const rel of relacionadasDe(toFonte(m), candidatos)) {
+          if (idsWatch.includes(rel.id)) continue;
+          const atual = rank.get(rel.id);
+          if (!atual || rel.score > atual.score)
+            rank.set(rel.id, { motivo: rel.motivo, score: rel.score });
+        }
+      }
+
+      const ordenados = [...rank.entries()].sort((a, b) => b[1].score - a[1].score).slice(0, limit);
+      const recomendacoes: Recomendacao[] = ordenados.flatMap(([midiaId, v]) => {
+        const m = porId.get(midiaId);
+        if (!m) return [];
+        return [
+          {
+            id: m.id,
+            titulo: m.titulo,
+            tipo: m.tipo,
+            ano: m.ano_lancamento,
+            poster_url: m.imagem_url,
+            score: m.score,
+            motivo: v.motivo,
+          },
+        ];
+      });
+
+      return { recomendacoes, proximo_cursor: null };
     });
   }
 

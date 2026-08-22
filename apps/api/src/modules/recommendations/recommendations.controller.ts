@@ -57,4 +57,11 @@ export class RecommendationsController {
     const params = parseOrThrow(recommendationsQuerySchema, query);
     return this.service.colaborativo(this.usuarioDaSessao(req), params);
   }
+
+  @Get("graph")
+  @ApiOperation({ summary: "Recomendações por grafo de relações (qualquer plano)" })
+  graph(@Req() req: FastifyRequest, @Query() query: unknown) {
+    const params = parseOrThrow(recommendationsQuerySchema, query);
+    return this.service.recomendarPorGrafo(this.usuarioDaSessao(req), params);
+  }
 }
