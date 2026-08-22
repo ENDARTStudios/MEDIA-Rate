@@ -70,6 +70,9 @@ export function StatusReactionControl({
   const [open, setOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<ConsumoStatus | null>(status);
   const popoverRef = useRef<HTMLDivElement>(null);
+  // T399: o popover é renderizado via PORTAL (fora de popoverRef); o ref do
+  // portal é usado no outside-click para não fechar ao clicar nas opções.
+  const portalRef = useRef<HTMLDivElement>(null);
 
   const canReact = reacaoEditavelPara(status);
 
@@ -82,7 +85,10 @@ export function StatusReactionControl({
   useEffect(() => {
     if (!open) return;
     function onPointerDown(e: PointerEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      const dentroDoBotao = popoverRef.current?.contains(t);
+      const dentroDoPortal = portalRef.current?.contains(t);
+      if (!dentroDoBotao && !dentroDoPortal) setOpen(false);
     }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
@@ -170,6 +176,7 @@ export function StatusReactionControl({
         {open &&
           createPortal(
             <motion.div
+              ref={portalRef}
               initial={shouldReduce ? false : { opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
