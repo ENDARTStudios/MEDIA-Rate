@@ -1,107 +1,115 @@
-# HANDOFF — MEDIA Rate (F14-polimento-final)
+# HANDOFF — MEDIA Rate (F14-polimento-final) — retomada limpa
 
-> Gerado para retomada limpa por outro agente/sessão. Estado íntegro em `main`,
-> `git status` limpo. Último commit: **`06e1847`**.
+> Gerado ao fim de uma janela longa (Lote A + B + C + auditoria + T408).
+> Estado íntegro em `main`, `git status` limpo. Último commit: **`c783a58`**.
 
 ---
 
 ## 1. Onde estamos
 
-- **Fase:** F14 — polimento final (3ª rodada de crítica do Operador, 13 itens).
-- **Lote A** (bugs visíveis) quase concluído: falta **T400 (localização)** + T398-restante + e2e/recapturas → então **STATUS único do Lote A**.
-- **Lote B** (UX: T394–T397) inicia **somente após** APPROVED do Lote A + gate visual do Operador.
+- **Projeto:** MEDIA Rate (plataforma de descoberta/agregação de avaliações).
+- **Fase:** F14 — polimento final (3ª rodada de crítica do Operador).
+- **Lote A** ✅ (bugs visíveis: localização trilíngue + menu "+" + slugs).
+- **Lote B** ✅ (UX: hero/kanban/dashboard/descobertas).
+- **Lote C** ⚠️ (auditoria + fixes): **T404/T406/T407 fechados**, **T405 parcial**, **T408 quase todo**.
+- **Falta:** T405-ilhas (refactor RSC, não iniciado) + residual de cobertura EN de comics/mangás + decisões do Operador.
 
-## 2. Tarefas concluídas no Lote A (commits em `main`)
+## 2. O que está FECHADO (commits em `main`)
 
-| Commit | Tarefa | O quê |
-|---|---|---|
-| `807a886` | T390/T391 | score arredondado 1 casa (fim do `6.42258…`); badge PRÉVIA só sem fontes; sinopse sem HTML cru |
-| `7cfa432` | (infra) | script de screenshots Playwright + 5 PNGs reais em `docs/screenshots/` |
-| `eb07daa` | T398-dados | dedupe de slugs entre tipos: **25 renomeios → 0 duplicados** (sufixo `-<tipo>`) |
-| `bac4765` | T393 | `titulo_original` de livros via mapa PT→EN commitado |
-| `c8154c4` | T392 | menu "+" via **portal** (z-70, não cortado pelo overflow do carrossel) |
-| `06e1847` | T399 | **opções do menu funcionam** — outside-click passou a checar `portalRef` além de `popoverRef` |
+| Lote | Tarefa | O quê | Estado |
+|---|---|---|---|
+| A | T400 | migração aditiva `titulo_en/es` + `sinopse_en/es` + backfill 624 mídias + cadeia canônica D-369 + e2e "The Thing" | ✅ |
+| A | T398 | slug único (índice **parcial** WHERE `deleted_at IS NULL`) + slug-service | ✅ |
+| A | T401 | D-375 dual-write (upsert de status cria `watchlist_entry`); e2e status-menu verde | ✅ |
+| B | T394 | hero 6 ícones 96px que trocam o showcase + stat 6 tipos | ✅ |
+| B | T395 | kanban horizontal (scroll-snap) | ✅ |
+| B | T396 | dashboard timeline/histograma/streak para todos os planos | ✅ |
+| B | T397 | descobertas com fallback por gênero (`MESMO_GENERO`) | ✅ |
+| C | T402 | gating restaurado (radar=Plus, evolução=Premium; timeline/hist/streak=Free) | ✅ |
+| C | T403 | auditoria profunda (Lighthouse 4 páginas + crawl 18 + 32 PNGs) | ✅ |
+| C | T404 | CSP `style-src` + `accounts.google.com` (Google Sign-In) | ✅ |
+| C | T406 | og:image de marca + hreflang + JSON-LD + títulos sem duplicação | ✅ |
+| C | T407 | pôster BG3 → IGDB (`t_cover_big/co670h.jpg`) | ✅ |
+| — | T408 | score honesto (`num_fontes` → "—" quando 0 fontes) + copy viva + Apple oculto | ⚠️ ver §3 |
 
-Estado de dados em produção (Fase C/F13): catálogo com **6 tipos** — capas 90–100%, sinopses 90–100%, slugs únicos, Google Books desbloqueado (chave 200).
+## 3. TAREFAS ABERTAS (próxima janela)
 
-## 3. Fila de execução (ordem obrigatória)
+### T405-performance-lcp (D-380 — padrão ILHAS, NÃO iniciado)
+- **Gargalo já diagnosticado:** LCP simulado 9,1 s / TTI 10 s / main-thread 8,9 s; payload 2,15 MB. Causa = **hidratação dos 60 cards** dos 6 carrosséis (componentes client que hidratam inteiro), não a imagem.
+- **Quick wins já em produção:** `fetchPriority="high"` + `sizes` no pôster (ScoreShowcase), hero sem fade de entrada, carrosséis via `next/dynamic`.
+- **Decisão D-380 (a executar):** converter `MediaCarousel`/`MediaCard` para **Server Components + ilhas client** (shell do card sem hidratação; ilhas só para coração/StatusMenu/setas). Manter 60 links no HTML (T274).
+- **Metas:** JS home <1,0 MB; TTI <5 s; LCP observado ≤2,5 s; perf ≥75; SEO 100 e a11y ≥90 mantidos; 60 links de cards no curl.
 
-1. **T400 — localização consistente** (a peça grande; ver §4).
-2. **T398-restante** — índice UNIQUE em `midia.slug` + `slug-service` com checagem de unicidade no create/backfill.
-3. **e2e** `status-menu-funcional.spec.ts` (abrir menu → "Assistindo" persiste na watchlist → "Remover" some).
-4. **Recapturas pós-deploy Ready** (menu "+" desktop+mobile, detail `/en-US`, catalog `/en-US`) em `docs/screenshots/`.
-5. **STATUS único do Lote A** (checklist binário D-370) — não emitir STATUS intermediário.
+### T408-qualidade-dado-copy — residual
+- **Falta:** cobertura EN de **COMIC 55%** e **MANGA 22%** (teto da busca por título PT no ComicVine/AniList). Precisa **mapa curado PT→EN** (como o `seed-titulo-en-mapa.ts` fez para livros) — decisão do Thinker.
+- `-211.9` **não reproduzível** no estado atual (0 scores <0/>100 no banco; T390 já normalizou) — documentado, sem ação.
 
-## 4. T400 — plano detalhado (D-369)
+## 4. PENDÊNCIAS DO OPERADOR (2 + 1)
 
-- **Migração ADITIVA** (nullable): `titulo_en`, `titulo_es`, `sinopse_en`, `sinopse_es` em `midia`.
-- **Backfill por fonte** (idempotente, produção via túnel): filmes/séries TMDB (`title`/`overview` EN+ES), games IGDB, mangás AniList (`title.english` + synopsis EN), livros Google Books/Wikipedia, HQs ComicVine. ES best-effort (null ok). Reportar contagens por tipo.
-- **Cadeia canônica** de título: `pt-BR → titulo`; `en-US → titulo_en → titulo_original (se ≠ PT) → titulo`; `es-ES → titulo_es → titulo_en → titulo`.
-- **Cadeia canônica** de sinopse: `sinopse_<locale> → sinopse_en → sinopse(pt)`.
-- **e2e**: `/en-US/media/...` de "O Enigma de Outro Mundo" → "The Thing" + sinopse EN; `/pt-BR` mantém PT.
-- **Meta visível**: em `/en-US` nunca PT quando há EN; idioma original só como último recurso.
+1. **Moeda do pricing (ESCALATE media):** "preço regional" (R$ BR / $ demais, configurar preços por moeda na Stripe) **ou** "preço único USD". Default se silêncio até fechar F14 = regional.
+2. **Gate consolidado (a–h):** livro→livro com breadcrumb; `/en-US` "The Thing"; menu "+" ponta a ponta; hero tiles; kanban swipe; dashboard; descobertas; + **palavra do radar** ("radar free" ou silêncio = default gating).
 
-## 5. Lote B (após Lote A aprovado) — T394–T397
-
-- **T394** hero ícones protagonistas (tiles 96–120px que trocam o showcase) + stat "6 tipos".
-- **T395** watchlist kanban horizontal compacto.
-- **T396** dashboard denso (timeline/histograma/streak para todos os planos).
-- **T397** descobertas reais (debug com a conta do Operador + fallback por gênero).
-
----
-
-## 6. Fatos técnicos e procedimentos (essenciais)
+## 5. FATOS TÉCNICOS
 
 ### Deploy
-- **Web → Vercel** (build automático no push para `main`).
-- **API + Postgres → Railway** (projeto "MEDIA Rate").
+- **Web → Vercel** (auto no push para `main`; domínio `mediarate.app`).
+- **API + Postgres → Railway** (auto; entrypoint roda `prisma migrate deploy`).
+- Domínio de produção pode ter cache/CDN — validar em `https://media-rate-<id>-end-art-studios.vercel.app` (via `vercel ls`) se `mediarate.app` estiver desatualizado.
 
 ### Banco de produção (via túnel)
 ```powershell
-railway connect Postgres --tunnel-only -P 554xx   # em background; lê URL/creds do stdout
-# rodar seed (workdir apps/api), com DATABASE_URL apontando o túnel:
+railway connect Postgres --tunnel-only -P 554xx   # background; lê URL/creds do stdout
 $env:DATABASE_URL = "postgresql://postgres:<SENHA>@127.0.0.1:<porta>/railway"
 node --import @swc-node/register/esm-register prisma/<script>.ts
 ```
-- **psql NÃO instalado**; usar Node + PrismaClient (ou `npx prisma db execute`).
-- `railway run` roda LOCAL (não alcança `postgres.railway.internal`) — usar o túnel.
-- Seeds são **idempotentes** (skip por `fonte+fonte_id`; update só de campo vazio).
+- **psql NÃO instalado**; usar Node + PrismaClient.
+- Seeds idempotentes (skip por campo vazio / upsert).
+
+### Usuários de teste (provisionados, VERIFICADOS)
+- `free@mediarate.test`, `plus@mediarate.test`, `premium@mediarate.test`, `admin@mediarate.test`.
+- Provisionar: `TEST_USERS_PASSWORD="<forte>" node ... prisma/provision-test-users.ts` (via túnel). **NÃO** importa `seed-posters.js` (executa `main()` no import — efeito colateral).
+- e2e: env `E2E_TEST_EMAIL` + `E2E_TEST_PASSWORD` (senha forte gerada via CLI, **nunca** impressa/commitada; arquivo `.e2e-pass` é gitignored e deve ser removido ao final).
 
 ### Secrets (NUNCA imprimir valores)
-- Ler de forma pontual: `$v = (railway variables --json | ConvertFrom-Json); $v.CHAVE`.
-- **NÃO** rodar `railway variables --json` sem filtrar (já despejou segredos uma vez — lição D-344).
-- Chaves relevantes já no Railway: `GOOGLE_BOOKS_API_KEY` (funcional, 200), `COMICVINE_API_KEY`, `GOOGLE_CLIENT_ID/SECRET`, `DATABASE_URL` (privado `railway.internal`), `ADMIN_TOKEN` (rotacionado), `RESEND_API_KEY`, `MAIL_PROVIDER=resend`.
+```powershell
+$v = railway variables --json | ConvertFrom-Json   # ler pontual: $v.CHAVE
+```
+- NÃO rodar `railway variables --json` sem filtrar (lição D-344).
+- Chaves no Railway: `TMDB_API_KEY`, `GOOGLE_BOOKS_API_KEY`, `COMICVINE_API_KEY`, `TWITCH_CLIENT_ID/SECRET`, `DATABASE_URL`, `ADMIN_TOKEN`, etc.
 
-### Screenshots (gate visual D-364/D-365/D-366)
-- Playwright + Chromium **já instalados** no repo.
-- Script: `node apps/web/scripts/shot.cjs` (edita a lista `alvos`); saída em `docs/screenshots/`.
-- **Modelo atual (`deepseek-v4-pro`) NÃO lê imagens** → quem valida visualmente é o **Operador** (abre PNGs no repo ou cola no chat) e o Thinker.
-- Capturar **somente após o deploy Vercel ficar `Ready`** (PNG pré-deploy não vale como evidência do fix).
-- Login em páginas privadas: gerar senha forte via CLI, manter só em env (`E2E_SHOT_PASSWORD`), **nunca** imprimir. Se seed tiver senha hardcoded com usuário em produção → `SECURITY_FINDING`, não usar.
+### Pitfalls
+- `DECISOES.md` é encoding misto (UTF-8 com bytes CP1252 soltos) — editar/append via pwsh `[System.IO.File]::AppendAllText(..., [System.Text.UTF8Encoding]($false))`, não `read`/`edit`/`write`.
+- `seed-posters.ts` executa `main()` no import — não importar; duplicar `urlSegura` localmente.
+- Prisma `@unique` em coluna nullable permite múltiplos NULL (índice parcial é o certo p/ soft-delete).
+- `ALTER TYPE ... ADD VALUE` não pode rodar com INSERT na MESMA migration (lição D-236/E55P04).
+- `next build` regenera `apps/web/next-env.d.ts` → `git checkout --` antes de commit.
+- Modelo **não lê imagens** — validação visual é do Operador (PNGs em `docs/screenshots/` / `docs/auditoria/`).
 
-### Regras de autonomia (NÃO re-perguntar go)
-- **D-355 / D-362 / D-367 / D-370**: trabalho já especificado/autorizado **se executa e se reporta**; não re-perguntar. Na dúvida, executar.
-- **§10.1**: se a janela esgotar, **checkpoint + PARCIAL** (commit + notas de retomada) — nunca abandonar sem estado.
-- **D-364**: UI só fecha com screenshot de **fonte real** (Operador ou browser); fabricar evidência = violação.
+## 6. DECISÕES REGISTRADAS (DECISOES.md, cadeia F14)
 
-### Pitfalls recorrentes
-- `next build` regenera `apps/web/next-env.d.ts` → `git checkout -- apps/web/next-env.d.ts` antes de commit.
-- `DECISOES.md` é **Latin-1** — ler/editar via `pwsh Get-Content -Encoding Default`, não com `read`/`edit`.
-- Em `pwsh`, SQL inline com `COUNT(*)`/`::` quebra (PowerShell interpreta); usar script `.cjs` temporário em `apps/api/prisma/` e remover depois.
-- PowerShell tem `$Host` reservado — não usar como nome de variável.
-- Seed `.cjs`/scripts com `require()` → `/* eslint-disable */` no topo.
+- **D-369** cadeia canônica de localização · **D-370** checklist binário do Lote A · **D-371** checkpoint aceito · **D-372** schema-strict da TAREFA · **D-373** produção de rotina é do Doer · **D-374** residuais são do Doer + usuário verificado provisionado · **D-375** dual-write transacional interação×watchlist · **D-376** contrato de evidência + Lote B liberado · **D-377** desvio do radar (default + veto) · **D-378** fechamento em uma rodada · **D-379** auditoria → T404–T407 · **D-380** ilhas (RSC + client islands, sem sacrificar SEO).
 
-## 7. Arquivos-chave
+## 7. ARQUIVOS-CHAVE
 
-- `apps/web/src/components/interaction/StatusReactionControl.tsx` — menu "+" (portal + `portalRef`/`popoverRef`).
-- `apps/web/src/lib/score-utils.ts`, `apps/web/src/lib/i18n-content.ts` — score + sinopse (T390/T391).
-- `apps/api/src/modules/recommendations/relation-graph.ts` + `recommendations.service.ts` — grafo de Descobertas (F13).
-- `apps/api/prisma/seed-*.ts` — seeds idempotentes (Fase C, gêneros, títulos, slugs, sinopses).
-- `apps/api/prisma/schema.prisma` — modelos `Midia`, `Genero`, `MidiaGenero`, `RelacaoObra`.
-- `apps/web/scripts/shot.cjs` — capturas Playwright.
+- `apps/web/src/components/media-rate-ui/MediaCarousel.tsx` + `MediaCard.tsx` — alvo do T405 (conversão ilhas).
+- `apps/web/src/lib/score-utils.ts` + `api.ts` + `types.ts` — normalização de score + `numFontes`.
+- `apps/web/src/lib/i18n-content.ts` — `titleForLocale`/`synopsisForLocale` (cadeia D-369).
+- `apps/web/src/lib/seo.ts` — `OG_IMAGE_PADRAO`, `localizedAlternates`, `siteUrl`.
+- `apps/api/src/modules/interacoes/interacoes.service.ts` — dual-write D-375 + fallback gênero T397.
+- `apps/api/src/modules/dashboard/dashboard.service.ts` — streak/histograma + gating T402.
+- `apps/api/src/modules/media/media.controller.ts` + `media.service.ts` + `slug-service.ts` — lista com `num_fontes`/`titulo_en`, slug único.
+- `apps/api/prisma/seed-*.ts` — seeds idempotentes (localizacao, provision, fix-bg3, fix-slug-*).
+- `apps/web/scripts/shot*.cjs` + `audit-crawl.cjs` — screenshots/auditoria Playwright.
+- `docs/auditoria-profunda-2026-08-23.md` + `docs/lighthouse-reports/*.json` — evidência da auditoria.
 
-## 8. Estado de testes
+## 8. ESTADO DE TESTES
 
-- **307 testes web** verdes (`npm run test` em `apps/web`).
-- API: suites de auth/dashboard/recommendations/relation-graph verdes.
-- Gates: `tsc --noEmit`, `eslint`, `next build` verdes.
+- **API 818/818** · **web 307/307** verdes.
+- e2e em produção: `localizacao` 2/2, `status-menu` 1/1, `dashboard-gating` 3/3.
+- Lighthouse home pós-fix: LCP observado **2,9 s** (simulado 9,1 s); TTI 10 s (gargalo = hidratação → T405).
+
+## 9. PRÓXIMA AÇÃO SUGERIDA
+
+1. **Doer:** T405-ilhas (conversão RSC de carrosséis/cards → re-medir Lighthouse). Depois T408-residual (mapa curado EN de comics/mangás) se o Thinker autorizar.
+2. **Operador:** responder moeda + gate consolidado + palavra do radar.
+3. **Thinker:** revisão agregada da F14 e `[x]` no plano quando tudo verde.
