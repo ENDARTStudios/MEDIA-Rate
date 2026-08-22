@@ -8,7 +8,13 @@ import { HomeStats } from "../../components/HomeStats";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { StructuredData } from "@/components/StructuredData";
-import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO, siteUrl } from "@/lib/seo";
+import {
+  localeOpenGraph,
+  localizedAlternates,
+  localizedUrl,
+  OG_IMAGE_PADRAO,
+  siteUrl,
+} from "@/lib/seo";
 import { getCatalog, getMediaBySlug } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { titleForLocale } from "@/lib/i18n-content";
