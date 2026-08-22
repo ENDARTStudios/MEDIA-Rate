@@ -150,7 +150,10 @@ export function MediaCard({ media }: { media: MediaItem }) {
   // T272: flag única de prévia — a flag da API (quando presente) ou a mesma
   // fonte de verdade que a ficha usa (isPreviewTipo). Nunca hardcoda a lista
   // de tipos neste componente.
-  const preview = media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie");
+  // T390: badge "PRÉVIA" só quando a mídia realmente NÃO tem score/fontes
+  // (com fontes AniList/ComicVine/GoogleBooks, o badge desaparece).
+  const preview =
+    media.score == null && (media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie"));
   // Score na escala NATIVA do engine: games/mangás 0-100; demais 0-10.
   // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
   const scoreExibido = media.score != null ? normalizeDisplayScore(media.score, mediaType) : null;

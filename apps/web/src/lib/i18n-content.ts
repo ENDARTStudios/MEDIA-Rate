@@ -141,5 +141,11 @@ export function synopsisForLocale(
     const lang = locale.split("-")[0] as "pt" | "en" | "es";
     return d.synopsis[lang] || d.synopsis.pt;
   }
-  return media.synopsis;
+  // T391: remove tags HTML cruas (ex.: '<p>Spanish publication.</p>') vindas
+  // de sinopses de fontes externas (OpenLibrary/Google Books/ComicVine).
+  return media.synopsis
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&#?\w+;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
