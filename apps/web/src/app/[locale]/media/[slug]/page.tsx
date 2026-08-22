@@ -110,7 +110,7 @@ export default async function MediaDetailPage({ params }: Props) {
           "name": "Catalog",
           "item": localizedUrl(locale, "/catalog"),
         },
-        { "@type": "ListItem", "position": 3, "name": media.title, "item": pageUrl },
+        { "@type": "ListItem", "position": 3, "name": titleForLocale(media, locale), "item": pageUrl },
       ],
     },
   ];

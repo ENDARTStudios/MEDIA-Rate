@@ -50,7 +50,7 @@ export async function generateDetailMetadata({
     "@context": "https://schema.org",
     "@type": schemaType,
     "name": titleForLocale(media, locale),
-    "description": media.synopsis,
+    "description": synopsisForLocale(media, locale),
     "image": media.posterUrl,
     "datePublished": String(media.year),
     "genre": media.genres,
