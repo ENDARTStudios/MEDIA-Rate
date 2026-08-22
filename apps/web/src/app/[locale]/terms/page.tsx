@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
+import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 
 /**
  * T306 (D-295) — Termos e Condições de Uso (v1.0, 13/08/2026).
@@ -29,6 +29,7 @@ export async function generateMetadata({
       siteName: "MEDIA Rate",
       locale: localeOpenGraph(locale),
       type: "website",
+      images: OG_IMAGE_PADRAO,
     },
     robots: { index: true, follow: true },
   };

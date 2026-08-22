@@ -27,6 +27,10 @@ export function localeOpenGraph(locale: string): string {
     "en-US": "en_US",
     "es-ES": "es_ES",
   };
-
   return openGraphLocales[locale] || "pt_BR";
 }
+
+/** T406: og:image de marca (fallback para páginas sem imagem própria). */
+export const OG_IMAGE_PADRAO = [
+  { url: `${siteUrl}/og-image.png`, width: 1200, height: 630, alt: "MEDIA Rate" },
+];

@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
+import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 import { sanitizeHtml } from "@/lib/sanitize";
 
 export async function generateMetadata({
@@ -26,6 +26,7 @@ export async function generateMetadata({
       siteName: "MEDIA Rate",
       locale: localeOpenGraph(locale),
       type: "website",
+      images: OG_IMAGE_PADRAO,
     },
     robots: { index: true, follow: true },
   };

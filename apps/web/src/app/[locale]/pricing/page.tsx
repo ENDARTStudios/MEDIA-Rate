@@ -4,7 +4,7 @@ import { PricingCards } from "../../../components/PricingCards";
 import { PricingTable } from "../../../components/PricingTable";
 import { PricingFAQ } from "../../../components/PricingFAQ";
 import { MediaUnlockGrid } from "../../../components/pricing/MediaUnlockGrid";
-import { localizedAlternates, localizedUrl } from "../../../lib/seo";
+import { localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "../../../lib/seo";
 import { serializeJsonLd } from "../../../lib/json-ld";
 
 export async function generateMetadata({
@@ -27,6 +27,7 @@ export async function generateMetadata({
       description: t("metaOgDescription"),
       siteName: "MEDIA Rate",
       type: "website",
+      images: OG_IMAGE_PADRAO,
     },
   };
 }

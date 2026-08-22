@@ -8,7 +8,7 @@ import { HomeStats } from "../../components/HomeStats";
 import { LazyAnimatedHeading } from "../../components/lazy";
 import { LayeredBackground } from "../../components/ui/layered-background";
 import { StructuredData } from "@/components/StructuredData";
-import { localeOpenGraph, localizedAlternates, localizedUrl, siteUrl } from "@/lib/seo";
+import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO, siteUrl } from "@/lib/seo";
 import { getCatalog, getMediaBySlug } from "@/lib/api";
 import { normalizeDisplayScore } from "@/lib/score-utils";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -52,6 +52,8 @@ export async function generateMetadata({
       locale: localeOpenGraph(locale),
       siteName: tm("appName"),
       type: "website",
+      // T406: og:image de marca (o openGraph da página substitui o do layout).
+      images: OG_IMAGE_PADRAO,
     },
     twitter: {
       card: "summary",

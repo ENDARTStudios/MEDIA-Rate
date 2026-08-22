@@ -4,7 +4,7 @@ import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { localeOpenGraph, localizedAlternates, localizedUrl } from "@/lib/seo";
+import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: "MEDIA Rate",
       locale: localeOpenGraph(locale),
       type: "article",
+      images: OG_IMAGE_PADRAO,
     },
     twitter: {
       card: "summary",

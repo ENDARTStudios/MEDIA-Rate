@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { localizedAlternates, localizedUrl } from "@/lib/seo";
+import { localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 
@@ -24,6 +24,7 @@ export async function generateMetadata({
       description: t("metaOgDescription"),
       siteName: "MEDIA Rate",
       type: "website",
+      images: OG_IMAGE_PADRAO,
     },
   };
 }
