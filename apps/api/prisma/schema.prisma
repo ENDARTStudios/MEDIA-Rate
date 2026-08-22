@@ -656,6 +656,8 @@ enum TipoRelacao {
   SPINOFF_DE
   MESMO_UNIVERSO
   MESMA_HISTORIA_REAL
+  // T397 (D-376): fallback de descobertas por gênero compartilhado.
+  MESMO_GENERO
 }
 
 /// Colunas do Kanban de Watchlist.

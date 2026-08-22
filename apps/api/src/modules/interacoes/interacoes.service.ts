@@ -318,9 +318,72 @@ export class InteracoesService {
       // Merge sem duplicar to_media_id (a interação vence em estabilidade).
       const vistos = new Set(daInteracao.map((d) => d.toMediaId));
       const extra = daReacao.filter((d) => !vistos.has(d.toMediaId));
-      return [...daInteracao, ...extra].sort(
+      const resultado = [...daInteracao, ...extra].sort(
         (a, b) => new Date(b.discoveredAt).getTime() - new Date(a.discoveredAt).getTime(),
       );
+      if (resultado.length > 0) return resultado;
+
+      // T397 (D-376): fallback por gênero — sem relações/reacões, recomenda
+      // títulos do mesmo gênero dos consumidos (CONCLUIDO/CONSUMINDO), por score.
+      const consumidos = await tx.usuarioMidiaInteracao.findMany({
+        where: { usuario_id: usuarioId, status: { in: ["CONCLUIDO", "CONSUMINDO"] } },
+        orderBy: { atualizado_em: "desc" },
+        select: {
+          midia_id: true,
+          midia: {
+            select: {
+              id: true,
+              titulo: true,
+              tipo: true,
+              imagem_url: true,
+              score: true,
+              generos: { select: { genero: { select: { slug: true } } } },
+            },
+          },
+        },
+      });
+      const idsConsumidos = consumidos.map((c) => c.midia_id);
+      const slugsGenero = [
+        ...new Set(
+          consumidos
+            .flatMap((c) => c.midia?.generos ?? [])
+            .map((g) => g.genero?.slug)
+            .filter((s): s is string => Boolean(s)),
+        ),
+      ];
+      const origem = consumidos[0]?.midia;
+      if (origem && slugsGenero.length > 0) {
+        const recomendados = await tx.midia.findMany({
+          where: {
+            deleted_at: null,
+            id: { notIn: idsConsumidos },
+            generos: { some: { genero: { slug: { in: slugsGenero } } } },
+          },
+          orderBy: { score: "desc" },
+          take: 6,
+          select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
+        });
+        if (recomendados.length > 0) {
+          const mediaSel = (m: { id: string; titulo: string; tipo: string; imagem_url: string | null; score: number | null }) => ({
+            id: m.id,
+            titulo: m.titulo,
+            tipo: m.tipo,
+            imagemUrl: m.imagem_url,
+            score: m.score,
+          });
+          return recomendados.map((m) => ({
+            fromMediaId: origem.id,
+            fromMediaType: origem.tipo,
+            toMediaId: m.id,
+            toMediaType: m.tipo,
+            relationType: "MESMO_GENERO" as TipoRelacao,
+            discoveredAt: new Date(),
+            fromMedia: mediaSel(origem),
+            toMedia: mediaSel(m),
+          }));
+        }
+      }
+      return resultado;
     });
   }
 

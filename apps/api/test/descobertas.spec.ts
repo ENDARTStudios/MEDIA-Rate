@@ -9,6 +9,7 @@ function mockPrisma() {
       findUnique: vi.fn(async ({ where }: any) =>
         ["midia-1", "m-destino"].includes(where.id) ? { id: where.id } : null,
       ),
+      findMany: vi.fn(async () => []),
     },
     relacaoObra: { findUnique: vi.fn(), findMany: vi.fn() },
     usuarioMidiaInteracao: { findUnique: vi.fn(), findMany: vi.fn(), upsert: vi.fn() },
@@ -129,6 +130,36 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
     prisma.usuarioMidiaInteracao.findMany.mockResolvedValue([semOrigem]);
     const r = await service.descobertas("user-1");
     expect(r.length).toBe(0);
+  });
+
+  it("T397 — descobertas vazias caem no fallback por gênero (MESMO_GENERO)", async () => {
+    // 1ª chamada (relações) vazia; 2ª chamada (consumidos) tem um CONCLUIDO.
+    prisma.usuarioMidiaInteracao.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          midia_id: "m-consumido",
+          status: "CONCLUIDO",
+          atualizado_em: new Date("2026-08-01T00:00:00Z"),
+          midia: {
+            id: "m-consumido",
+            titulo: "Duna (filme)",
+            tipo: "FILME",
+            imagem_url: null,
+            score: 95,
+            generos: [{ genero: { slug: "ficcao-cientifica" } }],
+          },
+        },
+      ]);
+    prisma.midia.findMany.mockResolvedValue([
+      { id: "m-recomendado", titulo: "Interestelar", tipo: "FILME", imagem_url: null, score: 90 },
+    ]);
+
+    const r = await service.descobertas("user-1");
+    expect(r.length).toBe(1);
+    expect(r[0].relationType).toBe("MESMO_GENERO");
+    expect(r[0].fromMediaId).toBe("m-consumido");
+    expect(r[0].toMediaId).toBe("m-recomendado");
   });
 
   // ---- GET /taste/history ------------------------------------------------
