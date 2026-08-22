@@ -46,10 +46,11 @@ export async function generateMetadata({
       locale: localeOpenGraph(locale),
       type: "website",
       // T406: fallback de og:image para TODAS as páginas sem imagem própria
-      // (auditoria T403 achou og:image ausente em 11 páginas).
+      // (auditoria T403 achou og:image ausente em 11 páginas). URL absoluta
+      // (Next.js não resolve og:image relativa sem metadataBase).
       images: [
         {
-          url: "/og-image.png",
+          url: `${baseUrl}/og-image.png`,
           width: 1200,
           height: 630,
           alt: "MEDIA Rate",
