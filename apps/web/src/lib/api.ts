@@ -114,7 +114,7 @@ interface ApiMidiaList {
   tipo: string;
   ano_lancamento: number | null;
   imagem_url: string | null;
-  scores?: { score: number }[];
+  scores?: { score: number; num_fontes?: number }[];
 }
 
 interface ApiSearchItem {
@@ -999,6 +999,9 @@ function mediaFromList(m: ApiMidiaList): Media {
     year: m.ano_lancamento ?? new Date().getFullYear(),
     genres: [],
     synopsis: "",
+    // T408: num_fontes da API — prior Bayesiano (0 fontes) não pode posar
+    // de dado real (scores constantes em comics/mangá).
+    numFontes: m.scores?.[0]?.num_fontes ?? 0,
     posterUrl: m.imagem_url,
     backdropUrl: null,
     score:

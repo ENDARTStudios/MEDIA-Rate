@@ -81,10 +81,10 @@ describe("MediaUnlockGrid (T193)", () => {
     expect(container.textContent).toContain("Livros");
   });
 
-  it("Free bloqueia games (cadeado) e roadmap mostra 'Em breve'", () => {
+  it("T408: os 6 tipos estão desbloqueados em TODOS os planos (sem 'Em breve')", () => {
     const { container } = renderUi(<MediaUnlockGrid />);
-    const bloqueados = container.querySelectorAll('[aria-label="Bloqueado neste plano"]');
-    expect(bloqueados.length).toBe(1);
-    expect(container.textContent).toContain("Em breve");
+    const desbloqueados = container.querySelectorAll('[aria-label="Desbloqueado"]');
+    expect(desbloqueados.length).toBe(18); // 6 mídias × 3 planos
+    expect(container.textContent).not.toContain("Em breve");
   });
 });

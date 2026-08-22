@@ -3,22 +3,14 @@
 /**
  * MediaUnlockGrid (Parte 3.7, T193) — comparação por mídia desbloqueada:
  * grade de ícones de categoria (Parte 2.3) mostrando o que cada plano
- * libera. Bloqueado = cadeado + blur (ScoreDial-style). Sem dados
- * fabricados: categorias em roadmap mostram "em breve".
+ * libera. T408: os 6 tipos estão vivos no catálogo para TODOS os planos
+ * (livros/HQs/mangás foram destravados na F13/T383b) — sem "Soon".
  */
 import { useTranslations } from "next-intl";
-import { Lock } from "lucide-react";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
 
 const MEDIAS: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
-
-/** O que cada plano libera (Free: filme+série; Plus: +game; Premium: tudo). */
-const PLANO_LIBERA: Record<"free" | "plus" | "premium", Set<MediaType>> = {
-  free: new Set(["movie", "series"]),
-  plus: new Set(["movie", "series", "game"]),
-  premium: new Set(MEDIAS),
-};
 
 export function MediaUnlockGrid() {
   const t = useTranslations("pricing");
@@ -51,32 +43,16 @@ export function MediaUnlockGrid() {
                     {t(`media_${media}`)}
                   </span>
                 </td>
-                {planos.map((plano) => {
-                  const libera = PLANO_LIBERA[plano].has(media);
-                  const emBreve = media === "book" || media === "comic" || media === "manga";
-                  return (
-                    <td key={plano} className="py-3 px-3 text-center">
-                      {libera ? (
-                        <span
-                          className="inline-block h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: token.color }}
-                          aria-label={t("unlocked")}
-                          title={t("unlocked")}
-                        />
-                      ) : emBreve ? (
-                        <span className="text-[10px] text-[#80809B]">{t("comingSoonShort")}</span>
-                      ) : (
-                        <span
-                          className="inline-flex items-center justify-center"
-                          title={t("locked")}
-                          aria-label={t("locked")}
-                        >
-                          <Lock className="h-3.5 w-3.5 text-[#6B6B85]" />
-                        </span>
-                      )}
-                    </td>
-                  );
-                })}
+                {planos.map((plano) => (
+                  <td key={plano} className="py-3 px-3 text-center">
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: token.color }}
+                      aria-label={t("unlocked")}
+                      title={t("unlocked")}
+                    />
+                  </td>
+                ))}
               </tr>
             );
           })}

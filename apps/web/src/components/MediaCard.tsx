@@ -24,6 +24,8 @@ export interface MediaItem {
   ano_lancamento: number | null;
   imagem_url: string | null;
   score?: number | null;
+  /** T408: nº de fontes reais do score (0 = prior Bayesiano → exibe "—"). */
+  numFontes?: number;
   /** T272: flag "prévia — fontes em preparação" vinda da camada de API.
    *  Quando ausente, o MediaCard deriva via isPreviewTipo (mesma fonte da ficha). */
   preview?: boolean;
@@ -152,11 +154,15 @@ export function MediaCard({ media }: { media: MediaItem }) {
   // de tipos neste componente.
   // T390: badge "PRÉVIA" só quando a mídia realmente NÃO tem score/fontes
   // (com fontes AniList/ComicVine/GoogleBooks, o badge desaparece).
+  // T408: prior Bayesiano (numFontes=0) NÃO posa de dado real — "—" + badge.
+  const semFontesReais = media.numFontes === 0;
   const preview =
-    media.score == null && (media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie"));
+    (media.score == null || semFontesReais) &&
+    (media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie"));
   // Score na escala NATIVA do engine: games/mangás 0-100; demais 0-10.
   // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
-  const scoreExibido = media.score != null ? normalizeDisplayScore(media.score, mediaType) : null;
+  const scoreExibido =
+    media.score != null && !semFontesReais ? normalizeDisplayScore(media.score, mediaType) : null;
   const escala = mediaType === "game" || mediaType === "manga" ? "0-100" : "0-10";
   const maxScore = escala === "0-100" ? 100 : 10;
   const scoreLabel =

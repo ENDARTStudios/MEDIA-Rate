@@ -247,7 +247,7 @@ export class MediaController {
               ano_lancamento: true,
               imagem_url: true,
               scores: {
-                select: { score: true },
+                select: { score: true, num_fontes: true },
                 take: 1,
                 orderBy: { calculado_em: "desc" },
               },
@@ -290,7 +290,7 @@ export class MediaController {
           ano_lancamento: true,
           imagem_url: true,
           scores: {
-            select: { score: true },
+            select: { score: true, num_fontes: true },
             take: 1,
             orderBy: { calculado_em: "desc" },
           },

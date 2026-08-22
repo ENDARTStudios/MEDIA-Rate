@@ -58,6 +58,7 @@ function mapToMediaItem(m: {
   year: number;
   posterUrl: string | null;
   score?: { consolidated?: number | null } | null;
+  numFontes?: number;
 }): MediaItem {
   return {
     id: m.id,
@@ -68,6 +69,7 @@ function mapToMediaItem(m: {
     ano_lancamento: m.year,
     imagem_url: m.posterUrl,
     score: m.score?.consolidated ?? null,
+    numFontes: m.numFontes ?? 0,
   };
 }
 
