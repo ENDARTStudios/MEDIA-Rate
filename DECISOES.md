@@ -980,3 +980,24 @@ Relatorio de cobertura (models com FK usuario x RLS):
 3. Itens ainda abertos: 6/7/8 (catalogo livros/HQs/mangas = Fase C T367-T369) e 11 (Descobertas = T381). Itens 3/5/9/10 ja implementados (T365/T366/T373/T374).
 
 **Impacto:** Fila = T381 + Fase C + T380; nenhuma pendencia do Operador.
+
+## [2026-08-21] Decisao: D-370 - checklist binario de fechamento do Lote A (F14)
+
+Itens binarios ([x]/[ ]) para fechar o Lote A em STATUS unico e revisavel:
+
+1. [ ] Migracao aditiva titulo_en/titulo_es/sinopse_en/sinopse_es (nullable) em midia aplicada em producao - contagem pre/pos identica (zero perda).
+2. [ ] Backfill idempotente executado com contagens por tipo: filme, serie, game, manga, livro, HQ x (EN / ES / best-effort).
+3. [ ] Cadeia canonica D-369 aplicada: pt-BR->titulo; en-US->titulo_en->titulo_original(<>PT)->titulo; es-ES->titulo_es->titulo_en->titulo; sinopse_<locale>->sinopse_en->pt - em cards, ficha, carrosseis, busca, notificacoes e Descobertas.
+4. [ ] e2e localizacao verde: /en-US do filme exibe "The Thing" + sinopse EN; /pt-BR mantem PT.
+5. [ ] e2e status-menu-funcional verde: abrir -> "Assistindo" -> watchlist; "Remover" -> some.
+6. [ ] Indice UNIQUE em midia.slug ativo (0 duplicados) + slug-service com checagem de unicidade no create/backfill.
+7. [ ] PNGs pos-deploy commitados em docs/screenshots: menu "+" aberto desktop+mobile, detail en-US, catalog en-US.
+8. [ ] Checkpoints visuais do Operador confirmados: livro->livro; /en-US EN (sem PT/ru); menu "+" com opcoes funcionando.
+9. [ ] STATUS unico emitido com validator OK + metricas UTC + commits + evidencia completa.
+
+## [2026-08-21] Decisao: D-371 - checkpoint de fim de janela aceito (06e1847)
+
+- Checkpoint aceito (10.1): nada do que esta em main sera refeito; T390/T391/T392/T393-parcial/T398-dados/T399 permanecem aprovados.
+- Retomada contratada: proxima janela inicia DIRETO do T400 (migracao -> backfill -> cadeia canonica -> e2e "The Thing" -> T398-restante -> e2e menu -> recapturas -> STATUS unico do Lote A com D-370).
+- Sem STATUS intermediario e sem perguntas; janela esgotou de novo -> checkpoint + PARCIAL.
+- Lote B (T394-T397) so apos APPROVED do Lote A + gate visual do Operador.
