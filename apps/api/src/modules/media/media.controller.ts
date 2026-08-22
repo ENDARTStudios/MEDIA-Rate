@@ -241,6 +241,8 @@ export class MediaController {
               slug: true,
               titulo: true,
               titulo_original: true,
+              titulo_en: true,
+              titulo_es: true,
               tipo: true,
               ano_lancamento: true,
               imagem_url: true,
@@ -282,6 +284,8 @@ export class MediaController {
           slug: true,
           titulo: true,
           titulo_original: true,
+          titulo_en: true,
+          titulo_es: true,
           tipo: true,
           ano_lancamento: true,
           imagem_url: true,
@@ -357,15 +361,28 @@ export class MediaController {
       // Duna LIVRO e FILME com o mesmo slug). Sem sufixo, resolve o primeiro.
       // T280: candidatos excluem soft-deleted — título apagado não resolve.
       const { slug: slugLimpo, tipo: tipoFiltro } = parseSlugDiscriminado(slug);
-      // T330: fast path indexado pelo slug persistido (sem full scan).
-      const alvoIndexado = await this.prisma.midia.findFirst({
-        where: {
-          slug: slugLimpo,
-          deleted_at: null,
-          ...(tipoFiltro ? { tipo: tipoFiltro as TipoMidia } : {}),
-        },
-        select: { id: true },
-      });
+      // T398/T400: slug persistido é ÚNICO e pode já vir discriminado (ex.
+      // "duna-livro"). Tenta o slug COMPLETO primeiro (match O(1) exato) e só
+      // então o discriminado "{slug}-{tipo}" (fallback legado T251).
+      const slugCompleto = slugify(slug);
+      let alvoIndexado =
+        slugCompleto !== slugLimpo
+          ? await this.prisma.midia.findFirst({
+              where: { slug: slugCompleto, deleted_at: null },
+              select: { id: true },
+            })
+          : null;
+      if (!alvoIndexado) {
+        // T330: fast path indexado pelo slug persistido (sem full scan).
+        alvoIndexado = await this.prisma.midia.findFirst({
+          where: {
+            slug: slugLimpo,
+            deleted_at: null,
+            ...(tipoFiltro ? { tipo: tipoFiltro as TipoMidia } : {}),
+          },
+          select: { id: true },
+        });
+      }
       if (alvoIndexado) {
         midia = await this.prisma.midia.findUnique({ where: { id: alvoIndexado.id }, include });
       } else {
@@ -408,11 +425,15 @@ export class MediaController {
     const score = midia.scores[0];
     return {
       id: midia.id,
-      slug: slugify(midia.titulo),
+      slug: midia.slug ?? slugify(midia.titulo),
       titulo: midia.titulo,
       titulo_original: midia.titulo_original,
+      titulo_en: midia.titulo_en,
+      titulo_es: midia.titulo_es,
       tipo: midia.tipo,
       sinopse: midia.sinopse,
+      sinopse_en: midia.sinopse_en,
+      sinopse_es: midia.sinopse_es,
       ano_lancamento: midia.ano_lancamento,
       imagem_url: normalizarImagem(midia.imagem_url),
       classificacao_indicativa: midia.classificacao_indicativa,
@@ -777,8 +798,12 @@ function sanitizarMidia(m: {
   id: string;
   titulo: string;
   titulo_original: string | null;
+  titulo_en: string | null;
+  titulo_es: string | null;
   tipo: string;
   sinopse: string | null;
+  sinopse_en: string | null;
+  sinopse_es: string | null;
   ano_lancamento: number | null;
   classificacao_indicativa: unknown;
   imagem_url: string | null;
@@ -788,8 +813,12 @@ function sanitizarMidia(m: {
     id: m.id,
     titulo: m.titulo,
     titulo_original: m.titulo_original,
+    titulo_en: m.titulo_en,
+    titulo_es: m.titulo_es,
     tipo: m.tipo,
     sinopse: m.sinopse,
+    sinopse_en: m.sinopse_en,
+    sinopse_es: m.sinopse_es,
     ano_lancamento: m.ano_lancamento,
     classificacao_indicativa: m.classificacao_indicativa,
     imagem_url: normalizarImagem(m.imagem_url),

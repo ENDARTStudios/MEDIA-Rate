@@ -313,11 +313,18 @@ model Midia {
   tipo                    TipoMidia
   titulo                  String                 @db.Text
   // T330: slug canônico (slugify(titulo)) indexado — elimina full scan no
-  // getBySlug. NÃO é @unique (colisões de título desambiguam por tipo via
-  // parseSlugDiscriminado "{slug}-{tipo}").
-  slug                    String?                @map("slug") @db.VarChar(300)
+  // getBySlug. T398 (restante): @unique — pré-condição 0 duplicados cumprida
+  // por seed-fix-slug-colisoes (colisões entre tipos ganham sufixo "-{tipo}").
+  slug                    String?                @unique @map("slug") @db.VarChar(300)
   titulo_original         String?                @map("titulo_original") @db.Text
   sinopse                 String?                @db.Text
+  // T400 (localização): título/sinopse por locale (en/es), nullable. Cadeia
+  // canônica D-369 no frontend: pt→titulo; en→titulo_en→titulo_original(≠PT)
+  // →titulo; es→titulo_es→titulo_en→titulo; sinopse_<locale>→sinopse_en→pt.
+  titulo_en               String?                @map("titulo_en") @db.Text
+  titulo_es               String?                @map("titulo_es") @db.Text
+  sinopse_en              String?                @map("sinopse_en") @db.Text
+  sinopse_es              String?                @map("sinopse_es") @db.Text
   ano_lancamento          Int?                   @map("ano_lancamento")
   // T2.7: enum brasileiro.
   classificacao_indicativa ClassificacaoIndicativa? @map("classificacao_indicativa")
@@ -358,7 +365,6 @@ model Midia {
   @@unique([fonte, fonte_id])
   @@index([tipo])
   @@index([titulo])
-  @@index([slug])
   @@index([score])
   @@map("midia")
 }

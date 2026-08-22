@@ -41,6 +41,8 @@ interface DiscoverRow {
   id: string;
   titulo: string;
   titulo_original: string | null;
+  titulo_en: string | null;
+  titulo_es: string | null;
   tipo: string;
   ano_lancamento: number | null;
   poster_url: string | null;
@@ -177,7 +179,7 @@ export class DiscoverService {
     }
 
     const rows = await this.prisma.$queryRaw<DiscoverRow[]>(Prisma.sql`
-      SELECT m.id, m.titulo, m.titulo_original, m.tipo, m.ano_lancamento,
+      SELECT m.id, m.titulo, m.titulo_original, m.titulo_en, m.titulo_es, m.tipo, m.ano_lancamento,
              m.imagem_url AS poster_url, s.score,
              ${watchlistSql} AS na_watchlist
       FROM "midia" m ${lateralScore}
@@ -200,6 +202,8 @@ export class DiscoverService {
       id: r.id,
       titulo: r.titulo,
       titulo_original: r.titulo_original,
+      titulo_en: r.titulo_en,
+      titulo_es: r.titulo_es,
       tipo: r.tipo,
       ano: r.ano_lancamento,
       poster_url: normalizarImagem(r.poster_url),

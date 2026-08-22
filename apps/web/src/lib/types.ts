@@ -73,6 +73,8 @@ export interface Media {
   slug: string;
   title: string;
   titleLocalized?: LocalizedString;
+  /** T400: sinopse por locale (cadeia canônica D-369) — pt/en/es. */
+  synopsisLocalized?: LocalizedString;
   type: MediaType;
   /** Tipos cujas fontes de avaliação ainda não foram ativadas (D-230).
    *  Exposta pela camada de API; a UI nunca hardcoda a lista de tipos. */

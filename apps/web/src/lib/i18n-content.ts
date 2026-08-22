@@ -132,7 +132,7 @@ export function genreSlugsFor(media: { id?: string; slug?: string; genres?: stri
 }
 
 export function synopsisForLocale(
-  media: { synopsis: string; id?: string; slug?: string },
+  media: { synopsis: string; synopsisLocalized?: LocalizedString; id?: string; slug?: string },
   locale: string,
 ): string {
   const key = (media.slug ?? media.id) as string;
@@ -140,6 +140,13 @@ export function synopsisForLocale(
   if (d?.synopsis) {
     const lang = locale.split("-")[0] as "pt" | "en" | "es";
     return d.synopsis[lang] || d.synopsis.pt;
+  }
+  // T400 (D-369): cadeia canônica — sinopse_<locale> → sinopse_en → pt.
+  if (media.synopsisLocalized) {
+    const lang = locale.split("-")[0] as keyof LocalizedString;
+    if (lang in media.synopsisLocalized && media.synopsisLocalized[lang])
+      return media.synopsisLocalized[lang];
+    return media.synopsisLocalized.pt || media.synopsis;
   }
   // T391: remove tags HTML cruas (ex.: '<p>Spanish publication.</p>') vindas
   // de sinopses de fontes externas (OpenLibrary/Google Books/ComicVine).

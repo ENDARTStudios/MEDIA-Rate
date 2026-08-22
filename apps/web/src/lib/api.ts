@@ -2,6 +2,7 @@ import type {
   CatalogFilters,
   CatalogResponse,
   Confidence,
+  LocalizedString,
   Media,
   MediaSearchResult,
   MediaType,
@@ -61,8 +62,12 @@ interface ApiMidiaSlug {
   slug: string;
   titulo: string;
   titulo_original: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
   tipo: string;
   sinopse: string | null;
+  sinopse_en?: string | null;
+  sinopse_es?: string | null;
   ano_lancamento: number | null;
   imagem_url: string | null;
   classificacao_indicativa: string | null;
@@ -104,6 +109,8 @@ interface ApiMidiaList {
   slug?: string | null;
   titulo: string;
   titulo_original?: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
   tipo: string;
   ano_lancamento: number | null;
   imagem_url: string | null;
@@ -225,6 +232,34 @@ function mapClassificacaoIndicativa(value: string | null | undefined): string | 
   }
 }
 
+/**
+ * T400 (D-369): cadeia canônica de título — pt→titulo; en→titulo_en→
+ * titulo_original (só se ≠ PT)→titulo; es→titulo_es→titulo_en→titulo.
+ */
+function buildTitleLocalized(
+  titulo: string,
+  titulo_en?: string | null,
+  titulo_es?: string | null,
+  titulo_original?: string | null,
+): LocalizedString {
+  const en =
+    titulo_en ??
+    (titulo_original && titulo_original !== titulo ? titulo_original : undefined) ??
+    titulo;
+  const es = titulo_es ?? titulo_en ?? titulo;
+  return { pt: titulo, en, es };
+}
+
+/** T400 (D-369): cadeia canônica de sinopse — sinopse_<locale>→sinopse_en→pt. */
+function buildSynopsisLocalized(
+  sinopse: string | null,
+  sinopse_en?: string | null,
+  sinopse_es?: string | null,
+): LocalizedString {
+  const pt = sinopse ?? "";
+  return { pt, en: sinopse_en ?? pt, es: sinopse_es ?? sinopse_en ?? pt };
+}
+
 function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
   const urlsByFonte = new Map(m.fontes.map((f) => [f.fonte, f.url]));
   const sources: SourceRating[] =
@@ -245,6 +280,7 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     id: m.id,
     slug: fallbackSlug ?? m.slug,
     title: m.titulo,
+    titleLocalized: buildTitleLocalized(m.titulo, m.titulo_en, m.titulo_es, m.titulo_original),
     type: mapTipo(m.tipo),
     preview,
     year: m.ano_lancamento ?? new Date().getFullYear(),
@@ -282,6 +318,7 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     })),
     duration: m.duracao_minutos != null ? `${m.duracao_minutos} min` : undefined,
     synopsis: m.sinopse ?? "",
+    synopsisLocalized: buildSynopsisLocalized(m.sinopse, m.sinopse_en, m.sinopse_es),
     posterUrl: m.imagem_url,
     backdropUrl: null,
     score: m.score
@@ -955,10 +992,8 @@ function mediaFromList(m: ApiMidiaList): Media {
     // T330: slug vem do servidor (canônico); fallback para slugify local (compat).
     slug: m.slug ?? slugify(m.titulo),
     title: m.titulo,
-    // D-248/T: título original (EN) para exibir em en/es via titleForLocale.
-    titleLocalized: m.titulo_original
-      ? { pt: m.titulo, en: m.titulo_original, es: m.titulo_original }
-      : undefined,
+    // T400 (D-369): cadeia canônica — en→titulo_en→titulo_original(≠PT)→titulo.
+    titleLocalized: buildTitleLocalized(m.titulo, m.titulo_en, m.titulo_es, m.titulo_original),
     type: mapTipo(m.tipo),
     preview: isPreviewTipo(mapTipo(m.tipo)),
     year: m.ano_lancamento ?? new Date().getFullYear(),
@@ -1064,6 +1099,8 @@ interface ApiDiscoverItem {
   id: string;
   titulo: string;
   titulo_original?: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
   tipo: string;
   ano: number | null;
   poster_url: string | null;
@@ -1077,11 +1114,8 @@ function mediaFromDiscoverItem(it: ApiDiscoverItem): Media {
     id: it.id,
     slug: it.slug,
     title: it.titulo,
-    // D-248/T: título original (EN do TMDB) exposto para o titleForLocale
-    // exibir em en-US/es-ES (a home mostrava nomes PT em todos os idiomas).
-    titleLocalized: it.titulo_original
-      ? { pt: it.titulo, en: it.titulo_original, es: it.titulo_original }
-      : undefined,
+    // T400 (D-369): cadeia canônica — en→titulo_en→titulo_original(≠PT)→titulo.
+    titleLocalized: buildTitleLocalized(it.titulo, it.titulo_en, it.titulo_es, it.titulo_original),
     type: mapTipo(it.tipo),
     year: it.ano ?? new Date().getFullYear(),
     genres: [],

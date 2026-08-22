@@ -1,9 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
-import { slugify } from "../../common/slugify.js";
+import { slugUnico } from "./slug-service.js";
 import { CreateMediaDto, UpdateMediaDto } from "./dto/media.dto.js";
-import type { ClassificacaoIndicativa, Prisma } from "@prisma/client";
+import type { ClassificacaoIndicativa, Prisma, TipoMidia } from "@prisma/client";
 
 const NR_TO_CLASSIFICACAO: Record<number, ClassificacaoIndicativa> = {
   0: "L",
@@ -17,11 +17,13 @@ const NR_TO_CLASSIFICACAO: Record<number, ClassificacaoIndicativa> = {
 function mapCreateDto(dto: CreateMediaDto) {
   return {
     titulo: dto.titulo,
-    // T330: persiste o slug canônico (indexado) para lookup O(1) no getBySlug.
-    slug: slugify(dto.titulo),
     titulo_original: dto.titulo_original ?? null,
+    titulo_en: dto.titulo_en ?? null,
+    titulo_es: dto.titulo_es ?? null,
     tipo: dto.tipo,
     sinopse: dto.sinopse,
+    sinopse_en: dto.sinopse_en ?? null,
+    sinopse_es: dto.sinopse_es ?? null,
     ano_lancamento: dto.ano_lancamento,
     classificacao_indicativa:
       dto.classificacao_indicativa !== undefined
@@ -36,10 +38,14 @@ function mapCreateDto(dto: CreateMediaDto) {
 
 function mapUpdateDto(dto: UpdateMediaDto) {
   return {
-    ...(dto.titulo !== undefined && { titulo: dto.titulo, slug: slugify(dto.titulo) }),
+    ...(dto.titulo !== undefined && { titulo: dto.titulo }),
     ...(dto.titulo_original !== undefined && { titulo_original: dto.titulo_original }),
+    ...(dto.titulo_en !== undefined && { titulo_en: dto.titulo_en }),
+    ...(dto.titulo_es !== undefined && { titulo_es: dto.titulo_es }),
     ...(dto.tipo !== undefined && { tipo: dto.tipo }),
     ...(dto.sinopse !== undefined && { sinopse: dto.sinopse }),
+    ...(dto.sinopse_en !== undefined && { sinopse_en: dto.sinopse_en }),
+    ...(dto.sinopse_es !== undefined && { sinopse_es: dto.sinopse_es }),
     ...(dto.ano_lancamento !== undefined && { ano_lancamento: dto.ano_lancamento }),
     ...(dto.classificacao_indicativa !== undefined && {
       classificacao_indicativa: NR_TO_CLASSIFICACAO[dto.classificacao_indicativa] ?? null,
@@ -88,7 +94,9 @@ export class MediaService {
   async create(dto: CreateMediaDto) {
     return comContextoRls(this.prisma, { role: "ADMIN" }, async (tx) => {
       await this.verificarUnicidade(tx, dto);
-      return tx.midia.create({ data: mapCreateDto(dto) });
+      // T398: slug único — desambigua colisões entre tipos com sufixo "-{tipo}".
+      const slug = await slugUnico(tx, dto.titulo, dto.tipo);
+      return tx.midia.create({ data: { ...mapCreateDto(dto), slug } });
     });
   }
 
@@ -96,7 +104,7 @@ export class MediaService {
     return comContextoRls(this.prisma, { role: "ADMIN" }, async (tx) => {
       const midia = await tx.midia.findFirst({
         where: { id, deleted_at: null },
-        select: { id: true, fonte: true, fonte_id: true },
+        select: { id: true, fonte: true, fonte_id: true, titulo: true, tipo: true },
       });
       if (!midia) throw new NotFoundException("Mídia não encontrada.");
       if (dto.fonte !== undefined || dto.fonte_id !== undefined) {
@@ -107,7 +115,17 @@ export class MediaService {
           excluirId: id,
         });
       }
-      return tx.midia.update({ where: { id }, data: mapUpdateDto(dto) });
+      // T398: título/tipo mudou → recomputa slug com unicidade (exclui a própria).
+      const tituloNovo = dto.titulo ?? midia.titulo;
+      const tipoNovo = dto.tipo ?? midia.tipo;
+      const slug =
+        dto.titulo !== undefined || dto.tipo !== undefined
+          ? await slugUnico(tx, tituloNovo, tipoNovo as TipoMidia, id)
+          : undefined;
+      return tx.midia.update({
+        where: { id },
+        data: { ...mapUpdateDto(dto), ...(slug ? { slug } : {}) },
+      });
     });
   }
 
