@@ -7,7 +7,7 @@ import { registerAndLogin } from "./helpers/auth";
  * abrir → 'Assistindo' → watchlist; 'Remover' → some.
  */
 test.describe("T400 — menu de status funcional", () => {
-  const email = `status-menu-${Date.now()}@e2e.test`;
+  const email = `status-menu-${Date.now()}@example.com`;
   const password = "Menu@Pass1";
 
   test.beforeEach(async ({ page }) => {
