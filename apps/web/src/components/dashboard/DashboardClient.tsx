@@ -134,6 +134,47 @@ function HBarList({ data, color = "#818CF8" }: { data: Record<string, number>; c
   );
 }
 
+/** T402: card de preview borrado para feature gateada (radar/evolução). */
+function PreviewCard({
+  titulo,
+  selo,
+  hint,
+  cta,
+  onCta,
+}: {
+  titulo: string;
+  selo: string;
+  hint: string;
+  cta: string;
+  onCta: () => void;
+}) {
+  return (
+    <section
+      className="relative rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-sm text-[#9CA3AF]"
+      data-testid="gated-preview"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8]">{titulo}</h2>
+        <span className="rounded-full border border-[#818CF8]/40 px-2 py-0.5 text-[10px] font-semibold uppercase text-[#818CF8]">
+          {selo}
+        </span>
+      </div>
+      <div className="pointer-events-none select-none blur-[6px]" aria-hidden="true">
+        <div className="h-24 rounded-lg bg-gradient-to-br from-[#1C1C2E] to-[#12121C]" />
+        <div className="mt-3 h-2 w-2/3 rounded-full bg-[#1C1C2E]" />
+      </div>
+      <p className="mt-3 mb-3">{hint}</p>
+      <button
+        type="button"
+        onClick={onCta}
+        className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110"
+      >
+        {cta}
+      </button>
+    </section>
+  );
+}
+
 export function DashboardClient() {
   const t = useTranslations("dashboard");
   const router = useRouter();
@@ -193,7 +234,10 @@ export function DashboardClient() {
     );
   }
 
-  // T396 (D-376): radar, evolução, streak e histograma para TODOS os planos.
+  // T402 (D-378): default de gating — radar = Plus/Premium, evolução = Premium;
+  // timeline/histograma/streak = todos (Free incluído).
+  const ehPlus = stats.plano === "PLUS" || stats.plano === "PREMIUM";
+  const ehPremium = stats.plano === "PREMIUM";
   const temDados =
     stats.total > 0 || Object.keys(stats.tipos).length > 0 || Object.keys(stats.generos).length > 0;
   if (!temDados) {
@@ -235,24 +279,34 @@ export function DashboardClient() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("radar")}
-          </h2>
-          <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
-          <table className="sr-only">
-            <caption>{t("radarTable")}</caption>
-            <tbody>
-              {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
-                <tr key={k}>
-                  <th scope="row">{k}</th>
-                  <td>{v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-        {stats.evolucao ? (
+        {ehPlus ? (
+          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
+              {t("radar")}
+            </h2>
+            <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
+            <table className="sr-only">
+              <caption>{t("radarTable")}</caption>
+              <tbody>
+                {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
+                  <tr key={k}>
+                    <th scope="row">{k}</th>
+                    <td>{v}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : (
+          <PreviewCard
+            titulo={t("radar")}
+            selo="Plus"
+            hint={t("upgradeHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
+        )}
+        {ehPremium && stats.evolucao ? (
           <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
               {t("evolution")}
@@ -271,9 +325,13 @@ export function DashboardClient() {
             </table>
           </section>
         ) : (
-          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-[#9CA3AF] text-sm">
-            {t("premiumHint")}
-          </section>
+          <PreviewCard
+            titulo={t("evolution")}
+            selo="Premium"
+            hint={t("premiumHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
         )}
       </div>
 

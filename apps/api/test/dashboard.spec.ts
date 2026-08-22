@@ -11,20 +11,21 @@ function mockPrisma(interacoes: any[]) {
   };
 }
 
-describe("DashboardService (T295/T396)", () => {
-  it("FREE → módulos base + timeline/histograma/streak (T396: todos os planos)", async () => {
+describe("DashboardService (T295/T396/T402)", () => {
+  it("FREE → base real (total/histograma/streak) SEM dados de radar/evolução (T402)", async () => {
     const svc = new DashboardService(mockPrisma([]) as any);
     const r = await svc.stats("u1", "FREE");
     expect(r.upgrade).toBe(false);
     expect(r.plano).toBe("FREE");
     expect(r.total).toBe(0);
     expect(r.tipos).toEqual({});
-    expect(r.evolucao).toHaveLength(12);
+    expect(r.generos).toEqual({});
+    expect(r.evolucao).toBeNull();
     expect(r.histograma).toHaveLength(5);
     expect(r.streak).toBe(0);
   });
 
-  it("PLUS → radar + timeline + histograma de scores", async () => {
+  it("PLUS → radar (tipos/gêneros) + histograma, SEM evolução temporal", async () => {
     const interacoes = [
       {
         status: "CONCLUIDO",
@@ -42,7 +43,7 @@ describe("DashboardService (T295/T396)", () => {
     expect(r.upgrade).toBe(false);
     expect(r.tipos).toEqual({ FILME: 1, SERIE: 1 });
     expect(r.generos).toEqual({ Ficção: 1, Drama: 1 });
-    expect(r.evolucao).toHaveLength(12);
+    expect(r.evolucao).toBeNull();
     // 75 → faixa 6-8 (idx 3); 55 → faixa 4-6 (idx 2).
     expect(r.histograma[3]?.total).toBe(1);
     expect(r.histograma[2]?.total).toBe(1);

@@ -94,13 +94,19 @@ export class DashboardService {
         streak += 1;
       }
 
+      // T402 (D-378): gating real (não cosmético). Radar (tipos/gêneros) =
+      // Plus/Premium; evolução temporal = Premium; timeline/histograma/streak
+      // = todos. Free NÃO recebe os dados do radar/evolução na resposta.
+      const ehPlus = planoEfetivo === "PLUS" || planoEfetivo === "PREMIUM";
+      const ehPremium = planoEfetivo === "PREMIUM";
+
       return {
         plano: planoEfetivo,
         upgrade: false,
         total: interacoes.length,
-        tipos,
-        generos,
-        evolucao,
+        tipos: ehPlus ? tipos : {},
+        generos: ehPlus ? generos : {},
+        evolucao: ehPremium ? evolucao : null,
         streak,
         histograma,
       };

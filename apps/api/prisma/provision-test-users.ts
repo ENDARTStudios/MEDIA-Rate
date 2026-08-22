@@ -70,8 +70,9 @@ async function main(): Promise<void> {
       },
     });
 
-    // Interacoes para o radar renderizar (Plus/Premium). Free mostra upgrade.
-    if (u.plano !== "FREE" && midiasComGenero.length > 0) {
+    // T402: TODOS os planos recebem interações (Free inclusive) para o
+    // dashboard renderizar os cards — Free vê preview gated; Plus/Premium real.
+    if (midiasComGenero.length > 0) {
       const alvos = midiasComGenero.slice(0, u.plano === "PREMIUM" ? 4 : 2);
       for (let i = 0; i < alvos.length; i++) {
         const concluido = u.plano === "PREMIUM" && i < 2;
