@@ -85,7 +85,7 @@ function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-lg border bg-[#12121C] p-3 min-h-[220px] transition-colors ${isOver ? "border-[#818CF8]" : "border-[#2A2A3D]"}`}
+      className={`flex min-w-[280px] flex-shrink-0 snap-start flex-col rounded-lg border bg-[#12121C] p-3 min-h-[220px] transition-colors md:min-w-0 md:flex-1 ${isOver ? "border-[#818CF8]" : "border-[#2A2A3D]"}`}
       data-testid={`watchlist-column-${col.key}`}
     >
       <div className="flex items-center justify-between mb-3">
@@ -207,7 +207,9 @@ export function WatchlistKanban({
 
       {view === "ativos" ? (
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* T395: kanban horizontal compacto — colunas lado a lado com scroll
+              horizontal (snap) no mobile; no desktop expandem igualmente. */}
+          <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory">
             {COLUMNS.map((col) => (
               <Column
                 key={col.key}
