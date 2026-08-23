@@ -115,7 +115,7 @@ export function MediaCardShell({
           {media.imagem_url ? (
             <Image
               src={srcNormalizado}
-              alt={`Capa de ${media.titulo}`}
+              alt={`Capa de ${tituloLocal}`}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               width={300}
               height={450}

@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
-import { ScoreShowcase, type ShowcaseItem } from "@/components/landing/ScoreShowcase";
 import { CategoryIconRow } from "@/components/landing/CategoryIconRow";
-import type { MediaType } from "@/lib/types";
 
 interface HeroSectionProps {
   eyebrow: string;
@@ -16,7 +13,6 @@ interface HeroSectionProps {
   ctaSecondary: string;
   ctaSecondaryHref: string;
   ctaTrust: string;
-  showcaseItems: ShowcaseItem[];
 }
 
 const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", "OpenCritic"];
@@ -37,10 +33,9 @@ const item = {
 };
 
 /**
- * T358 (D-333) — Hero reformulada: mostra o produto em ação.
- * ESQUERDA = eyebrow + H1 emocional + sub concreto + 2 CTAs + strip de fontes.
- * DIREITA = ScoreShowcase (deck vivo de mídias reais com o anel do score).
- * Sem ícones genéricos e sem nomes flutuantes (removidos).
+ * T415 (D-390, ordem direta do Operador) — ScoreShowcase (card rotativo)
+ * REMOVIDO. Hero = H1 + sub + CTAs + fontes + faixa de tiles que NAVEGAM
+ * para /catalog?type=X. Sem estado, sem deck rotativo.
  */
 export function HeroSection({
   eyebrow,
@@ -51,14 +46,8 @@ export function HeroSection({
   ctaSecondary,
   ctaSecondaryHref,
   ctaTrust,
-  showcaseItems,
 }: HeroSectionProps) {
   const shouldReduce = useReducedMotion();
-  // T394: tile ativo troca o showcase para o top-1 da categoria.
-  const [activeType, setActiveType] = useState<MediaType | null>(null);
-  const showcaseFiltrado = activeType
-    ? showcaseItems.filter((i) => i.type === activeType)
-    : showcaseItems;
 
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
@@ -69,9 +58,9 @@ export function HeroSection({
         <div className="absolute bottom-0 right-1/4 h-[360px] w-[360px] rounded-full bg-[#818CF8] opacity-[0.04] blur-[110px]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
         <motion.div
-          className="max-w-xl"
+          className="flex flex-col items-center"
           variants={container}
           initial={shouldReduce ? "visible" : "hidden"}
           animate="visible"
@@ -93,7 +82,7 @@ export function HeroSection({
 
           <motion.p
             variants={item}
-            className="mt-6 text-base leading-relaxed text-[#A0A0B8] sm:text-lg"
+            className="mt-6 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg"
           >
             {subtitle}
           </motion.p>
@@ -144,7 +133,7 @@ export function HeroSection({
 
           <motion.div
             variants={item}
-            className="mt-8 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]"
+            className="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]"
           >
             {SOURCES_STRIP.map((s) => (
               <span key={s} className="flex items-center gap-2.5">
@@ -154,21 +143,10 @@ export function HeroSection({
             ))}
           </motion.div>
 
-          {/* T394: 6 ícones protagonistas que trocam o showcase. */}
-          <motion.div variants={item}>
-            <CategoryIconRow activeType={activeType} onSelect={setActiveType} />
+          {/* T415: tiles navegam para a categoria. */}
+          <motion.div variants={item} className="w-full">
+            <CategoryIconRow />
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="flex justify-center lg:justify-end"
-          // T405: o showcase contém o LCP (pôster) — sem fade/delay de entrada
-          // para o pôster pintar imediatamente (antes: opacity 0 + delay 0.25s).
-          initial={shouldReduce ? { opacity: 1 } : { opacity: 1 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <ScoreShowcase key={activeType ?? "all"} items={showcaseFiltrado} />
         </motion.div>
       </div>
     </section>

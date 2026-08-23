@@ -14,14 +14,10 @@ import {
   OG_IMAGE_PADRAO,
   siteUrl,
 } from "@/lib/seo";
-import { getCatalog, getMediaBySlug } from "@/lib/api";
-import { normalizeDisplayScore } from "@/lib/score-utils";
-import { titleForLocale } from "@/lib/i18n-content";
+import { getCatalog } from "@/lib/api";
 import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
 import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
-import type { ShowcaseItem } from "@/components/landing/ScoreShowcase";
-import type { MediaType } from "@/lib/types";
 
 // T405 (D-380): MediaCarousel agora é SERVER COMPONENT (import estático) —
 // os 60 cards saem como HTML puro no SSR, sem hidratação do shell.
@@ -63,20 +59,6 @@ export async function generateMetadata({
     },
   };
 }
-
-// T394: showcase da Hero cobre os 6 tipos (só game usa 0-100).
-const SHOWCASE_ORDER: {
-  api: "movie" | "series" | "game" | "book" | "comic" | "manga";
-  key: "filme" | "serie" | "game" | "livro" | "comic" | "manga";
-  scale: "0-10" | "0-100";
-}[] = [
-  { api: "movie", key: "filme", scale: "0-10" },
-  { api: "series", key: "serie", scale: "0-10" },
-  { api: "game", key: "game", scale: "0-100" },
-  { api: "book", key: "livro", scale: "0-10" },
-  { api: "comic", key: "comic", scale: "0-10" },
-  { api: "manga", key: "manga", scale: "0-10" },
-];
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -125,31 +107,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     manga: carouselManga,
   } as const;
 
-  // T358: showcase da Hero — top-1 de cada categoria + detalhe (crítica/público/
-  // fontes). Busca no server (ISR) para LCP seguro com a 1ª imagem priority.
-  const tops = await Promise.all(
-    SHOWCASE_ORDER.map((s) => getCatalog({ type: s.api, sort: "score", order: "desc", limit: 1 })),
-  );
-  const details = await Promise.all(
-    tops.map((c) => (c.items[0]?.slug ? getMediaBySlug(c.items[0].slug) : Promise.resolve(null))),
-  );
-  const showcaseItems: ShowcaseItem[] = [];
-  details.forEach((d, i) => {
-    if (!d?.score) return;
-    const order = SHOWCASE_ORDER[i];
-    showcaseItems.push({
-      title: titleForLocale(d, locale),
-      posterUrl: d.posterUrl,
-      type: d.type as MediaType,
-      score: normalizeDisplayScore(d.score.consolidated, order.api),
-      scale: order.scale,
-      critics: d.score.criticsScore ?? null,
-      audience: d.score.audienceScore ?? null,
-      sources: (d.score.sources ?? []).map((s) => s.source),
-      typeLabel: tCatalog(order.key),
-    });
-  });
-
   return (
     <LayeredBackground>
       <StructuredData data={[websiteJsonLd, orgJsonLd]} />
@@ -162,7 +119,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         ctaSecondary={t("ctaSecondary")}
         ctaSecondaryHref="/catalog"
         ctaTrust={t("ctaTrust")}
-        showcaseItems={showcaseItems}
       />
 
       <HomeStats />
