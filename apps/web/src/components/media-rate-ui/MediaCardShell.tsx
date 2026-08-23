@@ -17,8 +17,7 @@ import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { isPreviewTipo } from "@/lib/api";
 import { StaticScoreDial } from "./StaticScoreDial";
-import { WatchlistButton } from "@/components/WatchlistButton";
-import { StatusReactionControl } from "@/components/interaction/StatusReactionControl";
+import { CardIslands } from "./CardIslands";
 import type { MediaItem } from "@/components/MediaCard";
 import type { MediaType } from "@/lib/types";
 
@@ -91,12 +90,7 @@ export function MediaCardShell({
 
   return (
     <div className="relative group cursor-pointer rounded-md transition-transform duration-150 active:scale-[0.97]">
-      <div className="absolute top-2 left-2 z-20">
-        <WatchlistButton mediaId={media.id} />
-      </div>
-      <div className="absolute bottom-2 right-2 z-20">
-        <StatusReactionControl midiaId={media.id} mediaType={mediaType} compact />
-      </div>
+      <CardIslands mediaId={media.id} mediaType={mediaType} />
 
       <Link
         href={`/media/${media.slug ?? media.id}`}
