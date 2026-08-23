@@ -72,6 +72,15 @@ export class RecommendationsService {
       }
       const idsDaLista = watchlist.map((w) => w.midia_id);
 
+      // T417 (achado g): exclui TODA mídia já interagida (status/rating) —
+      // Descobertas deve sugerir o NOVO, não repetir o já visto.
+      const interacoes = await tx.usuarioMidiaInteracao.findMany({
+        where: { usuario_id: usuarioId },
+        select: { midia_id: true },
+      });
+      const idsInteragidos = interacoes.map((i) => i.midia_id);
+      const idsExcluir = [...new Set([...idsDaLista, ...idsInteragidos])];
+
       const minhasMidias = await tx.midia.findMany({
         where: { id: { in: idsDaLista }, deleted_at: null },
         select: {
@@ -100,7 +109,7 @@ export class RecommendationsService {
       const rows = await tx.midia.findMany({
         where: {
           OR: condicoes,
-          NOT: { id: { in: idsDaLista } },
+          NOT: { id: { in: idsExcluir } },
           deleted_at: null,
           ...(media > 0 ? { score: { gte: media } } : {}),
         },
@@ -150,6 +159,12 @@ export class RecommendationsService {
         select: { midia_id: true },
       });
       const idsWatch = watchlist.map((w) => w.midia_id);
+      // T417 (achado g): exclui também toda mídia já interagida (status/rating).
+      const interacoes = await tx.usuarioMidiaInteracao.findMany({
+        where: { usuario_id: usuarioId },
+        select: { midia_id: true },
+      });
+      const idsInteragidos = new Set(interacoes.map((i) => i.midia_id));
       if (idsWatch.length === 0) {
         return {
           recomendacoes: [],
@@ -190,7 +205,7 @@ export class RecommendationsService {
       const rank = new Map<string, { motivo: string; score: number }>();
       for (const m of minhas) {
         for (const rel of relacionadasDe(toFonte(m), candidatos)) {
-          if (idsWatch.includes(rel.id)) continue;
+          if (idsWatch.includes(rel.id) || idsInteragidos.has(rel.id)) continue;
           const atual = rank.get(rel.id);
           if (!atual || rel.score > atual.score)
             rank.set(rel.id, { motivo: rel.motivo, score: rel.score });

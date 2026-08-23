@@ -57,7 +57,7 @@ interface Entry {
   midia_id: string;
 }
 
-function makePrisma(entries: Entry[]) {
+function makePrisma(entries: Entry[], interacoes: Entry[] = []) {
   const watchlistEntry = {
     findMany: vi.fn(async (args: any) => {
       const where = args.where ?? {};
@@ -97,7 +97,24 @@ function makePrisma(entries: Entry[]) {
       return items.slice(0, args.take ?? 20).map((m) => ({ ...m, generos: [...m.generos] }));
     }),
   };
-  return { prisma: { watchlistEntry, midia }, watchlistEntry, midia };
+  // T417: interações (status/rating) — default vazio; testes de exclusão
+  // podem injetar entradas.
+  const usuarioMidiaInteracao = {
+    findMany: vi.fn(async (args: any) => {
+      const where = args.where ?? {};
+      let out = interacoes;
+      if (where.usuario_id && typeof where.usuario_id === "string") {
+        out = out.filter((e) => e.usuario_id === where.usuario_id);
+      }
+      return out.map((e) => ({ ...e }));
+    }),
+  };
+  return {
+    prisma: { watchlistEntry, midia, usuarioMidiaInteracao },
+    watchlistEntry,
+    midia,
+    usuarioMidiaInteracao,
+  };
 }
 
 describe("RecommendationsService (T209)", () => {
@@ -144,6 +161,21 @@ describe("RecommendationsService (T209)", () => {
     expect(r.recomendacoes[0].id).toBe("m1");
     expect(r.recomendacoes.some((x) => x.id === "m2")).toBe(false);
     expect(r.recomendacoes.some((x) => x.id === "m3")).toBe(false);
+  });
+
+  it("T417 — exclui mídia já interagida (status/rating) fora da watchlist", async () => {
+    // watchlist: m2; interação (ex.: concluído): m1 → m1 não pode aparecer.
+    const ctx = makePrisma(
+      [{ usuario_id: "u1", midia_id: "m2" }],
+      [{ usuario_id: "u1", midia_id: "m1" }],
+    );
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
+    }).compile();
+    const svc = module.get<RecommendationsService>(RecommendationsService);
+
+    const r = await svc.recomendarPorGenero("u1", {});
+    expect(r.recomendacoes.some((x) => x.id === "m1")).toBe(false);
   });
 
   it("PLUS — watchlist vazia retorna mensagem amigável (200, lista vazia)", async () => {

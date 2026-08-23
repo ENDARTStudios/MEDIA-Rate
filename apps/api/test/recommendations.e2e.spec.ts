@@ -111,6 +111,8 @@ function mockPrisma() {
       },
     },
     usuarioPlano: { findUnique: async ({ where }: any) => PLANOS.get(where.usuario_id) ?? null },
+    // T417: interações (status/rating) — default vazio no e2e.
+    usuarioMidiaInteracao: { findMany: async () => [] },
   };
 }
 
