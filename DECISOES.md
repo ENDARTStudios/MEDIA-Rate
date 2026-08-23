@@ -1035,3 +1035,35 @@ e violava a proteção LatAm (latino em en-US pagaria USD). Nova regra (country-
   - demais (US, CA, UK, resto) → USD (qualquer idioma);
   - fallback sem geo: en-US→USD; pt-BR/es-ES→BRL (default seguro).
 Idioma só traduz texto; o país decide a moeda. Veto do Operador = palavra "idioma" (silêncio = por país).
+---
+
+## D-402 — PROPOSTA FINAL CALIBRADA (T405, aguardando aprovação do Thinker)
+
+**Status:** PROPOSTA do Doer (fechamento por residual documentado, não por meta).
+
+**Mitigações aplicadas (evidência commitada):**
+- Lote (a): event delegation no carrossel (120 ilhas → 6; shell estático `data-*` +
+  1 ilha `CarouselInteractions`). Prova de bundle: motion/zustand/WatchlistButton/
+  StatusReactionControl/CardIslands/LazyMount fora do manifest da home.
+- Lote (b): ContinueDecision + BecauseYouConsumed viram SERVER (cookie `sess`,
+  null p/ anônimo); MotionFooter vira footer server estático (sem motion).
+- Guards e2e 8/8 verdes em produção (incl. home-ilha 3/3 e cross-prompt 1/1,
+  este idempotente); unit 318/318; build 98/98.
+
+**Resultado medido (Lighthouse, home, `mediarate.app`):**
+- perf 46 → 63; FCP 2735 → 1252 ms; `unused-javascript` 129 → 52 KiB;
+  bootup 2533 → 2320 ms; main-thread ~4,5 s (estável); TBT ~441 ms.
+
+**Meta NÃO atingida:** perf 63 (meta ≥75), TTI ~11 s (meta <5 s), main-thread
+~4,5 s (meta <4 s).
+
+**Residual documentado (causa fora do escopo JS):** o LCP (~10 s) é o H1 do hero
+(TEXTO, server-renderizado); FCP pinta em 1,25 s mas o LCP só em ~10 s — lacuna
+de ~8,8 s sem correlação com TBT (441 ms), main-thread (4,5 s) ou imagem (hero
+não tem pôster). Hipótese: swap de fonte (`font-heading`/Space_Grotesk) re-pinta
+o H1 tarde, ou quirk de medição do Lighthouse. **Candidato F16:** investigação
+dedicada de render/font (não mais cirurgia de JS) — o organismo não faz métrica
+de vaidade nem truque de medição.
+
+**Regras mantidas:** sem afrouxar asserção; guards verdes; push batched; credenciais
+env-only e artefatos limpos.
