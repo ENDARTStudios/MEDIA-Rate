@@ -190,7 +190,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <HomeContentSections />
+      <HomeContentSections locale={locale} />
     </LayeredBackground>
   );
 }

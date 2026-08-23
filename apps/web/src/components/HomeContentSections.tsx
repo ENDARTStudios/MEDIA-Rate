@@ -1,12 +1,11 @@
-"use client";
-
-import { useTranslations, useLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/navigation";
 import { formatPlanPrice } from "@/lib/pricing";
 
-export function HomeContentSections() {
-  const t = useTranslations("homeContent");
-  const locale = useLocale();
+// T405 (home server-first): conteúdo estático — vira server component
+// (sem hidratação). Antes era "use client" só por useTranslations/useLocale.
+export async function HomeContentSections({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "homeContent" });
 
   const plusPrice = formatPlanPrice(4.9, locale);
   const premiumPrice = formatPlanPrice(9.9, locale);
