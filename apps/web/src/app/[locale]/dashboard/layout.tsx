@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { PlanThemeProvider } from "@/components/layout/PlanThemeProvider";
 
+// T412 (D-390): rotas autenticadas NUNCA em cache ISR/CDN — evita HTML de um
+// usuário servido a outro e dados stale (achado f do Operador).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function generateMetadata({
   params,
 }: {

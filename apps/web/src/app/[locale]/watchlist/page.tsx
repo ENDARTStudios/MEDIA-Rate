@@ -1,6 +1,10 @@
 import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ProtectedPage } from "@/components/ProtectedPage";
+
+// T412 (D-390): página autenticada — nunca em cache ISR/CDN.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { WatchlistClient } from "@/components/WatchlistClient";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 

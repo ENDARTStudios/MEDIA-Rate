@@ -1015,3 +1015,15 @@ Itens binarios ([x]/[ ]) para fechar o Lote A em STATUS unico e revisavel:
 - interacoes.service.upsert: watchlistEntry.updateMany -> upsert (cria a projecao se nao existir) — corrige o menu '+' que persistia a interacao mas nao alimentava o Kanban.
 - Remover da lista = delete watchlist_entry + status da interacao NULL (historico/avaliacoes preservados).
 - NAO dropar watchlist_entry (destrutivo -> Operador, 8). Estado-alvo (kanban lendo direto de interacoes, aposentando a projecao) fica como candidato futuro T4xx, NAO implementado agora.
+
+## D-389 — Pricing regional (decisão do Operador, registro no ato)
+Regra exata: /pt-BR → Plus R$ 4,90/mês, Premium R$ 9,90/mês; /en-US → $ 4.90 / $ 9.90;
+/es-ES (Europa) → € 4,90 / € 9,90; /es-ES (América Latina) → R$ 4,90 / R$ 9,90.
+Nenhum valor é convertido (preço fixo por região). América Latina NUNCA paga em USD/EUR.
+Moeda derivada de locale+região (geo por header Vercel com fallback timezone; es-ES sem sinal de Europa = BRL).
+Implementação: T418. A decisão já existia e não estava registrada — falha do organismo.
+
+## D-390 — Regras de processo (pós-crítica do Operador)
+1) TODA decisão/diretiva do Operador é registrada em DECISOES.md NO ATO, antes de qualquer próxima pergunta.
+2) Auto-auditoria obrigatória: antes de pedir verificação ao Operador, o Doer roda crawler nas URLs afetadas + e2e com contas de teste e anexa o resultado. Checklists ao Operador só para decisões de negócio, nunca para verificação técnica.
+3) Nenhum link vai para o Operador sem o Doer ter aberto a própria URL e confirmado 200 + conteúdo correto.
