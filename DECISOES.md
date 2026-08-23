@@ -1027,3 +1027,11 @@ Implementação: T418. A decisão já existia e não estava registrada — falha
 1) TODA decisão/diretiva do Operador é registrada em DECISOES.md NO ATO, antes de qualquer próxima pergunta.
 2) Auto-auditoria obrigatória: antes de pedir verificação ao Operador, o Doer roda crawler nas URLs afetadas + e2e com contas de teste e anexa o resultado. Checklists ao Operador só para decisões de negócio, nunca para verificação técnica.
 3) Nenhum link vai para o Operador sem o Doer ter aberto a própria URL e confirmado 200 + conteúdo correto.
+## D-395 — Moeda por PAÍS, não por idioma (refina D-389)
+Operador identificou arbitrage: locale-first (pt-BR→BRL) fazia americano em pt-BR pagar R$ 4,90 (~US$ 0,90)
+e violava a proteção LatAm (latino em en-US pagaria USD). Nova regra (country-first), valores fixos mantidos:
+  - BR + América Latina (AR..VE) → BRL (qualquer idioma);
+  - Europa (UE/EFTA, UK FORA → USD) → EUR (qualquer idioma);
+  - demais (US, CA, UK, resto) → USD (qualquer idioma);
+  - fallback sem geo: en-US→USD; pt-BR/es-ES→BRL (default seguro).
+Idioma só traduz texto; o país decide a moeda. Veto do Operador = palavra "idioma" (silêncio = por país).
