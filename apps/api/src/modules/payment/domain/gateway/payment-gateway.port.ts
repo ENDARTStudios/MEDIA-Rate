@@ -23,6 +23,8 @@ export interface CheckoutSession {
  */
 export interface CreateCheckoutInput {
   plano: "PLUS" | "PREMIUM";
+  /** Moeda da região (T419/D-389): BRL | USD | EUR — decidida no server. */
+  currency: "BRL" | "USD" | "EUR";
   customer_email: string;
   /** URL de sucesso após checkout. */
   success_url: string;

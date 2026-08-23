@@ -4,6 +4,7 @@ import { FastifyRequest } from "fastify";
 
 import { PaymentService } from "./payment.service.js";
 import { CreateCheckoutDto } from "./dto/payment.dto.js";
+import { currencyForRegion } from "./currency-region.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import { Idempotent } from "../../common/decorators/idempotent.decorator.js";
 import { AuthenticatedUser } from "../../common/guards/auth.guard.js";
@@ -38,11 +39,22 @@ export class PaymentController {
     url: string;
     plano: string;
   }> {
-    const dto = body as { plano: "PLUS" | "PREMIUM"; success_url: string; cancel_url: string };
+    const dto = body as {
+      plano: "PLUS" | "PREMIUM";
+      success_url: string;
+      cancel_url: string;
+      currency?: "BRL" | "USD" | "EUR";
+    };
     const user = req.user;
     if (!user) {
       throw new Error("Usuário não autenticado.");
     }
+    // T419 (D-389): moeda derivada no server — geo da Vercel + locale do
+    // cliente (header). Nunca aceita moeda arbitrária do body.
+    const country = (req.headers["x-vercel-ip-country"] as string | undefined) ?? null;
+    const locale = (req.headers["x-locale"] as string | undefined) ?? "pt-BR";
+    dto.currency = currencyForRegion(locale, country);
+
     // Busca email do usuário no banco.
     const session = await this.paymentService.createCheckout(dto, {
       id: user.id,

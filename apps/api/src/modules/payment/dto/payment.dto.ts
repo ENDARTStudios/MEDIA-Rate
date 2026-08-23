@@ -7,6 +7,9 @@ export const CreateCheckoutDto = z.object({
   plano: z.enum(["PLUS", "PREMIUM"]),
   success_url: z.string().url().max(2048),
   cancel_url: z.string().url().max(2048),
+  // T419: moeda derivada no server (nunca do cliente); aceita apenas se o
+  // controller optar por repassá-la — default BRL protege LatAm.
+  currency: z.enum(["BRL", "USD", "EUR"]).optional(),
 });
 
 export type CreateCheckoutDtoType = z.infer<typeof CreateCheckoutDto>;

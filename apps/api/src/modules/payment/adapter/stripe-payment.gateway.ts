@@ -32,13 +32,17 @@ export class StripePaymentGateway implements IPaymentGateway {
   }
 
   async createCheckoutSession(input: CreateCheckoutInput): Promise<CheckoutSession> {
-    const priceId =
+    // T419 (D-389): price por plano+moeda (STRIPE_PRICE_PLUS_BRL, ..._USD,
+    // ..._EUR). Fallback para o price único legado (STRIPE_PRICE_PLUS_ID).
+    const pricePorMoeda = process.env[`STRIPE_PRICE_${input.plano}_${input.currency}`];
+    const priceLegado =
       input.plano === "PLUS"
         ? (process.env.STRIPE_PRICE_PLUS_ID ?? "")
         : (process.env.STRIPE_PRICE_PREMIUM_ID ?? "");
+    const priceId = pricePorMoeda ?? priceLegado;
 
     if (!priceId) {
-      throw new Error(`STRIPE_PRICE_${input.plano}_ID não configurado.`);
+      throw new Error(`STRIPE_PRICE_${input.plano}_${input.currency} não configurado.`);
     }
 
     // Métodos de pagamento via env (ex.: "card,pix" quando o Pix estiver
