@@ -69,7 +69,7 @@ function MediaUnlockRow({ planId }: { planId: string }) {
   );
 }
 
-export function PricingCards() {
+export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
   const t = useTranslations("pricing");
   const locale = useLocale();
   const { isAuthenticated } = useAuthStore();
@@ -158,8 +158,8 @@ export function PricingCards() {
                       className="text-4xl font-heading font-bold text-[#F5F5F7] tabular-nums"
                     >
                       {billing === "annual" && plan.price > 0
-                        ? formatPlanPrice(annualTotal, locale)
-                        : formatPlanPrice(price, locale)}
+                        ? formatPlanPrice(annualTotal, locale, currencySymbol)
+                        : formatPlanPrice(price, locale, currencySymbol)}
                     </motion.span>
                   </AnimatePresence>
                   <span className="text-sm text-[#A0A0B8]">
@@ -171,7 +171,7 @@ export function PricingCards() {
                     ? t("noCard")
                     : billing === "annual"
                       ? t("savePercent", { pct: 15 })
-                      : `${formatPlanPrice(plan.price * 12 * ANNUAL_DISCOUNT, locale)}/${t("year")} (${t("savePercent", { pct: 15 })})`}
+                      : `${formatPlanPrice(plan.price * 12 * ANNUAL_DISCOUNT, locale, currencySymbol)}/${t("year")} (${t("savePercent", { pct: 15 })})`}
                 </p>
               </div>
 

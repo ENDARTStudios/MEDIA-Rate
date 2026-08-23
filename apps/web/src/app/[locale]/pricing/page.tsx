@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { PricingCards } from "../../../components/PricingCards";
 import { PricingTable } from "../../../components/PricingTable";
@@ -6,6 +7,7 @@ import { PricingFAQ } from "../../../components/PricingFAQ";
 import { MediaUnlockGrid } from "../../../components/pricing/MediaUnlockGrid";
 import { localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "../../../lib/seo";
 import { serializeJsonLd } from "../../../lib/json-ld";
+import { currencyForRegion, symbolForCurrency } from "../../../lib/currency-for-region";
 
 export async function generateMetadata({
   params,
@@ -36,6 +38,12 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("pricing");
+
+  // T418 (D-389): moeda por locale+região — geo via header da Vercel
+  // (x-vercel-ip-country); es-ES sem sinal de Europa cai em BRL (protege LatAm).
+  const h = await headers();
+  const country = h.get("x-vercel-ip-country");
+  const currencySymbol = symbolForCurrency(currencyForRegion(locale, country));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -101,7 +109,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
           <p className="text-lg text-[#9CA3AF] max-w-2xl mx-auto">{t("subheadline")}</p>
         </div>
 
-        <PricingCards />
+        <PricingCards currencySymbol={currencySymbol} />
         <PricingTable />
         <MediaUnlockGrid />
         <PricingFAQ />

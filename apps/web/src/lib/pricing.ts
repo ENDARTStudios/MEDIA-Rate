@@ -60,9 +60,10 @@ export function symbolForLocale(locale: string): string {
   return PLANS.find((p) => p.price > 0)?.currency[locale] ?? "R$";
 }
 
-/** Formata um valor com o símbolo do locale e separador decimal local. */
-export function formatPlanPrice(price: number, locale: string): string {
-  const symbol = symbolForLocale(locale);
+/** Formata um valor com o símbolo do locale (ou símbolo explícito,
+ *  T418) e separador decimal local. */
+export function formatPlanPrice(price: number, locale: string, symbolOverride?: string): string {
+  const symbol = symbolOverride ?? symbolForLocale(locale);
   const decimal = locale === "en-US" ? "." : ",";
   const valor = price === 0 ? "0" : price.toFixed(2).replace(".", decimal);
   return `${symbol} ${valor}`;
