@@ -1,5 +1,11 @@
-/** seed-titulo-en-mapa.ts (T393) — preenche titulo_original de livros usando
- *  o mapa PT→EN (D-351, já autorizado). Idempotente (só campo vazio). */
+/** seed-titulo-en-mapa.ts (T393 + T411) — corrige titulo_en E titulo_original
+ *  de livros usando o mapa PT→EN (D-351/D-369).
+ *
+ *  T411 (D-387): o seed-localizacao.ts (Google Books) deixou titulo_en LIXO
+ *  (ex.: "Pai Rico, Pai Pobre - Edição de 20 anos...", "Sumário de Sapiens...",
+ *  "Garota exemplar" minúsculo). Como a cadeia D-369 prioriza titulo_en sobre
+ *  titulo_original, o EN ficava errado. Agora SOBRESCREVE ambos com o valor
+ *  curado do mapa (idempotente: re-rodar não altera). */
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -55,19 +61,37 @@ const MAPA: Record<string, string> = {
 
 async function main() {
   const livros = await prisma.midia.findMany({
-    where: { tipo: "LIVRO", titulo_original: null, deleted_at: null },
-    select: { id: true, titulo: true },
+    where: { tipo: "LIVRO", deleted_at: null },
+    select: { id: true, titulo: true, titulo_en: true, titulo_original: true },
   });
 
-  let ok = 0;
+  let corrigidosEn = 0;
+  let corrigidosOriginal = 0;
+  let jaCorretos = 0;
   for (const l of livros) {
     const en = MAPA[l.titulo];
-    if (en) {
-      await prisma.midia.update({ where: { id: l.id }, data: { titulo_original: en } });
-      ok++;
+    if (!en) continue;
+    const data: { titulo_en?: string; titulo_original?: string } = {};
+    if (l.titulo_en !== en) {
+      data.titulo_en = en;
+      corrigidosEn++;
     }
+    if (l.titulo_original !== en) {
+      data.titulo_original = en;
+      corrigidosOriginal++;
+    }
+    if (Object.keys(data).length === 0) {
+      jaCorretos++;
+      continue;
+    }
+    await prisma.midia.update({ where: { id: l.id }, data });
   }
-  console.log(`[titulo-en-mapa] alvos=${livros.length} preenchidos=${ok}`);
+
+  const semMapa = livros.filter((l) => !MAPA[l.titulo]).map((l) => l.titulo);
+  console.log(
+    `[titulo-en-mapa] total=${livros.length} corrigidosEn=${corrigidosEn} corrigidosOriginal=${corrigidosOriginal} jaCorretos=${jaCorretos} semMapa=${semMapa.length}`,
+  );
+  if (semMapa.length) console.log(`  sem mapa: ${semMapa.join(" | ")}`);
   await prisma.$disconnect();
 }
 
