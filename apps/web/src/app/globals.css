@@ -337,3 +337,17 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* T405/D-399 U2 — coração estático do carrossel: o shell renderiza o ícone
+   outline; a ilha CarouselInteractions marca data-in-watchlist="true" e o CSS
+   preenche (sem re-render React, sem zustand/motion). */
+[data-card-action="watchlist"][data-in-watchlist="true"] {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+[data-card-action="watchlist"][data-in-watchlist="true"]:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+}
+[data-card-action="watchlist"][data-in-watchlist="true"] svg {
+  fill: currentColor;
+}

@@ -79,11 +79,16 @@ export async function fetchInteraction(midiaId: string): Promise<BridgeInteracti
 export async function setStatus(
   midiaId: string,
   status: ConsumoStatus,
-  extras?: { reacao?: Reacao | null; motivoAbandono?: MotivoAbandono | null },
+  extras?: {
+    reacao?: Reacao | null;
+    motivoAbandono?: MotivoAbandono | null;
+    origemRelacaoId?: string | null;
+  },
 ): Promise<void> {
   const body: UpsertInteracaoPatch = { status };
   if (extras?.reacao !== undefined) body.reacao = extras.reacao;
   if (status === "ABANDONADO") body.motivoAbandono = extras?.motivoAbandono ?? null;
+  if (extras?.origemRelacaoId !== undefined) body.origemRelacaoId = extras.origemRelacaoId;
   await upsertInteracao(midiaId, body);
 }
 

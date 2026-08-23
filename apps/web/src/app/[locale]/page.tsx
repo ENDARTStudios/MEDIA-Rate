@@ -67,6 +67,8 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const tNav = await getTranslations("nav");
   const th = await getTranslations("home");
   const tCatalog = await getTranslations("catalog");
+  const tWatchlist = await getTranslations("watchlist");
+  const tInteraction = await getTranslations("interaction");
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -135,26 +137,48 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         type="movie"
         initialData={carousels.movie}
         tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
         locale={locale}
       />
       <MediaCarousel
         type="series"
         initialData={carousels.series}
         tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
         locale={locale}
       />
-      <MediaCarousel type="game" initialData={carousels.game} tCatalog={tCatalog} locale={locale} />
-      <MediaCarousel type="book" initialData={carousels.book} tCatalog={tCatalog} locale={locale} />
+      <MediaCarousel
+        type="game"
+        initialData={carousels.game}
+        tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
+        locale={locale}
+      />
+      <MediaCarousel
+        type="book"
+        initialData={carousels.book}
+        tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
+        locale={locale}
+      />
       <MediaCarousel
         type="comic"
         initialData={carousels.comic}
         tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
         locale={locale}
       />
       <MediaCarousel
         type="manga"
         initialData={carousels.manga}
         tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
         locale={locale}
       />
 

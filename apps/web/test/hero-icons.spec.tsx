@@ -1,12 +1,23 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { ReactNode } from "react";
 import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
 import type { CatalogResponse } from "@/lib/types";
+
+// T405/D-399 U2: a ilha CarouselInteractions usa next/navigation + next-intl
+// (indisponíveis em renderToStaticMarkup puro). O teste cobre o SHELL estático
+// dos cards — a ilha vira um passthrough.
+vi.mock("@/components/media-rate-ui/CarouselInteractions", () => ({
+  CarouselInteractions: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
 
 // T383b (D-351): livros/HQs/mangás deixaram de ser "roadmap" (bloqueados) e
 // passam a renderizar cards reais — a home nunca bloqueia tipo com itens.
 // T405 (D-380): MediaCarousel virou SERVER COMPONENT (props-driven, sem hooks
 // de next-intl) — testável via SSR estático, sem providers de query/intl.
+const tWatchlist = (key: string) => key;
+const tInteraction = (key: string) => key;
+
 const tCatalog = (key: string) =>
   (
     ({
@@ -31,7 +42,14 @@ const emptyCatalog: CatalogResponse = {
 describe("MediaCarousel (T383b)", () => {
   function renderCarousel(type: "book" | "comic" | "manga") {
     return renderToStaticMarkup(
-      <MediaCarousel type={type} initialData={emptyCatalog} tCatalog={tCatalog} locale="pt-BR" />,
+      <MediaCarousel
+        type={type}
+        initialData={emptyCatalog}
+        tCatalog={tCatalog}
+        tWatchlist={tWatchlist}
+        tInteraction={tInteraction}
+        locale="pt-BR"
+      />,
     );
   }
 

@@ -17,6 +17,7 @@ import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { MediaCardShell } from "./MediaCardShell";
 import { CarouselControls } from "./CarouselControls";
+import { CarouselInteractions } from "./CarouselInteractions";
 import type { MediaType, CatalogResponse } from "@/lib/types";
 import type { MediaItem } from "@/components/MediaCard";
 
@@ -74,6 +75,10 @@ export interface MediaCarouselProps {
   initialData: CatalogResponse | null;
   /** Traduções do namespace "catalog" (resolvidas pela página server). */
   tCatalog: (key: string) => string;
+  /** Traduções "watchlist" para os botões estáticos (coração). */
+  tWatchlist: (key: string) => string;
+  /** Traduções "interaction" para os botões estáticos (status +). */
+  tInteraction: (key: string) => string;
   /** Locale ativo (para o título localizado dos cards). */
   locale: string;
 }
@@ -84,6 +89,8 @@ export function MediaCarousel({
   className,
   initialData,
   tCatalog,
+  tWatchlist,
+  tInteraction,
   locale,
 }: MediaCarouselProps) {
   const { color: accent, icon: Icon } = CATEGORY_TOKENS[type];
@@ -123,20 +130,28 @@ export function MediaCarousel({
           />
         </div>
 
-        <div
-          id={listId}
-          className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
-          aria-label={title}
-        >
-          {items.map((m) => (
-            <div key={m.id} className="w-[160px] sm:w-[180px] flex-shrink-0 snap-start">
-              <MediaCardShell media={m} tCatalog={tCatalog} locale={locale} />
-            </div>
-          ))}
-          {items.length === 0 && (
-            <p className="py-12 text-sm text-[#80809B]">{tCatalog("noResults")}</p>
-          )}
-        </div>
+        <CarouselInteractions>
+          <div
+            id={listId}
+            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
+            aria-label={title}
+          >
+            {items.map((m) => (
+              <div key={m.id} className="w-[160px] sm:w-[180px] flex-shrink-0 snap-start">
+                <MediaCardShell
+                  media={m}
+                  tCatalog={tCatalog}
+                  tWatchlist={tWatchlist}
+                  tInteraction={tInteraction}
+                  locale={locale}
+                />
+              </div>
+            ))}
+            {items.length === 0 && (
+              <p className="py-12 text-sm text-[#80809B]">{tCatalog("noResults")}</p>
+            )}
+          </div>
+        </CarouselInteractions>
       </div>
     </section>
   );

@@ -17,7 +17,7 @@ import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { isPreviewTipo } from "@/lib/api";
 import { StaticScoreDial } from "./StaticScoreDial";
-import { CardIslands } from "./CardIslands";
+import { colunaLabelKey } from "@/lib/watchlist-labels";
 import type { MediaItem } from "@/components/MediaCard";
 import type { MediaType } from "@/lib/types";
 
@@ -55,10 +55,14 @@ const TIPO_TO_MEDIA: Record<string, MediaType> = {
 export function MediaCardShell({
   media,
   tCatalog,
+  tWatchlist,
+  tInteraction,
   locale,
 }: {
   media: MediaItem;
   tCatalog: (key: string) => string;
+  tWatchlist: (key: string) => string;
+  tInteraction: (key: string) => string;
   locale: string;
 }) {
   const tipoLabel = TIPO_LABEL[media.tipo] ?? media.tipo;
@@ -90,7 +94,57 @@ export function MediaCardShell({
 
   return (
     <div className="relative group cursor-pointer rounded-md transition-transform duration-150 active:scale-[0.97]">
-      <CardIslands mediaId={media.id} mediaType={mediaType} />
+      {/* T405/D-399 U2 — botões ESTÁTICOS (data-*) delegados à ilha
+          CarouselInteractions; nada de zustand/motion por card. */}
+      <button
+        type="button"
+        data-card-action="watchlist"
+        data-media-id={media.id}
+        data-media-type={mediaType}
+        data-in-watchlist="false"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-label={tWatchlist("addToWatchlist")}
+        title={tWatchlist("addToWatchlist")}
+        className="absolute top-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#11111E]/80 text-[#9CA3AF] transition-colors hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+      >
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        data-card-action="status"
+        data-media-id={media.id}
+        data-media-type={mediaType}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-label={tInteraction(colunaLabelKey(mediaType, "WANT"))}
+        title={tInteraction(colunaLabelKey(mediaType, "WANT"))}
+        className="absolute bottom-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#11111E]/85 text-[#9CA3AF] transition-colors hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+      >
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
 
       <Link
         href={`/media/${media.slug ?? media.id}`}
