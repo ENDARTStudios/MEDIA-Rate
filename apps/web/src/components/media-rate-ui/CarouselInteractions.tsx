@@ -411,9 +411,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
           <div
             ref={popoverRef}
             role={popover.kind === "watchlist" ? "menu" : "dialog"}
-            aria-label={
-              popover.kind === "watchlist" ? tWatch("moveToColumn") : tInter("updateStatus")
-            }
+            aria-label={popover.kind === "watchlist" ? tWatch("moveTo") : tInter("updateStatus")}
             data-testid={popover.kind === "watchlist" ? "watchlist-popover" : "status-popover"}
             className="fixed z-70 w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
             style={{
