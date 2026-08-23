@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { MediaDetailClient } from "@/components/MediaDetailClient";
 import { StructuredData } from "@/components/StructuredData";
@@ -89,9 +89,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// T413: slugs históricos/órfãos → redirect permanente para o slug correto
+// (ex.: o-senhor-dos-aneis-livro era 404 ou resolvia para o FILME).
+const LEGACY_SLUG_REDIRECTS: Record<string, string> = {
+  "o-senhor-dos-aneis-livro": "/media/o-senhor-dos-aneis-a-sociedade-do-anel-livro",
+  "o-senhor-dos-aneis": "/media/o-senhor-dos-aneis-a-sociedade-do-anel",
+};
+
 export default async function MediaDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+
+  const destino = LEGACY_SLUG_REDIRECTS[slug];
+  if (destino) {
+    permanentRedirect(`/${locale}${destino}`);
+  }
 
   const media = await getMediaBySlug(slug);
   if (!media) notFound();
