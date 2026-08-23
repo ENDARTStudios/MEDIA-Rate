@@ -92,7 +92,7 @@ export default async function LocaleLayout({
           <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
             <PageTransition>{children}</PageTransition>
           </main>
-          <MotionFooter />
+          <MotionFooter locale={locale} />
           <LgpdBanner />
           <Toaster theme="dark" position="top-right" />
           {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}

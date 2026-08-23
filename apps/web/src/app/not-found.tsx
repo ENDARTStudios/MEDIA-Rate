@@ -38,7 +38,7 @@ export default async function NotFound() {
             {t("notFoundCta")}
           </Link>
         </main>
-        <MotionFooter />
+        <MotionFooter locale={locale} />
       </div>
     </NextIntlClientProvider>
   );
