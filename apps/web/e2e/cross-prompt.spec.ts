@@ -17,12 +17,9 @@ test("cross-prompt aparece ao adicionar mídia com relação cross-mídia (ficha
   await login(page, FREE_EMAIL, PASSWORD);
   await page.goto("/pt-BR/media/duna-parte-dois", { waitUntil: "domcontentloaded" });
 
-  const heart = page
-    .locator(
-      'button[aria-label*="adicionar" i], button[aria-label*="add to" i], button[aria-label*="quero" i]',
-    )
-    .filter({ visible: true })
-    .first();
+  // Alvo preciso: o coração da watchlist (aria-label contém "watchlist"),
+  // não o controle de status "Quero ver" (que também casa com "quero").
+  const heart = page.locator('button[aria-label*="watchlist" i]').filter({ visible: true }).first();
   await heart.click({ timeout: 15_000 });
 
   await expect(page.getByTestId("watchlist-cross-prompt")).toBeVisible({ timeout: 10_000 });
