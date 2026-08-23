@@ -1,7 +1,4 @@
-"use client";
-
 import { Link } from "@/lib/navigation";
-import { motion, useReducedMotion } from "motion/react";
 import { CategoryIconRow } from "@/components/landing/CategoryIconRow";
 
 interface HeroSectionProps {
@@ -17,25 +14,11 @@ interface HeroSectionProps {
 
 const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", "OpenCritic"];
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 22, filter: "blur(6px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-};
-
 /**
- * T415 (D-390, ordem direta do Operador) — ScoreShowcase (card rotativo)
- * REMOVIDO. Hero = H1 + sub + CTAs + fontes + faixa de tiles que NAVEGAM
- * para /catalog?type=X. Sem estado, sem deck rotativo.
+ * T415: ScoreShowcase removido; tiles navegam para a categoria.
+ * T405 (server-first): hero vira SERVER COMPONENT — sem framer-motion de
+ * entrada (removido o fade-in/stagger). O conteúdo do LCP pinta imediatamente
+ * como HTML puro, sem hidratar motion. CategoryIconRow segue como ilha client.
  */
 export function HeroSection({
   eyebrow,
@@ -47,8 +30,6 @@ export function HeroSection({
   ctaSecondaryHref,
   ctaTrust,
 }: HeroSectionProps) {
-  const shouldReduce = useReducedMotion();
-
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
       {/* Camadas de gradiente radial + glow rose (D-333) */}
@@ -59,35 +40,23 @@ export function HeroSection({
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
-        <motion.div
-          className="flex flex-col items-center"
-          variants={container}
-          initial={shouldReduce ? "visible" : "hidden"}
-          animate="visible"
-        >
-          <motion.p
-            variants={item}
-            className="mb-4 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]"
-          >
+        <div className="flex flex-col items-center">
+          <p className="mb-4 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]">
             {eyebrow}
-          </motion.p>
+          </p>
 
-          <motion.h1
+          <h1
             id="hero-title"
-            variants={item}
             className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-[#F5F5F7] sm:text-5xl lg:text-6xl"
           >
             {title}
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            variants={item}
-            className="mt-6 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg"
-          >
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg">
             {subtitle}
-          </motion.p>
+          </p>
 
-          <motion.div variants={item} className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href={ctaHref}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E11D48]"
@@ -114,10 +83,10 @@ export function HeroSection({
             >
               {ctaSecondary}
             </Link>
-          </motion.div>
+          </div>
 
-          {/* T371: microcopy de conversão (zero fricção) sob os CTAs. */}
-          <motion.p variants={item} className="mt-3 flex items-center gap-2 text-xs text-[#6B6B85]">
+          {/* T371: microcopy de conversão sob os CTAs. */}
+          <p className="mt-3 flex items-center gap-2 text-xs text-[#6B6B85]">
             <svg
               className="h-3.5 w-3.5 text-[#34D399]"
               fill="none"
@@ -129,25 +98,22 @@ export function HeroSection({
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             {ctaTrust}
-          </motion.p>
+          </p>
 
-          <motion.div
-            variants={item}
-            className="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]"
-          >
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]">
             {SOURCES_STRIP.map((s) => (
               <span key={s} className="flex items-center gap-2.5">
                 <span className="h-1 w-1 rounded-full bg-[#2A2A3D]" aria-hidden="true" />
                 {s}
               </span>
             ))}
-          </motion.div>
+          </div>
 
           {/* T415: tiles navegam para a categoria. */}
-          <motion.div variants={item} className="w-full">
+          <div className="w-full">
             <CategoryIconRow />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
