@@ -36,6 +36,8 @@ const RAIL_LABEL: Record<string, string> = {
 function mapToMediaItem(m: {
   id: string;
   title: string;
+  slug?: string | null;
+  titleLocalized?: { pt: string; en: string; es: string };
   type: MediaType;
   year: number | null;
   posterUrl: string | null;
@@ -44,6 +46,9 @@ function mapToMediaItem(m: {
   return {
     id: m.id,
     titulo: m.title,
+    // T414: título EN da cadeia D-369 (evita PT em /en-US).
+    titulo_original: m.titleLocalized?.en ?? m.title,
+    slug: m.slug,
     tipo:
       m.type === "movie"
         ? "FILME"

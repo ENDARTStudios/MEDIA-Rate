@@ -59,6 +59,10 @@ function mapToMediaItem(media: Media): MediaItem {
   return {
     id: media.id,
     titulo: media.title,
+    // T414: titulo_original = titleLocalized.en (cadeia D-369) — sem isso o
+    // MediaCard caía no título PT em /en-US (achado b do Operador).
+    titulo_original: media.titleLocalized?.en ?? media.title,
+    slug: media.slug,
     tipo:
       media.type === "movie"
         ? "FILME"

@@ -15,6 +15,9 @@ function mapToMediaItem(media: Media): MediaItem {
   return {
     id: media.id,
     titulo: media.title,
+    // T414: título EN da cadeia D-369 (evita PT em /en-US).
+    titulo_original: media.titleLocalized?.en ?? media.title,
+    slug: media.slug,
     tipo:
       media.type === "movie"
         ? "FILME"
