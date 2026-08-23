@@ -8,6 +8,7 @@
  * HTML SSR — só os ícones interativos são client-only.
  */
 import dynamic from "next/dynamic";
+import { LazyMount } from "./LazyMount";
 import type { MediaType } from "@/lib/types";
 
 const WatchlistButton = dynamic(
@@ -23,12 +24,12 @@ const StatusReactionControl = dynamic(
 export function CardIslands({ mediaId, mediaType }: { mediaId: string; mediaType: MediaType }) {
   return (
     <>
-      <div className="absolute top-2 left-2 z-20">
+      <LazyMount className="absolute top-2 left-2 z-20 min-w-8 min-h-8">
         <WatchlistButton mediaId={mediaId} />
-      </div>
-      <div className="absolute bottom-2 right-2 z-20">
+      </LazyMount>
+      <LazyMount className="absolute bottom-2 right-2 z-20 min-w-8 min-h-8">
         <StatusReactionControl midiaId={mediaId} mediaType={mediaType} compact />
-      </div>
+      </LazyMount>
     </>
   );
 }
