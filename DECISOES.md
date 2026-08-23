@@ -1067,3 +1067,31 @@ de vaidade nem truque de medição.
 
 **Regras mantidas:** sem afrouxar asserção; guards verdes; push batched; credenciais
 env-only e artefatos limpos.
+
+---
+
+## D-403 — F15 CONCLUÍDA (T405 fechado com PROPOSTA final calibrada D-402)
+
+**Status:** FASE CONCLUÍDA. Organismo em standby para novo direcionamento do Operador.
+
+**T405 (performance) — trajetória medida e aprovada:**
+- perf 46 → 63 (+17); main-thread 8,9 s → 4,5 s (−49%); `unused-javascript` 129 → 52 KiB
+  (−60%); FCP 2735 → 1252 ms (−54%); bootup 2533 → 2320 ms.
+- Lote (a): event delegation (120 ilhas → 6) + prova de bundle (motion/zustand fora
+  do caminho crítico da home). Lote (b): ContinueDecision/BecauseYouConsumed server
+  (cookie `sess`, null p/ anônimo) + MotionFooter estático.
+- Guards e2e 8/8 em produção; unit 318/318; build 98/98.
+
+**Meta (perf ≥75, TTI <5 s, main-thread <4 s) NÃO atingida → D-402 aceita:**
+- Residual documentado e honesto: LCP ~10 s é o H1 do hero (TEXTO), com FCP 1,25 s e
+  LCP ~10 s (lacuna ~8,8 s sem correlação com JS/imagem). Hipótese: swap de fonte
+  (`font-heading`) ou quirk do Lighthouse. **Candidato F16:** investigação de
+  render/font — não mais cirurgia de JS. Sem métrica de vaidade, sem truque de medição.
+
+**Lições permanentes (registradas):**
+- Guards e2e capturaram 2 regressões reais no lote (a) (z-index inválido; seletor de
+  guarda) — padrão permanente para refactors de interação.
+- Desbloqueio autônomo de credenciais (D-390) re-validado: senha env-only, túnel
+  efêmero, artefatos limpos ao final.
+
+**Pendências do Operador: 0.** Organismo (Thinker/Doer) em standby.

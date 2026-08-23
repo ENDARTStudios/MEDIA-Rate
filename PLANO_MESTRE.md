@@ -21,6 +21,8 @@
 - [~] Fase 8 – Testes/segurança `[PARCIAL — 700+ API + 309 web; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
+- [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
+- [x] Fase 15 – Melhoria contínua `[CONCLUÍDA — T405 perf 46→63; D-402/D-403]` ✅
 
 > **Convenção:** `[x]` só com evidência real de verificação (PROTOCOLO_MESTRE.md Seção 6). `[~]` = parcialmente feito, com gap documentado.
 
