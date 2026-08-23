@@ -104,7 +104,9 @@ function Column({
         </div>
       ) : (
         <SortableContext items={entries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3 flex-1">
+          {/* T416: scroll interno por coluna — aguenta 60+ títulos sem estourar
+              a página (cards compactos + rolagem na própria coluna). */}
+          <div className="space-y-3 flex-1 max-h-[560px] overflow-y-auto pr-1">
             {entries.map((entry) => (
               <WatchlistCard
                 key={entry.id}
