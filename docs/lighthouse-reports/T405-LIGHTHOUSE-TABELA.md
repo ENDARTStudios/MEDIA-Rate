@@ -11,7 +11,14 @@ Metodologia (D-398): Lighthouse headless, mobile, só performance, contra a home
 | lote-f15-hero | 57 | 8659 | — | 491 | 11521 | 4904 | 5892 |
 | lote-f15-hero2 | 67 | 10397 | — | 290 | 10964 | 4341 | 4120 |
 | lote-f15-u2u3 (lote a) | 60 | 10183 | 2735 | 515 | 11315 | 8122 | 4162 |
-| **lote-f15-b (lote b)** | **63** | 10037 | **1252** | 441 | 11043 | **4518** | **3691** |
+| lote-f15-b (lote b) | 63 | 10037 | 1252 | 441 | 11043 | 4518 | 3691 |
+| **lote-f16 (PageTransition, #17)** | **67** | **4068** | 1482 | 702 | 11510 | 4708 | 4471 |
+
+## Leitura F16 (Issue #17 — SPRINT)
+
+- **LCP 10.037 → 4.068 ms (−59%)** e **perf 63 → 67**: o PageTransition escondia o conteúdo no SSR (opacity:0 no primeiro paint); agora o conteúdo sai visível. Diagnóstico completo com timestamps: f16-diagnostico.md.
+- TBT mais alto na medição da preview = preview fria (variação documentada).
+- Residual secundário: swap de fonte (~4,1 s sob throttle; ~0,5 s em rede real) — candidato a preload de fontes (follow-up).
 
 ## Leitura honesta (lote b)
 
