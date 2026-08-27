@@ -23,6 +23,7 @@
 ### 0. Como este arquivo funciona
 - Fica na raiz do projeto. Nunca é apagado, nunca é ignorado.
 - Thinker e Doer leem este arquivo **por completo**, no início de toda sessão nova, antes de planejar ou codar qualquer coisa.
+- **Critérios técnicos e workflow de Issues/PRs:** `docs/PADROES_DESENVOLVIMENTO.md` — leitura obrigatória junto deste arquivo (qualquer agente de qualquer modelo).
 - Conflito entre este arquivo e o `PLANO_MESTRE.md` do projeto: este arquivo vence.
 - Só o Operador autoriza mudança neste arquivo.
 
