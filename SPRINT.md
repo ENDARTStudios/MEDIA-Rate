@@ -1,89 +1,89 @@
 # SPRINT.md — MEDIA Rate
 
-> Sprint único gerado a partir da análise do repositório em 2026-08-14.
-> Escopo: **mínimo viável**, sem implementar fora do que está listado aqui.
+> Sprint gerado a partir da análise atual do projeto (pós-F15, 2026-08).
+> **Issue vinculada: #17** — "perf: F16 — investigar e corrigir LCP da home".
+> Escopo: **mínimo viável** — não implementar nada fora do listado aqui.
+> Regra (PADROES_DESENVOLVIMENTO.md §7): só implementar após salvar este arquivo;
+> PR menciona a Issue; teste antes de implementar.
 
 ---
 
 ## 1. Contexto e justificativa da escolha
 
-O produto já tem as Fases 0–9 concluídas e a F11 (T285–T296) implementada.
-O MEDIA Score™ v3 (estimador Bayesiano `MEDIA = (v/(v+m))·S + (m/(v+m))·C`) é o
-diferencial do produto e já consome `votos` (v) de ponta a ponta:
+O T405 fechou com PROPOSTA calibrada (D-402): perf 63, main-thread ~4,5 s,
+`unused-javascript` 52 KiB — **o JS deixou de ser o gargalo** (lotes a+b
+entregaram event delegation + seções server).
 
-- `NotaColetada.votos` (interface de adaptador) → `avaliacao_fonte.votos` (DB)
-  → `votosTotal` → pull Bayesiano + `Confidence Score`.
+**Residual documentado (D-402):** o LCP da home é o **H1 do hero (TEXTO,
+server-renderizado)** com LCP ~10 s enquanto o FCP pinta em ~1,25 s — lacuna de
+~8,8 s sem correlação com TBT (441 ms), main-thread (4,5 s) ou imagem (o hero
+não tem pôster).
 
-**Gap:** a contagem de votos só é reportada por parte dos adaptadores. Nos
-domínios ativos, faltam votos em **games (OpenCritic — fonte primária de crítica,
-peso 0.3)** e **anime/mangá (AniList peso 0.3 e Kitsu peso 0.2)**. Sem votos
-(`v = 0`), o motor usa `S` direto — sem o pull Bayesiano e sem o componente
-Volume (30%) do Confidence Score. O gap degrada a precisão exatamente onde o
-produto quer ser confiável.
+**Hipótese principal:** o swap da fonte do título (`font-heading` /
+Space_Grotesk via next/font) re-pinta o H1 tarde, e o Lighthouse contabiliza o
+LCP nesse re-paint — ou há um quirk de medição.
 
-**Escolha (maior impacto × menor complexidade):** completar `votos` nos 3
-adaptadores ativos que já buscam o rating mas descartam a contagem. Mudança
-**aditiva** — nenhuma migration, nenhum contrato de API, nenhuma dependência
-nova. O campo `votos` já existe em interface, engine e schema.
+**Escolha (maior impacto × menor complexidade):** investigar e corrigir o LCP.
+- Impacto: destrava a meta de performance (perf ≥75) que o T405 não atingiu —
+  LCP 10 s → ≤4 s muda o score de ~63 para próximo da meta, sem tocar em mais JS.
+- Complexidade: mudança pontual (config de fonte/preload/CSS), sem dependência
+  nova, sem migration, sem contrato de API.
 
 ## 2. Objetivo
 
-Fazer com que os adaptadores ativos de games e anime/mangá reportem a contagem
-de avaliações (`votos`) que já vem na resposta da fonte, completando o pull
-Bayesiano do MEDIA Score v3 em todos os domínios ativos.
+Confirmar a causa do LCP ~10 s da home e reduzi-lo para **≤ 4 s** (mobile,
+Lighthouse), com evidência antes/depois commitada e guards verdes.
 
 ## 3. Tarefas
 
-### T1 — OpenCritic: reportar `numReviews` como `votos`
-- `OpenCriticDetalhe` ganha `numReviews?: number`.
-- O retorno de `coletar()` passa a incluir `votos: detalhe.numReviews`
-  (omitido/`undefined` quando ausente ou `<= 0`).
-- Fonte: campo `numReviews` do endpoint de detalhe (`/game/{id}`, RapidAPI).
+### T1 — Reproduzir e medir a causa (investigação, não corrigir ainda)
+- Roteiro Playwright (mobile 412×823): PerformanceObserver de LCP + entradas de
+  recurso (`performance.getEntriesByType('resource')` filtrando woff2) para
+  comparar o TIMESTAMP do LCP com o carregamento/swap da fonte.
+- Registrar o resultado: causa confirmada (fonte) ou refutada (causa real), com
+  evidência (timestamps) em `docs/lighthouse-reports/f16-diagnostico.md`.
 
-### T2 — AniList: reportar `popularity` como `votos`
-- A query GraphQL passa a pedir `popularity` (`Media { averageScore siteUrl popularity }`).
-- `AniListMedia` ganha `popularity?: number`.
-- O retorno inclui `votos: dados.data?.Media?.popularity` (omitido quando ausente).
-- `popularity` = nº de usuários com a obra na lista (proxy de volume, documentado).
+### T2 — Corrigir apenas a causa raiz (se confirmada a fonte)
+- Correção mínima candidata: pré-carregar a fonte crítica do H1, reduzir o subset
+  (`next/font` `subsets`) e/ou garantir que o CSS da fonte não bloqueie o
+  primeiro paint — SEM trocar o visual.
+- Se a causa for outra, aplicar a correção correspondente e documentar.
 
-### T3 — Kitsu: reportar `ratingCount` como `votos`
-- `KitsuMedia` ganha `ratingCount?: number | null`.
-- O retorno inclui `votos` normalizado (omitido quando `null`/`<= 0`).
+### T3 — Medição antes/depois
+- Lighthouse (mobile, performance) da home antes (já temos: perf 63, LCP 10,0 s)
+  e depois → `docs/lighthouse-reports/lote-f16-home.json` + atualizar
+  `T405-LIGHTHOUSE-TABELA.md`.
 
-## 4. Critérios de conclusão (binários)
+### T4 — Verificação completa
+- Guards e2e em produção (8/8: contas-consistencia, status-menu, cross-prompt,
+  home-ilha), unit 318/318, `tsc --noEmit`, lint e `next build` verdes.
 
-- [x] `OpenCriticAdapter` retorna `votos` quando `numReviews` presente e `undefined` quando ausente.
-- [x] `AniListAdapter` retorna `votos` quando `popularity` presente e `undefined` quando ausente.
-- [x] `KitsuAdapter` retorna `votos` quando `ratingCount` presente e `undefined` quando `null`/`<= 0`.
-- [x] Sem mudança de comportamento quando a fonte não informa contagem (rating continua sendo coletado).
-- [x] Testes unitários novos/estendidos cobrindo os 3 adaptadores (mock de HTTP).
-- [x] `vitest run` verde nos specs de adaptadores; `tsc --noEmit` e `lint` sem novos erros.
+## 4. Critérios de conclusão
 
-## 5. Arquivos afetados
+- [ ] Causa do LCP confirmada com evidência de timestamps (ou refutada com a
+      causa real documentada).
+- [ ] LCP ≤ 4 s medido no Lighthouse pós-correção (ou, se a causa for externa ao
+      código, PROPOSTA com residual documentado — nunca métrica de vaidade).
+- [ ] Lighthouse antes/depois commitado + tabela cumulativa atualizada.
+- [ ] Guards 8/8 + unit 318/318 + build verdes.
+- [ ] PR referenciando a Issue #17.
+
+## 5. Arquivos afetados (prováveis)
 
 | Arquivo | Tipo de mudança |
 |---|---|
-| `apps/api/src/modules/media-score/adapters/opencritic.adapter.ts` | aditivo (campo + retorno) |
-| `apps/api/src/modules/media-score/adapters/anilist.adapter.ts` | aditivo (query + campo + retorno) |
-| `apps/api/src/modules/media-score/adapters/kitsu.adapter.ts` | aditivo (campo + retorno) |
-| `apps/api/test/adapters-novos.spec.ts` | teste (OpenCritic `votos`) |
-| `apps/api/test/novas-midias-adapters.spec.ts` | teste (AniList + Kitsu `votos`) |
+| `apps/web/src/app/layout.tsx` | config de fonte (preload/subsets/display) |
+| `apps/web/src/app/globals.css` | CSS se necessário (font-display/fallback) |
+| `docs/lighthouse-reports/f16-diagnostico.md` | novo (evidência do diagnóstico) |
+| `docs/lighthouse-reports/lote-f16-home.json` | novo (medição pós) |
+| `docs/lighthouse-reports/T405-LIGHTHOUSE-TABELA.md` | atualização da tabela |
 
-**Dependências afetadas:** nenhuma nova. Reusa `http.utils.ts` (`fetchJson`/`postJson`),
-a interface `FonteAdapter`/`NotaColetada` e o `source-registry.ts` — todos já existentes.
+**Dependências afetadas:** nenhuma nova.
 
 ## 6. Testes necessários
 
-1. **OpenCritic** (em `adapters-novos.spec.ts`): mock do detalhe com `numReviews` →
-   `notas[0].votos === numReviews`; e sem `numReviews` → `votos` `undefined`.
-2. **AniList** (em `novas-midias-adapters.spec.ts`): mock do GraphQL com `popularity` →
-   `notas[0].votos === popularity`; e sem `popularity` → `votos` `undefined`.
-3. **Kitsu** (em `novas-midias-adapters.spec.ts`): mock com `ratingCount` →
-   `notas[0].votos === ratingCount`; e `ratingCount: null` → `votos` `undefined`.
-
-## 7. Fora de escopo (não fazer agora)
-
-- Adicionar votos aos adaptadores *gated* (`MEDIA_PREPARACAO_ENABLED`): goodreads,
-  letterboxd, metacritic, rottentomatoes, skoob, librarything, amazon, etc.
-- Alterar fórmula/pesos do motor, `source-registry`, schema ou migrations.
-- Novos endpoints, jobs ou UI.
+1. **Diagnóstico (Playwright):** timestamps LCP × carregamento de fonte (woff2)
+   na home mobile — roteiro reproduzível salvo em `apps/web/scripts/`.
+2. **Lighthouse** antes/depois (performance, mobile).
+3. **Guards e2e** existentes (8 testes) — nenhuma asserção afrouxada.
+4. **Unit** 318/318 — nenhuma regressão.
