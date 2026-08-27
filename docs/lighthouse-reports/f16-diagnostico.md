@@ -34,12 +34,12 @@ falhou antes da correção (prova o bug), passa depois.
 
 ## Medição antes/depois
 
-| Métrica | Antes (produção) | Depois (preview #6eqzl4fyu) |
-|---|---|---|
-| LCP (Lighthouse, mobile) | 10.037 ms | **4.068 ms (−59%)** |
-| perf | 63 | **67** |
-| LCP (Playwright throttled) | 12.628 ms | **4.236 ms** |
-| LCP (Playwright real, sem throttle) | 1.324 ms | — |
+| Métrica | Antes (produção) | Depois (preview) | Depois (produção) |
+|---|---|---|---|
+| LCP (Lighthouse, mobile) | 10.037 ms | 4.068 ms | **3.425 ms (−66%)** |
+| perf | 63 | 67 | **73** |
+| LCP (Playwright throttled) | 12.628 ms | 4.236 ms | — |
+| LCP (Playwright real, sem throttle) | 1.324 ms | — | — |
 
 ## Residual honesto (secundário, documentado)
 
