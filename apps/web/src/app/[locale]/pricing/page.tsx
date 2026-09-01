@@ -110,6 +110,9 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         </div>
 
         <PricingCards currencySymbol={currencySymbol} />
+        <p className="text-xs text-[#80809B] text-center max-w-2xl mx-auto px-4 mt-6 leading-relaxed">
+          {t("currencyNote")}
+        </p>
         <PricingTable />
         <MediaUnlockGrid />
         <PricingFAQ />

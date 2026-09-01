@@ -215,6 +215,23 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
               {plan.price > 0 && (
                 <p className="text-xs text-[#A0A0B8] text-center mt-3">{t("securePayment")}</p>
               )}
+
+              {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
+                  explícitos ANTES do clique (nunca consequência escondida). */}
+              {plan.id === "plus" && plan.price > 0 && (
+                <p className="text-[11px] text-[#80809B] text-center mt-2 leading-relaxed">
+                  {t("trialPlus", {
+                    value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
+                  })}
+                </p>
+              )}
+              {plan.id === "premium" && (
+                <p className="text-[11px] text-[#80809B] text-center mt-2 leading-relaxed">
+                  {t("renewInfo", {
+                    value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
+                  })}
+                </p>
+              )}
             </div>
           );
         })}
