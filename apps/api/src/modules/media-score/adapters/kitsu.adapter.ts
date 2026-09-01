@@ -19,7 +19,9 @@ export class KitsuAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(consulta.titulo)}`;
+    // D-233: MANGA usa /manga; ANIME usa /anime.
+    const segmento = consulta.tipo === "MANGA" ? "manga" : "anime";
+    const url = `https://kitsu.io/api/edge/${segmento}?filter[text]=${encodeURIComponent(consulta.titulo)}`;
     const dados = await fetchJson<KitsuMedia>(url, {
       headers: { accept: "application/vnd.api+json" },
     });

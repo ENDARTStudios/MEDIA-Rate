@@ -25,7 +25,10 @@ export class AniListAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const query = `query ($q: String) { Media(search: $q, type: ANIME) { averageScore siteUrl statistics { scoreDistribution { amount } } } }`;
+    // D-233: busca MANGA para mangá, ANIME para animação (anime estava
+    // retornando a nota da obra animada em vez da obra em mangá).
+    const tipoAni = consulta.tipo === "MANGA" ? "MANGA" : "ANIME";
+    const query = `query ($q: String) { Media(search: $q, type: ${tipoAni}) { averageScore siteUrl statistics { scoreDistribution { amount } } } }`;
     const corpo = JSON.stringify({ query, variables: { q: consulta.titulo } });
     const dados = await postJson<AniListMedia>("https://graphql.anilist.co", corpo, {
       headers: { "content-type": "application/json" },
