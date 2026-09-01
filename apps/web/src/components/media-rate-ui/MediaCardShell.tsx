@@ -212,7 +212,7 @@ export function MediaCardShell({
 
           {preview && (
             <span
-              className="absolute top-3 left-1/2 -translate-x-1/2 z-20 inline-flex items-center rounded-full border border-dashed border-[#F59E0B]/50 bg-[#09090F]/85 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[#F59E0B]"
+              className="absolute top-3 left-1/2 -translate-x-1/2 z-20 inline-flex items-center rounded-full border border-dashed border-[#F59E0B]/50 bg-[#09090F]/85 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[#F59E0B]"
               aria-label={tCatalog("previewBadge")}
               data-testid="preview-badge"
             >
