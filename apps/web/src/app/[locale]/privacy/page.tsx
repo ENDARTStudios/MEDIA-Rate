@@ -30,7 +30,19 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
       <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("h1")}</h1>
       <p className="text-sm text-[#6B7280] mb-8">{t("lastUpdated")}</p>
       <div className="space-y-8 text-[#9CA3AF] leading-relaxed">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+        {[1, 2, 3, 4, 5].map((n) => (
+          <section key={n}>
+            <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+              {t("s" + n + "h")}
+            </h2>
+            <p className="whitespace-pre-line">{t("s" + n + "b")}</p>
+          </section>
+        ))}
+        <section>
+          <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">{t("sAiH")}</h2>
+          <p className="whitespace-pre-line">{t("sAiB")}</p>
+        </section>
+        {[6, 7, 8, 9, 10, 11, 12].map((n) => (
           <section key={n}>
             <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
               {t("s" + n + "h")}
