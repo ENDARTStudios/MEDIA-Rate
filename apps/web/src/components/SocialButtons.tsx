@@ -79,7 +79,6 @@ export function SocialButtons() {
       window.google.accounts.id.renderButton(btnRef.current, {
         theme: "filled_black",
         size: "large",
-        width: 320,
         text: "continue_with",
       });
     };
@@ -107,7 +106,9 @@ export function SocialButtons() {
     <div className="space-y-2">
       {/* T408: botão "Continue with Apple" removido — era um botão morto
           (toast 'em breve'); volta quando o OAuth Apple for implementado. */}
-      <div ref={btnRef} className="[&>div]:w-full" />
+      {/* T424/align: centraliza o botão GSI e preenche a largura do form
+          (antes o width:320 fixo do GSI ficava à esquerda da coluna). */}
+      <div ref={btnRef} className="w-full flex justify-center" />
     </div>
   );
 }
