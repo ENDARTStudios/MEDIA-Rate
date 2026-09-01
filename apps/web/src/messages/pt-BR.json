@@ -56,6 +56,11 @@
   "welcome": {
     "eyebrow": "Bem-vindo",
     "title": "Bem-vindo ao MEDIA Rate!",
+    "cancelConfirm": "Cancelar a assinatura? Você mantém acesso até o fim do período e não será cobrado novamente.",
+    "cancelDone": "Assinatura cancelada. Acesso até o fim do período.",
+    "cancelError": "Não foi possível cancelar. Tente novamente.",
+    "cancelSubscription": "Cancelar assinatura",
+    "cancelHint": "O acesso permanece até o fim do período; nenhuma cobrança futura.",
     "titleWithName": "Bem-vindo, {nome}!",
     "step1Title": "Adicione sua 1ª mídia",
     "step1Desc": "Monte sua watchlist e organize o que quer ver.",

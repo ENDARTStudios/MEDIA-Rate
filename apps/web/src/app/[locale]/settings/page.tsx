@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { useRouter, usePathname } from "next/navigation";
 import { Link } from "@/lib/navigation";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { getCsrfToken } from "@/lib/http";
 import { Button } from "@/components/ui/button";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { Lock } from "lucide-react";
@@ -28,6 +29,33 @@ export default function SettingsPage() {
   const locales = ["pt-BR", "en-US", "es-ES"];
 
   const nextTier = user?.plan ? (NEXT_TIER[user.plan] ?? null) : null;
+  const hasPaidPlan = user?.plan === "PLUS" || user?.plan === "PREMIUM";
+
+  async function handleCancel() {
+    if (!window.confirm(ts("cancelConfirm"))) return;
+    const csrf = getCsrfToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Idempotency-Key": crypto.randomUUID(),
+    };
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+    try {
+      const res = await fetch("/api/v1/billing/cancel", {
+        method: "POST",
+        headers,
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        alert(ts("cancelDone"));
+        router.refresh();
+      } else {
+        alert(data?.message ?? ts("cancelError"));
+      }
+    } catch {
+      alert(ts("cancelError"));
+    }
+  }
 
   return (
     <ProtectedPage>
@@ -43,6 +71,20 @@ export default function SettingsPage() {
                 {user?.plan ?? "FREE"}
               </span>
             </div>
+
+            {hasPaidPlan && (
+              <div className="mt-5 border-t border-[#2A2A3D] pt-4">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-sm text-[#EF4444] hover:text-[#F87171] underline underline-offset-4"
+                  data-testid="cancel-subscription"
+                >
+                  {ts("cancelSubscription")}
+                </button>
+                <p className="mt-1.5 text-xs text-[#6B7280]">{ts("cancelHint")}</p>
+              </div>
+            )}
 
             {nextTier && (
               <div className="mt-5 flex items-center gap-5 rounded-lg border border-dashed border-[#2A2A3D] bg-[#1B1B2C]/40 p-5">

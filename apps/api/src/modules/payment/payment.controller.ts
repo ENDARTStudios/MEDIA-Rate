@@ -69,6 +69,16 @@ export class PaymentController {
     };
   }
 
+  @Post("billing/cancel")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Cancela a assinatura ativa no fim do período (mantém acesso até lá)" })
+  @ApiResponse({ status: 200, description: "Cancelamento agendado ou no-op (sem assinatura)." })
+  async cancelar(@Req() req: FastifyRequest & { user?: AuthenticatedUser }) {
+    const user = req.user;
+    if (!user) throw new Error("Usuário não autenticado.");
+    return this.paymentService.cancelar({ id: user.id });
+  }
+
   @Post("webhooks/stripe")
   @HttpCode(200)
   @ApiOperation({ summary: "Webhook Stripe — processa eventos de pagamento" })
