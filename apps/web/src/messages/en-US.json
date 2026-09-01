@@ -73,7 +73,7 @@
   "landing": {
     "heroEyebrow": "MEDIA Score™",
     "hero": "All your entertainment. One score.",
-    "heroSubtitle": "Movies, series, games, books, comics and manga — MEDIA Score™ blends critics and audience so you choose in seconds and organize it all in one place.",
+"heroSubtitle": "Discover what to watch, read and play",
     "cta": "Start free",
     "ctaSecondary": "Browse catalog",
     "ctaTrust": "Free forever · No credit card · 3 languages",
@@ -406,6 +406,7 @@
     "socialTwitter": "Twitter / X",
     "socialGithub": "GitHub",
     "socialTelegram": "Telegram Channel",
+    "socialInstagram": "Instagram",
     "socialDiscord": "Discord",
     "copyright": "MEDIA Score™ · END ART Studios",
     "footerLinks": "Footer links"
