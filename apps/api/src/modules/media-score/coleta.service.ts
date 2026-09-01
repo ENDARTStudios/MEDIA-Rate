@@ -20,6 +20,7 @@ import { AmazonAdapter } from "./adapters/amazon.adapter.js";
 import { ComicVineAdapter } from "./adapters/comicvine.adapter.js";
 import { ComicBookRoundupAdapter } from "./adapters/comicbookroundup.adapter.js";
 import { JikanAdapter } from "./adapters/jikan.adapter.js";
+import { MalAdapter } from "./adapters/mal.adapter.js";
 import { AniListAdapter } from "./adapters/anilist.adapter.js";
 import { KitsuAdapter } from "./adapters/kitsu.adapter.js";
 import { MangaDexAdapter } from "./adapters/mangadex.adapter.js";
@@ -62,6 +63,7 @@ export class ColetaService {
     new ComicVineAdapter(),
     new ComicBookRoundupAdapter(),
     new JikanAdapter(),
+    new MalAdapter(),
     new AniListAdapter(),
     new KitsuAdapter(),
     new MangaDexAdapter(),
