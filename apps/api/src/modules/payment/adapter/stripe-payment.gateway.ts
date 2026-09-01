@@ -110,8 +110,17 @@ export class StripePaymentGateway implements IPaymentGateway {
     };
   }
 
-  async cancelSubscription(subscription_id: string): Promise<{ canceled: boolean }> {
-    await this.client.subscriptions.cancel(subscription_id);
+  async cancelSubscription(
+    subscription_id: string,
+    opts?: { at_period_end?: boolean },
+  ): Promise<{ canceled: boolean }> {
+    if (opts?.at_period_end) {
+      // Cancela no fim do período (mantém acesso até lá) — não cobra mais a
+      // seguir; o webhook customer.subscription.deleted faz o downgrade final.
+      await this.client.subscriptions.update(subscription_id, { cancel_at_period_end: true });
+    } else {
+      await this.client.subscriptions.cancel(subscription_id);
+    }
     return { canceled: true };
   }
 }

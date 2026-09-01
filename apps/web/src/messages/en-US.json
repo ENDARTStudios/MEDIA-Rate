@@ -56,6 +56,11 @@
   "welcome": {
     "eyebrow": "Welcome",
     "title": "Welcome to MEDIA Rate!",
+    "cancelConfirm": "Cancel your subscription? You keep access until the end of the period and won't be charged again.",
+    "cancelDone": "Subscription canceled. Access until the end of the period.",
+    "cancelError": "Could not cancel. Try again.",
+    "cancelSubscription": "Cancel subscription",
+    "cancelHint": "Access remains until the end of the period; no further charges.",
     "titleWithName": "Welcome, {nome}!",
     "step1Title": "Add your first title",
     "step1Desc": "Build your watchlist and organize what you want to watch.",

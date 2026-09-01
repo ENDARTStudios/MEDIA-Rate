@@ -55,7 +55,10 @@ export class MockPaymentGateway implements IPaymentGateway {
     };
   }
 
-  async cancelSubscription(subscription_id: string): Promise<{ canceled: boolean }> {
+  async cancelSubscription(
+    subscription_id: string,
+    _opts?: { at_period_end?: boolean },
+  ): Promise<{ canceled: boolean }> {
     this.cancelledSubscriptions.push(subscription_id);
     return { canceled: true };
   }
