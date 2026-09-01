@@ -19,7 +19,9 @@ export class JikanAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(consulta.titulo)}&limit=1&order_by=score`;
+    // D-233: MANGA usa o endpoint /manga; ANIME/SERIE usa /anime.
+    const segmento = consulta.tipo === "MANGA" ? "manga" : "anime";
+    const url = `https://api.jikan.moe/v4/${segmento}?q=${encodeURIComponent(consulta.titulo)}&limit=1&order_by=score`;
     const dados = await fetchJson<JikanAnime>(url);
     const anime = dados.data?.[0];
     if (!anime?.score) return [];
