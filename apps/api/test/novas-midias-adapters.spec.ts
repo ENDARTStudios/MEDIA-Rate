@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { ConsultaMedia } from "../src/modules/media-score/adapters/fonte-adapter.interface.js";
 import { JikanAdapter } from "../src/modules/media-score/adapters/jikan.adapter.js";
+import { MalAdapter } from "../src/modules/media-score/adapters/mal.adapter.js";
 import { AniListAdapter } from "../src/modules/media-score/adapters/anilist.adapter.js";
 import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
 import { OpenLibraryAdapter } from "../src/modules/media-score/adapters/openlibrary.adapter.js";
@@ -38,6 +39,18 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
     expect(notas[0].fonte).toBe("jikan");
     expect(notas[0].rating).toBe(9.05);
     expect(notas[0].votos).toBe(380000);
+  });
+
+  it("mal: rating 0–10 (público) via X-Mal-Client-ID na API oficial", async () => {
+    const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
+    vi.mocked(fetchJson).mockResolvedValue({
+      data: [{ node: { id: 1, title: "Gantz", mean: 8.08, num_scoring_users: 125158 } }],
+    });
+    const adapter = new MalAdapter();
+    const notas = await adapter.coletar(consulta("Gantz", "MANGA"));
+    expect(notas[0].fonte).toBe("mal");
+    expect(notas[0].rating).toBe(8.08);
+    expect(notas[0].votos).toBe(125158);
   });
 
   it("anilist: averageScore 0–100 ÷10 na exibição (escala 0-100 registrada)", async () => {

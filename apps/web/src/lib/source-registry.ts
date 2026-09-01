@@ -88,7 +88,8 @@ export const FONTES_WEB: Record<string, FonteWeb> = {
     classificacao: "critica",
     escala: "0-100",
   },
-  jikan: { id: "jikan", rotulo: "MyAnimeList", classificacao: "publico", escala: "0-10" },
+  mal: { id: "mal", rotulo: "MyAnimeList", classificacao: "publico", escala: "0-10" },
+  jikan: { id: "jikan", rotulo: "MyAnimeList (proxy)", classificacao: "publico", escala: "0-10" },
   anilist: { id: "anilist", rotulo: "AniList", classificacao: "publico", escala: "0-100" },
   kitsu: { id: "kitsu", rotulo: "Kitsu", classificacao: "publico", escala: "0-100" },
   mangadex: { id: "mangadex", rotulo: "MangaDex", classificacao: "publico", escala: "0-10" },
@@ -133,6 +134,6 @@ export const PESOS_POR_TIPO_WEB: Record<
   },
   manga: {
     critica: {},
-    publico: { jikan: 0.3, anilist: 0.3, kitsu: 0.2, mangadex: 0.2 },
+    publico: { mal: 0.3, jikan: 0.1, anilist: 0.3, kitsu: 0.15, mangadex: 0.15 },
   },
 };

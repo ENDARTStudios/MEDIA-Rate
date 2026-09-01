@@ -30,6 +30,7 @@ export type SourceName =
   | "amazon"
   | "comicvine"
   | "comicbookroundup"
+  | "mal"
   | "jikan"
   | "anilist"
   | "kitsu"

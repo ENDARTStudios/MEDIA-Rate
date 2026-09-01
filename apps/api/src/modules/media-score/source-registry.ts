@@ -319,6 +319,16 @@ export const FONTES: FonteMeta[] = [
 
   // ── Mangás / Animes (preparação — "em breve") ──────────────────────────
   {
+    id: "mal",
+    rotulo: "MyAnimeList (API oficial)",
+    dominio: ["anime_manga"],
+    classificacao: "publico",
+    escala: "0-10",
+    fator100: 10,
+    metodo: "api",
+    status: "preparacao",
+  },
+  {
     id: "jikan",
     rotulo: "Jikan (MyAnimeList)",
     dominio: ["anime_manga"],
@@ -428,6 +438,6 @@ export const PESOS_POR_TIPO_V2: Record<
   },
   ANIME: {
     critica: {},
-    publico: { jikan: 0.3, anilist: 0.3, kitsu: 0.2, mangadex: 0.2 },
+    publico: { mal: 0.3, jikan: 0.1, anilist: 0.3, kitsu: 0.15, mangadex: 0.15 },
   },
 };
