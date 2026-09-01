@@ -8,12 +8,16 @@ describe("normalizeDisplayScore — escala por mídia (D-132 §1)", () => {
     expect(normalizeDisplayScore(0, "game")).toBe(0);
   });
 
-  it("filme/série/livro/HQ/mangá: converte 0–100 para 0–10", () => {
+  it("filme/série/livro/HQ: converte 0–100 para 0–10", () => {
     expect(normalizeDisplayScore(79, "movie")).toBe(7.9);
     expect(normalizeDisplayScore(55, "tv")).toBe(5.5);
-    expect(normalizeDisplayScore(88, "manga")).toBe(8.8);
     expect(normalizeDisplayScore(65, "book")).toBe(6.5);
     expect(normalizeDisplayScore(70, "comic")).toBe(7);
+  });
+
+  it("mangá: escala nativa 0–100 (igual game) — não divide", () => {
+    expect(normalizeDisplayScore(88, "manga")).toBe(88);
+    expect(normalizeDisplayScore(82.7, "manga")).toBe(82.7);
   });
 
   it("valores já em 0–10 não são convertidos", () => {
