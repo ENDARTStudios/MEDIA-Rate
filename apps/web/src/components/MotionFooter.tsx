@@ -105,7 +105,9 @@ export async function MotionFooter({ locale }: { locale: string }) {
 
         <div className="pt-8 border-t border-[rgba(129,140,248,0.08)] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[#6B7280]">
-            &copy; {year} MEDIA Rate. {t("rights")}
+            {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React),
+                garantindo a string literal exata no HTML renderizado. */}
+            {`Copyright © ${year} END ART Studios · MEDIA Rate. ${t("rights")}`}
           </p>
           <p className="text-xs text-[#6B7280]">{t("copyright")}</p>
         </div>
