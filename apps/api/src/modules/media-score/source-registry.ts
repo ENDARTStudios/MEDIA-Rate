@@ -440,4 +440,11 @@ export const PESOS_POR_TIPO_V2: Record<
     critica: {},
     publico: { mal: 0.3, jikan: 0.1, anilist: 0.3, kitsu: 0.15, mangadex: 0.15 },
   },
+  // MANGA: o tipo ativo usa a mesma tabela de fontes do domínio anime_manga.
+  // (configV3 usa MANGA, mas PESOS_POR_TIPO_V2 não tinha a chave — mangás
+  // caíam com num_fontes=0 e o score ficava oculto na home.)
+  MANGA: {
+    critica: {},
+    publico: { mal: 0.3, jikan: 0.1, anilist: 0.3, kitsu: 0.15, mangadex: 0.15 },
+  },
 };
