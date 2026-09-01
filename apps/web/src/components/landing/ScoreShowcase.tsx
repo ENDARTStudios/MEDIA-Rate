@@ -118,7 +118,7 @@ export function ScoreShowcase({ items }: ScoreShowcaseProps) {
           {/* Anel + tipo sobre o poster */}
           <div className="absolute right-3 top-3 flex items-center gap-2">
             <span
-              className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest"
+              className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-widest"
               style={{
                 backgroundColor: "rgba(5,5,10,0.7)",
                 color: colors.media[item.type],
@@ -147,7 +147,7 @@ export function ScoreShowcase({ items }: ScoreShowcaseProps) {
                   {item.sources.slice(0, 4).map((s) => (
                     <span
                       key={s}
-                      className="rounded-full border border-[rgba(129,140,248,0.14)] px-2 py-0.5 text-[10px] text-[#A0A0B8]"
+                      className="rounded-full border border-[rgba(129,140,248,0.14)] px-2 py-0.5 text-xs text-[#A0A0B8]"
                     >
                       {sourceLabel(s)}
                     </span>
@@ -185,7 +185,7 @@ export function ScoreShowcase({ items }: ScoreShowcaseProps) {
 function BreakdownBar({ label, pct, color }: { label: string; pct: number | null; color: string }) {
   const safe = pct != null ? Math.max(0, Math.min(100, pct)) : 0;
   return (
-    <div className="flex items-center gap-2 text-[11px]">
+    <div className="flex items-center gap-2 text-xs">
       <span className="w-12 shrink-0 text-[#80809B]">{label}</span>
       <div className="h-1 flex-1 rounded-full bg-[#1C1C2E]">
         <div

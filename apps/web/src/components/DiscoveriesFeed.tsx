@@ -147,14 +147,14 @@ export function DiscoveriesFeed() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-[10px] text-[#6B6B85]">
+                        <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
                           {g.titulo.slice(0, 3).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-[#EDE7DC]">{g.titulo}</p>
-                      <span className="mt-1 inline-block rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-2 py-0.5 text-[10px] text-[#A5B0FF]">
+                      <span className="mt-1 inline-block rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-2 py-0.5 text-xs text-[#A5B0FF]">
                         {t(`motivo_${g.motivo}`)}
                       </span>
                     </div>
@@ -188,7 +188,7 @@ export function DiscoveriesFeed() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-[10px] text-[#6B6B85]">
+                        <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
                           {h.title.slice(0, 3).toUpperCase()}
                         </div>
                       )}

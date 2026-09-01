@@ -107,7 +107,7 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
             {b === "annual" ? t("year") : t("month")}
             {b === "annual" && (
               <span
-                className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold ${
                   billing === b ? "bg-black/20" : "bg-[#34D399]/15 text-[#34D399]"
                 }`}
               >
@@ -219,14 +219,14 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
               {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
                   explícitos ANTES do clique (nunca consequência escondida). */}
               {plan.id === "plus" && plan.price > 0 && (
-                <p className="text-[11px] text-[#80809B] text-center mt-2 leading-relaxed">
+                <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
                   {t("trialPlus", {
                     value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                   })}
                 </p>
               )}
               {plan.id === "premium" && (
-                <p className="text-[11px] text-[#80809B] text-center mt-2 leading-relaxed">
+                <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
                   {t("renewInfo", {
                     value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                   })}

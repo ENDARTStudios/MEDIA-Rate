@@ -39,7 +39,7 @@ function DiscoveryRow({ d, locale }: { d: Discovery; locale: string }) {
         <ToIcon className="h-3.5 w-3.5" style={{ color: mediaToken(d.toMediaType).color }} />
       </span>
       <span className="truncate font-medium text-[#EDE7DC]">{toTitle}</span>
-      <span className="ml-auto shrink-0 text-[10px] text-[#6B6B85]">
+      <span className="ml-auto shrink-0 text-xs text-[#6B6B85]">
         {trel(relationLabelKey(d.relationType))}
       </span>
     </li>

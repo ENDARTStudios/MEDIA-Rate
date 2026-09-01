@@ -57,7 +57,7 @@ function Item({ d, locale }: { d: Discovery; locale: string }) {
           {td("feedDiscovered")} <span className="font-medium text-[#EDE7DC]">{toTitle}</span>{" "}
           {td("feedFrom")} <span className="text-[#EDE7DC]">{fromTitle}</span>
         </p>
-        <p className="mt-0.5 flex items-center gap-2 text-[11px] text-[#6B6B85]">
+        <p className="mt-0.5 flex items-center gap-2 text-xs text-[#6B6B85]">
           <ToIcon className="h-3 w-3" style={{ color: toToken.color }} aria-hidden="true" />
           {trel(relationLabelKey(d.relationType))} · {formatData(d.discoveredAt, locale)}
         </p>

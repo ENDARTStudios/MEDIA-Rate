@@ -241,7 +241,7 @@ export function WatchlistKanban({
                 <div key={midiaId} className="max-w-[200px]" data-testid="abandonado-card">
                   {item && <MediaCard media={item} />}
                   <div className="mt-1 flex items-center justify-between px-1">
-                    <span className="inline-flex items-center gap-1 text-[10px] text-[#9CA3AF]">
+                    <span className="inline-flex items-center gap-1 text-xs text-[#9CA3AF]">
                       <StatusGlyph status="ABANDONADO" size={12} />
                       {t("abandonado")}
                     </span>
@@ -268,7 +268,7 @@ export function WatchlistKanban({
                             onClick={() => setReaction(midiaId, e.reacao === r ? null : r)}
                             aria-pressed={active}
                             aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
-                            className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                            className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                               active
                                 ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
                                 : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"

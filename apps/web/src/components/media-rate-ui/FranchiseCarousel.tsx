@@ -96,7 +96,7 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
                 <MediaCard media={media} />
               </Link>
               {atual && (
-                <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#E11D48] px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#E11D48] px-2 py-0.5 text-xs font-bold text-white shadow">
                   {t("youAreHere")}
                 </span>
               )}

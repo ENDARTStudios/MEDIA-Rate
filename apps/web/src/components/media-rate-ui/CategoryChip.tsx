@@ -88,7 +88,7 @@ export function CategoryChip({
       {count != null && (
         <span
           className={cn(
-            "tabular-nums rounded-full px-1.5 text-[10px] leading-4",
+            "tabular-nums rounded-full px-1.5 text-xs leading-4",
             active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#80809B]",
           )}
         >

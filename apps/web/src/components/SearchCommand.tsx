@@ -230,9 +230,9 @@ export function SearchCommand() {
           />
         </svg>
         <span>{t("search") ?? "Buscar"}</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
           {/* T246: hint por plataforma — ⌘ K no Mac, Ctrl K no Windows/Linux. */}
-          <span className="text-[10px]">{isMac ? "⌘" : "Ctrl"}</span>K
+          <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>K
         </kbd>
       </button>
 
@@ -304,7 +304,7 @@ export function SearchCommand() {
                   </svg>
                 </button>
               )}
-              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
                 Esc
               </kbd>
             </div>
@@ -339,7 +339,7 @@ export function SearchCommand() {
               {debouncedQuery.length >= 2 &&
                 relatedGroupsList.map((g) => (
                   <div key={`rel-${slugify(g[0].title)}`}>
-                    <div className="px-4 py-2 text-[10px] text-[#818CF8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
+                    <div className="px-4 py-2 text-xs text-[#818CF8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
                       Relacionados
                     </div>
                     <div className="flex items-center gap-1.5 px-4 py-2.5">
@@ -374,7 +374,7 @@ export function SearchCommand() {
               {debouncedQuery.length >= 2 &&
                 Object.entries(groupedRest).map(([group, items]) => (
                   <div key={group}>
-                    <div className="px-4 py-2 text-[10px] text-[#6B7280] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
+                    <div className="px-4 py-2 text-xs text-[#6B7280] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
                       {group}
                     </div>
                     {items.map((item) => {

@@ -60,7 +60,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
           </div>
         )}
         <span
-          className="absolute right-1.5 top-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold text-[#09090F]"
+          className="absolute right-1.5 top-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold text-[#09090F]"
           style={{ backgroundColor: cor }}
         >
           <Icon className="h-3 w-3" aria-hidden="true" />
@@ -72,7 +72,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
         <p className="line-clamp-2 text-sm font-heading font-semibold text-[#EDE7DC] group-hover:text-[#A5B4FC]">
           {m.titulo}
         </p>
-        <p className="mt-1 text-[11px] text-[#818CF8]">{t(relationLabelKey(relacao.tipo))}</p>
+        <p className="mt-1 text-xs text-[#818CF8]">{t(relationLabelKey(relacao.tipo))}</p>
         <p className="mt-auto pt-1 text-xs text-[#9CA3AF]">
           <span data-testid="related-score" className="font-semibold text-[#EDE7DC]">
             {scoreLabel}

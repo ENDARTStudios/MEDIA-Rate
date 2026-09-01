@@ -97,7 +97,7 @@ export function SeriatedScoreTree({ unitLabel, units, className }: SeriatedScore
           <Linha key={`${unit.label}-${i}`} unit={unit} depth={0} />
         ))}
       </ul>
-      <p className="mt-2 text-[11px] text-[#6B6B85]">{t("unitNote")}</p>
+      <p className="mt-2 text-xs text-[#6B6B85]">{t("unitNote")}</p>
     </div>
   );
 }
