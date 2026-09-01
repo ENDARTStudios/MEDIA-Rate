@@ -1,6 +1,6 @@
 import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
 import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
-import { fetchJson } from "./http.utils.js";
+import { fetchJson, type HttpOptions, ErroColeta } from "./http.utils.js";
 
 interface OpenCriticSearchItem {
   id: number;
@@ -44,6 +44,32 @@ function melhorCorrespondencia(
   return itens[0];
 }
 
+/** Retry/backoff (D-410/T426): re-tenta em ErroColeta (5xx/timeout) até
+ *  `tentativas` vezes com backoff exponencial. Falha graciosa ao final —
+ *  devolve [] para o ColetaService manter o último score da mídia. */
+async function fetchJsonComRetry<T>(
+  url: string,
+  opcoes: HttpOptions = {},
+  tentativas = 3,
+): Promise<T> {
+  let ultimoErro: unknown;
+  for (let i = 0; i < tentativas; i++) {
+    try {
+      return await fetchJson<T>(url, opcoes);
+    } catch (erro) {
+      ultimoErro = erro;
+      if (erro instanceof ErroColeta && erro.status && erro.status < 500 && erro.status !== 429) {
+        // Erro 4xx (não transitório): não adianta re-tentar.
+        throw erro;
+      }
+      if (i < tentativas - 1) {
+        await new Promise((r) => setTimeout(r, 500 * 2 ** i));
+      }
+    }
+  }
+  throw ultimoErro;
+}
+
 /**
  * OpenCritic — API via RapidAPI (chave OPENCRITIC_API_KEY).
  * Busca GET /game/search?criteria= e detalhe GET /game/{id} para
@@ -71,15 +97,18 @@ export class OpenCriticAdapter implements FonteAdapter {
       "x-rapidapi-key": chave,
       "x-rapidapi-host": HOST_RAPIDAPI,
     };
-    const busca = await fetchJson<OpenCriticSearchItem[]>(
+    const busca = await fetchJsonComRetry<OpenCriticSearchItem[]>(
       `https://${HOST_RAPIDAPI}/game/search?criteria=${encodeURIComponent(consulta.titulo)}`,
       { headers },
     );
     const item = melhorCorrespondencia(consulta.titulo, busca);
     if (!item) return [];
-    const detalhe = await fetchJson<OpenCriticDetalhe>(`https://${HOST_RAPIDAPI}/game/${item.id}`, {
-      headers,
-    });
+    const detalhe = await fetchJsonComRetry<OpenCriticDetalhe>(
+      `https://${HOST_RAPIDAPI}/game/${item.id}`,
+      {
+        headers,
+      },
+    );
     const rating = detalhe.medianScore ?? detalhe.topCriticScore;
     if (!rating || rating <= 0) return [];
     const stats = estatisticas("0-100");

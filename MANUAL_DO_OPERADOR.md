@@ -229,3 +229,36 @@ Stripe: configurar via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` no Railway.
 **Envs:** `SENTRY_DSN` (Railway) e `NEXT_PUBLIC_SENTRY_DSN` (Vercel) — identificadores públicos do projeto (vão no bundle do cliente por design). NUNCA colá-los em logs/chat além da exceção única D-306.
 **Verificação do bundle web (sem segredos):** após o deploy, grep no JS de produção pelo host `ingest*.sentry.io` — presença prova que o `NEXT_PUBLIC_SENTRY_DSN` foi embutido no build (rebuild via commit+push se ausente).
 **Nota:** ao setar `NEXT_PUBLIC_SENTRY_DSN` via CLI, usar `vercel env add ... --value "<dsn>"` (não stdin — o stdin grava placeholder `[SENSITIVE]`).
+
+
+## Como funciona a coleta do MEDIA Score (cadência semanal — D-410/T426)
+
+**Regra:** TODAS as fontes externas de score/metadados (OpenCritic, TMDB, IMDb,
+Metacritic, IGDB, MAL, Jikan, AniList, Kitsu, MangaDex, OpenLibrary, ComicVine,
+Google Books…) refrescam no máximo **1x por semana por mídia**. Escolha do
+Operador para não estourar cotas de API (ex.: OpenCritic/RapidAPI) — o catálogo
+é de títulos antigos e ainda sem usuários.
+
+**Como o job decide o que atualizar (staleness-check):**
+- O score-job re-consulta apenas mídias com `avaliacoes_atualizadas_em` **NULL**
+  (nunca coletadas) ou **anterior a `REFRESH_INTERVAL_DAYS`** (default 7).
+- Mídias frescas são **puladas** (0 chamadas externas). Log mostra
+  `total/refreshadas/puladas` — ex.: `Job concluído: 12 processadas, 0 com erro,
+  612 puladas (frescas) de 624 mídias`.
+- **Falha graciosa:** se uma coleta volta 0 fontes para uma mídia que JÁ tem
+  avaliações, o job mantém o último score (não apaga nem regride ao prior).
+
+**Config:**
+- `REFRESH_INTERVAL_DAYS` (env, default **7**): intervalo entre refrescos.
+- `MEDIA_SCORE_JOB_TIME` (env, default `03:05` horário local): hora do run semanal.
+- `MEDIA_SCORE_JOB_ENABLED=false`: desativa o job (fora de produção já é desativado).
+- `MEDIA_SCORE_JOB_DELAY_MS` (env, default 1200): throttle entre mídias (rate limits).
+
+**Rotina (execução semanal):** o job roda sozinho na hora configurada
+(`MEDIA_SCORE_JOB_TIME`, a cada `REFRESH_INTERVAL_DAYS` dias). Para rodar sob
+demanda: `POST /api/v1/midias/score-job` com header `x-admin-token`. Para uma
+mídia específica: `POST /api/v1/midias/:id/coletar` (mesmo header).
+
+**Nenhuma requisição de usuário consulta fonte externa** — o site/API servem
+sempre de `media_score` (banco). A coleta externa é estritamente um job de
+bastidor.
