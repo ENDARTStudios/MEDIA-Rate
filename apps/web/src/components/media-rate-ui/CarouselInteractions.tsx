@@ -349,6 +349,11 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
       paintHearts(map);
       setWl(map);
     }
+    // Auditoria home: visitante anônimo NÃO busca a watchlist (6 carrosséis
+    // disparavam 12× 401 /api/v1/watchlist). O flag mr_auth (T130, não-httpOnly)
+    // indica sessão recente; se ausente, coração fica no estado do cookie.
+    const authed = /(?:^|;\s*)mr_auth=1/.test(document.cookie);
+    if (!authed) return;
     void refreshWatchlist().catch((e) => {
       if (isAuthError(e)) setAuthed(false);
     });
