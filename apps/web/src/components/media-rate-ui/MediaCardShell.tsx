@@ -175,6 +175,12 @@ export function MediaCardShell({
               height={450}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
               loading="lazy"
+              // Auditoria home: pôsteres de anilist/openlibrary (livro/mangá)
+              // retornavam 402 do otimizador Vercel (limite do plano) — serve
+              // a imagem direto da origem, sem re-otimizar.
+              unoptimized={/anilist|openlibrary|myanimelist|comicvine|googlebooks/i.test(
+                srcNormalizado,
+              )}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#9CA3AF] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
