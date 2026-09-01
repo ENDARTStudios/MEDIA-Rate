@@ -83,6 +83,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesMovie")) }} />
             <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesSeries")) }} />
             <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesGame")) }} />
+            <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesBook")) }} />
+            <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesComic")) }} />
+            <li dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("categoriesManga")) }} />
           </ul>
         </section>
 
