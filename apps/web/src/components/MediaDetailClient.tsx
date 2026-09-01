@@ -273,7 +273,7 @@ export function MediaDetailClient({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs.Root defaultValue="synopsis">
           <Tabs.List
-            className="flex border-b border-[rgba(129,140,248,0.08)] mb-8"
+            className="flex overflow-x-auto scrollbar-none border-b border-[rgba(129,140,248,0.08)] mb-8"
             aria-label={t("tabsLabel")}
           >
             {[
