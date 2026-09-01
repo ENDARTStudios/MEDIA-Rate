@@ -25,6 +25,8 @@ export interface CreateCheckoutInput {
   plano: "PLUS" | "PREMIUM";
   /** Moeda da região (T419/D-389): BRL | USD | EUR — decidida no server. */
   currency: "BRL" | "USD" | "EUR";
+  /** Período de cobrança (T423): month | year — decide a chave STRIPE_PRICE_<PLANO>_<MONTH|YEAR>_<MOEDA>. */
+  periodo?: "month" | "year";
   customer_email: string;
   /** URL de sucesso após checkout. */
   success_url: string;

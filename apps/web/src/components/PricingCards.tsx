@@ -202,7 +202,7 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
               </ul>
 
               <Link
-                href={plan.price === 0 ? "/register" : `/checkout/${plan.id}`}
+                href={plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${billing}`}
                 className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
                   isPlus
                     ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"

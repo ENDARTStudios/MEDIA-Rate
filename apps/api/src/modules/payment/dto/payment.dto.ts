@@ -10,6 +10,9 @@ export const CreateCheckoutDto = z.object({
   // T419: moeda derivada no server (nunca do cliente); aceita apenas se o
   // controller optar por repassá-la — default BRL protege LatAm.
   currency: z.enum(["BRL", "USD", "EUR"]).optional(),
+  // T423: período de cobrança (month|year) — mapeia a chave de preço Stripe
+  // por plano+periodo+moeda; default month.
+  periodo: z.enum(["month", "year"]).optional(),
 });
 
 export type CreateCheckoutDtoType = z.infer<typeof CreateCheckoutDto>;

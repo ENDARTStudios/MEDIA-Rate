@@ -44,6 +44,7 @@ export class PaymentController {
       success_url: string;
       cancel_url: string;
       currency?: "BRL" | "USD" | "EUR";
+      periodo?: "month" | "year";
     };
     const user = req.user;
     if (!user) {
@@ -54,6 +55,7 @@ export class PaymentController {
     const country = (req.headers["x-vercel-ip-country"] as string | undefined) ?? null;
     const locale = (req.headers["x-locale"] as string | undefined) ?? "pt-BR";
     dto.currency = currencyForRegion(locale, country);
+    dto.periodo = dto.periodo ?? "month";
 
     // Busca email do usuário no banco.
     const session = await this.paymentService.createCheckout(dto, {
