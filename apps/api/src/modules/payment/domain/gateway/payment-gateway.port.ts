@@ -73,7 +73,7 @@ export interface IPaymentGateway {
   /**
    * Cancela assinatura ativa.
    */
-  cancelSubscription(subscription_id: string): Promise<{ canceled: boolean }>;
+  cancelSubscription(subscription_id: string, opts?: { at_period_end?: boolean }): Promise<{ canceled: boolean }>;
 }
 
 /**

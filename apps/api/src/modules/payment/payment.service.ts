@@ -78,6 +78,7 @@ export class PaymentService {
       success_url: dto.success_url,
       cancel_url: dto.cancel_url,
       usuario_id: usuario.id,
+      // Trial de 7 dias apenas no Plus (D-132); Premium não tem trial.
       trial_period_days: dto.plano === "PLUS" ? PaymentService.TRIAL_DAYS_PLUS : undefined,
     });
 
@@ -85,6 +86,32 @@ export class PaymentService {
       `Checkout criado: ${session.id} para usuário ${usuario.id} (plano ${dto.plano})`,
     );
     return session;
+  }
+
+  /**
+   * Cancela a assinatura ativa do usuário no fim do período (at_period_end),
+   * mantendo acesso até lá. Idempotente: sem subscription ativa → no-op.
+   * O webhook customer.subscription.deleted faz o downgrade final.
+   */
+  async cancelar(usuario: { id: string }): Promise<{ canceled: boolean; at_period_end: boolean }> {
+    const plano = await comContextoRls(
+      this.prisma,
+      { usuarioId: usuario.id, role: ROLE_SERVICE },
+      (tx) =>
+        tx.usuarioPlano.findUnique({
+          where: { usuario_id: usuario.id },
+          select: { stripe_subscription_id: true },
+        }),
+    );
+    if (!plano?.stripe_subscription_id) {
+      // Sem assinatura ativa — cancelamento é no-op (idempotente).
+      return { canceled: false, at_period_end: false };
+    }
+    await this.gateway.cancelSubscription(plano.stripe_subscription_id, { at_period_end: true });
+    this.logger.log(
+      `Cancelamento agendado para o fim do período: usuário ${usuario.id} (sub ${plano.stripe_subscription_id})`,
+    );
+    return { canceled: true, at_period_end: true };
   }
 
   /**
