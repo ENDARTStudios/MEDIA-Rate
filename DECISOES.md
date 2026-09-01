@@ -1095,3 +1095,45 @@ env-only e artefatos limpos.
   efêmero, artefatos limpos ao final.
 
 **Pendências do Operador: 0.** Organismo (Thinker/Doer) em standby.
+
+
+---
+
+## D-410 — Cadência semanal como padrão de TODAS as fontes externas (T426)
+
+**Data:** 2026-09-01 · **Fase:** F16-polimento-conversao · **Status:** APROVADA
+
+**Contexto:** O OpenCritic (RapidAPI) atingiu 100% da cota BÁSICA por chamadas
+DIÁRIAS de coleta. O Operador questionou (corretamente) a necessidade da
+cadência diária: o catálogo é majoritariamente de títulos antigos e SEM
+usuários; scores agregados variam em semanas/meses, não em dias. A cadência
+diária foi um default de desenvolvimento, não de produto.
+
+**Decisão (diretiva do Operador, nível 0):**
+1. **Padrão único:** TODAS as fontes externas (OpenCritic, TMDB, IMDb, Metacritic,
+   IGDB, MAL, Jikan, AniList, Kitsu, MangaDex, OpenLibrary, ComicVine,
+   Google Books…) refrescam no máximo **1x por semana por mídia**.
+2. **Mecanismo (staleness-check):** o score-job só re-consulta mídias com
+   `avaliacoes_atualizadas_em` NULL ou anterior a `REFRESH_INTERVAL_DAYS`
+   (env, default **7**). Primeira execução popula tudo; execuções seguintes só
+   tocam as obsoletas. Log: `total/refreshadas/puladas`.
+3. **Zero chamadas externas em tempo de requisição:** o site serve de
+   `media_score` (banco); nenhum endpoint de usuário consulta fonte externa
+   sincronamente. Caminhos assim foram removidos/cacheados (TTL ≥ 7 dias).
+4. **Config explícita:** `REFRESH_INTERVAL_DAYS=7` em `refresh.config.ts` + env,
+   documentada no MANUAL_DO_OPERADOR.
+5. **Cron/trigger:** o job semanal agenda o próximo run em `MEDIA_SCORE_JOB_TIME`
+   (default 03:05 local) a `REFRESH_INTERVAL_DAYS` dias à frente.
+6. **OpenCritic (D-409):** fechado pela opção **(b) redução** — sem upgrade pago.
+7. **Falha graciosa:** se uma coleta retorna 0 fontes para uma mídia que JÁ tem
+   avaliações, mantém o último score (não regride para o prior Bayesiano).
+8. **Revisão futura:** quando houver usuários e lançamentos recentes
+   relevantes, pode-se cadenciar apenas títulos novos (≤90 dias) com mais
+   frequência — mediante DECISAO registrada, nunca por default.
+
+**Impacto (estimado):** ~624 mídias ⇒ diário ≈ 18,7 mil chamadas/mês; semanal
+≈ 2,7 mil/mês (**−86%**). Cota OpenCritic volta a caber no plano BÁSICO.
+
+**Lição registrada:** frequência de coleta externa deve ser proporcional ao
+estágio do produto e à volatilidade do dado; default conservador (semanal) até
+prova em contrário.

@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/commo
 import type { Midia } from "@prisma/client";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { REFRESH_INTERVAL_MS, REFRESH_INTERVAL_DAYS } from "../../common/refresh.config.js";
 import { NotificacoesService } from "../notificacoes/notificacoes.service.js";
 import type { ConsultaMedia } from "./adapters/fonte-adapter.interface.js";
 import { ColetaService, type ResultadoColeta } from "./coleta.service.js";
@@ -19,16 +20,19 @@ export interface ResultadoColetaEPersistir {
 }
 
 /**
- * Job diário do MEDIA Score (T4.7): coleta avaliações das fontes e recalcula
- * o score (v3) de TODAS as mídias do catálogo, com throttle entre mídias para
- * respeitar os limites de taxa das APIs externas (OMDb ~1k/dia, Trakt, etc.).
+ * Job do MEDIA Score (T4.7 / D-410 / T426): coleta avaliações das fontes e
+ * recalcula o score (v3) SOMENTE de mídias OBSOLETAS (nunca coletadas ou com
+ * `avaliacoes_atualizadas_em` anterior a REFRESH_INTERVAL_DAYS — default 7).
+ * Mídias frescas são puladas (0 chamadas externas desnecessárias).
  *
- * - Agenda a próxima execução para MEDIA_SCORE_JOB_TIME (default 03:05, hora
- *   local) e re-agenda ao final de cada run.
+ * - Cadência SEMANAL: agenda o próximo run em MEDIA_SCORE_JOB_TIME (default
+ *   03:05 local) a REFRESH_INTERVAL_DAYS dias à frente (ver refresh.config.ts).
  * - Ativo apenas em produção (NODE_ENV=production); desative com
  *   MEDIA_SCORE_JOB_ENABLED=false. Run sob demanda: POST /api/v1/midias/score-job
  *   (admin) ou chamando `executar()`.
  * - Guard anti-concorrência: uma segunda execução durante um run é ignorada.
+ * - Falha graciosa: se uma coleta retorna 0 fontes para uma mídia que JÁ tem
+ *   avaliações, mantém o último score (não regride para o prior Bayesiano).
  */
 @Injectable()
 export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
@@ -61,11 +65,17 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     const proxima = new Date(agora);
     proxima.setHours(hh || 3, mm || 5, 0, 0);
     if (proxima.getTime() <= agora.getTime()) proxima.setDate(proxima.getDate() + 1);
+    // D-410/T426: cadência SEMANAL — próximo run ao menos REFRESH_INTERVAL_DAYS
+    // à frente (mesmo horário local), em vez de diária.
+    const alvo = agora.getTime() + REFRESH_INTERVAL_MS;
+    while (proxima.getTime() < alvo) proxima.setDate(proxima.getDate() + 1);
     const delay = proxima.getTime() - agora.getTime();
     this.timer = setTimeout(() => {
       void this.executar().finally(() => this.agendarProxima());
     }, delay);
-    this.logger.log(`Job diário do MEDIA Score agendado para ${proxima.toISOString()}.`);
+    this.logger.log(
+      `Job semanal do MEDIA Score (${REFRESH_INTERVAL_DAYS}d) agendado para ${proxima.toISOString()}.`,
+    );
   }
 
   /**
@@ -83,12 +93,24 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     let processadas = 0;
     let comErro = 0;
     const inicio = Date.now();
-    this.logger.log("Job diário do MEDIA Score iniciado.");
+    let totalMidias = 0;
+    this.logger.log("Job do MEDIA Score iniciado.");
     try {
       let cursor: string | undefined;
       let pagina: MidiaParaColeta[];
+      const now = Date.now();
+      const cutoff = new Date(now - REFRESH_INTERVAL_MS);
+      // D-410/T426: só re-consulta mídias OBSOLETAS (nunca coletadas ou com
+      // `avaliacoes_atualizadas_em` anterior ao intervalo semanal).
+      totalMidias = await this.prisma.midia.count({ where: { deleted_at: null } });
       do {
         pagina = await this.prisma.midia.findMany({
+          where: {
+            OR: [
+              { avaliacoes_atualizadas_em: null },
+              { avaliacoes_atualizadas_em: { lt: cutoff } },
+            ],
+          },
           orderBy: { id: "asc" },
           take,
           ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -121,8 +143,9 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     } finally {
       this.emExecucao = false;
       const segundos = ((Date.now() - inicio) / 1000).toFixed(0);
+      const puladas = Math.max(0, totalMidias - processadas);
       this.logger.log(
-        `Job diário concluído: ${processadas} processadas, ${comErro} com erro em ${segundos}s.`,
+        `Job concluído: ${processadas} processadas (obsoletas), ${comErro} com erro, ${puladas} puladas (frescas) de ${totalMidias} mídias em ${segundos}s.`,
       );
     }
     // D-132: alertas de "score mudou" e de "novo título nota alta no seu
@@ -157,6 +180,19 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       (r): r is typeof r & { nota: NonNullable<(typeof r)["nota"]> } =>
         r.status === "ok" && !!r.nota,
     );
+
+    // D-410/T426: falha graciosa — se a coleta não obteve NENHUMA fonte mas a
+    // mídia JÁ tem avaliações, mantém o score anterior (não apaga nem regride
+    // para o prior). Evita perda de score em queda momentânea de APIs externas.
+    const existentes = await this.prisma.avaliacaoFonte.count({
+      where: { midia_id: midia.id },
+    });
+    if (coletadas.length === 0 && existentes > 0) {
+      this.logger.warn(
+        `Coleta sem fontes para "${midia.titulo}" (${midia.id}) — mantendo score anterior.`,
+      );
+      return { coletadas: [], score: null, resultados };
+    }
 
     await this.prisma.avaliacaoFonte.deleteMany({ where: { midia_id: midia.id } });
     if (coletadas.length > 0) {
