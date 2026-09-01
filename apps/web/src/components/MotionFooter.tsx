@@ -86,31 +86,41 @@ export async function MotionFooter({ locale }: { locale: string }) {
             <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
               {t("social")}
             </h4>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-2">
               {[
-                { label: t("socialGithub"), href: "https://github.com/ENDARTStudios/MEDIA-Rate" },
+                // Telegram: link real. Instagram: sem link ainda (placeholder).
                 { label: t("socialTelegram"), href: "https://t.me/MEDIARate2026" },
-              ].map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="text-sm text-[#9CA3AF] hover:text-[#818CF8] transition-colors duration-200"
-                  aria-label={social.label}
-                >
-                  {social.label}
-                </a>
-              ))}
+                { label: t("socialInstagram"), href: "" },
+              ].map((social) =>
+                social.href ? (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    className="text-sm text-[#9CA3AF] hover:text-[#818CF8] transition-colors duration-200"
+                    aria-label={social.label}
+                  >
+                    {social.label}
+                  </a>
+                ) : (
+                  <span
+                    key={social.label}
+                    className="text-sm text-[#9CA3AF]"
+                    aria-label={social.label}
+                  >
+                    {social.label}
+                  </span>
+                ),
+              )}
             </div>
           </div>
         </div>
 
         <div className="pt-8 border-t border-[rgba(129,140,248,0.08)] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[#6B7280]">
-            {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React),
-                garantindo a string literal exata no HTML renderizado. */}
-            {`Copyright © ${year} END ART Studios · MEDIA Rate. ${t("rights")}`}
+            {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React). */}
+            {`Copyright © ${year} END ART Studios`}
           </p>
-          <p className="text-xs text-[#6B7280]">{t("copyright")}</p>
+          <p className="text-xs text-[#6B7280]">{`MEDIA Rate. ${t("rights")}`}</p>
         </div>
       </div>
     </footer>
