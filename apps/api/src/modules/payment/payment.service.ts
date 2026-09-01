@@ -73,6 +73,7 @@ export class PaymentService {
       plano: dto.plano,
       // T419 (D-389): moeda da região decidida no controller (server).
       currency: dto.currency ?? "BRL",
+      periodo: dto.periodo ?? "month",
       customer_email: usuario.email,
       success_url: dto.success_url,
       cancel_url: dto.cancel_url,

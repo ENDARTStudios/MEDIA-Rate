@@ -53,6 +53,12 @@ export default function CheckoutPage({
         credentials: "include", // envia cookie httpOnly de sessão
         body: JSON.stringify({
           plano: planKey,
+          // T423: período de cobrança (month|year) — repassa a escolha do
+          // toggle do /pricing; o backend mapeia STRIPE_PRICE_<PLANO>_<MONTH|YEAR>_<MOEDA>.
+          periodo:
+            new URLSearchParams(window.location.search).get("billing") === "annual"
+              ? "year"
+              : "month",
           success_url: `${window.location.origin}/${locale}/pricing?status=success`,
           cancel_url: `${window.location.origin}/${locale}/pricing?status=canceled`,
         }),
