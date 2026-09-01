@@ -89,6 +89,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
             <div className="flex gap-4">
               {[
                 { label: t("socialGithub"), href: "https://github.com/ENDARTStudios/MEDIA-Rate" },
+                { label: t("socialTelegram"), href: "https://t.me/MEDIARate2026" },
               ].map((social) => (
                 <a
                   key={social.label}
