@@ -108,7 +108,12 @@ export function SocialButtons() {
           (toast 'em breve'); volta quando o OAuth Apple for implementado. */}
       {/* T424/align: centraliza o botão GSI e preenche a largura do form
           (antes o width:320 fixo do GSI ficava à esquerda da coluna). */}
-      <div ref={btnRef} className="w-full flex justify-center" />
+      {/* GSI injeta um <iframe> com width fixo (inline). Forçamos o iframe a
+          w-full (!) para o botão igualar a largura da caixa do form (T424/align). */}
+      <div
+        ref={btnRef}
+        className="w-full [&_iframe]:!w-full [&_div>iframe]:!w-full [&_iframe]:!block"
+      />
     </div>
   );
 }
