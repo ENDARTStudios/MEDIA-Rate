@@ -577,7 +577,7 @@
     "h1": "Política de Privacidad",
     "lastUpdated": "Última actualización: 30 de julio de 2026",
     "s1h": "1. Responsable y Contacto",
-"s1b": "MEDIA Rate es operado por END ART Studios (Osasco, São Paulo — Brasil). Para consultas sobre privacidad, para ejercer tus derechos o para contactar con el canal de protección de datos, escribe a endart.studios@gmail.com.",
+"s1b": "MEDIA Rate es operado por END ART Studios (CNPJ 45.370.930/0001-75, Osasco, São Paulo — Brasil). Para consultas sobre privacidad, para ejercer tus derechos o para contactar con el canal de protección de datos, escribe a endart.studios@gmail.com.",
     "s2h": "2. Qué Datos Recopilamos",
 "s2b": "Recopilamos y tratamos: datos de cuenta (nombre, correo, credenciales con hash), datos de suscripción y pago (plan, estado e identificadores vía Stripe — nunca el número completo de la tarjeta), datos de uso (watchlist, favoritos, historial de consumo, reacciones, estado), datos técnicos (dirección IP, registros de acceso, dispositivo, eventos) y preferencias de comunicación. También usamos fuentes públicas (TMDB, IMDb, IGDB, OpenCritic y otras) para el MEDIA Score. Solo usamos cookies de sesión esenciales (httpOnly, Secure, SameSite=Lax); no usamos cookies publicitarias ni de rastreo de terceros.",
     "s3h": "3. Base Legal y Finalidad (RGPD)",
@@ -609,7 +609,7 @@
     "h1": "Termos de Uso",
     "lastUpdated": "Última actualización: 13 de agosto de 2026 · Versión: 1.0",
     "s1h": "1. Objeto y Aceptación",
-    "s1b": "1.1. Estos Términos y Condiciones de Uso (\"Términos\") regulan el acceso y uso de la plataforma MEDIA Rate, disponible en https://mediarate.app, operada por END ART Studios (\"nosotros\", \"la Plataforma\"), [persona física/jurídica] inscrita bajo [identificación fiscal], con domicilio en [dirección completa].\n1.2. Al crear una cuenta o utilizar cualquier funcionalidad de MEDIA Rate, usted (\"Usuario\") declara haber leído, comprendido y aceptado íntegramente estos Términos, así como nuestra Política de Privacidad, que forma parte integrante de este documento.\n1.3. Si no está de acuerdo con alguna disposición de estos Términos, no debe crear una cuenta ni utilizar la Plataforma.",
+    "s1b": "1.1. Estos Términos y Condiciones de Uso (\"Términos\") regulan el acceso y uso de la plataforma MEDIA Rate, disponible en https://mediarate.app, operada por END ART Studios (\"nosotros\", \"la Plataforma\"), persona jurídica inscrita en el CNPJ 45.370.930/0001-75, con domicilio en Osasco, São Paulo — Brasil.\n1.2. Al crear una cuenta o utilizar cualquier funcionalidad de MEDIA Rate, usted (\"Usuario\") declara haber leído, comprendido y aceptado íntegramente estos Términos, así como nuestra Política de Privacidad, que forma parte integrante de este documento.\n1.3. Si no está de acuerdo con alguna disposición de estos Términos, no debe crear una cuenta ni utilizar la Plataforma.",
     "s2h": "2. Definiciones",
     "s2b": "- Plataforma: el sitio web y las aplicaciones de MEDIA Rate, incluidas todas sus funcionalidades.\n- MEDIA Score™: algoritmo propietario de agregación de valoraciones de fuentes públicas, mostrado como una puntuación unificada por título.\n- Contenido de Terceros: datos, imágenes y valoraciones obtenidos de fuentes externas (p. ej., TMDB, IGDB, entre otras indicadas en la página \"Acerca de\"), cuya titularidad pertenece a sus respectivos titulares de derechos.\n- Suscripción: plan de pago (Plus o Premium) que desbloquea funcionalidades adicionales, según se describe en la página de Precios.\n- Cuenta: el registro personal e intransferible creado por el Usuario para acceder a la Plataforma.",
     "s3h": "3. Registro y Cuenta",
@@ -637,9 +637,9 @@
     "s14h": "14. Disposiciones Generales",
     "s14b": "14.1. Si alguna disposición de estos Términos fuera considerada nula o inaplicable por una autoridad competente, las demás disposiciones permanecerán en pleno vigor.\n14.2. La tolerancia de cualquiera de las partes respecto del incumplimiento de una disposición de estos Términos no implica renuncia al derecho de exigirla posteriormente.\n14.3. El Usuario no puede ceder ni transferir su Cuenta o los derechos derivados de estos Términos a terceros sin autorización previa y por escrito de MEDIA Rate.",
     "s15h": "15. Legislación Aplicable y Jurisdicción",
-    "s15b": "15.1. Estos Términos se rigen por las leyes de la República Federativa de Brasil.\n15.2. Cualquier controversia derivada de estos Términos se someterá a los tribunales de [Osasco/SP — confirmar domicilio social vigente], sin perjuicio de cualquier derecho irrenunciable que el Usuario pueda tener, conforme a su propia legislación local de protección al consumidor, de acudir a los tribunales de su lugar de residencia.",
+    "s15b": "15.1. Estos Términos se rigen por las leyes de la República Federativa de Brasil.\n15.2. Cualquier controversia derivada de estos Términos se someterá a los tribunales de Osasco, São Paulo — Brasil, sin perjuicio de cualquier derecho irrenunciable que el Usuario pueda tener, conforme a su propia legislación local de protección al consumidor, de acudir a los tribunales de su lugar de residencia.",
     "s16h": "16. Contacto",
-    "s16b": "Las consultas sobre estos Términos pueden enviarse a [correo electrónico de contacto]."
+    "s16b": "Las consultas sobre estos Términos pueden enviarse a endart.studios@gmail.com."
   },
   "faq": {
     "metaTitle": "Preguntas Frecuentes — MEDIA Rate",

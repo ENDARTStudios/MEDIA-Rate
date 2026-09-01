@@ -577,7 +577,7 @@
     "h1": "Privacy Policy",
     "lastUpdated": "Last updated: July 30, 2026",
     "s1h": "1. Controller and Contact",
-"s1b": "MEDIA Rate is operated by END ART Studios (Osasco, São Paulo — Brazil). For privacy questions, to exercise your rights, or to reach the data-protection contact, write to endart.studios@gmail.com.",
+"s1b": "MEDIA Rate is operated by END ART Studios (CNPJ 45.370.930/0001-75, Osasco, São Paulo — Brazil). For privacy questions, to exercise your rights, or to reach the data-protection contact, write to endart.studios@gmail.com.",
     "s2h": "2. What Data We Collect",
 "s2b": "We collect and process: account data (name, email, hashed credentials), subscription and payment data (plan, status and identifiers via Stripe — never the full card number), usage data (watchlist, favorites, consumption history, reactions, status), technical data (IP address, access logs, device, browsing events) and communication preferences. We also use public data sources (TMDB, IMDb, IGDB, OpenCritic and others) to build the MEDIA Score. We only use essential session cookies (httpOnly, Secure, SameSite=Lax); we do not use advertising or third-party tracking cookies.",
     "s3h": "3. Legal Basis and Purpose",
@@ -609,7 +609,7 @@
     "h1": "Termos de Uso",
     "lastUpdated": "Last updated: August 13, 2026 · Version: 1.0",
     "s1h": "1. Purpose and Acceptance",
-    "s1b": "1.1. These Terms and Conditions of Use (\"Terms\") govern access to and use of the MEDIA Rate platform, available at https://mediarate.app, operated by END ART Studios (\"we,\" \"the Platform\"), a [individual/company] registered under [tax ID], with registered address at [full address].\n1.2. By creating an account or using any feature of MEDIA Rate, you (\"User\") acknowledge that you have read, understood, and fully accepted these Terms, as well as our Privacy Policy, which is incorporated by reference into this document.\n1.3. If you do not agree with any provision of these Terms, you should not create an account or use the Platform.",
+    "s1b": "1.1. These Terms and Conditions of Use (\"Terms\") govern access to and use of the MEDIA Rate platform, available at https://mediarate.app, operated by END ART Studios (\"we,\" \"the Platform\"), a legal entity registered under CNPJ 45.370.930/0001-75, with registered address at Osasco, São Paulo — Brazil.\n1.2. By creating an account or using any feature of MEDIA Rate, you (\"User\") acknowledge that you have read, understood, and fully accepted these Terms, as well as our Privacy Policy, which is incorporated by reference into this document.\n1.3. If you do not agree with any provision of these Terms, you should not create an account or use the Platform.",
     "s2h": "2. Definitions",
     "s2b": "- Platform: the MEDIA Rate website and applications, including all their features.\n- MEDIA Score™: a proprietary algorithm that aggregates ratings from public sources, displayed as a unified score per title.\n- Third-Party Content: data, images, and ratings obtained from external sources (e.g., TMDB, IGDB, and others listed on the \"About\" page), owned by their respective rights holders.\n- Subscription: a paid plan (Plus or Premium) that unlocks additional features, as described on the Pricing page.\n- Account: the personal, non-transferable registration created by the User to access the Platform.",
     "s3h": "3. Registration and Account",
@@ -637,9 +637,9 @@
     "s14h": "14. General Provisions",
     "s14b": "14.1. If any provision of these Terms is deemed invalid or unenforceable by a competent authority, the remaining provisions shall remain in full force.\n14.2. Failure by either party to enforce any provision of these Terms does not constitute a waiver of the right to enforce it later.\n14.3. The User may not assign or transfer their Account or rights under these Terms to third parties without prior written authorization from MEDIA Rate.",
     "s15h": "15. Governing Law and Jurisdiction",
-    "s15b": "15.1. These Terms are governed by the laws of the Federative Republic of Brazil.\n15.2. Any disputes arising from these Terms shall be submitted to the courts of [Osasco/SP — confirm current registered address], without prejudice to any non-waivable right the User may have, under their own local consumer-protection law, to bring proceedings in their place of residence.",
+    "s15b": "15.1. These Terms are governed by the laws of the Federative Republic of Brazil.\n15.2. Any disputes arising from these Terms shall be submitted to the courts of Osasco, São Paulo — Brazil, without prejudice to any non-waivable right the User may have, under their own local consumer-protection law, to bring proceedings in their place of residence.",
     "s16h": "16. Contact",
-    "s16b": "Questions about these Terms may be sent to [contact email]."
+    "s16b": "Questions about these Terms may be sent to endart.studios@gmail.com."
   },
   "faq": {
     "metaTitle": "Frequently Asked Questions — MEDIA Rate",
