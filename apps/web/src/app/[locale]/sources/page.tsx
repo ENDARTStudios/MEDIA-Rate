@@ -3,6 +3,9 @@ import { setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
+import type { MediaType } from "@/lib/types";
+
+const TIPO_MATRIZ: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
 import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 
 interface PageProps {
@@ -107,6 +110,49 @@ export default async function SourcesPage({ params }: PageProps) {
               </div>
             ))}
           </dl>
+        </section>
+
+        <section aria-labelledby="coverage-matrix-title">
+          <h2 id="coverage-matrix-title">{copy.coveragematrix}</h2>
+          {/* Matriz de cobertura por categoria (fonte única: FONTES_ATIVAS +
+              MIDIA_LABEL). Torna explícito quais categorias estão cobertas e
+              quais estão em preparação — transparência do escopo real. */}
+          <ul className="not-prose mt-6 grid gap-3 sm:grid-cols-2">
+            {TIPO_MATRIZ.map((tipo) => {
+              const fontes = FONTES_ATIVAS.filter((f) => f.midias.includes(tipo));
+              const coberto = fontes.length > 0;
+              return (
+                <li
+                  key={tipo}
+                  data-testid={`coverage-${tipo}`}
+                  className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-heading text-base font-semibold text-[#EDE7DC]">
+                      {MIDIA_LABEL[tipo]}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                        coberto
+                          ? "bg-[#34D399]/15 text-[#34D399]"
+                          : "bg-[#F59E0B]/15 text-[#F59E0B]"
+                      }`}
+                    >
+                      {coberto ? copy.covered : copy.inPreparation}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
+                    {coberto ? fontes.map((f) => f.nome).join(" · ") : copy.inPreparation}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <section aria-labelledby="licensing-title">
+          <h2 id="licensing-title">{copy.licensingTitle}</h2>
+          <p>{copy.licensingBody}</p>
         </section>
 
         <section aria-labelledby="transparency-title">

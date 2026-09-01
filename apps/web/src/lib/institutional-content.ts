@@ -44,6 +44,11 @@ interface InstitutionalContent {
     coverageBody: string;
     sourceTitle: string;
     sourceItems: { name: string; description: string }[];
+    coveragematrix: string;
+    covered: string;
+    inPreparation: string;
+    licensingTitle: string;
+    licensingBody: string;
     transparencyTitle: string;
     transparencyBody: string;
   };
@@ -185,6 +190,12 @@ const content: Record<string, InstitutionalContent> = {
       transparencyTitle: "Transparência antes de precisão aparente",
       transparencyBody:
         "Uma nota sem escopo pode parecer mais precisa do que realmente é. O MEDIA Rate busca associar a nota às fontes, à cobertura e ao nível de confiança aplicável a cada obra.",
+      coveragematrix: "Cobertura por categoria",
+      covered: "Coberto",
+      inPreparation: "Em preparação",
+      licensingTitle: "Atribuição e licenciamento de dados",
+      licensingBody:
+        "O MEDIA Score consolida notas numéricas e metadados obtidos de fontes de terceiros (TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, Letterboxd, Trakt, IGDB, OpenCritic, Steam e outras), conforme os termos das respectivas APIs e políticas de uso. Nomes, logotipos, notas, sinopses e imagens pertencem aos seus respectivos proprietários; sua presença não implica endosso, parceria ou afiliação. O MEDIA Rate não transmite nem distribui as obras. Notas numéricas são tratadas como fatos estatísticos; atribuição, cache e demais obrigações seguem os termos de cada fonte. Consulte a política de cada fornecedor para os detalhes completos.",
     },
   },
   "en-US": {
@@ -322,6 +333,12 @@ const content: Record<string, InstitutionalContent> = {
       transparencyTitle: "Transparency over apparent precision",
       transparencyBody:
         "A score without scope may look more precise than it is. MEDIA Rate aims to associate each score with the sources, coverage and confidence level applicable to that title.",
+      coveragematrix: "Coverage by category",
+      covered: "Covered",
+      inPreparation: "In preparation",
+      licensingTitle: "Attribution and data licensing",
+      licensingBody:
+        "The MEDIA Score consolidates numeric ratings and metadata obtained from third-party sources (TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, Letterboxd, Trakt, IGDB, OpenCritic, Steam and others), per the terms of their respective APIs and usage policies. Names, logos, ratings, synopses and images belong to their respective owners; their presence does not imply endorsement, partnership or affiliation. MEDIA Rate does not distribute the works themselves. Numeric ratings are treated as statistical facts; attribution, cache and other obligations follow each source's terms. See each provider's policy for details.",
     },
   },
   "es-ES": {
@@ -459,6 +476,12 @@ const content: Record<string, InstitutionalContent> = {
       transparencyTitle: "Transparencia antes que precisión aparente",
       transparencyBody:
         "Una puntuación sin alcance puede parecer más precisa de lo que realmente es. MEDIA Rate busca asociar cada nota con las fuentes, la cobertura y el nivel de confianza aplicables a esa obra.",
+      coveragematrix: "Cobertura por categoría",
+      covered: "Cubierto",
+      inPreparation: "En preparación",
+      licensingTitle: "Atribución y licencia de datos",
+      licensingBody:
+        "El MEDIA Score consolida calificaciones numéricas y metadatos obtenidos de fuentes de terceros (TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, Letterboxd, Trakt, IGDB, OpenCritic, Steam y otras), según los términos de sus respectivas API y políticas de uso. Nombres, logotipos, notas, sinopsis e imágenes pertenecen a sus respectivos propietarios; su presencia no implica respaldo, afiliación ni sociedad. MEDIA Rate no distribuye las obras. Las notas numéricas se tratan como hechos estadísticos; la atribución, caché y demás obligaciones siguen los términos de cada fuente. Consulte la política de cada proveedor para los detalles.",
     },
   },
 };
