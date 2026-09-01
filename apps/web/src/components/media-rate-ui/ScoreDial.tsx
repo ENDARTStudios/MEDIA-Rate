@@ -131,7 +131,7 @@ export function ScoreDial({
           {display.toLocaleString("pt-BR")}
         </span>
         {showConfidence && (
-          <span className="mt-0.5 text-[9px] uppercase tracking-wider" style={{ color }}>
+          <span className="mt-0.5 text-xs uppercase tracking-wider" style={{ color }}>
             {label === "high" ? "Alta" : label === "medium" ? "Média" : "Baixa"}
           </span>
         )}

@@ -364,7 +364,7 @@ export function StatusReactionControl({
                       type="button"
                       onClick={() => toggleMotivo(m)}
                       aria-pressed={active}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      className={`rounded-full border px-2.5 py-1 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                         active
                           ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
                           : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
@@ -378,7 +378,7 @@ export function StatusReactionControl({
             </div>
           )}
 
-          <p className="mt-3 text-[11px] text-[#6B6B85]">{t("optionalHint")}</p>
+          <p className="mt-3 text-xs text-[#6B6B85]">{t("optionalHint")}</p>
         </motion.div>
       )}
     </div>

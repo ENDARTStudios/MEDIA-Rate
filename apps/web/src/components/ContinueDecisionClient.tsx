@@ -114,7 +114,7 @@ export function ContinueDecisionClient() {
                   <div className="mt-1 flex items-center gap-2">
                     <p className="text-xs text-[#A0A0B8]">{media.year ?? "—"}</p>
                     {media.score != null && (
-                      <span className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums text-[#F5F5F7] bg-[#1B1B2C] border border-[#2A2A3D]">
+                      <span className="ml-auto rounded-full px-2 py-0.5 text-xs font-bold tabular-nums text-[#F5F5F7] bg-[#1B1B2C] border border-[#2A2A3D]">
                         {media.score >= 80 ? "🟢" : media.score >= 60 ? "🟡" : "🔴"}{" "}
                         {Math.round(media.score)}
                       </span>

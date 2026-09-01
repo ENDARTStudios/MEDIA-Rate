@@ -66,7 +66,7 @@ export function AgeRatingBadge({
       >
         {rating}
       </span>
-      <div className="text-[11px] leading-tight text-[#6B6B85]">
+      <div className="text-xs leading-tight text-[#6B6B85]">
         {source === "sugerida" && <span>Classificação sugerida pela editora</span>}
         {perSeason && <span>Pode variar por temporada</span>}
         {labels.length > 0 && (
@@ -74,7 +74,7 @@ export function AgeRatingBadge({
             {labels.map((label, i) => (
               <span
                 key={label}
-                className="mr-1.5 inline-flex items-center gap-0.5 rounded-full bg-[#1B1B2C] px-1.5 py-px text-[10px] text-[#A0A0B8]"
+                className="mr-1.5 inline-flex items-center gap-0.5 rounded-full bg-[#1B1B2C] px-1.5 py-px text-xs text-[#A0A0B8]"
               >
                 {label}
                 {i < labels.length - 1 ? "" : ""}

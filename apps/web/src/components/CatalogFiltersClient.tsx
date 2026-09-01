@@ -152,7 +152,7 @@ export function CatalogFiltersClient() {
         {advancedOpen && (
           <div className="mt-3 space-y-3">
             <div>
-              <span className="block text-[11px] text-[#6B7280] mb-1.5">{tf("anoLabel")}</span>
+              <span className="block text-xs text-[#6B7280] mb-1.5">{tf("anoLabel")}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -175,7 +175,7 @@ export function CatalogFiltersClient() {
             </div>
 
             <div>
-              <span className="block text-[11px] text-[#6B7280] mb-1.5">MEDIA Score (0–100)</span>
+              <span className="block text-xs text-[#6B7280] mb-1.5">MEDIA Score (0–100)</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -197,7 +197,7 @@ export function CatalogFiltersClient() {
               </div>
             </div>
             <div>
-              <span className="block text-[11px] text-[#6B7280] mb-1.5">{tf("genero")}</span>
+              <span className="block text-xs text-[#6B7280] mb-1.5">{tf("genero")}</span>
               <select
                 value={genero}
                 onChange={(e) => setParam("genero", e.target.value)}
@@ -211,7 +211,7 @@ export function CatalogFiltersClient() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1.5 text-[11px] text-[#6B7280]">
+              <p className="mt-1.5 text-xs text-[#6B7280]">
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input
                     type="checkbox"

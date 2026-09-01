@@ -21,7 +21,7 @@ export function PlanBadge({ plan, className }: { plan?: string; className?: stri
   return (
     <span
       className={cn(
-        "pointer-events-none absolute -bottom-1 -right-1 rounded-full border-2 border-[#09090F] px-1 py-0.5 text-[8px] font-bold leading-none",
+        "pointer-events-none absolute -bottom-1 -right-1 rounded-full border-2 border-[#09090F] px-1 py-0.5 text-xs font-bold leading-none",
         className,
       )}
       style={{ backgroundColor: config.bg, color: config.color }}

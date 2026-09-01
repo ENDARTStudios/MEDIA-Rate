@@ -117,7 +117,7 @@ export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
   const subiu = diff > 0;
   return (
     <span
-      className="inline-flex items-center gap-0.5 text-[10px] font-semibold tabular-nums"
+      className="inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums"
       style={{ color: subiu ? "#34D399" : "#F87171" }}
       title={`${subiu ? "Subiu" : "Caiu"} de ${anterior.toFixed(1)} para ${atual.toFixed(1)}`}
       data-testid="score-delta"
@@ -176,7 +176,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
           setAberto(true);
           setQuery(palpite);
         }}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-[10px] text-[#818CF8] hover:bg-[#2A2A3D] transition-colors"
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#818CF8] hover:bg-[#2A2A3D] transition-colors"
       >
         {t("buscarSubstituta")}
       </button>
@@ -191,16 +191,16 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("relinkPlaceholder")}
         aria-label={t("buscarSubstituta")}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-[10px] text-[#EDE7DC] placeholder-[#6B7280] outline-none focus:border-[#818CF8]"
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#EDE7DC] placeholder-[#6B7280] outline-none focus:border-[#818CF8]"
       />
-      {erro && <p className="text-[10px] text-red-400">{t("relinkError")}</p>}
+      {erro && <p className="text-xs text-red-400">{t("relinkError")}</p>}
       <div className="max-h-32 overflow-y-auto rounded border border-[#2A2A3D]">
         {resultados.map((r) => (
           <button
             key={r.id}
             type="button"
             onClick={() => void relinkItem(entryId, r.id)}
-            className="block w-full text-left rounded px-1.5 py-1 text-[10px] text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+            className="block w-full text-left rounded px-1.5 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
           >
             {r.title} <span className="text-[#6B7280]">{r.year}</span>
           </button>
@@ -273,7 +273,7 @@ export function WatchlistCard({
         // T322: órfão sem título resolvível — NUNCA um beco "Título
         // indisponível" estático; oferece a recuperação "Buscar substituta".
         <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
-          <span className="text-center text-[10px] leading-tight text-[#6B6B85]">
+          <span className="text-center text-xs leading-tight text-[#6B6B85]">
             {tituloFinal}
           </span>
           <BuscarSubstituta entryId={entry.id} palpite={palpite} />
@@ -298,7 +298,7 @@ export function WatchlistCard({
           onChange={(e) => onMove(entry.id, e.target.value)}
           aria-label={t("moveTo")}
           onClick={(e) => e.stopPropagation()}
-          className="flex-1 min-w-0 rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-0.5 text-[10px] text-[#A0A0B8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+          className="flex-1 min-w-0 rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-0.5 text-xs text-[#A0A0B8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
         >
           {["WANT", "WATCHING", "COMPLETED"].map((c) => (
             <option key={c} value={c}>
@@ -336,7 +336,7 @@ export function WatchlistCard({
                     onMove(entry.id, c);
                     setMenuAberto(false);
                   }}
-                  className="block w-full text-left rounded px-2 py-1 text-[11px] text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                  className="block w-full text-left rounded px-2 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
                 >
                   {t(colunaLabelKey(mediaType, c))}
                 </button>
@@ -350,7 +350,7 @@ export function WatchlistCard({
                   setMenuAberto(false);
                 }}
                 disabled={removing}
-                className="block w-full text-left rounded px-2 py-1 text-[11px] text-red-400 hover:bg-[#2A2A3D]"
+                className="block w-full text-left rounded px-2 py-1 text-xs text-red-400 hover:bg-[#2A2A3D]"
               >
                 {removing ? "..." : t("removeFromWatchlist")}
               </button>
@@ -366,7 +366,7 @@ export function WatchlistCard({
           data-testid={showReactionPrompt ? "reaction-prompt" : "reaction-inline"}
         >
           {showReactionPrompt && (
-            <span className="text-[10px] text-[#80809B]">{t("reactNow")}</span>
+            <span className="text-xs text-[#80809B]">{t("reactNow")}</span>
           )}
           {REACOES.map((r) => {
             const active = reacao === r;
@@ -377,7 +377,7 @@ export function WatchlistCard({
                 onClick={() => react(r)}
                 aria-pressed={active}
                 aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
-                className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                   active
                     ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
                     : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
