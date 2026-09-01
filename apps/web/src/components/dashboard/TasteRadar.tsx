@@ -24,7 +24,7 @@ export function TasteRadar({
     <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6" data-testid="taste-radar">
       <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">{title}</h2>
       <TasteRadarChart data={data} color="#818CF8" />
-      {note && <p className="mt-2 text-[11px] text-[#80809B]">{note}</p>}
+      {note && <p className="mt-2 text-xs text-[#80809B]">{note}</p>}
     </div>
   );
 }

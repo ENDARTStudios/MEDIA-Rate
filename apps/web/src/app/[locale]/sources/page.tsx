@@ -97,7 +97,7 @@ export default async function SourcesPage({ params }: PageProps) {
                 <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{fonte.nome}</dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       fonte.tipo === "critica"
                         ? "bg-[#38BDF8]/15 text-[#38BDF8]"
                         : "bg-[#E11D48]/15 text-[#E11D48]"
@@ -132,7 +132,7 @@ export default async function SourcesPage({ params }: PageProps) {
                       {MIDIA_LABEL[tipo]}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
                         coberto
                           ? "bg-[#34D399]/15 text-[#34D399]"
                           : "bg-[#F59E0B]/15 text-[#F59E0B]"

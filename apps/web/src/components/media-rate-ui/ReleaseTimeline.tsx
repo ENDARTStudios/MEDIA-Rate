@@ -38,7 +38,7 @@ export function ReleaseTimeline({ items, className }: ReleaseTimelineProps) {
             key={`${item.date}-${item.title}`}
             className="flex-shrink-0 w-40 snap-start rounded-md border border-[#2A2A3D] bg-[#12121C] p-3"
           >
-            <p className="text-[11px] font-medium text-[#818CF8]">{item.date}</p>
+            <p className="text-xs font-medium text-[#818CF8]">{item.date}</p>
             <p className="mt-1 truncate text-sm text-[#F5F5F7]">{item.title}</p>
           </li>
         ))}

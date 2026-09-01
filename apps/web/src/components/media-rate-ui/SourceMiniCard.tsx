@@ -54,7 +54,7 @@ export function SourceMiniCard({
         <div className="mt-0.5 flex items-center gap-2">
           {classification ? (
             <span
-              className="rounded-full px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide"
+              className="rounded-full px-1.5 py-px text-xs font-semibold uppercase tracking-wide"
               style={{
                 backgroundColor: `${CLASS_COLOR[classification]}1F`,
                 color: CLASS_COLOR[classification],
@@ -64,7 +64,7 @@ export function SourceMiniCard({
             </span>
           ) : null}
           {notaNormalizada != null && (
-            <span className="text-[11px] text-[#80809B]">
+            <span className="text-xs text-[#80809B]">
               {notaNormalizada}/{escalaMax}
             </span>
           )}
@@ -75,7 +75,7 @@ export function SourceMiniCard({
         <span className="block text-sm font-bold tabular-nums text-[#F5F5F7]">
           {ratingOriginal != null ? ratingOriginal : "—"}
         </span>
-        <span className="block text-[10px] text-[#80809B]">{t("orig")}</span>
+        <span className="block text-xs text-[#80809B]">{t("orig")}</span>
       </div>
     </div>
   );

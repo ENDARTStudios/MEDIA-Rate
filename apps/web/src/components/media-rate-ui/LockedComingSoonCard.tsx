@@ -84,7 +84,7 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
                   busca vazia). */}
               {t("comingSoonTag")}
             </span>
-            <span className="rounded-full bg-black/30 px-2 py-0.5 text-[10px] text-[#F5F5F7]">
+            <span className="rounded-full bg-black/30 px-2 py-0.5 text-xs text-[#F5F5F7]">
               {rotulo}
             </span>
           </div>

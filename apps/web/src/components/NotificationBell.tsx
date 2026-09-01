@@ -96,7 +96,7 @@ export function NotificationBell() {
         <Bell className="h-4 w-4" aria-hidden="true" />
         {unread > 0 && (
           <span
-            className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E11D48] px-1 text-[10px] font-bold text-white tabular-nums"
+            className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E11D48] px-1 text-xs font-bold text-white tabular-nums"
             aria-hidden="true"
           >
             {unread > 99 ? "99+" : unread}
@@ -141,7 +141,7 @@ export function NotificationBell() {
                   <span className="mt-0.5 block text-xs text-[#A0A0B8]">{n.mensagem}</span>
                   {n.dados?.score != null && (
                     <span
-                      className="mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums"
+                      className="mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold tabular-nums"
                       style={{
                         backgroundColor:
                           (n.dados.score ?? 0) >= 70

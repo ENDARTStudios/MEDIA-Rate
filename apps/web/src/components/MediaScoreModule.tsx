@@ -154,7 +154,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             <h3 className="text-sm font-semibold text-gray-100 mb-1">MEDIA Score</h3>
             {emPreparacao && (
               <span
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-[#F59E0B] bg-[#F59E0B]/15 mb-1"
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-[#F59E0B] bg-[#F59E0B]/15 mb-1"
                 data-testid="score-coming-soon"
               >
                 {t("scoreComingSoon")}
@@ -186,7 +186,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             <p className="text-xs text-[#6B7280] mb-1" data-testid="last-updated">
               {t("updated")} {relativeTime(updatedAt, t)}
               {isStale && (
-                <span className="ml-1 px-1.5 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] rounded text-[10px]">
+                <span className="ml-1 px-1.5 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] rounded text-xs">
                   {t("mayBeOutdated")}
                 </span>
               )}

@@ -155,7 +155,7 @@ function PreviewCard({
     >
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8]">{titulo}</h2>
-        <span className="rounded-full border border-[#818CF8]/40 px-2 py-0.5 text-[10px] font-semibold uppercase text-[#818CF8]">
+        <span className="rounded-full border border-[#818CF8]/40 px-2 py-0.5 text-xs font-semibold uppercase text-[#818CF8]">
           {selo}
         </span>
       </div>

@@ -94,7 +94,7 @@ export function UserDataPage() {
           <Button variant="destructive" disabled>
             {t("deleteData")}
           </Button>
-          <p className="mt-2 text-[11px] text-[#6B6B85]">{t("deleteSoon")}</p>
+          <p className="mt-2 text-xs text-[#6B6B85]">{t("deleteSoon")}</p>
         </div>
       </div>
     </ProtectedPage>
