@@ -79,6 +79,11 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {t("lgpd")}
                 </Link>
               </li>
+              <li>
+                <Link href="mailto:endart.studios@gmail.com" className={linkHover}>
+                  {t("contact")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -116,11 +121,11 @@ export async function MotionFooter({ locale }: { locale: string }) {
         </div>
 
         <div className="pt-8 border-t border-[rgba(129,140,248,0.08)] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-[#6B7280]">{`MEDIA Rate. ${t("rights")}`}</p>
           <p className="text-xs text-[#6B7280]">
             {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React). */}
             {`Copyright © ${year} END ART Studios`}
           </p>
-          <p className="text-xs text-[#6B7280]">{`MEDIA Rate. ${t("rights")}`}</p>
         </div>
       </div>
     </footer>
