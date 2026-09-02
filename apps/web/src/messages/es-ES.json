@@ -1,4 +1,16 @@
 {
+  "consent": {
+    "title": "Tu privacidad",
+    "body": "Usamos cookies esenciales para el funcionamiento del servicio. Puedes aceptar o rechazar cookies opcionales (analytics y monitoreo).",
+    "necessary": "Necesarios (siempre activos)",
+    "alwaysOn": "Siempre activos",
+    "analytics": "Analytics (PostHog)",
+    "monitoring": "Monitoreo (Sentry)",
+    "acceptAll": "Aceptar todos",
+    "decline": "Rechazar",
+    "manage": "Gestionar",
+    "save": "Guardar"
+  },
   "common": {
     "appName": "MEDIA Rate",
     "tagline": "Descubre qué ver y jugar",

@@ -10,6 +10,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useConsentStore } from "@/stores/use-consent-store";
 
 /** Subconjunto mínimo da API de posthog-js usado aqui (evita import() type). */
 interface PostHogInstance {
@@ -22,7 +23,9 @@ interface PostHogInstance {
 export function PostHogProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
-  const enabled = Boolean(process.env.NEXT_PUBLIC_ANALYTICS_WRITE_KEY);
+  // T432 (D-422): analytics só carrega com consentimento do usuário.
+  const analyticsConsent = useConsentStore((s) => s.analytics);
+  const enabled = Boolean(process.env.NEXT_PUBLIC_ANALYTICS_WRITE_KEY) && analyticsConsent;
   const posthogRef = useRef<PostHogInstance | null>(null);
 
   useEffect(() => {

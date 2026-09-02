@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScoreDial } from "@/components/ui/score-dial";
 import { Lock } from "lucide-react";
 import { LgpdControls } from "@/components/settings/LgpdControls";
+import { useConsentStore } from "@/stores/use-consent-store";
 
 const NEXT_TIER: Record<string, { plan: "PLUS" | "PREMIUM"; score: number } | null> = {
   FREE: { plan: "PLUS", score: 7.9 },
@@ -21,6 +22,12 @@ export default function SettingsPage() {
   const ts = useTranslations("settings");
   const tp = useTranslations("pricing");
   const tn = useTranslations("nav");
+  const tc = useTranslations("consent");
+  const {
+    analytics: consentAnalytics,
+    monitoring: consentMonitoring,
+    setConsent: setConsentPrefs,
+  } = useConsentStore();
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -166,6 +173,40 @@ export default function SettingsPage() {
                   {loc}
                 </Button>
               ))}
+            </div>
+          </div>
+
+          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
+            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-1">
+              {tc("title")}
+            </h2>
+            <p className="text-sm text-[#A0A0B8] mb-4">{tc("body")}</p>
+            <div className="space-y-3 text-sm">
+              <label className="flex items-center justify-between">
+                <span className="text-[#EDE7DC]">{tc("analytics")}</span>
+                <input
+                  type="checkbox"
+                  checked={consentAnalytics}
+                  onChange={(e) =>
+                    setConsentPrefs({ analytics: e.target.checked, monitoring: consentMonitoring })
+                  }
+                  className="h-4 w-4 accent-[#818CF8]"
+                  aria-label={tc("analytics")}
+                />
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-[#EDE7DC]">{tc("monitoring")}</span>
+                <input
+                  type="checkbox"
+                  checked={consentMonitoring}
+                  onChange={(e) =>
+                    setConsentPrefs({ analytics: consentAnalytics, monitoring: e.target.checked })
+                  }
+                  className="h-4 w-4 accent-[#818CF8]"
+                  aria-label={tc("monitoring")}
+                />
+              </label>
+              <p className="text-xs text-[#6B7280]">{tc("necessary")}</p>
             </div>
           </div>
 

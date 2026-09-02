@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useConsentStore } from "@/stores/use-consent-store";
 
 /**
  * T315 — garante a inicialização do SDK do Sentry no BROWSER.
@@ -10,8 +11,11 @@ import { useEffect } from "react";
  * Sem DSN (dev), o config é NO-OP por design.
  */
 export function SentryClientInit() {
+  // T432 (D-422): monitoramento só inicializa com consentimento do usuário.
+  const monitoring = useConsentStore((s) => s.monitoring);
   useEffect(() => {
+    if (!monitoring) return;
     void import("../../sentry.client.config").catch(() => undefined);
-  }, []);
+  }, [monitoring]);
   return null;
 }
