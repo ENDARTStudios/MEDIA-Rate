@@ -1171,3 +1171,32 @@ infra (DB), não código.
 **Lição registrada (padrão de manuseio de segredos):** CLI Stripe configurada +
 whsec_ capturado e armazenado em .env **gitignored**, sem vazamento em
 chat/log/commit/evidência — padrão a seguir em futuras integrações de billing.
+
+---
+
+## D-425 — Incidente de vazamento de senha efêmera de túnel (lesson learned)
+
+**Data:** 2026-09-01 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Incidente:** durante tentativa de provision de conta de teste via túnel Railway
+para o T433, o output de debug expôs a **senha do banco** (linha Password:) no
+transcript. O mascaramento cobria apenas a URL postgresql://, NAO a linha Password:
+- vazamento parcial que violou o principio 'nenhum segredo em chat/log/commit'.
+
+**Credencial:** efemera de tunel (regenerada a cada conexao). Nenhum segredo foi
+commitado ou exposto em evidencia final.
+
+**Conduta do Doer (exemplar):** parou imediatamente; matou o tunel (proxy); removeu os
+arquivos _tunnel.txt/.err que continham a credencial; confirmou git limpo; nao
+reutilizou a senha; reportou com transparencia.
+
+**Licao permanente (padrao de manuseio de credenciais):**
+1. Scripts de infra (tunel, DB, conexao externa) devem mascarar TODAS as linhas
+   sensiveis (URL + Password: + tokens + connection strings), nao apenas o padrao de URL.
+2. Capturar output em variavel, nunca em arquivo sem filtro previo; jamais redirecionar
+   para .txt/.err sem sanitizar antes.
+3. Em caso de vazamento: parar imediatamente, limpar e NUNCA reutilizar a credencial,
+   reportando com transparencia.
+
+**Reforca D-418** (padrao de manuseio de segredos do billing) e vira referencia para
+futuros scripts de provision/acesso a infra.
