@@ -22,6 +22,8 @@ function montarService() {
   };
   const gateway = {
     constructWebhookEvent: vi.fn(),
+    setCancelAtPeriodEnd: vi.fn().mockResolvedValue(undefined),
+    cancelSubscription: vi.fn().mockResolvedValue({ canceled: true }),
   };
   const service = new PaymentService(prisma as never, gateway as never);
   return { prisma, gateway, service, upsertPlano };

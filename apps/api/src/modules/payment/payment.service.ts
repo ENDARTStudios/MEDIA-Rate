@@ -285,7 +285,10 @@ export class PaymentService {
   /**
    * Sincroniza a assinatura via eventos de subscription (created/updated).
    *
-   * - status "trialing": registra fim do trial (trial_ends_at).
+   * - status "trialing": registra fim do trial (trial_ends_at) e marca
+   *   cancel_at_period_end=true (D-413/T434) — SEM conversão automática em
+   *   cobrança: o Stripe cancela a assinatura ao fim do trial e o usuário
+   *   re-assina por novo checkout se quiser continuar.
    * - status "active": trial encerrado, cobrança iniciada — limpa trial.
    */
   private async sincronizarAssinatura(payload: WebhookPayload, usuarioId: string): Promise<void> {
@@ -327,6 +330,15 @@ export class PaymentService {
           trialEndsAt ? ` (até ${trialEndsAt.toISOString()})` : ""
         }`,
       );
+      // D-413/T434: sem conversão automática. Marca cancel_at_period_end para
+      // o Stripe cancelar ao fim do trial SEM cobrar. O usuário confirma
+      // ativamente (novo checkout) para iniciar assinatura paga.
+      if (object.id) {
+        await this.gateway.setCancelAtPeriodEnd(object.id as string);
+        this.logger.log(
+          `Trial ${plano} configurado para cancelar ao fim (sem conversão automática) — sub ${object.id}`,
+        );
+      }
       return;
     }
 

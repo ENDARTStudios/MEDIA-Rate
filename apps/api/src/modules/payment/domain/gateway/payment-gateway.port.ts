@@ -73,7 +73,17 @@ export interface IPaymentGateway {
   /**
    * Cancela assinatura ativa.
    */
-  cancelSubscription(subscription_id: string, opts?: { at_period_end?: boolean }): Promise<{ canceled: boolean }>;
+  cancelSubscription(
+    subscription_id: string,
+    opts?: { at_period_end?: boolean },
+  ): Promise<{ canceled: boolean }>;
+
+  /**
+   * D-413/T434: marca a assinatura para NÃO converter automaticamente em
+   * cobrança ao fim do período/trial (cancel_at_period_end=true). O Stripe
+   * cancela a assinatura no fim do trial sem cobrar.
+   */
+  setCancelAtPeriodEnd(subscription_id: string): Promise<void>;
 }
 
 /**

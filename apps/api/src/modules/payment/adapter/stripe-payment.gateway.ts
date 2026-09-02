@@ -123,4 +123,11 @@ export class StripePaymentGateway implements IPaymentGateway {
     }
     return { canceled: true };
   }
+  async setCancelAtPeriodEnd(subscription_id: string): Promise<void> {
+    // D-413/T434: cancela a assinatura ao fim do trial sem converter em
+    // cobrança automática (o usuário re-assina por novo checkout se quiser).
+    await this.client.subscriptions.update(subscription_id, {
+      cancel_at_period_end: true,
+    });
+  }
 }
