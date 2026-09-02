@@ -6,7 +6,6 @@ import { routing } from "../../i18n/routing";
 import { localeOpenGraph } from "../../lib/seo";
 import { AuthHeader } from "../../components/AuthHeader";
 import { MotionFooter } from "../../components/MotionFooter";
-import { LgpdBanner } from "../../components/LgpdBanner";
 import { ConsentBanner } from "../../components/ConsentBanner";
 import { DiagPanelLoader } from "../../components/DiagPanelLoader";
 import { PageTransition } from "../../components/PageTransition";
