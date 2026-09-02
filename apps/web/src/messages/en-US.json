@@ -817,6 +817,8 @@
   },
   "settings": {
     "title": "Settings",
+    "trialEnded": "Your trial period has ended. To keep accessing Plus features, subscribe now.",
+    "trialEndedCta": "Subscribe now",
     "account": "Account",
     "name": "Name",
     "email": "Email",

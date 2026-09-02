@@ -817,6 +817,8 @@
   },
   "settings": {
     "title": "Configuración",
+    "trialEnded": "Tu período de prueba ha terminado. Para seguir accediendo a las funciones de Plus, suscríbete ahora.",
+    "trialEndedCta": "Suscribirse ahora",
     "account": "Cuenta",
     "name": "Nombre",
     "email": "Email",

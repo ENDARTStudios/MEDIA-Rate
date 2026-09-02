@@ -59,6 +59,9 @@ export interface MeResult {
   plano: "FREE" | "PLUS" | "PREMIUM";
   status: string;
   trial_ends_at: string | null;
+  /** T436: usuário usou o trial e ele terminou (plano voltou a FREE) — NÃO
+   *  é Free novo nem assinante ativo. Orienta o banner de re-assinar. */
+  trialEnded: boolean;
   watchlist_limit: number | null;
   /** T321: membro desde (ISO) — exibido no Perfil. */
   created_at: string;
@@ -632,6 +635,7 @@ export class AuthService {
             plano: true,
             status: true,
             trial_ends_at: true,
+            trial_used_at: true,
           },
         },
       },
@@ -652,6 +656,9 @@ export class AuthService {
       plano,
       status: usuario.plano?.status ?? "ATIVA",
       trial_ends_at: usuario.plano?.trial_ends_at?.toISOString() ?? null,
+      // T436: usou o trial (trial_used_at marcado) e está de volta ao FREE
+      // (não assinou) → trial encerrado sem conversão automática.
+      trialEnded: usuario.plano?.trial_used_at != null && plano === "FREE",
       watchlist_limit: plano === "FREE" ? FREE_WATCHLIST_LIMIT : null,
       // T321: membro desde (ISO) — exibido no Perfil.
       created_at: usuario.created_at.toISOString(),

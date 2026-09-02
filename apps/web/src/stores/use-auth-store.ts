@@ -11,6 +11,7 @@ interface User {
   plan?: "FREE" | "PLUS" | "PREMIUM";
   subscriptionStatus?: string;
   trialEndsAt?: string | null;
+  trialEnded?: boolean;
   watchlistLimit?: number | null;
   /** T321: membro desde (ISO) — exibido no Perfil. */
   createdAt?: string;
@@ -23,6 +24,7 @@ interface MeResponse {
   plano?: "FREE" | "PLUS" | "PREMIUM";
   status?: string;
   trial_ends_at?: string | null;
+  trialEnded?: boolean;
   watchlist_limit?: number | null;
   created_at?: string;
 }
@@ -59,6 +61,7 @@ function mapUser(apiUser: MeResponse | null): User | null {
     plan: apiUser.plano,
     subscriptionStatus: apiUser.status,
     trialEndsAt: apiUser.trial_ends_at,
+    trialEnded: apiUser.trialEnded,
     watchlistLimit: apiUser.watchlist_limit,
     createdAt: apiUser.created_at,
   };
