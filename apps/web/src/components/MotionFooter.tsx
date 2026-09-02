@@ -126,6 +126,9 @@ export async function MotionFooter({ locale }: { locale: string }) {
             {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React). */}
             {`Copyright © ${year} END ART Studios`}
           </p>
+          <p className="text-xs text-[#6B7280] mt-1">
+            {`END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios@gmail.com`}
+          </p>
         </div>
       </div>
     </footer>
