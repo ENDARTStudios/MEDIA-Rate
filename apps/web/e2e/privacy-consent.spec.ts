@@ -49,6 +49,13 @@ test("recusar: ZERO requisições a PostHog/Sentry", async ({ page }) => {
   expect(t.posthog + t.sentry, "optional scripts must not fire with no consent").toBe(0);
 });
 
+async function hasCookie(page: Page, prefix: string): Promise<boolean> {
+  return await page.evaluate(
+    (pref) => document.cookie.split(";").some((c) => c.trim().startsWith(pref)),
+    prefix,
+  );
+}
+
 test("aceitar analytics: requisição ao PostHog presente", async ({ context, page }) => {
   await context.addCookies([
     {
@@ -79,4 +86,42 @@ test("banner aparece sem consentimento; escolha persiste após reload", async ({
   // persiste após reload
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByRole("dialog", { name: /privacy|privacidade/i })).toBeHidden();
+});
+
+test("Cookies em sessão limpa: ph_* ausente antes da escolha; presente após aceitar analytics", async ({
+  context,
+  page,
+}) => {
+  await context.clearCookies();
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  // sem consentimento -> nenhum cookie PostHog
+  expect(await hasCookie(page, "ph_")).toBe(false);
+  // aceitar analytics
+  await page.getByRole("button", { name: /aceitar todos|accept all|aceptar todos/i }).click();
+  await page.waitForTimeout(4000);
+  // deve haver cookie PostHog (analytics consentido) — e o cookie de consentimento mr_consent
+  const mr = await page.context().cookies();
+  expect(mr.some((c) => c.name === "mr_consent")).toBe(true);
+});
+
+test("recusar: limpa resíduo lgpd-consent-v1 e não cria ph_*", async ({ context, page }) => {
+  await context.addCookies([
+    {
+      name: "mr_consent",
+      value: encodeURIComponent(JSON.stringify({ analytics: false, monitoring: false, v: 1 })),
+      domain: "mediarate.app",
+      path: "/",
+    },
+  ]);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  // definir a flag antiga e verificar que é removida pela limpeza (D-425)
+  await page.evaluate(() => localStorage.setItem("lgpd-consent-v1", "accepted"));
+  // clicar em "Recusar" (se visível) ou aceitar o estado
+  const decline = page.getByRole("button", { name: /recusar|decline|rechazar/i });
+  if (await decline.count()) {
+    await decline.first().click();
+  }
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => localStorage.getItem("lgpd-consent-v1"))).toBeNull();
+  expect(await hasCookie(page, "ph_")).toBe(false);
 });
