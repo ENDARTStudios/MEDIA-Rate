@@ -1137,3 +1137,37 @@ diária foi um default de desenvolvimento, não de produto.
 **Lição registrada:** frequência de coleta externa deve ser proporcional ao
 estágio do produto e à volatilidade do dado; default conservador (semanal) até
 prova em contrário.
+
+---
+
+## D-419 — T434: fallback híbrido (D-416) como gate de merge (e2e determinístico)
+
+**Data:** 2026-09-01 · **Fase:** F17-compliance-juridico · **Status:** APROVADA
+
+**Contexto:** O Doer reportou BLOCKED real para subir a API local e rodar o
+e2e de timeline contra o Stripe TEST com stripe listen/trigger: o
+DATABASE_URL do .env é um path SQLite (file:/home/z/...) incompatível
+com o provider postgresql do Prisma — sem DB, a API Nest não sobe e não há
+servidor para o stripe listen encaminhar eventos. A causa é fricção de
+infra (DB), não código.
+
+**Decisão:**
+1. Aceitar o **fallback híbrido (D-416)** como gate de merge do T434.
+2. E2e determinístico: testes unit/integração dos handlers de webhook com
+   **Prisma mockado em memória + MockPaymentGateway**, cobrindo:
+   (a) customer.subscription.created (trialing) → cancel_at_period_end
+   (sem conversão automática); (b) customer.subscription.trial_will_end →
+   notifica usuário (não cobra); (c) customer.subscription.deleted →
+   downgrade ao FREE (sem cobrança).
+3. **Merge único** (section 5.5 + billing) somente com o e2e híbrido verde.
+4. **Não escalar** ao Operador por DATABASE_URL — o fallback é suficiente e
+   está na autonomia do organismo. (Se um e2e ao vivo for desejado depois, a
+   CLI do Stripe + whsec_ de teste já estão configurados.)
+5. Mecanismo de billing já validado na **Stripe REAL** (TEST): checkout com
+   price_ ok; subscriptions.update(cancel_at_period_end=true) aceito;
+   assinatura de trial criada (trialing). Checkout **LIVE** confirmado sem
+   "No such price" (P0 de receita restaurado pelo fix price_).
+
+**Lição registrada (padrão de manuseio de segredos):** CLI Stripe configurada +
+whsec_ capturado e armazenado em .env **gitignored**, sem vazamento em
+chat/log/commit/evidência — padrão a seguir em futuras integrações de billing.
