@@ -68,11 +68,23 @@ describe("T272 — i18n-leak: selo de prévia por locale", () => {
   });
 
   it("tradução correta por locale (nunca PT em EN/ES)", () => {
-    expect(LOCALES["pt-BR"].catalog.previewBadge).toBe("Prévia — fontes em preparação");
-    expect(LOCALES["en-US"].catalog.previewBadge).toBe("Preview — sources in preparation");
-    expect(LOCALES["es-ES"].catalog.previewBadge).toBe("Previo — fuentes en preparación");
+    // SELO curto do card (previewBadge) é "Prévia"/"Preview"/"Previo". O texto
+    // longo "— fontes em preparação" é o TOOLTIP (previewBadgeTitle) — o teste
+    // antigo confundia os dois e esperava o tooltip no badge.
+    expect(LOCALES["pt-BR"].catalog.previewBadge).toBe("Prévia");
+    expect(LOCALES["en-US"].catalog.previewBadge).toBe("Preview");
+    expect(LOCALES["es-ES"].catalog.previewBadge).toBe("Previo");
     for (const loc of ["en-US", "es-ES"] as const) {
       expect(LOCALES[loc].catalog.previewBadge).not.toContain("Prévia");
+    }
+  });
+
+  it("tooltip de prévia (previewBadgeTitle) localizado e nunca PT em EN/ES", () => {
+    expect(LOCALES["pt-BR"].catalog.previewBadgeTitle).toBe("Prévia — fontes em preparação");
+    expect(LOCALES["en-US"].catalog.previewBadgeTitle).toBe("Preview — sources in preparation");
+    expect(LOCALES["es-ES"].catalog.previewBadgeTitle).toBe("Previo — fuentes en preparación");
+    for (const loc of ["en-US", "es-ES"] as const) {
+      expect(LOCALES[loc].catalog.previewBadgeTitle).not.toContain("Prévia");
     }
   });
 });
