@@ -63,6 +63,21 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{ts("title")}</h1>
 
         <div className="space-y-6">
+          {user?.trialEnded && (
+            <div
+              role="status"
+              className="flex flex-col gap-3 rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 p-5"
+            >
+              <p className="text-sm text-[#F5F5F7]">{ts("trialEnded")}</p>
+              <Link
+                href="/pricing"
+                className="inline-block w-fit rounded-md bg-[#818CF8] px-4 py-2 text-xs font-semibold text-[#0F172A] hover:brightness-110 transition-all"
+              >
+                {ts("trialEndedCta")}
+              </Link>
+            </div>
+          )}
+
           <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
             <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">Plano</h2>
             <div className="flex items-center justify-between">

@@ -816,6 +816,8 @@
   },
   "settings": {
     "title": "Configurações",
+    "trialEnded": "Seu período de teste terminou. Para continuar com os recursos do Plus, assine agora.",
+    "trialEndedCta": "Assinar agora",
     "account": "Conta",
     "name": "Nome",
     "email": "Email",
