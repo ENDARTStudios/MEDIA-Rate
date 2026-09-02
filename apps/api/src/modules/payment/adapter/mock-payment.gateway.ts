@@ -21,6 +21,7 @@ export class MockPaymentGateway implements IPaymentGateway {
   public readonly createdSessions: CheckoutSession[] = [];
   public readonly createdInputs: CreateCheckoutInput[] = [];
   public readonly cancelledSubscriptions: string[] = [];
+  public readonly cancelAtPeriodEnd: string[] = [];
 
   async createCheckoutSession(input: CreateCheckoutInput): Promise<CheckoutSession> {
     this.createdInputs.push(input);
@@ -61,5 +62,9 @@ export class MockPaymentGateway implements IPaymentGateway {
   ): Promise<{ canceled: boolean }> {
     this.cancelledSubscriptions.push(subscription_id);
     return { canceled: true };
+  }
+
+  async setCancelAtPeriodEnd(subscription_id: string): Promise<void> {
+    this.cancelAtPeriodEnd.push(subscription_id);
   }
 }

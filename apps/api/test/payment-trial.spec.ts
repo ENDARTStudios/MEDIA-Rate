@@ -79,6 +79,28 @@ describe("T327 — trial único por usuário (trial_used_at)", () => {
     expect(gateway.createdInputs[0].trial_period_days).toBeUndefined();
   });
 
+  it("D-413/T434: subscription.created trialing marca cancel_at_period_end (sem conversão automática)", async () => {
+    const prisma = buildMockPrisma(null);
+    const { service, gateway } = await buildService(prisma);
+    const future = Math.floor((Date.now() + 7 * 24 * 3600 * 1000) / 1000);
+    const payload = JSON.stringify({
+      type: "customer.subscription.created",
+      data: {
+        object: {
+          id: "sub_trial_1",
+          status: "trialing",
+          current_period_end: future,
+          metadata: { usuario_id: USUARIO.id, plano: "PLUS" },
+          customer: "cus_x",
+        },
+      },
+    });
+    const res = await service.processWebhook(payload, "sig");
+    expect(res.processed).toBe(true);
+    // o gateway recebeu o pedido de cancel_at_period_end (anti conversão automática)
+    expect(gateway.cancelAtPeriodEnd).toContain("sub_trial_1");
+  });
+
   it("webhook checkout.session.completed com trial marca trial_used_at (idempotente)", async () => {
     const prisma = buildMockPrisma(null);
     const { service } = await buildService(prisma);
