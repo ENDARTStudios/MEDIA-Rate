@@ -1376,3 +1376,18 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Justificativa:** Separa o que é compliance (feito), o que é defesa imediata (T447/T448, pequenos e seguros) e o que é decisão de produto com impacto amplo (escala, F18) — evitando scope creep dentro da fase de compliance.
 
+## D-438 — Auditoria de 4-set (reverificação) triada pelo Thinker: identificação consistente; P0 consentimento granular já implementado (mr_consent) aguarda teste em sessão limpa (T438); P1 harmonização de Termos executada; endereço físico e prova de segurança = gate externo
+
+**Data:** 2026-09-04 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Operador entregou auditoria de reverificação (4 set 2026). Veredito: parcialmente adequado, sem conformidade plena (LGPD/CDC/GDPR). Identificação (END ART Studios, CNPJ 45.370.930/0001-75, Osasco, SP, endart.studios@gmail.com) consistente. Riscos remanescentes: P0 cookies/consentimento (checkboxes desmarcados + lgpd-consent-v1=accepted + ph_*_posthog); P1 endereço físico completo; harmonização de Termos (categorias progressivas vs seis; cancelamento); IA vs algoritmo; matriz de retenção/transferências; prova de segurança do backend; /user/data.
+
+**Decisão:**
+1) Identificação: consistente, sem ação de conteúdo; endereço físico limitado à cidade/estado é risco P1 → validar com advogado/contador (NUNCA inventar endereço).
+2) P0 consentimento: estado granular já implementado (mr_consent com categorias/versão/ts/idioma/país + limparResiduos remove lgpd-consent-v1 e ph_*); falta apenas teste em sessão limpa (T438, depende deploy Vercel) — o achado 'lgpd-consent-v1' é provável cookie stale de versão antiga, removido pelo limparResiduos.
+3) P1 harmonização de Termos: executada (4.1 seis categorias; 4.4 sem 'em breve'; 5.2 responsabilidade do MEDIA Rate perante o usuário; 5.4/5.5 cancelamento imediato + acesso até fim do ciclo, espelhando a landing).
+4) P1 IA: claims comerciais renomeadas para 'recomendações personalizadas' (T445); placeholder do assistente sem 'inteligência artificial' (corrigido); Política mantém disclaimer explícito (sem IA generativa).
+5) Itens que exigem input/validação externa ou lote dedicado (não executar às cegas): matriz de retenção/transferências por operador, prova de segurança do backend (auditoria independente), /user/data (T433 — credencial), licenças/atribuições (P2).
+
+**Justificativa:** Separa texto-harmonizável (executado) do que exige input do Operador/advogado ou prova técnica (externo), sem inventar endereço nem afirmações de segurança não demonstráveis.
+
