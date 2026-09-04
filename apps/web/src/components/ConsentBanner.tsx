@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useConsentStore } from "@/stores/use-consent-store";
 
@@ -19,7 +19,14 @@ export function ConsentBanner() {
   const [open, setOpen] = useState(false);
   const [analyticsPref, setAnalyticsPref] = useState(analytics);
   const [monitoringPref, setMonitoringPref] = useState(monitoring);
+  // Hidratação (fix): o servidor NÃO vê document.cookie (mr_consent), então SEMPRE
+  // renderizava o banner; na hidratação o cliente lê o cookie (decided=true) e quer
+  // null → mismatch → o banner "ficava" após o refresh. Solução: só renderizar APÓS
+  // o mount (cliente), evitando o mismatch e a exibição com consentimento persistido.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
+  if (!mounted) return null;
   if (decided && !open) return null;
 
   const aceitarTodos = () => setConsent({ analytics: true, monitoring: true });
