@@ -50,6 +50,10 @@ function gravar(c: { analytics: boolean; monitoring: boolean }) {
     v: 1,
     ts: Math.floor(Date.now() / 1000),
     lang: typeof document !== "undefined" ? document.documentElement.lang || "pt-BR" : "pt-BR",
+    country:
+      typeof document !== "undefined"
+        ? (document.documentElement.lang || "pt-BR").split("-")[1]?.toUpperCase() || "BR"
+        : "BR",
   };
   const v = encodeURIComponent(JSON.stringify(record));
   document.cookie = `${COOKIE}=${v}; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`;
