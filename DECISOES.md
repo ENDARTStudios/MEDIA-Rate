@@ -1201,6 +1201,56 @@ reutilizou a senha; reportou com transparencia.
 **Reforca D-418** (padrao de manuseio de segredos do billing) e vira referencia para
 futuros scripts de provision/acesso a infra.
 
+## D-426 — F17 em estado consolidado: 6/8 tarefas [x]; T432/T433 condicionados a deploy Vercel e credencial de teste; revisão agregada pendente do teste ao vivo
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** A F17-compliance-juridico está em estado consolidado: 6 tarefas aprovadas e mergeadas (T434, T435, T436, T429, T431, T437), cobrindo trial sem conversão automática, banner de trial encerrado, Termos P1/P2, e Política de Privacidade reescrita. T432 (Privacy Center) está com código aprovado mas [x] condicionado ao deploy web (limite Vercel). T433 (direitos LGPD) está com matriz de propagação aprovada mas [x] condicionado ao teste ao vivo, que requer credencial de conta verificada via env. O organismo fez tudo ao seu alcance; os 3 itens pendentes são função do Operador.
+
+**Decisão:** 1) F17 declarada CONSOLIDADA (não concluída): 6/8 tarefas [x]; 2 condicionadas a inputs do Operador. 2) Pendências do Operador formalizadas: (a) Vercel - aceitar atraso vs upgrade; (b) gate legal final - revisão por advogado; (c) credencial de conta de teste - `E2E_TEST_EMAIL` + `E2E_TEST_PASSWORD` como secret de env. 3) Organismo em standby aguardando: (i) deploy Vercel para prova de rede do T432; (ii) credencial de teste para teste ao vivo do T433. 4) Revisão agregada da F17 será emitida após o teste ao vivo do T433 fechar (com ou sem credencial - se o Operador não fornecer, o teste fica como residual documentado). 5) Não emitir novas tarefas; não perguntar ao Operador o que já foi decidido.
+
+**Justificativa:** O organismo entregou tudo ao seu alcance; os 3 itens pendentes são função exclusiva do Operador (custo/segredo real/gate legal). Revisão agregada só faz sentido com evidência completa.
+
+## D-427 — Auditoria atualizada (2 de setembro) recebida; melhorias reconhecidas; novos achados P0/P1/P2 emitidos como tarefas; teste de cookies em sessão limpa é P0 imediato mas depende do deploy Vercel
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Operador entregou auditoria atualizada reconhecendo melhorias materiais (Termos com CNPJ, trial sem conversão automática, Política com cookies/operadores/perfil/IA, banner com recusa, headers de segurança positivos) mas identificando novos achados P0: (1) inconsistência de cookies — `lgpd-consent-v1`=accepted no localStorage + checkboxes desmarcados + cookie `ph_*_posthog` acessível via `document.cookie` (não HttpOnly), sugerindo que PostHog pode estar carregando antes do consentimento ou o estado está inconsistente; (2) 'Grátis para sempre · Sem cartão' na landing não limitado ao Free; (3) cancelamento landing/FAQ (imediato) conflita com Termos 5.4 (fim do ciclo); (4) endereço físico completo e e-mail final não confirmados. P1: tabela completa de cookies, perfil de gosto/IA detalhado, registro granular de consentimento, auditoria de subprocessadores, testar /user/data.
+
+**Decisão:** 1) Reconhecer melhorias (D-427): Termos/Política/banner evoluíram significativamente; trial sem conversão automática (D-413) validado no texto. 2) Emitir lote de correções: T438 (teste de cookies em sessão limpa — P0 imediato, mas depende do deploy Vercel); T439 (harmonizar 'Grátis para sempre' + cancelamento — P0 textual, pode ser feito agora); T440 (tabela completa de cookies/operadores — P1); T441 (perfil de gosto/IA detalhado — P1); T442 (registro granular de consentimento — P1). 3) Ordem de execução: T439 agora (texto); T438 após deploy Vercel (teste técnico); T440/T441/T442 em sequência. 4) Deploy web permanece bloqueado pelo limite Vercel (pendência do Operador); as correções textuais vão ao ar no reset. 5) Registrar em DECISOES.md: D-427 (auditoria atualizada, melhorias + novos achados).
+
+**Justificativa:** Auditoria do Operador é hierarquia nível 0; os achados P0 textuais podem ser corrigidos imediatamente; o teste técnico de cookies depende do deploy (infra externa).
+
+## D-428 — Fix de localização do worker (process.cwd aponta para projeto errado) documentado em AGENTS.md; regra durável: sempre usar tools.* ou caminho absoluto, nunca caminho relativo
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer identificou que `process.cwd()` do worker de run_code aponta para 'D:\PROJETOS\Almanaque dos Clubes\Almanaque dos Clubes', mas o workspace de sessão é MEDIA Rate. Tentou `process.chdir()` mas o worker não suporta (`ERR_WORKER_UNSUPPORTED_OPERATION`). Solução: documentar em AGENTS.md (PR #69, c708e11) a regra durável de sempre usar `tools.*` (read/grep/glob/write que resolvem para o workspace correto) ou caminho absoluto com fs Node, nunca caminho relativo.
+
+**Decisão:** 1) Registrar D-428: fix de localização documentado em AGENTS.md como regra permanente de workflow. 2) Marcar T439 como DONE ([x]) — verificado via tools que já estava implementado. 3) Prosseguir com a ordem da D-427: T440 (tabela cookies/operadores) → T441 (perfil/IA detalhado) → T442 (registro granular consentimento). 4) Não emitir novas perguntas de sequência — a ordem já está decidida.
+
+**Justificativa:** Regra de workflow documentada previne classe de erro; T439 já completo; sequência já definida na D-427.
+
+## D-429 — T440 aprovado; prosseguir T441 → T442 na ordem da D-427 sem re-perguntar; Vercel resolvido (Operador aceitou o atraso)
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** T440 entregou o inventário de cookies/operadores com base legal (achado P1 da auditoria). A ordem da D-427 já está decidida: T441 (perfil/IA detalhado) → T442 (registro granular de consentimento). O Operador respondeu 'Aceitar' ao ESCALATE do Vercel, resolvendo essa pendência (o deploy web sai no reset ~24h). Restam como pendências do Operador: gate legal final e a credencial de teste para T433.
+
+**Decisão:** 1) T440 marcado [x]. 2) Doer executa T441 agora (perfil/IA detalhado: matriz de dados/fatores/base legal/retensão/contestação; explicar algoritmo de recomendação vs IA generativa — o produto usa o primeiro, não o segundo). 3) Depois T442 (`mr_consent` granular + `consent_logs` append-only + `/consent/history`). 4) Não re-perguntar sequência — já está decidida na D-427. 5) Vercel resolvido (aceitar atraso); pendências do Operador = 2 (gate legal + credencial T433).
+
+**Justificativa:** Autonomia e momentum: a sequência foi aprovada; re-perguntar desperdiça tempo. T441/T442 são conteúdo/i18n sem dependência de deploy.
+
+## D-430 — Marco consolidado da F17 registrado pelo Thinker: todo o código da D-427/D-430 mergeado; pendências = deploy Vercel, credencial de teste, gate legal
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer concluiu T443 (backend de consentimento) e perguntou se deve registrar o estado consolidado no DECISOES. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md é função do Thinker — o Doer escreve código e evidência, o Thinker escreve PLANO_MESTRE e DECISOES. Estado: todo o trabalho de código da D-427/D-430 está mergeado (T435/T429/T431/T437/T434/T436/T439/T440/T441/T442-frontend/T443). Restam apenas fatores externos: deploy Vercel (T438 + prova de rede T432), credencial de teste (T433 + validação T443) e gate legal final (advogado).
+
+**Decisão:** 1) Registrar marco F17 em DECISOES.md (D-430): código completo e mergeado; pendências = deploy Vercel, credencial de teste, gate legal. 2) T443 marcado [x] (código); fechamento completo após aplicação da migração pelo pipeline + validação ao vivo. 3) Reforçar divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits. 4) Quando os fatores externos resolverem: Doer roda T438 + prova de rede T432 (deploy Vercel) e T433 + validação T443 (credencial); então Thinker emite a revisão agregada final da F17. 5) Pendências do Operador = 2 (credencial de teste + gate legal).
+
+**Justificativa:** Separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade e evita divergência de estado; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
+
 ## D-431 — Marco consolidado da F17 (código mergeado; fechamento aguarda fatores externos)
 
 **Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
