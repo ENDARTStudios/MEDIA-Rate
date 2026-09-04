@@ -1245,30 +1245,18 @@ futuros scripts de provision/acesso a infra.
 
 **Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
 
-**Contexto:** O Doer concluiu T443 (backend de consentimento) e perguntou se deve registrar o estado consolidado no DECISOES. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md é função do Thinker — o Doer escreve código e evidência, o Thinker escreve PLANO_MESTRE e DECISOES. Estado: todo o trabalho de código da D-427/D-430 está mergeado (T435/T429/T431/T437/T434/T436/T439/T440/T441/T442-frontend/T443). Restam apenas fatores externos: deploy Vercel (T438 + prova de rede T432), credencial de teste (T433 + validação T443) e gate legal final (advogado).
-
-**Decisão:** 1) Registrar marco F17 em DECISOES.md (D-430): código completo e mergeado; pendências = deploy Vercel, credencial de teste, gate legal. 2) T443 marcado [x] (código); fechamento completo após aplicação da migração pelo pipeline + validação ao vivo. 3) Reforçar divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits. 4) Quando os fatores externos resolverem: Doer roda T438 + prova de rede T432 (deploy Vercel) e T433 + validação T443 (credencial); então Thinker emite a revisão agregada final da F17. 5) Pendências do Operador = 2 (credencial de teste + gate legal).
-
-**Justificativa:** Separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade e evita divergência de estado; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
-
-## D-431 — Marco consolidado da F17 (código mergeado; fechamento aguarda fatores externos)
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** o Doer concluiu T443 (backend de consentimento) e verificou o estado da
-F17. Todo o trabalho de código da D-427/D-430 está mergeado:
-T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-frontend · T443.
+**Contexto:** o Doer concluiu T443 (backend de consentimento) e verificou o estado consolidado da F17. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md é função do Thinker — o Doer escreve código e evidência, o Thinker escreve PLANO_MESTRE e DECISOES. Estado: todo o trabalho de código da D-427/D-430 está mergeado (T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-frontend · T443). Restam apenas fatores externos: deploy Vercel (T438 + prova de rede T432), credencial de teste (T433 + validação T443) e gate legal final (advogado).
 
 **Decisão:**
 1. Registrar o marco consolidado da F17: código completo e mergeado; pendências apenas externas.
 2. T443 marcado [x] (código); fechamento completo após aplicação da migração pelo pipeline (Railway) + validação ao vivo.
-3. Reforçar a divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits.
+3. Reforçar a divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits (regra detalhada em D-431).
 4. Quando os fatores externos resolverem: Doer roda T438 + prova de rede T432 (deploy Vercel) e T433 + validação T443 (credencial); então Thinker emite a revisão agregada final da F17.
 5. Pendências do Operador = 2 (credencial de teste + gate legal).
 
 **Evidência (T443):** Commit 3334cc0 (PR #73). ConsentLog append-only (categorias/versão/ts/idioma/país/ip_hash/usuario_id); migração aditiva 20260902000000_consent_logs; POST /api/v1/consent (rate limit 5/min); GET /api/v1/consent/history owner-only; consent.spec.ts 3/3.
 
-**Justificativa:** separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
+**Justificativa:** separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade e evita divergência de estado; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
 
 **Impacto:** F17 com estado consolidado documentado; organismo aguarda fatores externos para a revisão agregada final.
 
@@ -1280,10 +1268,18 @@ T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-fro
 - Doer: ao resolver, T433 + validação T443.
 - Thinker: revisão agregada final da F17.
 
-**Nota de integridade (a registrar/sanar):** este arquivo DECISOES.md está com encoding misto/corrompido
-(UTF-8 válido em partes + bytes Latin-1/CP1252 e mojibake em outras), reportado como "invalid UTF-8"
-pela ferramenta de leitura, e carece das entradas D-426 a D-430. Registrado para tratamento próprio
-(repair com revisão humana/editorial) sem perda de conteúdo histórico. Não reescrever às cegas.
+## D-431 — Divisão de escrita em arquivos de governança (DECISOES.md/PLANO_MESTRE.md): função do Thinker especificar, Doer materializar
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** ao concluir T443, o Doer perguntou se deveria registrar o estado consolidado da F17 no DECISOES. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md e PLANO_MESTRE.md é função do Thinker — o Doer escreve código e evidência (docs/ e commits), e materializa as DECISÕES emitidas pelo Thinker; o Thinker especifica decisões e mantém a fonte única de verdade de governança.
+
+**Decisão:**
+1. DECISOES.md e PLANO_MESTRE.md são escritos pelo Thinker (registro de decisões/marcos/diretivas); o Doer NÃO os edita para registrar decisões.
+2. O Doer registra evidência técnica em docs/ e commits; o Doer materializa (por append não-destrutivo) as DECISÕES emitidas pelo Thinker no commit batched (evita novo gap de registro).
+3. Qualquer divergência de estado (código feito vs decisão registrada) é reportada ao Thinker para reconciliação, nunca resolvida pelo Doer por reescrita.
+
+**Justificativa:** separar especificação (Thinker) de materialização (Doer) preserva a fonte única de verdade, evita divergência de estado e mantém a trilha de decisão da fase auditável.
 
 ## D-432 — Incidente de integridade: DECISOES.md com encoding misto/corrompido e histórico desatualizado (lesson learned)
 
