@@ -22,6 +22,15 @@ navegar primeiro. Isso economiza tokens e reduz acertos às cegas.
 - **Nunca** edite às cegas ou faça refactor sem mapear primeiro os pontos que
   dependem da mudança (callers/imports/uso).
 
+## Resolução de caminho no run_code (importante)
+
+- O process.cwd() do worker de run_code NAO e o workspace (pode apontar para
+  outro projeto, ex.: Almanaque). process.chdir() e NAO suportado no worker.
+- **Sempre** use os **tools.** (read/grep/glob/write) para acesso a arquivos -
+  eles resolvem para o **workspace DEPOIS** (MEDIA Rate).
+- Se precisar de fs direto (Node), use **caminho absoluto**
+  (ex.: D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\apps\...); **nunca caminho relativo**
+  (o fs segue o cwd do worker, que pode estar em outro projeto).
 ## Regras gerais (projeto)
 
 - **Next.js 16 (App Router, Turbopack) + next-intl v4 + React Server Components.**
