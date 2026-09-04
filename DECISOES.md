@@ -4,16 +4,16 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-14] Fix: Sentry e2e � teste real comprovado; web e API compartilham DSN (T315/D-306)
+## [2026-08-14] Fix: Sentry e2e — teste real comprovado; web e API compartilham DSN (T315/D-306)
 
-**Achado:** o "erro" do Sentry era o sample de onboarding (tag sample_event=yes, url example.com); nenhum evento real tinha chegado. O bundle web tinha o SDK mas N�O o DSN inline � a env `NEXT_PUBLIC_SENTRY_DSN` da Vercel existia com valor vazio/placeholder.
+**Achado:** o "erro" do Sentry era o sample de onboarding (tag sample_event=yes, url example.com); nenhum evento real tinha chegado. O bundle web tinha o SDK mas NÃO o DSN inline — a env `NEXT_PUBLIC_SENTRY_DSN` da Vercel existia com valor vazio/placeholder.
 
 **Correção:**
-- Vercel env re-setada via CLI com o MESMO DSN do projeto (exceção D-306: Operador criou 1 projeto Sentry javascript-nextjs � web e API compartilham o DSN na Open Beta; separar projetos é backlog). Lição CLI: `vercel env add` com stdin grava placeholder `[SENSITIVE]` � usar `--value`.
+- Vercel env re-setada via CLI com o MESMO DSN do projeto (exceção D-306: Operador criou 1 projeto Sentry javascript-nextjs — web e API compartilham o DSN na Open Beta; separar projetos é backlog). Lição CLI: `vercel env add` com stdin grava placeholder `[SENSITIVE]` — usar `--value`.
 - **Client config não era injetado no bundle em Next 16/Turbopack** (bundle tinha o SDK sem `Sentry.init`): criado `SentryClientInit` (import dinâmico do `sentry.client.config` só no browser) renderizado no root layout.
 - **CSP bloqueava o ingest** (`connect-src` sem o host): adicionadas as três regiões `https://*.ingest.{us,eu,de}.sentry.io` (wildcard `*.ingest.sentry.io` NÃO cobre `o<org>.ingest.us.sentry.io`).
-- **Teste real na API de produção (PIPELINE OK):** flag `admin-sentry-test` ON �' `GET /api/v1/admin/sentry-test` �' **500 + sentryEventId (32 chars) + correlationId + X-Correlation-Id** �' flag OFF confirmada.
-- **Web ao vivo:** browser de produção envia envelope para `o...ingest.us.sentry.io` (observado via Playwright) �' eventos do web chegam ao painel.
+- **Teste real na API de produção (PIPELINE OK):** flag `admin-sentry-test` ON â†' `GET /api/v1/admin/sentry-test` â†' **500 + sentryEventId (32 chars) + correlationId + X-Correlation-Id** â†' flag OFF confirmada.
+- **Web ao vivo:** browser de produção envia envelope para `o...ingest.us.sentry.io` (observado via Playwright) â†' eventos do web chegam ao painel.
 - MANUAL_DO_OPERADOR: seção "Como testar o Sentry" (3 passos) + sample event + notas de CLI/bundle.
 
 **Lembrete operacional:** `vercel --prod` a partir de `apps/web` está linkado ao projeto **almanaque-dos-clubes** (NÃO usar; usar push em main que dispara o deploy de media-rate). Rollback aplicado no almanaque após deploy acidental.
@@ -37,7 +37,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-14] Fix P0: watchlist � status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
+## [2026-08-14] Fix P0: watchlist — status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
 
 **Sintoma (bug report Operador):** games mostravam "Quero ver/Vendo/Vi"; clicar no status não movia o card de bloco; botão do canto do card morto.
 
@@ -46,8 +46,8 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 **Correção:**
 - **Fonte única de verdade** (`src/common/status-coluna.ts`): mapas bidirecionais `STATUS_PARA_COLUNA`/`COLUNA_PARA_STATUS`. `interacoes.upsert` sincroniza a coluna da watchlist no MESMO tx (status dirige a coluna); `watchlist.add`/`move` sincronizam a interação no MESMO tx (coluna dirige o status). Cliente: interaction store re-sincroniza a watchlist após mudar status.
 - **Labels por tipo:** cabeçalhos de coluna usam label do tipo quando há filtro ativo, senão neutro (`queroConsumir/consumindo/concluido` novos nos 3 locales); chip do card já era type-aware (colunaLabelKey).
-- **Botão rápido do card:** canto abre MENU de status (4 colunas + Remover) � mesmo handler, nada morto.
-- **Reparo idempotente** (`prisma/seed-reparo-status-coluna.ts`, `db:reparo:status-coluna`): alinha coluna�"status em produção (8 colunas alinhadas, 34 interações criadas, 28 puladas não-UUID; nenhuma exclusão).
+- **Botão rápido do card:** canto abre MENU de status (4 colunas + Remover) — mesmo handler, nada morto.
+- **Reparo idempotente** (`prisma/seed-reparo-status-coluna.ts`, `db:reparo:status-coluna`): alinha colunaâ†"status em produção (8 colunas alinhadas, 34 interações criadas, 28 puladas não-UUID; nenhuma exclusão).
 
 **Verificado:** unit interacoes (sync coluna por status) + watchlist e2e mocks atualizados; e2e `watchlist-sync.spec.ts` (bidirecional via API). API 760/760, web 312/312.
 
@@ -55,7 +55,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Fix: watchlist sem "código" (T310 / D-308)
 
-**Sintoma (�14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".
+**Sintoma (§14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".
 
 **Diagnóstico (produção, 70 entries):** 15 entradas com `midia_id` não-UUID (ids externos TMDB/IGDB como `124364`, e ids de aresta `g4`/`g2` do grafo cross-mídia) + 5 UUIDs órfãos (mídia inexistente). O serializer devolvia `media: null` para essas, e o `entryToMediaItem` retornava null sem título ? cartão vazio com aria-label = UUID cru.
 
@@ -68,14 +68,14 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-13] Fix: duração de sessão � 7 dias + sliding renewal (T316/D-307)
+## [2026-08-13] Fix: duração de sessão — 7 dias + sliding renewal (T316/D-307)
 
-**Sintoma (�14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.
+**Sintoma (§14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.
 
 **Correção:**
 - `SESSION_TTL_HOURS` (default 168 = 7 dias) passou a ser lido de env; `SESSION_TTL_MS` = 7d (era 15min hardcoded). `createSession`/rotação usam o novo TTL.
-- Cookie `sess` agora com `Max-Age=604800` (+Expires) � persiste no browser; fechar navegador não desloga.
-- Sliding renewal: `validateToken` renova quando faltam < 50% do TTL (3,5d) e retorna `renovada`; o AuthGuard re-seta o cookie `sess` no browser (sem rotacionar CSRF � o front guarda csrf em sessionStorage). Rate-limit natural: ~1 renovação por TTL/2 (? 1/hora), sem write por request.
+- Cookie `sess` agora com `Max-Age=604800` (+Expires) — persiste no browser; fechar navegador não desloga.
+- Sliding renewal: `validateToken` renova quando faltam < 50% do TTL (3,5d) e retorna `renovada`; o AuthGuard re-seta o cookie `sess` no browser (sem rotacionar CSRF — o front guarda csrf em sessionStorage). Rate-limit natural: ~1 renovação por TTL/2 (? 1/hora), sem write por request.
 - Revogação/logout e refresh rotativo (30d) inalterados.
 
 **Verificado (DB real, API compilada):** login ? `sess` com `Max-Age=604800` e Expires +7d; sessão envelhecida para +3d ? request autenticado 200 + Set-Cookie renovado (`SLIDING RENEWAL OK`). Testes: e2e `session-duration.e2e.spec.ts` (7) + sliding em `session-token.spec.ts`. API 759/759.
@@ -84,16 +84,16 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Fix: busca por prefixo/autocomplete (T309)
 
-**Sintoma (�14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.
+**Sintoma (§14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.
 
 **Causa:** a busca full-text (q >= 3) usava `plainto_tsquery('portuguese', ...)`, que exige lexema exato (palavra completa).
 
 **Correção (discover.service.ts, sem mudar o tsvector 20260809 nem o contrato da API):**
-- `montarTsqueryPrefixo(q)`: tokens sanitizados via `[\p{L}\p{N}]+` (neutraliza operadores `& | ! : *` de tsquery) e `to_tsquery('portuguese', translate('t1 & ... & ultimo:*', ...))` � prefixo `:*` só no último token ('bers' �' `bers:*`; 'breaking ba' �' `breaking & ba:*`).
+- `montarTsqueryPrefixo(q)`: tokens sanitizados via `[\p{L}\p{N}]+` (neutraliza operadores `& | ! : *` de tsquery) e `to_tsquery('portuguese', translate('t1 & ... & ultimo:*', ...))` — prefixo `:*` só no último token ('bers' â†' `bers:*`; 'breaking ba' â†' `breaking & ba:*`).
 - Bônus de igualdade no rank: título que começa com o termo normalizado ganha +0.05 (match exato/prefixo de título na frente de match parcial de token). `plainto_tsquery('')` para query sem tokens (seguro).
 - translate() nos dois lados mantém a paridade de acentos (T223/D-224).
 
-**Verificação (DB real, API compilada):** 'bers'�'Berserk, 'cher'�'Chernobyl, 'duna'�'Dune, 'brea'�'Breaking Bad; query com operadores (`Breaking | Bad & ! : *`) sanitizada sem erro. Testes: 4 novos unit (prefixo, multi-token, SQL com `:*`, sanitização) + e2e web search prefixo (regressão). API 752/752.
+**Verificação (DB real, API compilada):** 'bers'â†'Berserk, 'cher'â†'Chernobyl, 'duna'â†'Dune, 'brea'â†'Breaking Bad; query com operadores (`Breaking | Bad & ! : *`) sanitizada sem erro. Testes: 4 novos unit (prefixo, multi-token, SQL com `:*`, sanitização) + e2e web search prefixo (regressão). API 752/752.
 
 ---
 
@@ -101,11 +101,11 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Sintoma (produção):** `PUT /api/v1/interacoes/:midiaId` retornava 400 `Validation failed at '': Invalid input: expected object, received string`; botão Quero ver/status quebrado; dashboard/perfil vazios por falta de interação persistida.
 
-**Diagnóstico (reproduzido em produção e no build compilado local):** o pipe `ZodValidationPipe` estava aplicado no **método** (`@UsePipes`), então o Nest validava TODOS os parâmetros � incluindo o `@Param("midiaId")` (string) � contra o schema `z.object` do body. O POST/PATCH funcionavam porque seus pipes já eram no parâmetro (`@Body(new ZodValidationPipe(...))`, padrão do watchlist PATCH).
+**Diagnóstico (reproduzido em produção e no build compilado local):** o pipe `ZodValidationPipe` estava aplicado no **método** (`@UsePipes`), então o Nest validava TODOS os parâmetros — incluindo o `@Param("midiaId")` (string) — contra o schema `z.object` do body. O POST/PATCH funcionavam porque seus pipes já eram no parâmetro (`@Body(new ZodValidationPipe(...))`, padrão do watchlist PATCH).
 
-**Correção (na ponta certa, sem afrouxar validação):** pipe movido para `@Body(new ZodValidationPipe(...))` em `interacoes.controller.ts` (PUT) e `relacoes.controller.ts` (POST `/midias/:id/relacoes` � mesmo bug de classe). O @Param string nunca mais é validado contra o schema do body.
+**Correção (na ponta certa, sem afrouxar validação):** pipe movido para `@Body(new ZodValidationPipe(...))` em `interacoes.controller.ts` (PUT) e `relacoes.controller.ts` (POST `/midias/:id/relacoes` — mesmo bug de classe). O @Param string nunca mais é validado contra o schema do body.
 
-**Extras:** store web mapeia erro 400 para mensagem amigável (Zod raw nunca aparece na UI; detalhe técnico fica no corpo + `X-Correlation-Id` + Sentry/log). Regressão: `test/interacoes-http.e2e.spec.ts` (HTTP) e `apps/web/e2e/watchlist-flow.spec.ts` (4 status + reação; vermelho em produção antes do deploy � prova que o spec detecta o bug).
+**Extras:** store web mapeia erro 400 para mensagem amigável (Zod raw nunca aparece na UI; detalhe técnico fica no corpo + `X-Correlation-Id` + Sentry/log). Regressão: `test/interacoes-http.e2e.spec.ts` (HTTP) e `apps/web/e2e/watchlist-flow.spec.ts` (4 status + reação; vermelho em produção antes do deploy — prova que o spec detecta o bug).
 
 ---
 
@@ -125,15 +125,15 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Decisão: Sentry integrado (T293 / "Feito C" do Operador)
 
-**DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto � não é segredo.
+**DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto — não é segredo.
 
-**Decisão:** Sentry no free tier (5k erros/mês). Web via `@sentry/nextjs` (configs client/server/edge + `withSentryConfig`; sem DSN em dev, NO-OP � não quebra build/dev). API via `@sentry/node` v10 (tracing embutido; `@sentry/tracing` v7 deprecated NÃO é usado).
+**Decisão:** Sentry no free tier (5k erros/mês). Web via `@sentry/nextjs` (configs client/server/edge + `withSentryConfig`; sem DSN em dev, NO-OP — não quebra build/dev). API via `@sentry/node` v10 (tracing embutido; `@sentry/tracing` v7 deprecated NÃO é usado).
 
 **Integração:**
 - API: `initSentry()` em `main.ts` antes dos controllers; `GlobalExceptionFilter` captura 5xx com `correlationId`, `userId`, `path`, `method` e devolve `sentryEventId` no body; respostas de erro incluem `X-Correlation-Id`.
 - Web: `ErrorBoundary` reporta ao Sentry com tag `locale` e `correlation_id` (do último erro de API via `http.ts`), ligando UI → API.
 - Redação de PII: `beforeSend` redige Authorization/cookie/password/token (mesma política do Pino logger), em API e web.
-- Endpoint de teste `GET /api/v1/admin/sentry-test` (ADMIN-only, flag-gated `admin-sentry-test`, off por padrão) � valida o pipeline de ponta a ponta.
+- Endpoint de teste `GET /api/v1/admin/sentry-test` (ADMIN-only, flag-gated `admin-sentry-test`, off por padrão) — valida o pipeline de ponta a ponta.
 - Amostragem: sampleRate 1.0; tracesSampleRate 0.1 em produção (1.0 em dev).
 
 **Riscos residuais:** volume free tier (Open Beta cabe); revisão periódica dos eventos para ajustar redação se surgir novo tipo de PII.
@@ -144,7 +144,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Versão dos Termos publicada:** v1.0 (13/08/2026) em pt-BR, en-US e es-ES.
 
-**Decisão:** Os 3 documentos entregues pelo Operador são publicados como produto (páginas SSR `/terms` nos 3 locales), **sem os marcadores de revisão jurídica** (`[?? REVISAR COM ADVOGADO]` / `[?? REQUIRES LEGAL REVIEW]` / `[?? REQUIERE REVISI�N LEGAL]`) � instrução do Operador: "Considere revisado com advogado". O aceite vira exigência de cadastro.
+**Decisão:** Os 3 documentos entregues pelo Operador são publicados como produto (páginas SSR `/terms` nos 3 locales), **sem os marcadores de revisão jurídica** (`[?? REVISAR COM ADVOGADO]` / `[?? REQUIRES LEGAL REVIEW]` / `[?? REQUIERE REVISIÓN LEGAL]`) — instrução do Operador: "Considere revisado com advogado". O aceite vira exigência de cadastro.
 
 **Parâmetros finais travados:**
 - Idade mínima (Cláusula 3.2): **14 anos**.
@@ -154,11 +154,11 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Implementação:** coluna `Usuario.termos_aceitos_em` (write-once no register; migration aditiva `20260813_termos_aceite`); `RegisterDto.aceitouTermos`; `auth.service.register` valida `aceitouTermos === true` (senão 422 `TERMS_NOT_ACCEPTED`) e persiste o timestamp; checkbox obrigatório no register (sem pré-seleção, submit desabilitado até marcar); LGPD export (`/user/data`) inclui o timestamp.
 
-**Conteúdo do texto (armazenamento):** via `messages/<locale>.json` no namespace `terms` (padrão já usado por `/privacy`), **não** em `public/docs/*.md` como listado na tarefa � decisão de implementação que mantém o padrão i18n do projeto.
+**Conteúdo do texto (armazenamento):** via `messages/<locale>.json` no namespace `terms` (padrão já usado por `/privacy`), **não** em `public/docs/*.md` como listado na tarefa — decisão de implementação que mantém o padrão i18n do projeto.
 
 **Observações:**
 - Placeholder `[domínio]` (e demais dados de negócio: e-mail, endereço, CNPJ, foro) permanece nos textos até o Operador fechar o domínio oficial (item 4 do PENDENCIAS_OPERADOR.md). Uma T307 curta substitui quando registrado.
-- Aceite em register social (Google/Apple) **não** implementado nesta tarefa � follow-up registrado: consentimento explícito em OAuth segue o padrão da plataforma social (documentar quando implementar).
+- Aceite em register social (Google/Apple) **não** implementado nesta tarefa — follow-up registrado: consentimento explícito em OAuth segue o padrão da plataforma social (documentar quando implementar).
 - Revisão jurídica externa recomendada para expansão UE ativa é decisão de negócio, não gate técnico.
 
 ---
@@ -716,24 +716,24 @@ Motivo: Crawl do Screaming Frog reportou 100% de páginas com noindex. Investiga
 
 ---
 
-## D-131 � Status real dos diferenciais competitivos (V1.3 �8)
+## D-131 — Status real dos diferenciais competitivos (V1.3 §8)
 
 **Data**: 2026-07-29
-**Status**: Locked � documenta��o interna apenas
+**Status**: Locked — documentação interna apenas
 
-NENHUM diferencial � comunicado externamente como "pronto" sem gate. Status real:
+NENHUM diferencial é comunicado externamente como "pronto" sem gate. Status real:
 
 | Diferencial | Status | Ressalva |
 |-------------|--------|----------|
-| Transpar�ncia de fontes (sources[].included/exclusionReason) | Especificado (�3.3, �3.5) | N�o implementado/verificado no backend |
-| Confidence Score num�rico (�3.4) | Especificado | Constantes (1000 votos, 3 fontes, etc.) s�o valores iniciais, n�o calibrados com dados reais |
-| F�rmula sem cancelamento alg�brico (�3.1, v2) | Proposta | Pendente sign-off formal de governan�a (v1 com defeito segue locked at� aprova��o) |
-| Detec��o de outlier determin�stica (�3.3b) | Especificado | Limiar de 3.0 pontos de desvio � valor inicial, n�o calibrado |
-| "Metodologia unificada" entre Filme/S�rie/Game | Impreciso | Fun��o de c�lculo � a mesma, mas estrutura n�o � sim�trica: criticsScore sempre null para Filme/S�rie, s� existe para Game (IGDB aggregated_rating). Comunica��o de produto deve refletir essa assimetria, n�o implicar paridade total |
-| Versionamento (algorithmVersion) | Especificado | Conven��o definida (�3.5); sem hist�rico real ainda � n�o h� v1 rodando em produ��o para comparar |
-| algorithmVersion/confidenceScore na UI | Implementado | S� em tooltip t�cnico (<details>), NUNCA na UI principal (grep = 0) |
+| Transparência de fontes (sources[].included/exclusionReason) | Especificado (§3.3, §3.5) | Não implementado/verificado no backend |
+| Confidence Score numérico (§3.4) | Especificado | Constantes (1000 votos, 3 fontes, etc.) são valores iniciais, não calibrados com dados reais |
+| Fórmula sem cancelamento algébrico (§3.1, v2) | Proposta | Pendente sign-off formal de governança (v1 com defeito segue locked até aprovação) |
+| Detecção de outlier determinística (§3.3b) | Especificado | Limiar de 3.0 pontos de desvio é valor inicial, não calibrado |
+| "Metodologia unificada" entre Filme/Série/Game | Impreciso | Função de cálculo é a mesma, mas estrutura não é simétrica: criticsScore sempre null para Filme/Série, só existe para Game (IGDB aggregated_rating). Comunicação de produto deve refletir essa assimetria, não implicar paridade total |
+| Versionamento (algorithmVersion) | Especificado | Convenção definida (§3.5); sem histórico real ainda — não há v1 rodando em produção para comparar |
+| algorithmVersion/confidenceScore na UI | Implementado | Só em tooltip técnico (<details>), NUNCA na UI principal (grep = 0) |
 
-"Metodologia unificada" entre Filme/S�rie/Game � IMPRECISO como comunicado antes. A fun��o de c�lculo � a mesma (globalScore = 0.5�critics + 0.5�audience ou �nico dispon�vel), mas a ESTRUTURA n�o � sim�trica: criticsScore � sempre null para Filme/S�rie (nenhuma fonte aprovada de cr�tica � �3.2) e s� existe para Game (IGDB aggregated_rating). Comunica��o de produto (marketing, pitch, docs p�blicas) deve refletir essa ASSIMETRIA, n�o implicar paridade total.
+"Metodologia unificada" entre Filme/Série/Game é IMPRECISO como comunicado antes. A função de cálculo é a mesma (globalScore = 0.5×critics + 0.5×audience ou único disponível), mas a ESTRUTURA não é simétrica: criticsScore é sempre null para Filme/Série (nenhuma fonte aprovada de crítica — §3.2) e só existe para Game (IGDB aggregated_rating). Comunicação de produto (marketing, pitch, docs públicas) deve refletir essa ASSIMETRIA, não implicar paridade total.
 ---
 
 ## [2026-08-03] Decisão: RAWG substituído por OpenCritic (fonte extinta)
@@ -873,10 +873,10 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T289 � tenant_id aditivo (multi-tenancy leve, Arquitetura �4)
+## [2026-08-11] T289 — tenant_id aditivo (multi-tenancy leve, Arquitetura §4)
 
 - tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001' adicionado em midia, watchlist_entry, discovery_event, classificacao_regiao, premio e temporada.
-- Default CONSTANTE por design: NOT NULL com default constante nao reescreve a tabela no PG11+ (custo ~zero agora, alto depois) � D-283/Arquitetura �4.
+- Default CONSTANTE por design: NOT NULL com default constante nao reescreve a tabela no PG11+ (custo ~zero agora, alto depois) — D-283/Arquitetura §4.
 - NENHUM filtro de tenant adicionado nas queries; tenant_id NUNCA exposto em respostas da API.
 - SEM indice em tenant_id (1 tenant unico ? seletividade inutil; evitaria custo de escrita).
 - RLS e filtros ficam para a T290, que exige aprovacao explicita do Operador (D-279) + premortem + teste de isolamento usuario A?B.
@@ -884,31 +884,31 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T291 � role CURATOR (Arquitetura �3)
+## [2026-08-11] T291 — role CURATOR (Arquitetura §3)
 
 - Nova role CURATOR: curadoria de conteudo (MediaRelation, Award, classificacao, genero) separada de ADMIN (sem acesso a usuarios/billing/flags).
-- Endpoints: POST /api/v1/curadoria/relacoes|premios|classificacoes|generos � @Roles('CURATOR','ADMIN'), Zod, audit_log em toda mutacao, rate limit 10/min por usuario.
-- Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; � ou via tooling admin futuro.
+- Endpoints: POST /api/v1/curadoria/relacoes|premios|classificacoes|generos — @Roles('CURATOR','ADMIN'), Zod, audit_log em toda mutacao, rate limit 10/min por usuario.
+- Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; — ou via tooling admin futuro.
 - Matriz de autorizacao testada: anonimo 401; FREE/PLUS/PREMIUM 403; CURATOR/ADMIN 200.
 - Promocao de role NUNCA via endpoint (elevation of privilege); curador nao acessa /admin/stats.
 
 ---
 
-## [2026-08-11] T292 � feature flags leves (Arquitetura �7)
+## [2026-08-11] T292 — feature flags leves (Arquitetura §7)
 
-- Decisao: tabela propria (feature_flags) AGORA, SEM servico externo (GrowthBook/Unleash) � evita infra/custo no estagio atual (billing apertado); reavaliar ferramenta self-host quando houver >10 flags ou multiplos times.
+- Decisao: tabela propria (feature_flags) AGORA, SEM servico externo (GrowthBook/Unleash) — evita infra/custo no estagio atual (billing apertado); reavaliar ferramenta self-host quando houver >10 flags ou multiplos times.
 - Avaliacao server-side unica e deterministica (hash usuarioId+key ? bucket estavel; anonimo usa IP-hash documentado); nunca exposta no frontend.
-- CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalida��o de cache.
-- Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em prepara��o'), nunca 500.
+- CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalidação de cache.
+- Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em preparação'), nunca 500.
 - Cache Redis 60s; rollout_percent clampado 0-100; tenant_overrides JSONB validado como mapa booleano.
 
 ---
 
-## [2026-08-11] T290 � RLS aprovado (D-284) e implementado
+## [2026-08-11] T290 — RLS aprovado (D-284) e implementado
 
 - Aprovacao do Operador registrada (APROVO T290). Escopo: watchlist_entry/discovery_event (isolamento tenant+usuario), midia (SELECT publico por tenant; escrita CURATOR/ADMIN), classificacao/premio/temporada (escrita CURATOR/ADMIN).
 - Contexto por transacao via SET LOCAL (app.current_user_id/tenant_id/role); sem BYPASSRLS; seeds com bootstrap proprio (tenant default + ADMIN).
-- **Premortem (risco alto) e mitiga��es:**
+- **Premortem (risco alto) e mitigações:**
   1. Seed/job sem contexto falha ? mitigado: bootstrap em todos os seeds + teste;
   2. Query administrativa sem contexto retorna vazio ? mitigado: wire via comContextoRls nos servicos de watchlist/discovery/descobertas + auditoria listada no STATUS;
   3. Pooler reusa SET de sessao ? mitigado: SET LOCAL transacional (nao vaza);
@@ -918,37 +918,37 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T299 � leituras agregadas/per-user sob RLS (D-285)
+## [2026-08-11] T299 — leituras agregadas/per-user sob RLS (D-285)
 
 - Excecao de LEITURA para ADMIN em watchlist_entry/discovery_event (policy watchlist_read_admin/discovery_read_admin, USING only; WITH CHECK de escrita permanece owner-only).
-- admin stats wireado via comContextoRls (role ADMIN + tenant default) � contagens nao-zero sob RLS.
-- recommendations leem usuario_midia_interacao (FORA do escopo RLS) + midia (SELECT publico com fallback do tenant default) � nao esvaziadas; teste sob RLS cobre admin stats.
+- admin stats wireado via comContextoRls (role ADMIN + tenant default) — contagens nao-zero sob RLS.
+- recommendations leem usuario_midia_interacao (FORA do escopo RLS) + midia (SELECT publico com fallback do tenant default) — nao esvaziadas; teste sob RLS cobre admin stats.
 - Deploy da migration RLS (20260811_rls + rls_leitura_admin) so apos R299 APPROVED + gatilho do Operador (D-284/D-285).
 
-- Spec rls-isolation: habilita��o em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy � media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilita��o CI volta quando T234 fechar.
+- Spec rls-isolation: habilitação em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy — media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilitação CI volta quando T234 fechar.
 
 ---
 
-## [2026-08-11] T300 � cobertura RLS (D-286)
+## [2026-08-11] T300 — cobertura RLS (D-286)
 
 Relatorio de cobertura (models com FK usuario x RLS):
 - COM RLS (escopo D-284/D-285): watchlist_entry, discovery_event (isolamento tenant+usuario), midia (SELECT publico/escrita CURATOR/ADMIN), classificacao_regiao, premio, temporada (escrita CURATOR/ADMIN).
-- SEM RLS � tabelas de conta/billing/audit (Sessao, UsuarioPapel, UsuarioPlano, Fatura, EventoPagamento, ConsentimentoUsuario, PreferenciaUsuario, Notificacao, UsoDiario, AuditLog, Entitlement, PlanoEntitlement, ListaColaborativa): protegidas pela camada de sessao/auth (guards + owner-checks testados); FORA do escopo RLS aprovado (D-284) para nao duplicar a superficie de auth no banco.
-- **DECISAO � usuario_midia_interacao SEM policy RLS (excecao documentada):** a tabela alimenta o filtro COLABORATIVO de recommendations, que legitima ler sinais agregados de outros usuarios (anonimizado, sem PII). RLS por-usuario quebraria o core de recomendacao. A API de interacoes (upsert/list) ja impoe owner-only na camada de servico (testes verdes); leituras agregadas nao expoem PII. Ficam como superficie de isolamento: watchlist/discovery (RLS) + interacoes (app-layer). Se no futuro houver necessidade, adicionar policy com leitura agregada por role dedicada + drill.
+- SEM RLS — tabelas de conta/billing/audit (Sessao, UsuarioPapel, UsuarioPlano, Fatura, EventoPagamento, ConsentimentoUsuario, PreferenciaUsuario, Notificacao, UsoDiario, AuditLog, Entitlement, PlanoEntitlement, ListaColaborativa): protegidas pela camada de sessao/auth (guards + owner-checks testados); FORA do escopo RLS aprovado (D-284) para nao duplicar a superficie de auth no banco.
+- **DECISAO — usuario_midia_interacao SEM policy RLS (excecao documentada):** a tabela alimenta o filtro COLABORATIVO de recommendations, que legitima ler sinais agregados de outros usuarios (anonimizado, sem PII). RLS por-usuario quebraria o core de recomendacao. A API de interacoes (upsert/list) ja impoe owner-only na camada de servico (testes verdes); leituras agregadas nao expoem PII. Ficam como superficie de isolamento: watchlist/discovery (RLS) + interacoes (app-layer). Se no futuro houver necessidade, adicionar policy com leitura agregada por role dedicada + drill.
 - Auditoria concluida: nenhuma outra tabela com dado de usuario fora da classificacao acima.
 
 - [T301] Excecao da T300 FECHADA: usuario_midia_interacao com RLS owner-only + excecao FOR SELECT ADMIN (interacao_tenant_user/interacao_read_admin). Recommendations rodam o caminho agregado via comContextoRls(role ADMIN); interacoes via owner. 100% das tabelas de conteudo de usuario com RLS.
 
 ---
 
-## [2026-08-11] T296 � hero com identidade (Addendum 1) � verificacao
+## [2026-08-11] T296 — hero com identidade (Addendum 1) — verificacao
 
 - A hero ja entregue (T185/T273/T274) atende a identidade do Addendum 1: icones 3D-em-camadas por categoria (SVG inline, sem biblioteca 3D em runtime), gauge ciclico multi-midia com escalas nativas, prefers-reduced-motion respeitado, stats i18n (contagem real + NUM_FONTES_ATIVAS).
 - Verificacao T296 (SSR nos 3 locales + suites): hero renderiza em pt-BR/en-US/es-ES com o cluster de 6 icones; web 305/305; typecheck/lint limpos.
 - Baseline de performance (estrutural): LCP = h1 acima da dobra (texto estatico, sem fetch de imagem); icones = SVG inline (zero requisicoes); CLS controlado por dimensoes fixas em CSS do cluster; sem three.js/GSAP-runtime extra.
 - Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
 
-- [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 � ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
+- [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 — ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
 
 ---
 
