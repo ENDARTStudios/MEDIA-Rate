@@ -15,8 +15,8 @@ export default async function AssistantPage({ params }: { params: Promise<{ loca
     <div className="max-w-3xl mx-auto py-16 px-4">
       <h1 className="text-2xl font-bold text-gray-100 mb-4">Assistente (em breve)</h1>
       <p className="text-gray-400">
-        Recomendações personalizadas via inteligência artificial. Diga o que você gosta e receba
-        sugestões.
+        Assistente em construção — em breve você poderá descrever o que gosta e receber sugestões
+        personalizadas.
       </p>
     </div>
   );
