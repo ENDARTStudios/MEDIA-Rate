@@ -119,7 +119,8 @@ model Usuario {
   papeis               UsuarioPapel[]
   plano                UsuarioPlano?
   eventos_pagamento    EventoPagamento[]
-  consentimentos       ConsentimentoUsuario[]
+  consentimentos      ConsentimentoUsuario[]
+  consent_logs        ConsentLog[]
   interacoes           UsuarioMidiaInteracao[]
   watchlist            WatchlistEntry[]
   preferencias         PreferenciaUsuario?
@@ -293,6 +294,25 @@ model ConsentimentoUsuario {
   @@index([usuario_id])
   @@map("consentimento_usuario")
 }
+
+model ConsentLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  usuario_id  String?  @map("usuario_id") @db.Uuid
+  device_hash String?  @map("device_hash") @db.VarChar(64)
+  categorias  Json     @map("categorias")
+  versao      String   @map("versao") @db.VarChar(16)
+  ts          BigInt   @map("ts")
+  idioma      String   @map("idioma") @db.VarChar(8)
+  pais        String   @map("pais") @db.VarChar(8)
+  ip_hash     String?  @map("ip_hash") @db.VarChar(64)
+  criado_em   DateTime @default(now()) @map("criado_em")
+
+  usuario     Usuario? @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([usuario_id, criado_em])
+  @@map("consent_log")
+}
+
 
 // ===========================================================================
 // Domínio de mídia (T2.7 + extensão justificada pela ordem FASE-2)
