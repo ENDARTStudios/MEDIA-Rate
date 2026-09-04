@@ -1361,3 +1361,18 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Justificativa:** F17 com todo o trabalho de código e governança concluído; revisão agregada final só faz sentido com evidência completa (incluindo prova de rede e teste ao vivo).
 
+## D-437 — Flags do T445 decididos: unificação de escala 0–100 deferida para F18 (lote de produto com guardas visuais); guard do toggle anual agora (T447); rgpd-locale corrigido agora com whitelist de nomes de lei (T448)
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer entregou o T445 e trouxe 3 flags. (1) Escala: o FAQ agora é verdadeiro ('jogos e mangás 0–100, demais 0–10'), o que resolve a inconsistência textual apontada pela auditoria; a unificação total em 0–100 é mudança de produto com impacto visual amplo e possível implicação de normalização de dados (livros exibem escala 0–5/0–10) — merece lote dedicado, não mudança rápida dentro de uma fase de compliance. (2) Toggle anual: o código suporta STRIPE_PRICE_*_YEAR_* mas a existência das env/prices anuais é infra/negócio do Operador; sem eles o checkout anual quebraria — precisa de guarda defensiva agora. (3) rgpd-locale: o teste T248 ('en-US neutro') falha porque en-US menciona 'LGPD' — nome próprio de lei não é leak de i18n; o teste precisa de whitelist, preservando a detecção de leaks reais.
+
+**Decisão:**
+1) Escala: aceitar o FAQ corrigido como estado verdadeiro atual; DEFERIR unificação total 0–100 para F18 como tarefa de produto (verificar normalização armazenada por fonte, unificar display, guardas de regressão visual + gate visual do Operador) — registrar como candidato F18, não executar agora.
+2) T447 agora: guarda defensiva do toggle anual (env ausente → ocultar/desabilitar com fallback gracioso; nunca iniciar checkout anual sem price_ válido).
+3) T448 agora: whitelist de nomes próprios de leis/autoridades (LGPD/GDPR/AEPD/ANPD) no rgpd-locale.spec.ts, mantendo detecção de leaks reais de pt-BR; suíte volta a 321/321.
+4) ESCALATE ao Operador: decidir se quer vender plano anual (criar price_ anuais no Stripe + setar STRIPE_PRICE_*_YEAR_*); o guard do T447 reabilita o toggle automaticamente quando existirem.
+5) Após T447+T448: standby para fatores externos (deploy Vercel → T438/prova T432; credencial → T433/validação T443; gate legal).
+
+**Justificativa:** Separa o que é compliance (feito), o que é defesa imediata (T447/T448, pequenos e seguros) e o que é decisão de produto com impacto amplo (escala, F18) — evitando scope creep dentro da fase de compliance.
+
