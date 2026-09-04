@@ -1332,3 +1332,32 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Fornecer o texto canônico de D-426→D-430 para o Doer materializar no DECISOES.md por append não-destrutivo. Cada decisão foi emitida no chat em momento específico e registrada no exchange_log conceitual (embora não no arquivo).
 
+## D-435 — Reconciliação D-430/D-431: fundir conteúdo (D-431 mais completo) no D-430; re-titular D-431 como divisão de escrita em arquivos de governança
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer identificou que D-430 e D-431 são quase-duplicados em substância (ambos 'marco consolidado da F17'). D-430 foi emitido primeiro; D-431 foi emitido depois com conteúdo adicional (backend de consentimento T443 + divisão de escrita). Pela regra não-destrutiva de T444, o Doer manteve ambos e reportou para o Thinker especificar a reconciliação.
+
+**Decisão:**
+1) Fundir o conteúdo de D-431 no D-430 (manter D-430 como o marco consolidado, mas com o conteúdo completo de D-431 que inclui T443 e a divisão de escrita).
+2) Re-titular D-431 como 'Divisão de escrita em arquivos de governança (DECISOES.md/PLANO_MESTRE.md): função do Thinker especificar, Doer materializar' — preservando a informação importante de D-431 sobre a divisão de responsabilidades.
+3) Doer executa a reconciliação (edição controlada, não-destrutiva) e commita.
+4) Após reconciliação, F17 está em estado consolidado completo, aguardando apenas fatores externos (deploy Vercel, credencial de teste, gate legal) para a revisão agregada final.
+
+**Justificativa:** Elimina quase-duplicação preservando toda a informação; D-430 fica como o marco consolidado definitivo; D-431 vira registro permanente da divisão de escrita (que é importante para governança futura).
+
+
+## D-436 — F17 em estado consolidado completo: código mergeado (T435→T443), DECISOES.md íntegro (D-425→D-434), pendências = fatores externos (deploy Vercel, credencial de teste, gate legal); revisão agregada final pendente
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** T444 completo: repair de encoding (UTF-8 válido, sem perda de conteúdo), backfill D-426→D-430 (append não-destrutivo), e reconciliação D-430/D-431 (fusão de conteúdo, re-titulação). DECISOES.md agora íntegro e completo (D-001→D-434). Código da F17 mergeado (T435→T443). Pendências restantes são todas fatores externos: deploy Vercel (auto-resolve em ~24h), credencial de teste (Operador), gate legal final (advogado).
+
+**Decisão:**
+1) T444 marcado [x] completo (repair + backfill + reconciliação).
+2) F17 em estado consolidado completo: código mergeado, DECISOES.md íntegro, pendências = fatores externos.
+3) Quando os fatores externos resolverem: Doer fecha T438 (teste cookies sessão limpa) + prova de rede T432 (após deploy Vercel); Doer fecha T433 (teste ao vivo direitos) + validação T443 (após credencial de teste); então Thinker emite a revisão agregada final da F17.
+4) Pendências do Operador = 2: (a) credencial de conta de teste (via env, sem chat); (b) gate legal final (advogado). Deploy Vercel auto-resolve.
+
+**Justificativa:** F17 com todo o trabalho de código e governança concluído; revisão agregada final só faz sentido com evidência completa (incluindo prova de rede e teste ao vivo).
+
