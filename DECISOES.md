@@ -1311,3 +1311,28 @@ UTF-8 ao final), preservando o conteúdo histórico original.
 
 **Pendente:** repair controlado do DECISOES.md (human/editorial, sem perda de conteúdo) + preenchimento
 das decisões faltantes da F17; separado do fechamento técnico da F17.
+
+## D-433 — Reconciliação do DECISOES.md: backfill D-426→D-430 por append não-destrutivo + repair controlado de encoding (backup+diff) é tarefa do Doer (T444), não do Operador; pendências reais do Operador = 2 (credencial de teste + gate legal)
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer registrou D-431/D-432 por append e descobriu que o DECISOES.md perdeu D-426→D-430 (nunca materializados) e tem encoding misto/mojibake. A conduta de não reescrever às cegas está correta (§10.5: arquivos vencem; não destruir conteúdo decisório). Porém o backfill e o repair NÃO são pendência do Operador: o conteúdo de D-426→D-430 existe no exchange_log (fonte de verdade de eventos) e pode ser reconstruído; o repair de encoding é tarefa técnica controlada (backup + diff + validação UTF-8). O Operador só entra onde é função dele: credencial de teste e gate legal. O deploy Vercel auto-resolve (Operador já aceitou o atraso).
+
+**Decisão:**
+1) Emitir T444: Doer faz backfill de D-426→D-430 por append (reconstruindo do exchange_log, na ordem) + repair controlado de encoding com backup prévio e verificação por diff; só commitar se o diff mostrar normalização de encoding sem perda de linhas de conteúdo; se detectar perda → BLOCKED/ESCALATE.
+2) Reclassificar pendências do Operador para 2: (a) credencial de conta de teste (→ T433 + validação T443); (b) gate legal final (advogado).
+3) Remover da lista do Operador: backfill/repair (é do Doer) e deploy Vercel (auto-resolve, já aceito).
+4) Manter regra D-430: Thinker especifica decisões, Doer materializa; após T444, o Doer passa a materializar toda DECISAO emitida no próximo commit batched (evita novo gap).
+5) T443 permanece [x] código; fechamento completo após deploy+credencial.
+
+**Justificativa:** Restaurar a fonte única de verdade sem destruir conteúdo; não onerar o Operador com tarefa técnica que o organismo pode fazer com segurança (backup+diff).
+
+
+## D-434 — Texto canônico de D-426→D-430 fornecido pelo Thinker (extraído do transcript) para materialização no DECISOES.md
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O Doer reportou que o backfill de D-426→D-430 é impossível com fidelidade porque o texto não existe no repositório (exchange_log.jsonl não as registrou, git history só tem D-431/D-432). As decisões foram emitidas pelo Thinker no chat mas nunca materializadas. O Doer corretamente recusou fabricar conteúdo decisório. O Thinker extrai o texto canônico do transcript e fornece para materialização por append não-destrutivo.
+
+**Decisão:** Fornecer o texto canônico de D-426→D-430 para o Doer materializar no DECISOES.md por append não-destrutivo. Cada decisão foi emitida no chat em momento específico e registrada no exchange_log conceitual (embora não no arquivo).
+
