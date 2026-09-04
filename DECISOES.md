@@ -1234,3 +1234,30 @@ T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-fro
 (UTF-8 válido em partes + bytes Latin-1/CP1252 e mojibake em outras), reportado como "invalid UTF-8"
 pela ferramenta de leitura, e carece das entradas D-426 a D-430. Registrado para tratamento próprio
 (repair com revisão humana/editorial) sem perda de conteúdo histórico. Não reescrever às cegas.
+
+## D-432 — Incidente de integridade: DECISOES.md com encoding misto/corrompido e histórico desatualizado (lesson learned)
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Incidente:** ao registrar o marco D-431, o arquivo DECISOES.md foi lido como "invalid UTF-8"
+pela ferramenta padrão (read). Diagnóstico: encoding **misto** no arquivo — partes em UTF-8
+válido e partes com bytes Latin-1/CP1252/mojibake salvos ao longo de edições anteriores (153
+sequências inválidas). Além disso, o registro estava **desatualizado**: faltavam D-426 a D-430.
+
+**Causa raiz provável:** o arquivo foi salvo por ferramentas/ambientes com encodings divergentes
+em momentos distintos (Latin-1/CP1252 vs UTF-8) sem normalização, gerando byte-stream misto.
+
+**Conduta adotada (Thinker):** NÃO reescrever o histórico às cegas (risco de destruir conteúdo
+legal/decisório); registrou D-431 e D-432 por **append não-destrutivo** (concatenação de bytes
+UTF-8 ao final), preservando o conteúdo histórico original.
+
+**Lição permanente (integridade de arquivos de fonte única):**
+1. Arquivos de fonte única (DECISOES.md, PLANO_MESTRE.md) devem ser salvos e validados como
+   UTF-8 SEMPRE; detectar cedo "invalid UTF-8" via leitura padrão.
+2. Nunca reescrever/re-encodar um log histórico com corrupção sem revisão humana/editorial.
+3. Repair de encoding misto é tarefa dedicada e controlada — NÃO automática e às cegas.
+4. Falta de registro (D-426..D-430) em DECISOES.md é débito de processo: registrar decisões
+   no ato (D-390) para não perder a trilha de decisão da fase.
+
+**Pendente:** repair controlado do DECISOES.md (human/editorial, sem perda de conteúdo) + preenchimento
+das decisões faltantes da F17; separado do fechamento técnico da F17.
