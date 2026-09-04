@@ -1,4 +1,13 @@
-import { Body, Controller, Headers, HttpCode, Post, Req, UsePipes } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  Post,
+  Req,
+  UsePipes,
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
 import { FastifyRequest } from "fastify";
 
@@ -56,6 +65,18 @@ export class PaymentController {
     const locale = (req.headers["x-locale"] as string | undefined) ?? "pt-BR";
     dto.currency = currencyForRegion(locale, country);
     dto.periodo = dto.periodo ?? "month";
+
+    // T447: guarda defensiva do plano anual — nunca inicia checkout anual sem
+    // um price_ anual configurado (STRIPE_PRICE_<PLANO>_YEAR_<MOEDA>). Se ausente,
+    // responde 422 (gracioso) em vez de quebrar o checkout.
+    if (dto.periodo === "year") {
+      const annualKey = `STRIPE_PRICE_${dto.plano}_YEAR_${dto.currency}`;
+      if (!process.env[annualKey]) {
+        throw new BadRequestException(
+          "O plano anual ainda não está configurado para este plano/moeda.",
+        );
+      }
+    }
 
     // Busca email do usuário no banco.
     const session = await this.paymentService.createCheckout(dto, {

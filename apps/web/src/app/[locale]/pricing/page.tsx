@@ -8,6 +8,7 @@ import { MediaUnlockGrid } from "../../../components/pricing/MediaUnlockGrid";
 import { localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "../../../lib/seo";
 import { serializeJsonLd } from "../../../lib/json-ld";
 import { currencyForRegion, symbolForCurrency } from "../../../lib/currency-for-region";
+import { annualAvailable } from "../../../lib/billing-config";
 
 export async function generateMetadata({
   params,
@@ -109,7 +110,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
           <p className="text-lg text-[#9CA3AF] max-w-2xl mx-auto">{t("subheadline")}</p>
         </div>
 
-        <PricingCards currencySymbol={currencySymbol} />
+        <PricingCards currencySymbol={currencySymbol} annualAvailable={annualAvailable()} />
         <p className="text-xs text-[#80809B] text-center max-w-2xl mx-auto px-4 mt-6 leading-relaxed">
           {t("currencyNote")}
         </p>
