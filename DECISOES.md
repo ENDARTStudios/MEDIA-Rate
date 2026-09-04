@@ -1200,3 +1200,37 @@ reutilizou a senha; reportou com transparencia.
 
 **Reforca D-418** (padrao de manuseio de segredos do billing) e vira referencia para
 futuros scripts de provision/acesso a infra.
+
+## D-431 — Marco consolidado da F17 (código mergeado; fechamento aguarda fatores externos)
+
+**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** o Doer concluiu T443 (backend de consentimento) e verificou o estado da
+F17. Todo o trabalho de código da D-427/D-430 está mergeado:
+T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-frontend · T443.
+
+**Decisão:**
+1. Registrar o marco consolidado da F17: código completo e mergeado; pendências apenas externas.
+2. T443 marcado [x] (código); fechamento completo após aplicação da migração pelo pipeline (Railway) + validação ao vivo.
+3. Reforçar a divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits.
+4. Quando os fatores externos resolverem: Doer roda T438 + prova de rede T432 (deploy Vercel) e T433 + validação T443 (credencial); então Thinker emite a revisão agregada final da F17.
+5. Pendências do Operador = 2 (credencial de teste + gate legal).
+
+**Evidência (T443):** Commit 3334cc0 (PR #73). ConsentLog append-only (categorias/versão/ts/idioma/país/ip_hash/usuario_id); migração aditiva 20260902000000_consent_logs; POST /api/v1/consent (rate limit 5/min); GET /api/v1/consent/history owner-only; consent.spec.ts 3/3.
+
+**Justificativa:** separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
+
+**Impacto:** F17 com estado consolidado documentado; organismo aguarda fatores externos para a revisão agregada final.
+
+**Riscos residuais:** deploy Vercel e credencial de teste são externos; gate legal depende de advogado.
+
+**Próximos passos:**
+- Operador: credencial de teste + gate legal.
+- Deploy Vercel: reset ~24h → T438 + prova T432.
+- Doer: ao resolver, T433 + validação T443.
+- Thinker: revisão agregada final da F17.
+
+**Nota de integridade (a registrar/sanar):** este arquivo DECISOES.md está com encoding misto/corrompido
+(UTF-8 válido em partes + bytes Latin-1/CP1252 e mojibake em outras), reportado como "invalid UTF-8"
+pela ferramenta de leitura, e carece das entradas D-426 a D-430. Registrado para tratamento próprio
+(repair com revisão humana/editorial) sem perda de conteúdo histórico. Não reescrever às cegas.
