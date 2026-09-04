@@ -46,6 +46,41 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">{t("sMinH")}</h2>
           <p className="whitespace-pre-line">{t("sMinB")}</p>
         </section>
+        <section>
+          <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+            {t("sCookTableTitle")}
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border border-[#2A2A3D]">
+              <thead>
+                <tr className="bg-[#12121C] text-left text-[#818CF8]">
+                  {t("sCookTable")
+                    .split("\n")[0]
+                    .split("|")
+                    .map((h, k) => (
+                      <th key={k} className="px-2 py-2 font-semibold">
+                        {h.trim()}
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+              <tbody>
+                {t("sCookTable")
+                  .split("\n")
+                  .slice(1)
+                  .map((row, r) => (
+                    <tr key={r} className="border-t border-[#2A2A3D]">
+                      {row.split("|").map((cell, k) => (
+                        <td key={k} className="px-2 py-2 text-[#9CA3AF]">
+                          {cell.trim()}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
         {[6, 7, 8, 9, 10, 11, 12].map((n) => (
           <section key={n}>
             <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
