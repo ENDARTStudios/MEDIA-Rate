@@ -154,7 +154,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 5.4-5.6 ProtectedPage, CSP, DOMPurify (privacy), sessão sem localStorage.
 - [x] 5.7-5.9 Acessibilidade WCAG 2.1 AA, responsivo mobile-first, animações premium.
 - [x] 5.10-5.12 Design system (Dark OLED #0B0B1E, accent rose #E11D48), SEO (metadata/JSON-LD/OG/Twitter), i18n 3 locales.
-- [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`.
+- [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`. Correção D-439/R031: build T030 mostra 98 páginas, todas dinâmicas (mídia não-SSG; multiplicador de varredura = sitemap × 3 locales).
 - [x] 5.14 Gate i18n-leak no CI (T271/T273): e2e SSR + teste estrutural.
 - [x] 5.15 Selo "prévia" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` único em `lib/api.ts`).
 
@@ -240,8 +240,9 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 
 - [x] T029 — auditoria image optimization (robots aberto, defaults Next, sem sharp, unoptimized inconsistente, H3 refutada) · evid: D-439
 - [x] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado · evid: test 4/4 + build OK
+- [x] T034 — conformidade de handoffs (schema oneOf D-442 + validator alinhado) · evid: integrity 7/7
 - [ ] T031 — variantes no upload via sharp (com backfill do acervo remoto)
-- [ ] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality
+- [>] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality
 - [ ] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)
 
 ---

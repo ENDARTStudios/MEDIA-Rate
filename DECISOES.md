@@ -1459,3 +1459,21 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Desvios 1–4 e 6 incorporados como precedente; item 5 monitorado.
 
+## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** R029/R030 rejeitaram STATUS contra o schema do template de bootstrap (KB), não contra o arquivo em disco — que nunca teve `tentativas` em required, `evidencia: object` ou additionalProperties:false (D-442 §4). O "validator: OK" do Doer estava correto desde o início.
+
+**Decisão:** Arquivos vencem (§3); bootstrap/KB é template, não verdade operacional; R029/R030 superseded por R031/R032.
+
+## D-445 — Tokens de imagem + helper único de unoptimized (spec T032)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** D-439/H2: defaults do Next (16 larguras) + `unoptimized` inconsistente entre componentes.
+
+**Decisão:** Travar `deviceSizes [320, 640, 960, 1280, 1920]`, `imageSizes [64, 128, 256]`, `formats ['image/webp']`, `qualities [75]` no `next.config.ts`; helper único `isUnoptimizedSource(src)` em `lib/image-policy.ts` (hosts: anilist, openlibrary, myanimelist, comicvine, googlebooks) aplicado nos 6 componentes; sem novos domínios; sizes/priority/layout intactos.
+
+**Verificado:** em T032 (test + build + srcset).
+
