@@ -1459,6 +1459,16 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Desvios 1–4 e 6 incorporados como precedente; item 5 monitorado.
 
+## D-446 — T031: sharp somente onde possuímos os bytes; remoto usa escadas nativas (T036)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Upload local cobre fração do acervo; maioria é remota (TMDB/IGDB/OpenLibrary).
+
+**Decisão:** sharp gera variantes (320/640/960 WebP q75) só no upload + backfill idempotente do storage próprio. Backfill do acervo remoto NÃO será proxy/ingest (fronteira SSRF + custo de storage sem necessidade): TMDB/IGDB/OpenLibrary já expõem escadas nativas (`w342/w780`, `t_300/t_720`, `-S/-M/-L`), que viram srcset com `unoptimized` na T036.
+
+**Verificado:** em T031 (upload) e T036 (remoto).
+
 ## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
