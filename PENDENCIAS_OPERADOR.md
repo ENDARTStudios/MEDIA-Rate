@@ -215,3 +215,12 @@ Passo a passo (aplicado):
 4. `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` no Vercel ✅
 Como saber que deu certo: faça login no site e veja o evento `user_session_start` no PostHog.
 Depois de feito: responda "feito o item Nº 7"
+
+---
+
+### [8] Confirmar/ativar Deployment Protection nos previews (Vercel) — F10/T030
+
+Por quê: previews `*.vercel.app` têm cache próprio de imagens; bot varrendo preview re-paga o warm-up inteiro (H4 do D-439). Não verificável em código (`apps/web/vercel.json` = só framework).
+Onde: Vercel → projeto web → Settings → Deployment Protection → exigir autenticação em Preview Deployments.
+Como saber que deu certo: abrir a URL de um preview em sessão anônima exige login Vercel.
+Depois de feito: responda "feito o item Nº 8"

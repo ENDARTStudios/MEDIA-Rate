@@ -239,7 +239,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline ~165/dia). Co-causas: crawlers (H1) + variantes de runtime sem tokens (H2).
 
 - [x] T029 — auditoria image optimization (robots aberto, defaults Next, sem sharp, unoptimized inconsistente, H3 refutada) · evid: D-439
-- [>] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado
+- [x] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado · evid: test 4/4 + build OK
 - [ ] T031 — variantes no upload via sharp (com backfill do acervo remoto)
 - [ ] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality
 - [ ] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)

@@ -1407,3 +1407,27 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** auditoria por leitura direta de fonte (grep/read); sem alteração de código neste commit.
 
+## D-440 — T030 robots por bot (grupos A/B): crawlers de IA bem-comportados fora das imagens, SEO preservado
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** D-439/H1: `robots.ts` permitia `*` em tudo exceto `/api/`; crawlers de IA varrendo páginas/imagens explicam ~67% do consumo em edges EUA.
+
+**Decisão:**
+1) Grupo A (treino — GPTBot, CCBot, ClaudeBot, anthropic-ai, Google-Extended, meta-externalagent, Bytespider, Applebot-Extended): `Disallow: /`.
+2) Grupo B (busca com IA — PerplexityBot, Amazonbot, YouBot, cohere-ai): `Disallow: /api/, /_next/image, /_vercel/image` (`/api/` incluído para o grupo não ficar mais permissivo que a regra genérica).
+3) Regra genérica preservada (`allow /`, `disallow /api/`); Googlebot/Bingbot sem bloqueio de imagens.
+4) robots.txt é consultivo — sucesso = queda no dashboard em 7 dias (baseline ~165/dia, meta <20/dia), não promessa de bloqueio total.
+
+**Verificado:** `apps/web/test/robots.spec.ts` 4/4 (TDD: red antes, green depois); `npm run build` OK em apps/web.
+
+## D-441 — T030 noindex em previews via VERCEL_ENV (header X-Robots-Tag)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Previews `*.vercel.app` têm cache próprio de imagens; varredura de preview re-paga o warm-up (H4 do D-439). `apps/web/vercel.json` não oferece proteção via código.
+
+**Decisão:** `apps/web/src/middleware.ts` emite `X-Robots-Tag: noindex` somente quando `process.env.VERCEL_ENV === "preview"`; nunca sobrescreve o header mais forte das rotas privadas; produção intacta. `curl -sI` em preview (presente) vs produção (ausente) fica como verificação pós-deploy do Operador.
+
+**Verificado:** `npm run build` OK; CSP inalterada.
+
