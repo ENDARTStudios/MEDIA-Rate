@@ -134,23 +134,21 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
 
   it("T397 — descobertas vazias caem no fallback por gênero (MESMO_GENERO)", async () => {
     // 1ª chamada (relações) vazia; 2ª chamada (consumidos) tem um CONCLUIDO.
-    prisma.usuarioMidiaInteracao.findMany
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          midia_id: "m-consumido",
-          status: "CONCLUIDO",
-          atualizado_em: new Date("2026-08-01T00:00:00Z"),
-          midia: {
-            id: "m-consumido",
-            titulo: "Duna (filme)",
-            tipo: "FILME",
-            imagem_url: null,
-            score: 95,
-            generos: [{ genero: { slug: "ficcao-cientifica" } }],
-          },
+    prisma.usuarioMidiaInteracao.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        midia_id: "m-consumido",
+        status: "CONCLUIDO",
+        atualizado_em: new Date("2026-08-01T00:00:00Z"),
+        midia: {
+          id: "m-consumido",
+          titulo: "Duna (filme)",
+          tipo: "FILME",
+          imagem_url: null,
+          score: 95,
+          generos: [{ genero: { slug: "ficcao-cientifica" } }],
         },
-      ]);
+      },
+    ]);
     prisma.midia.findMany.mockResolvedValue([
       { id: "m-recomendado", titulo: "Interestelar", tipo: "FILME", imagem_url: null, score: 90 },
     ]);
@@ -163,29 +161,37 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
   });
 
   // ---- GET /taste/history ------------------------------------------------
+  // T038: relógio congelado (2026-08) — o teste afirmava contra "hoje" e
+  // quebrava a cada virada de mês. Datas do fixture continuam fixas em ISO.
   it("taste/history: 12 meses ascendentes com pesos normalizados por gênero narrativo", async () => {
-    prisma.usuarioMidiaInteracao.findMany.mockResolvedValue([
-      {
-        status: "CONCLUIDO",
-        iniciado_em: null,
-        concluido_em: new Date("2026-08-15T00:00:00Z"),
-        atualizado_em: new Date("2026-08-15T00:00:00Z"),
-        midia: {
-          generos: [
-            { genero: { slug: "ficcao-cientifica", tipo: "NARRATIVO" } },
-            { genero: { slug: "aventura", tipo: "NARRATIVO" } },
-            { genero: { slug: "subgenero", tipo: "SUBGENERO" } }, // ignorado
-          ],
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-20T12:00:00Z"));
+    try {
+      prisma.usuarioMidiaInteracao.findMany.mockResolvedValue([
+        {
+          status: "CONCLUIDO",
+          iniciado_em: null,
+          concluido_em: new Date("2026-08-15T00:00:00Z"),
+          atualizado_em: new Date("2026-08-15T00:00:00Z"),
+          midia: {
+            generos: [
+              { genero: { slug: "ficcao-cientifica", tipo: "NARRATIVO" } },
+              { genero: { slug: "aventura", tipo: "NARRATIVO" } },
+              { genero: { slug: "subgenero", tipo: "SUBGENERO" } }, // ignorado
+            ],
+          },
         },
-      },
-    ]);
-    const r = await service.historicoTaste("user-1");
-    expect(r.length).toBe(12);
-    const last = r[r.length - 1];
-    expect(last.month).toBe("2026-08");
-    expect(Object.keys(last.genreWeights).sort()).toEqual(["aventura", "ficcao-cientifica"]);
-    const soma = Object.values(last.genreWeights).reduce((a: number, b: number) => a + b, 0);
-    expect(soma).toBeCloseTo(1, 4);
+      ]);
+      const r = await service.historicoTaste("user-1");
+      expect(r.length).toBe(12);
+      const last = r[r.length - 1];
+      expect(last.month).toBe("2026-08");
+      expect(Object.keys(last.genreWeights).sort()).toEqual(["aventura", "ficcao-cientifica"]);
+      const soma = Object.values(last.genreWeights).reduce((a: number, b: number) => a + b, 0);
+      expect(soma).toBeCloseTo(1, 4);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("taste/history: sem interações → 12 meses com pesos vazios (nunca fabrica)", async () => {
