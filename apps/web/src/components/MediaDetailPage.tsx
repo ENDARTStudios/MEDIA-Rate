@@ -17,6 +17,7 @@ import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { MediaItem } from "./MediaCard";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import type { ReactNode } from "react";
 
 function toMediaItem(m: Media): MediaItem {
@@ -130,29 +131,69 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
 
       {/* Hero */}
       <div className="relative bg-[#11111E] overflow-hidden">
-        {media.backdropUrl && (
-          <Image
-            src={media.backdropUrl}
-            alt=""
-            fill
-            className="object-cover opacity-30"
-            priority
-            sizes="100vw"
-          />
-        )}
+        {media.backdropUrl &&
+          (() => {
+            // T036: hero full-bleed usa o rung original estático; sem ladder → bypass.
+            const ladder = remoteLadder(media.backdropUrl);
+            return ladder ? (
+              <img
+                src={ladder.src}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover opacity-30"
+              />
+            ) : (
+              <Image
+                src={media.backdropUrl}
+                alt=""
+                fill
+                className="object-cover opacity-30"
+                priority
+                sizes="100vw"
+                unoptimized
+              />
+            );
+          })()}
         <div className="absolute inset-0 bg-gradient-to-br from-[#11111E]/90 to-[#09090F]/90" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#09090F] via-[#09090F]/60 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <div className="shrink-0 relative w-48 aspect-[2/3]">
               {media.posterUrl ? (
-                <Image
-                  src={media.posterUrl}
-                  alt={`Poster de ${titleForLocale(media, locale)}`}
-                  fill
-                  className="object-cover rounded-md"
-                  sizes="192px"
-                />
+                (() => {
+                  if (isLocalSource(media.posterUrl)) {
+                    return (
+                      <img
+                        src={media.posterUrl}
+                        srcSet={localSrcSet(media.posterUrl)}
+                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        sizes="192px"
+                        className="absolute inset-0 h-full w-full object-cover rounded-md"
+                      />
+                    );
+                  }
+                  const ladder = remoteLadder(media.posterUrl);
+                  if (ladder) {
+                    return (
+                      <img
+                        src={ladder.src}
+                        srcSet={ladder.srcSet}
+                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        sizes="192px"
+                        className="absolute inset-0 h-full w-full object-cover rounded-md"
+                      />
+                    );
+                  }
+                  return (
+                    <Image
+                      src={media.posterUrl}
+                      alt={`Poster de ${titleForLocale(media, locale)}`}
+                      fill
+                      className="object-cover rounded-md"
+                      sizes="192px"
+                      unoptimized
+                    />
+                  );
+                })()
               ) : (
                 <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280]">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">

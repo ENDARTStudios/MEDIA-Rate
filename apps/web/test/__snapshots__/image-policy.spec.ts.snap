@@ -68,3 +68,24 @@ exports[`image-policy (T032/D-445) > snapshot da config de images 1`] = `
   ],
 }
 `;
+
+exports[`remoteLadder (T036/D-447) > snapshot das ladders por fonte 1`] = `
+[
+  {
+    "src": "https://image.tmdb.org/t/p/original/abc.jpg",
+    "srcSet": "https://image.tmdb.org/t/p/w342/abc.jpg 342w, https://image.tmdb.org/t/p/w780/abc.jpg 780w",
+  },
+  {
+    "src": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/abc.jpg",
+    "srcSet": "https://images.igdb.com/igdb/image/upload/t_cover_small/abc.jpg 90w, https://images.igdb.com/igdb/image/upload/t_cover_big/abc.jpg 264w, https://images.igdb.com/igdb/image/upload/t_cover_big_2x/abc.jpg 528w",
+  },
+  {
+    "src": "https://covers.openlibrary.org/b/id/123-L.jpg",
+    "srcSet": "https://covers.openlibrary.org/b/id/123-S.jpg 128w, https://covers.openlibrary.org/b/id/123-M.jpg 256w, https://covers.openlibrary.org/b/id/123-L.jpg 512w",
+  },
+  {
+    "src": "https://books.google.com/books/content?id=abc&img=1&zoom=1",
+    "srcSet": "https://books.google.com/books/content?id=abc&img=1&zoom=0 128w, https://books.google.com/books/content?id=abc&img=1&zoom=1 512w",
+  },
+]
+`;

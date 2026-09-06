@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
-import { isUnoptimizedSource } from "@/lib/image-policy";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import type { RelacaoItem } from "@/lib/api-relations";
 
 /**
@@ -48,14 +48,43 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
     >
       <div className="relative h-28 w-full overflow-hidden rounded-md bg-[#1C1C2E]">
         {m.imagemUrl ? (
-          <Image
-            src={m.imagemUrl}
-            alt={m.titulo}
-            fill
-            sizes="200px"
-            className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
-            unoptimized={isUnoptimizedSource(m.imagemUrl)}
-          />
+          (() => {
+            // T031/T036: estático com ladder (local ou remota); sem ladder →
+            // bypass — zero transformação runtime em qualquer caminho.
+            if (isLocalSource(m.imagemUrl)) {
+              return (
+                <img
+                  src={m.imagemUrl}
+                  srcSet={localSrcSet(m.imagemUrl)}
+                  alt={m.titulo}
+                  sizes="200px"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                />
+              );
+            }
+            const ladder = remoteLadder(m.imagemUrl);
+            if (ladder) {
+              return (
+                <img
+                  src={ladder.src}
+                  srcSet={ladder.srcSet}
+                  alt={m.titulo}
+                  sizes="200px"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                />
+              );
+            }
+            return (
+              <Image
+                src={m.imagemUrl}
+                alt={m.titulo}
+                fill
+                sizes="200px"
+                className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                unoptimized
+              />
+            );
+          })()
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <Icon className="h-8 w-8 text-[#6B7280]" aria-hidden="true" />

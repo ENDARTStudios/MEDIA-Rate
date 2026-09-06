@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLocalSource, isUnoptimizedSource, localSrcSet } from "@/lib/image-policy";
+import { isLocalSource, isUnoptimizedSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import nextConfig from "../next.config";
 
 describe("image-policy (T032/D-445)", () => {
@@ -10,20 +10,16 @@ describe("image-policy (T032/D-445)", () => {
       "https://cdn.myanimelist.net/img.jpg",
       "https://comicvine.gamespot.com/img.jpg",
       "https://static.comicvine.com/img.jpg",
-      // Token "googlebooks" preservado do Shell (semantica identica);
-      // ver teste de gap abaixo para books.google.com.
+      // Token "googlebooks" preservado do Shell (semantica identica).
       "https://cdn.example.com/googlebooks/x.jpg",
     ]) {
       expect(isUnoptimizedSource(src)).toBe(true);
     }
   });
 
-  it("gap conhecido: books.google.com NAO casa com nenhum token (comportamento do Shell, inalterado)", () => {
-    // Capas reais do Google Books (seed-posters: thumbnail da API) usam
-    // books.google.com/books/content — sem o substring "googlebooks".
-    // Candidato a decisao do Thinker: token "books.google" (host ja
-    // allowlisted em remotePatterns) — fora do escopo de T032 (restricao 7).
-    expect(isUnoptimizedSource("https://books.google.com/books/content?id=x")).toBe(false);
+  it("gap T032 absorvido em T036: books.google.com agora é unoptimized", () => {
+    // Token "books.google" (D-447); ver teste dedicado no bloco remoteLadder.
+    expect(isUnoptimizedSource("https://books.google.com/books/content?id=x")).toBe(true);
   });
 
   it("TMDB/IGDB/local/vazio → otimizado", () => {
@@ -69,5 +65,75 @@ describe("image-policy (T032/D-445)", () => {
         "/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000-w640.webp 640w, " +
         "/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000-w960.webp 960w",
     );
+  });
+});
+
+describe("remoteLadder (T036/D-447)", () => {
+  it("TMDB: w342/w780 + src original", () => {
+    expect(remoteLadder("https://image.tmdb.org/t/p/w500/abc.jpg")).toEqual({
+      src: "https://image.tmdb.org/t/p/original/abc.jpg",
+      srcSet:
+        "https://image.tmdb.org/t/p/w342/abc.jpg 342w, " +
+        "https://image.tmdb.org/t/p/w780/abc.jpg 780w",
+    });
+  });
+
+  it("IGDB: cover_small/big/2x (tamanhos documentados da API)", () => {
+    expect(remoteLadder("https://images.igdb.com/igdb/image/upload/t_cover_big/abc.jpg")).toEqual({
+      src: "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/abc.jpg",
+      srcSet:
+        "https://images.igdb.com/igdb/image/upload/t_cover_small/abc.jpg 90w, " +
+        "https://images.igdb.com/igdb/image/upload/t_cover_big/abc.jpg 264w, " +
+        "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/abc.jpg 528w",
+    });
+  });
+
+  it("IGDB legado t_thumb também vira ladder (bônus: aposenta a miniatura 90px)", () => {
+    const ladder = remoteLadder("https://images.igdb.com/igdb/image/upload/t_thumb/abc.jpg");
+    expect(ladder?.src).toContain("t_cover_big_2x");
+    expect(ladder?.srcSet).toContain("t_cover_big");
+  });
+
+  it("OpenLibrary: -S/-M/-L (larguras nominais, ordem correta)", () => {
+    expect(remoteLadder("https://covers.openlibrary.org/b/id/123-L.jpg")).toEqual({
+      src: "https://covers.openlibrary.org/b/id/123-L.jpg",
+      srcSet:
+        "https://covers.openlibrary.org/b/id/123-S.jpg 128w, " +
+        "https://covers.openlibrary.org/b/id/123-M.jpg 256w, " +
+        "https://covers.openlibrary.org/b/id/123-L.jpg 512w",
+    });
+  });
+
+  it("Google Books: zoom=0/1 preservando a query original", () => {
+    const input =
+      "https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=1&source=gbs_api";
+    expect(remoteLadder(input)).toEqual({
+      src: input,
+      srcSet:
+        "https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&source=gbs_api&zoom=0 128w, " +
+        "https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&source=gbs_api&zoom=1 512w",
+    });
+  });
+
+  it("sem ladder pública (steam/wikimedia) ou local → null (fallback unoptimized)", () => {
+    expect(remoteLadder("https://cdn.akamai.steamstatic.com/steam/apps/1/header.jpg")).toBeNull();
+    expect(remoteLadder("https://upload.wikimedia.org/wikipedia/x.jpg")).toBeNull();
+    expect(remoteLadder("/uploads/media/abc/x.jpg")).toBeNull();
+    expect(remoteLadder(null)).toBeNull();
+  });
+
+  it("books.google entra em isUnoptimizedSource (gap T032 absorvido)", () => {
+    expect(isUnoptimizedSource("https://books.google.com/books/content?id=x")).toBe(true);
+  });
+
+  it("snapshot das ladders por fonte", () => {
+    expect(
+      [
+        "https://image.tmdb.org/t/p/w500/abc.jpg",
+        "https://images.igdb.com/igdb/image/upload/t_cover_big/abc.jpg",
+        "https://covers.openlibrary.org/b/id/123-L.jpg",
+        "https://books.google.com/books/content?id=abc&img=1&zoom=1",
+      ].map(remoteLadder),
+    ).toMatchSnapshot();
   });
 });
