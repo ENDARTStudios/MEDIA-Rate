@@ -1519,6 +1519,30 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T037.
 
+## D-458 — T037 fica `[~]`: `[x]` exige audit verde ou aceite formal
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** R037 APPROVED certifica execução/análise de T037, mas o HIGH residual segue.
+
+**Decisão:** Plano recebe `[~]` até o Operador aceitar o risco (com exceção de CI documentada) ou autorizar T039-prisma-major. Gate não se maquia.
+
+## D-459 — Timebox 45/30 de T037 aceito excepcionalmente
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Veredito alcançado dentro da janela; excedente foi verificação integral.
+
+**Decisão:** Aceito nesta rodada; regra de decompor mantida para o futuro.
+
+## D-460 — 6 testes falhando = bloqueador #2 de merge (T038)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Job test do ci.yml ficaria vermelho: data hardcoded + mock sem `count`.
+
+**Decisão:** T038 corrige só em arquivos de teste; P009 + T038 são o caminho crítico do merge.
+
 ## D-452 — Regra de sweep: importador vivo de next/image com src remoto entra; morto não se toca
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
