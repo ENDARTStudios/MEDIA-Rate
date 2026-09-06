@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Logger } from "@nestjs/common";
-import sharp from "sharp";
+// T037: import nominal de tipo (o layout ESM-first do sharp 0.35 não expõe
+// mais o namespace `sharp.Metadata` para `import sharp from` no tsc).
+import sharp, { type Metadata } from "sharp";
 
 /**
  * variants (T031/D-446) — ladder fixa de posters no upload.
@@ -43,7 +45,7 @@ export function nomeVariante(uuidFilename: string, width: number): string {
  * Lança 422 se o buffer não for imagem parseável ou exceder 24MP.
  */
 export async function gerarVariantes(buffer: Buffer): Promise<Map<number, Buffer>> {
-  let meta: sharp.Metadata;
+  let meta: Metadata;
   try {
     meta = await sharp(buffer, { limitInputPixels: MAX_INPUT_PIXELS }).metadata();
   } catch (e) {

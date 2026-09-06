@@ -1559,6 +1559,20 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** T037 com prioridade máxima apesar de dívida pré-existente; sem majors; se inzerável, PARCIAL + escalonamento (aceite de risco = Operador).
 
+## D-457 — T037: HIGHs sem major zerados; deepmerge-ts residual documentado (PARCIAL)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** ci.yml lint-audit (`npm audit --audit-level=high`, `.github/workflows/ci.yml:94-95`) bloqueava o merge do pacote Fase 10.
+
+**Rulings por dependência (sem majors, só patch/minor via npm):**
+1) fast-uri 3.1.5→3.1.7 / 4.1.2→4.1.4 (`npm update`, dentro dos ranges ajv ^3.0.1 / fast-json-stringify ^4.0.0) — HIGHs zerados.
+2) browserslist 4.28.6→4.28.9, qs 6.15.3→6.16.0, sanitize-html 2.17.6→2.17.7 (`npm audit fix` sem --force) — zerados.
+3) deepmerge-ts <8.0.0 (GHSA-ggr8-5vv4-36mx, stack exhaustion): RESIDUAL. Fix exige prisma major/downgrade (breaking); override para 8.x sob pin exato 7.1.5 do @prisma/config = major transitivo não testado. Alcance: só via CLI `prisma` (@prisma/config, devDependency de build/migrate/seed com inputs do repo); runtime `@prisma/client` não carrega o pacote; nenhum request o alcança. Runner copia node_modules cheio (sem prune) — endurecer com prune é follow-up de deploy, não T037.
+4) Efeito colateral: churn do npm expôs fragilidade latente (`sharp.Metadata` vs tipos ESM-first do sharp 0.35, TS2503) — corrigido com import nominal de tipo, sem mudança de comportamento.
+
+**Verificado:** audit high restante = só cadeia deepmerge-ts; builds api+web OK; web 347/347; api 835/841 (6 falhas pré-existentes alheias: data hardcoded `descobertas.spec.ts:185` + mock sem `count` em `media-score-job.spec.ts`).
+
 ## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
