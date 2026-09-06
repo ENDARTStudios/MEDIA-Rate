@@ -1519,6 +1519,46 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T037.
 
+## D-452 — Regra de sweep: importador vivo de next/image com src remoto entra; morto não se toca
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** T036 converteu 9 componentes vivos; `ScoreShowcase` (morto, T415) ficou intocado.
+
+**Decisão:** Todo importador vivo de `next/image` com src remoto entra no sweep de bypass; código morto não se toca.
+
+## D-453 — Ladders reais da IGDB (correção de spec por evidência)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Spec de T036 citava `t_300/t_720/t_1080p`, inexistentes na API IGDB (evidência: `seed-posters.ts:138-141` + D-262).
+
+**Decisão:** Valem `cover_small/cover_big/cover_big_2x` + legado `t_thumb`; evidência do Doer vence spec, como deve ser.
+
+## D-454 — `[x]` antes de APPROVED é violação de ordering
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** T036 marcada `[x]` antes do REVIEW.
+
+**Decisão:** Sanado por R036 nesta rodada; recorrência = REJECTED + TAREFA de correção.
+
+## D-455 — Hero/backdrop permanece no rung original
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Ladder 342/780 sub-resolveria 100vw full-bleed.
+
+**Decisão:** Backdrop usa o original estático (qualidade máxima, zero transformação).
+
+## D-456 — 4 HIGHs de deps são bloqueador de merge (ci.yml lint-audit)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** `deepmerge-ts` + `fast-uri` quebram o job lint-audit do CI.
+
+**Decisão:** T037 com prioridade máxima apesar de dívida pré-existente; sem majors; se inzerável, PARCIAL + escalonamento (aceite de risco = Operador).
+
 ## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
