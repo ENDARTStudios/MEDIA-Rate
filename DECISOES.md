@@ -1431,3 +1431,31 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** `npm run build` OK; CSP inalterada.
 
+## D-442 — T034 amenda status.schema.json: evidencia vira oneOf [objeto, array] + validador alinhado
+
+**Data:** 2026-09-06 · **Fase:** F00-setup · **Status:** REGISTRADA
+
+**Contexto:** Contradição real entre governanças: `.kilo/schemas/status.md:10` documenta `evidencia` objeto; `.claude/schemas/status.schema.json` exigia array; o exemplo do PROMPT_SIMBIOSE usa objeto. Handoffs em array validavam OK contra o arquivo.
+
+**Decisão:**
+1) `evidencia` = oneOf [evidenciaItem, array minItems 1 de evidenciaItem] via `definitions` (condicionais allOf preservados nas duas formas); required inalterado.
+2) `validar_status.py` normaliza objeto→lista nas regras cruzadas (iterar dict quebrava); integrity suite estendida ([5b/6]) sem quebrar asserts; bônus: [5/6] agora acumula erros (o `all_errors.extend` faltante fazia falha do validator passar batida).
+3) Envelope: transporte no chat = {sync, evento, payload}; payload mantém `sync` (required — removê-lo quebraria "manter required atuais"); `tentativas` passa a constar nos STATUS.
+4) Nota factual: R029/R030 descrevem o schema com `tentativas` required, `evidencia` objeto e additionalProperties:false — nenhuma dessas cláusulas existe no arquivo em disco (leitura direta + `git log`: última mudança T297/`406210f`; `review.schema.json` não existe no repo). Os STATUS array de T029/T030 validavam OK; o oneOf resolve a divergência doc×arquivo para o futuro.
+
+**Verificado:** integrity suite verde (inclui [5b/6] objeto+array, TDD red→green); STATUS T029/T030 reemitidos com tentativas:1 validam OK.
+
+## D-443 — Rulings dos desvios de T030 (1–6): todos aceitos
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Doer reportou 6 desvios no STATUS T030; Thinker aceita todos.
+1) Teste em `apps/web/test/robots.spec.ts` (vitest include só cobre `test/**`) — aceito.
+2) D-439/440/441 em vez de D-018/019/020 (colisão) — aceito.
+3) Grupo B inclui `/api/` (evita regra mais permissiva que `*`) — raciocínio correto.
+4) `next-env.d.ts` unstaged (gerado) — procedimento certo.
+5) Warning middleware→`proxy` (Next 16) — candidato registrado, sem tarefa (vira TAREFA se virar risco de build; sem scope creep).
+6) `curl` preview/production no Operador ([8]) — fecha o loop.
+
+**Decisão:** Desvios 1–4 e 6 incorporados como precedente; item 5 monitorado.
+

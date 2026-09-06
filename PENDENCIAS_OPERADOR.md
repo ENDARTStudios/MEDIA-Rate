@@ -224,3 +224,8 @@ Por quê: previews `*.vercel.app` têm cache próprio de imagens; bot varrendo p
 Onde: Vercel → projeto web → Settings → Deployment Protection → exigir autenticação em Preview Deployments.
 Como saber que deu certo: abrir a URL de um preview em sessão anônima exige login Vercel.
 Depois de feito: responda "feito o item Nº 8"
+
+Verificação T030 pós-deploy (mesmo gate, T034 — branch está 17 commits à frente do remoto; curl local testaria código obsoleto):
+1. `curl -s $PREVIEW_URL/robots.txt` — conferir grupos GPTBot/CCBot/ClaudeBot/... (`Disallow: /`) e PerplexityBot/... (`Disallow: /_next/image`, `/_vercel/image`).
+2. `curl -sI $PREVIEW_URL` — esperar `X-Robots-Tag: noindex`; em produção o header deve estar ausente.
+3. Colar as saídas no chat para o REVIEW final de T030.

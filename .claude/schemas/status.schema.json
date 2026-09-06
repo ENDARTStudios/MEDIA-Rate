@@ -1,8 +1,54 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "STATUS do Doer (D-272 / D-280 / T297)",
-  "description": "Payload de STATUS emitido pelo Doer. Gate de forma objetivo: qualquer desvio = schema_valido fail (REJECTED).",
+  "title": "STATUS do Doer (D-272 / D-280 / T297, D-442)",
+  "description": "Payload de STATUS emitido pelo Doer. Gate de forma objetivo: qualquer desvio = schema_valido fail (REJECTED). D-442: evidencia aceita objeto ou array (oneOf) — reconcilia status.md (objeto) com o uso em lista.",
   "type": "object",
+  "definitions": {
+    "evidenciaItem": {
+      "type": "object",
+      "required": ["tipo"],
+      "properties": {
+        "tipo": {
+          "enum": ["commit_hash", "command_output", "test_output", "screenshot", "curl_output", "outro"]
+        },
+        "resumo": { "type": "string", "minLength": 1 },
+        "dados": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "tipo": { "const": "commit_hash" } } },
+          "then": {
+            "required": ["dados"],
+            "properties": { "dados": { "required": ["hash"] } }
+          }
+        },
+        {
+          "if": { "properties": { "tipo": { "const": "command_output" } } },
+          "then": {
+            "required": ["dados"],
+            "properties": {
+              "dados": {
+                "required": ["comando", "exit_code"],
+                "anyOf": [
+                  { "required": ["saida"] },
+                  { "required": ["saida_resumida"] }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "tipo": { "const": "test_output" } } },
+          "then": {
+            "required": ["dados"],
+            "properties": {
+              "dados": { "required": ["total", "passed", "failed"] }
+            }
+          }
+        }
+      ]
+    }
+  },
   "required": ["tarefa_id", "fase", "status", "sync", "evidencia"],
   "properties": {
     "sync": {
@@ -14,52 +60,15 @@
     "status": { "enum": ["DONE", "BLOCKED", "IN_PROGRESS", "PARCIAL"] },
     "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
     "evidencia": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "required": ["tipo"],
-        "properties": {
-          "tipo": {
-            "enum": ["commit_hash", "command_output", "test_output", "screenshot", "curl_output", "outro"]
-          },
-          "resumo": { "type": "string", "minLength": 1 },
-          "dados": { "type": "object" }
-        },
-        "allOf": [
-          {
-            "if": { "properties": { "tipo": { "const": "commit_hash" } } },
-            "then": {
-              "required": ["dados"],
-              "properties": { "dados": { "required": ["hash"] } }
-            }
-          },
-          {
-            "if": { "properties": { "tipo": { "const": "command_output" } } },
-            "then": {
-              "required": ["dados"],
-              "properties": {
-                "dados": {
-                  "required": ["comando", "exit_code"],
-                  "anyOf": [
-                    { "required": ["saida"] },
-                    { "required": ["saida_resumida"] }
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "tipo": { "const": "test_output" } } },
-            "then": {
-              "required": ["dados"],
-              "properties": {
-                "dados": { "required": ["total", "passed", "failed"] }
-              }
-            }
-          }
-        ]
-      }
+      "description": "D-442: item unico ou lista de itens.",
+      "oneOf": [
+        { "$ref": "#/definitions/evidenciaItem" },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/evidenciaItem" }
+        }
+      ]
     },
     "metricas": {
       "type": "object",
