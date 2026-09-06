@@ -1469,6 +1469,56 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T031 (upload) e T036 (remoto).
 
+## D-447 — T036: remoto usa ladders nativas das fontes + helper único
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** D-446: remoto não passa pelo upload; TMDB/IGDB/OpenLibrary/Google Books têm escadas nativas de tamanho.
+
+**Decisão:** `remoteLadder(src)` em `lib/image-policy.ts` deriva srcset das escadas nativas (TMDB w342/w780 + original; IGDB t_cover_small/big/2x; OpenLibrary -S/-M/-L; Google Books `books.google.com/books/content` via param zoom) + `<img>` estático; sem ladder pública → `next/image` com `unoptimized` (fallback); token `books.google` absorve o gap do TDD de T032.
+
+**Verificado:** em T036 (spec + build + srcset).
+
+## D-448 — sharp 0.35.4 (bump por segurança)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** sharp 0.34.5 carrega CVEs HIGH em libvips (audit).
+
+**Decisão:** Pinar `sharp@0.35.4` em apps/api (+ `allowScripts` raiz); prebuilt musl compatível com o Dockerfile multi-stage (node:20-alpine).
+
+**Verificado:** em T031 (audit HIGH do sharp zerado; suíte 23/23 em 0.35.4).
+
+## D-449 — `<img>` estático com srcset é mais forte que `unoptimized` em `next/image`
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** `next/image` não aceita `srcSet` customizado (TS2322 quebrou o build de T031).
+
+**Decisão:** Fontes com ladder (local T031, remotas T036) renderizam `<img>` com srcset derivado — zero passagem pelo otimizador runtime, mais forte que `unoptimized`.
+
+**Verificado:** em T031 (build verde após a troca).
+
+## D-450 — Ladder local usa `withoutEnlargement` (clamp), não "pula maiores"
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Spec mandava pular rungs maiores que o original; ladder parcial + srcset derivado pelo frontend = 404 em originais pequenos.
+
+**Decisão:** Rungs acima do original são clamped às dimensões reais (nunca upscale); ladder sempre completa, derivação nunca gera 404. Voltar a "pular" exige srcset dirigido pela API (escopo maior, postergado).
+
+**Verificado:** em T031 (teste de clamp 500px + ladder completa).
+
+## D-451 — 4 HIGH pré-existentes em deps registrados como T037
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Audit pós-T031: `deepmerge-ts` (via prisma major) + `fast-uri` (via ajv chain) seguem HIGH; fixes são breaking.
+
+**Decisão:** Registrar como T037 (baixa prioridade); fora de escopo da Fase 10. O HIGH do sharp foi zerado em T031.
+
+**Verificado:** em T037.
+
 ## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
