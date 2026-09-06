@@ -244,7 +244,7 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T031 — variantes no upload via sharp (com backfill do acervo remoto) · evid: upload 89.6% + builds OK
 - [x] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality · evid: test 6/6 + build OK + srcset 11→8
 - [x] T036 — ladders remotas nativas + <img> estático + bypass total · evid: test 16/16 + build OK
-- [ ] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)
+- [>] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)
 
 ---
 
