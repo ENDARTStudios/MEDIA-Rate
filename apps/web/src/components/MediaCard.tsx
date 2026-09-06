@@ -7,6 +7,7 @@ import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import { isUnoptimizedSource } from "@/lib/image-policy";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -365,6 +366,8 @@ function ImageWithFallback({
       sizes={sizes}
       onError={() => setError(true)}
       loading="lazy"
+      // T032: mesma política do Shell — hosts externos bypassam o otimizador.
+      unoptimized={isUnoptimizedSource(srcNormalizado)}
     />
   );
 }

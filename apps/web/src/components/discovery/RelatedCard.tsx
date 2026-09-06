@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
+import { isUnoptimizedSource } from "@/lib/image-policy";
 import type { RelacaoItem } from "@/lib/api-relations";
 
 /**
@@ -53,6 +54,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
             fill
             sizes="200px"
             className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+            unoptimized={isUnoptimizedSource(m.imagemUrl)}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

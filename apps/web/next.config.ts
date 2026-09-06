@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   images: {
+    // T032/D-445: larguras/formatos/qualidade travados nos tokens do uso
+    // real (cards 300px, hero 100vw) — cada largura a menos é uma
+    // transformação a menos por poster no plano Hobby.
+    deviceSizes: [320, 640, 960, 1280, 1920],
+    imageSizes: [64, 128, 256],
+    formats: ["image/webp"],
+    qualities: [75],
     remotePatterns: [
       { protocol: "https", hostname: "image.tmdb.org" },
       { protocol: "https", hostname: "steamcdn-a.akamaihd.net" },

@@ -8,6 +8,7 @@ import { api } from "@/lib/http";
 import { getCatalog } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { isUnoptimizedSource } from "@/lib/image-policy";
 import { useRouter } from "@/lib/navigation";
 
 interface MidiaDescoberta {
@@ -145,6 +146,7 @@ export function DiscoveriesFeed() {
                           fill
                           sizes="56px"
                           className="object-cover"
+                          unoptimized={isUnoptimizedSource(g.poster_url)}
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
@@ -186,6 +188,7 @@ export function DiscoveriesFeed() {
                           fill
                           sizes="56px"
                           className="object-cover"
+                          unoptimized={isUnoptimizedSource(h.posterUrl)}
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
@@ -230,6 +233,7 @@ export function DiscoveriesFeed() {
                   fill
                   sizes="80px"
                   className="object-cover transition-transform group-hover:scale-105"
+                  unoptimized={isUnoptimizedSource(item.toMedia.imagemUrl)}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">

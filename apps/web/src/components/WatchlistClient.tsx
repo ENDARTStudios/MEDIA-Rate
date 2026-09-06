@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
+import { isUnoptimizedSource } from "@/lib/image-policy";
 import { formatDate } from "@/lib/i18n";
 import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
@@ -306,6 +307,7 @@ export function WatchlistClient() {
                           fill
                           className="object-cover"
                           sizes="44px"
+                          unoptimized={isUnoptimizedSource(item.imagem_url)}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-[#6B6B85]">

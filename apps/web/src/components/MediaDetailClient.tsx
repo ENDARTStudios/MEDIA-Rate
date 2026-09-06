@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { WatchlistButton } from "./WatchlistButton";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { isUnoptimizedSource } from "@/lib/image-policy";
 import { api } from "@/lib/http";
 import {
   AgeRatingBadge,
@@ -160,6 +161,7 @@ export function MediaDetailClient({
             priority
             sizes="100vw"
             aria-hidden="true"
+            unoptimized={isUnoptimizedSource(media.backdropUrl)}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-br from-[#11111E]/90 to-[#09090F]/90" />
@@ -192,6 +194,7 @@ export function MediaDetailClient({
                   fill
                   className="object-cover rounded-md shadow-surface-2"
                   sizes="192px"
+                  unoptimized={isUnoptimizedSource(media.posterUrl)}
                 />
               ) : (
                 <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280] shadow-surface-2">
