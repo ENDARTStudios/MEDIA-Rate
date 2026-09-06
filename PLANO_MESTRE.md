@@ -20,6 +20,7 @@
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
 - [~] Fase 8 – Testes/segurança `[PARCIAL — 700+ API + 309 web; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
+- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029 concluída (D-439); T030–T033 abertas]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
 - [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
 - [x] Fase 15 – Melhoria contínua `[CONCLUÍDA — T405 perf 46→63; D-402/D-403]` ✅
@@ -230,6 +231,18 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
+
+---
+
+## FASE 10 — IMAGE OPTIMIZATION `[~ EM ANDAMENTO]` (D-439, 2026-09-06)
+
+Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline ~165/dia). Co-causas: crawlers (H1) + variantes de runtime sem tokens (H2).
+
+- [x] T029 — auditoria image optimization (robots aberto, defaults Next, sem sharp, unoptimized inconsistente, H3 refutada) · evid: D-439
+- [>] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado
+- [ ] T031 — variantes no upload via sharp (com backfill do acervo remoto)
+- [ ] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality
+- [ ] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)
 
 ---
 

@@ -1391,3 +1391,19 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Justificativa:** Separa texto-harmonizável (executado) do que exige input do Operador/advogado ou prova técnica (externo), sem inventar endereço nem afirmações de segurança não demonstráveis.
 
+## D-439 — T029 auditoria image optimization: causa-raiz do consumo ~99% da cota Hobby (bots + variantes de runtime)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Dashboard Vercel (30d, ~4.969 transformações, 99% da cota de 5.000/mês): Cleveland (46,7%) + Washington (20,6%) ≈ 67% do consumo em edges EUA vs São Paulo 17,4%; picos discretos single-region. Baseline ~165/dia, picos 700–790.
+
+**Achados (file:line):**
+1) H1 crawlers — SUPERFÍCIE ABERTA: `apps/web/src/app/robots.ts:3-14` permite `*` em `/` (só bloqueia `/api/`); sem regras para bots de IA nem para `/_next/image`/`/_vercel/image`. `apps/web/src/app/sitemap.ts:37-46` expõe 1 URL por slug × 3 locales.
+2) H2 variantes — OTIMIZAÇÃO 100% RUNTIME: `apps/web/next.config.ts:27-46` só define `remotePatterns` (sem `deviceSizes`/`imageSizes` → defaults do Next); cards com `sizes` responsivo (`MediaCard.tsx:245`, `MediaCardShell.tsx:176`); hero `sizes="100vw"` + `priority` (`MediaDetailClient.tsx:155-163`); upload persiste o original sem variantes (`apps/api/src/modules/upload/upload.service.ts:71-80`, limite 5 MB — não 50 MiB; sem `sharp` em `apps/api/package.json:44-74`); `unoptimized` inconsistente (presente em `MediaCardShell.tsx:181-183`, ausente em `MediaCard.tsx:359-368` e demais). Comentário no Shell cita erro 402 do otimizador — cota já mordendo produção.
+3) H3 query strings dinâmicas — REFUTADA: `src` vem direto do campo imagem sem `?v=`/`Date.now` (só normalização `%25→%`, `MediaCard.tsx:339`).
+4) H4 previews/SSG — CORREÇÃO AO PLANO: `apps/web/vercel.json:1` sem proteção via código (Deployment Protection só verificável no dashboard); único `generateStaticParams` é o de locales (`app/[locale]/layout.tsx:66-68`) — páginas de mídia são dinâmicas, não 47 SSG; multiplicador real = sitemap × 3 locales.
+
+**Decisão:** H1 + H2 como co-causas; sequência T030 (robots por bot + noindex previews) → T032 (tokens deviceSizes/imageSizes + padronizar unoptimized) → T031 (sharp no upload, com desenho de backfill do acervo remoto TMDB/IGDB) → T033 (runbook semanal). Meta: <20/dia (~600/mês). IDs sugeridos pelo Thinker (D-018/019/020) colidem com a numeração vigente (último D-438) → registrados como D-439/440/441.
+
+**Verificado:** auditoria por leitura direta de fonte (grep/read); sem alteração de código neste commit.
+
