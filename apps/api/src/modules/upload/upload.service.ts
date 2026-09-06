@@ -1,8 +1,9 @@
 import { Injectable, Logger, HttpException, HttpStatus } from "@nestjs/common";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, rm } from "node:fs/promises";
 import * as path from "node:path";
 import { detectarImagem } from "../../common/utils/file-validation.util.js";
+import { nomeVariante, VARIANT_WIDTHS } from "./variants.js";
 
 export const UPLOAD_MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOADS_DIR = path.join(process.cwd(), "uploads", "media");
@@ -79,6 +80,43 @@ export class UploadService {
     return destino;
   }
 
+  /**
+   * T031 — persiste a ladder de variantes (`<uuid>-w{w}.webp`).
+   * Atômica: falha em um rung remove os já gravados (sem órfãos).
+   */
+  async salvarVariantes(
+    midiaId: string,
+    filename: string,
+    ladder: Map<number, Buffer>,
+  ): Promise<{ width: number; filename: string }[]> {
+    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
+    const dir = path.join(UPLOADS_DIR, idLimpo);
+    await mkdir(dir, { recursive: true });
+    const salvas: { width: number; filename: string }[] = [];
+    try {
+      for (const w of VARIANT_WIDTHS) {
+        const buf = ladder.get(w);
+        if (!buf) continue;
+        const nome = nomeVariante(filename, w);
+        await writeFile(path.join(dir, nome), buf);
+        salvas.push({ width: w, filename: nome });
+      }
+      return salvas;
+    } catch (e) {
+      for (const s of salvas) {
+        await rm(path.join(dir, s.filename), { force: true }).catch(() => undefined);
+      }
+      this.logger.error(`falha persistindo variantes de ${idLimpo}/${filename}: ${e}`);
+      throw e;
+    }
+  }
+
+  /** Remove o original (rollback de upload cuja ladder falhou — sem órfãos). */
+  async remover(midiaId: string, filename: string): Promise<void> {
+    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
+    await rm(path.join(UPLOADS_DIR, idLimpo, filename), { force: true }).catch(() => undefined);
+  }
+
   /** Rate limit por admin: 10 uploads/hora (janela deslizante). */
   registrarUpload(adminId: string): void {
     const agora = Date.now();
@@ -102,7 +140,7 @@ export class UploadService {
   /** Caminho absoluto de um arquivo servido (valida o nome gerado por nós). */
   caminhoArquivo(midiaId: string, filename: string): string | null {
     const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
-    if (!/^[a-f0-9-]{36}\.(jpg|png|gif|webp)$/.test(filename)) return null;
+    if (!/^[a-f0-9-]{36}(-w(320|640|960))?\.(jpg|png|gif|webp)$/.test(filename)) return null;
     return path.join(UPLOADS_DIR, idLimpo, filename);
   }
 

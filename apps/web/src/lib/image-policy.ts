@@ -13,3 +13,20 @@ export function isUnoptimizedSource(src: string | null | undefined): boolean {
   const lower = src.toLowerCase();
   return UNOPTIMIZED_HOSTS.some((host) => lower.includes(host));
 }
+
+/**
+ * T031 — imagens locais (uploads próprios, `/uploads/media/...`).
+ * Servidas estáticas pelo backend com ladder fixa (ver `nomeVariante` em
+ * apps/api/src/modules/upload/variants.ts) — zero transformação runtime.
+ */
+export function isLocalSource(src: string | null | undefined): boolean {
+  return !!src && src.startsWith("/") && !src.startsWith("//");
+}
+
+const LOCAL_WIDTHS = [320, 640, 960] as const;
+
+/** `/uploads/media/<id>/<uuid>.jpg` → srcset das 3 variantes WebP. */
+export function localSrcSet(src: string): string {
+  const base = src.replace(/\.[a-z0-9]+$/i, "");
+  return LOCAL_WIDTHS.map((w) => `${base}-w${w}.webp ${w}w`).join(", ");
+}

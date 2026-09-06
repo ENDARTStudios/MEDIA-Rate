@@ -8,6 +8,7 @@ import multipart from "@fastify/multipart";
 import { rm } from "node:fs/promises";
 import * as path from "node:path";
 import { UploadModule } from "../src/modules/upload/upload.module.js";
+import sharp from "sharp";
 import { CacheModule } from "../src/common/cache.module.js";
 import { MetricsModule } from "../src/modules/metrics/metrics.module.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
@@ -44,6 +45,20 @@ function jpegBytes(): Buffer {
 }
 function exeBytes(): Buffer {
   return Buffer.from([0x4d, 0x5a, 0x90, 0x00, 0x03, 0x00]);
+}
+
+// T031: upload agora faz parse real (sharp) — o caminho feliz exige bytes de
+// imagem válidos; os fixtures só-magic seguem nos testes de 415/413.
+let realJpeg: Buffer;
+async function jpegReal(): Promise<Buffer> {
+  if (!realJpeg) {
+    realJpeg = await sharp({
+      create: { width: 1200, height: 800, channels: 3, background: "#334455" },
+    })
+      .jpeg({ quality: 90 })
+      .toBuffer();
+  }
+  return realJpeg;
 }
 
 describe("Upload de posters — e2e via HTTP (T216)", () => {
@@ -101,7 +116,7 @@ describe("Upload de posters — e2e via HTTP (T216)", () => {
   it("admin upload jpeg → 201 + poster_url + audit", async () => {
     const res = await request(app.getHttpServer())
       .post("/api/v1/midias/midia-1/upload")
-      .attach("file", jpegBytes(), "poster.jpg");
+      .attach("file", await jpegReal(), "poster.jpg");
     // eslint-disable-next-line no-console
     console.log(
       "UPLOAD STATUS:",
@@ -114,6 +129,22 @@ describe("Upload de posters — e2e via HTTP (T216)", () => {
     expect(res.status).toBe(201);
     expect(res.body.poster_url).toMatch(/^\/uploads\/media\/midia-1\/[0-9a-f-]{36}\.jpg$/);
     expect(AUDIT).toContain("MEDIA_POSTER_UPLOADED");
+  });
+
+  it("T031: upload retorna ladder de variantes + variantes servem como webp", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/api/v1/midias/midia-1/upload")
+      .attach("file", await jpegReal(), "poster.jpg");
+    expect(res.status).toBe(201);
+    const { variantes } = res.body as {
+      variantes: { w320?: string; w640?: string; w960?: string };
+    };
+    expect(variantes.w320).toMatch(/-w320\.webp$/);
+    expect(variantes.w640).toMatch(/-w640\.webp$/);
+    expect(variantes.w960).toMatch(/-w960\.webp$/);
+    const get = await request(app.getHttpServer()).get(variantes.w640 as string);
+    expect(get.status).toBe(200);
+    expect(get.headers["content-type"]).toContain("image/webp");
   });
 
   it("non-admin → 403", async () => {
@@ -154,7 +185,7 @@ describe("Upload de posters — e2e via HTTP (T216)", () => {
   it("GET /uploads/... → 200 com Content-Type do conteúdo + Cache-Control", async () => {
     const up = await request(app.getHttpServer())
       .post("/api/v1/midias/midia-1/upload")
-      .attach("file", jpegBytes(), "poster.jpg");
+      .attach("file", await jpegReal(), "poster.jpg");
     expect(up.status).toBe(201);
     const url: string = up.body.poster_url;
     const get = await request(app.getHttpServer()).get(url);

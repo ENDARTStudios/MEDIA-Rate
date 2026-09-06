@@ -241,7 +241,7 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T029 — auditoria image optimization (robots aberto, defaults Next, sem sharp, unoptimized inconsistente, H3 refutada) · evid: D-439
 - [x] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado · evid: test 4/4 + build OK
 - [x] T034 — conformidade de handoffs (schema oneOf D-442 + validator alinhado) · evid: integrity 7/7
-- [ ] T031 — variantes no upload via sharp (com backfill do acervo remoto)
+- [x] T031 — variantes no upload via sharp (com backfill do acervo remoto) · evid: upload 89.6% + builds OK
 - [x] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality · evid: test 6/6 + build OK + srcset 11→8
 - [ ] T033 — runbook semanal de uso (MANUAL_DO_OPERADOR.md)
 

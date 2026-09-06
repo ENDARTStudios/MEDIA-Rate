@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isUnoptimizedSource } from "@/lib/image-policy";
+import { isLocalSource, isUnoptimizedSource, localSrcSet } from "@/lib/image-policy";
 import nextConfig from "../next.config";
 
 describe("image-policy (T032/D-445)", () => {
@@ -53,5 +53,21 @@ describe("image-policy (T032/D-445)", () => {
 
   it("snapshot da config de images", () => {
     expect((nextConfig as { images?: unknown }).images).toMatchSnapshot();
+  });
+
+  it("T031: isLocalSource — só caminho local single-slash", () => {
+    expect(isLocalSource("/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000.jpg")).toBe(true);
+    expect(isLocalSource("https://image.tmdb.org/t/p/w500/x.jpg")).toBe(false);
+    expect(isLocalSource("//cdn.example.com/x.jpg")).toBe(false);
+    expect(isLocalSource(null)).toBe(false);
+    expect(isLocalSource("")).toBe(false);
+  });
+
+  it("T031: localSrcSet deriva a ladder <uuid>-w{w}.webp", () => {
+    expect(localSrcSet("/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000.jpg")).toBe(
+      "/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000-w320.webp 320w, " +
+        "/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000-w640.webp 640w, " +
+        "/uploads/media/abc/123e4567-e89b-12d3-a456-426614174000-w960.webp 960w",
+    );
   });
 });
