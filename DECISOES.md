@@ -1543,6 +1543,30 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
 
+## D-481 — Causa raiz do gh CLI: GITHUB_TOKEN de sessão sombreava keyring
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** `gh auth status` falhava com token inválido apesar de login válido no keyring.
+
+**Decisão:** Causa = `GITHUB_TOKEN` inválido (40 chars) injetado só no escopo Process (precedência sobre keyring); workaround por comando (unset em sessão), zero mudança persistente, nenhum segredo exibido. P010 reescrito: rotacionar/remover o token na ORIGEM (harness/provedor) — o keyring já basta.
+
+## D-482 — Gate de merge refinado: E2E é não-bloqueante por design
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** `ci.yml` marca o job E2E com `continue-on-error` ("nao bloqueia merge ainda").
+
+**Decisão:** Bloqueantes = Lint & Audit, Test & Coverage, RLS, Build, Stryker, CodeQL, ZAP. Exceção dura: E2E atribuído ao diff da Fase 10 veta o merge até correção (T044 verifica).
+
+## D-483 — Efetividade do P012 não verificada
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Checks seguiram vermelhos após o re-run pós-P012.
+
+**Decisão:** Suposição não é evidência: T044 confirma via API (permissions efetivas) e logs atuais antes de nova hipótese.
+
 ## D-463 — Gate próprio zero-dep aceito (npm não tem allowlist por advisory)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA

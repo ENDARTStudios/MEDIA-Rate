@@ -229,3 +229,17 @@ Verificação T030 pós-deploy (mesmo gate, T034 — branch está 17 commits à 
 1. `curl -s $PREVIEW_URL/robots.txt` — conferir grupos GPTBot/CCBot/ClaudeBot/... (`Disallow: /`) e PerplexityBot/... (`Disallow: /_next/image`, `/_vercel/image`).
 2. `curl -sI $PREVIEW_URL` — esperar `X-Robots-Tag: noindex`; em produção o header deve estar ausente.
 3. Colar as saídas no chat para o REVIEW final de T030.
+
+---
+
+### [10] P010 — GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
+
+Por quê: o harness injeta `GITHUB_TOKEN` (40 chars, inválido) **só no escopo
+Process** de cada shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` >
+keyring) ele invalida o `gh`, embora o login do keyring (`ENDARTStudios`)
+esteja válido. Não é bloqueante (workaround: `Remove-Item Env:GITHUB_TOKEN`
+por comando), mas todo uso do `gh` repete a falha.
+Onde: origem da injeção — config do harness/provedor de segredos (User e
+Machine estão limpos; nada a remover localmente).
+Como saber que deu certo: `gh auth status` verde **sem** workaround.
+Depois de feito: responda "feito o item Nº 10"
