@@ -252,6 +252,7 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T040 — testes automatizados do gate audit-ci · evid: R041
 - [>] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP)
 - [>] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API)
+- [>] T046 — gh-safe wrappers + origem da injeção (P010)
 
 ---
 

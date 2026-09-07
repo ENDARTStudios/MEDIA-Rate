@@ -243,3 +243,12 @@ Onde: origem da injeção — config do harness/provedor de segredos (User e
 Machine estão limpos; nada a remover localmente).
 Como saber que deu certo: `gh auth status` verde **sem** workaround.
 Depois de feito: responda "feito o item Nº 10"
+
+**Origem exata (T046, diagnosticado 2026-09-07):** `.vscode/` do repo limpo
+(sem TOKEN); processo-pai do shell = `OpenCode` (o próprio harness injeta a
+variável por shell); `User`/`Machine` sem `GITHUB_TOKEN`/`GH_TOKEN`; perfil
+PowerShell irrelevante (injeção é por processo, não por perfil). Passo
+cirúrgico: remover a entrada `GITHUB_TOKEN` da config de ambiente do harness
+(ou rotacionar por valor válido) — o login do keyring (`ENDARTStudios`,
+scopes `repo, workflow`) assume sozinho. Workaround até lá: `scripts/gh-safe.*`
+(ver MANUAL, seção T046).

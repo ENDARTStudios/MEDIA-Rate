@@ -295,3 +295,20 @@ em `DECISOES.md` + `PENDENCIAS_OPERADOR.md` (custo é autoridade do Operador).
 - [ ] Prisma major estável/disponível para avaliar T039-prisma-major?
 - [ ] A exceção ainda se justifica (P009) ou vira tarefa de correção?
 - [ ] Registrar o resultado em `DECISOES.md` (nova entrada D-4xx).
+
+## GitHub CLI em ambiente com token sombreado (T046/P010)
+
+**Sintoma:** `gh auth status` diz que o token em `GITHUB_TOKEN` é inválido,
+mas existe login válido no keyring (`ENDARTStudios`).
+
+**Causa:** o harness injeta `GITHUB_TOKEN` inválido no escopo Process de cada
+shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` > keyring) ele sombreia o
+login bom. Nada no repo, na máquina ou no perfil do usuário causa isso.
+
+**Uso (até o P010 morrer):** nunca `gh` nu — sempre pelo wrapper, que remove
+só a variável sombra do processo-filho (nunca seta/exibe/persiste token):
+- Windows: `powershell -File scripts/gh-safe.ps1 <args do gh>`
+- Linux/macOS/CI: `sh scripts/gh-safe.sh <args do gh>`
+
+**Correção definitiva (P010, Operador):** remover a injeção na origem (config
+do harness/provedor de segredos); o login do keyring já basta sozinho.
