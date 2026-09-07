@@ -17,7 +17,17 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.base.json",
-    "security:gate": "node --import @swc-node/register/esm-register scripts/security-gate.ts"
+    "security:gate": "node --import @swc-node/register/esm-register scripts/security-gate.ts",
+    "audit:ci": "node scripts/audit-ci.mjs"
+  },
+  "config": {
+    "auditAllowlist": [
+      {
+        "ghsa": "GHSA-ggr8-5vv4-36mx",
+        "motivo": "P009/D-462: deepmerge-ts só via CLI prisma (dev-time, inputs do repo); fix exige Prisma major",
+        "revisao": "2026-12"
+      }
+    ]
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.64.0",

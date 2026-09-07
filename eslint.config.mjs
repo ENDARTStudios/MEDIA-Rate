@@ -152,4 +152,20 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "off",
     },
   },
+
+  // Scripts de CI da raiz (Node.js puro, ex.: audit-ci.mjs) — console,
+  // process e URL são legítimos; não é código de produto.
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        URL: "readonly",
+      },
+    },
+    rules: {
+      "no-console": "off",
+    },
+  },
 );

@@ -289,3 +289,9 @@ em `DECISOES.md` + `PENDENCIAS_OPERADOR.md` (custo é autoridade do Operador).
 3. HTML do catálogo: srcset de card ⊆ `[64,128,256,320,640,960,1280,1920]`
    (tokens T032); poster remoto sem `/_vercel/image` nem `/_next/image` na URL.
 4. Tendência do dashboard em 7 dias (meta <20/dia após propagação).
+
+**Revisão trimestral de exceções de audit (T039/D-462, primeira em 2026-12):**
+- [ ] `deepmerge-ts` (GHSA-ggr8-5vv4-36mx) continua dev-only (só via CLI `prisma`)?
+- [ ] Prisma major estável/disponível para avaliar T039-prisma-major?
+- [ ] A exceção ainda se justifica (P009) ou vira tarefa de correção?
+- [ ] Registrar o resultado em `DECISOES.md` (nova entrada D-4xx).
