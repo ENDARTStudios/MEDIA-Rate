@@ -1519,6 +1519,30 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T037.
 
+## D-463 — Gate próprio zero-dep aceito (npm não tem allowlist por advisory)
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Restrição de T039 proibia ferramenta externa; npm não oferece allowlist por advisory.
+
+**Decisão:** `scripts/audit-ci.mjs` (node puro) honra o espírito (zero supply chain nova); cirurgia provada nos dois sentidos.
+
+## D-464 — Timebox 40/15 de T039 por sub-classificação do spec
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Infra de CI com lógica recursiva e debug cross-platform é esforço medio.
+
+**Decisão:** Sem penalidade; calibrar specs futuros.
+
+## D-465 — Governança da exceção: editar auditAllowlist exige trilha
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** Exceção sem trilha apodrece em silêncio.
+
+**Decisão:** Qualquer edição em `config.auditAllowlist` exige referência em `DECISOES.md` + entrada na revisão trimestral (primeira 2026-12); sem trilha vira `SECURITY_FINDING`.
+
 ## D-462 — Operador aceita risco residual deepmerge-ts (P009) com exceção de CI
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
