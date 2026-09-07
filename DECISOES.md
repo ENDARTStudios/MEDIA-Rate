@@ -1675,7 +1675,33 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 3) deepmerge-ts <8.0.0 (GHSA-ggr8-5vv4-36mx, stack exhaustion): RESIDUAL. Fix exige prisma major/downgrade (breaking); override para 8.x sob pin exato 7.1.5 do @prisma/config = major transitivo não testado. Alcance: só via CLI `prisma` (@prisma/config, devDependency de build/migrate/seed com inputs do repo); runtime `@prisma/client` não carrega o pacote; nenhum request o alcança. Runner copia node_modules cheio (sem prune) — endurecer com prune é follow-up de deploy, não T037.
 4) Efeito colateral: churn do npm expôs fragilidade latente (`sharp.Metadata` vs tipos ESM-first do sharp 0.35, TS2503) — corrigido com import nominal de tipo, sem mudança de comportamento.
 
-**Verificado:** audit high restante = só cadeia deepmerge-ts; builds api+web OK; web 347/347; api 835/841 (6 falhas pré-existentes alheias: data hardcoded `descobertas.spec.ts:185` + mock sem `count` em `media-score-job.spec.ts`).
+**Verificado:** em T042 (lint 0 erros, builds, suites, audit gate, docs, diff, P012 não-verificado por API, codificação de erros CI categorizados, DAST e SAST com vereditos + ações atribuídas).
+
+## D-472 — T042: gate audit-ci + CI-repair (P013: CodeQL/ZAP; P012: não verificável; P011: vazio; T045: E2E a11y)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** CI #74 verde: lint-audit, test, RLS, build, Stryker; falhas herdadas: CodeQL (GHAS), ZAP (WARN+permissions), E2E a11y (não-blocante, candidato T045). Nenhuma causada pela Fase 10.
+
+**Veredito (por job, com evidência de log):**
+1) Build — VERDE (`tsc -p tsconfig.json --noEmit` via `npm run build` local OK).
+2) Lint & Audit — VERDE (`audit:ci` OK via allowlist; lint 0 erros pós --fix; `console` em `scripts/*.mjs` resolvido via globals por arquivo no `eslint.config.mjs`).
+3) Test & Coverage — VERDE (api 849/849 pós-rebase + generate; web 347/347).
+4) RLS Isolation — VERDE (prisma generate adicionada ao job).
+5) CodeQL — VERMELHO (repo-level; não fixável pela branch): conta usuário (`ENDART`), repo privado sem Advanced Security (`security_and_analysis.*: null`); upload de results do analyze requer GHAS. Ação: P013 — Operador habilita GHAS ou aceita vermelho documentado.
+6) ZAP — VERMELHO por duas causas (não por T042): alvo corrigido (URL real do bot Vercel); spider PASS:55; mas `WARN-NEW: 15` (info-disclosure, CSP wildcard, permissions-policy, COEP, Base64 Disclosure, Cross-Domain, Auth Request, Sec-Fetch-Dest, Missing) + `fail_action: true` = falha; `Resource not accessible` na criação de issue (mesma causa de permissão do CodeQL). Ações: P012 (permissions de job) cobre (2); política para WARN (aceitar produto ou corrigir em T045) é do Thinker.
+7) E2E Playwright — VERMELHO mas NÃO-BLOQUEANTE (D-482; `continue-on-error`). Falhas: `MISSING_MESSAGE auth.passwordStrong` (ruído de console) + `color-contrast` (nós de texto pré-existentes) + timeouts (`networkidle`). Nenhum mecanismo ligando `<img>`/ladder/contrast. Ação: T045 (se considerado regressão; senão, aceitar como a11y herdado em produto já existente).
+8) Stryker Mutation — VERDE (skipped/success).
+
+**P012 (permissions efetivas):** não confirmável via `gh api` (conta usuário, endpoint org 404, campo permissions `null`). Veredito: P013 cobre o lado técnico; o Operador confirma via UI (repo Settings → Security → Code scanning / Actions permissions) e envia screenshot para o STATUS final da fase.
+
+**P011 (URL ZAP):** vazio — corrigido em T042 para o padrão real do bot (`media-rate-git-<branch>-...`); o caso `preview-*` nunca resolveu no ambiente deste testador. Nenhuma secret nova é necessária.
+
+**Ações do Operador:** P009 (token) rotacionado; P010 (origem do harness) removida; P011 vazio; P012 (UI); P013 (GHAS ou aceite documentado); após merge, pacote [8] (curl robots.txt + `X-Robots-Tag` + srcset + dashboard 7 dias).
+
+**Verificado:** PR #74 `MERGEABLE`; `git push` com `gh-safe`; `worktree` `origin/main` + `npm run lint` zero; `npm audit` (`audit:ci`) zero HIGH/crítico fora da allowlist governada.
+
+**Nota governança:** `[x]` de T039 só após P009/P010/P011/P012/P013 resolvidos (ciclo completo); `[~]` atual (D-458) válido; T045 candidato quando a11y herdada for tratada.
 
 ## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
 
