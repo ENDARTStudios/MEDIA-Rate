@@ -67,6 +67,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
       - run: npm ci
+      # T042: mesma razão do job test — o spec importa @prisma/client.
+      - name: Prisma generate
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
       - name: Aplica migrations em DB virgem (T234 - ordem verificada)
         run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
       - name: RLS isolation (A=B)
@@ -109,6 +112,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
       - run: npm ci
+      # T042: gera o Prisma Client (sem este step, @prisma/client chega
+      # não-inicializado no job fresco e toda suíte que toca o DB falha).
+      - name: Prisma generate
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
       - name: API tests with coverage
         working-directory: apps/api
         env:
@@ -160,11 +167,14 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      # T042: codeql-action v3 removida (deprecated → "Resource not accessible
+      # by integration" no analyze); v4 é a linha suportada. Permissões
+      # mínimas já declaradas acima (contents:read, security-events:write).
+      - uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/autobuild@v4
+      - uses: github/codeql-action/analyze@v4
 
   # Job 5: DAST ZAP baseline (apenas em PR)
   zap-baseline:
@@ -173,10 +183,23 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
+      # T042: o alvo anterior (preview-<n>.media-rate.example.com) nunca
+      # resolveu (host fictício) — o job falhava 100%. A integração Vercel↔
+      # GitHub publica o preview como
+      # media-rate-git-<branch-com-tracos>-end-art-studios.vercel.app
+      # (ver comentário do vercel[bot] no PR). Sem secret nova.
+      # Residual: se o deploy de preview ainda não terminou, o ZAP falha —
+      # re-executar o job resolve (não silenciar: DAST real tem valor).
+      - name: Resolve Vercel preview URL
+        id: preview
+        run: |
+          slug="${{ github.head_ref }}"
+          slug="${slug//\//-}"
+          echo "url=https://media-rate-git-${slug}-end-art-studios.vercel.app" >> "$GITHUB_OUTPUT"
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.13.0
         with:
-          target: "https://preview-${{ github.event.pull_request.number }}.media-rate.example.com"
+          target: ${{ steps.preview.outputs.url }}
           cmd_options: "-a -j"
           fail_action: true
           issue_title: "OWASP ZAP: Vulnerabilities in ${{ github.event.pull_request.head.sha }}"
