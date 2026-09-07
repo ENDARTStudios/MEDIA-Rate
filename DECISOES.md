@@ -1519,6 +1519,14 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T037.
 
+## D-462 — Operador aceita risco residual deepmerge-ts (P009) com exceção de CI
+
+**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** T037 PARCIAL: cadeia `deepmerge-ts<8.0.0` sem fix sem major; Operador escolheu opção 1.
+
+**Decisão:** Aceite do risco residual com exceção de CI documentada (T039), revisão trimestral no runbook T033 e referência explícita no ci.yml. Prisma major adiado indefinidamente.
+
 ## D-458 — T037 fica `[~]`: `[x]` exige audit verde ou aceite formal
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA

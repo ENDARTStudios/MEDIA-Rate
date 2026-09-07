@@ -246,6 +246,7 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T036 — ladders remotas nativas + <img> estático + bypass total · evid: test 16/16 + build OK
 - [x] T033 — runbook semanal de uso · evid: R038
 - [~] T037 — deps HIGH sem major (PARCIAL: deepmerge-ts residual, P009 no Operador)
+- [x] T038 — 6 testes CI-blocker (relógio congelado + mock count) · evid: api 841/841 + web 347/347
 
 ---
 
