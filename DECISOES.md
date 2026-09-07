@@ -1519,6 +1519,30 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Verificado:** em T037.
 
+## D-469 — T041 PARCIAL: PR existe, checks vermelhos herdados vetam merge
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** PR #74 open e mergeável tecnicamente; 5 jobs vermelhos com causas no main (worktree + npm ci fresco).
+
+**Decisão:** `[~]` até T042; D-468 (nada mergeia com red) mantido.
+
+## D-470 — PROPOSTA_DOER de CI-repair aprovada (T042)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** CI-repair é herança, não produto; permissão para CI infra concedida.
+
+**Decisão:** Escopo fechado (lint --fix, prisma generate, CodeQL/ZAP cirúrgicos); urgência máxima.
+
+## D-471 — GITHUB_TOKEN inválido para gh CLI (P010, Operador rotaciona)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** 4 tentativas documentadas; API REST em modo leitura usada sem exibir/persistir.
+
+**Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
+
 ## D-463 — Gate próprio zero-dep aceito (npm não tem allowlist por advisory)
 
 **Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
@@ -1646,4 +1670,28 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 **Decisão:** Travar `deviceSizes [320, 640, 960, 1280, 1920]`, `imageSizes [64, 128, 256]`, `formats ['image/webp']`, `qualities [75]` no `next.config.ts`; helper único `isUnoptimizedSource(src)` em `lib/image-policy.ts` (hosts: anilist, openlibrary, myanimelist, comicvine, googlebooks) aplicado nos 6 componentes; sem novos domínios; sizes/priority/layout intactos.
 
 **Verificado:** em T032 (test + build + srcset).
+
+## D-469 — T041 PARCIAL: PR existe, checks vermelhos herdados vetam merge
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** PR #74 open e mergeável tecnicamente; 5 jobs vermelhos com causas no main (worktree + npm ci fresco).
+
+**Decisão:** `[~]` até T042; D-468 (nada mergeia com red) mantido.
+
+## D-470 — PROPOSTA_DOER de CI-repair aprovada (T042)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** CI-repair é herança, não produto; permissão para CI infra concedida.
+
+**Decisão:** Escopo fechado (lint --fix, prisma generate, CodeQL/ZAP cirúrgicos); urgência máxima.
+
+## D-471 — GITHUB_TOKEN inválido para gh CLI (P010, Operador rotaciona)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** 4 tentativas documentadas; API REST em modo leitura usada sem exibir/persistir.
+
+**Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
 
