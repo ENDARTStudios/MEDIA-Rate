@@ -20,6 +20,7 @@
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
 - [~] Fase 8 – Testes/segurança `[PARCIAL — 700+ API + 309 web; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
+- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029 concluída (D-439); T030–T033 abertas]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
 - [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
 - [x] Fase 15 – Melhoria contínua `[CONCLUÍDA — T405 perf 46→63; D-402/D-403]` ✅
@@ -153,7 +154,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 5.4-5.6 ProtectedPage, CSP, DOMPurify (privacy), sessão sem localStorage.
 - [x] 5.7-5.9 Acessibilidade WCAG 2.1 AA, responsivo mobile-first, animações premium.
 - [x] 5.10-5.12 Design system (Dark OLED #0B0B1E, accent rose #E11D48), SEO (metadata/JSON-LD/OG/Twitter), i18n 3 locales.
-- [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`.
+- [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`. Correção D-439/R031: build T030 mostra 98 páginas, todas dinâmicas (mídia não-SSG; multiplicador de varredura = sitemap × 3 locales).
 - [x] 5.14 Gate i18n-leak no CI (T271/T273): e2e SSR + teste estrutural.
 - [x] 5.15 Selo "prévia" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` único em `lib/api.ts`).
 
@@ -230,6 +231,28 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
+
+---
+
+## FASE 10 — IMAGE OPTIMIZATION `[~ EM ANDAMENTO]` (D-439, 2026-09-06)
+
+Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline ~165/dia). Co-causas: crawlers (H1) + variantes de runtime sem tokens (H2).
+
+- [x] T029 — auditoria image optimization (robots aberto, defaults Next, sem sharp, unoptimized inconsistente, H3 refutada) · evid: D-439
+- [x] T030 — robots por bot (grupos A/B) + noindex em previews via VERCEL_ENV · SEO preservado · evid: test 4/4 + build OK
+- [x] T034 — conformidade de handoffs (schema oneOf D-442 + validator alinhado) · evid: integrity 7/7
+- [x] T031 — variantes no upload via sharp (com backfill do acervo remoto) · evid: upload 89.6% + builds OK
+- [x] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality · evid: test 6/6 + build OK + srcset 11→8
+- [x] T036 — ladders remotas nativas + <img> estático + bypass total · evid: test 16/16 + build OK
+- [x] T033 — runbook semanal de uso · evid: R038
+- [~] T037 — deps HIGH sem major (PARCIAL: deepmerge-ts residual, P009 no Operador)
+- [x] T038 — 6 testes CI-blocker (relógio congelado + mock count) · evid: api 841/841 + web 347/347
+- [x] T039 — gate audit-ci com allowlist cirúrgica · evid: R040 (exit 0/1 bidirecional)
+- [~] T041 — abrir PR do pacote Fase 10 (PR #74 open; checks vermelhos herdados do main)
+- [x] T040 — testes automatizados do gate audit-ci · evid: R041
+- [>] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP)
+- [>] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API)
+- [x] T046 — gh-safe wrappers + origem da injeção (P010) · evid: R045
 
 ---
 

@@ -47,6 +47,12 @@ export default function middleware(request: NextRequest) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }
 
+  // T030/D-441: previews nunca indexados. Só quando VERCEL_ENV=preview —
+  // produção intacta. Não sobrescreve o header mais forte das rotas privadas.
+  if (process.env.VERCEL_ENV === "preview" && !response.headers.has("X-Robots-Tag")) {
+    response.headers.set("X-Robots-Tag", "noindex");
+  }
+
   return response;
 }
 

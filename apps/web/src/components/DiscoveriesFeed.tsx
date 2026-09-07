@@ -8,6 +8,35 @@ import { api } from "@/lib/http";
 import { getCatalog } from "@/lib/api";
 import type { Media } from "@/lib/types";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
+
+/**
+ * T031/T036 — pôster estático: ladder local ou remota via <img>; sem ladder
+ * pública → next/image com bypass. Zero transformação runtime em qualquer
+ * caminho. O pai (relative) + sizes vêm de cada chamada.
+ */
+function StaticPoster({
+  src,
+  alt,
+  sizes,
+  imgClass = "absolute inset-0 h-full w-full object-cover",
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  imgClass?: string;
+}) {
+  if (isLocalSource(src)) {
+    return <img src={src} srcSet={localSrcSet(src)} alt={alt} sizes={sizes} className={imgClass} />;
+  }
+  const ladder = remoteLadder(src);
+  if (ladder) {
+    return (
+      <img src={ladder.src} srcSet={ladder.srcSet} alt={alt} sizes={sizes} className={imgClass} />
+    );
+  }
+  return <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" unoptimized />;
+}
 import { useRouter } from "@/lib/navigation";
 
 interface MidiaDescoberta {
@@ -139,13 +168,7 @@ export function DiscoveriesFeed() {
                   >
                     <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
                       {g.poster_url ? (
-                        <Image
-                          src={g.poster_url}
-                          alt={g.titulo}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
+                        <StaticPoster src={g.poster_url} alt={g.titulo} sizes="56px" />
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
                           {g.titulo.slice(0, 3).toUpperCase()}
@@ -180,13 +203,7 @@ export function DiscoveriesFeed() {
                   >
                     <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
                       {h.posterUrl ? (
-                        <Image
-                          src={h.posterUrl}
-                          alt={h.title}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
+                        <StaticPoster src={h.posterUrl} alt={h.title} sizes="56px" />
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
                           {h.title.slice(0, 3).toUpperCase()}
@@ -224,12 +241,11 @@ export function DiscoveriesFeed() {
           >
             <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
               {item.toMedia.imagemUrl ? (
-                <Image
+                <StaticPoster
                   src={item.toMedia.imagemUrl}
                   alt={item.toMedia.titulo}
-                  fill
                   sizes="80px"
-                  className="object-cover transition-transform group-hover:scale-105"
+                  imgClass="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">

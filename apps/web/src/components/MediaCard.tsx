@@ -7,6 +7,7 @@ import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
 import { normalizeDisplayScore } from "@/lib/score-utils";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
@@ -355,6 +356,43 @@ function ImageWithFallback({
     );
   }
 
+  // T031: fonte local → <img> estático com ladder própria (zero
+  // transformação runtime; next/image não aceita srcSet customizado).
+  // T036: remoto com ladder nativa → <img> estático; sem ladder →
+  // next/image com bypass (unoptimized) — nunca otimiza no runtime.
+  if (isLocalSource(srcNormalizado)) {
+    return (
+      <img
+        src={srcNormalizado}
+        srcSet={localSrcSet(srcNormalizado)}
+        alt={alt}
+        className={className}
+        width={width}
+        height={height}
+        sizes={sizes}
+        onError={() => setError(true)}
+        loading="lazy"
+      />
+    );
+  }
+
+  const ladder = remoteLadder(srcNormalizado);
+  if (ladder) {
+    return (
+      <img
+        src={ladder.src}
+        srcSet={ladder.srcSet}
+        alt={alt}
+        className={className}
+        width={width}
+        height={height}
+        sizes={sizes}
+        onError={() => setError(true)}
+        loading="lazy"
+      />
+    );
+  }
+
   return (
     <Image
       src={srcNormalizado}
@@ -365,6 +403,7 @@ function ImageWithFallback({
       sizes={sizes}
       onError={() => setError(true)}
       loading="lazy"
+      unoptimized
     />
   );
 }

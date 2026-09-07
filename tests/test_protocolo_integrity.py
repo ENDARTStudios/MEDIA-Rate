@@ -138,6 +138,52 @@ def check_status_validator():
         return ["[T297] validator aceitou um STATUS inválido (deveria rejeitar)"]
     return []
 
+
+# T034/D-442: evidencia aceita objeto OU array (oneOf) — as duas formas estao
+# documentadas (status.md = objeto; status.schema.json = array).
+_STATUS_BASE = {
+    "sync": {"projeto": "p", "fase": "f", "tarefa_atual": "t", "ultimo_status": "DONE",
+             "proxima_acao": "x", "responsavel": "Doer"},
+    "tarefa_id": "T-exemplo",
+    "fase": "f10",
+    "status": "DONE",
+    "commit": "8e1cc73",
+    "metricas": {"inicio_utc": "2026-09-06T16:00:00Z", "fim_utc": "2026-09-06T16:10:00Z",
+                 "duracao_minutos": 10},
+}
+
+
+def _status_formas_evidencia():
+    item = {"tipo": "command_output", "resumo": "ok",
+            "dados": {"comando": "c", "exit_code": 0, "saida": "ok"}}
+    obj = dict(_STATUS_BASE)
+    obj["evidencia"] = item
+    arr = dict(_STATUS_BASE)
+    arr["evidencia"] = [item]
+    return [("objeto", obj), ("array", arr)]
+
+
+def check_status_evidencia_oneof():
+    """T034/D-442: validator aceita evidencia objeto e array (oneOf)."""
+    script = os.path.join(BASE, ".claude", "scripts", "validar_status.py")
+    if not os.path.exists(script):
+        return ["[T034] .claude/scripts/validar_status.py ausente"]
+    erros = []
+    for nome, payload in _status_formas_evidencia():
+        try:
+            proc = subprocess.run(
+                [sys.executable, script],
+                input=json.dumps(payload),
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except Exception as e:  # noqa: BLE001
+            return [f"[T034] validar_status.py falhou ao executar: {e}"]
+        if proc.returncode != 0:
+            erros.append(f"[T034] validator rejeitou evidencia em forma de {nome} (oneOf D-442)")
+    return erros
+
 def main():
     print("=== Teste de Integridade do Protocolo Kilo ===\n")
 
@@ -184,6 +230,15 @@ def main():
         print(f"  ✗ {e}")
     if not errors:
         print("  ✓ validator de STATUS presente e rejeita STATUS inválido.")
+    all_errors.extend(errors)
+
+    print("\n[5b/6] Verificando evidencia objeto|array no validator (T034/D-442)…")
+    errors = check_status_evidencia_oneof()
+    for e in errors:
+        print(f"  ✗ {e}")
+    if not errors:
+        print("  ✓ validator aceita evidencia objeto e array (oneOf).")
+    all_errors.extend(errors)
 
     print("\n[6/6] Verificando migrations (E55P04/D-236)…")
     for e in check_migrations_e55p04():

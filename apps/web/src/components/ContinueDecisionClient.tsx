@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
 import Image from "next/image";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { api } from "@/lib/http";
 
 interface WatchlistMedia {
@@ -79,13 +80,43 @@ export function ContinueDecisionClient() {
               >
                 <div className="aspect-[2/3] bg-[#1B1B2C] relative overflow-hidden">
                   {media.posterUrl ? (
-                    <Image
-                      src={media.posterUrl}
-                      alt={`Capa de ${media.title}`}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                    (() => {
+                      // T031/T036: estático com ladder (local ou remota); sem
+                      // ladder → bypass. Zero transformação runtime.
+                      if (isLocalSource(media.posterUrl)) {
+                        return (
+                          <img
+                            src={media.posterUrl}
+                            srcSet={localSrcSet(media.posterUrl)}
+                            alt={`Capa de ${media.title}`}
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        );
+                      }
+                      const ladder = remoteLadder(media.posterUrl);
+                      if (ladder) {
+                        return (
+                          <img
+                            src={ladder.src}
+                            srcSet={ladder.srcSet}
+                            alt={`Capa de ${media.title}`}
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        );
+                      }
+                      return (
+                        <Image
+                          src={media.posterUrl}
+                          alt={`Capa de ${media.title}`}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          unoptimized
+                        />
+                      );
+                    })()
                   ) : (
                     <div
                       className="flex h-full items-center justify-center text-[#6B6B85]"

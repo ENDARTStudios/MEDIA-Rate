@@ -262,3 +262,53 @@ mídia específica: `POST /api/v1/midias/:id/coletar` (mesmo header).
 **Nenhuma requisição de usuário consulta fonte externa** — o site/API servem
 sempre de `media_score` (banco). A coleta externa é estritamente um job de
 bastidor.
+
+## Image Optimization — uso e cota (F10/T033 — D-439..D-453, T029–T037)
+
+**Baseline (06/09):** ~165 transformações/dia (picos 700–790; ~4.969/30d =
+99% da cota Hobby de **5.000/mês**). **Meta:** <20/dia (~600/mês, folga ~8×).
+
+**Check semanal (toda segunda):** Vercel → projeto web → Usage → Image
+Transformations → views **Count** (tendência), **Projects** (web vs previews),
+**Regions** (olhar por região: anomalia = edge dominando sem tráfego humano
+correspondente — ex.: EUA >> São Paulo com público BR).
+
+**Thresholds (janela de 7 dias):** amarelo >1.250/semana (25% da cota);
+vermelho >2.500/semana (50%). No vermelho: conferir propagação do robots.txt
+(`curl -s https://mediarate.app/robots.txt` — grupos A/B), aba Regions,
+user-agents novos nos logs, deploys recentes (deploy novo = cache frio).
+
+**Gatilho de decisão:** 2 ciclos consecutivos acima da cota → avaliar Pro vs
+CDN externo **com números** (custo, transformações incluídas, tráfego real)
+em `DECISOES.md` + `PENDENCIAS_OPERADOR.md` (custo é autoridade do Operador).
+
+**Pacote pós-deploy (reforça pendência [8]):**
+1. `curl -s $PREVIEW_URL/robots.txt` — grupos GPTBot/CCBot/ClaudeBot/…
+   (`Disallow: /`) e PerplexityBot/… (`Disallow: /_next/image`, `/_vercel/image`).
+2. `curl -sI $PREVIEW_URL` — `X-Robots-Tag: noindex` presente; em produção, ausente.
+3. HTML do catálogo: srcset de card ⊆ `[64,128,256,320,640,960,1280,1920]`
+   (tokens T032); poster remoto sem `/_vercel/image` nem `/_next/image` na URL.
+4. Tendência do dashboard em 7 dias (meta <20/dia após propagação).
+
+**Revisão trimestral de exceções de audit (T039/D-462, primeira em 2026-12):**
+- [ ] `deepmerge-ts` (GHSA-ggr8-5vv4-36mx) continua dev-only (só via CLI `prisma`)?
+- [ ] Prisma major estável/disponível para avaliar T039-prisma-major?
+- [ ] A exceção ainda se justifica (P009) ou vira tarefa de correção?
+- [ ] Registrar o resultado em `DECISOES.md` (nova entrada D-4xx).
+
+## GitHub CLI em ambiente com token sombreado (T046/P010)
+
+**Sintoma:** `gh auth status` diz que o token em `GITHUB_TOKEN` é inválido,
+mas existe login válido no keyring (`ENDARTStudios`).
+
+**Causa:** o harness injeta `GITHUB_TOKEN` inválido no escopo Process de cada
+shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` > keyring) ele sombreia o
+login bom. Nada no repo, na máquina ou no perfil do usuário causa isso.
+
+**Uso (até o P010 morrer):** nunca `gh` nu — sempre pelo wrapper, que remove
+só a variável sombra do processo-filho (nunca seta/exibe/persiste token):
+- Windows: `powershell -File scripts/gh-safe.ps1 <args do gh>`
+- Linux/macOS/CI: `sh scripts/gh-safe.sh <args do gh>`
+
+**Correção definitiva (P010, Operador):** remover a injeção na origem (config
+do harness/provedor de segredos); o login do keyring já basta sozinho.

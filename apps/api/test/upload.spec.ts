@@ -1,9 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { rm } from "node:fs/promises";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { rm, readdir } from "node:fs/promises";
 import * as path from "node:path";
 import { HttpException } from "@nestjs/common";
+import sharp from "sharp";
 import { detectarImagem } from "../src/common/utils/file-validation.util.js";
 import { UploadService, UPLOAD_MAX_SIZE } from "../src/modules/upload/upload.service.js";
+import { gerarVariantes } from "../src/modules/upload/variants.js";
+import { UploadController } from "../src/modules/upload/upload.controller.js";
 
 function jpegBytes(): Buffer {
   return Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]);
@@ -98,5 +101,59 @@ describe("UploadService (T216)", () => {
       expect((e as HttpException).getStatus()).toBe(429);
     }
     expect(() => service.registrarUpload("admin-2")).not.toThrow();
+  });
+
+  it("salvarVariantes: persiste ladder <uuid>-w320/640/960.webp; caminhoArquivo resolve", async () => {
+    const buf = await sharp({
+      create: { width: 1200, height: 800, channels: 3, background: "#112233" },
+    })
+      .jpeg()
+      .toBuffer();
+    const salvas = await service.salvarVariantes(
+      "midia-v",
+      `${UUID_OK}.jpg`,
+      await gerarVariantes(buf),
+    );
+    expect(salvas.map((s) => s.width).sort((a, b) => a - b)).toEqual([320, 640, 960]);
+    for (const s of salvas) {
+      expect(s.filename).toMatch(/-w(320|640|960)\.webp$/);
+      expect(service.caminhoArquivo("midia-v", s.filename)).not.toBeNull();
+    }
+    expect(service.caminhoArquivo("midia-v", "x-w320.webp")).toBeNull();
+  });
+
+  it("upload: falha na ladder → 500 genérico + rollback do original (sem órfãos)", async () => {
+    const buf = await sharp({
+      create: { width: 800, height: 600, channels: 3, background: "#445566" },
+    })
+      .jpeg()
+      .toBuffer();
+    const prisma = {
+      midia: {
+        findFirst: async () => ({ id: "midia-rb" }),
+        update: async () => ({}),
+      },
+    };
+    const controller = new UploadController(service, prisma as never);
+    const req = {
+      user: { id: "admin-9" },
+      file: async () => ({ toBuffer: async () => buf }),
+      headers: {},
+      ip: "127.0.0.1",
+    };
+    const spy = vi
+      .spyOn(service, "salvarVariantes")
+      .mockRejectedValueOnce(new Error("disco cheio"));
+    try {
+      await controller.upload("midia-rb", req as never);
+      expect.unreachable("deveria lançar");
+    } catch (e) {
+      expect((e as HttpException).getStatus()).toBe(500);
+      expect((e as HttpException).message).not.toContain("disco cheio");
+    } finally {
+      spy.mockRestore();
+    }
+    const restam = await readdir(path.join(uploadsDir, "midia-rb")).catch(() => []);
+    expect(restam).toEqual([]);
   });
 });

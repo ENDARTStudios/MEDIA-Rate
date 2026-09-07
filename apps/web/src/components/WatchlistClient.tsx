@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { formatDate } from "@/lib/i18n";
 import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
@@ -300,13 +301,43 @@ export function WatchlistClient() {
                     {/* T373: miniatura do pôster na visão de lista (antes só texto). */}
                     <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded bg-[#1C1C2E]">
                       {item.imagem_url ? (
-                        <Image
-                          src={item.imagem_url}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="44px"
-                        />
+                        (() => {
+                          // T031/T036: estático com ladder (local ou remota);
+                          // sem ladder → bypass. Zero transformação runtime.
+                          if (isLocalSource(item.imagem_url)) {
+                            return (
+                              <img
+                                src={item.imagem_url}
+                                srcSet={localSrcSet(item.imagem_url)}
+                                alt=""
+                                sizes="44px"
+                                className="absolute inset-0 h-full w-full object-cover"
+                              />
+                            );
+                          }
+                          const ladder = remoteLadder(item.imagem_url);
+                          if (ladder) {
+                            return (
+                              <img
+                                src={ladder.src}
+                                srcSet={ladder.srcSet}
+                                alt=""
+                                sizes="44px"
+                                className="absolute inset-0 h-full w-full object-cover"
+                              />
+                            );
+                          }
+                          return (
+                            <Image
+                              src={item.imagem_url}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="44px"
+                              unoptimized
+                            />
+                          );
+                        })()
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-[#6B6B85]">
                           <svg

@@ -152,4 +152,22 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "off",
     },
   },
+
+  // Scripts de CI da raiz (Node.js puro, ex.: audit-ci.mjs) — process e URL
+  // são legítimos aqui; `console`/`Buffer` NÃO entram (colidem com os
+  // comentários /*global*/ de generate-hero-assets.mjs/seed-catalog.ts).
+  // Cada script declara `console` no próprio /*global*/ (por arquivo, sem
+  // colisão). Não é código de produto.
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        URL: "readonly",
+      },
+    },
+    rules: {
+      "no-console": "off",
+    },
+  },
 );

@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { getDiscoveries, type Discovery } from "@/lib/api-discoveries";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { relationLabelKey } from "@/components/discovery/RelatedCard";
@@ -36,14 +37,48 @@ function Item({ d, locale }: { d: Discovery; locale: string }) {
   return (
     <li className="flex items-center gap-3 rounded-lg border border-[#2A2A3D] bg-[#12121C] p-3">
       {d.fromMedia.imagemUrl ? (
-        <Image
-          src={d.fromMedia.imagemUrl}
-          alt=""
-          width={40}
-          height={56}
-          className="h-14 w-10 shrink-0 rounded object-cover"
-          aria-hidden="true"
-        />
+        (() => {
+          // T031/T036: estático com ladder (local ou remota); sem ladder → bypass.
+          const src = d.fromMedia.imagemUrl as string;
+          if (isLocalSource(src)) {
+            return (
+              <img
+                src={src}
+                srcSet={localSrcSet(src)}
+                alt=""
+                width={40}
+                height={56}
+                className="h-14 w-10 shrink-0 rounded object-cover"
+                aria-hidden="true"
+              />
+            );
+          }
+          const ladder = remoteLadder(src);
+          if (ladder) {
+            return (
+              <img
+                src={ladder.src}
+                srcSet={ladder.srcSet}
+                alt=""
+                width={40}
+                height={56}
+                className="h-14 w-10 shrink-0 rounded object-cover"
+                aria-hidden="true"
+              />
+            );
+          }
+          return (
+            <Image
+              src={src}
+              alt=""
+              width={40}
+              height={56}
+              className="h-14 w-10 shrink-0 rounded object-cover"
+              aria-hidden="true"
+              unoptimized
+            />
+          );
+        })()
       ) : (
         <span
           className="flex h-14 w-10 shrink-0 items-center justify-center rounded bg-[#1C1C2E]"

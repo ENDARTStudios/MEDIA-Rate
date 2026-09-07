@@ -40,9 +40,14 @@ test.describe("T422 — trial + checkout + cancelamento", () => {
     }
   });
 
-  test("POST /api/v1/billing/cancel é idempotente (200, sem cobrança surpresa)", async ({ page, request }) => {
+  test("POST /api/v1/billing/cancel é idempotente (200, sem cobrança surpresa)", async ({
+    page,
+    request,
+  }) => {
     // Sessão autenticada no contexto do request (herda cookies da página).
-    const res = await request.post("/api/v1/billing/cancel", { headers: { "Idempotency-Key": crypto.randomUUID() } });
+    const res = await request.post("/api/v1/billing/cancel", {
+      headers: { "Idempotency-Key": crypto.randomUUID() },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json().catch(() => ({}));
     expect(typeof body.canceled).toBe("boolean");

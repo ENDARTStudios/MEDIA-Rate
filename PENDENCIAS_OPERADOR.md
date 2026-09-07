@@ -215,3 +215,40 @@ Passo a passo (aplicado):
 4. `NEXT_PUBLIC_ANALYTICS_WRITE_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` no Vercel ✅
 Como saber que deu certo: faça login no site e veja o evento `user_session_start` no PostHog.
 Depois de feito: responda "feito o item Nº 7"
+
+---
+
+### [8] Confirmar/ativar Deployment Protection nos previews (Vercel) — F10/T030
+
+Por quê: previews `*.vercel.app` têm cache próprio de imagens; bot varrendo preview re-paga o warm-up inteiro (H4 do D-439). Não verificável em código (`apps/web/vercel.json` = só framework).
+Onde: Vercel → projeto web → Settings → Deployment Protection → exigir autenticação em Preview Deployments.
+Como saber que deu certo: abrir a URL de um preview em sessão anônima exige login Vercel.
+Depois de feito: responda "feito o item Nº 8"
+
+Verificação T030 pós-deploy (mesmo gate, T034 — branch está 17 commits à frente do remoto; curl local testaria código obsoleto):
+1. `curl -s $PREVIEW_URL/robots.txt` — conferir grupos GPTBot/CCBot/ClaudeBot/... (`Disallow: /`) e PerplexityBot/... (`Disallow: /_next/image`, `/_vercel/image`).
+2. `curl -sI $PREVIEW_URL` — esperar `X-Robots-Tag: noindex`; em produção o header deve estar ausente.
+3. Colar as saídas no chat para o REVIEW final de T030.
+
+---
+
+### [10] P010 — GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
+
+Por quê: o harness injeta `GITHUB_TOKEN` (40 chars, inválido) **só no escopo
+Process** de cada shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` >
+keyring) ele invalida o `gh`, embora o login do keyring (`ENDARTStudios`)
+esteja válido. Não é bloqueante (workaround: `Remove-Item Env:GITHUB_TOKEN`
+por comando), mas todo uso do `gh` repete a falha.
+Onde: origem da injeção — config do harness/provedor de segredos (User e
+Machine estão limpos; nada a remover localmente).
+Como saber que deu certo: `gh auth status` verde **sem** workaround.
+Depois de feito: responda "feito o item Nº 10"
+
+**Origem exata (T046, diagnosticado 2026-09-07):** `.vscode/` do repo limpo
+(sem TOKEN); processo-pai do shell = `OpenCode` (o próprio harness injeta a
+variável por shell); `User`/`Machine` sem `GITHUB_TOKEN`/`GH_TOKEN`; perfil
+PowerShell irrelevante (injeção é por processo, não por perfil). Passo
+cirúrgico: remover a entrada `GITHUB_TOKEN` da config de ambiente do harness
+(ou rotacionar por valor válido) — o login do keyring (`ENDARTStudios`,
+scopes `repo, workflow`) assume sozinho. Workaround até lá: `scripts/gh-safe.*`
+(ver MANUAL, seção T046).

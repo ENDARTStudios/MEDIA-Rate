@@ -69,17 +69,28 @@ function MediaUnlockRow({ planId }: { planId: string }) {
   );
 }
 
-export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
+export function PricingCards({
+  currencySymbol,
+  annualAvailable = true,
+}: {
+  currencySymbol?: string;
+  annualAvailable?: boolean;
+}) {
   const t = useTranslations("pricing");
   const locale = useLocale();
   const { isAuthenticated } = useAuthStore();
   const shouldReduce = useReducedMotion();
   const [billing, setBilling] = useState<Billing>("monthly");
+  // T447: se o plano anual não está configurado (env STRIPE_PRICE_*_YEAR_* ausente),
+  // força mensal — nunca vendemos anual sem price_ válido no Stripe.
+  const safeBilling: Billing = annualAvailable ? billing : "monthly";
 
   const effectivePrice = useMemo(
     () => (plan: number) =>
-      billing === "annual" && plan > 0 ? Math.round(plan * 12 * ANNUAL_DISCOUNT * 100) / 100 : plan,
-    [billing],
+      safeBilling === "annual" && plan > 0
+        ? Math.round(plan * 12 * ANNUAL_DISCOUNT * 100) / 100
+        : plan,
+    [safeBilling],
   );
 
   return (
@@ -90,32 +101,42 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
         role="group"
         aria-label="Periodicidade"
       >
-        {(["monthly", "annual"] as Billing[]).map((b) => (
-          <button
-            key={b}
-            type="button"
-            onClick={() => setBilling(b)}
-            aria-pressed={billing === b}
-            className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
-              billing === b
-                ? "bg-[#818CF8] text-[#0F172A]"
-                : "bg-[#1B1B2C] text-[#A0A0B8] hover:text-[#F5F5F7]"
-            }`}
-          >
-            {/* T247: toggle com rótulos DISTINTOS — 'mês' e 'ano' (antes as
-                duas opções mostravam 'mês'). */}
-            {b === "annual" ? t("year") : t("month")}
-            {b === "annual" && (
-              <span
-                className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold ${
-                  billing === b ? "bg-black/20" : "bg-[#34D399]/15 text-[#34D399]"
-                }`}
-              >
-                -15%
-              </span>
-            )}
-          </button>
-        ))}
+        {(["monthly", "annual"] as Billing[]).map((b) => {
+          const unavailable = b === "annual" && !annualAvailable;
+          return (
+            <button
+              key={b}
+              type="button"
+              onClick={() => {
+                if (!unavailable) setBilling(b);
+              }}
+              aria-pressed={billing === b}
+              disabled={unavailable}
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                unavailable
+                  ? "cursor-not-allowed opacity-50"
+                  : billing === b
+                    ? "bg-[#818CF8] text-[#0F172A]"
+                    : "bg-[#1B1B2C] text-[#A0A0B8] hover:text-[#F5F5F7]"
+              }`}
+            >
+              {b === "annual" ? t("year") : t("month")}
+              {b === "annual" && (
+                <span
+                  className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold ${
+                    unavailable
+                      ? "bg-black/20"
+                      : billing === b
+                        ? "bg-black/20"
+                        : "bg-[#34D399]/15 text-[#34D399]"
+                  }`}
+                >
+                  {unavailable ? t("comingSoonShort") : "-15%"}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-20 items-stretch">
@@ -150,26 +171,26 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
                 <div className="mt-3 flex items-baseline gap-1">
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.span
-                      key={`${plan.id}-${billing}`}
+                      key={`${plan.id}-${safeBilling}`}
                       initial={shouldReduce ? false : { opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={shouldReduce ? undefined : { opacity: 0, y: -8 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className="text-4xl font-heading font-bold text-[#F5F5F7] tabular-nums"
                     >
-                      {billing === "annual" && plan.price > 0
+                      {safeBilling === "annual" && plan.price > 0
                         ? formatPlanPrice(annualTotal, locale, currencySymbol)
                         : formatPlanPrice(price, locale, currencySymbol)}
                     </motion.span>
                   </AnimatePresence>
                   <span className="text-sm text-[#A0A0B8]">
-                    /{billing === "annual" ? t("year") : t("month")}
+                    /{safeBilling === "annual" ? t("year") : t("month")}
                   </span>
                 </div>
                 <p className="text-xs text-[#6B6B85] mt-0.5">
                   {plan.price === 0
                     ? t("noCard")
-                    : billing === "annual"
+                    : safeBilling === "annual"
                       ? t("savePercent", { pct: 15 })
                       : `${formatPlanPrice(plan.price * 12 * ANNUAL_DISCOUNT, locale, currencySymbol)}/${t("year")} (${t("savePercent", { pct: 15 })})`}
                 </p>
@@ -202,7 +223,9 @@ export function PricingCards({ currencySymbol }: { currencySymbol?: string }) {
               </ul>
 
               <Link
-                href={plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${billing}`}
+                href={
+                  plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${safeBilling}`
+                }
                 className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
                   isPlus
                     ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"

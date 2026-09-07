@@ -6,10 +6,14 @@ import { MediaScoreJobService } from "../src/modules/media-score/media-score-job
 function mockDependencias() {
   const prisma = {
     midia: {
+      // T038: contrato real do service (executar usa count p/ total/log).
+      count: vi.fn().mockResolvedValue(0),
       findMany: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
     },
     avaliacaoFonte: {
+      // T038: contrato real (coletarEPersistir usa count p/ falha graciosa D-410).
+      count: vi.fn().mockResolvedValue(0),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
       createMany: vi.fn().mockResolvedValue({ count: 0 }),
     },

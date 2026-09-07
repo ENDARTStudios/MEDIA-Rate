@@ -78,7 +78,13 @@ def validar_regras_cruzadas(payload):
         if inicio and fim and inicio == fim:
             erros.append("[metricas] inicio_utc e fim_utc não podem ser idênticos em DONE")
 
-    for i, ev in enumerate(payload.get("evidencia") or []):
+    # D-442: evidencia pode ser objeto unico ou lista — normaliza antes das
+    # checagens cruzadas (o estrutural via oneOf ja validou a forma).
+    evidencia = payload.get("evidencia")
+    itens = [evidencia] if isinstance(evidencia, dict) else (evidencia or [])
+    for i, ev in enumerate(itens):
+        if not isinstance(ev, dict):
+            continue
         tipo = ev.get("tipo")
         dados = ev.get("dados") or {}
         if tipo == "command_output":

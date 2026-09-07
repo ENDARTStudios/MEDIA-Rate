@@ -7,6 +7,8 @@ import {
   Res,
   Param,
   HttpCode,
+  HttpException,
+  HttpStatus,
   NotFoundException,
   BadRequestException,
   Optional,
@@ -14,6 +16,7 @@ import {
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { readFile } from "node:fs/promises";
 import { UploadService } from "./upload.service.js";
+import { gerarVariantes } from "./variants.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { RolesGuard } from "../../common/guards/roles.guard.js";
 import { Roles } from "../../common/decorators/roles.decorator.js";
@@ -58,7 +61,13 @@ export class UploadController {
   async upload(
     @Param("id") id: string,
     @Req() req: FastifyRequest,
-  ): Promise<{ poster_url: string; filename: string; size: number; sha256: string }> {
+  ): Promise<{
+    poster_url: string;
+    filename: string;
+    size: number;
+    sha256: string;
+    variantes: { w320?: string; w640?: string; w960?: string };
+  }> {
     const admin = (req as FastifyRequest & { user?: { id: string } }).user?.id;
     // Rate limit por admin: 10 uploads/hora.
     if (admin) this.service.registrarUpload(admin);
@@ -83,8 +92,29 @@ export class UploadController {
     const buffer = await file.toBuffer();
 
     const { filename, mime, sha256 } = this.service.validarEPreparar(buffer);
+    // T031: ladder ANTES de gravar (422 não deixa resíduo); original primeiro,
+    // variantes depois; falha na ladder = rollback total (500 genérico).
+    const ladder = await gerarVariantes(buffer);
     await this.service.salvar(id, buffer, filename);
+    let salvas: { width: number; filename: string }[];
+    try {
+      salvas = await this.service.salvarVariantes(id, filename, ladder);
+    } catch {
+      await this.service.remover(id, filename);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: "Internal Server Error",
+          message: "Falha ao processar a imagem.",
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     const poster_url = `/uploads/media/${id}/${filename}`;
+    const variantes: { w320?: string; w640?: string; w960?: string } = {};
+    for (const s of salvas) {
+      variantes[`w${s.width}` as keyof typeof variantes] = `/uploads/media/${id}/${s.filename}`;
+    }
 
     await this.prisma.midia.update({
       where: { id },
@@ -107,7 +137,7 @@ export class UploadController {
       },
     });
 
-    return { poster_url, filename, size: buffer.length, sha256 };
+    return { poster_url, filename, size: buffer.length, sha256, variantes };
   }
 }
 

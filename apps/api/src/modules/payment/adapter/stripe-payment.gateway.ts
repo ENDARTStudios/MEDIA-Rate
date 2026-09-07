@@ -43,7 +43,12 @@ export class StripePaymentGateway implements IPaymentGateway {
       input.plano === "PLUS"
         ? (process.env.STRIPE_PRICE_PLUS_ID ?? "")
         : (process.env.STRIPE_PRICE_PREMIUM_ID ?? "");
-    const priceId = pricePorPeriodoMoeda ?? pricePorMoeda ?? priceLegado;
+    // T447: anual NUNCA cai em fallback (mensal/legado) — se o price_ anual
+    // não existe, não há sessão anual (o controller responde 422 ainda antes).
+    const priceId =
+      input.periodo === "year"
+        ? pricePorPeriodoMoeda
+        : (pricePorPeriodoMoeda ?? pricePorMoeda ?? priceLegado);
 
     if (!priceId) {
       throw new Error(`STRIPE_PRICE_${input.plano}_${periodo}_${input.currency} não configurado.`);

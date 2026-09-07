@@ -16,6 +16,7 @@ import { normalizeDisplayScore } from "@/lib/score-utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { isPreviewTipo } from "@/lib/api";
+import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { StaticScoreDial } from "./StaticScoreDial";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
 import type { MediaItem } from "@/components/MediaCard";
@@ -167,21 +168,52 @@ export function MediaCardShell({
           </span>
 
           {media.imagem_url ? (
-            <Image
-              src={srcNormalizado}
-              alt={`Capa de ${tituloLocal}`}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              width={300}
-              height={450}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              loading="lazy"
-              // Auditoria home: pôsteres de anilist/openlibrary (livro/mangá)
-              // retornavam 402 do otimizador Vercel (limite do plano) — serve
-              // a imagem direto da origem, sem re-otimizar.
-              unoptimized={/anilist|openlibrary|myanimelist|comicvine|googlebooks/i.test(
-                srcNormalizado,
-              )}
-            />
+            (() => {
+              const src = srcNormalizado;
+              // T031/T036: estático com ladder (local ou remota); sem ladder →
+              // bypass — zero transformação runtime em qualquer caminho.
+              if (isLocalSource(src)) {
+                return (
+                  <img
+                    src={src}
+                    srcSet={localSrcSet(src)}
+                    alt={`Capa de ${tituloLocal}`}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    width={300}
+                    height={450}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    loading="lazy"
+                  />
+                );
+              }
+              const ladder = remoteLadder(src);
+              if (ladder) {
+                return (
+                  <img
+                    src={ladder.src}
+                    srcSet={ladder.srcSet}
+                    alt={`Capa de ${tituloLocal}`}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    width={300}
+                    height={450}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    loading="lazy"
+                  />
+                );
+              }
+              return (
+                <Image
+                  src={src}
+                  alt={`Capa de ${tituloLocal}`}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  width={300}
+                  height={450}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  loading="lazy"
+                  unoptimized
+                />
+              );
+            })()
           ) : (
             <div className="flex items-center justify-center h-full text-[#9CA3AF] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
               <svg

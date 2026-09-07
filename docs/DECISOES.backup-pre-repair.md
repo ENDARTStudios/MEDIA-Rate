@@ -4,16 +4,16 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-14] Fix: Sentry e2e — teste real comprovado; web e API compartilham DSN (T315/D-306)
+## [2026-08-14] Fix: Sentry e2e � teste real comprovado; web e API compartilham DSN (T315/D-306)
 
-**Achado:** o "erro" do Sentry era o sample de onboarding (tag sample_event=yes, url example.com); nenhum evento real tinha chegado. O bundle web tinha o SDK mas NÃO o DSN inline — a env `NEXT_PUBLIC_SENTRY_DSN` da Vercel existia com valor vazio/placeholder.
+**Achado:** o "erro" do Sentry era o sample de onboarding (tag sample_event=yes, url example.com); nenhum evento real tinha chegado. O bundle web tinha o SDK mas N�O o DSN inline � a env `NEXT_PUBLIC_SENTRY_DSN` da Vercel existia com valor vazio/placeholder.
 
 **Correção:**
-- Vercel env re-setada via CLI com o MESMO DSN do projeto (exceção D-306: Operador criou 1 projeto Sentry javascript-nextjs — web e API compartilham o DSN na Open Beta; separar projetos é backlog). Lição CLI: `vercel env add` com stdin grava placeholder `[SENSITIVE]` — usar `--value`.
+- Vercel env re-setada via CLI com o MESMO DSN do projeto (exceção D-306: Operador criou 1 projeto Sentry javascript-nextjs � web e API compartilham o DSN na Open Beta; separar projetos é backlog). Lição CLI: `vercel env add` com stdin grava placeholder `[SENSITIVE]` � usar `--value`.
 - **Client config não era injetado no bundle em Next 16/Turbopack** (bundle tinha o SDK sem `Sentry.init`): criado `SentryClientInit` (import dinâmico do `sentry.client.config` só no browser) renderizado no root layout.
 - **CSP bloqueava o ingest** (`connect-src` sem o host): adicionadas as três regiões `https://*.ingest.{us,eu,de}.sentry.io` (wildcard `*.ingest.sentry.io` NÃO cobre `o<org>.ingest.us.sentry.io`).
-- **Teste real na API de produção (PIPELINE OK):** flag `admin-sentry-test` ON â†' `GET /api/v1/admin/sentry-test` â†' **500 + sentryEventId (32 chars) + correlationId + X-Correlation-Id** â†' flag OFF confirmada.
-- **Web ao vivo:** browser de produção envia envelope para `o...ingest.us.sentry.io` (observado via Playwright) â†' eventos do web chegam ao painel.
+- **Teste real na API de produção (PIPELINE OK):** flag `admin-sentry-test` ON �' `GET /api/v1/admin/sentry-test` �' **500 + sentryEventId (32 chars) + correlationId + X-Correlation-Id** �' flag OFF confirmada.
+- **Web ao vivo:** browser de produção envia envelope para `o...ingest.us.sentry.io` (observado via Playwright) �' eventos do web chegam ao painel.
 - MANUAL_DO_OPERADOR: seção "Como testar o Sentry" (3 passos) + sample event + notas de CLI/bundle.
 
 **Lembrete operacional:** `vercel --prod` a partir de `apps/web` está linkado ao projeto **almanaque-dos-clubes** (NÃO usar; usar push em main que dispara o deploy de media-rate). Rollback aplicado no almanaque após deploy acidental.
@@ -37,7 +37,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-14] Fix P0: watchlist — status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
+## [2026-08-14] Fix P0: watchlist � status dirige a coluna (fonte única) + labels por tipo + botão rápido (T320/D-309)
 
 **Sintoma (bug report Operador):** games mostravam "Quero ver/Vendo/Vi"; clicar no status não movia o card de bloco; botão do canto do card morto.
 
@@ -46,8 +46,8 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 **Correção:**
 - **Fonte única de verdade** (`src/common/status-coluna.ts`): mapas bidirecionais `STATUS_PARA_COLUNA`/`COLUNA_PARA_STATUS`. `interacoes.upsert` sincroniza a coluna da watchlist no MESMO tx (status dirige a coluna); `watchlist.add`/`move` sincronizam a interação no MESMO tx (coluna dirige o status). Cliente: interaction store re-sincroniza a watchlist após mudar status.
 - **Labels por tipo:** cabeçalhos de coluna usam label do tipo quando há filtro ativo, senão neutro (`queroConsumir/consumindo/concluido` novos nos 3 locales); chip do card já era type-aware (colunaLabelKey).
-- **Botão rápido do card:** canto abre MENU de status (4 colunas + Remover) — mesmo handler, nada morto.
-- **Reparo idempotente** (`prisma/seed-reparo-status-coluna.ts`, `db:reparo:status-coluna`): alinha colunaâ†"status em produção (8 colunas alinhadas, 34 interações criadas, 28 puladas não-UUID; nenhuma exclusão).
+- **Botão rápido do card:** canto abre MENU de status (4 colunas + Remover) � mesmo handler, nada morto.
+- **Reparo idempotente** (`prisma/seed-reparo-status-coluna.ts`, `db:reparo:status-coluna`): alinha coluna�"status em produção (8 colunas alinhadas, 34 interações criadas, 28 puladas não-UUID; nenhuma exclusão).
 
 **Verificado:** unit interacoes (sync coluna por status) + watchlist e2e mocks atualizados; e2e `watchlist-sync.spec.ts` (bidirecional via API). API 760/760, web 312/312.
 
@@ -55,7 +55,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Fix: watchlist sem "código" (T310 / D-308)
 
-**Sintoma (§14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".
+**Sintoma (�14 item 8):** algumas mídias na watchlist "não carregam, são apenas um código".
 
 **Diagnóstico (produção, 70 entries):** 15 entradas com `midia_id` não-UUID (ids externos TMDB/IGDB como `124364`, e ids de aresta `g4`/`g2` do grafo cross-mídia) + 5 UUIDs órfãos (mídia inexistente). O serializer devolvia `media: null` para essas, e o `entryToMediaItem` retornava null sem título ? cartão vazio com aria-label = UUID cru.
 
@@ -68,14 +68,14 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ---
 
-## [2026-08-13] Fix: duração de sessão — 7 dias + sliding renewal (T316/D-307)
+## [2026-08-13] Fix: duração de sessão � 7 dias + sliding renewal (T316/D-307)
 
-**Sintoma (§14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.
+**Sintoma (�14 item 3):** "a sessão está expirando rápido demais". Diagnóstico (produção): cookie `sess` tinha `Expires` = +15min (TTL do ACCESS hardcoded) e o web NÃO tinha auto-refresh; o sliding no `validateToken` estendia o banco mas não re-setava o cookie do browser.
 
 **Correção:**
 - `SESSION_TTL_HOURS` (default 168 = 7 dias) passou a ser lido de env; `SESSION_TTL_MS` = 7d (era 15min hardcoded). `createSession`/rotação usam o novo TTL.
-- Cookie `sess` agora com `Max-Age=604800` (+Expires) — persiste no browser; fechar navegador não desloga.
-- Sliding renewal: `validateToken` renova quando faltam < 50% do TTL (3,5d) e retorna `renovada`; o AuthGuard re-seta o cookie `sess` no browser (sem rotacionar CSRF — o front guarda csrf em sessionStorage). Rate-limit natural: ~1 renovação por TTL/2 (? 1/hora), sem write por request.
+- Cookie `sess` agora com `Max-Age=604800` (+Expires) � persiste no browser; fechar navegador não desloga.
+- Sliding renewal: `validateToken` renova quando faltam < 50% do TTL (3,5d) e retorna `renovada`; o AuthGuard re-seta o cookie `sess` no browser (sem rotacionar CSRF � o front guarda csrf em sessionStorage). Rate-limit natural: ~1 renovação por TTL/2 (? 1/hora), sem write por request.
 - Revogação/logout e refresh rotativo (30d) inalterados.
 
 **Verificado (DB real, API compilada):** login ? `sess` com `Max-Age=604800` e Expires +7d; sessão envelhecida para +3d ? request autenticado 200 + Set-Cookie renovado (`SLIDING RENEWAL OK`). Testes: e2e `session-duration.e2e.spec.ts` (7) + sliding em `session-token.spec.ts`. API 759/759.
@@ -84,16 +84,16 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Fix: busca por prefixo/autocomplete (T309)
 
-**Sintoma (§14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.
+**Sintoma (�14 item 2):** buscar 'Berserk' só retornava com a palavra completa; prefixos ('Bers') não retornavam nada.
 
 **Causa:** a busca full-text (q >= 3) usava `plainto_tsquery('portuguese', ...)`, que exige lexema exato (palavra completa).
 
 **Correção (discover.service.ts, sem mudar o tsvector 20260809 nem o contrato da API):**
-- `montarTsqueryPrefixo(q)`: tokens sanitizados via `[\p{L}\p{N}]+` (neutraliza operadores `& | ! : *` de tsquery) e `to_tsquery('portuguese', translate('t1 & ... & ultimo:*', ...))` — prefixo `:*` só no último token ('bers' â†' `bers:*`; 'breaking ba' â†' `breaking & ba:*`).
+- `montarTsqueryPrefixo(q)`: tokens sanitizados via `[\p{L}\p{N}]+` (neutraliza operadores `& | ! : *` de tsquery) e `to_tsquery('portuguese', translate('t1 & ... & ultimo:*', ...))` � prefixo `:*` só no último token ('bers' �' `bers:*`; 'breaking ba' �' `breaking & ba:*`).
 - Bônus de igualdade no rank: título que começa com o termo normalizado ganha +0.05 (match exato/prefixo de título na frente de match parcial de token). `plainto_tsquery('')` para query sem tokens (seguro).
 - translate() nos dois lados mantém a paridade de acentos (T223/D-224).
 
-**Verificação (DB real, API compilada):** 'bers'â†'Berserk, 'cher'â†'Chernobyl, 'duna'â†'Dune, 'brea'â†'Breaking Bad; query com operadores (`Breaking | Bad & ! : *`) sanitizada sem erro. Testes: 4 novos unit (prefixo, multi-token, SQL com `:*`, sanitização) + e2e web search prefixo (regressão). API 752/752.
+**Verificação (DB real, API compilada):** 'bers'�'Berserk, 'cher'�'Chernobyl, 'duna'�'Dune, 'brea'�'Breaking Bad; query com operadores (`Breaking | Bad & ! : *`) sanitizada sem erro. Testes: 4 novos unit (prefixo, multi-token, SQL com `:*`, sanitização) + e2e web search prefixo (regressão). API 752/752.
 
 ---
 
@@ -101,11 +101,11 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Sintoma (produção):** `PUT /api/v1/interacoes/:midiaId` retornava 400 `Validation failed at '': Invalid input: expected object, received string`; botão Quero ver/status quebrado; dashboard/perfil vazios por falta de interação persistida.
 
-**Diagnóstico (reproduzido em produção e no build compilado local):** o pipe `ZodValidationPipe` estava aplicado no **método** (`@UsePipes`), então o Nest validava TODOS os parâmetros — incluindo o `@Param("midiaId")` (string) — contra o schema `z.object` do body. O POST/PATCH funcionavam porque seus pipes já eram no parâmetro (`@Body(new ZodValidationPipe(...))`, padrão do watchlist PATCH).
+**Diagnóstico (reproduzido em produção e no build compilado local):** o pipe `ZodValidationPipe` estava aplicado no **método** (`@UsePipes`), então o Nest validava TODOS os parâmetros � incluindo o `@Param("midiaId")` (string) � contra o schema `z.object` do body. O POST/PATCH funcionavam porque seus pipes já eram no parâmetro (`@Body(new ZodValidationPipe(...))`, padrão do watchlist PATCH).
 
-**Correção (na ponta certa, sem afrouxar validação):** pipe movido para `@Body(new ZodValidationPipe(...))` em `interacoes.controller.ts` (PUT) e `relacoes.controller.ts` (POST `/midias/:id/relacoes` — mesmo bug de classe). O @Param string nunca mais é validado contra o schema do body.
+**Correção (na ponta certa, sem afrouxar validação):** pipe movido para `@Body(new ZodValidationPipe(...))` em `interacoes.controller.ts` (PUT) e `relacoes.controller.ts` (POST `/midias/:id/relacoes` � mesmo bug de classe). O @Param string nunca mais é validado contra o schema do body.
 
-**Extras:** store web mapeia erro 400 para mensagem amigável (Zod raw nunca aparece na UI; detalhe técnico fica no corpo + `X-Correlation-Id` + Sentry/log). Regressão: `test/interacoes-http.e2e.spec.ts` (HTTP) e `apps/web/e2e/watchlist-flow.spec.ts` (4 status + reação; vermelho em produção antes do deploy — prova que o spec detecta o bug).
+**Extras:** store web mapeia erro 400 para mensagem amigável (Zod raw nunca aparece na UI; detalhe técnico fica no corpo + `X-Correlation-Id` + Sentry/log). Regressão: `test/interacoes-http.e2e.spec.ts` (HTTP) e `apps/web/e2e/watchlist-flow.spec.ts` (4 status + reação; vermelho em produção antes do deploy � prova que o spec detecta o bug).
 
 ---
 
@@ -125,15 +125,15 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 ## [2026-08-13] Decisão: Sentry integrado (T293 / "Feito C" do Operador)
 
-**DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto — não é segredo.
+**DSNs configurados nas plataformas pelo Operador:** `NEXT_PUBLIC_SENTRY_DSN` (Vercel) e `SENTRY_DSN` (Railway). DSN é identificador público do projeto � não é segredo.
 
-**Decisão:** Sentry no free tier (5k erros/mês). Web via `@sentry/nextjs` (configs client/server/edge + `withSentryConfig`; sem DSN em dev, NO-OP — não quebra build/dev). API via `@sentry/node` v10 (tracing embutido; `@sentry/tracing` v7 deprecated NÃO é usado).
+**Decisão:** Sentry no free tier (5k erros/mês). Web via `@sentry/nextjs` (configs client/server/edge + `withSentryConfig`; sem DSN em dev, NO-OP � não quebra build/dev). API via `@sentry/node` v10 (tracing embutido; `@sentry/tracing` v7 deprecated NÃO é usado).
 
 **Integração:**
 - API: `initSentry()` em `main.ts` antes dos controllers; `GlobalExceptionFilter` captura 5xx com `correlationId`, `userId`, `path`, `method` e devolve `sentryEventId` no body; respostas de erro incluem `X-Correlation-Id`.
 - Web: `ErrorBoundary` reporta ao Sentry com tag `locale` e `correlation_id` (do último erro de API via `http.ts`), ligando UI → API.
 - Redação de PII: `beforeSend` redige Authorization/cookie/password/token (mesma política do Pino logger), em API e web.
-- Endpoint de teste `GET /api/v1/admin/sentry-test` (ADMIN-only, flag-gated `admin-sentry-test`, off por padrão) — valida o pipeline de ponta a ponta.
+- Endpoint de teste `GET /api/v1/admin/sentry-test` (ADMIN-only, flag-gated `admin-sentry-test`, off por padrão) � valida o pipeline de ponta a ponta.
 - Amostragem: sampleRate 1.0; tracesSampleRate 0.1 em produção (1.0 em dev).
 
 **Riscos residuais:** volume free tier (Open Beta cabe); revisão periódica dos eventos para ajustar redação se surgir novo tipo de PII.
@@ -144,7 +144,7 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Versão dos Termos publicada:** v1.0 (13/08/2026) em pt-BR, en-US e es-ES.
 
-**Decisão:** Os 3 documentos entregues pelo Operador são publicados como produto (páginas SSR `/terms` nos 3 locales), **sem os marcadores de revisão jurídica** (`[?? REVISAR COM ADVOGADO]` / `[?? REQUIRES LEGAL REVIEW]` / `[?? REQUIERE REVISIÓN LEGAL]`) — instrução do Operador: "Considere revisado com advogado". O aceite vira exigência de cadastro.
+**Decisão:** Os 3 documentos entregues pelo Operador são publicados como produto (páginas SSR `/terms` nos 3 locales), **sem os marcadores de revisão jurídica** (`[?? REVISAR COM ADVOGADO]` / `[?? REQUIRES LEGAL REVIEW]` / `[?? REQUIERE REVISI�N LEGAL]`) � instrução do Operador: "Considere revisado com advogado". O aceite vira exigência de cadastro.
 
 **Parâmetros finais travados:**
 - Idade mínima (Cláusula 3.2): **14 anos**.
@@ -154,11 +154,11 @@ Registro persistente do Discovery e de toda decisão técnica do projeto. Nova d
 
 **Implementação:** coluna `Usuario.termos_aceitos_em` (write-once no register; migration aditiva `20260813_termos_aceite`); `RegisterDto.aceitouTermos`; `auth.service.register` valida `aceitouTermos === true` (senão 422 `TERMS_NOT_ACCEPTED`) e persiste o timestamp; checkbox obrigatório no register (sem pré-seleção, submit desabilitado até marcar); LGPD export (`/user/data`) inclui o timestamp.
 
-**Conteúdo do texto (armazenamento):** via `messages/<locale>.json` no namespace `terms` (padrão já usado por `/privacy`), **não** em `public/docs/*.md` como listado na tarefa — decisão de implementação que mantém o padrão i18n do projeto.
+**Conteúdo do texto (armazenamento):** via `messages/<locale>.json` no namespace `terms` (padrão já usado por `/privacy`), **não** em `public/docs/*.md` como listado na tarefa � decisão de implementação que mantém o padrão i18n do projeto.
 
 **Observações:**
 - Placeholder `[domínio]` (e demais dados de negócio: e-mail, endereço, CNPJ, foro) permanece nos textos até o Operador fechar o domínio oficial (item 4 do PENDENCIAS_OPERADOR.md). Uma T307 curta substitui quando registrado.
-- Aceite em register social (Google/Apple) **não** implementado nesta tarefa — follow-up registrado: consentimento explícito em OAuth segue o padrão da plataforma social (documentar quando implementar).
+- Aceite em register social (Google/Apple) **não** implementado nesta tarefa � follow-up registrado: consentimento explícito em OAuth segue o padrão da plataforma social (documentar quando implementar).
 - Revisão jurídica externa recomendada para expansão UE ativa é decisão de negócio, não gate técnico.
 
 ---
@@ -716,24 +716,24 @@ Motivo: Crawl do Screaming Frog reportou 100% de páginas com noindex. Investiga
 
 ---
 
-## D-131 — Status real dos diferenciais competitivos (V1.3 §8)
+## D-131 � Status real dos diferenciais competitivos (V1.3 �8)
 
 **Data**: 2026-07-29
-**Status**: Locked — documentação interna apenas
+**Status**: Locked � documenta��o interna apenas
 
-NENHUM diferencial é comunicado externamente como "pronto" sem gate. Status real:
+NENHUM diferencial � comunicado externamente como "pronto" sem gate. Status real:
 
 | Diferencial | Status | Ressalva |
 |-------------|--------|----------|
-| Transparência de fontes (sources[].included/exclusionReason) | Especificado (§3.3, §3.5) | Não implementado/verificado no backend |
-| Confidence Score numérico (§3.4) | Especificado | Constantes (1000 votos, 3 fontes, etc.) são valores iniciais, não calibrados com dados reais |
-| Fórmula sem cancelamento algébrico (§3.1, v2) | Proposta | Pendente sign-off formal de governança (v1 com defeito segue locked até aprovação) |
-| Detecção de outlier determinística (§3.3b) | Especificado | Limiar de 3.0 pontos de desvio é valor inicial, não calibrado |
-| "Metodologia unificada" entre Filme/Série/Game | Impreciso | Função de cálculo é a mesma, mas estrutura não é simétrica: criticsScore sempre null para Filme/Série, só existe para Game (IGDB aggregated_rating). Comunicação de produto deve refletir essa assimetria, não implicar paridade total |
-| Versionamento (algorithmVersion) | Especificado | Convenção definida (§3.5); sem histórico real ainda — não há v1 rodando em produção para comparar |
-| algorithmVersion/confidenceScore na UI | Implementado | Só em tooltip técnico (<details>), NUNCA na UI principal (grep = 0) |
+| Transpar�ncia de fontes (sources[].included/exclusionReason) | Especificado (�3.3, �3.5) | N�o implementado/verificado no backend |
+| Confidence Score num�rico (�3.4) | Especificado | Constantes (1000 votos, 3 fontes, etc.) s�o valores iniciais, n�o calibrados com dados reais |
+| F�rmula sem cancelamento alg�brico (�3.1, v2) | Proposta | Pendente sign-off formal de governan�a (v1 com defeito segue locked at� aprova��o) |
+| Detec��o de outlier determin�stica (�3.3b) | Especificado | Limiar de 3.0 pontos de desvio � valor inicial, n�o calibrado |
+| "Metodologia unificada" entre Filme/S�rie/Game | Impreciso | Fun��o de c�lculo � a mesma, mas estrutura n�o � sim�trica: criticsScore sempre null para Filme/S�rie, s� existe para Game (IGDB aggregated_rating). Comunica��o de produto deve refletir essa assimetria, n�o implicar paridade total |
+| Versionamento (algorithmVersion) | Especificado | Conven��o definida (�3.5); sem hist�rico real ainda � n�o h� v1 rodando em produ��o para comparar |
+| algorithmVersion/confidenceScore na UI | Implementado | S� em tooltip t�cnico (<details>), NUNCA na UI principal (grep = 0) |
 
-"Metodologia unificada" entre Filme/Série/Game é IMPRECISO como comunicado antes. A função de cálculo é a mesma (globalScore = 0.5×critics + 0.5×audience ou único disponível), mas a ESTRUTURA não é simétrica: criticsScore é sempre null para Filme/Série (nenhuma fonte aprovada de crítica — §3.2) e só existe para Game (IGDB aggregated_rating). Comunicação de produto (marketing, pitch, docs públicas) deve refletir essa ASSIMETRIA, não implicar paridade total.
+"Metodologia unificada" entre Filme/S�rie/Game � IMPRECISO como comunicado antes. A fun��o de c�lculo � a mesma (globalScore = 0.5�critics + 0.5�audience ou �nico dispon�vel), mas a ESTRUTURA n�o � sim�trica: criticsScore � sempre null para Filme/S�rie (nenhuma fonte aprovada de cr�tica � �3.2) e s� existe para Game (IGDB aggregated_rating). Comunica��o de produto (marketing, pitch, docs p�blicas) deve refletir essa ASSIMETRIA, n�o implicar paridade total.
 ---
 
 ## [2026-08-03] Decisão: RAWG substituído por OpenCritic (fonte extinta)
@@ -873,10 +873,10 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T289 — tenant_id aditivo (multi-tenancy leve, Arquitetura §4)
+## [2026-08-11] T289 � tenant_id aditivo (multi-tenancy leve, Arquitetura �4)
 
 - tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001' adicionado em midia, watchlist_entry, discovery_event, classificacao_regiao, premio e temporada.
-- Default CONSTANTE por design: NOT NULL com default constante nao reescreve a tabela no PG11+ (custo ~zero agora, alto depois) — D-283/Arquitetura §4.
+- Default CONSTANTE por design: NOT NULL com default constante nao reescreve a tabela no PG11+ (custo ~zero agora, alto depois) � D-283/Arquitetura �4.
 - NENHUM filtro de tenant adicionado nas queries; tenant_id NUNCA exposto em respostas da API.
 - SEM indice em tenant_id (1 tenant unico ? seletividade inutil; evitaria custo de escrita).
 - RLS e filtros ficam para a T290, que exige aprovacao explicita do Operador (D-279) + premortem + teste de isolamento usuario A?B.
@@ -884,31 +884,31 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T291 — role CURATOR (Arquitetura §3)
+## [2026-08-11] T291 � role CURATOR (Arquitetura �3)
 
 - Nova role CURATOR: curadoria de conteudo (MediaRelation, Award, classificacao, genero) separada de ADMIN (sem acesso a usuarios/billing/flags).
-- Endpoints: POST /api/v1/curadoria/relacoes|premios|classificacoes|generos — @Roles('CURATOR','ADMIN'), Zod, audit_log em toda mutacao, rate limit 10/min por usuario.
-- Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; — ou via tooling admin futuro.
+- Endpoints: POST /api/v1/curadoria/relacoes|premios|classificacoes|generos � @Roles('CURATOR','ADMIN'), Zod, audit_log em toda mutacao, rate limit 10/min por usuario.
+- Como promover um usuario a CURATOR (processo manual, fora de endpoints): INSERT INTO usuario_papel (usuario_id, papel_id, atribuido_por) SELECT '<uuid>', id, NULL FROM papel WHERE nome = 'CURATOR'; � ou via tooling admin futuro.
 - Matriz de autorizacao testada: anonimo 401; FREE/PLUS/PREMIUM 403; CURATOR/ADMIN 200.
 - Promocao de role NUNCA via endpoint (elevation of privilege); curador nao acessa /admin/stats.
 
 ---
 
-## [2026-08-11] T292 — feature flags leves (Arquitetura §7)
+## [2026-08-11] T292 � feature flags leves (Arquitetura �7)
 
-- Decisao: tabela propria (feature_flags) AGORA, SEM servico externo (GrowthBook/Unleash) — evita infra/custo no estagio atual (billing apertado); reavaliar ferramenta self-host quando houver >10 flags ou multiplos times.
+- Decisao: tabela propria (feature_flags) AGORA, SEM servico externo (GrowthBook/Unleash) � evita infra/custo no estagio atual (billing apertado); reavaliar ferramenta self-host quando houver >10 flags ou multiplos times.
 - Avaliacao server-side unica e deterministica (hash usuarioId+key ? bucket estavel; anonimo usa IP-hash documentado); nunca exposta no frontend.
-- CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalidação de cache.
-- Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em preparação'), nunca 500.
+- CRUD somente ADMIN (/api/v1/admin/flags) com audit_log (actor + diff resumido) e invalida��o de cache.
+- Flag real: discovery-feed-v1 (enabled=true, rollout 100) controla GET /discoveries; off = lista vazia (estado 'em prepara��o'), nunca 500.
 - Cache Redis 60s; rollout_percent clampado 0-100; tenant_overrides JSONB validado como mapa booleano.
 
 ---
 
-## [2026-08-11] T290 — RLS aprovado (D-284) e implementado
+## [2026-08-11] T290 � RLS aprovado (D-284) e implementado
 
 - Aprovacao do Operador registrada (APROVO T290). Escopo: watchlist_entry/discovery_event (isolamento tenant+usuario), midia (SELECT publico por tenant; escrita CURATOR/ADMIN), classificacao/premio/temporada (escrita CURATOR/ADMIN).
 - Contexto por transacao via SET LOCAL (app.current_user_id/tenant_id/role); sem BYPASSRLS; seeds com bootstrap proprio (tenant default + ADMIN).
-- **Premortem (risco alto) e mitigações:**
+- **Premortem (risco alto) e mitiga��es:**
   1. Seed/job sem contexto falha ? mitigado: bootstrap em todos os seeds + teste;
   2. Query administrativa sem contexto retorna vazio ? mitigado: wire via comContextoRls nos servicos de watchlist/discovery/descobertas + auditoria listada no STATUS;
   3. Pooler reusa SET de sessao ? mitigado: SET LOCAL transacional (nao vaza);
@@ -918,37 +918,37 @@ CS = Cobertura x40 + Volume x30 + Concordancia x20 + Atualizacao x10
 
 ---
 
-## [2026-08-11] T299 — leituras agregadas/per-user sob RLS (D-285)
+## [2026-08-11] T299 � leituras agregadas/per-user sob RLS (D-285)
 
 - Excecao de LEITURA para ADMIN em watchlist_entry/discovery_event (policy watchlist_read_admin/discovery_read_admin, USING only; WITH CHECK de escrita permanece owner-only).
-- admin stats wireado via comContextoRls (role ADMIN + tenant default) — contagens nao-zero sob RLS.
-- recommendations leem usuario_midia_interacao (FORA do escopo RLS) + midia (SELECT publico com fallback do tenant default) — nao esvaziadas; teste sob RLS cobre admin stats.
+- admin stats wireado via comContextoRls (role ADMIN + tenant default) � contagens nao-zero sob RLS.
+- recommendations leem usuario_midia_interacao (FORA do escopo RLS) + midia (SELECT publico com fallback do tenant default) � nao esvaziadas; teste sob RLS cobre admin stats.
 - Deploy da migration RLS (20260811_rls + rls_leitura_admin) so apos R299 APPROVED + gatilho do Operador (D-284/D-285).
 
-- Spec rls-isolation: habilitação em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy — media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilitação CI volta quando T234 fechar.
+- Spec rls-isolation: habilita��o em CI via service postgres com 'prisma migrate deploy' fica BLOQUEADA pela T234 (ordem de migrations em DB virgem quebra o deploy � media_score_v3 antes de persistencia_avaliacoes). Justificativa drill-only documentada (D-285): o drill docker cobre A?B, ADMIN read, gates de escrita e rollback; a habilita��o CI volta quando T234 fechar.
 
 ---
 
-## [2026-08-11] T300 — cobertura RLS (D-286)
+## [2026-08-11] T300 � cobertura RLS (D-286)
 
 Relatorio de cobertura (models com FK usuario x RLS):
 - COM RLS (escopo D-284/D-285): watchlist_entry, discovery_event (isolamento tenant+usuario), midia (SELECT publico/escrita CURATOR/ADMIN), classificacao_regiao, premio, temporada (escrita CURATOR/ADMIN).
-- SEM RLS — tabelas de conta/billing/audit (Sessao, UsuarioPapel, UsuarioPlano, Fatura, EventoPagamento, ConsentimentoUsuario, PreferenciaUsuario, Notificacao, UsoDiario, AuditLog, Entitlement, PlanoEntitlement, ListaColaborativa): protegidas pela camada de sessao/auth (guards + owner-checks testados); FORA do escopo RLS aprovado (D-284) para nao duplicar a superficie de auth no banco.
-- **DECISAO — usuario_midia_interacao SEM policy RLS (excecao documentada):** a tabela alimenta o filtro COLABORATIVO de recommendations, que legitima ler sinais agregados de outros usuarios (anonimizado, sem PII). RLS por-usuario quebraria o core de recomendacao. A API de interacoes (upsert/list) ja impoe owner-only na camada de servico (testes verdes); leituras agregadas nao expoem PII. Ficam como superficie de isolamento: watchlist/discovery (RLS) + interacoes (app-layer). Se no futuro houver necessidade, adicionar policy com leitura agregada por role dedicada + drill.
+- SEM RLS � tabelas de conta/billing/audit (Sessao, UsuarioPapel, UsuarioPlano, Fatura, EventoPagamento, ConsentimentoUsuario, PreferenciaUsuario, Notificacao, UsoDiario, AuditLog, Entitlement, PlanoEntitlement, ListaColaborativa): protegidas pela camada de sessao/auth (guards + owner-checks testados); FORA do escopo RLS aprovado (D-284) para nao duplicar a superficie de auth no banco.
+- **DECISAO � usuario_midia_interacao SEM policy RLS (excecao documentada):** a tabela alimenta o filtro COLABORATIVO de recommendations, que legitima ler sinais agregados de outros usuarios (anonimizado, sem PII). RLS por-usuario quebraria o core de recomendacao. A API de interacoes (upsert/list) ja impoe owner-only na camada de servico (testes verdes); leituras agregadas nao expoem PII. Ficam como superficie de isolamento: watchlist/discovery (RLS) + interacoes (app-layer). Se no futuro houver necessidade, adicionar policy com leitura agregada por role dedicada + drill.
 - Auditoria concluida: nenhuma outra tabela com dado de usuario fora da classificacao acima.
 
 - [T301] Excecao da T300 FECHADA: usuario_midia_interacao com RLS owner-only + excecao FOR SELECT ADMIN (interacao_tenant_user/interacao_read_admin). Recommendations rodam o caminho agregado via comContextoRls(role ADMIN); interacoes via owner. 100% das tabelas de conteudo de usuario com RLS.
 
 ---
 
-## [2026-08-11] T296 — hero com identidade (Addendum 1) — verificacao
+## [2026-08-11] T296 � hero com identidade (Addendum 1) � verificacao
 
 - A hero ja entregue (T185/T273/T274) atende a identidade do Addendum 1: icones 3D-em-camadas por categoria (SVG inline, sem biblioteca 3D em runtime), gauge ciclico multi-midia com escalas nativas, prefers-reduced-motion respeitado, stats i18n (contagem real + NUM_FONTES_ATIVAS).
 - Verificacao T296 (SSR nos 3 locales + suites): hero renderiza em pt-BR/en-US/es-ES com o cluster de 6 icones; web 305/305; typecheck/lint limpos.
 - Baseline de performance (estrutural): LCP = h1 acima da dobra (texto estatico, sem fetch de imagem); icones = SVG inline (zero requisicoes); CLS controlado por dimensoes fixas em CSS do cluster; sem three.js/GSAP-runtime extra.
 - Escopo autorizado do Addendum 1: COMPLETO (hero + kanban + dashboard). Backlog de codigo zero; restam pendencias do Operador (billing/deploys) e pos-beta gated (T293 Sentry).
 
-- [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 — ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
+- [T304 runbook] Fixes de seed descobertos em producao: premio.id era string (UUID col) ? randomUUID + existe-check; seed:temporadas filtrava fonte='tmdb' mas as series sao 'tmdb_tv' ? in [tmdb, tmdb_tv]. Runbook: migration resolve (role_curator FAILED por E55P04 � ADD VALUE + INSERT na mesma transacao viola D-236; split em migrations irma) + placeholder 20260808_add_search_vector (renomeada apos aplicada) + deploy. Metadata seed: Duna mostra premio mas origem/classificacoes limitadas pelo take (best-effort).
 
 ---
 
@@ -1201,62 +1201,24 @@ reutilizou a senha; reportou com transparencia.
 **Reforca D-418** (padrao de manuseio de segredos do billing) e vira referencia para
 futuros scripts de provision/acesso a infra.
 
-## D-426 — F17 em estado consolidado: 6/8 tarefas [x]; T432/T433 condicionados a deploy Vercel e credencial de teste; revisão agregada pendente do teste ao vivo
+## D-431 — Marco consolidado da F17 (código mergeado; fechamento aguarda fatores externos)
 
 **Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
 
-**Contexto:** A F17-compliance-juridico está em estado consolidado: 6 tarefas aprovadas e mergeadas (T434, T435, T436, T429, T431, T437), cobrindo trial sem conversão automática, banner de trial encerrado, Termos P1/P2, e Política de Privacidade reescrita. T432 (Privacy Center) está com código aprovado mas [x] condicionado ao deploy web (limite Vercel). T433 (direitos LGPD) está com matriz de propagação aprovada mas [x] condicionado ao teste ao vivo, que requer credencial de conta verificada via env. O organismo fez tudo ao seu alcance; os 3 itens pendentes são função do Operador.
-
-**Decisão:** 1) F17 declarada CONSOLIDADA (não concluída): 6/8 tarefas [x]; 2 condicionadas a inputs do Operador. 2) Pendências do Operador formalizadas: (a) Vercel - aceitar atraso vs upgrade; (b) gate legal final - revisão por advogado; (c) credencial de conta de teste - `E2E_TEST_EMAIL` + `E2E_TEST_PASSWORD` como secret de env. 3) Organismo em standby aguardando: (i) deploy Vercel para prova de rede do T432; (ii) credencial de teste para teste ao vivo do T433. 4) Revisão agregada da F17 será emitida após o teste ao vivo do T433 fechar (com ou sem credencial - se o Operador não fornecer, o teste fica como residual documentado). 5) Não emitir novas tarefas; não perguntar ao Operador o que já foi decidido.
-
-**Justificativa:** O organismo entregou tudo ao seu alcance; os 3 itens pendentes são função exclusiva do Operador (custo/segredo real/gate legal). Revisão agregada só faz sentido com evidência completa.
-
-## D-427 — Auditoria atualizada (2 de setembro) recebida; melhorias reconhecidas; novos achados P0/P1/P2 emitidos como tarefas; teste de cookies em sessão limpa é P0 imediato mas depende do deploy Vercel
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Operador entregou auditoria atualizada reconhecendo melhorias materiais (Termos com CNPJ, trial sem conversão automática, Política com cookies/operadores/perfil/IA, banner com recusa, headers de segurança positivos) mas identificando novos achados P0: (1) inconsistência de cookies — `lgpd-consent-v1`=accepted no localStorage + checkboxes desmarcados + cookie `ph_*_posthog` acessível via `document.cookie` (não HttpOnly), sugerindo que PostHog pode estar carregando antes do consentimento ou o estado está inconsistente; (2) 'Grátis para sempre · Sem cartão' na landing não limitado ao Free; (3) cancelamento landing/FAQ (imediato) conflita com Termos 5.4 (fim do ciclo); (4) endereço físico completo e e-mail final não confirmados. P1: tabela completa de cookies, perfil de gosto/IA detalhado, registro granular de consentimento, auditoria de subprocessadores, testar /user/data.
-
-**Decisão:** 1) Reconhecer melhorias (D-427): Termos/Política/banner evoluíram significativamente; trial sem conversão automática (D-413) validado no texto. 2) Emitir lote de correções: T438 (teste de cookies em sessão limpa — P0 imediato, mas depende do deploy Vercel); T439 (harmonizar 'Grátis para sempre' + cancelamento — P0 textual, pode ser feito agora); T440 (tabela completa de cookies/operadores — P1); T441 (perfil de gosto/IA detalhado — P1); T442 (registro granular de consentimento — P1). 3) Ordem de execução: T439 agora (texto); T438 após deploy Vercel (teste técnico); T440/T441/T442 em sequência. 4) Deploy web permanece bloqueado pelo limite Vercel (pendência do Operador); as correções textuais vão ao ar no reset. 5) Registrar em DECISOES.md: D-427 (auditoria atualizada, melhorias + novos achados).
-
-**Justificativa:** Auditoria do Operador é hierarquia nível 0; os achados P0 textuais podem ser corrigidos imediatamente; o teste técnico de cookies depende do deploy (infra externa).
-
-## D-428 — Fix de localização do worker (process.cwd aponta para projeto errado) documentado em AGENTS.md; regra durável: sempre usar tools.* ou caminho absoluto, nunca caminho relativo
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Doer identificou que `process.cwd()` do worker de run_code aponta para 'D:\PROJETOS\Almanaque dos Clubes\Almanaque dos Clubes', mas o workspace de sessão é MEDIA Rate. Tentou `process.chdir()` mas o worker não suporta (`ERR_WORKER_UNSUPPORTED_OPERATION`). Solução: documentar em AGENTS.md (PR #69, c708e11) a regra durável de sempre usar `tools.*` (read/grep/glob/write que resolvem para o workspace correto) ou caminho absoluto com fs Node, nunca caminho relativo.
-
-**Decisão:** 1) Registrar D-428: fix de localização documentado em AGENTS.md como regra permanente de workflow. 2) Marcar T439 como DONE ([x]) — verificado via tools que já estava implementado. 3) Prosseguir com a ordem da D-427: T440 (tabela cookies/operadores) → T441 (perfil/IA detalhado) → T442 (registro granular consentimento). 4) Não emitir novas perguntas de sequência — a ordem já está decidida.
-
-**Justificativa:** Regra de workflow documentada previne classe de erro; T439 já completo; sequência já definida na D-427.
-
-## D-429 — T440 aprovado; prosseguir T441 → T442 na ordem da D-427 sem re-perguntar; Vercel resolvido (Operador aceitou o atraso)
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** T440 entregou o inventário de cookies/operadores com base legal (achado P1 da auditoria). A ordem da D-427 já está decidida: T441 (perfil/IA detalhado) → T442 (registro granular de consentimento). O Operador respondeu 'Aceitar' ao ESCALATE do Vercel, resolvendo essa pendência (o deploy web sai no reset ~24h). Restam como pendências do Operador: gate legal final e a credencial de teste para T433.
-
-**Decisão:** 1) T440 marcado [x]. 2) Doer executa T441 agora (perfil/IA detalhado: matriz de dados/fatores/base legal/retensão/contestação; explicar algoritmo de recomendação vs IA generativa — o produto usa o primeiro, não o segundo). 3) Depois T442 (`mr_consent` granular + `consent_logs` append-only + `/consent/history`). 4) Não re-perguntar sequência — já está decidida na D-427. 5) Vercel resolvido (aceitar atraso); pendências do Operador = 2 (gate legal + credencial T433).
-
-**Justificativa:** Autonomia e momentum: a sequência foi aprovada; re-perguntar desperdiça tempo. T441/T442 são conteúdo/i18n sem dependência de deploy.
-
-## D-430 — Marco consolidado da F17 registrado pelo Thinker: todo o código da D-427/D-430 mergeado; pendências = deploy Vercel, credencial de teste, gate legal
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** o Doer concluiu T443 (backend de consentimento) e verificou o estado consolidado da F17. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md é função do Thinker — o Doer escreve código e evidência, o Thinker escreve PLANO_MESTRE e DECISOES. Estado: todo o trabalho de código da D-427/D-430 está mergeado (T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-frontend · T443). Restam apenas fatores externos: deploy Vercel (T438 + prova de rede T432), credencial de teste (T433 + validação T443) e gate legal final (advogado).
+**Contexto:** o Doer concluiu T443 (backend de consentimento) e verificou o estado da
+F17. Todo o trabalho de código da D-427/D-430 está mergeado:
+T435 · T429 · T431 · T437 · T434 · T436 · T439 · T440 · T441 · T442-frontend · T443.
 
 **Decisão:**
 1. Registrar o marco consolidado da F17: código completo e mergeado; pendências apenas externas.
 2. T443 marcado [x] (código); fechamento completo após aplicação da migração pelo pipeline (Railway) + validação ao vivo.
-3. Reforçar a divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits (regra detalhada em D-431).
+3. Reforçar a divisão de escrita: Doer NÃO registra em DECISOES.md/PLANO_MESTRE.md (função do Thinker); Doer registra evidência em docs/ e commits.
 4. Quando os fatores externos resolverem: Doer roda T438 + prova de rede T432 (deploy Vercel) e T433 + validação T443 (credencial); então Thinker emite a revisão agregada final da F17.
 5. Pendências do Operador = 2 (credencial de teste + gate legal).
 
 **Evidência (T443):** Commit 3334cc0 (PR #73). ConsentLog append-only (categorias/versão/ts/idioma/país/ip_hash/usuario_id); migração aditiva 20260902000000_consent_logs; POST /api/v1/consent (rate limit 5/min); GET /api/v1/consent/history owner-only; consent.spec.ts 3/3.
 
-**Justificativa:** separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade e evita divergência de estado; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
+**Justificativa:** separar código (Doer) de registro de decisão/marco (Thinker) preserva a fonte única de verdade; o marco consolidado dá visibilidade honesta do que é código-feito vs externo-pendente.
 
 **Impacto:** F17 com estado consolidado documentado; organismo aguarda fatores externos para a revisão agregada final.
 
@@ -1268,18 +1230,10 @@ futuros scripts de provision/acesso a infra.
 - Doer: ao resolver, T433 + validação T443.
 - Thinker: revisão agregada final da F17.
 
-## D-431 — Divisão de escrita em arquivos de governança (DECISOES.md/PLANO_MESTRE.md): função do Thinker especificar, Doer materializar
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** ao concluir T443, o Doer perguntou se deveria registrar o estado consolidado da F17 no DECISOES. Conforme estabelecido (D-426 e resposta direta), registrar decisões/marcos em DECISOES.md e PLANO_MESTRE.md é função do Thinker — o Doer escreve código e evidência (docs/ e commits), e materializa as DECISÕES emitidas pelo Thinker; o Thinker especifica decisões e mantém a fonte única de verdade de governança.
-
-**Decisão:**
-1. DECISOES.md e PLANO_MESTRE.md são escritos pelo Thinker (registro de decisões/marcos/diretivas); o Doer NÃO os edita para registrar decisões.
-2. O Doer registra evidência técnica em docs/ e commits; o Doer materializa (por append não-destrutivo) as DECISÕES emitidas pelo Thinker no commit batched (evita novo gap de registro).
-3. Qualquer divergência de estado (código feito vs decisão registrada) é reportada ao Thinker para reconciliação, nunca resolvida pelo Doer por reescrita.
-
-**Justificativa:** separar especificação (Thinker) de materialização (Doer) preserva a fonte única de verdade, evita divergência de estado e mantém a trilha de decisão da fase auditável.
+**Nota de integridade (a registrar/sanar):** este arquivo DECISOES.md está com encoding misto/corrompido
+(UTF-8 válido em partes + bytes Latin-1/CP1252 e mojibake em outras), reportado como "invalid UTF-8"
+pela ferramenta de leitura, e carece das entradas D-426 a D-430. Registrado para tratamento próprio
+(repair com revisão humana/editorial) sem perda de conteúdo histórico. Não reescrever às cegas.
 
 ## D-432 — Incidente de integridade: DECISOES.md com encoding misto/corrompido e histórico desatualizado (lesson learned)
 
@@ -1307,451 +1261,3 @@ UTF-8 ao final), preservando o conteúdo histórico original.
 
 **Pendente:** repair controlado do DECISOES.md (human/editorial, sem perda de conteúdo) + preenchimento
 das decisões faltantes da F17; separado do fechamento técnico da F17.
-
-## D-433 — Reconciliação do DECISOES.md: backfill D-426→D-430 por append não-destrutivo + repair controlado de encoding (backup+diff) é tarefa do Doer (T444), não do Operador; pendências reais do Operador = 2 (credencial de teste + gate legal)
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Doer registrou D-431/D-432 por append e descobriu que o DECISOES.md perdeu D-426→D-430 (nunca materializados) e tem encoding misto/mojibake. A conduta de não reescrever às cegas está correta (§10.5: arquivos vencem; não destruir conteúdo decisório). Porém o backfill e o repair NÃO são pendência do Operador: o conteúdo de D-426→D-430 existe no exchange_log (fonte de verdade de eventos) e pode ser reconstruído; o repair de encoding é tarefa técnica controlada (backup + diff + validação UTF-8). O Operador só entra onde é função dele: credencial de teste e gate legal. O deploy Vercel auto-resolve (Operador já aceitou o atraso).
-
-**Decisão:**
-1) Emitir T444: Doer faz backfill de D-426→D-430 por append (reconstruindo do exchange_log, na ordem) + repair controlado de encoding com backup prévio e verificação por diff; só commitar se o diff mostrar normalização de encoding sem perda de linhas de conteúdo; se detectar perda → BLOCKED/ESCALATE.
-2) Reclassificar pendências do Operador para 2: (a) credencial de conta de teste (→ T433 + validação T443); (b) gate legal final (advogado).
-3) Remover da lista do Operador: backfill/repair (é do Doer) e deploy Vercel (auto-resolve, já aceito).
-4) Manter regra D-430: Thinker especifica decisões, Doer materializa; após T444, o Doer passa a materializar toda DECISAO emitida no próximo commit batched (evita novo gap).
-5) T443 permanece [x] código; fechamento completo após deploy+credencial.
-
-**Justificativa:** Restaurar a fonte única de verdade sem destruir conteúdo; não onerar o Operador com tarefa técnica que o organismo pode fazer com segurança (backup+diff).
-
-
-## D-434 — Texto canônico de D-426→D-430 fornecido pelo Thinker (extraído do transcript) para materialização no DECISOES.md
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Doer reportou que o backfill de D-426→D-430 é impossível com fidelidade porque o texto não existe no repositório (exchange_log.jsonl não as registrou, git history só tem D-431/D-432). As decisões foram emitidas pelo Thinker no chat mas nunca materializadas. O Doer corretamente recusou fabricar conteúdo decisório. O Thinker extrai o texto canônico do transcript e fornece para materialização por append não-destrutivo.
-
-**Decisão:** Fornecer o texto canônico de D-426→D-430 para o Doer materializar no DECISOES.md por append não-destrutivo. Cada decisão foi emitida no chat em momento específico e registrada no exchange_log conceitual (embora não no arquivo).
-
-## D-435 — Reconciliação D-430/D-431: fundir conteúdo (D-431 mais completo) no D-430; re-titular D-431 como divisão de escrita em arquivos de governança
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Doer identificou que D-430 e D-431 são quase-duplicados em substância (ambos 'marco consolidado da F17'). D-430 foi emitido primeiro; D-431 foi emitido depois com conteúdo adicional (backend de consentimento T443 + divisão de escrita). Pela regra não-destrutiva de T444, o Doer manteve ambos e reportou para o Thinker especificar a reconciliação.
-
-**Decisão:**
-1) Fundir o conteúdo de D-431 no D-430 (manter D-430 como o marco consolidado, mas com o conteúdo completo de D-431 que inclui T443 e a divisão de escrita).
-2) Re-titular D-431 como 'Divisão de escrita em arquivos de governança (DECISOES.md/PLANO_MESTRE.md): função do Thinker especificar, Doer materializar' — preservando a informação importante de D-431 sobre a divisão de responsabilidades.
-3) Doer executa a reconciliação (edição controlada, não-destrutiva) e commita.
-4) Após reconciliação, F17 está em estado consolidado completo, aguardando apenas fatores externos (deploy Vercel, credencial de teste, gate legal) para a revisão agregada final.
-
-**Justificativa:** Elimina quase-duplicação preservando toda a informação; D-430 fica como o marco consolidado definitivo; D-431 vira registro permanente da divisão de escrita (que é importante para governança futura).
-
-
-## D-436 — F17 em estado consolidado completo: código mergeado (T435→T443), DECISOES.md íntegro (D-425→D-434), pendências = fatores externos (deploy Vercel, credencial de teste, gate legal); revisão agregada final pendente
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** T444 completo: repair de encoding (UTF-8 válido, sem perda de conteúdo), backfill D-426→D-430 (append não-destrutivo), e reconciliação D-430/D-431 (fusão de conteúdo, re-titulação). DECISOES.md agora íntegro e completo (D-001→D-434). Código da F17 mergeado (T435→T443). Pendências restantes são todas fatores externos: deploy Vercel (auto-resolve em ~24h), credencial de teste (Operador), gate legal final (advogado).
-
-**Decisão:**
-1) T444 marcado [x] completo (repair + backfill + reconciliação).
-2) F17 em estado consolidado completo: código mergeado, DECISOES.md íntegro, pendências = fatores externos.
-3) Quando os fatores externos resolverem: Doer fecha T438 (teste cookies sessão limpa) + prova de rede T432 (após deploy Vercel); Doer fecha T433 (teste ao vivo direitos) + validação T443 (após credencial de teste); então Thinker emite a revisão agregada final da F17.
-4) Pendências do Operador = 2: (a) credencial de conta de teste (via env, sem chat); (b) gate legal final (advogado). Deploy Vercel auto-resolve.
-
-**Justificativa:** F17 com todo o trabalho de código e governança concluído; revisão agregada final só faz sentido com evidência completa (incluindo prova de rede e teste ao vivo).
-
-## D-437 — Flags do T445 decididos: unificação de escala 0–100 deferida para F18 (lote de produto com guardas visuais); guard do toggle anual agora (T447); rgpd-locale corrigido agora com whitelist de nomes de lei (T448)
-
-**Data:** 2026-09-02 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Doer entregou o T445 e trouxe 3 flags. (1) Escala: o FAQ agora é verdadeiro ('jogos e mangás 0–100, demais 0–10'), o que resolve a inconsistência textual apontada pela auditoria; a unificação total em 0–100 é mudança de produto com impacto visual amplo e possível implicação de normalização de dados (livros exibem escala 0–5/0–10) — merece lote dedicado, não mudança rápida dentro de uma fase de compliance. (2) Toggle anual: o código suporta STRIPE_PRICE_*_YEAR_* mas a existência das env/prices anuais é infra/negócio do Operador; sem eles o checkout anual quebraria — precisa de guarda defensiva agora. (3) rgpd-locale: o teste T248 ('en-US neutro') falha porque en-US menciona 'LGPD' — nome próprio de lei não é leak de i18n; o teste precisa de whitelist, preservando a detecção de leaks reais.
-
-**Decisão:**
-1) Escala: aceitar o FAQ corrigido como estado verdadeiro atual; DEFERIR unificação total 0–100 para F18 como tarefa de produto (verificar normalização armazenada por fonte, unificar display, guardas de regressão visual + gate visual do Operador) — registrar como candidato F18, não executar agora.
-2) T447 agora: guarda defensiva do toggle anual (env ausente → ocultar/desabilitar com fallback gracioso; nunca iniciar checkout anual sem price_ válido).
-3) T448 agora: whitelist de nomes próprios de leis/autoridades (LGPD/GDPR/AEPD/ANPD) no rgpd-locale.spec.ts, mantendo detecção de leaks reais de pt-BR; suíte volta a 321/321.
-4) ESCALATE ao Operador: decidir se quer vender plano anual (criar price_ anuais no Stripe + setar STRIPE_PRICE_*_YEAR_*); o guard do T447 reabilita o toggle automaticamente quando existirem.
-5) Após T447+T448: standby para fatores externos (deploy Vercel → T438/prova T432; credencial → T433/validação T443; gate legal).
-
-**Justificativa:** Separa o que é compliance (feito), o que é defesa imediata (T447/T448, pequenos e seguros) e o que é decisão de produto com impacto amplo (escala, F18) — evitando scope creep dentro da fase de compliance.
-
-## D-438 — Auditoria de 4-set (reverificação) triada pelo Thinker: identificação consistente; P0 consentimento granular já implementado (mr_consent) aguarda teste em sessão limpa (T438); P1 harmonização de Termos executada; endereço físico e prova de segurança = gate externo
-
-**Data:** 2026-09-04 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
-
-**Contexto:** O Operador entregou auditoria de reverificação (4 set 2026). Veredito: parcialmente adequado, sem conformidade plena (LGPD/CDC/GDPR). Identificação (END ART Studios, CNPJ 45.370.930/0001-75, Osasco, SP, endart.studios@gmail.com) consistente. Riscos remanescentes: P0 cookies/consentimento (checkboxes desmarcados + lgpd-consent-v1=accepted + ph_*_posthog); P1 endereço físico completo; harmonização de Termos (categorias progressivas vs seis; cancelamento); IA vs algoritmo; matriz de retenção/transferências; prova de segurança do backend; /user/data.
-
-**Decisão:**
-1) Identificação: consistente, sem ação de conteúdo; endereço físico limitado à cidade/estado é risco P1 → validar com advogado/contador (NUNCA inventar endereço).
-2) P0 consentimento: estado granular já implementado (mr_consent com categorias/versão/ts/idioma/país + limparResiduos remove lgpd-consent-v1 e ph_*); falta apenas teste em sessão limpa (T438, depende deploy Vercel) — o achado 'lgpd-consent-v1' é provável cookie stale de versão antiga, removido pelo limparResiduos.
-3) P1 harmonização de Termos: executada (4.1 seis categorias; 4.4 sem 'em breve'; 5.2 responsabilidade do MEDIA Rate perante o usuário; 5.4/5.5 cancelamento imediato + acesso até fim do ciclo, espelhando a landing).
-4) P1 IA: claims comerciais renomeadas para 'recomendações personalizadas' (T445); placeholder do assistente sem 'inteligência artificial' (corrigido); Política mantém disclaimer explícito (sem IA generativa).
-5) Itens que exigem input/validação externa ou lote dedicado (não executar às cegas): matriz de retenção/transferências por operador, prova de segurança do backend (auditoria independente), /user/data (T433 — credencial), licenças/atribuições (P2).
-
-**Justificativa:** Separa texto-harmonizável (executado) do que exige input do Operador/advogado ou prova técnica (externo), sem inventar endereço nem afirmações de segurança não demonstráveis.
-
-## D-439 — T029 auditoria image optimization: causa-raiz do consumo ~99% da cota Hobby (bots + variantes de runtime)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Dashboard Vercel (30d, ~4.969 transformações, 99% da cota de 5.000/mês): Cleveland (46,7%) + Washington (20,6%) ≈ 67% do consumo em edges EUA vs São Paulo 17,4%; picos discretos single-region. Baseline ~165/dia, picos 700–790.
-
-**Achados (file:line):**
-1) H1 crawlers — SUPERFÍCIE ABERTA: `apps/web/src/app/robots.ts:3-14` permite `*` em `/` (só bloqueia `/api/`); sem regras para bots de IA nem para `/_next/image`/`/_vercel/image`. `apps/web/src/app/sitemap.ts:37-46` expõe 1 URL por slug × 3 locales.
-2) H2 variantes — OTIMIZAÇÃO 100% RUNTIME: `apps/web/next.config.ts:27-46` só define `remotePatterns` (sem `deviceSizes`/`imageSizes` → defaults do Next); cards com `sizes` responsivo (`MediaCard.tsx:245`, `MediaCardShell.tsx:176`); hero `sizes="100vw"` + `priority` (`MediaDetailClient.tsx:155-163`); upload persiste o original sem variantes (`apps/api/src/modules/upload/upload.service.ts:71-80`, limite 5 MB — não 50 MiB; sem `sharp` em `apps/api/package.json:44-74`); `unoptimized` inconsistente (presente em `MediaCardShell.tsx:181-183`, ausente em `MediaCard.tsx:359-368` e demais). Comentário no Shell cita erro 402 do otimizador — cota já mordendo produção.
-3) H3 query strings dinâmicas — REFUTADA: `src` vem direto do campo imagem sem `?v=`/`Date.now` (só normalização `%25→%`, `MediaCard.tsx:339`).
-4) H4 previews/SSG — CORREÇÃO AO PLANO: `apps/web/vercel.json:1` sem proteção via código (Deployment Protection só verificável no dashboard); único `generateStaticParams` é o de locales (`app/[locale]/layout.tsx:66-68`) — páginas de mídia são dinâmicas, não 47 SSG; multiplicador real = sitemap × 3 locales.
-
-**Decisão:** H1 + H2 como co-causas; sequência T030 (robots por bot + noindex previews) → T032 (tokens deviceSizes/imageSizes + padronizar unoptimized) → T031 (sharp no upload, com desenho de backfill do acervo remoto TMDB/IGDB) → T033 (runbook semanal). Meta: <20/dia (~600/mês). IDs sugeridos pelo Thinker (D-018/019/020) colidem com a numeração vigente (último D-438) → registrados como D-439/440/441.
-
-**Verificado:** auditoria por leitura direta de fonte (grep/read); sem alteração de código neste commit.
-
-## D-440 — T030 robots por bot (grupos A/B): crawlers de IA bem-comportados fora das imagens, SEO preservado
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** D-439/H1: `robots.ts` permitia `*` em tudo exceto `/api/`; crawlers de IA varrendo páginas/imagens explicam ~67% do consumo em edges EUA.
-
-**Decisão:**
-1) Grupo A (treino — GPTBot, CCBot, ClaudeBot, anthropic-ai, Google-Extended, meta-externalagent, Bytespider, Applebot-Extended): `Disallow: /`.
-2) Grupo B (busca com IA — PerplexityBot, Amazonbot, YouBot, cohere-ai): `Disallow: /api/, /_next/image, /_vercel/image` (`/api/` incluído para o grupo não ficar mais permissivo que a regra genérica).
-3) Regra genérica preservada (`allow /`, `disallow /api/`); Googlebot/Bingbot sem bloqueio de imagens.
-4) robots.txt é consultivo — sucesso = queda no dashboard em 7 dias (baseline ~165/dia, meta <20/dia), não promessa de bloqueio total.
-
-**Verificado:** `apps/web/test/robots.spec.ts` 4/4 (TDD: red antes, green depois); `npm run build` OK em apps/web.
-
-## D-441 — T030 noindex em previews via VERCEL_ENV (header X-Robots-Tag)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Previews `*.vercel.app` têm cache próprio de imagens; varredura de preview re-paga o warm-up (H4 do D-439). `apps/web/vercel.json` não oferece proteção via código.
-
-**Decisão:** `apps/web/src/middleware.ts` emite `X-Robots-Tag: noindex` somente quando `process.env.VERCEL_ENV === "preview"`; nunca sobrescreve o header mais forte das rotas privadas; produção intacta. `curl -sI` em preview (presente) vs produção (ausente) fica como verificação pós-deploy do Operador.
-
-**Verificado:** `npm run build` OK; CSP inalterada.
-
-## D-442 — T034 amenda status.schema.json: evidencia vira oneOf [objeto, array] + validador alinhado
-
-**Data:** 2026-09-06 · **Fase:** F00-setup · **Status:** REGISTRADA
-
-**Contexto:** Contradição real entre governanças: `.kilo/schemas/status.md:10` documenta `evidencia` objeto; `.claude/schemas/status.schema.json` exigia array; o exemplo do PROMPT_SIMBIOSE usa objeto. Handoffs em array validavam OK contra o arquivo.
-
-**Decisão:**
-1) `evidencia` = oneOf [evidenciaItem, array minItems 1 de evidenciaItem] via `definitions` (condicionais allOf preservados nas duas formas); required inalterado.
-2) `validar_status.py` normaliza objeto→lista nas regras cruzadas (iterar dict quebrava); integrity suite estendida ([5b/6]) sem quebrar asserts; bônus: [5/6] agora acumula erros (o `all_errors.extend` faltante fazia falha do validator passar batida).
-3) Envelope: transporte no chat = {sync, evento, payload}; payload mantém `sync` (required — removê-lo quebraria "manter required atuais"); `tentativas` passa a constar nos STATUS.
-4) Nota factual: R029/R030 descrevem o schema com `tentativas` required, `evidencia` objeto e additionalProperties:false — nenhuma dessas cláusulas existe no arquivo em disco (leitura direta + `git log`: última mudança T297/`406210f`; `review.schema.json` não existe no repo). Os STATUS array de T029/T030 validavam OK; o oneOf resolve a divergência doc×arquivo para o futuro.
-
-**Verificado:** integrity suite verde (inclui [5b/6] objeto+array, TDD red→green); STATUS T029/T030 reemitidos com tentativas:1 validam OK.
-
-## D-443 — Rulings dos desvios de T030 (1–6): todos aceitos
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Doer reportou 6 desvios no STATUS T030; Thinker aceita todos.
-1) Teste em `apps/web/test/robots.spec.ts` (vitest include só cobre `test/**`) — aceito.
-2) D-439/440/441 em vez de D-018/019/020 (colisão) — aceito.
-3) Grupo B inclui `/api/` (evita regra mais permissiva que `*`) — raciocínio correto.
-4) `next-env.d.ts` unstaged (gerado) — procedimento certo.
-5) Warning middleware→`proxy` (Next 16) — candidato registrado, sem tarefa (vira TAREFA se virar risco de build; sem scope creep).
-6) `curl` preview/production no Operador ([8]) — fecha o loop.
-
-**Decisão:** Desvios 1–4 e 6 incorporados como precedente; item 5 monitorado.
-
-## D-446 — T031: sharp somente onde possuímos os bytes; remoto usa escadas nativas (T036)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Upload local cobre fração do acervo; maioria é remota (TMDB/IGDB/OpenLibrary).
-
-**Decisão:** sharp gera variantes (320/640/960 WebP q75) só no upload + backfill idempotente do storage próprio. Backfill do acervo remoto NÃO será proxy/ingest (fronteira SSRF + custo de storage sem necessidade): TMDB/IGDB/OpenLibrary já expõem escadas nativas (`w342/w780`, `t_300/t_720`, `-S/-M/-L`), que viram srcset com `unoptimized` na T036.
-
-**Verificado:** em T031 (upload) e T036 (remoto).
-
-## D-447 — T036: remoto usa ladders nativas das fontes + helper único
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** D-446: remoto não passa pelo upload; TMDB/IGDB/OpenLibrary/Google Books têm escadas nativas de tamanho.
-
-**Decisão:** `remoteLadder(src)` em `lib/image-policy.ts` deriva srcset das escadas nativas (TMDB w342/w780 + original; IGDB t_cover_small/big/2x; OpenLibrary -S/-M/-L; Google Books `books.google.com/books/content` via param zoom) + `<img>` estático; sem ladder pública → `next/image` com `unoptimized` (fallback); token `books.google` absorve o gap do TDD de T032.
-
-**Verificado:** em T036 (spec + build + srcset).
-
-## D-448 — sharp 0.35.4 (bump por segurança)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** sharp 0.34.5 carrega CVEs HIGH em libvips (audit).
-
-**Decisão:** Pinar `sharp@0.35.4` em apps/api (+ `allowScripts` raiz); prebuilt musl compatível com o Dockerfile multi-stage (node:20-alpine).
-
-**Verificado:** em T031 (audit HIGH do sharp zerado; suíte 23/23 em 0.35.4).
-
-## D-449 — `<img>` estático com srcset é mais forte que `unoptimized` em `next/image`
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** `next/image` não aceita `srcSet` customizado (TS2322 quebrou o build de T031).
-
-**Decisão:** Fontes com ladder (local T031, remotas T036) renderizam `<img>` com srcset derivado — zero passagem pelo otimizador runtime, mais forte que `unoptimized`.
-
-**Verificado:** em T031 (build verde após a troca).
-
-## D-450 — Ladder local usa `withoutEnlargement` (clamp), não "pula maiores"
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Spec mandava pular rungs maiores que o original; ladder parcial + srcset derivado pelo frontend = 404 em originais pequenos.
-
-**Decisão:** Rungs acima do original são clamped às dimensões reais (nunca upscale); ladder sempre completa, derivação nunca gera 404. Voltar a "pular" exige srcset dirigido pela API (escopo maior, postergado).
-
-**Verificado:** em T031 (teste de clamp 500px + ladder completa).
-
-## D-451 — 4 HIGH pré-existentes em deps registrados como T037
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Audit pós-T031: `deepmerge-ts` (via prisma major) + `fast-uri` (via ajv chain) seguem HIGH; fixes são breaking.
-
-**Decisão:** Registrar como T037 (baixa prioridade); fora de escopo da Fase 10. O HIGH do sharp foi zerado em T031.
-
-**Verificado:** em T037.
-
-## D-469 — T041 PARCIAL: PR existe, checks vermelhos herdados vetam merge
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** PR #74 open e mergeável tecnicamente; 5 jobs vermelhos com causas no main (worktree + npm ci fresco).
-
-**Decisão:** `[~]` até T042; D-468 (nada mergeia com red) mantido.
-
-## D-470 — PROPOSTA_DOER de CI-repair aprovada (T042)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** CI-repair é herança, não produto; permissão para CI infra concedida.
-
-**Decisão:** Escopo fechado (lint --fix, prisma generate, CodeQL/ZAP cirúrgicos); urgência máxima.
-
-## D-471 — GITHUB_TOKEN inválido para gh CLI (P010, Operador rotaciona)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** 4 tentativas documentadas; API REST em modo leitura usada sem exibir/persistir.
-
-**Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
-
-## D-481 — Causa raiz do gh CLI: GITHUB_TOKEN de sessão sombreava keyring
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** `gh auth status` falhava com token inválido apesar de login válido no keyring.
-
-**Decisão:** Causa = `GITHUB_TOKEN` inválido (40 chars) injetado só no escopo Process (precedência sobre keyring); workaround por comando (unset em sessão), zero mudança persistente, nenhum segredo exibido. P010 reescrito: rotacionar/remover o token na ORIGEM (harness/provedor) — o keyring já basta.
-
-## D-482 — Gate de merge refinado: E2E é não-bloqueante por design
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** `ci.yml` marca o job E2E com `continue-on-error` ("nao bloqueia merge ainda").
-
-**Decisão:** Bloqueantes = Lint & Audit, Test & Coverage, RLS, Build, Stryker, CodeQL, ZAP. Exceção dura: E2E atribuído ao diff da Fase 10 veta o merge até correção (T044 verifica).
-
-## D-483 — Efetividade do P012 não verificada
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Checks seguiram vermelhos após o re-run pós-P012.
-
-**Decisão:** Suposição não é evidência: T044 confirma via API (permissions efetivas) e logs atuais antes de nova hipótese.
-
-## D-463 — Gate próprio zero-dep aceito (npm não tem allowlist por advisory)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Restrição de T039 proibia ferramenta externa; npm não oferece allowlist por advisory.
-
-**Decisão:** `scripts/audit-ci.mjs` (node puro) honra o espírito (zero supply chain nova); cirurgia provada nos dois sentidos.
-
-## D-464 — Timebox 40/15 de T039 por sub-classificação do spec
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Infra de CI com lógica recursiva e debug cross-platform é esforço medio.
-
-**Decisão:** Sem penalidade; calibrar specs futuros.
-
-## D-465 — Governança da exceção: editar auditAllowlist exige trilha
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Exceção sem trilha apodrece em silêncio.
-
-**Decisão:** Qualquer edição em `config.auditAllowlist` exige referência em `DECISOES.md` + entrada na revisão trimestral (primeira 2026-12); sem trilha vira `SECURITY_FINDING`.
-
-## D-462 — Operador aceita risco residual deepmerge-ts (P009) com exceção de CI
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** T037 PARCIAL: cadeia `deepmerge-ts<8.0.0` sem fix sem major; Operador escolheu opção 1.
-
-**Decisão:** Aceite do risco residual com exceção de CI documentada (T039), revisão trimestral no runbook T033 e referência explícita no ci.yml. Prisma major adiado indefinidamente.
-
-## D-458 — T037 fica `[~]`: `[x]` exige audit verde ou aceite formal
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** R037 APPROVED certifica execução/análise de T037, mas o HIGH residual segue.
-
-**Decisão:** Plano recebe `[~]` até o Operador aceitar o risco (com exceção de CI documentada) ou autorizar T039-prisma-major. Gate não se maquia.
-
-## D-459 — Timebox 45/30 de T037 aceito excepcionalmente
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Veredito alcançado dentro da janela; excedente foi verificação integral.
-
-**Decisão:** Aceito nesta rodada; regra de decompor mantida para o futuro.
-
-## D-460 — 6 testes falhando = bloqueador #2 de merge (T038)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Job test do ci.yml ficaria vermelho: data hardcoded + mock sem `count`.
-
-**Decisão:** T038 corrige só em arquivos de teste; P009 + T038 são o caminho crítico do merge.
-
-## D-452 — Regra de sweep: importador vivo de next/image com src remoto entra; morto não se toca
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** T036 converteu 9 componentes vivos; `ScoreShowcase` (morto, T415) ficou intocado.
-
-**Decisão:** Todo importador vivo de `next/image` com src remoto entra no sweep de bypass; código morto não se toca.
-
-## D-453 — Ladders reais da IGDB (correção de spec por evidência)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Spec de T036 citava `t_300/t_720/t_1080p`, inexistentes na API IGDB (evidência: `seed-posters.ts:138-141` + D-262).
-
-**Decisão:** Valem `cover_small/cover_big/cover_big_2x` + legado `t_thumb`; evidência do Doer vence spec, como deve ser.
-
-## D-454 — `[x]` antes de APPROVED é violação de ordering
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** T036 marcada `[x]` antes do REVIEW.
-
-**Decisão:** Sanado por R036 nesta rodada; recorrência = REJECTED + TAREFA de correção.
-
-## D-455 — Hero/backdrop permanece no rung original
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** Ladder 342/780 sub-resolveria 100vw full-bleed.
-
-**Decisão:** Backdrop usa o original estático (qualidade máxima, zero transformação).
-
-## D-456 — 4 HIGHs de deps são bloqueador de merge (ci.yml lint-audit)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** `deepmerge-ts` + `fast-uri` quebram o job lint-audit do CI.
-
-**Decisão:** T037 com prioridade máxima apesar de dívida pré-existente; sem majors; se inzerável, PARCIAL + escalonamento (aceite de risco = Operador).
-
-## D-457 — T037: HIGHs sem major zerados; deepmerge-ts residual documentado (PARCIAL)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** ci.yml lint-audit (`npm audit --audit-level=high`, `.github/workflows/ci.yml:94-95`) bloqueava o merge do pacote Fase 10.
-
-**Rulings por dependência (sem majors, só patch/minor via npm):**
-1) fast-uri 3.1.5→3.1.7 / 4.1.2→4.1.4 (`npm update`, dentro dos ranges ajv ^3.0.1 / fast-json-stringify ^4.0.0) — HIGHs zerados.
-2) browserslist 4.28.6→4.28.9, qs 6.15.3→6.16.0, sanitize-html 2.17.6→2.17.7 (`npm audit fix` sem --force) — zerados.
-3) deepmerge-ts <8.0.0 (GHSA-ggr8-5vv4-36mx, stack exhaustion): RESIDUAL. Fix exige prisma major/downgrade (breaking); override para 8.x sob pin exato 7.1.5 do @prisma/config = major transitivo não testado. Alcance: só via CLI `prisma` (@prisma/config, devDependency de build/migrate/seed com inputs do repo); runtime `@prisma/client` não carrega o pacote; nenhum request o alcança. Runner copia node_modules cheio (sem prune) — endurecer com prune é follow-up de deploy, não T037.
-4) Efeito colateral: churn do npm expôs fragilidade latente (`sharp.Metadata` vs tipos ESM-first do sharp 0.35, TS2503) — corrigido com import nominal de tipo, sem mudança de comportamento.
-
-**Verificado:** em T042 (lint 0 erros, builds, suites, audit gate, docs, diff, P012 não-verificado por API, codificação de erros CI categorizados, DAST e SAST com vereditos + ações atribuídas); PR #74 (`MERGEABLE`); T043 (`PENDENTE` — `espec` não recebida); T045 (`candidato` — `E2E` `a11y` `pre-existente`).
-
-## D-484 — P012 CONFIRMADO: Workflow permissions `Read and write permissions` (evidência: screenshot do Settings)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA (Operador, evidência visual)
-
-**Contexto:** P012 (`permissions` `UI`/`re-run` `ZAP`) não era verificável por `gh api` (conta `usuário`, `org` `404`, campo `permissions` `null`).
-
-**Evidência (screenshot anexado pelo Operador):** `github.com/ENDARTStudios/MEDIA-Rate/settings/actions` → seção `Workflow permissions` → radio `"Read and write permissions"` selecionado (não `"Read repository contents and packages permissions"`); checkbox `Allow GitHub Actions to create and approve pull requests` selecionado; `Save` aplicado; página `Status` mostra o `token` `ENDARTStudios` (`scopes`: `repo`, `workflow`) e `repo view PRIVATE`.
-
-**Decisão:** P012 `CONFIRMADO` com evidência visual; P013 reduz a `GHAS` `exclusivo` (`repo` `privado` `sem` `Advanced Security` confirmada via API `security_and_analysis.*: null`). Se `CodeQL` `vermelho` persistir após `merge`, a exceção `formal` (`D-472` `P013`: aceitar `vermelho` `documentado` `ou` `T039-prisma-major` `breaking`) é acionada, não `silenciada`.
-
-## D-472 — T042: gate audit-ci + CI-repair (P013: CodeQL/ZAP; P012: não verificável; P011: vazio; T045: E2E a11y)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** CI #74 verde: lint-audit, test, RLS, build, Stryker; falhas herdadas: CodeQL (GHAS), ZAP (WARN+permissions), E2E a11y (não-blocante, candidato T045). Nenhuma causada pela Fase 10.
-
-**Veredito (por job, com evidência de log):**
-1) Build — VERDE (`tsc -p tsconfig.json --noEmit` via `npm run build` local OK).
-2) Lint & Audit — VERDE (`audit:ci` OK via allowlist; lint 0 erros pós --fix; `console` em `scripts/*.mjs` resolvido via globals por arquivo no `eslint.config.mjs`).
-3) Test & Coverage — VERDE (api 849/849 pós-rebase + generate; web 347/347).
-4) RLS Isolation — VERDE (prisma generate adicionada ao job).
-5) CodeQL — VERMELHO (repo-level; não fixável pela branch): conta usuário (`ENDART`), repo privado sem Advanced Security (`security_and_analysis.*: null`); upload de results do analyze requer GHAS. Ação: P013 — Operador habilita GHAS ou aceita vermelho documentado.
-6) ZAP — VERMELHO por duas causas (não por T042): alvo corrigido (URL real do bot Vercel); spider PASS:55; mas `WARN-NEW: 15` (info-disclosure, CSP wildcard, permissions-policy, COEP, Base64 Disclosure, Cross-Domain, Auth Request, Sec-Fetch-Dest, Missing) + `fail_action: true` = falha; `Resource not accessible` na criação de issue (mesma causa de permissão do CodeQL). Ações: P012 (permissions de job) cobre (2); política para WARN (aceitar produto ou corrigir em T045) é do Thinker.
-7) E2E Playwright — VERMELHO mas NÃO-BLOQUEANTE (D-482; `continue-on-error`). Falhas: `MISSING_MESSAGE auth.passwordStrong` (ruído de console) + `color-contrast` (nós de texto pré-existentes) + timeouts (`networkidle`). Nenhum mecanismo ligando `<img>`/ladder/contrast. Ação: T045 (se considerado regressão; senão, aceitar como a11y herdado em produto já existente).
-8) Stryker Mutation — VERDE (skipped/success).
-
-**P012 (permissions efetivas):** não confirmável via `gh api` (conta usuário, endpoint org 404, campo permissions `null`). Veredito: P013 cobre o lado técnico; o Operador confirma via UI (repo Settings → Security → Code scanning / Actions permissions) e envia screenshot para o STATUS final da fase.
-
-**P011 (URL ZAP):** vazio — corrigido em T042 para o padrão real do bot (`media-rate-git-<branch>-...`); o caso `preview-*` nunca resolveu no ambiente deste testador. Nenhuma secret nova é necessária.
-
-**Ações do Operador:** P009 (token) rotacionado; P010 (origem do harness) removida; P011 vazio; P012 (UI); P013 (GHAS ou aceite documentado); após merge, pacote [8] (curl robots.txt + `X-Robots-Tag` + srcset + dashboard 7 dias).
-
-**Verificado:** PR #74 `MERGEABLE`; `git push` com `gh-safe`; `worktree` `origin/main` + `npm run lint` zero; `npm audit` (`audit:ci`) zero HIGH/crítico fora da allowlist governada.
-
-**Nota governança:** `[x]` de T039 só após P009/P010/P011/P012/P013 resolvidos (ciclo completo); `[~]` atual (D-458) válido; T045 candidato quando a11y herdada for tratada.
-
-## D-444 — Handoffs validam contra o schema do repositório (arquivos vencem, §3)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** R029/R030 rejeitaram STATUS contra o schema do template de bootstrap (KB), não contra o arquivo em disco — que nunca teve `tentativas` em required, `evidencia: object` ou additionalProperties:false (D-442 §4). O "validator: OK" do Doer estava correto desde o início.
-
-**Decisão:** Arquivos vencem (§3); bootstrap/KB é template, não verdade operacional; R029/R030 superseded por R031/R032.
-
-## D-445 — Tokens de imagem + helper único de unoptimized (spec T032)
-
-**Data:** 2026-09-06 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** D-439/H2: defaults do Next (16 larguras) + `unoptimized` inconsistente entre componentes.
-
-**Decisão:** Travar `deviceSizes [320, 640, 960, 1280, 1920]`, `imageSizes [64, 128, 256]`, `formats ['image/webp']`, `qualities [75]` no `next.config.ts`; helper único `isUnoptimizedSource(src)` em `lib/image-policy.ts` (hosts: anilist, openlibrary, myanimelist, comicvine, googlebooks) aplicado nos 6 componentes; sem novos domínios; sizes/priority/layout intactos.
-
-**Verificado:** em T032 (test + build + srcset).
-
-## D-469 — T041 PARCIAL: PR existe, checks vermelhos herdados vetam merge
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** PR #74 open e mergeável tecnicamente; 5 jobs vermelhos com causas no main (worktree + npm ci fresco).
-
-**Decisão:** `[~]` até T042; D-468 (nada mergeia com red) mantido.
-
-## D-470 — PROPOSTA_DOER de CI-repair aprovada (T042)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** CI-repair é herança, não produto; permissão para CI infra concedida.
-
-**Decisão:** Escopo fechado (lint --fix, prisma generate, CodeQL/ZAP cirúrgicos); urgência máxima.
-
-## D-471 — GITHUB_TOKEN inválido para gh CLI (P010, Operador rotaciona)
-
-**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
-
-**Contexto:** 4 tentativas documentadas; API REST em modo leitura usada sem exibir/persistir.
-
-**Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
-
