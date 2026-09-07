@@ -1,5 +1,6 @@
 // T039/D-462 — gate de audit com allowlist cirúrgica (sem better-npm-audit).
 // Uso CLI: npm run audit:ci  (job lint-audit do ci.yml).
+/* global console: readonly */
 // Lê `npm audit --json` e falha se houver high/critical NÃO allowlistado.
 // Allowlist: package.json → config.auditAllowlist [{ ghsa, motivo, revisao }].
 // T040: regra pura exportada (ghsaDe/permitido/filtrarBloqueantes) para o

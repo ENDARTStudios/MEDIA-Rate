@@ -20,7 +20,7 @@ function cadeiaReal() {
   return {
     "deepmerge-ts": { severity: "high", range: "<8.0.0", via: [advisory(GHSA_OK)] },
     "@prisma/config": { severity: "high", range: "6.x", via: ["deepmerge-ts"] },
-    prisma: { severity: "high", range: "6.x", via: ["@prisma/config"] },
+    "prisma": { severity: "high", range: "6.x", via: ["@prisma/config"] },
   };
 }
 
@@ -31,7 +31,7 @@ describe("audit-ci gate (T040)", () => {
 
   it("GHSA próprio NÃO allowlistado bloqueia (CVE futuro distinto)", () => {
     const vulns = {
-      prisma: {
+      "prisma": {
         severity: "high",
         range: "6.x",
         via: [advisory("GHSA-xxxx-yyyy-zzzz"), "@prisma/config"],
@@ -50,7 +50,11 @@ describe("audit-ci gate (T040)", () => {
 
   it("pai limpo ausente do mapa é neutro", () => {
     const vulns = {
-      "deepmerge-ts": { severity: "high", range: "<8.0.0", via: [advisory(GHSA_OK), "ferramenta-limpa"] },
+      "deepmerge-ts": {
+        severity: "high",
+        range: "<8.0.0",
+        via: [advisory(GHSA_OK), "ferramenta-limpa"],
+      },
     };
     expect(permitido(vulns, allow, "deepmerge-ts")).toBe(true);
   });
@@ -75,15 +79,19 @@ describe("audit-ci gate (T040)", () => {
 
   it("severidade moderate é ignorada pelo gate", () => {
     const vulns = {
-      qs: { severity: "moderate", range: "6.x", via: [{ ...advisory(GHSA_OK), severity: "moderate" }] },
+      qs: {
+        severity: "moderate",
+        range: "6.x",
+        via: [{ ...advisory(GHSA_OK), severity: "moderate" }],
+      },
     };
     expect(filtrarBloqueantes(vulns, allow)).toEqual([]);
   });
 
   it("ghsaDe extrai só GHSAs de objetos com url", () => {
-    expect(ghsaDe(["pai-limpo", { url: "https://github.com/advisories/GHSA-aaaa-bbbb-cccc" }, 42])).toEqual([
-      "GHSA-aaaa-bbbb-cccc",
-    ]);
+    expect(
+      ghsaDe(["pai-limpo", { url: "https://github.com/advisories/GHSA-aaaa-bbbb-cccc" }, 42]),
+    ).toEqual(["GHSA-aaaa-bbbb-cccc"]);
     expect(ghsaDe([])).toEqual([]);
   });
 });
