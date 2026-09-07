@@ -145,6 +145,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
       - run: npm ci
+      # T042: gera o Prisma Client explícito (o postinstall do @prisma/client
+      # gera um stub oco sem --schema → tsc falha com TS2694/TS2305/TS7006 em
+      # cascata; mesma causa raiz dos jobs test/RLS).
+      - name: Prisma generate
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
       - name: Build API
         working-directory: apps/api
         run: npx tsc -p tsconfig.json --noEmit
