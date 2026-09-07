@@ -248,6 +248,7 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [~] T037 — deps HIGH sem major (PARCIAL: deepmerge-ts residual, P009 no Operador)
 - [x] T038 — 6 testes CI-blocker (relógio congelado + mock count) · evid: api 841/841 + web 347/347
 - [x] T039 — gate audit-ci com allowlist cirúrgica · evid: R040 (exit 0/1 bidirecional)
+- [>] T040 — testes automatizados do gate audit-ci
 
 ---
 
