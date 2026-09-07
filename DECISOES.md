@@ -1675,7 +1675,17 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 3) deepmerge-ts <8.0.0 (GHSA-ggr8-5vv4-36mx, stack exhaustion): RESIDUAL. Fix exige prisma major/downgrade (breaking); override para 8.x sob pin exato 7.1.5 do @prisma/config = major transitivo não testado. Alcance: só via CLI `prisma` (@prisma/config, devDependency de build/migrate/seed com inputs do repo); runtime `@prisma/client` não carrega o pacote; nenhum request o alcança. Runner copia node_modules cheio (sem prune) — endurecer com prune é follow-up de deploy, não T037.
 4) Efeito colateral: churn do npm expôs fragilidade latente (`sharp.Metadata` vs tipos ESM-first do sharp 0.35, TS2503) — corrigido com import nominal de tipo, sem mudança de comportamento.
 
-**Verificado:** em T042 (lint 0 erros, builds, suites, audit gate, docs, diff, P012 não-verificado por API, codificação de erros CI categorizados, DAST e SAST com vereditos + ações atribuídas).
+**Verificado:** em T042 (lint 0 erros, builds, suites, audit gate, docs, diff, P012 não-verificado por API, codificação de erros CI categorizados, DAST e SAST com vereditos + ações atribuídas); PR #74 (`MERGEABLE`); T043 (`PENDENTE` — `espec` não recebida); T045 (`candidato` — `E2E` `a11y` `pre-existente`).
+
+## D-484 — P012 CONFIRMADO: Workflow permissions `Read and write permissions` (evidência: screenshot do Settings)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA (Operador, evidência visual)
+
+**Contexto:** P012 (`permissions` `UI`/`re-run` `ZAP`) não era verificável por `gh api` (conta `usuário`, `org` `404`, campo `permissions` `null`).
+
+**Evidência (screenshot anexado pelo Operador):** `github.com/ENDARTStudios/MEDIA-Rate/settings/actions` → seção `Workflow permissions` → radio `"Read and write permissions"` selecionado (não `"Read repository contents and packages permissions"`); checkbox `Allow GitHub Actions to create and approve pull requests` selecionado; `Save` aplicado; página `Status` mostra o `token` `ENDARTStudios` (`scopes`: `repo`, `workflow`) e `repo view PRIVATE`.
+
+**Decisão:** P012 `CONFIRMADO` com evidência visual; P013 reduz a `GHAS` `exclusivo` (`repo` `privado` `sem` `Advanced Security` confirmada via API `security_and_analysis.*: null`). Se `CodeQL` `vermelho` persistir após `merge`, a exceção `formal` (`D-472` `P013`: aceitar `vermelho` `documentado` `ou` `T039-prisma-major` `breaking`) é acionada, não `silenciada`.
 
 ## D-472 — T042: gate audit-ci + CI-repair (P013: CodeQL/ZAP; P012: não verificável; P011: vazio; T045: E2E a11y)
 
