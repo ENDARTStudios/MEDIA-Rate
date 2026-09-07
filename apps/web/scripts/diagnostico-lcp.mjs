@@ -1,11 +1,15 @@
 // Diagnóstico F16 (Issue #17) — LCP da home vs. carregamento de fonte.
 // Uso: node scripts/diagnostico-lcp.mjs [URL]
+/* global PerformanceObserver: readonly, performance: readonly */
 import { chromium } from "@playwright/test";
 
 const URL = process.argv[2] ?? "https://mediarate.app/pt-BR";
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 412, height: 823 }, deviceScaleFactor: 2.625 });
+const page = await browser.newPage({
+  viewport: { width: 412, height: 823 },
+  deviceScaleFactor: 2.625,
+});
 
 await page.addInitScript(() => {
   window.__diag = { lcp: [], fonts: [], fcp: null, fontReadyAt: null, h1Sizes: [] };
@@ -66,7 +70,10 @@ const h1Info = await page.evaluate(() => {
       fontFamily: cs.fontFamily.slice(0, 80),
       fontSize: cs.fontSize,
       text: h1.textContent.trim().slice(0, 40),
-      box: [h1.getBoundingClientRect().width.toFixed(0), h1.getBoundingClientRect().height.toFixed(0)],
+      box: [
+        h1.getBoundingClientRect().width.toFixed(0),
+        h1.getBoundingClientRect().height.toFixed(0),
+      ],
     };
   }
   // fontes carregadas de fato

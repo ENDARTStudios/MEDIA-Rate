@@ -40,7 +40,10 @@ export function CategoryIconRow() {
                 >
                   <Icon className="h-10 w-10" strokeWidth={1.5} aria-hidden="true" />
                 </span>
-                <span className="text-xs font-medium transition-colors" style={{ color: token.color }}>
+                <span
+                  className="text-xs font-medium transition-colors"
+                  style={{ color: token.color }}
+                >
                   {label}
                 </span>
               </Link>

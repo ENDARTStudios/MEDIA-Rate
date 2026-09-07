@@ -273,9 +273,7 @@ export function WatchlistCard({
         // T322: órfão sem título resolvível — NUNCA um beco "Título
         // indisponível" estático; oferece a recuperação "Buscar substituta".
         <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
-          <span className="text-center text-xs leading-tight text-[#6B6B85]">
-            {tituloFinal}
-          </span>
+          <span className="text-center text-xs leading-tight text-[#6B6B85]">{tituloFinal}</span>
           <BuscarSubstituta entryId={entry.id} palpite={palpite} />
         </div>
       )}
@@ -365,9 +363,7 @@ export function WatchlistCard({
           className="mt-1 flex items-center gap-1.5 px-1"
           data-testid={showReactionPrompt ? "reaction-prompt" : "reaction-inline"}
         >
-          {showReactionPrompt && (
-            <span className="text-xs text-[#80809B]">{t("reactNow")}</span>
-          )}
+          {showReactionPrompt && <span className="text-xs text-[#80809B]">{t("reactNow")}</span>}
           {REACOES.map((r) => {
             const active = reacao === r;
             return (

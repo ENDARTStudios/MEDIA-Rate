@@ -54,10 +54,7 @@ export class DashboardService {
           if (nome) generos[nome] = (generos[nome] ?? 0) + 1;
         }
         // Histograma de scores (0-100 → faixas 0-2..8-10) p/ CONCLUIDO/CONSUMINDO.
-        if (
-          (i.status === "CONCLUIDO" || i.status === "CONSUMINDO") &&
-          i.midia?.score != null
-        ) {
+        if ((i.status === "CONCLUIDO" || i.status === "CONSUMINDO") && i.midia?.score != null) {
           const s = Math.max(0, Math.min(100, i.midia.score)) / 10;
           const idx = Math.min(4, Math.floor(s / 2));
           hist[idx] = (hist[idx] ?? 0) + 1;

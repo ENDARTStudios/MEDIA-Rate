@@ -1,11 +1,15 @@
 // Diagnóstico F16 (Issue #17) — modo throttled (Lighthouse-like): Slow 4G + 4x CPU.
 // Confirma se o LCP ~10s coincide com o swap da fonte.
+/* global PerformanceObserver: readonly, performance: readonly, setInterval: readonly */
 import { chromium } from "@playwright/test";
 
 const URL = process.argv[2] ?? "https://mediarate.app/pt-BR";
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 412, height: 823 }, deviceScaleFactor: 2.625 });
+const page = await browser.newPage({
+  viewport: { width: 412, height: 823 },
+  deviceScaleFactor: 2.625,
+});
 const cdp = await page.context().newCDPSession(page);
 
 // Lighthouse mobile throttling: Slow 4G + 4x CPU

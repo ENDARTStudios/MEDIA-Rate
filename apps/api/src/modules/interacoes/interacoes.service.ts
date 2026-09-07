@@ -364,7 +364,13 @@ export class InteracoesService {
           select: { id: true, titulo: true, tipo: true, imagem_url: true, score: true },
         });
         if (recomendados.length > 0) {
-          const mediaSel = (m: { id: string; titulo: string; tipo: string; imagem_url: string | null; score: number | null }) => ({
+          const mediaSel = (m: {
+            id: string;
+            titulo: string;
+            tipo: string;
+            imagem_url: string | null;
+            score: number | null;
+          }) => ({
             id: m.id,
             titulo: m.titulo,
             tipo: m.tipo,
