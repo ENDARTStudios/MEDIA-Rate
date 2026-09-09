@@ -296,6 +296,12 @@ em `DECISOES.md` + `PENDENCIAS_OPERADOR.md` (custo é autoridade do Operador).
 - [ ] A exceção ainda se justifica (P009) ou vira tarefa de correção?
 - [ ] Registrar o resultado em `DECISOES.md` (nova entrada D-4xx).
 
+**Revisão trimestral de WARNs ZAP (T043/D-472, primeira em 2026-12):**
+- [ ] Baseline atual ainda só tem WARN-NEW (nenhum FAIL-NEW novo)?
+- [ ] Algum WARN virou FAIL ou indica achado real (info-disclosure, CSP,
+  permissions-policy, COEP)? Se sim, vira tarefa própria — nunca allowlist.
+- [ ] Registrar o resultado em `DECISOES.md`.
+
 ## GitHub CLI em ambiente com token sombreado (T046/P010)
 
 **Sintoma:** `gh auth status` diz que o token em `GITHUB_TOKEN` é inválido,

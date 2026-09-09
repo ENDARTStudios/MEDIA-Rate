@@ -186,6 +186,12 @@ jobs:
     name: ZAP Baseline (DAST)
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    # T043: permissions mínimas (P012 repo read+write verificado) — cobre a
+    # criação de issue ("Resource not accessible"). D-472 (D-486 citado no
+    # spec não existe no DECISOES.md; usa-se D-472 verificado).
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
       # T042: o alvo anterior (preview-<n>.media-rate.example.com) nunca
@@ -205,7 +211,10 @@ jobs:
         uses: zaproxy/action-baseline@v0.13.0
         with:
           target: ${{ steps.preview.outputs.url }}
-          cmd_options: "-a -j"
+          # T043/D-472: -I ignora WARN-NEW (baseline era FAIL com 15 WARNs e
+          # 0 FAILs); falhas reais (high/FAIL) continuam bloqueando. WARNs
+          # entram na revisão trimestral 2026-12 (runbook). Sem silenciar.
+          cmd_options: "-a -j -I"
           fail_action: true
           issue_title: "OWASP ZAP: Vulnerabilities in ${{ github.event.pull_request.head.sha }}"
 
