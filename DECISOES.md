@@ -1543,6 +1543,16 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
 
+## D-490 — Semgrep OSS substitui CodeQL como SAST bloqueante (decisão P013 do Operador)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** CodeQL exige GitHub Advanced Security (pago) em repositórios privados para upload de results (causa raiz confirmada em T044: `Resource not accessible by integration`, conta usuário, repo privado sem GHAS).
+
+**Decisão:** Semgrep OSS (gratuito) substitui CodeQL como SAST bloqueante no CI. CodeQL desativado com justificativa documentada (repo privado sem GHAS — causa raiz confirmada em T044). Semgrep OSS funciona em repo privado sem licença paga, mantém cobertura SAST (regras OWASP Top 10 + security audit), e é padrão da indústria. GHAS reavaliado quando houver receita/contexto que justifique o custo.
+
+**Ação:** T045 substitui job CodeQL por Semgrep no ci.yml; job CodeQL desativado com comentário referenciando D-490 e T044.
+
 ## D-481 — Causa raiz do gh CLI: GITHUB_TOKEN de sessão sombreava keyring
 
 **Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA

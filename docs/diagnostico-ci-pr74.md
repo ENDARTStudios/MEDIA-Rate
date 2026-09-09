@@ -1,4 +1,4 @@
-# Diagnóstico CI vermelho — PR #74 (T044/D-482)
+# Diagnóstico CI vermelho — PR #74 (T044/D-482, atualizado T045)
 
 Run: `34078083956` (CI) sobre SHA `9212351` (branch `feat/f10-image-optimization`).
 Verdes: Lint & Audit, Test & Coverage, RLS Isolation, Build, Stryker.
@@ -51,3 +51,16 @@ em `ci.yml`) — veredito E2E abaixo (D-482: só veta se regressão da Fase 10).
   endpoint de workflow-permissions exige org (404: conta é usuário) e o campo
   veio `null` (escopo insuficiente para ler settings). Validação restante é
   UI (Operador) ou re-run pós-mudança de setting.
+
+## T045 — mapa de checks + required (D-490/D-497, retomada §10.1)
+
+- `gh-safe pr checks 74 --json name,state,workflow`: 3 failing (CodeQL,
+  E2E, ZAP), 4 skipped (PRR Pipeline), 7 successful (Lint & Audit, Test &
+  Coverage, RLS, Build, Stryker, Vercel Preview Comments, Vercel).
+- `branches/main/protection/required_status_checks` → **404: Branch not
+  protected**. Não há required checks configurados; E2E-required é moot —
+  o veto de merge é convencional (D-468/D-496), não técnico. Proibido usar
+  o checkbox de bypass mesmo assim (D-496).
+- T045 troca CodeQL→Semgrep OSS em `ci.yml` (job `semgrep-sast`,
+  bloqueante, config `p/ci`). Semgrep OSS não tem limite gratuito que
+  trave este repo (scan por run, sem conta obrigatória para `p/ci`).
