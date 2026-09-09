@@ -160,7 +160,39 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     } catch (erro) {
       this.logger.warn(`Falha ao gerar alertas de gênero: ${(erro as Error).message}`);
     }
+    // T447/D-441: gatilho on-demand do ISR da home (que agora é horário).
+    // Fire-and-forget limitado: nunca quebra o job; sem env, só loga e pula
+    // (testes e dev seguem sem configurar nada).
+    await this.dispararRevalidateWeb();
     return { processadas, comErro };
+  }
+
+  /**
+   * T447/D-441 — invalida o cache ISR da home no web após cada run.
+   * Requer WEB_REVALIDATE_URL + REVALIDATE_SECRET (mesmo secret da rota
+   * POST /api/revalidate no web). Timeout 10s; falha = warn, nunca throw.
+   */
+  private async dispararRevalidateWeb(): Promise<void> {
+    const baseUrl = (process.env.WEB_REVALIDATE_URL ?? "").replace(/\/$/, "");
+    const secret = process.env.REVALIDATE_SECRET ?? "";
+    if (!baseUrl || !secret) {
+      this.logger.log("Revalidate web pulado (WEB_REVALIDATE_URL/REVALIDATE_SECRET ausentes).");
+      return;
+    }
+    try {
+      const res = await fetch(`${baseUrl}/api/revalidate`, {
+        method: "POST",
+        headers: { "x-revalidate-token": secret },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) {
+        this.logger.warn(`Revalidate web respondeu ${res.status} (ISR segue horário).`);
+        return;
+      }
+      this.logger.log("Revalidate web disparado (home será re-renderizada).");
+    } catch (erro) {
+      this.logger.warn(`Revalidate web falhou: ${(erro as Error).message} (ISR segue horário).`);
+    }
   }
 
   /**

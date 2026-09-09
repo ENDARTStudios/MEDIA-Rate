@@ -16,7 +16,7 @@ import { normalizeDisplayScore } from "@/lib/score-utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { isPreviewTipo } from "@/lib/api";
-import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
+import { displaySrc } from "@/lib/image-policy";
 import { StaticScoreDial } from "./StaticScoreDial";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
 import type { MediaItem } from "@/components/MediaCard";
@@ -170,33 +170,21 @@ export function MediaCardShell({
           {media.imagem_url ? (
             (() => {
               const src = srcNormalizado;
+              // T447/D-441: variante ÚNICA — um poster, uma URL, zero srcset.
+              // (Antes: srcset multi-rung = 1 transformação potencial por
+              // rung por região; 72 pôsteres × N rungs × 10 regiões.)
               // T031/T036: estático com ladder (local ou remota); sem ladder →
               // bypass — zero transformação runtime em qualquer caminho.
-              if (isLocalSource(src)) {
+              const single = displaySrc(src);
+              if (single) {
                 return (
                   <img
-                    src={src}
-                    srcSet={localSrcSet(src)}
+                    src={single}
                     alt={`Capa de ${tituloLocal}`}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     width={300}
                     height={450}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    loading="lazy"
-                  />
-                );
-              }
-              const ladder = remoteLadder(src);
-              if (ladder) {
-                return (
-                  <img
-                    src={ladder.src}
-                    srcSet={ladder.srcSet}
-                    alt={`Capa de ${tituloLocal}`}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    width={300}
-                    height={450}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    sizes="300px"
                     loading="lazy"
                   />
                 );

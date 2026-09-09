@@ -40,6 +40,32 @@ export function localSrcSet(src: string): string {
   return LOCAL_WIDTHS.map((w) => `${base}-w${w}.webp ${w}w`).join(", ");
 }
 
+/**
+ * T447/D-441 — variante ÚNICA de display (card 300px): um poster, uma URL,
+ * zero srcset. Cada candidato a mais no srcset é uma transformação potencial
+ * por região no plano Hobby — com 72 pôsteres na home, o srcset multi-rung
+ * vira milhares de transformações por varredura global.
+ *
+ * Escolhe o menor rung >= alvo (sem upscale visual); se nenhum rung cobre o
+ * alvo, usa o maior disponível. Retorna null quando não há ladder (o
+ * componente usa o fallback `unoptimized`).
+ */
+export function displaySrc(src: string | null | undefined, targetWidth = 300): string | null {
+  if (!src) return null;
+  const ladder = isLocalSource(src) ? localSrcSet(src) : (remoteLadder(src)?.srcSet ?? null);
+  if (!ladder) return null;
+  let best: string | null = null;
+  for (const candidate of ladder.split(",")) {
+    const [url, descriptor] = candidate.trim().split(/\s+/);
+    if (!url) continue;
+    best ??= url;
+    const width = Number.parseInt(descriptor ?? "", 10);
+    if (Number.isFinite(width) && width >= targetWidth) return url;
+    best = url;
+  }
+  return best;
+}
+
 export interface RemoteLadder {
   src: string;
   srcSet: string;
