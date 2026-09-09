@@ -69,4 +69,31 @@ describe("ConsentService (T443) — trilha append-only + owner-only", () => {
       HttpException,
     );
   });
+
+  it("T449/D-447 regressão: historico serializa com ts BigInt REAL do driver (sem 500)", async () => {
+    // O driver Postgres devolve bigint como BigInt — o mock antigo retornava
+    // Number e escondia o 500 do JSON.stringify em produção.
+    const { prisma } = buildMock();
+    prisma.consentLog.findMany.mockResolvedValue([
+      {
+        id: "cl-1",
+        usuario_id: USUARIO,
+        categorias: { analytics: true, monitoring: false },
+        versao: "1",
+        ts: BigInt(1700000000000),
+        idioma: "pt-BR",
+        pais: "BR",
+        device_hash: null,
+        ip_hash: "abc",
+        criado_em: new Date("2026-09-09T00:00:00Z"),
+      },
+    ]);
+    const svc = new ConsentService(prisma as never);
+    const historico = await svc.historico(USUARIO);
+    let serializado = "";
+    expect(() => {
+      serializado = JSON.stringify(historico);
+    }).not.toThrow();
+    expect(serializado).toContain("1700000000000");
+  });
 });

@@ -46,6 +46,10 @@ navegar primeiro. Isso economiza tokens e reduz acertos às cegas.
   `apps/web/scripts/_*.mjs`.
 - **`main` é auto-deployado** (Vercel web + Railway api). Confirmar produção após
   merge em mudanças visíveis.
+- **Fidelidade de mocks do Prisma (D-447):** mocks devem refletir os tipos reais
+  do driver (`bigint` → `BigInt`, `bytea` → `Buffer`, etc.); todo endpoint novo
+  exige teste que serializa a resposta (`JSON.stringify`) — é o que pega 500
+  de serialização sem precisar de produção.
 
 ## Lembrete
 

@@ -33,7 +33,7 @@ export class ConsentController {
 
   @Get("history")
   @ApiOperation({ summary: "Histórico de consentimento do próprio titular (owner-only)" })
-  @ApiResponse({ status: 200, description: "Histórico de consentimento." })
+  @ApiResponse({ status: 200, description: "Histórico de consentimento (ts em ms epoch, Number)." })
   async historico(@Req() req: FastifyRequest & { user?: AuthenticatedUser }): Promise<unknown[]> {
     const user = req.user;
     if (!user) throw new Error("Usuário não autenticado.");
