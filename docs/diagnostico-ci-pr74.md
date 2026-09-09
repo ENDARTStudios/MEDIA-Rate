@@ -52,7 +52,7 @@ em `ci.yml`) — veredito E2E abaixo (D-482: só veta se regressão da Fase 10).
   veio `null` (escopo insuficiente para ler settings). Validação restante é
   UI (Operador) ou re-run pós-mudança de setting.
 
-## T045 — mapa de checks + required (D-490/D-497, retomada §10.1)
+## T045 — mapa de checks + required (D-490, retomada §10.1)
 
 - `gh-safe pr checks 74 --json name,state,workflow`: 3 failing (CodeQL,
   E2E, ZAP), 4 skipped (PRR Pipeline), 7 successful (Lint & Audit, Test &
