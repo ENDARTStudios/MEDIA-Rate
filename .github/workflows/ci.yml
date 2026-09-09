@@ -1,6 +1,6 @@
 # GitHub Actions CI — MEDIA Rate (T9.1/T9.2/T8.3/T8.4/T8.5)
 #
-# Pipeline com stages paralelos: lint+audit | test+coverage | build | CodeQL | ZAP | Stryker
+# Pipeline com stages paralelos: lint+audit | test+coverage | build | Semgrep | ZAP | Stryker
 # Cache de npm para acelerar builds subsequentes.
 # Artefatos: coverage report, build output, test results.
 
@@ -163,23 +163,23 @@ jobs:
           path: apps/web/.next/
           retention-days: 7
 
-  # Job 4: SAST CodeQL (paralelo)
-  codeql:
-    name: CodeQL (SAST)
+  # Job 4: SAST Semgrep OSS (paralelo) — T045/D-490: substitui o CodeQL.
+  # CodeQL desativado: repo privado sem GHAS (D-490/T044) — o upload de
+  # results do analyze falha com "Resource not accessible by integration" e
+  # nada na branch pode corrigir. Semgrep OSS (gratuito) mantém SAST
+  # bloqueante (OWASP Top 10 + security audit, config p/ci): finding
+  # high/critical quebra o job; achado real nunca é silenciado.
+  semgrep-sast:
+    name: Semgrep (SAST)
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
     steps:
       - uses: actions/checkout@v4
-      # T042: codeql-action v3 removida (deprecated → "Resource not accessible
-      # by integration" no analyze); v4 é a linha suportada. Permissões
-      # mínimas já declaradas acima (contents:read, security-events:write).
-      - uses: github/codeql-action/init@v4
+      - uses: returntocorp/semgrep-action@v1
         with:
-          languages: javascript-typescript
-      - uses: github/codeql-action/autobuild@v4
-      - uses: github/codeql-action/analyze@v4
+          config: p/ci
 
   # Job 5: DAST ZAP baseline (apenas em PR)
   zap-baseline:
