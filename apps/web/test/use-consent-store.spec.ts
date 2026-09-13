@@ -49,6 +49,20 @@ describe("use-consent-store (T443 persistência do mr_consent)", () => {
     expect(s.monitoring).toBe(true);
   });
 
+  it("hidratação sem consentimento de analytics purga resíduos (T438)", async () => {
+    const doc = makeDoc();
+    const ls = new Map<string, string>([["lgpd-consent-v1", "accepted"]]);
+    vi.stubGlobal("document", doc);
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => ls.get(k) ?? null,
+      setItem: (k: string, v: string) => void ls.set(k, v),
+      removeItem: (k: string) => void ls.delete(k),
+    });
+    // sem cookie mr_consent → analytics=false → limparResiduos roda no import
+    await import("@/stores/use-consent-store");
+    expect(ls.has("lgpd-consent-v1")).toBe(false);
+  });
+
   it("recusar grava mr_consent com analytics=false e remove residuos", async () => {
     const doc = makeDoc();
     doc.cookie = "ph_old_posthog=abc; path=/";

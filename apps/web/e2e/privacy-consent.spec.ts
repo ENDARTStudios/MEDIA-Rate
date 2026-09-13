@@ -104,23 +104,21 @@ test("Cookies em sessão limpa: ph_* ausente antes da escolha; presente após ac
   expect(mr.some((c) => c.name === "mr_consent")).toBe(true);
 });
 
-test("recusar: limpa resíduo lgpd-consent-v1 e não cria ph_*", async ({ context, page }) => {
-  await context.addCookies([
-    {
-      name: "mr_consent",
-      value: encodeURIComponent(JSON.stringify({ analytics: false, monitoring: false, v: 1 })),
-      domain: "mediarate.app",
-      path: "/",
-    },
-  ]);
+test("sessão já recusada: purga resíduo lgpd-consent-v1 na hidratação", async ({
+  context,
+  page,
+}) => {
+  // mr_consent (analytics:false) já presente via beforeEach → banner oculto.
+  // O resíduo antigo é injetado ANTES dos scripts da página; a limpeza na
+  // hidratação (D-425/T438) deve removê-lo mesmo sem interação com o banner.
+  await context.addInitScript(() => {
+    try {
+      localStorage.setItem("lgpd-consent-v1", "accepted");
+    } catch {
+      /* localStorage indisponível */
+    }
+  });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  // definir a flag antiga e verificar que é removida pela limpeza (D-425)
-  await page.evaluate(() => localStorage.setItem("lgpd-consent-v1", "accepted"));
-  // clicar em "Recusar" (se visível) ou aceitar o estado
-  const decline = page.getByRole("button", { name: /recusar|decline|rechazar/i });
-  if (await decline.count()) {
-    await decline.first().click();
-  }
   await page.waitForTimeout(1500);
   expect(await page.evaluate(() => localStorage.getItem("lgpd-consent-v1"))).toBeNull();
   expect(await hasCookie(page, "ph_")).toBe(false);
