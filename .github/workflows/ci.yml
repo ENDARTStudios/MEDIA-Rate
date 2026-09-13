@@ -212,7 +212,7 @@ jobs:
           slug="${slug//\//-}"
           echo "url=https://media-rate-git-${slug}-end-art-studios.vercel.app" >> "$GITHUB_OUTPUT"
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.13.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ steps.preview.outputs.url }}
           # T043/D-472: -I ignora WARN-NEW (baseline era FAIL com 15 WARNs e

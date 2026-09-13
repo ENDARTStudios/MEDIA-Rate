@@ -1,6 +1,6 @@
 name: DAST Weekly
 # T219 (8.6): varredura de segurança contínua em produção/staging.
-# - Cron: segunda-feira 03:00 UTC (zaproxy/action-baseline@v0.13.0, mesmo do CI).
+# - Cron: segunda-feira 03:00 UTC (zaproxy/action-baseline@v0.15.0, mesmo do CI).
 # - Target: vars.DAST_TARGET_URL (fallback: vars.DAST_FALLBACK_TARGET documentado).
 #   Se nenhum estiver definido → falha com mensagem clara (nunca escanear
 #   alvo errado silenciosamente).
@@ -15,6 +15,8 @@ on:
 permissions:
   contents: read
   issues: write
+  # T451: upload de artefato (interno da action + zap-weekly-report).
+  actions: write
 
 jobs:
   zap-baseline-weekly:
@@ -38,7 +40,7 @@ jobs:
 
       - name: ZAP Baseline Scan (semanal)
         id: zap
-        uses: zaproxy/action-baseline@v0.13.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ steps.target.outputs.target }}
           cmd_options: "-a -j -r zap-report.json"
