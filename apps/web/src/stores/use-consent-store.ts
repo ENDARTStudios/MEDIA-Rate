@@ -77,8 +77,16 @@ function limparResiduos() {
   });
 }
 
+const estadoInicial = lerCookie();
+
+// D-425/T438: privacy by default — sem consentimento de analytics, purga
+// resíduos (flag antiga `lgpd-consent-v1` e cookies `ph_*`) JÁ na hidratação.
+// Antes só rodava em setConsent/reset; mas o banner fica oculto quando já
+// decidido (decided=true), então não há clique para disparar a limpeza.
+if (!estadoInicial.analytics) limparResiduos();
+
 export const useConsentStore = create<ConsentState>((set) => ({
-  ...lerCookie(),
+  ...estadoInicial,
   setConsent: (c) => {
     gravar(c);
     if (!c.analytics) limparResiduos();
