@@ -4,6 +4,7 @@ import { AssetUploadController } from "../src/modules/upload/asset-upload.contro
 import { InMemoryStorage } from "../src/modules/upload/storage/in-memory.storage.js";
 import { UploadService } from "../src/modules/upload/upload.service.js";
 import { detectarImagemAsset } from "../src/common/utils/file-validation.util.js";
+import { selecionarStorage } from "../src/modules/upload/storage/select-storage.js";
 
 function jpeg(n = 32): Buffer {
   const b = Buffer.alloc(n);
@@ -148,5 +149,43 @@ describe("T453 — AssetUploadController (admin, 201 + audit)", () => {
     await expect(ctrl.upload("m-x", "filme", fakeReq(jpeg()))).rejects.toMatchObject({
       status: 404,
     });
+  });
+});
+
+describe("T457 — seleção de StorageAdapter (fail-closed em produção)", () => {
+  const R2_ENV = {
+    R2_ACCOUNT_ID: "acc",
+    R2_BUCKET: "bucket",
+    R2_ACCESS_KEY_ID: "key",
+    R2_SECRET_ACCESS_KEY: "secret",
+  };
+
+  it("produção sem env R2 → UnconfiguredStorage (503 + code), com warn", async () => {
+    const warn = vi.fn();
+    const s = selecionarStorage({ NODE_ENV: "production" } as NodeJS.ProcessEnv, { warn });
+    expect(s.kind).toBe("unconfigured");
+    let capturado: { getResponse?: () => unknown; getStatus?: () => number } | undefined;
+    try {
+      await s.put({ key: "k", body: jpeg(), contentType: "image/jpeg" });
+    } catch (e) {
+      capturado = e as { getResponse?: () => unknown; getStatus?: () => number };
+    }
+    expect(capturado?.getStatus?.()).toBe(503);
+    expect((capturado?.getResponse?.() as { code?: string } | undefined)?.code).toBe(
+      "STORAGE_UNAVAILABLE",
+    );
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it("produção com env R2 → R2Storage", () => {
+    const s = selecionarStorage({ NODE_ENV: "production", ...R2_ENV } as NodeJS.ProcessEnv, {
+      warn: vi.fn(),
+    });
+    expect(s.kind).toBe("r2");
+  });
+
+  it("dev/test sem env → InMemoryStorage (comportamento inalterado)", () => {
+    const s = selecionarStorage({ NODE_ENV: "test" } as NodeJS.ProcessEnv, { warn: vi.fn() });
+    expect(s.kind).toBe("memory");
   });
 });

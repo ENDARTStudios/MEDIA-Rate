@@ -4,8 +4,7 @@ import { AssetUploadController } from "./asset-upload.controller.js";
 import { UploadService } from "./upload.service.js";
 import { AssetUploadService } from "./asset-upload.service.js";
 import { STORAGE_ADAPTER } from "./storage/storage.port.js";
-import { InMemoryStorage } from "./storage/in-memory.storage.js";
-import { R2Storage, r2ConfigFromEnv } from "./storage/r2.storage.js";
+import { selecionarStorage } from "./storage/select-storage.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
@@ -18,12 +17,10 @@ import { AuditLogService } from "../../common/audit-log.service.js";
     AssetUploadService,
     AuditLogService,
     {
-      // T453: R2 quando as credenciais existem; InMemory (no-op) em dev/test.
+      // T453/T457: R2 quando as credenciais existem; em PRODUÇÃO sem R2 o
+      // adapter é fail-closed (503), nunca memória; em dev/test, InMemory.
       provide: STORAGE_ADAPTER,
-      useFactory: () => {
-        const cfg = r2ConfigFromEnv();
-        return cfg ? new R2Storage(cfg) : new InMemoryStorage();
-      },
+      useFactory: () => selecionarStorage(),
     },
   ],
   exports: [UploadService],

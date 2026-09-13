@@ -15,18 +15,18 @@ export interface R2Config {
  * Lê a config do R2 do ambiente. Retorna null se qualquer credencial faltar —
  * o provider então cai para InMemoryStorage (no-op claro em dev).
  */
-export function r2ConfigFromEnv(): R2Config | null {
-  const accountId = process.env.R2_ACCOUNT_ID?.trim();
-  const bucket = process.env.R2_BUCKET?.trim();
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID?.trim();
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY?.trim();
+export function r2ConfigFromEnv(env: NodeJS.ProcessEnv = process.env): R2Config | null {
+  const accountId = env.R2_ACCOUNT_ID?.trim();
+  const bucket = env.R2_BUCKET?.trim();
+  const accessKeyId = env.R2_ACCESS_KEY_ID?.trim();
+  const secretAccessKey = env.R2_SECRET_ACCESS_KEY?.trim();
   if (!accountId || !bucket || !accessKeyId || !secretAccessKey) return null;
   return {
     accountId,
     bucket,
     accessKeyId,
     secretAccessKey,
-    publicBaseUrl: process.env.R2_PUBLIC_BASE_URL?.trim() || undefined,
+    publicBaseUrl: env.R2_PUBLIC_BASE_URL?.trim() || undefined,
   };
 }
 
