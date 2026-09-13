@@ -8,6 +8,15 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 RUN npm ci --workspace=apps/api
 
+# T451 (incidente P0 de deploy): o workspace api fixa sharp@0.35.4, enquanto
+# apps/web traz sharp@0.35.3 (peer opcional do Next). O conflito faz o npm
+# ANINHAR sharp em apps/api/node_modules em vez de hoistar. O dist roda de
+# /app/dist e resolve modulos a partir de /app/node_modules -> o sharp aninhado
+# precisa ser mesclado na raiz; sem isso o boot crasha no import de variants.js
+# (ERR_MODULE_NOT_FOUND: Cannot find package 'sharp') e o healthcheck do Railway
+# falha. Condicional para nao quebrar caso o npm volte a hoistar sozinho.
+RUN if [ -d apps/api/node_modules ]; then cp -a apps/api/node_modules/. node_modules/; fi
+
 # 2) Prisma Client (npm ci nao roda generate sem postinstall; gerar aqui)
 COPY apps/api/prisma ./apps/api/prisma
 RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
