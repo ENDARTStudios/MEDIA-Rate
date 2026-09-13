@@ -183,4 +183,46 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       ano: 2023,
     });
   });
+
+  describe("T447/D-441 — gatilho on-demand do ISR da home", () => {
+    const urlOriginal = process.env.WEB_REVALIDATE_URL;
+    const secretOriginal = process.env.REVALIDATE_SECRET;
+    const fetchOriginal = globalThis.fetch;
+
+    afterEach(() => {
+      if (urlOriginal === undefined) delete process.env.WEB_REVALIDATE_URL;
+      else process.env.WEB_REVALIDATE_URL = urlOriginal;
+      if (secretOriginal === undefined) delete process.env.REVALIDATE_SECRET;
+      else process.env.REVALIDATE_SECRET = secretOriginal;
+      globalThis.fetch = fetchOriginal;
+      vi.unstubAllGlobals();
+    });
+
+    it("sem env configurado: pula o revalidate sem chamar fetch", async () => {
+      delete process.env.WEB_REVALIDATE_URL;
+      delete process.env.REVALIDATE_SECRET;
+      const fetchMock = vi.fn(async () => new Response("{}", { status: 200 }));
+      vi.stubGlobal("fetch", fetchMock);
+      const { prisma, job } = mockDependencias();
+      prisma.midia.findMany.mockResolvedValueOnce([]);
+      await job.executar();
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("com env: POST /api/revalidate com o token e tolera 5xx", async () => {
+      process.env.WEB_REVALIDATE_URL = "https://web.exemplo";
+      process.env.REVALIDATE_SECRET = "segredo-123";
+      const fetchMock = vi.fn(async () => new Response("{}", { status: 500 }));
+      vi.stubGlobal("fetch", fetchMock);
+      const { prisma, job } = mockDependencias();
+      prisma.midia.findMany.mockResolvedValueOnce([]);
+      const resultado = await job.executar();
+      expect(resultado).toEqual({ processadas: 0, comErro: 0 });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe("https://web.exemplo/api/revalidate");
+      expect(init.method).toBe("POST");
+      expect((init.headers as Record<string, string>)["x-revalidate-token"]).toBe("segredo-123");
+    });
+  });
 });

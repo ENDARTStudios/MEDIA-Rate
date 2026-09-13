@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isLocalSource, isUnoptimizedSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
+import {
+  displaySrc,
+  isLocalSource,
+  isUnoptimizedSource,
+  localSrcSet,
+  remoteLadder,
+} from "@/lib/image-policy";
 import nextConfig from "../next.config";
 
 describe("image-policy (T032/D-445)", () => {
@@ -135,5 +141,34 @@ describe("remoteLadder (T036/D-447)", () => {
         "https://books.google.com/books/content?id=abc&img=1&zoom=1",
       ].map(remoteLadder),
     ).toMatchSnapshot();
+  });
+});
+
+describe("displaySrc — variante única (T447/D-441)", () => {
+  it("local: menor rung >= 300 (w320)", () => {
+    expect(displaySrc("/uploads/media/abc/x.jpg")).toBe("/uploads/media/abc/x-w320.webp");
+  });
+
+  it("TMDB: w342 para card 300px; original nunca é servido no card", () => {
+    const src = displaySrc("https://image.tmdb.org/t/p/w500/abc.jpg");
+    expect(src).toBe("https://image.tmdb.org/t/p/w342/abc.jpg");
+  });
+
+  it("IGDB: pula rungs menores que o alvo (264 < 300 → 528)", () => {
+    expect(displaySrc("https://images.igdb.com/igdb/image/upload/t_cover_big/abc.jpg")).toBe(
+      "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/abc.jpg",
+    );
+  });
+
+  it("sem ladder → null (componente usa fallback unoptimized)", () => {
+    expect(displaySrc("https://cdn.akamai.steamstatic.com/steam/apps/1/header.jpg")).toBeNull();
+    expect(displaySrc(null)).toBeNull();
+    expect(displaySrc("")).toBeNull();
+  });
+
+  it("alvo maior que todos os rungs → maior disponível (sem upscale visual além do rung)", () => {
+    expect(displaySrc("https://image.tmdb.org/t/p/w500/abc.jpg", 5000)).toBe(
+      "https://image.tmdb.org/t/p/w780/abc.jpg",
+    );
   });
 });

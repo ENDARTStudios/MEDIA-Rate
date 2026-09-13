@@ -22,9 +22,11 @@ import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
 // T405 (D-380): MediaCarousel agora é SERVER COMPONENT (import estático) —
 // os 60 cards saem como HTML puro no SSR, sem hidratação do shell.
 
-// T274: ISR curto (≤ 60s, alinhado ao cache Redis da API) — os carrosséis
-// revalidam no servidor sem chamada nova por request.
-export const revalidate = 60;
+// T447/D-441 (era T274/60s): ISR horário — o score-job roda 1×/semana
+// (D-410), logo revalidar a cada 60s eram ~10 mil renders/mês por região
+// para dado semanal. Scores novos entram via gatilho on-demand
+// (POST /api/revalidate, chamado pelo score-job ao concluir).
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

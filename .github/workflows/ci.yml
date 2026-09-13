@@ -1,6 +1,6 @@
 # GitHub Actions CI — MEDIA Rate (T9.1/T9.2/T8.3/T8.4/T8.5)
 #
-# Pipeline com stages paralelos: lint+audit | test+coverage | build | CodeQL | ZAP | Stryker
+# Pipeline com stages paralelos: lint+audit | test+coverage | build | Semgrep | ZAP | Stryker
 # Cache de npm para acelerar builds subsequentes.
 # Artefatos: coverage report, build output, test results.
 
@@ -163,29 +163,39 @@ jobs:
           path: apps/web/.next/
           retention-days: 7
 
-  # Job 4: SAST CodeQL (paralelo)
-  codeql:
-    name: CodeQL (SAST)
+  # Job 4: SAST Semgrep OSS (paralelo) — T045/D-490: substitui o CodeQL.
+  # CodeQL desativado: repo privado sem GHAS (D-490/T044) — o upload de
+  # results do analyze falha com "Resource not accessible by integration" e
+  # nada na branch pode corrigir. Semgrep OSS (gratuito) mantém SAST
+  # bloqueante (OWASP Top 10 + security audit, config p/ci): finding
+  # high/critical quebra o job; achado real nunca é silenciado.
+  semgrep-sast:
+    name: Semgrep (SAST)
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
     steps:
       - uses: actions/checkout@v4
-      # T042: codeql-action v3 removida (deprecated → "Resource not accessible
-      # by integration" no analyze); v4 é a linha suportada. Permissões
-      # mínimas já declaradas acima (contents:read, security-events:write).
-      - uses: github/codeql-action/init@v4
+      - uses: returntocorp/semgrep-action@v1
         with:
-          languages: javascript-typescript
-      - uses: github/codeql-action/autobuild@v4
-      - uses: github/codeql-action/analyze@v4
+          config: p/ci
 
   # Job 5: DAST ZAP baseline (apenas em PR)
   zap-baseline:
     name: ZAP Baseline (DAST)
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    # T043: permissions mínimas (P012 repo read+write verificado) — cobre a
+    # criação de issue ("Resource not accessible"). D-472 (D-486 citado no
+    # spec não existe no DECISOES.md; usa-se D-472 verificado).
+    # T451: `actions: write` é exigido pelo upload de artefato interno do
+    # zaproxy/action-baseline (sem ele: "Create Artifact Container failed:
+    # The artifact name zap_scan is not valid" — falha de infra, não do scan).
+    permissions:
+      contents: read
+      issues: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
       # T042: o alvo anterior (preview-<n>.media-rate.example.com) nunca
@@ -202,10 +212,13 @@ jobs:
           slug="${slug//\//-}"
           echo "url=https://media-rate-git-${slug}-end-art-studios.vercel.app" >> "$GITHUB_OUTPUT"
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.13.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ steps.preview.outputs.url }}
-          cmd_options: "-a -j"
+          # T043/D-472: -I ignora WARN-NEW (baseline era FAIL com 15 WARNs e
+          # 0 FAILs); falhas reais (high/FAIL) continuam bloqueando. WARNs
+          # entram na revisão trimestral 2026-12 (runbook). Sem silenciar.
+          cmd_options: "-a -j -I"
           fail_action: true
           issue_title: "OWASP ZAP: Vulnerabilities in ${{ github.event.pull_request.head.sha }}"
 

@@ -1543,6 +1543,26 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
 
+## D-447 — T433 aprovado (direitos LGPD funcionais em produção); bug real de produção em GET /consent/history (BigInt não serializa → 500) corrigido via T449; lição: mocks de teste devem refletir tipos reais do driver (Postgres bigint → BigInt)
+
+**Data:** 2026-09-09 · **Fase:** F17-compliance-juridico · **Status:** REGISTRADA
+
+**Contexto:** O teste ao vivo provou que exportação, exclusão com revogação de sessões e cancel-exclusion funcionam em produção — o coração do T433. Mas a validação do T443 expôs um bug real: GET /consent/history retorna 500 sempre que há registros, porque o ts vem como BigInt do driver Postgres e JSON.stringify não serializa BigInt. Os testes unitários do T443 (Prisma mockado) não capturaram isso porque o mock retornava Number — o mock mentiu sobre o tipo do driver.
+
+**Decisão:** 1) T433 marcado [x] (direitos provados ao vivo). 2) T449: fix de serialização em ConsentService.historico (ts BigInt → Number ms epoch, documentado no Swagger) + teste de regressão que serializa a resposta + re-validação ao vivo com lgpd-test. 3) Lição registrada em AGENTS.md: mocks de Prisma refletem tipos reais do driver; todo endpoint novo exige teste que serializa a resposta. 4) Defeito funcional em endpoint owner-only de baixo tráfego — não incidente de segurança (filtro global impede vazamento de stack no 500).
+
+**Verificado:** T449 (regressão RED→GREEN 4/4 consent; re-validação ao vivo pendente no STATUS).
+
+## D-490 — Semgrep OSS substitui CodeQL como SAST bloqueante (decisão P013 do Operador)
+
+**Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA
+
+**Contexto:** CodeQL exige GitHub Advanced Security (pago) em repositórios privados para upload de results (causa raiz confirmada em T044: `Resource not accessible by integration`, conta usuário, repo privado sem GHAS).
+
+**Decisão:** Semgrep OSS (gratuito) substitui CodeQL como SAST bloqueante no CI. CodeQL desativado com justificativa documentada (repo privado sem GHAS — causa raiz confirmada em T044). Semgrep OSS funciona em repo privado sem licença paga, mantém cobertura SAST (regras OWASP Top 10 + security audit), e é padrão da indústria. GHAS reavaliado quando houver receita/contexto que justifique o custo.
+
+**Ação:** T045 substitui job CodeQL por Semgrep no ci.yml; job CodeQL desativado com comentário referenciando D-490 e T044.
+
 ## D-481 — Causa raiz do gh CLI: GITHUB_TOKEN de sessão sombreava keyring
 
 **Data:** 2026-09-07 · **Fase:** F10-image-optimization · **Status:** REGISTRADA

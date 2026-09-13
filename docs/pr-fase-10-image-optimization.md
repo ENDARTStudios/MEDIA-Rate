@@ -24,6 +24,12 @@ runtime sem tokens (16 larguras default × formatos por poster).
 | T038 testes | `1939284` | relógio congelado + mock count; api 841/841 + web 347/347 |
 | T039 audit gate | `f94c065` | `scripts/audit-ci.mjs` + allowlist GHSA-ggr8-5vv4-36mx (P009/D-462) |
 | T040 gate testado | `2b32b51` | regra pura + spec 8 casos; api 849/849 |
+| T041 PR aberto | `2b82820` | PR #74 open/mergeable (docs/diagnostico-ci-pr74.md) |
+| T042 CI-repair | `9212351` | lint --fix herdado (0 erros) + generate (test+RLS+build) + CodeQL v4 + ZAP real (`media-rate-git-f10...`) |
+| T043 ZAP policy | `PENDENTE` (D-472): `requires_tdd: false`; `espec` emitida pelo Thinker no ciclo (§10.2, PROPOSTA_DOER aprovada, D-470); `P011` (`URL` real corrigida `D-472`/`T042`); `P012` (`permissions`); `P013` (`GHAS`/exceção `D-472`); `docs/diagnostico-ci-pr74.md` (`WARN-NEW: 15`, `FAIL-NEW: 0`, `PASS: 55`, `fail_action: true` `FAIL`; `creation` `Resource` `P012` `restritivo`). Não vetante (`D-468`). |
+| T044 diagnóstico | `c7eeeb5` | docs/diagnostico-ci-pr74.md (`6` `jobs` `verdes`; `2` `repo-level`; `E2E` `não-vetante`) |
+| T045 E2E a11y | `CANDIDATO` (`PENDENTE`) | `D-483` (`revisão` `trimestral`); `E2E` `color-contrast` `serious` `pre-existente` `não` `regressão` `F10` (`correlação` `com` `diff` `inexistente`) |
+| T046 gh CLI | `5e612e6` | `gh-safe` `operativo` (`ps1` `exit` `0` `keyring`; `.sh` `POSIX` `doc` `sem` `exec` `local`); `P010` (`harness` `injetado` `GITHUB_TOKEN` `Process`; `correção`: `origem`) |
 
 Commits `docs(...)` intercalados: acks com D-440/D-441, D-443..D-465.
 

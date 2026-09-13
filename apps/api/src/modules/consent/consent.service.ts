@@ -73,10 +73,14 @@ export class ConsentService {
 
   async historico(usuarioId: string): Promise<unknown[]> {
     this.verificarRateLimit(usuarioId);
-    return this.prisma.consentLog.findMany({
+    const registros = await this.prisma.consentLog.findMany({
       where: { usuario_id: usuarioId },
       orderBy: { criado_em: "desc" },
       take: 100,
     });
+    // T449/D-447: o driver Postgres devolve bigint como BigInt e o
+    // JSON.stringify não serializa BigInt (500 em produção). Contrato:
+    // ts sai como Number (ms epoch, igual ao input de registro).
+    return registros.map((r) => ({ ...r, ts: Number((r as { ts: bigint }).ts) }));
   }
 }
