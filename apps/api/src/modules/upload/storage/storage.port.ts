@@ -12,6 +12,6 @@ export interface PutObjectInput {
 }
 
 export interface StorageAdapter {
-  readonly kind: "r2" | "memory";
+  readonly kind: "r2" | "memory" | "unconfigured";
   put(input: PutObjectInput): Promise<{ key: string; url: string }>;
 }
