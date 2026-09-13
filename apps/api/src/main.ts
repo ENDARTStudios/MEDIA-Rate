@@ -179,7 +179,7 @@ async function bootstrap(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     multipart as any,
     {
-      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+      limits: { fileSize: 10 * 1024 * 1024, files: 1 },
     },
   );
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
@@ -193,6 +193,12 @@ async function bootstrap(): Promise<void> {
     // T216: multipart de upload de poster (5MB validados no service).
     if (routeOptions.url === "/api/v1/midias/:id/upload" && routeOptions.method === "POST") {
       routeOptions.bodyLimit = 52_428_800; // 50 MiB (multipart)
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = uploadRateLimit();
+    }
+    // T453: upload de assets (R2) — teto 10 MiB + rate limit por admin.
+    if (routeOptions.url.startsWith("/api/v1/admin/assets") && routeOptions.method === "POST") {
+      routeOptions.bodyLimit = 12_582_912; // 12 MiB (multipart + overhead)
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = uploadRateLimit();
     }

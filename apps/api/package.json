@@ -42,6 +42,7 @@
     "seed": "node --import @swc-node/register/esm-register prisma/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1131.0",
     "@electric-sql/pglite": "^0.5.4",
     "@fastify/cookie": "^11.1.2",
     "@fastify/cors": "^11.2.0",
