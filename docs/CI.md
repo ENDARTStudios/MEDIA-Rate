@@ -43,3 +43,10 @@ um check requerido verde (`Docs Gate`) e os jobs pesados continuam econômicos
   `if: needs.changes.outputs.code == 'true'` (ou dependa de um job que já
   tenha) e **não** o coloque como requerido sem `changes`.
 - `docs-gate` **não** deve ganhar `paths-ignore` nem `if` de mudança.
+
+## Validação (T459 — 2026-09-13)
+
+PR só-de-docs de validação (esta mudança): `Docs Gate` verde e os jobs pesados
+`skipped`; merge sem bypass, com `Docs Gate` entre os checks requeridos do
+ruleset `protect-main`. Confirmou o fim do deadlock (antes: PR só-de-docs
+ficava `BLOCKED` e exigia bypass).
