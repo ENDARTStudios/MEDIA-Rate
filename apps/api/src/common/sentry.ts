@@ -31,18 +31,59 @@ export function isSentryEnabled(): boolean {
   return Boolean(sentryDsn());
 }
 
+/**
+ * T452: release tracking — correlaciona erros/transações com o commit
+ * implantado. Ordem: SENTRY_RELEASE explícito → SHA do Railway → GIT_COMMIT.
+ */
+export function sentryRelease(): string | undefined {
+  return (
+    process.env.SENTRY_RELEASE?.trim() ||
+    process.env.RAILWAY_GIT_COMMIT_SHA?.trim() ||
+    process.env.GIT_COMMIT?.trim() ||
+    undefined
+  );
+}
+
+/** T452: sample rate de tracing configurável (0..1); default 0.1 em prod. */
+export function sentryTracesSampleRate(): number {
+  const raw = process.env.SENTRY_TRACES_SAMPLE_RATE;
+  if (raw !== undefined) {
+    const n = Number(raw);
+    if (Number.isFinite(n) && n >= 0 && n <= 1) return n;
+  }
+  return process.env.NODE_ENV === "production" ? 0.1 : 1.0;
+}
+
 export function initSentry(): boolean {
   const dsn = sentryDsn();
   if (!dsn) return false;
   Sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? "development",
+    release: sentryRelease(),
     sampleRate: 1.0,
-    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+    tracesSampleRate: sentryTracesSampleRate(),
+    // T452: nunca enviar PII automaticamente (IP, cookies, headers). A
+    // identificação é explícita via `user.id` (não email) e redactEvent.
+    sendDefaultPii: false,
     beforeSend: (event) => redactEvent(event) as Sentry.ErrorEvent,
   });
   console.log("[sentry] inicializado (API)");
   return true;
+}
+
+/**
+ * T452: abre uma transação HTTP (performance) para a requisição corrente.
+ * Sem Sentry habilitado, retorna null (o interceptor vira no-op).
+ */
+export function iniciarTransacaoHttp(method: string, route: string): Sentry.Span | null {
+  if (!isSentryEnabled()) return null;
+  return Sentry.startInactiveSpan({
+    name: `${method} ${route}`,
+    op: "http.server",
+    forceTransaction: true,
+    attributes: { "http.method": method, "http.route": route },
+  });
 }
 
 /** Redige valores cuja chave é sensível; recursivo em objetos/arrays. */

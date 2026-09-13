@@ -20,6 +20,11 @@ export const AnalyticsEvents = {
   PLAN_CHECKOUT_COMPLETED: "plan_checkout_completed",
   PLAN_DOWNGRADED: "plan_downgraded",
   PLAN_CHURNED: "plan_churned",
+  // T452 — funis de conversao (nomes canonicos do funil PostHog):
+  // signup -> trial_started -> checkout_completed -> subscription_activated.
+  TRIAL_STARTED: "trial_started",
+  CHECKOUT_COMPLETED: "checkout_completed",
+  SUBSCRIPTION_ACTIVATED: "subscription_activated",
   // Engajamento com recomendacoes
   RECOMMENDATION_SHOWN: "recommendation_shown",
   RECOMMENDATION_CLICKED: "recommendation_clicked",

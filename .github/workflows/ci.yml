@@ -156,6 +156,18 @@ jobs:
       - name: Build Web (Next.js)
         working-directory: apps/web
         run: npx next build
+      # T452: upload de sourcemaps para o Sentry (release = commit). Opcional:
+      # só roda quando o Operador configura SENTRY_PROJECT (vars) e o secret
+      # SENTRY_AUTH_TOKEN. Sem eles, é no-op. (`vars` é válido em `if`;
+      # `secrets` não — por isso o gate é pela var, não pelo secret.)
+      - name: Sentry sourcemaps (T452, opcional)
+        if: ${{ vars.SENTRY_PROJECT != '' }}
+        working-directory: apps/web
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        run: npx @sentry/cli sourcemaps upload --release "${{ github.sha }}" .next
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

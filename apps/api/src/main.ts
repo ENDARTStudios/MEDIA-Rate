@@ -25,6 +25,7 @@ import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
 import { initSentry } from "./common/sentry.js";
 import { MetricsInterceptor } from "./common/interceptors/metrics.interceptor.js";
+import { SentryTracingInterceptor } from "./common/sentry-tracing.interceptor.js";
 import { MetricsService } from "./modules/metrics/metrics.service.js";
 import { GracefulShutdownService, QueueService } from "./common/queue.service.js";
 import { PrismaService } from "./prisma/prisma.service.js";
@@ -279,6 +280,8 @@ async function bootstrap(): Promise<void> {
 
   // T217 (9.5.2): coleta automática de métricas HTTP (requests/latência/erros).
   app.useGlobalInterceptors(new MetricsInterceptor(app.get(MetricsService)));
+  // T452: transações HTTP no Sentry (performance tracing; no-op sem DSN).
+  app.useGlobalInterceptors(new SentryTracingInterceptor());
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
   console.log("[boot] hooks + guards done");
 

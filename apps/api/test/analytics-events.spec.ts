@@ -111,4 +111,10 @@ describe("AnalyticsService (T1.9)", () => {
     expect(AnalyticsEvents.USER_RETURNED_D7).toBeDefined();
     expect(AnalyticsEvents.USER_RETURNED_D30).toBeDefined();
   });
+
+  it("T452: eventos do funil de conversao estao definidos", () => {
+    expect(AnalyticsEvents.TRIAL_STARTED).toBe("trial_started");
+    expect(AnalyticsEvents.CHECKOUT_COMPLETED).toBe("checkout_completed");
+    expect(AnalyticsEvents.SUBSCRIPTION_ACTIVATED).toBe("subscription_activated");
+  });
 });
