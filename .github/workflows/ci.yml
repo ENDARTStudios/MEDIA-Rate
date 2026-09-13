@@ -9,21 +9,15 @@ name: CI
 on:
   push:
     branches: [main]
-    # D-382: economia de Actions — ignora pushes só de evidência/docs.
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - "**/*.md"
-      - ".claude/**"
-      - "docs/screenshots/**"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - "**/*.md"
-      - ".claude/**"
-      - "docs/screenshots/**"
+
+# T459/D-457: o `paths-ignore` foi MOVIDO do nível de workflow para o nível de
+# job (job `changes` + `if` nos jobs pesados). Motivo: paths-ignore de workflow
+# impedia os checks REQUERIDOS do ruleset protect-main de rodar em PR
+# só-de-docs → deadlock que forçava bypass de branch protection. Agora os jobs
+# pesados pulam docs-only (economia D-382 mantida) e o job leve `docs-gate`
+# SEMPRE roda (check requerido), permitindo merge de docs SEM bypass.
 
 # D-382: um run por ref — cancela runs supersedadas do mesmo ref.
 concurrency:
@@ -40,9 +34,96 @@ env:
 
 jobs:
 
+  # T459/D-457: detecta se há mudança de CÓDIGO (fora de docs/markdown). Os jobs
+  # pesados dependem disto; em docs-only eles pulam (economia D-382 mantida).
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        name: Filtra arquivos de código
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          code=false
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              docs/*|*.md|.claude/*|docs/screenshots/*) ;;
+              *) code=true ;;
+            esac
+          done <<< "$(git diff --name-only "$base" "$head")"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "code=$code"
+
+  # T459/D-457: gate LEVE que SEMPRE roda (inclusive PR só-de-docs). É o check
+  # requerido que destrava o merge de docs sem bypass; os jobs pesados pulam.
+  docs-gate:
+    name: Docs Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Arquivos alterados
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            git ls-files > /tmp/changed.txt
+          else
+            git diff --name-only "$base" "$head" > /tmp/changed.txt
+          fi
+          echo "--- alterados ---"; cat /tmp/changed.txt
+      - name: Secret scan (padrões óbvios)
+        run: |
+          found=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            if grep -nEI 'sk_live_[A-Za-z0-9]|sk_test_[A-Za-z0-9]|whsec_[A-Za-z0-9]|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY' "$f"; then
+              echo "::error::Padrão de segredo em $f"; found=1
+            fi
+          done < /tmp/changed.txt
+          [ "$found" = "0" ] || exit 1
+          echo "docs-gate: sem padrões de segredo."
+      - name: Markdown sanity (não-vazio)
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            case "$f" in
+              *.md)
+                [ -f "$f" ] || continue
+                if [ ! -s "$f" ]; then echo "::error::Markdown vazio: $f"; fail=1; fi
+                ;;
+            esac
+          done < /tmp/changed.txt
+          [ "$fail" = "0" ] || exit 1
+          echo "docs-gate: markdown OK."
+
   # T234/T299: spec de isolamento RLS com postgres de service (migrate deploy em DB virgem).
   security-rls:
     name: RLS Isolation (T290/T299/T301)
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -78,6 +159,8 @@ jobs:
   # Job 1: Lint + Audit (rápido, roda primeiro)
   lint-audit:
     name: Lint & Audit
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -104,6 +187,8 @@ jobs:
   # Job 2: Testes + Coverage (paralelo com lint)
   test:
     name: Test & Coverage
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -183,6 +268,8 @@ jobs:
   # high/critical quebra o job; achado real nunca é silenciado.
   semgrep-sast:
     name: Semgrep (SAST)
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -196,8 +283,9 @@ jobs:
   # Job 5: DAST ZAP baseline (apenas em PR)
   zap-baseline:
     name: ZAP Baseline (DAST)
+    needs: [changes]
+    if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     # T043: permissions mínimas (P012 repo read+write verificado) — cobre a
     # criação de issue ("Resource not accessible"). D-472 (D-486 citado no
     # spec não existe no DECISOES.md; usa-se D-472 verificado).
