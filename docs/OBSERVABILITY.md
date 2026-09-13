@@ -156,9 +156,9 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
 ## Upload de assets — Cloudflare R2 (T453, F18)
 
 - **Porta/adapters**: `AssetUploadService` depende de `StorageAdapter`
-  (`storage.port.ts`). Implementações: `R2Storage` (S3 via
-  `@aws-sdk/client-s3`) e `InMemoryStorage` (dev/test). O provider escolhe R2
-  quando as credenciais existem; senão cai para InMemory (no-op claro).
+  (`storage.port.ts`). `selecionarStorage()` escolhe em 3 estados (matriz
+  abaixo): `R2Storage` (S3 via `@aws-sdk/client-s3`), `UnconfiguredStorage`
+  (fail-closed) e `InMemoryStorage` (dev/test).
 - **Rota**: `POST /api/v1/admin/assets/:midiaId/:tipoMidia` (admin-only,
   rate limit 10/min, bodyLimit 12 MiB).
 - **Validação**: magic bytes (whitelist JPEG/PNG/WebP/AVIF — nunca extensão),
@@ -167,9 +167,15 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
   nenhum fragmento de filename do usuário entra no path.
 - **Audit**: `MEDIA_ASSET_UPLOADED` (usuario, midia, sha256, tamanho, MIME) —
   append-only, sem PII.
+- **Seleção de storage (3 estados)**:
+  (a) **produção com env R2 completa** → `R2Storage` (persiste no bucket);
+  (b) **produção sem env R2** → `UnconfiguredStorage`: **503
+  `STORAGE_UNAVAILABLE` + warn de boot** (fail-closed, **NUNCA grava em
+  memória** — evita perda silenciosa de assets);
+  (c) **dev/test** → `InMemoryStorage`.
 - **Env (Railway)**: `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`,
-  `R2_SECRET_ACCESS_KEY` e, opcional, `R2_PUBLIC_BASE_URL` (CDN). Ausentes ⇒
-  InMemory (dev). As credenciais nunca vão ao cliente/log.
+  `R2_SECRET_ACCESS_KEY` e, opcional, `R2_PUBLIC_BASE_URL` (CDN). As
+  credenciais nunca vão ao cliente/log.
 - **UI**: `/admin/upload` (interna, noindex). Ativação em produção após o
   Operador provisionar bucket + token escopado.
 
