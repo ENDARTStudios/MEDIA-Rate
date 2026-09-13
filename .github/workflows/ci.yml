@@ -189,9 +189,13 @@ jobs:
     # T043: permissions mínimas (P012 repo read+write verificado) — cobre a
     # criação de issue ("Resource not accessible"). D-472 (D-486 citado no
     # spec não existe no DECISOES.md; usa-se D-472 verificado).
+    # T451: `actions: write` é exigido pelo upload de artefato interno do
+    # zaproxy/action-baseline (sem ele: "Create Artifact Container failed:
+    # The artifact name zap_scan is not valid" — falha de infra, não do scan).
     permissions:
       contents: read
       issues: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
       # T042: o alvo anterior (preview-<n>.media-rate.example.com) nunca
