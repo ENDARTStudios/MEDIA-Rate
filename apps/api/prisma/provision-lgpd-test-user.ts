@@ -32,12 +32,8 @@ function sanitizar(msg: string): string {
 
 function upsertEnv(raiz: string, email: string, senha: string): void {
   const caminho = join(raiz, ".env");
-  const linhas: string[] = existsSync(caminho)
-    ? readFileSync(caminho, "utf8").split("\n")
-    : [];
-  const semAntigas = linhas.filter(
-    (l) => !/^E2E_TEST_(EMAIL|PASSWORD)=/.test(l.trim()),
-  );
+  const linhas: string[] = existsSync(caminho) ? readFileSync(caminho, "utf8").split("\n") : [];
+  const semAntigas = linhas.filter((l) => !/^E2E_TEST_(EMAIL|PASSWORD)=/.test(l.trim()));
   while (semAntigas.length > 0 && semAntigas[semAntigas.length - 1].trim() === "") {
     semAntigas.pop();
   }
