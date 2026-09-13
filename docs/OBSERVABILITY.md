@@ -113,3 +113,44 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
 6. (Opcional) o `health-check.yml` do GitHub Actions já faz cron a cada 5
    minutos como fallback.
 
+## Sentry server-side (T452, F18)
+
+- **Erros**: `GlobalExceptionFilter` captura 5xx via `capturarSentry` com
+  `correlation_id`/`http_*` e `user.id` (nunca e-mail/nome).
+- **Performance**: `SentryTracingInterceptor` abre uma transação
+  `http.server` por requisição (nome = `MÉTODO rota`) e registra
+  `http.status_code`. No-op sem `SENTRY_DSN`.
+- **Release tracking**: `SENTRY_RELEASE` → `RAILWAY_GIT_COMMIT_SHA` →
+  `GIT_COMMIT` (nessa ordem). Correlaciona erros/transações com o commit.
+- **PII**: `sendDefaultPii: false` + `redactEvent` (headers/body/extra
+  sensíveis). Nunca envia IP/cookies/headers automaticamente.
+- **Env**: `SENTRY_DSN` (obrigatório p/ ativar), `SENTRY_TRACES_SAMPLE_RATE`
+  (0..1; default 0.1 em produção), `SENTRY_RELEASE` (opcional).
+- **Sourcemaps (web)**: o job `build` do CI roda
+  `sentry-cli sourcemaps upload --release <sha>` **apenas** quando
+  `SENTRY_AUTH_TOKEN` existe (secrets) + vars `SENTRY_ORG`/`SENTRY_PROJECT`.
+  Sem eles, é no-op.
+
+## PostHog — funis e feature flags (T452, F18)
+
+- **Consentimento**: analytics só carrega com consentimento `analytics`
+  (T432). Sem consentimento, nada é enviado. `identify` envia apenas
+  `id` + `plan` (sem PII).
+- **Funis de conversão** (eventos canônicos):
+  `user_registered` → `trial_started` | `checkout_completed` →
+  `subscription_activated`. Emitidos no `PaymentService` (checkout/webhook).
+- **Feature flags (rollout gradual)**:
+  - `cloudflare_migration` — decide CDN/endpoint (Vercel vs Cloudflare)
+    durante a migração. **Default OFF** → comportamento atual preservado.
+  - Uso no web: `flagAtiva(posthog, FEATURE_FLAGS.CLOUDFLARE_MIGRATION)`
+    (`apps/web/src/lib/posthog.ts`) — nunca lança; erro/ausência do SDK cai
+    no fallback (OFF).
+  - Criar/ajustar a flag é **ação do Operador** no dashboard do PostHog
+    (rollout por percentual).
+
+### Env (web)
+
+`NEXT_PUBLIC_ANALYTICS_WRITE_KEY` (PostHog), `NEXT_PUBLIC_POSTHOG_HOST`,
+`NEXT_PUBLIC_SENTRY_DSN`. Ausentes ⇒ SDKs inerte (no-op), sem quebrar a UI.
+
+

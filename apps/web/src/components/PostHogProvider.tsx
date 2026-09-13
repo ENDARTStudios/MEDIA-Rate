@@ -56,9 +56,9 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const posthog = posthogRef.current;
     if (!enabled || !user?.id || !posthog || !posthog.__loaded) return;
+    // T452: sem PII no PostHog — apenas id (distinct_id) + plano. Email e nome
+    // NÃO são enviados (reduz exposição; Política de Privacidade atualizada).
     posthog.identify(user.id, {
-      email: user.email,
-      name: user.name,
       plan: user.plan,
     });
   }, [enabled, user]);

@@ -18,6 +18,7 @@ import {
 import { WebhookSignatureError } from "./domain/gateway/payment-gateway.port.js";
 import { CreateCheckoutDtoType, WebhookPayload } from "./dto/payment.dto.js";
 import { MailerService } from "../mailer/mailer.service.js";
+import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 
 /**
  * Serviço de pagamento (T4.8 use case).
@@ -37,6 +38,8 @@ export class PaymentService {
     private readonly prisma: PrismaService,
     @Inject(PAYMENT_GATEWAY) private readonly gateway: IPaymentGateway,
     @Optional() private readonly mailer?: MailerService,
+    // T452: funil de conversao (opcional — testes instanciam sem analytics).
+    @Optional() private readonly analytics?: AnalyticsService,
   ) {}
 
   /**
@@ -85,6 +88,12 @@ export class PaymentService {
     this.logger.log(
       `Checkout criado: ${session.id} para usuário ${usuario.id} (plano ${dto.plano})`,
     );
+    // T452: funil — checkout iniciado (Free -> Plus/Premium).
+    this.analytics?.capture(usuario.id, AnalyticsEvents.PLAN_CHECKOUT_STARTED, {
+      plan: dto.plano,
+      period: dto.periodo ?? "month",
+      currency: dto.currency ?? "BRL",
+    });
     return session;
   }
 
@@ -280,6 +289,20 @@ export class PaymentService {
         trialEndsAt ? ` (trial até ${trialEndsAt.toISOString()})` : ""
       }`,
     );
+    // T452: funil de conversao — trial iniciado OU checkout concluido, e a
+    // ativacao da assinatura (fonte de verdade do upgrade).
+    if (trialEndsAt) {
+      this.analytics?.capture(usuarioId, AnalyticsEvents.TRIAL_STARTED, {
+        plan: plano,
+        trial_days: PaymentService.TRIAL_DAYS_PLUS,
+      });
+    } else {
+      this.analytics?.capture(usuarioId, AnalyticsEvents.CHECKOUT_COMPLETED, { plan: plano });
+    }
+    this.analytics?.capture(usuarioId, AnalyticsEvents.SUBSCRIPTION_ACTIVATED, {
+      plan: plano,
+      status,
+    });
   }
 
   /**
