@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PlanThemeProvider } from "@/components/layout/PlanThemeProvider";
+import { DashboardSidebar } from "../../../components/dashboard/DashboardSidebar";
 
 // T412 (D-390): rotas autenticadas NUNCA em cache ISR/CDN — evita HTML de um
 // usuário servido a outro e dados stale (achado f do Operador).
@@ -21,5 +22,13 @@ export async function generateMetadata({
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <PlanThemeProvider>{children}</PlanThemeProvider>;
+  return (
+    <PlanThemeProvider>
+      {/* Shell do protótipo: sidebar sticky (lg+) + conteúdo; Navbar global acima. */}
+      <div className="mx-auto flex w-full max-w-[1440px] items-start gap-6 px-4 sm:px-6 lg:px-8">
+        <DashboardSidebar />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </PlanThemeProvider>
+  );
 }

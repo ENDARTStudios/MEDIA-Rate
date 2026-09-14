@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { api } from "@/lib/http";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRouter } from "@/lib/navigation";
+import { DashboardOverview } from "./DashboardOverview";
 
 interface UserStats {
   plano: string;
@@ -369,6 +370,16 @@ export function DashboardClient() {
           />
         </section>
       </div>
+
+      {/* T460: visão geral do protótipo (radar, evolução, taxonomia, pulso, conquistas,
+          feed, tendência, descobertas, sinais, perfil). */}
+      <DashboardOverview
+        stats={{
+          tipos: stats.tipos,
+          generos: stats.generos,
+          evolucao: stats.evolucao,
+        }}
+      />
     </div>
   );
 }
