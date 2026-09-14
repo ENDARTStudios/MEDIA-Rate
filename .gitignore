@@ -77,3 +77,6 @@ apps/web/src/components/hero-icons/*.png
 
 # e2e test password (local, nunca commitado)
 .e2e-pass
+
+# Protótipo de design (Manus/Vite) — referência apenas, nunca parte do produto
+design-system/media-rate-dashboard/

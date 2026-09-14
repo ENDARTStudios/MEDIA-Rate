@@ -26,6 +26,8 @@ export default tseslint.config(
       // Runtime checkout do agente: não faz parte do produto e polui o lint
       // (dezenas de milhares de erros de prettier em código de terceiros).
       "deepseek-harness/**",
+      // Protótipo de design (Manus/Vite) — referência apenas, nunca parte do produto.
+      "design-system/media-rate-dashboard/**",
     ],
   },
 
