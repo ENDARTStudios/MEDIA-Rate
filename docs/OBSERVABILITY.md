@@ -142,11 +142,18 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
 - **Feature flags (rollout gradual)**:
   - `cloudflare_migration` — decide CDN/endpoint (Vercel vs Cloudflare)
     durante a migração. **Default OFF** → comportamento atual preservado.
+    **Criada** em 2026-09-14 via CLI (PostHog id **886344**, ativa com
+    rollout 0%; T454 a eleva por percentual quando a migração avançar).
   - Uso no web: `flagAtiva(posthog, FEATURE_FLAGS.CLOUDFLARE_MIGRATION)`
     (`apps/web/src/lib/posthog.ts`) — nunca lança; erro/ausência do SDK cai
     no fallback (OFF).
-  - Criar/ajustar a flag é **ação do Operador** no dashboard do PostHog
-    (rollout por percentual).
+  - Ajustar rollout (Operador; dashboard do PostHog **ou** CLI — a Personal
+    API key precisa do scope `feature_flag:write`):
+
+    ```bash
+    posthog-cli --host https://us.posthog.com --dotenv-file .env api call \
+      update-feature-flag '{"id":886344,"filters":{"groups":[{"properties":[],"rollout_percentage":50}]}}'
+    ```
 
 ### Env (web)
 
