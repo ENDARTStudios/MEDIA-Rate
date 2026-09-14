@@ -30,7 +30,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const t = await getTranslations("dashboard");
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="py-8">
       {/* T388: faixa de identidade do plano (cor via --plan-accent do provider). */}
       <div
         className="mb-6 h-1 w-24 rounded-full"
