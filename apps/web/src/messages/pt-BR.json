@@ -38,9 +38,6 @@
     "login": "Entrar",
     "register": "Cadastrar",
     "password": "Senha",
-    "passwordWeak": "Fraca",
-    "passwordMedium": "Média",
-    "passwordStrong": "Forte",
     "logout": "Sair",
     "profile": "Perfil",
     "admin": "Admin",
@@ -636,7 +633,10 @@
     "verifyResendHint": "Digite seu email para receber um novo link.",
     "verifyResendButton": "Reenviar link",
     "verifyResendSent": "Novo link enviado! Confira seu email (e o spam).",
-    "verifyResendError": "Não foi possível reenviar. Tente novamente."
+    "verifyResendError": "Não foi possível reenviar. Tente novamente.",
+    "passwordWeak": "Fraca",
+    "passwordMedium": "Média",
+    "passwordStrong": "Forte"
   },
   "hero": {
     "brandName": "MEDIA Rate",

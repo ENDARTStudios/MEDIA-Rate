@@ -38,9 +38,6 @@
     "login": "Log in",
     "register": "Sign up",
     "password": "Password",
-    "passwordWeak": "Weak",
-    "passwordMedium": "Medium",
-    "passwordStrong": "Strong",
     "logout": "Log out",
     "profile": "Profile",
     "admin": "Admin",
@@ -636,7 +633,10 @@
     "verifyResendHint": "Enter your email to receive a new link.",
     "verifyResendButton": "Resend link",
     "verifyResendSent": "New link sent! Check your inbox (and spam).",
-    "verifyResendError": "Could not resend. Please try again."
+    "verifyResendError": "Could not resend. Please try again.",
+    "passwordWeak": "Weak",
+    "passwordMedium": "Medium",
+    "passwordStrong": "Strong"
   },
   "hero": {
     "brandName": "MEDIA Rate",
