@@ -23,7 +23,14 @@ Specs gateados com `E2E_FULL=1` (pulados no CI com justificativa):
 `a11y` (inteiro — sem API o DOM auditado é o de estados vazios/erro, com
 violações falsas; comprovado no T461), `auth.e2e`, `auth.spec` (testes de
 fluxo), `flow`, `dashboard-gating`, `home-ilha`, `crosscheck-auditoria`,
-`i18n-leak`.
+`i18n-leak`, `landing-hero` (showcase vive da API), `media-details`,
+`navigation.spec` (teste de planos), `search`/`search-topo`,
+`screenshot-paleta`, `status-menu-funcional`, `t103`/`t104`.
+
+**Por que `next dev` e não `next build && next start` no job web-only:**
+testado no T461 — o build de produção SEM API **assa os estados vazios das
+páginas ISR no bundle** (revalidate 3600s, T447): 133 testes quebrados contra
+17 no modo dev. O E2E representativo exige API+DB (E2E_FULL).
 
 ## Como rodar o conjunto completo localmente
 
@@ -44,9 +51,11 @@ Sem `E2E_FULL=1`, os specs gateados são pulados e o restante roda contra o
 
 ## Caminho para E2E completo no CI (futuro)
 
-1. Provisionar ambiente de staging (API + Postgres + seed) acessível ao job;
-2. Trocar o `webServer` de `next dev` para `next build && next start`
-   (elimina latência de compilação a frio, fonte de flakiness);
+1. Provisionar ambiente com **API + Postgres + seed** acessível ao job
+   (serviço no próprio workflow ou staging) — pré-requisito de tudo;
+2. **Só então** trocar o `webServer` para `next build && next start` — build
+   com API disponível assa as páginas ISR com conteúdo real (build sem API
+   assa estados vazios: 133 testes quebrados, medido no T461);
 3. Definir `E2E_FULL=1` no job e re-habilitar os specs gateados;
 4. Somente então tornar o job E2E **required** (hoje é não-bloqueante com
    `continue-on-error` — ver D-491/T461).

@@ -13,6 +13,13 @@ const H1_FRAGMENT: Record<string, string> = {
   "es-ES": "Se acabó el",
 };
 
+// T461 (D-492): a hero inclui o showcase vivo com mídias reais da API —
+// sem API a home não renderiza a hero completa. CI sobe só o web.
+test.skip(
+  process.env.E2E_FULL !== "1",
+  "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+);
+
 test("T358: hero sem ícones circulares nem nomes flutuantes", async ({ page }) => {
   await page.goto("/pt-BR");
   await page.waitForTimeout(1200);

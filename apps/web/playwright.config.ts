@@ -24,16 +24,16 @@ export default defineConfig({
       use: { ...devices["Pixel 5"] },
     },
   ],
-  // T461 (D-492): E2E roda contra build de PRODUÇÃO (`next build && next
-  // start`), não `next dev` — o modo dev tem compilação a frio por rota
-  // (flakiness de timeout no CI) e DOM/CSS diferentes do produto real,
-  // o que gera resultados de auditoria (a11y/contraste) não representativos.
+  // T461 (D-492): `next dev` é o modo honesto para o job web-only. Um
+  // `next build && next start` SEM API assa os estados vazios das páginas
+  // ISR no build (133 testes quebrados vs 17) — auditando o produto errado.
+  // E2E completo (com API+DB) permanece atrás de E2E_FULL; ver docs/E2E.md.
   webServer: process.env.CI
     ? {
-        command: "npx next build && npx next start -p 3000",
+        command: "npx next dev -p 3000",
         url: "http://localhost:3000",
         reuseExistingServer: true,
-        timeout: 600_000,
+        timeout: 60_000,
       }
     : undefined,
 });
