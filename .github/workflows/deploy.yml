@@ -48,6 +48,11 @@ jobs:
           else
             echo "Nenhum arquivo TS/JS alterado — lint pulado."
           fi
+      # T461 (D-492): sem o generate, o @prisma/client chega como stub e o
+      # typecheck da API falha com TS2694 (AuditLogCreateInput etc.) — mesma
+      # razão dos steps "Prisma generate" do ci.yml (T042).
+      - name: Prisma generate
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
       - name: Typecheck API
         working-directory: apps/api
         run: npm run typecheck

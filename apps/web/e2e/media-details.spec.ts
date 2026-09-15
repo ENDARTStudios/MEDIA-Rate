@@ -7,6 +7,12 @@ const GAME_SLUG = "baldur-s-gate-3";
 const MOVIE_TITLE = /Os Eternos Desconhecidos/i;
 
 test.describe("Detalhes de Midia", () => {
+  // T461 (D-492): exige catálogo do banco via API — CI sobe só o web.
+  test.skip(
+    process.env.E2E_FULL !== "1",
+    "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+  );
+
   test("pagina de detalhes exibe titulo da midia", async ({ page }) => {
     await page.goto(`/media/${GAME_SLUG}`);
     await expect(

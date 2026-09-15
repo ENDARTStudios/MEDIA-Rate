@@ -63,6 +63,11 @@ test.describe("Navegacao e i18n", () => {
   });
 
   test("pagina de precos exibe planos", async ({ page }) => {
+    // T461 (D-492): planos vêm da API/billing — CI sobe só o web.
+    test.skip(
+      process.env.E2E_FULL !== "1",
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+    );
     await page.goto("/pricing");
 
     // Verifica que pelo menos um nome de plano aparece

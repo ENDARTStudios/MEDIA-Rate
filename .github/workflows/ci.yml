@@ -367,7 +367,11 @@ jobs:
         working-directory: apps/web
         env:
           PLAYWRIGHT_BASE_URL: "http://localhost:3000/pt-BR"
-        run: npx playwright test --project=chromium
+        # T461 (D-492): job web-only (sem API/DB) — roda a allowlist curada
+        # de specs que são significativos sem backend. A suíte completa exige
+        # E2E_FULL=1 com API+DB (ver apps/web/docs → docs/E2E.md); o corpus
+        # restante (t103–t161, fluxos, a11y) fica pulado com justificativa.
+        run: npx playwright test e2e/auth.spec.ts e2e/navigation.spec.ts --project=chromium
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

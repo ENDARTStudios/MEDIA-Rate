@@ -13,6 +13,13 @@ const PLUS_EMAIL = process.env.E2E_TEST_EMAIL ?? "plus@mediarate.test";
 const PASSWORD = process.env.E2E_TEST_PASSWORD ?? "";
 
 test.describe("T405 home-ilha — carrossel com event delegation", () => {
+  test.beforeEach(() => {
+    test.skip(
+      process.env.E2E_FULL !== "1",
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe so o web; ver docs/E2E.md",
+    );
+  });
+
   test("'+' do carrossel abre popover, seta 'Assistindo' e cai na watchlist", async ({ page }) => {
     test.skip(!PASSWORD, "E2E credenciais não definidas");
     await login(page, PLUS_EMAIL, PASSWORD);

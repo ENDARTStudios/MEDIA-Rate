@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test("fluxo completo: register → login → catálogo → watchlist → logout", async ({ page }) => {
+  // T461 (D-492): fluxo completo exige API+DB; CI sobe só o web. Sem
+  // E2E_FULL=1 o teste é pulado (dispensa em docs/E2E.md). Nunca apontar
+  // para produção (429 no edge para datacenter + usuários reais no banco).
+  test.skip(process.env.E2E_FULL !== "1", "Requer API+DB (E2E_FULL=1) — ver docs/E2E.md");
   const email = `e2e-${Date.now()}@test.com`;
   const password = "TesteForte123!";
-  const BASE_URL = process.env.BASE_URL || "https://media-rate-web.vercel.app";
+  const BASE_URL = process.env.BASE_URL || "";
 
   // 1. Register
   await page.goto(BASE_URL + "/pt-BR/register", { waitUntil: "networkidle", timeout: 15000 });

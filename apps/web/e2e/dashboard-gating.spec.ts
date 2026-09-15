@@ -6,6 +6,13 @@ import { login } from "./helpers/auth";
  * Premium; timeline/histograma/streak = todos). Free vê preview borrado + CTA.
  */
 test.describe("T402 — gating do dashboard por plano", () => {
+  test.beforeEach(() => {
+    test.skip(
+      process.env.E2E_FULL !== "1",
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe so o web; ver docs/E2E.md",
+    );
+  });
+
   const password = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
 
   test("Free → radar e evolução borrados com CTA (2 previews)", async ({ page }) => {

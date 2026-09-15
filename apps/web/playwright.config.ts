@@ -24,6 +24,10 @@ export default defineConfig({
       use: { ...devices["Pixel 5"] },
     },
   ],
+  // T461 (D-492): `next dev` é o modo honesto para o job web-only. Um
+  // `next build && next start` SEM API assa os estados vazios das páginas
+  // ISR no build (133 testes quebrados vs 17) — auditando o produto errado.
+  // E2E completo (com API+DB) permanece atrás de E2E_FULL; ver docs/E2E.md.
   webServer: process.env.CI
     ? {
         command: "npx next dev -p 3000",

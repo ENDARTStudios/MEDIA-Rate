@@ -7,6 +7,15 @@ import { test, expect } from "@playwright/test";
  * digitação rápida.
  */
 
+// T461 (D-492): ficha/catálogo precisam da API (conteúdo real); CI sobe só
+// o web. Rodar completo exige E2E_FULL=1 (dispensa em docs/E2E.md).
+test.beforeEach(() => {
+  test.skip(
+    process.env.E2E_FULL !== "1",
+    "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+  );
+});
+
 test("T238: ficha exibe botão de watchlist sempre (não só quando está na lista)", async ({
   page,
 }) => {

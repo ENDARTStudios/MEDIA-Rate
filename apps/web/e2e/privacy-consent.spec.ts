@@ -30,13 +30,19 @@ async function trackRequests(page: Page): Promise<Tracker> {
   return t;
 }
 
+// T461 (D-492): domínio do cookie derivado do alvo — com domain fixo
+// "mediarate.app" o browser rejeita o cookie no localhost e o estado de
+// consentimento nunca é simulado.
+const CONSENT_COOKIE_DOMAIN = new URL(process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000")
+  .hostname;
+
 test.beforeEach(async ({ context }) => {
   // garante estado limpo (sem consentimento -> privacy by default)
   await context.addCookies([
     {
       name: "mr_consent",
       value: encodeURIComponent(JSON.stringify({ analytics: false, monitoring: false, v: 1 })),
-      domain: "mediarate.app",
+      domain: CONSENT_COOKIE_DOMAIN,
       path: "/",
     },
   ]);
@@ -61,13 +67,19 @@ test("aceitar analytics: requisição ao PostHog presente", async ({ context, pa
     {
       name: "mr_consent",
       value: encodeURIComponent(JSON.stringify({ analytics: true, monitoring: true, v: 1 })),
-      domain: "mediarate.app",
+      domain: CONSENT_COOKIE_DOMAIN,
       path: "/",
     },
   ]);
   const t = await trackRequests(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(5000);
+  // T461 (D-492): sem NEXT_PUBLIC_ANALYTICS_WRITE_KEY no build, o PostHog
+  // nem carrega (privacy by default) — o teste só é executável com chave.
+  test.skip(
+    !process.env.NEXT_PUBLIC_ANALYTICS_WRITE_KEY,
+    "Requer NEXT_PUBLIC_ANALYTICS_WRITE_KEY no build — CI não injeta chave de analytics",
+  );
   expect(t.posthog).toBeGreaterThan(0);
 });
 
