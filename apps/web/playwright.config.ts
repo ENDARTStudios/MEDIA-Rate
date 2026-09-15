@@ -24,12 +24,16 @@ export default defineConfig({
       use: { ...devices["Pixel 5"] },
     },
   ],
+  // T461 (D-492): E2E roda contra build de PRODUÇÃO (`next build && next
+  // start`), não `next dev` — o modo dev tem compilação a frio por rota
+  // (flakiness de timeout no CI) e DOM/CSS diferentes do produto real,
+  // o que gera resultados de auditoria (a11y/contraste) não representativos.
   webServer: process.env.CI
     ? {
-        command: "npx next dev -p 3000",
+        command: "npx next build && npx next start -p 3000",
         url: "http://localhost:3000",
         reuseExistingServer: true,
-        timeout: 60_000,
+        timeout: 600_000,
       }
     : undefined,
 });
