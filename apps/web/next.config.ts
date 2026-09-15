@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // T452/D-503: gera .map dos bundles do browser para o upload no Sentry
   // (ci.yml → "Sentry sourcemaps"). Sem isso o passo sobe 0 arquivos.
-  production_browser_source_maps: true,
+  productionBrowserSourceMaps: true,
   images: {
     // T032/D-445: larguras/formatos/qualidade travados nos tokens do uso
     // real (cards 300px, hero 100vw) — cada largura a menos é uma
