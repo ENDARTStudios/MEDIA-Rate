@@ -1775,3 +1775,26 @@ das decisões faltantes da F17; separado do fechamento técnico da F17.
 
 **Decisão:** Conduta correta; rotação com o Operador; não bloqueia T042.
 
+
+## D-491 — PRs #92/#94 aprovados e merged; E2E falho registrado como dívida T461
+
+**Data:** 2026-09-14 · **Fase:** F18/F19 · **Status:** REGISTRADA
+
+**Contexto:** REVIEW R460-dashboard-port e R454-flag-cloudflare-migration APPROVED
+(payload do Thinker referenciava "D-459" — ID já em uso (T037); registrado aqui
+como D-491, próximo livre após D-490). T460: porte da dashboard do protótipo
+(379/379 testes, 11 checks verdes, rótulos de demonstração, sem links mortos,
+mapa de rotas testado). T454-flag: `cloudflare_migration` criada no PostHog
+(id 886344, rollout 0% = default OFF), runbook atualizado.
+
+**Decisão:** (1) T460 e T454-flag marcados [x]; (2) merge dos PRs #92/#94 em
+main autorizado e executado (95744e8, fc76d75); (3) E2E Playwright falho é
+pré-existente (idêntico em #83/#86; `auth.passwordStrong` inexistente em todos
+os locales) e vira a tarefa T461-e2e-playwright-saneamento; (4) Deploy workflow
+falho na main também é pré-existente (falha em merge docs-only de 2026-09-13;
+typecheck da API roda sem `prisma generate`) — tratado junto ao saneamento de
+CI; (5) produção confirmada pós-merge (Vercel success + health monitor 200 +
+render em browser real).
+
+**Impacto:** dashboard visível em produção com integridade de produto; flag de
+migração pronta para rollout gradual; dívidas de CI (E2E, Deploy) registradas.
