@@ -317,8 +317,13 @@ WAF/Cloudflare + domínio próprio.
 ## Próxima tarefa (PROTOCOLO_MESTRE.md Seção 6)
 
 O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior prioridade:
-1. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
-2. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
-3. **Fase 6.14** — feature flags (planejada em F11/T292).
-4. **F11 em andamento** — T285 → T286 → T287... (ordem D-279).
-5. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot.
+1. **F18/F19 (atual, D-491)** — T461-e2e-playwright-saneamento (E2E + Deploy
+   workflow pré-existentes falhos) e T454-cloudflare-deploy (rework de
+   ISR/middleware p/ Cloudflare Pages/Workers; flag `cloudflare_migration`
+   criada, rollout 0%).
+2. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
+3. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
+4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags
+   no código e no PostHog desde T452/D-491 (`apps/web/src/lib/posthog.ts`).
+5. **F11 em andamento** — T285 → T286 → T287... (ordem D-279).
+6. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot.
