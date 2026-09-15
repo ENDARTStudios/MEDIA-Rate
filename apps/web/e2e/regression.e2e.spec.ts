@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-const BASE = process.env.E2E_BASE_URL ?? "https://media-rate-end-art-studios.vercel.app";
+// T461 (D-492): CI nunca testa produção (429 no edge p/ datacenter; dados
+// de usuários reais). "" = URLs relativas → baseURL local do playwright.config.
+const BASE = process.env.E2E_BASE_URL ?? "";
 
 test.describe("Regression - Public Pages (T054)", () => {
   test("home /pt-BR carrega sem pageerror", async ({ page }) => {
