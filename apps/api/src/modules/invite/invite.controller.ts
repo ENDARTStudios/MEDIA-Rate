@@ -1,5 +1,5 @@
 import { Controller, Post, Req, Res, HttpException, HttpStatus } from "@nestjs/common";
-import { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import { randomUUID } from "crypto";
 import { isAdminTokenValid } from "../../common/admin-token.util.js";
 

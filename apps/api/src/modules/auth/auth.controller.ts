@@ -12,7 +12,7 @@ import {
   UsePipes,
   UnauthorizedException,
 } from "@nestjs/common";
-import { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService, type LoginResult, type MeResult } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
 import { SessionCookieService } from "./session-cookie.service.js";
