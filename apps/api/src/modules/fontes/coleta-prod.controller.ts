@@ -9,7 +9,7 @@ import {
   Req,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { isAdminTokenValid } from "../../common/admin-token.util.js";

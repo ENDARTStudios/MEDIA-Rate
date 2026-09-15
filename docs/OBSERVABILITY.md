@@ -185,6 +185,17 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
   credenciais nunca vão ao cliente/log.
 - **UI**: `/admin/upload` (interna, noindex). Ativação em produção após o
   Operador provisionar bucket + token escopado.
+- **Verificação de artefato (D-505)**: após o primeiro deploy com
+  sourcemaps, inspecionar **UMA release no Sentry via UI** (Settings →
+  Releases → abrir a release do merge) e confirmar que **arquivos estão
+  anexados** — `productionBrowserSourceMaps` era obrigatório no
+  `next.config.ts`; sem ela o step saía **0 (sucesso vazio)** (exit 0 sem
+  cumprir a função — release "fantasma" criada só pelo tracking da
+  integração GitHub). **Política**: todo step novo de observabilidade no CI
+  precisa de verificação de "artefato produzido" documentada no runbook —
+  exit code verde é condição necessária, não suficiente. Nota: o token
+  `org:ci` não lista releases/files via REST; a evidência é o log do step
+  (`Found N files → Uploaded files to Sentry`) ou a UI do Sentry.
 
 
 

@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../rls-context.js";

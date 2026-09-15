@@ -9,7 +9,7 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { PaymentService } from "./payment.service.js";
 import { CreateCheckoutDto } from "./dto/payment.dto.js";

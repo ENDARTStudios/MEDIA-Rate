@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { ConsentService } from "./consent.service.js";
 import { RegistrarConsentDto, type RegistrarConsentDtoType } from "./consent.dto.js";

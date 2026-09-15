@@ -1798,3 +1798,60 @@ render em browser real).
 
 **Impacto:** dashboard visível em produção com integridade de produto; flag de
 migração pronta para rollout gradual; dívidas de CI (E2E, Deploy) registradas.
+
+## D-503 — Runbook Sentry fechado: vars/secret corretos + workflow_dispatch
+
+**Data:** 2026-09-15 · **Fase:** F18-infra-cloudflare · **Status:** REGISTRADA
+
+**Contexto:** D-498→D-502 (token org:ci, privacidade org, deleção sem criação
+de vars). Screenshot do Operador confirmou `SENTRY_ORG`/`SENTRY_PROJECT`
+criadas; secret `SENTRY_AUTH_TOKEN` já existia.
+
+**Decisão:** configuração final = Secret `SENTRY_AUTH_TOKEN`; Variables
+`SENTRY_ORG` + `SENTRY_PROJECT`; gate do passo `if: vars.SENTRY_PROJECT != ''`
+acaba com skip silencioso (D-502). ci.yml ganha `workflow_dispatch` (validação
+manual sem PR/merge). Validação executada: passo de sourcemaps executa e sobe
+**764 arquivos** (run 35021802784) — exigiu `productionBrowserSourceMaps`
+(D-505).
+
+## D-504 — Especificação sem tarefa: pacote legal nunca foi criado
+
+**Data:** 2026-09-15 · **Fase:** F17-compliance · **Status:** REGISTRADA
+
+**Contexto:** a D-498 especificou `docs/legal/2026-09-15-revisao-legal/` como
+entregável mas nenhuma TAREFA foi emitida. O Doer, corretamente, não executa
+escopo sem handoff. Falha de emissão do Thinker; estado real (repo) vence
+descrição (decisão).
+
+**Decisão:** T464 materializa o pacote (9 arquivos: README-índice, 6 PDFs de
+produção, CHANGELOG-JURIDICO, PERGUNTAS-ABERTAS) — versionado, o Operador
+envia essa pasta ao advogado.
+
+## D-505 — "job passa" ≠ "job cumpre sua função" (verificação de artefato)
+
+**Data:** 2026-09-15 · **Fase:** F18-infra-cloudflare · **Status:** REGISTRADA
+
+**Contexto:** o step de sourcemaps reportava success subindo **0 arquivos** —
+o build não gerava `.map` de browser (`productionBrowserSourceMaps` ausente);
+releases "fantasma" vinham do tracking da integração GitHub. Token `org:ci`
+não lista releases via REST — a evidência é o log do step.
+
+**Decisão:** correção mantida (`productionBrowserSourceMaps: true`); runbook
+OBSERVABILITY.md passa a exigir **verificação de artefato** (inspecionar uma
+release na UI pós-deploy; `Found N files → Uploaded` no log) para todo step
+novo de observabilidade — exit code é necessário, não suficiente.
+
+## D-506 — Política de media de teste para uploads E2E
+
+**Data:** 2026-09-15 · **Fase:** F18-infra-cloudflare · **Status:** REGISTRADA
+
+**Contexto:** perna "produção 201" do R2 E2E substituiria o poster VISÍVEL de
+um media real. O Doer bloqueou por governança (postura correta pós-F17).
+
+**Decisão:** uploads E2E usam exclusivamente media de teste dedicado
+(slug `media-test-r2-upload`, FILME, "pode deletar"), documentado em
+`docs/legal/R2-TEST-MEDIA.md`; fixture local criado (`475eb2dd…`); criação em
+produção pendente de acesso ao banco (mesmo bloqueio do incidente migrate:
+`postgres.railway.internal` é inalcançável — Operador fornece URL pública ou
+usa `railway run`). Pós-validação: soft-delete ou fixture, a critério do
+Operador.

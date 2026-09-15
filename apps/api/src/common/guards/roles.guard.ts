@@ -1,7 +1,7 @@
 import { CanActivate, type ExecutionContext, Injectable, ForbiddenException } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { ROLES_KEY } from "../decorators/roles.decorator.js";

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Post, Req } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 import { LgpdService } from "./lgpd.service.js";
 import { SolicitarExclusaoDto } from "./dto/lgpd.dto.js";
