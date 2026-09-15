@@ -19,18 +19,31 @@ e **nunca** podem apontar para produção:
 | Todo o restante do corpus (fluxos, a11y, conteúdo, série t103–t161) | local + API + DB | ⏸ `E2E_FULL=1` |
 
 O job de CI roda **apenas a allowlist** (`e2e/auth.spec.ts` +
-`e2e/navigation.spec.ts` em `ci.yml`) — o corpus completo (~60 specs,
-incluindo artefatos de verificação históricos da série t103–t161 escritos
-para alvo de deploy) nunca foi estável sem backend. Com `E2E_FULL=1`
-(ambiente full-stack) a suíte inteira fica habilitada.
+`e2e/navigation.spec.ts` em `ci.yml`) — o corpus completo nunca foi estável
+sem backend. Com `E2E_FULL=1` (ambiente full-stack) a suíte inteira fica
+habilitada.
+
+## Triagem do corpus (T462/D-493)
+
+O corpus legado (~60 specs) foi triado — todo arquivo de teste tem dono e
+execução conhecida:
+
+- **28 artefatos históricos da série t103–t243 deletados** (diag/debug/
+  verify/compare escritos para alvo de deploy; superseded pelos testes
+  atuais: `media-details`, `i18n-leak`, `watchlist.spec`, allowlist);
+- **5 verificações manuais movidas para `apps/web/scripts/verify-prod/`**
+  (fora do testDir — não rodam no CI; uso documentado no README lá):
+  `search-topo`, `screenshot-paleta`, `t246-ctrlk`, `teste-fechado`,
+  `trial-checkout`;
+- **25 specs reais permanecem em `e2e/`** (allowlist + gateados
+  `E2E_FULL=1` + testes de feature da suíte completa local).
 
 Specs gateados com `E2E_FULL=1` (pulados no CI com justificativa):
 `a11y` (inteiro — sem API o DOM auditado é o de estados vazios/erro, com
 violações falsas; comprovado no T461), `auth.e2e`, `auth.spec` (testes de
 fluxo), `flow`, `dashboard-gating`, `home-ilha`, `crosscheck-auditoria`,
 `i18n-leak`, `landing-hero` (showcase vive da API), `media-details`,
-`navigation.spec` (teste de planos), `search`/`search-topo`,
-`screenshot-paleta`, `status-menu-funcional`, `t103`/`t104`.
+`navigation.spec` (teste de planos), `search`, `status-menu-funcional`.
 
 **Por que `next dev` e não `next build && next start` no job web-only:**
 testado no T461 — o build de produção SEM API **assa os estados vazios das

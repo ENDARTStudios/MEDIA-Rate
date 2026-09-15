@@ -1,5 +1,13 @@
+/**
+ * [verify-prod] T462 (D-493) — verificação MANUAL contra deploy real.
+ * NÃO roda no CI (fora do testDir da allowlist; nunca rodar contra o banco
+ * de produção sem conta de teste). Uso:
+ *   cd apps/web && E2E_BASE_URL=https://mediarate.app  *     npx playwright test -c scripts/verify-prod/playwright.verify.config.ts  *     scripts/verify-prod/trial-checkout.spec.ts
+ * Pré-requisitos: env com credenciais de teste quando o spec autentica.
+ */
+
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
+import { login } from "../../e2e/helpers/auth";
 
 /**
  * T422 (F16) — fluxo de trial + checkout + cancelamento (test mode Stripe).
