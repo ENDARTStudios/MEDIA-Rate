@@ -1,3 +1,11 @@
+/**
+ * [verify-prod] T462 (D-493) — verificação MANUAL contra deploy real.
+ * NÃO roda no CI (fora do testDir da allowlist; nunca rodar contra o banco
+ * de produção sem conta de teste). Uso:
+ *   cd apps/web && E2E_BASE_URL=https://mediarate.app  *     npx playwright test -c scripts/verify-prod/playwright.verify.config.ts  *     scripts/verify-prod/teste-fechado.spec.ts
+ * Pré-requisitos: env com credenciais de teste quando o spec autentica.
+ */
+
 // T079 — Varredura completa: 11 fluxos do teste fechado
 // node --experimental-vm-modules node_modules/.bin/playwright test e2e/teste-fechado.spec.ts
 
