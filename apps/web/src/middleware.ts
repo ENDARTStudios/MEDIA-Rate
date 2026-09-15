@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { plataformaParaRequest } from "./lib/platform-routing";
 
 const intlMiddleware = createMiddleware(routing);
 const privateRoutePrefixes = [
@@ -24,7 +25,10 @@ function isPrivateRoute(pathname: string): boolean {
   );
 }
 
-export default function middleware(request: NextRequest) {
+/** Cookie anônimo estável — distinctId do bucket de rollout (D-507). */
+const UID_COOKIE = "x-mr-uid";
+
+export default async function middleware(request: NextRequest) {
   const response = intlMiddleware(request);
   const pathname = request.nextUrl.pathname;
 
@@ -51,6 +55,26 @@ export default function middleware(request: NextRequest) {
   // produção intacta. Não sobrescreve o header mais forte das rotas privadas.
   if (process.env.VERCEL_ENV === "preview" && !response.headers.has("X-Robots-Tag")) {
     response.headers.set("X-Robots-Tag", "noindex");
+  }
+
+  // T454/D-507: hook de decisão do dual-deploy (rollout gradual pela flag
+  // cloudflare_migration do PostHog). NÃO redireciona — instrumenta a
+  // decisão por request (header x-mr-platform) que a camada de proxy/CDN
+  // usa para rotear. Falha/ausência da flag → "vercel" (default OFF, na
+  // própria plataforma decidirPlataforma/platform-routing).
+  try {
+    const uid = request.cookies.get(UID_COOKIE)?.value ?? crypto.randomUUID();
+    const plataforma = await plataformaParaRequest(uid);
+    response.headers.set("x-mr-platform", plataforma);
+    if (!request.cookies.get(UID_COOKIE)) {
+      response.cookies.set(UID_COOKIE, uid, {
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+      });
+    }
+  } catch {
+    // roteamento nunca derruba a request: sem header → default Vercel.
   }
 
   return response;

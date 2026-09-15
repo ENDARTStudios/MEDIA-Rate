@@ -1,12 +1,8 @@
-// T463 (D-493) — DRAFT-PENDING-PROVISIONING (T454).
-// Config mínima para o build local (`npm run build:cf`) sem credenciais:
-// sem account_id, sem routes, sem bindings de KV/R2/Images. O provisioning
-// real (Operador) completa estes campos na execução da T454 — ver
-// docs/DEPLOY_CLOUDFLARE.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "media-rate-web",
   "main": ".open-next/worker.js",
+  "account_id": "eceaf5017758d87a2bcdf777f2ce2238bc",
   "compatibility_date": "2026-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {

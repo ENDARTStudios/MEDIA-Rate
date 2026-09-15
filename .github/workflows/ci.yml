@@ -283,6 +283,27 @@ jobs:
         with:
           config: p/ci
 
+  # Job 4.5 (T454/D-507): build OpenNext p/ Cloudflare — INFORMATIVO
+  # (continue-on-error) até decisão registrada de promovê-lo a requerido
+  # (após rollout ≥50%). Não faz deploy: só prova que o artefato worker
+  # continua sendo gerado conforme o código muda.
+  build-cf-info:
+    name: Build OpenNext (CF, informativo)
+    needs: [changes]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Build OpenNext (artefato worker)
+        working-directory: apps/web
+        run: npm run build:cf
+
   # Job 5: DAST ZAP baseline (apenas em PR)
   zap-baseline:
     name: ZAP Baseline (DAST)

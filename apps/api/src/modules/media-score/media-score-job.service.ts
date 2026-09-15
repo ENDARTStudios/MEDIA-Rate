@@ -169,29 +169,39 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * T447/D-441 — invalida o cache ISR da home no web após cada run.
+   * T454/D-507 — WEB_REVALIDATE_URL aceita LISTA separada por vírgulas:
+   * no dual-deploy o API revalida Vercel E Cloudflare no mesmo disparo.
    * Requer WEB_REVALIDATE_URL + REVALIDATE_SECRET (mesmo secret da rota
-   * POST /api/revalidate no web). Timeout 10s; falha = warn, nunca throw.
+   * POST /api/revalidate no web). Timeout 10s por alvo; falha = warn,
+   * nunca throw.
    */
   private async dispararRevalidateWeb(): Promise<void> {
-    const baseUrl = (process.env.WEB_REVALIDATE_URL ?? "").replace(/\/$/, "");
+    const alvos = (process.env.WEB_REVALIDATE_URL ?? "")
+      .split(",")
+      .map((alvo) => alvo.trim().replace(/\/$/, ""))
+      .filter(Boolean);
     const secret = process.env.REVALIDATE_SECRET ?? "";
-    if (!baseUrl || !secret) {
+    if (alvos.length === 0 || !secret) {
       this.logger.log("Revalidate web pulado (WEB_REVALIDATE_URL/REVALIDATE_SECRET ausentes).");
       return;
     }
-    try {
-      const res = await fetch(`${baseUrl}/api/revalidate`, {
-        method: "POST",
-        headers: { "x-revalidate-token": secret },
-        signal: AbortSignal.timeout(10_000),
-      });
-      if (!res.ok) {
-        this.logger.warn(`Revalidate web respondeu ${res.status} (ISR segue horário).`);
-        return;
+    for (const alvo of alvos) {
+      try {
+        const res = await fetch(`${alvo}/api/revalidate`, {
+          method: "POST",
+          headers: { "x-revalidate-token": secret },
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!res.ok) {
+          this.logger.warn(`Revalidate web (${alvo}) respondeu ${res.status} (ISR segue horário).`);
+          continue;
+        }
+        this.logger.log(`Revalidate web disparado (${alvo} — home será re-renderizada).`);
+      } catch (erro) {
+        this.logger.warn(
+          `Revalidate web (${alvo}) falhou: ${(erro as Error).message} (ISR segue horário).`,
+        );
       }
-      this.logger.log("Revalidate web disparado (home será re-renderizada).");
-    } catch (erro) {
-      this.logger.warn(`Revalidate web falhou: ${(erro as Error).message} (ISR segue horário).`);
     }
   }
 

@@ -1,27 +1,43 @@
 # DEPLOY_CLOUDFLARE.md — migração do web para Cloudflare (T454/T463)
 
-> **DRAFT-PENDING-PROVISIONING** — nenhum deploy foi feito; nenhum
-> account ID/token existe neste repositório. Este doc registra o que é
-> sabido e **provado localmente** (T463/D-493) para que a T454 — quando o
-> Operador entregar o provisioning — seja execução, não descoberta.
+> **FASE A COMMITADA (wiring completo); ainda sem deploy.** O runbook sai de
+> DRAFT quando o rollout atingir ≥10% sem regressão de métricas (criterio de
+> pronto da T454). Nenhum deploy Cloudflare antes de PR mergeado com CI verde
+> (D-457/D-459 — sem bypass).
 
-## Estado (T463, 2026-09-15)
+## Estado (T454 Fase A, 2026-09-15)
 
 - `@opennextjs/cloudflare` ^1.20.6 + `wrangler` ^4.132.0 em devDependencies.
 - `npm run build:cf` (`opennextjs-cloudflare build`) **provado localmente**:
-  gera `.open-next/worker.js` (~2,3 KB + assets) sem credenciais.
-  `wrangler.jsonc` commitado contém APENAS nome/entrypoint/compat-date
-  (nenhum ID) — provisioning real completa account_id/routes/bindings.
-- `decidirPlataforma()` (`apps/web/src/lib/cf-routing.ts`): função pura de
-  rollout (bucket FNV-1a determinístico por distinctId, default OFF),
-  10 testes unitários. **Não wireada** no middleware — isso é T454.
+  gera `.open-next/worker.js` sem credenciais.
+- `wrangler.jsonc` commitado com **account_id + nome do projeto apenas**
+  (D-507: tokens via CI/secrets, nunca no repo).
+- `open-next.config.ts`: cache incremental **KV** (`NEXT_INC_CACHE_KV`) +
+  tag cache **KV** (`NEXT_TAG_CACHE_KV`) — ISR `revalidate = 3600` (T447)
+  durável entre isolates e `/api/revalidate` on-demand purgando além do
+  isolate local.
+- **Hook de roteamento no middleware** (`src/middleware.ts` +
+  `src/lib/platform-routing.ts`): busca a flag `cloudflare_migration`
+  (PostHog `local_evaluation`, cache 5 min, fallback **OFF**) e decide via
+  `decidirPlataforma()` (bucket FNV-1a estável por distinctId) → header
+  `x-mr-platform` + cookie anônimo `x-mr-uid`. **Não redireciona** — o
+  destino por usuário é roteado na camada de proxy/CDN; o middleware
+  instrumenta a decisão por request.
+- `WEB_REVALIDATE_URL` (API) aceita **lista separada por vírgulas** — no
+  dual-deploy o `/api/revalidate` dispara para Vercel E Cloudflare.
+- **Worker de assets** (D-495): `apps/web/workers/assets/` — serve o bucket
+  com `Cache-Control: immutable` (chave content-addressed), content-type do
+  objeto, sem listagem. Deploy manual pelo Operador (wrangler deploy).
+- CI: job **Build OpenNext (CF, informativo)** com `continue-on-error` —
+  prova continuamente que o artefato worker é gerado; promoção a requerido
+  só por decisão registrada (após rollout ≥50%).
 
 ## Matriz de compatibilidade (Next.js 16 App Router × Workers/OpenNext)
 
 | # | Item | Uso atual | Veredito | Plano |
 |---|------|-----------|----------|-------|
 | 1 | Middleware (locale via next-intl + guard de rotas privadas) | `src/middleware.ts` — `NextRequest/NextResponse` puro | **ok** | OpenNext executa middleware no worker; testar redirects/cookies no preview (T454) |
-| 2 | ISR `revalidate = 3600` (home, T447) + `POST /api/revalidate` on-demand | `src/app/[locale]/page.tsx`, `src/app/api/revalidate/route.ts` | **rework (médio)** | Cache incremental DURÁVEL: `defineCloudflareConfig` com KV incremental cache (sem isso, cache é por-isolate e o on-demand não purga globalmente). Gate no `open-next.config.ts` na T454 |
+| 2 | ISR `revalidate = 3600` (home, T447) + `POST /api/revalidate` on-demand | `src/app/[locale]/page.tsx`, `src/app/api/revalidate/route.ts` | **rework concluído na Fase A** | Cache incremental KV (`NEXT_INC_CACHE_KV`) + tag cache KV (`NEXT_TAG_CACHE_KV`) wired no `open-next.config.ts`; namespaces criadas pelo Operador no deploy |
 | 3 | `next/image` + variantes (D-445, `unoptimized` helper em `MediaCardShell`) | otimização na Vercel hoje | **rework (médio)** | Loader de Cloudflare Images (ou `unoptimized` como ponte); medir transformações antes/depois |
 | 4 | APIs `node:` em runtime server | `node:crypto` (timingSafeEqual) em `src/lib/revalidate-auth.ts` (T447) | **ok** | `nodejs_compat` já habilitada no `wrangler.jsonc` |
 | 5 | `force-dynamic` + `revalidate = 0` (dashboard, watchlist — T412/D-390) | rotas autenticadas nunca em cache | **ok** | OpenNext respeita `dynamic`; revalidar no preview |
@@ -33,23 +49,43 @@
 
 **Bloqueantes: nenhum.** Reworks: itens 2 e 3 (ambos com caminho conhecido).
 
-## Rollout (plano da T454 — gateado no provisioning)
+## Rollout (T454 — gate de métricas por etapa)
 
-`decidirPlataforma()` lê a flag `cloudflare_migration` (PostHog, id 886344):
-0% = Vercel (hoje) → 10% → 50% → 100% (Cloudflare total + descomissionar
-Vercel). Métricas por etapa via Sentry/PostHog; rollback = flag a 0%.
+`decidirPlataforma()` lê a flag `cloudflare_migration` (PostHog, id 886344)
+no middleware e expõe `x-mr-platform` por request. Etapas:
 
-## Pendências do Operador (bloqueiam a T454)
+| Etapa | Ação do Operador | Gate para avançar |
+|---|---|---|
+| 0% (atual) | flag em 0% | — |
+| 10% | subir flag p/ 10 | **≥24h** + LCP/CLS/error-rate sem regressão vs baseline |
+| 50% | subir p/ 50 | idem |
+| 100% | subir p/ 100 + descomissionar Vercel | idem + decidir promover job `build:cf` a requerido |
 
-1. `CLOUDFLARE_ACCOUNT_ID` (+ token com Pages:Edit, R2 rw, Images:Edit) no
-   `.env` — presença do token confirmada 2026-09-15; account_id ainda não.
-2. Bucket R2 criado (mesmo bucket alimenta `R2_*` no Railway — upload T453);
-   Cloudflare Images habilitado no plano.
-3. Domínio do dual-deploy (ex.: `cf.mediarate.app`).
-4. Secret `DATABASE_URL` do GitHub **atualizado para a URL pública proxy** —
-   em 2026-09-15 o workflow Deploy falhou na etapa `Database Migration` com
-   `P1001` porque o secret contém o hostname interno
-   (`postgres.railway.internal`), inalcançável de runners do Actions.
+- **Rollback**: flag → 0 (instantâneo; Vercel permanece canônica até 100%).
+- Métricas comparadas via Sentry (error-rate) + PostHog/RUM (LCP, CLS)
+  contra o baseline capturado antes da primeira elevação.
+- `CNAME cf.mediarate.app` no provedor DNS quando a T454 solicitar (zona só
+  migra no fim).
+
+## Provisionamento pendente do Operador (bloqueiam DEPLOY, não a Fase A)
+
+1. Criar as **2 namespaces KV** e preencher os `id` em `wrangler.jsonc`
+   (`NEXT_INC_CACHE_KV`, `NEXT_TAG_CACHE_KV`) — snippet:
+   ```jsonc
+   "kv_namespaces": [
+     { "binding": "NEXT_INC_CACHE_KV", "id": "<namespace-id-1>" },
+     { "binding": "NEXT_TAG_CACHE_KV", "id": "<namespace-id-2>" }
+   ]
+   ```
+2. Token Cloudflare escopado (Pages:Edit, R2 rw, Images:Edit) como secret
+   do CI/deploy — **nunca no repo**.
+3. `POSTHOG_PERSONAL_API_KEY` + `POSTHOG_PROJECT_ID` como secrets do
+   deploy (middleware lê a flag server-side; sem eles → fallback OFF).
+4. `R2_*` confirmadas no Railway (upload sai do 503 fail-closed).
+5. Deploy do Worker de assets: `cd apps/web/workers/assets && npx wrangler deploy`.
+6. `CNAME cf.mediarate.app` quando a T454 solicitar.
+7. `DATABASE_URL` (GitHub secret) → URL pública proxy **ou** acesso via
+   `railway run` (incidente migrate, D-491/T461).
 
 ## Procedimento de rollback (T454)
 
