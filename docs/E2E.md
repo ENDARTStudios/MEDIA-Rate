@@ -15,9 +15,14 @@ e **nunca** podem apontar para produção:
 
 | Tipo de teste | Ambiente | No CI |
 |---|---|---|
-| Exibição de shell (formulários, navegação estática) | local (`next dev`/`next start`) | ✅ roda |
-| Auditoria a11y (todas as páginas) | local + API (página real) | ⏸ `E2E_FULL=1` |
-| Fluxos: registro, login, logout, CSRF, watchlist, gating por plano | local + API + DB | ⏸ `E2E_FULL=1` |
+| **Allowlist curada** (formulários de auth, navegação estática) | local (`next dev`) | ✅ roda |
+| Todo o restante do corpus (fluxos, a11y, conteúdo, série t103–t161) | local + API + DB | ⏸ `E2E_FULL=1` |
+
+O job de CI roda **apenas a allowlist** (`e2e/auth.spec.ts` +
+`e2e/navigation.spec.ts` em `ci.yml`) — o corpus completo (~60 specs,
+incluindo artefatos de verificação históricos da série t103–t161 escritos
+para alvo de deploy) nunca foi estável sem backend. Com `E2E_FULL=1`
+(ambiente full-stack) a suíte inteira fica habilitada.
 
 Specs gateados com `E2E_FULL=1` (pulados no CI com justificativa):
 `a11y` (inteiro — sem API o DOM auditado é o de estados vazios/erro, com
