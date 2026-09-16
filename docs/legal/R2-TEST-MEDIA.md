@@ -11,31 +11,45 @@ próprio media de teste. Exceções (tocar media real) passam por ESCALATE.
 
 | Ambiente | Media de teste | Estado |
 |---|---|---|
-| **Local (dev)** | `475eb2dd-ae7f-45bd-99b7-3cea13db806e` (fonte `r2-e2e-test`/`manual`, FILME) | ✅ criado 2026-09-15 — fixture da perna dev |
-| **Produção** | slug `media-test-r2-upload` (FILME, título "R2 Upload Test — pode deletar") | ⏳ pendente — criação exige acesso ao banco de produção |
+| **Produção** | `424e6a91-5b5c-4659-b805-bb06ed13547d` (fonte `r2-e2e-test`/`manual`, FILME, "R2 Upload Test — pode deletar") | ✅ criado 2026-09-16 via `railway ssh` (autorização P2/D-510), insert idempotente com contexto RLS tenant default + ADMIN |
+| **Local (dev)** | `475eb2dd-ae7f-45bd-99b7-3cea13db806e` | ✅ fixture da perna dev |
 
-## Bloqueio atual (2026-09-15)
+## Causa raiz do bloqueio (2026-09-16) — corrigida no repo, pendente no Cloudflare
 
-O `DATABASE_URL` disponível aponta para `postgres.railway.internal` (rede
-privada Railway) — **inalcançável fora dela**; logo a criação do media de
-teste em produção e a perna "produção 201" dependem do Operador:
-1. disponibilizar a **URL pública proxy** do Postgres (a mesma ação resolve
-   o incidente do workflow Deploy — ver D-503/STATUS T461); ou
-2. criar o media via `railway run` no serviço API.
+1. **`R2_ACCOUNT_ID` com dígitos duplicados**: o `.env`/Railway/wrangler
+   carregavam `eceaf5017758d87a2bcdf777f2ce2238bc` (36 chars); a conta real do
+   token é `eceaf501758d87a2bcdf7f2ce2238bc` (32 hex — confirmada via
+   `GET /accounts`). **Corrigido** no `.env`, no Railway (`railway variables`,
+   redeploy executado e saudável) e nos `wrangler.jsonc` deste PR.
+2. **Mesmo com o id correto, o TLS para `*.r2.cloudflarestorage.com` falha
+   (alert 40) na rede local E no egress do Railway** — e a API REST responde
+   **7003** para `/accounts/{id}/r2/buckets` com o id correto. Diagnóstico:
+   **R2 não está ativado na conta Cloudflare** (sem ativação não há rota SNI
+   nem rota de API para o subdomínio). **Ação do Operador:** ativar R2 no
+   dashboard (dash.cloudflare.com → R2 → ativar) e criar o bucket
+   `media-rate-assets` — após isso a perna de upload roda sem mudança de
+   código.
+3. Hipótese anterior de "middlebox da rede local" está **desmentida**: o
+   egress do Railway falha com o mesmo `EPROTO alert 40`.
 
-## Diagnóstico da tentativa local (2026-09-15)
+## Cadeia já provada (local e produção)
 
-- Cadeia **provada até o PutObject**: register → promoção ADMIN → login
-  (cookie + CSRF) → `POST /api/v1/admin/assets/{midiaId}/FILME` passou por
+- Cadastro → promoção ADMIN → login (cookie + CSRF) →
+  `POST /api/v1/admin/assets/{midiaId}/FILME` passou por
   AuthGuard/RolesGuard/CSRF/magic-bytes/limite e chegou ao `R2Storage`
-  (seleção correta: com env R2 completa o adapter é o real, não o
-  fail-closed nem o InMemory).
-- **Falha no TLS para `*.r2.cloudflarestorage.com` a partir desta
-  rede/máquina** (`EPROTO ssl alert 40` em curl e Node — middlebox local
-  filtrando o endpoint S3; `api.cloudflare.com`/Sentry/PostHog funcionam).
-  Railway não usa esta rede — o endpoint S3 funciona lá.
-- Probe via API REST do Cloudflare (`api.cloudflare.com/.../objects/`)
-  inconclusivo (token `org:ci` sem escopo R2 REST — erro 7003 de roteamento).
+  (seleção correta do adapter com env R2 presente; sem warn de fail-closed
+  no boot pós-P3 — log `[boot] listening`, nenhum `[storage]` warn).
+- Falha restante apenas no TLS do PutObject (causa raiz acima).
+
+## Perna de upload (T467)
+
+- **Método**: API (login `lgpd-test@mediarate.test` + cookie + `x-csrf-token`)
+  contra `media-rate-production.up.railway.app` — via UI `/admin/upload`
+  também atende (Operador seleciona o media-test).
+- Ciclo de promoção/despromoção do ADMIN executado e registrado
+  (promovido 2026-09-16T02:30Z; despromovido 2026-09-16T02:40Z — será
+  repetido na tentativa final).
+- Script de verificação manual: `scripts/verify-prod/r2-upload-check.sh`.
 
 ## Pós-validação
 

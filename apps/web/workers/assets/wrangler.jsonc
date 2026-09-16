@@ -4,7 +4,7 @@
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "media-rate-assets",
   "main": "worker.js",
-  "account_id": "eceaf5017758d87a2bcdf777f2ce2238bc",
+  "account_id": "eceaf501758d87a2bcdf7f2ce2238bc",
   "compatibility_date": "2026-01-01",
   "r2_buckets": [
     {
