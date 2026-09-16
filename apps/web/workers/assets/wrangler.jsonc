@@ -1,0 +1,15 @@
+// T454/D-495 — config do Worker de assets. Deploy manual pelo Operador
+// (token escopado); o route/cdn é a fase final da migração de zona.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "media-rate-assets",
+  "main": "worker.js",
+  "account_id": "eceaf5017758d87a2bcdf777f2ce2238bc",
+  "compatibility_date": "2026-01-01",
+  "r2_buckets": [
+    {
+      "binding": "ASSETS_BUCKET",
+      "bucket_name": "media-rate-assets"
+    }
+  ]
+}

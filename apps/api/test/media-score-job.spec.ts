@@ -224,5 +224,19 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       expect(init.method).toBe("POST");
       expect((init.headers as Record<string, string>)["x-revalidate-token"]).toBe("segredo-123");
     });
+
+    it("T454/D-507: lista separada por vírgulas revalida todos os alvos", async () => {
+      process.env.WEB_REVALIDATE_URL = "https://vercel.exemplo, https://cf.exemplo/";
+      process.env.REVALIDATE_SECRET = "segredo-123";
+      const fetchMock = vi.fn(async () => new Response("{}", { status: 200 }));
+      vi.stubGlobal("fetch", fetchMock);
+      const { prisma, job } = mockDependencias();
+      prisma.midia.findMany.mockResolvedValueOnce([]);
+      await job.executar();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      const urls = fetchMock.mock.calls.map(([u]) => u);
+      expect(urls).toContain("https://vercel.exemplo/api/revalidate");
+      expect(urls).toContain("https://cf.exemplo/api/revalidate");
+    });
   });
 });

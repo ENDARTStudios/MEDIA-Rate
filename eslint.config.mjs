@@ -36,6 +36,21 @@ export default tseslint.config(
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
 
+  // T454/D-495: Workers do Cloudflare — globals do runtime (Request/
+  // Response/Headers/fetch), não do Node.
+  {
+    files: ["apps/web/workers/**/*.js"],
+    languageOptions: {
+      globals: {
+        Request: "readonly",
+        Response: "readonly",
+        Headers: "readonly",
+        URL: "readonly",
+        fetch: "readonly",
+      },
+    },
+  },
+
   // Plugin Prettier (roda Prettier como regra ESLint)
   prettierPlugin,
 
