@@ -83,6 +83,31 @@ R2/Workers/KV **não foram provisionadas** (ou há estado de conta pendente).
 3. Após o bucket existir: avise o Doer — o upload (b) e o canário S0 (c)
    executam sem mudança de código.
 
+## Perna (b) pós-ativação (2026-09-16T23:2xZ) — bloqueio isolado: egress Railway × edge R2
+
+Com R2 ativado e operacional, o **round-trip via S3 API da rede local funciona
+100%** (PUT 200 → HEAD 200 → GET 200 com conteúdo íntegro → LIST; objetos
+`t467/probe-pos-ativacao.txt` e `t467/verify-roundtrip.txt` no bucket). Mas o
+**upload de produção** (server-side no container Railway) segue **500 EPROTO
+alert 40** (correlationId `bb614b0d`), e o teste controlado de dentro do
+container isolou a camada:
+
+| Destino (do container Railway) | Resultado |
+|---|---|
+| `api.cloudflare.com` (controle) | ✅ TLS 1.3, HTTP 301 |
+| `<account>.r2.cloudflarestorage.com` (default) | ❌ alert 40 |
+| idem **forçando TLS 1.2** | ❌ alert 40 |
+| idem **ciphers amplos (@SECLEVEL=0)** | ❌ alert 40 |
+
+**Diagnóstico fechado**: o edge do R2 rejeita o handshake TLS vindo dos IPs de
+egress do Railway especificamente (mesmo SDK, mesmas credenciais, mesmo
+endpoint que funcionam da rede local). **Não é código, não é ativação, não é
+credential** — é interação de filtragem/IP-reputation do Cloudflare × faixas
+de egress do Railway. **Ticket de suporte Cloudflare** com esta evidência
+(texto pronto em `docs/DEPLOY_CLOUDFLARE.md`); alternativa de engenharia
+(proxy de upload via Worker com binding R2 nativo — sem endpoint S3) fica
+para decisão do Thinker caso o suporte não resolva.
+
 ## Perna de upload (T467)
 
 - **Método**: API (login `lgpd-test@mediarate.test` + cookie + `x-csrf-token`)

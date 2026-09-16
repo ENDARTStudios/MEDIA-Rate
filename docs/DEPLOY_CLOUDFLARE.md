@@ -74,7 +74,31 @@ no middleware e expõe `x-mr-platform` por request. Etapas:
    `/workers/services`, `/r2/buckets` e `/storage/kv/namespaces` (produtos
    não ativados/rooteados para a conta). R2: dash.cloudflare.com → R2 →
    ativar (plano free, 10 GB). Workers/KV: aceitar termos no primeiro
-   deploy/dashboard.
+   deploy/dashboard. **Status 2026-09-16T23:3xZ**: R2 ativado (billing +
+   bucket visível) e API S3 funcional da rede local (PUT/GET/LIST 200), MAS
+   o endpoint S3 rejeita TLS do egress Railway → **ticket de suporte
+   pronto**:
+   ```
+   Subject: R2 S3 endpoint serves TLS alert 40 to Railway egress IPs; works from residential IP
+   Account ID: eceaf501758d87a2bcdf7f2ce2238bc
+
+   The R2 S3 API endpoint eceaf501758d87a2bcdf7f2ce2238bc
+   .r2.cloudflarestorage.com rejects the TLS handshake (alert 40, no
+   certificate served) for requests originating from Railway.com egress IP
+   ranges — while the SAME SDK, credentials, bucket and key succeed from a
+   residential connection (PUT/HEAD/GET/LIST all 200). Control test from
+   the same Railway container to api.cloudflare.com negotiates TLS 1.3
+   normally (HTTP 301). Forcing TLS 1.2 and widening cipher suites does not
+   change the result. This blocks production uploads (R2 PutObject from our
+   Railway-hosted API).
+
+   Request: check IP-level security/filtering for this account's
+   r2.cloudflarestorage.com SNI route against Railway egress ranges, or
+   advise the supported path.
+   ```
+   (Operador abre em dash.cloudflare.com → Support; se o suporte não
+   resolver, alternativa de engenharia: Worker de upload com binding R2
+   nativo — decisão do Thinker.)
 1. Criar as **2 namespaces KV** e preencher os `id` em `wrangler.jsonc`
    (`NEXT_INC_CACHE_KV`, `NEXT_TAG_CACHE_KV`) — snippet:
    ```jsonc
