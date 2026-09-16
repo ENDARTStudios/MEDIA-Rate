@@ -69,6 +69,12 @@ no middleware e expõe `x-mr-platform` por request. Etapas:
 
 ## Provisionamento pendente do Operador (bloqueiam DEPLOY, não a Fase A)
 
+0. **Ativar os produtos na conta Cloudflare** (D-510/S0): Workers, R2 e KV —
+   em 2026-09-16 o deploy do canário retornou `7003 Could not route` para
+   `/workers/services`, `/r2/buckets` e `/storage/kv/namespaces` (produtos
+   não ativados/rooteados para a conta). R2: dash.cloudflare.com → R2 →
+   ativar (plano free, 10 GB). Workers/KV: aceitar termos no primeiro
+   deploy/dashboard.
 1. Criar as **2 namespaces KV** e preencher os `id` em `wrangler.jsonc`
    (`NEXT_INC_CACHE_KV`, `NEXT_TAG_CACHE_KV`) — snippet:
    ```jsonc
