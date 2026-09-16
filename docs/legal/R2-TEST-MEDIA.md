@@ -56,11 +56,32 @@ Com o ID correto no endpoint (`eceaf501758d87a2bcdf7f2ce2238bc
 **Interpretação (D-512)**: alert 40 sem certificado no SNI correto = **rota
 SNI inexistente para a conta = R2 não ativado** (a ativação provisiona a
 rota no edge); 7003 no KV = produto Workers/KV também não roteado. **Não é
-código** — a cadeia da aplicação está provada até o PutObject. **Escalado:
-ativação de R2 e de Workers/KV no dashboard** (R2 → ativar; Workers &
-Pages → plano gratuito). Perna (b) de produção roda o
-`scripts/verify-prod/r2-upload-check.sh` logo após a ativação — o script já
-está pronto e a causa foi demonstrada também no egress do Railway.
+código** — a cadeia da aplicação está provada até o PutObject.
+
+## Pós-ativação (D-514, 2026-09-16T22:2xZ) — rotas AINDA ausentes
+
+Billing confirmado pelo Operador (**Workers Free Ativo + R2 Paid Ativo**).
+Mesmo assim, ~1h depois:
+
+| Teste | Resultado |
+|---|---|
+| Upload **de dentro do container Railway** (login + multipart via `localhost:8080`) | **500** — mesmo `EPROTO alert 40` no PutObject |
+| `openssl s_client` SNI correto (local) | alert 40, sem certificado |
+| `GET /accounts/{id}/r2/buckets` (id correto) | **7003** |
+| `POST /accounts/{id}/storage/kv/namespaces` (id correto) | **7003** |
+| `GET https://r2.cloudflarestorage.com/` (host genérico, do container) | **certificate has expired** (relógio do container correto: 2026-09-16) |
+
+**Leitura**: a assinatura de billing existe, mas as rotas de edge/API para
+R2/Workers/KV **não foram provisionadas** (ou há estado de conta pendente).
+
+**Escalate final ao Operador**:
+1. No dashboard Cloudflare → R2: confirmar que a UI mostra o R2 habilitado e
+   **criar manualmente o bucket `media-rate-assets`** — a criação do primeiro
+   bucket pela UI costuma finalizar o provisioning (se a UI errar, é caso de
+   **suporte Cloudflare**, não de engenharia);
+2. Workers & Pages: confirmar plano gratuito ativo;
+3. Após o bucket existir: avise o Doer — o upload (b) e o canário S0 (c)
+   executam sem mudança de código.
 
 ## Perna de upload (T467)
 
