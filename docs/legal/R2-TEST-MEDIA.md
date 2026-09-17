@@ -108,6 +108,56 @@ de egress do Railway. **Ticket de suporte Cloudflare** com esta evidência
 (proxy de upload via Worker com binding R2 nativo — sem endpoint S3) fica
 para decisão do Thinker caso o suporte não resolva.
 
+## Perna (b) pós-ativação (2026-09-16T23:2xZ) — bloqueio isolado: egress Railway × edge R2
+
+Com R2 ativado e operacional, o **round-trip via S3 API da rede local funciona
+100%** (PUT 200 → HEAD 200 → GET 200 com conteúdo íntegro → LIST; objetos
+`t467/probe-pos-ativacao.txt` e `t467/verify-roundtrip.txt` no bucket). Mas o
+**upload de produção** (server-side no container Railway) segue **500 EPROTO
+alert 40** (correlationId `bb614b0d`), e o teste controlado de dentro do
+container isolou a camada:
+
+| Destino (do container Railway) | Resultado |
+|---|---|
+| `api.cloudflare.com` (controle) | ✅ TLS 1.3, HTTP 301 |
+| `<account>.r2.cloudflarestorage.com` (default) | ❌ alert 40 |
+| idem **forçando TLS 1.2** | ❌ alert 40 |
+| idem **ciphers amplos (@SECLEVEL=0)** | ❌ alert 40 |
+
+**Diagnóstico fechado**: o edge do R2 rejeita o handshake TLS vindo dos IPs de
+egress do Railway especificamente (mesmo SDK, mesmas credenciais, mesmo
+endpoint que funcionam da rede local). **Não é código, não é ativação, não é
+credential** — é interação de filtragem/IP-reputation do Cloudflare × faixas
+de egress do Railway. **Ticket de suporte Cloudflare** com esta evidência
+(texto pronto em `docs/DEPLOY_CLOUDFLARE.md`); alternativa de engenharia
+(proxy de upload via Worker com binding R2 nativo — sem endpoint S3) fica
+para decisão do Thinker caso o suporte não resolver.
+
+## ✅ RESOLVIDO (2026-09-17T02:4xZ) — causa raiz real: variável Railway truncada
+
+A conferência programática D-515 executada contra `GET /accounts` (fonte da
+verdade) revelou o estado real: **a variável `R2_ACCOUNT_ID` do Railway tinha
+31 hex (truncada)** enquanto .env/wranglers/API já estavam corretos — o
+container de produção montava o hostname de 31 chars (sem rota SNI → alert
+40). Correção: `railway variables --set` + redeploy. **Perna (b) então
+completa**:
+
+| Verificação | Resultado |
+|---|---|
+| Login lgpd-test (produção) | ✅ 200 |
+| `POST /api/v1/admin/assets/{media-test}/FILME` | ✅ **201** |
+| Object key (content-addressed) | `media/filme/424e6a91…/fae98c78…a6.jpg` |
+| Audit `MEDIA_ASSET_UPLOADED` | ✅ registrado (2026-09-17T02:41Z) |
+| Objeto no bucket (ListObjectsV2) | ✅ 1 objeto, 269 bytes |
+| `lgpd-test` | ✅ despromovido (least privilege) |
+
+**Bônus D-495**: Worker de assets deployado
+(`media-rate-assets.media-rate.workers.dev`) e validado servindo o objeto:
+**200 + content-type `image/jpeg` + `Cache-Control: public, max-age=31536000,
+immutable`** — exatamente conforme projetado. Canário S0 da web também no ar
+(`media-rate-web.media-rate.workers.dev`, 200 nas rotas — cache ISR degradado
+para por-request até as namespaces KV existirem, documentado).
+
 ## Perna de upload (T467)
 
 - **Método**: API (login `lgpd-test@mediarate.test` + cookie + `x-csrf-token`)
