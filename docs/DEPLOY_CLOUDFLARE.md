@@ -99,14 +99,24 @@ no middleware e expõe `x-mr-platform` por request. Etapas:
    (Operador abre em dash.cloudflare.com → Support; se o suporte não
    resolver, alternativa de engenharia: Worker de upload com binding R2
    nativo — decisão do Thinker.)
-1. Criar as **2 namespaces KV** e preencher os `id` em `wrangler.jsonc`
-   (`NEXT_INC_CACHE_KV`, `NEXT_TAG_CACHE_KV`) — snippet:
+1. Criar as **2 namespaces KV** (T468): o token atual (R2 item-write) NÃO
+   cobre KV — duas opções:
+   - **Dashboard** (2 cliques): Workers & Pages → KV → Create Namespace →
+     `media-rate-NEXT_INC_CACHE_KV` e `media-rate-NEXT_TAG_CACHE_KV`;
+   - **CLI** com token que tenha `Workers KV Storage:Edit`:
+     ```bash
+     npx wrangler kv namespace create MEDIA_RATE_NEXT_INC_CACHE
+     npx wrangler kv namespace create MEDIA_RATE_NEXT_TAG_CACHE
+     ```
+   Depois preencher os `id` reais em `wrangler.jsonc`:
    ```jsonc
    "kv_namespaces": [
      { "binding": "NEXT_INC_CACHE_KV", "id": "<namespace-id-1>" },
      { "binding": "NEXT_TAG_CACHE_KV", "id": "<namespace-id-2>" }
    ]
    ```
+   **KV free tier ≈1.000 writes/dia — métrica de gate no canário** (D-514):
+   aproximação do limite = decisão de custo do Operador (nunca auto-upgrade).
 2. Token Cloudflare escopado (Pages:Edit, R2 rw, Images:Edit) como secret
    do CI/deploy — **nunca no repo**.
 3. `POSTHOG_PERSONAL_API_KEY` + `POSTHOG_PROJECT_ID` como secrets do
