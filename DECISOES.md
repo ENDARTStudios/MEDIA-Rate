@@ -1855,3 +1855,42 @@ produção pendente de acesso ao banco (mesmo bloqueio do incidente migrate:
 `postgres.railway.internal` é inalcançável — Operador fornece URL pública ou
 usa `railway run`). Pós-validação: soft-delete ou fixture, a critério do
 Operador.
+
+## D-524 — Gate legal F17 FECHADO (parecer valida auditoria); T468 delegada ao Doer
+
+**Data:** 2026-09-19 · **Fase:** F17/F18 · **Status:** REGISTRADA
+
+**Contexto:** Operador entregou o parecer jurídico completo confirmando a
+auditoria de 2026-09-04 como "juridicamente sólida e alinhada"
+(LGPD/CDC/GDPR/ANPD), com riscos P0/P1/P2 conforme classificados e 7
+recomendações finais (backlog F19/F20 — não bloqueiam rollout). P1 (KV) e P2
+(Sentry CLI) delegados ao Doer.
+
+**Decisão:** (1) Gate legal F17 FECHADO com evidência primária (pacote
+versionado + parecer); (2) T468: Doer verifica escopo KV do token e cria as
+namespaces (ou reporta criação manual); (3) Sentry verificado via CLI
+(release 91a5e31 registrada, 0 novos eventos em 40h); (4) backlog das 7
+recomendações versionado em docs/legal/2026-09-15-revisao-legal/parecer-recebido/;
+(5) go/no-go S0→S1 após T468.
+
+## D-519 — Lesson learned: verificação de identidade exige fonte primária
+
+**Data:** 2026-09-16 · **Fase:** F18 · **Status:** REGISTRADA
+
+**Contexto:** 4+ horas de diagnóstico sob hipóteses successivas (middlebox →
+ativação → propagação) quando a causa raiz era account_id TRANSCRITO ERRADO em
+todos os locais (duplicação no .env original, truncamento na 1ª correção). O
+suporte Cloudflare identificou via sessão autenticada.
+
+**Decisão:** (1) Toda verificação de identidade (account_id, slug, bucket)
+exige PROVA PRIMÁRIA — botão de cópia do dashboard ou endpoint autenticado
+(GET /accounts), NUNCA transcrição de memória/log; (2) diff programático
+obrigatório antes de pernas de validação; (3) teste estrutural permanente
+(account-id-integrity.spec.ts — 32 hex lowercase nos wranglers); (4) o ticket
+de suporte foi cancelado ("Root cause found on our side: account_id was
+transposed. No Cloudflare action needed.").
+
+**Corolário:** o erro do Prisma MEDIA-RATE-3 ("expected 32, found 7") é da
+MESMA classe — valor de identificador truncado/malformado chegando a um
+parser. A caça à linha com UUID de 7 chars no banco segue o mesmo princípio
+de verificação primária (query direta no banco, não inferência).
