@@ -193,9 +193,14 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
   cumprir a função — release "fantasma" criada só pelo tracking da
   integração GitHub). **Política**: todo step novo de observabilidade no CI
   precisa de verificação de "artefato produzido" documentada no runbook —
-  exit code verde é condição necessária, não suficiente. Nota: o token
-  `org:ci` não lista releases/files via REST; a evidência é o log do step
-  (`Found N files → Uploaded files to Sentry`) ou a UI do Sentry.
+  exit code verde é condição necessária, não suficiente.
+- **Verificação via CLI (D-524/T468)**: o token `org:ci` NÃO lista
+  releases/arquivos via REST (401/404), mas o `npx @sentry/cli releases
+  list` FUNCIONA (com SENTRY_AUTH_TOKEN/ORG/PROJECT do .env). Release
+  `91a5e31` verificada em 2026-09-19 (764 arquivos confirmados antes via UI
+  pelo Operador; CLI mostra a release registrada, 0 novos eventos em 40h —
+  coerente com T466 stale). Triagem de issues: via UI (issues API → 401 com
+  este token).
 
 
 

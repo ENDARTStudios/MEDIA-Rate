@@ -317,10 +317,13 @@ WAF/Cloudflare + domínio próprio.
 ## Próxima tarefa (PROTOCOLO_MESTRE.md Seção 6)
 
 O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior prioridade:
-1. **F18/F19 (atual, D-491)** — T461-e2e-playwright-saneamento (E2E + Deploy
-   workflow pré-existentes falhos) e T454-cloudflare-deploy (rework de
-   ISR/middleware p/ Cloudflare Pages/Workers; flag `cloudflare_migration`
-   criada, rollout 0%).
+1. **F18/F19 (atual, D-524)** — canário S0 no ar
+   (media-rate-web.media-rate.workers.dev); pendente: namespaces KV (escopo do
+   token não cobre — criação manual pelo Operador OU plano B cache
+   por-request), go/no-go S0→S1 (≥24h métricas), T466 (UUID truncado no
+   evento Sentry — aguarda request URL), T468 (KV via token com KV:Edit).
+   **Gate legal F17 FECHADO** (parecer valida auditoria; 7 recomendações em
+   backlog F19/F20 — docs/legal/2026-09-15-revisao-legal/parecer-recebido/).
 2. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
 3. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
 4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags
