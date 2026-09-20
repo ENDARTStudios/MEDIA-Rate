@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  migrarConsentimento,
-  registrarRevogacaoV2,
-  type ConsentV2,
-} from "@/lib/consent-migration";
+import { migrarConsentimento, registrarRevogacaoV2, type ConsentV2 } from "@/lib/consent-migration";
 
 /**
  * T470 (D-531/D-532) — migração v1→v2 do consentimento granular.

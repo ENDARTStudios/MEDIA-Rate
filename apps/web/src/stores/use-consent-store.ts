@@ -47,8 +47,7 @@ interface Fontes {
 }
 
 function lerFontes(): Fontes {
-  if (typeof window === "undefined")
-    return { v2Bruto: null, v1Cookie: null, lgpdV1: null };
+  if (typeof window === "undefined") return { v2Bruto: null, v1Cookie: null, lgpdV1: null };
   let v2Bruto: unknown = null;
   try {
     const raw = window.localStorage.getItem(LS_V2);
@@ -176,10 +175,12 @@ const estadoInicial: EstadoStore = migracao.estado
     }
   : { analytics: false, monitoring: false, decided: false, estadoV2: null };
 
-export const useConsentStore = create<EstadoStore & {
-  setConsent: (c: { analytics: boolean; monitoring: boolean }) => void;
-  reset: () => void;
-}>((set, get) => ({
+export const useConsentStore = create<
+  EstadoStore & {
+    setConsent: (c: { analytics: boolean; monitoring: boolean }) => void;
+    reset: () => void;
+  }
+>((set, get) => ({
   ...estadoInicial,
 
   setConsent: (c) => {
