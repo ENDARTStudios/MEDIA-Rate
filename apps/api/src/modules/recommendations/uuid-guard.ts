@@ -11,6 +11,9 @@
  *
  * O guard filtra a entrada para UUIDs canônicos antes do `in` — o
  * endpoint nunca mais explode por dado legado.
+ *
+ * Ref: issue Sentry MEDIA-RATE-3 (PrismaClientKnownRequestError em
+ * GET /api/v1/premium/graph, ongoing 4 semanas antes do guard).
  */
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
