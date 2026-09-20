@@ -15,7 +15,7 @@ const USER_ID = "user-e2e";
 
 const MIDIAS: any[] = [
   {
-    id: "m1",
+    id: "11111111-1111-4111-8111-111111111111",
     titulo: "Filme Ação 1",
     tipo: "FILME",
     ano_lancamento: 2020,
@@ -24,7 +24,7 @@ const MIDIAS: any[] = [
     generos: [{ genero: { slug: "acao" } }],
   },
   {
-    id: "m2",
+    id: "22222222-2222-4222-8222-222222222222",
     titulo: "Filme Ação 2",
     tipo: "FILME",
     ano_lancamento: 2021,
@@ -33,7 +33,7 @@ const MIDIAS: any[] = [
     generos: [{ genero: { slug: "acao" } }],
   },
   {
-    id: "m3",
+    id: "33333333-3333-4333-8333-333333333333",
     titulo: "Filme Drama 1",
     tipo: "FILME",
     ano_lancamento: 2019,
@@ -155,8 +155,8 @@ describe("Recommendations — e2e via HTTP (T209)", () => {
   it("GET /premium/recommendations (PLUS) — recomendações por gênero com motivo", async () => {
     PLANOS.set(USUARIO_ATUAL, { plano: "PLUS", status: "ATIVA" });
     ENTRIES = [
-      { usuario_id: USUARIO_ATUAL, midia_id: "m2" },
-      { usuario_id: USUARIO_ATUAL, midia_id: "m3" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "33333333-3333-4333-8333-333333333333" },
     ];
     const res = await request(app.getHttpServer()).get("/api/v1/premium/recommendations");
     expect(res.status).toBe(200);
@@ -184,12 +184,12 @@ describe("Recommendations — e2e via HTTP (T209)", () => {
   it("GET /premium/ml-personalized (PREMIUM) — colaborativo com frequência agregada", async () => {
     PLANOS.set(USUARIO_ATUAL, { plano: "PREMIUM", status: "ATIVA" });
     ENTRIES = [
-      { usuario_id: USUARIO_ATUAL, midia_id: "m1" },
-      { usuario_id: USUARIO_ATUAL, midia_id: "m2" },
-      { usuario_id: USUARIO_ATUAL, midia_id: "m3" },
-      { usuario_id: "outro1", midia_id: "m1" },
-      { usuario_id: "outro1", midia_id: "m2" },
-      { usuario_id: "outro1", midia_id: "m3" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "11111111-1111-4111-8111-111111111111" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "33333333-3333-4333-8333-333333333333" },
+      { usuario_id: "outro1", midia_id: "11111111-1111-4111-8111-111111111111" },
+      { usuario_id: "outro1", midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: "outro1", midia_id: "33333333-3333-4333-8333-333333333333" },
       { usuario_id: "outro1", midia_id: "x1" },
     ];
     const res = await request(app.getHttpServer()).get("/api/v1/premium/ml-personalized");
@@ -204,10 +204,10 @@ describe("Recommendations — e2e via HTTP (T209)", () => {
   it("GET /premium/ml-personalized (PREMIUM) — sem similares → fallback PLUS", async () => {
     PLANOS.set(USUARIO_ATUAL, { plano: "PREMIUM", status: "ATIVA" });
     ENTRIES = [
-      { usuario_id: USUARIO_ATUAL, midia_id: "m2" },
-      { usuario_id: USUARIO_ATUAL, midia_id: "m3" },
-      { usuario_id: "outro1", midia_id: "m2" },
-      { usuario_id: "outro1", midia_id: "m3" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: USUARIO_ATUAL, midia_id: "33333333-3333-4333-8333-333333333333" },
+      { usuario_id: "outro1", midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: "outro1", midia_id: "33333333-3333-4333-8333-333333333333" },
     ];
     const res = await request(app.getHttpServer()).get("/api/v1/premium/ml-personalized");
     expect(res.status).toBe(200);

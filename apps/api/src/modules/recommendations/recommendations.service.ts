@@ -3,6 +3,7 @@ import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { Prisma, type TipoMidia } from "@prisma/client";
 import { relacionadasDe, type FonteRelacao } from "./relation-graph.js";
+import { soUuids } from "./uuid-guard.js";
 
 const LIMITE_MAX = 50;
 
@@ -70,7 +71,10 @@ export class RecommendationsService {
           mensagem: "Adicione itens à sua watchlist para receber recomendações personalizadas",
         };
       }
-      const idsDaLista = watchlist.map((w) => w.midia_id);
+      // T469/D-527: watchlist_entry.midia_id é VarChar e o banco de produção
+      // tem 11 linhas legadas com ids externos (TMDB/slugs) — sem o filtro,
+      // o `in` sobre midia.id (Uuid) lança "Error creating UUID" → 500.
+      const idsDaLista = soUuids(watchlist.map((w) => w.midia_id));
 
       // T417 (achado g): exclui TODA mídia já interagida (status/rating) —
       // Descobertas deve sugerir o NOVO, não repetir o já visto.
@@ -78,7 +82,7 @@ export class RecommendationsService {
         where: { usuario_id: usuarioId },
         select: { midia_id: true },
       });
-      const idsInteragidos = interacoes.map((i) => i.midia_id);
+      const idsInteragidos = soUuids(interacoes.map((i) => i.midia_id));
       const idsExcluir = [...new Set([...idsDaLista, ...idsInteragidos])];
 
       const minhasMidias = await tx.midia.findMany({
@@ -158,13 +162,15 @@ export class RecommendationsService {
         where: { usuario_id: usuarioId },
         select: { midia_id: true },
       });
-      const idsWatch = watchlist.map((w) => w.midia_id);
+      // T469/D-527: mesmo guard da perna PLUS — ids legados não-UUID na
+      // watchlist derrubam o `in` do Prisma (issue MEDIA-RATE-3).
+      const idsWatch = soUuids(watchlist.map((w) => w.midia_id));
       // T417 (achado g): exclui também toda mídia já interagida (status/rating).
       const interacoes = await tx.usuarioMidiaInteracao.findMany({
         where: { usuario_id: usuarioId },
         select: { midia_id: true },
       });
-      const idsInteragidos = new Set(interacoes.map((i) => i.midia_id));
+      const idsInteragidos = new Set(soUuids(interacoes.map((i) => i.midia_id)));
       if (idsWatch.length === 0) {
         return {
           recomendacoes: [],

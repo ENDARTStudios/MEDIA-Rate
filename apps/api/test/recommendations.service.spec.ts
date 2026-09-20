@@ -6,7 +6,7 @@ import { PrismaService } from "../src/prisma/prisma.service.js";
 
 const MIDIAS = [
   {
-    id: "m1",
+    id: "11111111-1111-4111-8111-111111111111",
     titulo: "Filme Ação 1",
     tipo: "FILME",
     ano_lancamento: 2020,
@@ -15,7 +15,7 @@ const MIDIAS = [
     generos: [{ genero: { slug: "acao" } }],
   },
   {
-    id: "m2",
+    id: "22222222-2222-4222-8222-222222222222",
     titulo: "Filme Ação 2",
     tipo: "FILME",
     ano_lancamento: 2021,
@@ -24,7 +24,7 @@ const MIDIAS = [
     generos: [{ genero: { slug: "acao" } }],
   },
   {
-    id: "m3",
+    id: "33333333-3333-4333-8333-333333333333",
     titulo: "Filme Drama 1",
     tipo: "FILME",
     ano_lancamento: 2019,
@@ -33,7 +33,7 @@ const MIDIAS = [
     generos: [{ genero: { slug: "drama" } }],
   },
   {
-    id: "m4",
+    id: "44444444-4444-4444-8444-444444444444",
     titulo: "Série Ação",
     tipo: "SERIE",
     ano_lancamento: 2022,
@@ -131,17 +131,23 @@ describe("RecommendationsService (T209)", () => {
   it("PLUS — recomenda mesmo gênero+tipo com score ≥ média da watchlist e motivo", async () => {
     // watchlist: m2 (8.0) + m3 (9.0) → média 8.5. Candidato: m1 (acao/FILME, 8.5).
     const ctx = makePrisma([
-      { usuario_id: "u1", midia_id: "m2" },
-      { usuario_id: "u1", midia_id: "m3" },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+      },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "33333333-3333-4333-8333-333333333333",
+      },
     ]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
     }).compile();
     const svc = module.get<RecommendationsService>(RecommendationsService);
 
-    const r = await svc.recomendarPorGenero("u1", {});
+    const r = await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {});
     expect(r.recomendacoes.length).toBe(1);
-    expect(r.recomendacoes[0].id).toBe("m1");
+    expect(r.recomendacoes[0].id).toBe("11111111-1111-4111-8111-111111111111");
     expect(r.recomendacoes[0].motivo).toContain("Mesmo gênero que Filme Ação 2");
     // Saída sanitizada.
     const chaves = Object.keys(r.recomendacoes[0]);
@@ -151,53 +157,83 @@ describe("RecommendationsService (T209)", () => {
   it("PLUS — exclui itens já na watchlist e itens com score abaixo da média", async () => {
     // watchlist: m2 (8.0) → média 8.0. Candidatos (acao/FILME): m1 (8.5 ✓)
     // e x (8.2 ✓); m2 está na lista → excluído; m3 (drama) → fora.
-    const ctx = makePrisma([{ usuario_id: "u1", midia_id: "m2" }]);
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
-    }).compile();
-    const svc = module.get<RecommendationsService>(RecommendationsService);
-
-    const r = await svc.recomendarPorGenero("u1", {});
-    expect(r.recomendacoes[0].id).toBe("m1");
-    expect(r.recomendacoes.some((x) => x.id === "m2")).toBe(false);
-    expect(r.recomendacoes.some((x) => x.id === "m3")).toBe(false);
-  });
-
-  it("T417 — exclui mídia já interagida (status/rating) fora da watchlist", async () => {
-    // watchlist: m2; interação (ex.: concluído): m1 → m1 não pode aparecer.
-    const ctx = makePrisma(
-      [{ usuario_id: "u1", midia_id: "m2" }],
-      [{ usuario_id: "u1", midia_id: "m1" }],
-    );
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
-    }).compile();
-    const svc = module.get<RecommendationsService>(RecommendationsService);
-
-    const r = await svc.recomendarPorGenero("u1", {});
-    expect(r.recomendacoes.some((x) => x.id === "m1")).toBe(false);
-  });
-
-  it("PLUS — watchlist vazia retorna mensagem amigável (200, lista vazia)", async () => {
-    const r = await service.recomendarPorGenero("u1", {});
-    expect(r.recomendacoes).toEqual([]);
-    expect(r.mensagem).toContain("Adicione itens à sua watchlist");
-  });
-
-  it("PLUS — limite e paginação por cursor", async () => {
     const ctx = makePrisma([
-      { usuario_id: "u1", midia_id: "m2" },
-      { usuario_id: "u1", midia_id: "m4" },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+      },
     ]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
     }).compile();
     const svc = module.get<RecommendationsService>(RecommendationsService);
 
-    const p1 = await svc.recomendarPorGenero("u1", { limit: 1 });
+    const r = await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {});
+    expect(r.recomendacoes[0].id).toBe("11111111-1111-4111-8111-111111111111");
+    expect(r.recomendacoes.some((x) => x.id === "22222222-2222-4222-8222-222222222222")).toBe(
+      false,
+    );
+    expect(r.recomendacoes.some((x) => x.id === "33333333-3333-4333-8333-333333333333")).toBe(
+      false,
+    );
+  });
+
+  it("T417 — exclui mídia já interagida (status/rating) fora da watchlist", async () => {
+    // watchlist: m2; interação (ex.: concluído): m1 → m1 não pode aparecer.
+    const ctx = makePrisma(
+      [
+        {
+          usuario_id: "99999999-9999-4999-8999-999999999999",
+          midia_id: "22222222-2222-4222-8222-222222222222",
+        },
+      ],
+      [
+        {
+          usuario_id: "99999999-9999-4999-8999-999999999999",
+          midia_id: "11111111-1111-4111-8111-111111111111",
+        },
+      ],
+    );
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
+    }).compile();
+    const svc = module.get<RecommendationsService>(RecommendationsService);
+
+    const r = await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {});
+    expect(r.recomendacoes.some((x) => x.id === "11111111-1111-4111-8111-111111111111")).toBe(
+      false,
+    );
+  });
+
+  it("PLUS — watchlist vazia retorna mensagem amigável (200, lista vazia)", async () => {
+    const r = await service.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {});
+    expect(r.recomendacoes).toEqual([]);
+    expect(r.mensagem).toContain("Adicione itens à sua watchlist");
+  });
+
+  it("PLUS — limite e paginação por cursor", async () => {
+    const ctx = makePrisma([
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+      },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "44444444-4444-4444-8444-444444444444",
+      },
+    ]);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
+    }).compile();
+    const svc = module.get<RecommendationsService>(RecommendationsService);
+
+    const p1 = await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", { limit: 1 });
     expect(p1.recomendacoes.length).toBe(1);
     expect(p1.proximo_cursor).toBe(p1.recomendacoes[0].id);
-    const p2 = await svc.recomendarPorGenero("u1", { limit: 1, cursor: p1.proximo_cursor });
+    const p2 = await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {
+      limit: 1,
+      cursor: p1.proximo_cursor,
+    });
     expect(p2.recomendacoes.length).toBe(1);
     expect(p2.recomendacoes[0].id).not.toBe(p1.recomendacoes[0].id);
   });
@@ -205,10 +241,10 @@ describe("RecommendationsService (T209)", () => {
   it("PREMIUM — colaborativo agrega frequência de usuários com ≥3 itens em comum", async () => {
     // u1: a,b,c,d | u2: a,b,c + x,y | u3: a,b,c + x,z | u4: a,b (só 2 → fora)
     const ctx = makePrisma([
-      { usuario_id: "u1", midia_id: "a" },
-      { usuario_id: "u1", midia_id: "b" },
-      { usuario_id: "u1", midia_id: "c" },
-      { usuario_id: "u1", midia_id: "d" },
+      { usuario_id: "99999999-9999-4999-8999-999999999999", midia_id: "a" },
+      { usuario_id: "99999999-9999-4999-8999-999999999999", midia_id: "b" },
+      { usuario_id: "99999999-9999-4999-8999-999999999999", midia_id: "c" },
+      { usuario_id: "99999999-9999-4999-8999-999999999999", midia_id: "d" },
       { usuario_id: "u2", midia_id: "a" },
       { usuario_id: "u2", midia_id: "b" },
       { usuario_id: "u2", midia_id: "c" },
@@ -227,7 +263,7 @@ describe("RecommendationsService (T209)", () => {
     }).compile();
     const svc = module.get<RecommendationsService>(RecommendationsService);
 
-    const r = await svc.colaborativo("u1", {});
+    const r = await svc.colaborativo("99999999-9999-4999-8999-999999999999", {});
     expect(r.recomendacoes.length).toBeGreaterThan(0);
     // x aparece para u2 e u3 (frequência 2) → primeiro.
     expect(r.recomendacoes[0].id).toBe("x");
@@ -241,40 +277,49 @@ describe("RecommendationsService (T209)", () => {
 
   it("PREMIUM — sem usuários similares (≤2 itens em comum) faz fallback para PLUS", async () => {
     const ctx = makePrisma([
-      { usuario_id: "u1", midia_id: "m2" },
-      { usuario_id: "u1", midia_id: "m3" },
-      { usuario_id: "u2", midia_id: "m2" },
-      { usuario_id: "u2", midia_id: "m3" }, // só 2 em comum → não é similar
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+      },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "33333333-3333-4333-8333-333333333333",
+      },
+      { usuario_id: "u2", midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: "u2", midia_id: "33333333-3333-4333-8333-333333333333" }, // só 2 em comum → não é similar
     ]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
     }).compile();
     const svc = module.get<RecommendationsService>(RecommendationsService);
 
-    const r = await svc.colaborativo("u1", {});
+    const r = await svc.colaborativo("99999999-9999-4999-8999-999999999999", {});
     expect(r.recomendacoes.length).toBeGreaterThan(0);
     expect(r.recomendacoes[0].motivo).toContain("Mesmo gênero");
   });
 
   it("PREMIUM — watchlist vazia retorna mensagem (mesmo contrato do PLUS)", async () => {
-    const r = await service.colaborativo("u1", {});
+    const r = await service.colaborativo("99999999-9999-4999-8999-999999999999", {});
     expect(r.recomendacoes).toEqual([]);
     expect(r.mensagem).toContain("Adicione itens à sua watchlist");
   });
 
   it("T280 — todas as consultas de midia excluem soft-deleted (deleted_at: null)", async () => {
     const ctx = makePrisma([
-      { usuario_id: "u1", midia_id: "m2" },
-      { usuario_id: "u2", midia_id: "m2" },
-      { usuario_id: "u2", midia_id: "m3" },
+      {
+        usuario_id: "99999999-9999-4999-8999-999999999999",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+      },
+      { usuario_id: "u2", midia_id: "22222222-2222-4222-8222-222222222222" },
+      { usuario_id: "u2", midia_id: "33333333-3333-4333-8333-333333333333" },
     ]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [RecommendationsService, { provide: PrismaService, useValue: ctx.prisma }],
     }).compile();
     const svc = module.get<RecommendationsService>(RecommendationsService);
 
-    await svc.recomendarPorGenero("u1", {});
-    await svc.colaborativo("u1", {});
+    await svc.recomendarPorGenero("99999999-9999-4999-8999-999999999999", {});
+    await svc.colaborativo("99999999-9999-4999-8999-999999999999", {});
 
     const chamadas = ctx.midia.findMany.mock.calls as { where?: Record<string, unknown> }[][];
     expect(chamadas.length).toBeGreaterThan(0);
