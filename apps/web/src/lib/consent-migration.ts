@@ -65,7 +65,10 @@ export function migrarConsentimento(input: {
 }): ResultadoMigracao {
   // 1. v2 válido → usa (com validação estrutural estrita)
   if (v2Valido(input.v2Bruto)) {
-    return { estado: input.v2Bruto as ConsentV2, acao: "usar-v2", purgarLgpdV1: false };
+    // T473: o resíduo da flag genérica é purgado SEMPRE que presente — a
+    // decisão de estado e a limpeza do legado são independentes (antes,
+    // com cookie v1 granular presente, o resíduo sobrevivia à hidratação).
+    return { estado: input.v2Bruto as ConsentV2, acao: "usar-v2", purgarLgpdV1: !!input.lgpdV1 };
   }
 
   // 2. cookie v1 granular (T442/T443) → migra preservando categorias
@@ -73,7 +76,7 @@ export function migrarConsentimento(input: {
     return {
       estado: estadoV2DeCategorias(input.v1Cookie, input.agoraIso, input.idioma),
       acao: "migrar-v1",
-      purgarLgpdV1: false,
+      purgarLgpdV1: !!input.lgpdV1,
     };
   }
 

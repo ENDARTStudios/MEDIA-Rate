@@ -382,26 +382,42 @@ describe("LgpdController (unit T8.1)", () => {
     controller = new LgpdController(mockService as any);
   });
 
-  it("exportarDados() calls service with user id", async () => {
-    const result = await controller.exportarDados(mockReq(MOCK_USER) as any);
+  it("exportarDados() calls service with user id + protocolo correlation_id (T473)", async () => {
+    const reply = mockRes();
+    const result = await controller.exportarDados(
+      { ...mockReq(MOCK_USER), id: "req-lgpd-1" } as any,
+      reply,
+    );
     expect(mockService.exportarDados).toHaveBeenCalledWith("u1");
     expect(result.usuario_id).toBe("u1");
+    expect(result.correlation_id).toBe("req-lgpd-1");
+    expect(reply.headers["X-Request-Id"]).toBe("req-lgpd-1");
   });
 
   it("exportarDados() throws if no user", async () => {
-    await expect(controller.exportarDados(mockReq() as any)).rejects.toThrow();
+    await expect(controller.exportarDados(mockReq() as any, mockRes())).rejects.toThrow();
   });
 
-  it("solicitarExclusao() calls service with user id and motivo", async () => {
-    const result = await controller.solicitarExclusao(mockReq(MOCK_USER) as any, {
-      motivo: "test",
-    });
+  it("solicitarExclusao() calls service with user id and motivo + protocolo (T473)", async () => {
+    const reply = mockRes();
+    const result = await controller.solicitarExclusao(
+      { ...mockReq(MOCK_USER), id: "req-lgpd-2" } as any,
+      reply,
+      {
+        motivo: "test",
+      },
+    );
     expect(mockService.solicitarExclusao).toHaveBeenCalledWith("u1", "test");
     expect(result.dias_para_cancelar).toBe(30);
+    expect(result.correlation_id).toBe("req-lgpd-2");
   });
 
-  it("cancelarExclusao() calls service with user id", async () => {
-    const result = await controller.cancelarExclusao(mockReq(MOCK_USER) as any);
+  it("cancelarExclusao() calls service with user id + protocolo (T473)", async () => {
+    const reply = mockRes();
+    const result = await controller.cancelarExclusao(
+      { ...mockReq(MOCK_USER), id: "req-lgpd-3" } as any,
+      reply,
+    );
     expect(mockService.cancelarExclusao).toHaveBeenCalledWith("u1");
     expect(result.cancelado).toBe(true);
   });
