@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "media-rate-web",
   "main": ".open-next/worker.js",
-  "account_id": "eceaf501758d87a2bcdf7f2ce2238bc",
+  "account_id": "eceaf501758d87a2bcdf77f2ce2238bc",
   "compatibility_date": "2026-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
