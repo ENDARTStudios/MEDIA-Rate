@@ -2,11 +2,25 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "media-rate-web",
   "main": ".open-next/worker.js",
-  "account_id": "eceaf501758d87a2bcdf77f2ce2238bc",
+  "account_id": "eceaf501758d87a2bcdf7f2ce2238bc",
   "compatibility_date": "2026-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // T454/D-527 — namespaces KV criadas pelo Operador no dashboard
+  // (IDs não são segredo, commitáveis). Cache incremental + tag cache
+  // do OpenNext: ISR revalidate 3600 (T447) durável entre isolates e
+  // /api/revalidate on-demand purgando globalmente.
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "f890c5535d584955a795ddb8914b90e6"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_KV",
+      "id": "76133f6eeab345548b6f485ede9f6dac"
+    }
+  ]
 }
