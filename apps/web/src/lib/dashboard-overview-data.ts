@@ -30,6 +30,15 @@ export function nicheFromApiTipo(tipo: string): OverviewNiche {
   return API_TIPO_TO_NICHE[tipo.toUpperCase()] ?? "movie";
 }
 
+/**
+ * Chave do rótulo i18n do nicho no namespace `catalog` (movie→filme,
+ * book→livro…). O nicho da UI NÃO é chave de mensagem: `tc("movie")` quebra
+ * em runtime (MISSING_MESSAGE) — sempre passar por aqui.
+ */
+export function nicheLabelKey(niche: OverviewNiche): string {
+  return CATEGORY_TOKENS[niche as MediaType].labelKey.split(".")[1] ?? niche;
+}
+
 export interface TaxonomyBar {
   niche: OverviewNiche;
   labelKey: string;
@@ -161,45 +170,27 @@ export const TREND_SERIES: Record<"30 dias" | "90 dias" | "12 meses", TrendPoint
   ],
 };
 
-export interface RecentSignal {
-  title: string;
-  detailKey: string;
-  timeKey: string;
-  score: string;
-  niche: OverviewNiche;
+/**
+ * Afinidade média REAL a partir do histograma de scores da API
+ * (média ponderada pelos pontos médios das faixas 0-10).
+ * Sem itens pontuados → null (a UI mostra "—", não inventa valor).
+ */
+export function affinityFromHistograma(
+  histograma: { faixa: string; total: number }[],
+): number | null {
+  const midpoints = [1, 3, 5, 7, 9];
+  const counts = histograma.map((h) => h.total);
+  const soma = counts.reduce((a, b) => a + b, 0);
+  if (soma === 0) return null;
+  const media = counts.reduce((acc, total, i) => acc + total * (midpoints[i] ?? 5), 0) / soma;
+  return Math.max(0, Math.min(10, media));
 }
 
-/** Dataset estático de demonstração do protótipo (sem endpoint na API). */
-export const RECENT_SIGNALS: RecentSignal[] = [
-  {
-    title: "Ruptura",
-    detailKey: "recentDone",
-    timeKey: "recentHours:2",
-    score: "9,4",
-    niche: "series",
-  },
-  {
-    title: "Hades",
-    detailKey: "recentFav",
-    timeKey: "recentYesterday",
-    score: "8,9",
-    niche: "game",
-  },
-  {
-    title: "Piranesi",
-    detailKey: "recentRated",
-    timeKey: "recentDays:3",
-    score: "8,7",
-    niche: "book",
-  },
-  {
-    title: "O Menu",
-    detailKey: "recentDropped",
-    timeKey: "recentDays:5",
-    score: "6,2",
-    niche: "movie",
-  },
-];
+/** Taxa de conclusão REAL (%) — interações CONCLUIDO sobre o total. */
+export function completionPct(total: number, concluidos: number): number | null {
+  if (total <= 0) return null;
+  return Math.round((concluidos / total) * 100);
+}
 
 /** "8.8/10" ou "93/100", com vírgula decimal pt-BR como no protótipo. */
 export function formatScoreValue(score: number, max: number): string {
