@@ -2553,3 +2553,11 @@ Docs: D-525 em DECISOES.md; tarefas 5.16/7.11 no PLANO_MESTRE.md;
 CHANGELOG.md criado. Pendências residuais: acentos genéricos hex em
 componentes legacy (dívida, não mapeiam tipo de mídia); e2e da biblioteca só
 roda com E2E_FULL=1 (padrão do repo).
+
+### Seguranca - fragmento whsec_ (Condicao 7 do review #143)
+Fragmento de 6 caracteres + reticencias, contexto de MODO TESTE (commit 3164ef7,
+validacao 4242). Busca no historico completo: NUNCA houve valor completo do
+segredo em nenhum commit (log -S + grep de padrao longo = vazio). Redigido em
+262f173. Rotacao: valor insuficiente para uso (6 chars de um secret de ~40+,
+modo teste) - decisao final de rotacionar e do Operador no dashboard Stripe
+(acesso nao disponivel ao Doer). Gitleaks/docs-gate: verdes.
