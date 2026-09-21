@@ -133,29 +133,17 @@ export class InteracoesService {
     });
   }
 
-  /** Item estável da resposta (snake_case, contrato da API). */
-  private mapearItem(i: {
-    id: string;
-    midia_id: string;
-    status: string;
-    atualizado_em: Date;
-    midia: {
-      id: string;
-      slug: string | null;
-      titulo: string;
-      tipo: string;
-      ano_lancamento: number | null;
-      imagem_url: string | null;
-      score: number | null;
-    };
-  }) {
-    return {
-      id: i.id,
-      midia_id: i.midia_id,
-      status: i.status,
-      atualizado_em: i.atualizado_em,
-      midia: i.midia,
-    };
+  /**
+   * Item estável da resposta (snake_case, contrato da API). Pass-through
+   * COMPLETO dos campos da interação — o fetchAll do use-interaction-store
+   * lê reacao/motivo_abandono do payload cru (D-525: não fatiar aqui).
+   */
+  private mapearItem(
+    i: Prisma.UsuarioMidiaInteracaoGetPayload<{
+      include: { midia: { select: { id: true; slug: true; titulo: true; tipo: true; ano_lancamento: true; imagem_url: true; score: true } } };
+    }>,
+  ) {
+    return i;
   }
 
   /** Cursor opaco = offset em base64url; inválido → 400 (nunca 500). */
@@ -165,10 +153,7 @@ export class InteracoesService {
 
   private decodificarCursor(cursor: string | undefined): number {
     if (cursor === undefined) return 0;
-    const decodificado = Number.parseInt(
-      Buffer.from(cursor, "base64url").toString("utf8"),
-      10,
-    );
+    const decodificado = Number.parseInt(Buffer.from(cursor, "base64url").toString("utf8"), 10);
     if (!Number.isInteger(decodificado) || decodificado < 0) {
       throw new BadRequestException("Cursor inválido.");
     }

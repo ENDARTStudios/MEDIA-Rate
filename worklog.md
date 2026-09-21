@@ -852,7 +852,7 @@ Stage Summary:
   adaptive pricing (desativado no gateway, d6fc545) e nosso backend (sessoes criadas
   corretamente).
 - Validacao definitiva em modo TESTE: chave sk_test_ do CLI, webhook de teste criado
-  (whsec_ebMuoM...), prices de teste (price_1U0Tb8.../1U0Tb9...); checkout com 4242
+  (whsec_***redigido***, prices de teste price_1U0Tb8.../1U0Tb9...); checkout com 4242
   FUNCIONOU - webhooks processados (200) e assinatura sub_1U0WcB... trialing ate
   11/08 (Plus mensal, conta endart.studios@gmail.com). Integracao 100% correta.
 - Variaveis Railway revertidas para LIVE (rk_live + whsec_ live + prices live).

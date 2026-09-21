@@ -53,10 +53,23 @@ export class InteracoesController {
       "D-525 — fonte da biblioteca. Retorna envelope { items, total, porStatus, nextCursor }; " +
       "somente dados do próprio usuário (RLS owner-only). Rate limit global do gateway se aplica.",
   })
-  @ApiQuery({ name: "status", required: false, enum: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"] })
-  @ApiQuery({ name: "tipo", required: false, enum: ["FILME", "SERIE", "GAME", "LIVRO", "MANGA", "COMIC"] })
+  @ApiQuery({
+    name: "status",
+    required: false,
+    enum: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
+  })
+  @ApiQuery({
+    name: "tipo",
+    required: false,
+    enum: ["FILME", "SERIE", "GAME", "LIVRO", "MANGA", "COMIC"],
+  })
   @ApiQuery({ name: "limit", required: false, type: Number, description: "1-50 (default 50)" })
-  @ApiQuery({ name: "cursor", required: false, type: String, description: "Token opaco de nextCursor" })
+  @ApiQuery({
+    name: "cursor",
+    required: false,
+    type: String,
+    description: "Token opaco de nextCursor",
+  })
   @ApiOkResponse({ description: "Envelope paginado de interações do usuário" })
   @ApiUnauthorizedResponse({ description: "Sem sessão válida." })
   @ApiBadRequestResponse({ description: "Query inválida (enum/limit/cursor)." })
