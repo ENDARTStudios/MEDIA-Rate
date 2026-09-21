@@ -723,7 +723,8 @@
     "concluido": "Completed",
     "buscarSubstituta": "Find substitute",
     "relinkPlaceholder": "Search for the correct title...",
-    "relinkError": "Could not re-link. Please try again."
+    "relinkError": "Could not re-link. Please try again.",
+    "inWatchlist": "In watchlist"
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",
@@ -971,7 +972,8 @@
     "minutesAgo": "{n} min ago",
     "hoursAgo": "{n} h ago",
     "daysAgo": "{n} d ago",
-    "tituloIndisponivel": "Title unavailable"
+    "tituloIndisponivel": "Title unavailable",
+    "totalWatchlist": "Watchlist titles"
   },
   "settings": {
     "title": "Settings",
@@ -984,7 +986,12 @@
     "languageHint": "Select your preferred language.",
     "lgpd": "Your data (LGPD)",
     "lgpdHint": "Export your data or request deletion — always with explicit confirmation, never in one click.",
-    "session": "Session"
+    "session": "Session",
+    "cancelConfirm": "Are you sure you want to cancel your subscription?",
+    "cancelDone": "Subscription canceled successfully.",
+    "cancelError": "Could not cancel the subscription right now. Try again.",
+    "cancelSubscription": "Cancel subscription",
+    "cancelHint": "Canceling ends plan benefits at the end of the current cycle."
   },
   "onboarding": {
     "h1": "Welcome to MEDIA Rate",
