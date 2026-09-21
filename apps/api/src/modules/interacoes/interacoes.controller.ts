@@ -15,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
   ApiOkResponse,
+  ApiNotFoundResponse,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
 } from "@nestjs/swagger";
@@ -83,12 +84,18 @@ export class InteracoesController {
 
   @Get(":midiaId")
   @ApiOperation({ summary: "Retorna a interação do usuário com uma mídia" })
+  @ApiNotFoundResponse({
+    description: "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou sem interação.",
+  })
   async get(@Req() req: InteracaoRequest, @Param("midiaId", UuidParamPipe) midiaId: string) {
     return this.service.obter(this.userId(req), midiaId);
   }
 
   @Put(":midiaId")
   @ApiOperation({ summary: "Cria/atualiza status+reação de uma mídia" })
+  @ApiNotFoundResponse({
+    description: "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou mídia inexistente.",
+  })
   async put(
     @Req() req: InteracaoRequest,
     @Param("midiaId", UuidParamPipe) midiaId: string,
