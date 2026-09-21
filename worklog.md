@@ -2561,3 +2561,14 @@ segredo em nenhum commit (log -S + grep de padrao longo = vazio). Redigido em
 262f173. Rotacao: valor insuficiente para uso (6 chars de um secret de ~40+,
 modo teste) - decisao final de rotacionar e do Operador no dashboard Stripe
 (acesso nao disponivel ao Doer). Gitleaks/docs-gate: verdes.
+
+## [2026-09-21] Auditoria-dashboard-S1-promocao (MERGED, 9ae0231)
+Promocao do PR #143 para producao autorizada pelo Operador condicionada a evidencia verde da issue #147 (executada autonomamente via CLI):
+- AMBIENTE: local integrado - postgres 16 docker (:5434, migrations aplicadas), db:provision:test-users (4 usuarios), fixture local (5 midias + 5 interacoes p/ premium), API Nest :4000, web Next :3000.
+- E2E: E2E_FULL=1 biblioteca+gating --project=chromium => 7/7 (biblioteca 4/4: deep link ?status=, query invalida sem quebra, empty state com CTA, atalho sidebar; gating 3/3: Free=4 previews, Plus=2, Premium=0).
+- Fixes durante a evidencia: helper e2e (apiLogin via context.request + dismissConsentIfPresent - login-UI quebrava em contexto novo por dialogo de consentimento/hidratacao), seletores de grafico precisos, i18n profileWebShare ausente nas 3 linguas (botao renderizava chave crua).
+- Cenarios manuais: curl matrix API (401/200 envelope/400 invalidos), deep link, watchlist intacta (T310 pass; T308 stale: CONCLUIDO->ABANDONADO rejeitado pela maquina de estados - pre-existente, fora do PR).
+- MERGE: gh pr merge 143 --merge (merge commit 9ae0231, branch mantida).
+- DEPLOY: Railway native SUCCESS 18:01:33Z (API); Vercel web via integracao Git; deploy.yml falhou so no step migrate (secret interno Railway - pre-existente, pendencia de Operador).
+- SMOKE PRODUCAO: /health API 200 (railway) | home/catalogo 200 | biblioteca deslogada 307 com callbackUrl completo (path+query) | API /interacoes 401 sem cookie | dashboard Free com 4 previews e sem chave crua | query invalida sem 500 | watchlist Kanban intacta.
+- Docs: issue #147 fechada com evidencia; issue #148 (dividas nao bloqueantes) criada; PLANO 5.16 [x] com evidencia; DECISOES D-526; CHANGELOG ja coberto.
