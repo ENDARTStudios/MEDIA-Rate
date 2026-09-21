@@ -6,20 +6,6 @@ import prettierConfig from "eslint-config-prettier";
 import prettierPlugin from "eslint-plugin-prettier/recommended";
 
 export default tseslint.config(
-  // P2 (review #143): scripts operacionais em scripts/ rodam em Node —
-  // precisam dos globals de runtime (console/fetch/process).
-  {
-    files: ["scripts/**/*.mjs"],
-    languageOptions: {
-      globals: {
-        console: "readonly",
-        fetch: "readonly",
-        process: "readonly",
-        URL: "readonly",
-        setTimeout: "readonly",
-      },
-    },
-  },
   // Arquivos ignorados (nao lintar)
   {
     ignores: [

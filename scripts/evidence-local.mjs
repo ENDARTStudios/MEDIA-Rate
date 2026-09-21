@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-undef */ // script operacional Node (globals de runtime)
 /**
  * P2 (review pós-#143 / D-527) — evidência reproduzível de rotas que exigem
  * API+DB, do zero, sem tocar produção.
