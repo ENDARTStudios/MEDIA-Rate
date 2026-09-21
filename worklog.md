@@ -2572,3 +2572,24 @@ Promocao do PR #143 para producao autorizada pelo Operador condicionada a eviden
 - DEPLOY: Railway native SUCCESS 18:01:33Z (API); Vercel web via integracao Git; deploy.yml falhou so no step migrate (secret interno Railway - pre-existente, pendencia de Operador).
 - SMOKE PRODUCAO: /health API 200 (railway) | home/catalogo 200 | biblioteca deslogada 307 com callbackUrl completo (path+query) | API /interacoes 401 sem cookie | dashboard Free com 4 previews e sem chave crua | query invalida sem 500 | watchlist Kanban intacta.
 - Docs: issue #147 fechada com evidencia; issue #148 (dividas nao bloqueantes) criada; PLANO 5.16 [x] com evidencia; DECISOES D-526; CHANGELOG ja coberto.
+
+## [2026-09-21] PR-153-promocao (MERGED, b20458c)
+PR #153 (post-promocao) merged com merge commit apos CI 13/13 verde no head
+c382801. Promocao automatica: Railway API SUCCESS (19:53:27Z) + Vercel web;
+deploy.yml REDESIGNADO (D-527) ficou VERDE pela primeira vez na serie
+(run 35647639085, 2m18s) - o job de migration quebrado (secret interno)
+saiu do push path; migration manual com backup em migrate-production.yml
+(workflow_dispatch, NAO executada - aguarda caminho de rede do Operador).
+- SMOKE PRODUCAO: 9 paginas publicas 200 (pt/en/es) sem chave crua;
+  biblioteca query invalida sem 500; deep link deslogado 307 com
+  callbackUrl completo (path+query); API /interacoes 401 sem auth e
+  200 envelope autenticado (porStatus presente - codigo novo no ar);
+  watchlist renderizando.
+- Security workflow na main: vermelho PRE-EXISTENTE (trivy-action pin
+  invalido + npm audit highs em dev-deps) - idem nos merges #143/#152;
+  rastreado na issue #148 (item 12).
+- Follow-ups registrados na #148 (itens 7-12): guarda de migrations,
+  caminho p/ migration manual, staging env, guarda i18n dinamico,
+  guarda no evidence-local, Security workflow.
+- Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao
+  PLANO_MESTRE global (fases 2/3/4 parciais + observabilidade).

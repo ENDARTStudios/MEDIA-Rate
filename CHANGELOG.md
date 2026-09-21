@@ -32,6 +32,7 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/). Datas em 2026.
   previews; spotchecks T305 por testids) e novo `e2e/biblioteca.spec.ts` (E2E_FULL).
 
 ### Fixed
+- **Pipeline de deploy da main íntegro (D-527)**: job de migration com secret inacessível removido do push path (migrations são aplicadas pelo entrypoint do Railway no boot); migration manual com backup movida para `migrate-production.yml` (`workflow_dispatch`).
 - **Service worker estranho na origem não prende mais o app em render antigo**
   (D-525): o app não registra SW próprio; `LimpezaServiceWorker` desregistra SWs
   de terceiros e limpa o Cache Storage no boot (evidência: `test/sw-cleanup.spec.ts`).
