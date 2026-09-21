@@ -331,10 +331,36 @@ jobs:
       # re-executar o job resolve (não silenciar: DAST real tem valor).
       - name: Resolve Vercel preview URL
         id: preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          BRANCH: ${{ github.head_ref }}
         run: |
-          slug="${{ github.head_ref }}"
-          slug="${slug//\//-}"
-          echo "url=https://media-rate-git-${slug}-end-art-studios.vercel.app" >> "$GITHUB_OUTPUT"
+          # D-530: o rótulo DNS do preview tem limite de 63 chars — nomes de
+          # branch longos truncam a URL construída e ela deixa de resolver.
+          # Consulta a API do Vercel pelo deployment READY mais recente da
+          # branch; fallback: URL construída (comportamento anterior).
+          slug="${BRANCH//\//-}"
+          construida="https://media-rate-git-${slug}-end-art-studios.vercel.app"
+          url_real=""
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            RESP=$(curl -s "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_ORG_ID&target=preview&state=READY&limit=20" -H "Authorization: Bearer $VERCEL_TOKEN")
+            url_real=$(printf '%s' "$RESP" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => (d += c));
+              process.stdin.on("end", () => {
+                try {
+                  const deps = JSON.parse(d).deployments ?? [];
+                  const alvo = deps.find((x) => (x.meta?.githubCommitRef ?? "") === process.env.BRANCH);
+                  if (alvo) console.log("https://" + alvo.url);
+                } catch {}
+              });
+            ' BRANCH="$BRANCH")
+          fi
+          FINAL="${url_real:-$construida}"
+          echo "url=$FINAL" >> "$GITHUB_OUTPUT"
+          echo "preview resolvido: $FINAL"
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:

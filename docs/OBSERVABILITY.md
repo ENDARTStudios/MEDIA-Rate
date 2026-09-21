@@ -202,5 +202,15 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
   coerente com T466 stale). Triagem de issues: via UI (issues API → 401 com
   este token).
 
+## Logs estruturados e CLI de erros (T027 / D-527)
 
-
+- **pino (Fastify logger)** ligado em `main.ts` com redaction de
+  `authorization`/`cookie`/`x-csrf-token` — nenhum header sensível vai para os logs.
+  `LOG_LEVEL` controla o ruído (produção: `info`).
+- **Agregação**: os logs JSON vão para o stdout e são agregados nativamente pelo
+  Railway (dashboard externo — Logs do serviço "MEDIA Rate").
+- **CLI de erros**: `node scripts/logs-errors.mjs [--minutos 30]` resume 4xx/5xx,
+  rotas mais atingidas e amostra de erros a partir dos logs nativos do Railway.
+- **Métricas**: `/metrics` (Prometheus) expõe `http_requests_total` por
+  {método, rota, status} (4xx e 5xx distinguíveis), `http_request_duration_seconds`
+  e `http_errors_total`; `/admin/alerts/status` expõe ring buffers/histerese (T218).

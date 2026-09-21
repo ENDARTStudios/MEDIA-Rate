@@ -1990,3 +1990,23 @@ rejeita. Regra, comportamento e teste estavam desalinhados.
 Alinhamentos: comentários da máquina corrigidos (API + web); teste unitário da rejeição adicionado
 (`test/interacoes.spec.ts`); T308 atualizado para esperar 400 e tratar o envelope do
 GET /interacoes (D-525).
+
+## D-529 — Máquina de estados vale também para a projeção do Kanban; watchlist com trilha de auditoria
+
+**Data:** 2026-09-21 · **Fase:** T027 backend canonicity · **Status:** PROPOSTA (PR aberto)
+
+**Contexto:** O `move()` do Kanban (`watchlist.service`) projetava o status na interação SEM
+validar a máquina de estados — arrastar um item de COMPLETED para DROPPED gravava
+CONCLUIDO → ABANDONADO diretamente, contornando a regra D-528 (o PUT /interacoes rejeita;
+o drag não). As restrições de T027 exigiam que o CRUD da watchlist respeitasse D-528.
+
+**Decisão:**
+1. Máquina de estados extraída para `common/estados-consumo.ts` (fonte única — API e espelho web).
+2. `watchlist.service.move()` valida a transição contra o status ATUAL da interação antes de
+   projetar; inválida → 400 com mensagem clara (inclui D-528).
+3. Trilha de auditoria (repudiação — STRIDE): `AuditLogService.log()` em add/move/remove da
+   watchlist, fire-and-forget fora da tx RLS (falha de audit não derruba a operação).
+4. UI: `podeMoverPara()` no Kanban torna o drop inválido um no-op (defesa em profundidade).
+
+**Testes:** `test/watchlist-move-d528.spec.ts` (4 casos, TDD vermelho→verde),
+`test/watchlist.e2e.spec.ts` ganhou caso HTTP D-528 (400) — 16/16.

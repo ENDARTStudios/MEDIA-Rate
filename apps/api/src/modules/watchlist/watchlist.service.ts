@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Optional,
   ConflictException,
   NotFoundException,
   BadRequestException,
@@ -9,9 +10,11 @@ import {
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { COLUNA_PARA_STATUS } from "../../common/status-coluna.js";
+import { podeTransicionar } from "../../common/estados-consumo.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 import type { Prisma } from "@prisma/client";
 import type { AddToWatchlistDto, RegistrarReacaoDto } from "./dto/watchlist.dto.js";
-import type { WatchlistColuna, ReacaoConsumo, MotivoAbandono } from "@prisma/client";
+import type { StatusConsumo, WatchlistColuna, ReacaoConsumo, MotivoAbandono } from "@prisma/client";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -35,10 +38,14 @@ export class WatchlistService {
   /** Hook de domínio (T285): a T286 assina para derivar DiscoveryEvents. */
   onReacaoRegistrada?: (evento: EventoReacaoRegistrada) => Promise<void> | void;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // T027: audit de ações críticas (repudiação). Opcional p/ testes unitários.
+    @Optional() private readonly auditLog?: AuditLogService,
+  ) {}
 
   async add(usuarioId: string, dto: AddToWatchlistDto) {
-    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+    const criado = await comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const midiaId = dto.midia_id;
       const existing = await tx.watchlistEntry.findUnique({
         where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
@@ -85,6 +92,18 @@ export class WatchlistService {
         })
         .then((e) => this.semTenant(e));
     });
+
+    // T027: trilha de auditoria (repudiação) — fora da tx RLS.
+    await this.auditLog
+      ?.log({
+        entidade: "watchlist_entry",
+        entidadeId: String((criado as { id?: string }).id ?? ""),
+        acao: "add",
+        usuarioId,
+        dadosDepois: { coluna: dto.coluna ?? "WANT", midiaId: dto.midia_id },
+      })
+      .catch(() => undefined);
+    return criado;
   }
 
   /** T289: tenant_id é infraestrutura — nunca exposto na resposta. */
@@ -205,7 +224,7 @@ export class WatchlistService {
   }
 
   async move(usuarioId: string, entryId: string, coluna: WatchlistColuna) {
-    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+    const resultado = await comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const entry = await tx.watchlistEntry.findFirst({
         where: { id: entryId, usuario_id: usuarioId },
       });
@@ -215,8 +234,19 @@ export class WatchlistService {
 
       // T320/D-309: fonte única de verdade — a coluna dirige o status da
       // interação no MESMO transaction (drag e select nunca divergem).
+      // T027/D-528: a projeção respeita a MESMA máquina de estados do
+      // PUT /interacoes — CONCLUIDO → ABANDONADO é rejeitado aqui também.
       if (UUID_RE.test(entry.midia_id)) {
         const status = COLUNA_PARA_STATUS[coluna];
+        const existente = await tx.usuarioMidiaInteracao.findUnique({
+          where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: entry.midia_id } },
+          select: { status: true },
+        });
+        if (!podeTransicionar((existente?.status as StatusConsumo) ?? null, status)) {
+          throw new BadRequestException(
+            `Transição de status inválida: ${existente?.status} → ${status} (D-528). Para reclassificar um item concluído, retome-o primeiro (CONSUMINDO).`,
+          );
+        }
         await tx.usuarioMidiaInteracao.upsert({
           where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: entry.midia_id } },
           create: {
@@ -229,13 +259,30 @@ export class WatchlistService {
         });
       }
 
-      return tx.watchlistEntry
+      const atualizado = await tx.watchlistEntry
         .update({
           where: { id: entryId },
           data: { coluna },
         })
         .then((e) => this.semTenant(e));
+
+      // T027: trilha de auditoria (repudiação) — fora da tx RLS, falha não
+      // derruba a operação do usuário.
+      return atualizado;
     });
+
+    // T027: trilha de auditoria (repudiação) — fora da tx RLS, falha não
+    // derruba a operação do usuário.
+    await this.auditLog
+      ?.log({
+        entidade: "watchlist_entry",
+        entidadeId: entryId,
+        acao: "move",
+        usuarioId,
+        dadosDepois: { coluna },
+      })
+      .catch(() => undefined);
+    return resultado;
   }
 
   /**
@@ -368,7 +415,7 @@ export class WatchlistService {
   }
 
   async remove(usuarioId: string, entryId: string) {
-    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+    const resultado = await comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const entry = await tx.watchlistEntry.findFirst({
         where: { id: entryId, usuario_id: usuarioId },
       });
@@ -377,6 +424,18 @@ export class WatchlistService {
       }
 
       await tx.watchlistEntry.delete({ where: { id: entryId } });
+
+      // T027: trilha de auditoria (repudiação) — fora da tx RLS.
+      await this.auditLog
+        ?.log({
+          entidade: "watchlist_entry",
+          entidadeId: entryId,
+          acao: "remove",
+          usuarioId,
+          dadosAntes: { coluna: entry.coluna, midiaId: entry.midia_id },
+        })
+        .catch(() => undefined);
     });
+    return resultado;
   }
 }
