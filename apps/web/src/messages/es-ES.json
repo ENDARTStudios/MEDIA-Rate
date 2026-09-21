@@ -435,7 +435,8 @@
     "planPremium": "Plan Premium",
     "demoBadge": "Demostración",
     "radarPreviousNote": "La lectura anterior es una estimación derivada del gusto actual; la serie comparativa real llega con la evolución por género.",
-    "profileNumbersTitle": "Tus números"
+    "profileNumbersTitle": "Tus números",
+    "profileWebShare": "Compartir en la web"
   },
   "checkout": {
     "title": "Mejora de plan",
