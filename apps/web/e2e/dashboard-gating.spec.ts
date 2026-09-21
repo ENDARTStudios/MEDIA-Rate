@@ -37,7 +37,9 @@ test.describe("T402 — gating do dashboard por plano", () => {
     await apiLogin(page, "premium@mediarate.test", password);
     await page.goto("/pt-BR/dashboard", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("gated-preview")).toHaveCount(0, { timeout: 20_000 });
-    await expect(page.getByTestId("overview-evolution").locator("svg.recharts-surface")).toBeVisible();
+    await expect(
+      page.getByTestId("overview-evolution").locator("svg.recharts-surface"),
+    ).toBeVisible();
     await expect(page.getByTestId("overview-pulse").locator("svg.recharts-surface")).toBeVisible();
   });
 });

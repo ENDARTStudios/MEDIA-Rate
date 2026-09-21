@@ -8,11 +8,7 @@ import type { Page } from "@playwright/test";
  */
 const API_BASE = process.env.E2E_API_BASE ?? "http://localhost:4000";
 
-export async function apiLogin(
-  page: Page,
-  email: string,
-  password: string,
-): Promise<void> {
+export async function apiLogin(page: Page, email: string, password: string): Promise<void> {
   const res = await page.request.post(`${API_BASE}/api/v1/auth/login`, {
     data: { email, password },
   });
