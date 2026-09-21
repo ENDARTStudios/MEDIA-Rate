@@ -2603,3 +2603,18 @@ Execucao com inventario previo: CRUD watchlist, discover/search, metricas Promet
 - E2E: search + watchlist-flow + biblioteca + gating 8/8 no local (API+DB).
 - TDD: watchlist-move-d528.spec.ts escrito primeiro (2 vermelhos) -> implementacao -> 4/4.
 - API 888/888 (116 arq); web 420/420 (62 arq); tsc/lint limpos. PR aberto aguardando autorizacao (altera comportamento do move e logger de producao).
+
+## [2026-09-21] T027-MERGE-CONDICIONAL (PR #160 MERGED, 068c250)
+Thinker autorizou merge condicional via TAREFA T027-MERGE-CONDICIONAL. Auditoria pre-merge: PR MERGEABLE/CLEAN, head 239eaf9 == local, 12 checks SUCCESS, scan de segredos limpo (matches = credenciais dev-local/placeholder), suite API local 888/888 (35s).
+- MERGE: gh pr merge 160 --merge (merge commit 068c250, branch chore/t027 mantida para revert). Nenhuma migration; migrate-production.yml NAO executado.
+- DEPLOY: Railway API SUCCESS (deployment c2820d45 criado 22:02:32Z) + Vercel Production Ready + deploy.yml SUCCESS (run 35660560699, com health check).
+- SMOKE PRODUCAO (conta E2E verificada ja existente; zero residuo - watchlist 0 apos limpeza):
+  1) /health 200 (uptime 443s = deploy novo no ar);
+  2) POST watchlist COMPLETED (midia teste 424e6a91) -> 201 + interacao CONCLUIDO;
+  3) PATCH move CONCLUIDO->DROPPED -> 400 "Transicao de status invalida: CONCLUIDO -> ABANDONADO (D-528)" - CRITERIO PRINCIPAL PASSOU;
+  4) move CONCLUIDO->WATCHING 200 + interacao projetada CONSUMINDO (caminho valido, sem falso-positivo);
+  5) restore COMPLETED 200 (interacao CONCLUIDO); DELETE entry 204.
+  6) Paginas publicas: home pt/en 200, /biblioteca deslogada 307->login (correto), /login 200.
+  7) Logs Railway: pino estruturado (req={method,url}, res={statusCode}, responseTime) + AuditLogService ativo ("Audit: remove em watchlist_entry/..."); redaction OK (nenhum cookie/token nas linhas de log).
+- Achados nao-bloqueantes (follow-up): (a) PATCH /watchlist/:id/move com id nao-UUID -> 500 (Prisma P2023 nao tratado - normalizar para 404); (b) linhas de request duplicadas no log (Fastify auto-log + segunda linha sem reqId - cosmetico). Nota: DELETE com content-type json e body vazio -> 400 do proprio Fastify (comportamento do framework, nao bug da API).
+- Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao PLANO_MESTRE global.

@@ -141,12 +141,12 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.11 OpenAPI (Swagger decorators).
 - [x] 4.12 Idempotência (Idempotency-Key + `stripe_event_id` UNIQUE).
 - [x] 4.13 Watchlist canônica (T027/D-529): máquina de estados D-528 enforceada na projeção do Kanban (`watchlist.service.move`) — CONCLUIDO → ABANDONADO rejeitado (400) na API, na UI e no E2E; AuditLog (add/move/remove) com cadeia de hash.
-  evid: test/watchlist-move-d528.spec.ts (4) + watchlist.e2e.spec 16/16 + specs service/controller/relink.
+  evid: test/watchlist-move-d528.spec.ts (4) + watchlist.e2e.spec 16/16 + specs service/controller/relink; MERGE #160 (068c250) + smoke produção: move CONCLUIDO→ABANDONADO → 400 "(D-528)" no ar, AuditLog visível nos logs Railway.
 - [x] 4.14 Discover/Search auditado (T027): rate limit dedicado, Zod, cursor, sanitização tsquery, índices trgm GIN — p95 local 14ms (discover) / 22ms (search).
   evid: benchmark local 2026-09-21; test/discover-service.spec.ts 14/14.
 - [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
 
-**Verificação:** `npm run test` (API) — 703 testes, 84+ arquivos. Zero referências ao projeto antigo "Almanaque dos Clubes".
+**Verificação:** `npm run test` (API) — 888 testes, 116 arquivos (T027). Zero referências ao projeto antigo "Almanaque dos Clubes".
 
 ---
 
@@ -246,7 +246,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
-- [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); validar execução ponta a ponta em máquina limpa.
+- [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
 
 ---
 
