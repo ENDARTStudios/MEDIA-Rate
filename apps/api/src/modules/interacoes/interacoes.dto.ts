@@ -22,3 +22,20 @@ export const upsertInteracaoSchema = z
   );
 
 export type UpsertInteracaoDto = z.infer<typeof upsertInteracaoSchema>;
+
+/**
+ * D-525 — query do GET /api/v1/interacoes (fonte da biblioteca).
+ *
+ * - status/tipo: enums do banco; ausentes = sem filtro.
+ * - limit: 1-50 (default 50) — teto explícito de página.
+ * - cursor: token opaco (offset em base64url) emitido pela resposta anterior;
+ *   inválido → 400 no service.
+ */
+export const listInteracoesQuerySchema = z.object({
+  status: z.enum(["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"]).optional(),
+  tipo: z.enum(["FILME", "SERIE", "GAME", "LIVRO", "MANGA", "COMIC"]).optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
+  cursor: z.string().max(64).optional(),
+});
+
+export type ListInteracoesQueryDto = z.infer<typeof listInteracoesQuerySchema>;
