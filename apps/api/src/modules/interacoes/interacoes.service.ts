@@ -140,7 +140,19 @@ export class InteracoesService {
    */
   private mapearItem(
     i: Prisma.UsuarioMidiaInteracaoGetPayload<{
-      include: { midia: { select: { id: true; slug: true; titulo: true; tipo: true; ano_lancamento: true; imagem_url: true; score: true } } };
+      include: {
+        midia: {
+          select: {
+            id: true;
+            slug: true;
+            titulo: true;
+            tipo: true;
+            ano_lancamento: true;
+            imagem_url: true;
+            score: true;
+          };
+        };
+      };
     }>,
   ) {
     return i;

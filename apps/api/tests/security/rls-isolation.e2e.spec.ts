@@ -109,9 +109,7 @@ describeComDb("T290 — isolamento RLS A≠B (usuário de aplicação não-super
     const affected = await prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(`SET ROLE ${APP_ROLE}`);
       await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_id','${B}',false)`);
-      return tx.$executeRawUnsafe(
-        `UPDATE usuario_midia_interacao SET status = status`,
-      );
+      return tx.$executeRawUnsafe(`UPDATE usuario_midia_interacao SET status = status`);
     });
     expect(affected).toBe(0);
   });
