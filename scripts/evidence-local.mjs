@@ -22,6 +22,19 @@ const WEB_DIR = `${ROOT}/apps/web`;
 const DB_URL =
   process.env.EVIDENCE_DATABASE_URL ??
   "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate";
+
+// D-530 (review 2.5): à prova de erro humano — recusa endereço que não seja
+// localhost/loopback (produção/internal jamais).
+if (
+  !/^(postgresql:\/\/)?(localhost|127\.0\.0\.1|::1)\b/.test(DB_URL) &&
+  DB_URL !== "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate"
+) {
+  console.error(
+    "[evidence] DATABASE_URL fora do localhost recusado:",
+    DB_URL.replace(/:[^:@/]+@/, ":***@"),
+  );
+  process.exit(1);
+}
 const API_PORT = 4000;
 const WEB_PORT = 3000;
 
