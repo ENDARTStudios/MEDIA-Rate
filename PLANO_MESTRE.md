@@ -140,6 +140,10 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.10 Query parametrizada (Prisma).
 - [x] 4.11 OpenAPI (Swagger decorators).
 - [x] 4.12 Idempotência (Idempotency-Key + `stripe_event_id` UNIQUE).
+- [x] 4.13 Watchlist canônica (T027/D-529): máquina de estados D-528 enforceada na projeção do Kanban (`watchlist.service.move`) — CONCLUIDO → ABANDONADO rejeitado (400) na API, na UI e no E2E; AuditLog (add/move/remove) com cadeia de hash.
+  evid: test/watchlist-move-d528.spec.ts (4) + watchlist.e2e.spec 16/16 + specs service/controller/relink.
+- [x] 4.14 Discover/Search auditado (T027): rate limit dedicado, Zod, cursor, sanitização tsquery, índices trgm GIN — p95 local 14ms (discover) / 22ms (search).
+  evid: benchmark local 2026-09-21; test/discover-service.spec.ts 14/14.
 - [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
 
 **Verificação:** `npm run test` (API) — 703 testes, 84+ arquivos. Zero referências ao projeto antigo "Almanaque dos Clubes".

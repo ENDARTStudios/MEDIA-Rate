@@ -18,6 +18,7 @@ const USER_ID = "user-e2e";
 
 function inMemoryPrisma() {
   const entries: any[] = [];
+  const interacoes: any[] = [];
   const midias = new Map<string, any>();
   const planos = new Map<string, { plano: string }>();
   const prisma = {
@@ -63,8 +64,29 @@ function inMemoryPrisma() {
     },
     usuarioPlano: { findUnique: async ({ where }: any) => planos.get(where.usuario_id) ?? null },
     // T320/D-309: add/move sincronizam a interação (status derivado da coluna).
+    // T027/D-528: findUnique + upsert completos — o move valida a máquina de
+    // estados contra o status ATUAL da interação.
     usuarioMidiaInteracao: {
-      upsert: async ({ create }: any) => ({ ...create, id: "inter-" + randomUUID() }),
+      findUnique: async ({ where }: any) => {
+        const k = where.usuario_id_midia_id;
+        return (
+          interacoes.find((i: any) => i.usuario_id === k.usuario_id && i.midia_id === k.midia_id) ??
+          null
+        );
+      },
+      upsert: async ({ where, create, update }: any) => {
+        const k = where.usuario_id_midia_id;
+        const existente = interacoes.find(
+          (i: any) => i.usuario_id === k.usuario_id && i.midia_id === k.midia_id,
+        );
+        if (existente) {
+          Object.assign(existente, update ?? {}, { atualizado_em: new Date() });
+          return existente;
+        }
+        const nova = { id: "inter-" + randomUUID(), ...create };
+        interacoes.push(nova);
+        return nova;
+      },
     },
   };
   return { prisma, entries, midias, planos };
@@ -207,6 +229,17 @@ describe("Watchlist CRUD — e2e via HTTP (T207)", () => {
       .send({ coluna: "DROPPED" });
     expect(res.status).toBe(200);
     expect(res.body.coluna).toBe("DROPPED");
+  });
+
+  it("PATCH /watchlist/:id/move — D-528: COMPLETED → DROPPED rejeita (400)", async () => {
+    const created = await request(app.getHttpServer())
+      .post("/api/v1/watchlist")
+      .send({ midia_id: randomUUID(), coluna: "COMPLETED" });
+    const res = await request(app.getHttpServer())
+      .patch(`/api/v1/watchlist/${created.body.id}/move`)
+      .send({ coluna: "DROPPED" });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toContain("D-528");
   });
 
   it("DELETE /watchlist/:id — remove (204)", async () => {

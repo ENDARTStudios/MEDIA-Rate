@@ -2593,3 +2593,13 @@ saiu do push path; migration manual com backup em migrate-production.yml
   guarda no evidence-local, Security workflow.
 - Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao
   PLANO_MESTRE global (fases 2/3/4 parciais + observabilidade).
+
+## [2026-09-21] T027-backend-canonicity-observability (branch chore/t027, PR aberto)
+Execucao com inventario previo: CRUD watchlist, discover/search, metricas Prometheus, rate limit e indices trgm GIN JA EXISTIAM (premissa do payload parcialmente stale). Gaps reais implementados:
+- D-529: maquina de estados extraida p/ common/estados-consumo.ts (fonte unica API+web) e ENFORCEADA na projecao do Kanban (watchlist.service.move) - CONCLUIDO -> DROPPED rejeita 400 (D-528). AuditLog (add/move/remove) wireado no watchlist (repudiacao, STRIDE).
+- Web: Kanban nao oferece transicao invalida (podeMoverPara -> no-op no drop).
+- Observabilidade: Fastify logger estruturado (pino, redaction de authorization/cookie/csrf), LOG_LEVEL configuravel; scripts/logs-errors.mjs resume 4xx/5xx/rotas dos logs nativos do Railway (CLI funcional - 361 linhas, 0 erros).
+- Discover: p95 local 14ms (discover) / 22ms (search) < 200ms alvo; indices trgm GIN e rate limit dedicado ja existentes (auditados).
+- E2E: search + watchlist-flow + biblioteca + gating 8/8 no local (API+DB).
+- TDD: watchlist-move-d528.spec.ts escrito primeiro (2 vermelhos) -> implementacao -> 4/4.
+- API 888/888 (116 arq); web 420/420 (62 arq); tsc/lint limpos. PR aberto aguardando autorizacao (altera comportamento do move e logger de producao).

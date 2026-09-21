@@ -54,8 +54,23 @@ async function bootstrap(): Promise<void> {
   // T020/7.7: bodyLimit padrao de 1 MiB.
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true,
-    logger: false,
     bodyLimit: 1_048_576, // 1 MiB
+    // T027 (review #143): logs estruturados JSON (pino) — agregados pelo
+    // Railway natively. Redaction impede PII/segredos em headers; requests
+    // são logados em info, erros 5xx em error (4xx ficam em warn via hook
+    // do próprio pino quando aplicável). LOG_LEVEL controla o ruído.
+    logger: {
+      level: process.env.LOG_LEVEL ?? (process.env.NODE_ENV === "production" ? "info" : "warn"),
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          'req.headers["x-csrf-token"]',
+          "req.headers.x-csrf-token",
+        ],
+        censor: "[REDACTED]",
+      },
+    },
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {

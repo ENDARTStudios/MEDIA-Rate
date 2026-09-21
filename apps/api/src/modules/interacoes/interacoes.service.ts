@@ -9,6 +9,7 @@ import type {
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { STATUS_PARA_COLUNA } from "../../common/status-coluna.js";
+import { TRANSOES_VALIDAS } from "../../common/estados-consumo.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
 
@@ -22,12 +23,7 @@ import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
  * reclassificado como abandonado (para "desistir depois de retomar",
  * o caminho é CONCLUIDO → CONSUMINDO → ABANDONADO).
  */
-const TRANSOES_VALIDAS: Record<StatusConsumo, StatusConsumo[]> = {
-  QUERO_CONSUMIR: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
-  CONSUMINDO: ["CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
-  CONCLUIDO: ["CONCLUIDO", "QUERO_CONSUMIR", "CONSUMINDO"],
-  ABANDONADO: ["ABANDONADO", "QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO"],
-};
+// D-528/T027: máquina de estados compartilhada (common/estados-consumo.ts).
 
 export interface UpsertInteracaoDto {
   status?: StatusConsumo;

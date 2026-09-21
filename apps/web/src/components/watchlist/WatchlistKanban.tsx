@@ -53,6 +53,23 @@ export function resolveDropTarget(
   return null;
 }
 
+/**
+ * D-528: transição inválida (CONCLUIDO → ABANDONADO) NÃO é oferecida na UI —
+ * o drop em coluna proibida vira no-op (a API também rejeita, defesa em
+ * profundidade).
+ */
+export function podeMoverPara(entry: WatchlistEntry | undefined, colunaAlvo: string): boolean {
+  if (!entry) return false;
+  const atual = entry.status ?? entry.coluna ?? "WANT";
+  const maquina: Record<string, string[]> = {
+    WANT: ["WANT", "WATCHING", "COMPLETED", "DROPPED"],
+    WATCHING: ["WATCHING", "COMPLETED", "DROPPED"],
+    COMPLETED: ["COMPLETED", "WANT", "WATCHING"],
+    DROPPED: ["DROPPED", "WANT", "WATCHING", "COMPLETED"],
+  };
+  return (maquina[atual] ?? []).includes(colunaAlvo);
+}
+
 function Column({
   col,
   entries,
@@ -170,6 +187,17 @@ export function WatchlistKanban({
     if (!entry) return;
     const targetStatus = resolveDropTarget(String(active.id), String(over.id), entries);
     if (!targetStatus || targetStatus === (entry.status ?? "WANT")) return;
+
+    // D-528: transição inválida (ex.: COMPLETED → DROPPED) vira no-op na UI.
+    const colunasDoStatus: Record<string, string> = {
+      QUERO_CONSUMIR: "WANT",
+      CONSUMINDO: "WATCHING",
+      CONCLUIDO: "COMPLETED",
+      ABANDONADO: "DROPPED",
+    };
+    if (entry.status && !podeMoverPara(entry, colunasDoStatus[targetStatus] ?? targetStatus)) {
+      return;
+    }
 
     onMove(String(active.id), targetStatus);
     const status = STATUS_MAP[targetStatus];
