@@ -94,7 +94,8 @@ export class InteracoesController {
   @Put(":midiaId")
   @ApiOperation({ summary: "Cria/atualiza status+reação de uma mídia" })
   @ApiNotFoundResponse({
-    description: "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou mídia inexistente.",
+    description:
+      "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou mídia inexistente.",
   })
   async put(
     @Req() req: InteracaoRequest,
