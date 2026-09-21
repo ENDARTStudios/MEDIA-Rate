@@ -22,6 +22,7 @@ import type { FastifyRequest } from "fastify";
 import { InteracoesService } from "./interacoes.service.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
+import { UuidParamPipe } from "../../common/pipes/uuid-param.pipe.js";
 import {
   upsertInteracaoSchema,
   listInteracoesQuerySchema,
@@ -82,7 +83,7 @@ export class InteracoesController {
 
   @Get(":midiaId")
   @ApiOperation({ summary: "Retorna a interação do usuário com uma mídia" })
-  async get(@Req() req: InteracaoRequest, @Param("midiaId") midiaId: string) {
+  async get(@Req() req: InteracaoRequest, @Param("midiaId", UuidParamPipe) midiaId: string) {
     return this.service.obter(this.userId(req), midiaId);
   }
 
@@ -90,7 +91,7 @@ export class InteracoesController {
   @ApiOperation({ summary: "Cria/atualiza status+reação de uma mídia" })
   async put(
     @Req() req: InteracaoRequest,
-    @Param("midiaId") midiaId: string,
+    @Param("midiaId", UuidParamPipe) midiaId: string,
     // T308: pipe no PARÂMETRO (não no método) — @UsePipes no método validaria
     // o @Param (string) contra o schema do body e quebraria com "expected
     // object, received string". Mesmo padrão do watchlist PATCH.

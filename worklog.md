@@ -2618,3 +2618,10 @@ Thinker autorizou merge condicional via TAREFA T027-MERGE-CONDICIONAL. Auditoria
   7) Logs Railway: pino estruturado (req={method,url}, res={statusCode}, responseTime) + AuditLogService ativo ("Audit: remove em watchlist_entry/..."); redaction OK (nenhum cookie/token nas linhas de log).
 - Achados nao-bloqueantes (follow-up): (a) PATCH /watchlist/:id/move com id nao-UUID -> 500 (Prisma P2023 nao tratado - normalizar para 404); (b) linhas de request duplicadas no log (Fastify auto-log + segunda linha sem reqId - cosmetico). Nota: DELETE com content-type json e body vazio -> 400 do proprio Fastify (comportamento do framework, nao bug da API).
 - Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao PLANO_MESTRE global.
+
+## [2026-09-21] T028-micro — follow-ups #148 itens 13-14 (branch fix/t028-item13-uuid-404, PR aberto)
+Micro-tarefa recomendada pelo Thinker apos REVIEW APPROVED do T027. TDD vermelho->verde:
+- Item 13: UuidParamPipe (common/pipes) valida params @db.Uuid ANTES do Prisma -> id malformado = 404 (antes: P2023 -> 500). Wireado em 6 rotas: watchlist move/reacao/remove/relink + interacoes GET/PUT :midiaId. Specs: param-uuid-404.spec.ts (8 casos; spy garante service nao alcancado) - vermelho 6/8 -> verde 8/8.
+- Item 14: causa raiz = DOIS loggers de request (T027 ligou FastifyAdapter({logger}) sem remover nestjs-pino do AppLoggerModule T1.8/T217, ativo). Fix: bloco logger removido do main.ts (fonte unica = nestjs-pino); redaction x-csrf-token transferida para logger.config.ts (+ caso runtime no logger-redact.spec).
+- Docs: OBSERVABILITY.md atualizado (regra: nunca 2 loggers de request); DECISOES D-531 (PROPOSTA, PR aberto).
+- Verificacao: API 897/897 (117 arq), tsc 0, eslint limpo. Sem migrations. PR aberto SEM merge (altera logs de producao + codigo de 500 para 404).
