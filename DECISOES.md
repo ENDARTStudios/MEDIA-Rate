@@ -1929,3 +1929,26 @@ o app NUNCA registrou SW próprio: nenhum sw.js no repo/histórico, nenhum servi
 **Efeitos:** breaking change controlada no corpo do GET /interacoes (array → envelope); únicos
 consumidores (feed da dashboard + biblioteca) atualizados no mesmo PR. i18n: namespace `biblioteca`
 (18 chaves ×3 línguas, paridade por CI). Testes: web 417/417, api 894/894, builds web+api verdes.
+
+## D-526 — Promoção do PR #143 para produção condicionada a evidência; promoção executada
+
+**Data:** 2026-09-21 · **Fase:** Consolidação dashboard/biblioteca · **Status:** EXECUTADA
+
+**Contexto:** Neste repositório `main` é auto-deployada para produção (Vercel web via integração
+Git + Railway API nativo; `deploy.yml` falha só no step de migration por secret com hostname
+interno — pré-existente, pendência de Operador). O review sênior autorizou o merge do PR #143
+somente com evidência verde da issue #147 (E2E full da biblioteca com API+DB), que o CI não provê.
+
+**Decisão:**
+1. Evidência #147 coletada em ambiente local integrado (Postgres 16 em container + migrations +
+   usuários provisionados + API/web locais): E2E `biblioteca` 4/4 + `dashboard-gating` 3/3 com
+   `E2E_FULL=1`, mais curl matrix da API (401/200 envelope/400 inválidos) e cenários manuais.
+2. Promoção via merge commit `9ae0231` (sem squash, sem deleção imediata de branch), disparando
+   Railway deploy SUCCESS + Vercel web.
+3. Smoke pós-deploy em produção: health 200, deep link preservando callbackUrl, query inválida
+   sem 500, watchlist intacta, API 401/200/400 conforme contrato.
+4. Gate de Beta Fechada permanece no PLANO_MESTRE global (fases 2/3/4 parciais) — este PR não
+   declara Beta pronta.
+5. Dívidas não bloqueantes rastreadas na issue #148 (DTO explícito do /interacoes, accents legacy,
+   revisão do LimpezaServiceWorker antes de PWA, advisories CSP/ZAP, rotação opcional do whsec de
+   teste — fragmento truncado, valor completo jamais existiu no histórico).
