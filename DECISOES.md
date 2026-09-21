@@ -1894,3 +1894,38 @@ transposed. No Cloudflare action needed.").
 MESMA classe — valor de identificador truncado/malformado chegando a um
 parser. A caça à linha com UUID de 7 chars no banco segue o mesmo princípio
 de verificação primária (query direta no banco, não inferência).
+
+## D-525 — Biblioteca do usuário separada da watchlist; interações como fonte; cores canônicas únicas; mitigação de SW estranho
+
+**Data:** 2026-09-21 · **Fase:** Auditoria dashboard S1 · **Status:** REGISTRADA (PR pendente de merge)
+
+**Contexto:** Auditoria ao vivo da dashboard + review sênior apontaram: (a) "Minha biblioteca" e o
+atalho "Quero ver" apontavam para /watchlist (Kanban de planejamento), que não representa o
+histórico de escolhas; (b) cores de tipo de mídia com hex duplicado em componentes; (c) usuário pode
+ficar preso em render antigo por service worker estranho na origem (comprovado em localhost:3000 —
+o app NUNCA registrou SW próprio: nenhum sw.js no repo/histórico, nenhum serviceWorker.register);
+(d) GET /api/v1/interacoes sem validação de query, paginação ou contagens.
+
+**Decisão:**
+1. **Biblioteca separada da watchlist**: nova rota protegida `/biblioteca` (middleware), abas pelos
+   4 status de consumo (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO) com contagens GLOBAIS do
+   servidor, filtro por tipo server-side, rótulos conjugados por mídia (vocabulário T239 via novo
+   `consumoParaColuna()`). Sidebar "Minha biblioteca" → /biblioteca; atalho "Quero ver" →
+   /biblioteca?status=QUERO_CONSUMIR. /watchlist PERMANECE o Kanban (não deprecada).
+2. **GET /api/v1/interacoes endurecido** (D-525): query validada por Zod (status/tipo enums,
+   limit 1-50 default 50, cursor opaco base64url de offset — inválido → 400); envelope
+   `{ items, total, porStatus, nextCursor }`; página curta encerra paginação (sem cursor infinito);
+   RLS owner-only mantido; rate limit global do gateway (@fastify/rate-limit) cobre a rota;
+   Swagger documentado. Feed da dashboard usa 1 página de 50 (recente-first); biblioteca pagina.
+3. **Cores canônicas de tipo de mídia: fonte única = CATEGORY_TOKENS (design-tokens.ts)**
+   (movie #818CF8, series #38BDF8, game #34D399, book #FBBF24, comic #F472B6, manga #A78BFA).
+   Proibido hex de mídia fora dos tokens; pulso, taxonomia, chips, histograma e rótulos da
+   biblioteca consomem os tokens. Contraste AA das 6 cores sobre BG/card coberto por teste.
+   Dívida registrada: acentos genéricos (indigo/sky de foco) em componentes antigos fora do escopo.
+4. **Mitigação de service worker estranho**: `LimpezaServiceWorker` monta no layout raiz e desregistra
+   qualquer SW da origem + limpa Cache Storage uma vez por página (o app não tem SW próprio; se um
+   dia tiver, revisar antes). Evidência unitária em test/sw-cleanup.spec.ts.
+
+**Efeitos:** breaking change controlada no corpo do GET /interacoes (array → envelope); únicos
+consumidores (feed da dashboard + biblioteca) atualizados no mesmo PR. i18n: namespace `biblioteca`
+(18 chaves ×3 línguas, paridade por CI). Testes: web 417/417, api 894/894, builds web+api verdes.

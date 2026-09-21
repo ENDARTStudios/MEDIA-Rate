@@ -2462,3 +2462,94 @@ F02 - seeds STANDALONE (causa raiz do Console Railway):
 - Sem TDD (scripts de bootstrap). Push dispara deploy no Railway.
 - Operador: apos o deploy, rodar no Console:
   npm run db:seed:tmdb && npm run db:seed:games && npm run db:seed:novas-midias && npm run db:seed:relacoes
+
+## [2026-09-20] Auditoria-dashboard-S1 (branch feat/t473, nao commitado)
+Auditoria da dashboard ao vivo (mediarate.app/pt-BR/dashboard, conta E2E)
++ consolidacao UI-UX/metricas/gating no codigo:
+- CONSOLIDACAO: DashboardClient agora so busca /api/v1/user/stats e delega
+  100% ao DashboardOverview; bloco legado duplicado (KPIs, RadarSVG,
+  Sparkline, HBars, PreviewCards) removido. Dead code deletado:
+  DashboardContent + 7 componentes orfaos (T189-era) e 2 specs dele.
+- METRICAS REAIS (antes fabricadas/estaticas): itens avaliados = stats.total
+  (Free mostrava 0 com atividade); afinidade media = media ponderada do
+  histograma (era "8,4" fixo); taxa de conclusao = concluidos/total (novo
+  campo na API, era "72%" fixo); descobertas = count real da API; trend do
+  card 1 = delta real do mes (Premium). Radar "leitura anterior" (85% do
+  atual) agora tem nota honesta (radarPreviousNote); pulso sempre
+  rotulado DEMO (distribuicao sintetica).
+- ATIVIDADE REAL: feed de atividades consome GET /api/v1/interacoes
+  (novo cliente api-interacoes.ts) — titulos, chip de status, score 0-100
+  (bug: nao-games formatavam /10 com score 0-100 da API), tempo relativo,
+  filtro 7/30/365; secao "sinais recentes" duplicada removida.
+- BUG i18n REAL: tc("movie")/tc("book") nao existem no namespace catalog
+  (chaves sao filme/livro) — MISSING_MESSAGE em runtime desde a T460.
+  Fix: nicheLabelKey() via CATEGORY_TOKENS.labelKey.
+- GATING COERENTE (T402/D-378): antes o Free via preview "Radar e Plus" e
+  um radar completo logo abaixo. Agora: radar/taxonomia = Plus+;
+  evolucao/pulso = Premium; streak/histograma/feed = todos. Contrato:
+  Free=4 previews, Plus=2, Premium=0 (e2e dashboard-gating atualizado,
+  T305 spotchecks atualizados — assertavam texto inexistente).
+- ESTADO VAZIO ATIVADO: conta sem atividade agora ve CTAs (catalogo/
+  descobertas/biblioteca) + overview completo (antes: dead-end so com
+  emptyHint).
+- i18n: 47 chaves orfas removidas + 2 novas (radarPreviousNote,
+  profileNumbersTitle) nas 3 linguas, paridade validada.
+- VERIFICADO: web 402/402 + api dashboard.spec; tsc web limpo; eslint ok;
+  gating 4/2/0 e labels Filmes/Livros confirmados ao vivo (dev local +
+  mock :4000; service worker sf-static-v1 enganava com chunk velho —
+  unregister resolveu). Screenshot em
+  .zcode/cli/artifacts/sess_ac6ac6da (18:5x).
+- PENDENTE Operador: commit/PR (sugestao: feat/auditoria-dashboard-s1);
+  deploy so apos CI verde.
+
+## [2026-09-21] Auditoria-dashboard-S1-followup (mesma branch, nao commitado)
+6 ajustes pedidos pelo Operador apos o print da dashboard:
+1. NOMES da taxonomia ("catalog.movie") — ja corrigidos no lote anterior
+   (nicheLabelKey); o print do Operador era render stale do service worker.
+2. PULSO DE CONSUMO com cores canonicas: fills do prototipo trocados por
+   CATEGORY_TOKENS.*.color (movie #818CF8, series #38BDF8, game #34D399,
+   book #FBBF24, comic #F472B6, manga #A78BFA). Confirmado no SVG renderizado.
+3. RADAR duplicado no topo — nao existe mais no codigo (consolidacao
+   anterior); confirmado 1x overview-radar.
+4. TAXONOMIA ja usava as cores canonicas (item.color vem do token).
+5/6. BIBLIOTECA nova (item 5/6): pagina /biblioteca (protegida no middleware)
+   com abas pelos 4 status de consumo (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/
+   ABANDONADO) + contagens, filtro por tipo de midia (cores canonicas) e
+   rotulo conjugado por tipo ("Quero Ler", "Jogando", "Vi", "Abandonei" —
+   vocabulario T239 via consumoParaColuna). Fonte: GET /api/v1/interacoes
+   (listar enriquecido com slug + ano_lancamento na API). Sidebar:
+   "Minha biblioteca" -> /biblioteca; atalho "Quero ver" ->
+   /biblioteca?status=QUERO_CONSUMIR (aba pre-selecionada). CTA do estado
+   vazio da dashboard aponta para a biblioteca. /watchlist permanece o
+   Kanban de planejamento.
+- i18n: novo namespace `biblioteca` (15 chaves) nas 3 linguas, paridade OK.
+- TESTES: biblioteca.spec (8 casos: abas/contagens, filtros combinados,
+  conjugacao, initialStatus, vazio, erro), dashboard-routes normaliza
+  query. Web 410/410, tsc + eslint limpos.
+- VERIFICADO AO VIVO (dev + mock :4000): biblioteca com 6 itens, abas
+  corretas, atalho filtra; pulso/taxonomia com cores canonicas; feed real
+  ("Duna: Parte Dois · Concluidos · 84/100 · ha 3h"). Screenshot nos
+  artifacts da sessao.
+
+## [2026-09-21] Auditoria-dashboard-S1-fechamento (branch feat/auditoria-dashboard-s1)
+Fechamento do review sênior (4 bloqueios) antes do PR:
+1. SW: `lib/sw-cleanup.ts` + `LimpezaServiceWorker` no layout raiz — desregistra
+   SW estranho da origem + limpa Cache Storage (o app NUNCA teve SW próprio:
+   git log --all sw.js vazio, zero serviceWorker.register, sem next-pwa).
+   Evidência: test/sw-cleanup.spec.ts (4 casos). D-525.
+2. Branch isolada: feat/auditoria-dashboard-s1 a partir de MAIN (o trabalho não
+   herda os commits T472/T473 retidos); commits atômicos convencionais.
+3. GET /api/v1/interacoes endurecido: query Zod (status/tipo enum, limit 1-50,
+   cursor opaco base64url→offset, inválido=400), envelope {items,total,porStatus,
+   nextCursor}, página curta encerra paginação, Swagger, rate limit global do
+   gateway documentado. Testes: test/interacoes-lista.spec.ts (7) + T198
+   atualizado. API 894/894 + build OK.
+4. Web: cliente paginado (getInteracoes/listarTodasInteracoes), feed usa 1
+   página de 50, biblioteca com contagens do servidor, filtros server-side,
+   carregar-mais e retry; ?tipo= validado na página. Cores canônicas com fonte
+   única (CATEGORY_TOKENS) nos meus componentes + contraste AA testado.
+   e2e/biblioteca.spec.ts (E2E_FULL). Web: lint+tsc+417/417+build OK.
+Docs: D-525 em DECISOES.md; tarefas 5.16/7.11 no PLANO_MESTRE.md;
+CHANGELOG.md criado. Pendências residuais: acentos genéricos hex em
+componentes legacy (dívida, não mapeiam tipo de mídia); e2e da biblioteca só
+roda com E2E_FULL=1 (padrão do repo).
