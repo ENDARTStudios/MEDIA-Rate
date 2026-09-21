@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
+import { apiLogin } from "./helpers/auth";
 
 /**
  * D-525 — biblioteca do usuário (/biblioteca): abas pelos 4 status de
@@ -17,7 +17,7 @@ test.describe("D-525 — biblioteca do usuário", () => {
   const password = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
 
   test("abre com abas por status e deep link ?status=QUERO_CONSUMIR", async ({ page }) => {
-    await login(page, "free@mediarate.test", password);
+    await apiLogin(page, "free@mediarate.test", password);
     await page.goto("/pt-BR/biblioteca?status=QUERO_CONSUMIR", { waitUntil: "domcontentloaded" });
     const abaSelecionada = page.getByRole("tab", { selected: true });
     await expect(abaSelecionada).toContainText(/Quero/i, { timeout: 20_000 });
@@ -26,7 +26,7 @@ test.describe("D-525 — biblioteca do usuário", () => {
   });
 
   test("query param inválido cai no padrão sem quebrar", async ({ page }) => {
-    await login(page, "free@mediarate.test", password);
+    await apiLogin(page, "free@mediarate.test", password);
     await page.goto("/pt-BR/biblioteca?status=HACKER&tipo=<script>", {
       waitUntil: "domcontentloaded",
     });
@@ -39,7 +39,7 @@ test.describe("D-525 — biblioteca do usuário", () => {
   });
 
   test("estado vazio com CTA para o catálogo (conta sem interações)", async ({ page }) => {
-    await login(page, "free@mediarate.test", password);
+    await apiLogin(page, "free@mediarate.test", password);
     await page.goto("/pt-BR/biblioteca", { waitUntil: "domcontentloaded" });
     const grid = page.getByTestId("biblioteca-grid");
     const vazio = page.getByText(/biblioteca está vazia/i);
@@ -47,7 +47,7 @@ test.describe("D-525 — biblioteca do usuário", () => {
   });
 
   test("sidebar da dashboard aponta para /biblioteca e o atalho filtra", async ({ page }) => {
-    await login(page, "free@mediarate.test", password);
+    await apiLogin(page, "free@mediarate.test", password);
     await page.goto("/pt-BR/dashboard", { waitUntil: "domcontentloaded" });
     const linkBiblioteca = page.locator('[data-testid="dashboard-sidebar"] a[href*="/biblioteca"]');
     await expect(linkBiblioteca).toHaveCount(2, { timeout: 20_000 }); // nav + atalho
