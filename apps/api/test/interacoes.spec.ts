@@ -19,6 +19,9 @@ function mockPrisma() {
         );
       }),
       findMany: vi.fn(async () => estado),
+      // D-525: contrato paginado do listar (envelope com total/porStatus).
+      count: vi.fn(async () => estado.length),
+      groupBy: vi.fn(async () => []),
       upsert: vi.fn(async ({ create, update }: any) => {
         const k = create ? { usuario_id: create.usuario_id, midia_id: create.midia_id } : null;
         const idx = estado.findIndex(
@@ -130,11 +133,14 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
     );
   });
 
-  it("listar retorna interações do usuário", async () => {
+  it("listar retorna interações do usuário (envelope D-525)", async () => {
     await service.upsert("user-1", "midia-1", { status: "CONCLUIDO" });
-    const lista = await service.listar("user-1");
-    expect(lista.length).toBe(1);
-    expect(lista[0].midia_id).toBe("midia-1");
+    const pagina = await service.listar("user-1");
+    expect(pagina.items).toHaveLength(1);
+    expect(pagina.items[0]?.midia_id).toBe("midia-1");
+    expect(pagina.total).toBe(1);
+    expect(pagina.nextCursor).toBeNull();
+    expect(pagina.porStatus).toHaveProperty("CONCLUIDO");
   });
 
   it("D-375 — mudar status cria/sincroniza a projeção do Kanban no mesmo tx", async () => {

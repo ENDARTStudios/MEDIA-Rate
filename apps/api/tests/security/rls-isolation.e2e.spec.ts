@@ -16,6 +16,7 @@ const describeComDb = URL_RLS ? describe : describe.skip;
 const TENANT = "00000000-0000-0000-0000-000000000001";
 const A = "00000000-0000-0000-0000-00000000000a";
 const B = "00000000-0000-0000-0000-00000000000b";
+const MIDIA = "00000000-0000-4000-8000-000000000001";
 // T303: a conexao e superuser (postgres) e BYPASSRLS — o teste precisa rodar
 // as queries como um papel NAO-superuser para o RLS aplicar.
 const APP_ROLE = "mediarate_rls_app";
@@ -36,9 +37,15 @@ describeComDb("T290 — isolamento RLS A≠B (usuário de aplicação não-super
     await prisma.$executeRawUnsafe(
       `GRANT SELECT, INSERT, UPDATE, DELETE ON watchlist_entry, discovery_event TO ${APP_ROLE}`,
     );
+    // D-525: isolamento owner-only de usuario_midia_interacao (fonte da
+    // biblioteca e do feed) — mesma política interacao_tenant_user (T301).
+    await prisma.$executeRawUnsafe(
+      `GRANT SELECT, INSERT, UPDATE, DELETE ON usuario_midia_interacao TO ${APP_ROLE}`,
+    );
 
     // Limpa fixtures. T303: watchlist_entry tem FK usuario_id -> usuario e
     // midia_id NOT NULL; o fixture precisa criar o usuario A antes.
+    await prisma.$executeRawUnsafe(`DELETE FROM usuario_midia_interacao`);
     await prisma.$executeRawUnsafe(`DELETE FROM watchlist_entry`);
     await prisma.$executeRawUnsafe(`DELETE FROM usuario WHERE id IN ('${A}','${B}')`);
     await prisma.$executeRawUnsafe(
@@ -46,6 +53,14 @@ describeComDb("T290 — isolamento RLS A≠B (usuário de aplicação não-super
     );
     await prisma.$executeRawUnsafe(
       `INSERT INTO watchlist_entry (id, usuario_id, midia_id, tenant_id) VALUES ('${A}','${A}','midia-${A}','${TENANT}')`,
+    );
+    // Fixture da interação de A: precisa de midia real (FK uuid).
+    await prisma.$executeRawUnsafe(`DELETE FROM midia WHERE id = '${MIDIA}'`);
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO midia (id, fonte_id, fonte, tipo, titulo, updated_at) VALUES ('${MIDIA}','rls-fixture','rls','FILME','Fixture RLS', now())`,
+    );
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO usuario_midia_interacao (id, usuario_id, midia_id, tenant_id, status, atualizado_em) VALUES ('${A}','${A}','${MIDIA}','${TENANT}','CONCLUIDO', now())`,
     );
   });
 
@@ -76,6 +91,34 @@ describeComDb("T290 — isolamento RLS A≠B (usuário de aplicação não-super
       await tx.$executeRawUnsafe(`SET ROLE ${APP_ROLE}`);
       await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_id','${A}',false)`);
       return tx.$queryRawUnsafe(`SELECT count(*)::int AS c FROM watchlist_entry`);
+    });
+    expect(rows[0].c).toBe(1);
+  });
+
+  // D-525 — usuario_midia_interacao (fonte da biblioteca/feed): owner-only.
+  it("interações: usuário B NÃO vê a interação de A (0 linhas)", async () => {
+    const rows = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(`SET ROLE ${APP_ROLE}`);
+      await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_id','${B}',false)`);
+      return tx.$queryRawUnsafe(`SELECT count(*)::int AS c FROM usuario_midia_interacao`);
+    });
+    expect(rows[0].c).toBe(0);
+  });
+
+  it("interações: usuário B NÃO atualiza a interação de A (0 linhas afetadas)", async () => {
+    const affected = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(`SET ROLE ${APP_ROLE}`);
+      await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_id','${B}',false)`);
+      return tx.$executeRawUnsafe(`UPDATE usuario_midia_interacao SET status = status`);
+    });
+    expect(affected).toBe(0);
+  });
+
+  it("interações: usuário A vê a própria interação (1 linha)", async () => {
+    const rows = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(`SET ROLE ${APP_ROLE}`);
+      await tx.$executeRawUnsafe(`SELECT set_config('app.current_user_id','${A}',false)`);
+      return tx.$queryRawUnsafe(`SELECT count(*)::int AS c FROM usuario_midia_interacao`);
     });
     expect(rows[0].c).toBe(1);
   });

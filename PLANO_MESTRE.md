@@ -157,6 +157,8 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`. Correção D-439/R031: build T030 mostra 98 páginas, todas dinâmicas (mídia não-SSG; multiplicador de varredura = sitemap × 3 locales).
 - [x] 5.14 Gate i18n-leak no CI (T271/T273): e2e SSR + teste estrutural.
 - [x] 5.15 Selo "prévia" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` único em `lib/api.ts`).
+- [~] 5.16 Biblioteca do usuário `/biblioteca` (D-525): abas pelos 4 status de consumo com contagens globais server-side, filtro por tipo server-side, rótulos conjugados por mídia (vocabulário T239), deep links ?status=/?tipo= validados, estado vazio/erro+retry, i18n ×3. Sidebar e atalho "Quero ver" apontam para a biblioteca; /watchlist permanece o Kanban.
+  evid: unitários (9) + middleware deep-link (4) + contrato API (7) + RLS A≠B no CI; E2E full PENDENTE em staging — issue #147 é GATE da Beta Fechada (não marcar [x] antes).
 
 **Verificação:** `next build` ✅; vitest web 309/309; e2e Playwright (i18n-leak, ctrlk, search-topo, etc.).
 
@@ -195,6 +197,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 7.8 Rotação de segredos de sessão: dispensa documentada pelo design de token opaco.
 - [~] 7.9 Vault/Infisical: N/A — secret manager nativo da plataforma.
 - [~] 7.10 DNSSEC/CAA/HSTS preload: N/A — depende de domínio próprio (HSTS `preload: true` configurado).
+- [x] 7.11 Service worker estranho na origem: mitigação no boot (`LimpezaServiceWorker`, D-525) — o app não registra SW próprio; desregistra SW de terceiros + limpa Cache Storage (evidência: test/sw-cleanup.spec.ts).
 
 ---
 

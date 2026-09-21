@@ -9,6 +9,7 @@ import { MotionFooter } from "../../components/MotionFooter";
 import { ConsentBanner } from "../../components/ConsentBanner";
 import { DiagPanelLoader } from "../../components/DiagPanelLoader";
 import { PageTransition } from "../../components/PageTransition";
+import { LimpezaServiceWorker } from "../../components/LimpezaServiceWorker";
 import { QueryProvider } from "../../providers/query-provider";
 import { PostHogProvider } from "../../components/PostHogProvider";
 import { Toaster } from "sonner";
@@ -85,6 +86,8 @@ export default async function LocaleLayout({
     <QueryProvider>
       <NextIntlClientProvider>
         <PostHogProvider>
+          {/* D-525: desregistra SW estranho da origem (o app não tem SW próprio). */}
+          <LimpezaServiceWorker />
           <a href="#main" className="skip-link">
             {t("skipToContent")}
           </a>

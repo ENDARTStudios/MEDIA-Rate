@@ -18,6 +18,7 @@ describe("DashboardService (T295/T396/T402)", () => {
     expect(r.upgrade).toBe(false);
     expect(r.plano).toBe("FREE");
     expect(r.total).toBe(0);
+    expect(r.concluidos).toBe(0);
     expect(r.tipos).toEqual({});
     expect(r.generos).toEqual({});
     expect(r.evolucao).toBeNull();
@@ -41,6 +42,7 @@ describe("DashboardService (T295/T396/T402)", () => {
     const svc = new DashboardService(mockPrisma(interacoes) as any);
     const r = await svc.stats("u1", "PLUS");
     expect(r.upgrade).toBe(false);
+    expect(r.concluidos).toBe(1);
     expect(r.tipos).toEqual({ FILME: 1, SERIE: 1 });
     expect(r.generos).toEqual({ Ficção: 1, Drama: 1 });
     expect(r.evolucao).toBeNull();

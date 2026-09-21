@@ -4,16 +4,30 @@ import {
   Put,
   Param,
   Body,
+  Query,
   Req,
   UseGuards,
   UnauthorizedException,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+} from "@nestjs/swagger";
 import type { FastifyRequest } from "fastify";
 import { InteracoesService } from "./interacoes.service.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
-import { upsertInteracaoSchema, type UpsertInteracaoDto } from "./interacoes.dto.js";
+import {
+  upsertInteracaoSchema,
+  listInteracoesQuerySchema,
+  type UpsertInteracaoDto,
+  type ListInteracoesQueryDto,
+} from "./interacoes.dto.js";
 
 type InteracaoRequest = FastifyRequest & { user?: { id: string } };
 
@@ -33,9 +47,37 @@ export class InteracoesController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista as interações (status+reação) do usuário" })
-  async list(@Req() req: InteracaoRequest) {
-    return this.service.listar(this.userId(req));
+  @ApiOperation({
+    summary: "Lista as interações (status+reação) do usuário, paginadas e filtráveis",
+    description:
+      "D-525 — fonte da biblioteca. Retorna envelope { items, total, porStatus, nextCursor }; " +
+      "somente dados do próprio usuário (RLS owner-only). Rate limit global do gateway se aplica.",
+  })
+  @ApiQuery({
+    name: "status",
+    required: false,
+    enum: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
+  })
+  @ApiQuery({
+    name: "tipo",
+    required: false,
+    enum: ["FILME", "SERIE", "GAME", "LIVRO", "MANGA", "COMIC"],
+  })
+  @ApiQuery({ name: "limit", required: false, type: Number, description: "1-50 (default 50)" })
+  @ApiQuery({
+    name: "cursor",
+    required: false,
+    type: String,
+    description: "Token opaco de nextCursor",
+  })
+  @ApiOkResponse({ description: "Envelope paginado de interações do usuário" })
+  @ApiUnauthorizedResponse({ description: "Sem sessão válida." })
+  @ApiBadRequestResponse({ description: "Query inválida (enum/limit/cursor)." })
+  async list(
+    @Req() req: InteracaoRequest,
+    @Query(new ZodValidationPipe(listInteracoesQuerySchema)) query: ListInteracoesQueryDto,
+  ) {
+    return this.service.listar(this.userId(req), query);
   }
 
   @Get(":midiaId")

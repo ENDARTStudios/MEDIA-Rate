@@ -7,6 +7,7 @@ const intlMiddleware = createMiddleware(routing);
 const privateRoutePrefixes = [
   "/admin",
   "/assistant",
+  "/biblioteca",
   "/dashboard",
   "/feedback",
   "/onboarding",
@@ -43,7 +44,13 @@ export default async function middleware(request: NextRequest) {
       const locale = (routing.locales as readonly string[]).includes(segment)
         ? segment
         : routing.defaultLocale;
-      const loginUrl = new URL(`/${locale}/login`, request.url);
+      // D-525: preserva path E query no retorno pós-login (deep link da
+      // biblioteca ?status=…&tipo=… não pode perder os filtros). O login
+      // sanitiza via getSafeCallbackUrl (só caminho interno).
+      const callbackUrl = encodeURIComponent(
+        `${request.nextUrl.pathname}${request.nextUrl.search}`,
+      );
+      const loginUrl = new URL(`/${locale}/login?callbackUrl=${callbackUrl}`, request.url);
       const redirect = NextResponse.redirect(loginUrl);
       redirect.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
       return redirect;

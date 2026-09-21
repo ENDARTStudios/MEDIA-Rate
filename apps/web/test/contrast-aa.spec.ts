@@ -108,4 +108,15 @@ describe("V1.3 §1.2 — getScoreColor é a ÚNICA fonte de cor de score", () =>
     expect(scoreColor(5, "0-10")).toBe(colors.score[5]);
     expect(scoreColor(4.9, "0-10")).toBe(colors.score.low);
   });
+
+  // D-526 — cores canônicas de mídia usadas como TEXTO/rótulo (biblioteca,
+  // taxonomia, pulso) sobre as superfícies escuras do app: AA obrigatório.
+  it("cores canônicas de mídia têm contraste AA sobre fundo e card", () => {
+    const midias: [string, string][] = Object.entries(colors.media);
+    expect(midias).toHaveLength(6);
+    for (const [nome, hex] of midias) {
+      expect(contrastRatio(hex, BG), `${nome} sobre BG`).toBeGreaterThanOrEqual(AA_MIN);
+      expect(contrastRatio(hex, SURFACE), `${nome} sobre card`).toBeGreaterThanOrEqual(AA_MIN);
+    }
+  });
 });
