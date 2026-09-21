@@ -212,6 +212,12 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 8.7 Testes de carga k6 (ramp 0→1000 VUs, 3 cenários, thresholds).
 - [x] 8.8 Regressão de segurança: headers, SQL injection (7 payloads), XSS, CSRF.
 - [~] 8.9 Pipeline de IA: N/A — IA/RAG postergado (Fase 6).
+- [x] 8.10 Detector de chaves i18n ausentes no CI (P1/review #143): `lib/i18n-guard.ts` + `test/i18n-guard.spec.ts` — falha se chave referenciada em src/ faltar em qualquer locale; rodando no job Test & Coverage.
+  evid: pegou regressão real na primeira execução (settings.cancel*, profile.totalWatchlist, watchlist.inWatchlist — chaves adicionadas).
+- [x] 8.11 Máquina de estados de interação reconciliada com E2E T308 (P1/review #143, D-528): CONCLUIDO → ABANDONADO NÃO permitido (regra documentada, UI e API alinhadas); T308 atualizado (400 esperado + envelope D-525).
+  evid: test/interacoes.spec.ts (D-527) + watchlist-flow T308/T310 passando.
+- [x] 8.12 Harness E2E de autenticação determinístico (P1/review #143): `apiLogin` via context.request + `dismissConsentIfPresent` + CSRF lido do cookie + NODE_OPTIONS ipv4first; suíte biblioteca+gating+watchlist roda 3× seguidas sem flakiness (9/9 cada).
+  evid: runs locais 3×9/9 (2026-09-21).
 
 ---
 
@@ -234,6 +240,8 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
+- [~] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup. PR aberto, AGUARDANDO autorização do Operador para merge.
+- [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); validar execução ponta a ponta em máquina limpa.
 
 ---
 

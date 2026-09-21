@@ -1952,3 +1952,41 @@ somente com evidência verde da issue #147 (E2E full da biblioteca com API+DB), 
 5. Dívidas não bloqueantes rastreadas na issue #148 (DTO explícito do /interacoes, accents legacy,
    revisão do LimpezaServiceWorker antes de PWA, advisories CSP/ZAP, rotação opcional do whsec de
    teste — fragmento truncado, valor completo jamais existiu no histórico).
+
+## D-527 — Verdade operacional do deploy de produção; pipeline da main redesignado
+
+**Data:** 2026-09-21 · **Fase:** Pós-promoção #143 · **Status:** PROPOSTA (PR aberto, aguarda autorização)
+
+**Contexto:** Os runs de "Deploy" na `main` falhavam há semanas. Investigação com fonte primária:
+(1) `deploy.yml` executava `prisma migrate deploy` com o secret `DATABASE_URL` do GitHub, que
+contém o hostname INTERNO do Railway (`postgres.railway.internal`) — inalcançável dos runners
+(P1001 reproduzido fora da rede Railway); (2) os jobs de deploy Backend/Frontend eram skippados
+após essa falha; (3) MESMO ASSIM a produção recebia os deploys: Railway tem integração Git nativa
+(deployment SUCCESS em cada merge — logs mostram o entrypoint `docker-entrypoint.sh` rodando
+`prisma migrate deploy` no boot, antes do node subir) e Vercel promove o web pela integração Git.
+
+**Decisão (proposta em PR):**
+1. `deploy.yml` passa a conter apenas: job de validação da `main` (lint/typecheck/test/audit/build)
+   + health check pós-promoção com retries (informativo). Jobs redundantes de deploy
+   (Vercel/Railway via CLI, duplicando as integrações nativas) removidos.
+2. Migration manual com backup move-se para `migrate-production.yml` (`workflow_dispatch` apenas),
+   para migrations arriscadas fora de deploy; enquanto o secret DATABASE_URL apontar para o
+   hostname interno, esse workflow também não roda dos runners — ver pendência do Operador.
+3. Migrations futuras seguem o caminho canônico: PR com migration → merge → entrypoint do Railway
+   aplica no boot ANTES de servir tráfego. Para migration arriscada: Operador roda
+   `migrate-production.yml` (backup) antes do merge.
+
+## D-528 — Regra de reclassificação: CONCLUIDO → ABANDONADO não é permitido
+
+**Data:** 2026-09-21 · **Fase:** Pós-promoção #143 · **Status:** DECIDIDA (regra vigente documentada)
+
+**Contexto:** O E2E T308 (stale, fora da allowlist do CI) esperava 200 na transição
+CONCLUIDO → ABANDONADO, mas a máquina de estados (API e espelho no web, `podeTransicionar`)
+rejeita. Regra, comportamento e teste estavam desalinhados.
+
+**Decisão:** NÃO é permitido reclassificar item CONCLUIDO como ABANDONADO. Evidências: a UI
+(`StatusReactionControl` via `podeTransicionar`) já não oferece a transição; semântica de produto
+— para "desistir depois de retomar", o caminho é CONCLUIDO → CONSUMINDO → ABANDONADO (permitido).
+Alinhamentos: comentários da máquina corrigidos (API + web); teste unitário da rejeição adicionado
+(`test/interacoes.spec.ts`); T308 atualizado para esperar 400 e tratar o envelope do
+GET /interacoes (D-525).
