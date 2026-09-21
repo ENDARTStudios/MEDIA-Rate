@@ -16,7 +16,11 @@ import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
  * Addendum 4, Parte 3 — máquina de estados de consumo.
  * QUERO_CONSUMIR → CONSUMINDO / CONCLUIDO / ABANDONADO
  * CONSUMINDO     → CONCLUIDO / ABANDONADO
- * CONCLUIDO/ABANDONADO → qualquer (retomar/rever é caso real).
+ * CONCLUIDO      → QUERO_CONSUMIR / CONSUMINDO (retomar/rever)
+ * ABANDONADO     → QUERO_CONSUMIR / CONSUMINDO / CONCLUIDO (reclassificar)
+ * D-527: CONCLUIDO → ABANDONADO NÃO é permitido — item concluído não é
+ * reclassificado como abandonado (para "desistir depois de retomar",
+ * o caminho é CONCLUIDO → CONSUMINDO → ABANDONADO).
  */
 const TRANSOES_VALIDAS: Record<StatusConsumo, StatusConsumo[]> = {
   QUERO_CONSUMIR: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
