@@ -6,6 +6,10 @@ import type { Page } from "@playwright/test";
  * `sess`). Muito mais robusto que login-UI em dev (hidratação/consentimento).
  * Base da API: localhost:4000 (NEXT_PUBLIC_API_URL default do dev).
  */
+// IMPORTANTE: a API tem que estar no MESMO host da página (default
+// localhost:4000 vs página localhost:3000 — cookies são por host, não por
+// porta). Rodar Playwright com NODE_OPTIONS=--dns-result-order=ipv4first
+// para o localhost resolver em IPv4 (a API local escuta em 0.0.0.0).
 const API_BASE = process.env.E2E_API_BASE ?? "http://localhost:4000";
 
 export async function apiLogin(page: Page, email: string, password: string): Promise<void> {

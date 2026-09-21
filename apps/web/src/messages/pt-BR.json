@@ -723,7 +723,8 @@
     "concluido": "Concluído",
     "buscarSubstituta": "Buscar substituta",
     "relinkPlaceholder": "Busque o título correto...",
-    "relinkError": "Não foi possível re-vincular. Tente novamente."
+    "relinkError": "Não foi possível re-vincular. Tente novamente.",
+    "inWatchlist": "Na watchlist"
   },
   "privacy": {
     "metaTitle": "Política de Privacidade — MEDIA Rate",
@@ -971,7 +972,8 @@
     "minutesAgo": "há {n} min",
     "hoursAgo": "há {n} h",
     "daysAgo": "há {n} d",
-    "tituloIndisponivel": "Título indisponível"
+    "tituloIndisponivel": "Título indisponível",
+    "totalWatchlist": "Títulos na watchlist"
   },
   "settings": {
     "title": "Configurações",
@@ -984,7 +986,12 @@
     "languageHint": "Selecione seu idioma preferido.",
     "lgpd": "Seus dados (LGPD)",
     "lgpdHint": "Exporte seus dados ou solicite a exclusão — sempre com confirmação explícita, nunca em um clique.",
-    "session": "Sessão"
+    "session": "Sessão",
+    "cancelConfirm": "Tem certeza de que deseja cancelar sua assinatura?",
+    "cancelDone": "Assinatura cancelada com sucesso.",
+    "cancelError": "Não foi possível cancelar a assinatura agora. Tente novamente.",
+    "cancelSubscription": "Cancelar assinatura",
+    "cancelHint": "O cancelamento encerra os benefícios do plano no fim do ciclo atual."
   },
   "onboarding": {
     "h1": "Bem-vindo ao MEDIA Rate",

@@ -1,0 +1,56 @@
+# Migration Production — MEDIA Rate (T9.4 / D-527)
+#
+# Migration MANUAL em produção, com backup prévio.
+#
+# Por que manual: as migrations de produção são aplicadas automaticamente pelo
+# entrypoint do container da API no boot do deploy (docker-entrypoint.sh →
+# `prisma migrate deploy`) — o deploy nativo do Railway já cobre o caso comum.
+# Este workflow existe para o caso raro de aplicar/migrar FORA de um deploy
+# (ex.: backup+verificação antes de uma migration arriscada), sob ação
+# explícita do Operador.
+#
+# NOTA (D-527): o secret DATABASE_URL do GitHub contém o hostname INTERNO do
+# Railway (postgres.railway.internal), inacessível dos runners do GitHub.
+# Este workflow também falhará enquanto o Operador não apontar o secret para
+# um endereço alcançável (proxy TCP público) — ou executar o comando
+# equivalente a partir de um ambiente com acesso à rede interna do Railway.
+
+name: Migration Production (manual)
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  migrate:
+    name: Database Migration (backup + apply + verify)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Generate Prisma Client
+        working-directory: apps/api
+        run: npx prisma generate
+      - name: Backup antes da migration (T9.4 / T026 — segurança)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "[migrate] Iniciando backup antes da migration..."
+          bash ../../scripts/backup-db.sh "$DATABASE_URL" || echo "[migrate] Backup via script indisponível — continuando com migration."
+      - name: Apply migration (T9.4)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate deploy
+      - name: Verify migration status
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate status

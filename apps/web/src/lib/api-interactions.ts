@@ -32,7 +32,9 @@ export interface InteracaoEstado {
  * Máquina de estados de consumo (espelho do server, interacoes.service.ts).
  * QUERO_CONSUMIR → CONSUMINDO / CONCLUIDO / ABANDONADO
  * CONSUMINDO     → CONCLUIDO / ABANDONADO
- * CONCLUIDO/ABANDONADO → qualquer (retomar/rever é caso real).
+ * CONCLUIDO      → QUERO_CONSUMIR / CONSUMINDO (retomar/rever)
+ * ABANDONADO     → QUERO_CONSUMIR / CONSUMINDO / CONCLUIDO (reclassificar)
+ * D-527: CONCLUIDO → ABANDONADO NÃO é permitido.
  */
 const TRANSOES_VALIDAS: Record<ConsumoStatus, ConsumoStatus[]> = {
   QUERO_CONSUMIR: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],

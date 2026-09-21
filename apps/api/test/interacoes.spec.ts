@@ -133,6 +133,16 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
     );
   });
 
+  it("D-527 — CONCLUIDO → ABANDONADO é rejeitado (400)", async () => {
+    await service.upsert("user-1", "midia-1", { status: "CONCLUIDO" });
+    await expect(
+      service.upsert("user-1", "midia-1", { status: "ABANDONADO" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    // caminho indireto permitido: CONCLUIDO → CONSUMINDO → ABANDONADO
+    await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
+    await service.upsert("user-1", "midia-1", { status: "ABANDONADO" });
+  });
+
   it("listar retorna interações do usuário (envelope D-525)", async () => {
     await service.upsert("user-1", "midia-1", { status: "CONCLUIDO" });
     const pagina = await service.listar("user-1");
