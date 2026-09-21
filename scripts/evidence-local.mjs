@@ -17,9 +17,10 @@ import { spawn, execSync } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const ROOT = process.cwd();
-const API_DIR = `${ROOT}/apps/api`;
 const WEB_DIR = `${ROOT}/apps/web`;
-const DB_URL = process.env.EVIDENCE_DATABASE_URL ?? "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate";
+const DB_URL =
+  process.env.EVIDENCE_DATABASE_URL ??
+  "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate";
 const API_PORT = 4000;
 const WEB_PORT = 3000;
 
