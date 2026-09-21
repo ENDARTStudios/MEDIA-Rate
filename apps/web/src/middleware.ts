@@ -7,6 +7,7 @@ const intlMiddleware = createMiddleware(routing);
 const privateRoutePrefixes = [
   "/admin",
   "/assistant",
+  "/biblioteca",
   "/dashboard",
   "/feedback",
   "/onboarding",
