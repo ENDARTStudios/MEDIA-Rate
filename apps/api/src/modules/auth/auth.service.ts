@@ -17,6 +17,7 @@ import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
+import { mascararEmail, mascararIp } from "../../common/pii-mask.js";
 import { EmailVerificationService } from "./email-verification.service.js";
 import { AlertsService } from "../metrics/alerts.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
@@ -258,7 +259,7 @@ export class AuthService {
       const result = await this.lockoutService.registerFailure(ip, dto.email);
       if (result.locked) {
         this.logger.warn(
-          `Lockout aplicado para ${dto.email} (IP: ${ip}) após ${result.failedCount} falhas`,
+          `Lockout aplicado para ${mascararEmail(dto.email)} (IP: ${mascararIp(ip)}) após ${result.failedCount} falhas`,
         );
         throw new ForbiddenException({
           statusCode: 403,
@@ -463,7 +464,7 @@ export class AuthService {
           ipOrigem: options.ip,
           dadosDepois: { userAgent: options.user_agent },
         });
-        this.logger.warn(`Reuse de refresh detectado (IP ${options.ip ?? "unknown"}).`);
+        this.logger.warn(`Reuse de refresh detectado (IP ${mascararIp(options.ip)}).`);
       }
       throw new UnauthorizedException({
         statusCode: 401,
