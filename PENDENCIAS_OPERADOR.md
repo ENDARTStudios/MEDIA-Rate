@@ -292,6 +292,13 @@ Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
 > workflow do GitHub, não trava o deploy nativo. Reversível (remover a linha). Decisão de
 > mergear é do Operador.
 
+> 📌 **EVIDÊNCIA (T045, 2026-09-22):** após o merge do PR #195 (merge commit `8f5afc2`),
+> o run `deploy.yml` de `main` ficou **`waiting`** no environment `Production`
+> (aguardando aprovação do Operador) — evidência **P012=A** de que o gate está ativo.
+> O deploy **nativo** (Railway) ocorreu mesmo assim (o `uptime` do `/health` resetou) e
+> o smoke pós-merge **7/7 → 200** confirmou saúde. O item **continua aberto** (o waiting
+> já passou de 30 min em merges anteriores); decisão é do Operador.
+
 ### [13] P013 — Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
 
 Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
