@@ -275,3 +275,17 @@ o UptimeRobot externo (ver P015); os dois se complementam.
 > **500 ms** (`UPTIME_TENTATIVAS`/`UPTIME_BACKOFF_MS`). Uma falha **transitória**
 > que resolve no retry **não** abre issue (`acao=none`); só falha **persistente**
 > abre/atualiza a issue.
+
+## Shutdown gracioso da API (T044 / D-540)
+
+Em `SIGTERM`/`SIGINT`, o `GracefulShutdownService` (`apps/api/src/common/queue.service.ts`)
+para de aceitar novas conexões e **drena** a requisição em andamento antes de
+fechar, na ordem: **Fastify (HTTP) → Prisma `$disconnect` → Redis `quit` → filas**.
+
+- **Idempotente** (2º sinal é ignorado) e **fail-safe**: timeout global
+  `SHUTDOWN_TIMEOUT_MS` (default **30 s**; valor não finito/≤0 cai no default) →
+  `process.exit(1)` se estourar; sucesso → `process.exit(0)`; erro → `process.exit(1)`.
+- **Logs** por etapa (sinal + duração), **nunca** segredos.
+- **Garantias testadas** (`apps/api/test/graceful-shutdown{,.e2e}.spec.ts`):
+  drenagem de requisição em andamento (200), recusa de novas conexões após o
+  fechamento e ausência de `unhandledRejection`.

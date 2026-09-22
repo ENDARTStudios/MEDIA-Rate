@@ -146,3 +146,14 @@ falha persiste — sem spam).
 - Páginas web fora → investigar Vercel (build/domínio) e `mediarate.app`.
 
 Complementar (distribuído): UptimeRobot — ver `docs/OBSERVABILITY.md`.
+
+## Shutdown gracioso da API (T044)
+
+Em **restart/deploy** (`SIGTERM`/`SIGINT`), a API **drena** a requisição em
+andamento antes de fechar (Fastify → Prisma → Redis → filas) e **não aceita
+novas conexões** — evitando 5xx por corte abrupto.
+
+- Timeout global `SHUTDOWN_TIMEOUT_MS` (default **30 s**); ao estourar, o
+  processo é encerrado com código **1** (fail-safe) — se isso ocorrer em loop,
+  investigar travamento em Prisma/Redis/fila (ver logs `Graceful shutdown`).
+- Detalhes e garantias testadas: `docs/OBSERVABILITY.md` (§ Shutdown gracioso).
