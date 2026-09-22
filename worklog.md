@@ -2704,3 +2704,8 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - scripts/ci/uptime-check.mjs: logica pura (avaliarUptime/decidirAcaoUptime/renderUptimeBody) + --collect (GET/HEAD, timeout 10s, SO rotas publicas) + --input. Dedup: create so na 1a falha; update edita o CORPO (sem comentar em loop); close na recuperacao. Sem credencial/cookie/endpoint autenticado; sem imprimir corpo/PII. self-test determinístico 11/11 (sem rede/gh/banco). Fixture 'todos ok'.
 - Workflow uptime-check.yml: schedule 10min + workflow_dispatch; concurrency; permissions contents:read + issues:write; label uptime; sem secret novo; sem infra paga; sem deploy; nao toca environment Production.
 - Endpoints: api /health + web pt-BR/en-US/es-ES/catalog/pricing/login. Coleta live validada: 7/7 OK (dry-run acao=none). docs OBSERVABILITY + INCIDENT_RESPONSE + D-539 + P015 (UptimeRobot complementar) + worklog. PR sem merge.
+
+## [2026-09-22] T043-merge-pr192-uptime (auditoria + retry + label + merge)
+- Auditoria do #192: retry minimo AUSENTE -> implementado em uptime-check.mjs: coletarUm(ep, fetchFn, {tentativas,backoffMs}) com ate 2 tentativas e backoff 500ms; falha so se TODAS falharem. Self-test ampliado para falha transitoria->sucesso (= none) e persistente (16 ok/0 fail).
+- Label 'uptime' NAO existia -> criada (D93F0B, nao-destrutiva). Permissoes do workflow confirmadas (contents:read + issues:write; sem id-token/security-events/pull-requests). Concurrency + timeout 10s. Endpoints so publicos/readonly.
+- Coleta live com retry: 7/7 OK (dry-run acao=none). eslint/self-test OK. Merge do #192 + smoke pós-merge.

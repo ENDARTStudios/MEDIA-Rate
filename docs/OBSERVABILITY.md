@@ -270,3 +270,8 @@ o UptimeRobot externo (ver P015); os dois se complementam.
 2. Add New Monitor → **HTTP(s)** para `https://media-rate-production.up.railway.app/health`
    e (opcional) `https://mediarate.app/pt-BR`.
 3. Interval: 5 min · Timeout: 30 s · Alert when down 2 vezes → e-mail.
+
+> **Retry mínimo (T043/D-539):** cada endpoint é tentado até **2×** com backoff de
+> **500 ms** (`UPTIME_TENTATIVAS`/`UPTIME_BACKOFF_MS`). Uma falha **transitória**
+> que resolve no retry **não** abre issue (`acao=none`); só falha **persistente**
+> abre/atualiza a issue.

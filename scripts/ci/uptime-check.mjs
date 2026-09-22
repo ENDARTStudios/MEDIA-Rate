@@ -11,6 +11,7 @@
 //   resposta/PII/segredos.
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { setTimeout as sleep } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 
 export const ISSUE_LABEL = "uptime";
@@ -32,9 +33,13 @@ export const ENDPOINTS = [
 ];
 
 export const TIMEOUT_MS = 10_000;
+/** Retry mínimo contra falha transitória (1 retry por padrão). */
+export const MAX_TENTATIVAS = Number(process.env.UPTIME_TENTATIVAS ?? 2);
+export const BACKOFF_MS = Number(process.env.UPTIME_BACKOFF_MS ?? 500);
+export const OK_DEFAULT = [200, 301, 302, 307, 308];
 
 /** Avalia os resultados → { total, ok, falhas[] }. Puro. */
-export function avaliarUptime(resultados, okDefault = [200, 301, 302, 307, 308]) {
+export function avaliarUptime(resultados, okDefault = OK_DEFAULT) {
   const falhas = [];
   for (const r of resultados ?? []) {
     if (r.erro) {
@@ -93,31 +98,60 @@ export function renderUptimeBody(avaliacao, agora = new Date()) {
   return linhas.join("\n");
 }
 
-async function coletar() {
-  const resultados = [];
-  for (const ep of ENDPOINTS) {
+const ehOk = (status, okStatuses) =>
+  (Array.isArray(okStatuses) && okStatuses.length > 0 ? okStatuses : OK_DEFAULT).includes(
+    Number(status),
+  );
+
+/**
+ * Coleta UM endpoint com retry mínimo: só marca falha se TODAS as tentativas
+ * falharem (transitório → sucesso no retry = OK). `fetchFn` injetável →
+ * testável offline. Retorna também `tentativas`.
+ */
+export async function coletarUm(ep, fetchFn = fetch, opts = {}) {
+  const tentativas = opts.tentativas ?? MAX_TENTATIVAS;
+  const backoffMs = opts.backoffMs ?? BACKOFF_MS;
+  let ultimo = {
+    nome: ep.nome,
+    url: ep.url,
+    httpStatus: null,
+    erro: "sem tentativa",
+    okStatuses: ep.okStatuses,
+    tentativas: 0,
+  };
+  for (let i = 1; i <= tentativas; i += 1) {
     try {
-      const resp = await fetch(ep.url, {
+      const resp = await fetchFn(ep.url, {
         method: "GET",
         redirect: "manual",
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
-      resultados.push({
+      ultimo = {
         nome: ep.nome,
         url: ep.url,
         httpStatus: resp.status,
         okStatuses: ep.okStatuses,
-      });
+        tentativas: i,
+      };
+      if (ehOk(resp.status, ep.okStatuses)) return ultimo;
     } catch (e) {
-      resultados.push({
+      ultimo = {
         nome: ep.nome,
         url: ep.url,
         httpStatus: null,
+        erro: String(e?.message ?? e).slice(0, 120),
         okStatuses: ep.okStatuses,
-        erro: String(e?.message ?? e),
-      });
+        tentativas: i,
+      };
     }
+    if (i < tentativas && backoffMs > 0) await sleep(backoffMs);
   }
+  return ultimo;
+}
+
+async function coletar() {
+  const resultados = [];
+  for (const ep of ENDPOINTS) resultados.push(await coletarUm(ep));
   return resultados;
 }
 

@@ -1,7 +1,13 @@
 /* global console: readonly */
 
 // T042/D-539 — self-test determinístico do uptime-check (sem rede/banco/gh).
-import { avaliarUptime, decidirAcaoUptime, renderUptimeBody, ENDPOINTS } from "./uptime-check.mjs";
+import {
+  avaliarUptime,
+  decidirAcaoUptime,
+  renderUptimeBody,
+  coletarUm,
+  ENDPOINTS,
+} from "./uptime-check.mjs";
 
 let ok = 0;
 let fail = 0;
@@ -58,6 +64,39 @@ t(
   ),
 );
 t("corpo lista o endpoint falho", body.includes("api-health") && body.includes("HTTP 503"));
+
+// --- retry mínimo (falha transitória → sucesso) --------------------------
+const ep = { nome: "t", url: "u/t", okStatuses: [200] };
+let chamadas = 0;
+const fetchTransitorio = async () => {
+  chamadas += 1;
+  if (chamadas === 1) throw new Error("ECONNRESET");
+  return { status: 200 };
+};
+const rTrans = await coletarUm(ep, fetchTransitorio, { tentativas: 2, backoffMs: 0 });
+t(
+  "retry: falha transitória resolve no 2º (tentativas=2)",
+  rTrans.httpStatus === 200 && rTrans.tentativas === 2,
+);
+t("retry: transitório → avaliarUptime ok", avaliarUptime([rTrans]).ok);
+t("retry: transitório → acao=none", decidirAcaoUptime(avaliarUptime([rTrans]), false) === "none");
+
+const fetch503 = async () => ({ status: 503 });
+const r503 = await coletarUm(ep, fetch503, { tentativas: 2, backoffMs: 0 });
+t(
+  "retry: falha persistente marca falha (tentativas=2)",
+  r503.httpStatus === 503 && r503.tentativas === 2 && !avaliarUptime([r503]).ok,
+);
+
+let m = 0;
+const fetch500entao200 = async () => {
+  m += 1;
+  return { status: m === 1 ? 500 : 200 };
+};
+t(
+  "retry: 500→200 resolve no retry",
+  (await coletarUm(ep, fetch500entao200, { tentativas: 2, backoffMs: 0 })).httpStatus === 200,
+);
 
 console.log(`\nself-test uptime-check: ${ok} ok, ${fail} fail`);
 if (fail > 0) process.exit(1);

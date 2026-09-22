@@ -2186,3 +2186,6 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Relação com UptimeRobot:** monitor **sintético no CI** — **NÃO** substitui UptimeRobot externo (multi-região); ver **P015**.
 
 **Evidências:** self-test 11/11; coleta live 7/7 OK; dry-run `acao=none`; eslint OK.
+
+> **T043 (retry):** `coletarUm` faz até 2 tentativas por endpoint (backoff 500 ms);
+> falha transitória → sucesso no retry = `acao=none`. Coberto por self-test (16/16).
