@@ -33,6 +33,38 @@ import {
 
 type InteracaoRequest = FastifyRequest & { user?: { id: string } };
 
+// T038/D-537: schema de mídia do item (reusado no GET lista, GET /:id e PUT).
+const MIDIA_ITEM_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string", format: "uuid" },
+    slug: { type: "string", nullable: true },
+    titulo: { type: "string" },
+    tipo: { type: "string" },
+    ano_lancamento: { type: "integer", nullable: true },
+    imagem_url: { type: "string", nullable: true },
+    score: { type: "number", nullable: true },
+  },
+};
+
+/** Item do contrato público de interações (allowlist — sem colunas internas). */
+const INTERACAO_ITEM_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string", format: "uuid" },
+    midia_id: { type: "string", format: "uuid" },
+    status: { type: "string", enum: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"] },
+    reacao: { type: "string", nullable: true, enum: ["GOSTEI", "NAO_GOSTEI"] },
+    motivo_abandono: { type: "string", nullable: true },
+    progresso_detalhe: { type: "string", nullable: true },
+    iniciado_em: { type: "string", format: "date-time", nullable: true },
+    concluido_em: { type: "string", format: "date-time", nullable: true },
+    atualizado_em: { type: "string", format: "date-time" },
+    origem_relacao_id: { type: "string", format: "uuid", nullable: true },
+    midia: MIDIA_ITEM_SCHEMA,
+  },
+};
+
 @ApiTags("interacoes")
 @ApiBearerAuth()
 @Controller("api/v1/interacoes")
@@ -83,36 +115,7 @@ export class InteracoesController {
     schema: {
       type: "object",
       properties: {
-        items: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              id: { type: "string", format: "uuid" },
-              midia_id: { type: "string", format: "uuid" },
-              status: {
-                type: "string",
-                enum: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
-              },
-              reacao: { type: "string", nullable: true, enum: ["GOSTEI", "NAO_GOSTEI"] },
-              motivo_abandono: { type: "string", nullable: true },
-              progresso_detalhe: { type: "string", nullable: true },
-              atualizado_em: { type: "string", format: "date-time" },
-              midia: {
-                type: "object",
-                properties: {
-                  id: { type: "string", format: "uuid" },
-                  slug: { type: "string", nullable: true },
-                  titulo: { type: "string" },
-                  tipo: { type: "string" },
-                  ano_lancamento: { type: "integer", nullable: true },
-                  imagem_url: { type: "string", nullable: true },
-                  score: { type: "number", nullable: true },
-                },
-              },
-            },
-          },
-        },
+        items: { type: "array", items: INTERACAO_ITEM_SCHEMA },
         total: { type: "integer" },
         porStatus: { type: "object", additionalProperties: { type: "integer" } },
         nextCursor: { type: "string", nullable: true },
@@ -130,6 +133,11 @@ export class InteracoesController {
 
   @Get(":midiaId")
   @ApiOperation({ summary: "Retorna a interação do usuário com uma mídia" })
+  @ApiOkResponse({
+    description: "Interação do usuário (DTO allowlist) ou null. Sem colunas internas/legadas.",
+    schema: INTERACAO_ITEM_SCHEMA,
+  })
+  @ApiUnauthorizedResponse({ description: "Sem sessão válida." })
   @ApiNotFoundResponse({
     description: "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou sem interação.",
   })
@@ -139,6 +147,12 @@ export class InteracoesController {
 
   @Put(":midiaId")
   @ApiOperation({ summary: "Cria/atualiza status+reação de uma mídia" })
+  @ApiOkResponse({
+    description: "Interação criada/atualizada (DTO allowlist). Sem colunas internas/legadas.",
+    schema: INTERACAO_ITEM_SCHEMA,
+  })
+  @ApiUnauthorizedResponse({ description: "Sem sessão válida." })
+  @ApiBadRequestResponse({ description: "Transição de status/reação/motivo inválidos." })
   @ApiNotFoundResponse({
     description:
       "404 — midiaId malformado (UUID inválido, validação pré-Prisma) ou mídia inexistente.",

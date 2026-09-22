@@ -5,6 +5,17 @@ import { InteracoesService } from "../src/modules/interacoes/interacoes.service.
 
 function mockPrisma() {
   const estado: any[] = [];
+  // Mídia devolvida pelo `include` real (MIDIA_INTERACAO_SELECT) — o mapper
+  // (T036/T038) exige `midia` no item.
+  const midiaDe = (id: string) => ({
+    id,
+    slug: `slug-${id}`,
+    titulo: `Título ${id}`,
+    tipo: "FILME",
+    ano_lancamento: 2024,
+    imagem_url: null,
+    score: 80,
+  });
   const prisma = {
     midia: {
       findUnique: vi.fn(async ({ where }: any) =>
@@ -14,26 +25,12 @@ function mockPrisma() {
     usuarioMidiaInteracao: {
       findUnique: vi.fn(async ({ where }: any) => {
         const k = where.usuario_id_midia_id;
-        return (
-          estado.find((e) => e.usuario_id === k.usuario_id && e.midia_id === k.midia_id) ?? null
-        );
+        const e = estado.find((x) => x.usuario_id === k.usuario_id && x.midia_id === k.midia_id);
+        return e ? { ...e, midia: midiaDe(e.midia_id) } : null;
       }),
       // O Prisma real faz `include: { midia: { select: MIDIA_INTERACAO_SELECT } }`
       // no listar — o mock precisa incluir `midia` para o mapper (T036/D-536).
-      findMany: vi.fn(async () =>
-        estado.map((e) => ({
-          ...e,
-          midia: {
-            id: e.midia_id,
-            slug: `slug-${e.midia_id}`,
-            titulo: `Título ${e.midia_id}`,
-            tipo: "FILME",
-            ano_lancamento: 2024,
-            imagem_url: null,
-            score: 80,
-          },
-        })),
-      ),
+      findMany: vi.fn(async () => estado.map((e) => ({ ...e, midia: midiaDe(e.midia_id) }))),
       // D-525: contrato paginado do listar (envelope com total/porStatus).
       count: vi.fn(async () => estado.length),
       groupBy: vi.fn(async () => []),
@@ -42,13 +39,11 @@ function mockPrisma() {
         const idx = estado.findIndex(
           (e) => k && e.usuario_id === k.usuario_id && e.midia_id === k.midia_id,
         );
-        if (idx >= 0) {
-          estado[idx] = { ...estado[idx], ...update };
-          return estado[idx];
-        }
-        const novo = { id: "u1", ...create };
-        estado.push(novo);
-        return novo;
+        const linha =
+          idx >= 0 ? (estado[idx] = { ...estado[idx], ...update }) : { id: "u1", ...create };
+        if (idx < 0) estado.push(linha);
+        // include real: `{ midia: MIDIA_INTERACAO_SELECT }` (T036/T038).
+        return { ...linha, midia: midiaDe(linha.midia_id) };
       }),
     },
     // T286 — descobertas() consulta DiscoveryEvents além das interações.
@@ -79,7 +74,24 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
   it("cria interação QUERO_CONSUMIR quando não existe (1 toque)", async () => {
     const r = await service.upsert("user-1", "midia-1", {});
     expect(r.status).toBe("QUERO_CONSUMIR");
-    expect(r.usuario_id).toBe("user-1");
+    // T038/D-537: PUT devolve o DTO allowlist — sem colunas internas/legadas.
+    for (const k of ["usuario_id", "tenant_id", "comentario", "rating", "tipo", "created_at"]) {
+      expect(r).not.toHaveProperty(k);
+    }
+    expect(r.midia.slug).toBe("slug-midia-1");
+  });
+
+  it("obter devolve o DTO allowlist (sem colunas internas) ou null", async () => {
+    await service.upsert("user-1", "midia-1", { status: "CONCLUIDO", reacao: "GOSTEI" });
+    const r = await service.obter("user-1", "midia-1");
+    expect(r).not.toBeNull();
+    for (const k of ["usuario_id", "tenant_id", "comentario", "rating", "tipo", "created_at"]) {
+      expect(r).not.toHaveProperty(k);
+    }
+    expect(r?.reacao).toBe("GOSTEI");
+    expect(r?.midia.titulo).toBe("Título midia-1");
+    // inexistente → null
+    expect(await service.obter("user-1", "midia-inexistente")).toBeNull();
   });
 
   it("QUERO_CONSUMIR → CONSUMINDO → CONCLUIDO + GOSTEI (fluxo completo)", async () => {

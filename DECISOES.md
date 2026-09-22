@@ -2133,3 +2133,20 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **TDD/Evidências:** `test/interacoes-dto.spec.ts` (allowlist: ausência de colunas internas + campos preservados) e reforço em `test/interacoes-lista.spec.ts` (mock com colunas internas → removidas). API **118/902** verde; tsc/eslint OK.
 
 **Follow-up:** `GET /:midiaId` (`obter`) e `PUT` (`upsert`) ainda devolvem a linha crua — aplicar o mesmo DTO em tarefa própria (fora do escopo da T036, que é o `GET` de lista).
+
+---
+
+## D-537 — T038: DTO ALLOWLIST também em `GET /interacoes/:midiaId` e `PUT /interacoes/:midiaId`
+
+**Data:** 2026-09-22 · **Fase:** F04-apis / T038-dto-interacoes-get-put · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** o T036/D-536 aplicou o DTO allowlist apenas no `GET` de **lista**. `obter` (`GET /:midiaId`) e `upsert` (`PUT`) ainda devolviam a **linha crua** do Prisma — vazando `usuario_id`, `tenant_id`, `created_at`, `tipo` (legado), `rating` e `comentario` (plaintext).
+
+**Decisão:**
+1. Ambos passam a usar o **mesmo** `mapearInteracaoResponse` (allowlist do D-536).
+2. `obter`: `select` de mídia alinhado a `MIDIA_INTERACAO_SELECT` + mapper; retorna `InteracaoResponseDto | null`.
+3. `upsert`: `include: { midia: MIDIA_INTERACAO_SELECT }` + mapper; retorna `InteracaoResponseDto`. O `PUT` passa a incluir `midia` (antes ausente) — o único consumidor (`fromApi`) lê `id/midia_id/status/reacao/motivo_abandono`, todos preservados; **sem mudança no frontend**.
+4. Swagger: schema do item extraído para `INTERACAO_ITEM_SCHEMA` e reusado em `GET` lista, `GET /:id` e `PUT` (200 + 400/401/404).
+5. Sem migrations/schema; sem deploy; PR **sem merge** (PLANO 4.15 mantém `[~]` até merge+smoke).
+
+**TDD/Evidências:** `interacoes.spec.ts` cobre allowlist de `upsert` e `obter` (ausência de colunas internas; `midia`/timestamps/reação preservados) e mock fiel ao `include` (`midia`); `descobertas.spec.ts` mock ajustado. API **118/903** verde; tsc/eslint OK.
