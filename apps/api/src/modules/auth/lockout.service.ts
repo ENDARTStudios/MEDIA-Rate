@@ -1,5 +1,6 @@
 import { Injectable, Logger, type OnModuleDestroy, Optional } from "@nestjs/common";
 import { CacheService } from "../../common/cache.service.js";
+import { mascararEmail, mascararIp } from "../../common/pii-mask.js";
 
 /**
  * Lockout progressivo (T3.3) com Redis (T020/7.5).
@@ -169,7 +170,7 @@ export class LockoutService implements OnModuleDestroy {
           await redis.expire(k, lockDur);
           await redis.expire(globalK, lockDur);
           this.logger.warn(
-            `Lockout global aplicado para IP ${ip} (${globalCount} falhas em ${GLOBAL_IP_WINDOW_SEC}s)`,
+            `Lockout global aplicado para IP ${mascararIp(ip)} (${globalCount} falhas em ${GLOBAL_IP_WINDOW_SEC}s)`,
           );
           return { failedCount, locked: true, lockedForMs: lockDur * 1000 };
         }
@@ -185,7 +186,7 @@ export class LockoutService implements OnModuleDestroy {
         const lockDur = LOCK_DURATIONS_SEC[lockLevel] ?? 86400;
         await redis.expire(k, lockDur);
         this.logger.warn(
-          `Lockout ${lockLevel + 1}o nível (${lockDur}s) aplicado para ${k}: ${failedCount} falhas`,
+          `Lockout ${lockLevel + 1}o nível (${lockDur}s) aplicado (${mascararEmail(email)}): ${failedCount} falhas`,
         );
         return { failedCount, locked: true, lockedForMs: lockDur * 1000 };
       }
@@ -238,7 +239,7 @@ export class LockoutService implements OnModuleDestroy {
       }
       locked = true;
       this.logger.warn(
-        `Lockout local aplicado para ${k}: nível ${lockLevel + 1}, ${lockedForMs / 1000}s`,
+        `Lockout local aplicado (${mascararEmail(email)}): nível ${lockLevel + 1}, ${lockedForMs / 1000}s`,
       );
     }
 

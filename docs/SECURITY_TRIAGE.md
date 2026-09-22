@@ -89,3 +89,18 @@ plaintext exigiriam **migration + backfill**; (3) o serviço exige
 `COLUMN_ENCRYPTION_KEY` e **lança** sem ela (novo segredo + risco de indisponibilidade).
 Achado acionável de baixo risco: PII em log (`auth.service.ts:261` interpola o
 e-mail; redact não cobre PII na mensagem) — recomendada máscara. Ver **P017**.
+
+## T049 — PII em logs de auth: mascaramento (D-543)
+
+**Achado (T048):** `auth.service.ts` logava o e-mail cru no lockout;
+`lockout.service.ts` logava `${k}` = `lockout:<ip>:<email>` e o IP cru. O `redact`
+do Pino cobre **propriedades**, não PII **interpolada na mensagem**.
+
+**Correção (T049):** helper `apps/api/src/common/pii-mask.ts` (`mascararEmail`,
+`mascararIp`) aplicado antes de logar em: `auth.service.ts` (lockout + reuse de
+refresh) e `lockout.service.ts` (global/threshold/local). Sem mudança de
+comportamento de auth/lockout/sessão — só o texto do log. Saída mascarada:
+`u***@***.invalid`, `203.0.x.x`.
+
+**Regressão:** `apps/api/test/auth-pii-log.spec.ts` (roundtrip do mask + captura do
+`Logger` no lockout com fixture `usuario@example.invalid` + guarda de fonte).

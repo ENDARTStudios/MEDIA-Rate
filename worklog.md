@@ -2739,3 +2739,9 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - ColumnEncryptionService (AES-256-GCM) NAO wired (0 usos); IV aleatorio -> NAO determinista; construtor LANCA sem COLUMN_ENCRYPTION_KEY.
 - DECISAO: NAO implementar cifragem agora (bloqueios: email buscavel x nao-determinismo; plaintext exige migration+backfill; secret novo + risco de indisponibilidade). Achado acionavel (baixo risco, nao implementado): auth.service.ts:261 loga email em claro (redact nao cobre PII na mensagem) -> follow-up mascara.
 - Artefatos: docs/LGPD_DADOS.md (novo) + SECURITY_TRIAGE secao T048 + D-542 + PLANO 2.10 + P017. Sem schema/migration/segredo; sem PII/segredo nas evidencias. PR docs-only.
+
+## [2026-09-22] T049-mask-pii-auth-logs (fase 1 MERGED b903a7e; fase 2 PR aberto SEM merge)
+- Fase 1: PR docs-only #203 auditado (mergeable; Docs Gate pass; scan segredos/PII 0) e mergeado como b903a7e. Pos-merge main: CI success (13s), Security success, deploy.yml waiting (P012=A), smoke 4/4 = 200.
+- Fase 2 (TDD): RED test apps/api/test/auth-pii-log.spec.ts (import faltando) -> implementado apps/api/src/common/pii-mask.ts (mascararEmail -> u***@***.invalid; mascararIp -> 203.0.x.x).
+- Pontos corrigidos no modulo auth: auth.service.ts (lockout: email+IP; reuse de refresh: IP) e lockout.service.ts (global: IP; threshold e local: ${k} com email+IP -> mascararEmail(email)). Sem refatoracao ampla; sem mudar lockout key/threshold/mensagens/sessao/schema.
+- Verificacao: auth-pii-log 5/5; suite API 911/911 (120 arquivos); tsc OK; eslint OK nos arquivos alterados. Fixture .invalid apenas. Sem PII/segredo nas evidencias.

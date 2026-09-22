@@ -81,12 +81,19 @@ migration, sem segredo novo, sem quebrar login/busca):
 **não buscáveis**; a adoção exige um plano com migration, gestão de chave e
 estratégia determinística para identificadores. Nada foi alterado em código.
 
-## 6. Exposição confirmada (achado acionável, baixo risco)
+## 6. Exposição de PII em log — **CORRIGIDA (T049/D-543)**
 
-- **PII em log**: `auth.service.ts:261` grava o e-mail em claro na mensagem do
-  lockout. Correção recomendada (seguida, não implementada aqui): **mascarar** o
-  e-mail (ex.: `a***@d***.tld`) — sem impacto em auth/schema/segredo. Registrar
-  como follow-up.
+- **Achado (T048):** `auth.service.ts` interpelava o e-mail cru no log de lockout;
+  `lockout.service.ts` logava `${k}` = `lockout:<ip>:<email>` (e-mail + IP) e o IP
+  cru. O `redact` do Pino **não** cobre PII embutida na string da mensagem.
+- **Correção (T049):** novo helper `apps/api/src/common/pii-mask.ts`
+  (`mascararEmail`, `mascararIp`) aplicado **antes** de logar nos pontos do módulo
+  `auth`: `auth.service.ts` (lockout e reuse de refresh) e `lockout.service.ts`
+  (global/threshold/local). Nenhum comportamento de auth/lockout/sessão mudou —
+  só o texto do log.
+- **Regressão:** `apps/api/test/auth-pii-log.spec.ts` (roundtrip do mask, captura
+  do `Logger` no lockout com fixture `usuario@example.invalid`, e guarda de fonte).
+- Valores passam a sair como `u***@***.invalid` e `203.0.x.x`.
 
 ## 7. Follow-ups e pendências
 

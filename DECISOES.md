@@ -2254,3 +2254,18 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Achado acionável (baixo risco, não implementado aqui):** `auth.service.ts:261` grava o e-mail em claro no log de lockout (o `redact` não cobre PII embutida na mensagem) → follow-up: mascarar.
 
 **Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/LGPD_DADOS.md`, `docs/SECURITY_TRIAGE.md` §T048, **P017**.
+
+## D-543 — T049: mascaramento de PII em logs de autenticação (LGPD)
+
+**Data:** 2026-09-22 · **Fase:** F07-hardening / T049-mask-pii-auth-logs · **Status:** DECIDIDO (PR de código aberto, SEM merge)
+
+**Contexto:** a análise T048 (D-542) identificou PII em claro nos logs de `auth`: `auth.service.ts:261` (`Lockout aplicado para <email> (IP: <ip>)`) e `lockout.service.ts` (`${k}` = `lockout:<ip>:<email>`; IP cru). O `redact` do Pino cobre **propriedades**, não PII **interpolada na string**.
+
+**Decisão:**
+1. Novo helper `apps/api/src/common/pii-mask.ts`: `mascararEmail` (`usuario@example.invalid` → `u***@***.invalid`) e `mascararIp` (`203.0.113.45` → `203.0.x.x`; IPv6 → 2 grupos + `*`).
+2. Aplicado **antes de logar** em `auth.service.ts` (lockout + reuse de refresh) e `lockout.service.ts` (global/threshold/local). Sem mudança de comportamento (auth, lockout key/threshold, sessão, mensagens ao usuário, schema ou segredos) — apenas o texto do log.
+3. TDD: `apps/api/test/auth-pii-log.spec.ts` — roundtrip do mask, captura do `Logger` no lockout (fixture `.invalid`) e guarda de fonte contra `${email}`/`${k}` em linhas de logger do módulo `auth`.
+
+**Escopo:** só `apps/api/src/common/pii-mask.ts` + logs de `auth` + o teste. A cifragem de colunas **segue bloqueada** (P017/D-542; PLANO 2.10 mantido `[~]`).
+
+**Evidências:** `auth-pii-log` 5/5; suíte API **911/911** (120 arquivos); `tsc --noEmit` OK; `eslint` OK. Fixture apenas com domínio `.invalid`; sem PII/segredo em evidência.
