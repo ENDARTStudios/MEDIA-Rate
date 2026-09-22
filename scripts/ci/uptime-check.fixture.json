@@ -1,0 +1,9 @@
+[
+  { "nome": "api-health", "url": "https://media-rate-production.up.railway.app/health", "httpStatus": 200, "okStatuses": [200] },
+  { "nome": "web-pt-BR", "url": "https://mediarate.app/pt-BR", "httpStatus": 200 },
+  { "nome": "web-en-US", "url": "https://mediarate.app/en-US", "httpStatus": 200 },
+  { "nome": "web-es-ES", "url": "https://mediarate.app/es-ES", "httpStatus": 200 },
+  { "nome": "web-catalog", "url": "https://mediarate.app/pt-BR/catalog", "httpStatus": 200 },
+  { "nome": "web-pricing", "url": "https://mediarate.app/pt-BR/pricing", "httpStatus": 200 },
+  { "nome": "web-login", "url": "https://mediarate.app/pt-BR/login", "httpStatus": 200 }
+]
