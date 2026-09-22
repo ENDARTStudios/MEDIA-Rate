@@ -2645,3 +2645,14 @@ Auditoria com evidencia primaria (grep/leitura de codigo, schema, workflows, PRs
 - Relatorio: .claude/reports/beta-blockers.md (forçado no git — .claude/ é ignorado, precedente schemas/scripts) com PROPOSTA_DOER: B1 guardas de producao (#148 7/9 + decisao 8), B2 sinais de operacao (#148 12 + UptimeRobot 9.5.4 + triagem Sentry), B3 higiene LGPD/contrato (#148 1 + PLANO 2.10). Nao-bloqueantes: governanca de dados (2.4/2.7), #148 2/3/4/5/6/10.
 - Sem SECURITY_FINDING novo (security.yml failure @ cccea6b = #148 item 12, pre-existente e triado).
 - PLANO_MESTRE: notas de evidencia em 3.11, inventario Fase 4 e Verificacao (897/117). exchange_log.jsonl atualizado.
+
+## [2026-09-21] T030-merge-docs167 (MERGED, 0ee9cb0)
+PR #167 docs-only merged com merge commit apos auditoria (MERGEABLE/CLEAN, scan limpo, docs-gate verde). Deploy.yml success (run 35676424099), Railway 2a2f74e7 SUCCESS, Vercel Production Ready. Smoke minimo: /health 200; pt-BR/en-US/es-ES 200 com 0 chaves i18n cruas/MISSING_MESSAGE; 0 5xx nos logs Railway pos-merge. Branch deletada apos smoke. Evidencia registrada no comentario do PR #167. Sem migrations; nenhuma tarefa [x] alterada alem da reconciliacao aprovada.
+
+## [2026-09-21] T031-b1-prod-guards (branch fix/b1-guards, PR aberto SEM merge)
+Bloqueador B1 (relatorio T029) — guarda de migrations e propostas operacionais. TDD:
+- scripts/ci/migration-safety.mjs: self-test 10 fixtures (vermelho 1/10 -> verde 10/10); fail-closed; CLI validado nos 3 caminhos com exit codes corretos (0 liberado sem banco / 0 liberado com contrato / 1 bloqueado e fail-closed). Contrato: label migration-review + secao Rollback (>=15 chars) + linha Migration: ancorada no inicio de linha (mencao solta nao conta).
+- ci.yml: job Migration Safety (B1) — so em pull_request; roda self-test; metadados via env->arquivo (anti-injecao); diff base...head. YAML validado. Este PR auto-valida o guard (sem arquivos de banco -> liberado).
+- docs/b1-prod-guards.md: contrato + template de descricao; staging Opcao A (Environment protection, custo 0) vs Opcao B (branch staging + Railway separado); migration manual: console Railway (recomendado como padrao de incidente), proxy TCP, self-hosted runner.
+- DECISOES D-532 (PROPOSTA); PLANO 9.12 [~]; PENDENCIAS P011/P012/P013 (required check, staging, caminho manual — nada executado, acoes do Operador).
+- Limite honesto: guard valida CONTRATO, nao qualidade da migration; required check so apos decisao do Operador.
