@@ -2013,7 +2013,7 @@ o drag não). As restrições de T027 exigiam que o CRUD da watchlist respeitass
 
 ## D-531 — Robustez de params UUID (404 pré-Prisma) e fonte única de request logging
 
-**Data:** 2026-09-21 · **Fase:** T028-micro (follow-ups #148 itens 13-14) · **Status:** PROPOSTA (PR aberto)
+**Data:** 2026-09-21 · **Fase:** T028-micro (follow-ups #148 itens 13-14) · **Status:** APROVADA (PR #163 merged, 156e18b — smoke produção: 404 em id malformado, logs sem duplicação, redaction csrf ativa)
 
 **Contexto:** O smoke pós-merge do T027 (PR #160) expôs dois débitos: (13) `PATCH
 /watchlist/:id/move` e `GET/PUT /interacoes/:midiaId` com id malformado faziam o Prisma
