@@ -17,6 +17,7 @@ export default tseslint.config(
       ".turbo/**",
       "skills/**",
       "upload/**",
+      "apps/api/prisma/fixtures/**",
       "download/**",
       "apps/web/.next/**",
       "apps/web/out/**",

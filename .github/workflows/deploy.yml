@@ -1,17 +1,19 @@
-# Deploy workflow — MEDIA Rate (T9.2/T9.3)
+# Deploy workflow — MEDIA Rate (T9.2/T9.3 · D-527)
 #
-# Deploy automático em push para main:
-# - Frontend: Vercel (deploy atômico, sem downtime)
-# - Backend: Railway (rolling update, sem downtime)
-# - Database: Prisma migrate deploy (após backup)
+# PROMOÇÃO PARA PRODUÇÃO EM PUSH PARA `main`:
+# - Frontend: Vercel — integração Git nativa (deploy atômico por push em main).
+# - Backend: Railway — integração Git nativa (rolling update por push em main).
+# - Database: migrations aplicadas pelo ENTRYPOINT do container da API no boot
+#   do deploy (apps/api/docker-entrypoint.sh → `prisma migrate deploy`),
+#   ANTES de o servidor começar a aceitar tráfego. Confirmado nos logs do
+#   Railway ("[entrypoint] running prisma migrate deploy").
 #
-# Pré-requisitos (configurar em GitHub Settings → Secrets):
-# - VERCEL_TOKEN: token do Vercel (https://vercel.com/account/tokens)
-# - VERCEL_ORG_ID: ID da organização (https://vercel.com/dashboard → Settings)
-# - VERCEL_PROJECT_ID: ID do projeto web (Vercel dashboard → Settings)
-# - RAILWAY_TOKEN: token do Railway (https://railway.app/account/tokens)
-# - RAILWAY_SERVICE_ID: ID do serviço API (Railway dashboard)
-# - DATABASE_URL: connection string do PostgreSQL de produção (Railway/Neon)
+# Este workflow NÃO precisa (nem tenta) executar migration: o secret
+# DATABASE_URL do GitHub aponta para o hostname INTERNO do Railway, que não é
+# alcançável dos runners — por isso o antigo job "Database Migration" falhava
+# sempre e foi movido para `migrate-production.yml` (manual, D-527).
+#
+# O que resta aqui: gate de validação da `main` + health check pós-promoção.
 #
 # Segredos NUNCA em arquivo — sempre em GitHub Secrets (Seção 8 do PROTOCOLO_MESTRE.md).
 
@@ -26,7 +28,7 @@ env:
   NODE_VERSION: "20"
 
 jobs:
-  # Job 1: Validação (lint + test + audit antes de deploy)
+  # Job 1: Validação (lint + typecheck + test + audit na main)
   validate:
     name: Validate (lint + test + audit)
     runs-on: ubuntu-latest
@@ -73,93 +75,27 @@ jobs:
         working-directory: apps/web
         run: npx next build
 
-  # Job 2: Migration segura (T9.4)
-  migrate:
-    name: Database Migration (T9.4)
+  # Job 2: Health check pós-promoção (T9.5 — informativo; os deploys nativos
+  # Railway/Vercel rodam em paralelo a este workflow, com janelas próprias).
+  health-check:
+    name: Post-promotion Health Check
     runs-on: ubuntu-latest
     needs: [validate]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - run: npm ci
-      - name: Generate Prisma Client
-        working-directory: apps/api
-        run: npx prisma generate
-      - name: Backup antes da migration (T9.4 / T026 — segurança)
-        working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Aguarda e checa API health
         run: |
-          echo "[migrate] Iniciando backup antes da migration..."
-          bash ../../scripts/backup-db.sh "$DATABASE_URL" || echo "[migrate] Backup via script indisponível — continuando com migration."
-      - name: Apply migration (T9.4)
-        working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma migrate deploy
-      - name: Verify migration status
-        working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma migrate status
-
-  # Job 3: Deploy Frontend (Vercel)
-  deploy-web:
-    name: Deploy Frontend (Vercel)
-    runs-on: ubuntu-latest
-    needs: [migrate]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - run: npm ci
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-      - name: Deploy to Vercel (T9.2 — deploy atômico, sem downtime)
-        working-directory: apps/web
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-          vercel build --prod --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
-
-  # Job 4: Deploy Backend (Railway)
-  deploy-api:
-    name: Deploy Backend (Railway)
-    runs-on: ubuntu-latest
-    needs: [migrate]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Railway (T9.3 — rolling update, sem downtime)
-        uses: bervProject/railway-deploy@v3
-        with:
-          service: ${{ secrets.RAILWAY_SERVICE_ID }}
-          token: ${{ secrets.RAILWAY_TOKEN }}
-
-  # Job 5: Health check pós-deploy (T9.5)
-  health-check:
-    name: Post-deploy Health Check
-    runs-on: ubuntu-latest
-    needs: [deploy-web, deploy-api]
-    steps:
-      - name: Check API health
-        run: |
-          sleep 10
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate-production.up.railway.app/health || echo "000")
-          if [ "$RESPONSE" != "200" ]; then
-            echo "Health check falhou! Status: $RESPONSE"
-            exit 1
-          fi
-          echo "Health check OK (200)."
-      - name: Check Web health
+          for i in $(seq 1 30); do
+            sleep 10
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate-production.up.railway.app/health || echo "000")
+            if [ "$RESPONSE" = "200" ]; then
+              echo "API health OK (200) após $((i * 10))s."
+              exit 0
+            fi
+            echo "tentativa $i: $RESPONSE"
+          done
+          echo "::warning::API health não chegou a 200 em 5 min — checar Railway dashboard."
+          exit 1
+      - name: Checa Web
         run: |
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate-web.vercel.app || echo "000")
           if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "307" ]; then

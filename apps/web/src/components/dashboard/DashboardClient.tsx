@@ -5,12 +5,15 @@ import { useTranslations } from "next-intl";
 import { api } from "@/lib/http";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRouter } from "@/lib/navigation";
+import { Link } from "@/lib/navigation";
 import { DashboardOverview } from "./DashboardOverview";
 
-interface UserStats {
+export interface UserStats {
   plano: string;
   upgrade: boolean;
   total: number;
+  /** T-AUD: interações CONCLUIDO (taxa de conclusão real do overview). */
+  concluidos: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
@@ -19,163 +22,12 @@ interface UserStats {
   histograma: { faixa: string; total: number }[];
 }
 
-/** T295 — SVG radar próprio (5-8 eixos) + sparkline temporal, sem deps. */
-function RadarSVG({ dados }: { dados: Record<string, number> }) {
-  const entradas = Object.entries(dados).slice(0, 8);
-  if (entradas.length < 3) return null;
-  const N = entradas.length;
-  const raio = 90;
-  const cx = 120;
-  const cy = 110;
-  const max = Math.max(1, ...entradas.map(([, v]) => v));
-  const pontos = entradas.map(([, v], i) => {
-    const ang = (Math.PI * 2 * i) / N - Math.PI / 2;
-    const r = (v / max) * raio;
-    return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
-  });
-  const poligono = pontos.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-
-  return (
-    <svg viewBox="0 0 240 220" className="mx-auto w-full max-w-sm" role="img" aria-label="Radar">
-      {entradas.map(([nome], i) => {
-        const ang = (Math.PI * 2 * i) / N - Math.PI / 2;
-        const x = cx + raio * Math.cos(ang);
-        const y = cy + raio * Math.sin(ang);
-        return (
-          <g key={nome}>
-            <line x1={cx} y1={cy} x2={x} y2={y} stroke="#2A2A3D" />
-            <text
-              x={cx + (raio + 16) * Math.cos(ang)}
-              y={cy + (raio + 16) * Math.sin(ang)}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#9CA3AF"
-            >
-              {nome}
-            </text>
-          </g>
-        );
-      })}
-      <polygon points={poligono} fill="#818CF833" stroke="#818CF8" strokeWidth="2" />
-    </svg>
-  );
-}
-
-function Sparkline({ evolucao }: { evolucao: { mes: string; total: number }[] }) {
-  const vals = evolucao.map((e) => e.total);
-  const max = Math.max(1, ...vals);
-  const w = 400;
-  const h = 60;
-  const pts = vals
-    .map((v, i) => `${(i / Math.max(1, vals.length - 1)) * w},${h - (v / max) * h}`)
-    .join(" ");
-  const area = `0,${h} ${pts} ${w},${h}`;
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      className="w-full"
-      role="img"
-      aria-label="Temporal"
-      preserveAspectRatio="none"
-    >
-      <defs>
-        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#E11D48" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#E11D48" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={area} fill="url(#spark-fill)" />
-      <polyline
-        points={pts}
-        fill="none"
-        stroke="#E11D48"
-        strokeWidth="2"
-        vectorEffect="non-scaling-stroke"
-      />
-      {vals.map((v, i) => (
-        <circle
-          key={i}
-          cx={(i / Math.max(1, vals.length - 1)) * w}
-          cy={h - (v / max) * h}
-          r={vals.length > 12 ? 0 : 3}
-          fill="#E11D48"
-        />
-      ))}
-    </svg>
-  );
-}
-
-/** T374 — barras horizontais densas (tipos/gêneros) sem dependências. */
-function HBarList({ data, color = "#818CF8" }: { data: Record<string, number>; color?: string }) {
-  const entradas = Object.entries(data)
-    .filter(([, v]) => v > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8);
-  if (entradas.length === 0) return null;
-  const max = Math.max(1, ...entradas.map(([, v]) => v));
-  return (
-    <ul className="space-y-2.5">
-      {entradas.map(([nome, valor]) => (
-        <li key={nome} className="flex items-center gap-3">
-          <span className="w-28 shrink-0 truncate text-xs text-[#A0A0B8]" title={nome}>
-            {nome}
-          </span>
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#1C1C2E]">
-            <div
-              className="h-full rounded-full transition-[width] duration-500"
-              style={{ width: `${Math.max(2, (valor / max) * 100)}%`, backgroundColor: color }}
-            />
-          </div>
-          <span className="w-8 shrink-0 text-right text-xs font-semibold text-[#EDE7DC]">
-            {valor}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** T402: card de preview borrado para feature gateada (radar/evolução). */
-function PreviewCard({
-  titulo,
-  selo,
-  hint,
-  cta,
-  onCta,
-}: {
-  titulo: string;
-  selo: string;
-  hint: string;
-  cta: string;
-  onCta: () => void;
-}) {
-  return (
-    <section
-      className="relative rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6 text-sm text-[#9CA3AF]"
-      data-testid="gated-preview"
-    >
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8]">{titulo}</h2>
-        <span className="rounded-full border border-[#818CF8]/40 px-2 py-0.5 text-xs font-semibold uppercase text-[#818CF8]">
-          {selo}
-        </span>
-      </div>
-      <div className="pointer-events-none select-none blur-[6px]" aria-hidden="true">
-        <div className="h-24 rounded-lg bg-gradient-to-br from-[#1C1C2E] to-[#12121C]" />
-        <div className="mt-3 h-2 w-2/3 rounded-full bg-[#1C1C2E]" />
-      </div>
-      <p className="mt-3 mb-3">{hint}</p>
-      <button
-        type="button"
-        onClick={onCta}
-        className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110"
-      >
-        {cta}
-      </button>
-    </section>
-  );
-}
-
+/**
+ * Dashboard consolidada (T460 + auditoria S1): um único fluxo — o
+ * DashboardClient busca `/api/v1/user/stats` e delega 100% da renderização
+ * ao DashboardOverview (métricas reais primeiro, demonstração rotulada F17,
+ * gating por plano coerente com T402/D-378).
+ */
 export function DashboardClient() {
   const t = useTranslations("dashboard");
   const router = useRouter();
@@ -235,151 +87,39 @@ export function DashboardClient() {
     );
   }
 
-  // T402 (D-378): default de gating — radar = Plus/Premium, evolução = Premium;
-  // timeline/histograma/streak = todos (Free incluído).
-  const ehPlus = stats.plano === "PLUS" || stats.plano === "PREMIUM";
-  const ehPremium = stats.plano === "PREMIUM";
-  const temDados =
-    stats.total > 0 || Object.keys(stats.tipos).length > 0 || Object.keys(stats.generos).length > 0;
-  if (!temDados) {
+  // Conta sem atividade: boas-vindas com CTAs para as atividades que
+  // alimentam a dashboard — mas o overview continua visível (descobertas,
+  // conquistas e tendência funcionam sem dados pessoais).
+  if (stats.total === 0) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
-        <p className="text-lg font-medium text-[#EDE7DC] mb-1">{t("emptyTitle")}</p>
-        <p>{t("emptyHint")}</p>
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#11111E] p-8 text-center">
+          <p className="text-lg font-medium text-[#EDE7DC]">{t("emptyHint")}</p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/catalog"
+              className="rounded-xl bg-[#8b7cff] px-5 py-2.5 text-sm font-semibold text-[#0d0d14] transition hover:bg-[#a69cff]"
+            >
+              {t("exploreCatalog")}
+            </Link>
+            <Link
+              href="/dashboard/discoveries"
+              className="rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.09]"
+            >
+              {t("navDiscoveries")}
+            </Link>
+            <Link
+              href="/biblioteca"
+              className="rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.09]"
+            >
+              {t("navLibrary")}
+            </Link>
+          </div>
+        </div>
+        <DashboardOverview stats={stats} />
       </div>
     );
   }
 
-  const totalSinais = stats.total;
-  const tiposAtivos = Object.entries(stats.tipos).filter(([, v]) => v > 0);
-  const destaque = [...Object.entries(stats.tipos), ...Object.entries(stats.generos)].sort(
-    (a, b) => b[1] - a[1],
-  )[0];
-
-  return (
-    <div className="space-y-6">
-      {/* T374: resumo em cartões (KPIs densos) + radar/evolução + barras. */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
-          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("signalTotal")}</p>
-          <p className="mt-1 font-heading text-3xl font-bold text-[#EDE7DC]">{totalSinais}</p>
-        </div>
-        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
-          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("byType")}</p>
-          <p className="mt-1 font-heading text-3xl font-bold text-[#EDE7DC]">
-            {tiposAtivos.length}
-          </p>
-        </div>
-        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4">
-          <p className="text-xs uppercase tracking-wider text-[#80809B]">{t("topCategory")}</p>
-          <p className="mt-1 truncate font-heading text-xl font-bold text-[#E11D48]">
-            {destaque ? destaque[0] : "—"}
-          </p>
-          {destaque && <p className="text-xs text-[#80809B]">{destaque[1]}</p>}
-        </div>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {ehPlus ? (
-          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-              {t("radar")}
-            </h2>
-            <RadarSVG dados={{ ...stats.tipos, ...stats.generos }} />
-            <table className="sr-only">
-              <caption>{t("radarTable")}</caption>
-              <tbody>
-                {Object.entries({ ...stats.tipos, ...stats.generos }).map(([k, v]) => (
-                  <tr key={k}>
-                    <th scope="row">{k}</th>
-                    <td>{v}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ) : (
-          <PreviewCard
-            titulo={t("radar")}
-            selo="Plus"
-            hint={t("upgradeHint")}
-            cta={t("upgrade")}
-            onCta={() => router.push("/pricing")}
-          />
-        )}
-        {ehPremium && stats.evolucao ? (
-          <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-              {t("evolution")}
-            </h2>
-            <Sparkline evolucao={stats.evolucao} />
-            <table className="mt-4 w-full text-sm text-[#9CA3AF]">
-              <caption className="sr-only">{t("evolutionTable")}</caption>
-              <tbody>
-                {stats.evolucao.map((e) => (
-                  <tr key={e.mes}>
-                    <td>{e.mes}</td>
-                    <td className="text-right text-[#EDE7DC]">{e.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ) : (
-          <PreviewCard
-            titulo={t("evolution")}
-            selo="Premium"
-            hint={t("premiumHint")}
-            cta={t("upgrade")}
-            onCta={() => router.push("/pricing")}
-          />
-        )}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("byType")}
-          </h2>
-          <HBarList data={stats.tipos} color="#818CF8" />
-        </section>
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("byGenre")}
-          </h2>
-          <HBarList data={stats.generos} color="#E11D48" />
-        </section>
-      </div>
-
-      {/* T396: streak (dias consecutivos) + histograma de scores — todos os planos. */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("streak")}
-          </h2>
-          <p className="font-heading text-4xl font-bold text-[#34D399]">{stats.streak}</p>
-          <p className="mt-1 text-xs text-[#80809B]">{t("streakHint")}</p>
-        </section>
-        <section className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#A0A0B8] mb-4">
-            {t("scoreHistogram")}
-          </h2>
-          <HBarList
-            data={Object.fromEntries(stats.histograma.map((h) => [h.faixa, h.total]))}
-            color="#38BDF8"
-          />
-        </section>
-      </div>
-
-      {/* T460: visão geral do protótipo (radar, evolução, taxonomia, pulso, conquistas,
-          feed, tendência, descobertas, sinais, perfil). */}
-      <DashboardOverview
-        stats={{
-          tipos: stats.tipos,
-          generos: stats.generos,
-          evolucao: stats.evolucao,
-        }}
-      />
-    </div>
-  );
+  return <DashboardOverview stats={stats} />;
 }

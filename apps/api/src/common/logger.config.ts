@@ -39,6 +39,9 @@ export function buildLoggerConfig(): Params {
           "req.headers.authorization",
           "req.headers.cookie",
           "req.headers['x-api-key']",
+          // T027: token CSRF via header (double-submit) — nunca em log.
+          'req.headers["x-csrf-token"]',
+          "req.headers.x-csrf-token",
           'req.headers["authorization"]',
           'req.headers["cookie"]',
           "req.body.password",
@@ -97,6 +100,7 @@ export function buildLoggerConfig(): Params {
 export const REDACTED_PATHS = [
   "req.headers.authorization",
   "req.headers.cookie",
+  'req.headers["x-csrf-token"]',
   "req.body.password",
   "req.body.password_hash",
   "req.body.token",

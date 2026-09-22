@@ -15,6 +15,7 @@ const APP_DIR = path.resolve(process.cwd(), "src/app/[locale]");
 const ROTAS_EXISTENTES: Record<string, string> = {
   "/dashboard": "dashboard/page.tsx",
   "/dashboard/discoveries": "dashboard/discoveries/page.tsx",
+  "/biblioteca": "biblioteca/page.tsx",
   "/watchlist": "watchlist/page.tsx",
   "/historico": "historico/page.tsx",
   "/listas": "listas/page.tsx",
@@ -30,7 +31,9 @@ describe("mapa de rotas da dashboard (T460)", () => {
   it("toda href da sidebar e dos atalhos existe como página", () => {
     const hrefs = [...NAV_ITEMS.map((i) => i.href), ...SHORTCUTS.map((i) => i.href)];
     expect(hrefs.length).toBeGreaterThanOrEqual(6);
-    for (const href of hrefs) {
+    for (const hrefBruta of hrefs) {
+      // Atalho "Quero ver" leva query (?status=QUERO_CONSUMIR) — o mapa é por path.
+      const href = hrefBruta.split("?")[0];
       const pagina = ROTAS_EXISTENTES[href];
       expect(pagina, `href sem entrada no mapa: ${href}`).toBeTruthy();
       expect(existsSync(path.join(APP_DIR, pagina)), `página ausente: ${href}`).toBe(true);

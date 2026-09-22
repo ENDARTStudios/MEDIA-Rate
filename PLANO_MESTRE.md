@@ -117,6 +117,7 @@
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
 - [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
 - [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
+  evid. T029: enforcement provado em produção (smoke T027, 2026-09-21 — register exige verificação real via Resend); rota `google/callback` (OAuth Google) ativa e não inventariada acima.
 
 **Verificação:**
 - Login válido → 200 + cookie ✅; lockout progressivo ✅; `/me` sem cookie → 401 ✅
@@ -127,6 +128,7 @@
 ## FASE 4 — APIs/CRUDs `[CONCLUÍDA]`
 
 REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, auth, discover, fontes, historico, interacoes, invite, lgpd, listas, media, media-score, metrics, notificacoes, payment, perfil, premium, quota, recommendations, relacoes, upload.
+  evid. T029 (2026-09-21): inventário real tem **29 módulos** — o plano não citava watchlist, consent, curadoria, dashboard, diagnostics, discovery, flags, mailer, waitlist-notify.
 
 - [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade → 409, invalidação de cache, audit.
 - [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confiança, explicabilidade.
@@ -140,9 +142,15 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.10 Query parametrizada (Prisma).
 - [x] 4.11 OpenAPI (Swagger decorators).
 - [x] 4.12 Idempotência (Idempotency-Key + `stripe_event_id` UNIQUE).
+- [x] 4.13 Watchlist canônica (T027/D-529): máquina de estados D-528 enforceada na projeção do Kanban (`watchlist.service.move`) — CONCLUIDO → ABANDONADO rejeitado (400) na API, na UI e no E2E; AuditLog (add/move/remove) com cadeia de hash.
+  evid: test/watchlist-move-d528.spec.ts (4) + watchlist.e2e.spec 16/16 + specs service/controller/relink; MERGE #160 (068c250) + smoke produção: move CONCLUIDO→ABANDONADO → 400 "(D-528)" no ar, AuditLog visível nos logs Railway.
+- [x] 4.14 Discover/Search auditado (T027): rate limit dedicado, Zod, cursor, sanitização tsquery, índices trgm GIN — p95 local 14ms (discover) / 22ms (search).
+  evid: benchmark local 2026-09-21; test/discover-service.spec.ts 14/14.
 - [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
+  nota T029: numeração duplicada com "4.13 Watchlist canônica" (acima) — renomear para 4.15 em passe futuro de edição.
 
-**Verificação:** `npm run test` (API) — 703 testes, 84+ arquivos. Zero referências ao projeto antigo "Almanaque dos Clubes".
+**Verificação:** `npm run test` (API) — 888 testes, 116 arquivos (T027). Zero referências ao projeto antigo "Almanaque dos Clubes".
+  evid. T029 (2026-09-21): **897 testes / 117 arquivos** após #163 (UuidParamPipe + specs 404); CI verde no PR #163. Relatório completo: `.claude/reports/beta-blockers.md`.
 
 ---
 
@@ -157,6 +165,8 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 5.13 SSR parity (T274): catálogo `?type=` filtrado no server, carrosséis com ISR `revalidate=60`. Correção D-439/R031: build T030 mostra 98 páginas, todas dinâmicas (mídia não-SSG; multiplicador de varredura = sitemap × 3 locales).
 - [x] 5.14 Gate i18n-leak no CI (T271/T273): e2e SSR + teste estrutural.
 - [x] 5.15 Selo "prévia" para LIVRO/COMIC/MANGA (T272, `isPreviewTipo` único em `lib/api.ts`).
+- [x] 5.16 Biblioteca do usuário `/biblioteca` (D-525): abas pelos 4 status de consumo com contagens globais server-side, filtro por tipo server-side, rótulos conjugados por mídia (vocabulário T239), deep links ?status=/?tipo= validados, estado vazio/erro+retry, i18n ×3. Sidebar e atalho "Quero ver" apontam para a biblioteca; /watchlist permanece o Kanban.
+  evid: E2E_FULL biblioteca+gating 7/7 em ambiente local com API+DB (issue #147); merge 9ae0231; Railway deploy SUCCESS; smoke produção OK (deep link com callbackUrl, query inválida sem 500, watchlist intacta).
 
 **Verificação:** `next build` ✅; vitest web 309/309; e2e Playwright (i18n-leak, ctrlk, search-topo, etc.).
 
@@ -195,6 +205,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 7.8 Rotação de segredos de sessão: dispensa documentada pelo design de token opaco.
 - [~] 7.9 Vault/Infisical: N/A — secret manager nativo da plataforma.
 - [~] 7.10 DNSSEC/CAA/HSTS preload: N/A — depende de domínio próprio (HSTS `preload: true` configurado).
+- [x] 7.11 Service worker estranho na origem: mitigação no boot (`LimpezaServiceWorker`, D-525) — o app não registra SW próprio; desregistra SW de terceiros + limpa Cache Storage (evidência: test/sw-cleanup.spec.ts).
 
 ---
 
@@ -209,6 +220,12 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 8.7 Testes de carga k6 (ramp 0→1000 VUs, 3 cenários, thresholds).
 - [x] 8.8 Regressão de segurança: headers, SQL injection (7 payloads), XSS, CSRF.
 - [~] 8.9 Pipeline de IA: N/A — IA/RAG postergado (Fase 6).
+- [x] 8.10 Detector de chaves i18n ausentes no CI (P1/review #143): `lib/i18n-guard.ts` + `test/i18n-guard.spec.ts` — falha se chave referenciada em src/ faltar em qualquer locale; rodando no job Test & Coverage.
+  evid: pegou regressão real na primeira execução (settings.cancel*, profile.totalWatchlist, watchlist.inWatchlist — chaves adicionadas).
+- [x] 8.11 Máquina de estados de interação reconciliada com E2E T308 (P1/review #143, D-528): CONCLUIDO → ABANDONADO NÃO permitido (regra documentada, UI e API alinhadas); T308 atualizado (400 esperado + envelope D-525).
+  evid: test/interacoes.spec.ts (D-527) + watchlist-flow T308/T310 passando.
+- [x] 8.12 Harness E2E de autenticação determinístico (P1/review #143): `apiLogin` via context.request + `dismissConsentIfPresent` + CSRF lido do cookie + NODE_OPTIONS ipv4first; suíte biblioteca+gating+watchlist roda 3× seguidas sem flakiness (9/9 cada).
+  evid: runs locais 3×9/9 (2026-09-21).
 
 ---
 
@@ -231,6 +248,10 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
+- [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
+  evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
+- [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
+- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **ESCALONADO** (PRs abertas sem o check; não habilitar até re-run/fechamento — ver D-533/P011), staging/Environment (P012) e caminho de migration manual (P013) — `docs/b1-prod-guards.md`.
 
 ---
 

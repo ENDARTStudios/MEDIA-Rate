@@ -14,6 +14,8 @@ describe("Logger config (T1.8)", () => {
   it("REDACTED_PATHS inclui chaves criticas", () => {
     expect(REDACTED_PATHS).toContain("req.headers.authorization");
     expect(REDACTED_PATHS).toContain("req.headers.cookie");
+    // T027/item 14 (#148): CSRF via header (double-submit) nunca em log.
+    expect(REDACTED_PATHS).toContain('req.headers["x-csrf-token"]');
     expect(REDACTED_PATHS).toContain("req.body.password");
     expect(REDACTED_PATHS).toContain("req.body.password_hash");
     expect(REDACTED_PATHS).toContain("req.body.token");
@@ -119,6 +121,33 @@ describe("Logger redact em runtime (T1.8)", () => {
     const parsed = JSON.parse(first);
     expect(parsed.req.headers.authorization).toBe("[Redacted]");
     expect(parsed.req.headers.cookie).toBe("[Redacted]");
+    expect(parsed.req.headers["user-agent"]).toBe("test");
+  });
+
+  it("pino redact cobre x-csrf-token (item 14 #148)", async () => {
+    const pino = (await import("pino")).default;
+    const config = buildLoggerConfig();
+    const redact = config.pinoHttp.redact as { paths: string[]; censor: string };
+
+    const captured: string[] = [];
+    const log = pino({ redact }, { write: (c: string) => captured.push(c) });
+
+    log.info(
+      {
+        req: {
+          headers: {
+            "x-csrf-token": "CSRF_TOKEN_SECRETO",
+            "user-agent": "test",
+          },
+        },
+      },
+      "csrf test",
+    );
+
+    const first = captured[0];
+    if (!first) throw new Error("nothing captured");
+    const parsed = JSON.parse(first);
+    expect(parsed.req.headers["x-csrf-token"]).toBe("[Redacted]");
     expect(parsed.req.headers["user-agent"]).toBe("test");
   });
 });
