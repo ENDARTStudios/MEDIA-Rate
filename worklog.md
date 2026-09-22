@@ -2729,3 +2729,7 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - Ajuste pedido pelo Thinker: o create-pr-from-branch estava INERTE (YAML invalido). Corrigir e reconectar o push feature/** habilitaria automacao nao solicitada (criar PRs sozinho). Portanto o disparo ficou MANUAL (workflow_dispatch) por padrao; corpo/job seguem validos e idempotentes. Reativar = P016 (Operador).
 - release.yml mantido manual (workflow_dispatch) + `npm run build --if-present` - sem publish/tag automatico.
 - Validacao: js-yaml OK nos dois (create-pr on=workflow_dispatch; release on=workflow_dispatch). docs/CI.md + D-541 (nota T047) + PLANO 9.16 + P016. Sem release/tag/PR automatica; sem ruleset/secrets/infra/deploy/migration/produto.
+
+## [2026-09-22] T047-merge-pr199-workflows (MERGED 6264601; vermelho cronico cessou)
+- Ajuste pre-merge: create-pr-from-branch -> disparo MANUAL (workflow_dispatch) por padrao (nao habilitar automacao que estava inerte); release.yml manual + npm run build --if-present. YAML js-yaml OK. Correcao de LF em DECISOES (commit 71d4181); git diff --check limpo.
+- Merge commit 6264601 (--merge, sem squash/rebase/bypass). Pos-merge main: CI success (4m54s), Security success (3m11s), deploy.yml waiting (P012=A), PRR Pipeline skipped. IMPORTANTE: nenhum run de Release nem de Auto-create PR no push do merge -> o vermelho cronico cessou. Nenhuma release/tag/PR automatica. Smoke 7/7 = 200. PLANO 9.16 [x]. Sem ruleset/secrets/infra/deploy manual/migration.

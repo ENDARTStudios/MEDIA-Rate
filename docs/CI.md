@@ -78,4 +78,6 @@ Migration Safety (B1).
 - Correção (D-541): disparo passou a MANUAL (`workflow_dispatch`) e o passo usa
   `npm run build --if-present`. Motivo: uma vez corrigido, o workflow passaria a
   PUBLICAR um Release + tag a cada merge — decisão que não é do CI. Fica
-  disponível para quando o Operador quiser publicar. Reversível.
+  disponível para quando o Operador quiser publicar. Reversível.- Evidência pós-merge (T047, 2026-09-22): merge 6264601 — NENHUM run de Release
+  nem de Auto-create PR disparado no push para main; CI success (4m54s); Security
+  success (3m11s); Deploy waiting (P012=A); smoke 7/7 = 200.
