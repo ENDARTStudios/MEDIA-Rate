@@ -2204,3 +2204,33 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Escopo:** sem mudança de contrato público, sem migration, sem deploy manual, sem segredos, sem infra paga; não toca o environment Production. PLANO 6.10 mantido **[x]** com as novas evidências.
 
 **Evidências:** `npx vitest run test/graceful-shutdown.spec.ts test/graceful-shutdown.e2e.spec.ts` → **9/9**; `eslint` OK; `tsc --noEmit` OK.
+## D-541 — T046: triagem dos workflows crônicos da main (Release e create-pr-from-branch)
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T046-workflow-noise-triage · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** dois workflows falhavam em **todo** merge/push na `main` (e branches), poluindo o pipeline com vermelho irrelevante. Ambos são **não-required** — o ruleset `protect-main` exige apenas `Lint & Audit`, `Test & Coverage`, `Build`, `RLS Isolation (T290/T299/T301)`, `Docs Gate` e `Migration Safety (B1)`.
+
+**Causas raiz:**
+1. `create-pr-from-branch.yml`: o `run: |` montava o corpo do PR com heredoc cujo conteúdo ficava em **coluna 0**, encerrando o *block scalar* → **YAML inválido**. Efeito: o GitHub registrava o workflow **sem `name`** (aparecia o caminho) e criava um run **sem jobs** que falhava em ~0 s em **todo** push (`main`, `chore/*`, `docs/*`) — 100+ runs desde 2026-08-15.
+2. `release.yml`: o passo `Build Packages` rodava `npm run build`, mas a **raiz do monorepo não tem script `build`** (só `apps/web`/`apps/api`) → `npm error Missing script: "build"`.
+
+**Decisão:**
+1. `create-pr-from-branch.yml`: montar o corpo com `printf` (mantém tudo indentado no block scalar). YAML válido; o gatilho `push: branches: [feature/**]` volta a valer (deixa de rodar em `main`).
+2. `release.yml`: disparo passa a **manual** (`workflow_dispatch`) e o passo vira `npm run build --if-present`. Motivo: corrigir apenas o script faria o workflow **publicar um Release + tag `v<run_number>` a cada merge** — comportamento nunca antes observado (o job sempre falhava) e não decidido. Manual elimina o ruído sem publicar nada; reversível.
+
+**Escopo:** sem remover/enfraquecer checks required, sem alterar ruleset/secrets/infra, sem deploy, sem migration. Sem mudança de produto.
+
+**Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/CI.md`.
+
+> **T047 (2026-09-22) — ajuste antes do merge:** o `create-pr-from-branch` ficou
+> com disparo **MANUAL** (`workflow_dispatch`) por padrão, e **não** com
+> `push: feature/**`. Motivo: o workflow estava **inerte** (YAML inválido) desde a
+> criação — corrigir e reconectar o push automático **habilitaria automação não
+> solicitada** (criar PRs sozinho). Decisão de reativar = **P016**
+> (`PENDENCIAS_OPERADOR.md`). `release.yml` permanece manual + `--if-present`.
+> **T047 (2026-09-22) — ajuste antes do merge:** o `create-pr-from-branch` ficou
+> com disparo **MANUAL** (`workflow_dispatch`) por padrão, e **não** com
+> `push: feature/**`. Motivo: o workflow estava **inerte** (YAML inválido) desde a
+> criação — corrigir e reconectar o push automático **habilitaria automação não
+> solicitada** (criar PRs sozinho). Decisão de reativar = **P016**
+> (`PENDENCIAS_OPERADOR.md`). `release.yml` permanece manual + `--if-present`.

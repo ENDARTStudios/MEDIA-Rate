@@ -354,3 +354,24 @@ Passos: `docs/OBSERVABILITY.md` §UptimeRobot (interval 5 min; alerta após 2 fa
 Como saber que deu certo: o monitor aparece "Up" no UptimeRobot e alerta por e-mail em queda.
 
 Depois de feito: responda "feito o item Nº 15".
+
+### [16] P016 — Decidir reativar o auto-PR de `feature/**` (create-pr-from-branch) — T046/T047/D-541
+
+Por quê: o workflow `create-pr-from-branch.yml` estava **inerte** desde a criação
+(YAML inválido → nunca executou). Foi corrigido (T046), mas por padrão ficou
+**manual** (`workflow_dispatch`) para **não habilitar automação não solicitada**.
+Reconectar o disparo automático em `feature/**` é uma decisão do Operador.
+
+Onde: `.github/workflows/create-pr-from-branch.yml` — trocar `on: workflow_dispatch`
+por `on: push: branches: ["feature/**"]` (o corpo/job já estão válidos e idempotentes).
+Requisitos antes de reativar: (a) confirmar que PRs automáticas são desejadas;
+(b) validar a idempotência (`gh pr list --head` evita duplicata); (c) testar em uma
+branch `feature/teste` e conferir que a PR nasce correta.
+
+Como saber que deu certo: um push em `feature/*` cria **uma** PR (sem duplicar) e
+o workflow aparece verde.
+
+Depois de feito: responda "feito o item Nº 16".
+
+> 📌 **Estado atual (T047, 2026-09-22):** corrigido e **manual** — não roda em
+> `main`/`chore/*`/`docs/*` nem em `feature/**` até esta decisão. Reversível.
