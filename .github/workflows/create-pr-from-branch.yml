@@ -47,19 +47,11 @@ jobs:
           TASK_ID=$(echo "$BRANCH" | sed -E 's/^feature\///; s/-.*//')
 
           # Corpo padrão com menção à issue (se existir, o número é o ID da tarefa).
-          BODY=$(cat <<EOF
-Closes #${TASK_ID}
-
-## Descrição
-<!-- gerado automaticamente a partir de ${BRANCH} -->
-
-## Evidência
-- [ ] Testes verdes
-- [ ] Lint + typecheck verdes
-
-> PR criada automaticamente pelo workflow create-pr-from-branch.yml (T353/D-321).
-EOF
-)
+          # T046: construir o corpo com printf mantém TODO o block scalar indentado.
+          # O heredoc anterior tinha o corpo em coluna 0, o que encerrava o
+          # `run: |` e tornava o YAML INVÁLIDO — o GitHub não parseava o
+          # workflow (name = path) e falhava em 0s sem jobs em todo push.
+          BODY=$(printf 'Closes #%s\n\n## Descrição\n<!-- gerado automaticamente a partir de %s -->\n\n## Evidência\n- [ ] Testes verdes\n- [ ] Lint + typecheck verdes\n\n> PR criada automaticamente pelo workflow create-pr-from-branch.yml (T353/D-321).\n' "$TASK_ID" "$BRANCH")
 
           gh pr create \
             --base "$BASE" \

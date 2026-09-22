@@ -50,3 +50,29 @@ PR só-de-docs de validação (esta mudança): `Docs Gate` verde e os jobs pesad
 `skipped`; merge sem bypass, com `Docs Gate` entre os checks requeridos do
 ruleset `protect-main`. Confirmou o fim do deadlock (antes: PR só-de-docs
 ficava `BLOCKED` e exigia bypass).
+
+## Triagem de workflows crônicos (T046 — 2026-09-22)
+
+Dois workflows falhavam em TODO merge/push na main sem impacto em produção.
+Ambos NÃO-required: o ruleset protect-main exige apenas Lint & Audit,
+Test & Coverage, Build, RLS Isolation (T290/T299/T301), Docs Gate e
+Migration Safety (B1).
+
+### create-pr-from-branch.yml (T353/D-321)
+- Causa raiz: o `run: |` montava o corpo do PR com um heredoc cujo conteúdo
+  ficava em COLUNA 0 (`Closes #...`), encerrando o block scalar do YAML — o
+  arquivo era YAML INVÁLIDO. O GitHub registrava o workflow sem `name` (aparecia
+  o caminho) e criava um run SEM JOBS que falhava em ~0s em todo push (inclusive
+  main, chore/*, docs/*).
+- Correção (D-541): o corpo agora é montado com `printf` (tudo indentado dentro
+  do block scalar). O YAML passa a ser válido e o gatilho
+  `push: branches: [feature/**]` volta a valer — deixa de rodar em main.
+
+### release.yml
+- Causa raiz: o passo `Build Packages` rodava `npm run build`, mas a RAIZ do
+  monorepo não tem script `build` (só apps/web e apps/api) -> `npm error Missing
+  script: "build"` em todo merge.
+- Correção (D-541): disparo passou a MANUAL (`workflow_dispatch`) e o passo usa
+  `npm run build --if-present`. Motivo: uma vez corrigido, o workflow passaria a
+  PUBLICAR um Release + tag a cada merge — decisão que não é do CI. Fica
+  disponível para quando o Operador quiser publicar. Reversível.
