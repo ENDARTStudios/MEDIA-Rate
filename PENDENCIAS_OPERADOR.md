@@ -265,6 +265,14 @@ Como saber que deu certo: PR de teste alterando `apps/api/prisma/schema.prisma` 
 `migration-review` fica impossível de mergear (check vermelho bloqueante).
 Depois de feito: responda "feito o item Nº 11".
 
+> ⚠️ **ESCALONAMENTO (T032, 2026-09-22) — NÃO habilitar ainda.** Inventário das PRs
+> abertas (#140, #139, #133, #4, #3, #2): **nenhuma** tem o check `Migration Safety (B1)`
+> (os últimos runs de #140/#139 são de 20/09, **anteriores** ao guard, mergeado em
+> 22/09). Adicionar o check como required **agora** bloqueia essas PRs ("Expected —
+> aguardando"). **Caminho seguro:** re-executar o CI (ou push de commit) nas PRs que se
+> pretende manter para que o check reporte; fechar as legadas (#2/#3/#4, já vermelhas);
+> então habilitar o required. Ver D-533.
+
 ### [12] P012 — Decidir staging/environment antes de produção (T031/B1, #148 item 9)
 
 Por quê: hoje `main` = produção automática; não há ambiente intermediário. O deploy
