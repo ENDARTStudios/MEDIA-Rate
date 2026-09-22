@@ -2677,3 +2677,9 @@ Evidencia: PR #172 head abc3433 -> scan pass (2m22s) + Trivy Image Scan pass (1m
 
 ## [2026-09-22] T035-merge-pr172-179 (MERGED 6215096 + e6375f7; deploy.yml waiting=P012 A)
 #172 MERGED (merge commit 6215096): main Security success (run 35730485901, 3m14s), Deploy success (35730485841, 2m36s), smoke /health 200 + pt-BR/en-US/es-ES 200. #179 MERGED (merge commit e6375f7) apos resolver conflito de docs com main (merge de origin/main na branch; DECISOES D-534->D-535, PLANO 9.12 FEITO + 9.13, worklog T033->T034). main pos-#179: Security success (35731640024, 3m32s); CI success (35731640029, 4m56s); deploy.yml = WAITING por aprovacao do environment Production (evidencia P012=A, esperado; revisor disponivel) — Railway/Vercel nativos + smoke 200 OK. Ruleset requeridos: Lint & Audit, Test & Coverage, Build, RLS, Docs Gate, Migration Safety (deploy.yml NAO e required). Sem deploy manual alem do auto-deploy, sem migration, sem segredos. B1+B2.1 operacionais fechados.
+
+## [2026-09-22] T036-b3-dto-interacoes (PR aberto, SEM merge)
+- Contrato publico de GET /api/v1/interacoes: mapearItem era pass-through COMPLETO (vazava usuario_id/tenant_id/created_at/tipo/rating/comentario plaintext).
+- Novo interacoes-response.dto.ts + interacoes.mapper.ts (allowlist explicita). Excluidos: usuario_id, tenant_id, created_at, tipo, rating, comentario. Preservados: reacao/motivo_abandono (store), midia (feed/biblioteca), timestamps, progresso_detalhe, origem_relacao_id. Envelope {items,total,porStatus,nextCursor} mantido. Swagger do ApiOkResponse reflete o DTO.
+- Sem mudanca no frontend (campos consumidos preservados). Sem migrations/schema. TDD: interacoes-dto.spec.ts + reforco em interacoes-lista.spec.ts (mock com colunas internas removidas). API 118/902 verde; tsc/eslint OK. D-536. PR sem merge.
+- Follow-up: aplicar o mesmo DTO em GET /:midiaId e PUT.

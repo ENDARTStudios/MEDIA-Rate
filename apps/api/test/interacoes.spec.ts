@@ -18,7 +18,22 @@ function mockPrisma() {
           estado.find((e) => e.usuario_id === k.usuario_id && e.midia_id === k.midia_id) ?? null
         );
       }),
-      findMany: vi.fn(async () => estado),
+      // O Prisma real faz `include: { midia: { select: MIDIA_INTERACAO_SELECT } }`
+      // no listar — o mock precisa incluir `midia` para o mapper (T036/D-536).
+      findMany: vi.fn(async () =>
+        estado.map((e) => ({
+          ...e,
+          midia: {
+            id: e.midia_id,
+            slug: `slug-${e.midia_id}`,
+            titulo: `Título ${e.midia_id}`,
+            tipo: "FILME",
+            ano_lancamento: 2024,
+            imagem_url: null,
+            score: 80,
+          },
+        })),
+      ),
       // D-525: contrato paginado do listar (envelope com total/porStatus).
       count: vi.fn(async () => estado.length),
       groupBy: vi.fn(async () => []),
