@@ -52,25 +52,15 @@ async function bootstrap(): Promise<void> {
   }
 
   // T020/7.7: bodyLimit padrao de 1 MiB.
+  // Item 14 (#148): SEM `logger` aqui — o FastifyAdapter com opção logger
+  // criava um SEGUNDO logger de requests (pino nativo do Fastify, shape
+  // reqId/res/responseTime) duplicando toda linha já emitida pelo
+  // pino-http do AppLoggerModule (logger.config.ts, T1.8/T217). Fonte
+  // única de request logging = nestjs-pino; redaction de headers
+  // sensíveis (authorization/cookie/x-csrf-token) vive em logger.config.ts.
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true,
     bodyLimit: 1_048_576, // 1 MiB
-    // T027 (review #143): logs estruturados JSON (pino) — agregados pelo
-    // Railway natively. Redaction impede PII/segredos em headers; requests
-    // são logados em info, erros 5xx em error (4xx ficam em warn via hook
-    // do próprio pino quando aplicável). LOG_LEVEL controla o ruído.
-    logger: {
-      level: process.env.LOG_LEVEL ?? (process.env.NODE_ENV === "production" ? "info" : "warn"),
-      redact: {
-        paths: [
-          "req.headers.authorization",
-          "req.headers.cookie",
-          'req.headers["x-csrf-token"]',
-          "req.headers.x-csrf-token",
-        ],
-        censor: "[REDACTED]",
-      },
-    },
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {

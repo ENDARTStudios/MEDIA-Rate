@@ -2010,3 +2010,29 @@ o drag não). As restrições de T027 exigiam que o CRUD da watchlist respeitass
 
 **Testes:** `test/watchlist-move-d528.spec.ts` (4 casos, TDD vermelho→verde),
 `test/watchlist.e2e.spec.ts` ganhou caso HTTP D-528 (400) — 16/16.
+
+## D-531 — Robustez de params UUID (404 pré-Prisma) e fonte única de request logging
+
+**Data:** 2026-09-21 · **Fase:** T028-micro (follow-ups #148 itens 13-14) · **Status:** PROPOSTA (PR aberto)
+
+**Contexto:** O smoke pós-merge do T027 (PR #160) expôs dois débitos: (13) `PATCH
+/watchlist/:id/move` e `GET/PUT /interacoes/:midiaId` com id malformado faziam o Prisma
+lançar P2023 ("invalid input syntax for type uuid") → **500**; (14) cada request gerava
+**linhas duplicadas** nos logs do Railway — o T027 ligou o logger nativo do Fastify
+(`FastifyAdapter({ logger })`) sem remover o `nestjs-pino` (`AppLoggerModule`, T1.8/T217)
+que já era ativo.
+
+**Decisão:**
+1. `UuidParamPipe` (`common/pipes/uuid-param.pipe.ts`): params que mapeiam colunas
+   `@db.Uuid` (`watchlist_entry.id`, `usuario_midia_interacao.midia_id`) são validados
+   ANTES do Prisma; malformado → **404** (mesma semântica de "recurso não existe", sem
+   probing de formato). Wireado em 6 rotas: move/reacao/remove/relink (watchlist) +
+   GET/PUT (:midiaId) (interações).
+2. **Fonte única de request logging = nestjs-pino.** O bloco `logger:` do
+   FastifyAdapter em `main.ts` foi removido; a redaction de headers sensíveis
+   (authorization/cookie/x-csrf-token — esta última adicionada agora) vive em
+   `logger.config.ts`. Regra: NUNCA dois loggers de request no mesmo processo.
+
+**Testes:** `test/param-uuid-404.spec.ts` (8 casos, TDD vermelho→verde; spy garante que o
+service não é alcançado) + `logger-redact.spec.ts` (+1 caso runtime x-csrf-token).
+Suíte: 897/897. Smoke de produção valida o comportamento após o merge.

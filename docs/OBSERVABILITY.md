@@ -202,15 +202,28 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
   coerente com T466 stale). Triagem de issues: via UI (issues API → 401 com
   este token).
 
-## Logs estruturados e CLI de erros (T027 / D-527)
+## Logs estruturados e CLI de erros (T027 / D-527; correção item 14 #148)
 
-- **pino (Fastify logger)** ligado em `main.ts` com redaction de
-  `authorization`/`cookie`/`x-csrf-token` — nenhum header sensível vai para os logs.
-  `LOG_LEVEL` controla o ruído (produção: `info`).
+- **Fonte única de request logging: nestjs-pino** (`AppLoggerModule` →
+  `common/logger.config.ts`, T1.8/T217). O T027 chegou a ligar também o
+  logger nativo do Fastify (`FastifyAdapter({ logger })`), o que
+  **duplicava** cada linha de request no Railway (shapes `reqId` vs
+  `req{id}`); o bloco foi removido em 2026-09-21 (item 14 da #148).
+  **Nunca** adicionar `logger:` ao FastifyAdapter sem remover o
+  nestjs-pino (ou vice-versa) — um logger de requests, apenas.
+- **Redaction**: `authorization`, `cookie`, `x-csrf-token` (e campos de
+  corpo sensíveis: password/token/stripe_*) viram `[Redacted]` antes de
+  qualquer destino. `LOG_LEVEL` controla o ruído (produção: `info`).
 - **Agregação**: os logs JSON vão para o stdout e são agregados nativamente pelo
   Railway (dashboard externo — Logs do serviço "MEDIA Rate").
 - **CLI de erros**: `node scripts/logs-errors.mjs [--minutos 30]` resume 4xx/5xx,
   rotas mais atingidas e amostra de erros a partir dos logs nativos do Railway.
+- **Audit trail**: `AuditLogService` registra mutações de watchlist
+  (add/move/remove, T027/D-529) com cadeia de hash — visível nos logs
+  como `Audit: <acao> em <entidade>/<id>`.
 - **Métricas**: `/metrics` (Prometheus) expõe `http_requests_total` por
   {método, rota, status} (4xx e 5xx distinguíveis), `http_request_duration_seconds`
   e `http_errors_total`; `/admin/alerts/status` expõe ring buffers/histerese (T218).
+- **Params UUID** (item 13 #148): rotas com `:id`/`:midiaId` que mapeiam
+  colunas `@db.Uuid` usam `UuidParamPipe` (`common/pipes/uuid-param.pipe.ts`)
+  — id malformado → **404** sem tocar o Prisma (antes: P2023 → 500).
