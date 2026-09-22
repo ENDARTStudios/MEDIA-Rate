@@ -2635,3 +2635,13 @@ Thinker autorizou merge condicional (TAREFA T028-merge-pr163). Auditoria pre-mer
 - Nota: DELETE com content-type json e body vazio -> 400 do Fastify (armadilha do script de smoke, ja documentada; sem content-type: 404 correto).
 - #148 atualizada com evidencia (itens 13-14 RESOLVIDOS). D-531 -> APROVADA. Branch do PR removida apos smoke.
 - Relatorio: STATUS PROMOTED.
+
+## [2026-09-21] T029-beta-blocker-reconciliation (docs-only, PR aberto SEM merge)
+Auditoria com evidencia primaria (grep/leitura de codigo, schema, workflows, PRs #143/#153/#160/#163, issues #147/#148, smokes PROD 2026-09-21). Nenhuma tarefa virou [x]; apenas notas de evidencia.
+- FASE 2: gaps reais e corretamente anotados — permissions/data_sources/entity_revisions AUSENTES do schema (grep=0); ColumnEncryptionService existe em common/ com 0 usos em modules (nao wired); TipoMidia MANGA + ANIME deprecated (D-233); 50 migrations.
+- FASE 3: premissa de stale REFUTADA — 10 rotas auth presentes (+ google/callback nao inventariada), audit events completos, 403 EMAIL_NOT_VERIFIED provado em PROD (smoke T027), 7 specs auth + docs/api/auth.md.
+- FASE 4: CONCLUIDA correta; divergencias CONFIRMADAS: inventario de modulos stale (plano 20, real 29 — faltava ate watchlist), contagem de testes stale (888/116 -> 897/117 apos #163), num. 4.13 duplicada (cosmetico).
+- #148 triada (1-14): FEITOS 11/13/14; decisões do Operador 5/6/8; tarefas 1/2/7/9/10/12; aceites 3/4.
+- Relatorio: .claude/reports/beta-blockers.md (forçado no git — .claude/ é ignorado, precedente schemas/scripts) com PROPOSTA_DOER: B1 guardas de producao (#148 7/9 + decisao 8), B2 sinais de operacao (#148 12 + UptimeRobot 9.5.4 + triagem Sentry), B3 higiene LGPD/contrato (#148 1 + PLANO 2.10). Nao-bloqueantes: governanca de dados (2.4/2.7), #148 2/3/4/5/6/10.
+- Sem SECURITY_FINDING novo (security.yml failure @ cccea6b = #148 item 12, pre-existente e triado).
+- PLANO_MESTRE: notas de evidencia em 3.11, inventario Fase 4 e Verificacao (897/117). exchange_log.jsonl atualizado.
