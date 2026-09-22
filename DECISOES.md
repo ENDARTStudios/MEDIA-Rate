@@ -2138,7 +2138,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 ## D-537 — T038: DTO ALLOWLIST também em `GET /interacoes/:midiaId` e `PUT /interacoes/:midiaId`
 
-**Data:** 2026-09-22 · **Fase:** F04-apis / T038-dto-interacoes-get-put · **Status:** DECIDIDO (PR aberto, SEM merge)
+**Data:** 2026-09-22 · **Fase:** F04-apis / T038-dto-interacoes-get-put · **Status:** APROVADA (merge `ebf78a1`; smoke autenticado OK — `GET /:id` e `PUT` só com o allowlist)
 
 **Contexto:** o T036/D-536 aplicou o DTO allowlist apenas no `GET` de **lista**. `obter` (`GET /:midiaId`) e `upsert` (`PUT`) ainda devolviam a **linha crua** do Prisma — vazando `usuario_id`, `tenant_id`, `created_at`, `tipo` (legado), `rating` e `comentario` (plaintext).
 

@@ -70,3 +70,11 @@ Após o T036 (GET lista), os endpoints `GET /interacoes/:midiaId` e
 expõem mais `usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating` nem
 `comentario` (plaintext). Com isso, **nenhum** payload público do módulo
 `interacoes` devolve a linha crua.
+
+### T039 — B3 fechado (D-536 + D-537)
+
+**Nenhum** payload público do módulo `interacoes` devolve a linha crua:
+`GET /interacoes` (lista, #183/684620e), `GET /interacoes/:midiaId` e
+`PUT /interacoes/:midiaId` (#186/ebf78a1) usam o **DTO allowlist**. Confirmado por
+smoke autenticado em produção (200; item keys = allowlist; `usuario_id`,
+`tenant_id`, `created_at`, `tipo`, `rating` e `comentario` ausentes).
