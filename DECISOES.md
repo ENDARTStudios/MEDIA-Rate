@@ -2114,3 +2114,22 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 4. **Nenhuma** migration executada; **nenhum** deploy de produção; **nenhum** segredo/infra externa alterado.
 
 **Evidências (sem segredos):** snapshot da ruleset antes/depois (**6** required checks); `#140/#139/#133` com `Migration Safety (B1)=pass` após `update-branch`; `#4/#3/#2` `mergeable=CONFLICTING`; environment `Production` com `required_reviewers`.
+
+---
+
+## D-536 — T036: DTO ALLOWLIST no contrato público de `GET /api/v1/interacoes` (B3)
+
+**Data:** 2026-09-22 · **Fase:** F04-apis / T036-b3-dto-interacoes · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** `InteracoesService.mapearItem` era um **pass-through COMPLETO** (`return i;`) — o item da resposta vazava TODAS as colunas de `usuario_midia_interacao`, incluindo **internas** (`usuario_id`, `tenant_id`, `created_at`) e **legadas** (`tipo`, `rating`, **`comentario` em plaintext**).
+
+**Decisão:**
+1. Novo `interacoes-response.dto.ts` + `interacoes.mapper.ts` com **allowlist explícita**: `id`, `midia_id`, `status`, `reacao`, `motivo_abandono`, `progresso_detalhe`, `iniciado_em`, `concluido_em`, `atualizado_em`, `origem_relacao_id`, `midia{id,slug,titulo,tipo,ano_lancamento,imagem_url,score}`.
+2. **Excluídos** do payload público: `usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating`, `comentario` (plaintext legado).
+3. Preservados os campos consumidos: `reacao`/`motivo_abandono` (`use-interaction-store`) e `midia` (biblioteca/feed) — **sem mudança no frontend**. Envelope `{items,total,porStatus,nextCursor}` e paginação por cursor mantidos.
+4. Swagger (`@ApiOkResponse`) atualizado com o schema do DTO; 400/401 seguem documentados.
+5. Sem migrations/schema; sem deploy; PR **sem merge**.
+
+**TDD/Evidências:** `test/interacoes-dto.spec.ts` (allowlist: ausência de colunas internas + campos preservados) e reforço em `test/interacoes-lista.spec.ts` (mock com colunas internas → removidas). API **118/902** verde; tsc/eslint OK.
+
+**Follow-up:** `GET /:midiaId` (`obter`) e `PUT` (`upsert`) ainda devolvem a linha crua — aplicar o mesmo DTO em tarefa própria (fora do escopo da T036, que é o `GET` de lista).

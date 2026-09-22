@@ -53,3 +53,12 @@ merge por CVE de base.
   aba Security do GitHub (SARIF). Se a aba não estiver acessível, trate o relatório
   como informativo.
 - Nenhum segredo, token, `DATABASE_URL` ou PII é impresso por estes jobs.
+
+## T036 — Contrato público de interações (D-536)
+
+O `GET /api/v1/interacoes` passou a usar um **DTO ALLOWLIST**
+(`interacoes-response.dto.ts` + `interacoes.mapper.ts`): não expõe mais colunas
+internas/legadas (`usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating` e
+`comentario` — este último **plaintext**). Reduz a superfície de
+*information disclosure* do endpoint owner-only, preservando os campos
+consumidos por feed/biblioteca/store. Follow-up: aplicar em `GET /:midiaId` e `PUT`.
