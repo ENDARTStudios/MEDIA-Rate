@@ -123,3 +123,15 @@ Este plano deve ser revisado:
 - Após cada incidente P1 (no postmortem).
 - A cada 90 dias (revisão programada).
 - Após mudanças significativas na infraestrutura.
+
+## Alerta métrico automatizado (T040)
+
+A issue com o label `alerta-metrico` é criada/atualizada pelo workflow
+`alertas-metricos.yml` quando 5xx ou falhas de auth cruzam os thresholds.
+
+- **5xx (CRITICAL):** seguir o playbook de erro 5xx.
+- **auth_failures (WARNING):** investigar tentativas de brute-force (o rate limit
+  de `/auth/login` já atua); considerar bloqueio temporário de IP.
+- A issue é **fechada automaticamente** quando os valores normalizam.
+
+Thresholds e como ativar a fonte live: `docs/OBSERVABILITY.md`.
