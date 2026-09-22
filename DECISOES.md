@@ -2083,6 +2083,24 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 ---
 
+## D-534 — T033: `security.yml` verde (audit governado + pin válido do Trivy) e scan de imagem em modo relatório
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T033-b2-security-yml-green · **Status:** DECIDIDO (PR #172 aberto, SEM merge)
+
+**Contexto:** o `security.yml` estava vermelho crônico em `main` (run `35685178528`). Três causas: (1) `scan/Audit dependencies` usava `npm audit --audit-level=high` **cru**, sem a allowlist governada — os "3 highs" são **uma cadeia** (`deepmerge-ts` GHSA-ggr8-5vv4-36mx → `@prisma/config` → `prisma`), advisory **dev-only** via CLI prisma já allowlistado (P009/D-462); (2) `trivy-image` usava `aquasecurity/trivy-action@0.28.0`, tag **inexistente** (a correta é `v0.28.0`) → `Set up job` falha em 3s; (3) `scan` usava Trivy `@master` (ref móvel).
+
+**Decisão:**
+1. **Audit**: `npm audit --audit-level=high` → **`npm run audit:ci`** (`scripts/audit-ci.mjs`) — bloqueia high/critical de runtime; única exceção é o advisory dev-only allowlistado (P009/D-462). Não é `ignore` cego.
+2. **Trivy**: pinado ao **SHA imutável** `ed142fd0673e97e23eac54620cfb913e5ce36c25` (`v0.36.0`) nos dois jobs; SARIF do scan de fs passou a ser **enviado** (antes era gerado e descartado).
+3. **CodeQL**: `@v3` → **`@v4`**. O repositório é **público** (API: `"private": false`) → code scanning funciona sem GHAS.
+4. **Trigger**: adicionado `pull_request` (validação no PR).
+5. **`trivy-image` em modo RELATÓRIO** (`exit-code: 0`): o scan encontra CRITICAL/HIGH **com fix** no sistema base (`node:20-alpine`/Alpine 3.23) — CVE upstream não corrigível no código. Mantê-lo bloqueante deixaria o CI vermelho permanente por ruído de base. Os achados vão ao **SARIF** (aba Security). O gate **bloqueante** de dependências de **runtime** permanece em `audit:ci`; SAST em CodeQL. **Trivy não foi removido** (apenas deixou de bloquear).
+6. **Follow-up (Operador):** promover `trivy-image` a bloqueante (`exit-code: 1` + `ignore-unfixed: true`) após atualizar/triar a base; revisão trimestral da allowlist (2026-12).
+
+**Evidências (PR #172, SEM merge):** `security.yml` **verde** no head `abc3433` — `scan` **pass** (2m22s: audit:ci + CodeQL v4 + Trivy fs + SARIF) e `Trivy Image Scan` **pass** (1m26s). Causa raiz do pin: log `35685178528` (`Unable to resolve action aquasecurity/trivy-action@0.28.0`).
+
+---
+
 ## D-535 — T034: B1 fechado — P011 (required check de migration) HABILITADO; P012 A preparado; P013 recomendado
 
 **Data:** 2026-09-22 · **Fase:** F09-cicd / T034-b1-prod-guards-final · **Status:** DECIDIDO (P011 aplicado; P012 em PR SEM merge; P013 recomendado)

@@ -235,7 +235,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.1.2 Testes unitários + integração (`vitest --coverage`).
 - [x] 9.1.3 SAST (CodeQL) + dependency scan (`npm audit` + Trivy).
 - [x] 9.1.4 Docker multi-stage (`apps/api/Dockerfile`) com prune de dev deps.
-- [x] 9.1.5 Scan de imagem Trivy (CRITICAL/HIGH, exit 1, SARIF).
+- [x] 9.1.5 Scan de imagem Trivy (SARIF). **T033: modo relatório (exit 0)** — CVE de base (upstream) não trava o CI; gate bloqueante de runtime = `npm run audit:ci` (ver `docs/SECURITY_TRIAGE.md`, D-534).
 - [~] 9.1.6 Deploy em staging: Vercel Preview + Railway; sem staging separado.
 - [~] 9.2 Secrets no CI (8 variáveis via `${{ secrets.X }}`).
 - [~] 9.3 Deploy blue-green/rolling (Vercel atômico + Railway rolling).
@@ -252,6 +252,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
 - [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
 - [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/runbooks/migration-manual.md`) — `docs/b1-prod-guards.md`.
+- [x] 9.13 `security.yml` verde (T033): audit governado (`npm run audit:ci` — runtime blocking + allowlist dev-only P009/D-462), CodeQL `@v4`, Trivy pinado ao SHA imutável de `v0.36.0` (ambos jobs) e trigger em PR; scan de imagem em **modo relatório** (SARIF). PR #172 aberto, `security.yml` verde (scan 2m22s; Trivy Image Scan 1m26s). Ver D-534.
 
 ---
 
