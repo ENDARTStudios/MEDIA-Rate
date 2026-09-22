@@ -13,7 +13,7 @@ import { TRANSOES_VALIDAS } from "../../common/estados-consumo.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
 import { MIDIA_INTERACAO_SELECT, mapearInteracaoResponse } from "./interacoes.mapper.js";
-import type { InteracoesPageResponseDto } from "./interacoes-response.dto.js";
+import type { InteracoesPageResponseDto, InteracaoResponseDto } from "./interacoes-response.dto.js";
 
 /**
  * Addendum 4, Parte 3 — máquina de estados de consumo.
@@ -137,26 +137,21 @@ export class InteracoesService {
     return decodificado;
   }
 
-  async obter(usuarioId: string, midiaId: string) {
+  async obter(usuarioId: string, midiaId: string): Promise<InteracaoResponseDto | null> {
     const interacao = await this.prisma.usuarioMidiaInteracao.findUnique({
       where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
-      include: {
-        midia: {
-          select: {
-            id: true,
-            titulo: true,
-            tipo: true,
-            imagem_url: true,
-            score: true,
-          },
-        },
-      },
+      include: { midia: { select: MIDIA_INTERACAO_SELECT } },
     });
-    return interacao ?? null;
+    // T038/D-537: mesmo contrato allowlist do GET lista — sem colunas internas.
+    return interacao ? mapearInteracaoResponse(interacao) : null;
   }
 
   /** Cria/atualiza status+reação com validação da máquina de estados. */
-  async upsert(usuarioId: string, midiaId: string, dto: UpsertInteracaoDto) {
+  async upsert(
+    usuarioId: string,
+    midiaId: string,
+    dto: UpsertInteracaoDto,
+  ): Promise<InteracaoResponseDto> {
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const midia = await this.prisma.midia.findUnique({
         where: { id: midiaId },
@@ -238,6 +233,7 @@ export class InteracoesService {
           concluido_em: proximoStatus === "CONCLUIDO" ? agora : null,
           atualizado_em: agora,
         },
+        include: { midia: { select: MIDIA_INTERACAO_SELECT } },
       });
 
       // D-375: dual-write transacional — usuario_midia_interacao é a fonte de
@@ -254,7 +250,7 @@ export class InteracoesService {
         update: { coluna: STATUS_PARA_COLUNA[proximoStatus] },
       });
 
-      return interacao;
+      return mapearInteracaoResponse(interacao);
     });
   }
 
