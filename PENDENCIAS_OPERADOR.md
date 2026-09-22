@@ -308,3 +308,26 @@ Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
 > (**proxy TCP público** e **self-hosted runner**) exigem expor o Postgres ou criar
 > superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
 > (sem segredo, sem migração, sem custo).
+
+### [14] P014 — Ativar alertas métricos LIVE (T040/T041, D-538)
+
+Por quê: o workflow `alertas-metricos.yml` roda em **dry-run por padrão** (nunca
+abre issue falsa). Para detectar 5xx/falhas de auth de verdade precisa da fonte live.
+
+Onde: GitHub → repo → Settings:
+1. **Variables** → New variable → `METRICS_URL` = URL do `/metrics` da API de
+   produção (ex.: `https://media-rate-production.up.railway.app/metrics`).
+2. **Secrets** → New secret → `ADMIN_TOKEN` = token que autoriza a leitura do
+   `/metrics` (header `X-Admin-Token`). **Idealmente um valor read-only dedicado
+   ao metrics**; se reutilizar o `ADMIN_TOKEN` do serviço API, note que ele também
+   autoriza rotas admin de convite — trate como sensível.
+
+Passos extras (opcional): Actions → "Alertas Metricos" → Run workflow com
+`dry_run=false` para o 1º teste real. Sem `METRICS_URL`+`ADMIN_TOKEN`, o
+workflow segue em dry-run (sem issues).
+
+Como saber que deu certo: uma execução (agendada ou manual com `dry_run=false`)
+coleta `/metrics` (`live=true`), imprime o JSON de decisão e, se cruzar o limiar,
+abre/atualiza a issue `alerta-metrico` (fechando-a quando normaliza).
+
+Depois de feito: responda "feito o item Nº 14".
