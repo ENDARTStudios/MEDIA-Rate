@@ -2667,3 +2667,10 @@ Diagnostico primario do security.yml vermelho cronico em main (run 35685178528):
 - CodeQL @v3 -> @v4 (repo e PUBLICO -> code scanning sem GHAS). Trigger pull_request adicionado.
 trivy-image em MODO RELATORIO (exit-code 0): CVE de base (node:20-alpine) com fix, upstream; achados em SARIF; gate bloqueante de runtime segue no audit:ci. Trivy NAO removido. docs/SECURITY_TRIAGE.md criado; SECURITY.md atualizado. D-534.
 Evidencia: PR #172 head abc3433 -> scan pass (2m22s) + Trivy Image Scan pass (1m26s). SEM merge (restricao).
+
+## [2026-09-22] T034-b1-prod-guards-final (P011 HABILITADO; P012 A em PR sem merge; P013 recomendado)
+- Inventario + teste: rerun do CI NAO adiciona o check (workflow do commit antigo); update-branch (merge de main) SIM.
+- P011 FEITO: update-branch em #140/#139/#133 -> Migration Safety (B1) pass (o #172 ja tinha). #4/#3/#2 -> 422 merge conflict (CONFLICTING/DIRTY; nao mergeaveis de qualquer forma). Ruleset protect-main agora exige Migration Safety (B1) alem de Lint & Audit, Test & Coverage, Build, RLS, Docs Gate. Snapshot antes/depois.
+- P012 A PREPARADO (PR chore/t034-b1-final, SEM merge): deploy.yml jobs validate/health-check com environment: Production (ja existe, required reviewer). Limitacao honesta: deploy nativo Vercel/Railway nao e bloqueado por GitHub Environment.
+- P013 RECOMENDADO: console Railway (menor privilegio); runbook docs/runbooks/migration-manual.md; proxy TCP/self-hosted runner escalados.
+- Sem migration, sem deploy de producao, sem segredos. D-535.

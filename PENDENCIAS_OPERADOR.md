@@ -265,13 +265,13 @@ Como saber que deu certo: PR de teste alterando `apps/api/prisma/schema.prisma` 
 `migration-review` fica impossível de mergear (check vermelho bloqueante).
 Depois de feito: responda "feito o item Nº 11".
 
-> ⚠️ **ESCALONAMENTO (T032, 2026-09-22) — NÃO habilitar ainda.** Inventário das PRs
-> abertas (#140, #139, #133, #4, #3, #2): **nenhuma** tem o check `Migration Safety (B1)`
-> (os últimos runs de #140/#139 são de 20/09, **anteriores** ao guard, mergeado em
-> 22/09). Adicionar o check como required **agora** bloqueia essas PRs ("Expected —
-> aguardando"). **Caminho seguro:** re-executar o CI (ou push de commit) nas PRs que se
-> pretende manter para que o check reporte; fechar as legadas (#2/#3/#4, já vermelhas);
-> então habilitar o required. Ver D-533.
+> ✅ **FEITO (T034, 2026-09-22) — required check HABILITADO.** Aplicado o caminho
+> seguro: `update-branch` (merge de `main` no head) nas PRs mantidas **#140, #139,
+> #133** fez o check `Migration Safety (B1)` **reportar** (pass); **#172** já o tinha.
+> As PRs **#4/#3/#2** são `CONFLICTING`/`DIRTY` (conflito com `main`) — **não são
+> mergeáveis de qualquer forma**, portanto não são bloqueadas pela mudança. A ruleset
+> `protect-main` agora exige `Migration Safety (B1)` (ao lado de Lint & Audit, Test &
+> Coverage, Build, RLS, Docs Gate). Ver D-535.
 
 ### [12] P012 — Decidir staging/environment antes de produção (T031/B1, #148 item 9)
 
@@ -284,6 +284,14 @@ Como saber que deu certo: deploy de produção só ocorre após aprovação/merg
 escolhido; smoke de produção roda no ambiente novo antes dos usuários.
 Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
 
+> 🟡 **PREPARADO (T034, 2026-09-22) — Opção A em PR (SEM merge).** O environment
+> `Production` já existe com **required reviewer** (Operador). O PR `chore/t034-b1-final`
+> adiciona `environment: Production` aos jobs `validate`/`health-check` do `deploy.yml`.
+> **Limitação honesta:** o deploy NATIVO (Vercel/Railway) é disparado pelo push e **não**
+> é bloqueado pelo environment — o gate adiciona **sinal + janela de aprovação** ao
+> workflow do GitHub, não trava o deploy nativo. Reversível (remover a linha). Decisão de
+> mergear é do Operador.
+
 ### [13] P013 — Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
 
 Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
@@ -294,3 +302,9 @@ recomendação T031). Nada foi provisionado.
 Como saber que deu certo: uma migration aplicada manualmente com sucesso, com backup
 prévio (`scripts/backup-db.sh`) e log colado no PR correspondente.
 Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
+
+> 🟡 **RECOMENDADO (T034, 2026-09-22) — console Railway (menor privilégio).** Runbook
+> detalhado (matriz comparativa) em `docs/runbooks/migration-manual.md`. Alternativas
+> (**proxy TCP público** e **self-hosted runner**) exigem expor o Postgres ou criar
+> superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
+> (sem segredo, sem migração, sem custo).

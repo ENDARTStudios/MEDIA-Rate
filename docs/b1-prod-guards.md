@@ -108,3 +108,20 @@ rotina. Decisão e provisionamento são do Operador (P012).
 2. Operador decide staging (Opção A/B) e caminho de migration manual (P012/P013).
 3. Primeiro PR real de migration valida o contrato ponta a ponta (label + rollback +
    declaração) e o resultado fica registrado no worklog.
+
+---
+
+## Status (T034, 2026-09-22)
+
+- **P011 ✅ FEITO** — `Migration Safety (B1)` é **required** na ruleset `protect-main`
+  (junto de Lint & Audit, Test & Coverage, Build, RLS, Docs Gate). Caminho seguro
+  aplicado: `update-branch` nas PRs mantidas (#140, #139, #133) fez o check reportar;
+  #172 já tinha; #4/#3/#2 são `CONFLICTING` (não mergeáveis de qualquer forma). Ver D-535.
+- **P012 🟡 PREPARADO (PR sem merge)** — environment `Production` existe com **required
+  reviewer**; o PR `chore/t034-b1-final` adiciona `environment: Production` aos jobs do
+  `deploy.yml`. **Limitação honesta:** o deploy nativo Vercel/Railway não é bloqueado pelo
+  environment (só o workflow do GitHub aguarda aprovação). Opção B (staging) segue
+  disponível se for preciso travar de verdade.
+- **P013 🟡 RECOMENDADO** — caminho **console Railway** (menor privilégio/exposição);
+  runbook em `docs/runbooks/migration-manual.md`. Proxy TCP público e self-hosted runner
+  exigem exposição do DB/superfície nova → escalar antes de implementar. Nada provisionado.
