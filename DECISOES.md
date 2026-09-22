@@ -2080,3 +2080,19 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 5. P012/P013 permanecem pendências do Operador — nada executado.
 
 **Evidências:** merge commit `bc99630`; runs `35684093799` (CI) e `35684093823` (Deploy); smoke `curl` `/health`·`/pt-BR`·`/en-US`·`/es-ES` = 200; inventário de checks das PRs abertas (nenhuma com `Migration Safety (B1)`).
+
+---
+
+## D-535 — T034: B1 fechado — P011 (required check de migration) HABILITADO; P012 A preparado; P013 recomendado
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T034-b1-prod-guards-final · **Status:** DECIDIDO (P011 aplicado; P012 em PR SEM merge; P013 recomendado)
+
+**Contexto:** o guard `migration-safety` (T031/#168) existia mas não era **required**; em T032 o P011 foi escalado porque as PRs abertas antigas não tinham o check.
+
+**Decisão:**
+1. **P011 ✅ HABILITADO.** Inventário + teste: **`rerun` do CI NÃO adiciona o check** (re-executa o workflow do commit antigo); **`update-branch` (merge de `main`) SIM**. Apliquei `update-branch` nas PRs mantidas **#140, #139, #133** → `Migration Safety (B1)` **pass**; **#172** já tinha. As PRs **#4/#3/#2** retornaram `422 merge conflict` → já são `CONFLICTING`/`DIRTY` (**não mergeáveis de qualquer forma**), portanto não são bloqueadas pela mudança. Então adicionei `Migration Safety (B1)` aos required checks da ruleset `protect-main` (antes: Lint & Audit, Test & Coverage, Build, RLS, Docs Gate).
+2. **P012 🟡 PREPARADO (SEM merge).** O environment `Production` já existia com **required reviewer** (Operador). PR `chore/t034-b1-final` adiciona `environment: Production` aos jobs `validate`/`health-check` do `deploy.yml`. **Limitação honesta:** o deploy nativo Vercel/Railway não é bloqueado pelo environment.
+3. **P013 🟡 RECOMENDADO.** Console Railway (menor privilégio/exposição); runbook `docs/runbooks/migration-manual.md`; proxy TCP público / self-hosted runner escalados (exposição/custo).
+4. **Nenhuma** migration executada; **nenhum** deploy de produção; **nenhum** segredo/infra externa alterado.
+
+**Evidências (sem segredos):** snapshot da ruleset antes/depois (**6** required checks); `#140/#139/#133` com `Migration Safety (B1)=pass` após `update-branch`; `#4/#3/#2` `mergeable=CONFLICTING`; environment `Production` com `required_reviewers`.

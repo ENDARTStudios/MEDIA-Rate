@@ -2659,3 +2659,10 @@ Bloqueador B1 (relatorio T029) — guarda de migrations e propostas operacionais
 
 ## [2026-09-22] T032-merge-pr168 (MERGED, bc99630; P011 ESCALADO)
 PR #168 (guarda `migration-safety`, T031) ja estava mergeado via **merge commit** `bc99630` (head `089483e`, 2026-09-22T03:41Z); `origin/main` contem o head. Pos-merge verificado: CI de main **success** (run 35684093799, 4m33s); Deploy **success** (35684093823, 2m31s); `deploy.yml` success (sem squash/rebase). **Smoke:** API `/health` 200; web `/pt-BR` `/en-US` `/es-ES` 200; HTML da home (769 KB) sem chave i18n crua nos padroes amostrados; sem 5xx observado. **P011 NAO habilitado:** inventario das PRs abertas (#140,#139,#133,#4,#3,#2) mostra que **nenhuma** tem o check `Migration Safety (B1)` (runs de #140/#139 de 20/09, anteriores ao guard de 22/09) — required agora bloquearia ("Expected"); escalonado com caminho seguro (re-run/push nas PRs mantidas; fechar legadas; entao habilitar). D-533. P012/P013 inalterados (Operador).
+
+## [2026-09-22] T034-b1-prod-guards-final (P011 HABILITADO; P012 A em PR sem merge; P013 recomendado)
+- Inventario + teste: rerun do CI NAO adiciona o check (workflow do commit antigo); update-branch (merge de main) SIM.
+- P011 FEITO: update-branch em #140/#139/#133 -> Migration Safety (B1) pass (o #172 ja tinha). #4/#3/#2 -> 422 merge conflict (CONFLICTING/DIRTY; nao mergeaveis de qualquer forma). Ruleset protect-main agora exige Migration Safety (B1) alem de Lint & Audit, Test & Coverage, Build, RLS, Docs Gate. Snapshot antes/depois.
+- P012 A PREPARADO (PR chore/t034-b1-final, SEM merge): deploy.yml jobs validate/health-check com environment: Production (ja existe, required reviewer). Limitacao honesta: deploy nativo Vercel/Railway nao e bloqueado por GitHub Environment.
+- P013 RECOMENDADO: console Railway (menor privilegio); runbook docs/runbooks/migration-manual.md; proxy TCP/self-hosted runner escalados.
+- Sem migration, sem deploy de producao, sem segredos. D-535.
