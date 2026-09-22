@@ -852,7 +852,7 @@ Stage Summary:
   adaptive pricing (desativado no gateway, d6fc545) e nosso backend (sessoes criadas
   corretamente).
 - Validacao definitiva em modo TESTE: chave sk_test_ do CLI, webhook de teste criado
-  (whsec_ebMuoM...), prices de teste (price_1U0Tb8.../1U0Tb9...); checkout com 4242
+  (whsec_***redigido***, prices de teste price_1U0Tb8.../1U0Tb9...); checkout com 4242
   FUNCIONOU - webhooks processados (200) e assinatura sub_1U0WcB... trialing ate
   11/08 (Plus mensal, conta endart.studios@gmail.com). Integracao 100% correta.
 - Variaveis Railway revertidas para LIVE (rk_live + whsec_ live + prices live).
@@ -2462,3 +2462,200 @@ F02 - seeds STANDALONE (causa raiz do Console Railway):
 - Sem TDD (scripts de bootstrap). Push dispara deploy no Railway.
 - Operador: apos o deploy, rodar no Console:
   npm run db:seed:tmdb && npm run db:seed:games && npm run db:seed:novas-midias && npm run db:seed:relacoes
+
+## [2026-09-20] Auditoria-dashboard-S1 (branch feat/t473, nao commitado)
+Auditoria da dashboard ao vivo (mediarate.app/pt-BR/dashboard, conta E2E)
++ consolidacao UI-UX/metricas/gating no codigo:
+- CONSOLIDACAO: DashboardClient agora so busca /api/v1/user/stats e delega
+  100% ao DashboardOverview; bloco legado duplicado (KPIs, RadarSVG,
+  Sparkline, HBars, PreviewCards) removido. Dead code deletado:
+  DashboardContent + 7 componentes orfaos (T189-era) e 2 specs dele.
+- METRICAS REAIS (antes fabricadas/estaticas): itens avaliados = stats.total
+  (Free mostrava 0 com atividade); afinidade media = media ponderada do
+  histograma (era "8,4" fixo); taxa de conclusao = concluidos/total (novo
+  campo na API, era "72%" fixo); descobertas = count real da API; trend do
+  card 1 = delta real do mes (Premium). Radar "leitura anterior" (85% do
+  atual) agora tem nota honesta (radarPreviousNote); pulso sempre
+  rotulado DEMO (distribuicao sintetica).
+- ATIVIDADE REAL: feed de atividades consome GET /api/v1/interacoes
+  (novo cliente api-interacoes.ts) — titulos, chip de status, score 0-100
+  (bug: nao-games formatavam /10 com score 0-100 da API), tempo relativo,
+  filtro 7/30/365; secao "sinais recentes" duplicada removida.
+- BUG i18n REAL: tc("movie")/tc("book") nao existem no namespace catalog
+  (chaves sao filme/livro) — MISSING_MESSAGE em runtime desde a T460.
+  Fix: nicheLabelKey() via CATEGORY_TOKENS.labelKey.
+- GATING COERENTE (T402/D-378): antes o Free via preview "Radar e Plus" e
+  um radar completo logo abaixo. Agora: radar/taxonomia = Plus+;
+  evolucao/pulso = Premium; streak/histograma/feed = todos. Contrato:
+  Free=4 previews, Plus=2, Premium=0 (e2e dashboard-gating atualizado,
+  T305 spotchecks atualizados — assertavam texto inexistente).
+- ESTADO VAZIO ATIVADO: conta sem atividade agora ve CTAs (catalogo/
+  descobertas/biblioteca) + overview completo (antes: dead-end so com
+  emptyHint).
+- i18n: 47 chaves orfas removidas + 2 novas (radarPreviousNote,
+  profileNumbersTitle) nas 3 linguas, paridade validada.
+- VERIFICADO: web 402/402 + api dashboard.spec; tsc web limpo; eslint ok;
+  gating 4/2/0 e labels Filmes/Livros confirmados ao vivo (dev local +
+  mock :4000; service worker sf-static-v1 enganava com chunk velho —
+  unregister resolveu). Screenshot em
+  .zcode/cli/artifacts/sess_ac6ac6da (18:5x).
+- PENDENTE Operador: commit/PR (sugestao: feat/auditoria-dashboard-s1);
+  deploy so apos CI verde.
+
+## [2026-09-21] Auditoria-dashboard-S1-followup (mesma branch, nao commitado)
+6 ajustes pedidos pelo Operador apos o print da dashboard:
+1. NOMES da taxonomia ("catalog.movie") — ja corrigidos no lote anterior
+   (nicheLabelKey); o print do Operador era render stale do service worker.
+2. PULSO DE CONSUMO com cores canonicas: fills do prototipo trocados por
+   CATEGORY_TOKENS.*.color (movie #818CF8, series #38BDF8, game #34D399,
+   book #FBBF24, comic #F472B6, manga #A78BFA). Confirmado no SVG renderizado.
+3. RADAR duplicado no topo — nao existe mais no codigo (consolidacao
+   anterior); confirmado 1x overview-radar.
+4. TAXONOMIA ja usava as cores canonicas (item.color vem do token).
+5/6. BIBLIOTECA nova (item 5/6): pagina /biblioteca (protegida no middleware)
+   com abas pelos 4 status de consumo (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/
+   ABANDONADO) + contagens, filtro por tipo de midia (cores canonicas) e
+   rotulo conjugado por tipo ("Quero Ler", "Jogando", "Vi", "Abandonei" —
+   vocabulario T239 via consumoParaColuna). Fonte: GET /api/v1/interacoes
+   (listar enriquecido com slug + ano_lancamento na API). Sidebar:
+   "Minha biblioteca" -> /biblioteca; atalho "Quero ver" ->
+   /biblioteca?status=QUERO_CONSUMIR (aba pre-selecionada). CTA do estado
+   vazio da dashboard aponta para a biblioteca. /watchlist permanece o
+   Kanban de planejamento.
+- i18n: novo namespace `biblioteca` (15 chaves) nas 3 linguas, paridade OK.
+- TESTES: biblioteca.spec (8 casos: abas/contagens, filtros combinados,
+  conjugacao, initialStatus, vazio, erro), dashboard-routes normaliza
+  query. Web 410/410, tsc + eslint limpos.
+- VERIFICADO AO VIVO (dev + mock :4000): biblioteca com 6 itens, abas
+  corretas, atalho filtra; pulso/taxonomia com cores canonicas; feed real
+  ("Duna: Parte Dois · Concluidos · 84/100 · ha 3h"). Screenshot nos
+  artifacts da sessao.
+
+## [2026-09-21] Auditoria-dashboard-S1-fechamento (branch feat/auditoria-dashboard-s1)
+Fechamento do review sênior (4 bloqueios) antes do PR:
+1. SW: `lib/sw-cleanup.ts` + `LimpezaServiceWorker` no layout raiz — desregistra
+   SW estranho da origem + limpa Cache Storage (o app NUNCA teve SW próprio:
+   git log --all sw.js vazio, zero serviceWorker.register, sem next-pwa).
+   Evidência: test/sw-cleanup.spec.ts (4 casos). D-525.
+2. Branch isolada: feat/auditoria-dashboard-s1 a partir de MAIN (o trabalho não
+   herda os commits T472/T473 retidos); commits atômicos convencionais.
+3. GET /api/v1/interacoes endurecido: query Zod (status/tipo enum, limit 1-50,
+   cursor opaco base64url→offset, inválido=400), envelope {items,total,porStatus,
+   nextCursor}, página curta encerra paginação, Swagger, rate limit global do
+   gateway documentado. Testes: test/interacoes-lista.spec.ts (7) + T198
+   atualizado. API 894/894 + build OK.
+4. Web: cliente paginado (getInteracoes/listarTodasInteracoes), feed usa 1
+   página de 50, biblioteca com contagens do servidor, filtros server-side,
+   carregar-mais e retry; ?tipo= validado na página. Cores canônicas com fonte
+   única (CATEGORY_TOKENS) nos meus componentes + contraste AA testado.
+   e2e/biblioteca.spec.ts (E2E_FULL). Web: lint+tsc+417/417+build OK.
+Docs: D-525 em DECISOES.md; tarefas 5.16/7.11 no PLANO_MESTRE.md;
+CHANGELOG.md criado. Pendências residuais: acentos genéricos hex em
+componentes legacy (dívida, não mapeiam tipo de mídia); e2e da biblioteca só
+roda com E2E_FULL=1 (padrão do repo).
+
+### Seguranca - fragmento whsec_ (Condicao 7 do review #143)
+Fragmento de 6 caracteres + reticencias, contexto de MODO TESTE (commit 3164ef7,
+validacao 4242). Busca no historico completo: NUNCA houve valor completo do
+segredo em nenhum commit (log -S + grep de padrao longo = vazio). Redigido em
+262f173. Rotacao: valor insuficiente para uso (6 chars de um secret de ~40+,
+modo teste) - decisao final de rotacionar e do Operador no dashboard Stripe
+(acesso nao disponivel ao Doer). Gitleaks/docs-gate: verdes.
+
+## [2026-09-21] Auditoria-dashboard-S1-promocao (MERGED, 9ae0231)
+Promocao do PR #143 para producao autorizada pelo Operador condicionada a evidencia verde da issue #147 (executada autonomamente via CLI):
+- AMBIENTE: local integrado - postgres 16 docker (:5434, migrations aplicadas), db:provision:test-users (4 usuarios), fixture local (5 midias + 5 interacoes p/ premium), API Nest :4000, web Next :3000.
+- E2E: E2E_FULL=1 biblioteca+gating --project=chromium => 7/7 (biblioteca 4/4: deep link ?status=, query invalida sem quebra, empty state com CTA, atalho sidebar; gating 3/3: Free=4 previews, Plus=2, Premium=0).
+- Fixes durante a evidencia: helper e2e (apiLogin via context.request + dismissConsentIfPresent - login-UI quebrava em contexto novo por dialogo de consentimento/hidratacao), seletores de grafico precisos, i18n profileWebShare ausente nas 3 linguas (botao renderizava chave crua).
+- Cenarios manuais: curl matrix API (401/200 envelope/400 invalidos), deep link, watchlist intacta (T310 pass; T308 stale: CONCLUIDO->ABANDONADO rejeitado pela maquina de estados - pre-existente, fora do PR).
+- MERGE: gh pr merge 143 --merge (merge commit 9ae0231, branch mantida).
+- DEPLOY: Railway native SUCCESS 18:01:33Z (API); Vercel web via integracao Git; deploy.yml falhou so no step migrate (secret interno Railway - pre-existente, pendencia de Operador).
+- SMOKE PRODUCAO: /health API 200 (railway) | home/catalogo 200 | biblioteca deslogada 307 com callbackUrl completo (path+query) | API /interacoes 401 sem cookie | dashboard Free com 4 previews e sem chave crua | query invalida sem 500 | watchlist Kanban intacta.
+- Docs: issue #147 fechada com evidencia; issue #148 (dividas nao bloqueantes) criada; PLANO 5.16 [x] com evidencia; DECISOES D-526; CHANGELOG ja coberto.
+
+## [2026-09-21] PR-153-promocao (MERGED, b20458c)
+PR #153 (post-promocao) merged com merge commit apos CI 13/13 verde no head
+c382801. Promocao automatica: Railway API SUCCESS (19:53:27Z) + Vercel web;
+deploy.yml REDESIGNADO (D-527) ficou VERDE pela primeira vez na serie
+(run 35647639085, 2m18s) - o job de migration quebrado (secret interno)
+saiu do push path; migration manual com backup em migrate-production.yml
+(workflow_dispatch, NAO executada - aguarda caminho de rede do Operador).
+- SMOKE PRODUCAO: 9 paginas publicas 200 (pt/en/es) sem chave crua;
+  biblioteca query invalida sem 500; deep link deslogado 307 com
+  callbackUrl completo (path+query); API /interacoes 401 sem auth e
+  200 envelope autenticado (porStatus presente - codigo novo no ar);
+  watchlist renderizando.
+- Security workflow na main: vermelho PRE-EXISTENTE (trivy-action pin
+  invalido + npm audit highs em dev-deps) - idem nos merges #143/#152;
+  rastreado na issue #148 (item 12).
+- Follow-ups registrados na #148 (itens 7-12): guarda de migrations,
+  caminho p/ migration manual, staging env, guarda i18n dinamico,
+  guarda no evidence-local, Security workflow.
+- Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao
+  PLANO_MESTRE global (fases 2/3/4 parciais + observabilidade).
+
+## [2026-09-21] T027-backend-canonicity-observability (branch chore/t027, PR aberto)
+Execucao com inventario previo: CRUD watchlist, discover/search, metricas Prometheus, rate limit e indices trgm GIN JA EXISTIAM (premissa do payload parcialmente stale). Gaps reais implementados:
+- D-529: maquina de estados extraida p/ common/estados-consumo.ts (fonte unica API+web) e ENFORCEADA na projecao do Kanban (watchlist.service.move) - CONCLUIDO -> DROPPED rejeita 400 (D-528). AuditLog (add/move/remove) wireado no watchlist (repudiacao, STRIDE).
+- Web: Kanban nao oferece transicao invalida (podeMoverPara -> no-op no drop).
+- Observabilidade: Fastify logger estruturado (pino, redaction de authorization/cookie/csrf), LOG_LEVEL configuravel; scripts/logs-errors.mjs resume 4xx/5xx/rotas dos logs nativos do Railway (CLI funcional - 361 linhas, 0 erros).
+- Discover: p95 local 14ms (discover) / 22ms (search) < 200ms alvo; indices trgm GIN e rate limit dedicado ja existentes (auditados).
+- E2E: search + watchlist-flow + biblioteca + gating 8/8 no local (API+DB).
+- TDD: watchlist-move-d528.spec.ts escrito primeiro (2 vermelhos) -> implementacao -> 4/4.
+- API 888/888 (116 arq); web 420/420 (62 arq); tsc/lint limpos. PR aberto aguardando autorizacao (altera comportamento do move e logger de producao).
+
+## [2026-09-21] T027-MERGE-CONDICIONAL (PR #160 MERGED, 068c250)
+Thinker autorizou merge condicional via TAREFA T027-MERGE-CONDICIONAL. Auditoria pre-merge: PR MERGEABLE/CLEAN, head 239eaf9 == local, 12 checks SUCCESS, scan de segredos limpo (matches = credenciais dev-local/placeholder), suite API local 888/888 (35s).
+- MERGE: gh pr merge 160 --merge (merge commit 068c250, branch chore/t027 mantida para revert). Nenhuma migration; migrate-production.yml NAO executado.
+- DEPLOY: Railway API SUCCESS (deployment c2820d45 criado 22:02:32Z) + Vercel Production Ready + deploy.yml SUCCESS (run 35660560699, com health check).
+- SMOKE PRODUCAO (conta E2E verificada ja existente; zero residuo - watchlist 0 apos limpeza):
+  1) /health 200 (uptime 443s = deploy novo no ar);
+  2) POST watchlist COMPLETED (midia teste 424e6a91) -> 201 + interacao CONCLUIDO;
+  3) PATCH move CONCLUIDO->DROPPED -> 400 "Transicao de status invalida: CONCLUIDO -> ABANDONADO (D-528)" - CRITERIO PRINCIPAL PASSOU;
+  4) move CONCLUIDO->WATCHING 200 + interacao projetada CONSUMINDO (caminho valido, sem falso-positivo);
+  5) restore COMPLETED 200 (interacao CONCLUIDO); DELETE entry 204.
+  6) Paginas publicas: home pt/en 200, /biblioteca deslogada 307->login (correto), /login 200.
+  7) Logs Railway: pino estruturado (req={method,url}, res={statusCode}, responseTime) + AuditLogService ativo ("Audit: remove em watchlist_entry/..."); redaction OK (nenhum cookie/token nas linhas de log).
+- Achados nao-bloqueantes (follow-up): (a) PATCH /watchlist/:id/move com id nao-UUID -> 500 (Prisma P2023 nao tratado - normalizar para 404); (b) linhas de request duplicadas no log (Fastify auto-log + segunda linha sem reqId - cosmetico). Nota: DELETE com content-type json e body vazio -> 400 do proprio Fastify (comportamento do framework, nao bug da API).
+- Relatorio: STATUS PROMOTED. Beta Fechada segue condicionada ao PLANO_MESTRE global.
+
+## [2026-09-21] T028-micro — follow-ups #148 itens 13-14 (branch fix/t028-item13-uuid-404, PR aberto)
+Micro-tarefa recomendada pelo Thinker apos REVIEW APPROVED do T027. TDD vermelho->verde:
+- Item 13: UuidParamPipe (common/pipes) valida params @db.Uuid ANTES do Prisma -> id malformado = 404 (antes: P2023 -> 500). Wireado em 6 rotas: watchlist move/reacao/remove/relink + interacoes GET/PUT :midiaId. Specs: param-uuid-404.spec.ts (8 casos; spy garante service nao alcancado) - vermelho 6/8 -> verde 8/8.
+- Item 14: causa raiz = DOIS loggers de request (T027 ligou FastifyAdapter({logger}) sem remover nestjs-pino do AppLoggerModule T1.8/T217, ativo). Fix: bloco logger removido do main.ts (fonte unica = nestjs-pino); redaction x-csrf-token transferida para logger.config.ts (+ caso runtime no logger-redact.spec).
+- Docs: OBSERVABILITY.md atualizado (regra: nunca 2 loggers de request); DECISOES D-531 (PROPOSTA, PR aberto).
+- Verificacao: API 897/897 (117 arq), tsc 0, eslint limpo. Sem migrations. PR aberto SEM merge (altera logs de producao + codigo de 500 para 404).
+
+## [2026-09-21] T028-merge-pr163 (MERGED, 156e18b)
+Thinker autorizou merge condicional (TAREFA T028-merge-pr163). Auditoria pre-merge: MERGEABLE/CLEAN, scan de segredos limpo. RESTRIÇÃO atendida: gap de Swagger confirmado nas 6 rotas -> @ApiNotFoundResponse adicionada + prettier (commits 8411ba5, 73e626b) ANTES do merge; CI re-rodou no head final: 13/13 verde (Vercel preview skipado - api-only).
+- MERGE: gh pr merge 163 --merge (merge commit 156e18b, branch preservada ate o smoke).
+- DEPLOY: Railway f89b9d9a SUCCESS + Vercel Production Ready + deploy.yml success (run 35670127637). Sem migrations; migrate-production.yml NAO executado.
+- SMOKE PRODUCAO (conta E2E): health 200; PATCH /watchlist/nao-uuid/move -> 404 (era 500); GET/PUT /interacoes/nao-uuid -> 404; DELETE /watchlist/nao-uuid -> 404; UUID valido inexistente (move/delete) -> 404 pelo caminho do service (sem falso bloqueio); sanity GET watchlist/interacoes 200 com envelope.
+- LOGS RAILWAY: 0 linhas "incoming request", 0 reqId= topo-nivel, exatamente 1 "request completed" por request (amostra req-20..29), 0 ocorrencias de x-csrf-token (redaction ativa). Item 14 ZEROADO.
+- Nota: DELETE com content-type json e body vazio -> 400 do Fastify (armadilha do script de smoke, ja documentada; sem content-type: 404 correto).
+- #148 atualizada com evidencia (itens 13-14 RESOLVIDOS). D-531 -> APROVADA. Branch do PR removida apos smoke.
+- Relatorio: STATUS PROMOTED.
+
+## [2026-09-21] T029-beta-blocker-reconciliation (docs-only, PR aberto SEM merge)
+Auditoria com evidencia primaria (grep/leitura de codigo, schema, workflows, PRs #143/#153/#160/#163, issues #147/#148, smokes PROD 2026-09-21). Nenhuma tarefa virou [x]; apenas notas de evidencia.
+- FASE 2: gaps reais e corretamente anotados — permissions/data_sources/entity_revisions AUSENTES do schema (grep=0); ColumnEncryptionService existe em common/ com 0 usos em modules (nao wired); TipoMidia MANGA + ANIME deprecated (D-233); 50 migrations.
+- FASE 3: premissa de stale REFUTADA — 10 rotas auth presentes (+ google/callback nao inventariada), audit events completos, 403 EMAIL_NOT_VERIFIED provado em PROD (smoke T027), 7 specs auth + docs/api/auth.md.
+- FASE 4: CONCLUIDA correta; divergencias CONFIRMADAS: inventario de modulos stale (plano 20, real 29 — faltava ate watchlist), contagem de testes stale (888/116 -> 897/117 apos #163), num. 4.13 duplicada (cosmetico).
+- #148 triada (1-14): FEITOS 11/13/14; decisões do Operador 5/6/8; tarefas 1/2/7/9/10/12; aceites 3/4.
+- Relatorio: .claude/reports/beta-blockers.md (forçado no git — .claude/ é ignorado, precedente schemas/scripts) com PROPOSTA_DOER: B1 guardas de producao (#148 7/9 + decisao 8), B2 sinais de operacao (#148 12 + UptimeRobot 9.5.4 + triagem Sentry), B3 higiene LGPD/contrato (#148 1 + PLANO 2.10). Nao-bloqueantes: governanca de dados (2.4/2.7), #148 2/3/4/5/6/10.
+- Sem SECURITY_FINDING novo (security.yml failure @ cccea6b = #148 item 12, pre-existente e triado).
+- PLANO_MESTRE: notas de evidencia em 3.11, inventario Fase 4 e Verificacao (897/117). exchange_log.jsonl atualizado.
+
+## [2026-09-21] T030-merge-docs167 (MERGED, 0ee9cb0)
+PR #167 docs-only merged com merge commit apos auditoria (MERGEABLE/CLEAN, scan limpo, docs-gate verde). Deploy.yml success (run 35676424099), Railway 2a2f74e7 SUCCESS, Vercel Production Ready. Smoke minimo: /health 200; pt-BR/en-US/es-ES 200 com 0 chaves i18n cruas/MISSING_MESSAGE; 0 5xx nos logs Railway pos-merge. Branch deletada apos smoke. Evidencia registrada no comentario do PR #167. Sem migrations; nenhuma tarefa [x] alterada alem da reconciliacao aprovada.
+
+## [2026-09-21] T031-b1-prod-guards (branch fix/b1-guards, PR aberto SEM merge)
+Bloqueador B1 (relatorio T029) — guarda de migrations e propostas operacionais. TDD:
+- scripts/ci/migration-safety.mjs: self-test 10 fixtures (vermelho 1/10 -> verde 10/10); fail-closed; CLI validado nos 3 caminhos com exit codes corretos (0 liberado sem banco / 0 liberado com contrato / 1 bloqueado e fail-closed). Contrato: label migration-review + secao Rollback (>=15 chars) + linha Migration: ancorada no inicio de linha (mencao solta nao conta).
+- ci.yml: job Migration Safety (B1) — so em pull_request; roda self-test; metadados via env->arquivo (anti-injecao); diff base...head. YAML validado. Este PR auto-valida o guard (sem arquivos de banco -> liberado).
+- docs/b1-prod-guards.md: contrato + template de descricao; staging Opcao A (Environment protection, custo 0) vs Opcao B (branch staging + Railway separado); migration manual: console Railway (recomendado como padrao de incidente), proxy TCP, self-hosted runner.
+- DECISOES D-532 (PROPOSTA); PLANO 9.12 [~]; PENDENCIAS P011/P012/P013 (required check, staging, caminho manual — nada executado, acoes do Operador).
+- Limite honesto: guard valida CONTRATO, nao qualidade da migration; required check so apos decisao do Operador.
+
+## [2026-09-22] T032-merge-pr168 (MERGED, bc99630; P011 ESCALADO)
+PR #168 (guarda `migration-safety`, T031) ja estava mergeado via **merge commit** `bc99630` (head `089483e`, 2026-09-22T03:41Z); `origin/main` contem o head. Pos-merge verificado: CI de main **success** (run 35684093799, 4m33s); Deploy **success** (35684093823, 2m31s); `deploy.yml` success (sem squash/rebase). **Smoke:** API `/health` 200; web `/pt-BR` `/en-US` `/es-ES` 200; HTML da home (769 KB) sem chave i18n crua nos padroes amostrados; sem 5xx observado. **P011 NAO habilitado:** inventario das PRs abertas (#140,#139,#133,#4,#3,#2) mostra que **nenhuma** tem o check `Migration Safety (B1)` (runs de #140/#139 de 20/09, anteriores ao guard de 22/09) — required agora bloquearia ("Expected"); escalonado com caminho seguro (re-run/push nas PRs mantidas; fechar legadas; entao habilitar). D-533. P012/P013 inalterados (Operador).

@@ -9,20 +9,21 @@ import type {
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { STATUS_PARA_COLUNA } from "../../common/status-coluna.js";
+import { TRANSOES_VALIDAS } from "../../common/estados-consumo.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
+import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
 
 /**
  * Addendum 4, Parte 3 — máquina de estados de consumo.
  * QUERO_CONSUMIR → CONSUMINDO / CONCLUIDO / ABANDONADO
  * CONSUMINDO     → CONCLUIDO / ABANDONADO
- * CONCLUIDO/ABANDONADO → qualquer (retomar/rever é caso real).
+ * CONCLUIDO      → QUERO_CONSUMIR / CONSUMINDO (retomar/rever)
+ * ABANDONADO     → QUERO_CONSUMIR / CONSUMINDO / CONCLUIDO (reclassificar)
+ * D-527: CONCLUIDO → ABANDONADO NÃO é permitido — item concluído não é
+ * reclassificado como abandonado (para "desistir depois de retomar",
+ * o caminho é CONCLUIDO → CONSUMINDO → ABANDONADO).
  */
-const TRANSOES_VALIDAS: Record<StatusConsumo, StatusConsumo[]> = {
-  QUERO_CONSUMIR: ["QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
-  CONSUMINDO: ["CONSUMINDO", "CONCLUIDO", "ABANDONADO"],
-  CONCLUIDO: ["CONCLUIDO", "QUERO_CONSUMIR", "CONSUMINDO"],
-  ABANDONADO: ["ABANDONADO", "QUERO_CONSUMIR", "CONSUMINDO", "CONCLUIDO"],
-};
+// D-528/T027: máquina de estados compartilhada (common/estados-consumo.ts).
 
 export interface UpsertInteracaoDto {
   status?: StatusConsumo;
@@ -65,24 +66,110 @@ export interface TasteMonth {
 export class InteracoesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listar(usuarioId: string) {
+  async listar(
+    usuarioId: string,
+    filtro: ListInteracoesQueryDto = {},
+  ): Promise<{
+    items: Awaited<ReturnType<InteracoesService["mapearItem"]>>[];
+    total: number;
+    porStatus: Record<string, number>;
+    nextCursor: string | null;
+  }> {
+    const limit = filtro.limit ?? 50;
+    const offset = this.decodificarCursor(filtro.cursor);
+    const where: Prisma.UsuarioMidiaInteracaoWhereInput = {
+      usuario_id: usuarioId,
+      ...(filtro.status ? { status: filtro.status } : {}),
+      ...(filtro.tipo ? { midia: { tipo: filtro.tipo } } : {}),
+    };
+
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
-      return tx.usuarioMidiaInteracao.findMany({
-        where: { usuario_id: usuarioId },
-        orderBy: { atualizado_em: "desc" },
-        include: {
-          midia: {
-            select: {
-              id: true,
-              titulo: true,
-              tipo: true,
-              imagem_url: true,
-              score: true,
+      const [interacoes, total, porStatusBruto] = await Promise.all([
+        tx.usuarioMidiaInteracao.findMany({
+          where,
+          orderBy: { atualizado_em: "desc" },
+          skip: offset,
+          take: limit,
+          include: {
+            midia: {
+              select: {
+                id: true,
+                slug: true,
+                titulo: true,
+                tipo: true,
+                ano_lancamento: true,
+                imagem_url: true,
+                score: true,
+              },
             },
           },
-        },
-      });
+        }),
+        tx.usuarioMidiaInteracao.count({ where }),
+        tx.usuarioMidiaInteracao.groupBy({
+          by: ["status"],
+          where: { usuario_id: usuarioId },
+          _count: { _all: true },
+        }),
+      ]);
+
+      const porStatus: Record<string, number> = {
+        QUERO_CONSUMIR: 0,
+        CONSUMINDO: 0,
+        CONCLUIDO: 0,
+        ABANDONADO: 0,
+      };
+      for (const linha of porStatusBruto) {
+        porStatus[linha.status] = linha._count._all;
+      }
+
+      const items = interacoes.map((i) => this.mapearItem(i));
+      // Página curta (ou vazia) = última página — evita cursor infinito.
+      const nextCursor =
+        items.length === limit && offset + items.length < total
+          ? this.codificarCursor(offset + items.length)
+          : null;
+
+      return { items, total, porStatus, nextCursor };
     });
+  }
+
+  /**
+   * Item estável da resposta (snake_case, contrato da API). Pass-through
+   * COMPLETO dos campos da interação — o fetchAll do use-interaction-store
+   * lê reacao/motivo_abandono do payload cru (D-525: não fatiar aqui).
+   */
+  private mapearItem(
+    i: Prisma.UsuarioMidiaInteracaoGetPayload<{
+      include: {
+        midia: {
+          select: {
+            id: true;
+            slug: true;
+            titulo: true;
+            tipo: true;
+            ano_lancamento: true;
+            imagem_url: true;
+            score: true;
+          };
+        };
+      };
+    }>,
+  ) {
+    return i;
+  }
+
+  /** Cursor opaco = offset em base64url; inválido → 400 (nunca 500). */
+  private codificarCursor(offset: number): string {
+    return Buffer.from(String(offset), "utf8").toString("base64url");
+  }
+
+  private decodificarCursor(cursor: string | undefined): number {
+    if (cursor === undefined) return 0;
+    const decodificado = Number.parseInt(Buffer.from(cursor, "base64url").toString("utf8"), 10);
+    if (!Number.isInteger(decodificado) || decodificado < 0) {
+      throw new BadRequestException("Cursor inválido.");
+    }
+    return decodificado;
   }
 
   async obter(usuarioId: string, midiaId: string) {

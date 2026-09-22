@@ -8,5 +8,19 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // T454/D-527 — namespaces KV criadas pelo Operador no dashboard
+  // (IDs não são segredo, commitáveis). Cache incremental + tag cache
+  // do OpenNext: ISR revalidate 3600 (T447) durável entre isolates e
+  // /api/revalidate on-demand purgando globalmente.
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "f890c5535d584955a795ddb8914b90e6"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_KV",
+      "id": "76133f6eeab345548b6f485ede9f6dac"
+    }
+  ]
 }

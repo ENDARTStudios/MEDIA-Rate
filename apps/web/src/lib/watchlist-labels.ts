@@ -62,3 +62,17 @@ export function colunaNeutraLabelKey(coluna: WatchlistColuna | string): string {
       return "queroConsumir";
   }
 }
+
+/** Inverso do STATUS_MAP do Kanban: status de consumo (API) → coluna. */
+export function consumoParaColuna(status: string): WatchlistColuna {
+  switch (status) {
+    case "CONSUMINDO":
+      return "WATCHING";
+    case "CONCLUIDO":
+      return "COMPLETED";
+    case "ABANDONADO":
+      return "DROPPED";
+    default:
+      return "WANT";
+  }
+}
