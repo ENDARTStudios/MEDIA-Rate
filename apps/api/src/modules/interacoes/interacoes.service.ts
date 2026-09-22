@@ -12,6 +12,8 @@ import { STATUS_PARA_COLUNA } from "../../common/status-coluna.js";
 import { TRANSOES_VALIDAS } from "../../common/estados-consumo.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
+import { MIDIA_INTERACAO_SELECT, mapearInteracaoResponse } from "./interacoes.mapper.js";
+import type { InteracoesPageResponseDto } from "./interacoes-response.dto.js";
 
 /**
  * Addendum 4, Parte 3 — máquina de estados de consumo.
@@ -69,12 +71,7 @@ export class InteracoesService {
   async listar(
     usuarioId: string,
     filtro: ListInteracoesQueryDto = {},
-  ): Promise<{
-    items: Awaited<ReturnType<InteracoesService["mapearItem"]>>[];
-    total: number;
-    porStatus: Record<string, number>;
-    nextCursor: string | null;
-  }> {
+  ): Promise<InteracoesPageResponseDto> {
     const limit = filtro.limit ?? 50;
     const offset = this.decodificarCursor(filtro.cursor);
     const where: Prisma.UsuarioMidiaInteracaoWhereInput = {
@@ -91,17 +88,7 @@ export class InteracoesService {
           skip: offset,
           take: limit,
           include: {
-            midia: {
-              select: {
-                id: true,
-                slug: true,
-                titulo: true,
-                tipo: true,
-                ano_lancamento: true,
-                imagem_url: true,
-                score: true,
-              },
-            },
+            midia: { select: MIDIA_INTERACAO_SELECT },
           },
         }),
         tx.usuarioMidiaInteracao.count({ where }),
@@ -122,7 +109,10 @@ export class InteracoesService {
         porStatus[linha.status] = linha._count._all;
       }
 
-      const items = interacoes.map((i) => this.mapearItem(i));
+      // T036/D-536: mapper ALLOWLIST — o item público não vaza colunas
+      // internas/legadas (usuario_id, tenant_id, created_at, tipo, rating,
+      // comentario); preserva reacao/motivo_abandono (consumidos pelo store).
+      const items = interacoes.map(mapearInteracaoResponse);
       // Página curta (ou vazia) = última página — evita cursor infinito.
       const nextCursor =
         items.length === limit && offset + items.length < total
@@ -131,31 +121,6 @@ export class InteracoesService {
 
       return { items, total, porStatus, nextCursor };
     });
-  }
-
-  /**
-   * Item estável da resposta (snake_case, contrato da API). Pass-through
-   * COMPLETO dos campos da interação — o fetchAll do use-interaction-store
-   * lê reacao/motivo_abandono do payload cru (D-525: não fatiar aqui).
-   */
-  private mapearItem(
-    i: Prisma.UsuarioMidiaInteracaoGetPayload<{
-      include: {
-        midia: {
-          select: {
-            id: true;
-            slug: true;
-            titulo: true;
-            tipo: true;
-            ano_lancamento: true;
-            imagem_url: true;
-            score: true;
-          };
-        };
-      };
-    }>,
-  ) {
-    return i;
   }
 
   /** Cursor opaco = offset em base64url; inválido → 400 (nunca 500). */
