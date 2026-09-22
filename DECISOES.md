@@ -2221,3 +2221,10 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Escopo:** sem remover/enfraquecer checks required, sem alterar ruleset/secrets/infra, sem deploy, sem migration. Sem mudança de produto.
 
 **Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/CI.md`.
+
+> **T047 (2026-09-22) — ajuste antes do merge:** o `create-pr-from-branch` ficou
+> com disparo **MANUAL** (`workflow_dispatch`) por padrão, e **não** com
+> `push: feature/**`. Motivo: o workflow estava **inerte** (YAML inválido) desde a
+> criação — corrigir e reconectar o push automático **habilitaria automação não
+> solicitada** (criar PRs sozinho). Decisão de reativar = **P016**
+> (`PENDENCIAS_OPERADOR.md`). `release.yml` permanece manual + `--if-present`.

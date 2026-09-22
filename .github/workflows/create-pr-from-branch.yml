@@ -1,15 +1,19 @@
 name: Auto-create PR from feature branch
 
-# T353 (D-321): cria PR automaticamente quando uma branch feature/* é pushada.
-# O Operador nunca precisa clicar em URLs — PRs aparecem sozinhos na aba
-# Pull Requests. Usa o GITHUB_TOKEN nativo (permissões mínimas).
+# T353 (D-321): criava PR automaticamente quando uma branch feature/* era pushada.
+# O Operador nunca precisava clicar em URLs — a PR aparecia sozinha.
+# Usa o GITHUB_TOKEN nativo (permissões mínimas).
 #
 # Exceção (D-317): branches chore/* NÃO viram PR (push direto de reconciliação).
-
+#
+# T046: o YAML era INVÁLIDO — o heredoc do `run: |` tinha o corpo em coluna 0,
+# encerrando o block scalar; o GitHub registrava o workflow sem `name` e criava
+# um run SEM JOBS que falhava em ~0s em TODO push.
+# T047/D-541: o YAML foi corrigido, mas o disparo fica MANUAL por padrão.
+#   NÃO reativamos automação que estava inerte sem decisão do Operador (evita
+#   criar PRs automaticamente). Reconectar o push de feature/** = P016.
 on:
-  push:
-    branches:
-      - "feature/**"
+  workflow_dispatch:
 
 permissions:
   contents: read

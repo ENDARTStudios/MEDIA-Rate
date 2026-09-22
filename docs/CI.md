@@ -64,9 +64,12 @@ Migration Safety (B1).
   arquivo era YAML INVÁLIDO. O GitHub registrava o workflow sem `name` (aparecia
   o caminho) e criava um run SEM JOBS que falhava em ~0s em todo push (inclusive
   main, chore/*, docs/*).
-- Correção (D-541): o corpo agora é montado com `printf` (tudo indentado dentro
-  do block scalar). O YAML passa a ser válido e o gatilho
-  `push: branches: [feature/**]` volta a valer — deixa de rodar em main.
+- Correção (T046/D-541): o corpo agora é montado com `printf` (tudo indentado
+  dentro do block scalar) — YAML VÁLIDO.
+- T047/D-541: o disparo ficou MANUAL (`workflow_dispatch`) por padrão. NÃO
+  reativamos automação que estava inerte sem decisão do Operador (evita criar PRs
+  automaticamente). Reconectar o push de `feature/**` = P016. Portanto o workflow
+  não roda em main/chore/*/docs/* nem em feature/** até a decisão.
 
 ### release.yml
 - Causa raiz: o passo `Build Packages` rodava `npm run build`, mas a RAIZ do
