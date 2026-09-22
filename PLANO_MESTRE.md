@@ -79,7 +79,7 @@
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).
-- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, não wired nas colunas.
+- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/LGPD_DADOS.md`.
 - [x] 2.11 Seed de admin + usuários (free/plus/premium).
 - [x] 2.12 Índices em todas as FKs + colunas de busca.
 - [x] 2.13 Unicidades documentadas (`@@unique`: email, fonte+fonte_id, midia_id, usuario+midia, etc.).

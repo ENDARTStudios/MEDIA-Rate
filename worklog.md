@@ -2733,3 +2733,9 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 ## [2026-09-22] T047-merge-pr199-workflows (MERGED 6264601; vermelho cronico cessou)
 - Ajuste pre-merge: create-pr-from-branch -> disparo MANUAL (workflow_dispatch) por padrao (nao habilitar automacao que estava inerte); release.yml manual + npm run build --if-present. YAML js-yaml OK. Correcao de LF em DECISOES (commit 71d4181); git diff --check limpo.
 - Merge commit 6264601 (--merge, sem squash/rebase/bypass). Pos-merge main: CI success (4m54s), Security success (3m11s), deploy.yml waiting (P012=A), PRR Pipeline skipped. IMPORTANTE: nenhum run de Release nem de Auto-create PR no push do merge -> o vermelho cronico cessou. Nenhuma release/tag/PR automatica. Smoke 7/7 = 200. PLANO 9.16 [x]. Sem ruleset/secrets/infra/deploy manual/migration.
+
+## [2026-09-22] T048-lgpd-encryption-feasibility (docs-only; PR aberto, SEM merge)
+- Inventario de PII (schema/APIs/logs/jobs): email buscavel por igualdade (@unique; login/registro/reset/Google), nome, Sessao.user_agent/ip_criacao, ConsentimentoUsuario.ip_aceite, UsuarioMidiaInteracao.comentario, AuditLog.dados_antes/dados_depois/ip_origem. Ja derivados por hash: tokens de verificacao/reset, Sessao.token_hash/refresh_token_hash, ConsentLog.ip_hash, senha_hash (argon2).
+- ColumnEncryptionService (AES-256-GCM) NAO wired (0 usos); IV aleatorio -> NAO determinista; construtor LANCA sem COLUMN_ENCRYPTION_KEY.
+- DECISAO: NAO implementar cifragem agora (bloqueios: email buscavel x nao-determinismo; plaintext exige migration+backfill; secret novo + risco de indisponibilidade). Achado acionavel (baixo risco, nao implementado): auth.service.ts:261 loga email em claro (redact nao cobre PII na mensagem) -> follow-up mascara.
+- Artefatos: docs/LGPD_DADOS.md (novo) + SECURITY_TRIAGE secao T048 + D-542 + PLANO 2.10 + P017. Sem schema/migration/segredo; sem PII/segredo nas evidencias. PR docs-only.

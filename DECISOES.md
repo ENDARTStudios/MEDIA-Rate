@@ -2240,3 +2240,17 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 > branch` (o vermelho crônico cessou). CI **success** (4m54s), Security **success**
 > (3m11s), `deploy.yml` **waiting** (P012=A), smoke **7/7 → 200**. Nenhuma
 > release/tag/PR criada automaticamente. Nenhuma alteração de ruleset/secrets/infra.
+
+## D-542 — T048: viabilidade de cifragem de colunas (LGPD) — análise docs-only, sem implementação
+
+**Data:** 2026-09-22 · **Fase:** F02-dados / T048-lgpd-encryption-feasibility · **Status:** DECIDIDO (PR docs-only, SEM merge)
+
+**Contexto:** o `ColumnEncryptionService` (AES-256-GCM, T2.6) existe mas **não está wired** (0 usos; PLANO 2.10 `[~]`). Era preciso decidir se pode ser aplicado sem migration, sem segredo novo e sem quebrar login/busca/LGPD.
+
+**Inventário (resumo):** PII buscável = `Usuario.email` (`@unique`, lookup por igualdade no login/registro/reset/Google). PII não-buscável = `Usuario.nome`, `Sessao.user_agent`/`ip_criacao`, `ConsentimentoUsuario.ip_aceite`, `UsuarioMidiaInteracao.comentario`, `AuditLog.{dados_antes,dados_depois,ip_origem}`. Já derivados por hash: tokens de verificação/reset, `Sessao.token_hash`/`refresh_token_hash`, `ConsentLog.ip_hash`, `senha_hash` (argon2). Detalhes em `docs/LGPD_DADOS.md`.
+
+**Decisão:** **não implementar cifragem agora.** Bloqueios: (1) `email` é buscável por igualdade e o serviço é **não determinístico** (IV aleatório) → exigiria cifragem determinística (decisão de arquitetura não trivial); (2) dados existentes em plaintext → **migration + backfill**; (3) wiring exige `COLUMN_ENCRYPTION_KEY` e o serviço **lança** sem ela (novo segredo + risco de indisponibilidade). Nenhuma alteração de schema/migration/segredo.
+
+**Achado acionável (baixo risco, não implementado aqui):** `auth.service.ts:261` grava o e-mail em claro no log de lockout (o `redact` não cobre PII embutida na mensagem) → follow-up: mascarar.
+
+**Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/LGPD_DADOS.md`, `docs/SECURITY_TRIAGE.md` §T048, **P017**.

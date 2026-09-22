@@ -78,3 +78,14 @@ expõem mais `usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating` nem
 `PUT /interacoes/:midiaId` (#186/ebf78a1) usam o **DTO allowlist**. Confirmado por
 smoke autenticado em produção (200; item keys = allowlist; `usuario_id`,
 `tenant_id`, `created_at`, `tipo`, `rating` e `comentario` ausentes).
+
+## T048 — LGPD: inventário de PII e viabilidade de cifragem (D-542)
+
+Análise **docs-only** (`docs/LGPD_DADOS.md`). Inventário mapeado; **nenhuma**
+cifragem implementada. Bloqueios: (1) `Usuario.email` é **buscável por igualdade**
+(login/registro/reset/Google) e o `ColumnEncryptionService` usa IV aleatório
+(**não determinístico**) → cifrar quebraria a autenticação; (2) dados existentes em
+plaintext exigiriam **migration + backfill**; (3) o serviço exige
+`COLUMN_ENCRYPTION_KEY` e **lança** sem ela (novo segredo + risco de indisponibilidade).
+Achado acionável de baixo risco: PII em log (`auth.service.ts:261` interpola o
+e-mail; redact não cobre PII na mensagem) — recomendada máscara. Ver **P017**.

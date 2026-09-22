@@ -375,3 +375,21 @@ Depois de feito: responda "feito o item Nº 16".
 
 > 📌 **Estado atual (T047, 2026-09-22):** corrigido e **manual** — não roda em
 > `main`/`chore/*`/`docs/*` nem em `feature/**` até esta decisão. Reversível.
+
+### [17] P017 — Decidir o caminho de cifragem de colunas (LGPD) — T048/D-542
+
+Por quê: a análise de viabilidade (T048) concluiu que cifrar agora **não** é seguro
+sem: (a) cifragem **determinística** para o e-mail (senão quebra login);
+(b) **migration + backfill** dos dados em plaintext; (c) secret
+`COLUMN_ENCRYPTION_KEY` presente no runtime (o serviço **lança** sem ela). Nada foi
+alterado (sem schema, sem migration, sem segredo).
+
+Onde: `docs/LGPD_DADOS.md` (inventário + decisão) e
+`apps/api/src/common/column-encryption.service.ts`.
+
+Como decidir: (A) manter o status quo e apenas **minimizar PII em logs**
+(follow-up de baixo risco já identificado: `auth.service.ts:261`); ou (B) aprovar o
+plano completo (secret + migration/backfill + cifragem determinística/índice de
+busca) como tarefa própria com janela de manutenção.
+
+Depois de feito: responda "feito o item Nº 17" indicando A ou B.
