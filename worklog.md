@@ -2745,3 +2745,7 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - Fase 2 (TDD): RED test apps/api/test/auth-pii-log.spec.ts (import faltando) -> implementado apps/api/src/common/pii-mask.ts (mascararEmail -> u***@***.invalid; mascararIp -> 203.0.x.x).
 - Pontos corrigidos no modulo auth: auth.service.ts (lockout: email+IP; reuse de refresh: IP) e lockout.service.ts (global: IP; threshold e local: ${k} com email+IP -> mascararEmail(email)). Sem refatoracao ampla; sem mudar lockout key/threshold/mensagens/sessao/schema.
 - Verificacao: auth-pii-log 5/5; suite API 911/911 (120 arquivos); tsc OK; eslint OK nos arquivos alterados. Fixture .invalid apenas. Sem PII/segredo nas evidencias.
+
+## [2026-09-22] T050-merge-pr204-pii-mask (MERGED 96ac104; smoke OK)
+- Auditoria pre-merge do #204: mergeable; required verdes no head 21832578 (Build, Lint & Audit, Test & Coverage, RLS, Docs Gate, Migration Safety; E2E Playwright pass); Vercel fail NAO-required (rate-limit do plano). git diff --check limpo; scan segredos/PII = 0. Diff de codigo revisado: so o texto do log mudou (mascararEmail/mascararIp); lockout keys/thresholds/logica intactos; sem mudanca de auth/sessao/schema/segredos.
+- Merge commit 96ac104. Pos-merge main: CI success (4m38s), Security success (2m54s), deploy.yml waiting (P012=A), PRR skipped; nenhum run de Release/Auto-create. API reiniciou (uptime reset) -> mascaramento live. Smoke 4/4 = 200. Sem 5xx novo / PII / segredo. PLANO 2.10 mantido [~]; P017 pendente.

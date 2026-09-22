@@ -104,3 +104,12 @@ comportamento de auth/lockout/sessão — só o texto do log. Saída mascarada:
 
 **Regressão:** `apps/api/test/auth-pii-log.spec.ts` (roundtrip do mask + captura do
 `Logger` no lockout com fixture `usuario@example.invalid` + guarda de fonte).
+
+### T050 — evidência pós-merge do mascaramento (D-543)
+
+PR de código **#204** mergeado como **`96ac104`** (`--merge`). Pós-merge `main`:
+CI **success** (4m38s); Security **success** (2m54s); `deploy.yml` **waiting**
+(environment `Production` — P012=A); nenhum run de `Release`/`Auto-create PR`;
+smoke **4/4 → 200**; API **reiniciou** (uptime resetou → código com mascaramento
+live). Sem 5xx novo; sem PII/segredo exposto. PLANO 2.10 segue `[~]`; cifragem
+bloqueada em **P017**.
