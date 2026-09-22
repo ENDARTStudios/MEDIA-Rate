@@ -2625,3 +2625,13 @@ Micro-tarefa recomendada pelo Thinker apos REVIEW APPROVED do T027. TDD vermelho
 - Item 14: causa raiz = DOIS loggers de request (T027 ligou FastifyAdapter({logger}) sem remover nestjs-pino do AppLoggerModule T1.8/T217, ativo). Fix: bloco logger removido do main.ts (fonte unica = nestjs-pino); redaction x-csrf-token transferida para logger.config.ts (+ caso runtime no logger-redact.spec).
 - Docs: OBSERVABILITY.md atualizado (regra: nunca 2 loggers de request); DECISOES D-531 (PROPOSTA, PR aberto).
 - Verificacao: API 897/897 (117 arq), tsc 0, eslint limpo. Sem migrations. PR aberto SEM merge (altera logs de producao + codigo de 500 para 404).
+
+## [2026-09-21] T028-merge-pr163 (MERGED, 156e18b)
+Thinker autorizou merge condicional (TAREFA T028-merge-pr163). Auditoria pre-merge: MERGEABLE/CLEAN, scan de segredos limpo. RESTRIÇÃO atendida: gap de Swagger confirmado nas 6 rotas -> @ApiNotFoundResponse adicionada + prettier (commits 8411ba5, 73e626b) ANTES do merge; CI re-rodou no head final: 13/13 verde (Vercel preview skipado - api-only).
+- MERGE: gh pr merge 163 --merge (merge commit 156e18b, branch preservada ate o smoke).
+- DEPLOY: Railway f89b9d9a SUCCESS + Vercel Production Ready + deploy.yml success (run 35670127637). Sem migrations; migrate-production.yml NAO executado.
+- SMOKE PRODUCAO (conta E2E): health 200; PATCH /watchlist/nao-uuid/move -> 404 (era 500); GET/PUT /interacoes/nao-uuid -> 404; DELETE /watchlist/nao-uuid -> 404; UUID valido inexistente (move/delete) -> 404 pelo caminho do service (sem falso bloqueio); sanity GET watchlist/interacoes 200 com envelope.
+- LOGS RAILWAY: 0 linhas "incoming request", 0 reqId= topo-nivel, exatamente 1 "request completed" por request (amostra req-20..29), 0 ocorrencias de x-csrf-token (redaction ativa). Item 14 ZEROADO.
+- Nota: DELETE com content-type json e body vazio -> 400 do Fastify (armadilha do script de smoke, ja documentada; sem content-type: 404 correto).
+- #148 atualizada com evidencia (itens 13-14 RESOLVIDOS). D-531 -> APROVADA. Branch do PR removida apos smoke.
+- Relatorio: STATUS PROMOTED.
