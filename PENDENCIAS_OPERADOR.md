@@ -252,3 +252,37 @@ cirúrgico: remover a entrada `GITHUB_TOKEN` da config de ambiente do harness
 (ou rotacionar por valor válido) — o login do keyring (`ENDARTStudios`,
 scopes `repo, workflow`) assume sozinho. Workaround até lá: `scripts/gh-safe.*`
 (ver MANUAL, seção T046).
+
+---
+
+### [11] P011 — Tornar `Migration Safety (B1)` required check na ruleset de main (T031/D-532)
+
+Por quê: o job `Migration Safety (B1)` existe no CI mas, sem ser required, o merge de PR
+com migration não é travado por ele — o guard existe, não impede.
+Onde: GitHub → repo → Settings → Rules → Rulesets → `protect-main` → Status checks
+requeridos → adicionar `Migration Safety (B1)`.
+Como saber que deu certo: PR de teste alterando `apps/api/prisma/schema.prisma` sem label
+`migration-review` fica impossível de mergear (check vermelho bloqueante).
+Depois de feito: responda "feito o item Nº 11".
+
+### [12] P012 — Decidir staging/environment antes de produção (T031/B1, #148 item 9)
+
+Por quê: hoje `main` = produção automática; não há ambiente intermediário. O deploy
+Railway é nativo no push de `main` — nenhum gate GitHub atual o impede.
+Onde: opções e passos exatos em `docs/b1-prod-guards.md` §2 (Opção A: GitHub Environment
+protection — custo 0, gate+sinal pós-merge; Opção B: branch `staging` com Railway
+environment separado — custo mensal, trava de verdade). Nada foi configurado.
+Como saber que deu certo: deploy de produção só ocorre após aprovação/merge no caminho
+escolhido; smoke de produção roda no ambiente novo antes dos usuários.
+Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
+
+### [13] P013 — Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
+
+Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
+interno do Railway — inalcançável de runners GitHub.
+Onde: três caminhos com passos em `docs/b1-prod-guards.md` §3 (proxy TCP público com
+allowlist; self-hosted runner na rede; console Railway como padrão de incidente —
+recomendação T031). Nada foi provisionado.
+Como saber que deu certo: uma migration aplicada manualmente com sucesso, com backup
+prévio (`scripts/backup-db.sh`) e log colado no PR correspondente.
+Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.

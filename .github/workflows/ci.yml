@@ -122,6 +122,42 @@ jobs:
           [ "$fail" = "0" ] || exit 1
           echo "docs-gate: markdown OK."
 
+  # T031/B1 (#148 item 7): guarda FAIL-CLOSED para mudanças de banco. O
+  # entrypoint do Railway aplica `prisma migrate deploy` no boot de TODO
+  # deploy; PR que altera apps/api/prisma/migrations/** ou schema.prisma
+  # exige label `migration-review` + plano de rollback + declaração de
+  # migration na descrição. Falha fechando (metadado ilegível bloqueia).
+  # Torná-lo REQUIRED na ruleset de main é decisão do Operador (P011).
+  migration-safety:
+    name: Migration Safety (B1)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Self-test do guard (fixtures determinísticas, sem rede)
+        run: node scripts/ci/migration-safety.mjs --self-test
+      - name: Coleta metadados do PR (via env — sem injeção de shell)
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          printf '%s' "$PR_BODY" > /tmp/pr-body.md
+          printf '%s' "$PR_LABELS" > /tmp/pr-labels.json
+      - name: Avalia guarda migration-safety
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          git diff --name-only "$base" "$head" > /tmp/pr-files.txt
+          node scripts/ci/migration-safety.mjs \
+            --files-file /tmp/pr-files.txt \
+            --labels-file /tmp/pr-labels.json \
+            --body-file /tmp/pr-body.md
+
   # T234/T299: spec de isolamento RLS com postgres de service (migrate deploy em DB virgem).
   security-rls:
     name: RLS Isolation (T290/T299/T301)

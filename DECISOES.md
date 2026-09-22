@@ -2036,3 +2036,30 @@ que já era ativo.
 **Testes:** `test/param-uuid-404.spec.ts` (8 casos, TDD vermelho→verde; spy garante que o
 service não é alcançado) + `logger-redact.spec.ts` (+1 caso runtime x-csrf-token).
 Suíte: 897/897. Smoke de produção valida o comportamento após o merge.
+
+## D-532 — Guarda fail-closed `migration-safety` no CI (B1, #148 item 7)
+
+**Data:** 2026-09-21 · **Fase:** T031-b1-prod-guards · **Status:** PROPOSTA (PR aberto)
+
+**Contexto:** O entrypoint do Railway aplica `prisma migrate deploy` no boot de TODO
+deploy de produção e `main` é deploy automático (D-527) — um PR com migration
+problemática mergeado em `main` vai direto para produção, sem stage e sem trava
+(#148 item 7; bloqueador B1 do relatório T029).
+
+**Decisão:**
+1. Guard CI `migration-safety` (job + `scripts/ci/migration-safety.mjs`), executando
+   SOMENTE em `pull_request`. PR que altera `apps/api/prisma/migrations/**` ou
+   `apps/api/prisma/schema.prisma` exige: label `migration-review` + seção `## Rollback`
+   com conteúdo + linha `Migration:` declarando a intenção (ancorada no início de linha).
+2. FAIL-CLOSED: metadado ilegível (labels JSON quebrado, corpo vazio, arquivos ilegíveis)
+   com mudança de banco = bloqueado. Self-test determinístico (10 fixtures, sem
+   rede/segredos) roda antes da avaliação em todo run.
+3. Metadados entram no script via ARQUIVOS escritos a partir de env do GitHub (nunca
+   inline em shell) — anti-injeção.
+4. Limites: não cobre push direto (já proibido pela ruleset D-457); valida o contrato,
+   não a qualidade da migration; tornar o check REQUIRED na ruleset de `main` é decisão
+   do Operador (P011). Staging/Environment e caminho de migration manual: propostas em
+   `docs/b1-prod-guards.md` (P012/P013) — nada executado.
+
+**Testes:** self-test 10/10 (`--self-test`); CLI validado nos 3 caminhos (liberado sem
+banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).

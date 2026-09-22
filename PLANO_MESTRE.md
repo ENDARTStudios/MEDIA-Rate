@@ -251,6 +251,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
 - [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
+- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. Pendente: required check na ruleset (P011), staging/Environment (P012) e caminho de migration manual (P013) — `docs/b1-prod-guards.md`.
 
 ---
 
