@@ -117,6 +117,7 @@
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
 - [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
 - [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
+  evid. T029: enforcement provado em produção (smoke T027, 2026-09-21 — register exige verificação real via Resend); rota `google/callback` (OAuth Google) ativa e não inventariada acima.
 
 **Verificação:**
 - Login válido → 200 + cookie ✅; lockout progressivo ✅; `/me` sem cookie → 401 ✅
@@ -127,6 +128,7 @@
 ## FASE 4 — APIs/CRUDs `[CONCLUÍDA]`
 
 REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, auth, discover, fontes, historico, interacoes, invite, lgpd, listas, media, media-score, metrics, notificacoes, payment, perfil, premium, quota, recommendations, relacoes, upload.
+  evid. T029 (2026-09-21): inventário real tem **29 módulos** — o plano não citava watchlist, consent, curadoria, dashboard, diagnostics, discovery, flags, mailer, waitlist-notify.
 
 - [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade → 409, invalidação de cache, audit.
 - [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confiança, explicabilidade.
@@ -145,8 +147,10 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.14 Discover/Search auditado (T027): rate limit dedicado, Zod, cursor, sanitização tsquery, índices trgm GIN — p95 local 14ms (discover) / 22ms (search).
   evid: benchmark local 2026-09-21; test/discover-service.spec.ts 14/14.
 - [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
+  nota T029: numeração duplicada com "4.13 Watchlist canônica" (acima) — renomear para 4.15 em passe futuro de edição.
 
 **Verificação:** `npm run test` (API) — 888 testes, 116 arquivos (T027). Zero referências ao projeto antigo "Almanaque dos Clubes".
+  evid. T029 (2026-09-21): **897 testes / 117 arquivos** após #163 (UuidParamPipe + specs 404); CI verde no PR #163. Relatório completo: `.claude/reports/beta-blockers.md`.
 
 ---
 
