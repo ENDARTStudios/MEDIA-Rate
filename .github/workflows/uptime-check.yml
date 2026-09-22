@@ -1,0 +1,49 @@
+# T042/D-539 — uptime sintético de endpoints PÚBLICOS (somente leitura).
+#
+# - Roda em schedule (10 min) e manualmente (workflow_dispatch).
+# - Só faz GET em rotas PÚBLICAS de leitura (health + páginas). SEM credencial,
+#   SEM cookie, SEM endpoint autenticado, SEM efeito colateral.
+# - Dedup: cria a issue `uptime` só na 1ª falha; em falha contínua ATUALIZA o
+#   corpo (sem comentários em loop); FECHA na recuperação. Nunca imprime corpo
+#   de resposta/PII/segredos.
+# - Sem infra paga, sem deploy, sem secret novo, sem tocar o environment Production.
+name: Uptime Check
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry-run (não cria/atualiza issue)"
+        type: boolean
+        default: false
+concurrency:
+  group: uptime-check
+  cancel-in-progress: false
+permissions:
+  contents: read
+  issues: write
+jobs:
+  uptime:
+    name: Uptime (público)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Self-test (determinístico, sem rede)
+        run: node scripts/ci/uptime-check.self-test.mjs
+      - name: Coletar endpoints públicos (GET, timeout 10s)
+        run: node scripts/ci/uptime-check.mjs --collect --out uptime-resultados.json
+      - name: Avaliar e agir (dedup de issue)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create uptime --color D93F0B \
+            --description "Uptime sintético (T042)" 2>/dev/null || true
+          APPLY="--apply"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
+            APPLY=""
+          fi
+          node scripts/ci/uptime-check.mjs --input uptime-resultados.json $APPLY

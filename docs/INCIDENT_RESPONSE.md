@@ -135,3 +135,14 @@ A issue com o label `alerta-metrico` é criada/atualizada pelo workflow
 - A issue é **fechada automaticamente** quando os valores normalizam.
 
 Thresholds e como ativar a fonte live: `docs/OBSERVABILITY.md`.
+
+## Uptime sintético (T042)
+
+A issue com o label `uptime` é criada quando um endpoint público falha e é
+**fechada automaticamente** na recuperação (o corpo é atualizado enquanto a
+falha persiste — sem spam).
+
+- `/health` fora → investigar Railway (logs/restart) e o deploy nativo.
+- Páginas web fora → investigar Vercel (build/domínio) e `mediarate.app`.
+
+Complementar (distribuído): UptimeRobot — ver `docs/OBSERVABILITY.md`.

@@ -331,3 +331,19 @@ coleta `/metrics` (`live=true`), imprime o JSON de decisão e, se cruzar o limia
 abre/atualiza a issue `alerta-metrico` (fechando-a quando normaliza).
 
 Depois de feito: responda "feito o item Nº 14".
+
+### [15] P015 — UptimeRobot externo (complementar ao uptime sintético do CI) — T042/D-539
+
+Por quê: o workflow `uptime-check.yml` é um monitor **sintético no CI** (runners do
+GitHub). Ele pega indisponibilidade das rotas públicas, mas **não** é distribuído
+(multi-região) nem independente do GitHub Actions.
+
+Onde: conta gratuita UptimeRobot → monitores HTTP(s):
+- API: `https://media-rate-production.up.railway.app/health`
+- Web: `https://mediarate.app/pt-BR`
+
+Passos: `docs/OBSERVABILITY.md` §UptimeRobot (interval 5 min; alerta após 2 falhas).
+
+Como saber que deu certo: o monitor aparece "Up" no UptimeRobot e alerta por e-mail em queda.
+
+Depois de feito: responda "feito o item Nº 15".
