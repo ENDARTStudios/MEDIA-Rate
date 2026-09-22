@@ -78,21 +78,26 @@ export class QueueService implements OnModuleDestroy {
 export class GracefulShutdownService {
   private readonly logger = new Logger(GracefulShutdownService.name);
   private fechando = false;
-  private static readonly TIMEOUT_MS = 30_000;
+  private static readonly TIMEOUT_MS_DEFAULT = 30_000;
+
+  /** T044: timeout configurável (ms), validado (finito e > 0). */
+  private static timeoutMs(): number {
+    const n = Number(process.env.SHUTDOWN_TIMEOUT_MS);
+    return Number.isFinite(n) && n > 0 ? n : GracefulShutdownService.TIMEOUT_MS_DEFAULT;
+  }
 
   enableShutdown(onShutdown: () => Promise<void>): void {
     const shutdown = async (signal: string) => {
       if (this.fechando) return; // idempotente
       this.fechando = true;
       const inicio = Date.now();
+      const timeoutMs = GracefulShutdownService.timeoutMs();
       this.logger.log(`Graceful shutdown iniciado (${signal})`);
 
       const timer = setTimeout(() => {
-        this.logger.error(
-          `Shutdown excedeu ${GracefulShutdownService.TIMEOUT_MS / 1000}s — forçando saída`,
-        );
+        this.logger.error(`Shutdown excedeu ${timeoutMs / 1000}s — forçando saída`);
         process.exit(1);
-      }, GracefulShutdownService.TIMEOUT_MS);
+      }, timeoutMs);
       timer.unref();
 
       try {

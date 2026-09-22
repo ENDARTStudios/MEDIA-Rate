@@ -2189,3 +2189,18 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 > **T043 (retry):** `coletarUm` faz até 2 tentativas por endpoint (backoff 500 ms);
 > falha transitória → sucesso no retry = `acao=none`. Coberto por self-test (16/16).
+
+## D-540 — T044: hardening do shutdown gracioso (e2e de drenagem + timeout configurável)
+
+**Data:** 2026-09-22 · **Fase:** F06-avancado / T044-graceful-shutdown · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** o shutdown gracioso já existia (T211/6.10): `GracefulShutdownService` (SIGTERM/SIGINT idempotente), timeout fixo de 30 s, wiring em `main.ts` (Fastify → Prisma → Redis → filas) e testes unitários. Faltava provar a **drenagem real** de uma requisição em andamento e permitir ajustar o timeout sem recompilar.
+
+**Decisão:**
+1. **Timeout configurável:** env `SHUTDOWN_TIMEOUT_MS` (default 30 000 ms; valor não finito ou ≤ 0 cai no default), lido a cada shutdown em `queue.service.ts`.
+2. **e2e de drenagem** (`apps/api/test/graceful-shutdown.e2e.spec.ts`, Fastify real em porta efêmera): requisição lenta **em andamento** termina com **200** após `app.close()`; **novas conexões são recusadas**; **nenhum `unhandledRejection`**. Cliente com `agent:false` (`Connection: close`) para o `close()` não travar em keep-alive.
+3. **Testes unitários** do timeout configurável: `SHUTDOWN_TIMEOUT_MS=1000` estoura em 1000 ms; valor inválido (`abc`) cai no default (30 s).
+
+**Escopo:** sem mudança de contrato público, sem migration, sem deploy manual, sem segredos, sem infra paga; não toca o environment Production. PLANO 6.10 mantido **[x]** com as novas evidências.
+
+**Evidências:** `npx vitest run test/graceful-shutdown.spec.ts test/graceful-shutdown.e2e.spec.ts` → **9/9**; `eslint` OK; `tsc --noEmit` OK.

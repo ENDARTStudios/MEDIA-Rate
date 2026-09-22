@@ -2709,3 +2709,9 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - Auditoria do #192: retry minimo AUSENTE -> implementado em uptime-check.mjs: coletarUm(ep, fetchFn, {tentativas,backoffMs}) com ate 2 tentativas e backoff 500ms; falha so se TODAS falharem. Self-test ampliado para falha transitoria->sucesso (= none) e persistente (16 ok/0 fail).
 - Label 'uptime' NAO existia -> criada (D93F0B, nao-destrutiva). Permissoes do workflow confirmadas (contents:read + issues:write; sem id-token/security-events/pull-requests). Concurrency + timeout 10s. Endpoints so publicos/readonly.
 - Coleta live com retry: 7/7 OK (dry-run acao=none). eslint/self-test OK. Merge do #192 + smoke pós-merge.
+
+## [2026-09-22] T044-graceful-shutdown (PR aberto, SEM merge)
+- Recon: shutdown JA existia (T211/6.10) — GracefulShutdownService (SIGTERM/SIGINT idempotente), main.ts (enableShutdownHooks + close Fastify/Prisma/Redis/filas), testes unitarios. Lacunas: (a) e2e de DRENAGEM real; (b) timeout configuravel.
+- queue.service.ts: SHUTDOWN_TIMEOUT_MS (default 30000; invalido->default) + testes unitarios do override (1000ms; 'abc').
+- Novo apps/api/test/graceful-shutdown.e2e.spec.ts (Fastify real, agent:false): requisicao em andamento termina 200 apos close(); novas conexoes recusadas; sem unhandledRejection.
+- Verificacao: vitest 9/9; eslint OK; tsc OK. docs OBSERVABILITY + INCIDENT_RESPONSE + D-540 + PLANO 6.10 + worklog. Sem migration/deploy/segredos. PR sem merge.

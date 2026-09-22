@@ -185,7 +185,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 6.7 Health checks (`GET /health` + `$queryRaw SELECT 1`).
 - [x] 6.8 Upload seguro (T216): magic bytes, 5MB, UUID server-side, rate limit, audit.
 - [x] 6.9 Cache Redis (T210 `CacheService`): TTL 60s `/midias`, Redis com fallback local.
-- [x] 6.10 Graceful shutdown (T211): `enableShutdownHooks()` + testes.
+- [x] 6.10 Graceful shutdown (T211 + T044/D-540): `GracefulShutdownService` (SIGTERM/SIGINT idempotente; timeout global **configurável** `SHUTDOWN_TIMEOUT_MS`, default 30 s; `process.exit(1)` no estouro) + wiring em `main.ts` (Fastify → Prisma `$disconnect` → Redis `quit` → filas). **T044:** e2e de drenagem (`test/graceful-shutdown.e2e.spec.ts`: requisição em andamento termina 200 após `close()`; novas conexões recusadas; sem `unhandledRejection`) + testes do timeout configurável. `vitest` 9/9; eslint/tsc OK.
 - [~] 6.11 Fila assíncrona (BullMQ): **postergado** — sem caso de uso concreto (D-017).
 - [~] 6.12 IA/RAG: **postergado** (D-017).
 - [x] 6.13 Exportação de dados (LGPD): export + exclusão com 30 dias de carência + cancelamento.
