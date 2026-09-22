@@ -2063,3 +2063,20 @@ problemática mergeado em `main` vai direto para produção, sem stage e sem tra
 
 **Testes:** self-test 10/10 (`--self-test`); CLI validado nos 3 caminhos (liberado sem
 banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
+
+---
+
+## D-533 — T032: merge do guard B1 (#168) e escalonamento do P011 (required check)
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T032-merge-pr168 · **Status:** DECIDIDO (merge feito; P011 escalado)
+
+**Contexto:** O PR #168 (guarda `migration-safety`, D-532) já se encontrava mergeado em `main` via **merge commit** `bc99630` (2026-09-22T03:41:37Z), com head `089483e`. A T032 pedia auditar/mergear e habilitar o check obrigatório (P011) **com segurança**.
+
+**Decisão:**
+1. Merge confirmado como merge commit (`bc99630`); `origin/main` contém o head `089483e`. Sem squash/rebase.
+2. Pós-merge verificado: CI de `main` **success** (run `35684093799`, 4m33s); Deploy **success** (`35684093823`, 2m31s); `deploy.yml` success. **Smoke:** API `/health` 200; web `/pt-BR` `/en-US` `/es-ES` 200; HTML da home sem chave i18n crua; sem 5xx observado.
+3. **P011 NÃO habilitado — escalonado.** Inventário das PRs abertas (#140, #139, #133, #4, #3, #2): **nenhuma** possui o check `Migration Safety (B1)`. Os últimos runs de #140 (2026-09-20T19:41Z) e #139 (2026-09-20T18:53Z) são **anteriores** ao merge do guard (2026-09-22T03:41Z). O job só existe a partir do #168 e **adicionar um required check não o executa retroativamente** — torná-lo required agora deixaria essas PRs em "Expected — aguardando" (**bloqueadas**). Conforme restrição da T032, não se habilita required com PR aberta sem o check.
+4. **Caminho seguro para P011 (Operador):** re-executar o CI (ou push de commit) nas PRs abertas que se pretende manter, para que o check `Migration Safety (B1)` reporte; então adicionar o check aos required da ruleset `protect-main`. PRs legadas/abandonadas (#2/#3/#4 já vermelhas) podem ser fechadas antes de habilitar.
+5. P012/P013 permanecem pendências do Operador — nada executado.
+
+**Evidências:** merge commit `bc99630`; runs `35684093799` (CI) e `35684093823` (Deploy); smoke `curl` `/health`·`/pt-BR`·`/en-US`·`/es-ES` = 200; inventário de checks das PRs abertas (nenhuma com `Migration Safety (B1)`).
