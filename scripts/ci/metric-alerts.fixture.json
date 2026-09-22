@@ -1,0 +1,8 @@
+{
+  "janela5xxMin": 5,
+  "requisicoes": 1000,
+  "erros5xx": 0,
+  "authFalhas1min": 0,
+  "authFalhas5min": 0,
+  "_nota": "T040/D-538 — fixture determinístico (abaixo do limiar). Usado quando METRICS_URL/ADMIN_TOKEN não estão configurados (dry-run)."
+}
