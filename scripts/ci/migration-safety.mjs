@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global console */
 /**
  * T031/B1 (#148 item 7) — guarda FAIL-CLOSED para mudanças de banco.
  *
@@ -34,7 +35,9 @@ const MIN_CONTEUDO_PLANO = 15;
  * True se o arquivo é mudança de banco (migration versionada ou schema).
  */
 export function ehArquivoDeBanco(caminho) {
-  const normalizado = String(caminho ?? "").replace(/\\/g, "/").trim();
+  const normalizado = String(caminho ?? "")
+    .replace(/\\/g, "/")
+    .trim();
   return PADROES_BANCO.some((re) => re.test(normalizado));
 }
 
@@ -66,7 +69,10 @@ export function temPlanoRollback(corpo) {
   const texto = String(corpo ?? "");
   const m = RE_MARCADOR_ROLLBACK.exec(texto);
   if (!m) return false;
-  const depois = texto.slice(m.index + m[0].length).replace(/\s+/g, " ").trim();
+  const depois = texto
+    .slice(m.index + m[0].length)
+    .replace(/\s+/g, " ")
+    .trim();
   return depois.length >= MIN_CONTEUDO_PLANO;
 }
 
@@ -129,7 +135,8 @@ export function rodarSelfTest() {
 
   const completo = {
     labels: [LABEL_OBRIGATORIA],
-    corpo: "## O que\nmuda X\n\n## Rollback\nReverter o merge e rodar `prisma migrate resolve --rolled-back` na migration 20260922_exemplo; banco tem backup diário (7.7).",
+    corpo:
+      "## O que\nmuda X\n\n## Rollback\nReverter o merge e rodar `prisma migrate resolve --rolled-back` na migration 20260922_exemplo; banco tem backup diário (7.7).",
   };
 
   ok("sem arquivo de banco → liberado", () => {
@@ -210,7 +217,11 @@ export function rodarSelfTest() {
   });
 
   ok("caminho de migration fora do app não conta", () => {
-    const r = avaliar({ arquivos: ["outra-coisa/prisma/migrations/x/migration.sql"], labels: [], corpo: "" });
+    const r = avaliar({
+      arquivos: ["outra-coisa/prisma/migrations/x/migration.sql"],
+      labels: [],
+      corpo: "",
+    });
     if (r.bloqueado !== false) throw new Error("deveria liberar caminho alheio");
   });
 
@@ -269,7 +280,12 @@ function main() {
     const inline = argValor("--files", argv);
     try {
       const bruto = arquivo ? readFileSync(arquivo, "utf8") : (inline ?? "");
-      return { arquivos: bruto.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean) };
+      return {
+        arquivos: bruto
+          .split(/\r?\n|,/)
+          .map((s) => s.trim())
+          .filter(Boolean),
+      };
     } catch (e) {
       return { erro: `falha ao ler arquivos: ${e.message}` };
     }
@@ -304,10 +320,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(
-    resultado.motivos[0] ??
-      "migration-safety: sem mudanças de banco — liberado.",
-  );
+  console.log(resultado.motivos[0] ?? "migration-safety: sem mudanças de banco — liberado.");
   process.exit(0);
 }
 
