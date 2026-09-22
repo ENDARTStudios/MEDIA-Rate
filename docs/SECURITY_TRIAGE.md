@@ -62,3 +62,11 @@ internas/legadas (`usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating` e
 `comentario` — este último **plaintext**). Reduz a superfície de
 *information disclosure* do endpoint owner-only, preservando os campos
 consumidos por feed/biblioteca/store. Follow-up: aplicar em `GET /:midiaId` e `PUT`.
+
+### T038 — DTO allowlist em GET /:midiaId e PUT (D-537)
+
+Após o T036 (GET lista), os endpoints `GET /interacoes/:midiaId` e
+`PUT /interacoes/:midiaId` também passaram a usar o **DTO allowlist** — não
+expõem mais `usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating` nem
+`comentario` (plaintext). Com isso, **nenhum** payload público do módulo
+`interacoes` devolve a linha crua.
