@@ -2150,3 +2150,20 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 5. Sem migrations/schema; sem deploy; PR **sem merge** (PLANO 4.15 mantém `[~]` até merge+smoke).
 
 **TDD/Evidências:** `interacoes.spec.ts` cobre allowlist de `upsert` e `obter` (ausência de colunas internas; `midia`/timestamps/reação preservados) e mock fiel ao `include` (`midia`); `descobertas.spec.ts` mock ajustado. API **118/903** verde; tsc/eslint OK.
+
+---
+
+## D-538 — T040: alertas métricos automatizados (5xx/auth) com dry-run e dedup de issue
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T040-alertas-metricos-beta · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** a Beta precisa de detecção operacional de picos 5xx e falhas de auth (além do `AlertsService` in-app). Não há secret de admin no repo e `/metrics` é protegido.
+
+**Decisão:**
+1. Lógica pura em `scripts/ci/metric-alerts.mjs` (thresholds 5xx >1% / >=5 abs; auth >50/1min / >=10/5min; parser Prometheus + JSON; corpo de issue sem PII; dedup create/update/close/none) + `metric-alerts.self-test.mjs` determinístico.
+2. Workflow `alertas-metricos.yml` (schedule 15 min + dispatch): **dry-run por padrão**; só **age** quando a fonte é LIVE (`vars.METRICS_URL` + `secrets.ADMIN_TOKEN` → `/metrics` com `X-Admin-Token`); dedup pela issue aberta com label `alerta-metrico`. **Não** cria novo secret; sem infra paga; sem deploy.
+3. Sem mudança de produto; sem migration; sem alterar environment Production.
+
+**Follow-up (Operador):** para ativar live, configurar `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` (token read-only do `/metrics`). Enquanto isso, roda em dry-run com fixture (sem ruído).
+
+**Evidências:** self-test 18 ok/0 fail; dry-run CLI acima/abaixo do limiar; eslint ok.

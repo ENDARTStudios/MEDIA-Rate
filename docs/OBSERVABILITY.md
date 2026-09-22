@@ -227,3 +227,21 @@ A criação da conta é **ação do Operador** (serviço externo). Passo a passo
 - **Params UUID** (item 13 #148): rotas com `:id`/`:midiaId` que mapeiam
   colunas `@db.Uuid` usam `UuidParamPipe` (`common/pipes/uuid-param.pipe.ts`)
   — id malformado → **404** sem tocar o Prisma (antes: P2023 → 500).
+
+## Alertas métricos automatizados (T040 / D-538)
+
+Além dos alertas in-app do `AlertsService` (T218: `GET /admin/alerts/status`),
+o workflow **`alertas-metricos.yml`** (schedule 15 min + manual) avalia os
+thresholds e **abre/atualiza uma issue** (`label alerta-metrico`) com dedup:
+
+- **5xx:** taxa > 1% (janela 5 min) OU >= 5 erros absolutos → CRITICAL.
+- **auth_failures:** > 50 em 1 min OU >= 10 em 5 min → WARNING.
+
+Lógica pura em `scripts/ci/metric-alerts.mjs` (self-test determinístico:
+`node scripts/ci/metric-alerts.self-test.mjs`). Thresholds configuráveis por env
+**não-secreta**: `ALERT_5XX_PCT`, `ALERT_5XX_ABS`, `ALERT_AUTH_1MIN`, `ALERT_AUTH_5MIN`.
+
+**Dry-run por padrão.** O workflow só **age** (issue) quando a fonte é LIVE:
+`vars.METRICS_URL` + `secrets.ADMIN_TOKEN` (coleta de `/metrics`, Prometheus
+text, protegido por `X-Admin-Token`). Sem isso, usa o fixture e roda em dry-run
+— nunca abre issue falso. Nenhuma infra paga, nenhum deploy.
