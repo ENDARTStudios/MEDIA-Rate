@@ -1894,3 +1894,189 @@ transposed. No Cloudflare action needed.").
 MESMA classe — valor de identificador truncado/malformado chegando a um
 parser. A caça à linha com UUID de 7 chars no banco segue o mesmo princípio
 de verificação primária (query direta no banco, não inferência).
+
+## D-525 — Biblioteca do usuário separada da watchlist; interações como fonte; cores canônicas únicas; mitigação de SW estranho
+
+**Data:** 2026-09-21 · **Fase:** Auditoria dashboard S1 · **Status:** REGISTRADA (PR pendente de merge)
+
+**Contexto:** Auditoria ao vivo da dashboard + review sênior apontaram: (a) "Minha biblioteca" e o
+atalho "Quero ver" apontavam para /watchlist (Kanban de planejamento), que não representa o
+histórico de escolhas; (b) cores de tipo de mídia com hex duplicado em componentes; (c) usuário pode
+ficar preso em render antigo por service worker estranho na origem (comprovado em localhost:3000 —
+o app NUNCA registrou SW próprio: nenhum sw.js no repo/histórico, nenhum serviceWorker.register);
+(d) GET /api/v1/interacoes sem validação de query, paginação ou contagens.
+
+**Decisão:**
+1. **Biblioteca separada da watchlist**: nova rota protegida `/biblioteca` (middleware), abas pelos
+   4 status de consumo (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO) com contagens GLOBAIS do
+   servidor, filtro por tipo server-side, rótulos conjugados por mídia (vocabulário T239 via novo
+   `consumoParaColuna()`). Sidebar "Minha biblioteca" → /biblioteca; atalho "Quero ver" →
+   /biblioteca?status=QUERO_CONSUMIR. /watchlist PERMANECE o Kanban (não deprecada).
+2. **GET /api/v1/interacoes endurecido** (D-525): query validada por Zod (status/tipo enums,
+   limit 1-50 default 50, cursor opaco base64url de offset — inválido → 400); envelope
+   `{ items, total, porStatus, nextCursor }`; página curta encerra paginação (sem cursor infinito);
+   RLS owner-only mantido; rate limit global do gateway (@fastify/rate-limit) cobre a rota;
+   Swagger documentado. Feed da dashboard usa 1 página de 50 (recente-first); biblioteca pagina.
+3. **Cores canônicas de tipo de mídia: fonte única = CATEGORY_TOKENS (design-tokens.ts)**
+   (movie #818CF8, series #38BDF8, game #34D399, book #FBBF24, comic #F472B6, manga #A78BFA).
+   Proibido hex de mídia fora dos tokens; pulso, taxonomia, chips, histograma e rótulos da
+   biblioteca consomem os tokens. Contraste AA das 6 cores sobre BG/card coberto por teste.
+   Dívida registrada: acentos genéricos (indigo/sky de foco) em componentes antigos fora do escopo.
+4. **Mitigação de service worker estranho**: `LimpezaServiceWorker` monta no layout raiz e desregistra
+   qualquer SW da origem + limpa Cache Storage uma vez por página (o app não tem SW próprio; se um
+   dia tiver, revisar antes). Evidência unitária em test/sw-cleanup.spec.ts.
+
+**Efeitos:** breaking change controlada no corpo do GET /interacoes (array → envelope); únicos
+consumidores (feed da dashboard + biblioteca) atualizados no mesmo PR. i18n: namespace `biblioteca`
+(18 chaves ×3 línguas, paridade por CI). Testes: web 417/417, api 894/894, builds web+api verdes.
+
+## D-526 — Promoção do PR #143 para produção condicionada a evidência; promoção executada
+
+**Data:** 2026-09-21 · **Fase:** Consolidação dashboard/biblioteca · **Status:** EXECUTADA
+
+**Contexto:** Neste repositório `main` é auto-deployada para produção (Vercel web via integração
+Git + Railway API nativo; `deploy.yml` falha só no step de migration por secret com hostname
+interno — pré-existente, pendência de Operador). O review sênior autorizou o merge do PR #143
+somente com evidência verde da issue #147 (E2E full da biblioteca com API+DB), que o CI não provê.
+
+**Decisão:**
+1. Evidência #147 coletada em ambiente local integrado (Postgres 16 em container + migrations +
+   usuários provisionados + API/web locais): E2E `biblioteca` 4/4 + `dashboard-gating` 3/3 com
+   `E2E_FULL=1`, mais curl matrix da API (401/200 envelope/400 inválidos) e cenários manuais.
+2. Promoção via merge commit `9ae0231` (sem squash, sem deleção imediata de branch), disparando
+   Railway deploy SUCCESS + Vercel web.
+3. Smoke pós-deploy em produção: health 200, deep link preservando callbackUrl, query inválida
+   sem 500, watchlist intacta, API 401/200/400 conforme contrato.
+4. Gate de Beta Fechada permanece no PLANO_MESTRE global (fases 2/3/4 parciais) — este PR não
+   declara Beta pronta.
+5. Dívidas não bloqueantes rastreadas na issue #148 (DTO explícito do /interacoes, accents legacy,
+   revisão do LimpezaServiceWorker antes de PWA, advisories CSP/ZAP, rotação opcional do whsec de
+   teste — fragmento truncado, valor completo jamais existiu no histórico).
+
+## D-527 — Verdade operacional do deploy de produção; pipeline da main redesignado
+
+**Data:** 2026-09-21 · **Fase:** Pós-promoção #143 · **Status:** PROPOSTA (PR aberto, aguarda autorização)
+
+**Contexto:** Os runs de "Deploy" na `main` falhavam há semanas. Investigação com fonte primária:
+(1) `deploy.yml` executava `prisma migrate deploy` com o secret `DATABASE_URL` do GitHub, que
+contém o hostname INTERNO do Railway (`postgres.railway.internal`) — inalcançável dos runners
+(P1001 reproduzido fora da rede Railway); (2) os jobs de deploy Backend/Frontend eram skippados
+após essa falha; (3) MESMO ASSIM a produção recebia os deploys: Railway tem integração Git nativa
+(deployment SUCCESS em cada merge — logs mostram o entrypoint `docker-entrypoint.sh` rodando
+`prisma migrate deploy` no boot, antes do node subir) e Vercel promove o web pela integração Git.
+
+**Decisão (proposta em PR):**
+1. `deploy.yml` passa a conter apenas: job de validação da `main` (lint/typecheck/test/audit/build)
+   + health check pós-promoção com retries (informativo). Jobs redundantes de deploy
+   (Vercel/Railway via CLI, duplicando as integrações nativas) removidos.
+2. Migration manual com backup move-se para `migrate-production.yml` (`workflow_dispatch` apenas),
+   para migrations arriscadas fora de deploy; enquanto o secret DATABASE_URL apontar para o
+   hostname interno, esse workflow também não roda dos runners — ver pendência do Operador.
+3. Migrations futuras seguem o caminho canônico: PR com migration → merge → entrypoint do Railway
+   aplica no boot ANTES de servir tráfego. Para migration arriscada: Operador roda
+   `migrate-production.yml` (backup) antes do merge.
+
+## D-528 — Regra de reclassificação: CONCLUIDO → ABANDONADO não é permitido
+
+**Data:** 2026-09-21 · **Fase:** Pós-promoção #143 · **Status:** DECIDIDA (regra vigente documentada)
+
+**Contexto:** O E2E T308 (stale, fora da allowlist do CI) esperava 200 na transição
+CONCLUIDO → ABANDONADO, mas a máquina de estados (API e espelho no web, `podeTransicionar`)
+rejeita. Regra, comportamento e teste estavam desalinhados.
+
+**Decisão:** NÃO é permitido reclassificar item CONCLUIDO como ABANDONADO. Evidências: a UI
+(`StatusReactionControl` via `podeTransicionar`) já não oferece a transição; semântica de produto
+— para "desistir depois de retomar", o caminho é CONCLUIDO → CONSUMINDO → ABANDONADO (permitido).
+Alinhamentos: comentários da máquina corrigidos (API + web); teste unitário da rejeição adicionado
+(`test/interacoes.spec.ts`); T308 atualizado para esperar 400 e tratar o envelope do
+GET /interacoes (D-525).
+
+## D-529 — Máquina de estados vale também para a projeção do Kanban; watchlist com trilha de auditoria
+
+**Data:** 2026-09-21 · **Fase:** T027 backend canonicity · **Status:** PROPOSTA (PR aberto)
+
+**Contexto:** O `move()` do Kanban (`watchlist.service`) projetava o status na interação SEM
+validar a máquina de estados — arrastar um item de COMPLETED para DROPPED gravava
+CONCLUIDO → ABANDONADO diretamente, contornando a regra D-528 (o PUT /interacoes rejeita;
+o drag não). As restrições de T027 exigiam que o CRUD da watchlist respeitasse D-528.
+
+**Decisão:**
+1. Máquina de estados extraída para `common/estados-consumo.ts` (fonte única — API e espelho web).
+2. `watchlist.service.move()` valida a transição contra o status ATUAL da interação antes de
+   projetar; inválida → 400 com mensagem clara (inclui D-528).
+3. Trilha de auditoria (repudiação — STRIDE): `AuditLogService.log()` em add/move/remove da
+   watchlist, fire-and-forget fora da tx RLS (falha de audit não derruba a operação).
+4. UI: `podeMoverPara()` no Kanban torna o drop inválido um no-op (defesa em profundidade).
+
+**Testes:** `test/watchlist-move-d528.spec.ts` (4 casos, TDD vermelho→verde),
+`test/watchlist.e2e.spec.ts` ganhou caso HTTP D-528 (400) — 16/16.
+
+## D-531 — Robustez de params UUID (404 pré-Prisma) e fonte única de request logging
+
+**Data:** 2026-09-21 · **Fase:** T028-micro (follow-ups #148 itens 13-14) · **Status:** APROVADA (PR #163 merged, 156e18b — smoke produção: 404 em id malformado, logs sem duplicação, redaction csrf ativa)
+
+**Contexto:** O smoke pós-merge do T027 (PR #160) expôs dois débitos: (13) `PATCH
+/watchlist/:id/move` e `GET/PUT /interacoes/:midiaId` com id malformado faziam o Prisma
+lançar P2023 ("invalid input syntax for type uuid") → **500**; (14) cada request gerava
+**linhas duplicadas** nos logs do Railway — o T027 ligou o logger nativo do Fastify
+(`FastifyAdapter({ logger })`) sem remover o `nestjs-pino` (`AppLoggerModule`, T1.8/T217)
+que já era ativo.
+
+**Decisão:**
+1. `UuidParamPipe` (`common/pipes/uuid-param.pipe.ts`): params que mapeiam colunas
+   `@db.Uuid` (`watchlist_entry.id`, `usuario_midia_interacao.midia_id`) são validados
+   ANTES do Prisma; malformado → **404** (mesma semântica de "recurso não existe", sem
+   probing de formato). Wireado em 6 rotas: move/reacao/remove/relink (watchlist) +
+   GET/PUT (:midiaId) (interações).
+2. **Fonte única de request logging = nestjs-pino.** O bloco `logger:` do
+   FastifyAdapter em `main.ts` foi removido; a redaction de headers sensíveis
+   (authorization/cookie/x-csrf-token — esta última adicionada agora) vive em
+   `logger.config.ts`. Regra: NUNCA dois loggers de request no mesmo processo.
+
+**Testes:** `test/param-uuid-404.spec.ts` (8 casos, TDD vermelho→verde; spy garante que o
+service não é alcançado) + `logger-redact.spec.ts` (+1 caso runtime x-csrf-token).
+Suíte: 897/897. Smoke de produção valida o comportamento após o merge.
+
+## D-532 — Guarda fail-closed `migration-safety` no CI (B1, #148 item 7)
+
+**Data:** 2026-09-21 · **Fase:** T031-b1-prod-guards · **Status:** PROPOSTA (PR aberto)
+
+**Contexto:** O entrypoint do Railway aplica `prisma migrate deploy` no boot de TODO
+deploy de produção e `main` é deploy automático (D-527) — um PR com migration
+problemática mergeado em `main` vai direto para produção, sem stage e sem trava
+(#148 item 7; bloqueador B1 do relatório T029).
+
+**Decisão:**
+1. Guard CI `migration-safety` (job + `scripts/ci/migration-safety.mjs`), executando
+   SOMENTE em `pull_request`. PR que altera `apps/api/prisma/migrations/**` ou
+   `apps/api/prisma/schema.prisma` exige: label `migration-review` + seção `## Rollback`
+   com conteúdo + linha `Migration:` declarando a intenção (ancorada no início de linha).
+2. FAIL-CLOSED: metadado ilegível (labels JSON quebrado, corpo vazio, arquivos ilegíveis)
+   com mudança de banco = bloqueado. Self-test determinístico (10 fixtures, sem
+   rede/segredos) roda antes da avaliação em todo run.
+3. Metadados entram no script via ARQUIVOS escritos a partir de env do GitHub (nunca
+   inline em shell) — anti-injeção.
+4. Limites: não cobre push direto (já proibido pela ruleset D-457); valida o contrato,
+   não a qualidade da migration; tornar o check REQUIRED na ruleset de `main` é decisão
+   do Operador (P011). Staging/Environment e caminho de migration manual: propostas em
+   `docs/b1-prod-guards.md` (P012/P013) — nada executado.
+
+**Testes:** self-test 10/10 (`--self-test`); CLI validado nos 3 caminhos (liberado sem
+banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
+
+---
+
+## D-533 — T032: merge do guard B1 (#168) e escalonamento do P011 (required check)
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T032-merge-pr168 · **Status:** DECIDIDO (merge feito; P011 escalado)
+
+**Contexto:** O PR #168 (guarda `migration-safety`, D-532) já se encontrava mergeado em `main` via **merge commit** `bc99630` (2026-09-22T03:41:37Z), com head `089483e`. A T032 pedia auditar/mergear e habilitar o check obrigatório (P011) **com segurança**.
+
+**Decisão:**
+1. Merge confirmado como merge commit (`bc99630`); `origin/main` contém o head `089483e`. Sem squash/rebase.
+2. Pós-merge verificado: CI de `main` **success** (run `35684093799`, 4m33s); Deploy **success** (`35684093823`, 2m31s); `deploy.yml` success. **Smoke:** API `/health` 200; web `/pt-BR` `/en-US` `/es-ES` 200; HTML da home sem chave i18n crua; sem 5xx observado.
+3. **P011 NÃO habilitado — escalonado.** Inventário das PRs abertas (#140, #139, #133, #4, #3, #2): **nenhuma** possui o check `Migration Safety (B1)`. Os últimos runs de #140 (2026-09-20T19:41Z) e #139 (2026-09-20T18:53Z) são **anteriores** ao merge do guard (2026-09-22T03:41Z). O job só existe a partir do #168 e **adicionar um required check não o executa retroativamente** — torná-lo required agora deixaria essas PRs em "Expected — aguardando" (**bloqueadas**). Conforme restrição da T032, não se habilita required com PR aberta sem o check.
+4. **Caminho seguro para P011 (Operador):** re-executar o CI (ou push de commit) nas PRs abertas que se pretende manter, para que o check `Migration Safety (B1)` reporte; então adicionar o check aos required da ruleset `protect-main`. PRs legadas/abandonadas (#2/#3/#4 já vermelhas) podem ser fechadas antes de habilitar.
+5. P012/P013 permanecem pendências do Operador — nada executado.
+
+**Evidências:** merge commit `bc99630`; runs `35684093799` (CI) e `35684093823` (Deploy); smoke `curl` `/health`·`/pt-BR`·`/en-US`·`/es-ES` = 200; inventário de checks das PRs abertas (nenhuma com `Migration Safety (B1)`).

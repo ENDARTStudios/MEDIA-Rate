@@ -74,33 +74,40 @@ const premiumCreds = creds("PREMIUM");
 const adminCreds = creds("ADMIN");
 
 test.describe("T305 spot-checks autenticados", () => {
-  // (a) Free → prompt de upgrade, sem radar
+  // (a) Free → previews gateados (radar/evolução/taxonomia/pulso), sem radar real
   test("(a) Free dashboard: upgrade sem radar", async ({ page }) => {
     test.skip(!freeCreds, "TEST_USER_FREE_* ausente");
     await uiLogin(page, freeCreds!.email, freeCreds!.password);
     await page.waitForTimeout(2500);
-    await expect(page.getByText("Dashboard é Plus/Premium")).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('svg[aria-label="Radar"]')).toHaveCount(0);
+    await expect(page.getByTestId("gated-preview").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("overview-radar")).toHaveCount(0);
     await shot(page, "t305-a-free-upgrade");
   });
 
-  // (b) Plus → radar, sem sparkline temporal
+  // (b) Plus → radar real, evolução/pulso gateados
   test("(b) Plus dashboard: radar sem evolucao", async ({ page }) => {
     test.skip(!plusCreds, "TEST_USER_PLUS_* ausente");
     await uiLogin(page, plusCreds!.email, plusCreds!.password);
     await page.waitForTimeout(2500);
-    await expect(page.locator('svg[aria-label="Radar"]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('svg[aria-label="Temporal"]')).toHaveCount(0);
+    await expect(page.getByTestId("overview-radar").locator("svg")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByTestId("overview-evolution")).toHaveCount(0);
     await shot(page, "t305-b-plus-radar");
   });
 
-  // (c) Premium → radar + sparkline temporal
+  // (c) Premium → radar + evolução temporal reais, sem previews
   test("(c) Premium dashboard: radar + evolucao", async ({ page }) => {
     test.skip(!premiumCreds, "TEST_USER_PREMIUM_* ausente");
     await uiLogin(page, premiumCreds!.email, premiumCreds!.password);
     await page.waitForTimeout(2500);
-    await expect(page.locator('svg[aria-label="Radar"]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('svg[aria-label="Temporal"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("overview-radar").locator("svg")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByTestId("overview-evolution").locator("svg")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByTestId("gated-preview")).toHaveCount(0);
     await shot(page, "t305-c-premium-radar-temporal");
   });
 

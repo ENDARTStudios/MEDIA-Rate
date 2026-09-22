@@ -35,8 +35,9 @@ import {
 } from "recharts";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
-import { Link } from "@/lib/navigation";
+import { Link, useRouter } from "@/lib/navigation";
 import { getDiscoveries, type Discovery } from "@/lib/api-discoveries";
+import { getInteracoes, idadeEmDias, tempoRelativoKey, type Interacao } from "@/lib/api-interacoes";
 import {
   ACHIEVEMENT_CATALOG,
   ACTIVITY_FEED,
@@ -45,10 +46,12 @@ import {
   OVERVIEW_PERIODS,
   PERIOD_DELTA,
   PERIOD_SERIES,
-  RECENT_SIGNALS,
   TREND_SERIES,
+  affinityFromHistograma,
+  completionPct,
   formatScoreValue,
   nicheFromApiTipo,
+  nicheLabelKey,
   pulseWeekFromEvolucao,
   radarFromStats,
   taxonomyFromStats,
@@ -59,9 +62,14 @@ import {
 } from "@/lib/dashboard-overview-data";
 
 interface OverviewStats {
+  plano: string;
+  total: number;
+  concluidos: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
+  streak: number;
+  histograma: { faixa: string; total: number }[];
 }
 
 type TrendPeriod = keyof typeof TREND_SERIES;
@@ -74,6 +82,26 @@ const NICHE_ADJUSTMENTS: Record<string, { user: number; community: number }> = {
   book: { user: 0.7, community: 0.3 },
   comic: { user: 0.1, community: 0 },
   manga: { user: 0.35, community: 0.15 },
+};
+
+/** Status de consumo → rótulo (chaves i18n da biblioteca) + cor do chip. */
+const STATUS_META: Record<Interacao["status"], { labelKey: string; className: string }> = {
+  QUERO_CONSUMIR: {
+    labelKey: "wantToSee",
+    className: "border-[#4db6ff]/25 bg-[#4db6ff]/10 text-[#4db6ff]",
+  },
+  CONSUMINDO: {
+    labelKey: "watching",
+    className: "border-[#8b7cff]/25 bg-[#8b7cff]/10 text-[#b9b0ff]",
+  },
+  CONCLUIDO: {
+    labelKey: "completed",
+    className: "border-[#62d7c5]/25 bg-[#62d7c5]/10 text-[#62d7c5]",
+  },
+  ABANDONADO: {
+    labelKey: "dropped",
+    className: "border-white/15 bg-white/[0.05] text-white/50",
+  },
 };
 
 function nicheIcon(niche: OverviewNiche) {
@@ -133,6 +161,47 @@ function DemoBadge({ label }: { label: string }) {
   );
 }
 
+/** T402 (D-378): preview borrado de feature gateada por plano, com CTA. */
+function PreviewCard({
+  titulo,
+  selo,
+  hint,
+  cta,
+  onCta,
+}: {
+  titulo: string;
+  selo: string;
+  hint: string;
+  cta: string;
+  onCta: () => void;
+}) {
+  return (
+    <section
+      className="relative rounded-2xl border border-white/[0.07] bg-[#11111b] p-6 text-sm text-white/40"
+      data-testid="gated-preview"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-[14px] font-bold text-white">{titulo}</h3>
+        <span className="rounded-full border border-[#8b7cff]/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[#b9b0ff]">
+          {selo}
+        </span>
+      </div>
+      <div className="pointer-events-none select-none blur-[6px]" aria-hidden="true">
+        <div className="h-24 rounded-lg bg-gradient-to-br from-white/[0.06] to-transparent" />
+        <div className="mt-3 h-2 w-2/3 rounded-full bg-white/[0.06]" />
+      </div>
+      <p className="mt-3 mb-3 text-[11px] leading-5">{hint}</p>
+      <button
+        type="button"
+        onClick={onCta}
+        className="rounded-lg bg-[#8b7cff] px-4 py-2 text-[11px] font-bold text-[#0d0d14] transition hover:bg-[#a69cff]"
+      >
+        {cta}
+      </button>
+    </section>
+  );
+}
+
 /** Sparkline do protótipo (MiniSparkline) — polyline SVG sem deps. */
 function MiniSparkline({
   values,
@@ -167,7 +236,7 @@ function MiniSparkline({
   );
 }
 
-/** Radar de gosto do protótipo — atual vs. leitura anterior, SVG próprio. */
+/** Radar de gosto — atual vs. leitura anterior, SVG próprio. */
 function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
   const t = useTranslations("dashboard");
   const center = 150;
@@ -295,19 +364,52 @@ function ScoreBadge({ score, max }: { score: number; max: number }) {
   );
 }
 
+/** Barras horizontais compactas (histograma de notas, todos os planos). */
+function HistogramBars({ histograma }: { histograma: { faixa: string; total: number }[] }) {
+  const entradas = histograma.filter((h) => h.total > 0);
+  if (entradas.length === 0) {
+    return <p className="text-[11px] text-white/30">—</p>;
+  }
+  const max = Math.max(1, ...entradas.map((h) => h.total));
+  return (
+    <ul className="space-y-2.5">
+      {entradas.map((h) => (
+        <li key={h.faixa} className="flex items-center gap-3">
+          <span className="w-10 shrink-0 text-[10px] text-white/40">{h.faixa}</span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+            <div
+              className="h-full rounded-full"
+              // Acento do histograma EMPRESTA a cor canônica de séries do
+              // token (D-526: nenhum hex de mídia duplicado fora dos tokens).
+              style={{
+                width: `${Math.max(2, (h.total / max) * 100)}%`,
+                background: CATEGORY_TOKENS.series.color,
+              }}
+            />
+          </div>
+          <span className="w-6 shrink-0 text-right text-[10px] font-bold text-white">
+            {h.total}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   const t = useTranslations("dashboard");
   const tc = useTranslations("catalog");
+  const router = useRouter();
   const [period, setPeriod] = useState<OverviewPeriod>("12 meses");
   const [achievementFilter, setAchievementFilter] = useState("all");
   const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>("12 meses");
   const [selectedNiches, setSelectedNiches] = useState<OverviewNiche[]>([]);
   const [chartMode, setChartMode] = useState<"lines" | "bars">("lines");
   const [compareCommunity, setCompareCommunity] = useState(true);
-  const [recentTab, setRecentTab] = useState<"summary" | "notes" | "status">("summary");
   const [feedPeriod, setFeedPeriod] = useState<"7" | "30" | "365">("7");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [realDiscoveries, setRealDiscoveries] = useState<Discovery[] | null>(null);
+  const [interacoes, setInteracoes] = useState<Interacao[] | null>(null);
   const [notice, setNotice] = useState("");
 
   // Descobertas reais (T201); sem API/dados → dataset de demonstração.
@@ -321,20 +423,57 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
     };
   }, []);
 
+  // Atividades reais do usuário (status/reação por mídia) p/ o feed.
+  // D-525: página única de 50 — feed é recente-first por natureza.
+  useEffect(() => {
+    let ativo = true;
+    void getInteracoes({ limit: 50 }).then((pagina) => {
+      if (ativo) setInteracoes(pagina === null ? null : pagina.items);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  // Gating T402 (D-378): radar/taxonomia = Plus+; evolução/pulso = Premium
+  // (a API já nega os dados server-side — aqui a UI acompanha com preview).
+  const ehPlus = stats.plano === "PLUS" || stats.plano === "PREMIUM";
+  const ehPremium = stats.plano === "PREMIUM";
+
   const taxonomy = useMemo(() => taxonomyFromStats(stats.tipos), [stats.tipos]);
   const unlocked = useMemo(() => unlockedNiches(stats.tipos), [stats.tipos]);
   const pulse = useMemo(() => pulseWeekFromEvolucao(stats.evolucao), [stats.evolucao]);
   const radarAxes = useMemo(() => radarFromStats(stats.generos), [stats.generos]);
+  const radarDemo = Object.values(stats.generos).filter((v) => v > 0).length < 3;
   const topBar = taxonomy.find((b) => b.value > 0);
   const activeNichesCount = taxonomy.filter((b) => b.value > 0).length;
   const periodSeries = PERIOD_SERIES[period];
   const periodDelta = PERIOD_DELTA[period];
 
-  const evolutionData = periodSeries.labels.map((label, index) => ({
-    label,
-    indice: periodSeries.taste[index],
-    atividades: periodSeries.activity[index],
-  }));
+  // Métricas reais (auditoria S1): total/afinidade/conclusão derivam da
+  // resposta REAL de /api/v1/user/stats; sem dado → "—", nunca inventado.
+  const afinidade = affinityFromHistograma(stats.histograma);
+  const conclusao = completionPct(stats.total, stats.concluidos);
+  const afinidadeLabel = afinidade == null ? "—" : ptNumber(afinidade);
+  const conclusaoLabel = conclusao == null ? "—" : `${conclusao}%`;
+
+  // Evolução REAL (Premium): série mensal 12m zero-preenchida da API.
+  const evolucaoReal = ehPremium && stats.evolucao ? stats.evolucao : null;
+  const evolucaoData = evolucaoReal
+    ? evolucaoReal.map((p) => ({ label: p.mes.substring(2), atividades: p.total }))
+    : periodSeries.labels.map((label, index) => ({
+        label,
+        indice: periodSeries.taste[index],
+        atividades: periodSeries.activity[index],
+      }));
+  // Delta real do mês (último vs. anterior) p/ o box de curiosidade.
+  const ultimos = evolucaoReal ? evolucaoReal.slice(-2) : [];
+  const deltaReal =
+    ultimos.length === 2 && ultimos[0].total > 0
+      ? `${ultimos[1].total - ultimos[0].total >= 0 ? "+" : ""}${ultimos[1].total - ultimos[0].total}`
+      : evolucaoReal
+        ? `${ultimos[ultimos.length - 1]?.total ?? 0}`
+        : null;
 
   const strongest = radarAxes.reduce<RadarAxis | null>(
     (best, axis) => (best == null || axis.value > best.value ? axis : best),
@@ -346,8 +485,14 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
     null,
   );
 
+  // Feed de atividades REAL: interações do usuário na janela selecionada.
   const feedDays = Number(feedPeriod);
-  const visibleActivityFeed = ACTIVITY_FEED.filter((item) => item.days <= feedDays);
+  const agora = Date.now();
+  const atividadesReais = useMemo(() => {
+    if (!interacoes) return null;
+    return interacoes.filter((i) => idadeEmDias(i.atualizadoEm, agora) <= feedDays).slice(0, 12);
+  }, [interacoes, feedDays, agora]);
+  const usandoDemoFeed = interacoes === null;
 
   // F17: sem descobertas reais, o fallback demo é rotulado na seção.
   const usandoDemoDescobertas =
@@ -364,7 +509,9 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
             ? t("discFrom", { title: d.fromMedia.titulo })
             : t("discDesc"),
         score: d.toMedia.score,
-        scoreMax: d.toMediaType === "GAME" ? 100 : 10,
+        // MEDIA Score™ da API é 0-100 para TODOS os tipos (o /10 do dataset
+        // demo é exclusivo do protótipo).
+        scoreMax: 100,
         niche: nicheFromApiTipo(d.toMediaType),
       }));
     return reais.length > 0
@@ -400,7 +547,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   });
   const selectedNicheLabel =
     activeNiches.length === 1
-      ? tc(activeNiches[0] as never)
+      ? tc(nicheLabelKey(activeNiches[0]) as never)
       : activeNiches.length > 1
         ? t("trendNichesCount", { n: activeNiches.length })
         : t("overviewAll");
@@ -426,7 +573,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
 
   const mostrarAviso = (mensagem: string) => {
     setNotice(mensagem);
-    window.setTimeout(() => setNotice((atual) => (atual === mensagem ? "" : atual)), 2800);
+    window.setTimeout(() => setNotice((atual) => (atual === mensagem ? "" : mensagem)), 2800);
   };
 
   const shareReport = async (platform?: "x" | "linkedin" | "whatsapp" | "facebook") => {
@@ -454,7 +601,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
 
   const buildReportSvg = () => {
     const radarLine = radarAxes.map((axis) => `${axis.label} ${axis.value}%`).join("   ·   ");
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760"><rect width="1200" height="760" fill="#0b0b12"/><text x="72" y="78" fill="#a69cff" font-family="Arial" font-size="18" font-weight="700">MEDIA RATE</text><text x="72" y="138" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${t("overviewTitleA")} ${t("overviewTitleB")}</text><text x="72" y="178" fill="#9693a8" font-family="Arial" font-size="18">${t("overviewDesc")}</text><rect x="72" y="232" width="316" height="142" rx="18" fill="#151522"/><rect x="420" y="232" width="316" height="142" rx="18" fill="#151522"/><rect x="768" y="232" width="316" height="142" rx="18" fill="#151522"/><text x="96" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewRated")}</text><text x="96" y="330" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${taxonomy.reduce((a, b) => a + b.value, 0)}</text><text x="444" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewAffinity")}</text><text x="444" y="330" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">8,4</text><text x="792" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewDiscoveries")}</text><text x="792" y="330" fill="#62d7c5" font-family="Arial" font-size="42" font-weight="700">${periodDelta}</text><rect x="72" y="424" width="1012" height="240" rx="18" fill="#151522"/><text x="100" y="470" fill="#ffffff" font-family="Arial" font-size="20" font-weight="700">${t("radarTitle")}</text><text x="100" y="520" fill="#a69cff" font-family="Arial" font-size="17">${radarLine}</text><text x="100" y="570" fill="#9693a8" font-family="Arial" font-size="16">${trendSummary}</text><text x="100" y="620" fill="#9693a8" font-family="Arial" font-size="16">MEDIA Rate</text></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760"><rect width="1200" height="760" fill="#0b0b12"/><text x="72" y="78" fill="#a69cff" font-family="Arial" font-size="18" font-weight="700">MEDIA RATE</text><text x="72" y="138" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${t("overviewTitleA")} ${t("overviewTitleB")}</text><text x="72" y="178" fill="#9693a8" font-family="Arial" font-size="18">${t("overviewDesc")}</text><rect x="72" y="232" width="316" height="142" rx="18" fill="#151522"/><rect x="420" y="232" width="316" height="142" rx="18" fill="#151522"/><rect x="768" y="232" width="316" height="142" rx="18" fill="#151522"/><text x="96" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewRated")}</text><text x="96" y="330" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${stats.total}</text><text x="444" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewAffinity")}</text><text x="444" y="330" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${afinidadeLabel}</text><text x="792" y="272" fill="#9693a8" font-family="Arial" font-size="14">${t("overviewCompletion")}</text><text x="792" y="330" fill="#ffffff" font-family="Arial" font-size="42" font-weight="700">${conclusaoLabel}</text><rect x="72" y="424" width="1012" height="240" rx="18" fill="#151522"/><text x="100" y="470" fill="#ffffff" font-family="Arial" font-size="20" font-weight="700">${t("radarTitle")}</text><text x="100" y="520" fill="#a69cff" font-family="Arial" font-size="17">${radarLine}</text><text x="100" y="570" fill="#9693a8" font-family="Arial" font-size="16">${trendSummary}</text><text x="100" y="620" fill="#9693a8" font-family="Arial" font-size="16">MEDIA Rate</text></svg>`;
   };
 
   const exportImage = () => {
@@ -474,10 +621,63 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
       return;
     }
     win.document.write(
-      `<html><head><title>MEDIA Rate</title><style>body{font-family:Arial,sans-serif;background:#0b0b12;color:#fff;padding:48px}h1{font-size:36px}p{color:#aaa}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0}.card{background:#171725;border-radius:16px;padding:24px}.value{font-size:34px;font-weight:700;margin-top:18px}</style></head><body><div style="color:#a69cff">MEDIA RATE</div><h1>${t("overviewTitleA")} ${t("overviewTitleB")}</h1><p>${t("overviewDesc")}</p><div class="grid"><div class="card">${t("overviewRated")}<div class="value">${taxonomy.reduce((a, b) => a + b.value, 0)}</div></div><div class="card">${t("overviewAffinity")}<div class="value">8,4</div></div><div class="card">${t("overviewDiscoveries")}<div class="value">${periodDelta}</div></div></div><div class="card"><h2>${t("radarTitle")}</h2><p style="color:#a69cff">${radarAxes.map((a) => `${a.label} ${a.value}%`).join(" · ")}</p><p>${trendSummary}</p><script>window.onload=()=>window.print()</script></body></html>`,
+      `<html><head><title>MEDIA Rate</title><style>body{font-family:Arial,sans-serif;background:#0b0b12;color:#fff;padding:48px}h1{font-size:36px}p{color:#aaa}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0}.card{background:#171725;border-radius:16px;padding:24px}.value{font-size:34px;font-weight:700;margin-top:18px}</style></head><body><div style="color:#a69cff">MEDIA RATE</div><h1>${t("overviewTitleA")} ${t("overviewTitleB")}</h1><p>${t("overviewDesc")}</p><div class="grid"><div class="card">${t("overviewRated")}<div class="value">${stats.total}</div></div><div class="card">${t("overviewAffinity")}<div class="value">${afinidadeLabel}</div></div><div class="card">${t("overviewCompletion")}<div class="value">${conclusaoLabel}</div></div></div><div class="card"><h2>${t("radarTitle")}</h2><p style="color:#a69cff">${radarAxes.map((a) => `${a.label} ${a.value}%`).join(" · ")}</p><p>${trendSummary}</p><script>window.onload=()=>window.print()</script></body></html>`,
     );
     win.document.close();
   };
+
+  // Cartões de métrica: valor REAL em primeiro lugar; spark/trend REAIS
+  // quando a API fornece série (Premium) — senão demo rotulado (F17).
+  const evolucaoTotais = evolucaoReal ? evolucaoReal.map((p) => p.total) : null;
+  const metricCards = [
+    {
+      label: t("overviewRated"),
+      value: String(stats.total),
+      helper: t("metricRatedHelper"),
+      trend: evolucaoTotais
+        ? deltaReal && !deltaReal.startsWith("-")
+          ? `+${deltaReal.replace("+", "")}`
+          : deltaReal
+        : periodDelta,
+      icon: BarChart3,
+      color: "#8b7cff",
+      spark: evolucaoTotais ?? periodSeries.taste,
+      demo: !evolucaoTotais,
+    },
+    {
+      label: t("overviewAffinity"),
+      value: afinidadeLabel,
+      helper: t("metricAffinityHelper"),
+      trend: null as string | null,
+      icon: Heart,
+      color: "#62d7c5",
+      spark: stats.histograma.map((h) => h.total),
+      demo: false,
+    },
+    {
+      label: t("overviewCompletion"),
+      value: conclusaoLabel,
+      helper: t("metricCompletionHelper"),
+      trend: null as string | null,
+      icon: Check,
+      color: "#f2c36b",
+      spark: null as number[] | null,
+      demo: false,
+    },
+    {
+      label: t("overviewDiscoveries"),
+      value:
+        realDiscoveries === null
+          ? "—"
+          : String(realDiscoveries.filter((d) => d.toMedia?.titulo).length),
+      helper: t("metricDiscoveriesHelper"),
+      trend: null as string | null,
+      icon: Compass,
+      color: "#ff7f66",
+      spark: null as number[] | null,
+      demo: false,
+    },
+  ];
 
   return (
     <div className="space-y-6" data-testid="dashboard-overview">
@@ -496,7 +696,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         </div>
       )}
 
-      {/* Hero + seletor de período (protótipo) */}
+      {/* Hero + seletor de período */}
       <section
         data-testid="overview-hero"
         className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"
@@ -526,52 +726,12 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         </div>
       </section>
 
-      {/* Métricas por nicho (protótipo: 4 mini-cards com sparkline/trend/helper) */}
+      {/* Métricas (4 mini-cards): valor real; spark/trend reais quando há série */}
       <section data-testid="overview-metrics" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: t("overviewRated"),
-            value: String(taxonomy.reduce((a, b) => a + b.value, 0)),
-            helper: t("metricRatedHelper"),
-            trend: periodDelta,
-            icon: BarChart3,
-            color: "#8b7cff",
-            spark: periodSeries.taste,
-            demo: false,
-          },
-          {
-            label: t("overviewAffinity"),
-            value: "8,4",
-            helper: t("metricAffinityHelper"),
-            trend: "+0,6",
-            icon: Heart,
-            color: "#62d7c5",
-            spark: [54, 50, 58, 63, 61, 70, 77],
-            demo: true,
-          },
-          {
-            label: t("overviewCompletion"),
-            value: "72%",
-            helper: t("metricCompletionHelper"),
-            trend: "+12,1%",
-            icon: Check,
-            color: "#f2c36b",
-            spark: [40, 45, 43, 56, 60, 67, 72],
-            demo: true,
-          },
-          {
-            label: t("overviewDiscoveries"),
-            value: "18",
-            helper: t("metricDiscoveriesHelper"),
-            trend: "+5",
-            icon: Compass,
-            color: "#ff7f66",
-            spark: [21, 25, 28, 37, 41, 45, 58],
-            demo: true,
-          },
-        ].map((m) => {
+        {metricCards.map((m) => {
           const Icon = m.icon;
-          const positive = !m.trend.startsWith("−") && !m.trend.startsWith("-");
+          const trend = m.trend ?? null;
+          const positive = trend != null && !trend.startsWith("−") && !trend.startsWith("-");
           return (
             <div
               key={m.label}
@@ -595,253 +755,345 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                   </div>
                   <p className="text-[28px] font-bold tracking-[-0.05em] text-white">{m.value}</p>
                   <div className="mt-1 flex items-center gap-2 text-[11px] text-white/35">
-                    <span className={positive ? "text-[#62d7c5]" : "text-[#ff9b85]"}>
-                      {positive ? (
-                        <ArrowUpRight size={13} className="inline" />
-                      ) : (
-                        <ArrowDownRight size={13} className="inline" />
-                      )}
-                      {m.trend}
-                    </span>
+                    {trend != null && (
+                      <span className={positive ? "text-[#62d7c5]" : "text-[#ff9b85]"}>
+                        {positive ? (
+                          <ArrowUpRight size={13} className="inline" />
+                        ) : (
+                          <ArrowDownRight size={13} className="inline" />
+                        )}
+                        {trend}
+                      </span>
+                    )}
                     {m.helper}
                   </div>
                 </div>
-                <MiniSparkline values={m.spark} color={m.color} ariaLabel={m.label} />
+                {m.spark && m.spark.length > 1 && (
+                  <MiniSparkline values={m.spark} color={m.color} ariaLabel={m.label} />
+                )}
               </div>
             </div>
           );
         })}
       </section>
 
-      {/* Radar de gosto + evolução (protótipo) */}
-      <section className="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
-        <div
-          data-testid="overview-radar"
-          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
-        >
+      {/* Consistência: streak + histograma de notas (reais, todos os planos — T396) */}
+      <section data-testid="overview-consistency" className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6">
           <SectionHead
             icon={
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#8b7cff]/15 text-[#a69cff]">
-                <Target size={14} />
+              <span
+                className="grid h-7 w-7 place-items-center rounded-lg"
+                style={{
+                  background: `${CATEGORY_TOKENS.game.color}26`,
+                  color: CATEGORY_TOKENS.game.color,
+                }}
+              >
+                <Zap size={14} />
               </span>
             }
-            title={t("radarTitle")}
-            desc={t("radarDesc")}
+            title={t("streak")}
+            desc={t("streakHint")}
           />
-          <RadarGraphic axes={radarAxes} />
-          <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
-            <div>
-              <p className="text-[11px] text-white/35">{t("radarStrongest")}</p>
-              <p className="mt-1 text-[15px] font-bold text-white">
-                {strongest ? strongest.label : "—"}{" "}
-                {strongest && <span className="ml-1 text-[#9b8cff]">{strongest.value}%</span>}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[11px] text-white/35">{t("radarBiggestJump")}</p>
-              <p className="mt-1 flex items-center justify-end gap-1 text-[15px] font-bold text-[#62d7c5]">
-                <TrendingUp size={14} />
-                {biggestJump
-                  ? `${biggestJump.label} +${biggestJump.value - biggestJump.previous}%`
-                  : "—"}
-              </p>
-            </div>
-          </div>
+          <p
+            className="text-[42px] font-bold leading-none tracking-[-0.05em]"
+            style={{ color: CATEGORY_TOKENS.game.color }}
+          >
+            {stats.streak}
+          </p>
         </div>
+        <div className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6">
+          <SectionHead
+            icon={
+              <span
+                className="grid h-7 w-7 place-items-center rounded-lg"
+                style={{
+                  background: `${CATEGORY_TOKENS.series.color}26`,
+                  color: CATEGORY_TOKENS.series.color,
+                }}
+              >
+                <BarChart3 size={14} />
+              </span>
+            }
+            title={t("scoreHistogram")}
+            desc={t("metricAffinityHelper")}
+          />
+          <HistogramBars histograma={stats.histograma} />
+        </div>
+      </section>
 
-        <div
-          data-testid="overview-evolution"
-          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
-        >
-          <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+      {/* Radar de gosto (Plus+) + evolução (Premium) — T402 coerente */}
+      <section className="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
+        {ehPlus ? (
+          <div
+            data-testid="overview-radar"
+            className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
+          >
             <SectionHead
               icon={
-                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#62d7c5]/15 text-[#62d7c5]">
-                  <Activity size={14} />
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#8b7cff]/15 text-[#a69cff]">
+                  <Target size={14} />
                 </span>
               }
-              title={t("evoTitle")}
-              desc={t("evoDesc")}
+              title={t("radarTitle")}
+              desc={t("radarDesc")}
+              badge={radarDemo ? <DemoBadge label={t("demoBadge")} /> : undefined}
+            />
+            <RadarGraphic axes={radarAxes} />
+            {!radarDemo && (
+              <p className="mt-2 text-[10px] text-white/30">{t("radarPreviousNote")}</p>
+            )}
+            <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
+              <div>
+                <p className="text-[11px] text-white/35">{t("radarStrongest")}</p>
+                <p className="mt-1 text-[15px] font-bold text-white">
+                  {strongest ? strongest.label : "—"}{" "}
+                  {strongest && <span className="ml-1 text-[#9b8cff]">{strongest.value}%</span>}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] text-white/35">{t("radarBiggestJump")}</p>
+                <p className="mt-1 flex items-center justify-end gap-1 text-[15px] font-bold text-[#62d7c5]">
+                  <TrendingUp size={14} />
+                  {biggestJump
+                    ? `${biggestJump.label} +${biggestJump.value - biggestJump.previous}%`
+                    : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <PreviewCard
+            titulo={t("radarTitle")}
+            selo="Plus"
+            hint={t("upgradeHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
+        )}
+
+        {evolucaoReal ? (
+          <div
+            data-testid="overview-evolution"
+            className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
+          >
+            <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+              <SectionHead
+                icon={
+                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#62d7c5]/15 text-[#62d7c5]">
+                    <Activity size={14} />
+                  </span>
+                }
+                title={t("evoTitle")}
+                desc={t("evoDesc")}
+              />
+              <div className="flex items-center gap-3 text-[10px] text-white/40">
+                <span className="flex items-center gap-1.5">
+                  <i className="h-2 w-2 rounded-full bg-[#62d7c5]" /> {t("evoLegendActivity")}
+                </span>
+              </div>
+            </div>
+            <div className="h-[310px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evolucaoData} margin={{ top: 14, right: 8, left: -23, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "rgba(255,255,255,.35)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    dy={10}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fill: "rgba(255,255,255,.25)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "#1a1a28",
+                      border: "1px solid rgba(255,255,255,.1)",
+                      borderRadius: 12,
+                      fontSize: 11,
+                      color: "#fff",
+                    }}
+                    labelStyle={{ color: "rgba(255,255,255,.5)", marginBottom: 5 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="atividades"
+                    stroke="#62d7c5"
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "#62d7c5", strokeWidth: 0 }}
+                    activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-3 flex items-center justify-between rounded-xl bg-[#62d7c5]/[0.07] px-4 py-3">
+              <div className="flex items-center gap-2 text-[11px] text-white/55">
+                <Zap size={14} className="text-[#62d7c5]" />
+                {t("evoCuriosity")}
+              </div>
+              <span className="text-[13px] font-bold text-[#62d7c5]">{deltaReal ?? "—"}</span>
+            </div>
+          </div>
+        ) : (
+          <PreviewCard
+            titulo={t("evoTitle")}
+            selo="Premium"
+            hint={t("premiumHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
+        )}
+      </section>
+
+      {/* Taxonomia (Plus+) + pulso (Premium; distribuição derivada rotulada) */}
+      <section className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+        {ehPlus ? (
+          <div
+            data-testid="overview-taxonomy"
+            className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
+          >
+            <SectionHead
+              icon={
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#f2c36b]/15 text-[#f2c36b]">
+                  <Library size={14} />
+                </span>
+              }
+              title={t("taxonomyTitle")}
+              desc={t("taxonomyDesc")}
+            />
+            <div className="space-y-5">
+              {taxonomy.map((item) => {
+                const Icon = nicheIcon(item.niche);
+                return (
+                  <div
+                    key={item.niche}
+                    className="group transition duration-300 hover:translate-x-1"
+                  >
+                    <div className="mb-2 flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-2 font-semibold text-white/65">
+                        <Icon size={14} style={{ color: item.color }} />
+                        {tc(nicheLabelKey(item.niche) as never)}
+                      </span>
+                      <span className="font-bold text-white">{item.pct}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 group-hover:brightness-125"
+                        style={{ width: `${item.pct}%`, background: item.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-7 grid grid-cols-3 gap-2 border-t border-white/[0.07] pt-5">
+              <div>
+                <p className="text-[10px] text-white/30">{t("taxonomyMostConsumed")}</p>
+                <p className="mt-1 text-[12px] font-bold text-white">
+                  {topBar ? tc(nicheLabelKey(topBar.niche) as never) : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/30">{t("taxonomyActiveNiches")}</p>
+                <p className="mt-1 text-[12px] font-bold text-white">{activeNichesCount} / 6</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/30">{t("taxonomyTrending")}</p>
+                <p className="mt-1 text-[12px] font-bold text-white">
+                  {topBar ? `${topBar.pct}%` : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <PreviewCard
+            titulo={t("taxonomyTitle")}
+            selo="Plus"
+            hint={t("upgradeHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
+        )}
+
+        {ehPremium ? (
+          <div
+            data-testid="overview-pulse"
+            className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
+          >
+            <SectionHead
+              icon={
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#ff7f66]/15 text-[#ff9a86]">
+                  <Flame size={14} />
+                </span>
+              }
+              title={t("pulseTitle")}
+              desc={t("pulseDesc")}
               badge={<DemoBadge label={t("demoBadge")} />}
             />
-            <div className="flex items-center gap-3 text-[10px] text-white/40">
-              <span className="flex items-center gap-1.5">
-                <i className="h-2 w-2 rounded-full bg-[#9b8cff]" /> {t("evoLegendIndex")}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <i className="h-2 w-2 rounded-full bg-[#62d7c5]" /> {t("evoLegendActivity")}
-              </span>
+            <div className="h-[206px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={pulse}
+                  margin={{ top: 5, right: 0, left: -28, bottom: 0 }}
+                  barGap={2}
+                >
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fill: "rgba(255,255,255,.35)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    dy={8}
+                  />
+                  <YAxis
+                    tick={{ fill: "rgba(255,255,255,.2)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(255,255,255,.04)" }}
+                    contentStyle={{
+                      background: "#1a1a28",
+                      border: "1px solid rgba(255,255,255,.1)",
+                      borderRadius: 12,
+                      fontSize: 11,
+                      color: "#fff",
+                    }}
+                  />
+                  {/* Cores canônicas dos ícones de mídia (design-tokens), não
+                      a paleta do protótipo. */}
+                  <Bar dataKey="movie" stackId="a" fill={CATEGORY_TOKENS.movie.color} />
+                  <Bar dataKey="series" stackId="a" fill={CATEGORY_TOKENS.series.color} />
+                  <Bar dataKey="game" stackId="a" fill={CATEGORY_TOKENS.game.color} />
+                  <Bar dataKey="book" stackId="a" fill={CATEGORY_TOKENS.book.color} />
+                  <Bar dataKey="comic" stackId="a" fill={CATEGORY_TOKENS.comic.color} />
+                  <Bar
+                    dataKey="manga"
+                    stackId="a"
+                    fill={CATEGORY_TOKENS.manga.color}
+                    radius={[3, 3, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          <div className="h-[310px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={evolutionData} margin={{ top: 14, right: 8, left: -23, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "rgba(255,255,255,.35)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  dy={10}
-                />
-                <YAxis
-                  yAxisId="left"
-                  domain={[0, 100]}
-                  tick={{ fill: "rgba(255,255,255,.25)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis yAxisId="right" orientation="right" domain={[0, 50]} hide />
-                <Tooltip
-                  contentStyle={{
-                    background: "#1a1a28",
-                    border: "1px solid rgba(255,255,255,.1)",
-                    borderRadius: 12,
-                    fontSize: 11,
-                    color: "#fff",
-                  }}
-                  labelStyle={{ color: "rgba(255,255,255,.5)", marginBottom: 5 }}
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="indice"
-                  stroke="#9b8cff"
-                  strokeWidth={3}
-                  dot={{ r: 3, fill: "#9b8cff", strokeWidth: 0 }}
-                  activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="atividades"
-                  stroke="#62d7c5"
-                  strokeWidth={2.5}
-                  dot={false}
-                  strokeDasharray="5 5"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-3 flex items-center justify-between rounded-xl bg-[#62d7c5]/[0.07] px-4 py-3">
-            <div className="flex items-center gap-2 text-[11px] text-white/55">
-              <Zap size={14} className="text-[#62d7c5]" />
-              {t("evoCuriosity")}
-            </div>
-            <span className="text-[13px] font-bold text-[#62d7c5]">{periodDelta}</span>
-          </div>
-        </div>
+        ) : (
+          <PreviewCard
+            titulo={t("pulseTitle")}
+            selo="Premium"
+            hint={t("premiumHint")}
+            cta={t("upgrade")}
+            onCta={() => router.push("/pricing")}
+          />
+        )}
       </section>
 
-      {/* Taxonomia + pulso */}
-      <section className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
-        <div
-          data-testid="overview-taxonomy"
-          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
-        >
-          <SectionHead
-            icon={
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#f2c36b]/15 text-[#f2c36b]">
-                <Library size={14} />
-              </span>
-            }
-            title={t("taxonomyTitle")}
-            desc={t("taxonomyDesc")}
-          />
-          <div className="space-y-5">
-            {taxonomy.map((item) => {
-              const Icon = nicheIcon(item.niche);
-              return (
-                <div key={item.niche} className="group transition duration-300 hover:translate-x-1">
-                  <div className="mb-2 flex items-center justify-between text-[11px]">
-                    <span className="flex items-center gap-2 font-semibold text-white/65">
-                      <Icon size={14} style={{ color: item.color }} />
-                      {tc(item.niche as never)}
-                    </span>
-                    <span className="font-bold text-white">{item.pct}%</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div
-                      className="h-full rounded-full transition-all duration-500 group-hover:brightness-125"
-                      style={{ width: `${item.pct}%`, background: item.color }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-7 grid grid-cols-3 gap-2 border-t border-white/[0.07] pt-5">
-            <div>
-              <p className="text-[10px] text-white/30">{t("taxonomyMostConsumed")}</p>
-              <p className="mt-1 text-[12px] font-bold text-white">
-                {topBar ? tc(topBar.niche as never) : "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] text-white/30">{t("taxonomyActiveNiches")}</p>
-              <p className="mt-1 text-[12px] font-bold text-white">{activeNichesCount} / 6</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-white/30">{t("taxonomyTrending")}</p>
-              <p className="mt-1 text-[12px] font-bold text-white">
-                {topBar ? `${topBar.pct}%` : "—"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          data-testid="overview-pulse"
-          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
-        >
-          <SectionHead
-            icon={
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#ff7f66]/15 text-[#ff9a86]">
-                <Flame size={14} />
-              </span>
-            }
-            title={t("pulseTitle")}
-            desc={t("pulseDesc")}
-          />
-          <div className="h-[206px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={pulse} margin={{ top: 5, right: 0, left: -28, bottom: 0 }} barGap={2}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fill: "rgba(255,255,255,.35)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  dy={8}
-                />
-                <YAxis
-                  tick={{ fill: "rgba(255,255,255,.2)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,.04)" }}
-                  contentStyle={{
-                    background: "#1a1a28",
-                    border: "1px solid rgba(255,255,255,.1)",
-                    borderRadius: 12,
-                    fontSize: 11,
-                    color: "#fff",
-                  }}
-                />
-                <Bar dataKey="movie" stackId="a" fill="#8b7cff" />
-                <Bar dataKey="series" stackId="a" fill="#ff7f66" />
-                <Bar dataKey="game" stackId="a" fill="#62d7c5" />
-                <Bar dataKey="book" stackId="a" fill="#f2c36b" />
-                <Bar dataKey="comic" stackId="a" fill="#4db6ff" />
-                <Bar dataKey="manga" stackId="a" fill="#f06bcb" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
-
-      {/* Conquistas + feed de atividades (protótipo) */}
+      {/* Conquistas + feed de atividades (REAL: interações do usuário) */}
       <section className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
         <div
           data-testid="overview-achievements"
@@ -865,7 +1117,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
             {[
               { v: "all", label: t("overviewAll") },
               { v: "unlocked", label: t("achvUnlocked") },
-              ...NICHE_ORDER.map((n) => ({ v: n, label: tc(n as never) })),
+              ...NICHE_ORDER.map((n) => ({ v: n, label: tc(nicheLabelKey(n) as never) })),
             ].map((f) => (
               <button
                 key={f.v}
@@ -920,7 +1172,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
               }
               title={t("feedTitle")}
               desc={t("feedDesc")}
-              badge={<DemoBadge label={t("demoBadge")} />}
+              badge={usandoDemoFeed ? <DemoBadge label={t("demoBadge")} /> : undefined}
             />
             <div className="flex gap-1 rounded-lg border border-white/[0.08] bg-white/[0.02] p-1">
               {(["7", "30", "365"] as const).map((option) => (
@@ -935,45 +1187,103 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
               ))}
             </div>
           </div>
-          <div className="space-y-1">
-            {visibleActivityFeed.map((activity, index) => {
-              const Icon = nicheIcon(activity.niche);
-              const token = CATEGORY_TOKENS[activity.niche as keyof typeof CATEGORY_TOKENS];
-              return (
-                <div
-                  key={activity.titleKey}
-                  className="relative flex gap-3 rounded-xl px-2 py-2.5 transition hover:bg-white/[0.03]"
-                >
-                  {index < visibleActivityFeed.length - 1 && (
-                    <span className="absolute bottom-[-4px] left-[18px] top-[34px] w-px bg-white/[0.08]" />
-                  )}
-                  <span
-                    className="relative z-10 grid h-7 w-7 shrink-0 place-items-center rounded-lg"
-                    style={{ background: `${token.color}18`, color: token.color }}
+
+          {usandoDemoFeed ? (
+            <div className="space-y-1">
+              {ACTIVITY_FEED.filter((item) => item.days <= feedDays).map((activity, index) => {
+                const Icon = nicheIcon(activity.niche);
+                const token = CATEGORY_TOKENS[activity.niche as keyof typeof CATEGORY_TOKENS];
+                return (
+                  <div
+                    key={activity.titleKey}
+                    className="relative flex gap-3 rounded-xl px-2 py-2.5 transition hover:bg-white/[0.03]"
                   >
-                    <Icon size={13} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-[10px] font-bold text-white">
-                        {t(activity.titleKey as never)}
+                    {index < ACTIVITY_FEED.length - 1 && (
+                      <span className="absolute bottom-[-4px] left-[18px] top-[34px] w-px bg-white/[0.08]" />
+                    )}
+                    <span
+                      className="relative z-10 grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+                      style={{ background: `${token.color}18`, color: token.color }}
+                    >
+                      <Icon size={13} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-bold text-white">
+                          {t(activity.titleKey as never)}
+                        </p>
+                        <span className="shrink-0 text-[9px] text-white/25">
+                          {resolveTimeKey(t as never, activity.timeKey)}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[9px] text-white/40">
+                        {t(activity.detailKey as never)}
                       </p>
-                      <span className="shrink-0 text-[9px] text-white/25">
-                        {resolveTimeKey(t as never, activity.timeKey)}
-                      </span>
                     </div>
-                    <p className="mt-1 text-[9px] text-white/40">
-                      {t(activity.detailKey as never)}
-                    </p>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : atividadesReais != null && atividadesReais.length === 0 ? (
+            <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 text-center">
+              <p className="text-[11px] text-white/40">{t("feedEmpty")}</p>
+              <Link
+                href="/catalog"
+                className="mt-3 inline-flex items-center gap-1 rounded-lg bg-[#62d7c5]/15 px-3 py-1.5 text-[10px] font-bold text-[#62d7c5] transition hover:bg-[#62d7c5]/25"
+              >
+                {t("feedEmptyCta")} <ChevronRight size={12} />
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {(atividadesReais ?? []).map((item) => {
+                const niche = nicheFromApiTipo(item.midia.tipo);
+                const Icon = nicheIcon(niche);
+                const token = CATEGORY_TOKENS[niche as keyof typeof CATEGORY_TOKENS];
+                const meta = STATUS_META[item.status];
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/media/${item.midiaId}`}
+                    className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-white/[0.03]"
+                  >
+                    <span
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+                      style={{ background: `${token.color}18`, color: token.color }}
+                    >
+                      <Icon size={13} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="truncate text-[11px] font-bold text-white">
+                          {item.midia.titulo}
+                        </p>
+                        <span className="shrink-0 text-[9px] text-white/25">
+                          {resolveTimeKey(t as never, tempoRelativoKey(item.atualizadoEm))}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span
+                          className={`rounded-full border px-1.5 py-0.5 text-[8px] font-bold ${meta.className}`}
+                        >
+                          {t(meta.labelKey as never)}
+                        </span>
+                        {item.midia.score != null && (
+                          <span className="text-[9px] text-white/35">
+                            {formatScoreValue(item.midia.score, 100)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Tendência das notas vs comunidade + comparativo (protótipo) */}
+      {/* Tendência das notas vs comunidade + comparativo (demo rotulado) */}
       <section className="grid gap-4 lg:grid-cols-[1fr_240px]">
         <div
           data-testid="overview-trend"
@@ -1040,7 +1350,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                 }
                 className={`rounded-md px-1.5 py-1 text-[8px] font-bold transition ${selectedNiches.includes(n) ? "bg-[#8b7cff]/20 text-[#b9b0ff]" : "text-white/30 hover:text-white"}`}
               >
-                {tc(n as never)}
+                {tc(nicheLabelKey(n) as never)}
               </button>
             ))}
             <button
@@ -1109,7 +1419,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                           key={niche}
                           type="monotone"
                           dataKey={`nota_${niche}`}
-                          name={`${tc(niche as never)} · ${t("trendYou")}`}
+                          name={`${tc(nicheLabelKey(niche) as never)} · ${t("trendYou")}`}
                           stroke={color}
                           strokeWidth={3}
                           dot={{ r: 3, fill: color, strokeWidth: 0 }}
@@ -1224,7 +1534,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         </aside>
       </section>
 
-      {/* Descobertas com contexto (protótipo; dados reais T201 com fallback demo) */}
+      {/* Descobertas com contexto (dados reais T201 com fallback demo) */}
       <section
         data-testid="overview-discoveries"
         className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
@@ -1292,71 +1602,8 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         </div>
       </section>
 
-      {/* Sinais recentes + leitura do perfil */}
+      {/* Leitura do perfil (export/share com métricas reais) */}
       <section className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
-        <div
-          data-testid="overview-recent"
-          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
-        >
-          <SectionHead
-            icon={
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#f2c36b]/15 text-[#f2c36b]">
-                <Activity size={14} />
-              </span>
-            }
-            title={t("recentTitle")}
-            desc={t("recentDesc")}
-          />
-          <div className="mb-4 flex items-center gap-1 rounded-xl bg-white/[0.035] p-1">
-            {(["summary", "notes", "status"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setRecentTab(tab)}
-                className={`flex-1 rounded-lg px-3 py-2 text-[10px] font-bold transition ${recentTab === tab ? "bg-white/[0.08] text-white" : "text-white/35"}`}
-              >
-                {t(
-                  tab === "summary"
-                    ? "recentTabSummary"
-                    : tab === "notes"
-                      ? "recentTabNotes"
-                      : "recentTabStatus",
-                )}
-              </button>
-            ))}
-          </div>
-          <div className="divide-y divide-white/[0.06]">
-            {RECENT_SIGNALS.map((item) => {
-              const Icon = nicheIcon(item.niche);
-              const token = CATEGORY_TOKENS[item.niche as keyof typeof CATEGORY_TOKENS];
-              return (
-                <div key={item.title} className="flex items-center gap-3 py-3 first:pt-1">
-                  <div
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
-                    style={{ background: `${token.color}18`, color: token.color }}
-                  >
-                    <Icon size={16} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[12px] font-bold text-white">{item.title}</p>
-                    <p className="mt-0.5 text-[10px] text-white/35">
-                      {recentTab === "notes"
-                        ? t("recentNoteRecorded", { score: item.score })
-                        : recentTab === "status"
-                          ? t("recentStatusUpdated")
-                          : `${t(item.detailKey as never)} · ${resolveTimeKey(t as never, item.timeKey)}`}
-                    </p>
-                  </div>
-                  <span className="flex items-center gap-1 rounded-lg bg-white/[0.07] px-2 py-1 text-[11px] font-bold text-white">
-                    <Star size={11} fill="#f2c36b" strokeWidth={0} className="text-[#f2c36b]" />
-                    {item.score}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         <div
           data-testid="overview-profile"
           className="relative overflow-hidden rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#11111b] p-5 sm:p-6"
@@ -1379,12 +1626,16 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
             <div className="mb-2 mt-7 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-3">
                 <p className="text-[10px] text-white/35">{t("profileCompat")}</p>
-                <p className="mt-1 text-[21px] font-bold text-white">94%</p>
+                <p className="mt-1 text-[21px] font-bold text-white">
+                  {afinidade == null ? "—" : `${Math.round(afinidade * 10)}%`}
+                </p>
                 <p className="mt-1 text-[10px] text-[#62d7c5]">{t("profileCompatDetail")}</p>
               </div>
               <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-3">
                 <p className="text-[10px] text-white/35">{t("profileNextJump")}</p>
-                <p className="mt-1 text-[21px] font-bold text-white">Sci-fi</p>
+                <p className="mt-1 text-[21px] font-bold text-white">
+                  {strongest ? strongest.label : "—"}
+                </p>
                 <p className="mt-1 text-[10px] text-[#f2c36b]">{t("profileNextDetail")}</p>
               </div>
             </div>
@@ -1439,9 +1690,38 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
             </div>
           </div>
         </div>
+
+        {/* Resumo numérico do perfil (real): totais + afinidade + conclusão */}
+        <div
+          data-testid="overview-profile-numbers"
+          className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-5 sm:p-6"
+        >
+          <SectionHead
+            icon={
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#62d7c5]/15 text-[#62d7c5]">
+                <BarChart3 size={14} />
+              </span>
+            }
+            title={t("profileNumbersTitle")}
+            desc={t("recentDesc")}
+          />
+          <div className="divide-y divide-white/[0.06]">
+            {[
+              { label: t("overviewRated"), value: String(stats.total) },
+              { label: t("overviewAffinity"), value: `${afinidadeLabel}/10` },
+              { label: t("overviewCompletion"), value: conclusaoLabel },
+              { label: t("streak"), value: String(stats.streak) },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between py-3 first:pt-1">
+                <p className="text-[11px] text-white/45">{row.label}</p>
+                <p className="text-[14px] font-bold text-white">{row.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Rodapé da dashboard (protótipo) */}
+      {/* Rodapé da dashboard */}
       <footer
         data-testid="dashboard-footer"
         className="flex flex-col items-center justify-between gap-3 py-8 text-[10px] text-white/25 sm:flex-row"

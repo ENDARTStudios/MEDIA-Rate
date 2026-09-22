@@ -14,11 +14,12 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiNotFoundResponse } from "@nestjs/swagger";
 import type { FastifyRequest } from "fastify";
 import { WatchlistService } from "./watchlist.service.js";
 import { MetricsService } from "../metrics/metrics.service.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
+import { UuidParamPipe } from "../../common/pipes/uuid-param.pipe.js";
 import {
   addToWatchlistSchema,
   moveWatchlistSchema,
@@ -71,9 +72,13 @@ export class WatchlistController {
 
   @Patch(":id/move")
   @ApiOperation({ summary: "Move um item entre colunas da watchlist" })
+  @ApiNotFoundResponse({
+    description:
+      "404 — id malformado (UUID inválido, validação pré-Prisma) ou entrada inexistente/de outro usuário.",
+  })
   async move(
     @Req() req: FastifyRequest & { user?: { id: string }; body?: unknown },
-    @Param("id") id: string,
+    @Param("id", UuidParamPipe) id: string,
   ) {
     const body = req.body ?? {};
     const coluna = moveWatchlistSchema.parse(body).coluna;
@@ -83,9 +88,13 @@ export class WatchlistController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Registra reação/motivo/progresso de uma entrada (T285)" })
+  @ApiNotFoundResponse({
+    description:
+      "404 — id malformado (UUID inválido, validação pré-Prisma) ou entrada inexistente/de outro usuário.",
+  })
   async registrarReacao(
     @Req() req: WatchlistRequest,
-    @Param("id") id: string,
+    @Param("id", UuidParamPipe) id: string,
     // Pipe no PARÂMETRO (não no método) — evita validar o @Param contra o schema do body.
     @Body(new ZodValidationPipe(registrarReacaoSchema)) body: RegistrarReacaoDto,
   ) {
@@ -94,17 +103,25 @@ export class WatchlistController {
 
   @Delete(":id")
   @ApiOperation({ summary: "Remove um item da watchlist" })
+  @ApiNotFoundResponse({
+    description:
+      "404 — id malformado (UUID inválido, validação pré-Prisma) ou entrada inexistente/de outro usuário.",
+  })
   @HttpCode(204)
-  async remove(@Req() req: WatchlistRequest, @Param("id") id: string) {
+  async remove(@Req() req: WatchlistRequest, @Param("id", UuidParamPipe) id: string) {
     this.metrics.incrementWatchlistRemove();
     await this.service.remove(this.userId(req), id);
   }
 
   @Patch(":id/relink")
   @ApiOperation({ summary: "Re-linka um item órfão para uma mídia canônica (T322)" })
+  @ApiNotFoundResponse({
+    description:
+      "404 — id malformado (UUID inválido, validação pré-Prisma) ou entrada inexistente/de outro usuário.",
+  })
   async relink(
     @Req() req: WatchlistRequest,
-    @Param("id") id: string,
+    @Param("id", UuidParamPipe) id: string,
     @Body(new ZodValidationPipe(relinkWatchlistSchema)) body: RelinkWatchlistDto,
   ) {
     return this.service.relink(this.userId(req), id, body.midia_id);

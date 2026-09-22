@@ -6,6 +6,8 @@ export interface UserStats {
   plano: string;
   upgrade: boolean;
   total: number;
+  // Taxa de conclusão (métrica real do overview): interações CONCLUIDO.
+  concluidos: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
   evolucao: { mes: string; total: number }[] | null;
@@ -46,9 +48,11 @@ export class DashboardService {
       const tipos: Record<string, number> = {};
       const generos: Record<string, number> = {};
       const hist: number[] = [0, 0, 0, 0, 0];
+      let concluidos = 0;
       for (const i of interacoes) {
         const tipo = i.midia?.tipo;
         if (tipo) tipos[tipo] = (tipos[tipo] ?? 0) + 1;
+        if (i.status === "CONCLUIDO") concluidos += 1;
         for (const g of i.midia?.generos ?? []) {
           const nome = g.genero?.nome;
           if (nome) generos[nome] = (generos[nome] ?? 0) + 1;
@@ -101,6 +105,7 @@ export class DashboardService {
         plano: planoEfetivo,
         upgrade: false,
         total: interacoes.length,
+        concluidos,
         tipos: ehPlus ? tipos : {},
         generos: ehPlus ? generos : {},
         evolucao: ehPremium ? evolucao : null,

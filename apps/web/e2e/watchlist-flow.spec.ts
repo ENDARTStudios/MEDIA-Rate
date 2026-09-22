@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { apiLogin } from "./helpers/auth";
 
 /**
  * T308 — fluxo de status de consumo/watchlist (regressão do "expected object,
@@ -11,12 +12,12 @@ const FREE_EMAIL = process.env.TEST_USER_FREE_EMAIL;
 const FREE_PASSWORD = process.env.TEST_USER_FREE_PASSWORD;
 
 async function login(page: Page) {
-  await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
-  await page.locator('input[name="email"]').first().fill(FREE_EMAIL!);
-  await page.locator('input[type="password"]').first().fill(FREE_PASSWORD!);
-  await page.locator('button[type="submit"]').first().click();
-  await page.waitForURL("**/dashboard", { timeout: 20_000 });
+  // D-525/P1: autenticação via API (cookie jar compartilhado) — o login-UI é
+  // fragil em contexto novo (consentimento/hidratação/lockout).
+  await apiLogin(page, FREE_EMAIL!, FREE_PASSWORD!);
+  // o api() in-page usa sessionStorage/CSRF — precisa estar numa página do app
+  await page.goto(`${BASE}`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1_000);
 }
 
 async function api<T = unknown>(
@@ -25,7 +26,14 @@ async function api<T = unknown>(
   path: string,
   body?: unknown,
 ): Promise<{ status: number; body: T }> {
-  const csrf = await page.evaluate(() => sessionStorage.getItem("mediarate:csrf") ?? "");
+  // D-525/P1: csrf determinístico — lê do COOKIE (fallback do app); após
+  // apiLogin o sessionStorage ainda não foi populado.
+  const csrf = await page.evaluate(
+    () =>
+      document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/)?.[1] ??
+      sessionStorage.getItem("mediarate:csrf") ??
+      "",
+  );
   return page.evaluate(
     async ({ method, path, body, csrf }) => {
       const r = await fetch(path, {
@@ -67,17 +75,23 @@ test("T308: fluxo de status de consumo persiste (4 status + reação)", async ({
   });
   expect(put3.status).toBe(200);
 
+  // D-527: CONCLUIDO → ABANDONADO é rejeitado pela máquina de estados.
   const put4 = await api(page, "PUT", `/api/v1/interacoes/${midiaId}`, {
     status: "ABANDONADO",
     motivoAbandono: "FALTA_TEMPO",
   });
-  expect(put4.status).toBe(200);
+  expect(put4.status).toBe(400);
 
-  const list = await api<{ status?: string }[]>(page, "GET", "/api/v1/interacoes");
+  // GET /interacoes retorna envelope { items } (D-525) e o estado persiste.
+  const list = await api<{ items?: { midia_id?: string; status?: string }[] }>(
+    page,
+    "GET",
+    "/api/v1/interacoes",
+  );
   expect(list.status).toBe(200);
-  const entry = (list.body as { midia_id?: string }[]).find((i) => i.midia_id === midiaId);
+  const entry = (list.body?.items ?? []).find((i) => i.midia_id === midiaId);
   expect(entry).toBeTruthy();
-  expect(entry).toMatchObject({ status: "ABANDONADO" });
+  expect(entry).toMatchObject({ status: "CONCLUIDO" });
 });
 
 test("T310: watchlist nunca expõe título cru (media sempre objeto com title ou dados_parciais)", async ({

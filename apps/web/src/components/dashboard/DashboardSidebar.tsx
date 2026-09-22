@@ -24,12 +24,16 @@ import { useAuthStore } from "@/stores/use-auth-store";
 export const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "navOverview", icon: Home },
   { href: "/dashboard/discoveries", labelKey: "navDiscoveries", icon: Compass },
-  { href: "/watchlist", labelKey: "navLibrary", icon: Library },
+  { href: "/biblioteca", labelKey: "navLibrary", icon: Library },
   { href: "/historico", labelKey: "navGoals", icon: History },
 ] as const;
 
 export const SHORTCUTS = [
-  { href: "/watchlist", labelKey: "navWantToSee", icon: Bookmark },
+  {
+    href: "/biblioteca?status=QUERO_CONSUMIR",
+    labelKey: "navWantToSee",
+    icon: Bookmark,
+  },
   { href: "/listas", labelKey: "navFavorites", icon: Heart },
 ] as const;
 

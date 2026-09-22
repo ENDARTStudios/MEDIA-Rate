@@ -122,6 +122,42 @@ jobs:
           [ "$fail" = "0" ] || exit 1
           echo "docs-gate: markdown OK."
 
+  # T031/B1 (#148 item 7): guarda FAIL-CLOSED para mudanças de banco. O
+  # entrypoint do Railway aplica `prisma migrate deploy` no boot de TODO
+  # deploy; PR que altera apps/api/prisma/migrations/** ou schema.prisma
+  # exige label `migration-review` + plano de rollback + declaração de
+  # migration na descrição. Falha fechando (metadado ilegível bloqueia).
+  # Torná-lo REQUIRED na ruleset de main é decisão do Operador (P011).
+  migration-safety:
+    name: Migration Safety (B1)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Self-test do guard (fixtures determinísticas, sem rede)
+        run: node scripts/ci/migration-safety.mjs --self-test
+      - name: Coleta metadados do PR (via env — sem injeção de shell)
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          printf '%s' "$PR_BODY" > /tmp/pr-body.md
+          printf '%s' "$PR_LABELS" > /tmp/pr-labels.json
+      - name: Avalia guarda migration-safety
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          git diff --name-only "$base" "$head" > /tmp/pr-files.txt
+          node scripts/ci/migration-safety.mjs \
+            --files-file /tmp/pr-files.txt \
+            --labels-file /tmp/pr-labels.json \
+            --body-file /tmp/pr-body.md
+
   # T234/T299: spec de isolamento RLS com postgres de service (migrate deploy em DB virgem).
   security-rls:
     name: RLS Isolation (T290/T299/T301)
@@ -331,10 +367,36 @@ jobs:
       # re-executar o job resolve (não silenciar: DAST real tem valor).
       - name: Resolve Vercel preview URL
         id: preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          BRANCH: ${{ github.head_ref }}
         run: |
-          slug="${{ github.head_ref }}"
-          slug="${slug//\//-}"
-          echo "url=https://media-rate-git-${slug}-end-art-studios.vercel.app" >> "$GITHUB_OUTPUT"
+          # D-530: o rótulo DNS do preview tem limite de 63 chars — nomes de
+          # branch longos truncam a URL construída e ela deixa de resolver.
+          # Consulta a API do Vercel pelo deployment READY mais recente da
+          # branch; fallback: URL construída (comportamento anterior).
+          slug="${BRANCH//\//-}"
+          construida="https://media-rate-git-${slug}-end-art-studios.vercel.app"
+          url_real=""
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            RESP=$(curl -s "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_ORG_ID&target=preview&state=READY&limit=20" -H "Authorization: Bearer $VERCEL_TOKEN")
+            url_real=$(printf '%s' "$RESP" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => (d += c));
+              process.stdin.on("end", () => {
+                try {
+                  const deps = JSON.parse(d).deployments ?? [];
+                  const alvo = deps.find((x) => (x.meta?.githubCommitRef ?? "") === process.env.BRANCH);
+                  if (alvo) console.log("https://" + alvo.url);
+                } catch {}
+              });
+            ' BRANCH="$BRANCH")
+          fi
+          FINAL="${url_real:-$construida}"
+          echo "url=$FINAL" >> "$GITHUB_OUTPUT"
+          echo "preview resolvido: $FINAL"
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
