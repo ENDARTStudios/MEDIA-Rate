@@ -2234,3 +2234,9 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 > criação — corrigir e reconectar o push automático **habilitaria automação não
 > solicitada** (criar PRs sozinho). Decisão de reativar = **P016**
 > (`PENDENCIAS_OPERADOR.md`). `release.yml` permanece manual + `--if-present`.
+
+> **T047 — EVIDÊNCIA PÓS-MERGE (2026-09-22):** merge commit `6264601`; no push de
+> `main` **não houve** run de `Release` nem de `Auto-create PR from feature
+> branch` (o vermelho crônico cessou). CI **success** (4m54s), Security **success**
+> (3m11s), `deploy.yml` **waiting** (P012=A), smoke **7/7 → 200**. Nenhuma
+> release/tag/PR criada automaticamente. Nenhuma alteração de ruleset/secrets/infra.
