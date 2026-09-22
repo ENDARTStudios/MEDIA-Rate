@@ -245,3 +245,28 @@ Lógica pura em `scripts/ci/metric-alerts.mjs` (self-test determinístico:
 `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` (coleta de `/metrics`, Prometheus
 text, protegido por `X-Admin-Token`). Sem isso, usa o fixture e roda em dry-run
 — nunca abre issue falso. Nenhuma infra paga, nenhum deploy.
+
+## Uptime sintético de endpoints públicos (T042 / D-539)
+
+Workflow **`uptime-check.yml`** (schedule 10 min + manual) faz **GET/HEAD** em
+rotas públicas e **somente leitura** (timeout 10 s):
+
+- API: `/health`.
+- Web: `/pt-BR`, `/en-US`, `/es-ES`, `/pt-BR/catalog`, `/pt-BR/pricing`, `/pt-BR/login`.
+
+Lógica pura em `scripts/ci/uptime-check.mjs` (self-test: `node scripts/ci/uptime-check.self-test.mjs`).
+**Dedup de issue** (label `uptime`): cria só na 1ª falha; em falha contínua
+**atualiza o corpo** da issue (sem comentar em loop); **fecha** na recuperação.
+Permissões mínimas (`contents: read`, `issues: write`), `concurrency` ativa.
+**Sem** secret, credencial, cookie ou endpoint autenticado.
+
+**Relação com UptimeRobot (externo):** este monitor é **sintético, no CI** — roda
+dos runners do GitHub e **não** é distribuído (multi-região). Ele **não substitui**
+o UptimeRobot externo (ver P015); os dois se complementam.
+
+### UptimeRobot free (P015) — guia para o Operador
+
+1. Conta gratuita em https://uptimerobot.com.
+2. Add New Monitor → **HTTP(s)** para `https://media-rate-production.up.railway.app/health`
+   e (opcional) `https://mediarate.app/pt-BR`.
+3. Interval: 5 min · Timeout: 30 s · Alert when down 2 vezes → e-mail.

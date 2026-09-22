@@ -2167,3 +2167,22 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Follow-up (Operador):** para ativar live, configurar `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` (token read-only do `/metrics`). Enquanto isso, roda em dry-run com fixture (sem ruído).
 
 **Evidências:** self-test 18 ok/0 fail; dry-run CLI acima/abaixo do limiar; eslint ok.
+
+---
+
+## D-539 — T042: uptime sintético de endpoints públicos (GitHub Actions)
+
+**Data:** 2026-09-22 · **Fase:** F09-cicd / T042-uptime-sintetico-beta · **Status:** DECIDIDO (PR aberto, SEM merge)
+
+**Contexto:** a Beta precisa de um sinal mínimo de disponibilidade pública, sem serviço externo pago nem secret.
+
+**Decisão:**
+1. `scripts/ci/uptime-check.mjs`: lógica PURA (`avaliarUptime`/`decidirAcaoUptime`/`renderUptimeBody`) + `--collect` (GET/HEAD, timeout 10 s, **só rotas públicas**) + `--input`. Dedup: **create** só na 1ª falha; **update** edita o **corpo** (sem comentar em loop); **close** na recuperação. Sem credencial/cookie/endpoint autenticado; sem imprimir corpo/PII.
+2. Workflow `uptime-check.yml`: schedule 10 min + dispatch; **concurrency**; permissions **contents:read + issues:write**; label `uptime`. Sem secret novo, sem infra paga, sem deploy, sem tocar environment Production.
+3. Self-test determinístico 11/11 (sem rede/gh/banco).
+
+**Endpoint set:** `/health` da API + páginas públicas `pt-BR/en-US/es-ES/catalog/pricing/login`.
+
+**Relação com UptimeRobot:** monitor **sintético no CI** — **NÃO** substitui UptimeRobot externo (multi-região); ver **P015**.
+
+**Evidências:** self-test 11/11; coleta live 7/7 OK; dry-run `acao=none`; eslint OK.
