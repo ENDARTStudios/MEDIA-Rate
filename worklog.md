@@ -2770,3 +2770,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Varredura de apps/api/src (grep + scanner) por PII crua em logs fora de auth. Unico achado: common/mock-mail.service.ts (2x `email=${email}` em debug).
 - TDD: RED test apps/api/test/pii-log-scan.spec.ts (scanner de todo src + MockMailService) -> fix: mascararEmail(email) nos 2 logs (import pii-mask). Sem mudar contrato de e-mail/entrega; so o texto do log.
 - Verificacao: pii-log-scan + auth-pii-log 7/7; suite API 913/913 (121 arquivos); tsc OK; eslint OK. Fixture .invalid; sem PII/segredo. D-544.
+
+## [2026-09-23] T054-merge-pr210-pii-scan (MERGED 3518614; smoke OK; flake de fontes re-rodado)
+- Auditoria #210: CLEAN/MERGEABLE no head 01f4ede; required verdes (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration/Semgrep/E2E); Vercel PASS; diff so texto do log no mock-mail (sem mudar entrega/contrato de email); scan segredos/PII 0; pii-log-scan+auth-pii-log 7/7.
+- Merge commit 3518614. Pos-merge main: Security success (2m59s); deploy.yml waiting (P012=A); PRR skipped; sem Release/Auto-create. Smoke 4/4 = 200.
+- FLAKE (nao-codigo): CI de main do #210 falhou em Build Web (Next.js) por indisponibilidade do Google Fonts (next/font/google Inter -> module-not-found). Re-run do job -> CI success (3m24s; Build 1m35s). Registrado em docs/CI.md.
+- Escalonamento: Deploy do #209 waiting >30min sem revisor -> NAO aprovado (P012=A). PLANO 2.10 segue [~]; P017 pendente. Beta NAO declarada pronta.

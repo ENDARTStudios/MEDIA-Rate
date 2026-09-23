@@ -81,3 +81,13 @@ Migration Safety (B1).
   disponível para quando o Operador quiser publicar. Reversível.- Evidência pós-merge (T047, 2026-09-22): merge 6264601 — NENHUM run de Release
   nem de Auto-create PR disparado no push para main; CI success (4m54s); Security
   success (3m11s); Deploy waiting (P012=A); smoke 7/7 = 200.
+
+## Flake conhecido: build do Next.js e fontes Google (T054 — 2026-09-23)
+
+O job `Build Web (Next.js)` do `ci.yml` usa `next/font/google` (Inter), que baixa a
+fonte durante o build. Uma indisponibilidade momentânea do Google Fonts faz o build
+falhar com `module-not-found` em `[next]/internal/font/google/inter_*.module.css`.
+**Não é falha de código** — o mesmo commit pode passar no PR e falhar no push de
+`main` (ou vice-versa). Ação: **re-run** do job (`gh run rerun <id> --failed`) e
+confirmar verde. Observado no merge do #210 (run 35926347836: falha → re-run →
+**success** 3m24s, Build 1m35s).
