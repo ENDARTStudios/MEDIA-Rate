@@ -2782,3 +2782,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - TDD: RED audit-log-pii.spec.ts (sanitizarPii/mascararIpInet inexistentes + persistencia crua) + audit-log-integridade.spec.ts (cadeia valida + linhas nao alteradas). GREEN apos implementar sanitizarPii (recursivo; chaves email/ip/secretas) e mascararIpInet (rede valida p/ @db.Inet: IPv4 /24, IPv6 /48) aplicados no AuditLogService.log.
 - Obs (pre-existente, NAO alterada): hash usa new Date() vs created_at @default(now()) -> possivel drift de ms e falso-positivo no verificarIntegridade; registrado como follow-up.
 - Verificacao: audit-log-pii+integridade 4/4; suite API 917/917 (123 arquivos); tsc OK; eslint OK. Fixtures .invalid + IPs RFC5737. D-545; PLANO 2.10 segue [~]; P017 pendente.
+
+## [2026-09-23] T056-merge-pr213-audit-pii (MERGED 10d7652; smoke OK)
+- Auditoria #213: mergeable; required verdes no head 6290484 (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration/Semgrep; E2E Playwright pass); Vercel PASS; scan segredos/PII 0. Confirmado: hash_cadeia inalterado (diff so em data.dados_antes/dados_depois/ip_origem); mutacao historica em CODIGO/TESTE = 0 (os hits de "backfill" eram prosa das docs).
+- Merge commit 10d7652. Pos-merge main: CI success (4m44s), Security success (2m25s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. API reiniciou (uptime reset) -> sanitizacao live. Smoke 4/4 = 200; sem 5xx/PII/segredo.
+- Follow-up T057-audit-integrity-drift-followup (drift new Date() vs created_at -> possivel falso-positivo em verificarIntegridade). PLANO 2.10 segue [~]; P017 pendente.
