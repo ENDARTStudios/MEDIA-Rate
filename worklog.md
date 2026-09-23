@@ -2761,3 +2761,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Reconciliacao pos-T050: B1/B2/B3 (T029) FECHADOS; Fases 2/6/8/9/10/11 seguem [~]; 3/4/7 concluidas. Divergencias do PLANO classificadas (modulos 29 vs 20; contagens 911/120 vs 888/116) -> notas de evidencia em L21/L153 sem mudar status.
 - Pendencia do Operador: P010 e P012-P017 (P011 FEITO em T034). Insumo da tarefa `.claude/scripts/gerar_sync_simbiotico.py` NAO existe (passo 1 inaplicavel).
 - Relatorio `.claude/reports/beta-readiness-2026-09-24.md` (mapa + classificacao + 5 proximas tarefas: T052 varredura PII logs fora de auth; T053 reconciliar inventario PLANO; T054 minimizacao PII AuditLog; T055 coverage/Stryker; T056 E2E criticos). Sem alterar produto/CI/schema/infra/segredos. Beta NAO declarada pronta.
+
+## [2026-09-23] T052-merge-docs208 (MERGED 097b2eb; smoke OK)
+- Auditoria #208 (docs-only): mergeStateStatus CLEAN/MERGEABLE no head df2f543; arquivos = .claude/reports/beta-readiness-2026-09-24.md + PLANO_MESTRE.md + worklog.md; sem codigo/migration/schema/segredo/CI executavel/infra. scan segredos/PII = 0; git diff --check limpo. Docs Gate pass; Migration Safety pass; jobs pesados skipping; Vercel pass.
+- Merge commit 097b2eb. Pos-merge main: CI success (11s), Security success (3m23s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. Smoke 4/4 = 200. Sem 5xx/segredo. Beta NAO declarada pronta.
