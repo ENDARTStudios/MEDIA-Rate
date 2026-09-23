@@ -2300,3 +2300,17 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Observação (pré-existente, não alterada):** o hash usa `new Date().toISOString()` enquanto `created_at` vem do `@default(now())` do banco → drift de ms pode gerar falso-positivo em `verificarIntegridade`. Fora do escopo (mudaria o hashing); follow-up.
 
 **Evidências:** `audit-log-pii` + `audit-log-integridade` 4/4; suíte API **917/917** (123 arquivos); `tsc` OK; `eslint` OK. Fixtures `.invalid` + IPs RFC 5737. PLANO 2.10 segue `[~]`; P017 pendente.
+
+## D-546 — T057: diagnóstico do drift de timestamp na cadeia do AuditLog (docs/test-only)
+
+**Data:** 2026-09-24 · **Fase:** F07-hardening / T057-audit-integrity-drift-diagnosis · **Status:** DECIDIDO (PR docs/test-only, SEM merge)
+
+**Causa raiz:** `AuditLogService.log()` calcula `hash_cadeia` com `new Date().toISOString()` (relógio do app, antes do INSERT); `verificarIntegridade()` recalcula com `created_at` (`@default(now())`, relógio do banco). Qualquer divergência (clock skew + latência) → **falso-positivo** de violação.
+
+**Evidência:** `apps/api/test/audit-integrity-drift.spec.ts` (mock determinístico, timers congelados): offset 0 → `integro`; `+2 ms` e `−3 s` → `integro: false`; alterar `dados_depois` não afeta (confirma T055). 4/4. Relatório: `.claude/reports/audit-integrity-drift-2026-09-24.md`.
+
+**Impacto:** `verificarIntegridade()` **não tem chamador em runtime** (`grep` em `apps/api/src` = 0); usado apenas em docs/runbook de DR (`docs/BACKUP_DR.md`) e testes → risco de runtime **baixo**; risco de procedimento **médio** (falso alarme numa recuperação).
+
+**Recomendação:** **Opção B** — gravar `created_at` explicitamente no `log()` com o mesmo `new Date()` do hash (fonte única de tempo; sem migration/backfill; histórico intacto), implementada em PR de código dedicado (T058 sugerida). Nada implementado nesta tarefa (restrição explícita).
+
+**Limitação:** Docker indisponível neste runner → reprodução via mock; confirmação com Postgres local pendente.

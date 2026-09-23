@@ -143,3 +143,21 @@ preservada e **não há migration/backfill**. Registros históricos ficam intact
 > `new Date().toISOString()`, mas o `created_at` vem do `@default(now())` do banco —
 > pode haver drift de ms e `verificarIntegridade()` acusar violações. Não faz parte
 > do T055 (quebraria o hashing); registrado como follow-up.
+
+## T057 — drift de timestamp na cadeia do AuditLog (D-546)
+
+**Causa raiz:** `AuditLogService.log()` calcula `hash_cadeia` com
+`new Date().toISOString()` (relógio do app), mas `verificarIntegridade()` recalcula
+com `created_at` (`@default(now())`, relógio do banco). Qualquer divergência
+(clock skew + latência) → **falso-positivo** de violação.
+
+**Evidência:** `apps/api/test/audit-integrity-drift.spec.ts` (mock determinístico):
+offset 0 → `integro`; `+2 ms` e `−3 s` → `integro: false`. Relatório em
+`.claude/reports/audit-integrity-drift-2026-09-24.md`.
+
+**Impacto:** sem chamador em runtime (`grep` em `apps/api/src` = 0); usado em
+docs/runbook de DR (`docs/BACKUP_DR.md`) → risco de **falso alarme** na DR.
+
+**Recomendação:** gravar `created_at` explicitamente no `log()` (mesmo `new Date()`
+do hash) — sem migration/backfill/histórico — em PR de código dedicado. Nada
+implementado aqui (restrição da tarefa).

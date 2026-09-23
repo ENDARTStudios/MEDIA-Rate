@@ -75,7 +75,7 @@
 - [x] 2.3 Tabelas de domínio: `midia`, `media_score`, `genero`, `streaming_service`, `midia_genero`, `midia_streaming`.
 - [~] 2.4 Tabelas de auth: `usuario`, `roles`, `user_roles`, `sessions`, `watchlist_entry` ✅; `permissions` granulares ❌ (postergado — RBAC via `@Roles`/`@RequirePlan`).
 - [x] 2.5 Tabelas de billing: `fatura`, planos Free/Plus/Premium, `payment_events`.
-- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`).
+- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`). **T057/D-546:** diagnóstico de **drift de timestamp** (hash usa `new Date()` do app; verificação usa `created_at` do banco) → falso-positivo em `verificarIntegridade()`; sem chamador em runtime; correção recomendada (gravar `created_at` explícito) pendente em PR dedicado. Teste: `audit-integrity-drift.spec.ts`; relatório `.claude/reports/audit-integrity-drift-2026-09-24.md`.
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).

@@ -2787,3 +2787,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Auditoria #213: mergeable; required verdes no head 6290484 (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration/Semgrep; E2E Playwright pass); Vercel PASS; scan segredos/PII 0. Confirmado: hash_cadeia inalterado (diff so em data.dados_antes/dados_depois/ip_origem); mutacao historica em CODIGO/TESTE = 0 (os hits de "backfill" eram prosa das docs).
 - Merge commit 10d7652. Pos-merge main: CI success (4m44s), Security success (2m25s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. API reiniciou (uptime reset) -> sanitizacao live. Smoke 4/4 = 200; sem 5xx/PII/segredo.
 - Follow-up T057-audit-integrity-drift-followup (drift new Date() vs created_at -> possivel falso-positivo em verificarIntegridade). PLANO 2.10 segue [~]; P017 pendente.
+
+## [2026-09-24] T057-audit-integrity-drift-diagnosis (docs/test-only; PR aberto, SEM merge)
+- Causa raiz (leitura): log() hasheia com new Date().toISOString() (relogio do app) mas verificarIntegridade() recalcula com created_at (@default(now()) do banco) -> qualquer divergencia (clock skew + latencia) = falso-positivo.
+- Reproducao deterministica: novo test/audit-integrity-drift.spec.ts (mock, timers congelados): offset 0 -> integro; +2ms e -3s -> integro:false; alterar dados_depois nao afeta (confirma T055). 4/4.
+- Chamadores: verificarIntegridade() NAO tem chamador em runtime (grep src=0); apenas docs/runbook DR (docs/BACKUP_DR.md) e testes. Risco runtime baixo; risco de procedimento medio (falso alarme na DR).
+- Limitacao: Docker indisponivel no runner (daemon off) -> repro via mock; confirmacao com Postgres local pendente. Relatorio .claude/reports/audit-integrity-drift-2026-09-24.md. Recomendacao: gravar created_at explicito no log() (Opcao B), sem migration/historico, em PR dedicado. Nada implementado. D-546.
