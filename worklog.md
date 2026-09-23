@@ -2765,3 +2765,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-23] T052-merge-docs208 (MERGED 097b2eb; smoke OK)
 - Auditoria #208 (docs-only): mergeStateStatus CLEAN/MERGEABLE no head df2f543; arquivos = .claude/reports/beta-readiness-2026-09-24.md + PLANO_MESTRE.md + worklog.md; sem codigo/migration/schema/segredo/CI executavel/infra. scan segredos/PII = 0; git diff --check limpo. Docs Gate pass; Migration Safety pass; jobs pesados skipping; Vercel pass.
 - Merge commit 097b2eb. Pos-merge main: CI success (11s), Security success (3m23s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. Smoke 4/4 = 200. Sem 5xx/segredo. Beta NAO declarada pronta.
+
+## [2026-09-23] T053-pii-log-scan-fora-auth (TDD; PR aberto, SEM merge)
+- Varredura de apps/api/src (grep + scanner) por PII crua em logs fora de auth. Unico achado: common/mock-mail.service.ts (2x `email=${email}` em debug).
+- TDD: RED test apps/api/test/pii-log-scan.spec.ts (scanner de todo src + MockMailService) -> fix: mascararEmail(email) nos 2 logs (import pii-mask). Sem mudar contrato de e-mail/entrega; so o texto do log.
+- Verificacao: pii-log-scan + auth-pii-log 7/7; suite API 913/913 (121 arquivos); tsc OK; eslint OK. Fixture .invalid; sem PII/segredo. D-544.
