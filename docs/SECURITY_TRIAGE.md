@@ -125,3 +125,21 @@ Sem mudança de contrato/entrega de e-mail — só o texto do log.
 **Regressão:** `apps/api/test/pii-log-scan.spec.ts` — (a) scanner de **todo**
 `apps/api/src` (blocos de log, incluindo multilinha) rejeitando PII crua; (b)
 `MockMailService` com `Logger.debug` capturado (fixture `.invalid`).
+
+## T055 — minimização de PII em novos registros de AuditLog (D-545)
+
+O `AuditLogService.log()` agora **sanitiza** `dados_antes`/`dados_depois` recursivamente
+(`sanitizarPii`) e **coarsena** `ip_origem` para rede válida (`mascararIpInet`).
+A cadeia de hash **não** inclui esses campos (o payload do hash usa apenas
+`entidade`/`entidade_id`/`acao`/`usuario_id`/`timestamp`), então a integridade é
+preservada e **não há migration/backfill**. Registros históricos ficam intactos.
+
+- `ip_origem` é `@db.Inet`: `203.0.x.x` **não** é válido → coarsenamos para
+  `203.0.113.0/24` (IPv6 → `/48`). Limitação forense documentada (perde-se o host).
+- Chaves sensíveis (`senha`, `token`, `cookie`, `authorization`, `csrf`, `secret`,
+  `database_url`, `user_agent`, `comentario`, …) → `[Redacted]`.
+
+> **Observação (pré-existente, não alterada):** `log()` calcula o hash com
+> `new Date().toISOString()`, mas o `created_at` vem do `@default(now())` do banco —
+> pode haver drift de ms e `verificarIntegridade()` acusar violações. Não faz parte
+> do T055 (quebraria o hashing); registrado como follow-up.

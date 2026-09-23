@@ -2776,3 +2776,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Merge commit 3518614. Pos-merge main: Security success (2m59s); deploy.yml waiting (P012=A); PRR skipped; sem Release/Auto-create. Smoke 4/4 = 200.
 - FLAKE (nao-codigo): CI de main do #210 falhou em Build Web (Next.js) por indisponibilidade do Google Fonts (next/font/google Inter -> module-not-found). Re-run do job -> CI success (3m24s; Build 1m35s). Registrado em docs/CI.md.
 - Escalonamento: Deploy do #209 waiting >30min sem revisor -> NAO aprovado (P012=A). PLANO 2.10 segue [~]; P017 pendente. Beta NAO declarada pronta.
+
+## [2026-09-23] T055-audit-log-pii-minimization (TDD; PR aberto, SEM merge)
+- Descoberta: o hash_cadeia NAO inclui dados_antes/dados_depois/ip_origem (so entidade/entidade_id/acao/usuario_id/timestamp) -> sanitizar o payload NAO quebra a cadeia; sem migration/backfill.
+- TDD: RED audit-log-pii.spec.ts (sanitizarPii/mascararIpInet inexistentes + persistencia crua) + audit-log-integridade.spec.ts (cadeia valida + linhas nao alteradas). GREEN apos implementar sanitizarPii (recursivo; chaves email/ip/secretas) e mascararIpInet (rede valida p/ @db.Inet: IPv4 /24, IPv6 /48) aplicados no AuditLogService.log.
+- Obs (pre-existente, NAO alterada): hash usa new Date() vs created_at @default(now()) -> possivel drift de ms e falso-positivo no verificarIntegridade; registrado como follow-up.
+- Verificacao: audit-log-pii+integridade 4/4; suite API 917/917 (123 arquivos); tsc OK; eslint OK. Fixtures .invalid + IPs RFC5737. D-545; PLANO 2.10 segue [~]; P017 pendente.

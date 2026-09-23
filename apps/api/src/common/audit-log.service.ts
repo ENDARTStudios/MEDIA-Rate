@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { createHash } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 import type { Prisma } from "@prisma/client";
+import { mascararIpInet, sanitizarPii } from "./pii-mask.js";
 
 /**
  * AuditLogService — registra eventos de auditoria imutáveis (append-only)
@@ -49,19 +50,25 @@ export class AuditLogService {
       acao: params.acao,
       hash_cadeia: hashCadeia,
       hash_anterior: anterior,
-      ip_origem: params.ipOrigem,
     };
+
+    // T055/D-545: minimização de PII em NOVOS registros. O `ip_origem` é
+    // `@db.Inet`, então recebe uma rede coarsenada válida (não `x.x`).
+    const ipMask = mascararIpInet(params.ipOrigem);
+    if (ipMask) {
+      data.ip_origem = ipMask;
+    }
 
     if (params.usuarioId) {
       data.usuario_id = params.usuarioId;
     }
 
     if (params.dadosAntes) {
-      data.dados_antes = params.dadosAntes as Prisma.InputJsonValue;
+      data.dados_antes = sanitizarPii(params.dadosAntes) as Prisma.InputJsonValue;
     }
 
     if (params.dadosDepois) {
-      data.dados_depois = params.dadosDepois as Prisma.InputJsonValue;
+      data.dados_depois = sanitizarPii(params.dadosDepois) as Prisma.InputJsonValue;
     }
 
     await this.prisma.auditLog.create({ data });

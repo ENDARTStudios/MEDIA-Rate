@@ -100,13 +100,21 @@ estratégia determinística para identificadores. Nada foi alterado em código.
 (2 logs `debug` com `email=${email}`) — corrigido com `mascararEmail`. Guarda de
 regressão em `apps/api/test/pii-log-scan.spec.ts`.
 
+### 6.1 Minimização de PII em novos registros de AuditLog — **FEITA (T055/D-545)**
+
+`AuditLogService.log()` sanitiza `dados_antes`/`dados_depois` (`sanitizarPii`) e
+coarsena `ip_origem` (`mascararIpInet` → `203.0.113.0/24`; IPv6 `/48`) — valores
+válidos para a coluna `@db.Inet`. A cadeia de hash **não** inclui esses campos,
+então a integridade é preservada, **sem migration/backfill**; registros históricos
+ficam intactos. Regressão: `apps/api/test/audit-log-pii.spec.ts` +
+`audit-log-integridade.spec.ts`. Ver §T055 em `docs/SECURITY_TRIAGE.md`.
+
 ## 7. Follow-ups e pendências
 
 - **P017 (Operador):** decidir o caminho de cifragem (aprovar secret
   `COLUMN_ENCRYPTION_KEY` + migration/backfill + estratégia de busca
   determinística para `email`). Enquanto não decidido, mantém-se o status quo.
-- Follow-up de código (sem bloqueio): mascarar PII em logs (`auth.service.ts:261`)
-  + teste de ausência de PII.
-- Revisar `AuditLog.dados_depois` (minimização: não gravar `email`/`userAgent` se
-  desnecessário).
-- Ver `docs/SECURITY_TRIAGE.md` (§ T048) e `DECISOES.md` (D-542).
+- Follow-up: alinhar o timestamp do hash ao `created_at` do banco em `AuditLog`
+  (drift pode gerar falso-positivo em `verificarIntegridade`) — pré-existente.
+- Revisar `AuditLog.dados_depois` (minimização) — coberto por T055 p/ NOVOS registros.
+- Ver `docs/SECURITY_TRIAGE.md` (§ T048/T055) e `DECISOES.md` (D-542/D-545).
