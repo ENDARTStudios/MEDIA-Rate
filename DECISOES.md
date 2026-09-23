@@ -2283,3 +2283,20 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Regressão:** `apps/api/test/pii-log-scan.spec.ts` — (a) scanner de **todo** `apps/api/src` (blocos de log, inclusive multilinha) rejeitando `${...PII...}` sem `mascarar`; (b) `MockMailService` com `Logger.debug` capturado (fixture `usuario@example.invalid`).
 
 **Evidências:** pii-log-scan + auth-pii-log **7/7**; suíte API **913/913** (121 arquivos); `tsc` OK; `eslint` OK. Sem PII/segredo em evidência. `PLANO 2.10` segue `[~]` (cifragem bloqueada, P017).
+
+## D-545 — T055: minimização de PII em novos registros de AuditLog
+
+**Data:** 2026-09-23 · **Fase:** F07-hardening / T055-audit-log-pii-minimization · **Status:** DECIDIDO (PR de código aberto, SEM merge)
+
+**Contexto:** `AuditLog.dados_antes`/`dados_depois` (Json) podiam conter e-mail/userAgent/PII; `AuditLog.ip_origem` (`@db.Inet`) gravava o host cru.
+
+**Descoberta-chave:** o `hash_cadeia` **não** inclui `dados_antes`/`dados_depois`/`ip_origem` (usa só `entidade`, `entidade_id`, `acao`, `usuario_id`, `timestamp`) → sanitizar o payload **não** quebra a cadeia nem exige migration/backfill; registros históricos ficam intactos.
+
+**Decisão:**
+1. `sanitizarPii` (recursivo, em `pii-mask.ts`): chaves de e-mail → `mascararEmail`; de IP → `mascararIp`; chaves sensíveis (`senha`/`token`/`cookie`/`authorization`/`csrf`/`secret`/`database_url`/`user_agent`/`comentario`/…) → `[Redacted]`; valores que parecem e-mail/IP → mascarados; profundidade máx. 6.
+2. `mascararIpInet`: como `ip_origem` é `@db.Inet`, `203.0.x.x` é **inválido** → coarsenamos para rede válida (`203.0.113.0/24`; IPv6 `/48`). Limitação forense documentada.
+3. Aplicado em `AuditLogService.log()` (apenas novos registros; sem tocar histórico).
+
+**Observação (pré-existente, não alterada):** o hash usa `new Date().toISOString()` enquanto `created_at` vem do `@default(now())` do banco → drift de ms pode gerar falso-positivo em `verificarIntegridade`. Fora do escopo (mudaria o hashing); follow-up.
+
+**Evidências:** `audit-log-pii` + `audit-log-integridade` 4/4; suíte API **917/917** (123 arquivos); `tsc` OK; `eslint` OK. Fixtures `.invalid` + IPs RFC 5737. PLANO 2.10 segue `[~]`; P017 pendente.
