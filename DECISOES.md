@@ -2314,3 +2314,5 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Recomendação:** **Opção B** — gravar `created_at` explicitamente no `log()` com o mesmo `new Date()` do hash (fonte única de tempo; sem migration/backfill; histórico intacto), implementada em PR de código dedicado (T058 sugerida). Nada implementado nesta tarefa (restrição explícita).
 
 **Limitação:** Docker indisponível neste runner → reprodução via mock; confirmação com Postgres local pendente.
+
+> **T058 — CORREÇÃO IMPLEMENTADA (2026-09-24):** Opção B aplicada em `AuditLogService.log()` — um único `const agora = new Date()` alimenta o `hash_cadeia` **e** o `created_at` do INSERT (`created_at: agora`) → `verificarIntegridade()` deixa de depender do relógio do banco. **Sem migration/backfill**; histórico intacto. Testes: `audit-integrity-drift.spec.ts` (skew `+5 s`/`−3 s` **não** gera falso-positivo; adulteração real **ainda** detectada) + `audit-log-integridade.spec.ts`. **Limitação:** registros históricos (pré-fix) podem ainda acusar drift — imutáveis, não corrigidos. PR de código aberto, SEM merge.

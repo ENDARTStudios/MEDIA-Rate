@@ -161,3 +161,19 @@ docs/runbook de DR (`docs/BACKUP_DR.md`) → risco de **falso alarme** na DR.
 **Recomendação:** gravar `created_at` explicitamente no `log()` (mesmo `new Date()`
 do hash) — sem migration/backfill/histórico — em PR de código dedicado. Nada
 implementado aqui (restrição da tarefa).
+
+## T058 — correção do drift de timestamp na cadeia do AuditLog (D-546)
+
+**Correção (Opção B):** `AuditLogService.log()` captura um único `const agora = new Date()`
+e usa o **mesmo** instante no `hash_cadeia` **e** no `created_at` do INSERT
+(`created_at: agora`). Assim `verificarIntegridade()` — que recalcula com
+`created_at` — deixa de depender do relógio do banco, **eliminando o
+falso-positivo** por skew/latência. **Sem migration/backfill**; histórico intacto.
+
+**Testes:** `apps/api/test/audit-integrity-drift.spec.ts` — skew do banco `+5 s` e
+`−3 s` **não** geram violação; adulteração real de `acao` **ainda** é detectada;
+payload sanitizado (`dados_depois`) fora do hash não afeta. + `audit-log-integridade.spec.ts`.
+
+> **Limitação:** registros **históricos** (criados antes do fix, com `created_at` do
+> banco) podem ainda acusar violação por drift — são imutáveis e **não** foram
+> alterados.

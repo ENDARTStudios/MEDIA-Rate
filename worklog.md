@@ -2793,3 +2793,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Reproducao deterministica: novo test/audit-integrity-drift.spec.ts (mock, timers congelados): offset 0 -> integro; +2ms e -3s -> integro:false; alterar dados_depois nao afeta (confirma T055). 4/4.
 - Chamadores: verificarIntegridade() NAO tem chamador em runtime (grep src=0); apenas docs/runbook DR (docs/BACKUP_DR.md) e testes. Risco runtime baixo; risco de procedimento medio (falso alarme na DR).
 - Limitacao: Docker indisponivel no runner (daemon off) -> repro via mock; confirmacao com Postgres local pendente. Relatorio .claude/reports/audit-integrity-drift-2026-09-24.md. Recomendacao: gravar created_at explicito no log() (Opcao B), sem migration/historico, em PR dedicado. Nada implementado. D-546.
+
+## [2026-09-24] T058-audit-integrity-fix (TDD; PR aberto, SEM merge)
+- Opcao B (relatorio T057/D-546): AuditLogService.log() usa UM unico `const agora = new Date()` no hash E no created_at do INSERT -> verificarIntegridade deixa de depender do relogio do banco; sem migration/backfill; historico intacto.
+- TDD: reescrito audit-integrity-drift.spec.ts (RED: skew +5s/-3s davam falso-positivo) -> GREEN apos o fix: skew +5s/-3s = integro; adulteracao de `acao` = violacao (tampering intacto); dados_depois fora do hash = integro. audit-log-integridade.spec.ts ajustado (fake usa data.created_at).
+- Verificacao: drift+integridade+pii 9/9; suite API 922/922 (124 arquivos); tsc OK; eslint OK. Fixtures .invalid/RFC5737. Limitacao: historico imutavel pode ainda acusar drift. PLANO 2.6 mantido [x] c/ nota de progresso.
