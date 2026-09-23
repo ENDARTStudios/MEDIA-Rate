@@ -88,3 +88,27 @@ Sem `E2E_FULL=1`, os specs gateados são pulados e o restante roda contra o
   retargetados para URLs relativas (baseURL local).
 - **Deploy workflow**: typecheck da API falhava por `@prisma/client` stub —
   `prisma generate` adicionado antes do typecheck (espelha o ci.yml, T042).
+
+## Jornada crítica (T060/D-547)
+
+Spec: `apps/web/e2e/jornada-critica.spec.ts` — cobre descoberta pública
+(home/catálogo/detalhe), salvaguarda (watchlist Kanban + reload), biblioteca
+autenticada (deep link `?status=`/`?tipo=`, query inválida, vazio/grid, sem 500)
+e dashboard (sidebar, i18n, sem erro). Helper de isolamento:
+`apps/web/e2e/helpers/state-reset.ts`.
+
+Requer **API+DB** (`E2E_FULL=1`, T461) — gated como o restante do corpus. Roda nos
+projetos `chromium` e `mobile-chrome` (16 testes).
+
+```bash
+# de apps/web, com API (localhost:4000) + web (localhost:3000) + DB local migrado
+NODE_OPTIONS=--dns-result-order=ipv4first E2E_FULL=1 E2E_TEST_PASSWORD=... \
+  PLAYWRIGHT_BASE_URL=http://localhost:3000/pt-BR \
+  npx playwright test e2e/jornada-critica.spec.ts --project=chromium
+```
+
+> **Limitação desta execução (T060):** o runner **não** tinha Docker/DB local
+> acessível nem servidores locais (3000/4000) e o `.env` só aponta para o banco de
+> **produção** (proibido) → a execução local 3× **não foi possível aqui**. O spec
+> foi validado por `eslint`, `tsc --noEmit` e `playwright test --list` (16 testes);
+> a execução fica pendente em ambiente com Postgres/Redis locais.
