@@ -536,7 +536,7 @@ REQUIRED_FILES = [
     "DECISOES.md",
     "PENDENCIAS_OPERADOR.md",
     "MANUAL_DO_OPERADOR.md",
-    "CHANGELOG.md",
+    "docs/CHANGELOG.md",
     ".gitignore",
     ".env.example",
     ".claude/schemas/tarefa.schema.json",
@@ -1005,8 +1005,11 @@ PLANO_EOF
 # MANUAL_DO_OPERADOR.md
 MANUAL_EOF
 
-[ -f CHANGELOG.md ] || cat > CHANGELOG.md <<'CHANGELOG_EOF'
-# CHANGELOG.md
+[ -f docs/CHANGELOG.md ] || mkdir -p docs && cat > docs/CHANGELOG.md <<'CHANGELOG_EOF'
+# Changelog
+
+Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/);
+versionamento segue [SemVer](https://semver.org/lang/pt-BR/). Datas em 2026.
 CHANGELOG_EOF
 
 touch .claude/exchange_log.jsonl
