@@ -2749,3 +2749,10 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 ## [2026-09-22] T050-merge-pr204-pii-mask (MERGED 96ac104; smoke OK)
 - Auditoria pre-merge do #204: mergeable; required verdes no head 21832578 (Build, Lint & Audit, Test & Coverage, RLS, Docs Gate, Migration Safety; E2E Playwright pass); Vercel fail NAO-required (rate-limit do plano). git diff --check limpo; scan segredos/PII = 0. Diff de codigo revisado: so o texto do log mudou (mascararEmail/mascararIp); lockout keys/thresholds/logica intactos; sem mudanca de auth/sessao/schema/segredos.
 - Merge commit 96ac104. Pos-merge main: CI success (4m38s), Security success (2m54s), deploy.yml waiting (P012=A), PRR skipped; nenhum run de Release/Auto-create. API reiniciou (uptime reset) -> mascaramento live. Smoke 4/4 = 200. Sem 5xx novo / PII / segredo. PLANO 2.10 mantido [~]; P017 pendente.
+
+## [2026-09-22] doc-suite — suíte canônica docs/ (PR docs-only)
+Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue:
+- 38 arquivos novos (nucleo: README indice/PRD/ARCHITECTURE/RULES/ROADMAP/ONBOARDING/ADR/MEMORY/TASKS/TASK_BREAKING_DOWN; produto: DEFINE_THE_USER/DESIGN/CONTENT/STYLE_GUIDE/RESEARCH; engenharia: SETUP/DEVELOPMENT/TESTING/API/ERROR_HANDLING/CHOOSE_TECH_STACK; qualidade/operacao: SECURITY_REVIEW/CODE_REVIEW/QA_TESTING/PREVIEW_DEPLOYMENT/PRODUCTION_DEPLOY/MONITORING/BACKUP_DR/PERFORMANCE/ACCESSIBILITY/COMPLIANCE/INTEGRATIONS/ANALYTICS/ITERATION; busca/IA: SEO/AEO/GEO/AIO).
+- CHANGELOG.md movido da raiz via git mv (referencias no PROMPT_MESTRE_AUTONOMO.md atualizadas: lista de arquivos obrigatorios + bootstrap heredoc).
+- Conteudo com fatos verificados no codigo (robots T030/D-440 por grupo de bots; sitemap.ts rotas publicas+slugs+hreflang; scripts/backup-db.sh retencao 30d; e2e/a11y.spec.ts; estrategias de SEO_AEO_AIO_GEO.md; decisoes D-527..D-535; smoke padrao validado T027-T032). Docs de aprofundamento existentes referenciados, nao duplicados.
+- docs/README.md e o indice com link para todos + regra de ouro (doc sem instrucao executavel = divida).
