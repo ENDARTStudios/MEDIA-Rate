@@ -17,8 +17,9 @@ function buildPrisma() {
     auditLog: {
       findFirst: async () => (rows.length > 0 ? rows[rows.length - 1] : null),
       create: async ({ data }: { data: Record<string, unknown> }) => {
-        // Espelha o `@default(now())` do schema: created_at = instante do insert.
-        const row = { ...data, id: `id-${seq}`, created_at: new Date() };
+        // Espelha o banco: usa o `created_at` enviado pelo service (T058) ou,
+        // se ausente, o `@default(now())`.
+        const row = { ...data, id: `id-${seq}`, created_at: data.created_at ?? new Date() };
         seq++;
         rows.push(row);
         return row;

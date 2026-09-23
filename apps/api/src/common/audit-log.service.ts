@@ -33,13 +33,18 @@ export class AuditLogService {
   }): Promise<void> {
     const anterior = await this.getUltimoHash();
 
+    // T058/D-546: fonte ÚNICA de tempo — o mesmo `agora` alimenta o hash e o
+    // `created_at` do INSERT. Elimina o drift app↔banco que causava falso-positivo
+    // em `verificarIntegridade()`. Retrocompatível (sem migration; histórico intacto).
+    const agora = new Date();
+
     const payload = JSON.stringify({
       anterior,
       entidade: params.entidade,
       entidade_id: params.entidadeId,
       acao: params.acao,
       usuario_id: params.usuarioId,
-      timestamp: new Date().toISOString(),
+      timestamp: agora.toISOString(),
     });
 
     const hashCadeia = createHash("sha256").update(payload).digest("hex");
@@ -50,6 +55,7 @@ export class AuditLogService {
       acao: params.acao,
       hash_cadeia: hashCadeia,
       hash_anterior: anterior,
+      created_at: agora,
     };
 
     // T055/D-545: minimização de PII em NOVOS registros. O `ip_origem` é
