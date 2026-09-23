@@ -95,6 +95,11 @@ estratégia determinística para identificadores. Nada foi alterado em código.
   do `Logger` no lockout com fixture `usuario@example.invalid`, e guarda de fonte).
 - Valores passam a sair como `u***@***.invalid` e `203.0.x.x`.
 
+**Varredura ampla (T053/D-544):** todo `apps/api/src` foi escaneado por PII crua em
+`logger.*`/`console.*`. Fora de `auth`, o único ponto era `common/mock-mail.service.ts`
+(2 logs `debug` com `email=${email}`) — corrigido com `mascararEmail`. Guarda de
+regressão em `apps/api/test/pii-log-scan.spec.ts`.
+
 ## 7. Follow-ups e pendências
 
 - **P017 (Operador):** decidir o caminho de cifragem (aprovar secret

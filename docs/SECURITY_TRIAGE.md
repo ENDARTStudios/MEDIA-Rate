@@ -113,3 +113,15 @@ CI **success** (4m38s); Security **success** (2m54s); `deploy.yml` **waiting**
 smoke **4/4 → 200**; API **reiniciou** (uptime resetou → código com mascaramento
 live). Sem 5xx novo; sem PII/segredo exposto. PLANO 2.10 segue `[~]`; cifragem
 bloqueada em **P017**.
+
+## T053 — varredura de PII em logs fora do módulo auth (D-544)
+
+Varredura de `apps/api/src` por `logger.*`/`console.*` com PII interpolada
+(`email`, `user_agent`, `comentario`, `telefone`, `ip_*`) **sem mascarar**.
+Fora de `auth`, o único ponto era `common/mock-mail.service.ts` (2 logs `debug`
+com `email=${email}`). Corrigido com `mascararEmail` (`u***@***.invalid`).
+Sem mudança de contrato/entrega de e-mail — só o texto do log.
+
+**Regressão:** `apps/api/test/pii-log-scan.spec.ts` — (a) scanner de **todo**
+`apps/api/src` (blocos de log, incluindo multilinha) rejeitando PII crua; (b)
+`MockMailService` com `Logger.debug` capturado (fixture `.invalid`).

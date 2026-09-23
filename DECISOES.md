@@ -2269,3 +2269,17 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Escopo:** só `apps/api/src/common/pii-mask.ts` + logs de `auth` + o teste. A cifragem de colunas **segue bloqueada** (P017/D-542; PLANO 2.10 mantido `[~]`).
 
 **Evidências:** `auth-pii-log` 5/5; suíte API **911/911** (120 arquivos); `tsc --noEmit` OK; `eslint` OK. Fixture apenas com domínio `.invalid`; sem PII/segredo em evidência.
+
+## D-544 — T053: varredura de PII em logs fora do módulo auth
+
+**Data:** 2026-09-23 · **Fase:** F07-hardening / T053-pii-log-scan-fora-auth · **Status:** DECIDIDO (PR de código aberto, SEM merge)
+
+**Contexto:** após o T049/D-543 (mascaramento no módulo `auth`), faltava varrer o restante de `apps/api/src`.
+
+**Achado:** o único ponto de PII crua em log fora de `auth` era `common/mock-mail.service.ts` (2 logs `debug` com `email=${email}` no reset de senha e na verificação de e-mail).
+
+**Decisão:** aplicar `mascararEmail` nesses 2 logs (import de `./pii-mask.js`). Sem mudança de contrato/entrega de e-mail nem de auth — apenas o texto do log.
+
+**Regressão:** `apps/api/test/pii-log-scan.spec.ts` — (a) scanner de **todo** `apps/api/src` (blocos de log, inclusive multilinha) rejeitando `${...PII...}` sem `mascarar`; (b) `MockMailService` com `Logger.debug` capturado (fixture `usuario@example.invalid`).
+
+**Evidências:** pii-log-scan + auth-pii-log **7/7**; suíte API **913/913** (121 arquivos); `tsc` OK; `eslint` OK. Sem PII/segredo em evidência. `PLANO 2.10` segue `[~]` (cifragem bloqueada, P017).
