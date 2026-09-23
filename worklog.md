@@ -2756,3 +2756,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - CHANGELOG.md movido da raiz via git mv (referencias no PROMPT_MESTRE_AUTONOMO.md atualizadas: lista de arquivos obrigatorios + bootstrap heredoc).
 - Conteudo com fatos verificados no codigo (robots T030/D-440 por grupo de bots; sitemap.ts rotas publicas+slugs+hreflang; scripts/backup-db.sh retencao 30d; e2e/a11y.spec.ts; estrategias de SEO_AEO_AIO_GEO.md; decisoes D-527..D-535; smoke padrao validado T027-T032). Docs de aprofundamento existentes referenciados, nao duplicados.
 - docs/README.md e o indice com link para todos + regra de ouro (doc sem instrucao executavel = divida).
+
+## [2026-09-22] T051-beta-readiness-replan (docs-only; PR aberto, SEM merge)
+- Reconciliacao pos-T050: B1/B2/B3 (T029) FECHADOS; Fases 2/6/8/9/10/11 seguem [~]; 3/4/7 concluidas. Divergencias do PLANO classificadas (modulos 29 vs 20; contagens 911/120 vs 888/116) -> notas de evidencia em L21/L153 sem mudar status.
+- Pendencia do Operador: P010 e P012-P017 (P011 FEITO em T034). Insumo da tarefa `.claude/scripts/gerar_sync_simbiotico.py` NAO existe (passo 1 inaplicavel).
+- Relatorio `.claude/reports/beta-readiness-2026-09-24.md` (mapa + classificacao + 5 proximas tarefas: T052 varredura PII logs fora de auth; T053 reconciliar inventario PLANO; T054 minimizacao PII AuditLog; T055 coverage/Stryker; T056 E2E criticos). Sem alterar produto/CI/schema/infra/segredos. Beta NAO declarada pronta.
