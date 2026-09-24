@@ -164,3 +164,11 @@ Nenhuma alteração de produto/schema/migration/segredo/infra.
 - **Classificação: `ENV_MISMATCH` (harness efêmero)** — em **produção** `GET /auth/me` retorna **200** (verificado no T063). Não é bug de produto confirmado; provável sessão/Redis do ambiente efêmero.
 
 **Próximo passo (follow-up):** rodar `node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3` com Docker/Postgres **local** (logs imediatos) para confirmar a causa do 500 em `/auth/me` no harness e ajustar test-infra. **Nenhuma mudança de produto.**
+
+### T067 — causa do 500 em `/auth/me` (evidência por artifacts)
+
+Com `test-results/**` sanitizado nos artifacts, as causas ficaram objetivas:
+- **`detalhe de mídia` (6×):** `expect(img).toBeGreaterThan(0)` → **0** — a mídia da **fixture não tem poster**; a app usa **fallback sem `<img>`**. **Corrigido** (test-only): assere título/`main` e **não** exige `<img>`.
+- **`biblioteca` (mobile, repeat1):** `getByTestId('biblioteca-tabs')` não encontrado — a página **redireciona para /login** quando **`GET /api/v1/auth/me` retorna 500** (`Non-Error thrown: [object Object]`, intermitente). Em **produção** `/auth/me`=200 (T063) → **classificação `ENV_MISMATCH` (harness)**, a confirmar com logs locais.
+
+**Resultado:** o job caiu para **2 falhas** (biblioteca mobile repeat1). **Falta fechar o 500 de `/auth/me` no harness** (sessão/Redis) — follow-up com `evidence-local --repeat=3` local.

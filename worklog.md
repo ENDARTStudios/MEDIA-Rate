@@ -2838,3 +2838,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-24] T066-e2e-ci-observability (PARCIAL; causa diagnosticada via artifacts)
 - Instrumentacao: sanitize-logs.mjs (redige email/IP/Bearer/cookies/tokens/DATABASE_URL) + job sobe web com /tmp/web.log + artifacts seguros (e2e-full-logs, playwright-report-full, retencao curta); playwright trace/video = off (evita cookies/tokens em artifacts).
 - Diagnostico (run 36005341274, job 107652006730): GET /api/v1/auth/me -> 500 (Non-Error thrown, 11x) afeta paginas autenticadas e o catalogo -> detalhe falha em cascata (6x) + biblioteca deep link mobile (1x). Classificacao: ENV_MISMATCH do harness (em PRODUCAO /auth/me = 200, T063) -> nao e bug de produto confirmado. FOLLOW-UP: rodar evidence-local com Docker local para confirmar e ajustar test-infra (sem produto). eslint/tsc/guard 19/19 OK. PR #220 aberto sem merge.
+
+## [2026-09-24] T067-auth-me-500-harness-fix (PARCIAL 46/48; CAUSA do detalhe corrigida)
+- Instrumentacao reforcada: test-results/** sanitizado nos artifacts -> error-context revelou as causas.
+- Detalhe de midia (6x): assert img>0 falhava (0) porque a midia da fixture nao tem poster (fallback sem <img>). CORRIGIDO (test-only): assere titulo/h1-h2 + main, sem exigir <img>. Falhas do detalhe = 0 no run seguinte.
+- Restam 2/48: biblioteca (mobile repeat1) deep link + query invalida -> pagina redireciona para /login quando GET /api/v1/auth/me retorna 500 (Non-Error thrown [object Object], intermitente). Producao /auth/me=200 (T063) -> classificacao ENV_MISMATCH (harness sessao/Redis). Follow-up: evidence-local --repeat=3 com Docker local para confirmar. Sem produto/schema/segredo. PR #220 aberto sem merge.
