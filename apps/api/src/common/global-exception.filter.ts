@@ -45,6 +45,21 @@ const STATUS_TEXT = {
 } as const;
 
 /**
+ * T070/D-551 — descrição SEGURA (sem valores) de um valor não-Error lançado.
+ * Inclui tipo, construtor e NOMES de chaves — nunca os valores (PII/segredos).
+ */
+function descreverNaoErro(valor: unknown): string {
+  if (valor === null) return "null";
+  const tipo = typeof valor;
+  if (tipo !== "object") return `${tipo}: ${String(valor).slice(0, 120)}`;
+  const ctor = (valor as { constructor?: { name?: string } }).constructor?.name ?? "Object";
+  const chaves = Object.keys(valor as Record<string, unknown>)
+    .slice(0, 12)
+    .join(",");
+  return `Object(ctor=${ctor}; chaves=[${chaves}])`;
+}
+
+/**
  * Exception filter global (T1.6).
  *
  * Comportamento:
@@ -119,7 +134,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = isProduction
         ? "Ocorreu um erro interno inesperado. Tente novamente."
         : "Unknown non-Error thrown";
-      internalMessage = `Non-Error thrown: ${String(exception)}`;
+      internalMessage = `Non-Error thrown: ${descreverNaoErro(exception)}`;
     }
 
     // Log interno (com stack se houver) — nunca vai pro body da resposta.
