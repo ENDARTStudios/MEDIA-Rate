@@ -190,3 +190,18 @@ Com `test-results/**` sanitizado nos artifacts, as causas ficaram objetivas:
 **Remanescente (run `36015218685`, job `107685949004`): 3/48**, **todas no projeto de UA mobile**, com **`GET /api/v1/auth/me` → status 500** (asserção in-spec `autenticar`: `status=500`). A API registra `GlobalExceptionFilter: Non-Error thrown` (sem stack). Em **produção** `/auth/me`=200; o **preflight por `curl`** (sem UA de browser) passa no mesmo harness.
 
 **Classificação: possível bug de produto / policy de sessão dependente do User-Agent mobile** (o servidor responde **500** apenas com UA mobile) → **BLOCKED**, sem alterar produto (regra explícita da tarefa). **PROPOSTA:** tarefa separada (produto) para investigar o 500 de `/auth/me` com UA mobile; evidência: `api.log` (`Non-Error thrown` ×11), asserção `status=500`, concentração exclusiva no projeto mobile.
+
+### T071 — CAUSA RAIZ do 500 em `/auth/me` (diagnóstico capturado)
+
+Instrumentação do #247 revelou no `api.log` sanitizado:
+`Non-Error thrown: Object(ctor=Object; chaves=[statusCode, error, message])`.
+
+**Causa:** `loginRateLimit()` = **6/min** (`rate-limit.config.ts`); o `errorResponseBuilder` do
+`@fastify/rate-limit` devolve **objeto puro** `{statusCode:429,...}`, e o `GlobalExceptionFilter`
+converte **não-Error → 500**. A suíte faz um **burst de logins (32)** → estoura o limite → 500.
+O projeto `mobile-chrome` roda depois → falhas concentram-se na fase mobile (**timing**, não UA).
+
+**Correção recomendada (test-infra, neste PR):** autenticar **1×/projeto** via **`storageState`**
+(reutilizar sessão) para não estourar o rate limit. **Alternativa produto (PR separado):** o filtro
+honrar `statusCode` numérico de objetos Nest-like → 429 em vez de 500. Relatório:
+`.claude/reports/auth-me-nonerror-2026-09-25.md`.
