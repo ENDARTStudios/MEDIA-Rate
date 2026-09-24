@@ -2818,3 +2818,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Causa (T071): @fastify/rate-limit lanca objeto puro {statusCode:429,error,message}; GlobalExceptionFilter convertia nao-Error em 500 (mascarava o 429; burst de logins no E2E -> 500).
 - Fix minimo: statusDeNaoErro() honra statusCode inteiro 400-599 + mensagem canonica por status (MSG_POR_STATUS); NUNCA ecoa message/error/keys do objeto; log diagnostico sanitizado; comportamento de Error/HttpException inalterado; thresholds/schema/segredo/infra intocados.
 - TDD global-exception-nonerror.spec.ts: {statusCode:429} -> 429 sem vazar message interna; 200/302/600/-1/"429"/null/NaN -> 500. API 931/931; tsc/eslint OK. PR #247 (required verdes).
+
+## [2026-09-24] T073-merge-pr247-rate-limit (MERGED d4b114c; smoke OK)
+- Auditoria #247: MERGEABLE; required verdes no head c25486a (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration; Vercel fail nao-required); diff = global-exception.filter.ts + global-exception-nonerror.spec.ts + DECISOES/SECURITY_TRIAGE/worklog; git diff --check limpo; scan segredos 0; teste 9/9.
+- Merge commit d4b114c. Pos-merge main: CI success (4m49s), Security success (4m3s), deploy.yml waiting (P012=A); API reiniciou (uptime reset) -> filtro com honra de 429 live. Smoke passivo 7/7 = 200 (sem burst de login). Sem migration/segredo/schema/infra.
