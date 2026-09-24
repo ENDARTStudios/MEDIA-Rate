@@ -182,3 +182,11 @@ Com `test-results/**` sanitizado nos artifacts, as causas ficaram objetivas:
 - Ainda **7/48 falhas**, **todas em `mobile-chrome`** (incl. `repeat1`), com a mensagem: **`sessão inválida após apiLogin (/auth/me)`** — ou seja, **`page.request` no projeto mobile** não "vê" a sessão que o próprio `apiLogin` acabou de criar, **embora o preflight por curl passe**.
 
 **Classificação: `TOOL_MISSING`/`ENV_MISMATCH` — harness (contexto mobile Playwright)**, **não** bug de produto (produção `/auth/me`=200; curl no mesmo harness = 200). **Próximo passo:** investigar o cookie jar do `page.request` sob `devices["Pixel 5"]` (`isMobile:true`) — candidatos: usar viewport+UA mobile **sem** `isMobile`, ou `storageState` explícito; ou reproduzir local com Docker (logs imediatos). **Sem alterar produto.**
+
+### T069 — `isMobile:false` (cookie OK) + BLOCKED no 500 de `/auth/me` com UA mobile
+
+**Correção aplicada (test-only):** o projeto `mobile-chrome` mantém **viewport/UA/deviceScaleFactor** Pixel 5 mas **sem `isMobile:true`** (mobile emulation) — a emulação impedia o `page.request` de enviar o cookie de sessão do `apiLogin`. Efeito: **7→3 falhas**; falhas de **`repeat1` zeradas**. Limitação documentada: sem emulação de touch nativa.
+
+**Remanescente (run `36015218685`, job `107685949004`): 3/48**, **todas no projeto de UA mobile**, com **`GET /api/v1/auth/me` → status 500** (asserção in-spec `autenticar`: `status=500`). A API registra `GlobalExceptionFilter: Non-Error thrown` (sem stack). Em **produção** `/auth/me`=200; o **preflight por `curl`** (sem UA de browser) passa no mesmo harness.
+
+**Classificação: possível bug de produto / policy de sessão dependente do User-Agent mobile** (o servidor responde **500** apenas com UA mobile) → **BLOCKED**, sem alterar produto (regra explícita da tarefa). **PROPOSTA:** tarefa separada (produto) para investigar o 500 de `/auth/me` com UA mobile; evidência: `api.log` (`Non-Error thrown` ×11), asserção `status=500`, concentração exclusiva no projeto mobile.
