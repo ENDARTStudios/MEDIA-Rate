@@ -177,3 +177,10 @@ payload sanitizado (`dados_depois`) fora do hash não afeta. + `audit-log-integr
 > **Limitação:** registros **históricos** (criados antes do fix, com `created_at` do
 > banco) podem ainda acusar violação por drift — são imutáveis e **não** foram
 > alterados.
+
+## T063 — Incidente: login 500 por `ip_origem` CIDR (D-549) — RESOLVIDO
+
+`mascararIpInet` (T055) retornava CIDR (`a.b.c.0/24`), rejeitado pelo `@db.Inet` do
+Prisma (`AddrParseError`) → o `auditLog.create()` no login lançava → **500**. Hotfix
+**#228/`5322e90`**: IP **plano** (IPv4 → zera o último octeto; IPv6 → 2 grupos + `::`).
+Smoke pós-merge: login **200** + cookie + `/auth/me` **200**. Ver D-549.

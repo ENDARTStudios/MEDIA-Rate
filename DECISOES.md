@@ -2316,3 +2316,17 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Limitação:** Docker indisponível neste runner → reprodução via mock; confirmação com Postgres local pendente.
 
 > **T058 — CORREÇÃO IMPLEMENTADA (2026-09-24):** Opção B aplicada em `AuditLogService.log()` — um único `const agora = new Date()` alimenta o `hash_cadeia` **e** o `created_at` do INSERT (`created_at: agora`) → `verificarIntegridade()` deixa de depender do relógio do banco. **Sem migration/backfill**; histórico intacto. Testes: `audit-integrity-drift.spec.ts` (skew `+5 s`/`−3 s` **não** gera falso-positivo; adulteração real **ainda** detectada) + `audit-log-integridade.spec.ts`. **Limitação:** registros históricos (pré-fix) podem ainda acusar drift — imutáveis, não corrigidos. PR de código aberto, SEM merge.
+
+## D-549 — INCIDENTE (produção): login 500 por `ip_origem` CIDR no AuditLog — RESOLVIDO (T063)
+
+**Data:** 2026-09-24 · **Fase:** F07-hardening / T063 · **Status:** RESOLVIDO (hotfix mergeado `5322e90`)
+
+**Sintoma:** `POST /api/v1/auth/login` → **HTTP 500** em produção (confirmado por curl). Introduzido pelo **T055/D-545** (`10d7652`) e mantido no **T058** (`7736ce0`).
+
+**Causa raiz:** `mascararIpInet` devolvia **CIDR** (`127.0.0.0/24`). O binding `@db.Inet` do Prisma (Rust `IpAddr`) **rejeita CIDR** → `prisma.auditLog.create()` lançava `AddrParseError(Ip)` → o audit no login quebrava → 500.
+
+**Correção (hotfix mínimo, PR #228 → merge commit `5322e90`, 2 arquivos):** `mascararIpInet` devolve **IP plano validado** (IPv4 `127.0.0.1` → `127.0.0.0`; IPv6 `2001:db8::1` → `2001:db8::`; inválido → `undefined`), nunca CIDR. Testes `audit-log-pii` atualizados.
+
+**Evidência pós-merge (produção):** API reiniciou (uptime resetou); **`POST /auth/login` → 200 + cookie `sess`**; **`GET /auth/me` → 200**; `/health` + páginas públicas (pt-BR/en-US/es-ES/pricing/login) **200**; sem `AddrParseError` novo. Job E2E FULL (PR #220) subiu de **12/48 → 39/48** (o 500 sumiu).
+
+**Lições:** (1) validar valores de colunas `@db.Inet` com IP **plano** (Prisma rejeita CIDR); (2) smoke pós-merge deve incluir **login** quando o diff toca auth/audit — o smoke anterior (só GET) não pegou; (3) o job E2E FULL foi decisivo para o diagnóstico.
