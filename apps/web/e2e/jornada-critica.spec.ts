@@ -17,8 +17,9 @@ const E2E_FULL = process.env.E2E_FULL === "1";
 const PASSWORD = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
 const QA_EMAIL = "free@mediarate.test";
 
-/** Mídia garantida no catálogo (mesma âncora de `media-details.spec.ts`). */
-const GAME_SLUG = "baldur-s-gate-3";
+/** Mídia garantida pela fixture local (`evidence-fixture.cjs`, T062). */
+const MEDIA_SLUG = "duna-parte-dois";
+const MEDIA_TITULO = /Duna: Parte Dois/i;
 
 /** Chave i18n crua visível (ex.: `home.benefits.title`) não deve vazar no texto. */
 const RE_CHAVE_CRUA =
@@ -62,13 +63,10 @@ test.describe("T060 — jornada crítica", () => {
   });
 
   test("detalhe de mídia mostra título e imagem (com fallback)", async ({ page }) => {
-    await page.goto(`/pt-BR/media/${GAME_SLUG}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page
-        .locator("h1, h2")
-        .filter({ hasText: /Baldur's Gate 3/i })
-        .first(),
-    ).toBeVisible({ timeout: 20_000 });
+    await page.goto(`/pt-BR/media/${MEDIA_SLUG}`, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("h1, h2").filter({ hasText: MEDIA_TITULO }).first()).toBeVisible({
+      timeout: 20_000,
+    });
     // A página deve renderizar ao menos uma imagem (real ou placeholder/fallback).
     const imagens = page.locator("img");
     expect(await imagens.count()).toBeGreaterThan(0);

@@ -514,11 +514,16 @@ jobs:
       COOKIE_SECRET: e2e-full-cookie
       JWT_SECRET: e2e-full-jwt
       SESSION_SECRET: e2e-full-session
+      ADMIN_TOKEN: e2e-full-admin
+      SESSION_TTL_HOURS: "24"
+      CORS_ORIGIN: http://localhost:3000
       ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      SITE_URL: http://localhost:3000
       API_PROXY_TARGET: http://127.0.0.1:4000
       E2E_API_BASE: http://localhost:4000
       E2E_TEST_PASSWORD: "Senha@123"
       E2E_FULL: "1"
+      LOG_LEVEL: debug
       PLAYWRIGHT_BASE_URL: http://localhost:3000/pt-BR
       NODE_OPTIONS: --dns-result-order=ipv4first
     steps:
@@ -566,5 +571,10 @@ jobs:
           name: playwright-report-full
           path: apps/web/playwright-report/
           retention-days: 14
+      - name: Dump API log (diagnóstico)
+        if: always()
+        run: |
+          echo "===== /tmp/api.log (tail 120) ====="
+          tail -120 /tmp/api.log 2>/dev/null || echo "(sem log)"
 
   # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) � habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; at� l�, drill docker documentado em docs/ROLLBACK_RLS.md � a verifica��o.
