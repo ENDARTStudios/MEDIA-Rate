@@ -519,8 +519,9 @@ jobs:
       CORS_ORIGIN: http://localhost:3000
       ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
       SITE_URL: http://localhost:3000
-      API_PROXY_TARGET: http://127.0.0.1:4000
+      API_PROXY_TARGET: http://localhost:4000
       E2E_API_BASE: http://localhost:4000
+      E2E_TEST_EMAIL: free@mediarate.test
       E2E_TEST_PASSWORD: "Senha@123"
       E2E_FULL: "1"
       LOG_LEVEL: debug
@@ -562,6 +563,23 @@ jobs:
         run: |
           nohup npm run dev --workspace=apps/web > /tmp/web.log 2>&1 &
           echo "web started"
+      - name: Reset Redis local + preflight (login + /auth/me)
+        run: |
+          echo "redis ping: $(redis-cli -h localhost ping)"
+          redis-cli -h localhost flushall >/dev/null || true
+          for i in $(seq 1 40); do
+            curl -sf http://localhost:4000/health >/dev/null 2>&1 && break; sleep 2
+          done
+          curl -sf http://localhost:4000/health >/dev/null || { echo "API down"; exit 1; }
+          curl -sf http://localhost:3000/pt-BR >/dev/null || { echo "web down"; exit 1; }
+          curl -s -c /tmp/pf.jar -o /dev/null -w "preflight_login=%{http_code}\n" \
+            -X POST http://localhost:4000/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${E2E_TEST_EMAIL}\",\"password\":\"${E2E_TEST_PASSWORD}\"}"
+          echo "preflight_cookies=$(grep -c . /tmp/pf.jar || true) linhas (jar)"
+          code=$(curl -s -b /tmp/pf.jar -o /dev/null -w "%{http_code}" http://localhost:4000/api/v1/auth/me)
+          echo "preflight_authme=$code"
+          [ "$code" = "200" ] || { echo "PREFLIGHT FAIL: /auth/me != 200"; exit 1; }
       - name: E2E jornada crítica 3x (workers=1, retries=0)
         working-directory: apps/web
         run: |
