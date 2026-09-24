@@ -2813,3 +2813,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Guarda anti-producao: scripts/ci/evidence-guard.mjs (pureza) + self-test 19/19 (recusa host nao-local/railway/mediarate.app/prod; parse --spec/--repeat; redige credenciais). evidence-local.mjs usa a guarda + flags + workers=1/retries=0.
 - ci.yml: output e2e no job changes + job e2e-full-jornada (Postgres16+Redis7 efemeros, migrate deploy, provision+fixture, API :4000 + web :3000, playwright 3x workers=1 retries=0; gated a mudancas E2E/evidence/CI; continue-on-error).
 - Evidencia CI (run 35936827266, job 107435635460): infra subiu; 12/48 passaram (publicos); 36 falharam por apiLogin 500 e detalhe sem dados no seed. criterio 48/48 NAO atingido -> T060/T061 seguem [~]; follow-up: corrigir env/seed da test-infra (sem tocar produto). Lint & Audit verde; demais required verdes. Sem merge/deploy/producao.
+
+## [2026-09-24] T062-fix-e2e-env-seed (INCIDENTE + hotfix; PARCIAL; PR #220)
+- Diagnostico via log do job E2E FULL: POST /auth/login 500 -> PrismaClientUnknownRequestError AddrParseError(Ip) em prisma.auditLog.create (AuditLogService.log <- AuthService.login). Causa: mascararIpInet (T055) retornava CIDR (a.b.c.0/24); @db.Inet do Prisma rejeita CIDR. CONFIRMADO em PRODUCAO (curl login = 500).
+- Hotfix 5051ffd: mascararIpInet -> IP PLANO validado (127.0.0.0; 2001:db8::), nunca CIDR; undefined se invalido. Testes atualizados. API 922/922; tsc/eslint OK.
+- Seed: spec ancorado em midia da fixture (duna-parte-dois); env extra no job + dump do /tmp/api.log para diagnostico.
+- Evidencia: job E2E FULL 35940117652/107445988752 -> 39/48 (de 12/48); apiLogin 500 eliminado; restam 9 falhas de seletor do spec. D-549. Merge do #220 pendente (incidente).

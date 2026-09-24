@@ -2316,3 +2316,17 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Limitação:** Docker indisponível neste runner → reprodução via mock; confirmação com Postgres local pendente.
 
 > **T058 — CORREÇÃO IMPLEMENTADA (2026-09-24):** Opção B aplicada em `AuditLogService.log()` — um único `const agora = new Date()` alimenta o `hash_cadeia` **e** o `created_at` do INSERT (`created_at: agora`) → `verificarIntegridade()` deixa de depender do relógio do banco. **Sem migration/backfill**; histórico intacto. Testes: `audit-integrity-drift.spec.ts` (skew `+5 s`/`−3 s` **não** gera falso-positivo; adulteração real **ainda** detectada) + `audit-log-integridade.spec.ts`. **Limitação:** registros históricos (pré-fix) podem ainda acusar drift — imutáveis, não corrigidos. PR de código aberto, SEM merge.
+
+## D-549 — INCIDENTE (produção): login 500 por `ip_origem` CIDR no AuditLog (T062)
+
+**Data:** 2026-09-24 · **Fase:** F08-qualidade / T062 · **Status:** HOTFIX EM PR (merge pendente do Operador)
+
+**Sintoma:** `POST /api/v1/auth/login` → **HTTP 500** em produção (confirmado por curl). Introduzido pelo **T055/D-545** (merge `10d7652`) e mantido no **T058** (`7736ce0`).
+
+**Causa raiz:** `mascararIpInet` devolvia **CIDR** (`127.0.0.0/24`). O binding `@db.Inet` do Prisma (Rust `IpAddr`) **rejeita CIDR** → `prisma.auditLog.create()` lançava `AddrParseError(Ip)` → o audit no login quebrava → 500.
+
+**Hotfix (branch `test/t060-e2e-jornada-critica`, commit `5051ffd`):** `mascararIpInet` passa a devolver **IP plano validado** (IPv4 → `127.0.0.0`; IPv6 → `2001:db8::`), nunca CIDR; `undefined` se inválido. Testes T055/T058 atualizados. **API 922/922**, `tsc`/`eslint` OK.
+
+**Evidência:** o job E2E FULL (run `35940117652`, job `107445988752`) saiu de **12/48** para **39/48** — o erro `apiLogin 500` desapareceu. Restam 9 falhas de **seletor/assunção do spec** (follow-up, sem tocar produto).
+
+**Ação:** merge expedito do PR #220 (correção de incidente) + smoke de login em produção. Bypass de push direto só se autorizado pelo Operador (D-496), registrado aqui.

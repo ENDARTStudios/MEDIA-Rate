@@ -127,3 +127,5 @@ e marcadores de produção/provider.
 passaram (cenários públicos home/catálogo). **36 falharam**: `apiLogin falhou: 500`
 e detalhe sem dados ("Baldur's Gate 3" ausente no seed) → **pendente de correção de
 test-infra** (env/seed), **sem** tocar produto.
+
+> **T062 — incidente + hotfix:** `POST /auth/login` retornava **500** porque `mascararIpInet` (T055) devolvia **CIDR**, rejeitado pelo `@db.Inet` do Prisma. Corrigido para **IP plano** (`127.0.0.0`, `2001:db8::`) no commit `5051ffd` (PR #220). Job E2E FULL: **39/48** (de 12/48) — restam 9 falhas de seletor do spec (follow-up).
