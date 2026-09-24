@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */ // módulo Node puro (sem deps)
 /**
  * T061/D-548 — guarda anti-produção e parsing de args do `evidence-local`.
  *
@@ -8,7 +7,8 @@
  */
 
 /** Marcadores proibidos (host, provider ou rótulo de ambiente). */
-const MARCADOR_PROD = /(^|[.\-_/])prod(uction)?([.\-_/]|$)|railway|mediarate\.app|neon\.tech|supabase|render\.com|fly\.io/i;
+const MARCADOR_PROD =
+  /(^|[.\-_/])prod(uction)?([.\-_/]|$)|railway|mediarate\.app|neon\.tech|supabase|render\.com|fly\.io/i;
 
 /** Hosts aceitos (loopback apenas). */
 const HOSTS_LOCAIS = new Set(["localhost", "127.0.0.1", "::1"]);
