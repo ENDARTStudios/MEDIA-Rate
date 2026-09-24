@@ -2803,3 +2803,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Auditoria #217: CLEAN/MERGEABLE no head 9014692; required verdes + E2E Playwright; Vercel PASS; contem TODOS os artefatos do #215 (relatorio/specs/D-546/SECURITY_TRIAGE/PLANO/worklog) + o fix (audit-log.service.ts, audit-log-integridade.spec.ts). Fix confirmado: um unico `agora = new Date()` no hash E no created_at. Mutacao historica em codigo = 0; scan segredos/PII = 0; specs 6/6. git diff --check: 2 linhas cosmeticas de CR no DECISOES (arquivo CRLF).
 - Merge commit 7736ce0 (--merge). Pos-merge main: CI success (4m13s), Security success (3m9s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. API reiniciou (uptime reset) -> fix live. Smoke 7/7 = 200.
 - #215: o GitHub marcou-o como MERGED automaticamente (commit 3c0a600 entrou em main via #217) -> nao foi possivel "fechar sem merge"; efeito equivalente (superseded). PLANO 2.10 segue [~]; P017 pendente.
+
+## [2026-09-24] T063-emergency-login-hotfix (INCIDENTE RESOLVIDO; merge 5322e90)
+- PR minimo emergencial hotfix/login-500-mascarar-ip (#228, 2 arquivos: pii-mask.ts + audit-log-pii.spec.ts) a partir de origin/main. mascararIpInet -> IP PLANO validado (nao CIDR). Required verdes (Build teve flake de fontes do Next.js -> re-run pass, D-545/T054). Merge commit 5322e90.
+- Smoke prod: API reiniciou; POST /auth/login = 200 + cookie sess; GET /auth/me = 200; /health + paginas publicas = 200. 500 eliminado (era o auditLog AddrParseError). E2E FULL subiu 12/48 -> 39/48.
+- Acoes: D-549 registrada; nota de que #220 (E2E infra) agora precisa rebase (hotfix ja em main via #228) e que 9 falhas de seletor do spec sao follow-up. Sem migration/segredo/schema/infra.
