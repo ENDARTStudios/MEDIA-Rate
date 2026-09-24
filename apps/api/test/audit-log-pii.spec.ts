@@ -59,10 +59,11 @@ describe("T055 — sanitizarPii (unit)", () => {
     expect((s.nested as Record<string, unknown>).ok).toBe(1);
   });
 
-  it("mascararIpInet produz valor válido para coluna inet (não o host cru)", () => {
-    expect(mascararIpInet(IP_FIXTURE)).toBe("203.0.113.0/24");
+  it("mascararIpInet produz IP PLANO válido para coluna inet (sem CIDR — T062)", () => {
+    expect(mascararIpInet(IP_FIXTURE)).toBe("203.0.113.0");
     expect(mascararIpInet(IP_FIXTURE)).not.toContain("45");
-    expect(mascararIpInet("2001:db8::1")).toMatch(/^2001:db8:1::\/48$/);
+    expect(mascararIpInet(IP_FIXTURE)).not.toContain("/");
+    expect(mascararIpInet("2001:db8::1")).toBe("2001:db8::");
     expect(mascararIpInet("")).toBeUndefined();
   });
 });
@@ -103,6 +104,6 @@ describe("T055 — AuditLogService.log sanitiza o payload", () => {
     expect(persistido).not.toContain("Bearer xyz");
     expect(persistido).not.toContain("UA/1.0");
     expect(persistido).not.toContain("texto do usuario");
-    expect(criados[0]?.ip_origem).toBe("203.0.113.0/24");
+    expect(criados[0]?.ip_origem).toBe("203.0.113.0");
   });
 });
