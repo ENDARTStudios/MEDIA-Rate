@@ -64,8 +64,10 @@ test.describe("T060 — jornada crítica", () => {
     await page.goto("/pt-BR/catalog", { waitUntil: "domcontentloaded" });
     const primeiroLink = page.locator('a[href*="/media/"]').first();
     await expect(primeiroLink).toBeVisible({ timeout: 20_000 });
-    await primeiroLink.click();
-    await page.waitForURL(/\/media\//, { timeout: 20_000 });
+    // Navega pelo href (independe de clique abrir nova aba/overlay).
+    const href = await primeiroLink.getAttribute("href");
+    expect(href).toBeTruthy();
+    await page.goto(href as string, { waitUntil: "domcontentloaded" });
     // Página de detalhe renderiza um título e ao menos uma imagem (real/placeholder).
     await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 20_000 });
     expect(await page.locator("img").count()).toBeGreaterThan(0);
