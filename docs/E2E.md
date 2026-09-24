@@ -112,3 +112,18 @@ NODE_OPTIONS=--dns-result-order=ipv4first E2E_FULL=1 E2E_TEST_PASSWORD=... \
 > **produção** (proibido) → a execução local 3× **não foi possível aqui**. O spec
 > foi validado por `eslint`, `tsc --noEmit` e `playwright test --list` (16 testes);
 > a execução fica pendente em ambiente com Postgres/Redis locais.
+
+### T061 — job efêmero no CI (D-548)
+
+O job **`e2e-full-jornada`** (`.github/workflows/ci.yml`) sobe Postgres 16 + Redis 7
+efêmeros, aplica `prisma migrate deploy`, provisiona usuários/fixture, sobe API
+(:4000) e web (:3000) e roda a suíte **3× (workers=1, retries=0)** — gateado a
+mudanças de infra E2E/evidence/CI e `continue-on-error` (não bloqueia merge).
+Guarda anti-produção: `scripts/ci/evidence-guard.mjs` (+ self-test
+`node scripts/ci/evidence-guard.self-test.mjs`, **19/19**) — recusa host não-local
+e marcadores de produção/provider.
+
+**1ª execução (run `35936827266`, job `107435635460`):** a infra subiu e **12/48**
+passaram (cenários públicos home/catálogo). **36 falharam**: `apiLogin falhou: 500`
+e detalhe sem dados ("Baldur's Gate 3" ausente no seed) → **pendente de correção de
+test-infra** (env/seed), **sem** tocar produto.
