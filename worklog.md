@@ -2824,3 +2824,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - PR minimo emergencial hotfix/login-500-mascarar-ip (#228, 2 arquivos: pii-mask.ts + audit-log-pii.spec.ts) a partir de origin/main. mascararIpInet -> IP PLANO validado (nao CIDR). Required verdes (Build teve flake de fontes do Next.js -> re-run pass, D-545/T054). Merge commit 5322e90.
 - Smoke prod: API reiniciou; POST /auth/login = 200 + cookie sess; GET /auth/me = 200; /health + paginas publicas = 200. 500 eliminado (era o auditLog AddrParseError). E2E FULL subiu 12/48 -> 39/48.
 - Acoes: D-549 registrada; nota de que #220 (E2E infra) agora precisa rebase (hotfix ja em main via #228) e que 9 falhas de seletor do spec sao follow-up. Sem migration/segredo/schema/infra.
+
+## [2026-09-24] T064-e2e-jornada-48-green (PARCIAL: 42/48; PR #220 atualizado, SEM merge)
+- Branch do #220 mesclada com main (merge commit 06fcc6a; sem rebase/force). Conflitos: DECISOES mantido o D-549 de main (removido duplicado do branch); worklog preservou ambos.
+- Specs robustecidos (test-only): detalhe de midia abre via href do 1o link do catalogo (060fcc/fa36546) em vez de clique+waitForURL; dashboard asserido por viewport (sidebar oculta no mobile). Sem tocar produto/schema.
+- Evidencia CI (job e2e-full-jornada): 12/48 -> 39/48 -> 42/48. Restam ~6 falhas intermitentes de navegacao/fixture do spec (nao produto). Criterio 48/48x3 NAO atingido -> T064 PARCIAL; follow-up de robustez do spec em ambiente com CI mais rapido. eslint/tsc/--list OK. Sem merge/deploy/producao/segredo.
