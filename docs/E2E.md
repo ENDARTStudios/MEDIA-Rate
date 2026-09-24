@@ -205,3 +205,19 @@ O projeto `mobile-chrome` roda depois → falhas concentram-se na fase mobile (*
 (reutilizar sessão) para não estourar o rate limit. **Alternativa produto (PR separado):** o filtro
 honrar `statusCode` numérico de objetos Nest-like → 429 em vez de 500. Relatório:
 `.claude/reports/auth-me-nonerror-2026-09-25.md`.
+
+### T074 — 48/48 via `storageState` (D-553)
+
+**Fluxo novo:** `globalSetup` (`e2e/global-setup.ts`) faz **1 login por execução Playwright** e grava
+`storageState` em **diretório temporário** (`os.tmpdir()`, fora do repo); `globalTeardown` **apaga** o
+arquivo. `use.storageState` (só com `E2E_FULL=1`) injeta a sessão; o spec **não** faz login por teste
+(`sessaoValida` apenas confere `/auth/me`=200); `state-reset` **preserva** `sess`/`csrf_token`.
+
+**Rate limit no harness:** o job de CI define `RATE_LIMIT_API_PER_MIN`/`RATE_LIMIT_LOGIN_PER_MIN`
+**altos** (ambiente efêmero) — usa os knobs de env existentes; **não** altera produto.
+
+**Evidência (run `36062523170`, job `107844628717`):** `preflight_login=200`, `preflight_authme=200`,
+`[globalSetup] storageState gerado (login único; /auth/me=200)`, **`48 passed (1.3m)`** — 0 failed,
+0 flaky, 0 skipped (16 testes × `--repeat-each=3`). Logins no run: **3** (antes: 32).
+
+Comando: `E2E_FULL=1 npx playwright test e2e/jornada-critica.spec.ts --project=chromium --project=mobile-chrome --workers=1 --retries=0 --repeat-each=3`.

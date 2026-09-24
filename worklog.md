@@ -2871,3 +2871,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-24] T073-merge-pr247-rate-limit (MERGED d4b114c; smoke OK)
 - Auditoria #247: MERGEABLE; required verdes no head c25486a (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration; Vercel fail nao-required); diff = global-exception.filter.ts + global-exception-nonerror.spec.ts + DECISOES/SECURITY_TRIAGE/worklog; git diff --check limpo; scan segredos 0; teste 9/9.
 - Merge commit d4b114c. Pos-merge main: CI success (4m49s), Security success (4m3s), deploy.yml waiting (P012=A); API reiniciou (uptime reset) -> filtro com honra de 429 live. Smoke passivo 7/7 = 200 (sem burst de login). Sem migration/segredo/schema/infra.
+
+## [2026-09-24] T074-e2e-storage-state-auth (48/48 alcancado; PR #220, SEM merge)
+- Branch #220 mesclada com main (270c78c). Implementado globalSetup/globalTeardown (e2e/global-setup.ts, global-teardown.ts): 1 login por execucao Playwright, storageState em os.tmpdir() (fora do repo, apagado no teardown). Spec usa sessaoValida (/auth/me=200) sem login por teste; state-reset preserva sess/o csrf_token; beforeEach nao limpa mais cookies.
+- CI: elevados RATE_LIMIT_API_PER_MIN/RATE_LIMIT_LOGIN_PER_MIN APENAS no job efemero (knobs de env existentes; nao e mudanca de produto). Limpeza defensiva do storageState nos artifacts.
+- EVIDENCIA (run 36062523170, job 107844628717): preflight_login=200; preflight_authme=200; globalSetup storageState (login unico); 48 passed (1.3m), 0 failed/skipped (16 x --repeat-each=3). Logins: 32 -> 3. Jornada E2E: 12/48 -> ... -> 48/48. eslint/tsc OK. Sem produto/schema/segredo/infra; PR #220 aberto SEM merge.
