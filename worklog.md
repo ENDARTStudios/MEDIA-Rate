@@ -2858,3 +2858,16 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Branch temporaria chore/t071-diagnostic (merge #220 + #247), PR draft #249, job e2e-full-jornada: preflight OK; diagnostico do #247 no api.log -> "Non-Error thrown: Object(ctor=Object; chaves=[statusCode, error, message])".
 - CAUSA RAIZ: loginRateLimit() = 6/min; errorResponseBuilder do @fastify/rate-limit devolve objeto puro {statusCode:429,...}; GlobalExceptionFilter converte nao-Error -> 500. A suite faz burst de 32 logins -> estoura o limite -> 500 (mobile roda depois => falhas na fase mobile; timing, nao UA).
 - RECOMENDACAO: test-infra -> login 1x/projeto via storageState (evita o burst); produto (PR separado) -> filtro honrar statusCode numerico (429 em vez de 500) com teste. Relatorio .claude/reports/auth-me-nonerror-2026-09-25.md. Draft #249 fechado; branch temporaria deletada. Sem merge/producao/segredo.
+## [2026-09-24] T070-auth-me-mobile-ua-500 (diagnostico seguro de non-Error; PR aberto, SEM merge)
+- Causa do 500 em GET /api/v1/auth/me sob UA mobile NAO reproduzivel por leitura: AuthGuard/validateToken lancam apenas UnauthorizedException; o unico throw de objeto no codigo e o endpoint de debug. O 500 e intermitente e o GlobalExceptionFilter logava apenas "Non-Error thrown: [object Object]" (sem origem).
+- Entregue (autorizado pela tarefa): descreverNaoErro() no GlobalExceptionFilter -> tipo/construtor/NOMES de chaves (max 12), NUNCA valores; status segue 500 (nao mascara). TDD global-exception-nonerror.spec.ts. API 923/923; tsc/eslint OK.
+- Proximo: rodar o harness E2E novamente para capturar tipo/ctor/chaves do objeto lancado em /auth/me e entao decidir fix minimo de produto (PR separado) ou harness. Sem produto/schema/migration/segredo/infra.
+
+## [2026-09-25] T072-rate-limit-429-status (fix no filtro; PR #247 atualizado, SEM merge)
+- Causa (T071): @fastify/rate-limit lanca objeto puro {statusCode:429,error,message}; GlobalExceptionFilter convertia nao-Error em 500 (mascarava o 429; burst de logins no E2E -> 500).
+- Fix minimo: statusDeNaoErro() honra statusCode inteiro 400-599 + mensagem canonica por status (MSG_POR_STATUS); NUNCA ecoa message/error/keys do objeto; log diagnostico sanitizado; comportamento de Error/HttpException inalterado; thresholds/schema/segredo/infra intocados.
+- TDD global-exception-nonerror.spec.ts: {statusCode:429} -> 429 sem vazar message interna; 200/302/600/-1/"429"/null/NaN -> 500. API 931/931; tsc/eslint OK. PR #247 (required verdes).
+
+## [2026-09-24] T073-merge-pr247-rate-limit (MERGED d4b114c; smoke OK)
+- Auditoria #247: MERGEABLE; required verdes no head c25486a (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration; Vercel fail nao-required); diff = global-exception.filter.ts + global-exception-nonerror.spec.ts + DECISOES/SECURITY_TRIAGE/worklog; git diff --check limpo; scan segredos 0; teste 9/9.
+- Merge commit d4b114c. Pos-merge main: CI success (4m49s), Security success (4m3s), deploy.yml waiting (P012=A); API reiniciou (uptime reset) -> filtro com honra de 429 live. Smoke passivo 7/7 = 200 (sem burst de login). Sem migration/segredo/schema/infra.
