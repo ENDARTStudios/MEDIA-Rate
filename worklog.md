@@ -950,7 +950,7 @@ Stage Summary:
   scores reais no catalogo.
 - Status: DONE (aguardando deploy + run inicial).
 
-## [2026-08-04] Stage: Run inicial do job — 392 midias recalculadas (0 erros)
+## [2026-08-04] Stage: Run inicial do job ï¿½ 392 midias recalculadas (0 erros)
 - Fix necessario: AuthGuard nao liberava POST /midias/score-job (whitelist
   adicionado, a72d948).
 - Run inicial disparado via admin: 392 processadas, 0 com erro em 554s (~9min).
@@ -962,39 +962,39 @@ Stage Summary:
 
 ## [2026-08-04] Stage: Causa raiz do catalogo (24 cards / filtros quebrados)
 - DIAGNOSTICO via logs do Railway: o navegador chamava /api/api/v1/midias
-  (404) — apiGet no cliente montava `/api${path}` com path ja contendo "/api/".
+  (404) ï¿½ apiGet no cliente montava `/api${path}` com path ja contendo "/api/".
   A primeira pagina funcionava porque o SSR busca direto no API_BASE; o
   loadMore e os filtros (client-side) 404avam silenciosamente (fallback null).
-- Fix (113bd28): normalizacao do path no apiGet — cliente usa `/api` + path
+- Fix (113bd28): normalizacao do path no apiGet ï¿½ cliente usa `/api` + path
   sem o prefixo duplicado. Impacto amplo: TODAS as chamadas client-side do
   apiGet (watchlist, busca, detalhes) estavam caindo no fallback mock.
 - Ajustes anteriores mantidos: total real (COUNT) e paginacao por remount.
 - Status: DONE (validar no navegador com hard refresh).
 
-## [2026-08-04] Stage: Bloco autonomo pos-redesign (generos, watchlist real, notificacoes, dívida)
+## [2026-08-04] Stage: Bloco autonomo pos-redesign (generos, watchlist real, notificacoes, dï¿½vida)
 - GENEROS: seed TMDB agora sincroniza a tabela genero (tmdb_id, slug) e vincula
   midia_genero; API aceita filtro `genero` (slug/id) e expoe GET /api/v1/generos
   (com contagens); catalogo web tem seletor de genero no filtro avancado.
   Migracao 20260804_genero_tmdb_id.
-- WATCHLIST REAL: list() agora faz join manual com midia (score + generos) —
+- WATCHLIST REAL: list() agora faz join manual com midia (score + generos) ï¿½
   kanban/cards/ContinueDecision deixam de usar o mock; precos do checkout
   alinhados (R$ 4,90 / R$ 9,90).
 - NOTIFICACOES in-app (D-132 "score mudou"): model Notificacao + migracao
   20260804_notificacao_score; service/controller (GET, ler, marcar lida);
   job diario gera alertas SCORE_MUDOU (variacao >= 5 desde a ultima); sino no
   header (poll 60s, badge, dropdown, i18n 3 idiomas).
-- DIVIDA TECNICA: graceful shutdown (enableShutdownHooks no main.ts — SIGTERM
+- DIVIDA TECNICA: graceful shutdown (enableShutdownHooks no main.ts ï¿½ SIGTERM
   dispara prisma disconnect); posthog-js no frontend (pageview + identify,
-  inerte sem NEXT_PUBLIC_ANALYTICS_WRITE_KEY — vars do Vercel pendentes).
+  inerte sem NEXT_PUBLIC_ANALYTICS_WRITE_KEY ï¿½ vars do Vercel pendentes).
 - Verificado: refresh token (sliding session) e audit logging JA implementados;
   export LGPD (GET /api/v1/user/data) ja existia; "recomendacoes 3/dia" e
-  "historico 10" sem infra de dados — documentados como fora do escopo.
+  "historico 10" sem infra de dados ï¿½ documentados como fora do escopo.
 - Suites: API 429, web 143. Pendente: aplicar migracoes + re-seed TMDB em
   producao (via tunel) para popular generos.
 - Status: DONE.
 
 
-## [2026-08-04] Stage: Deploy do bloco autonomo — fixes de producao (P3009, sort, UUIDs)
+## [2026-08-04] Stage: Deploy do bloco autonomo ï¿½ fixes de producao (P3009, sort, UUIDs)
 - Migracoes 20260804 com BOM UTF-8 quebraram o prisma migrate deploy (P3009):
   SQL aplicado manualmente via tunel + `migrate resolve --applied` em producao;
   BOMs removidos dos arquivos (fix a11a0c2).
@@ -1008,27 +1008,27 @@ Stage Summary:
   notificacoes.gerarAlertasDeScore.
 - Re-seed TMDB em producao com generos (fix da shape {genres:[...]} do TMDB +
   link em batch): 390 midias, 27 generos, 1030 vinculos. Job diario re-rodado
-  (391 processadas, 0 erros, 546s) — scores reais restaurados.
-- Alertas SCORE_MUDOU gerados ao fim do job (0 com a watchlist atual — entradas
+  (391 processadas, 0 erros, 546s) ï¿½ scores reais restaurados.
+- Alertas SCORE_MUDOU gerados ao fim do job (0 com a watchlist atual ï¿½ entradas
   legadas/mock; mecanismo verificado sem erros).
 - Suites: API 429, web 143.
 - Status: DONE.
 
-## [2026-08-04] Stage: Item 4 — sino mobile, generos pt-BR, alertas por genero
+## [2026-08-04] Stage: Item 4 ï¿½ sino mobile, generos pt-BR, alertas por genero
 - Sino de notificacoes no menu mobile do header (antes so desktop).
 - Generos normalizados pt-BR: dicionario no seed (lista TV da TMDB cai em
   ingles) + backfill em producao (9 generos; verificado: 27 generos, 0 em
   ingles).
 - Alertas GENERO_ALTA: "novo titulo nota alta no seu genero" (score >= 75,
-  criado nas ultimas 24h) — proxy de interesse = generos da watchlist do
+  criado nas ultimas 24h) ï¿½ proxy de interesse = generos da watchlist do
   usuario (PreferenciaUsuario ainda nao tem uso real). Job diario chama
   gerarAlertasDeGenero; dedupe por usuario+titulo.
 - Verificado: job rodou (scores re-coletados), alertas 0 esperado (watchlist
-  atual so tem entradas legadas/mock — sem vinculo com o catalogo).
+  atual so tem entradas legadas/mock ï¿½ sem vinculo com o catalogo).
 - Suites: API 429, web 143.
 - Status: DONE.
 
-## [2026-08-04] Stage: Limites Free + ferramentas (D-132) — cota, historico, export, comparador
+## [2026-08-04] Stage: Limites Free + ferramentas (D-132) ï¿½ cota, historico, export, comparador
 - COTA DIARIA: model UsoDiario + QuotaService (429 com retry_after_seconds) +
   migracao; aplicada na listagem com sort=score para FREE autenticado
   (recomendacoes 3/dia); anonimos nao contam; Plus/Premium ilimitado.
@@ -1047,19 +1047,19 @@ Stage Summary:
 
 ## [2026-08-04] Stage: PostHog no frontend ativo (item 3 do Operador)
 - Vars NEXT_PUBLIC_ANALYTICS_WRITE_KEY + NEXT_PUBLIC_POSTHOG_HOST JA existiam
-  no Vercel (11 dias) — faltava o provider. PostHogProvider deployado e a chave
+  no Vercel (11 dias) ï¿½ faltava o provider. PostHogProvider deployado e a chave
   phc_ confirmada no bundle JS (chunk 0ihlx31u744wg.js).
 - API do PostHog verificada (projeto MEDIA Rate id 527617, us.posthog.com).
 - Eventos $pageview aparecem no Live events a partir da primeira visita real
-  (curl nao executa JS — pendente apenas a carga real no navegador).
+  (curl nao executa JS ï¿½ pendente apenas a carga real no navegador).
 - PENDENCIAS_OPERADOR item 7 marcado FEITO (backend + frontend).
 - Status: DONE.
 
-## [2026-08-04] Stage: Listas colaborativas (Premium — D-132, ultima feature)
+## [2026-08-04] Stage: Listas colaborativas (Premium ï¿½ D-132, ultima feature)
 - Modelo lista_colaborativa + lista_item (migracao 20260804_listas_colaborativas):
   slug unico compartilhavel, dono com cascade, item com join manual a midia
   (VarChar sem FK, padrao watchlist).
-- API /api/v1/listas: POST criar (Premium — 402 upsell p/ FREE), GET minhas,
+- API /api/v1/listas: POST criar (Premium ï¿½ 402 upsell p/ FREE), GET minhas,
   GET :slug (publico via guard whitelist), PATCH/DELETE :slug (dono),
   POST :slug/itens (qualquer logado), DELETE :slug/itens/:itemId (dono).
   Slug com dedupe (-2, -3...); Conflict em item duplicado; Forbidden p/ nao-dono.
@@ -1070,10 +1070,10 @@ Stage Summary:
   producao: GET /api/v1/listas/:slug publico (404 para slug inexistente).
 - Status: DONE.
 
-## [2026-08-04] Stage: Stripe VERIFICADO — configuracao concluida
+## [2026-08-04] Stage: Stripe VERIFICADO ï¿½ configuracao concluida
 - Conta liberada: charges_enabled=true, payouts_enabled=true, card_payments/
   boleto_payments/transfers ACTIVE. Apple Pay e Google Pay disponiveis.
-- DECISAO: boleto tem minimo de R$ 5,00 — plano Plus (4,90) ficaria impagavel;
+- DECISAO: boleto tem minimo de R$ 5,00 ï¿½ plano Plus (4,90) ficaria impagavel;
   STRIPE_PAYMENT_METHODS permanece "card" (cards + wallets). Pix segue
   dashboard-only (capability nao existe via API).
 - Validado: webhook enabled com 9 eventos na URL de producao; 4 variaveis
@@ -1086,7 +1086,7 @@ Stage Summary:
 - Operador pagou R$ 4,90 (cs_live_a1cYEL..., assinatura sub_1U0pHY... trialing
   ate 11/08) mas o Plus nao liberou.
 - CAUSA RAIZ: payment.service.processWebhook fazia `event.data as WebhookPayload`
-  e lia `data.data.object` — o gateway retorna `data` = wrapper do evento
+  e lia `data.data.object` ï¿½ o gateway retorna `data` = wrapper do evento
   ({ object }), entao `data.data` era undefined e TODOS os handlers eram
   pulados silenciosamente (SUCESSO sem sincronizar). O bug existia desde 618abed
   (a validacao em modo teste tambem nunca sincronizou o plano de fato).
@@ -1098,7 +1098,7 @@ Stage Summary:
 - Proximos pagamentos sincronizam automaticamente (fix deployado).
 - Status: DONE.
 
-## [2026-08-04] Stage: Addendum 2 — metadados estruturados (Tarefa 5a)
+## [2026-08-04] Stage: Addendum 2 ï¿½ metadados estruturados (Tarefa 5a)
 - 8 componentes novos em media-rate-ui, respeitando a matriz de aplicabilidade:
   AgeRatingBadge (DJCTQ L/10/12/14/16/18; "sugerida pela editora" p/ livro/HQ/
   manga; perSeason), SeriatedScoreTree (hierarquia unidade->subunidade; media
@@ -1108,7 +1108,7 @@ Stage Summary:
   AwardsShowcase (trofes vencedor/indicado, +X expansivel), FranchiseCarousel+
   FranchiseOrderToggle (ordem lancamento/cronologica so quando ha dado;
   "Voce esta aqui").
-- Integracao: aba "Metadados" na ficha tecnica — classificacao (dado real da
+- Integracao: aba "Metadados" na ficha tecnica ï¿½ classificacao (dado real da
   API mapeado DEZ->10 etc.), generos, e estados honestos "Nao informado" para
   premios/franquia/notas seriadas (sem dados no backend ainda).
 - Infra de teste: stub de next/navigation + inline do next-intl no vitest.
@@ -1118,26 +1118,26 @@ Stage Summary:
   "Nao informado".
 - Status: DONE.
 
-## [2026-08-04] Stage: Dados reais dos metadados — franquias e origem
-- FRANQUIAS (Addendum 2 §7): model Franquia + MidiaFranquia (N:N, ordens de
+## [2026-08-04] Stage: Dados reais dos metadados ï¿½ franquias e origem
+- FRANQUIAS (Addendum 2 ï¿½7): model Franquia + MidiaFranquia (N:N, ordens de
   lancamento/cronologica) + migracao 20260804_franquias_origem + seed
   idempotente (13 definicoes; 3 vinculadas no catalogo atual: O Senhor dos
   Aneis 3, Star Wars 2, Breaking Bad universo 2 = 7 vinculos; as demais com
-  menos de 2 titulos no catalogo foram ignoradas — honesto). API do detalhe
+  menos de 2 titulos no catalogo foram ignoradas ï¿½ honesto). API do detalhe
   expoe franquias com itens; web mapeia e renderiza o FranchiseCarousel
   (verificado em producao: LOTR com 3 itens, ordens + scores no initialData).
-- ORIGEM (Addendum 2 §5): campo midia.pais_origem (ISO alfa-2) + seed-origem
-  (26 series com pais via origin_country do TMDB; filmes ficam null — ?? na
+- ORIGEM (Addendum 2 ï¿½5): campo midia.pais_origem (ISO alfa-2) + seed-origem
+  (26 series com pais via origin_country do TMDB; filmes ficam null ï¿½ ?? na
   UI). OriginBadge com modo pais-somente (sem produtora).
 - PREMIOS e NOTAS SERIADAS: sem fonte de dado disponivel (nenhuma API fornece
-  premios; temporadas/episodios sem estrutura no backend) — estados honestos
+  premios; temporadas/episodios sem estrutura no backend) ï¿½ estados honestos
   "Nao informado" mantidos.
 - Suites: API 444, web 157; deploy verificado.
 - Status: DONE.
 
-## [2026-08-04] Stage: T5a-hero-3d-fix-v2 — icones hibridos (Lucide + camadas HTML)
+## [2026-08-04] Stage: T5a-hero-3d-fix-v2 ï¿½ icones hibridos (Lucide + camadas HTML)
 - DIAGNOSTICO AO VIVO: os icones v1 ESTAVAM no SSR (nav categorias, hero-icon-svg,
-  explorar) — a captura do Thinker com "2 bytes" era falha de ferramenta, nao do
+  explorar) ï¿½ a captura do Thinker com "2 bytes" era falha de ferramenta, nao do
   site. Mesmo assim, a critica visual procede (SVGs primitivos) e a arquitetura
   SVG+camadas era fragil (fill-box inconsistente, parallax nao garantido).
 - v2 HIBRIDO (conforme especificacao): Lucide (Clapperboard/Tv/Gamepad2/BookOpen/
@@ -1174,7 +1174,7 @@ Stage Summary:
   Restantes: 401 /auth/me + /watchlist sao esperados p/ anonimo (nao sao bugs).
 - Suites: 159/159. Commits: dd14a8a (hero), 92763ba (worklog), edda103 (fixes).
 
-## [2026-08-04] T5a-hero-3d-fix-v3 — SVGs ilustrativos premium (DONE)
+## [2026-08-04] T5a-hero-3d-fix-v3 ï¿½ SVGs ilustrativos premium (DONE)
 - Substitui Lucide por 5 ilustracoes vetoriais completas (hero-svg-art.tsx):
   Claquete (madeira texturizada, veios, dobradicas metalicas, listras diagonais,
   "SCENE 1", flash estrela), TV (moldura metalica, reflexo, antenas, dials, pernas,
@@ -1194,7 +1194,7 @@ Stage Summary:
   funcional JSON (5 coreografias) + build 80/80 sem three.js/spline.
 - Suites: 159/159. Commit 8048b88.
 
-## [2026-08-05] T5a-hero-3d-fix-v3.1 — correcao dos icones quebrados (DONE)
+## [2026-08-05] T5a-hero-3d-fix-v3.1 ï¿½ correcao dos icones quebrados (DONE)
 - Operador: NAO usar Lordicon (app DEMO so tem 34 icones genericos sem midia) e
   corrigir os icones atuais - "pessimo design e animacao, estao quebrados".
 - BUG RAIZ CONFIRMADO no ar: o Anime.js define o CSS `transform` e SUBSTITUI o
@@ -1217,7 +1217,7 @@ Stage Summary:
 - Screenshots: evidencia-v3.1-{desktop-static,desktop-hover,mobile,reduced-motion}.png
   (hashs distintos = capturas validas). Build 80/80, suites 159/159.
 
-## [2026-08-05] T5a-hero-3d-fix-v4 — renders 3D pre-renderizados (DONE)
+## [2026-08-05] T5a-hero-3d-fix-v4 ï¿½ renders 3D pre-renderizados (DONE)
 - D-014 cumprido: ZERO SVG codado a mao no Hero. 5 renders claymorphism
   glossy gerados proceduralmente (scripts/generate-hero-assets.mjs: SVG cena
   -> raster Chromium 1200x1200 -> WebP q80): film 30.7 / serie 21.5 / game
@@ -1240,7 +1240,7 @@ Stage Summary:
   scale 1.12) + 8 screenshots evidencia-v4-*.png (idle, 5 picos, mobile,
   reduced-motion) + build 80/80 sem libs 3D + pesos webp.
 
-## [2026-08-05] Auditoria Home — 7 acoes corrigidas (commit a215ea4)
+## [2026-08-05] Auditoria Home ï¿½ 7 acoes corrigidas (commit a215ea4)
 P0-1: Lista de fontes UNIFICADA numa versao canonica (11 ativas) em todos os
   blocos (messages pt/en/es + FAQ JSON-LD da pagina de preco que era a 5a
   instancia divergente). Antes havia 4+ versoes contraditorias na mesma tela.
@@ -1261,7 +1261,7 @@ P1-7: 5 links de categorias do Hero (motion.a com href cru) agora prefixados
   SteamSpy, OpenLibrary ausente, stat=11, secao unica HQs&Mangas, anime ok,
   /pt-BR/catalog?type=movie|comic nos links.
 
-## [2026-08-05] Re-auditoria Home (Pos-correcoes) — resultado
+## [2026-08-05] Re-auditoria Home (Pos-correcoes) ï¿½ resultado
 VERIFICADO NO AR (todas as 7 acoes da auditoria anterior):
 - Fontes unificadas: 11 canonicas (TMDB, IMDb, RT, Metacritic, TVMaze,
   Letterboxd, Trakt, IGDB, OpenCritic, Steam, SteamSpy) presentes; OpenLibrary/
@@ -1269,7 +1269,7 @@ VERIFICADO NO AR (todas as 7 acoes da auditoria anterior):
 - Stat fontes = 11 (com lastro no texto).
 - Secao unica "HQs & Mangas" (Livros + HQs&Mangas); sem "Filmes" em Mangas
   (os spans "Filmes" sao labels legitimos do hero + badges de catalogo).
-- Anime sem contradicao (1 menção, coerente).
+- Anime sem contradicao (1 menï¿½ï¿½o, coerente).
 - 52 links internos 100% com prefixo de locale; 0 href vazios; 5 categorias
   /pt-BR/catalog?type=X retornam 200.
 - Sem mojibake real (artefatos de dupla codificacao todos false).
@@ -1280,7 +1280,7 @@ ACHADO P2 (dado): poster de "Baldur's Gate 3" no banco vivo aponta para
   defensiva adicionada em MediaCard/ImageWithFallback (%2527->%27) + correcao
   do registro no banco (UPDATE imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg').
 
-## [2026-08-05] Auditoria 16 rotas — achados e correcoes (commit 7358f53)
+## [2026-08-05] Auditoria 16 rotas ï¿½ achados e correcoes (commit 7358f53)
 METODO: Playwright em 16 URLs (status, console, falhas de rede, imagens,
 links sem locale, mojibake, fontes, h1/h2, conteudo).
 TODAS as 16 rotas retornam 200. Login-gated (profile/dashboard/settings/
@@ -1297,7 +1297,7 @@ ACHADOS CORRIGIDOS:
    REAIS da API (filmes/series 40/40/20, games 55/35/10, threshold Bayesiano,
    confianca Alta>=70/Media>=40/Baixa<40) em pt/en/es + chaves mortas
    scoreV2/methodologyV2 atualizadas.
-4. [P2] Mojibake real no pt-BR: setas "â†'" (=>) em whatIsNotCta/howItWorksCta.
+4. [P2] Mojibake real no pt-BR: setas "ï¿½'" (=>) em whatIsNotCta/howItWorksCta.
 PENDENCIAS (dados, fora de codigo):
 - Poster BG3 no banco (hash 7/79 errado; correto 1/12) - ja reportado.
 - Catalogo GAME tem apenas 1 titulo no banco (Games1) - cobertura de dados.
@@ -1305,7 +1305,7 @@ PENDENCIAS (dados, fora de codigo):
 VERIFICADO NO AR: catalog?type=comic 200 com 12+ cards e chips rotulados;
 metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
 
-## [2026-08-05] T5a-hero-3d-fix-v5 — renders PBR polidos + coreografias do Thinker (DONE)
+## [2026-08-05] T5a-hero-3d-fix-v5 ï¿½ renders PBR polidos + coreografias do Thinker (DONE)
 - Novo padrao de material (zero massinha): plastico glossy com specular cortante
   (faixa de ambiente), metal escovado (chrome com streaks), vidro com reflexo
   diagonal, couro envernizado (sheen + relevo dourado), reflexo especular de
@@ -1331,10 +1331,10 @@ metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
   rotateY amortecido, POW elastico, scanline -146->138, flash 0.69, ring 2.3) +
   8 screenshots evidencia-v5-*.png + build 80/80 sem libs 3D.
 
-## [2026-08-05] T5a-hero-3d-fix-v6 — assets = renders de referencia do Operador
+## [2026-08-05] T5a-hero-3d-fix-v6 ï¿½ assets = renders de referencia do Operador
 - Operador: "Ficou um lixo" (v5 procedural) e colocou 5 renders premium de
   referencia em apps/web/src/components/hero-icons/ (Claquete/Televisao/
-  Controle/Livro/HQ e Manga - 1664x928, fundo escuro de estúdio, 16:9).
+  Controle/Livro/HQ e Manga - 1664x928, fundo escuro de estï¿½dio, 16:9).
 - DECISAO: usar os renders DO OPERADOR como os assets do hero (nao tenho
   visao de imagem p/ replicar; sao exatamente o set premium desejado).
   Convertidos p/ WebP q82 (1280w): film 21 / serie 36 / game 30 / livro 50 /
@@ -1345,7 +1345,7 @@ metodologia v3 (Bayesiano, 40/40/20, thresholds); sem seta quebrada.
 - Screenshots: evidencia-v6-{idle,peak-clap,mobile,reduced-motion}.png.
 - Build 80/80; no ar com 5 imgs 104x104 object-fit cover.
 
-## [2026-08-05] Auditoria rigorosa 16+ rotas — Etapas (concluida)
+## [2026-08-05] Auditoria rigorosa 16+ rotas ï¿½ Etapas (concluida)
 ETAPA 1 (crawl Playwright em 23 URLs + 5 detalhes): achados B1-B7.
 ETAPA 2 (correcoes, commits c813b79 + cf9f02b):
 - B1: EmptyStateComingSoon usava t(type) -> chaves filme/serie/livro (TIPO_KEY).
@@ -1354,7 +1354,7 @@ ETAPA 2 (correcoes, commits c813b79 + cf9f02b):
   em pt/en/es; aplicado em MediaDetailClient e MediaDetailPage.
 - B5: secoes Livros/HQs&Mangas da home via i18n (landing.rails* + comingSoon)
   em pt/en/es (antes hardcoded pt).
-- B4: 404 localizado — com app/layout.tsx na raiz, rotas inexistentes caem no
+- B4: 404 localizado ï¿½ com app/layout.tsx na raiz, rotas inexistentes caem no
   not-found ROOT (o [locale]/not-found.tsx nao assume); criado app/not-found.tsx
   que le x-next-intl-locale + NextIntlClientProvider + Navbar + MotionFooter.
   Testado localmente em pt/en/es e verificado no ar.
@@ -1363,7 +1363,7 @@ B3 (poster BG3, hash 7/79 errado -> 1/12) segue como PENDENCIA DE BANCO
 (UPDATE midia SET imagem_url='.../1/12/Baldur%27s_Gate_3_cover_art.jpg'
 WHERE titulo='Baldur'"'"'s Gate 3') - degrada para placeholder (nao quebra UI).
 
-## [2026-08-05] Auditoria 2 (16 URLs) — acoes P0/P1 (commit b062b2c)
+## [2026-08-05] Auditoria 2 (16 URLs) ï¿½ acoes P0/P1 (commit b062b2c)
 P0-1 FILTRO DE TIPO (critico): API aceitava "HQ" (Prisma rejeita -> 500) e
   IGNORAVA "COMIC" silenciosamente -> tipo=COMIC retornava o catalogo inteiro
   (391 = total, "Quadrinhos391" era vazamento). Fix media.controller.ts:
@@ -1386,10 +1386,10 @@ P1-6 NOME LEGAL: s5b dos Termos "ENDART Studios" -> "END ART Studios" (3 locales
 FALSO POSITIVO: "mojibake em massa" nos .tsx era artefato do PowerShell
   (decodifica UTF-8 como ANSI); arquivos e titles servidos estao limpos
   (verificado bytes + <title> servido).
-PRE-EXISTENTE: 4 falhas em controllers-unit.spec.ts (getBySlug 500) — falham
+PRE-EXISTENTE: 4 falhas em controllers-unit.spec.ts (getBySlug 500) ï¿½ falham
   com e sem esta mudanca (fora do escopo).
 
-## [2026-08-05] Auditoria 3 — achados novos (commit 51388fc)
+## [2026-08-05] Auditoria 3 ï¿½ achados novos (commit 51388fc)
 I. CRITICA NAO POPULA (grave, confirmado): amostra de 5 filmes + 5 series = 0
    fontes de critica; unico game (BG3) TEM critica (igdb/opencritic).
    CAUSA RAIZ: adapters metacritic/rottentomatoes/letterboxd/rogerebert sao
@@ -1415,14 +1415,14 @@ CORRECAO PROPIA: ferramenta PowerShell (Set-Content ANSI->UTF8) corrompeu
    e reaplicados com editor proprio. LICAO: nunca editar messages/*.json via
    cmdlets do PowerShell.
 
-## [2026-08-06] Auditoria 4 — triagem dos 15 achados (commit b478001)
+## [2026-08-06] Auditoria 4 ï¿½ triagem dos 15 achados (commit b478001)
 REAIS CORRIGIDOS:
 - Moeda ES/EUR e EN/USD -> BRL em TODOS os locales (pricing.ts; Stripe cobra
   R$) + s3b dos Termos en/es em R$. Verificado: ES sem EUR no ar.
-- "Em breve — toque para ser avisado" e "Cadastre-se para ser avisado" eram PT
+- "Em breve ï¿½ toque para ser avisado" e "Cadastre-se para ser avisado" eram PT
   hardcoded em LockedComingSoonCard/EmptyStateComingSoon/WaitlistCaptureModal ->
   chaves comingSoonTap/comingSoonSubscribe/comingSoonNotify (pt/en/es).
-  Verificado: EN "Coming soon — tap to be notified", ES "Próximamente — toca".
+  Verificado: EN "Coming soon ï¿½ tap to be notified", ES "Prï¿½ximamente ï¿½ toca".
 - Fontes duplicadas na ficha: dedupe defensivo por id em MediaScoreModule
   (A Odisseia imdb/tmdb/tmdb do mock; nenhum dupe real na API amostrada).
 CONFIRMADOS COMO DADOS (acao de operador, nao codigo):
@@ -1441,13 +1441,13 @@ FALSOS POSITIVOS (verificados ao vivo):
 - HomeStats era "codigo morto" na home? NAO - renderiza via SSR (391/11/3).
 
 ## [2026-08-06] T195-consolidacao-auditoria4 (DONE, commit a645719)
-GAP 1 — BG3 GENEROS: migration de dados idempotente
+GAP 1 ï¿½ BG3 GENEROS: migration de dados idempotente
   (20260805193000_t195_bg3_generos) insere RPG/Fantasia/Aventura na genero +
   vincula via midia_genero (ON CONFLICT DO NOTHING). Aplicada automaticamente
   pelo docker-entrypoint (migrate deploy). VERIFICADO NO AR: API
   /midias/slug/baldur-s-gate-3 -> generos [Aventura, Fantasia, RPG]; ficha
-  renderiza "2023 · Aventura, Fantasia, RPG".
-GAP 2 — WATCHLIST: endpoint JA EXISTIA completo (controller AuthGuard + GET/
+  renderiza "2023 ï¿½ Aventura, Fantasia, RPG".
+GAP 2 ï¿½ WATCHLIST: endpoint JA EXISTIA completo (controller AuthGuard + GET/
   POST/PATCH move/DELETE 204 + Zod + limite FREE 20 + metrics + tests 19/19).
   Complementado com decorators OpenAPI (@ApiTags/@ApiOperation/@ApiBearerAuth)
   para documentacao Swagger. VERIFICADO: 401 sem cookie no ar.
@@ -1455,7 +1455,7 @@ PENDENTE OPERADOR (inalterado): SCRAPE_NUMERICO_ENABLED=true + re-coleta.
 API: 440/444 (4 falhas getBySlug pre-existentes, fora do escopo).
 
 ## [2026-08-06] T179-media-score-conforme-spec (DONE, dc8445e + fc6aec3)
-- CLASSIFICACOES critic|audience: ja estavam no registry (mapa VII D-198) —
+- CLASSIFICACOES critic|audience: ja estavam no registry (mapa VII D-198) ï¿½
   metacritic/rottentomatoes/rogerebert/igdb/opencritic = critica; tmdb/omdb/
   imdb/tvmaze/trakt/letterboxd/rt_audience/metacritic_user/steam/steamspy/
   igdb_publico = publico. Nenhuma mudanca necessaria (verificado).
@@ -1474,13 +1474,13 @@ API: 440/444 (4 falhas getBySlug pre-existentes, fora do escopo).
 - Methodology/FAQ v3 ja alinhados (rodada anterior).
 
 ## [2026-08-06] T183-tokens-design (DONE, commit d0d4fe0)
-Estado: paleta D-203 (base/surface/border/textos/accents/score/media) JÁ
+Estado: paleta D-203 (base/surface/border/textos/accents/score/media) Jï¿½
 estava implementada em design-tokens.ts + globals.css + tailwind.config.
 Gaps fechados:
 - FONTE MONO: JetBrains_Mono adicionada ao next/font/google (--font-mono) p/
   numeros de score tabular; tailwind fontFamily.mono usa var. Display: Space
   Grotesk 500-700 (fallback documentado: Clash/Cabinet indisponiveis em
-  next/font e Fontsource — E404); corpo Inter 400-600.
+  next/font e Fontsource ï¿½ E404); corpo Inter 400-600.
 - CONTRASTE AA: terciario D-203 #6B6B85 = 3.94:1 FALHA AA normal -> token
   ajustado p/ #80809B (5.31:1) com comentario no codigo (unica divergencia
   da paleta, documentada). Primario 18.68:1, secundario 7.96:1 (AA ok).
@@ -1580,11 +1580,11 @@ VERIFICADO NO AR: catalog?type=book = "Em construcao" + form email waitlist
 (sem 404); game = sticky + 1 card; filtro expandido = toggle + checkbox.
 Testes: API 447/451 (4 pre-existentes), Web 183/183 (3 novos catalog-empty).
 
-## [2026-08-06] T187-metadata-components (DONE — conformidade verificada, zero diffs)
+## [2026-08-06] T187-metadata-components (DONE ï¿½ conformidade verificada, zero diffs)
 Os 8 componentes do addendum 2 (D-205) JA existiam em media-rate-ui (com
 metadados.spec.tsx). Auditoria de conformidade contra a spec T187:
 - AgeRatingBadge: rating L-18 DJCTQ/ClassInd + descriptors opcionais (nunca
-  inventados) + source oficial|sugerida ("Classificação sugerida pela editora"
+  inventados) + source oficial|sugerida ("Classificaï¿½ï¿½o sugerida pela editora"
   p/ livro/HQ/manga) + perSeason. OK.
 - SeriatedScoreTree: unitLabel/units; score null -> "Ainda sem votos
   suficientes" (noVotesYet, nunca 0); unidade sem nota = media das subunidades
@@ -1608,7 +1608,7 @@ backdrop desfocado + gradiente p/ base, score block 3 elementos via
 MediaScoreModule, grade de fontes SourceMiniCard, tabs sinopse/elenco/
 avaliacoes/metadados, metadados do addendum 2 com matriz de ausencia:
 AgeRatingBadge/GenreChipRow/SeriatedScoreTree/OriginBadge/AwardsShowcase/
-FranchiseCarousel — sem bloco vazio, "Nao informado" p/ obrigatorio sem dado).
+FranchiseCarousel ï¿½ sem bloco vazio, "Nao informado" p/ obrigatorio sem dado).
 Gaps fechados:
 - WATCHLIST CTA sticky: barra fixa inferior no mobile (testid
   watchlist-cta-sticky) com titulo+tipo+ano+botao; desktop mantem no hero.
@@ -1617,7 +1617,7 @@ Gaps fechados:
   fallback Globe) + testid platforms-section.
 - T197 due diligence (4 E2E): login/register renderizam sem error boundary
   (h1 Welcome back/Sign up); "Oppenheimer" NAO existe no catalogo (busca
-  funciona p/ titulos reais) — falhas do extractor, nao do build.
+  funciona p/ titulos reais) ï¿½ falhas do extractor, nao do build.
 - 2 testes de integracao novos (sticky + plataformas) -> 185/185.
 VERIFICADO NO AR: BG3 = Critica+Publico+Plataforma+sticky; serie = Temporada+
 sticky. tsc/lint/build verdes.
@@ -1658,7 +1658,7 @@ MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
 ## [2026-08-06] T191-consolidacao-auditoria5 (DONE, commit fbc195b)
 1. MARCA: Logo variant=full agora renderiza "MEDIA Rate" (espaco explicito
    entre as linhas empilhadas + aria-label "MEDIA Rate"); LazyLogo
-   (dynamic ssr:false) substituido por Logo SSR no register — sem lacuna de
+   (dynamic ssr:false) substituido por Logo SSR no register ï¿½ sem lacuna de
    hidratacao. Testes via renderToStaticMarkup (SSR puro = exatamente a
    exigencia de T191: texto identico server/client).
 2. FONTE UNICA DE VERDADE (D-209): lib/sources.ts derivada do registry
@@ -1670,7 +1670,7 @@ MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
 3. NOTA BAYESIANA SEMPRE VISIVEL: MediaScoreModule renderiza a explicacao
    "Ajustado por volume de votos (estimador Bayesiano)" + link /methodology
    incondicionalmente (o prior aplica a toda obra). VERIFICADO NO AR na ficha.
-4. EVIDENCIA (item IX): consulta de producao — movie score_critica=null,
+4. EVIDENCIA (item IX): consulta de producao ï¿½ movie score_critica=null,
    series=null, game=93 (BG3). Critica de filme/serie exige
    SCRAPE_NUMERICO_ENABLED=true (pendencia operador, escalonada).
 - 8 testes novos (logo SSR 3, registry 4, nota bayesiana 1) -> 201/201;
@@ -1679,10 +1679,10 @@ MediaCard+ScoreDial+accent, empty states e auth-gate ja existiam. Gaps:
 ## [2026-08-06] T192-reverificacao-pos-deploy (DONE, commit 9e8c07c)
 Lista VII re-verificada contra o build atual (curl + browser):
 1. catalog?type=movie|series|game: CONFIRMADO via Playwright (cards 12/12/1,
-   sem erro; SSR mostra skeleton — verificacao client-side).
+   sem erro; SSR mostra skeleton ï¿½ verificacao client-side).
 2. /terms precos COM digitos (4,90) sem R,90: CONFIRMADO.
 3. /register: 15 links /pt-BR/ ?, tagline sem "jogar e ler" ?; CONVITE:
-   campo havia sido removido na auditoria 2 — T192 decide manter (Beta
+   campo havia sido removido na auditoria 2 ï¿½ T192 decide manter (Beta
    Fechada) -> RESTAURADO e localizado (inviteCodeLabel/Placeholder + schema
    optional max 64).
 4. /dashboard + /watchlist: 307 -> /login, sem "Verificando sessao":
@@ -1691,7 +1691,7 @@ Lista VII re-verificada contra o build atual (curl + browser):
 6. Entidade legal: "END ART Studios" ?; "ENDART" restante = somente o handle
    do GitHub (URL legitima, nao entidade); CNPJ 45.370.930 apenas em
    privacy/terms: CONFIRMADO.
-7. <title> pricing limpo ("Planos — MEDIA Rate", sem mojibake): CONFIRMADO.
+7. <title> pricing limpo ("Planos ï¿½ MEDIA Rate", sem mojibake): CONFIRMADO.
 - 201/201 testes; tsc/lint/build verdes; deploy verificado no ar.
 - Registrado: catalogo e outras paginas client-side exigem verificacao via
   browser (curl pega SSR/skeleton).
@@ -1700,7 +1700,7 @@ Lista VII re-verificada contra o build atual (curl + browser):
 Conformidade: settings ja tinha upsell visual (ScoreDial bloqueado+Lock),
 idioma e sessao; pricing ja tinha toggle mensal/anual com -15%. Gaps:
 - LGPD 2 passos: LgpdControls no settings (export JSON via GET /user/data +
-  DELETE /user/data com confirmacao explicita — NUNCA 1 clique; a11y role=
+  DELETE /user/data com confirmacao explicita ï¿½ NUNCA 1 clique; a11y role=
   alert; chaves pt/en/es). API de lgpd ja existia (T4.9).
 - MediaUnlockGrid no pricing: grade 6 midias (CATEGORY_TOKENS) x 3 planos
   (Free: filme+serie; Plus: +game; Premium: tudo); roadmap (livro/HQ/manga)
@@ -1709,21 +1709,21 @@ idioma e sessao; pricing ja tinha toggle mensal/anual com -15%. Gaps:
   (agregados, endpoint existente) com 4 cards + generos + distribuicao;
   ProfileContent ganhou bloco "Compartilhar perfil" com copy-link.
 - ERRO PROPRIO evitado: PowerShell Set-Content corrompeu pt-BR.json DE NOVO
-  (lição registrada) — restaurado do git + reaplicado com editor proprio.
+  (liï¿½ï¿½o registrada) ï¿½ restaurado do git + reaplicado com editor proprio.
 - 5 testes novos (LGPD 2 passos x2 + export, grid, bloqueio) -> 206/206;
   tsc/lint/build verdes. No ar: pricing media-unlock-grid + pagina publica 200.
 
-## [2026-08-06] T194-f7-animacoes (DONE, commit 26ae130) — REDESIGN F1-F7 COMPLETO
+## [2026-08-06] T194-f7-animacoes (DONE, commit 26ae130) ï¿½ REDESIGN F1-F7 COMPLETO
 Estado: PageTransition (fade-in Motion no layout) + useReducedMotionPref ja
 existiam e foram mantidos; hero (Motion+Anime.js) e cards (Anime.js glow)
 ja respeitavam reduced-motion. Entregues:
-- ScrollReveal: GSAP+ScrollTrigger com LAZY-LOAD (dynamic import — GSAP fora
+- ScrollReveal: GSAP+ScrollTrigger com LAZY-LOAD (dynamic import ï¿½ GSAP fora
   do bundle inicial, orcamento <=50KB); props stagger/distance preservadas;
   reduced-motion -> filhos direto; aplicado no about + methodology.
 - ScoreDial: contador Anime.js 0->valor quando entra no viewport (dynamic
   import); reduced-motion OU sem IntersectionObserver -> valor direto;
   aria-label sempre com valor final (a11y).
-- Fix v4: animejs nao anima numeros (targets) — usa objeto proxy {v:0}.
+- Fix v4: animejs nao anima numeros (targets) ï¿½ usa objeto proxy {v:0}.
 - 5 testes novos (reduced-motion desabilita cada tipo; page transition;
   contador) -> 211/211; tsc/lint/build verdes.
 REDESIGN F1-F7 COMPLETO (T183-T194). Restam: T180 (integracoes reais),
@@ -1746,11 +1746,11 @@ Auditoria de conformidade + gaps:
 - 6 testes HTTP mockado (jikan/anilist/openlibrary/googlebooks/comicvine;
   atendeTipo por taxonomia D-198: manga = tipo ANIME) -> API 453/457 baseline.
 - ERRO PROPRIO 3x: PowerShell Set-Content corrompeu package.json (D-210
-  ignorada) — restaurado, corrigido description mojibake pre-existente e BOM
+  ignorada) ï¿½ restaurado, corrigido description mojibake pre-existente e BOM
   via Node/editor; D-210 reforcada (NUNCA Set-Content).
 
 ## [2026-08-06] T196-baseline-testes-encoding-guard (DONE, 179d301 + d40726f)
-API: 4 falhas getBySlug corrigidas por causa real (mocks defasados — o
+API: 4 falhas getBySlug corrigidas por causa real (mocks defasados ï¿½ o
 controller ganhou o mapeamento de franquias no Addendum 2 e os mocks nao
 tinham o campo -> .map de undefined) -> 457/457 (baseline ZERADO).
 E2E (navigation/media-details/regression/flow): 16 falhas -> 36/36 com fixes:
@@ -1770,17 +1770,17 @@ E2E (navigation/media-details/regression/flow): 16 falhas -> 36/36 com fixes:
   locale apesar da cobranca em BRL -> BRL em todos os locales.
 Guard de encoding: scripts/check-encoding-bom.ts (BOM + mojibake em 7
 arquivos criticos) + job no CI lint-audit.
-AUTH-DEPENDENTE (watchlist/favoritos): exige registro real via API —
-débito de ambiente (credenciais E2E), NAO do codigo; documentado.
+AUTH-DEPENDENTE (watchlist/favoritos): exige registro real via API ï¿½
+dï¿½bito de ambiente (credenciais E2E), NAO do codigo; documentado.
 Suites: API 457/457, Web 211/211, builds verdes, guard limpo.
 
 ## [2026-08-06] T180-integracoes-p1 (DONE, commit d324ca7)
 - seed-tmdb.ts EXPANDIDO: top_rated + popular (multi-paginas, max 12), alvo
   225/tipo (450+ audiovisual), DEDUP por id externo, SEM deleteMany (upsert
-  idempotente — re-rodar nao destroi scores/watchlists), avaliacoes TMDB
-  (vote_average 0-10 + vote_count, fonte CANONICA "tmdb" — o registry do
+  idempotente ï¿½ re-rodar nao destroi scores/watchlists), avaliacoes TMDB
+  (vote_average 0-10 + vote_count, fonte CANONICA "tmdb" ï¿½ o registry do
   engine nao conhece "tmdb_tv" e series ficavam sem peso) + recalcular
-  EPersistir por titulo (score v3 real + confidence — antes placeholder 50).
+  EPersistir por titulo (score v3 real + confidence ï¿½ antes placeholder 50).
 - seed-games.ts NOVO: 50 games curados (Zelda TOTK, BG3, Elden Ring, Witcher
   3, GTA V, Hades...) com valores REAIS IGDB (critica), igdb_publico,
   OpenCritic, Steam + upsert idempotente por igdbId + recalcularEPersistir.
@@ -1788,114 +1788,114 @@ Suites: API 457/457, Web 211/211, builds verdes, guard limpo.
 - Guard de execucao direta (import.meta.url) nos 2 seeds p/ testabilidade.
 - 5 testes mockados (fetch stub): multi-lista+dedup, sem duplicacao, config
   T180, dataset 50+ com escalas corretas, escala 0-10 TMDB -> API 462/462.
-- ERRO PROPRIO 4x: PowerShell Set-Content corrompeu os seeds (D-210) —
+- ERRO PROPRIO 4x: PowerShell Set-Content corrompeu os seeds (D-210) ï¿½
   restaurado + refeito com editor; o guard de encoding do CI (T196) cobre.
 - Execucao real da coleta no DB = ACAO DO OPERADOR (sem .env local):
   npm run db:seed:tmdb && npm run db:seed:games (na API).
 
 ## [2026-08-07] T198-modelo-descoberta-sinal (DONE, commit b9006e7)
-Fundação de dado dos Addendums 3+4 (G1 — pré-requisito das UIs T199-T201):
+Fundaï¿½ï¿½o de dado dos Addendums 3+4 (G1 ï¿½ prï¿½-requisito das UIs T199-T201):
 - SCHEMA: RelacaoObra (grafo tipado ADAPTACAO_DE/SEQUENCIA_DE/PREQUELA_DE/
   SPINOFF_DE/MESMO_UNIVERSO/MESMA_HISTORIA_REAL + notaEditorial; UNIQUE
-  (origem,destino); 1 aresta já ativa a funcionalidade — não é container
+  (origem,destino); 1 aresta jï¿½ ativa a funcionalidade ï¿½ nï¿½o ï¿½ container
   como Franquia). UsuarioMidiaInteracao EVOLUIDA em lugar: status
   (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO), reacao (GOSTEI/
   NAO_GOSTEI null), motivo_abandono (NAO_CURTI/FALTA_TEMPO/MUDANCA_HUMOR),
   progresso_detalhe, iniciado/concluido/atualizado_em; UNIQUE trocada para
   (usuario_id, midia_id) com dedupe defensivo na migration; campos T2
-  (tipo/rating/comentario) mantidos para o export LGPD (só leitura).
+  (tipo/rating/comentario) mantidos para o export LGPD (sï¿½ leitura).
   Migration 20260807_addendums_3_4 idempotente (IF NOT EXISTS + DO blocks).
 - ENDPOINTS: GET /api/v1/midias/:id/relacoes (bidirecional, 1 query com
   include, entrega direcao saida/entrada + dados do relacionado com score);
   POST/DELETE admin @Roles(ADMIN). GET/PUT /api/v1/interacoes(/:midiaId)
-  com máquina de estados (400 em transição inválida; reação só em
-  CONCLUIDO/ABANDONADO; motivo só com ABANDONADO; 404 midia inexistente).
+  com mï¿½quina de estados (400 em transiï¿½ï¿½o invï¿½lida; reaï¿½ï¿½o sï¿½ em
+  CONCLUIDO/ABANDONADO; motivo sï¿½ com ABANDONADO; 404 midia inexistente).
 - signal-engine.ts: tabela de pesos da Parte 5 literal (QUERO=+0.25/
   cross 0.5; CONSUMINDO=neutro; CONCLUIDO+GOSTEI=+1.0/cross 1.0;
-  CONCLUIDO sem reação=+0.3; CONCLUIDO+NAO_GOSTEI=-1.0 COM reenquadramento
+  CONCLUIDO sem reaï¿½ï¿½o=+0.3; CONCLUIDO+NAO_GOSTEI=-1.0 COM reenquadramento
   (nunca suprime); ABANDONADO+NAO_CURTI=-1.0 reenquadra; ABANDONADO outro/
   sem motivo=NEUTRO).
-- SEED: wikidata-seed.service (SPARQL P144 em LOTE — 2 queries, timeout
+- SEED: wikidata-seed.service (SPARQL P144 em LOTE ï¿½ 2 queries, timeout
   15s, retry 3x, graceful degradation) + seed-relacoes.ts (top 100 por
   score + 8 pares curados Duna/Watchmen/Berserk/1984/Matrix/Odisseia/
-  Karamazov, upsert idempotente, aviso quando título ausente).
-- TESTES: 25 novos (signal-engine 9 — cada linha da tabela; interacoes 11
-  — máquina de estados; relacoes 5 — bidirecional/1 aresta). API 487/487,
-  build ?, lint ?. Falso alarme de mojibake no schema (regex pegava o "Ã"
-  legítimo de "NÃO") — guard real do CI limpo.
-- Arestas curadas só se AMBOS extremos existirem no catálogo (fallback
-  seguro — execução real após seeds do Operador).
+  Karamazov, upsert idempotente, aviso quando tï¿½tulo ausente).
+- TESTES: 25 novos (signal-engine 9 ï¿½ cada linha da tabela; interacoes 11
+  ï¿½ mï¿½quina de estados; relacoes 5 ï¿½ bidirecional/1 aresta). API 487/487,
+  build ?, lint ?. Falso alarme de mojibake no schema (regex pegava o "ï¿½"
+  legï¿½timo de "Nï¿½O") ï¿½ guard real do CI limpo.
+- Arestas curadas sï¿½ se AMBOS extremos existirem no catï¿½logo (fallback
+  seguro ï¿½ execuï¿½ï¿½o real apï¿½s seeds do Operador).
 
-## [2026-08-07] T198-delta (DONE, commit 20581d3) — escopo ampliado D-213
-Complemento da fundação (núcleo em b9006e7):
+## [2026-08-07] T198-delta (DONE, commit 20581d3) ï¿½ escopo ampliado D-213
+Complemento da fundaï¿½ï¿½o (nï¿½cleo em b9006e7):
 - GENERO NORMALIZADO: schema ganhou tipo (NARRATIVO|SUBGENERO) + midia_alvo
-  + index; migration 20260807_genero_tipo_classificacao; classificação no
-  seed-relacoes (26 narrativos compartilhados — Ação/Drama/Terror/FC... — e
-  14 subgêneros com midia_alvo: RPG/MOBA/FPS/Battle Royale/Roguelike/
-  Metroidvania/Luta/Puzzle/Simulação/Estratégia/Sandbox?GAME, Shonen/
+  + index; migration 20260807_genero_tipo_classificacao; classificaï¿½ï¿½o no
+  seed-relacoes (26 narrativos compartilhados ï¿½ Aï¿½ï¿½o/Drama/Terror/FC... ï¿½ e
+  14 subgï¿½neros com midia_alvo: RPG/MOBA/FPS/Battle Royale/Roguelike/
+  Metroidvania/Luta/Puzzle/Simulaï¿½ï¿½o/Estratï¿½gia/Sandbox?GAME, Shonen/
   Seinen/Isekai?ANIME).
 - ENDPOINT GET /api/v1/catalog?genero=<slug> (DiscoverService.listarPorGenero):
-  NARRATIVO ? qualquer tipo (cross-mídia); SUBGENERO ? restringe a midia_alvo.
-  Response com score (ordena desc) + meta do gênero. Zod validado.
-- /relacoes inclui agora generos do título relacionado (slug/nome/tipo) —
-  pré-condição do agrupamento visual da busca (G2).
+  NARRATIVO ? qualquer tipo (cross-mï¿½dia); SUBGENERO ? restringe a midia_alvo.
+  Response com score (ordena desc) + meta do gï¿½nero. Zod validado.
+- /relacoes inclui agora generos do tï¿½tulo relacionado (slug/nome/tipo) ï¿½
+  prï¿½-condiï¿½ï¿½o do agrupamento visual da busca (G2).
 - signal-engine: campo renomeado para enquadramentoCross (normal|
-  reenquadramento) — literal da spec Parte 5; testes atualizados.
-- SEGURANÇA: rate limit 60/min por user+rota no PUT /interacoes (padrão
-  loginRateLimit) + validação Zod de enums já existente.
-- CURADORIA expandida para 11 pares: + The Boys (HQ?série), Better Call
+  reenquadramento) ï¿½ literal da spec Parte 5; testes atualizados.
+- SEGURANï¿½A: rate limit 60/min por user+rota no PUT /interacoes (padrï¿½o
+  loginRateLimit) + validaï¿½ï¿½o Zod de enums jï¿½ existente.
+- CURADORIA expandida para 11 pares: + The Boys (HQ?sï¿½rie), Better Call
   Saul?Breaking Bad (SPINOFF_DE), The Lord of the Rings (livro?filme).
-- TESTES: 4 novos catalog-genero (cross-mídia narrativo, restrição
-  subgênero RPG?GAME, Shonen?ANIME, genero inexistente graceful).
-  API 491/491 (29 da fundação + 4 delta), build ?, lint ?, guard encoding ?.
+- TESTES: 4 novos catalog-genero (cross-mï¿½dia narrativo, restriï¿½ï¿½o
+  subgï¿½nero RPG?GAME, Shonen?ANIME, genero inexistente graceful).
+  API 491/491 (29 da fundaï¿½ï¿½o + 4 delta), build ?, lint ?, guard encoding ?.
 
 ## [2026-08-07] T199-ui-descoberta-cross-midia (DONE, commit 8652079)
 5 pontos de contato do Addendum 3 (G2) consumindo /relacoes + /interacoes:
 1. FICHA: RelatedWorksBlock imediatamente abaixo do MediaScoreModule (acima
-   da dobra) — rotulo "Essa história também está em..."; RelatedCard com
-   capa/titulo/icon+tipo (CATEGORY_TOKENS)/MEDIA Score próprio/label de
+   da dobra) ï¿½ rotulo "Essa histï¿½ria tambï¿½m estï¿½ em..."; RelatedCard com
+   capa/titulo/icon+tipo (CATEGORY_TOKENS)/MEDIA Score prï¿½prio/label de
    relacao (adaptedFrom/sequelOf/...); 1 aresta ativa; matriz de ausencia
    (sem relacao ou fonte fora ? nao renderiza).
-2. HOME: BecauseYouConsumed (cliente) acima dos 6 carrosseis — só logado,
+2. HOME: BecauseYouConsumed (cliente) acima dos 6 carrosseis ï¿½ sï¿½ logado,
    consome /interacoes (prioriza CONCLUIDO, fallback QUERO_CONSUMIR) ?
    /relacoes; vazio para visitante.
 3. WATCHLIST: WatchlistCrossPrompt fixo bottom-right (role=status aria-live)
-   após adicionar — "adicionar também" 1 clique (addToWatchlist do store),
+   apï¿½s adicionar ï¿½ "adicionar tambï¿½m" 1 clique (addToWatchlist do store),
    ate 3 relacoes, dismissivel, estado Adicionado ?.
-4. BUSCA: agrupamento por obra — titulos iguais em midias diferentes (Matrix
+4. BUSCA: agrupamento por obra ï¿½ titulos iguais em midias diferentes (Matrix
    filme+game+HQ) lado a lado em chips com icones de tipo, acima dos grupos
    por categoria; navegacao por teclado (flatIdx) cobre os grupos; slugify
    exportado de lib/api.ts.
 5. lib/api-relations.ts: relacaoFromApi (mapeia imagem_url/ano_lancamento,
    slug derivado), cache 60s, graceful (erro ? null).
 i18n pt/en/es namespace discovery (17 chaves). Testes 7 (render com 1
-relacao, ausencia, graceful, prompt open/false, labels, mapping) — Web
+relacao, ausencia, graceful, prompt open/false, labels, mapping) ï¿½ Web
 218/218, build/lint/tsc ?.
 
 ## [2026-08-07] T200-status-reaction-control (DONE, commit c27de74)
-Interação básica que gera o sinal do motor (Addendum 4, G3) + reconciliação
+Interaï¿½ï¿½o bï¿½sica que gera o sinal do motor (Addendum 4, G3) + reconciliaï¿½ï¿½o
 do Kanban:
-1. lib/api-interactions.ts — dois eixos independentes (status
-   QUERO_CONSUMIR|CONSUMINDO|CONCLUIDO|ABANDONADO + reação
-   GOSTEI|NAO_GOSTEI|null), valor agnóstico de mídia; máquina de estados
+1. lib/api-interactions.ts ï¿½ dois eixos independentes (status
+   QUERO_CONSUMIR|CONSUMINDO|CONCLUIDO|ABANDONADO + reaï¿½ï¿½o
+   GOSTEI|NAO_GOSTEI|null), valor agnï¿½stico de mï¿½dia; mï¿½quina de estados
    espelhando o server T198 (podeTransicionar, reacaoEditavelPara);
    PUT/GET /interacoes.
-2. stores/use-interaction-store.ts — fonte única por mídia; optimistic +
-   rollback SEM entrada fantasma (hadPrior remove a chave), reação alinhada
-   client/server (só enviada/preservada em CONCLUIDO/ABANDONADO, limpa ao
-   sair de estado final — espelha dto.reacao ?? null, evita 400).
-3. StatusReactionControl — compact (1 toque = QUERO_CONSUMIR, sem menu) em
-   todo MediaCard; full (popover 4 status + 2 reações + motivo de abandono
-   opcional, só habilitado em CONCLUIDO/ABANDONADO) na ficha; iconografia
+2. stores/use-interaction-store.ts ï¿½ fonte ï¿½nica por mï¿½dia; optimistic +
+   rollback SEM entrada fantasma (hadPrior remove a chave), reaï¿½ï¿½o alinhada
+   client/server (sï¿½ enviada/preservada em CONCLUIDO/ABANDONADO, limpa ao
+   sair de estado final ï¿½ espelha dto.reacao ?? null, evita 400).
+3. StatusReactionControl ï¿½ compact (1 toque = QUERO_CONSUMIR, sem menu) em
+   todo MediaCard; full (popover 4 status + 2 reaï¿½ï¿½es + motivo de abandono
+   opcional, sï¿½ habilitado em CONCLUIDO/ABANDONADO) na ficha; iconografia
    por tokens (QUERO outline, CONSUMINDO anel de progresso, CONCLUIDO check,
    ABANDONADO pause neutro, GOSTEI/NAO_GOSTEI #34D399/#F87171).
 4. Kanban reconciliado (3 colunas + aba Abandonados como arquivo, drag
-   atualiza status + interação, mover p/ Concluído abre reação, selo de
-   reação no card) via watchlist/WatchlistKanban + WatchlistCard;
+   atualiza status + interaï¿½ï¿½o, mover p/ Concluï¿½do abre reaï¿½ï¿½o, selo de
+   reaï¿½ï¿½o no card) via watchlist/WatchlistKanban + WatchlistCard;
    WatchlistClient reusa helpers compartilhados (sem drift comic/anime).
 i18n pt/en/es namespace interaction; a11y + reduced-motion. Testes 8
-(1-tap QUERO, reações pós-consumo, motivo opcional, drag?status, mover p/
-Concluído abre popover, selo reação, Kanban+aba) — Web 226/226,
+(1-tap QUERO, reaï¿½ï¿½es pï¿½s-consumo, motivo opcional, drag?status, mover p/
+Concluï¿½do abre popover, selo reaï¿½ï¿½o, Kanban+aba) ï¿½ Web 226/226,
 build/typecheck/lint ?.
 
 
@@ -2319,7 +2319,7 @@ F09 - alertas de observabilidade (9.5.3 + guia 9.5.4):
   AuthModule (guards precisam de SessionService â€” mesmo padrao do T216).
 - docs/OBSERVABILITY.md: secao de alertas (thresholds, histerese, canal:
   log critico + Loki + endpoint, sem servico externo pago) + guia
-  UptimeRobot free passo a passo (monitor HTTP(s) em /health — caminho
+  UptimeRobot free passo a passo (monitor HTTP(s) em /health ï¿½ caminho
   REAL corrigido no T230; o caminho com prefixo api/v1 nao existe),
   intervalo 5min, Down 2 times) â€” criacao da conta = pendencia do
   Operador (9.5.4 marcado [~]).
@@ -2804,11 +2804,60 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Merge commit 7736ce0 (--merge). Pos-merge main: CI success (4m13s), Security success (3m9s), deploy.yml waiting (P012=A), PRR skipped; sem Release/Auto-create. API reiniciou (uptime reset) -> fix live. Smoke 7/7 = 200.
 - #215: o GitHub marcou-o como MERGED automaticamente (commit 3c0a600 entrou em main via #217) -> nao foi possivel "fechar sem merge"; efeito equivalente (superseded). PLANO 2.10 segue [~]; P017 pendente.
 
+## [2026-09-24] T060-e2e-jornada-critica (test-only; PR aberto, SEM merge)
+- Criados apps/web/e2e/jornada-critica.spec.ts (8 cenarios: home/catalogo/detalhe publicos; watchlist Kanban + reload; biblioteca deep link status/tipo, query invalida, vazio/grid, sem 500; dashboard sidebar+i18n+sem erro) e apps/web/e2e/helpers/state-reset.ts (isolamento: clearCookies + storage). Gated por E2E_FULL=1 (T461), projetos chromium+mobile-chrome (16 testes).
+- Validacao: eslint OK; tsc --noEmit apps/web OK; playwright test --list = 16 testes (spec parseia). Fixtures: usuarios provisionados *@mediarate.test (sem PII real); sem mutacao de produto.
+- LIMITACAO/BLOQUEIO de execucao local: runner sem Docker (daemon off), sem servidores locais (3000/4000) e sem DB local acessivel; .env so aponta para producao (proibido). As 3 execucoes locais ficam PENDENTES em ambiente com Postgres/Redis locais. docs/E2E.md atualizado com comando + limitacao. Nenhum codigo de produto/schema/migration/segredo/infra alterado.
+
+## [2026-09-24] T061-e2e-full-ephemeral-runner (PARCIAL; PR #220 atualizado, SEM merge)
+- Guarda anti-producao: scripts/ci/evidence-guard.mjs (pureza) + self-test 19/19 (recusa host nao-local/railway/mediarate.app/prod; parse --spec/--repeat; redige credenciais). evidence-local.mjs usa a guarda + flags + workers=1/retries=0.
+- ci.yml: output e2e no job changes + job e2e-full-jornada (Postgres16+Redis7 efemeros, migrate deploy, provision+fixture, API :4000 + web :3000, playwright 3x workers=1 retries=0; gated a mudancas E2E/evidence/CI; continue-on-error).
+- Evidencia CI (run 35936827266, job 107435635460): infra subiu; 12/48 passaram (publicos); 36 falharam por apiLogin 500 e detalhe sem dados no seed. criterio 48/48 NAO atingido -> T060/T061 seguem [~]; follow-up: corrigir env/seed da test-infra (sem tocar produto). Lint & Audit verde; demais required verdes. Sem merge/deploy/producao.
+
+## [2026-09-24] T062-fix-e2e-env-seed (INCIDENTE + hotfix; PARCIAL; PR #220)
+- Diagnostico via log do job E2E FULL: POST /auth/login 500 -> PrismaClientUnknownRequestError AddrParseError(Ip) em prisma.auditLog.create (AuditLogService.log <- AuthService.login). Causa: mascararIpInet (T055) retornava CIDR (a.b.c.0/24); @db.Inet do Prisma rejeita CIDR. CONFIRMADO em PRODUCAO (curl login = 500).
+- Hotfix 5051ffd: mascararIpInet -> IP PLANO validado (127.0.0.0; 2001:db8::), nunca CIDR; undefined se invalido. Testes atualizados. API 922/922; tsc/eslint OK.
+- Seed: spec ancorado em midia da fixture (duna-parte-dois); env extra no job + dump do /tmp/api.log para diagnostico.
+- Evidencia: job E2E FULL 35940117652/107445988752 -> 39/48 (de 12/48); apiLogin 500 eliminado; restam 9 falhas de seletor do spec. D-549. Merge do #220 pendente (incidente).
+
 ## [2026-09-24] T063-emergency-login-hotfix (INCIDENTE RESOLVIDO; merge 5322e90)
 - PR minimo emergencial hotfix/login-500-mascarar-ip (#228, 2 arquivos: pii-mask.ts + audit-log-pii.spec.ts) a partir de origin/main. mascararIpInet -> IP PLANO validado (nao CIDR). Required verdes (Build teve flake de fontes do Next.js -> re-run pass, D-545/T054). Merge commit 5322e90.
 - Smoke prod: API reiniciou; POST /auth/login = 200 + cookie sess; GET /auth/me = 200; /health + paginas publicas = 200. 500 eliminado (era o auditLog AddrParseError). E2E FULL subiu 12/48 -> 39/48.
 - Acoes: D-549 registrada; nota de que #220 (E2E infra) agora precisa rebase (hotfix ja em main via #228) e que 9 falhas de seletor do spec sao follow-up. Sem migration/segredo/schema/infra.
 
+## [2026-09-24] T064-e2e-jornada-48-green (PARCIAL: 42/48; PR #220 atualizado, SEM merge)
+- Branch do #220 mesclada com main (merge commit 06fcc6a; sem rebase/force). Conflitos: DECISOES mantido o D-549 de main (removido duplicado do branch); worklog preservou ambos.
+- Specs robustecidos (test-only): detalhe de midia abre via href do 1o link do catalogo (060fcc/fa36546) em vez de clique+waitForURL; dashboard asserido por viewport (sidebar oculta no mobile). Sem tocar produto/schema.
+- Evidencia CI (job e2e-full-jornada): 12/48 -> 39/48 -> 42/48. Restam ~6 falhas intermitentes de navegacao/fixture do spec (nao produto). Criterio 48/48x3 NAO atingido -> T064 PARCIAL; follow-up de robustez do spec em ambiente com CI mais rapido. eslint/tsc/--list OK. Sem merge/deploy/producao/segredo.
+
+## [2026-09-24] T065-e2e-jornada-stabilization (PARCIAL; PR #220, SEM merge)
+- Diagnostico remoto limitado: o endpoint de logs do run nao retornou dados neste ambiente (gh run view --log/--log-failed vazio) -> iteracao no CI (5-8min/ciclo) inviavel para diagnostico fino. Evidencia: job e2e-full-jornada ja evoluiu 12/48 -> 39/48 -> 42/48.
+- Correcoes test-only ja aplicadas: detalhe de midia via goto(href) do 1o link do catalogo; dashboard por viewport; branch mesclada com main (06fcc6a). Classificacao das falhas remanescentes: navegacao de detalhe, apiLogin intermitente (ENV_MISMATCH x LOCKOUT) e possiveis fixtures â€” a confirmar com logs locais.
+- Recomendacao: rodar node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3 em ambiente com Docker/Postgres (logs imediatos) para fechar 48/48. Sem produto/schema/segredo/infra; PR #220 aberto sem merge.
+
+## [2026-09-24] T066-e2e-ci-observability (PARCIAL; causa diagnosticada via artifacts)
+- Instrumentacao: sanitize-logs.mjs (redige email/IP/Bearer/cookies/tokens/DATABASE_URL) + job sobe web com /tmp/web.log + artifacts seguros (e2e-full-logs, playwright-report-full, retencao curta); playwright trace/video = off (evita cookies/tokens em artifacts).
+- Diagnostico (run 36005341274, job 107652006730): GET /api/v1/auth/me -> 500 (Non-Error thrown, 11x) afeta paginas autenticadas e o catalogo -> detalhe falha em cascata (6x) + biblioteca deep link mobile (1x). Classificacao: ENV_MISMATCH do harness (em PRODUCAO /auth/me = 200, T063) -> nao e bug de produto confirmado. FOLLOW-UP: rodar evidence-local com Docker local para confirmar e ajustar test-infra (sem produto). eslint/tsc/guard 19/19 OK. PR #220 aberto sem merge.
+
+## [2026-09-24] T067-auth-me-500-harness-fix (PARCIAL 46/48; CAUSA do detalhe corrigida)
+- Instrumentacao reforcada: test-results/** sanitizado nos artifacts -> error-context revelou as causas.
+- Detalhe de midia (6x): assert img>0 falhava (0) porque a midia da fixture nao tem poster (fallback sem <img>). CORRIGIDO (test-only): assere titulo/h1-h2 + main, sem exigir <img>. Falhas do detalhe = 0 no run seguinte.
+- Restam 2/48: biblioteca (mobile repeat1) deep link + query invalida -> pagina redireciona para /login quando GET /api/v1/auth/me retorna 500 (Non-Error thrown [object Object], intermitente). Producao /auth/me=200 (T063) -> classificacao ENV_MISMATCH (harness sessao/Redis). Follow-up: evidence-local --repeat=3 com Docker local para confirmar. Sem produto/schema/segredo. PR #220 aberto sem merge.
+
+## [2026-09-24] T068-e2e-auth-me-harness-stabilization (BLOCKED objetivo; PR #220)
+- Entregue: preflight no job (espera API /health + web :3000 + login curl + exige /auth/me=200); hosts normalizados (API_PROXY_TARGET=localhost:4000); autenticar() in-spec (assert /auth/me=200); fix do preflight (removido redis-cli inexistente; wait do web).
+- Evidencia (run 36013387570, job 107679624631): preflight PASSOU (API/web/login//auth/me saudaveis); E2E ainda 7/48 falhas, TODAS em mobile-chrome (+repeat1), mensagem 'sessao invalida apos apiLogin (/auth/me)' -> page.request no projeto mobile nao ve a sessao criada pelo apiLogin, embora o curl do preflight passe.
+- Classificacao: harness (contexto mobile Playwright isMobile) / ENV_MISMATCH -> NAO e bug de produto (prod /auth/me=200; curl no harness=200). Proximo: investigar cookie jar mobile (usar viewport+UA sem isMobile, ou storageState) ou rodar evidence-local com Docker. eslint/tsc/YAML/guard OK. Sem produto/schema/segredo. PR #220 aberto sem merge.
+
+## [2026-09-24] T069-e2e-mobile-session-harness-fix (isMobile corrigido; BLOCKED no 500 /auth/me UA-mobile)
+- Fix test-only: mobile-chrome sem isMobile:true (mantendo viewport/UA Pixel 5) -> cookie de sessao passa a ser enviado pelo page.request. Efeito: 7/48 -> 3/48; repeat1 zerado. Limitacao: sem emulacao de touch nativa (documentada).
+- Remanescente (run 36015218685, job 107685949004): 3/48, TODAS no projeto UA-mobile, com GET /api/v1/auth/me -> status 500 (asserÃ§Ã£o autenticar status=500). API: GlobalExceptionFilter Non-Error thrown. Producao /auth/me=200; preflight por curl (sem UA de browser) passa.
+- Classificacao: possivel bug de produto/policy dependente do UA mobile -> BLOCKED (sem tocar produto, conforme regra da tarefa). PROPOSTA: tarefa separada de produto para investigar /auth/me 500 com UA mobile. eslint/tsc OK. Sem produto/schema/segredo; PR #220 aberto sem merge.
+
+## [2026-09-25] T071-auth-me-nonerror-diagnostic-run (CAUSA RAIZ capturada; PR draft #249 fechado)
+- Branch temporaria chore/t071-diagnostic (merge #220 + #247), PR draft #249, job e2e-full-jornada: preflight OK; diagnostico do #247 no api.log -> "Non-Error thrown: Object(ctor=Object; chaves=[statusCode, error, message])".
+- CAUSA RAIZ: loginRateLimit() = 6/min; errorResponseBuilder do @fastify/rate-limit devolve objeto puro {statusCode:429,...}; GlobalExceptionFilter converte nao-Error -> 500. A suite faz burst de 32 logins -> estoura o limite -> 500 (mobile roda depois => falhas na fase mobile; timing, nao UA).
+- RECOMENDACAO: test-infra -> login 1x/projeto via storageState (evita o burst); produto (PR separado) -> filtro honrar statusCode numerico (429 em vez de 500) com teste. Relatorio .claude/reports/auth-me-nonerror-2026-09-25.md. Draft #249 fechado; branch temporaria deletada. Sem merge/producao/segredo.
 ## [2026-09-24] T070-auth-me-mobile-ua-500 (diagnostico seguro de non-Error; PR aberto, SEM merge)
 - Causa do 500 em GET /api/v1/auth/me sob UA mobile NAO reproduzivel por leitura: AuthGuard/validateToken lancam apenas UnauthorizedException; o unico throw de objeto no codigo e o endpoint de debug. O 500 e intermitente e o GlobalExceptionFilter logava apenas "Non-Error thrown: [object Object]" (sem origem).
 - Entregue (autorizado pela tarefa): descreverNaoErro() no GlobalExceptionFilter -> tipo/construtor/NOMES de chaves (max 12), NUNCA valores; status segue 500 (nao mascara). TDD global-exception-nonerror.spec.ts. API 923/923; tsc/eslint OK.
@@ -2822,3 +2871,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-24] T073-merge-pr247-rate-limit (MERGED d4b114c; smoke OK)
 - Auditoria #247: MERGEABLE; required verdes no head c25486a (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration; Vercel fail nao-required); diff = global-exception.filter.ts + global-exception-nonerror.spec.ts + DECISOES/SECURITY_TRIAGE/worklog; git diff --check limpo; scan segredos 0; teste 9/9.
 - Merge commit d4b114c. Pos-merge main: CI success (4m49s), Security success (4m3s), deploy.yml waiting (P012=A); API reiniciou (uptime reset) -> filtro com honra de 429 live. Smoke passivo 7/7 = 200 (sem burst de login). Sem migration/segredo/schema/infra.
+
+## [2026-09-24] T074-e2e-storage-state-auth (48/48 alcancado; PR #220, SEM merge)
+- Branch #220 mesclada com main (270c78c). Implementado globalSetup/globalTeardown (e2e/global-setup.ts, global-teardown.ts): 1 login por execucao Playwright, storageState em os.tmpdir() (fora do repo, apagado no teardown). Spec usa sessaoValida (/auth/me=200) sem login por teste; state-reset preserva sess/o csrf_token; beforeEach nao limpa mais cookies.
+- CI: elevados RATE_LIMIT_API_PER_MIN/RATE_LIMIT_LOGIN_PER_MIN APENAS no job efemero (knobs de env existentes; nao e mudanca de produto). Limpeza defensiva do storageState nos artifacts.
+- EVIDENCIA (run 36062523170, job 107844628717): preflight_login=200; preflight_authme=200; globalSetup storageState (login unico); 48 passed (1.3m), 0 failed/skipped (16 x --repeat-each=3). Logins: 32 -> 3. Jornada E2E: 12/48 -> ... -> 48/48. eslint/tsc OK. Sem produto/schema/segredo/infra; PR #220 aberto SEM merge.

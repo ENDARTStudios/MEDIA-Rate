@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      e2e: ${{ steps.filter.outputs.e2e }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,18 +61,25 @@ jobs:
           fi
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "e2e=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           code=false
+          e2e=false
           while IFS= read -r f; do
             [ -z "$f" ] && continue
             case "$f" in
               docs/*|*.md|.claude/*|docs/screenshots/*) ;;
               *) code=true ;;
             esac
+            # T061/D-548: só roda o job E2E FULL quando muda infra de E2E/evidence/CI.
+            case "$f" in
+              apps/web/e2e/*|scripts/evidence-local.mjs|scripts/ci/evidence-guard*.mjs|apps/web/playwright.config.ts|.github/workflows/ci.yml) e2e=true ;;
+            esac
           done <<< "$(git diff --name-only "$base" "$head")"
           echo "code=$code" >> "$GITHUB_OUTPUT"
-          echo "code=$code"
+          echo "e2e=$e2e" >> "$GITHUB_OUTPUT"
+          echo "code=$code"; echo "e2e=$e2e"
 
   # T459/D-457: gate LEVE que SEMPRE roda (inclusive PR só-de-docs). É o check
   # requerido que destrava o merge de docs sem bypass; os jobs pesados pulam.
@@ -465,5 +473,149 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report/
           retention-days: 30
+
+  # T061/D-548: E2E FULL efêmero (Postgres+Redis locais) da jornada crítica,
+  # 3 repetições (workers=1, retries=0). NÃO bloqueia merge (continue-on-error),
+  # roda só quando a infra de E2E/evidence/CI muda. Sem segredos de produção.
+  e2e-full-jornada:
+    name: E2E Full (jornada crítica 3x)
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.e2e == 'true'
+    continue-on-error: true
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: e2e_full
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      APP_ENV: test
+      DATABASE_URL: postgresql://postgres@localhost:5432/e2e_full
+      REDIS_URL: redis://localhost:6379
+      COOKIE_SECRET: e2e-full-cookie
+      JWT_SECRET: e2e-full-jwt
+      SESSION_SECRET: e2e-full-session
+      ADMIN_TOKEN: e2e-full-admin
+      SESSION_TTL_HOURS: "24"
+      CORS_ORIGIN: http://localhost:3000
+      ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      SITE_URL: http://localhost:3000
+      API_PROXY_TARGET: http://localhost:4000
+      E2E_API_BASE: http://localhost:4000
+      E2E_TEST_EMAIL: free@mediarate.test
+      E2E_TEST_PASSWORD: "Senha@123"
+      # T074: limites de rate limit elevados APENAS no ambiente efêmero de teste
+      # (a suíte faz centenas de requisições legítimas; não é override de produto).
+      RATE_LIMIT_API_PER_MIN: "100000"
+      RATE_LIMIT_LOGIN_PER_MIN: "1000"
+      E2E_FULL: "1"
+      LOG_LEVEL: debug
+      PLAYWRIGHT_BASE_URL: http://localhost:3000/pt-BR
+      NODE_OPTIONS: --dns-result-order=ipv4first
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci
+      - name: Guarda anti-produção (self-test)
+        run: node scripts/ci/evidence-guard.self-test.mjs
+      - name: Prisma generate + migrate deploy (DB LOCAL efêmero)
+        run: |
+          npx prisma generate --schema apps/api/prisma/schema.prisma
+          npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Provisionar usuários de teste + fixture
+        run: |
+          npm run db:provision:test-users --workspace=apps/api
+          node apps/api/prisma/fixtures/evidence-fixture.cjs
+      - name: Subir API (background)
+        run: |
+          nohup npm run dev --workspace=apps/api > /tmp/api.log 2>&1 &
+          echo "api started"
+      - name: Esperar API
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4000/api/v1/interacoes || true)
+            if [ "$code" = "401" ] || [ "$code" = "200" ]; then echo "API up ($code)"; exit 0; fi
+            sleep 2
+          done
+          echo "API não subiu"; tail -60 /tmp/api.log; exit 1
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+      - name: Subir web (background)
+        run: |
+          nohup npm run dev --workspace=apps/web > /tmp/web.log 2>&1 &
+          echo "web started"
+      - name: Preflight (api + web + login + /auth/me)
+        run: |
+          for i in $(seq 1 40); do
+            curl -sf http://localhost:4000/health >/dev/null 2>&1 && break; sleep 2
+          done
+          curl -sf http://localhost:4000/health >/dev/null || { echo "API down"; exit 1; }
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3000/pt-BR >/dev/null 2>&1 && break; sleep 2
+          done
+          curl -sf http://localhost:3000/pt-BR >/dev/null || { echo "web down"; exit 1; }
+          curl -s -c /tmp/pf.jar -o /dev/null -w "preflight_login=%{http_code}\n" \
+            -X POST http://localhost:4000/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${E2E_TEST_EMAIL}\",\"password\":\"${E2E_TEST_PASSWORD}\"}"
+          code=$(curl -s -b /tmp/pf.jar -o /dev/null -w "%{http_code}" http://localhost:4000/api/v1/auth/me)
+          echo "preflight_authme=$code"
+          [ "$code" = "200" ] || { echo "PREFLIGHT FAIL: /auth/me != 200"; exit 1; }
+      - name: E2E jornada crítica 3x (workers=1, retries=0)
+        working-directory: apps/web
+        run: |
+          npx playwright test e2e/jornada-critica.spec.ts \
+            --project=chromium --project=mobile-chrome \
+            --workers=1 --retries=0 --repeat-each=3
+      - name: Upload Playwright report (E2E FULL)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-full
+          path: apps/web/playwright-report/
+          retention-days: 14
+      - name: Sanitizar logs + resumo de evidência
+        if: always()
+        run: |
+          node scripts/ci/sanitize-logs.mjs /tmp/api.log /tmp/web.log || true
+          find apps/web/test-results -type f \( -name '*.md' -o -name '*.txt' \) -exec node scripts/ci/sanitize-logs.mjs {} + 2>/dev/null || true
+          # T074: storageState contém cookies de sessão — nunca publicar.
+          rm -f /tmp/mediarate-e2e-auth.json 2>/dev/null || true
+          node -e "const fs=require('fs');let f=[];try{f=fs.readdirSync('apps/web/test-results')}catch{};fs.writeFileSync('evidence-summary.json',JSON.stringify({job:'e2e-full-jornada',falhasArquivos:f.slice(0,50)},null,2))" || true
+      - name: Upload logs sanitizados + resumo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-full-logs
+          path: |
+            /tmp/api.log
+            /tmp/web.log
+            evidence-summary.json
+            apps/web/test-results/**
+          retention-days: 7
+          if-no-files-found: ignore
 
   # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) � habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; at� l�, drill docker documentado em docs/ROLLBACK_RLS.md � a verifica��o.
