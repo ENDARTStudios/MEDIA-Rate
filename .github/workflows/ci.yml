@@ -579,6 +579,7 @@ jobs:
         if: always()
         run: |
           node scripts/ci/sanitize-logs.mjs /tmp/api.log /tmp/web.log || true
+          find apps/web/test-results -type f \( -name '*.md' -o -name '*.txt' \) -exec node scripts/ci/sanitize-logs.mjs {} + 2>/dev/null || true
           node -e "const fs=require('fs');let f=[];try{f=fs.readdirSync('apps/web/test-results')}catch{};fs.writeFileSync('evidence-summary.json',JSON.stringify({job:'e2e-full-jornada',falhasArquivos:f.slice(0,50)},null,2))" || true
       - name: Upload logs sanitizados + resumo
         if: always()
@@ -589,6 +590,7 @@ jobs:
             /tmp/api.log
             /tmp/web.log
             evidence-summary.json
+            apps/web/test-results/**
           retention-days: 7
           if-no-files-found: ignore
 
