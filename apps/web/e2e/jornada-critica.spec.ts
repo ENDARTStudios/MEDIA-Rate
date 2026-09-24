@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { apiAuthMeStatus, apiLogin, dismissConsentIfPresent } from "./helpers/auth";
+import { apiAuthMeStatus, dismissConsentIfPresent } from "./helpers/auth";
 
 /**
  * T060 — jornada crítica do MEDIA Rate (E2E determinístico, D-547).
@@ -14,14 +14,14 @@ import { apiAuthMeStatus, apiLogin, dismissConsentIfPresent } from "./helpers/au
  * conta de teste.
  */
 const E2E_FULL = process.env.E2E_FULL === "1";
-const PASSWORD = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
-const QA_EMAIL = process.env.E2E_TEST_EMAIL ?? "free@mediarate.test";
 
-/** T068/T069: autentica e confirma a sessão (`/auth/me` 200) antes de navegar. */
-async function autenticar(page: Page): Promise<void> {
-  await apiLogin(page, QA_EMAIL, PASSWORD);
+/**
+ * T074/D-553: a sessão vem do `storageState` gerado no `globalSetup` (1 login
+ * por execução) — NÃO há login por teste (evita o rate limit de 6/min).
+ */
+async function sessaoValida(page: Page): Promise<void> {
   const status = await apiAuthMeStatus(page);
-  expect(status, `sessão inválida após apiLogin (/auth/me status=${status})`).toBe(200);
+  expect(status, `sessão inválida no contexto (/auth/me status=${status})`).toBe(200);
 }
 
 /** T064: o detalhe é aberto a partir do catálogo (independe de slug/seed). */
@@ -43,9 +43,9 @@ async function semChaveCrua(page: Page): Promise<void> {
 }
 
 test.describe("T060 — jornada crítica", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md");
-    await context.clearCookies();
+    // T074: NÃO limpar cookies — a sessão vem do storageState (globalSetup).
     await dismissConsentIfPresent(page);
   });
 
@@ -85,7 +85,7 @@ test.describe("T060 — jornada crítica", () => {
   // ---------- 2. Salvaguarda (watchlist Kanban) ----------
 
   test("watchlist autenticada carrega colunas e sobrevive ao reload", async ({ page }) => {
-    await autenticar(page);
+    await sessaoValida(page);
     await page.goto("/pt-BR/watchlist", { waitUntil: "domcontentloaded" });
     await expect(page.locator("main, h1, h2").first()).toBeVisible({ timeout: 20_000 });
     await semErro5xx(page);
@@ -99,7 +99,7 @@ test.describe("T060 — jornada crítica", () => {
   // ---------- 3. Biblioteca autenticada ----------
 
   test("biblioteca: deep link ?status= pré-seleciona a aba", async ({ page }) => {
-    await autenticar(page);
+    await sessaoValida(page);
     await page.goto("/pt-BR/biblioteca?status=QUERO_CONSUMIR", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("biblioteca-tabs")).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("tab", { selected: true })).toContainText(/Quero/i);
@@ -107,7 +107,7 @@ test.describe("T060 — jornada crítica", () => {
   });
 
   test("biblioteca: query inválida cai no padrão sem quebrar", async ({ page }) => {
-    await autenticar(page);
+    await sessaoValida(page);
     await page.goto("/pt-BR/biblioteca?status=INVALIDO&tipo=<script>", {
       waitUntil: "domcontentloaded",
     });
@@ -120,7 +120,7 @@ test.describe("T060 — jornada crítica", () => {
   });
 
   test("biblioteca: estado vazio OU grid, sem 500", async ({ page }) => {
-    await autenticar(page);
+    await sessaoValida(page);
     await page.goto("/pt-BR/biblioteca", { waitUntil: "domcontentloaded" });
     const grid = page.getByTestId("biblioteca-grid");
     const vazio = page.getByText(/biblioteca está vazia/i);
@@ -131,7 +131,7 @@ test.describe("T060 — jornada crítica", () => {
   // ---------- 4. Dashboard autenticada ----------
 
   test("dashboard: renderiza conteúdo, sem chave crua e sem erro de página", async ({ page }) => {
-    await autenticar(page);
+    await sessaoValida(page);
     await page.goto("/pt-BR/dashboard", { waitUntil: "domcontentloaded" });
     // A sidebar pode estar oculta no mobile (menu) — exige conteúdo de dashboard
     // visível, sem depender de viewport.

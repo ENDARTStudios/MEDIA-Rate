@@ -1,15 +1,21 @@
 import type { BrowserContext, Page } from "@playwright/test";
 
 /**
- * T060 — isolamento de estado entre specs E2E da jornada crítica.
+ * T060/T074 — isolamento de estado entre specs E2E da jornada crítica.
  *
- * Limpa cookies (inclui `sess`/`csrf_token`/`NEXT_LOCALE`) e o `localStorage`
- * do host atual, evitando acoplamento entre cenários (watchlist local,
- * consentimento, aba de biblioteca). Determinístico e sem tocar produto.
+ * T074/D-553: **preserva** os cookies de autenticação (`sess`, `csrf_token`)
+ * injetados pelo `storageState` (globalSetup); limpa apenas o restante (locale,
+ * consentimento, etc.) e o `localStorage`/`sessionStorage`. Nunca imprime valores.
  */
+const COOKIES_AUTH = new Set(["sess", "csrf_token"]);
+
 export async function resetClientState(page: Page, context: BrowserContext): Promise<void> {
+  const atuais = await context.cookies();
   await context.clearCookies();
-  // `localStorage` só existe após um documento carregado no host.
+  const auth = atuais.filter((c) => COOKIES_AUTH.has(c.name));
+  if (auth.length > 0) {
+    await context.addCookies(auth); // restaura a sessão (sem logar valores)
+  }
   if (page.url() !== "about:blank") {
     await page
       .evaluate(() => {
