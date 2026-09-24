@@ -30,23 +30,34 @@ export function mascararIp(ip: unknown): string {
 }
 
 /**
- * Mascara um IP para um valor **válido** em coluna `inet` (§ rede):
- * IPv4 → `203.0.113.0/24`; IPv6 → `/48`. Retorna `undefined` se inválido.
+ * Mascara um IP para um valor **válido** em coluna `inet` do Prisma.
  *
- * Nota: `203.0.x.x` NÃO é inet válido — por isso coarsenamos para a rede.
+ * IMPORTANTE (T062 — incidente): o binding `@db.Inet` do Prisma usa parsing
+ * RUST (`IpAddr`) e **rejeita notação CIDR** (`127.0.0.0/24` → `AddrParseError`).
+ * Por isso devolvemos um IP **plano** (sem `/prefixo`), coarsenado:
+ * IPv4 → zera o último octeto (`127.0.0.1` → `127.0.0.0`); IPv6 → mantém 2 grupos
+ * e zera o resto (`2001:db8:...` → `2001:db8::`). Retorna `undefined` se inválido.
  */
 export function mascararIpInet(ip: unknown): string | undefined {
-  if (typeof ip !== "string" || ip.length === 0) return undefined;
-  if (ip.includes(":")) {
-    const g = ip.split(":").filter((x) => x.length > 0);
-    return g.length >= 3 ? `${g[0]}:${g[1]}:${g[2]}::/48` : undefined;
+  if (typeof ip !== "string" || ip.trim() === "") return undefined;
+  const v = ip.trim();
+  if (v.includes(":")) {
+    const g = v.split(":").filter((x) => x.length > 0);
+    const saida = g.length >= 2 ? `${g[0]}:${g[1]}::` : undefined;
+    return saida && IPV6_PLAIN.test(saida) ? saida : undefined;
   }
-  const o = ip.split(".");
-  return o.length === 4 ? `${o[0]}.${o[1]}.${o[2]}.0/24` : undefined;
+  const o = v.split(".");
+  if (o.length !== 4) return undefined;
+  const saida = `${o[0]}.${o[1]}.${o[2]}.0`;
+  return IPV4_PLAIN.test(saida) ? saida : undefined;
 }
 
 const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RE_IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+/** IP plano válido para Prisma `@db.Inet` (sem CIDR). */
+const IPV4_PLAIN =
+  /^(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)\.(25[0-5]|2[0-4]\d|1?\d?\d)$/;
+const IPV6_PLAIN = /^[0-9a-fA-F]{1,4}(:[0-9a-fA-F]{1,4})*::$/;
 const CHAVE_EMAIL = /e-?mail/i;
 const CHAVE_IP = /(^|[_-])ip([_-]|$)|ip[_-]?(origem|criacao|aceite|address)/i;
 const CHAVES_REDIGIR =
