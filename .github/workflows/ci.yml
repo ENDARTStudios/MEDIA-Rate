@@ -558,6 +558,10 @@ jobs:
       - name: Install Playwright browsers
         working-directory: apps/web
         run: npx playwright install --with-deps chromium
+      - name: Subir web (background)
+        run: |
+          nohup npm run dev --workspace=apps/web > /tmp/web.log 2>&1 &
+          echo "web started"
       - name: E2E jornada crítica 3x (workers=1, retries=0)
         working-directory: apps/web
         run: |
@@ -571,10 +575,21 @@ jobs:
           name: playwright-report-full
           path: apps/web/playwright-report/
           retention-days: 14
-      - name: Dump API log (diagnóstico)
+      - name: Sanitizar logs + resumo de evidência
         if: always()
         run: |
-          echo "===== /tmp/api.log (tail 120) ====="
-          tail -120 /tmp/api.log 2>/dev/null || echo "(sem log)"
+          node scripts/ci/sanitize-logs.mjs /tmp/api.log /tmp/web.log || true
+          node -e "const fs=require('fs');let f=[];try{f=fs.readdirSync('apps/web/test-results')}catch{};fs.writeFileSync('evidence-summary.json',JSON.stringify({job:'e2e-full-jornada',falhasArquivos:f.slice(0,50)},null,2))" || true
+      - name: Upload logs sanitizados + resumo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-full-logs
+          path: |
+            /tmp/api.log
+            /tmp/web.log
+            evidence-summary.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   # T299/D-285: rls-isolation.e2e.spec (A?B sob RLS) � habilitar em CI quando a T234 (ordem de migrations em DB virgem) for fechada; at� l�, drill docker documentado em docs/ROLLBACK_RLS.md � a verifica��o.

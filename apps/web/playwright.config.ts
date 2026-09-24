@@ -9,9 +9,10 @@ export default defineConfig({
   reporter: [["html", { open: "never" }], ["list"]],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000/pt-BR",
-    trace: "on-first-retry",
+    // T066/D-550: sem trace/vídeo em CI (podem conter cookies/tokens em artifacts).
+    trace: "off",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "off",
     colorScheme: "dark",
   },
   projects: [
