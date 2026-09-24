@@ -17,10 +17,11 @@ const E2E_FULL = process.env.E2E_FULL === "1";
 const PASSWORD = process.env.E2E_TEST_PASSWORD ?? "Senha@123";
 const QA_EMAIL = process.env.E2E_TEST_EMAIL ?? "free@mediarate.test";
 
-/** T068: autentica e confirma a sessão (`/auth/me` 200) antes de navegar. */
+/** T068/T069: autentica e confirma a sessão (`/auth/me` 200) antes de navegar. */
 async function autenticar(page: Page): Promise<void> {
   await apiLogin(page, QA_EMAIL, PASSWORD);
-  expect(await apiAuthMeStatus(page), "sessão inválida após apiLogin (/auth/me)").toBe(200);
+  const status = await apiAuthMeStatus(page);
+  expect(status, `sessão inválida após apiLogin (/auth/me status=${status})`).toBe(200);
 }
 
 /** T064: o detalhe é aberto a partir do catálogo (independe de slug/seed). */

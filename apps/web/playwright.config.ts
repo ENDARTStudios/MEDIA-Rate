@@ -22,7 +22,11 @@ export default defineConfig({
     },
     {
       name: "mobile-chrome",
-      use: { ...devices["Pixel 5"] },
+      // T069: `isMobile:true` (mobile emulation) impedia o `page.request` de
+      // enviar corretamente o cookie de sessão estabelecido via `apiLogin`
+      // (falha exclusiva do projeto mobile). Mantemos viewport/UA/touch Pixel-like
+      // SEM mobile emulation. Limitação: sem emulação de touch nativa do Chromium.
+      use: { ...devices["Pixel 5"], isMobile: false },
     },
   ],
   // T461 (D-492): `next dev` é o modo honesto para o job web-only. Um
