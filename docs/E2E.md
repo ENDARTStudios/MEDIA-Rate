@@ -172,3 +172,13 @@ Com `test-results/**` sanitizado nos artifacts, as causas ficaram objetivas:
 - **`biblioteca` (mobile, repeat1):** `getByTestId('biblioteca-tabs')` não encontrado — a página **redireciona para /login** quando **`GET /api/v1/auth/me` retorna 500** (`Non-Error thrown: [object Object]`, intermitente). Em **produção** `/auth/me`=200 (T063) → **classificação `ENV_MISMATCH` (harness)**, a confirmar com logs locais.
 
 **Resultado:** o job caiu para **2 falhas** (biblioteca mobile repeat1). **Falta fechar o 500 de `/auth/me` no harness** (sessão/Redis) — follow-up com `evidence-local --repeat=3` local.
+
+### T068 — preflight + bloqueio objetivo (contexto mobile)
+
+**Entregue (test-infra):** preflight no job (**espera API `/health`, espera **web `:3000`**, login via curl com **cookie jar**, exige **`/auth/me`=200`**); **hosts normalizados** (`API_PROXY_TARGET=http://localhost:4000`, sem misturar `127.0.0.1`); `autenticar()` in-spec (assert `/auth/me`=200 pós-`apiLogin`); artefatos **já sanitizados** (test-results incluídos).
+
+**Resultado (run `36013387570`, job `107679624631`):**
+- **`✓ Preflight (api + web + login + /auth/me)`** — API/web/login/`/auth/me` **saudáveis** no harness.
+- Ainda **7/48 falhas**, **todas em `mobile-chrome`** (incl. `repeat1`), com a mensagem: **`sessão inválida após apiLogin (/auth/me)`** — ou seja, **`page.request` no projeto mobile** não "vê" a sessão que o próprio `apiLogin` acabou de criar, **embora o preflight por curl passe**.
+
+**Classificação: `TOOL_MISSING`/`ENV_MISMATCH` — harness (contexto mobile Playwright)**, **não** bug de produto (produção `/auth/me`=200; curl no mesmo harness = 200). **Próximo passo:** investigar o cookie jar do `page.request` sob `devices["Pixel 5"]` (`isMobile:true`) — candidatos: usar viewport+UA mobile **sem** `isMobile`, ou `storageState` explícito; ou reproduzir local com Docker (logs imediatos). **Sem alterar produto.**
