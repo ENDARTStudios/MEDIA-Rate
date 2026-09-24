@@ -184,3 +184,10 @@ payload sanitizado (`dados_depois`) fora do hash não afeta. + `audit-log-integr
 Prisma (`AddrParseError`) → o `auditLog.create()` no login lançava → **500**. Hotfix
 **#228/`5322e90`**: IP **plano** (IPv4 → zera o último octeto; IPv6 → 2 grupos + `::`).
 Smoke pós-merge: login **200** + cookie + `/auth/me` **200**. Ver D-549.
+
+## T072 — 429 do rate limit deixa de virar 500 (D-552)
+
+O `@fastify/rate-limit` lança objeto puro `{statusCode:429,...}`; o `GlobalExceptionFilter`
+agora **honra `statusCode` inteiro em [400,599]** (com **mensagem canônica**), sem ecoar
+valores do objeto. Fora da faixa/ inválido → **500**. TDD cobre 429 + 7 casos inválidos.
+Ref: T071 (causa raiz), `global-exception-nonerror.spec.ts`.

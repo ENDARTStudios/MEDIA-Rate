@@ -2330,3 +2330,19 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Evidência pós-merge (produção):** API reiniciou (uptime resetou); **`POST /auth/login` → 200 + cookie `sess`**; **`GET /auth/me` → 200**; `/health` + páginas públicas (pt-BR/en-US/es-ES/pricing/login) **200**; sem `AddrParseError` novo. Job E2E FULL (PR #220) subiu de **12/48 → 39/48** (o 500 sumiu).
 
 **Lições:** (1) validar valores de colunas `@db.Inet` com IP **plano** (Prisma rejeita CIDR); (2) smoke pós-merge deve incluir **login** quando o diff toca auth/audit — o smoke anterior (só GET) não pegou; (3) o job E2E FULL foi decisivo para o diagnóstico.
+
+## D-552 — T072: filtro global honra `statusCode` 400–599 de não-Error (429 do rate limit)
+
+**Data:** 2026-09-25 · **Fase:** F07-hardening / T072-rate-limit-429-status · **Status:** DECIDIDO (PR #247 atualizado, SEM merge)
+
+**Contexto (T071):** o `@fastify/rate-limit` lança um **objeto puro** `{statusCode:429, error, message}` (`errorResponseBuilder`), e o `GlobalExceptionFilter` classificava **qualquer não-Error como 500** → o **429 virava 500** (mascarando o rate limit; no E2E, um burst de 32 logins estourava o limite e gerava 500 nas fases tardias).
+
+**Decisão (mínima, no filtro):**
+1. `statusDeNaoErro()`: honra `statusCode` **apenas** se for **inteiro finito em [400,599]**; caso contrário → **500**.
+2. Mensagem **canônica por status** (`MSG_POR_STATUS`; ex.: 429 → "Limite de requisições excedido."). **Nunca** ecoa `message`/`error`/chaves/valores do objeto lançado.
+3. Log diagnóstico sanitizado (tipo/constructor/chaves + status honrado), sem valores.
+4. Nada muda para `Error`/`HttpException` nem para os thresholds de rate limit.
+
+**Testes:** `global-exception-nonerror.spec.ts` — `{statusCode:429,...}` → **429** sem vazar a message interna; `200/302/600/-1/"429"/null/NaN` → **500**. API **931/931**; `tsc`/`eslint` OK.
+
+**Escopo:** sem schema/migration/segredo/infra/threshold; env `Production` não tocado.
