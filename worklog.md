@@ -2808,3 +2808,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - PR minimo emergencial hotfix/login-500-mascarar-ip (#228, 2 arquivos: pii-mask.ts + audit-log-pii.spec.ts) a partir de origin/main. mascararIpInet -> IP PLANO validado (nao CIDR). Required verdes (Build teve flake de fontes do Next.js -> re-run pass, D-545/T054). Merge commit 5322e90.
 - Smoke prod: API reiniciou; POST /auth/login = 200 + cookie sess; GET /auth/me = 200; /health + paginas publicas = 200. 500 eliminado (era o auditLog AddrParseError). E2E FULL subiu 12/48 -> 39/48.
 - Acoes: D-549 registrada; nota de que #220 (E2E infra) agora precisa rebase (hotfix ja em main via #228) e que 9 falhas de seletor do spec sao follow-up. Sem migration/segredo/schema/infra.
+
+## [2026-09-24] T070-auth-me-mobile-ua-500 (diagnostico seguro de non-Error; PR aberto, SEM merge)
+- Causa do 500 em GET /api/v1/auth/me sob UA mobile NAO reproduzivel por leitura: AuthGuard/validateToken lancam apenas UnauthorizedException; o unico throw de objeto no codigo e o endpoint de debug. O 500 e intermitente e o GlobalExceptionFilter logava apenas "Non-Error thrown: [object Object]" (sem origem).
+- Entregue (autorizado pela tarefa): descreverNaoErro() no GlobalExceptionFilter -> tipo/construtor/NOMES de chaves (max 12), NUNCA valores; status segue 500 (nao mascara). TDD global-exception-nonerror.spec.ts. API 923/923; tsc/eslint OK.
+- Proximo: rodar o harness E2E novamente para capturar tipo/ctor/chaves do objeto lancado em /auth/me e entao decidir fix minimo de produto (PR separado) ou harness. Sem produto/schema/migration/segredo/infra.
