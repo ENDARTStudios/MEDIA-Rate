@@ -53,3 +53,34 @@ describe("T070 — GlobalExceptionFilter: não-Error com diagnóstico seguro", (
     expect(reply.status).toHaveBeenCalledWith(500);
   });
 });
+
+describe("T072 — honra statusCode 400–599 de não-Error (ex.: rate limit 429)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("objeto {statusCode:429} → resposta 429, sem vazar a message interna", () => {
+    const logs: string[] = [];
+    vi.spyOn(Logger.prototype, "error").mockImplementation(
+      (m: unknown) => void logs.push(String(m)),
+    );
+    const { host, reply } = buildHost();
+
+    new GlobalExceptionFilter().catch(
+      { statusCode: 429, error: "Too Many Requests", message: "internal detail should not leak" },
+      host as never,
+    );
+
+    expect(reply.status).toHaveBeenCalledWith(429);
+    const body = (reply.send.mock.calls[0]?.[0] ?? {}) as Record<string, unknown>;
+    expect(JSON.stringify(body)).not.toContain("internal detail");
+    expect(logs.join("\n")).not.toContain("internal detail");
+  });
+
+  for (const sc of [200, 302, 600, -1, "429", null, NaN]) {
+    it(`statusCode inválido (${String(sc)}) → mantém 500`, () => {
+      vi.spyOn(Logger.prototype, "error").mockImplementation(() => undefined);
+      const { host, reply } = buildHost();
+      new GlobalExceptionFilter().catch({ statusCode: sc }, host as never);
+      expect(reply.status).toHaveBeenCalledWith(500);
+    });
+  }
+});

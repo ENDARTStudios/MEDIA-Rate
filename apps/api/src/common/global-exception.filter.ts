@@ -60,6 +60,27 @@ function descreverNaoErro(valor: unknown): string {
 }
 
 /**
+ * T072/D-551 — statusCode numérico seguro (400–599) de um objeto não-Error
+ * (ex.: o rate limit do `@fastify/rate-limit` lança `{statusCode,error,message}`).
+ * Retorna `null` se ausente/inválido (mantém 500).
+ */
+function statusDeNaoErro(valor: unknown): number | null {
+  if (valor === null || typeof valor !== "object") return null;
+  const sc = (valor as { statusCode?: unknown }).statusCode;
+  if (typeof sc !== "number" || !Number.isInteger(sc) || sc < 400 || sc > 599) return null;
+  return sc;
+}
+
+/** T072: mensagem canônica por status (NUNCA ecoa o objeto lançado). */
+const MSG_POR_STATUS: Record<number, string> = {
+  401: "Autenticação necessária.",
+  403: "Acesso negado.",
+  404: "Recurso não encontrado.",
+  409: "Conflito.",
+  429: "Limite de requisições excedido. Tente novamente em breve.",
+};
+
+/**
  * Exception filter global (T1.6).
  *
  * Comportamento:
@@ -134,7 +155,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = isProduction
         ? "Ocorreu um erro interno inesperado. Tente novamente."
         : "Unknown non-Error thrown";
-      internalMessage = `Non-Error thrown: ${descreverNaoErro(exception)}`;
+      // T072/D-551: honra statusCode numérico válido (400–599) de objeto
+      // Nest-like lançado como não-Error (ex.: 429 do rate limit) — SEM ecoar
+      // message/error/keys do objeto (mensagem canônica do status).
+      const honrado = statusDeNaoErro(exception);
+      if (honrado !== null) {
+        statusCode = honrado;
+        error = STATUS_TEXT[honrado as keyof typeof STATUS_TEXT] ?? "Error";
+        message = MSG_POR_STATUS[honrado] ?? `Requisição não processada (${honrado}).`;
+        internalMessage = `Non-Error com statusCode honrado ${honrado}: ${descreverNaoErro(exception)}`;
+      } else {
+        internalMessage = `Non-Error thrown: ${descreverNaoErro(exception)}`;
+      }
     }
 
     // Log interno (com stack se houver) — nunca vai pro body da resposta.
