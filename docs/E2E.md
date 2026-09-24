@@ -131,3 +131,25 @@ test-infra** (env/seed), **sem** tocar produto.
 > **T062 — incidente + hotfix:** `POST /auth/login` retornava **500** porque `mascararIpInet` (T055) devolvia **CIDR**, rejeitado pelo `@db.Inet` do Prisma. Corrigido para **IP plano** (`127.0.0.0`, `2001:db8::`) no commit `5051ffd` (PR #220). Job E2E FULL: **39/48** (de 12/48) — restam 9 falhas de seletor do spec (follow-up).
 
 > **T064 — atualização com `main` + robustez do spec:** branch do PR #220 mesclada com `main` (merge commit; conflitos de `DECISOES`/`worklog` resolvidos **mantendo a versão de `main`** para D-549 e preservando o histórico do worklog). Specs corrigidos **sem tocar produto**: detalhe de mídia agora **navega pelo `href` do catálogo** (independe de slug/seed/clique); dashboard asserido **por viewport** (sidebar pode estar oculta no mobile). Resultado no job `e2e-full-jornada`: **12/48 → 39/48 → 42/48**. Restam falhas **intermitentes de navegação do spec** (não são bugs de produto) — follow-up de robustez (candidato: `test.fixme` explícito só se produto confirmar comportamento; ou extração do `href` com espera de rede).
+
+### T065 — estabilização (PARCIAL) e como iterar localmente
+
+Estado: o job `e2e-full-jornada` evoluiu **12/48 → 39/48 → 42/48**. As falhas
+remanescentes são **intermitentes de navegação/fixture do spec** (não produto).
+A iteração no CI é lenta (~5–8 min/ciclo) e o endpoint de logs do run **não
+retornou dados** neste ambiente, inviabilizando diagnóstico fino aqui.
+
+**Como iterar RÁPIDO (recomendado para o próximo passo):** rodar o harness
+localmente com Docker/Postgres (logs imediatos):
+
+```bash
+# requer Docker (Postgres) — em apps/api: docker compose up -d postgres
+node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3
+```
+
+**Classificação das falhas conhecidas (últimas execuções):**
+- `detalhe de mídia` — navegação (corrigido para `goto(href)` do 1º link do catálogo); resta validar no CI.
+- `apiLogin` intermitente (linha ~94/biblioteca) — classificar entre `ENV_MISMATCH` (senha/provisionamento) e `LOCKOUT` (tentativas acumuladas) rodando local com logs.
+- `dashboard` no mobile — corrigido (assert por viewport).
+
+Nenhuma alteração de produto/schema/migration/segredo/infra.

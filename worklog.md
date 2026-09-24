@@ -2829,3 +2829,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Branch do #220 mesclada com main (merge commit 06fcc6a; sem rebase/force). Conflitos: DECISOES mantido o D-549 de main (removido duplicado do branch); worklog preservou ambos.
 - Specs robustecidos (test-only): detalhe de midia abre via href do 1o link do catalogo (060fcc/fa36546) em vez de clique+waitForURL; dashboard asserido por viewport (sidebar oculta no mobile). Sem tocar produto/schema.
 - Evidencia CI (job e2e-full-jornada): 12/48 -> 39/48 -> 42/48. Restam ~6 falhas intermitentes de navegacao/fixture do spec (nao produto). Criterio 48/48x3 NAO atingido -> T064 PARCIAL; follow-up de robustez do spec em ambiente com CI mais rapido. eslint/tsc/--list OK. Sem merge/deploy/producao/segredo.
+
+## [2026-09-24] T065-e2e-jornada-stabilization (PARCIAL; PR #220, SEM merge)
+- Diagnostico remoto limitado: o endpoint de logs do run nao retornou dados neste ambiente (gh run view --log/--log-failed vazio) -> iteracao no CI (5-8min/ciclo) inviavel para diagnostico fino. Evidencia: job e2e-full-jornada ja evoluiu 12/48 -> 39/48 -> 42/48.
+- Correcoes test-only ja aplicadas: detalhe de midia via goto(href) do 1o link do catalogo; dashboard por viewport; branch mesclada com main (06fcc6a). Classificacao das falhas remanescentes: navegacao de detalhe, apiLogin intermitente (ENV_MISMATCH x LOCKOUT) e possiveis fixtures — a confirmar com logs locais.
+- Recomendacao: rodar node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3 em ambiente com Docker/Postgres (logs imediatos) para fechar 48/48. Sem produto/schema/segredo/infra; PR #220 aberto sem merge.
