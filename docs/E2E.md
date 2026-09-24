@@ -153,3 +153,14 @@ node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3
 - `dashboard` no mobile — corrigido (assert por viewport).
 
 Nenhuma alteração de produto/schema/migration/segredo/infra.
+
+### T066 — observabilidade do job E2E (PARCIAL; causa diagnosticada)
+
+**Instrumentação (entregue):** o job `e2e-full-jornada` agora sobe o **web com log próprio** (`/tmp/web.log`), sanitiza `api.log`/`web.log` (`scripts/ci/sanitize-logs.mjs`: e-mails/IPs/Bearer/cookies/tokens/DATABASE_URL redigidos) e publica artifacts seguros (`e2e-full-logs`, `playwright-report-full`, retenção curta); `trace`/`video` **desligados** no Playwright (evita cookies/tokens em artifacts).
+
+**Diagnóstico (run `36005341274`, job `107652006730`, artifacts `e2e-full-logs`):**
+- Fails: `detalhe de mídia` (chromium ×3, mobile ×3) e `biblioteca: deep link ?status=` (mobile repeat1).
+- Causa dominante: **`GET /api/v1/auth/me` → HTTP 500** (`GlobalExceptionFilter: Non-Error thrown: [object Object]`, **11×**), afetando páginas autenticadas (e o catálogo, que consulta a sessão) → sem `/media/` links → o teste de detalhe falha em cascata.
+- **Classificação: `ENV_MISMATCH` (harness efêmero)** — em **produção** `GET /auth/me` retorna **200** (verificado no T063). Não é bug de produto confirmado; provável sessão/Redis do ambiente efêmero.
+
+**Próximo passo (follow-up):** rodar `node scripts/evidence-local.mjs --spec=jornada-critica --repeat=3` com Docker/Postgres **local** (logs imediatos) para confirmar a causa do 500 em `/auth/me` no harness e ajustar test-infra. **Nenhuma mudança de produto.**
