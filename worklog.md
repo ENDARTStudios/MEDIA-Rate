@@ -2910,3 +2910,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T082-beta-security-triage (docs-only; PR aberto, SEM merge)
 - Relatorio .claude/reports/beta-security-triage-2026-09-25.md: executive summary; inventario da superficie de ataque (publico/autenticado/admin/webhooks/upload/billing/metrics; rate limits login 6/upload 10/discover 30/global 100); trust boundaries; STRIDE por fronteira; 12 cenarios de redteam documental; premortem 72h; classificacao de achados (login 500 e 429 RESOLVIDOS com guardas; P012 bloqueador do Operador; P013-P017 pendencias; PRs legadas stale/nao mergeaveis; #266 ativo de outro fluxo; fuzz de cursor = follow-up). Go/No-Go: NO-GO condicional.
 - Sem Jev nesta tarefa (restricao); resultado T081 citado apenas como corroboracao auxiliar. Sem ataque ativo; leitura read-only + smoke passivo 4/4=200. Sem produto/schema/migration/segredo/infra.
+
+## [2026-09-25] T083-merge-docs269 (MERGED 1ef9071; smoke OK)
+- Auditoria #269 (docs-only, head 916eab0): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-security-triage-2026-09-25.md + docs/SECURITY_TRIAGE.md + worklog.md; git diff --check limpo; scan segredos/PII 0.
+- Merge commit 1ef9071. Pos-merge main: deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Relatorio mantem NO-GO condicional (P012 = bloqueador do Operador). Sem produto/schema/migration/segredo/infra. Beta NAO declarada pronta.
