@@ -59,6 +59,9 @@ export interface Descoberta {
   };
 }
 
+/** T086/D-557: teto conservador do offset do cursor (muito acima de qualquer página real). */
+const MAX_CURSOR_OFFSET = 1_000_000;
+
 export interface TasteMonth {
   month: string; // "YYYY-MM"
   genreWeights: Record<string, number>;
@@ -130,8 +133,19 @@ export class InteracoesService {
 
   private decodificarCursor(cursor: string | undefined): number {
     if (cursor === undefined) return 0;
-    const decodificado = Number.parseInt(Buffer.from(cursor, "base64url").toString("utf8"), 10);
-    if (!Number.isInteger(decodificado) || decodificado < 0) {
+    const texto = Buffer.from(cursor, "base64url").toString("utf8");
+    // T086/D-557: ESTRITO — só dígitos (offset), inteiro seguro e dentro de um
+    // teto conservador. Evita leniência do parseInt ("12abc"→12, "1; DROP"→1) e
+    // offsets gigantes (que dariam `skip` inválido e 500 no Prisma).
+    if (!/^\d+$/.test(texto)) {
+      throw new BadRequestException("Cursor inválido.");
+    }
+    const decodificado = Number(texto);
+    if (
+      !Number.isSafeInteger(decodificado) ||
+      decodificado < 0 ||
+      decodificado > MAX_CURSOR_OFFSET
+    ) {
       throw new BadRequestException("Cursor inválido.");
     }
     return decodificado;
