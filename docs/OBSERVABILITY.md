@@ -289,3 +289,18 @@ fechar, na ordem: **Fastify (HTTP) → Prisma `$disconnect` → Redis `quit` →
 - **Garantias testadas** (`apps/api/test/graceful-shutdown{,.e2e}.spec.ts`):
   drenagem de requisição em andamento (200), recusa de novas conexões após o
   fechamento e ausência de `unhandledRejection`.
+
+### Dry-run e runbook de ativação (T078/D-554)
+
+Os workflows `alertas-metricos.yml` e `uptime-check.yml` **só** agem (criam/atualizam/fecham issue)
+quando rodam **live**: `alertas` usa `--apply` apenas quando `dry_run=false` **e** com
+`vars.METRICS_URL`+`secrets.ADMIN_TOKEN`; `uptime` foi endurecido para **`dry_run` default=true**
+(dispatch manual seguro; live só com `dry_run=false`). **Guardas testadas** por self-test determinístico.
+
+**Evidência dry-run (branch do PR, `workflow_dispatch dry_run=true`):**
+`Alertas Metricos` run `36083011701` (success, 14s) e `Uptime Check` run `36083014331` (success, 26s);
+issues `alerta-metrico`/`uptime` **0 → 0** (zero create/update/close).
+
+**Ativação live (P014/P015 — Operador):** (1) `vars.METRICS_URL` = URL do `/metrics`; (2)
+`secrets.ADMIN_TOKEN` **read-only dedicado** ao metrics; (3) validar com um `workflow_dispatch
+dry_run=false` e reverter removendo as vars (rollback). UptimeRobot externo = complemento (P015).

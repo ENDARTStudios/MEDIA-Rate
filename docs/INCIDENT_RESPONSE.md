@@ -157,3 +157,11 @@ novas conexões** — evitando 5xx por corte abrupto.
   processo é encerrado com código **1** (fail-safe) — se isso ocorrer em loop,
   investigar travamento em Prisma/Redis/fila (ver logs `Graceful shutdown`).
 - Detalhes e garantias testadas: `docs/OBSERVABILITY.md` (§ Shutdown gracioso).
+
+## Alerta/uptime: triagem e silenciamento (T078)
+
+- **Issue `alerta-metrico`** (5xx/auth): triar pelo JSON do run; se for falso-positivo por *threshold*,
+  ajustar o limiar no PR (não silenciar sem evidência). **Issue `uptime`**: investigar Railway/Vercel.
+- **Silenciar com segurança:** `dry_run=true` no `workflow_dispatch` (não cria/atualiza issue) ou
+  desabilitar o schedule temporariamente no PR (não alterar produção sem registro).
+- Escalonar ao Operador se a fonte live (`METRICS_URL`/`ADMIN_TOKEN`) estiver mal configurada.

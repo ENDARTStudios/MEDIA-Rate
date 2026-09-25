@@ -16,7 +16,7 @@ on:
       dry_run:
         description: "Dry-run (não cria/atualiza issue)"
         type: boolean
-        default: false
+        default: true
 concurrency:
   group: uptime-check
   cancel-in-progress: false
