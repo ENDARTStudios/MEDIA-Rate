@@ -2900,3 +2900,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T080-swagger-dto-contract-guard (TDD; PR aberto, SEM merge)
 - Guarda determinística offline scripts/ci/swagger-contract-guard.mjs + self-test 12/12: (1) UuidParamPipe em @Param exige @ApiNotFoundResponse; (2) DTO público de interacoes sem campos internos/legados (usuario_id/tenant_id/rating/comentario/created_at); (3) mapper sem pass-through cru; (4) examples/properties Swagger sem PII/segredos.
 - Contra o repo: 0 violacoes (watchlist/interacoes ja tem 404; DTO allowlist). Step adicionado ao job Lint & Audit (ci.yml). docs/API_CONTRACTS.md criado. Escopo: sem runtime/schema/migration/segredo/infra.
+
+## [2026-09-25] T081-merge-pr264-swagger-guard (MERGED 9a0f15d; Jev corroborou; smoke OK)
+- Auditoria #264: MERGEABLE; required verdes (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration) + Vercel nao-required; diff = ci.yml (+step), docs/API_CONTRACTS.md, scripts/ci/swagger-contract-guard{,.self-test}.mjs, worklog — sem apps/*/src, schema, migrations, package*.json, deploy.yml, security.yml, secrets/vars/infra. Guarda offline 0 violacoes; self-test 12/12.
+- Jev TypeSafe (jev-1.13.0): escopo_ok=0.98; risco_runtime=0.09; higiene_ok=0.89; recomendacao=merge_seguro.
+- Higiene: fix/hero-conversao-a11y local==remote (3f82818), historico limpo a partir de main; commit avulso a1c75a9 NAO e ancestral nem esta em remote -> sem poluicao.
+- Merge commit 9a0f15d. Pos-merge: Security success (3m21s); CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo/infra.
