@@ -393,3 +393,8 @@ plano completo (secret + migration/backfill + cifragem determinística/índice d
 busca) como tarefa própria com janela de manutenção.
 
 Depois de feito: responda "feito o item Nº 17" indicando A ou B.
+
+> 📌 **Runbook de ativação (T078, 2026-09-25):** fluxo validado em **dry-run** (0 issues criadas).
+> Para ativar (P014): criar `vars.METRICS_URL` (URL do `/metrics`) + `secrets.ADMIN_TOKEN` **read-only
+> dedicado**; rodar `workflow_dispatch dry_run=false` e conferir a issue; **rollback** = remover as
+> vars/secrets. Uptime externo (P015) = UptimeRobot (guia em `docs/OBSERVABILITY.md`).
