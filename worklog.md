@@ -2883,3 +2883,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-25] T076-beta-readiness-post-e2e (docs-only; PR aberto, SEM merge)
 - Reconciliacao pos-T075: B1/B2/B3 fechados; Fases 3/4/7 concluidas; 2/6/8/9 [~]. Cadeia T044->T075 mapeada (shutdown, workflows cronicos, LGPD/AuditLog, INCIDENTE login 500 #228, rate limit #247, E2E jornada #220 48/48). Divergencias do PLANO classificadas (API 931/125 vs 911/120; 29 modulos vs 20). Operador: P010 + P012-P017. Relatorio .claude/reports/beta-readiness-2026-09-25.md com 5 proximas tarefas (T077 docs/PLANO; T078 alertas/uptime; T079 coverage/Stryker; T080 triagem seguranca; T081 observabilidade). PLANO Fase 8 nota atualizada (931/125 + E2E 48/48). Sem produto/CI executavel/schema/infra/segredo. Beta NAO declarada pronta.
+
+## [2026-09-25] T077-merge-docs260 (MERGED 84caa3c; smoke OK)
+- Auditoria #260 (docs-only, head 28b29db): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-readiness-2026-09-25.md + PLANO_MESTRE.md + worklog.md; git diff --check limpo; scan 0 (os "hits" eram a palavra storageState na prosa).
+- Merge commit 84caa3c. Pos-merge main: CI success (11s), Security success (3m22s), deploy.yml waiting (P012=A); sem Release/Auto-create. Smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo/infra.
