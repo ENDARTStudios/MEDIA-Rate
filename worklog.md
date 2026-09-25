@@ -2917,3 +2917,6 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-25] T084-smoke-auth-padronizado (TDD; PR aberto, SEM merge)
 - scripts/ci/smoke-auth.mjs (guard local; 1 login; /auth/me; /interacoes?limit=1 envelope+allowlist; saida sanitizada; abort sem retry) + self-test offline 14/14 (fixtures .invalid) + .github/workflows/smoke-auth.yml (efemero Postgres16+Redis7; nao obrigatorio; contents:read; sem deploy.yml/security.yml/ci.yml alterados) + docs/SMOKE_AUTH.md + nota docs/CI.md. Sem produto/schema/migration/segredo/infra; sem acesso a producao.
+
+## [2026-09-25] T085-harden-smoke-auth (commits no PR #271)
+- Hardening de higiene: removidas SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD do env do workflow (evita o eco de env: nos logs do Actions); o script usa fixture LOCAL inerte construida dinamicamente (nunca impressa). Sumario agora inclui credential_leak_detected (regex de padroes sensiveis no proprio output). Self-test ampliado (21 ok): sentinel negativo + checagem estatica do YAML (sem SMOKE_TEST_PASSWORD em env, sem curl --user, sem Authorization literal, permissions contents:read).

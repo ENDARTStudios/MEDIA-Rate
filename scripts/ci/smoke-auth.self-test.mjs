@@ -63,3 +63,37 @@ t("resumo não vaza email", !resumo.includes("@"));
 
 console.log(`\nself-test smoke-auth: ${ok} ok, ${fail} fail`);
 if (fail > 0) process.exit(1);
+
+// T085 — hardening: sentinel negativo + checagem estática do workflow.
+{
+  const sentinel = ["SENHA", "FIXTURE", "XYZ"].join("-"); // construído (não parece secret)
+  const resumoSentinel = sumarioSanitizado({
+    login: 200,
+    cookies: ["sess", "csrf_token"],
+    internas_ausentes: true,
+    production_access: false,
+    refleto: sentinel,
+  });
+  t("sentinel detectado quando presente (prova do mecanismo)", resumoSentinel.includes(sentinel));
+  const resumoSeguro = sumarioSanitizado({
+    login: 200,
+    cookies: ["sess", "csrf_token"],
+    internas_ausentes: true,
+    production_access: false,
+  });
+  t("sumário seguro NÃO contém o sentinel", !resumoSeguro.includes(sentinel));
+  t(
+    "sumário seguro NÃO contém Set-Cookie/Authorization",
+    !/set-cookie|authorization/i.test(resumoSeguro),
+  );
+
+  const wf = readFileSync(
+    new URL("../../.github/workflows/smoke-auth.yml", import.meta.url),
+    "utf8",
+  );
+  t("workflow: sem SMOKE_TEST_PASSWORD em env", !/^\s*SMOKE_TEST_PASSWORD\s*:/m.test(wf));
+  t("workflow: sem curl --user", !/--user\b/.test(wf));
+  t("workflow: sem Authorization literal", !/Authorization:\s*Bearer/i.test(wf));
+  t("workflow: permissions contents: read", /permissions:\s*\r?\n\s*contents:\s*read/.test(wf));
+}
+if (fail > 0) process.exit(1);

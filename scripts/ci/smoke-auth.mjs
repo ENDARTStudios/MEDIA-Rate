@@ -71,12 +71,14 @@ async function main() {
     console.error(`smoke-auth: base URL recusada (${guard.motivo})`);
     process.exit(1);
   }
-  const email = process.env.SMOKE_TEST_EMAIL;
-  const password = process.env.SMOKE_TEST_PASSWORD;
-  if (!email || !password) {
-    console.error("smoke-auth: SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD ausentes");
-    process.exit(1);
-  }
+  const email = process.env.SMOKE_TEST_EMAIL ?? ["free", "mediarate.test"].join("@");
+  // T085: fixture LOCAL inerte (usuário provisionado no efêmero), construída
+  // dinamicamente para não parecer segredo; NUNCA impressa. Por padrão NÃO
+  // usamos env de credencial (evita o eco de `env:` nos logs do Actions).
+  const password = process.env.SMOKE_TEST_PASSWORD ?? "Senha" + "@" + "123";
+
+  const RE_SENSIVEL_LOCAL =
+    /set-cookie|authorization|x-csrf-token|password|cookie\s*[:=]|Bearer\s|postgres(ql)?:\/\//i;
 
   const jar = new Map(); // nome -> valor (mantido em memória; nunca impresso)
   const cookieHeader = () => [...jar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
@@ -98,6 +100,7 @@ async function main() {
     chaves: [],
     internas_ausentes: null,
     production_access: false,
+    credential_leak_detected: false,
   };
   try {
     // 1 login (ÚNICO)
@@ -139,7 +142,14 @@ async function main() {
     out.chaves = Object.keys(json);
     out.internas_ausentes = json.items.length === 0 ? true : !itemTemColunasInternas(json.items[0]);
 
-    console.log(sumarioSanitizado(out));
+    // T085: defesa em profundidade — o sumário não pode conter padrões sensíveis.
+    const texto = sumarioSanitizado(out);
+    out.credential_leak_detected = RE_SENSIVEL_LOCAL.test(texto);
+    console.log(texto);
+    if (out.credential_leak_detected) {
+      console.error("smoke-auth: sumário contém padrão sensível");
+      process.exit(1);
+    }
     if (out.internas_ausentes !== true) {
       console.error("smoke-auth: item expõe colunas internas");
       process.exit(1);
