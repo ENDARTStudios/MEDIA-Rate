@@ -41,3 +41,13 @@ remover/branquear o workflow — sem impacto em produção.
 - Não executa **mutações** (read-only após login); `PUT`/`POST` de interações fica fora do escopo.
 - A validação de campos internos depende de haver **ao menos um item** (sem itens → `internas_ausentes=true`).
 - **Não** substitui o E2E de jornada (`docs/E2E.md`) nem o uptime/alertas.
+
+## Padrão seguro de credenciais em CI (T085)
+
+- **Não** definir a credencial de teste em `env:` do workflow — o GitHub **ecoa o `env`** de cada
+  step nos logs. O smoke usa uma **fixture local inerte construída no próprio script** (nunca impressa).
+- **Não** passar credencial em command line (`curl --user`, header literal, `echo`/`printf`).
+- Saída sanitizada (status/nomes/contadores) + `credential_leak_detected` no sumário.
+- **Defesa em profundidade:** se algum valor sensível local for inevitável, usar `::add-mask::` —
+  mas isso **não** substitui remover o valor de `env`/command line/logs.
+- **Artifacts:** nunca enviar cookie jar, storageState, traces ou HAR; retenção curta.
