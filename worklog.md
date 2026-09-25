@@ -2929,3 +2929,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T086-cursor-fuzz-robustness (TDD; PR aberto, SEM merge)
 - Fuzz/robustez do cursor de /interacoes: RED inicial (4 falhas) -> parseInt leniente ("12abc"->12, "1.5"->1, "1; DROP"->1) e offset gigante (1e20 -> skip nao-seguro, risco de 500).
 - Fix minimo em decodificarCursor: estrito /^\d+$/ + Number.isSafeInteger + teto MAX_CURSOR_OFFSET=1_000_000 -> 400 canonico; Swagger ja documenta 400. GREEN: fuzz 14/14; suite API 945/945; tsc/eslint OK. Sem schema/migration/segredo/infra; sem cursor assinado.
+
+## [2026-09-25] T087-merge-pr277-cursor-guard (MERGED 1b923ba; smoke OK)
+- Auditoria #277 (head 2089803, CLEAN/MERGEABLE): required verdes + Vercel pass; diff = interacoes.service.ts (decode estrito) + interacoes-cursor-fuzz.spec.ts + docs/API_CONTRACTS + docs/SECURITY_TRIAGE + worklog — sem apps/web/src, schema, migrations, package*, deploy.yml, ci.yml, secrets/vars/infra. Confirmado: /^\d+$/ + Number.isSafeInteger + MAX_CURSOR_OFFSET=1_000_000 -> 400 canonico; regressao (offset valido) e escopo owner-only cobertos.
+- Merge commit 1b923ba. Pos-merge: Security success (2m48s); CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto-fora-do-escopo/schema/migration/segredo/infra.
