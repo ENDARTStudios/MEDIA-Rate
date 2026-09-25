@@ -98,7 +98,8 @@
     "comingSoon": "Em breve",
     "notFoundTitle": "Página não encontrada",
     "notFoundBody": "O endereço que você tentou acessar não existe ou foi movido. Verifique a URL ou volte para o início.",
-    "notFoundCta": "Voltar para o início"
+    "notFoundCta": "Voltar para o início",
+    "sourcesLabel": "MEDIA Score™ agrega 14 fontes de avaliação"
   },
   "biblioteca": {
     "metaTitle": "Biblioteca — MEDIA Rate",
@@ -220,35 +221,12 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": [
-      "Romances",
-      "Não-ficção",
-      "Clássicos",
-      "Sagas",
-      "Novidades"
-    ],
-    "variant_comic": [
-      "HQs",
-      "Super-heróis",
-      "Indie",
-      "Novidades"
-    ],
-    "variant_manga": [
-      "Shonen",
-      "Seinen",
-      "Slice of Life",
-      "Isekai",
-      "Novidades"
-    ],
-    "variant_movie": [
-      "Filmes"
-    ],
-    "variant_series": [
-      "Séries"
-    ],
-    "variant_game": [
-      "Games"
-    ],
+    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
+    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
+    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
+    "variant_movie": ["Filmes"],
+    "variant_series": ["Séries"],
+    "variant_game": ["Games"],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -501,12 +479,7 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": [
-      "Catálogo completo",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recomendações/dia"
-    ],
+    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
