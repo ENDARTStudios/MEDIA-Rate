@@ -2896,3 +2896,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T079-merge-pr262-alerting-guard (MERGED 22513a8; dry-runs OK; smoke OK)
 - Auditoria #262: MERGEABLE; required verdes + Vercel pass; diff = guarda do uptime-check.yml (default false->true) + self-test + docs/report/worklog. CONFIRMADO: o APPLY so e limpo quando event_name=workflow_dispatch E dry_run=true -> runs SCHEDULE seguem LIVE (politica agendada preservada); o default protege apenas o dispatch manual. Self-tests 18/18 e 17/17.
 - Merge commit 22513a8. Pos-merge main: Security success (3m20s); deploy.yml waiting (P012=A). Dry-runs pos-merge na main: Alertas Metricos 36085143401 success (17s); Uptime Check 36085145973 success (27s); issues alerta-metrico/uptime 0 -> 0 (zero create/update/close). Runs agendados seguem success. Smoke passivo 7/7 = 200. Sem vars/secrets/ativacao live/infra/produto/schema.
+
+## [2026-09-25] T080-swagger-dto-contract-guard (TDD; PR aberto, SEM merge)
+- Guarda determinística offline scripts/ci/swagger-contract-guard.mjs + self-test 12/12: (1) UuidParamPipe em @Param exige @ApiNotFoundResponse; (2) DTO público de interacoes sem campos internos/legados (usuario_id/tenant_id/rating/comentario/created_at); (3) mapper sem pass-through cru; (4) examples/properties Swagger sem PII/segredos.
+- Contra o repo: 0 violacoes (watchlist/interacoes ja tem 404; DTO allowlist). Step adicionado ao job Lint & Audit (ci.yml). docs/API_CONTRACTS.md criado. Escopo: sem runtime/schema/migration/segredo/infra.
