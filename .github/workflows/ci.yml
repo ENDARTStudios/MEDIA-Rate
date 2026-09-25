@@ -220,6 +220,11 @@ jobs:
         run: node --import @swc-node/register/esm-register scripts/check-encoding-bom.ts
       - name: ESLint
         run: npm run lint
+      # T080/D-555: guarda determinística de contrato Swagger/DTO (offline).
+      - name: Guarda de contrato Swagger/DTO (T080)
+        run: |
+          node scripts/ci/swagger-contract-guard.self-test.mjs
+          node scripts/ci/swagger-contract-guard.mjs
       - name: Security Gate bundle scan (T302 - .next/static buildado)
         run: npm run security:gate -- --bundle apps/web/.next/static || npm run security:gate -- --bundle .next/static
       - name: Security Gate (T294 — scan de segredos + NEXT_PUBLIC)
