@@ -191,3 +191,13 @@ O `@fastify/rate-limit` lança objeto puro `{statusCode:429,...}`; o `GlobalExce
 agora **honra `statusCode` inteiro em [400,599]** (com **mensagem canônica**), sem ecoar
 valores do objeto. Fora da faixa/ inválido → **500**. TDD cobre 429 + 7 casos inválidos.
 Ref: T071 (causa raiz), `global-exception-nonerror.spec.ts`.
+
+## T082 — Triagem de segurança, redteam e premortem (Beta) — docs-only
+
+Relatório completo: `.claude/reports/beta-security-triage-2026-09-25.md`.
+**Resumo:** nenhum achado CRITICAL/HIGH **aberto** por análise documental. Incidentes recentes
+(login 500 por CIDR em `inet` — D-549; 429 mascarado como 500 — D-552) **resolvidos** com guardas de
+regressão. Superfície e trust boundaries mapeadas; **STRIDE** por fronteira; **12 cenários de redteam**
+documental; **premortem** 72h. Classificação: **bloqueador do Operador** = P012 (staging/gate);
+pendências P013–P017; PRs legadas **stale/não mergeáveis** (inventário read-only). **Go/No-Go: NO-GO
+condicional** (Go quando P012 decidido + smoke pós-merge com login padronizado).
