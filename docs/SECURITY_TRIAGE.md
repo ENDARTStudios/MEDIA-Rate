@@ -201,3 +201,12 @@ regressão. Superfície e trust boundaries mapeadas; **STRIDE** por fronteira; *
 documental; **premortem** 72h. Classificação: **bloqueador do Operador** = P012 (staging/gate);
 pendências P013–P017; PRs legadas **stale/não mergeáveis** (inventário read-only). **Go/No-Go: NO-GO
 condicional** (Go quando P012 decidido + smoke pós-merge com login padronizado).
+
+## T086 — fuzz/robustez do cursor de /interacoes (D-557)
+
+TDD: testes vermelhos revelaram **leniência do `parseInt`** (`"12abc"→12`, `"1.5"→1`,
+`"1; DROP"→1`) e **offset gigante** (1e20 → `skip` não-seguro → risco de 500 no Prisma).
+**Fix mínimo** em `decodificarCursor`: estrito (`/^\d+$/`) + `Number.isSafeInteger` +
+teto `MAX_CURSOR_OFFSET=1_000_000` → **400 canônico**. Casos: 12 classes inválidas + regressão
+(offset válido preservado) + escopo owner-only (cursor não amplia `usuario_id`). API **945/945**.
+Sem schema/migration/segredo/infra; sem cursor assinado nesta etapa.

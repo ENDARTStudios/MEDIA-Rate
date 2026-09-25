@@ -23,3 +23,11 @@
 - Falsos positivos são corrigidos **na própria guarda/fixtures**, nunca em produto.
 - Violação **real** de metadados: correção mínima em decorator/DTO/mapper de
   apresentação (sem mudança de runtime). Violação de runtime → escalar.
+
+## Cursor de paginação — robustez (T086/D-557)
+
+O cursor de `GET /api/v1/interacoes?cursor=...` é um **offset em base64url**. A decodificação
+é **estrita**: apenas dígitos (`/^\d+$/`), inteiro **seguro**, `>= 0` e `<= 1_000_000`
+(`MAX_CURSOR_OFFSET`). Qualquer desvio → **400** (`Cursor inválido`), **nunca 500** e **nunca**
+chega ao Prisma. Swagger documenta `400` para query/cursor inválido.
+Cobertura: `apps/api/test/interacoes-cursor-fuzz.spec.ts` (12 classes de cursor + regressão + escopo owner-only).

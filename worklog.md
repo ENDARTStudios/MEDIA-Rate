@@ -2925,3 +2925,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Hardening: removidas SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD do env do smoke-auth.yml (fim do eco de env nos logs); fixture local inerte construida dinamicamente no script (nunca impressa); sumario inclui credential_leak_detected; self-test 21 ok (sentinel negativo + checagem estatica do YAML: sem SMOKE_TEST_PASSWORD em env, sem curl --user, sem Authorization literal, permissions contents:read).
 - Evidencia do novo run (36191304497, success, 1m14s): login=200/auth_me=200/interacoes=200/internas_ausentes=true/production_access=false/credential_leak_detected=false; senha fixture AUSENTE nos logs (o literal SMOKE_TEST_PASSWORD aparece apenas como nome de teste). Required verdes + Vercel pass.
 - Merge commit 5a36532; pos-merge Security success (3m19s), CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo real/infra.
+
+## [2026-09-25] T086-cursor-fuzz-robustness (TDD; PR aberto, SEM merge)
+- Fuzz/robustez do cursor de /interacoes: RED inicial (4 falhas) -> parseInt leniente ("12abc"->12, "1.5"->1, "1; DROP"->1) e offset gigante (1e20 -> skip nao-seguro, risco de 500).
+- Fix minimo em decodificarCursor: estrito /^\d+$/ + Number.isSafeInteger + teto MAX_CURSOR_OFFSET=1_000_000 -> 400 canonico; Swagger ja documenta 400. GREEN: fuzz 14/14; suite API 945/945; tsc/eslint OK. Sem schema/migration/segredo/infra; sem cursor assinado.
