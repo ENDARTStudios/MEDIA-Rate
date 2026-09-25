@@ -2920,3 +2920,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-25] T085-harden-smoke-auth (commits no PR #271)
 - Hardening de higiene: removidas SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD do env do workflow (evita o eco de env: nos logs do Actions); o script usa fixture LOCAL inerte construida dinamicamente (nunca impressa). Sumario agora inclui credential_leak_detected (regex de padroes sensiveis no proprio output). Self-test ampliado (21 ok): sentinel negativo + checagem estatica do YAML (sem SMOKE_TEST_PASSWORD em env, sem curl --user, sem Authorization literal, permissions contents:read).
+
+## [2026-09-25] T085-merge-pr271-smoke-auth (HARDENED + MERGED 5a36532; smoke OK)
+- Hardening: removidas SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD do env do smoke-auth.yml (fim do eco de env nos logs); fixture local inerte construida dinamicamente no script (nunca impressa); sumario inclui credential_leak_detected; self-test 21 ok (sentinel negativo + checagem estatica do YAML: sem SMOKE_TEST_PASSWORD em env, sem curl --user, sem Authorization literal, permissions contents:read).
+- Evidencia do novo run (36191304497, success, 1m14s): login=200/auth_me=200/interacoes=200/internas_ausentes=true/production_access=false/credential_leak_detected=false; senha fixture AUSENTE nos logs (o literal SMOKE_TEST_PASSWORD aparece apenas como nome de teste). Required verdes + Vercel pass.
+- Merge commit 5a36532; pos-merge Security success (3m19s), CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo real/infra.
