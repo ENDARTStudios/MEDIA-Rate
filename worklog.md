@@ -2933,3 +2933,6 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T087-merge-pr277-cursor-guard (MERGED 1b923ba; smoke OK)
 - Auditoria #277 (head 2089803, CLEAN/MERGEABLE): required verdes + Vercel pass; diff = interacoes.service.ts (decode estrito) + interacoes-cursor-fuzz.spec.ts + docs/API_CONTRACTS + docs/SECURITY_TRIAGE + worklog — sem apps/web/src, schema, migrations, package*, deploy.yml, ci.yml, secrets/vars/infra. Confirmado: /^\d+$/ + Number.isSafeInteger + MAX_CURSOR_OFFSET=1_000_000 -> 400 canonico; regressao (offset valido) e escopo owner-only cobertos.
 - Merge commit 1b923ba. Pos-merge: Security success (2m48s); CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto-fora-do-escopo/schema/migration/segredo/infra.
+
+## [2026-09-25] T088-smoke-auth-main-evidence (docs-only; PR aberto, SEM merge)
+- Evidencia pos-merge: workflow_dispatch do smoke-auth.yml na main (commit c5ec1bf) -> run 36197739124 SUCCESS (1m22s; job 108277336016): self-test 14/14; login=200; auth_me=200; interacoes=200; internas_ausentes=true; production_access=false; credential_leak_detected=false; senha fixture AUSENTE nos logs. Sem producao/mutacao/segredo. Relatorio .claude/reports/beta-auth-smoke-main-2026-09-26.md; notas em docs/SMOKE_AUTH.md e docs/CI.md. Beta segue NO-GO condicional (P012 + P013-P017).

@@ -51,3 +51,7 @@ remover/branquear o workflow — sem impacto em produção.
 - **Defesa em profundidade:** se algum valor sensível local for inevitável, usar `::add-mask::` —
   mas isso **não** substitui remover o valor de `env`/command line/logs.
 - **Artifacts:** nunca enviar cookie jar, storageState, traces ou HAR; retenção curta.
+> **Evidência pós-merge (T088, 2026-09-25):** `workflow_dispatch` do `smoke-auth.yml` na `main` (commit
+> `c5ec1bf`) → run `36197739124` **success** (1m22s): `login=200`, `auth_me=200`, `interacoes=200`,
+> `internas_ausentes=true`, `production_access=false`, `credential_leak_detected=false`; self-test 14/14;
+> senha fixture **ausente** nos logs.

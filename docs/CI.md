@@ -96,3 +96,7 @@ confirmar verde. Observado no merge do #210 (run 35926347836: falha → re-run �
 > `permissions: contents: read`) sobe Postgres/Redis efêmeros, provisiona usuário local e
 > valida **login 200 → `/auth/me` 200 → `/interacoes` 200** (envelope + allowlist), com **um único
 > login** e saída sanitizada. Detalhes e comando: `docs/SMOKE_AUTH.md`.
+> **Evidência pós-merge (T088, 2026-09-25):** `workflow_dispatch` do `smoke-auth.yml` na `main` (commit
+> `c5ec1bf`) → run `36197739124` **success** (1m22s): `login=200`, `auth_me=200`, `interacoes=200`,
+> `internas_ausentes=true`, `production_access=false`, `credential_leak_detected=false`; self-test 14/14;
+> senha fixture **ausente** nos logs.
