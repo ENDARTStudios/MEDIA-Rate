@@ -100,3 +100,16 @@ t(
 
 console.log(`\nself-test uptime-check: ${ok} ok, ${fail} fail`);
 if (fail > 0) process.exit(1);
+
+// T078: guarda — dispatch MANUAL do uptime-check deve ser dry por padrao
+// (live so com `dry_run=false` explicito). Nao imprime valores sensiveis.
+{
+  const { readFileSync } = await import("node:fs");
+  const wf = readFileSync(
+    new URL("../../.github/workflows/uptime-check.yml", import.meta.url),
+    "utf8",
+  );
+  const blocoDryRun = wf.slice(wf.indexOf("dry_run:"));
+  t("workflow uptime-check: dry_run default=true", /default:\s*true/.test(blocoDryRun));
+}
+if (fail > 0) process.exit(1);

@@ -2887,3 +2887,8 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T077-merge-docs260 (MERGED 84caa3c; smoke OK)
 - Auditoria #260 (docs-only, head 28b29db): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-readiness-2026-09-25.md + PLANO_MESTRE.md + worklog.md; git diff --check limpo; scan 0 (os "hits" eram a palavra storageState na prosa).
 - Merge commit 84caa3c. Pos-merge main: CI success (11s), Security success (3m22s), deploy.yml waiting (P012=A); sem Release/Auto-create. Smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo/infra.
+
+## [2026-09-25] T078-alertas-uptime-runbook (TDD/guarda; PR aberto, SEM merge)
+- Self-tests: metric-alerts 18/18; uptime-check 16/16 (+1 guarda YAML = 17).
+- ACHADO/GUARDA: uptime-check.yml tinha dry_run default=FALSE (dispatch manual sem parametro rodaria LIVE); endurecido para default=TRUE (paridade com alertas-metricos.yml). Teste deterministico adicionado em uptime-check.self-test.mjs (le o YAML e exige default: true).
+- Dry-run end-to-end dos dois workflows (workflow_dispatch dry_run=true) na branch do PR: a executar/registrar. Sem merge/deploy/segredo/producao.
