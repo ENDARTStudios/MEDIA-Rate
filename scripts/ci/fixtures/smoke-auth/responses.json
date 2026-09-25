@@ -1,0 +1,39 @@
+{
+  "_nota": "T084/D-556 — fixtures fictícias (domínio .invalid / IP RFC 5737). Sem dados reais.",
+  "setCookie": ["sess=abc123; HttpOnly; Path=/", "csrf_token=def456; Path=/"],
+  "envelopeOk": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "midia_id": "11111111-1111-4111-8111-111111111111",
+        "status": "QUERO_CONSUMIR",
+        "reacao": null,
+        "motivo_abandono": null,
+        "midia": {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "titulo": "Fixture",
+          "tipo": "FILME"
+        }
+      }
+    ],
+    "total": 1,
+    "porStatus": { "QUERO_CONSUMIR": 1 },
+    "nextCursor": null
+  },
+  "itemCru": {
+    "id": "x",
+    "usuario_id": "u",
+    "tenant_id": "t",
+    "created_at": "2026-01-01",
+    "tipo": "FILME",
+    "rating": 5,
+    "comentario": "texto"
+  },
+  "itemAllowlist": {
+    "id": "x",
+    "midia_id": "m",
+    "status": "QUERO_CONSUMIR",
+    "reacao": null,
+    "motivo_abandono": null
+  }
+}
