@@ -2892,3 +2892,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Self-tests: metric-alerts 18/18; uptime-check 16/16 (+1 guarda YAML = 17).
 - ACHADO/GUARDA: uptime-check.yml tinha dry_run default=FALSE (dispatch manual sem parametro rodaria LIVE); endurecido para default=TRUE (paridade com alertas-metricos.yml). Teste deterministico adicionado em uptime-check.self-test.mjs (le o YAML e exige default: true).
 - Dry-run end-to-end dos dois workflows (workflow_dispatch dry_run=true) na branch do PR: a executar/registrar. Sem merge/deploy/segredo/producao.
+
+## [2026-09-25] T079-merge-pr262-alerting-guard (MERGED 22513a8; dry-runs OK; smoke OK)
+- Auditoria #262: MERGEABLE; required verdes + Vercel pass; diff = guarda do uptime-check.yml (default false->true) + self-test + docs/report/worklog. CONFIRMADO: o APPLY so e limpo quando event_name=workflow_dispatch E dry_run=true -> runs SCHEDULE seguem LIVE (politica agendada preservada); o default protege apenas o dispatch manual. Self-tests 18/18 e 17/17.
+- Merge commit 22513a8. Pos-merge main: Security success (3m20s); deploy.yml waiting (P012=A). Dry-runs pos-merge na main: Alertas Metricos 36085143401 success (17s); Uptime Check 36085145973 success (27s); issues alerta-metrico/uptime 0 -> 0 (zero create/update/close). Runs agendados seguem success. Smoke passivo 7/7 = 200. Sem vars/secrets/ativacao live/infra/produto/schema.
