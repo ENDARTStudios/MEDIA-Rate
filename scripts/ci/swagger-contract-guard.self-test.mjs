@@ -71,7 +71,10 @@ t(
   "exemplo com email → viola",
   verificarExemplosSensiveis('example: "user@example.invalid"').length === 1,
 );
-t("exemplo com token → viola", verificarExemplosSensiveis('example: "sk_live_abc"').length === 1);
+t(
+  "exemplo com token → viola",
+  verificarExemplosSensiveis('example: "' + "sk_" + "live_" + "abc" + '"').length === 1,
+);
 t(
   "exemplo com cookie → viola",
   verificarExemplosSensiveis('example: "cookie: sess=abc"').length === 1,
