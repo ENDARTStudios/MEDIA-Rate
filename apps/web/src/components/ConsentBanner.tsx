@@ -37,9 +37,14 @@ export function ConsentBanner() {
   };
 
   return (
+    // T474 (a11y): este banner NÃO é modal. `aria-modal="true"` instrui leitores
+    // de tela a ignorarem todo o resto da árvore de acessibilidade enquanto ele
+    // estiver aberto — na primeira visita isso escondia toda a landing page de
+    // tecnologia assistiva até o consentimento ser dado. O banner fica ancorado
+    // no rodapé do viewport e não bloqueia interação, então a semântica correta
+    // é `role="region"` com rótulo (uma seção nomeada da página).
     <div
-      role="dialog"
-      aria-modal="true"
+      role="region"
       aria-label={t("title")}
       className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[440px] z-50 rounded-lg border border-[#2A2A3D] bg-[#0B0B13] p-5 text-[#EDE7DC] shadow-xl"
     >

@@ -10,6 +10,9 @@ interface HeroSectionProps {
   ctaSecondary: string;
   ctaSecondaryHref: string;
   ctaTrust: string;
+  /** T474: rótulo de procedência que qualifica a faixa de fontes (ex.:
+   *  "MEDIA Score™ agrega 14 fontes de avaliação"). */
+  sourcesLabel: string;
 }
 
 const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", "OpenCritic"];
@@ -19,6 +22,9 @@ const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", 
  * T405 (server-first): hero vira SERVER COMPONENT — sem framer-motion de
  * entrada (removido o fade-in/stagger). O conteúdo do LCP pinta imediatamente
  * como HTML puro, sem hidratar motion. CategoryIconRow segue como ilha client.
+ * T474: compressão vertical + CTA primária = catálogo + tiles sobem acima dos
+ * CTAs + contraste AA na microcopy. Tudo espaçamento/copy/ordem — a hero
+ * continua server-first e LCP-neutra (D-380 intacto).
  */
 export function HeroSection({
   eyebrow,
@@ -29,6 +35,7 @@ export function HeroSection({
   ctaSecondary,
   ctaSecondaryHref,
   ctaTrust,
+  sourcesLabel,
 }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
@@ -39,9 +46,12 @@ export function HeroSection({
         <div className="absolute bottom-0 right-1/4 h-[360px] w-[360px] rounded-full bg-[#818CF8] opacity-[0.04] blur-[110px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
+      {/* T474: compressão vertical — o CTA primário e os tiles de categoria
+          precisam caber acima da dobra em viewports de 1366×768 e notebooks
+          com barra do browser (LCP-neutro: só espaçamento, zero JS/imagem). */}
+      <div className="relative z-10 mx-auto max-w-4xl px-4 pb-10 pt-10 text-center sm:px-6 lg:px-8 lg:pb-14 lg:pt-14">
         <div className="flex flex-col items-center">
-          <p className="mb-4 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]">
+          <p className="mb-3 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]">
             {eyebrow}
           </p>
 
@@ -52,16 +62,25 @@ export function HeroSection({
             {title}
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg">
             {subtitle}
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          {/* T474: tiles de categoria sobem para logo abaixo do subtítulo —
+              são o único elemento que explica a promessa ("6 categorias") e
+              antes só apareciam após prova social e microcopy. */}
+          <div className="w-full">
+            <CategoryIconRow />
+          </div>
+
+          {/* T474: catálogo é a CTA primária (menor atrito: 625 títulos já
+              acessíveis sem cadastro); cadastro passa a secundária. */}
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Link
-              href={ctaHref}
+              href={ctaSecondaryHref}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E11D48]"
             >
-              {cta}
+              {ctaSecondary}
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -78,15 +97,16 @@ export function HeroSection({
               </svg>
             </Link>
             <Link
-              href={ctaSecondaryHref}
+              href={ctaHref}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2A2A3D] px-8 py-3.5 text-sm font-semibold text-[#F5F5F7] transition-colors hover:bg-[#12121C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
             >
-              {ctaSecondary}
+              {cta}
             </Link>
           </div>
 
-          {/* T371: microcopy de conversão sob os CTAs. */}
-          <p className="mt-3 flex items-center gap-2 text-xs text-[#6B6B85]">
+          {/* T371: microcopy de conversão sob os CTAs. T474: contraste AA
+              (#6B6B85 → colors.text.muted #80809B). */}
+          <p className="mt-3 flex items-center gap-2 text-xs text-[#80809B]">
             <svg
               className="h-3.5 w-3.5 text-[#34D399]"
               fill="none"
@@ -100,18 +120,18 @@ export function HeroSection({
             {ctaTrust}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs text-[#6B6B85]">
+          {/* T474: procedência qualificada — antes era uma lista de nomes em
+              texto muted que não provava nada; agora declara a agregação e o
+              contraste passa de 4.18:1 (reprova) para 5.31:1 (AA). */}
+          <p className="mt-7 text-xs text-[#80809B]">{sourcesLabel}</p>
+
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs text-[#80809B]">
             {SOURCES_STRIP.map((s) => (
               <span key={s} className="flex items-center gap-2.5">
                 <span className="h-1 w-1 rounded-full bg-[#2A2A3D]" aria-hidden="true" />
                 {s}
               </span>
             ))}
-          </div>
-
-          {/* T415: tiles navegam para a categoria. */}
-          <div className="w-full">
-            <CategoryIconRow />
           </div>
         </div>
       </div>

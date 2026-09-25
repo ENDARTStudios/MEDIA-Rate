@@ -98,7 +98,8 @@
     "comingSoon": "Coming soon",
     "notFoundTitle": "Page not found",
     "notFoundBody": "The address you tried to access does not exist or has been moved. Check the URL or go back to the home page.",
-    "notFoundCta": "Back to home"
+    "notFoundCta": "Back to home",
+    "sourcesLabel": "MEDIA Score™ aggregates 14 rating sources"
   },
   "biblioteca": {
     "metaTitle": "Library — MEDIA Rate",
@@ -220,35 +221,12 @@
     "previewBadge": "Preview",
     "previewBadgeTitle": "Preview — sources in preparation",
     "exploreCategory": "Explore {label}",
-    "variant_book": [
-      "Novels",
-      "Non-fiction",
-      "Classics",
-      "Sagas",
-      "New releases"
-    ],
-    "variant_comic": [
-      "Graphic novels",
-      "Superheroes",
-      "Indie",
-      "New releases"
-    ],
-    "variant_manga": [
-      "Shonen",
-      "Seinen",
-      "Slice of Life",
-      "Isekai",
-      "New releases"
-    ],
-    "variant_movie": [
-      "Movies"
-    ],
-    "variant_series": [
-      "Series"
-    ],
-    "variant_game": [
-      "Games"
-    ],
+    "variant_book": ["Novels", "Non-fiction", "Classics", "Sagas", "New releases"],
+    "variant_comic": ["Graphic novels", "Superheroes", "Indie", "New releases"],
+    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "New releases"],
+    "variant_movie": ["Movies"],
+    "variant_series": ["Series"],
+    "variant_game": ["Games"],
     "comingSoonEmailPlaceholder": "your@email.com",
     "comingSoonEmailLabel": "Email",
     "comingSoonDone": "Signed up! We'll notify you when it arrives.",
@@ -501,12 +479,7 @@
     "upgrade": "Upgrade",
     "subscribe": "Subscribe",
     "features": "Features",
-    "freeFeatures": [
-      "Full catalog",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recommendations/day"
-    ],
+    "freeFeatures": ["Full catalog", "MEDIA Score™", "Watchlist", "3 recommendations/day"],
     "plusFeatures": [
       "7-day free trial",
       "Everything in Free",
