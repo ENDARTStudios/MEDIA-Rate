@@ -18,7 +18,7 @@
 - [x] Fase 5 – Frontend `[CONCLUÍDA — rotas públicas/privadas, i18n 3 locales, SSR parity]` ✅
 - [~] Fase 6 – Avançado `[PARCIAL — cache/shutdown/upload ok; BullMQ e IA/RAG postergados D-017]` ⚠️
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
-- [~] Fase 8 – Testes/segurança `[PARCIAL — API 911/911 (120 arquivos, T049); web ~309; IA pipeline N/A]` ⚠️
+- [~] Fase 8 – Testes/segurança `[PARCIAL — API 931/931 (125 arquivos, T072); E2E jornada crítica 48/48 (T074/D-553); web ~309; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
 - [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029 concluída (D-439); T030–T033 abertas]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
