@@ -91,3 +91,8 @@ falhar com `module-not-found` em `[next]/internal/font/google/inter_*.module.css
 `main` (ou vice-versa). Ação: **re-run** do job (`gh run rerun <id> --failed`) e
 confirmar verde. Observado no merge do #210 (run 35926347836: falha → re-run →
 **success** 3m24s, Build 1m35s).
+
+> **Smoke autenticado (T084/D-556):** o workflow **`smoke-auth.yml`** (não obrigatório,
+> `permissions: contents: read`) sobe Postgres/Redis efêmeros, provisiona usuário local e
+> valida **login 200 → `/auth/me` 200 → `/interacoes` 200** (envelope + allowlist), com **um único
+> login** e saída sanitizada. Detalhes e comando: `docs/SMOKE_AUTH.md`.

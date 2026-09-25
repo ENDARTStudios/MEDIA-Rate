@@ -1,0 +1,97 @@
+# T084/D-556 — smoke autenticado (login 1× + /auth/me + /interacoes) em ambiente efêmero.
+# NÃO obrigatório. Permissões mínimas. Sem acesso a produção. Sem segredos novos.
+name: Smoke Auth
+
+on:
+  pull_request:
+    paths:
+      - "scripts/ci/smoke-auth*.mjs"
+      - "scripts/ci/fixtures/smoke-auth/**"
+      - ".github/workflows/smoke-auth.yml"
+      - "docs/SMOKE_AUTH.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-auth:
+    name: Smoke autenticado (efêmero)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: smoke_auth
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      APP_ENV: test
+      DATABASE_URL: postgresql://postgres@localhost:5432/smoke_auth
+      REDIS_URL: redis://localhost:6379
+      COOKIE_SECRET: smoke-auth-cookie
+      JWT_SECRET: smoke-auth-jwt
+      SESSION_SECRET: smoke-auth-session
+      ADMIN_TOKEN: smoke-auth-admin
+      ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      # T084: limite alto apenas no efêmero (evita 429 por volume de CI).
+      RATE_LIMIT_API_PER_MIN: "100000"
+      RATE_LIMIT_LOGIN_PER_MIN: "1000"
+      SMOKE_BASE_URL: http://localhost:4000
+      SMOKE_TEST_EMAIL: free@mediarate.test
+      SMOKE_TEST_PASSWORD: "Senha@123"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Self-test offline (determinístico)
+        run: node scripts/ci/smoke-auth.self-test.mjs
+      - name: Prisma generate + migrate deploy (DB LOCAL efêmero)
+        run: |
+          npx prisma generate --schema apps/api/prisma/schema.prisma
+          npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Provisionar usuário de teste
+        run: npm run db:provision:test-users --workspace=apps/api
+      - name: Subir API (background)
+        run: |
+          nohup npm run dev --workspace=apps/api > /tmp/api.log 2>&1 &
+      - name: Esperar API (/health)
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:4000/health >/dev/null 2>&1 && exit 0
+            sleep 2
+          done
+          echo "API não subiu"; tail -40 /tmp/api.log; exit 1
+      - name: Smoke autenticado
+        run: node scripts/ci/smoke-auth.mjs
+      - name: Sanitizar log da API (sem cookies/tokens)
+        if: always()
+        run: node scripts/ci/sanitize-logs.mjs /tmp/api.log || true
+      - name: Upload do log sanitizado + resumo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-auth-log
+          path: /tmp/api.log
+          retention-days: 7
+          if-no-files-found: ignore

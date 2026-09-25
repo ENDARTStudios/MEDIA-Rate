@@ -2914,3 +2914,6 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-25] T083-merge-docs269 (MERGED 1ef9071; smoke OK)
 - Auditoria #269 (docs-only, head 916eab0): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-security-triage-2026-09-25.md + docs/SECURITY_TRIAGE.md + worklog.md; git diff --check limpo; scan segredos/PII 0.
 - Merge commit 1ef9071. Pos-merge main: deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Relatorio mantem NO-GO condicional (P012 = bloqueador do Operador). Sem produto/schema/migration/segredo/infra. Beta NAO declarada pronta.
+
+## [2026-09-25] T084-smoke-auth-padronizado (TDD; PR aberto, SEM merge)
+- scripts/ci/smoke-auth.mjs (guard local; 1 login; /auth/me; /interacoes?limit=1 envelope+allowlist; saida sanitizada; abort sem retry) + self-test offline 14/14 (fixtures .invalid) + .github/workflows/smoke-auth.yml (efemero Postgres16+Redis7; nao obrigatorio; contents:read; sem deploy.yml/security.yml/ci.yml alterados) + docs/SMOKE_AUTH.md + nota docs/CI.md. Sem produto/schema/migration/segredo/infra; sem acesso a producao.
