@@ -2936,3 +2936,9 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-25] T088-smoke-auth-main-evidence (docs-only; PR aberto, SEM merge)
 - Evidencia pos-merge: workflow_dispatch do smoke-auth.yml na main (commit c5ec1bf) -> run 36197739124 SUCCESS (1m22s; job 108277336016): self-test 14/14; login=200; auth_me=200; interacoes=200; internas_ausentes=true; production_access=false; credential_leak_detected=false; senha fixture AUSENTE nos logs. Sem producao/mutacao/segredo. Relatorio .claude/reports/beta-auth-smoke-main-2026-09-26.md; notas em docs/SMOKE_AUTH.md e docs/CI.md. Beta segue NO-GO condicional (P012 + P013-P017).
+
+## [2026-09-25] T089-merge-docs282 (merge commit f67fb11; SEM merge adicional)
+- Auditoria do PR #282 (docs-only): head c929d71->0a0d16d; CLEAN/MERGEABLE; Docs Gate/Migration/Security pass; Vercel nao-required pass; diff estritamente docs (relatorio + docs/SMOKE_AUTH.md + docs/CI.md + worklog.md); scan sem segredo/PII; literal de senha-fixture removido; strays (.od-skills/.wrangler/prototipos/rw-promote.js/*.sketch.json/_badge/_gb/lighthouse) removidos de volta ao untracked.
+- Merge commit f67fb11 (c5ec1bf..f67fb11). CI success (36212084622, 11s); Security success (36212084636, 3m); Deploy waiting por environment Production (P012=A, run 36212084619) - nao aprovado.
+- Pos-merge: Railway API nativo SUCCESS (8c198a71); Vercel nativo OK; smoke passivo 7/7 -> 200 (health/pt-BR/en-US/es-ES/catalog/pricing/login); 0 chaves i18n cruas nos 3 idiomas; sem nova 5xx.
+- Sem alteracao de produto/schema/migration/segredo/infra/workflow; environment Production intocado. Beta segue NO-GO condicional (P012 + P013-P017).
