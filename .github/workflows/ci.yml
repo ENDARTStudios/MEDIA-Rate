@@ -424,9 +424,22 @@ jobs:
             ' BRANCH="$BRANCH")
           fi
           FINAL="${url_real:-$construida}"
+          # T092-ciclo (D-530 aprimorado): PR sem preview web (api-only) não tem
+          # superfície para o ZAP — probe DNS/HTTP antes de escanear; sem preview
+          # o scan é PULADO com aviso (antes: DNS "Name or service not known" → docker exit 3).
+          if curl -sSI --max-time 15 "$FINAL" -o /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
           echo "url=$FINAL" >> "$GITHUB_OUTPUT"
           echo "preview resolvido: $FINAL"
+      - name: Pula ZAP (sem preview web no PR)
+        if: steps.preview.outputs.exists != 'true'
+        run: |
+          echo "::notice::ZAP Baseline pulado — nenhum preview Vercel acessível para esta branch (PR sem mudanças de web). O DAST roda quando há preview."
       - name: ZAP Baseline Scan
+        if: steps.preview.outputs.exists == 'true'
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ steps.preview.outputs.url }}
