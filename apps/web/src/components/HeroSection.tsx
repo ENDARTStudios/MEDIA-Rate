@@ -9,7 +9,6 @@ interface HeroSectionProps {
   ctaHref: string;
   ctaSecondary: string;
   ctaSecondaryHref: string;
-  ctaTrust: string;
   /** T474: rótulo de procedência que qualifica a faixa de fontes (ex.:
    *  "MEDIA Score™ agrega 14 fontes de avaliação"). */
   sourcesLabel: string;
@@ -25,6 +24,11 @@ const SOURCES_STRIP = ["IMDb", "Rotten Tomatoes", "TMDB", "Metacritic", "IGDB", 
  * T474: compressão vertical + CTA primária = catálogo + tiles sobem acima dos
  * CTAs + contraste AA na microcopy. Tudo espaçamento/copy/ordem — a hero
  * continua server-first e LCP-neutra (D-380 intacto).
+ * T087: microcopy de confiança REMOVIDA. A frase "grátis para sempre"
+ * (en: "free forever", es: "gratis para siempre") era uma promessa perpétua de
+ * gratuidade — oferta vinculante de prazo indeterminado (CDC art. 30), que
+ * impediria qualquer mudança futura de monetização do plano Free. A remoção
+ * melhora o LCP (menos um nó de texto) e não reintroduz conteúdo na dobra.
  */
 export function HeroSection({
   eyebrow,
@@ -34,7 +38,6 @@ export function HeroSection({
   ctaHref,
   ctaSecondary,
   ctaSecondaryHref,
-  ctaTrust,
   sourcesLabel,
 }: HeroSectionProps) {
   return (
@@ -103,22 +106,6 @@ export function HeroSection({
               {cta}
             </Link>
           </div>
-
-          {/* T371: microcopy de conversão sob os CTAs. T474: contraste AA
-              (#6B6B85 → colors.text.muted #80809B). */}
-          <p className="mt-3 flex items-center gap-2 text-xs text-[#80809B]">
-            <svg
-              className="h-3.5 w-3.5 text-[#34D399]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {ctaTrust}
-          </p>
 
           {/* T474: procedência qualificada — antes era uma lista de nomes em
               texto muted que não provava nada; agora declara a agregação e o
