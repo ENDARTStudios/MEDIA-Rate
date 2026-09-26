@@ -16,7 +16,7 @@
 | `internas_ausentes` | **true** (allowlist; sem `usuario_id`/`tenant_id`/`created_at`/`tipo`/`rating`/`comentario`) |
 | `production_access` | **false** |
 | `credential_leak_detected` | **false** |
-| Senha fixture nos logs | **AUSENTE** (`Senha@123` não aparece) |
+| Senha fixture nos logs | **AUSENTE** (`valor-da-fixture` não aparece) |
 
 `smoke-auth: OK`. **Um único login**; **zero** mutação; **zero** acesso a produção.
 
