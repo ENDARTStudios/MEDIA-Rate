@@ -357,3 +357,7 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
    no código e no PostHog desde T452/D-491 (`apps/web/src/lib/posthog.ts`).
 5. **F11 em andamento** — T285 → T286 → T287... (ordem D-279).
 6. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot.
+
+### [T091] Triagem read-only de PRs legadas (2026-09-27)
+Evidência: `.claude/reports/legacy-pr-triage-2026-09-27.md`. 7 PRs abertas classificadas; #266 já MERGED.
+Nenhuma mutação no GitHub; higiene de backlog pendente de decisão do Operador. Beta segue NO-GO condicional.

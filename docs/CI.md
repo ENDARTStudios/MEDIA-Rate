@@ -100,3 +100,5 @@ confirmar verde. Observado no merge do #210 (run 35926347836: falha → re-run �
 > `c5ec1bf`) → run `36197739124` **success** (1m22s): `login=200`, `auth_me=200`, `interacoes=200`,
 > `internas_ausentes=true`, `production_access=false`, `credential_leak_detected=false`; self-test 14/14;
 > senha fixture **ausente** nos logs.
+> **Triagem read-only de PRs legadas (T091, 2026-09-27):** relatório sanitizado em
+> `.claude/reports/legacy-pr-triage-2026-09-27.md`. Nenhuma mutação de PR/branch/workflow. Ver também PLANO_MESTRE (nota de evidência).
