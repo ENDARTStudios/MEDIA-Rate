@@ -2942,3 +2942,6 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Merge commit f67fb11 (c5ec1bf..f67fb11). CI success (36212084622, 11s); Security success (36212084636, 3m); Deploy waiting por environment Production (P012=A, run 36212084619) - nao aprovado.
 - Pos-merge: Railway API nativo SUCCESS (8c198a71); Vercel nativo OK; smoke passivo 7/7 -> 200 (health/pt-BR/en-US/es-ES/catalog/pricing/login); 0 chaves i18n cruas nos 3 idiomas; sem nova 5xx.
 - Sem alteracao de produto/schema/migration/segredo/infra/workflow; environment Production intocado. Beta segue NO-GO condicional (P012 + P013-P017).
+
+## [2026-09-27] T091-legacy-pr-triage (read-only; PR docs-only, SEM merge)
+- Triagem read-only das PRs abertas. #266 ja MERGED (historico). Abertas: #279 (ativa-recente, CLEAN), #140 (legada-stale, CLEAN), #139 (legada+1 fail), #133 (mass-lockfile, BLOCKED, candidate-to-close), #4/#3 (conflitantes, 2026-08-15, candidate-to-close), #2 (draft abandonado, candidate-to-close). Nenhuma mutacao no GitHub. Relatorio .claude/reports/legacy-pr-triage-2026-09-27.md; notas em docs/CI.md e PLANO_MESTRE.md. Higiene de backlog pendente do Operador. Beta NO-GO condicional.
