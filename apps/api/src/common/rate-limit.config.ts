@@ -112,3 +112,13 @@ export function refreshRateLimit(): { max: number; timeWindow: string } {
 export function interacoesRateLimit(): { max: number; timeWindow: string } {
   return { max: 60, timeWindow: "1 minute" };
 }
+
+/**
+ * T473 (auditoria 2026-09-04, P1) — GET /user/data: exportação LGPD agrega
+ * 9 relações por chamada; limite dedicado mais apertado que o global
+ * (o keyGenerator global já chaveia por user+rota).
+ */
+export function userRightsRateLimit(): { max: number; timeWindow: string } {
+  const userRightsPerMinute = envInt("RATE_LIMIT_USER_RIGHTS_PER_MIN", 6);
+  return { max: userRightsPerMinute, timeWindow: "1 minute" };
+}
