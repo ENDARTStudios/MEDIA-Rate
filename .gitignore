@@ -81,6 +81,3 @@ apps/web/src/components/hero-icons/*.png
 
 # Protótipo de design (Manus/Vite) — referência apenas, nunca parte do produto
 design-system/media-rate-dashboard/
-
-# graft's local graph cache — regenerable, not committed (run `graft build`).
-/graft/
