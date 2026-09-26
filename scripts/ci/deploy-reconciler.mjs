@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global console */
 /**
  * T092 (REPLAN) — reconciliador da fila de deploy `waiting` no environment
  * `Production` (P012 convertido em decisão técnica).
@@ -55,7 +56,9 @@ export function decidir(runs, { headSha, gates }) {
 
 /** Avalia o smoke passivo coletado pelo workflow: 4 checks 200 → true. */
 export function smokeOk(statuses) {
-  return Array.isArray(statuses) && statuses.length === SMOKE_TOTAL && statuses.every((s) => s === 200);
+  return (
+    Array.isArray(statuses) && statuses.length === SMOKE_TOTAL && statuses.every((s) => s === 200)
+  );
 }
 
 export function rodarSelfTest() {
@@ -65,12 +68,19 @@ export function rodarSelfTest() {
   const HEAD = "aaaa1111";
 
   ok("run do head atual + gates verdes → aprovar", () => {
-    const d = decidir([{ id: 1, status: "waiting", head_sha: HEAD }], { headSha: HEAD, gates: gate });
-    if (d.aprovar.length !== 1 || d.cancelar.length || d.ignorar.length) throw new Error(JSON.stringify(d));
+    const d = decidir([{ id: 1, status: "waiting", head_sha: HEAD }], {
+      headSha: HEAD,
+      gates: gate,
+    });
+    if (d.aprovar.length !== 1 || d.cancelar.length || d.ignorar.length)
+      throw new Error(JSON.stringify(d));
   });
 
   ok("run de commit antigo → cancelar (superseded)", () => {
-    const d = decidir([{ id: 2, status: "waiting", head_sha: "0000ddd0" }], { headSha: HEAD, gates: gate });
+    const d = decidir([{ id: 2, status: "waiting", head_sha: "0000ddd0" }], {
+      headSha: HEAD,
+      gates: gate,
+    });
     if (d.cancelar.length !== 1) throw new Error(JSON.stringify(d));
   });
 
@@ -93,13 +103,21 @@ export function rodarSelfTest() {
   ok("smoke com 1 endpoint 5xx → ignorar", () => {
     const d = decidir([{ id: 5, status: "waiting", head_sha: HEAD }], {
       headSha: HEAD,
-      gates: { ci: "success", security: "success", smokeOk: smokeOk([200, 200, 500, 200]), smoke: [200, 200, 500, 200] },
+      gates: {
+        ci: "success",
+        security: "success",
+        smokeOk: smokeOk([200, 200, 500, 200]),
+        smoke: [200, 200, 500, 200],
+      },
     });
     if (d.ignorar.length !== 1 || d.aprovar.length) throw new Error(JSON.stringify(d));
   });
 
   ok("run em estado não-waiting → ignorar", () => {
-    const d = decidir([{ id: 6, status: "completed", head_sha: HEAD }], { headSha: HEAD, gates: gate });
+    const d = decidir([{ id: 6, status: "completed", head_sha: HEAD }], {
+      headSha: HEAD,
+      gates: gate,
+    });
     if (d.ignorar.length !== 1) throw new Error(JSON.stringify(d));
   });
 
