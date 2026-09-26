@@ -2346,3 +2346,46 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Testes:** `global-exception-nonerror.spec.ts` — `{statusCode:429,...}` → **429** sem vazar a message interna; `200/302/600/-1/"429"/null/NaN` → **500**. API **931/931**; `tsc`/`eslint` OK.
 
 **Escopo:** sem schema/migration/segredo/infra/threshold; env `Production` não tocado.
+
+## D-554 — P012 como decisão técnica: reconciliador de deploy (auto-promoção condicionada)
+
+**Data:** 2026-09-26 · **Fase:** T092 (REPLAN — pendências → backlog técnico) · **Status:** DECIDIDO (PR em curso)
+
+**Contexto:** o environment `Production` com required reviewer gera fila `waiting` a cada merge
+(sem bloquear os deploys nativos Railway/Vercel — o gate só prende o health-check do deploy.yml).
+O REPLAN do Operador converteu a pendência em decisão técnica: eliminar a fila com guarda
+automática, sem abrir mão de segurança.
+
+**Decisão:**
+1. Lógica pura em `scripts/ci/deploy-reconciler.mjs` (self-test 8/8): run Deploy `waiting` com
+   head != origin/main → **cancelar** (superseded); head == origin/main com CI+Security success
+   e smoke passivo 4/4 200 → **aprovar**; gates incompletos → **ignorar** (reavaliar no próximo ciclo).
+2. Workflow `deploy-reconciler.yml` (schedule 30min + workflow_dispatch, permissions mínimas)
+   coleta runs/gates/smoke, decide via script e aplica cancelamentos e aprovações com
+   comentário de auditoria.
+3. Limitação técnica registrada: se o GITHUB_TOKEN não puder aprovar pending deployments de
+   environment com reviewer humano, o workflow registra WARN sanitizado e mantém o cancelamento
+   de superseded; aprovação condicionada segue executável por CLI admin (mesmo algoritmo —
+   executada ao vivo neste ciclo: 1 aprovação + 3 cancelamentos, fila zerada).
+
+**Evidência:** self-test 8/8; decisão ao vivo (runs 36266707717/36266148974/36261659259 cancelados,
+36267178863 aprovado).
+
+## D-555 — P013 como decisão técnica: política expand/contract enforçada no CI
+
+**Data:** 2026-09-26 · **Fase:** T093 (REPLAN) · **Status:** DECIDIDO (PR em curso)
+
+**Contexto:** migration manual em produção depende de caminho de rede indisponível (runner→banco).
+O REPLAN converte a pendência em guardas: drift neutralizado e mudanças destrutivas só com plano.
+
+**Decisão:**
+1. Drift: o job RLS Isolation (já required) aplica `migrate deploy` em DB virgem a cada PR —
+   conjunto de migrations reproduzível é evidência contínua de ausência de drift; não há
+   migration pendente (entrypoint do Railway aplica no boot; último deploy saudável).
+2. Nova guarda `migration-destructive-guard.mjs` (self-test 6/6, integrada ao job
+   `Migration Safety (B1)`): SQL destrutivo (DROP TABLE/COLUMN/INDEX/CONSTRAINT, TRUNCATE,
+   DELETE sem WHERE, RENAME de tabela) em migration nova **exige** seção `## Expand/Contract`
+   com plano backward-compatible — fail-closed, inclusive em conteúdo ilegível.
+3. Nenhuma migration é aplicada manualmente; migrate-production.yml permanece não executado.
+
+**Evidência:** self-test 6/6; --eval e2e nos 2 caminhos (com plano → liberado; sem plano → bloqueado).

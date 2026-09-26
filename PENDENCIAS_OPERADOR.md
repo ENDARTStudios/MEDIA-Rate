@@ -232,7 +232,9 @@ Verificação T030 pós-deploy (mesmo gate, T034 — branch está 17 commits à 
 
 ---
 
-### [10] P010 — GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
+### [10] P010 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
 
 Por quê: o harness injeta `GITHUB_TOKEN` (40 chars, inválido) **só no escopo
 Process** de cada shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` >
@@ -273,7 +275,9 @@ Depois de feito: responda "feito o item Nº 11".
 > `protect-main` agora exige `Migration Safety (B1)` (ao lado de Lint & Audit, Test &
 > Coverage, Build, RLS, Docs Gate). Ver D-535.
 
-### [12] P012 — Decidir staging/environment antes de produção (T031/B1, #148 item 9)
+### [12] P012 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir staging/environment antes de produção (T031/B1, #148 item 9)
 
 Por quê: hoje `main` = produção automática; não há ambiente intermediário. O deploy
 Railway é nativo no push de `main` — nenhum gate GitHub atual o impede.
@@ -299,7 +303,9 @@ Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
 > o smoke pós-merge **7/7 → 200** confirmou saúde. O item **continua aberto** (o waiting
 > já passou de 30 min em merges anteriores); decisão é do Operador.
 
-### [13] P013 — Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
+### [13] P013 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
 
 Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
 interno do Railway — inalcançável de runners GitHub.
@@ -316,7 +322,9 @@ Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
 > superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
 > (sem segredo, sem migração, sem custo).
 
-### [14] P014 — Ativar alertas métricos LIVE (T040/T041, D-538)
+### [14] P014 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Ativar alertas métricos LIVE (T040/T041, D-538)
 
 Por quê: o workflow `alertas-metricos.yml` roda em **dry-run por padrão** (nunca
 abre issue falsa). Para detectar 5xx/falhas de auth de verdade precisa da fonte live.
@@ -339,7 +347,9 @@ abre/atualiza a issue `alerta-metrico` (fechando-a quando normaliza).
 
 Depois de feito: responda "feito o item Nº 14".
 
-### [15] P015 — UptimeRobot externo (complementar ao uptime sintético do CI) — T042/D-539
+### [15] P015 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. UptimeRobot externo (complementar ao uptime sintético do CI) — T042/D-539
 
 Por quê: o workflow `uptime-check.yml` é um monitor **sintético no CI** (runners do
 GitHub). Ele pega indisponibilidade das rotas públicas, mas **não** é distribuído
@@ -355,7 +365,9 @@ Como saber que deu certo: o monitor aparece "Up" no UptimeRobot e alerta por e-m
 
 Depois de feito: responda "feito o item Nº 15".
 
-### [16] P016 — Decidir reativar o auto-PR de `feature/**` (create-pr-from-branch) — T046/T047/D-541
+### [16] P016 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir reativar o auto-PR de `feature/**` (create-pr-from-branch) — T046/T047/D-541
 
 Por quê: o workflow `create-pr-from-branch.yml` estava **inerte** desde a criação
 (YAML inválido → nunca executou). Foi corrigido (T046), mas por padrão ficou
@@ -376,7 +388,9 @@ Depois de feito: responda "feito o item Nº 16".
 > 📌 **Estado atual (T047, 2026-09-22):** corrigido e **manual** — não roda em
 > `main`/`chore/*`/`docs/*` nem em `feature/**` até esta decisão. Reversível.
 
-### [17] P017 — Decidir o caminho de cifragem de colunas (LGPD) — T048/D-542
+### [17] P017 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir o caminho de cifragem de colunas (LGPD) — T048/D-542
 
 Por quê: a análise de viabilidade (T048) concluiu que cifrar agora **não** é seguro
 sem: (a) cifragem **determinística** para o e-mail (senão quebra login);

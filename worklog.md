@@ -2945,3 +2945,15 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-27] T091-legacy-pr-triage (read-only; PR docs-only, SEM merge)
 - Triagem read-only das PRs abertas. #266 ja MERGED (historico). Abertas: #279 (ativa-recente, CLEAN), #140 (legada-stale, CLEAN), #139 (legada+1 fail), #133 (mass-lockfile, BLOCKED, candidate-to-close), #4/#3 (conflitantes, 2026-08-15, candidate-to-close), #2 (draft abandonado, candidate-to-close). Nenhuma mutacao no GitHub. Relatorio .claude/reports/legacy-pr-triage-2026-09-27.md; notas em docs/CI.md e PLANO_MESTRE.md. Higiene de backlog pendente do Operador. Beta NO-GO condicional.
+
+## [2026-09-26] autonomous-bootstrap (Doer autonomo, sem Thinker)
+Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2be23c6 confirmado):
+- Smoke passivo 7/7 -> 200, 0 MISSING_MESSAGE; logs Railway 0 5xx. CI/Security success em main; Deploy waiting @ Production (P012=A, nao aprovado).
+- AUTO-MERGE #279 (fix T087: remove promessa perpetua gratis-para-sempre da hero; 17/17 SUCCESS, CLEAN, estavel 21h) -> merge commit d9228db; CI/Security verdes; smoke especifico: claim 0 ocorrencias na home pt-BR. Precedencia registrada: instrucao direta do Operador (prompt autonomo 9.1) > recomendacao read-only do relatorio T091.
+- AUTO-MERGE #284 (docs-only T091: triagem legada; 8/8 SUCCESS, CLEAN, estavel >1h) -> merge commit 3758fb1. 6 PRs legadas restantes: nenhuma mutacao (read-only, aguarda Operador).
+- Relatorio: .claude/reports/autonomous-inventory-2026-09-26.md. Beta: NO-GO condicional (P010, P012-P017 pendentes). Fila executavel pelo Doer: esgotada neste ciclo (restam hard-stops).
+
+## [2026-09-26] T092+T093 (REPLAN) — reconciliador de deploy + guarda expand/contract (branch auto/t092-t093-deploy-migration-guards)
+- T092/D-554: scripts/ci/deploy-reconciler.mjs (pura, self-test 8/8) + workflow deploy-reconciler.yml (schedule 30min). Operacional executado ao vivo via CLI: run f2ff0dd APROVADO condicionado (CI+Security success, smoke 200) e 3 superseded CANCELADOS — fila Production zerada. Limitação GITHUB_TOKEN-approval registrada com WARN+fallback.
+- T093/D-555: scripts/ci/migration-destructive-guard.mjs (pura, self-test 6/6, --eval e2e nos 2 caminhos) integrado ao job Migration Safety (B1) — SQL destrutivo exige secao Expand/Contract (fail-closed). Drift: evidencia continua = RLS job required aplica migrations em DB virgem.
+- Reclassificacao REPLAN: BACKLOG_TECNICO_THINKER_DOER.md criado; P010/P012-P017 marcados CONVERTIDA em PENDENCIAS_OPERADOR.md (historico preservado). DECISOES D-554/D-555.
