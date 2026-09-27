@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global console */
 /**
  * T096 (REPLAN) — guarda de política de automações (P016).
  * Lê os YAMLs do repo e FALHA se uma trigger perigosa reaparecer:
@@ -69,7 +70,7 @@ export function rodarSelfTest(repositorio) {
 function main() {
   const repo = {
     "create-pr-from-branch": readFileSyncSafe(".github/workflows/create-pr-from-branch.yml"),
-    release: readFileSyncSafe(".github/workflows/release.yml"),
+    "release": readFileSyncSafe(".github/workflows/release.yml"),
     "uptime-check": readFileSyncSafe(".github/workflows/uptime-check.yml"),
     "alertas-metricos": readFileSyncSafe(".github/workflows/alertas-metricos.yml"),
   };
