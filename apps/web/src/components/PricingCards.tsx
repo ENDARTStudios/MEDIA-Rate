@@ -222,39 +222,47 @@ export function PricingCards({
                 ))}
               </ul>
 
-              <Link
-                href={
-                  plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${safeBilling}`
-                }
-                className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                  isPlus
-                    ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"
-                    : "bg-[#1B1B2C] text-[#F5F5F7] hover:bg-[#2A2A3D]"
-                }`}
-              >
-                {plan.price === 0 ? t("startFree") : loggedIn ? t("upgrade") : t("subscribe")}
-              </Link>
+              {/* BETA-GAP-13: CTA + rodapés num container de rodapé com altura
+                  MÍNIMA RESERVADA para que o y do CTA seja idêntico nos 3 cards
+                  (free sem rodapé; plus/premium com 2 linhas de largura variável). */}
+              <div className="mt-auto">
+                <Link
+                  href={
+                    plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${safeBilling}`
+                  }
+                  data-testid={`plan-cta-${plan.id}`}
+                  className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                    isPlus
+                      ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"
+                      : "bg-[#1B1B2C] text-[#F5F5F7] hover:bg-[#2A2A3D]"
+                  }`}
+                >
+                  {plan.price === 0 ? t("startFree") : loggedIn ? t("upgrade") : t("subscribe")}
+                </Link>
 
-              {plan.price > 0 && (
-                <p className="text-xs text-[#A0A0B8] text-center mt-3">{t("securePayment")}</p>
-              )}
+                <div className="min-h-[3.25rem]" data-testid={`plan-footer-${plan.id}`}>
+                  {plan.price > 0 && (
+                    <p className="text-xs text-[#A0A0B8] text-center mt-3">{t("securePayment")}</p>
+                  )}
 
-              {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
-                  explícitos ANTES do clique (nunca consequência escondida). */}
-              {plan.id === "plus" && plan.price > 0 && (
-                <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
-                  {t("trialPlus", {
-                    value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
-                  })}
-                </p>
-              )}
-              {plan.id === "premium" && (
-                <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
-                  {t("renewInfo", {
-                    value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
-                  })}
-                </p>
-              )}
+                  {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
+                      explícitos ANTES do clique (nunca consequência escondida). */}
+                  {plan.id === "plus" && plan.price > 0 && (
+                    <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
+                      {t("trialPlus", {
+                        value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
+                      })}
+                    </p>
+                  )}
+                  {plan.id === "premium" && (
+                    <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
+                      {t("renewInfo", {
+                        value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           );
         })}
