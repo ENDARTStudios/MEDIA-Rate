@@ -319,3 +319,7 @@ issues `alerta-metrico`/`uptime` **0 → 0** (zero create/update/close).
 **Ativação live (P014/P015 — Operador):** (1) `vars.METRICS_URL` = URL do `/metrics`; (2)
 `secrets.ADMIN_TOKEN` **read-only dedicado** ao metrics; (3) validar com um `workflow_dispatch
 dry_run=false` e reverter removendo as vars (rollback). UptimeRobot externo = complemento (P015).
+
+> **P014/D-538 — ATIVADO (T100, 2026-09-27):** `secrets.ADMIN_TOKEN` + `vars.METRICS_URL` configurados;
+> `/metrics` validado (com token → 200; sem → 403); dry-run e run LIVE verdes, zero issue espúria.
+> Rollback: `gh variable delete METRICS_URL`.
