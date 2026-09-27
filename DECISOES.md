@@ -2416,3 +2416,25 @@ O REPLAN converte a pendência em guardas: drift neutralizado e mudanças destru
    live condicionada no alertas-metricos.
 
 **Evidência:** guard verde no repo real e reprova fixture de regressão; workflows YAML válidos.
+
+## D-557 — T097/P017: cifragem de colunas adiada tecnicamente para pós-Beta, com guarda anti-regressão
+
+**Data:** 2026-09-26 · **Fase:** REPLAN (backlog técnico) · **Status:** DECIDIDO
+
+**Contexto:** P017 (cifragem de `email`/`telefone` em repouso) virou decisão técnica.
+A opção mais segura para a Beta é NÃO habilitar sem blind index/dual-write/backfill/
+rotação de chave — habilitar às cegas é MAIS arriscado que manter controles
+compensatórios (conclusão da T048/D-542 confirmada como decisão).
+
+**Decisão:**
+1. Cifragem de colunas sensíveis **adiada para pós-Beta** — motivos: busca
+   determinística (login por igualdade de email), risco no caminho de auth, custo
+   de migration+backfill+secret (plano completo em `docs/lgpd-column-encryption-plan.md`).
+2. Compensações mantidas e testadas: PII mask (T049/D-543), AuditLog sanitizado
+   (T055/D-545), argon2id, tokens hash, TLS, LGPD export/delete, DTO allowlist.
+3. **Guarda anti-regressão**: `apps/api/test/schema-sensitive-columns.spec.ts`
+   congela a allowlist de colunas sensíveis — coluna nova sem decisão consciente
+   falha o CI (mensagem orienta para o plano/DECISOES).
+4. Nenhuma migration aplicada neste passo.
+
+**Evidência:** spec 2/2 verde contra o schema real (allowlist gerada ao vivo).
