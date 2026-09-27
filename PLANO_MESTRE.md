@@ -248,7 +248,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 9.5.4 Uptime check externo: UptimeRobot pendente.
 - [x] 9.6 Healthcheck HTTP (`GET /health`).
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
-- [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
+- [x] 9.8 Plano de resposta a incidentes (docs/05-security-compliance/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.

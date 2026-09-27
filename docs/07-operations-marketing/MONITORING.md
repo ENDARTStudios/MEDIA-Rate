@@ -1,6 +1,6 @@
 # MONITORING — Observabilidade de produção
 
-Aprofundamento completo: [`OBSERVABILITY.md`](OBSERVABILITY.md) (logger único,
+Aprofundamento completo: [`OBSERVABILITY.md`](../OBSERVABILITY.md) (logger único,
 audit, env vars). Aqui: o mapa de "onde olhar o quê".
 
 ## Sinais e onde olhar
@@ -13,11 +13,11 @@ audit, env vars). Aqui: o mapa de "onde olhar o quê".
 | **Logs** | Railway (stdout JSON, logger único nestjs-pino — D-531) | Dashboard Railway ou `railway logs --service "MEDIA Rate"`; CLI de resumo: `node scripts/logs-errors.mjs [--minutos 30]` (4xx/5xx/rotas); redaction de headers sensíveis; PII de auth mascarada (T049) |
 | **Erros** | Sentry | DSN por env; release = commit sha; sourcemaps anexados (D-503 — verificar ARTEFATO, não só step verde: D-505); PII off; triagem em `docs/SECURITY_TRIAGE.md` |
 | **Produto** | PostHog (consent-gated) | funis canônicos e flags — ver [ANALYTICS](ANALYTICS.md) |
-| **Deploy** | CI/Railway/Vercel | ver [PRODUCTION_DEPLOY](PRODUCTION_DEPLOY.md) |
+| **Deploy** | CI/Railway/Vercel | ver [PRODUCTION_DEPLOY](../06-devops-deployment/PRODUCTION_DEPLOY.md) |
 
 ## Rotinas
 
-- **Pós-merge**: smoke ([QA_TESTING](QA_TESTING.md)) incluindo varredura de 5xx nos logs.
+- **Pós-merge**: smoke ([QA_TESTING](../06-devops-deployment/QA_TESTING.md)) incluindo varredura de 5xx nos logs.
 - **Diário (Operador/agenta a pedido)**: `scripts/logs-errors.mjs --minutos 1440`;
   alertas ativos em `/admin/alerts/status`; Sentry sem nova issue crítica.
 - **Semanal (Beta)**: exclusões de indexação (SEO), taxa de 5xx, uso de imagem
@@ -25,7 +25,7 @@ audit, env vars). Aqui: o mapa de "onde olhar o quê".
 
 ## Incidentes
 
-Runbook: `docs/INCIDENT_RESPONSE.md` (inclui resposta LGPD). Canal: alerta →
+Runbook: `docs/05-security-compliance/INCIDENT_RESPONSE.md` (inclui resposta LGPD). Canal: alerta →
 triagem (log/Sentry/alerta) → mitigação (rollback por revert se código) →
 post-mortem em `worklog.md` (+ DECISOES se mudar regra/processo).
 

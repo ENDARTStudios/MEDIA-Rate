@@ -91,7 +91,7 @@ export function renderUptimeBody(avaliacao, agora = new Date()) {
           ),
         ]),
     "",
-    "> Playbook: `docs/INCIDENT_RESPONSE.md` · Este monitor é sintético e **não**",
+    "> Playbook: `docs/05-security-compliance/INCIDENT_RESPONSE.md` · Este monitor é sintético e **não**",
     "> substitui monitoramento distribuído externo (UptimeRobot).",
     "> Esta issue contém apenas nomes de endpoint, status HTTP e horário.",
   ];

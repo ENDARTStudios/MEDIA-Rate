@@ -1,6 +1,6 @@
 # TESTING — Estratégia de testes
 
-Aprofundamentos: [E2E](E2E.md) (Playwright) · `docs/LOAD_TESTING.md` (carga) ·
+Aprofundamentos: [E2E](../E2E.md) (Playwright) · `docs/LOAD_TESTING.md` (carga) ·
 mutação e DAST no CI (`docs/CI.md`).
 
 ## Suítes e comandos
@@ -35,4 +35,4 @@ mutação e DAST no CI (`docs/CI.md`).
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
 - Contas de teste: `npm run db:provision:test-users` (local) · conta E2E de smoke
-  em produção (creds no `.env` raiz; uso de leitura + limpeza — ver [QA_TESTING](QA_TESTING.md)).
+  em produção (creds no `.env` raiz; uso de leitura + limpeza — ver [QA_TESTING](../06-devops-deployment/QA_TESTING.md)).

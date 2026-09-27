@@ -7,7 +7,7 @@ Registro das escolhas estruturais (as mudanças viram ADR em `DECISOES.md`).
 | Camada | Escolha | Por quê |
 |---|---|---|
 | Monorepo | **npm workspaces** (package-lock único) | deploy nativo Vercel/Railway entende npm; pnpm exigiria camada extra (regra do repo: **npm, nunca pnpm**) |
-| Web | **Next.js 16 App Router + Turbopack + RSC** | SSR/ISR + SEO (frente [SEO](SEO.md)) e dados no servidor por padrão |
+| Web | **Next.js 16 App Router + Turbopack + RSC** | SSR/ISR + SEO (frente [SEO](../07-operations-marketing/SEO.md)) e dados no servidor por padrão |
 | i18n | **next-intl v4** por path (`/pt-BR`…) | 3 locales com paridade testada no CI; hreflang no sitemap |
 | API | **NestJS 11 + Fastify 5** | módulos/guards/pipes maduros + performance do Fastify; pino JSON nativo |
 | DB | **PostgreSQL + Prisma** | migrations versionadas, types end-to-end; **RLS owner-only** (`comContextoRls`) como defesa de locação |
@@ -36,4 +36,4 @@ Registro das escolhas estruturais (as mudanças viram ADR em `DECISOES.md`).
 
 Qualquer adição/remoção estrutural = ADR (D-NNN) com custo, alternativa e plano de
 migração — e, se tocar deploy, atualizar [ARCHITECTURE](ARCHITECTURE.md) e
-[PRODUCTION_DEPLOY](PRODUCTION_DEPLOY.md) no mesmo PR.
+[PRODUCTION_DEPLOY](../06-devops-deployment/PRODUCTION_DEPLOY.md) no mesmo PR.

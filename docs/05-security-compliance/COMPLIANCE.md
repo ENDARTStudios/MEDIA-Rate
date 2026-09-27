@@ -15,7 +15,7 @@ versionado, T464) · `docs/conformidade-v13.md` · `docs/PARECER_JURIDICO-2026-0
 | Segurança | RLS, argon2id, redaction de logs, **mascaramento de PII em logs de auth** (T049), audit chain SHA-256 | D-543 e outros |
 | Trilha de auditoria | `audit_log` append-only com `verificarIntegridade()` | smoke T027 (AuditLog em produção) |
 | Canal do titular | Canal de privacidade com runbook | T473 |
-| Incidents | Processo com linha do tempo LGPD/ANPD | `docs/INCIDENT_RESPONSE.md` |
+| Incidents | Processo com linha do tempo LGPD/ANPD | `docs/05-security-compliance/INCIDENT_RESPONSE.md` |
 
 ## Débitos conscientes (B3, antes da Beta pública)
 

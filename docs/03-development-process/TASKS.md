@@ -14,7 +14,7 @@ Ciclo por evento JSON (detalhes: `PROMPT_SIMBIOSE_THINKER_DOER.md`):
 
 1. **TAREFA** (Thinker→Doer): payload com objetivo, arquivos, restrições,
    `criterio_de_pronto`, `verificacao`.
-2. **Doer executa** por [ITERATION](ITERATION.md): branch curta → TDD → PR **aberto
+2. **Doer executa** por [ITERATION](../ITERATION.md): branch curta → TDD → PR **aberto
    SEM merge** → CI verde → `STATUS: DONE|READY_FOR_REVIEW` com evidência.
 3. **REVIEW** (Thinker): `APPROVED|APPROVED_CONDITIONAL|BLOCKED` + gates.
 4. **Merge condicional** (autorizado em TAREFA própria): merge commit, monitor de
@@ -45,5 +45,5 @@ Demanda (Operador/review/issue)
 - [ ] Testes novos quando o gap é de comportamento (TDD vermelho→verde)
 - [ ] Docs atualizadas no mesmo PR (suíte `docs/` + PLANO/worklog)
 - [ ] Evidência de produção quando muda comportamento visível (smoke padrão:
-      `docs/QA_TESTING.md`)
+      `docs/06-devops-deployment/QA_TESTING.md`)
 - [ ] Sem segredos em log/commit/evidência

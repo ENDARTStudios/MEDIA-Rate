@@ -2,7 +2,7 @@
 
 AIO cobre **como o produto aparece (ou não) em superfícies de IA** — AI Overviews,
 assistentes, busca generativa — englobando [AEO](AEO.md) (respostas extraíveis) e
-[GEO](GEO.md) (citação por geradores). Estratégia-mãe: [`SEO_AEO_AIO_GEO.md`](SEO_AEO_AIO_GEO.md).
+[GEO](GEO.md) (citação por geradores). Estratégia-mãe: [`SEO_AEO_AIO_GEO.md`](../SEO_AEO_AIO_GEO.md).
 
 ## O que o projeto já faz (e por quê)
 

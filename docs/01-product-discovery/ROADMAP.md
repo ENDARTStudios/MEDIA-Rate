@@ -39,5 +39,5 @@ Abrir para usuários reais convidados. Pré-condições (bloqueadores do relató
 ## Como entrar na fila
 
 1. Escolher item no `PLANO_MESTRE`/`#148` → virar TAREFA do Thinker.
-2. Executar por [ITERATION](ITERATION.md) (branch → TDD → PR → CI → merge → smoke).
+2. Executar por [ITERATION](../ITERATION.md) (branch → TDD → PR → CI → merge → smoke).
 3. Registrar evidência no `worklog.md` + decisão em `DECISOES.md` quando mudar regra.

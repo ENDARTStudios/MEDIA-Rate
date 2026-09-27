@@ -25,5 +25,5 @@
 
 ## Mudanças visuais
 
-Mudou token/cor/contraste → atualizar [DESIGN](DESIGN.md) no mesmo PR e re-verificar
+Mudou token/cor/contraste → atualizar [DESIGN](../02-architecture-design/DESIGN.md) no mesmo PR e re-verificar
 AA (ferramenta de contraste; alvo 4.5:1 texto normal / 3:1 texto grande e UI).

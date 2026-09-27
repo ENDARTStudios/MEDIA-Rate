@@ -15,7 +15,7 @@ O modelo operacional do projeto (Thinker/Doer + Operador). Arquivos-mestre:
 7. CI verde no HEAD FINAL (13+ checks; required: docs-gate + Migration Safety (B1))
 8. STATUS DONE/READY_FOR_REVIEW com evidência → REVIEW (Thinker) → APPROVED
 9. Merge condicional (TAREFA própria): merge commit → monitorar Railway+Vercel+
-   deploy.yml → SMOKE obrigatório (docs/QA_TESTING.md) → evidência (PR/issue/worklog)
+   deploy.yml → SMOKE obrigatório (docs/06-devops-deployment/QA_TESTING.md) → evidência (PR/issue/worklog)
 10. Fechamento: PLANO com evidência, DECISOES se mudou regra, branches deletadas
     APÓS o smoke; pendências do Operador registradas (P0NN) quando aplicável
 ```

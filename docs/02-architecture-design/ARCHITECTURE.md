@@ -59,7 +59,7 @@ Operador — `docs/b1-prod-guards.md` §3). Rollback: `git revert` do merge comm
 
 Stripe (billing) · Resend (e-mail) · Google OAuth · PostHog (analytics/flags, consent) ·
 Sentry (erros/tracing, sourcemaps) · Cloudflare R2 (assets) · Catálogos: IGDB, OMDB,
-ComicVine, Google Books, MAL, OpenCritic. Detalhes: [INTEGRATIONS](INTEGRATIONS.md).
+ComicVine, Google Books, MAL, OpenCritic. Detalhes: [INTEGRATIONS](../INTEGRATIONS.md).
 
 ## Diagrama de fluxo de request (resumo)
 

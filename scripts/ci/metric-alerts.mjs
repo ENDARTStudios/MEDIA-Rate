@@ -109,7 +109,7 @@ export function renderIssueBody(snapshot, avaliacao, agora = new Date()) {
     "",
     `**Resumo:** ${criticos} CRITICAL, ${warns} WARNING.`,
     "",
-    "> Playbook: `docs/INCIDENT_RESPONSE.md` · Métricas: `/metrics` (protegido).",
+    "> Playbook: `docs/05-security-compliance/INCIDENT_RESPONSE.md` · Métricas: `/metrics` (protegido).",
     "> Esta issue contém apenas contadores agregados — sem dados pessoais, credenciais ou payloads.",
   ].join("\n");
 }

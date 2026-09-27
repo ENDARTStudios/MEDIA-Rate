@@ -23,7 +23,7 @@
 
 | Critério | Estado atual | Critério de aceite |
 |---|---|---|
-| **PRD** — Product Requirements Document | ❌ ausente | `docs/PRD.md`: problema, personas, escopo, fora de escopo, métricas de sucesso, requisitos funcionais/não-funcionais |
+| **PRD** — Product Requirements Document | ❌ ausente | `docs/01-product-discovery/PRD.md`: problema, personas, escopo, fora de escopo, métricas de sucesso, requisitos funcionais/não-funcionais |
 | **UML** — classes + sequência | ❌ ausente | `docs/UML.md`: diagrama de classes (domínio core) + sequência (fluxos críticos: auth, watchlist, pagamento) |
 | **RBAC** — matriz de níveis | ⚠️ código (papel USER/ADMIN) sem matriz documentada | `docs/RBAC.md`: matriz recurso × papel (USER/ADMIN + planos Free/Plus/Premium) |
 | **RLS** — Row Level Security | ✅ T328 FORCE RLS + `rls-context.ts` + e2e | manter: nenhuma tabela com dado pessoal sem RLS; teste de isolamento por usuário |

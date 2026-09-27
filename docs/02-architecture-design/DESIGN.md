@@ -36,7 +36,7 @@
 
 ## Acessibilidade
 
-Ver [ACCESSIBILITY](ACCESSIBILITY.md). Regra mínima: contraste AA nos tokens canônicos
+Ver [ACCESSIBILITY](../07-operations-marketing/ACCESSIBILITY.md). Regra mínima: contraste AA nos tokens canônicos
 (testado), foco visível, rótulos i18n em todo controle (nunca chave crua).
 
 ## Onde mexer

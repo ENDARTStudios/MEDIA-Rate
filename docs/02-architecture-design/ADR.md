@@ -1,6 +1,6 @@
 # ADR — Architecture Decision Records
 
-**Registro canônico:** [`DECISOES.md`](../DECISOES.md) na raiz (append-only, IDs
+**Registro canônico:** [`DECISOES.md`](../../DECISOES.md) na raiz (append-only, IDs
 `D-NNN`). Este arquivo explica o formato e indexa as decisões estruturantes.
 
 ## Formato de uma entrada (obrigatório)
