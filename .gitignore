@@ -81,3 +81,23 @@ apps/web/src/components/hero-icons/*.png
 
 # Protótipo de design (Manus/Vite) — referência apenas, nunca parte do produto
 design-system/media-rate-dashboard/
+
+# --- STRAYS LOCAIS (T103): ferramentas, caches e protótipos — NUNCA commitar ---
+# Ferramentas locais de código/design (od-skills, grafo de código, sketch)
+.od-skills/
+graft/
+.ignore
+*.sketch.json
+
+# Cloudflare Workers (wrangler dev local)
+.wrangler/
+apps/web/.wrangler/
+
+# Protótipos e scripts auxiliares (raiz / scripts locais)
+/media-rate-home-prototype.html
+/media-rate-home-prototype.html.artifact.json
+/rw-promote.js
+apps/web/scripts/_*.mjs
+
+# Relatórios Lighthouse gerados localmente (os versionados têm outros nomes)
+docs/lighthouse-reports/s1-*.json
