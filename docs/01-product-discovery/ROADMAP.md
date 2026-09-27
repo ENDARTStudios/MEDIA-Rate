@@ -21,7 +21,7 @@ Abrir para usuários reais convidados. Pré-condições (bloqueadores do relató
 
 - **B1 — Guardas operacionais de produção: ✅ FEITO** (guard `migration-safety`
   required — D-532/D-535; staging e migration manual documentados em
-  `docs/b1-prod-guards.md`, decisão do Operador em P012/P013).
+  `docs/06-devops-deployment/b1-prod-guards.md`, decisão do Operador em P012/P013).
 - **B2 — Sinais de operação**: security.yml verde (D-534, PR #172) · UptimeRobot
   (ação do Operador, 9.5.4) · triagem das issues Sentry stale (T466).
 - **B3 — Higiene LGPD/contrato**: DTO explícito em `GET /interacoes` (#148 item 1) ·

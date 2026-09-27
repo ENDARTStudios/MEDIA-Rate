@@ -11,7 +11,7 @@ Vocabulário conjugado por tipo de mídia no front: vocabulário T239 +
 
 IGDB (jogos), OMDB (filmes/séries), ComicVine (quadrinhos), Google Books (livros),
 MAL (mangás), OpenCritic (scores de crítica). Chaves em env `*_API_KEY`/`*_CLIENT_*`
-(secrets, `docs/BOAS_PRATICAS_SECRETS.md`). Unicidade por `(fonte, fonte_id)`.
+(secrets, `docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md`). Unicidade por `(fonte, fonte_id)`.
 Seed idempotente por `(fonte, fonte_id)` — T276 (games lookup-driven via IGDB por slug).
 
 ## Curadoria

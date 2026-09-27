@@ -8,7 +8,7 @@ on:
       - "scripts/ci/smoke-auth*.mjs"
       - "scripts/ci/fixtures/smoke-auth/**"
       - ".github/workflows/smoke-auth.yml"
-      - "docs/SMOKE_AUTH.md"
+      - "docs/06-devops-deployment/SMOKE_AUTH.md"
   workflow_dispatch:
 
 permissions:

@@ -16,7 +16,7 @@ test.describe("T405 home-ilha — carrossel com event delegation", () => {
   test.beforeEach(() => {
     test.skip(
       process.env.E2E_FULL !== "1",
-      "T461: requer API+DB (E2E_FULL=1) — CI sobe so o web; ver docs/E2E.md",
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe so o web; ver docs/06-devops-deployment/E2E.md",
     );
   });
 

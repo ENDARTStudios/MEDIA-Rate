@@ -11,7 +11,7 @@ audit, env vars). Aqui: o mapa de "onde olhar o quê".
 | **Métricas** | `/metrics` (Prometheus) | IP allowlist (`METRICS_ALLOW_IPS`) OU sessão ADMIN OU `X-Admin-Token`; `http_requests_total` por {method,route,status}, `http_request_duration_seconds`, `http_errors_total` (5xx) |
 | **Alertas** | T218 (sem serviço externo) | `5xx_rate` >1%/5min = CRITICAL · `auth_failures` >50/1min = WARNING; histerese 10%; status em `GET /api/v1/admin/alerts/status`; transições em log + audit |
 | **Logs** | Railway (stdout JSON, logger único nestjs-pino — D-531) | Dashboard Railway ou `railway logs --service "MEDIA Rate"`; CLI de resumo: `node scripts/logs-errors.mjs [--minutos 30]` (4xx/5xx/rotas); redaction de headers sensíveis; PII de auth mascarada (T049) |
-| **Erros** | Sentry | DSN por env; release = commit sha; sourcemaps anexados (D-503 — verificar ARTEFATO, não só step verde: D-505); PII off; triagem em `docs/SECURITY_TRIAGE.md` |
+| **Erros** | Sentry | DSN por env; release = commit sha; sourcemaps anexados (D-503 — verificar ARTEFATO, não só step verde: D-505); PII off; triagem em `docs/05-security-compliance/SECURITY_TRIAGE.md` |
 | **Produto** | PostHog (consent-gated) | funis canônicos e flags — ver [ANALYTICS](ANALYTICS.md) |
 | **Deploy** | CI/Railway/Vercel | ver [PRODUCTION_DEPLOY](../06-devops-deployment/PRODUCTION_DEPLOY.md) |
 

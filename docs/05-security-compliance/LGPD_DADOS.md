@@ -107,7 +107,7 @@ coarsena `ip_origem` (`mascararIpInet` → `203.0.113.0/24`; IPv6 `/48`) — val
 válidos para a coluna `@db.Inet`. A cadeia de hash **não** inclui esses campos,
 então a integridade é preservada, **sem migration/backfill**; registros históricos
 ficam intactos. Regressão: `apps/api/test/audit-log-pii.spec.ts` +
-`audit-log-integridade.spec.ts`. Ver §T055 em `docs/SECURITY_TRIAGE.md`.
+`audit-log-integridade.spec.ts`. Ver §T055 em `docs/05-security-compliance/SECURITY_TRIAGE.md`.
 
 ## 7. Follow-ups e pendências
 
@@ -117,4 +117,4 @@ ficam intactos. Regressão: `apps/api/test/audit-log-pii.spec.ts` +
 - Follow-up: alinhar o timestamp do hash ao `created_at` do banco em `AuditLog`
   (drift pode gerar falso-positivo em `verificarIntegridade`) — pré-existente.
 - Revisar `AuditLog.dados_depois` (minimização) — coberto por T055 p/ NOVOS registros.
-- Ver `docs/SECURITY_TRIAGE.md` (§ T048/T055) e `DECISOES.md` (D-542/D-545).
+- Ver `docs/05-security-compliance/SECURITY_TRIAGE.md` (§ T048/T055) e `DECISOES.md` (D-542/D-545).

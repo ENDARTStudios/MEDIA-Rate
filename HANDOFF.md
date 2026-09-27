@@ -100,7 +100,7 @@ $v = railway variables --json | ConvertFrom-Json   # ler pontual: $v.CHAVE
 - `apps/api/src/modules/media/media.controller.ts` + `media.service.ts` + `slug-service.ts` — lista com `num_fontes`/`titulo_en`, slug único.
 - `apps/api/prisma/seed-*.ts` — seeds idempotentes (localizacao, provision, fix-bg3, fix-slug-*).
 - `apps/web/scripts/shot*.cjs` + `audit-crawl.cjs` — screenshots/auditoria Playwright.
-- `docs/auditoria-profunda-2026-08-23.md` + `docs/lighthouse-reports/*.json` — evidência da auditoria.
+- `docs/07-operations-marketing/auditoria-profunda-2026-08-23.md` + `docs/lighthouse-reports/*.json` — evidência da auditoria.
 
 ## 8. ESTADO DE TESTES
 

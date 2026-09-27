@@ -956,7 +956,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 
 - DECISAO: usar Grafana Cloud free tier como backend de traces OTel (D-320: custo zero). Jaeger self-hosted fica como alternativa documentada (privacidade estrita/on-prem), nao e o padrao agora.
 - Justificativa: free tier (50 GB traces/mes, retencao 14d) e mais que suficiente para a escala (1k->50k); zero manutencao (SaaS); OTLP/HTTP nativo; UI rica (Tempo traces + dashboards + alerting). Jaeger exige servidor + storage + updates + disco + backup - custo operacional desproporcional.
-- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/AVALIACAO_BACKEND_OTEL.md.
+- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/07-operations-marketing/AVALIACAO_BACKEND_OTEL.md.
 - Codigo OTel ja pronto e inerte: API (apps/api/src/common/otel.ts) e web (apps/web/src/lib/otel-browser.ts) so ativam quando o endpoint e definido.
 ## [2026-08-20] Decisao: D-344 — boa pratica de secrets (comparacao programatica + rotacao)
 
@@ -966,7 +966,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 1. Secrets colados devem ser comparados PROGRAMATICAMENTE (diff/hash caractere a caractere), nunca visualmente.
 2. Rotacao de ADMIN_TOKEN autorizada (T378): novo valor nunca em log/transcript, apenas hash SHA-256 para auditoria.
 3. COMICVINE_API_KEY avaliada: chave de leitura publica (sem write/delete) → rotacao opcional; rotacionar se o provedor expuser permissao sensivel.
-4. Boa pratica documentada em docs/BOAS_PRATICAS_SECRETS.md.
+4. Boa pratica documentada em docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md.
 
 **Impacto:** T378 emitida e executada; lição permanente registrada para futuras tarefas com secrets.
 
@@ -2059,7 +2059,7 @@ problemática mergeado em `main` vai direto para produção, sem stage e sem tra
 4. Limites: não cobre push direto (já proibido pela ruleset D-457); valida o contrato,
    não a qualidade da migration; tornar o check REQUIRED na ruleset de `main` é decisão
    do Operador (P011). Staging/Environment e caminho de migration manual: propostas em
-   `docs/b1-prod-guards.md` (P012/P013) — nada executado.
+   `docs/06-devops-deployment/b1-prod-guards.md` (P012/P013) — nada executado.
 
 **Testes:** self-test 10/10 (`--self-test`); CLI validado nos 3 caminhos (liberado sem
 banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
@@ -2220,7 +2220,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 **Escopo:** sem remover/enfraquecer checks required, sem alterar ruleset/secrets/infra, sem deploy, sem migration. Sem mudança de produto.
 
-**Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/CI.md`.
+**Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/06-devops-deployment/CI.md`.
 
 > **T047 (2026-09-22) — ajuste antes do merge:** o `create-pr-from-branch` ficou
 > com disparo **MANUAL** (`workflow_dispatch`) por padrão, e **não** com
@@ -2247,13 +2247,13 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 **Contexto:** o `ColumnEncryptionService` (AES-256-GCM, T2.6) existe mas **não está wired** (0 usos; PLANO 2.10 `[~]`). Era preciso decidir se pode ser aplicado sem migration, sem segredo novo e sem quebrar login/busca/LGPD.
 
-**Inventário (resumo):** PII buscável = `Usuario.email` (`@unique`, lookup por igualdade no login/registro/reset/Google). PII não-buscável = `Usuario.nome`, `Sessao.user_agent`/`ip_criacao`, `ConsentimentoUsuario.ip_aceite`, `UsuarioMidiaInteracao.comentario`, `AuditLog.{dados_antes,dados_depois,ip_origem}`. Já derivados por hash: tokens de verificação/reset, `Sessao.token_hash`/`refresh_token_hash`, `ConsentLog.ip_hash`, `senha_hash` (argon2). Detalhes em `docs/LGPD_DADOS.md`.
+**Inventário (resumo):** PII buscável = `Usuario.email` (`@unique`, lookup por igualdade no login/registro/reset/Google). PII não-buscável = `Usuario.nome`, `Sessao.user_agent`/`ip_criacao`, `ConsentimentoUsuario.ip_aceite`, `UsuarioMidiaInteracao.comentario`, `AuditLog.{dados_antes,dados_depois,ip_origem}`. Já derivados por hash: tokens de verificação/reset, `Sessao.token_hash`/`refresh_token_hash`, `ConsentLog.ip_hash`, `senha_hash` (argon2). Detalhes em `docs/05-security-compliance/LGPD_DADOS.md`.
 
 **Decisão:** **não implementar cifragem agora.** Bloqueios: (1) `email` é buscável por igualdade e o serviço é **não determinístico** (IV aleatório) → exigiria cifragem determinística (decisão de arquitetura não trivial); (2) dados existentes em plaintext → **migration + backfill**; (3) wiring exige `COLUMN_ENCRYPTION_KEY` e o serviço **lança** sem ela (novo segredo + risco de indisponibilidade). Nenhuma alteração de schema/migration/segredo.
 
 **Achado acionável (baixo risco, não implementado aqui):** `auth.service.ts:261` grava o e-mail em claro no log de lockout (o `redact` não cobre PII embutida na mensagem) → follow-up: mascarar.
 
-**Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/LGPD_DADOS.md`, `docs/SECURITY_TRIAGE.md` §T048, **P017**.
+**Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/05-security-compliance/LGPD_DADOS.md`, `docs/05-security-compliance/SECURITY_TRIAGE.md` §T048, **P017**.
 
 ## D-543 — T049: mascaramento de PII em logs de autenticação (LGPD)
 
@@ -2429,7 +2429,7 @@ compensatórios (conclusão da T048/D-542 confirmada como decisão).
 **Decisão:**
 1. Cifragem de colunas sensíveis **adiada para pós-Beta** — motivos: busca
    determinística (login por igualdade de email), risco no caminho de auth, custo
-   de migration+backfill+secret (plano completo em `docs/lgpd-column-encryption-plan.md`).
+   de migration+backfill+secret (plano completo em `docs/05-security-compliance/lgpd-column-encryption-plan.md`).
 2. Compensações mantidas e testadas: PII mask (T049/D-543), AuditLog sanitizado
    (T055/D-545), argon2id, tokens hash, TLS, LGPD export/delete, DTO allowlist.
 3. **Guarda anti-regressão**: `apps/api/test/schema-sensitive-columns.spec.ts`

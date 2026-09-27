@@ -42,7 +42,7 @@ O workflow `deploy.yml` do GitHub é **validação + health check pós-promoçã
 ## Proibições (regra dura)
 
 - `migrate-production.yml` NÃO executar (workflow manual existe, mas o caminho de
-  rede ao banco é decisão pendente do Operador — P013/`docs/b1-prod-guards.md` §3).
+  rede ao banco é decisão pendente do Operador — P013/`docs/06-devops-deployment/b1-prod-guards.md` §3).
 - `--prod` flags, force push, reset em `main`, deploy direto por CLI fora de incidente.
 - Merge de PR com check vermelho ou "Expected" pendente.
 

@@ -12,7 +12,7 @@
 | T094/T100 métricas LIVE | P014 | ✅ **DONE (main `9423369d`)** | secret+var; dry-run `36288089780`; LIVE `36288156632`; 0 issue |
 | T095 uptime independente | P015 | ✅ **DONE** | `uptime-check.yml` schedule */10 + dry_run default true; self-test **16/16** |
 | T096 política de automação | P016 | ✅ **DONE** | `automation-safety.self-test.mjs` ("política íntegra") wired no `ci.yml`; ambos workflows só `workflow_dispatch` |
-| T097 ADR LGPD/cifragem | P017 | ✅ **DONE** | D-542 + `docs/lgpd-column-encryption-plan.md` + `schema-sensitive-columns.spec.ts` |
+| T097 ADR LGPD/cifragem | P017 | ✅ **DONE** | D-542 + `docs/05-security-compliance/lgpd-column-encryption-plan.md` + `schema-sensitive-columns.spec.ts` |
 | T098 evidência de acesso | P010 | ✅ **DONE** | `.claude/reports/access-evidence-2026-09-27.md` |
 | T099 higiene de PRs | legadas | ✅ **DONE** | #133/#4/#3/#2 fechadas sem merge (branches preservadas) |
 

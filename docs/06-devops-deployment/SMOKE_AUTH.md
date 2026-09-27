@@ -40,7 +40,7 @@ remover/branquear o workflow — sem impacto em produção.
 
 - Não executa **mutações** (read-only após login); `PUT`/`POST` de interações fica fora do escopo.
 - A validação de campos internos depende de haver **ao menos um item** (sem itens → `internas_ausentes=true`).
-- **Não** substitui o E2E de jornada (`docs/E2E.md`) nem o uptime/alertas.
+- **Não** substitui o E2E de jornada (`docs/06-devops-deployment/E2E.md`) nem o uptime/alertas.
 
 ## Padrão seguro de credenciais em CI (T085)
 

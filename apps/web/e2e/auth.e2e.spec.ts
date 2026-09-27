@@ -8,7 +8,7 @@ import { test, expect } from "@playwright/test";
  *
  * Gate: com E2E_FULL=1 (ambiente full-stack, API em :4000) os testes rodam
  * contra URLs relativas do `baseURL`. Sem a variável, pulados com a
- * dispensa documentada em docs/E2E.md.
+ * dispensa documentada em docs/06-devops-deployment/E2E.md.
  */
 const E2E_FULL = process.env.E2E_FULL === "1";
 
@@ -58,7 +58,7 @@ async function logoutViaUI(page) {
 }
 
 test.describe("A1 Auth E2E (T054)", () => {
-  test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md");
+  test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md");
 
   test("register → login automatico → dashboard", async ({ page }) => {
     const email = `e2e-reg-${Date.now()}@test.com`;

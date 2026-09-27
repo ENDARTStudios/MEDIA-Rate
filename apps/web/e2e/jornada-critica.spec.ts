@@ -7,7 +7,7 @@ import { apiAuthMeStatus, dismissConsentIfPresent } from "./helpers/auth";
  * Cobre: descoberta pública (home/catálogo/detalhe), salvaguarda (watchlist
  * Kanban), biblioteca autenticada (deep link status/tipo + filtro + vazio/sem
  * 500) e dashboard (métricas + i18n + sem erro). Requer API+DB (`E2E_FULL=1`,
- * T461) — ver `docs/E2E.md`. NÃO altera produto: só testes.
+ * T461) — ver `docs/06-devops-deployment/E2E.md`. NÃO altera produto: só testes.
  *
  * Fixtures: usuários provisionados (`*@mediarate.test`) e títulos reais do
  * catálogo; nenhum dado de produção é mutado além de interações da própria
@@ -44,7 +44,7 @@ async function semChaveCrua(page: Page): Promise<void> {
 
 test.describe("T060 — jornada crítica", () => {
   test.beforeEach(async ({ page }) => {
-    test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md");
+    test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md");
     // T074: NÃO limpar cookies — a sessão vem do storageState (globalSetup).
     await dismissConsentIfPresent(page);
   });

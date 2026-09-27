@@ -1,7 +1,7 @@
 # TESTING — Estratégia de testes
 
-Aprofundamentos: [E2E](../E2E.md) (Playwright) · `docs/LOAD_TESTING.md` (carga) ·
-mutação e DAST no CI (`docs/CI.md`).
+Aprofundamentos: [E2E](../E2E.md) (Playwright) · `docs/06-devops-deployment/LOAD_TESTING.md` (carga) ·
+mutação e DAST no CI (`docs/06-devops-deployment/CI.md`).
 
 ## Suítes e comandos
 

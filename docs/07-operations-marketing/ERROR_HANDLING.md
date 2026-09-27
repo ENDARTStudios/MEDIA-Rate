@@ -42,7 +42,7 @@
    `tenant_id`, dado de outro usuário.
 4. Erro novo de domínio? Swagger `@Api*Response` correspondente + teste.
 5. 500 observado em produção: reproduzir com curl exato (sem credenciais no log!),
-   triar em `docs/SECURITY_TRIAGE.md` se for classe de segurança.
+   triar em `docs/05-security-compliance/SECURITY_TRIAGE.md` se for classe de segurança.
 
 ## Comportamentos conhecidos (não são bugs)
 

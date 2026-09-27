@@ -49,7 +49,7 @@ navegar primeiro. Isso economiza tokens e reduz acertos às cegas.
 - **CI/merges (D-457/T459):** nenhum merge em `main` sem CI verde; **push direto
   com bypass é proibido** (exceção só em resposta a incidente, registrada em
   `DECISOES.md`). PRs só-de-docs são gateados pelo job leve `docs-gate`
-  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/CI.md`.
+  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/06-devops-deployment/CI.md`.
 - **Fidelidade de mocks do Prisma (D-447):** mocks devem refletir os tipos reais
   do driver (`bigint` → `BigInt`, `bytea` → `Buffer`, etc.); todo endpoint novo
   exige teste que serializa a resposta (`JSON.stringify`) — é o que pega 500
