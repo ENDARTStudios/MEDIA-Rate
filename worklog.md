@@ -2991,3 +2991,6 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - .gitignore +20 linhas (PR #296, merge a288f8a2); check-ignore 10/10. NAO ignorado docs/lighthouse-reports/ inteiro (17 arquivos versionados legitimos). Itens especulativos inexistentes nao adicionados.
 - Silenciamento local via .git/info/exclude (nao versionado): git status --short -> 0 entradas. Sem troca de branch na arvore compartilhada.
 - Beta GO tecnico mantido; sem alteracao de produto/schema/segredo/infra.
+## [2026-09-27] T105-beta-rollout-runbook (DONE; docs-only)
+- Criado docs/BETA_ROLLOUT_RUNBOOK.md (operacional): pre-requisitos verificaveis, coorte/canal [OPERADOR], ritual 2h/dia1/dia2-3/dia7, gatilhos de pause/rollback (revert do merge commit; nunca reset --hard), triagem de feedback, template de convite, riscos residuais e registro Go/No-Go.
+- Backlog tecnico T092-T104 encerrado; Beta GO tecnico mantido; proxima fase = operacao de lancamento.
