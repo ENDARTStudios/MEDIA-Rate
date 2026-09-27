@@ -2438,3 +2438,14 @@ compensatórios (conclusão da T048/D-542 confirmada como decisão).
 4. Nenhuma migration aplicada neste passo.
 
 **Evidência:** spec 2/2 verde contra o schema real (allowlist gerada ao vivo).
+
+### D-558 - Projeto 2 (reorganizacao de docs) encerrado + licoes permanentes (2026-09-28)
+**Decisao:** `docs/` reestruturado em 8 pilares + README + stubs/ponteiros por design, em 5 fases faseadas
+(#307, #308, #310, #311, #314; `main` = `73c8a4e2`). 71 movimentos (`git mv`), 225 referencias reescritas byte-safe,
+6 diretorios realocados em bloco, 6 fusoes com nota de origem + stubs de 3 linhas.
+**Guarda permanente:** `scripts/ci/linkcheck.mjs` (offline; self-test 11/11) no job `docs-gate` - ja corrigiu 41 links herdados.
+**Licoes (registradas em `docs/STYLE_GUIDE.md`):** (L1) hygiene direcionada `eslint --fix` + `prettier --check` nos
+arquivos alterados antes do push (print-width, #311); (L2) step de CI que le arquivos do repo deve vir depois do
+`actions/checkout` e a ORDEM dos steps deve ser conferida (nao so a sintaxe) - logs via `gh api .../jobs/<id>/logs`
+quando `gh run view --log` voltar vazio (#314).
+**Beta:** status inalterado (GO tecnico estrutural; convites suspensos pelo programa BETA-GAP - 1/18).
