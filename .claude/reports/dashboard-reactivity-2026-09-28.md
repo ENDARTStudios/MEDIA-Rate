@@ -67,3 +67,24 @@ dashboard.service.ts(34,41): error TS2353: 'deleted_at' does not exist in type '
 3. **Metricas derivadas** (`evolucao`, `streak`) usam `atualizado_em` de interacoes em status nao-ativos (o codigo ja restringe `evolucao` a CONCLUIDO/CONSUMINDO, mas `total`/`streak` nao).
 
 **Proximo passo (sem chute):** primeiro **reproduzir** o fluxo real de "remover" (qual endpoint/acao a UI usa? `DELETE /interacoes/:id`? `status=ABANDONADO`?) e so entao escolher o fix — com o `where`/metrica corretos e evidenciados pelo tsc + teste.
+---
+
+## AMBIGUIDADE DE ESPECIFICACAO (2026-09-28) - fix A NAO aplicado por evidencia contraria
+
+**Condicao do Thinker cumprida:** "Se a documentacao canonica disser explicitamente que ABANDONADO deve permanecer em total/tipos/generos/streak como estado atual, nao aplicar o fix por chute."
+
+**Evidencia encontrada:**
+- `DECISOES.md:1912` — "**4 status de consumo (QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO) com contagens GLOBAIS**" (contexto de Biblioteca/watchlist).
+- `apps/web/src/messages/pt-BR.json` — "Suas escolhas organizadas por status - quero ver, assistindo, concluido e **abandonado**", `"tabAbandonados": "Abandonados"`, `"emptyAbandonados"` — **ABANDONADO e estado legitimo e visivel da Biblioteca**, nao "remocao".
+- `D-528` — CONCLUIDO -> ABANDONADO nao e permitido (maquina de estados).
+
+**Conclusao:** o relato do usuario ("removi tudo e a dashboard nao mudou") **nao tem fluxo de remocao implementado** (nao existe `@Delete`) e a semantica canonica trata ABANDONADO como estado proprio. Portanto, decidir "o que a dashboard deve considerar estado atual" e **decisao de PRODUTO**, nao correcao tecnica obvia.
+
+**Status:** `BETA-GAP-02 = BLOCKED` (`AMBIGUOUS_SPEC`) - patch local **revertido** (produto limpo, `tsc` 0); nada commitado.
+
+**PROPOSTA_DOER (para decisao do Thinker/Operador):**
+1. **A1 (agregacao):** dashboard exclui ABANDONADO de `total/tipos/generos/streak` (minha recomendacao tecnica) - mas **conflita** com a leitura literal de `DECISOES.md:1912` no que toca "contagens globais";
+2. **A2 (produto/UX):** a UI passa a oferecer **remocao real** (feature nova, opcao B rejeitada neste escopo) -> dashboard reage de fato;
+3. **A3 (copy/documentacao):** manter as contagens e **rotular** a dashboard (ex.: "inclui abandonados") - honesto, zero risco, mas nao "corrige" a expectativa do usuario.
+
+**Recomendacao:** A1 com ajuste explicito em `docs/04-api-contracts/API.md` (definir "estado atual" = status ativos) **se** o produto concordar que ABANDONADO nao e preferencia atual; caso contrario A3 + tarefa separada para A2.
