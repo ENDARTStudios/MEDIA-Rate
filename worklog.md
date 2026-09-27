@@ -2994,3 +2994,9 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 ## [2026-09-27] T105-beta-rollout-runbook (DONE; docs-only)
 - Criado docs/BETA_ROLLOUT_RUNBOOK.md (operacional): pre-requisitos verificaveis, coorte/canal [OPERADOR], ritual 2h/dia1/dia2-3/dia7, gatilhos de pause/rollback (revert do merge commit; nunca reset --hard), triagem de feedback, template de convite, riscos residuais e registro Go/No-Go.
 - Backlog tecnico T092-T104 encerrado; Beta GO tecnico mantido; proxima fase = operacao de lancamento.
+## [2026-09-27] T106 — BETA-GAP-09 DONE (PR #301, merge bc5f2a2c)
+- apps/web/src/lib/score-utils.ts: manga passa a 0-10 (era 0-100); nova funcao truncar1 (Math.floor(n*10+1e-9)/10) substitui Math.round -> exibicao SEM arredondamento; guarda Number.isFinite (sem NaN/Infinity).
+- apps/web/src/lib/dashboard-overview-data.ts: formatScoreValue trunca em 1 casa (nao arredonda).
+- apps/web/test/score-utils.spec.ts: casos de manga 0-10, truncamento (7.95->7.9; 6.42...->6.4; 89.99->89.9) e invalidos.
+- Evidencia: vitest 29/29 (2 arquivos); tsc --noEmit limpo; eslint --max-warnings=0 limpo; diff restrito a 3 arquivos web (sem backend/schema/auth/billing/segredo); PR #301 merged (merge commit); smoke 4/4 -> 200.
+- Programa BETA-GAP: 1/18 concluido. GO para convites segue SUSPENSO.
