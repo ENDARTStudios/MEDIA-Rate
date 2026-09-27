@@ -2977,3 +2977,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - secrets.ADMIN_TOKEN criado via stdin (sem eco) + vars.METRICS_URL configurada.
 - self-test 18/18; dry-run success (36288089780); LIVE success (36288156632); zero issue alerta-metrico.
 - Agendamentos de 15 min agora coletam ao vivo. Rollback: gh variable delete METRICS_URL.
+## [2026-09-27] T101-serialize-close-t095-t097 (DONE; PR docs-only)
+- T095/T096/T097 ja estavam em main: uptime-check (schedule */10, dry_run default true, self-test 16/16); automation-safety guard wired no ci.yml (politica integra); ADR D-542 + lgpd-column-encryption-plan + schema-sensitive-columns.spec.ts.
+- Guardas verdes: automation-safety OK; uptime 16/16; migration-safety 10/10; evidence-guard 19/19; metric-alerts 18/18.
+- Fechamento: T092/T093 seguem no PR #286 (BLOCKED) e sao o UNICO item residual para GO de Beta. Relatorio .claude/reports/technical-closure-final-2026-09-27.md.
