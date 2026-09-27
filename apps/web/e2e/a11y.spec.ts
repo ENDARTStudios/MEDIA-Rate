@@ -25,7 +25,10 @@ const PAGES = [
 ];
 
 test.describe("a11y AA", () => {
-  test.skip(!E2E_FULL, "T461: auditoria exige página real com API (E2E_FULL=1) — ver docs/06-devops-deployment/E2E.md");
+  test.skip(
+    !E2E_FULL,
+    "T461: auditoria exige página real com API (E2E_FULL=1) — ver docs/06-devops-deployment/E2E.md",
+  );
 
   for (const path of PAGES) {
     test(`a11y ${path} — 0 violações AA`, async ({ page }) => {

@@ -4,7 +4,10 @@ test("fluxo completo: register → login → catálogo → watchlist → logout"
   // T461 (D-492): fluxo completo exige API+DB; CI sobe só o web. Sem
   // E2E_FULL=1 o teste é pulado (dispensa em docs/06-devops-deployment/E2E.md). Nunca apontar
   // para produção (429 no edge para datacenter + usuários reais no banco).
-  test.skip(process.env.E2E_FULL !== "1", "Requer API+DB (E2E_FULL=1) — ver docs/06-devops-deployment/E2E.md");
+  test.skip(
+    process.env.E2E_FULL !== "1",
+    "Requer API+DB (E2E_FULL=1) — ver docs/06-devops-deployment/E2E.md",
+  );
   const email = `e2e-${Date.now()}@test.com`;
   const password = "TesteForte123!";
   const BASE_URL = process.env.BASE_URL || "";

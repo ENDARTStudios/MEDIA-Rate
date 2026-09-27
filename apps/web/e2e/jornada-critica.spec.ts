@@ -44,7 +44,10 @@ async function semChaveCrua(page: Page): Promise<void> {
 
 test.describe("T060 — jornada crítica", () => {
   test.beforeEach(async ({ page }) => {
-    test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md");
+    test.skip(
+      !E2E_FULL,
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md",
+    );
     // T074: NÃO limpar cookies — a sessão vem do storageState (globalSetup).
     await dismissConsentIfPresent(page);
   });

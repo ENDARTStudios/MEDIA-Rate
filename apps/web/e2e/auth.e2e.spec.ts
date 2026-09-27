@@ -58,7 +58,10 @@ async function logoutViaUI(page) {
 }
 
 test.describe("A1 Auth E2E (T054)", () => {
-  test.skip(!E2E_FULL, "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md");
+  test.skip(
+    !E2E_FULL,
+    "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md",
+  );
 
   test("register → login automatico → dashboard", async ({ page }) => {
     const email = `e2e-reg-${Date.now()}@test.com`;
