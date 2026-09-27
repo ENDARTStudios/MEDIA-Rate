@@ -2967,7 +2967,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - ADR D-557 em DECISOES.md (adiada tecnicamente; compensações mantidas); docs/lgpd-column-encryption-plan.md (blind index HMAC + AES-256-GCM, dual-write, backfill em lotes, rotação, rollback, testes obrigatórios).
 - Guarda: apps/api/test/schema-sensitive-columns.spec.ts congela allowlist gerada ao vivo (5 colunas); nova coluna sensível sem decisão falha o CI. 2/2 verde.
 
-## [2026-09-26] T098+T099 + closure (REPLAN concluído — branch auto/t098-t099-closure)
+## [2026-09-26] T098+T099 + closure (REPLAN concluído — branch auto/t098-t099-closure) [closure completo: .claude/reports/autonomous-technical-closure-2026-09-27.md — Beta GO técnico]
 - T098: evidência de acesso read-only completa (gh/vercel/railway/DNS/smoke 4×200) — .claude/reports/access-evidence-2026-09-27.md. ADMIN_TOKEN ausente nos repo secrets = única lacuna (D-556 fallback).
 - T099: revalidação confirmou #2/#3/#4/#133 já CLOSED por ator do protocolo; #139/#140 (LGPD) mantidas conscientemente. Backlog de legadas limpo.
 - Fila técnica T092-T099: TODAS executadas/fechadas. Beta = GO técnico (evidência no closure).
