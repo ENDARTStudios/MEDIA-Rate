@@ -134,4 +134,12 @@ dashboard.service.ts(34,41): error TS2353: 'deleted_at' does not exist in type '
 
 **7) 123ce28e:** `git merge-base --is-ancestor 123ce28e HEAD` → exit 1 (ausente).
 
-**8) PR/merge/smoke:** preenchido na secao de registro/worklog apos o merge.
+**8) PR/merge/smoke (evidencia de fechamento):**
+
+- Branch: `feat/t118-beta-gap-02-dashboard-reactivity`; commit da correcao: `adee0e37`.
+- PR: **#325** (`OPEN` -> `MERGED`), base `main`; merge commit **`d7b661f8`** (merge commit, sem squash/force).
+- Checks **required** (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation (T290/T299/T301), Docs Gate, Migration Safety (B1) — todos **pass**.
+  - CI run 36351185889; `Test & Coverage` job 108710083039 executou `test/dashboard-reactivity.spec.ts` (5 tests, verde); Docs Gate job 108710053657; Migration Safety job 108710053783.
+- `Vercel`: **fail nao-required** por *Deployment rate limited — retry in 24 hours* -> **benigno** (nao e required; nao indica falha de build do produto).
+- Smoke pos-merge 7/7 -> **200** (`/health`, `/pt-BR`, `/en-US`, `/es-ES`, `/pt-BR/catalog`, `/pt-BR/pricing`, `/pt-BR/login`) em 2026-09-27T21:24Z.
+- `BETA-GAP-02` = **DONE**. `BETA-GAP-14` permanece **BLOCKED** (PR #324 OPEN, nao mergeado).
