@@ -2962,3 +2962,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - T094 (D-556): PARCIAL — live exige vars.METRICS_URL+secrets.ADMIN_TOKEN (ADMIN_TOKEN não existe no repo; criar secret = hard-stop mantido). Fallback: Sentry (5xx reais) + Uptime Check (disponibilidade) cobrem os sinais críticos; /metrics+logs-errors.mjs continuam para métricas profundas.
 - T095: uptime sintético ATIVO (cron 10min APPLY/live, retry transitório, dedup issue uptime; dispatch dry por default T078). Residual aceito: plano GitHub, retry=1. OBSERVABILITY 9.5.4 atualizado.
 - T096: automation-safety.self-test.mjs (guarda YAML anti-regressão: reprova push feature/** em create-pr-from-branch, push em release, exige dry default true no uptime e fonte live condicionada no alertas) integrado ao docs-gate. Verde no repo real; reprova fixture de regressão.
+
+## [2026-09-26] T097 (REPLAN) — D-557: cifragem adiada com guarda + plano pós-Beta (branch auto/t097-lgpd-adr-guard)
+- ADR D-557 em DECISOES.md (adiada tecnicamente; compensações mantidas); docs/lgpd-column-encryption-plan.md (blind index HMAC + AES-256-GCM, dual-write, backfill em lotes, rotação, rollback, testes obrigatórios).
+- Guarda: apps/api/test/schema-sensitive-columns.spec.ts congela allowlist gerada ao vivo (5 colunas); nova coluna sensível sem decisão falha o CI. 2/2 verde.
