@@ -96,7 +96,22 @@ Alertas calculados a partir das métricas existentes — sem segundo pipeline:
   status. Nenhum serviço externo pago (PagerDuty/Opsgenie) sem aprovação
   do Operador.
 
-### UptimeRobot free (9.5.4) — guia para o Operador
+### Uptime — 9.5.4 RESOLVIDO com substituto técnico (T095, D-556; 2026-09-26)
+
+**Estado atual: monitor sintético interno ATIVO em produção.** O `uptime-check.yml`
+(cron 10 min) roda em modo **APPLY/live**: probe dos endpoints públicos com retry
+transitório interno, dedup de issue (cria na 1ª falha real, atualiza em falha
+contínua, fecha na recuperação) — issues etiquetadas `uptime`. Dispatch manual é
+DRY por default (T078 — guardado pelo self-test). O guia UptimeRobot abaixo permanece
+como opção de diversificação externa (não é mais bloqueador).
+
+**Residual aceito tecnicamente (D-556):** o monitor vive no plano de controle do
+GitHub Actions (mesmo provedor que o repo — se o GitHub cair, o monitor cai junto);
+retry interno = 1 (vs 2-3 falhas consecutivas do padrão de mercado) — o dedup de
+issue já elimina spam de blips, e subir o threshold atrasaria detecção real.
+Revisar na Fase Beta pública.
+
+### UptimeRobot free (guia opcional de diversificação externa)
 
 A criação da conta é **ação do Operador** (serviço externo). Passo a passo:
 

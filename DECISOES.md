@@ -2389,3 +2389,30 @@ O REPLAN converte a pendência em guardas: drift neutralizado e mudanças destru
 3. Nenhuma migration é aplicada manualmente; migrate-production.yml permanece não executado.
 
 **Evidência:** self-test 6/6; --eval e2e nos 2 caminhos (com plano → liberado; sem plano → bloqueado).
+
+## D-556 — T094/T095/T096: observabilidade mínima viva e política de automações guardada
+
+**Data:** 2026-09-26 · **Fase:** REPLAN (backlog técnico) · **Status:** DECIDIDO
+
+**Contexto:** REPLAN converteu P014/P015/P016 em decisões técnicas.
+
+**Decisão:**
+1. **T094 (alertas métricos LIVE) = PARCIAL com fallback técnico ativo.** A fonte live
+   do `alertas-metricos.yml` exige `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` — o
+   ADMIN_TOKEN NÃO existe como secret do repo e CRIAR secret é hard-stop mantido da
+   política de segredos (nenhum valor de produção é lido/copiado pelo agente). Fallback
+   cobrindo os mesmos sinais críticos: **Sentry** captura 5xx reais (issues automáticas)
+   e o **Uptime Check sintético** cobre disponibilidade (item 2). Métricas profundas
+   (5xx-rate por rota, p95) continuam consultáveis em `/metrics` (RBAC) e
+   `scripts/logs-errors.mjs`. Provisionamento da credencial read-only dedicada fica
+   registrado como tarefa técnica de infra pendente de credencial externa.
+2. **T095 (uptime) = ATIVO como substituto técnico do UptimeRobot.** `uptime-check.yml`
+   (cron 10min) roda APPLY/live com retry transitório + dedup de issue (`uptime`) —
+   ver OBSERVABILITY §9.5.4. Residual: monitor no plano GitHub (mesmo provedor) e
+   retry=1 — aceitos com justificativa.
+3. **T096 = guardas anti-regressão de automações** (`automation-safety.self-test.mjs`,
+   integrado ao docs-gate): reprova `push:` em create-pr-from-branch (T047/D-541) e
+   em release (D-541), exige dry default true no dispatch do uptime (T078) e fonte
+   live condicionada no alertas-metricos.
+
+**Evidência:** guard verde no repo real e reprova fixture de regressão; workflows YAML válidos.
