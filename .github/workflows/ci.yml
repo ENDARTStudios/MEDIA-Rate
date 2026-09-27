@@ -628,6 +628,13 @@ jobs:
           npx playwright test e2e/jornada-critica.spec.ts \
             --project=chromium --project=mobile-chrome \
             --workers=1 --retries=0 --repeat-each=3
+      # T109/BETA-GAP-13: medição de layout (spec separado; NÃO entra no 48/48).
+      - name: Medição de layout (BETA-GAP-13/14)
+        working-directory: apps/web
+        run: |
+          npx playwright test e2e/layout-plans-library.spec.ts \
+            --project=chromium --project=mobile-chrome \
+            --workers=1 --retries=0
       - name: Upload Playwright report (E2E FULL)
         if: always()
         uses: actions/upload-artifact@v4
