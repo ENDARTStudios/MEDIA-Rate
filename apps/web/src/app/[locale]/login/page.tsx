@@ -67,12 +67,6 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           </p>
 
           <SocialButtons />
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-surface-border/30" />
-            <span className="text-xs text-[#6B7280]">{t("or")}</span>
-            <div className="flex-1 h-px bg-surface-border/30" />
-          </div>
-
           <LoginForm />
         </div>
       </div>

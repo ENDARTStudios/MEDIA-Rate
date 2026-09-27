@@ -34,7 +34,7 @@ falha de integração **nunca** derruba o caminho core se puder degradar.
 |---|---|---|---|
 | **Stripe** | checkout, assinaturas, trials, webhooks (HMAC + `Idempotency-Key` + `stripe_event_id` UNIQUE) | `STRIPE_*` | webhook inválido → 400 e evento descartado com log (sem replay duplo) |
 | **Resend** | e-mails transacionais (verificação de e-mail — obrigatória no login — e reset de senha) | `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_PROVIDER` | e-mail falha → registro criado, verificação pendente (usuário reenvia) |
-| **Google OAuth** | login social (`google/callback`, `credential` verificada server-side; e-mail marcado verificado) | `GOOGLE_CLIENT_ID/SECRET`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | falha de verificação → 401 |
+| **Google OAuth** | login social (`POST /auth/google/callback`; `credential` = ID token validado server-side via JWKS — `iss`/`aud`/`exp` + **`email_verified=true` obrigatório**; conta criada/vinculada só por e-mail verificado) | `GOOGLE_CLIENT_ID/SECRET`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | verificação falha → **401**; sem `NEXT_PUBLIC_GOOGLE_CLIENT_ID` o botão Google é **oculto** (fallback honesto por e-mail/senha) |
 | **PostHog** | analytics + feature flags (ver [ANALYTICS](../07-operations-marketing/ANALYTICS.md)) | `NEXT_PUBLIC_ANALYTICS_WRITE_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` | SDK inerte sem consentimento/env — nunca quebra UI |
 | **Sentry** | erros + tracing (release=sha, sourcemaps — D-503/D-505) | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN/ORG/PROJECT` (CI) | no-op sem DSN |
 | **Cloudflare R2** | assets (`storage.port.ts`; magic bytes; chave content-addressed `media/{tipo}/{id}/{sha256}.{ext}`; `UnconfiguredStorage` fail-closed 503 em produção sem env) | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_PUBLIC_BASE_URL` | produção sem env → 503 `STORAGE_UNAVAILABLE` (nunca InMemory em prod) |
@@ -42,6 +42,27 @@ falha de integração **nunca** derruba o caminho core se puder degradar.
 | **Redis** (opcional) | cache 30-60s | `REDIS_URL` | sem Redis → CacheService degrada (miss eterno) |
 | **Loki** (opcional) | stream de logs batched | `LOKI_URL` | falha de envio silenciosa |
 | **UptimeRobot** | uptime externo 5min (ação do Operador — 9.5.4) | — (conta externa) | — |
+
+## Google login — habilitar, fallback e política (BETA-GAP-01 / T120)
+
+- **Habilitar:** definir `GOOGLE_CLIENT_ID` (+`SECRET`) na API e
+  `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no web (build-time). O web carrega o Google
+  Identity Services e envia o `credential` para `POST /api/v1/auth/google/callback`.
+- **Fallback honesto:** sem `NEXT_PUBLIC_GOOGLE_CLIENT_ID` o componente
+  `SocialButtons` **não renderiza** o botão nem o divisor "ou" — nunca um botão
+  que não faz nada. E-mail/senha permanece funcional.
+- **Validação server-side:** assinatura RS256 via JWKS do Google + `iss`
+  (`accounts.google.com`) + `aud` (`GOOGLE_CLIENT_ID`) + `exp` +
+  **`email_verified === true`**. Token sem e-mail verificado → **401**.
+- **Política de vínculo:** a conta é criada/recuperada pelo e-mail verificado do
+  provider (novo usuário → `FREE`+`USER`). Não há auto-link inseguro nem
+  autopromoção (papel continua por RBAC).
+
+**Como verificar:**
+
+1. `cd apps/api && NODE_ENV=test npx vitest run test/google-auth.spec.ts`
+   (sem `GOOGLE_CLIENT_ID` → 401; token inválido → 401; `email_verified` ausente/falso → 401).
+2. Sem `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no build, abrir `/pt-BR/login` → sem botão Google.
 
 ## Adicionar integração nova (checklist)
 

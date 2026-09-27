@@ -60,6 +60,18 @@ Fluxo real: não existe `DELETE /interacoes`; a UI "remove" mudando o status par
 cd apps/api && NODE_ENV=test npx vitest run test/admin-rbac.spec.ts test/rbac.spec.ts test/auth-guard.spec.ts
 ```
 
+## Login Google (BETA-GAP-01 / T120)
+
+`apps/api/test/google-auth.spec.ts` cobre a verificação do ID token do Google
+(`jose` mockado): sem `GOOGLE_CLIENT_ID` → 401; token inválido → 401; sem e-mail
+→ 401; **`email_verified` ausente/falso/não-booleano → 401**; e-mail verificado
+→ perfil. O fallback honesto (ocultar o botão sem
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID`) é do web (`SocialButtons`).
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/google-auth.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

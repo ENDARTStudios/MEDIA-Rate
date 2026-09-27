@@ -25,7 +25,9 @@ docs/, scripts/, .github/workflows/
 - NestJS + Fastify com **logger único** nestjs-pino (`AppLoggerModule`; D-531: NUNCA
   dois loggers de request). Redaction de authorization/cookie/x-csrf-token.
 - **Auth**: tokens opacos SHA-256 em cookies httpOnly (`sess`, `csrf_token`, `refresh`);
-  argon2id; verificação de e-mail real (Resend); lockout progressivo; Google OAuth.
+  argon2id; verificação de e-mail real (Resend); lockout progressivo; Google OAuth
+  (ID token verificado server-side via JWKS — `iss`/`aud`/`exp` + `email_verified`;
+  sem `NEXT_PUBLIC_GOOGLE_CLIENT_ID` o botão é ocultado — fallback honesto).
 - **RLS owner-only** no Postgres via `comContextoRls` (set_config por transação).
 - **AuditLog** append-only com cadeia SHA-256 (`verificarIntegridade()`).
 - **RBAC** (`@Roles` + `RolesGuard` global): papel (`papel`/`usuario_papel`) é
