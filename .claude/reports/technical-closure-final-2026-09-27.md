@@ -30,3 +30,34 @@
 **Beta GO:** **NÃO** neste instante — falta **um** item integrável: merge de **#286** (T092/T093).
 Condição de GO: `#286` mergeado com required checks verdes + smoke 7/7. **Nenhum item depende de autorização humana** —
 a fila é 100% técnica. **Beta não declarada pronta.**
+
+---
+
+# T102 — Integração final (#286) e efeito do reconciliador
+
+**PR #286:** já **MERGED** (merge commit; `feat/t092-t093...`); checks verdes (Build, CodeQL, Docs Gate, E2E Full 3x, Lint & Audit, Migration Safety, RLS, Semgrep, Stryker).
+
+**Self-tests (executados neste ciclo):** `deploy-reconciler.mjs --self-test` → **8/8 ok**; `migration-destructive-guard.mjs --self-test` → **6/6 ok**.
+
+**Workflow `deploy-reconciler.yml`:** `workflow_dispatch` + `schedule */30`; permissões mínimas (`actions: write`, `contents: read`, `deployments: write`); concurrency não-cancelável.
+
+**Primeiro ciclo (dispatch `36289081333`, success, 23s) — efeito real medido:**
+- fila `waiting` ANTES: 6 runs (merges #286, #287, #290, #292, #293, #294)
+- fila DEPOIS: **5 runs superseded → `completed` (canceladas)**; apenas a do head atual (#294) permanece `waiting`
+- Limitação documentada do próprio workflow: `GITHUB_TOKEN` pode não aprovar environment com required reviewer → o step de aprovação emite WARN sanitizado; a aprovação condicionada do run do head fica a cargo de CLI admin (mesmo algoritmo).
+
+**Smoke passivo:** 7/7 → **200** (health, pt-BR, en-US, es-ES, catalog, pricing, login).
+
+## Veredito T102
+| Gate exigido | Status |
+|---|---|
+| merge do #286 verde | ✅ |
+| self-tests 8/8 e 6/6 | ✅ |
+| CI/Security em main | ✅ |
+| reconciliador ativo sem erro (1º ciclo) | ✅ (success; cancelou 5 superseded) |
+| guarda de migration ativa | ✅ |
+| smoke 7/7 | ✅ |
+
+**STATUS FINAL: BETA_GO_TECNICO_CONFIRMADO** — condição binária satisfeita (todos os gates técnicos verdes).
+**Ressalva honesta:** o run `waiting` do head atual depende de aprovação de reviewer (limitação de `GITHUB_TOKEN`),
+portanto o gate Promoção-para-Produção não é 100% autônomo; o deploy nativo (Railway/Vercel) já ocorre por push.
