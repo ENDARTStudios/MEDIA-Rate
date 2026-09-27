@@ -166,6 +166,22 @@ jobs:
             --labels-file /tmp/pr-labels.json \
             --body-file /tmp/pr-body.md
 
+      # T093 (REPLAN): política expand/contract — SQL destrutivo em migration exige
+      # seção '## Expand/Contract' com plano backward-compatible (fail-closed).
+      - name: Self-test do destructive guard (T093)
+        run: node scripts/ci/migration-destructive-guard.mjs --self-test
+      - name: Avalia destructive guard
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          git diff --name-only "$base" "$head" | grep -E "^apps/api/prisma/migrations/.*\.sql$" > /tmp/pr-sql.txt || true
+          if [ ! -s /tmp/pr-sql.txt ]; then
+            echo "sem migrations alteradas — destructive guard não se aplica"
+            exit 0
+          fi
+          node scripts/ci/migration-destructive-guard.mjs \
+            --eval --files-file /tmp/pr-sql.txt --body-file /tmp/pr-body.md
+
   # T234/T299: spec de isolamento RLS com postgres de service (migrate deploy em DB virgem).
   security-rls:
     name: RLS Isolation (T290/T299/T301)
@@ -408,9 +424,22 @@ jobs:
             ' BRANCH="$BRANCH")
           fi
           FINAL="${url_real:-$construida}"
+          # T092-ciclo (D-530 aprimorado): PR sem preview web (api-only) não tem
+          # superfície para o ZAP — probe DNS/HTTP antes de escanear; sem preview
+          # o scan é PULADO com aviso (antes: DNS "Name or service not known" → docker exit 3).
+          if curl -sSI --max-time 15 "$FINAL" -o /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
           echo "url=$FINAL" >> "$GITHUB_OUTPUT"
           echo "preview resolvido: $FINAL"
+      - name: Pula ZAP (sem preview web no PR)
+        if: steps.preview.outputs.exists != 'true'
+        run: |
+          echo "::notice::ZAP Baseline pulado — nenhum preview Vercel acessível para esta branch (PR sem mudanças de web). O DAST roda quando há preview."
       - name: ZAP Baseline Scan
+        if: steps.preview.outputs.exists == 'true'
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: ${{ steps.preview.outputs.url }}

@@ -2952,3 +2952,8 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - AUTO-MERGE #279 (fix T087: remove promessa perpetua gratis-para-sempre da hero; 17/17 SUCCESS, CLEAN, estavel 21h) -> merge commit d9228db; CI/Security verdes; smoke especifico: claim 0 ocorrencias na home pt-BR. Precedencia registrada: instrucao direta do Operador (prompt autonomo 9.1) > recomendacao read-only do relatorio T091.
 - AUTO-MERGE #284 (docs-only T091: triagem legada; 8/8 SUCCESS, CLEAN, estavel >1h) -> merge commit 3758fb1. 6 PRs legadas restantes: nenhuma mutacao (read-only, aguarda Operador).
 - Relatorio: .claude/reports/autonomous-inventory-2026-09-26.md. Beta: NO-GO condicional (P010, P012-P017 pendentes). Fila executavel pelo Doer: esgotada neste ciclo (restam hard-stops).
+
+## [2026-09-26] T092+T093 (REPLAN) — reconciliador de deploy + guarda expand/contract (branch auto/t092-t093-deploy-migration-guards)
+- T092/D-554: scripts/ci/deploy-reconciler.mjs (pura, self-test 8/8) + workflow deploy-reconciler.yml (schedule 30min). Operacional executado ao vivo via CLI: run f2ff0dd APROVADO condicionado (CI+Security success, smoke 200) e 3 superseded CANCELADOS — fila Production zerada. Limitação GITHUB_TOKEN-approval registrada com WARN+fallback.
+- T093/D-555: scripts/ci/migration-destructive-guard.mjs (pura, self-test 6/6, --eval e2e nos 2 caminhos) integrado ao job Migration Safety (B1) — SQL destrutivo exige secao Expand/Contract (fail-closed). Drift: evidencia continua = RLS job required aplica migrations em DB virgem.
+- Reclassificacao REPLAN: BACKLOG_TECNICO_THINKER_DOER.md criado; P010/P012-P017 marcados CONVERTIDA em PENDENCIAS_OPERADOR.md (historico preservado). DECISOES D-554/D-555.
