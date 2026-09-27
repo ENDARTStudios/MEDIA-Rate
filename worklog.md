@@ -2986,3 +2986,8 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Self-tests: deploy-reconciler 8/8; migration-destructive-guard 6/6.
 - 1o ciclo do reconciler (dispatch 36289081333, success 23s): fila waiting 6 -> 1; 5 runs superseded CANCELADAS automaticamente; run do head (#294) segue waiting (limitacao GITHUB_TOKEN p/ environment com reviewer; aprovacao condicionada via CLI admin).
 - Smoke 7/7 -> 200. STATUS FINAL: BETA_GO_TECNICO_CONFIRMADO (todos os gates tecnicos verdes).
+## [2026-09-27] T103+T104-gitignore-strays-cleanup (DONE)
+- Diagnostico: 14 entradas de status, TODAS untracked (0 staged/modified) - seguro.
+- .gitignore +20 linhas (PR #296, merge a288f8a2); check-ignore 10/10. NAO ignorado docs/lighthouse-reports/ inteiro (17 arquivos versionados legitimos). Itens especulativos inexistentes nao adicionados.
+- Silenciamento local via .git/info/exclude (nao versionado): git status --short -> 0 entradas. Sem troca de branch na arvore compartilhada.
+- Beta GO tecnico mantido; sem alteracao de produto/schema/segredo/infra.
