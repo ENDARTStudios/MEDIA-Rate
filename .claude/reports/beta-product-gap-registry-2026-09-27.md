@@ -7,7 +7,7 @@
 | ID | Status | PR | Commit | Evidência sanitizada | Data |
 |---|---|---:|---|---|---|
 | BETA-GAP-01 | PENDENTE | — | — | — | — |
-| BETA-GAP-02 | DONE | #T118 | (a preencher no merge) | Causa real: `STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE`. Não há `DELETE /interacoes`; UI "remove" via `ABANDONADO` (D-528 reclassificável). Fix: `CURRENT_STATE_STATUSES` em `dashboard.service.ts` exclui ABANDONADO de `total/tipos/generos/streak`; `porStatus` da Biblioteca preservado. TDD vermelho→verde `apps/api/test/dashboard-reactivity.spec.ts` (8 testes da suíte); tsc api/web 0; eslint/prettier 0; cache auditado (dashboard force-dynamic + fetch client no mount). | 2026-09-28 |
+| BETA-GAP-02 | DONE | #325 | d7b661f8 | Fix commit `adee0e37`. Causa real: `STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE`. Não há `DELETE /interacoes`; UI "remove" via `ABANDONADO` (D-528 reclassificável). `CURRENT_STATE_STATUSES` (enum real) exclui ABANDONADO de `total/tipos/generos/streak`; `porStatus` preservado. TDD `apps/api/test/dashboard-reactivity.spec.ts` vermelho->verde (5 tests no CI, job 108710083039/run 36351185889). tsc api/web 0; eslint/prettier 0; cache auditado (dashboard force-dynamic + fetch client no mount). Required checks verdes; Vercel rate-limit benigno (não-required). Smoke 7/7 -> 200. | 2026-09-28 |
 | BETA-GAP-03 | PENDENTE | — | — | — | — |
 | BETA-GAP-04 | PENDENTE | — | — | — | — |
 | BETA-GAP-05 | PENDENTE | — | — | — | — |
