@@ -642,6 +642,7 @@ jobs:
             --workers=1 --retries=0 --repeat-each=3
       # T109/BETA-GAP-13: medição de layout (spec separado; NÃO entra no 48/48).
       - name: Medição de layout (BETA-GAP-13/14)
+        if: always()
         working-directory: apps/web
         run: |
           npx playwright test e2e/layout-plans-library.spec.ts \
