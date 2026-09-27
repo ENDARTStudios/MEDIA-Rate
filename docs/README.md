@@ -74,3 +74,40 @@ b1-prod-guards.md · runbooks/ · api/ · legal/ · auditoria/
 
 Documento sem instrução executável é dívida. Toda doc desta suíte deve dizer
 **como fazer**, não apenas o que é. Ao mudar comportamento, mude a doc no MESMO PR.
+
+---
+
+## Arquitetura de documentação (T110 — reorganização faseada)
+
+Estrutura-alvo de 8 pilares (`docs/01-…` a `docs/08-…`). **Fase 1 (esta):** as pastas e os
+esqueletos dos documentos que ainda não existiam foram criados. **Nada foi movido ainda** —
+os documentos atuais continuam nos caminhos antigos, então **nenhum link quebra**.
+
+| Pilar | Conteúdo |
+|---|---|
+| `01-product-discovery/` | DEFINE_THE_USER · PRD · ROADMAP · **LEGAL_TERMS** · **PRICING_MONETIZATION** |
+| `02-architecture-design/` | ARCHITECTURE · ADR · CHOOSE_TECH_STACK · DESIGN · STYLE_GUIDE · **DATA_MODEL** · **GREEN_COMPUTING** · **UML** |
+| `03-development-process/` | DEVELOPMENT · SETUP · RULES · TASKS · TASK_BREAKING_DOWN · TESTING |
+| `04-api-integrations/` | API · CONTENT · **INTEGRATIONS** |
+| `05-security-compliance/` | COMPLIANCE · INCIDENT_RESPONSE · SECURITY_REVIEW · **IAM_IGA · MFA · NAC · RBAC · RLS · THREAT_MODELING · VULNERABILITY_DISCLOSURE · ZTNA** |
+| `06-devops-deployment/` | BACKUP_DR · CODE_REVIEW · PREVIEW_DEPLOYMENT · PRODUCTION_DEPLOY · QA_TESTING · **CI_CD_PIPELINE** · **FINOPS** |
+| `07-operations-marketing/` | ACCESSIBILITY · AEO · AIO · ANALYTICS · ERROR_HANDLING · GEO · MONITORING · PERFORMANCE · SEO |
+| `08-knowledge-management/` | CHANGELOG · MEMORY · ONBOARDING · RESEARCH · **CODE_OF_CONDUCT · CONTRIBUTING · DEPRECATION_POLICY · ITERATION** |
+
+**Negrito** = criado nesta fase (esqueleto). Os demais já existem em `docs/` (raiz) e serão
+movidos nas fases seguintes, com atualização de todas as referências no mesmo PR.
+
+### Fases
+- **Fase 1 (feita):** pastas + esqueletos + este índice. Zero quebra de link.
+- **Fase 2:** `git mv` dos documentos existentes para os pilares + atualização das referências
+  (`AGENTS.md`, `DECISOES.md`, `PLANO_MESTRE.md`, `PENDENCIAS_OPERADOR.md`, `.github/workflows/*`,
+  `apps/web/*.ts`, `e2e/*`).
+- **Fase 3:** fusão das duplicatas (conteúdo preservado, com nota de origem): `SECURITY.md`↔`docs/SECURITY.md`,
+  `SEO_AEO_AIO_GEO.md`↔`SEO/AEO/AIO/GEO.md`, `MONITORING.md`↔`OBSERVABILITY.md`,
+  `PRODUCTION_DEPLOY`+`BOAS_PRATICAS_DEPLOY`+`RUNBOOK_PRODUCAO`+`DEPLOY_CLOUDFLARE`,
+  `COMPLIANCE`+`conformidade-v13`+`legal/`, `PADROES_DESENVOLVIMENTO`+`DEVELOPMENT`+`STYLE_GUIDE`.
+- **Fase 4:** realocação temática dos ~35 docs restantes (ex.: `CI.md`→`06/`, `OBSERVABILITY.md`→`07/`,
+  `LGPD_DADOS.md`→`05/`, `RUNBOOK_*`→`06/`), preservando `legal/`, `runbooks/`, `screenshots/`,
+  `lighthouse-reports/`.
+
+> **Regra de ouro:** nenhum conteúdo é alterado ou perdido em movimentos/fusões.
