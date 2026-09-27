@@ -2994,3 +2994,9 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 ## [2026-09-27] T105-beta-rollout-runbook (DONE; docs-only)
 - Criado docs/06-devops-deployment/BETA_ROLLOUT_RUNBOOK.md (operacional): pre-requisitos verificaveis, coorte/canal [OPERADOR], ritual 2h/dia1/dia2-3/dia7, gatilhos de pause/rollback (revert do merge commit; nunca reset --hard), triagem de feedback, template de convite, riscos residuais e registro Go/No-Go.
 - Backlog tecnico T092-T104 encerrado; Beta GO tecnico mantido; proxima fase = operacao de lancamento.
+## [2026-09-28] T110-T115 - BETA-GAP-13: medicao real + fix por construcao
+- Spec robustecido: waitForFunction (bbox nao nulo de 3 cards e 3 CTAs), emulateMedia reducedMotion, scrollIntoViewIfNeeded, document.fonts.ready, rAF duplo; erro com indice/seletor.
+- Causa raiz REAL obtida do log normalizado do step: LAYOUT_REAL_MISMATCH - "y do CTA 1 difere do 0 (660 vs 683)" => 23px (tolerancia <=1px). Jornada critica passou 48/48.
+- Fix por construcao em PricingCards.tsx: avisos/rodapes movidos para ANTES do CTA e CTA como ULTIMO elemento do card (y = base do card - padding - altura => identico nos 3).
+- Lição: em job com continue-on-error, workflow success NAO prova step success - a evidencia e a conclusion do STEP.
+- Nota: durante o rebase do T110 o worklog foi truncado por uma resolucao de conflito ruim; restaurado byte-exato de origin/main nesta correcao (nada perdido).
