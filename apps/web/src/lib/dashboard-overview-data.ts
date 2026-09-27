@@ -195,7 +195,8 @@ export function completionPct(total: number, concluidos: number): number | null 
 /** "8.8/10" ou "93/100", com vírgula decimal pt-BR como no protótipo. */
 export function formatScoreValue(score: number, max: number): string {
   if (max === 100) return `${score}/100`;
-  return `${score.toFixed(1).replace(".", ",")}/10`;
+  const truncado = Math.floor(score * 10 + 1e-9) / 10;
+  return `${truncado.toFixed(1).replace(".", ",")}/10`;
 }
 
 /** Períodos do seletor do hero (protótipo: 30 dias / 90 dias / 12 meses). */
