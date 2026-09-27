@@ -8,7 +8,7 @@
 |---|---|---:|---|---|---|
 | BETA-GAP-01 | PENDENTE | — | — | — | — |
 | BETA-GAP-02 | DONE | #325 | d7b661f8 | Fix commit `adee0e37`. Causa real: `STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE`. Não há `DELETE /interacoes`; UI "remove" via `ABANDONADO` (D-528 reclassificável). `CURRENT_STATE_STATUSES` (enum real) exclui ABANDONADO de `total/tipos/generos/streak`; `porStatus` preservado. TDD `apps/api/test/dashboard-reactivity.spec.ts` vermelho->verde (5 tests no CI, job 108710083039/run 36351185889). tsc api/web 0; eslint/prettier 0; cache auditado (dashboard force-dynamic + fetch client no mount). Required checks verdes; Vercel rate-limit benigno (não-required). Smoke 7/7 -> 200. | 2026-09-28 |
-| BETA-GAP-03 | PENDENTE | — | — | — | — |
+| BETA-GAP-03 | DONE | #327 | 0ef87378 | Fix commit `58c9f047`. RBAC já existia (`@Roles`+`RolesGuard` global; `Papel`/`UsuarioPapel`); opção menos destrutiva reutilizada (sem schema). `admin-rbac.spec.ts` (guards reais): FREE+ADMIN=200; PREMIUM sem ADMIN=403; comum=403; @RequirePlan=402; registro não autopromove. UI `/admin` real (sem mock). CLI interna `db:set-role` (anti-lockout, log sanitizado). Fixture `admin-free@mediarate.test`. CI run 36352593309/job 108714010810 (6 tests). tsc/eslint/prettier 0. Required verdes; Vercel rate-limit não-required benigno (web deploy pode atrasar; RBAC é backend). Smoke 7/7 -> 200. | 2026-09-28 |
 | BETA-GAP-04 | PENDENTE | — | — | — | — |
 | BETA-GAP-05 | PENDENTE | — | — | — | — |
 | BETA-GAP-06 | PENDENTE | — | — | — | — |

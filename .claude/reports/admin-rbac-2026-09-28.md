@@ -51,8 +51,10 @@
 
 ## 6. PR / merge / smoke
 
-_(preenchido após merge)_
-- Commit da correção: `(a preencher)`
-- PR: `(a preencher)` · merge commit: `(a preencher)`
-- Required checks: `(a preencher)` · `123ce28e` ancestry: `(a preencher)`
-- Smoke 7/7: `(a preencher)`
+- Commit da correção: `58c9f047` (branch `feat/t119-beta-gap-03-admin-rbac`, base `00503e6d`).
+- PR: **#327** `OPEN → MERGED`; merge commit **`0ef87378`** (merge commit, sem squash/force).
+- Checks **required** (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety (B1) — todos **pass**. CI run `36352593309`; `Test & Coverage` job `108714010810` executou `test/admin-rbac.spec.ts` (6 tests) — API 958/958, web 426/426.
+- `Vercel`: **fail não-required** por rate limit (retry 24h) → benigno. **Observação:** o deploy web de produção que inclui a UI `/admin` pode ficar pendente até o Vercel liberar o limite; o **controle de segurança é backend** (RBAC via `RolesGuard`), que sobe no Railway independente — logo não há exposição.
+- `123ce28e`: `git merge-base --is-ancestor` → exit **1** (ausente).
+- Smoke pós-merge 7/7 → **200** (`/health`, `/pt-BR`, `/en-US`, `/es-ES`, `/pt-BR/catalog`, `/pt-BR/pricing`, `/pt-BR/login`).
+- **BETA-GAP-03 = DONE** (código/docs/testes merged; promoção em produção é operação interna via `db:set-role`, documentada).
