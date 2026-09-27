@@ -68,12 +68,6 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
           </p>
 
           <SocialButtons />
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-surface-border/30" />
-            <span className="text-xs text-[#6B7280]">{t("or")}</span>
-            <div className="flex-1 h-px bg-surface-border/30" />
-          </div>
-
           <RegisterForm />
         </div>
       </div>
