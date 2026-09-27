@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { StatusConsumo } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 
@@ -17,6 +18,19 @@ export interface UserStats {
 }
 
 const HIST_BUCKETS = ["0-2", "2-4", "4-6", "6-8", "8-10"];
+
+/**
+ * BETA-GAP-02 (T118) — status que representam o ESTADO ATUAL de consumo.
+ * `ABANDONADO` é um estado válido e reclassificável (D-528), usado pela UI
+ * como "remover" do estado atual; por isso NÃO entra em `total`/`tipos`/
+ * `generos`/`streak` (métricas de estado atual). Ele PERMANECE em `porStatus`/
+ * Biblioteca (histórico reclassificável), calculado em interacoes.service.
+ */
+const CURRENT_STATE_STATUSES: StatusConsumo[] = [
+  StatusConsumo.QUERO_CONSUMIR,
+  StatusConsumo.CONSUMINDO,
+  StatusConsumo.CONCLUIDO,
+];
 
 /**
  * T295/T396 — agregados do dashboard pessoal, server-side, sob RLS owner-only.
@@ -49,7 +63,11 @@ export class DashboardService {
       const generos: Record<string, number> = {};
       const hist: number[] = [0, 0, 0, 0, 0];
       let concluidos = 0;
-      for (const i of interacoes) {
+      // Métricas de estado atual ignoram status inativos (ABANDONADO).
+      const interacoesEstadoAtual = interacoes.filter((i) =>
+        CURRENT_STATE_STATUSES.includes(i.status),
+      );
+      for (const i of interacoesEstadoAtual) {
         const tipo = i.midia?.tipo;
         if (tipo) tipos[tipo] = (tipos[tipo] ?? 0) + 1;
         if (i.status === "CONCLUIDO") concluidos += 1;
@@ -83,7 +101,7 @@ export class DashboardService {
 
       // Streak: dias consecutivos com atividade, terminando hoje.
       const diasAtivos = new Set<string>();
-      for (const i of interacoes) {
+      for (const i of interacoesEstadoAtual) {
         const d = i.atualizado_em ?? new Date();
         diasAtivos.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
       }
@@ -104,7 +122,7 @@ export class DashboardService {
       return {
         plano: planoEfetivo,
         upgrade: false,
-        total: interacoes.length,
+        total: interacoesEstadoAtual.length,
         concluidos,
         tipos: ehPlus ? tipos : {},
         generos: ehPlus ? generos : {},

@@ -1,0 +1,45 @@
+# Registro — Programa BETA-GAP-2026-09-27
+
+> Estado inicial: **ABERTO / 0 de 18 concluídas.**
+> Regra: nenhum item vira `DONE` sem evidência real (commit, PR, teste, run, smoke ou relatório sanitizado).
+> Atualizado por: Doer · Base: `origin/main` (sincronizar antes de cada ciclo).
+
+| ID | Status | PR | Commit | Evidência sanitizada | Data |
+|---|---|---:|---|---|---|
+| BETA-GAP-01 | PENDENTE | — | — | — | — |
+| BETA-GAP-02 | DONE | #T118 | (a preencher no merge) | Causa real: `STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE`. Não há `DELETE /interacoes`; UI "remove" via `ABANDONADO` (D-528 reclassificável). Fix: `CURRENT_STATE_STATUSES` em `dashboard.service.ts` exclui ABANDONADO de `total/tipos/generos/streak`; `porStatus` da Biblioteca preservado. TDD vermelho→verde `apps/api/test/dashboard-reactivity.spec.ts` (8 testes da suíte); tsc api/web 0; eslint/prettier 0; cache auditado (dashboard force-dynamic + fetch client no mount). | 2026-09-28 |
+| BETA-GAP-03 | PENDENTE | — | — | — | — |
+| BETA-GAP-04 | PENDENTE | — | — | — | — |
+| BETA-GAP-05 | PENDENTE | — | — | — | — |
+| BETA-GAP-06 | PENDENTE | — | — | — | — |
+| BETA-GAP-07 | PENDENTE | — | — | — | — |
+| BETA-GAP-08 | PENDENTE | — | — | — | — |
+| BETA-GAP-09 | DONE | #301 | bc5f2a2c | manga->0-10; truncar1 (sem arredondar); formatScoreValue trunca; vitest 29/29; tsc/eslint limpos; smoke 4/4 200 | 2026-09-27 |
+| BETA-GAP-10 | PENDENTE | — | — | — | — |
+| BETA-GAP-11 | PENDENTE | — | — | — | — |
+| BETA-GAP-12 | PENDENTE | — | — | — | — |
+| BETA-GAP-13 | DONE | #303 | 565750be | run 36340154322 / job 108678561019 / step 15 success; y/altura CTAs e altura cards <=1px (3 locales) + mobile CTA>=40px; causa raiz era 23px; fix: CTA ultimo elemento | 2026-09-28 |
+| BETA-GAP-14 | BLOCKED | #324 | 638895b7 | PR #324 OPEN, `mergeStateStatus=UNSTABLE` (não mergeável neste ciclo). Baseline da Biblioteca (spec autenticado) ainda pendente — rota/seletor autenticados a descobrir. Follow-up próprio (T117). | 2026-09-28 |
+| BETA-GAP-15 | PENDENTE | — | — | — | — |
+| BETA-GAP-16 | PENDENTE | — | — | — | — |
+| BETA-GAP-17 | PENDENTE | — | — | — | — |
+| BETA-GAP-18 | PENDENTE | — | — | — | — |
+
+## Diagnóstico (inventário read-only)
+
+_(preenchido conforme os ciclos avançam; sem PII/segredo)_
+
+### Ciclo 2026-09-27 (Doer) — diagnóstico
+
+**BETA-GAP-09 (score) — DIAGNÓSTICO CONFIRMADO (bug real, 2 causas):**
+- `apps/web/src/lib/score-utils.ts:14` — `normalizeDisplayScore` trata **manga como 0–100** (`mediaType !== "game" && mediaType !== "manga"`), contrariando o requisito (manga = 0–10).
+- `apps/web/src/lib/score-utils.ts:10` — usa `Math.round(n*10)/10` → **arredonda** (7,95 → 8,0), requisito pede sem arredondamento.
+- Também `apps/web/src/lib/dashboard-overview-data.ts:196` (`formatScoreValue`) usa `toFixed(1)` (arredonda) e rotula fixo `/10`.
+- Teste existente `apps/web/test/score-utils.spec.ts:18` **fixa** o comportamento errado do manga → precisa ser corrigido junto.
+- Proposta: manga entra em 0–10; trocar `Math.round` por **truncamento** (`Math.floor(n*10+1e-9)/10`); atualizar spec com casos de manga + não-arredondamento.
+- **Implementação NÃO aplicada neste ciclo** (sem PR/commit). Nada foi alterado no repo.
+
+**Fricção de tooling registrada:** rodar `vitest` em worktree isolado exige `node_modules` (junction quebrou o `git status`); usar `npx vitest --root <worktree>/apps/web` com junction **ou** clonar node_modules é o caminho; alternativa = deixar o CI executar o spec.
+
+**Demais 17 itens:** PENDENTE (sem diagnóstico iniciado).
+**Status do programa:** ABERTO — 0/18 concluídos. GO para convites permanece **suspenso**.

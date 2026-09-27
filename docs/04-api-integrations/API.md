@@ -38,6 +38,28 @@ Em produção o Swagger fica **desligado**.
 | `/api/v1/consent` · LGPD | — | consentimento granular, export/exclusão do titular |
 | `/api/v1/payment/*` | — | Stripe checkout (Idempotency-Key) + webhook |
 
+## Estado atual vs. histórico (BETA-GAP-02 / T118)
+
+- `GET /api/v1/user/stats` (dashboard) expõe **métricas de estado atual**:
+  `total`, `tipos`, `generos` e `streak` consideram apenas os status
+  `QUERO_CONSUMIR`, `CONSUMINDO` e `CONCLUIDO`. `ABANDONADO` **não** entra
+  nessas métricas (é estado reclassificável — D-528; a UI o usa como
+  "remover do estado atual"). `concluidos`, `evolucao` e `histograma` mantêm a
+  semântica anterior.
+- `GET /api/v1/interacoes` (`porStatus` / Biblioteca) **preserva** `ABANDONADO`
+  como histórico reclassificável — não sofre o filtro do dashboard.
+
+**Como verificar (sem credencial real — usar fixture/usuário de teste):**
+
+1. autenticar um usuário de teste;
+2. criar/atualizar uma interação para `ABANDONADO`
+   (`PUT /api/v1/interacoes/:midiaId` com `{"status":"ABANDONADO"}`);
+3. `GET /api/v1/user/stats` → afirmar que `total`, `tipos`, `generos` e `streak`
+   **excluem** o item abandonado;
+4. `GET /api/v1/interacoes` → afirmar que `porStatus.ABANDONADO` **continua**
+   contando o item (visível/reclassificável na Biblioteca);
+5. regressão automatizada: `apps/api/test/dashboard-reactivity.spec.ts`.
+
 ## Validação e erros
 
 - Query/body: `ZodValidationPipe` → 400 com detalhe.
