@@ -39,7 +39,7 @@ async function semear(page: Page): Promise<number> {
   for (const id of ids) {
     for (const campo of ["midiaId", "midia_id"]) {
       const res = await page.request
-        .put(`${API}/api/v1/interacoes`, {
+        .put(`${appOrigin}/api/v1/interacoes`, {
           headers: {
             "Content-Type": "application/json",
             ...(csrf ? { "X-CSRF-Token": csrf } : {}),
