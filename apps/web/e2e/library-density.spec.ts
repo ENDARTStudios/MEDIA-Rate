@@ -28,9 +28,12 @@ function extrairIds(json: unknown): string[] {
 }
 
 async function semear(page: Page): Promise<number> {
-  const cookies = await page.context().cookies(API);
+  // Seed na ORIGEM DO APP (proxy same-origin): a sessao e o csrf_token vivem aqui.
+  await page.goto("/pt-BR/catalog", { waitUntil: "domcontentloaded" });
+  const appOrigin = new URL(page.url()).origin;
+  const cookies = await page.context().cookies(appOrigin);
   const csrf = cookies.find((c) => c.name === "csrf_token")?.value;
-  const midias = await page.request.get(`${API}/api/v1/midias?limit=10`, {
+  const midias = await page.request.get(`${appOrigin}/api/v1/midias?limit=10`, {
     headers: { Accept: "application/json" },
   });
   if (!midias.ok()) return 0;
