@@ -42,14 +42,12 @@
 
 1. Descoberta — §1. 2. Google não quebrado/falso — §2.2. 3. E-mail/senha intacto — sem mudança no fluxo. 4. UI honesta — §2.2. 5. Testes/docs — §4 e §3. 6. Merge seguro — §6.
 
-## 6. PR / merge / smoke (preenchido após merge)
+## 6. PR / merge / smoke
 
-- Commit da correção: `(a preencher)`
-- PR: `(a preencher)` · merge commit: `(a preencher)`
-- Required checks: `(a preencher)` · `123ce28e` ancestry: `(a preencher)`
-- Smoke 7/7: `(a preencher)`
-
-## Nota de status
-
-Google funcional/seguro em produção (provider configurado + validação endurecida);
-fallback honesto onde não configurado. **Caso 2** ⇒ **BETA-GAP-01 = DONE**.
+- Commit da correção: `5de0201c` (branch `feat/t120-beta-gap-01-google-login-or-fallback`, base `26741a1e`).
+- PR: **#330** `OPEN → MERGED`; merge commit **`a8e56420`** (merge commit, sem squash/force).
+- Checks **required** (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety (B1) — todos **pass**. CI run `36353609357`; `Test & Coverage` job `108716910941` (API **960**/960, web 426/426 — +2 testes `google-auth`).
+- `Vercel`: **fail não-required** por rate limit (retry 24h) → benigno.
+- `123ce28e`: `git merge-base --is-ancestor` → exit **1** (ausente).
+- Smoke pós-merge 7/7 → **200**.
+- **BETA-GAP-01 = DONE** (Caso 2: provider habilitado e endurecido em produção; fallback honesto onde não configurado).
