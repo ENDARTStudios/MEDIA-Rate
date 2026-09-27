@@ -10,9 +10,9 @@
 |---|---|---|---:|---|
 | **T092-deploy-auto-promotion-guard** | P012 | Eliminar fila `waiting` com reconciliador: aprovação condicionada (head==main + CI/Security + smoke 4/4) e cancelamento de superseded | médio | **EXECUTADA** — D-554; script + workflow; ao vivo: 1 aprovação + 3 cancelamentos |
 | **T093-migration-drift-autopilot** | P013 | Drift neutralizado (RLS job required aplica migrations em DB virgem) + guarda expand/contract para SQL destrutivo | alto | **EXECUTADA** — D-555; self-test 6/6; integrada ao job Migration Safety |
-| **T094-metrics-alert-live** | P014 | Alertas métricos LIVE com fonte segura (canário → live) | médio | EM ANDAMENTO |
-| **T095-uptime-independent-monitoring** | P015 | Monitor sintético robusto (threshold + dedup + multi-endpoint); residual documentado | médio | EM ANDAMENTO |
-| **T096-automation-safety-policy** | P016 | Default seguro para create-pr-from-branch/release + guarda YAML | baixo | EM ANDAMENTO |
+| **T094-metrics-alert-live** | P014 | PARCIAL (D-556): live exige credencial read-only (hard-stop de segredos); fallback Sentry+uptime cobre sinais críticos | médio | **PARCIAL — fallback ativo** |
+| **T095-uptime-independent-monitoring** | P015 | Monitor sintético ATIVO (cron 10min live, retry+dedup); residual aceito (D-556) | médio | **EXECUTADA — ativo** |
+| **T096-automation-safety-policy** | P016 | Default seguro verificado + guarda anti-regressão no docs-gate | baixo | **EXECUTADA** |
 | **T097-lgpd-encryption-adr-guard** | P017 | ADR (cifragem adiada pós-Beta com compensações) + guarda anti-regressão + plano blind index | médio | EM ANDAMENTO |
 | **T098-access-evidence-automation** | P010 | Prova read-only de acesso (gh/vercel/railway/DNS) + fallbacks | baixo | EM ANDAMENTO |
 | **T099-legacy-pr-hygiene** | Legadas | Fechar PRs claramente obsoletas com evidência; conservador | baixo | EM ANDAMENTO |

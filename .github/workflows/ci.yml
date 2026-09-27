@@ -129,6 +129,10 @@ jobs:
           done < /tmp/changed.txt
           [ "$fail" = "0" ] || exit 1
           echo "docs-gate: markdown OK."
+      # T096 (REPLAN): guarda de política de automações (leve, sempre roda —
+      # reprova regressões de trigger em create-pr-from-branch/release/uptime/alertas).
+      - name: Automation safety guard (T096)
+        run: node scripts/ci/automation-safety.self-test.mjs
 
   # T031/B1 (#148 item 7): guarda FAIL-CLOSED para mudanças de banco. O
   # entrypoint do Railway aplica `prisma migrate deploy` no boot de TODO
