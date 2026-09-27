@@ -48,6 +48,18 @@ Fluxo real: não existe `DELETE /interacoes`; a UI "remove" mudando o status par
 (`apps/web/src/app/[locale]/dashboard/layout.tsx`) e o `DashboardClient` refaz
 `GET /api/v1/user/stats` no mount — não há cache ISR/estado stale a esperar.
 
+## Autorização / RBAC (BETA-GAP-03 / T119)
+
+`apps/api/test/admin-rbac.spec.ts` sobe guards **reais** (`RolesGuard` +
+`PlanGuard`) e prova: `FREE`+`ADMIN` → 200; `PREMIUM` sem `ADMIN` → 403; comum
+→ 403; `@RequirePlan` → 402 (eixo separado); registro público não autopromove
+(Zod descarta `role`/`papeis`). O 401 de anônimo é coberto por
+`auth-guard.spec.ts`; o RBAC do guard por `rbac.spec.ts`.
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/admin-rbac.spec.ts test/rbac.spec.ts test/auth-guard.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

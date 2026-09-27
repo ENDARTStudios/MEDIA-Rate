@@ -28,6 +28,10 @@ docs/, scripts/, .github/workflows/
   argon2id; verificação de e-mail real (Resend); lockout progressivo; Google OAuth.
 - **RLS owner-only** no Postgres via `comContextoRls` (set_config por transação).
 - **AuditLog** append-only com cadeia SHA-256 (`verificarIntegridade()`).
+- **RBAC** (`@Roles` + `RolesGuard` global): papel (`papel`/`usuario_papel`) é
+  **independente de plano** (`PlanGuard` é eixo separado; 403 vs 402). Sem
+  endpoint público de autopromoção — atribuição por CLI interna (`db:set-role`).
+  Detalhes/verificação: `docs/05-security-compliance/RBAC.md`.
 - **Máquina de estados de consumo**: `common/estados-consumo.ts` fonte única
   (D-528/D-529) — API, UI e E2E rejeitam CONCLUIDO → ABANDONADO.
 - **Estado atual vs. histórico (BETA-GAP-02/T118)**: a dashboard

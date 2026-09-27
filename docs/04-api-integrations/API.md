@@ -60,6 +60,24 @@ Em produção o Swagger fica **desligado**.
    contando o item (visível/reclassificável na Biblioteca);
 5. regressão automatizada: `apps/api/test/dashboard-reactivity.spec.ts`.
 
+## RBAC / Admin (BETA-GAP-03 / T119)
+
+- Acesso admin é por **papel** (`@Roles('ADMIN')` + `RolesGuard` global), **não**
+  por plano: `FREE` com papel `ADMIN` acessa; `PREMIUM` sem papel recebe **403**;
+  anônimo recebe **401** (AuthGuard). Plano é eixo separado (`PlanGuard` → 402).
+- Endpoints admin: `GET /api/v1/admin/stats`, `GET /api/v1/admin/diagnostics`
+  (somente leitura; contagens agregadas, sem PII).
+- **Sem endpoint público de autopromoção**: papéis são atribuídos por CLI interna
+  (`npm run db:set-role` em `apps/api`) — ver
+  `docs/05-security-compliance/RBAC.md` e
+  `docs/06-devops-deployment/runbooks/admin-role.md`.
+
+**Como verificar:**
+
+1. `cd apps/api && NODE_ENV=test npx vitest run test/admin-rbac.spec.ts`;
+2. sessão de usuário comum → `GET /api/v1/admin/stats` = **403**;
+3. sessão `FREE`+`ADMIN` → **200**; sessão `PREMIUM` sem `ADMIN` → **403**.
+
 ## Validação e erros
 
 - Query/body: `ZodValidationPipe` → 400 com detalhe.

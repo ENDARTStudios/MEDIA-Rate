@@ -31,6 +31,7 @@
     "db:seed:localizacao-mapa-manga": "node --import @swc-node/register/esm-register prisma/seed-localizacao-mapa-manga.ts",
     "db:seed:temporadas": "node --import @swc-node/register/esm-register prisma/seed-temporadas.ts",
     "db:provision:test-users": "node --import @swc-node/register/esm-register prisma/provision-test-users.ts",
+    "db:set-role": "node --import @swc-node/register/esm-register prisma/set-role.ts",
     "db:reparo:watchlist": "node --import @swc-node/register/esm-register prisma/seed-reparo-watchlist.ts",
     "db:reparo:status-coluna": "node --import @swc-node/register/esm-register prisma/seed-reparo-status-coluna.ts",
     "db:reparo:orfaos": "node --import @swc-node/register/esm-register prisma/seed-reparo-orfaos.ts",
