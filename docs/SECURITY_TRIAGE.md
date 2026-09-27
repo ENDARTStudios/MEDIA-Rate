@@ -156,7 +156,7 @@ offset 0 → `integro`; `+2 ms` e `−3 s` → `integro: false`. Relatório em
 `.claude/reports/audit-integrity-drift-2026-09-24.md`.
 
 **Impacto:** sem chamador em runtime (`grep` em `apps/api/src` = 0); usado em
-docs/runbook de DR (`docs/BACKUP_DR.md`) → risco de **falso alarme** na DR.
+docs/runbook de DR (`docs/06-devops-deployment/BACKUP_DR.md`) → risco de **falso alarme** na DR.
 
 **Recomendação:** gravar `created_at` explicitamente no `log()` (mesmo `new Date()`
 do hash) — sem migration/backfill/histórico — em PR de código dedicado. Nada

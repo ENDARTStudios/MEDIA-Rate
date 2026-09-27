@@ -2,7 +2,7 @@
 
 Documentação de segurança operacional do MEDIA Rate: varredura contínua
 (DAST), interpretação de relatórios e SLA de resposta. Alinhada com
-`docs/INCIDENT_RESPONSE.md` (níveis P1–P4).
+`docs/05-security-compliance/INCIDENT_RESPONSE.md` (níveis P1–P4).
 
 ## DAST — OWASP ZAP (T219, 8.6)
 
@@ -46,7 +46,7 @@ Documentação de segurança operacional do MEDIA Rate: varredura contínua
 | **P4 — Baixo** (cosmético) | Info leakage sem impacto | sem SLA | próxima janela |
 
 Todo achado **confirmado** High/Critical deve gerar um incidente no fluxo de
-`docs/INCIDENT_RESPONSE.md` (P1/P2) e um PR de correção referenciando a
+`docs/05-security-compliance/INCIDENT_RESPONSE.md` (P1/P2) e um PR de correção referenciando a
 issue do DAST.
 
 ### Execução manual local

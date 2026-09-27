@@ -47,7 +47,7 @@ Digest executável. Fontes primárias: `AGENTS.md` (raiz), `DECISOES.md`,
 ## Operação
 
 15. **`main` é produção** (D-527). Confirmar produção após merge de mudança visível
-    (smoke padrão: `docs/QA_TESTING.md`).
+    (smoke padrão: `docs/06-devops-deployment/QA_TESTING.md`).
 16. **NUNCA** executar `migrate-production.yml` sem o caminho de rede decidido
     (P013); migrations em produção são do entrypoint do Railway no boot.
 17. **Rollback** = `git revert` do merge commit. Force push/reset em `main`: proibido.

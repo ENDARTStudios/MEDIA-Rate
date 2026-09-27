@@ -25,7 +25,7 @@ audit, env vars). Aqui: o mapa de "onde olhar o quê".
 
 ## Incidentes
 
-Runbook: `docs/INCIDENT_RESPONSE.md` (inclui resposta LGPD). Canal: alerta →
+Runbook: `docs/05-security-compliance/INCIDENT_RESPONSE.md` (inclui resposta LGPD). Canal: alerta →
 triagem (log/Sentry/alerta) → mitigação (rollback por revert se código) →
 post-mortem em `worklog.md` (+ DECISOES se mudar regra/processo).
 

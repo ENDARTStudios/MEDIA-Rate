@@ -45,5 +45,5 @@ Demanda (Operador/review/issue)
 - [ ] Testes novos quando o gap é de comportamento (TDD vermelho→verde)
 - [ ] Docs atualizadas no mesmo PR (suíte `docs/` + PLANO/worklog)
 - [ ] Evidência de produção quando muda comportamento visível (smoke padrão:
-      `docs/QA_TESTING.md`)
+      `docs/06-devops-deployment/QA_TESTING.md`)
 - [ ] Sem segredos em log/commit/evidência

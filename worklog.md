@@ -2349,7 +2349,7 @@ F08 - DAST contínuo em produção/staging (gap 8.6):
   (CSP/timestamps/X-Frame apenas para localhost dev — nao para prod).
 - docs/SECURITY.md (novo): frequencia/canais do DAST, como interpretar o
   relatorio, como marcar false positive, SLA P1-P4 (triagem/mitigacao)
-  alinhado a docs/INCIDENT_RESPONSE.md, execucao manual.
+  alinhado a docs/05-security-compliance/INCIDENT_RESPONSE.md, execucao manual.
 - Verificacao: YAML validado (js-yaml: jobs zap-baseline-weekly, cron ok);
   bash -n exit 0. PLANO_MESTRE 8.6 [x].
 - Sem TDD (requires_tdd false) — infraestrutura de CI + docs.
@@ -2791,7 +2791,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-24] T057-audit-integrity-drift-diagnosis (docs/test-only; PR aberto, SEM merge)
 - Causa raiz (leitura): log() hasheia com new Date().toISOString() (relogio do app) mas verificarIntegridade() recalcula com created_at (@default(now()) do banco) -> qualquer divergencia (clock skew + latencia) = falso-positivo.
 - Reproducao deterministica: novo test/audit-integrity-drift.spec.ts (mock, timers congelados): offset 0 -> integro; +2ms e -3s -> integro:false; alterar dados_depois nao afeta (confirma T055). 4/4.
-- Chamadores: verificarIntegridade() NAO tem chamador em runtime (grep src=0); apenas docs/runbook DR (docs/BACKUP_DR.md) e testes. Risco runtime baixo; risco de procedimento medio (falso alarme na DR).
+- Chamadores: verificarIntegridade() NAO tem chamador em runtime (grep src=0); apenas docs/runbook DR (docs/06-devops-deployment/BACKUP_DR.md) e testes. Risco runtime baixo; risco de procedimento medio (falso alarme na DR).
 - Limitacao: Docker indisponivel no runner (daemon off) -> repro via mock; confirmacao com Postgres local pendente. Relatorio .claude/reports/audit-integrity-drift-2026-09-24.md. Recomendacao: gravar created_at explicito no log() (Opcao B), sem migration/historico, em PR dedicado. Nada implementado. D-546.
 
 ## [2026-09-24] T058-audit-integrity-fix (TDD; PR aberto, SEM merge)
