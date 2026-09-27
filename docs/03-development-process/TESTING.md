@@ -31,6 +31,23 @@ mutação e DAST no CI (`docs/06-devops-deployment/CI.md`).
 6. **Pipe no parâmetro**, não no método (`@Body(new ZodValidationPipe(schema))`).
 7. Suíte verde local ANTES do push (CI demora ~5-10 min para te dizer o mesmo).
 
+## Regressão de reatividade da dashboard (BETA-GAP-02 / T118)
+
+`apps/api/test/dashboard-reactivity.spec.ts` prova, com mocks fiéis ao service
+real, que `ABANDONADO` **não** entra nas métricas de estado atual da dashboard
+(`total`, `tipos`, `generos`, `streak`) e que a reclassificação
+`ABANDONADO → CONSUMINDO` volta a contar (filtro, não exclusão). Prova também
+que `porStatus` da Biblioteca **preserva** `ABANDONADO`.
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/dashboard-reactivity.spec.ts
+```
+
+Fluxo real: não existe `DELETE /interacoes`; a UI "remove" mudando o status para
+`ABANDONADO` (D-528 permite reclassificar). A dashboard é `force-dynamic`
+(`apps/web/src/app/[locale]/dashboard/layout.tsx`) e o `DashboardClient` refaz
+`GET /api/v1/user/stats` no mount — não há cache ISR/estado stale a esperar.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

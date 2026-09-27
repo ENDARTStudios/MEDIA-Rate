@@ -3000,3 +3000,17 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Fix por construcao em PricingCards.tsx: avisos/rodapes movidos para ANTES do CTA e CTA como ULTIMO elemento do card (y = base do card - padding - altura => identico nos 3).
 - Lição: em job com continue-on-error, workflow success NAO prova step success - a evidencia e a conclusion do STEP.
 - Nota: durante o rebase do T110 o worklog foi truncado por uma resolucao de conflito ruim; restaurado byte-exato de origin/main nesta correcao (nada perdido).
+## [2026-09-28] T116 — BETA-GAP-13 DONE (PR #303 merged)
+- Evidencia autoritativa do STEP: run 36340154322 / job 108678561019 / step 15 "Medicao de layout (BETA-GAP-13/14)" = completed/success (head 565750be). Jornada critica 48 passed.
+- Causa raiz historica: LAYOUT_REAL_MISMATCH 23px (y do CTA 660 vs 683). Fix por construcao: CTA ultimo elemento do card (rodapes antes) em PricingCards.tsx.
+- Ancestry: 123ce28e NAO e ancestral do head (sem contaminacao). Merge do #303 com merge commit; smoke 7/7 -> 200.
+- Relatorio .claude/reports/layout-baseline-2026-09-28.md. BETA-GAP-14 PENDENTE (T117): bloco de baseline removido do spec (waitForSelector timeout); rota/seletor autenticados da Biblioteca a descobrir.
+- Licao reforcada: em job com continue-on-error, a evidencia e a conclusion do STEP, nao do workflow.
+
+## [2026-09-28] T118 — BETA-GAP-02 DONE (estado atual da dashboard exclui ABANDONADO)
+- Diagnostico final (com evidencia): NAO existe `DELETE /interacoes` (controller so tem GET/GET:id/PUT); a UI "remove" setando `ABANDONADO` (reclassificavel — maquina de estados D-528; D-527 e deploy, nao a maquina). A dashboard contava `total`/`tipos`/`generos`/`streak` sobre TODAS as interacoes, incluindo ABANDONADO => "removi tudo e a dashboard nao mudou". Classificacao: STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE. Hipoteses `deleted_at` (commit df521664) refutadas por `tsc` e revertidas em 6fe2ce7c; semantica confirmada contra DECISOES.md (D-525: contagens GLOBAIS sao das ABAS da Biblioteca/porStatus, nao da dashboard) => opcao (A) aprovada; opcao (B) DELETE rejeitada por escopo.
+- TDD: apps/api/test/dashboard-reactivity.spec.ts — vermelho 3 falhas (total 0 vs 2; 3 vs 4; reclassif 1 vs 0) -> verde 8/8 (com dashboard.spec). Casos: todos ABANDONADO; mix (streak ignora atualizado_em de ABANDONADO); somente CONCLUIDO; reclassificacao ABANDONADO->CONSUMINDO volta a contar; porStatus preserva ABANDONADO.
+- Fix minimo: `CURRENT_STATE_STATUSES` (enum real StatusConsumo) em dashboard.service.ts; `interacoesEstadoAtual` usada em total/tipos/generos/streak; concluidos/evolucao/histograma preservados; porStatus/Biblioteca intocado; sem DELETE/schema/migration/auth/billing.
+- Auditoria de cache: dashboard/layout.tsx = `force-dynamic` + `revalidate=0` (T412/D-390); DashboardClient faz GET /user/stats no mount (client); sem React Query/SWR/Zustand persist para stats; sem cache autenticado sem escopo por usuario => sem SECURITY_FINDING; frontend NAO alterado.
+- Hygiene: eslint --fix + prettier --check (2 arqs api) = 0; tsc api = 0; tsc web = 0. Docs: docs/04-api-integrations/API.md, docs/03-development-process/TESTING.md, docs/02-architecture-design/ARCHITECTURE.md (caminhos do prompt inexistentes). 123ce28e: ancestry exit 1 (ausente).
+- BETA-GAP-02 = DONE (merge #T118; smoke 7/7 a registrar). BETA-GAP-14 segue BLOCKED (PR #324 OPEN, nao mergeado). Programa 3/18 DONE. GO para convites permanece SUSPENSO.

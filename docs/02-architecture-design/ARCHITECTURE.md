@@ -30,6 +30,11 @@ docs/, scripts/, .github/workflows/
 - **AuditLog** append-only com cadeia SHA-256 (`verificarIntegridade()`).
 - **Máquina de estados de consumo**: `common/estados-consumo.ts` fonte única
   (D-528/D-529) — API, UI e E2E rejeitam CONCLUIDO → ABANDONADO.
+- **Estado atual vs. histórico (BETA-GAP-02/T118)**: a dashboard
+  (`DashboardService`) calcula `total`/`tipos`/`generos`/`streak` apenas sobre
+  status ativos (`CURRENT_STATE_STATUSES`), excluindo `ABANDONADO`; a Biblioteca
+  (`porStatus` em `InteracoesService.listar`) preserva `ABANDONADO` como
+  histórico reclassificável. Não existe `DELETE /interacoes`.
 - **Guards de entrada**: `ZodValidationPipe` (body/query), `UuidParamPipe` (params
   `@db.Uuid` → 404 pré-Prisma, D-531), rate limits por rota (`rate-limit.config.ts`).
 - **Métricas**: Prometheus em `/metrics` (RBAC/IP allowlist); alertas T218 em

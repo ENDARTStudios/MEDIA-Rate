@@ -88,3 +88,50 @@ dashboard.service.ts(34,41): error TS2353: 'deleted_at' does not exist in type '
 3. **A3 (copy/documentacao):** manter as contagens e **rotular** a dashboard (ex.: "inclui abandonados") - honesto, zero risco, mas nao "corrige" a expectativa do usuario.
 
 **Recomendacao:** A1 com ajuste explicito em `docs/04-api-contracts/API.md` (definir "estado atual" = status ativos) **se** o produto concordar que ABANDONADO nao e preferencia atual; caso contrario A3 + tarefa separada para A2.
+
+---
+
+## RESOLUCAO (2026-09-28) — Opcao A aprovada pelo Operador; fix aplicado com TDD
+
+**Decisao do Operador:** opcao (A) aprovada com condicoes; opcao (B) (criar `DELETE`) **rejeitada** neste escopo (feature nova / mudanca de contrato).
+
+**1) Confirmacao de semantica canonica (com arquivo/linha):**
+
+- A regra de reclassificacao e **D-528** (`DECISOES.md:1980`), NAO D-527. **D-527** (`DECISOES.md:1957`) e a verdade operacional do **deploy** — o prompt/`test/interacoes.spec.ts:163` rotulam "D-527" para a maquina de estados, mas a fonte canonica da regra e D-528/D-529 (`common/estados-consumo.ts:16`).
+- `DECISOES.md:1911-1913` ("4 status … com contagens GLOBAIS") refere-se as **abas da Biblioteca** (`porStatus`), **nao** a `total`/`tipos`/`generos`/`streak` da dashboard. Portanto, NAO ha doc canonica dizendo que ABANDONADO deve contar nas metricas de estado atual.
+- `StatusConsumo` (`schema.prisma:507-512`) tem exatamente 4 valores; `ABANDONADO` e o **unico** estado inativo/removido. Nao ha outros status inativos nem campos `reacao`/`favorito`/`escolha` alimentando `total`/`tipos`/`generos`/`streak` (dashboard usa apenas `status` + `midia.tipo`/`generos`/`score`).
+- Fluxo real: `interacoes.controller.ts` so expoe `@Get`, `@Get(":midiaId")` e `@Put(":midiaId")` — **nao ha `@Delete`**. A UI "remove" setando `ABANDONADO` (reclassificavel pela D-528).
+
+**Classificacao final:** `STATUS_AS_REMOVE_METRICS_INCLUDE_INACTIVE`.
+
+**2) Teste vermelho → verde (TDD):**
+
+- Novo: `apps/api/test/dashboard-reactivity.spec.ts`.
+- Vermelho (antes do fix): `total` esperado 0, recebido 2 (todos ABANDONADO); `total` esperado 3, recebido 4 (mix); reclassificacao 1≠0 → 3 falhas / 2 passes.
+- Verde (apos fix): 8/8 (`dashboard-reactivity.spec.ts` + `dashboard.spec.ts`).
+- Cobre: todos ABANDONADO; mix QUERO_CONSUMIR/CONSUMINDO/CONCLUIDO/ABANDONADO (streak ignora atualizado_em de ABANDONADO); somente CONCLUIDO; reclassificacao ABANDONADO→CONSUMINDO volta a contar; `porStatus` preserva ABANDONADO.
+
+**3) Correcao minima (backend, sem schema/contrato/endpoint novo):**
+
+`apps/api/src/modules/dashboard/dashboard.service.ts`:
+- constante `CURRENT_STATE_STATUSES: StatusConsumo[]` = `[QUERO_CONSUMIR, CONSUMINDO, CONCLUIDO]` (enum real, sem literal magico);
+- `interacoesEstadoAtual = interacoes.filter((i) => CURRENT_STATE_STATUSES.includes(i.status))` usada em `total`/`tipos`/`generos`/`streak`;
+- `concluidos`, `evolucao`, `histograma` preservados; `porStatus` da Biblioteca intocado.
+
+**4) Auditoria de cache/ISR/refetch da dashboard (mesmo ciclo):**
+
+- `apps/web/src/app/[locale]/dashboard/layout.tsx:7-8` → `dynamic = "force-dynamic"`, `revalidate = 0` (T412/D-390): rota autenticada NUNCA em cache ISR/CDN.
+- `DashboardClient.tsx:39-57` → `GET /api/v1/user/stats` no mount (client-side); apos mutacao, ao (re)abrir a dashboard o componente remonta e refaz o fetch. Nao ha React Query/SWR/Zustand persist para stats.
+- `revalidatePath("/", "layout")` so existe em `app/api/revalidate/route.ts` (token-gated, chamado pelo score-job) — nao e o fluxo de interacao.
+- Nao ha cache de rota autenticada sem escopo por usuario → **sem SECURITY_FINDING**; sem necessidade de alterar frontend.
+
+**5) Hygiene / typecheck:**
+
+- `npx eslint --fix` + `npx prettier --check` nos 2 arquivos api → 0.
+- `npx tsc --noEmit -p apps/api/tsconfig.json` → 0; `... web/tsconfig.json` → 0.
+
+**6) Docs canonicas:** `docs/04-api-integrations/API.md` (estado atual vs. historico + como verificar), `docs/03-development-process/TESTING.md` (regressao + comando), `docs/02-architecture-design/ARCHITECTURE.md` (separacao estado atual/historico). Caminhos reais do repo (os do prompt — `04-api-contracts/`, `03-testing-validation/` — nao existem).
+
+**7) 123ce28e:** `git merge-base --is-ancestor 123ce28e HEAD` → exit 1 (ausente).
+
+**8) PR/merge/smoke:** preenchido na secao de registro/worklog apos o merge.
