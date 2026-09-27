@@ -13,9 +13,9 @@
 | **T094-metrics-alert-live** | P014 | PARCIAL (D-556): live exige credencial read-only (hard-stop de segredos); fallback Sentry+uptime cobre sinais críticos | médio | **PARCIAL — fallback ativo** |
 | **T095-uptime-independent-monitoring** | P015 | Monitor sintético ATIVO (cron 10min live, retry+dedup); residual aceito (D-556) | médio | **EXECUTADA — ativo** |
 | **T096-automation-safety-policy** | P016 | Default seguro verificado + guarda anti-regressão no docs-gate | baixo | **EXECUTADA** |
-| **T097-lgpd-encryption-adr-guard** | P017 | ADR (cifragem adiada pós-Beta com compensações) + guarda anti-regressão + plano blind index | médio | EM ANDAMENTO |
-| **T098-access-evidence-automation** | P010 | Prova read-only de acesso (gh/vercel/railway/DNS) + fallbacks | baixo | EM ANDAMENTO |
-| **T099-legacy-pr-hygiene** | Legadas | Fechar PRs claramente obsoletas com evidência; conservador | baixo | EM ANDAMENTO |
+| **T097-lgpd-encryption-adr-guard** | P017 | ADR (cifragem adiada pós-Beta com compensações) + guarda anti-regressão + plano blind index | médio | **EXECUTADA** — D-557, PR #290 |
+| **T098-access-evidence-automation** | P010 | Prova read-only de acesso (gh/vercel/railway/DNS) + fallbacks | baixo | **EXECUTADA** — relatório access-evidence-2026-09-27.md |
+| **T099-legacy-pr-hygiene** | Legadas | Fechar PRs claramente obsoletas com evidência; conservador | baixo | **EXECUTADA** — #2/#3/#4/#133 já fechadas por ator do protocolo; #139/#140 mantidas conscientemente |
 
 ## Regra do backlog
 
