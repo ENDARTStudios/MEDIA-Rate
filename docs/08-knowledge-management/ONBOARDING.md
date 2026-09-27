@@ -25,7 +25,7 @@ cp apps/web/.env.example  apps/web/.env.local
 ```
 
 Segredos reais ficam no secret manager/Railway — **nunca** em commit
-([RULES](../03-development-process/RULES.md) 12, `docs/BOAS_PRATICAS_SECRETS.md`).
+([RULES](../03-development-process/RULES.md) 12, `docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md`).
 
 ## 3. Banco + seeds
 

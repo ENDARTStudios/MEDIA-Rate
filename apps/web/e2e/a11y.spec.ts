@@ -6,7 +6,7 @@ import AxeBuilder from "@axe-core/playwright";
  * reais). Sem API, o DOM auditado é o de estados vazios/erro — violações
  * falsas (comprovado localmente: contrast/select-name em estados que não
  * existem em produção). CI sobe apenas o web, então o gate inteiro roda
- * só com E2E_FULL=1 (ambiente full-stack; ver docs/E2E.md).
+ * só com E2E_FULL=1 (ambiente full-stack; ver docs/06-devops-deployment/E2E.md).
  *
  * Alvo: sempre local (`PLAYWRIGHT_BASE_URL`) — nunca produção (edge 429 a
  * datacenter; CI não pode depender de ambiente de usuários reais).
@@ -25,7 +25,10 @@ const PAGES = [
 ];
 
 test.describe("a11y AA", () => {
-  test.skip(!E2E_FULL, "T461: auditoria exige página real com API (E2E_FULL=1) — ver docs/E2E.md");
+  test.skip(
+    !E2E_FULL,
+    "T461: auditoria exige página real com API (E2E_FULL=1) — ver docs/06-devops-deployment/E2E.md",
+  );
 
   for (const path of PAGES) {
     test(`a11y ${path} — 0 violações AA`, async ({ page }) => {

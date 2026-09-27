@@ -27,7 +27,7 @@ contingência; segredos nunca em evidência.
 
 - **#148** — tracker de dívidas não-bloqueantes (itens 1-14; FEITOS: 11/13/14;
   ver `.claude/reports/beta-blockers.md` para a triagem completa).
-- Issues automáticas (Sentry/ZAP/CodeQL) — triagem em `docs/SECURITY_TRIAGE.md`.
+- Issues automáticas (Sentry/ZAP/CodeQL) — triagem em `docs/05-security-compliance/SECURITY_TRIAGE.md`.
 
 ## Como uma demanda vira tarefa
 

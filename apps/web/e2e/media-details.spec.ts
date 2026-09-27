@@ -10,7 +10,7 @@ test.describe("Detalhes de Midia", () => {
   // T461 (D-492): exige catálogo do banco via API — CI sobe só o web.
   test.skip(
     process.env.E2E_FULL !== "1",
-    "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+    "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md",
   );
 
   test("pagina de detalhes exibe titulo da midia", async ({ page }) => {

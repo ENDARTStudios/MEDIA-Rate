@@ -385,7 +385,7 @@ Web 297/297, API tests 34/34, tsc + builds exit 0.
 
 ## D-252 auditoria de producao automatizada (T252)
 Playwright + curl contra producao (3 locales x paginas publicas), relatorio
-em docs/AUDITORIA-PRODUCAO-2026-08.md + screenshots em docs/auditoria/.
+em docs/07-operations-marketing/AUDITORIA-PRODUCAO-2026-08.md + screenshots em docs/auditoria/.
 REGISSAO DO DEPLOY d4ba1f8: tudo verde em producao — /media/duna-livro e
 /berserk-manga 200 (T251); ficha game com botao (T249); pricing simbolo por
 locale R$/$/€ + toggle mes/ano (T247); privacy 12 secoes (T248/T250);

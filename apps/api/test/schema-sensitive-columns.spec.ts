@@ -9,7 +9,7 @@ import { dirname, join } from "node:path";
  * Congela o conjunto atual de colunas com nome sensível do schema Prisma.
  * Um NOVO campo sensível (email/telefone/cpf/endereço/documento/…) só entra
  * se este teste for atualizado CONSCIENTEMENTE junto com um plano de
- * cifragem/blind index (ver docs/lgpd-column-encryption-plan.md) — sem isso
+ * cifragem/blind index (ver docs/05-security-compliance/lgpd-column-encryption-plan.md) — sem isso
  * o teste falha e o PR não passa, impedindo a regressão de expor PII nova
  * em repouso sem decisão.
  *
@@ -70,7 +70,7 @@ describe("T097/D-557 — guardiã de colunas sensíveis (LGPD)", () => {
       throw new Error(
         `Colunas sensíveis novas sem plano de cifragem/blind index: ${novas.join(", ")}. ` +
           "Atualize ALLOWLIST_SENSIVEIS apenas com a decisão registrada em DECISOES.md " +
-          "e o plano em docs/lgpd-column-encryption-plan.md (D-557).",
+          "e o plano em docs/05-security-compliance/lgpd-column-encryption-plan.md (D-557).",
       );
     }
     expect(novas).toEqual([]);

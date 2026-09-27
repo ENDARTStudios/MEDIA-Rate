@@ -48,7 +48,7 @@ node ../../scripts/evidence-local.mjs   # sobe/derruba tudo sozinho (D-530)
 Stripe (billing) · Resend (e-mail) · Railway (API/Postgres) · Vercel (web) ·
 PostHog (analytics/flags — CLI com scope `feature_flag:write`) · Sentry (erros) ·
 Cloudflare (R2/canário) · Google OAuth console. Receitas de CLI:
-`docs/RUNBOOK_OPERADOR_FINAL.md` + `MANUAL_DO_OPERADOR.md`.
+`docs/06-devops-deployment/RUNBOOK_OPERADOR_FINAL.md` + `MANUAL_DO_OPERADOR.md`.
 
 ## Verificação final do setup
 

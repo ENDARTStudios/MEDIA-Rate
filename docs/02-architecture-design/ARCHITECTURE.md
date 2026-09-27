@@ -40,7 +40,7 @@ docs/, scripts/, .github/workflows/
 - Prisma migrations versionadas; **entrypoint do container aplica `migrate deploy` no
   boot de TODO deploy** (D-527). Guarda pré-merge: job `Migration Safety (B1)`
   **required** na ruleset `protect-main` (D-532/D-535) — label `migration-review` +
-  plano de rollback + declaração (`docs/b1-prod-guards.md`).
+  plano de rollback + declaração (`docs/06-devops-deployment/b1-prod-guards.md`).
 - Soft delete (`Midia.deleted_at`), índices trgm GIN na busca, audit_log append-only.
 
 ## Deploy (verdade operacional — D-527)
@@ -52,7 +52,7 @@ docs/, scripts/, .github/workflows/
 
 GitHub `deploy.yml` = validação + health check pós-promoção (com retries). Migration
 manual = `migrate-production.yml` (workflow_dispatch; caminho de rede é pendência do
-Operador — `docs/b1-prod-guards.md` §3). Rollback: `git revert` do merge commit
+Operador — `docs/06-devops-deployment/b1-prod-guards.md` §3). Rollback: `git revert` do merge commit
 (nunca force push/reset — D-457 proíbe push direto com bypass em `main`).
 
 ## Integrações externas

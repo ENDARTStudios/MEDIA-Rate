@@ -28,7 +28,7 @@ Branch **curta** (`fix/xxx`, `feat/tNNN-xxx`) → commits atômicos
 
 PR que altera `apps/api/prisma/migrations/**` ou `schema.prisma` PRECISA de:
 label `migration-review` + seção `## Rollback` com plano + linha `Migration:`
-(detalhes e template: `docs/b1-prod-guards.md`). Sem isso o check
+(detalhes e template: `docs/06-devops-deployment/b1-prod-guards.md`). Sem isso o check
 `Migration Safety (B1)` bloqueia o merge.
 
 ## i18n (regra dura)
@@ -59,7 +59,7 @@ concatenar `t("a" + b)`.
 - Regras de domínio compartilhadas → `apps/api/src/common/` (ex.: `estados-consumo.ts`)
 - Guards/pipes → `apps/api/src/common/guards|pipes/`
 - Cores/tokens web → `apps/web/src/lib/` (CATEGORY_TOKENS)
-- Workflows → `.github/workflows/` (CI em `ci.yml`, ver `docs/CI.md`)
+- Workflows → `.github/workflows/` (CI em `ci.yml`, ver `docs/06-devops-deployment/CI.md`)
 
 
 ---

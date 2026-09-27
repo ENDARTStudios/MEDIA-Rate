@@ -956,7 +956,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 
 - DECISAO: usar Grafana Cloud free tier como backend de traces OTel (D-320: custo zero). Jaeger self-hosted fica como alternativa documentada (privacidade estrita/on-prem), nao e o padrao agora.
 - Justificativa: free tier (50 GB traces/mes, retencao 14d) e mais que suficiente para a escala (1k->50k); zero manutencao (SaaS); OTLP/HTTP nativo; UI rica (Tempo traces + dashboards + alerting). Jaeger exige servidor + storage + updates + disco + backup - custo operacional desproporcional.
-- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/AVALIACAO_BACKEND_OTEL.md.
+- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/07-operations-marketing/AVALIACAO_BACKEND_OTEL.md.
 - Codigo OTel ja pronto e inerte: API (apps/api/src/common/otel.ts) e web (apps/web/src/lib/otel-browser.ts) so ativam quando o endpoint e definido.
 ## [2026-08-20] Decisao: D-344 — boa pratica de secrets (comparacao programatica + rotacao)
 
@@ -966,7 +966,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 1. Secrets colados devem ser comparados PROGRAMATICAMENTE (diff/hash caractere a caractere), nunca visualmente.
 2. Rotacao de ADMIN_TOKEN autorizada (T378): novo valor nunca em log/transcript, apenas hash SHA-256 para auditoria.
 3. COMICVINE_API_KEY avaliada: chave de leitura publica (sem write/delete) → rotacao opcional; rotacionar se o provedor expuser permissao sensivel.
-4. Boa pratica documentada em docs/BOAS_PRATICAS_SECRETS.md.
+4. Boa pratica documentada em docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md.
 
 **Impacto:** T378 emitida e executada; lição permanente registrada para futuras tarefas com secrets.
 

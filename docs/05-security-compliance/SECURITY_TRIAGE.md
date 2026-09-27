@@ -81,7 +81,7 @@ smoke autenticado em produção (200; item keys = allowlist; `usuario_id`,
 
 ## T048 — LGPD: inventário de PII e viabilidade de cifragem (D-542)
 
-Análise **docs-only** (`docs/LGPD_DADOS.md`). Inventário mapeado; **nenhuma**
+Análise **docs-only** (`docs/05-security-compliance/LGPD_DADOS.md`). Inventário mapeado; **nenhuma**
 cifragem implementada. Bloqueios: (1) `Usuario.email` é **buscável por igualdade**
 (login/registro/reset/Google) e o `ColumnEncryptionService` usa IV aleatório
 (**não determinístico**) → cifrar quebraria a autenticação; (2) dados existentes em

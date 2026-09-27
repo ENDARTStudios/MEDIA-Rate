@@ -5,24 +5,24 @@
 
 ## Jurídico / LGPD
 
-- `docs/PARECER_JURIDICO-2026-08-31.md` — parecer externo (v13 → `conformidade-v13.md`).
+- `docs/05-security-compliance/PARECER_JURIDICO-2026-08-31.md` — parecer externo (v13 → `conformidade-v13.md`).
 - `docs/legal/` — **pacote legal versionado (T464)**: Termos/Privacidade/rodapé;
   alteração de texto legal só via gate legal ([COMPLIANCE](../05-security-compliance/COMPLIANCE.md)).
-- `docs/LGPD_DADOS.md` — mapa de dados pessoais por tabela/coluna.
+- `docs/05-security-compliance/LGPD_DADOS.md` — mapa de dados pessoais por tabela/coluna.
 
 ## Técnicas
 
-- `docs/AVALIACAO_BACKEND_OTEL.md` — avaliação de OTEL no backend (código inerte,
+- `docs/07-operations-marketing/AVALIACAO_BACKEND_OTEL.md` — avaliação de OTEL no backend (código inerte,
   ativa por env; conclusões de custo/benefício).
-- `docs/proposta-codebase-memory-graft.md` — proposta de memória de codebase (grafo
+- `docs/08-knowledge-management/proposta-codebase-memory-graft.md` — proposta de memória de codebase (grafo
   Graft); origem da regra GRAFT-FIRST do AGENTS.md.
-- `docs/REVISAO_EXTERNA_TRIAGEM.md` + `docs/auditoria*/` — auditorias externas e
+- `docs/05-security-compliance/REVISAO_EXTERNA_TRIAGEM.md` + `docs/auditoria*/` — auditorias externas e
   triagem (itens viraram issues/PLANO).
 
 ## Operacionais (lições que viraram decisão)
 
-- `docs/diagnostico-ci-pr74.md`, `docs/BUGFIX-graph-uuid.md`,
-  `docs/MATRIZ-PROPAGACAO-OPERADORES.md` — diagnósticos pontuais com lição registrada.
+- `docs/06-devops-deployment/diagnostico-ci-pr74.md`, `docs/08-knowledge-management/BUGFIX-graph-uuid.md`,
+  `docs/05-security-compliance/MATRIZ-PROPAGACAO-OPERADORES.md` — diagnósticos pontuais com lição registrada.
 - Padrão do projeto: **pesquisa vira decisão** (D-NNN) ou **pendência** (P0NN) —
   nunca fica só em conversa.
 

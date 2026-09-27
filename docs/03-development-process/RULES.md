@@ -1,7 +1,7 @@
 # RULES — Regras invioláveis do projeto
 
 Digest executável. Fontes primárias: `AGENTS.md` (raiz), `DECISOES.md`,
-`docs/BOAS_PRATICAS_SECRETS.md`. Violar qualquer regra aqui = PR rejeitado.
+`docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md`. Violar qualquer regra aqui = PR rejeitado.
 
 ## Repositório e CI
 
@@ -14,7 +14,7 @@ Digest executável. Fontes primárias: `AGENTS.md` (raiz), `DECISOES.md`,
 4. **PR que altera `apps/api/prisma/migrations/**` ou `schema.prisma`** exige
    label `migration-review` + seção `## Rollback` + linha `Migration:` — check
    `Migration Safety (B1)` é **required** (D-532/D-535; contrato em
-   `docs/b1-prod-guards.md`).
+   `docs/06-devops-deployment/b1-prod-guards.md`).
 5. **Strays que não se commitam**: `.od-skills/`, protótipos `*.html`,
    `*.sketch.json`, `apps/web/scripts/_*.mjs`, `.claude/` (exceto o que já é
    trackeado com `-f`).

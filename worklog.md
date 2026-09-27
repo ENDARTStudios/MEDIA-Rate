@@ -2378,7 +2378,7 @@ F08 - teste de carga k6 escalado (gap 8.7):
 - Smoke test VALIDADO localmente (API dist bootada com SKIP_DB_CONNECT +
   RATE_LIMIT_API_PER_MIN=1000000): exit 0, p95=4.5ms, error 0%,
   http_reqs=109654 (>10k), checks 100%.
-- docs/LOAD_TESTING.md (novo): instalacao (brew/apt/choco/docker),
+- docs/06-devops-deployment/LOAD_TESTING.md (novo): instalacao (brew/apt/choco/docker),
   smoke + run completo + alvo customizado, interpretacao (p95, error rate,
   throughput), quando executar (pre-Open Beta, pos-mudancas de performance),
   seguranca (nunca producao sem autorizacao), nota do rate limit do alvo.
@@ -2653,7 +2653,7 @@ PR #167 docs-only merged com merge commit apos auditoria (MERGEABLE/CLEAN, scan 
 Bloqueador B1 (relatorio T029) — guarda de migrations e propostas operacionais. TDD:
 - scripts/ci/migration-safety.mjs: self-test 10 fixtures (vermelho 1/10 -> verde 10/10); fail-closed; CLI validado nos 3 caminhos com exit codes corretos (0 liberado sem banco / 0 liberado com contrato / 1 bloqueado e fail-closed). Contrato: label migration-review + secao Rollback (>=15 chars) + linha Migration: ancorada no inicio de linha (mencao solta nao conta).
 - ci.yml: job Migration Safety (B1) — so em pull_request; roda self-test; metadados via env->arquivo (anti-injecao); diff base...head. YAML validado. Este PR auto-valida o guard (sem arquivos de banco -> liberado).
-- docs/b1-prod-guards.md: contrato + template de descricao; staging Opcao A (Environment protection, custo 0) vs Opcao B (branch staging + Railway separado); migration manual: console Railway (recomendado como padrao de incidente), proxy TCP, self-hosted runner.
+- docs/06-devops-deployment/b1-prod-guards.md: contrato + template de descricao; staging Opcao A (Environment protection, custo 0) vs Opcao B (branch staging + Railway separado); migration manual: console Railway (recomendado como padrao de incidente), proxy TCP, self-hosted runner.
 - DECISOES D-532 (PROPOSTA); PLANO 9.12 [~]; PENDENCIAS P011/P012/P013 (required check, staging, caminho manual — nada executado, acoes do Operador).
 - Limite honesto: guard valida CONTRATO, nao qualidade da migration; required check so apos decisao do Operador.
 
@@ -2665,7 +2665,7 @@ Diagnostico primario do security.yml vermelho cronico em main (run 35685178528):
 - scan/Audit usava `npm audit --audit-level=high` cru (sem allowlist) -> os "3 highs" sao UMA cadeia (deepmerge-ts GHSA-ggr8-5vv4-36mx -> @prisma/config -> prisma), dev-only via CLI prisma, ja allowlistada (P009/D-462). Fix: `npm run audit:ci` (bloqueio de runtime mantido; allowlist governada).
 - trivy-image usava `aquasecurity/trivy-action@0.28.0` (tag inexistente; correta v0.28.0) -> Set up job falha em 3s ("unable to find version"). scan usava @master (ref movel). Fix: pin ao SHA imutavel de v0.36.0 nos dois jobs.
 - CodeQL @v3 -> @v4 (repo e PUBLICO -> code scanning sem GHAS). Trigger pull_request adicionado.
-trivy-image em MODO RELATORIO (exit-code 0): CVE de base (node:20-alpine) com fix, upstream; achados em SARIF; gate bloqueante de runtime segue no audit:ci. Trivy NAO removido. docs/SECURITY_TRIAGE.md criado; SECURITY.md atualizado. D-534.
+trivy-image em MODO RELATORIO (exit-code 0): CVE de base (node:20-alpine) com fix, upstream; achados em SARIF; gate bloqueante de runtime segue no audit:ci. Trivy NAO removido. docs/05-security-compliance/SECURITY_TRIAGE.md criado; SECURITY.md atualizado. D-534.
 Evidencia: PR #172 head abc3433 -> scan pass (2m22s) + Trivy Image Scan pass (1m26s). SEM merge (restricao).
 
 ## [2026-09-22] T034-b1-prod-guards-final (P011 HABILITADO; P012 A em PR sem merge; P013 recomendado)
@@ -2724,11 +2724,11 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 ## [2026-09-22] T046-workflow-noise-triage (PR aberto, SEM merge)
 - Inventario: workflows com falha cronica na main = Release (todo merge) e create-pr-from-branch (todo push, 0s sem jobs). Ambos NAO-required (ruleset protect-main: Lint&Audit, Test&Coverage, Build, RLS, Docs Gate, Migration Safety B1).
 - CAUSA RAIZ Release: `npm error Missing script: "build"` - a raiz do monorepo nao tem script build (so apps/web e apps/api). CAUSA RAIZ create-pr-from-branch: heredoc do `run: |` com corpo em coluna 0 -> block scalar encerrado -> YAML INVALIDO -> GitHub registra sem name (path) e cria run sem jobs que falha em 0s em todo push (inclusive main/chore/docs).
-- Correcao minima: create-pr -> corpo via printf (block scalar valido; volta a rodar so em feature/**); release -> workflow_dispatch + `npm run build --if-present` (evita publicar Release/tag a cada merge). YAML validado com js-yaml (name/on corretos). Docs: docs/CI.md + D-541 + PLANO 9.16 + worklog.
+- Correcao minima: create-pr -> corpo via printf (block scalar valido; volta a rodar so em feature/**); release -> workflow_dispatch + `npm run build --if-present` (evita publicar Release/tag a cada merge). YAML validado com js-yaml (name/on corretos). Docs: docs/06-devops-deployment/CI.md + D-541 + PLANO 9.16 + worklog.
 ## [2026-09-22] T047-merge-pr199-workflows (ajuste: create-pr MANUAL)
 - Ajuste pedido pelo Thinker: o create-pr-from-branch estava INERTE (YAML invalido). Corrigir e reconectar o push feature/** habilitaria automacao nao solicitada (criar PRs sozinho). Portanto o disparo ficou MANUAL (workflow_dispatch) por padrao; corpo/job seguem validos e idempotentes. Reativar = P016 (Operador).
 - release.yml mantido manual (workflow_dispatch) + `npm run build --if-present` - sem publish/tag automatico.
-- Validacao: js-yaml OK nos dois (create-pr on=workflow_dispatch; release on=workflow_dispatch). docs/CI.md + D-541 (nota T047) + PLANO 9.16 + P016. Sem release/tag/PR automatica; sem ruleset/secrets/infra/deploy/migration/produto.
+- Validacao: js-yaml OK nos dois (create-pr on=workflow_dispatch; release on=workflow_dispatch). docs/06-devops-deployment/CI.md + D-541 (nota T047) + PLANO 9.16 + P016. Sem release/tag/PR automatica; sem ruleset/secrets/infra/deploy/migration/produto.
 
 ## [2026-09-22] T047-merge-pr199-workflows (MERGED 6264601; vermelho cronico cessou)
 - Ajuste pre-merge: create-pr-from-branch -> disparo MANUAL (workflow_dispatch) por padrao (nao habilitar automacao que estava inerte); release.yml manual + npm run build --if-present. YAML js-yaml OK. Correcao de LF em DECISOES (commit 71d4181); git diff --check limpo.
@@ -2738,7 +2738,7 @@ Auditoria pre-merge do #186: CLEAN; required verdes; diff so do modulo interacoe
 - Inventario de PII (schema/APIs/logs/jobs): email buscavel por igualdade (@unique; login/registro/reset/Google), nome, Sessao.user_agent/ip_criacao, ConsentimentoUsuario.ip_aceite, UsuarioMidiaInteracao.comentario, AuditLog.dados_antes/dados_depois/ip_origem. Ja derivados por hash: tokens de verificacao/reset, Sessao.token_hash/refresh_token_hash, ConsentLog.ip_hash, senha_hash (argon2).
 - ColumnEncryptionService (AES-256-GCM) NAO wired (0 usos); IV aleatorio -> NAO determinista; construtor LANCA sem COLUMN_ENCRYPTION_KEY.
 - DECISAO: NAO implementar cifragem agora (bloqueios: email buscavel x nao-determinismo; plaintext exige migration+backfill; secret novo + risco de indisponibilidade). Achado acionavel (baixo risco, nao implementado): auth.service.ts:261 loga email em claro (redact nao cobre PII na mensagem) -> follow-up mascara.
-- Artefatos: docs/LGPD_DADOS.md (novo) + SECURITY_TRIAGE secao T048 + D-542 + PLANO 2.10 + P017. Sem schema/migration/segredo; sem PII/segredo nas evidencias. PR docs-only.
+- Artefatos: docs/05-security-compliance/LGPD_DADOS.md (novo) + SECURITY_TRIAGE secao T048 + D-542 + PLANO 2.10 + P017. Sem schema/migration/segredo; sem PII/segredo nas evidencias. PR docs-only.
 
 ## [2026-09-22] T049-mask-pii-auth-logs (fase 1 MERGED b903a7e; fase 2 PR aberto SEM merge)
 - Fase 1: PR docs-only #203 auditado (mergeable; Docs Gate pass; scan segredos/PII 0) e mergeado como b903a7e. Pos-merge main: CI success (13s), Security success, deploy.yml waiting (P012=A), smoke 4/4 = 200.
@@ -2774,7 +2774,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-23] T054-merge-pr210-pii-scan (MERGED 3518614; smoke OK; flake de fontes re-rodado)
 - Auditoria #210: CLEAN/MERGEABLE no head 01f4ede; required verdes (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration/Semgrep/E2E); Vercel PASS; diff so texto do log no mock-mail (sem mudar entrega/contrato de email); scan segredos/PII 0; pii-log-scan+auth-pii-log 7/7.
 - Merge commit 3518614. Pos-merge main: Security success (2m59s); deploy.yml waiting (P012=A); PRR skipped; sem Release/Auto-create. Smoke 4/4 = 200.
-- FLAKE (nao-codigo): CI de main do #210 falhou em Build Web (Next.js) por indisponibilidade do Google Fonts (next/font/google Inter -> module-not-found). Re-run do job -> CI success (3m24s; Build 1m35s). Registrado em docs/CI.md.
+- FLAKE (nao-codigo): CI de main do #210 falhou em Build Web (Next.js) por indisponibilidade do Google Fonts (next/font/google Inter -> module-not-found). Re-run do job -> CI success (3m24s; Build 1m35s). Registrado em docs/06-devops-deployment/CI.md.
 - Escalonamento: Deploy do #209 waiting >30min sem revisor -> NAO aprovado (P012=A). PLANO 2.10 segue [~]; P017 pendente. Beta NAO declarada pronta.
 
 ## [2026-09-23] T055-audit-log-pii-minimization (TDD; PR aberto, SEM merge)
@@ -2807,7 +2807,7 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 ## [2026-09-24] T060-e2e-jornada-critica (test-only; PR aberto, SEM merge)
 - Criados apps/web/e2e/jornada-critica.spec.ts (8 cenarios: home/catalogo/detalhe publicos; watchlist Kanban + reload; biblioteca deep link status/tipo, query invalida, vazio/grid, sem 500; dashboard sidebar+i18n+sem erro) e apps/web/e2e/helpers/state-reset.ts (isolamento: clearCookies + storage). Gated por E2E_FULL=1 (T461), projetos chromium+mobile-chrome (16 testes).
 - Validacao: eslint OK; tsc --noEmit apps/web OK; playwright test --list = 16 testes (spec parseia). Fixtures: usuarios provisionados *@mediarate.test (sem PII real); sem mutacao de produto.
-- LIMITACAO/BLOQUEIO de execucao local: runner sem Docker (daemon off), sem servidores locais (3000/4000) e sem DB local acessivel; .env so aponta para producao (proibido). As 3 execucoes locais ficam PENDENTES em ambiente com Postgres/Redis locais. docs/E2E.md atualizado com comando + limitacao. Nenhum codigo de produto/schema/migration/segredo/infra alterado.
+- LIMITACAO/BLOQUEIO de execucao local: runner sem Docker (daemon off), sem servidores locais (3000/4000) e sem DB local acessivel; .env so aponta para producao (proibido). As 3 execucoes locais ficam PENDENTES em ambiente com Postgres/Redis locais. docs/06-devops-deployment/E2E.md atualizado com comando + limitacao. Nenhum codigo de produto/schema/migration/segredo/infra alterado.
 
 ## [2026-09-24] T061-e2e-full-ephemeral-runner (PARCIAL; PR #220 atualizado, SEM merge)
 - Guarda anti-producao: scripts/ci/evidence-guard.mjs (pureza) + self-test 19/19 (recusa host nao-local/railway/mediarate.app/prod; parse --spec/--repeat; redige credenciais). evidence-local.mjs usa a guarda + flags + workers=1/retries=0.
@@ -2899,10 +2899,10 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 
 ## [2026-09-25] T080-swagger-dto-contract-guard (TDD; PR aberto, SEM merge)
 - Guarda determinística offline scripts/ci/swagger-contract-guard.mjs + self-test 12/12: (1) UuidParamPipe em @Param exige @ApiNotFoundResponse; (2) DTO público de interacoes sem campos internos/legados (usuario_id/tenant_id/rating/comentario/created_at); (3) mapper sem pass-through cru; (4) examples/properties Swagger sem PII/segredos.
-- Contra o repo: 0 violacoes (watchlist/interacoes ja tem 404; DTO allowlist). Step adicionado ao job Lint & Audit (ci.yml). docs/API_CONTRACTS.md criado. Escopo: sem runtime/schema/migration/segredo/infra.
+- Contra o repo: 0 violacoes (watchlist/interacoes ja tem 404; DTO allowlist). Step adicionado ao job Lint & Audit (ci.yml). docs/04-api-integrations/API_CONTRACTS.md criado. Escopo: sem runtime/schema/migration/segredo/infra.
 
 ## [2026-09-25] T081-merge-pr264-swagger-guard (MERGED 9a0f15d; Jev corroborou; smoke OK)
-- Auditoria #264: MERGEABLE; required verdes (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration) + Vercel nao-required; diff = ci.yml (+step), docs/API_CONTRACTS.md, scripts/ci/swagger-contract-guard{,.self-test}.mjs, worklog — sem apps/*/src, schema, migrations, package*.json, deploy.yml, security.yml, secrets/vars/infra. Guarda offline 0 violacoes; self-test 12/12.
+- Auditoria #264: MERGEABLE; required verdes (Build/Lint&Audit/Test&Coverage/RLS/Docs Gate/Migration) + Vercel nao-required; diff = ci.yml (+step), docs/04-api-integrations/API_CONTRACTS.md, scripts/ci/swagger-contract-guard{,.self-test}.mjs, worklog — sem apps/*/src, schema, migrations, package*.json, deploy.yml, security.yml, secrets/vars/infra. Guarda offline 0 violacoes; self-test 12/12.
 - Jev TypeSafe (jev-1.13.0): escopo_ok=0.98; risco_runtime=0.09; higiene_ok=0.89; recomendacao=merge_seguro.
 - Higiene: fix/hero-conversao-a11y local==remote (3f82818), historico limpo a partir de main; commit avulso a1c75a9 NAO e ancestral nem esta em remote -> sem poluicao.
 - Merge commit 9a0f15d. Pos-merge: Security success (3m21s); CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto/schema/migration/segredo/infra.
@@ -2912,11 +2912,11 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Sem Jev nesta tarefa (restricao); resultado T081 citado apenas como corroboracao auxiliar. Sem ataque ativo; leitura read-only + smoke passivo 4/4=200. Sem produto/schema/migration/segredo/infra.
 
 ## [2026-09-25] T083-merge-docs269 (MERGED 1ef9071; smoke OK)
-- Auditoria #269 (docs-only, head 916eab0): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-security-triage-2026-09-25.md + docs/SECURITY_TRIAGE.md + worklog.md; git diff --check limpo; scan segredos/PII 0.
+- Auditoria #269 (docs-only, head 916eab0): CLEAN/MERGEABLE; Docs Gate pass; jobs pesados skipping; diff = .claude/reports/beta-security-triage-2026-09-25.md + docs/05-security-compliance/SECURITY_TRIAGE.md + worklog.md; git diff --check limpo; scan segredos/PII 0.
 - Merge commit 1ef9071. Pos-merge main: deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Relatorio mantem NO-GO condicional (P012 = bloqueador do Operador). Sem produto/schema/migration/segredo/infra. Beta NAO declarada pronta.
 
 ## [2026-09-25] T084-smoke-auth-padronizado (TDD; PR aberto, SEM merge)
-- scripts/ci/smoke-auth.mjs (guard local; 1 login; /auth/me; /interacoes?limit=1 envelope+allowlist; saida sanitizada; abort sem retry) + self-test offline 14/14 (fixtures .invalid) + .github/workflows/smoke-auth.yml (efemero Postgres16+Redis7; nao obrigatorio; contents:read; sem deploy.yml/security.yml/ci.yml alterados) + docs/SMOKE_AUTH.md + nota docs/CI.md. Sem produto/schema/migration/segredo/infra; sem acesso a producao.
+- scripts/ci/smoke-auth.mjs (guard local; 1 login; /auth/me; /interacoes?limit=1 envelope+allowlist; saida sanitizada; abort sem retry) + self-test offline 14/14 (fixtures .invalid) + .github/workflows/smoke-auth.yml (efemero Postgres16+Redis7; nao obrigatorio; contents:read; sem deploy.yml/security.yml/ci.yml alterados) + docs/06-devops-deployment/SMOKE_AUTH.md + nota docs/06-devops-deployment/CI.md. Sem produto/schema/migration/segredo/infra; sem acesso a producao.
 
 ## [2026-09-25] T085-harden-smoke-auth (commits no PR #271)
 - Hardening de higiene: removidas SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD do env do workflow (evita o eco de env: nos logs do Actions); o script usa fixture LOCAL inerte construida dinamicamente (nunca impressa). Sumario agora inclui credential_leak_detected (regex de padroes sensiveis no proprio output). Self-test ampliado (21 ok): sentinel negativo + checagem estatica do YAML (sem SMOKE_TEST_PASSWORD em env, sem curl --user, sem Authorization literal, permissions contents:read).
@@ -2935,16 +2935,16 @@ Pedido do Operador: garantir 36 arquivos + extras AEO/GEO/AIO em docs/. Entregue
 - Merge commit 1b923ba. Pos-merge: Security success (2m48s); CI success; deploy.yml waiting (P012=A); smoke passivo 7/7 = 200. Sem produto-fora-do-escopo/schema/migration/segredo/infra.
 
 ## [2026-09-25] T088-smoke-auth-main-evidence (docs-only; PR aberto, SEM merge)
-- Evidencia pos-merge: workflow_dispatch do smoke-auth.yml na main (commit c5ec1bf) -> run 36197739124 SUCCESS (1m22s; job 108277336016): self-test 14/14; login=200; auth_me=200; interacoes=200; internas_ausentes=true; production_access=false; credential_leak_detected=false; senha fixture AUSENTE nos logs. Sem producao/mutacao/segredo. Relatorio .claude/reports/beta-auth-smoke-main-2026-09-26.md; notas em docs/SMOKE_AUTH.md e docs/CI.md. Beta segue NO-GO condicional (P012 + P013-P017).
+- Evidencia pos-merge: workflow_dispatch do smoke-auth.yml na main (commit c5ec1bf) -> run 36197739124 SUCCESS (1m22s; job 108277336016): self-test 14/14; login=200; auth_me=200; interacoes=200; internas_ausentes=true; production_access=false; credential_leak_detected=false; senha fixture AUSENTE nos logs. Sem producao/mutacao/segredo. Relatorio .claude/reports/beta-auth-smoke-main-2026-09-26.md; notas em docs/06-devops-deployment/SMOKE_AUTH.md e docs/06-devops-deployment/CI.md. Beta segue NO-GO condicional (P012 + P013-P017).
 
 ## [2026-09-25] T089-merge-docs282 (merge commit f67fb11; SEM merge adicional)
-- Auditoria do PR #282 (docs-only): head c929d71->0a0d16d; CLEAN/MERGEABLE; Docs Gate/Migration/Security pass; Vercel nao-required pass; diff estritamente docs (relatorio + docs/SMOKE_AUTH.md + docs/CI.md + worklog.md); scan sem segredo/PII; literal de senha-fixture removido; strays (.od-skills/.wrangler/prototipos/rw-promote.js/*.sketch.json/_badge/_gb/lighthouse) removidos de volta ao untracked.
+- Auditoria do PR #282 (docs-only): head c929d71->0a0d16d; CLEAN/MERGEABLE; Docs Gate/Migration/Security pass; Vercel nao-required pass; diff estritamente docs (relatorio + docs/06-devops-deployment/SMOKE_AUTH.md + docs/06-devops-deployment/CI.md + worklog.md); scan sem segredo/PII; literal de senha-fixture removido; strays (.od-skills/.wrangler/prototipos/rw-promote.js/*.sketch.json/_badge/_gb/lighthouse) removidos de volta ao untracked.
 - Merge commit f67fb11 (c5ec1bf..f67fb11). CI success (36212084622, 11s); Security success (36212084636, 3m); Deploy waiting por environment Production (P012=A, run 36212084619) - nao aprovado.
 - Pos-merge: Railway API nativo SUCCESS (8c198a71); Vercel nativo OK; smoke passivo 7/7 -> 200 (health/pt-BR/en-US/es-ES/catalog/pricing/login); 0 chaves i18n cruas nos 3 idiomas; sem nova 5xx.
 - Sem alteracao de produto/schema/migration/segredo/infra/workflow; environment Production intocado. Beta segue NO-GO condicional (P012 + P013-P017).
 
 ## [2026-09-27] T091-legacy-pr-triage (read-only; PR docs-only, SEM merge)
-- Triagem read-only das PRs abertas. #266 ja MERGED (historico). Abertas: #279 (ativa-recente, CLEAN), #140 (legada-stale, CLEAN), #139 (legada+1 fail), #133 (mass-lockfile, BLOCKED, candidate-to-close), #4/#3 (conflitantes, 2026-08-15, candidate-to-close), #2 (draft abandonado, candidate-to-close). Nenhuma mutacao no GitHub. Relatorio .claude/reports/legacy-pr-triage-2026-09-27.md; notas em docs/CI.md e PLANO_MESTRE.md. Higiene de backlog pendente do Operador. Beta NO-GO condicional.
+- Triagem read-only das PRs abertas. #266 ja MERGED (historico). Abertas: #279 (ativa-recente, CLEAN), #140 (legada-stale, CLEAN), #139 (legada+1 fail), #133 (mass-lockfile, BLOCKED, candidate-to-close), #4/#3 (conflitantes, 2026-08-15, candidate-to-close), #2 (draft abandonado, candidate-to-close). Nenhuma mutacao no GitHub. Relatorio .claude/reports/legacy-pr-triage-2026-09-27.md; notas em docs/06-devops-deployment/CI.md e PLANO_MESTRE.md. Higiene de backlog pendente do Operador. Beta NO-GO condicional.
 
 ## [2026-09-26] autonomous-bootstrap (Doer autonomo, sem Thinker)
 Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2be23c6 confirmado):
@@ -2964,7 +2964,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - T096: automation-safety.self-test.mjs (guarda YAML anti-regressão: reprova push feature/** em create-pr-from-branch, push em release, exige dry default true no uptime e fonte live condicionada no alertas) integrado ao docs-gate. Verde no repo real; reprova fixture de regressão.
 
 ## [2026-09-26] T097 (REPLAN) — D-557: cifragem adiada com guarda + plano pós-Beta (branch auto/t097-lgpd-adr-guard)
-- ADR D-557 em DECISOES.md (adiada tecnicamente; compensações mantidas); docs/lgpd-column-encryption-plan.md (blind index HMAC + AES-256-GCM, dual-write, backfill em lotes, rotação, rollback, testes obrigatórios).
+- ADR D-557 em DECISOES.md (adiada tecnicamente; compensações mantidas); docs/05-security-compliance/lgpd-column-encryption-plan.md (blind index HMAC + AES-256-GCM, dual-write, backfill em lotes, rotação, rollback, testes obrigatórios).
 - Guarda: apps/api/test/schema-sensitive-columns.spec.ts congela allowlist gerada ao vivo (5 colunas); nova coluna sensível sem decisão falha o CI. 2/2 verde.
 
 ## [2026-09-26] T098+T099 + closure (REPLAN concluído — branch auto/t098-t099-closure) [closure completo: .claude/reports/autonomous-technical-closure-2026-09-27.md — Beta GO técnico]
@@ -2992,5 +2992,5 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Silenciamento local via .git/info/exclude (nao versionado): git status --short -> 0 entradas. Sem troca de branch na arvore compartilhada.
 - Beta GO tecnico mantido; sem alteracao de produto/schema/segredo/infra.
 ## [2026-09-27] T105-beta-rollout-runbook (DONE; docs-only)
-- Criado docs/BETA_ROLLOUT_RUNBOOK.md (operacional): pre-requisitos verificaveis, coorte/canal [OPERADOR], ritual 2h/dia1/dia2-3/dia7, gatilhos de pause/rollback (revert do merge commit; nunca reset --hard), triagem de feedback, template de convite, riscos residuais e registro Go/No-Go.
+- Criado docs/06-devops-deployment/BETA_ROLLOUT_RUNBOOK.md (operacional): pre-requisitos verificaveis, coorte/canal [OPERADOR], ritual 2h/dia1/dia2-3/dia7, gatilhos de pause/rollback (revert do merge commit; nunca reset --hard), triagem de feedback, template de convite, riscos residuais e registro Go/No-Go.
 - Backlog tecnico T092-T104 encerrado; Beta GO tecnico mantido; proxima fase = operacao de lancamento.
