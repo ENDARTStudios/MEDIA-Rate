@@ -14,7 +14,7 @@ Ciclo por evento JSON (detalhes: `PROMPT_SIMBIOSE_THINKER_DOER.md`):
 
 1. **TAREFA** (Thinker→Doer): payload com objetivo, arquivos, restrições,
    `criterio_de_pronto`, `verificacao`.
-2. **Doer executa** por [ITERATION](ITERATION.md): branch curta → TDD → PR **aberto
+2. **Doer executa** por [ITERATION](../ITERATION.md): branch curta → TDD → PR **aberto
    SEM merge** → CI verde → `STATUS: DONE|READY_FOR_REVIEW` com evidência.
 3. **REVIEW** (Thinker): `APPROVED|APPROVED_CONDITIONAL|BLOCKED` + gates.
 4. **Merge condicional** (autorizado em TAREFA própria): merge commit, monitor de

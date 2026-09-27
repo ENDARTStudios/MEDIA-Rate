@@ -1,6 +1,6 @@
 # SEO — Busca orgânica (estado e instruções)
 
-Aprofundamento: [`SEO_AEO_AIO_GEO.md`](SEO_AEO_AIO_GEO.md) (estratégia integrada).
+Aprofundamento: [`SEO_AEO_AIO_GEO.md`](../SEO_AEO_AIO_GEO.md) (estratégia integrada).
 Frentes de IA: [AEO](AEO.md) · [GEO](GEO.md) · [AIO](AIO.md).
 
 ## O que já está implementado (verificável no código)

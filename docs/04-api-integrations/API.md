@@ -44,7 +44,7 @@ Em produção o Swagger fica **desligado**.
 - Params UUID (`:id` da watchlist, `:midiaId` das interações): `UuidParamPipe` →
   **404 pré-Prisma** para formato inválido (nunca 500/P2023) — D-531.
 - Envelope de erro: `{statusCode, error, message, correlationId, timestamp}`
-  (ver [ERROR_HANDLING](ERROR_HANDLING.md)).
+  (ver [ERROR_HANDLING](../07-operations-marketing/ERROR_HANDLING.md)).
 
 ## Rate limits (por rota/usuário)
 

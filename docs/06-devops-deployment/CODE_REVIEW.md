@@ -11,9 +11,9 @@ Checklist mínimo — item faltando = APPROVED_CONDITIONAL com a dívida nomeada
 - [ ] Endpoint novo/alterado: Swagger coerente com o REAL (`@Api*Response` para
       cada status que o código emite — lição T028: 404 novo sem anotação).
 - [ ] Mocks com tipos reais do driver (D-447) + teste que `JSON.stringify` a resposta.
-- [ ] Envelope/erro segue [ERROR_HANDLING](ERROR_HANDLING.md) (correlationId etc.).
+- [ ] Envelope/erro segue [ERROR_HANDLING](../07-operations-marketing/ERROR_HANDLING.md) (correlationId etc.).
 
-## Segurança (ver [SECURITY_REVIEW](SECURITY_REVIEW.md))
+## Segurança (ver [SECURITY_REVIEW](../05-security-compliance/SECURITY_REVIEW.md))
 
 - [ ] Query de usuário dentro de `comContextoRls` (owner-only).
 - [ ] Sem `tenant_id`/PII/segredo em resposta, log ou evidência.
@@ -42,4 +42,4 @@ Checklist mínimo — item faltando = APPROVED_CONDITIONAL com a dívida nomeada
 ## Pós-merge (quem mergeia)
 
 Monitorar deploy + smoke obrigatório ([QA_TESTING](QA_TESTING.md)) + evidência no
-PR/issue; se mudança visível, conferir produção. Ver [ITERATION](ITERATION.md).
+PR/issue; se mudança visível, conferir produção. Ver [ITERATION](../ITERATION.md).

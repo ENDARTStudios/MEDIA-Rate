@@ -18,7 +18,7 @@ npm run build / build:cf               # build Vercel / OpenNext-CF (informativo
 npm run test / test:e2e / test:a11y    # vitest / playwright / axe
 ```
 
-## Fluxo de branch (ver [ITERATION](ITERATION.md))
+## Fluxo de branch (ver [ITERATION](../ITERATION.md))
 
 Branch **curta** (`fix/xxx`, `feat/tNNN-xxx`) → commits atômicos
 `type(TNNN): msg` → PR para `main` → CI. **Nunca** renomear head de PR aberto

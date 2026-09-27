@@ -1,7 +1,7 @@
 # AEO — Answer Engine Optimization (respostas extraíveis)
 
 Objetivo: páginas que respondem perguntas **diretas e completas** para snippets,
-voice e answer engines. Estratégia-mãe: [`SEO_AEO_AIO_GEO.md`](SEO_AEO_AIO_GEO.md).
+voice e answer engines. Estratégia-mãe: [`SEO_AEO_AIO_GEO.md`](../SEO_AEO_AIO_GEO.md).
 
 ## Princípio
 

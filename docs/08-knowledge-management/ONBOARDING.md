@@ -5,7 +5,7 @@ Objetivo: clone → banco local → API + web rodando → 1 teste verde.
 ## 0. Pré-requisitos
 
 - Node 20 (CI usa `NODE_VERSION: "20"`; dev local tem rodado 20/24) + npm 10+
-- Docker (Postgres local) · Git · Windows ok (quirks em [DEVELOPMENT](DEVELOPMENT.md))
+- Docker (Postgres local) · Git · Windows ok (quirks em [DEVELOPMENT](../03-development-process/DEVELOPMENT.md))
 
 ## 1. Clonar e instalar
 
@@ -25,7 +25,7 @@ cp apps/web/.env.example  apps/web/.env.local
 ```
 
 Segredos reais ficam no secret manager/Railway — **nunca** em commit
-([RULES](RULES.md) 12, `docs/BOAS_PRATICAS_SECRETS.md`).
+([RULES](../03-development-process/RULES.md) 12, `docs/BOAS_PRATICAS_SECRETS.md`).
 
 ## 3. Banco + seeds
 
@@ -59,12 +59,12 @@ node ../../scripts/evidence-local.mjs
 
 ## 6. Ler na ordem (30 min)
 
-1. [RULES](RULES.md) — as 20 regras invioláveis
-2. [ARCHITECTURE](ARCHITECTURE.md) — como as peças se conectam
-3. [ITERATION](ITERATION.md) — o ciclo de trabalho (branch → PR → merge → smoke)
-4. [TESTING](TESTING.md) + [CODE_REVIEW](CODE_REVIEW.md) — o que o CI e o review exigem
+1. [RULES](../03-development-process/RULES.md) — as 20 regras invioláveis
+2. [ARCHITECTURE](../02-architecture-design/ARCHITECTURE.md) — como as peças se conectam
+3. [ITERATION](../ITERATION.md) — o ciclo de trabalho (branch → PR → merge → smoke)
+4. [TESTING](../03-development-process/TESTING.md) + [CODE_REVIEW](../06-devops-deployment/CODE_REVIEW.md) — o que o CI e o review exigem
 
 ## 7. Primeira tarefa sugerida
 
 Rode `npm run lint` na raiz e em `apps/*`, corrige o que aparecer, abre PR docs/chore
-— exercita o ciclo completo ([ITERATION](ITERATION.md)) sem risco.
+— exercita o ciclo completo ([ITERATION](../ITERATION.md)) sem risco.

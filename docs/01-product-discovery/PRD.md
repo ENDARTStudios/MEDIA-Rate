@@ -41,7 +41,7 @@ Usuário Free/Plus/Premium, Curador/Admin, Operador (infra), Auditor (legal/LGPD
 - p95 de discover/search < 200ms (atual: ~14ms/22ms local — T027).
 - Disponibilidade da API monitorada por `/health` + uptime externo (9.5.4).
 - Zero vazamento de PII em logs (redaction + T049 mascaramento) e em respostas.
-- Conversão Free→Plus (checkout Stripe; funis PostHog — ver [ANALYTICS](ANALYTICS.md)).
+- Conversão Free→Plus (checkout Stripe; funis PostHog — ver [ANALYTICS](../07-operations-marketing/ANALYTICS.md)).
 
 ## Fora de escopo (agora)
 

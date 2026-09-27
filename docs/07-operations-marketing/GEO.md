@@ -2,7 +2,7 @@
 
 Objetivo: sistemas generativos (ChatGPT, Perplexity, Copilot) citarem o MEDIA Rate
 **corretamente** — com método, cobertura e limites. Estratégia-mãe:
-[`SEO_AEO_AIO_GEO.md`](SEO_AEO_AIO_GEO.md). Relacionado: [AIO](AIO.md) (medição).
+[`SEO_AEO_AIO_GEO.md`](../SEO_AEO_AIO_GEO.md). Relacionado: [AIO](AIO.md) (medição).
 
 ## Princípio de citação responsável
 

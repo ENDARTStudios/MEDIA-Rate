@@ -1,6 +1,6 @@
 # SETUP — Ambiente de referência (completo)
 
-Quick-start: [ONBOARDING](ONBOARDING.md). Aqui: **referência** de variáveis, portas,
+Quick-start: [ONBOARDING](../08-knowledge-management/ONBOARDING.md). Aqui: **referência** de variáveis, portas,
 contas e seeds. Tudo dev-local; produção vive em secrets do Railway/Vercel.
 
 ## Portas (convenção do projeto)

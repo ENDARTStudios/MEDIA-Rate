@@ -1,6 +1,6 @@
 # PRODUCTION_DEPLOY — Deploy de produção e rollback
 
-Verdade operacional: **D-527** (resumo em [ARCHITECTURE](ARCHITECTURE.md)).
+Verdade operacional: **D-527** (resumo em [ARCHITECTURE](../02-architecture-design/ARCHITECTURE.md)).
 Runbooks completos: `docs/BOAS_PRATICAS_DEPLOY.md` · `docs/RUNBOOK_PRODUCAO.md`.
 
 ## O que dispara produção
