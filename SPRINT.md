@@ -41,7 +41,7 @@ Lighthouse), com evidência antes/depois commitada e guards verdes.
   recurso (`performance.getEntriesByType('resource')` filtrando woff2) para
   comparar o TIMESTAMP do LCP com o carregamento/swap da fonte.
 - Registrar o resultado: causa confirmada (fonte) ou refutada (causa real), com
-  evidência (timestamps) em `docs/lighthouse-reports/f16-diagnostico.md`.
+  evidência (timestamps) em `docs/07-operations-marketing/lighthouse-reports/f16-diagnostico.md`.
 
 ### T2 — Corrigir apenas a causa raiz (se confirmada a fonte)
 - Correção mínima candidata: pré-carregar a fonte crítica do H1, reduzir o subset
@@ -51,7 +51,7 @@ Lighthouse), com evidência antes/depois commitada e guards verdes.
 
 ### T3 — Medição antes/depois
 - Lighthouse (mobile, performance) da home antes (já temos: perf 63, LCP 10,0 s)
-  e depois → `docs/lighthouse-reports/lote-f16-home.json` + atualizar
+  e depois → `docs/07-operations-marketing/lighthouse-reports/lote-f16-home.json` + atualizar
   `T405-LIGHTHOUSE-TABELA.md`.
 
 ### T4 — Verificação completa
@@ -74,9 +74,9 @@ Lighthouse), com evidência antes/depois commitada e guards verdes.
 |---|---|
 | `apps/web/src/app/layout.tsx` | config de fonte (preload/subsets/display) |
 | `apps/web/src/app/globals.css` | CSS se necessário (font-display/fallback) |
-| `docs/lighthouse-reports/f16-diagnostico.md` | novo (evidência do diagnóstico) |
-| `docs/lighthouse-reports/lote-f16-home.json` | novo (medição pós) |
-| `docs/lighthouse-reports/T405-LIGHTHOUSE-TABELA.md` | atualização da tabela |
+| `docs/07-operations-marketing/lighthouse-reports/f16-diagnostico.md` | novo (evidência do diagnóstico) |
+| `docs/07-operations-marketing/lighthouse-reports/lote-f16-home.json` | novo (medição pós) |
+| `docs/07-operations-marketing/lighthouse-reports/T405-LIGHTHOUSE-TABELA.md` | atualização da tabela |
 
 **Dependências afetadas:** nenhuma nova.
 

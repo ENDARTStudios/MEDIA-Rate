@@ -49,7 +49,7 @@ navegar primeiro. Isso economiza tokens e reduz acertos às cegas.
 - **CI/merges (D-457/T459):** nenhum merge em `main` sem CI verde; **push direto
   com bypass é proibido** (exceção só em resposta a incidente, registrada em
   `DECISOES.md`). PRs só-de-docs são gateados pelo job leve `docs-gate`
-  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/CI.md`.
+  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/06-devops-deployment/CI.md`.
 - **Fidelidade de mocks do Prisma (D-447):** mocks devem refletir os tipos reais
   do driver (`bigint` → `BigInt`, `bytea` → `Buffer`, etc.); todo endpoint novo
   exige teste que serializa a resposta (`JSON.stringify`) — é o que pega 500
@@ -83,14 +83,14 @@ You may only prompt the human operator regarding external platforms if:
 
 - **CLIs disponíveis e comprovados**: `gh` (PRs/checks/runs/API), `vercel` (deploy/ls/env),
   `railway` (status/deployment list/variables/logs/service), `posthog-cli` (flags — receita
-  em `docs/ANALYTICS.md`), `npx @sentry/cli` (releases/sourcemaps — `docs/OBSERVABILITY.md`).
+  em `docs/07-operations-marketing/ANALYTICS.md`), `npx @sentry/cli` (releases/sourcemaps — `docs/OBSERVABILITY.md`).
 - **Verificação de sessão antes de pedir credencial**: `gh auth status`, `vercel whoami`,
   `railway whoami`. Quirk conhecido (P010): `GITHUB_TOKEN` inválido injetado pelo harness
   sombreia o login válido do `gh` — contorno: `env -u GITHUB_TOKEN gh …`.
 - **Variáveis/deploy via CLI, não web**: `railway variables --service <nome>`,
   `vercel env …`; deploys de produção continuam sendo pelo fluxo PR→merge (D-457/D-527) —
   a política CLI-first **não** autoriza push direto ou `--prod` fora de incidente
-  registrado (ver `docs/RULES.md` e `docs/PRODUCTION_DEPLOY.md`).
+  registrado (ver `docs/03-development-process/RULES.md` e `docs/06-devops-deployment/PRODUCTION_DEPLOY.md`).
 - **Serviço Railway**: projeto "MEDIA Rate", serviço "MEDIA Rate" (API);
   `railway deployment list --service "MEDIA Rate" --environment production`.
 - **O que segue sendo do Operador** (não é tarefa de web UI — é decisão/governança):

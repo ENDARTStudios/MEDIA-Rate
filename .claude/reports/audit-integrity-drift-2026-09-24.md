@@ -41,8 +41,8 @@ exclusivamente do timestamp e **não** de adulteração. Resultado: **4/4 verde*
 `verificarIntegridade()` **não tem chamador em runtime** (`grep` em `apps/api/src`
 = 0; nenhum endpoint/cron/script). É referenciada em **documentação/runbook**:
 
-- `docs/ARCHITECTURE.md`, `docs/COMPLIANCE.md` — descrevem a trilha.
-- `docs/BACKUP_DR.md` — passo de validação pós-restore: “validar: `/health` 200 +
+- `docs/02-architecture-design/ARCHITECTURE.md`, `docs/05-security-compliance/COMPLIANCE.md` — descrevem a trilha.
+- `docs/06-devops-deployment/BACKUP_DR.md` — passo de validação pós-restore: “validar: `/health` 200 +
   contagens + `verificarIntegridade()`”.
 - Testes: `apps/api/test/audit-log-integridade.spec.ts` (T055), `audit-integrity-drift.spec.ts` (T057).
 
@@ -81,7 +81,7 @@ preferir não gravar `created_at` explícito.
 - Implementar a Opção B em PR de código dedicado (T058 sugerida), **sem** tocar
   histórico, com migration-free e testes.
 - Enquanto não corrigido: **não confiar** em `verificarIntegridade()` como sinal
-  isolado no runbook de DR (`docs/BACKUP_DR.md`) — documentar a limitação.
+  isolado no runbook de DR (`docs/06-devops-deployment/BACKUP_DR.md`) — documentar a limitação.
 
 ---
 

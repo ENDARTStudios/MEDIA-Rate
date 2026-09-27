@@ -12,7 +12,7 @@
 | T094/T100 métricas LIVE | P014 | ✅ **DONE (main `9423369d`)** | secret+var; dry-run `36288089780`; LIVE `36288156632`; 0 issue |
 | T095 uptime independente | P015 | ✅ **DONE** | `uptime-check.yml` schedule */10 + dry_run default true; self-test **16/16** |
 | T096 política de automação | P016 | ✅ **DONE** | `automation-safety.self-test.mjs` ("política íntegra") wired no `ci.yml`; ambos workflows só `workflow_dispatch` |
-| T097 ADR LGPD/cifragem | P017 | ✅ **DONE** | D-542 + `docs/lgpd-column-encryption-plan.md` + `schema-sensitive-columns.spec.ts` |
+| T097 ADR LGPD/cifragem | P017 | ✅ **DONE** | D-542 + `docs/05-security-compliance/lgpd-column-encryption-plan.md` + `schema-sensitive-columns.spec.ts` |
 | T098 evidência de acesso | P010 | ✅ **DONE** | `.claude/reports/access-evidence-2026-09-27.md` |
 | T099 higiene de PRs | legadas | ✅ **DONE** | #133/#4/#3/#2 fechadas sem merge (branches preservadas) |
 
@@ -68,8 +68,8 @@ portanto o gate Promoção-para-Produção não é 100% autônomo; o deploy nati
 **Diagnóstico:** `git status --short` → 14 entradas, **todas untracked** (0 staged/modified) ⇒ limpeza segura.
 **Correção (PR #296, merge `a288f8a2`):** +20 linhas no `.gitignore` para `.od-skills/`, `graft/`, `.ignore`,
 `*.sketch.json`, `.wrangler/`, `apps/web/.wrangler/`, `/media-rate-home-prototype.html(+.artifact.json)`,
-`/rw-promote.js`, `apps/web/scripts/_*.mjs`, `docs/lighthouse-reports/s1-*.json`. Validado com `git check-ignore` (10/10).
-**Over-ignore evitado:** `docs/lighthouse-reports/` **não** foi ignorado inteiro (17 arquivos versionados legítimos;
+`/rw-promote.js`, `apps/web/scripts/_*.mjs`, `docs/07-operations-marketing/lighthouse-reports/s1-*.json`. Validado com `git check-ignore` (10/10).
+**Over-ignore evitado:** `docs/07-operations-marketing/lighthouse-reports/` **não** foi ignorado inteiro (17 arquivos versionados legítimos;
 `catalog-pt.json` confirmado NÃO ignorado). Itens especulativos inexistentes (`INDEX.xml`, `wiring.json`,
 `vitest.config.md`, `audit-igdb-ids.md`) **não** foram adicionados.
 **Silenciamento local (não versionado):** padrões anexados a `.git/info/exclude` → `git status --short` **0** entradas.

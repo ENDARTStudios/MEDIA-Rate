@@ -281,7 +281,7 @@ Depois de feito: responda "feito o item Nº 11".
 
 Por quê: hoje `main` = produção automática; não há ambiente intermediário. O deploy
 Railway é nativo no push de `main` — nenhum gate GitHub atual o impede.
-Onde: opções e passos exatos em `docs/b1-prod-guards.md` §2 (Opção A: GitHub Environment
+Onde: opções e passos exatos em `docs/06-devops-deployment/b1-prod-guards.md` §2 (Opção A: GitHub Environment
 protection — custo 0, gate+sinal pós-merge; Opção B: branch `staging` com Railway
 environment separado — custo mensal, trava de verdade). Nada foi configurado.
 Como saber que deu certo: deploy de produção só ocorre após aprovação/merge no caminho
@@ -309,7 +309,7 @@ Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
 
 Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
 interno do Railway — inalcançável de runners GitHub.
-Onde: três caminhos com passos em `docs/b1-prod-guards.md` §3 (proxy TCP público com
+Onde: três caminhos com passos em `docs/06-devops-deployment/b1-prod-guards.md` §3 (proxy TCP público com
 allowlist; self-hosted runner na rede; console Railway como padrão de incidente —
 recomendação T031). Nada foi provisionado.
 Como saber que deu certo: uma migration aplicada manualmente com sucesso, com backup
@@ -317,7 +317,7 @@ prévio (`scripts/backup-db.sh`) e log colado no PR correspondente.
 Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
 
 > 🟡 **RECOMENDADO (T034, 2026-09-22) — console Railway (menor privilégio).** Runbook
-> detalhado (matriz comparativa) em `docs/runbooks/migration-manual.md`. Alternativas
+> detalhado (matriz comparativa) em `docs/06-devops-deployment/runbooks/migration-manual.md`. Alternativas
 > (**proxy TCP público** e **self-hosted runner**) exigem expor o Postgres ou criar
 > superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
 > (sem segredo, sem migração, sem custo).
@@ -398,7 +398,7 @@ sem: (a) cifragem **determinística** para o e-mail (senão quebra login);
 `COLUMN_ENCRYPTION_KEY` presente no runtime (o serviço **lança** sem ela). Nada foi
 alterado (sem schema, sem migration, sem segredo).
 
-Onde: `docs/LGPD_DADOS.md` (inventário + decisão) e
+Onde: `docs/05-security-compliance/LGPD_DADOS.md` (inventário + decisão) e
 `apps/api/src/common/column-encryption.service.ts`.
 
 Como decidir: (A) manter o status quo e apenas **minimizar PII em logs**

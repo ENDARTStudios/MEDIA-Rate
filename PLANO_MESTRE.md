@@ -79,7 +79,7 @@
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).
-- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/LGPD_DADOS.md`. **T049/D-543:** mascaramento de PII em logs de `auth` **implementado** (helper `pii-mask.ts` + `auth-pii-log.spec.ts`); cifragem de coluna **segue bloqueada** (P017). **T055/D-545:** `AuditLog` (novos registros) sanitizado — PII redigida e `ip_origem` coarsenado p/ rede válida (`@db.Inet`), **sem migration** e com a cadeia de hash preservada (`audit-log-pii`/`audit-log-integridade` 4/4).
+- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/05-security-compliance/LGPD_DADOS.md`. **T049/D-543:** mascaramento de PII em logs de `auth` **implementado** (helper `pii-mask.ts` + `auth-pii-log.spec.ts`); cifragem de coluna **segue bloqueada** (P017). **T055/D-545:** `AuditLog` (novos registros) sanitizado — PII redigida e `ip_origem` coarsenado p/ rede válida (`@db.Inet`), **sem migration** e com a cadeia de hash preservada (`audit-log-pii`/`audit-log-integridade` 4/4).
 - [x] 2.11 Seed de admin + usuários (free/plus/premium).
 - [x] 2.12 Índices em todas as FKs + colunas de busca.
 - [x] 2.13 Unicidades documentadas (`@@unique`: email, fonte+fonte_id, midia_id, usuario+midia, etc.).
@@ -115,7 +115,7 @@
 - [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse.
 - [x] 3.8 Rate limit específico /auth (6 req/min login).
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
-- [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
+- [x] 3.10 Documentação API Auth: `docs/04-api-integrations/api/auth.md`.
 - [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
   evid. T029: enforcement provado em produção (smoke T027, 2026-09-21 — register exige verificação real via Resend); rota `google/callback` (OAuth Google) ativa e não inventariada acima.
 
@@ -237,7 +237,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.1.2 Testes unitários + integração (`vitest --coverage`).
 - [x] 9.1.3 SAST (CodeQL) + dependency scan (`npm audit` + Trivy).
 - [x] 9.1.4 Docker multi-stage (`apps/api/Dockerfile`) com prune de dev deps.
-- [x] 9.1.5 Scan de imagem Trivy (SARIF). **T033: modo relatório (exit 0)** — CVE de base (upstream) não trava o CI; gate bloqueante de runtime = `npm run audit:ci` (ver `docs/SECURITY_TRIAGE.md`, D-534).
+- [x] 9.1.5 Scan de imagem Trivy (SARIF). **T033: modo relatório (exit 0)** — CVE de base (upstream) não trava o CI; gate bloqueante de runtime = `npm run audit:ci` (ver `docs/05-security-compliance/SECURITY_TRIAGE.md`, D-534).
 - [~] 9.1.6 Deploy em staging: Vercel Preview + Railway; sem staging separado.
 - [~] 9.2 Secrets no CI (8 variáveis via `${{ secrets.X }}`).
 - [~] 9.3 Deploy blue-green/rolling (Vercel atômico + Railway rolling).
@@ -248,16 +248,16 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 9.5.4 Uptime check externo: UptimeRobot pendente.
 - [x] 9.6 Healthcheck HTTP (`GET /health`).
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
-- [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
+- [x] 9.8 Plano de resposta a incidentes (docs/05-security-compliance/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
 - [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
-- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/runbooks/migration-manual.md`) — `docs/b1-prod-guards.md`.
+- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/06-devops-deployment/runbooks/migration-manual.md`) — `docs/06-devops-deployment/b1-prod-guards.md`.
 - [x] 9.13 `security.yml` verde (T033): audit governado (`npm run audit:ci` — runtime blocking + allowlist dev-only P009/D-462), CodeQL `@v4`, Trivy pinado ao SHA imutável de `v0.36.0` (ambos jobs) e trigger em PR; scan de imagem em **modo relatório** (SARIF). PR #172 aberto, `security.yml` verde (scan 2m22s; Trivy Image Scan 1m26s). Ver D-534.
 - [~] 9.14 Alertas métricos automatizados 5xx/auth (T040/D-538): `scripts/ci/metric-alerts.mjs` (thresholds 5xx >1%/>=5 abs; auth >50/1min/>=10/5min; parser Prometheus+JSON; dedup de issue) + self-test determinístico 18/18 + workflow `alertas-metricos.yml` (schedule 15min; **dry-run por padrão**; live só com `vars.METRICS_URL`+`secrets.ADMIN_TOKEN`; sem infra paga/deploy). PR aberto, sem merge; ativação live depende do Operador.
 - [~] 9.15 Uptime sintético de endpoints públicos (T042/D-539): `scripts/ci/uptime-check.mjs` (lógica pura; GET/HEAD só em rotas públicas, timeout 10s; dedup de issue create/update/close) + self-test 11/11 + workflow `uptime-check.yml` (schedule 10min; concurrency; permissions contents:read+issues:write). Coleta live 7/7 OK. PR aberto, sem merge; UptimeRobot externo complementar = P015.
-- [x] 9.16 Triagem de workflows crônicos na `main` (T046/T047/D-541): `Release` (raiz do monorepo sem script `build` → `npm error Missing script: "build"`) e `create-pr-from-branch` (heredoc em coluna 0 → **YAML inválido** → run sem jobs em todo push). Ambos **não-required**. Correção: `Release` → `workflow_dispatch` + `npm run build --if-present`; `create-pr` → corpo via `printf` e disparo **MANUAL** (`workflow_dispatch`) — **não** reativar automação inerte sem decisão (P016). **MERGED #199 (`6264601`); pós-merge sem runs de Release/Auto-create; CI/Security success; smoke 7/7 → 200.** Ver `docs/CI.md`.
+- [x] 9.16 Triagem de workflows crônicos na `main` (T046/T047/D-541): `Release` (raiz do monorepo sem script `build` → `npm error Missing script: "build"`) e `create-pr-from-branch` (heredoc em coluna 0 → **YAML inválido** → run sem jobs em todo push). Ambos **não-required**. Correção: `Release` → `workflow_dispatch` + `npm run build --if-present`; `create-pr` → corpo via `printf` e disparo **MANUAL** (`workflow_dispatch`) — **não** reativar automação inerte sem decisão (P016). **MERGED #199 (`6264601`); pós-merge sem runs de Release/Auto-create; CI/Security success; smoke 7/7 → 200.** Ver `docs/06-devops-deployment/CI.md`.
 
 ---
 
@@ -293,7 +293,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] P0 T280 — filtro soft-delete nas leituras que vazavam (recommendations, relacoes/grafo, candidatos de slug)
 - [x] T324 — sprint: votos reais nos adapters OpenCritic/AniList/Kitsu (commit `56f3884`) — pull Bayesiano do MEDIA Score v3 ganha massa nas categorias games/anime/mangá; lições D-312 (votos = contagem real, nunca popularity; Number() na fronteira do adapter)
 - [x] T322 — reparo de órfãos curtidos (commit `065550c`): script `db:reparo:orfaos` + endpoint `PATCH /watchlist/:id/relink` + CTA "Buscar substituta"; run em produção pendente do Operador
-- [x] T323 — triagem da revisão externa (15 HIGH confirmados) em `docs/REVISAO_EXTERNA_TRIAGEM.md` · tarefas T325–T341 priorizadas
+- [x] T323 — triagem da revisão externa (15 HIGH confirmados) em `docs/05-security-compliance/REVISAO_EXTERNA_TRIAGEM.md` · tarefas T325–T341 priorizadas
 - [x] T325 — correção HIGH #1: CsrfGuard global em métodos mutantes (commit `0917a41`) + cookie csrf persistente + checkout envia X-CSRF-Token
 - [x] T326 — correção HIGH #2: IdempotencyInterceptor global (mutante+autenticado+Idempotency-Key, commit `5b56f5d`) com `IdempotencyStore` (hash + TTL 24h)
 - [x] T327 — correção HIGH #3: trial único por usuário (`trial_used_at`, commit `b7b4db2`) — gate 409 no checkout PLUS + marca idempotente na ativação
@@ -302,7 +302,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T329 — painel de diagnóstico interno read-only (commit `c00d075`): `GET /api/v1/admin/diagnostics` @Roles(ADMIN) + página `/admin/diagnostics`
 - [x] T346 — perf HIGH original: DiagPanel web dispara chamadas só quando ativo `?diag=1` (commit `f0b5c87`) — eliminado 2 requests por pageview
 - [x] T342 — mailer transacional nos fluxos de auth (verificação/reset, commit `3aaad1d`): MockMailService vira facade do MailerService + templates com escape + dedupe off
-- [x] T347 — runbook único do Operador (commit `f8778a7`): `docs/RUNBOOK_OPERADOR_FINAL.md` (6 passos: Postgres teste → migrate → reparo T322 → deploys → mailer real → verificação)
+- [x] T347 — runbook único do Operador (commit `f8778a7`): `docs/06-devops-deployment/RUNBOOK_OPERADOR_FINAL.md` (6 passos: Postgres teste → migrate → reparo T322 → deploys → mailer real → verificação)
 - [x] T349 — infra: portas parametrizadas no compose + Postgres de teste em 5434 (commit `19c9b02`) — desbloqueia T344/T345
 - [x] T344/T345 — RLS FORCE em `usuario_plano` (owner+SERVICE+ADMIN) + isolamento A≠B (commit `a893f64`): leitores sob `comContextoRls`, teste e2e real `rls-usuario-plano.e2e.spec.ts` 5/5
 - [x] T348 — transport real do mailer (Resend, commit `b7f913a`): `ResendMailTransport` (fetch nativo) + `criarTransport()` (resend se `MAIL_PROVIDER=resend`+`RESEND_API_KEY`, senão mock) — entrega real gateada só na chave do Operador
@@ -350,7 +350,7 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
    por-request), go/no-go S0→S1 (≥24h métricas), T466 (UUID truncado no
    evento Sentry — aguarda request URL), T468 (KV via token com KV:Edit).
    **Gate legal F17 FECHADO** (parecer valida auditoria; 7 recomendações em
-   backlog F19/F20 — docs/legal/2026-09-15-revisao-legal/parecer-recebido/).
+   backlog F19/F20 — docs/05-security-compliance/legal/2026-09-15-revisao-legal/parecer-recebido/).
 2. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
 3. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
 4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags

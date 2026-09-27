@@ -49,6 +49,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Self-test do linkcheck (offline)
+        run: node scripts/ci/linkcheck.self-test.mjs
+      - name: Linkcheck de docs (offline; T115)
+        run: node scripts/ci/linkcheck.mjs
       - id: filter
         name: Filtra arquivos de código
         run: |
@@ -69,7 +73,7 @@ jobs:
           while IFS= read -r f; do
             [ -z "$f" ] && continue
             case "$f" in
-              docs/*|*.md|.claude/*|docs/screenshots/*) ;;
+              docs/*|*.md|.claude/*|docs/07-operations-marketing/screenshots/*) ;;
               *) code=true ;;
             esac
             # T061/D-548: só roda o job E2E FULL quando muda infra de E2E/evidence/CI.
@@ -90,6 +94,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Self-test do linkcheck (offline)
+        run: node scripts/ci/linkcheck.self-test.mjs
+      - name: Linkcheck de docs (offline; T115)
+        run: node scripts/ci/linkcheck.mjs
       - name: Arquivos alterados
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -148,6 +156,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Self-test do linkcheck (offline)
+        run: node scripts/ci/linkcheck.self-test.mjs
+      - name: Linkcheck de docs (offline; T115)
+        run: node scripts/ci/linkcheck.mjs
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -501,7 +513,7 @@ jobs:
           PLAYWRIGHT_BASE_URL: "http://localhost:3000/pt-BR"
         # T461 (D-492): job web-only (sem API/DB) — roda a allowlist curada
         # de specs que são significativos sem backend. A suíte completa exige
-        # E2E_FULL=1 com API+DB (ver apps/web/docs → docs/E2E.md); o corpus
+        # E2E_FULL=1 com API+DB (ver apps/web/docs → docs/06-devops-deployment/E2E.md); o corpus
         # restante (t103–t161, fluxos, a11y) fica pulado com justificativa.
         run: npx playwright test e2e/auth.spec.ts e2e/navigation.spec.ts --project=chromium
       - name: Upload Playwright report

@@ -536,7 +536,7 @@ REQUIRED_FILES = [
     "DECISOES.md",
     "PENDENCIAS_OPERADOR.md",
     "MANUAL_DO_OPERADOR.md",
-    "docs/CHANGELOG.md",
+    "docs/08-knowledge-management/CHANGELOG.md",
     ".gitignore",
     ".env.example",
     ".claude/schemas/tarefa.schema.json",
@@ -1005,7 +1005,7 @@ PLANO_EOF
 # MANUAL_DO_OPERADOR.md
 MANUAL_EOF
 
-[ -f docs/CHANGELOG.md ] || mkdir -p docs && cat > docs/CHANGELOG.md <<'CHANGELOG_EOF'
+[ -f docs/08-knowledge-management/CHANGELOG.md ] || mkdir -p docs && cat > docs/08-knowledge-management/CHANGELOG.md <<'CHANGELOG_EOF'
 # Changelog
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/);

@@ -17,7 +17,7 @@ const H1_FRAGMENT: Record<string, string> = {
 // sem API a home não renderiza a hero completa. CI sobe só o web.
 test.skip(
   process.env.E2E_FULL !== "1",
-  "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+  "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md",
 );
 
 test("T358: hero sem ícones circulares nem nomes flutuantes", async ({ page }) => {

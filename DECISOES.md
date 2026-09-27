@@ -956,7 +956,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 
 - DECISAO: usar Grafana Cloud free tier como backend de traces OTel (D-320: custo zero). Jaeger self-hosted fica como alternativa documentada (privacidade estrita/on-prem), nao e o padrao agora.
 - Justificativa: free tier (50 GB traces/mes, retencao 14d) e mais que suficiente para a escala (1k->50k); zero manutencao (SaaS); OTLP/HTTP nativo; UI rica (Tempo traces + dashboards + alerting). Jaeger exige servidor + storage + updates + disco + backup - custo operacional desproporcional.
-- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/AVALIACAO_BACKEND_OTEL.md.
+- Setup (quando o Operador criar a conta): OTEL_EXPORTER_OTLP_ENDPOINT (gateway Grafana Cloud) + OTEL_EXPORTER_OTLP_HEADERS (Basic user:token) no Railway (API) e NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT no Vercel (web). Detalhes em docs/07-operations-marketing/AVALIACAO_BACKEND_OTEL.md.
 - Codigo OTel ja pronto e inerte: API (apps/api/src/common/otel.ts) e web (apps/web/src/lib/otel-browser.ts) so ativam quando o endpoint e definido.
 ## [2026-08-20] Decisao: D-344 — boa pratica de secrets (comparacao programatica + rotacao)
 
@@ -966,7 +966,7 @@ Relatorio de cobertura (models com FK usuario x RLS):
 1. Secrets colados devem ser comparados PROGRAMATICAMENTE (diff/hash caractere a caractere), nunca visualmente.
 2. Rotacao de ADMIN_TOKEN autorizada (T378): novo valor nunca em log/transcript, apenas hash SHA-256 para auditoria.
 3. COMICVINE_API_KEY avaliada: chave de leitura publica (sem write/delete) → rotacao opcional; rotacionar se o provedor expuser permissao sensivel.
-4. Boa pratica documentada em docs/BOAS_PRATICAS_SECRETS.md.
+4. Boa pratica documentada em docs/06-devops-deployment/BOAS_PRATICAS_SECRETS.md.
 
 **Impacto:** T378 emitida e executada; lição permanente registrada para futuras tarefas com secrets.
 
@@ -1818,7 +1818,7 @@ manual sem PR/merge). Validação executada: passo de sourcemaps executa e sobe
 
 **Data:** 2026-09-15 · **Fase:** F17-compliance · **Status:** REGISTRADA
 
-**Contexto:** a D-498 especificou `docs/legal/2026-09-15-revisao-legal/` como
+**Contexto:** a D-498 especificou `docs/05-security-compliance/legal/2026-09-15-revisao-legal/` como
 entregável mas nenhuma TAREFA foi emitida. O Doer, corretamente, não executa
 escopo sem handoff. Falha de emissão do Thinker; estado real (repo) vence
 descrição (decisão).
@@ -1850,7 +1850,7 @@ um media real. O Doer bloqueou por governança (postura correta pós-F17).
 
 **Decisão:** uploads E2E usam exclusivamente media de teste dedicado
 (slug `media-test-r2-upload`, FILME, "pode deletar"), documentado em
-`docs/legal/R2-TEST-MEDIA.md`; fixture local criado (`475eb2dd…`); criação em
+`docs/05-security-compliance/legal/R2-TEST-MEDIA.md`; fixture local criado (`475eb2dd…`); criação em
 produção pendente de acesso ao banco (mesmo bloqueio do incidente migrate:
 `postgres.railway.internal` é inalcançável — Operador fornece URL pública ou
 usa `railway run`). Pós-validação: soft-delete ou fixture, a critério do
@@ -1870,7 +1870,7 @@ recomendações finais (backlog F19/F20 — não bloqueiam rollout). P1 (KV) e P
 versionado + parecer); (2) T468: Doer verifica escopo KV do token e cria as
 namespaces (ou reporta criação manual); (3) Sentry verificado via CLI
 (release 91a5e31 registrada, 0 novos eventos em 40h); (4) backlog das 7
-recomendações versionado em docs/legal/2026-09-15-revisao-legal/parecer-recebido/;
+recomendações versionado em docs/05-security-compliance/legal/2026-09-15-revisao-legal/parecer-recebido/;
 (5) go/no-go S0→S1 após T468.
 
 ## D-519 — Lesson learned: verificação de identidade exige fonte primária
@@ -2059,7 +2059,7 @@ problemática mergeado em `main` vai direto para produção, sem stage e sem tra
 4. Limites: não cobre push direto (já proibido pela ruleset D-457); valida o contrato,
    não a qualidade da migration; tornar o check REQUIRED na ruleset de `main` é decisão
    do Operador (P011). Staging/Environment e caminho de migration manual: propostas em
-   `docs/b1-prod-guards.md` (P012/P013) — nada executado.
+   `docs/06-devops-deployment/b1-prod-guards.md` (P012/P013) — nada executado.
 
 **Testes:** self-test 10/10 (`--self-test`); CLI validado nos 3 caminhos (liberado sem
 banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
@@ -2110,7 +2110,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Decisão:**
 1. **P011 ✅ HABILITADO.** Inventário + teste: **`rerun` do CI NÃO adiciona o check** (re-executa o workflow do commit antigo); **`update-branch` (merge de `main`) SIM**. Apliquei `update-branch` nas PRs mantidas **#140, #139, #133** → `Migration Safety (B1)` **pass**; **#172** já tinha. As PRs **#4/#3/#2** retornaram `422 merge conflict` → já são `CONFLICTING`/`DIRTY` (**não mergeáveis de qualquer forma**), portanto não são bloqueadas pela mudança. Então adicionei `Migration Safety (B1)` aos required checks da ruleset `protect-main` (antes: Lint & Audit, Test & Coverage, Build, RLS, Docs Gate).
 2. **P012 🟡 PREPARADO (SEM merge).** O environment `Production` já existia com **required reviewer** (Operador). PR `chore/t034-b1-final` adiciona `environment: Production` aos jobs `validate`/`health-check` do `deploy.yml`. **Limitação honesta:** o deploy nativo Vercel/Railway não é bloqueado pelo environment.
-3. **P013 🟡 RECOMENDADO.** Console Railway (menor privilégio/exposição); runbook `docs/runbooks/migration-manual.md`; proxy TCP público / self-hosted runner escalados (exposição/custo).
+3. **P013 🟡 RECOMENDADO.** Console Railway (menor privilégio/exposição); runbook `docs/06-devops-deployment/runbooks/migration-manual.md`; proxy TCP público / self-hosted runner escalados (exposição/custo).
 4. **Nenhuma** migration executada; **nenhum** deploy de produção; **nenhum** segredo/infra externa alterado.
 
 **Evidências (sem segredos):** snapshot da ruleset antes/depois (**6** required checks); `#140/#139/#133` com `Migration Safety (B1)=pass` após `update-branch`; `#4/#3/#2` `mergeable=CONFLICTING`; environment `Production` com `required_reviewers`.
@@ -2220,7 +2220,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 **Escopo:** sem remover/enfraquecer checks required, sem alterar ruleset/secrets/infra, sem deploy, sem migration. Sem mudança de produto.
 
-**Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/CI.md`.
+**Evidências:** YAML validado com `js-yaml` (`name`/`on` corretos em ambos); runs anteriores mostrando o padrão de falha; ruleset consultada. Ver `docs/06-devops-deployment/CI.md`.
 
 > **T047 (2026-09-22) — ajuste antes do merge:** o `create-pr-from-branch` ficou
 > com disparo **MANUAL** (`workflow_dispatch`) por padrão, e **não** com
@@ -2247,13 +2247,13 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 **Contexto:** o `ColumnEncryptionService` (AES-256-GCM, T2.6) existe mas **não está wired** (0 usos; PLANO 2.10 `[~]`). Era preciso decidir se pode ser aplicado sem migration, sem segredo novo e sem quebrar login/busca/LGPD.
 
-**Inventário (resumo):** PII buscável = `Usuario.email` (`@unique`, lookup por igualdade no login/registro/reset/Google). PII não-buscável = `Usuario.nome`, `Sessao.user_agent`/`ip_criacao`, `ConsentimentoUsuario.ip_aceite`, `UsuarioMidiaInteracao.comentario`, `AuditLog.{dados_antes,dados_depois,ip_origem}`. Já derivados por hash: tokens de verificação/reset, `Sessao.token_hash`/`refresh_token_hash`, `ConsentLog.ip_hash`, `senha_hash` (argon2). Detalhes em `docs/LGPD_DADOS.md`.
+**Inventário (resumo):** PII buscável = `Usuario.email` (`@unique`, lookup por igualdade no login/registro/reset/Google). PII não-buscável = `Usuario.nome`, `Sessao.user_agent`/`ip_criacao`, `ConsentimentoUsuario.ip_aceite`, `UsuarioMidiaInteracao.comentario`, `AuditLog.{dados_antes,dados_depois,ip_origem}`. Já derivados por hash: tokens de verificação/reset, `Sessao.token_hash`/`refresh_token_hash`, `ConsentLog.ip_hash`, `senha_hash` (argon2). Detalhes em `docs/05-security-compliance/LGPD_DADOS.md`.
 
 **Decisão:** **não implementar cifragem agora.** Bloqueios: (1) `email` é buscável por igualdade e o serviço é **não determinístico** (IV aleatório) → exigiria cifragem determinística (decisão de arquitetura não trivial); (2) dados existentes em plaintext → **migration + backfill**; (3) wiring exige `COLUMN_ENCRYPTION_KEY` e o serviço **lança** sem ela (novo segredo + risco de indisponibilidade). Nenhuma alteração de schema/migration/segredo.
 
 **Achado acionável (baixo risco, não implementado aqui):** `auth.service.ts:261` grava o e-mail em claro no log de lockout (o `redact` não cobre PII embutida na mensagem) → follow-up: mascarar.
 
-**Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/LGPD_DADOS.md`, `docs/SECURITY_TRIAGE.md` §T048, **P017**.
+**Evidências:** inventário via schema/módulos/logs; serviço e testes lidos; sem PII/segredo em evidência. Ver `docs/05-security-compliance/LGPD_DADOS.md`, `docs/05-security-compliance/SECURITY_TRIAGE.md` §T048, **P017**.
 
 ## D-543 — T049: mascaramento de PII em logs de autenticação (LGPD)
 
@@ -2309,7 +2309,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 
 **Evidência:** `apps/api/test/audit-integrity-drift.spec.ts` (mock determinístico, timers congelados): offset 0 → `integro`; `+2 ms` e `−3 s` → `integro: false`; alterar `dados_depois` não afeta (confirma T055). 4/4. Relatório: `.claude/reports/audit-integrity-drift-2026-09-24.md`.
 
-**Impacto:** `verificarIntegridade()` **não tem chamador em runtime** (`grep` em `apps/api/src` = 0); usado apenas em docs/runbook de DR (`docs/BACKUP_DR.md`) e testes → risco de runtime **baixo**; risco de procedimento **médio** (falso alarme numa recuperação).
+**Impacto:** `verificarIntegridade()` **não tem chamador em runtime** (`grep` em `apps/api/src` = 0); usado apenas em docs/runbook de DR (`docs/06-devops-deployment/BACKUP_DR.md`) e testes → risco de runtime **baixo**; risco de procedimento **médio** (falso alarme numa recuperação).
 
 **Recomendação:** **Opção B** — gravar `created_at` explicitamente no `log()` com o mesmo `new Date()` do hash (fonte única de tempo; sem migration/backfill; histórico intacto), implementada em PR de código dedicado (T058 sugerida). Nada implementado nesta tarefa (restrição explícita).
 
@@ -2429,7 +2429,7 @@ compensatórios (conclusão da T048/D-542 confirmada como decisão).
 **Decisão:**
 1. Cifragem de colunas sensíveis **adiada para pós-Beta** — motivos: busca
    determinística (login por igualdade de email), risco no caminho de auth, custo
-   de migration+backfill+secret (plano completo em `docs/lgpd-column-encryption-plan.md`).
+   de migration+backfill+secret (plano completo em `docs/05-security-compliance/lgpd-column-encryption-plan.md`).
 2. Compensações mantidas e testadas: PII mask (T049/D-543), AuditLog sanitizado
    (T055/D-545), argon2id, tokens hash, TLS, LGPD export/delete, DTO allowlist.
 3. **Guarda anti-regressão**: `apps/api/test/schema-sensitive-columns.spec.ts`
@@ -2438,3 +2438,14 @@ compensatórios (conclusão da T048/D-542 confirmada como decisão).
 4. Nenhuma migration aplicada neste passo.
 
 **Evidência:** spec 2/2 verde contra o schema real (allowlist gerada ao vivo).
+
+### D-558 - Projeto 2 (reorganizacao de docs) encerrado + licoes permanentes (2026-09-28)
+**Decisao:** `docs/` reestruturado em 8 pilares + README + stubs/ponteiros por design, em 5 fases faseadas
+(#307, #308, #310, #311, #314; `main` = `73c8a4e2`). 71 movimentos (`git mv`), 225 referencias reescritas byte-safe,
+6 diretorios realocados em bloco, 6 fusoes com nota de origem + stubs de 3 linhas.
+**Guarda permanente:** `scripts/ci/linkcheck.mjs` (offline; self-test 11/11) no job `docs-gate` - ja corrigiu 41 links herdados.
+**Licoes (registradas em `docs/STYLE_GUIDE.md`):** (L1) hygiene direcionada `eslint --fix` + `prettier --check` nos
+arquivos alterados antes do push (print-width, #311); (L2) step de CI que le arquivos do repo deve vir depois do
+`actions/checkout` e a ORDEM dos steps deve ser conferida (nao so a sintaxe) - logs via `gh api .../jobs/<id>/logs`
+quando `gh run view --log` voltar vazio (#314).
+**Beta:** status inalterado (GO tecnico estrutural; convites suspensos pelo programa BETA-GAP - 1/18).

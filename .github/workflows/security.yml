@@ -61,7 +61,7 @@ jobs:
       # (node:20-alpine + deps); CVE de base é upstream e não deve travar o CI.
       # Os achados vão para o SARIF (aba Security). O gate BLOQUEANTE de
       # dependências de runtime permanece em `npm run audit:ci` (job scan) e o
-      # SAST em CodeQL. Triagem em docs/SECURITY_TRIAGE.md; promoção de volta a
+      # SAST em CodeQL. Triagem em docs/05-security-compliance/SECURITY_TRIAGE.md; promoção de volta a
       # bloqueante é decisão do Operador (D-534).
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
