@@ -3000,3 +3000,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - apps/web/test/score-utils.spec.ts: casos de manga 0-10, truncamento (7.95->7.9; 6.42...->6.4; 89.99->89.9) e invalidos.
 - Evidencia: vitest 29/29 (2 arquivos); tsc --noEmit limpo; eslint --max-warnings=0 limpo; diff restrito a 3 arquivos web (sem backend/schema/auth/billing/segredo); PR #301 merged (merge commit); smoke 4/4 -> 200.
 - Programa BETA-GAP: 1/18 concluido. GO para convites segue SUSPENSO.
+## [2026-09-27] T107 (parcial) — BETA-GAP-13 fix publicado; BETA-GAP-14 pendente
+- Diagnostico BETA-GAP-13: abaixo do CTA havia rodapes de altura VARIAVEL (free=0 linha; plus=securePayment+trialPlus; premium=securePayment+renewInfo) => y do CTA diferia entre cards. Fix: PricingCards.tsx agrupa CTA+rodapes em container com min-h reservado (data-testid plan-cta-*/plan-footer-*). eslint+tsc limpos. PR #303 aberto.
+- BETA-GAP-14 (densidade Biblioteca): grid atual `grid-cols-2 gap-4 sm:3 lg:4 xl:5` (BibliotecaClient.tsx:233). NAO alterado: requer medicao baseline (bounding boxes) antes de definir limites numericos, conforme a propria tarefa. Registrado como PENDENTE.
+- Spec Playwright de layout (e2e/layout-plans-library.spec.ts) NAO escrito neste ciclo (orcamento). BETA-GAP-13 fica EM_REVIEW (sem alegacao de DONE sem medicao). GO para convites segue SUSPENSO.

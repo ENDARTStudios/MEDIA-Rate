@@ -149,6 +149,7 @@ export function PricingCards({
           return (
             <div
               key={plan.id}
+              data-testid={`plan-card-${plan.id}`}
               className={`relative rounded-md border p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                 isPlus
                   ? "bg-[#12121C] border-[rgba(129,140,248,0.2)]"
