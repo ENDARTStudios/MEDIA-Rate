@@ -68,8 +68,8 @@ portanto o gate Promoção-para-Produção não é 100% autônomo; o deploy nati
 **Diagnóstico:** `git status --short` → 14 entradas, **todas untracked** (0 staged/modified) ⇒ limpeza segura.
 **Correção (PR #296, merge `a288f8a2`):** +20 linhas no `.gitignore` para `.od-skills/`, `graft/`, `.ignore`,
 `*.sketch.json`, `.wrangler/`, `apps/web/.wrangler/`, `/media-rate-home-prototype.html(+.artifact.json)`,
-`/rw-promote.js`, `apps/web/scripts/_*.mjs`, `docs/lighthouse-reports/s1-*.json`. Validado com `git check-ignore` (10/10).
-**Over-ignore evitado:** `docs/lighthouse-reports/` **não** foi ignorado inteiro (17 arquivos versionados legítimos;
+`/rw-promote.js`, `apps/web/scripts/_*.mjs`, `docs/07-operations-marketing/lighthouse-reports/s1-*.json`. Validado com `git check-ignore` (10/10).
+**Over-ignore evitado:** `docs/07-operations-marketing/lighthouse-reports/` **não** foi ignorado inteiro (17 arquivos versionados legítimos;
 `catalog-pt.json` confirmado NÃO ignorado). Itens especulativos inexistentes (`INDEX.xml`, `wiring.json`,
 `vitest.config.md`, `audit-igdb-ids.md`) **não** foram adicionados.
 **Silenciamento local (não versionado):** padrões anexados a `.git/info/exclude` → `git status --short` **0** entradas.

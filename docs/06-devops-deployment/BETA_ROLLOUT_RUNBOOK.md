@@ -67,7 +67,7 @@ lentidão, dado errado, preocupação de privacidade.
 1. Identificar o **merge commit** da regressão.
 2. `gh pr ...`/git: **revert do merge commit** (`git revert -m 1 <sha>`) via PR — **nunca** `reset --hard`/force push.
 3. Confirmar CI verde + smoke 7/7 após o revert.
-4. Se houver migration incompatível: seguir `docs/runbooks/migration-manual.md` (**sem** auto-apply).
+4. Se houver migration incompatível: seguir `docs/06-devops-deployment/runbooks/migration-manual.md` (**sem** auto-apply).
 
 ### Continuar Beta
 - erros isolados; Sentry sem padrão crítico; smoke verde; feedback sem risco legal/segurança.

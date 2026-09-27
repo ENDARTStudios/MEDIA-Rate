@@ -43,7 +43,7 @@
 
 ## Pendências do Operador (hard-stops — apenas preparadas, nada executado)
 
-P010 (GITHUB_TOKEN quirk) · **P012** (staging/environment — runbook pronto em `docs/06-devops-deployment/b1-prod-guards.md` §2; evidência acumulando: deploys waiting saudáveis) · **P013** (migration manual — runbook `docs/runbooks/migration-manual.md`) · **P014** (alertas LIVE — dry-runs verdes: `alerting-uptime-dry-run-2026-09-25.md`) · **P015** (UptimeRobot) · **P016** (auto-PR feature/**) · **P017** (cifragem de colunas). P011 ✅ FEITO (T034/D-535, required check confirmado na ruleset).
+P010 (GITHUB_TOKEN quirk) · **P012** (staging/environment — runbook pronto em `docs/06-devops-deployment/b1-prod-guards.md` §2; evidência acumulando: deploys waiting saudáveis) · **P013** (migration manual — runbook `docs/06-devops-deployment/runbooks/migration-manual.md`) · **P014** (alertas LIVE — dry-runs verdes: `alerting-uptime-dry-run-2026-09-25.md`) · **P015** (UptimeRobot) · **P016** (auto-PR feature/**) · **P017** (cifragem de colunas). P011 ✅ FEITO (T034/D-535, required check confirmado na ruleset).
 
 ## Riscos abertos
 

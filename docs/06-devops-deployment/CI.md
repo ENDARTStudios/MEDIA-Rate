@@ -12,7 +12,7 @@ O workflow `ci.yml` **sempre dispara** em PRs e pushes para `main`. O
 `paths-ignore` foi movido do nível de workflow para o nível de job:
 
 - **`changes`** (`Detect Changes`) — detecta se há mudança de **código** (fora
-  de `docs/**`, `*.md`, `.claude/**`, `docs/screenshots/**`).
+  de `docs/**`, `*.md`, `.claude/**`, `docs/07-operations-marketing/screenshots/**`).
 - **`docs-gate`** (`Docs Gate`) — job leve que **SEMPRE roda** (secret scan nos
   arquivos alterados + sanity de markdown não-vazio). É **check requerido** do
   ruleset `protect-main`. Roda em < 1 min.

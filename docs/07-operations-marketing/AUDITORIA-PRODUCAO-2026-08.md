@@ -2,7 +2,7 @@
 
 **Base**: `media-rate-web.vercel.app` + `media-rate-production.up.railway.app`
 **Método**: Playwright automatizado (`e2e/auditoria-producao.spec.ts`) — 3 locales × páginas públicas + curl na API.
-**Screenshots**: `docs/auditoria/*.png` (12). **JSON**: `docs/auditoria/achados.json`.
+**Screenshots**: `docs/07-operations-marketing/auditoria/*.png` (12). **JSON**: `docs/07-operations-marketing/auditoria/achados.json`.
 
 ## Resumo
 

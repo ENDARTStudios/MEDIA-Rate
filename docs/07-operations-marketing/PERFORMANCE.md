@@ -7,7 +7,7 @@
 | API discover (p95) | < 200ms | **14ms** local (T027) |
 | API search (p95) | < 200ms | **22ms** local (T027) |
 | API geral | `responseTime` por request no log (pino) | monitorável via `/metrics` histograma |
-| Web LCP/TTFB | Lighthouse mobile "good" | relatórios em `docs/lighthouse-reports/` (baseline Vercel × canário S1) |
+| Web LCP/TTFB | Lighthouse mobile "good" | relatórios em `docs/07-operations-marketing/lighthouse-reports/` (baseline Vercel × canário S1) |
 | Bundle | sem regressão por PR | prova em `docs/07-operations-marketing/T405-U3-BUNDLE-PROVA.md` |
 
 ## O que sustenta esses números (não quebre)

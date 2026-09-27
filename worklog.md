@@ -2639,7 +2639,7 @@ Thinker autorizou merge condicional (TAREFA T028-merge-pr163). Auditoria pre-mer
 ## [2026-09-21] T029-beta-blocker-reconciliation (docs-only, PR aberto SEM merge)
 Auditoria com evidencia primaria (grep/leitura de codigo, schema, workflows, PRs #143/#153/#160/#163, issues #147/#148, smokes PROD 2026-09-21). Nenhuma tarefa virou [x]; apenas notas de evidencia.
 - FASE 2: gaps reais e corretamente anotados — permissions/data_sources/entity_revisions AUSENTES do schema (grep=0); ColumnEncryptionService existe em common/ com 0 usos em modules (nao wired); TipoMidia MANGA + ANIME deprecated (D-233); 50 migrations.
-- FASE 3: premissa de stale REFUTADA — 10 rotas auth presentes (+ google/callback nao inventariada), audit events completos, 403 EMAIL_NOT_VERIFIED provado em PROD (smoke T027), 7 specs auth + docs/api/auth.md.
+- FASE 3: premissa de stale REFUTADA — 10 rotas auth presentes (+ google/callback nao inventariada), audit events completos, 403 EMAIL_NOT_VERIFIED provado em PROD (smoke T027), 7 specs auth + docs/04-api-integrations/api/auth.md.
 - FASE 4: CONCLUIDA correta; divergencias CONFIRMADAS: inventario de modulos stale (plano 20, real 29 — faltava ate watchlist), contagem de testes stale (888/116 -> 897/117 apos #163), num. 4.13 duplicada (cosmetico).
 - #148 triada (1-14): FEITOS 11/13/14; decisões do Operador 5/6/8; tarefas 1/2/7/9/10/12; aceites 3/4.
 - Relatorio: .claude/reports/beta-blockers.md (forçado no git — .claude/ é ignorado, precedente schemas/scripts) com PROPOSTA_DOER: B1 guardas de producao (#148 7/9 + decisao 8), B2 sinais de operacao (#148 12 + UptimeRobot 9.5.4 + triagem Sentry), B3 higiene LGPD/contrato (#148 1 + PLANO 2.10). Nao-bloqueantes: governanca de dados (2.4/2.7), #148 2/3/4/5/6/10.
@@ -2672,7 +2672,7 @@ Evidencia: PR #172 head abc3433 -> scan pass (2m22s) + Trivy Image Scan pass (1m
 - Inventario + teste: rerun do CI NAO adiciona o check (workflow do commit antigo); update-branch (merge de main) SIM.
 - P011 FEITO: update-branch em #140/#139/#133 -> Migration Safety (B1) pass (o #172 ja tinha). #4/#3/#2 -> 422 merge conflict (CONFLICTING/DIRTY; nao mergeaveis de qualquer forma). Ruleset protect-main agora exige Migration Safety (B1) alem de Lint & Audit, Test & Coverage, Build, RLS, Docs Gate. Snapshot antes/depois.
 - P012 A PREPARADO (PR chore/t034-b1-final, SEM merge): deploy.yml jobs validate/health-check com environment: Production (ja existe, required reviewer). Limitacao honesta: deploy nativo Vercel/Railway nao e bloqueado por GitHub Environment.
-- P013 RECOMENDADO: console Railway (menor privilegio); runbook docs/runbooks/migration-manual.md; proxy TCP/self-hosted runner escalados.
+- P013 RECOMENDADO: console Railway (menor privilegio); runbook docs/06-devops-deployment/runbooks/migration-manual.md; proxy TCP/self-hosted runner escalados.
 - Sem migration, sem deploy de producao, sem segredos. D-535.
 
 ## [2026-09-22] T035-merge-pr172-179 (MERGED 6215096 + e6375f7; deploy.yml waiting=P012 A)
@@ -2988,7 +2988,7 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Smoke 7/7 -> 200. STATUS FINAL: BETA_GO_TECNICO_CONFIRMADO (todos os gates tecnicos verdes).
 ## [2026-09-27] T103+T104-gitignore-strays-cleanup (DONE)
 - Diagnostico: 14 entradas de status, TODAS untracked (0 staged/modified) - seguro.
-- .gitignore +20 linhas (PR #296, merge a288f8a2); check-ignore 10/10. NAO ignorado docs/lighthouse-reports/ inteiro (17 arquivos versionados legitimos). Itens especulativos inexistentes nao adicionados.
+- .gitignore +20 linhas (PR #296, merge a288f8a2); check-ignore 10/10. NAO ignorado docs/07-operations-marketing/lighthouse-reports/ inteiro (17 arquivos versionados legitimos). Itens especulativos inexistentes nao adicionados.
 - Silenciamento local via .git/info/exclude (nao versionado): git status --short -> 0 entradas. Sem troca de branch na arvore compartilhada.
 - Beta GO tecnico mantido; sem alteracao de produto/schema/segredo/infra.
 ## [2026-09-27] T105-beta-rollout-runbook (DONE; docs-only)

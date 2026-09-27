@@ -1,7 +1,7 @@
 # COMPLIANCE — LGPD e conformidade
 
 Papel do projeto: **controlador** dos dados dos usuários. Aprofundamentos:
-`docs/05-security-compliance/LGPD_DADOS.md` (mapa de dados por tabela) · `docs/legal/` (pacote jurídico
+`docs/05-security-compliance/LGPD_DADOS.md` (mapa de dados por tabela) · `docs/05-security-compliance/legal/` (pacote jurídico
 versionado, T464) · `docs/conformidade-v13.md` · `docs/05-security-compliance/PARECER_JURIDICO-2026-08-31.md`.
 
 ## Pilares implementados (com evidência)

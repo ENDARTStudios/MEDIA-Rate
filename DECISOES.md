@@ -1818,7 +1818,7 @@ manual sem PR/merge). Validação executada: passo de sourcemaps executa e sobe
 
 **Data:** 2026-09-15 · **Fase:** F17-compliance · **Status:** REGISTRADA
 
-**Contexto:** a D-498 especificou `docs/legal/2026-09-15-revisao-legal/` como
+**Contexto:** a D-498 especificou `docs/05-security-compliance/legal/2026-09-15-revisao-legal/` como
 entregável mas nenhuma TAREFA foi emitida. O Doer, corretamente, não executa
 escopo sem handoff. Falha de emissão do Thinker; estado real (repo) vence
 descrição (decisão).
@@ -1850,7 +1850,7 @@ um media real. O Doer bloqueou por governança (postura correta pós-F17).
 
 **Decisão:** uploads E2E usam exclusivamente media de teste dedicado
 (slug `media-test-r2-upload`, FILME, "pode deletar"), documentado em
-`docs/legal/R2-TEST-MEDIA.md`; fixture local criado (`475eb2dd…`); criação em
+`docs/05-security-compliance/legal/R2-TEST-MEDIA.md`; fixture local criado (`475eb2dd…`); criação em
 produção pendente de acesso ao banco (mesmo bloqueio do incidente migrate:
 `postgres.railway.internal` é inalcançável — Operador fornece URL pública ou
 usa `railway run`). Pós-validação: soft-delete ou fixture, a critério do
@@ -1870,7 +1870,7 @@ recomendações finais (backlog F19/F20 — não bloqueiam rollout). P1 (KV) e P
 versionado + parecer); (2) T468: Doer verifica escopo KV do token e cria as
 namespaces (ou reporta criação manual); (3) Sentry verificado via CLI
 (release 91a5e31 registrada, 0 novos eventos em 40h); (4) backlog das 7
-recomendações versionado em docs/legal/2026-09-15-revisao-legal/parecer-recebido/;
+recomendações versionado em docs/05-security-compliance/legal/2026-09-15-revisao-legal/parecer-recebido/;
 (5) go/no-go S0→S1 após T468.
 
 ## D-519 — Lesson learned: verificação de identidade exige fonte primária
@@ -2110,7 +2110,7 @@ banco exit 0; liberado com contrato exit 0; bloqueado/fail-closed exit 1).
 **Decisão:**
 1. **P011 ✅ HABILITADO.** Inventário + teste: **`rerun` do CI NÃO adiciona o check** (re-executa o workflow do commit antigo); **`update-branch` (merge de `main`) SIM**. Apliquei `update-branch` nas PRs mantidas **#140, #139, #133** → `Migration Safety (B1)` **pass**; **#172** já tinha. As PRs **#4/#3/#2** retornaram `422 merge conflict` → já são `CONFLICTING`/`DIRTY` (**não mergeáveis de qualquer forma**), portanto não são bloqueadas pela mudança. Então adicionei `Migration Safety (B1)` aos required checks da ruleset `protect-main` (antes: Lint & Audit, Test & Coverage, Build, RLS, Docs Gate).
 2. **P012 🟡 PREPARADO (SEM merge).** O environment `Production` já existia com **required reviewer** (Operador). PR `chore/t034-b1-final` adiciona `environment: Production` aos jobs `validate`/`health-check` do `deploy.yml`. **Limitação honesta:** o deploy nativo Vercel/Railway não é bloqueado pelo environment.
-3. **P013 🟡 RECOMENDADO.** Console Railway (menor privilégio/exposição); runbook `docs/runbooks/migration-manual.md`; proxy TCP público / self-hosted runner escalados (exposição/custo).
+3. **P013 🟡 RECOMENDADO.** Console Railway (menor privilégio/exposição); runbook `docs/06-devops-deployment/runbooks/migration-manual.md`; proxy TCP público / self-hosted runner escalados (exposição/custo).
 4. **Nenhuma** migration executada; **nenhum** deploy de produção; **nenhum** segredo/infra externa alterado.
 
 **Evidências (sem segredos):** snapshot da ruleset antes/depois (**6** required checks); `#140/#139/#133` com `Migration Safety (B1)=pass` após `update-branch`; `#4/#3/#2` `mergeable=CONFLICTING`; environment `Production` com `required_reviewers`.

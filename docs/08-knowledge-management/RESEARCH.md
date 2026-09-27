@@ -6,7 +6,7 @@
 ## Jurídico / LGPD
 
 - `docs/05-security-compliance/PARECER_JURIDICO-2026-08-31.md` — parecer externo (v13 → `conformidade-v13.md`).
-- `docs/legal/` — **pacote legal versionado (T464)**: Termos/Privacidade/rodapé;
+- `docs/05-security-compliance/legal/` — **pacote legal versionado (T464)**: Termos/Privacidade/rodapé;
   alteração de texto legal só via gate legal ([COMPLIANCE](../05-security-compliance/COMPLIANCE.md)).
 - `docs/05-security-compliance/LGPD_DADOS.md` — mapa de dados pessoais por tabela/coluna.
 
