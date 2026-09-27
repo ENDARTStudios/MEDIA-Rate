@@ -31,7 +31,7 @@ export class DashboardService {
     const planoEfetivo = plano ?? "FREE";
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const interacoes = await tx.usuarioMidiaInteracao.findMany({
-        where: { usuario_id: usuarioId, deleted_at: null },
+        where: { usuario_id: usuarioId },
         select: {
           status: true,
           atualizado_em: true,
