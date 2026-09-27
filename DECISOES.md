@@ -2449,3 +2449,13 @@ arquivos alterados antes do push (print-width, #311); (L2) step de CI que le arq
 `actions/checkout` e a ORDEM dos steps deve ser conferida (nao so a sintaxe) - logs via `gh api .../jobs/<id>/logs`
 quando `gh run view --log` voltar vazio (#314).
 **Beta:** status inalterado (GO tecnico estrutural; convites suspensos pelo programa BETA-GAP - 1/18).
+
+### D-559 - T119/BETA-GAP-03: acesso admin por papel (RBAC), independente de plano; promocao por CLI interna (2026-09-28)
+**Contexto:** o programa BETA-GAP exigia um caminho tecnico de administracao para a Beta sem depender de plano pago. A descoberta (com evidencia) mostrou que o RBAC **ja existia**: `@Roles` + `RolesGuard` global (`app.module.ts:100-109`), modelos `Papel`/`UsuarioPapel`, endpoints admin com `@Roles('ADMIN')` e auditoria (`ADMIN_STATS_VIEWED`). Faltavam: prova de independencia de plano, UI honesta, fixture FREE+ADMIN e mecanismo generico de promocao.
+**Decisao (opcao menos destrutiva — reutilizar, nao duplicar):**
+1. **Papel e plano sao eixos separados** — `PlanGuard` (402) nunca concede/nega admin; `RolesGuard` (403) decide por papel. `FREE`+`ADMIN` acessa; `PREMIUM` sem `ADMIN` e negado. Registro publico cria apenas `USER`; DTO sem `role`/`papeis` (sem autopromocao).
+2. **Sem endpoint publico de promocao** — CLI interna `apps/api/prisma/set-role.ts` (`npm run db:set-role`), idempotente, nao-destrutiva, recusa remover o ultimo `ADMIN`, log sanitizado (sem e-mail/segredo). Runbook: `docs/06-devops-deployment/runbooks/admin-role.md`.
+3. **UI admin honesta** — `/admin` consome `GET /api/v1/admin/stats` real (sem mock) e mostra 401/403 claramente; o backend e a autoridade (a UI nao e controle de seguranca).
+4. **Fixture** `admin-free@mediarate.test` (FREE+ADMIN) no `db:provision:test-users`, provando independencia de plano em staging/producao.
+5. Sem schema novo, sem migration, sem alterar auth/sessao/cookie/CSRF/rate limit/billing/entitlement.
+**Evidencia:** `apps/api/test/admin-rbac.spec.ts` (6) com guards reais + `rbac.spec.ts` (5) + `auth-guard.spec.ts` (401) verdes; tsc api/web 0; eslint/prettier 0.
