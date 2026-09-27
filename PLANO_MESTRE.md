@@ -361,3 +361,7 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
 ### [T091] Triagem read-only de PRs legadas (2026-09-27)
 Evidência: `.claude/reports/legacy-pr-triage-2026-09-27.md`. 7 PRs abertas classificadas; #266 já MERGED.
 Nenhuma mutação no GitHub; higiene de backlog pendente de decisão do Operador. Beta segue NO-GO condicional.
+### [T101] Fechamento técnico do backlog REPLAN (2026-09-27)
+T095/T096/T097 verificados DONE em main; T094/P014 ativado LIVE (secret+var); T098/T099 DONE.
+Guardas verdes: automation-safety, uptime 16/16, migration-safety 10/10, evidence-guard 19/19, metric-alerts 18/18.
+Residual: **PR #286 (T092/T093) aberto/BLOCKED** — GO de Beta condicionado apenas a esse merge. Evidencia: `.claude/reports/technical-closure-final-2026-09-27.md`.
