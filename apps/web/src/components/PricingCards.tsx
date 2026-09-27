@@ -263,7 +263,7 @@ export function PricingCards({
                 >
                   {plan.price === 0 ? t("startFree") : loggedIn ? t("upgrade") : t("subscribe")}
                 </Link>
-              </div>              </div>
+              </div>
             </div>
           );
         })}
