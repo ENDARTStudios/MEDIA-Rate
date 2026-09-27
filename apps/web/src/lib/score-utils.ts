@@ -1,24 +1,28 @@
 /**
  * score-utils.ts — normalização de exibição do MEDIA Score™.
  *
- * T262: escala única 0-100 no anel/label. `score100` converte 0-10 → 0-100
- * (valores ≤ 10 são a escala antiga de não-games; games já vêm 0-100).
+ * BETA-GAP-09: escala por tipo de mídia — GAME 0–100; filme/série/livro/
+ * quadrinho/MANGÁ 0–10. Sem arredondamento: trunca em 1 casa decimal
+ * (7,9 permanece 7,9; 7,95 → 7,9; 6,42… → 6,4).
  */
-export function normalizeDisplayScore(score: number, mediaType?: string): number {
-  // T390: arredonda SEMPRE para 1 casa decimal — evita raw float exibido
-  // (ex.: 6.422580645161291) no anel/ficha.
-  const round1 = (n: number) => Math.round(n * 10) / 10;
-  // Escala nativa: games e MANGÁS são 0-100 (não dividir); demais são 0-10.
-  // Antes só "game" era excluído — mangá (0-100) caía em "score/10" e era
-  // rotulado "/100" (ex.: 82.7 → 8.3/100) no card e na ficha.
-  if (mediaType !== "game" && mediaType !== "manga" && score > 10) {
-    return round1(score / 10);
-  }
-  return round1(score);
+const ESCALA_100 = new Set(["game"]);
+
+/** Trunca para 1 casa decimal (NÃO arredonda). Epsilon evita erro de float. */
+export function truncar1(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.floor(n * 10 + 1e-9) / 10;
 }
 
-/** Converte para 0-100: scores ≤ 10 (escala antiga 0-10) → ×10. */
+export function normalizeDisplayScore(score: number, mediaType?: string): number {
+  if (!Number.isFinite(score)) return 0;
+  const tipo = String(mediaType ?? "").toLowerCase();
+  if (ESCALA_100.has(tipo)) return truncar1(score);
+  // Não-game (inclui manga): valores > 10 estão em 0–100 → normaliza p/ 0–10.
+  return truncar1(score > 10 ? score / 10 : score);
+}
+
+/** Converte para 0-100: scores ≤ 10 (escala 0-10) → ×10. */
 export function score100(score: number): number {
-  if (score <= 10 && score * 10 <= 100) return Math.round(score * 10 * 10) / 10;
-  return score;
+  if (score <= 10 && score * 10 <= 100) return truncar1(score * 10);
+  return truncar1(score);
 }
