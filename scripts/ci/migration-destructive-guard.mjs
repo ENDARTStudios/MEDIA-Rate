@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global console */
 /**
  * T093 (REPLAN) — guarda estática de migrations destrutivas (política expand/contract).
  *
@@ -35,9 +36,10 @@ export function padroesDestrutivos(sql) {
 
 /** True se o corpo tem seção "## Expand/Contract" com conteúdo real. */
 export function temPlanoExpandContract(corpo) {
-  const m = /(^|\n)\s*(?:#{1,4}\s*expand\s*\/\s*contract\b|\*\*expand\s*\/\s*contract\b\*\*\s*:?\s*\n)/i.exec(
-    String(corpo ?? ""),
-  );
+  const m =
+    /(^|\n)\s*(?:#{1,4}\s*expand\s*\/\s*contract\b|\*\*expand\s*\/\s*contract\b\*\*\s*:?\s*\n)/i.exec(
+      String(corpo ?? ""),
+    );
   if (!m) return false;
   const depois = String(corpo ?? "")
     .slice(m.index + m[0].length)
@@ -83,7 +85,7 @@ export function rodarSelfTest() {
   ok("migration aditiva → liberado", () => {
     const r = avaliar({
       arquivosSql: ["m/a/migration.sql"],
-      conteudos: { "m/a/migration.sql": "ALTER TABLE \"x\" ADD COLUMN \"y\" TEXT;" },
+      conteudos: { "m/a/migration.sql": 'ALTER TABLE "x" ADD COLUMN "y" TEXT;' },
       corpo: "Migration: adiciona coluna.",
     });
     if (r.bloqueado) throw new Error(JSON.stringify(r));
@@ -102,7 +104,8 @@ export function rodarSelfTest() {
     const r = avaliar({
       arquivosSql: ["m/b/migration.sql"],
       conteudos: { "m/b/migration.sql": 'ALTER TABLE "x" DROP COLUMN "y";' },
-      corpo: "Migration: remove coluna.\n\n## Expand/Contract\nFase 3 de 3: coluna obsoleta após dual-write e backfill verificados em staging; rollback = restore do backup diário.",
+      corpo:
+        "Migration: remove coluna.\n\n## Expand/Contract\nFase 3 de 3: coluna obsoleta após dual-write e backfill verificados em staging; rollback = restore do backup diário.",
     });
     if (r.bloqueado) throw new Error(JSON.stringify(r));
   });
@@ -129,7 +132,7 @@ export function rodarSelfTest() {
   ok("plano curto demais não conta", () => {
     const r = avaliar({
       arquivosSql: ["m/e/migration.sql"],
-      conteudos: { "m/e/migration.sql": "TRUNCATE \"x\";" },
+      conteudos: { "m/e/migration.sql": 'TRUNCATE "x";' },
       corpo: "## Expand/Contract\ncurto",
     });
     if (!r.bloqueado) throw new Error(JSON.stringify(r));
