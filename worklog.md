@@ -2971,3 +2971,9 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - T098: evidência de acesso read-only completa (gh/vercel/railway/DNS/smoke 4×200) — .claude/reports/access-evidence-2026-09-27.md. ADMIN_TOKEN ausente nos repo secrets = única lacuna (D-556 fallback).
 - T099: revalidação confirmou #2/#3/#4/#133 já CLOSED por ator do protocolo; #139/#140 (LGPD) mantidas conscientemente. Backlog de legadas limpo.
 - Fila técnica T092-T099: TODAS executadas/fechadas. Beta = GO técnico (evidência no closure).
+
+## [2026-09-27] T100-enable-metrics-alerts-live (DONE)
+- /metrics existe (Prometheus + X-Admin-Token). Token do .env autentica (200 em prod; 403 sem token).
+- secrets.ADMIN_TOKEN criado via stdin (sem eco) + vars.METRICS_URL configurada.
+- self-test 18/18; dry-run success (36288089780); LIVE success (36288156632); zero issue alerta-metrico.
+- Agendamentos de 15 min agora coletam ao vivo. Rollback: gh variable delete METRICS_URL.
