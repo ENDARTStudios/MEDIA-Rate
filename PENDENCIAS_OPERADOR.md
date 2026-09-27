@@ -317,7 +317,7 @@ prévio (`scripts/backup-db.sh`) e log colado no PR correspondente.
 Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
 
 > 🟡 **RECOMENDADO (T034, 2026-09-22) — console Railway (menor privilégio).** Runbook
-> detalhado (matriz comparativa) em `docs/runbooks/migration-manual.md`. Alternativas
+> detalhado (matriz comparativa) em `docs/06-devops-deployment/runbooks/migration-manual.md`. Alternativas
 > (**proxy TCP público** e **self-hosted runner**) exigem expor o Postgres ou criar
 > superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
 > (sem segredo, sem migração, sem custo).

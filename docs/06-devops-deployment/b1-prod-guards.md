@@ -123,5 +123,5 @@ rotina. Decisão e provisionamento são do Operador (P012).
   environment (só o workflow do GitHub aguarda aprovação). Opção B (staging) segue
   disponível se for preciso travar de verdade.
 - **P013 🟡 RECOMENDADO** — caminho **console Railway** (menor privilégio/exposição);
-  runbook em `docs/runbooks/migration-manual.md`. Proxy TCP público e self-hosted runner
+  runbook em `docs/06-devops-deployment/runbooks/migration-manual.md`. Proxy TCP público e self-hosted runner
   exigem exposição do DB/superfície nova → escalar antes de implementar. Nada provisionado.

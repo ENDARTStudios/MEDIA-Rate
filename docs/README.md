@@ -7,60 +7,60 @@ já existentes são referenciados — esta suíte é o ponto de entrada.
 
 | Doc | O que é |
 |---|---|
-| [PRD](PRD.md) | Produto: visão, escopo, planos, métricas de sucesso |
-| [ARCHITECTURE](ARCHITECTURE.md) | Arquitetura técnica e fluxos de deploy |
-| [RULES](RULES.md) | Regras invioláveis do projeto (digest do AGENTS.md + decisões) |
-| [ROADMAP](ROADMAP.md) | Onde estamos e o que falta (fases, Beta, bloqueadores) |
-| [ONBOARDING](ONBOARDING.md) | Comece aqui: setup em 15 minutos |
-| [ADR](ADR.md) | Registro de decisões (aponta `DECISOES.md` na raiz) |
-| [MEMORY](MEMORY.md) | Onde o estado do projeto vive e como é atualizado |
-| [TASKS](TASKS.md) | Fluxo de tarefas (protocolo Thinker/Doer, PLANO_MESTRE, issues) |
+| [PRD](01-product-discovery/PRD.md) | Produto: visão, escopo, planos, métricas de sucesso |
+| [ARCHITECTURE](02-architecture-design/ARCHITECTURE.md) | Arquitetura técnica e fluxos de deploy |
+| [RULES](03-development-process/RULES.md) | Regras invioláveis do projeto (digest do AGENTS.md + decisões) |
+| [ROADMAP](01-product-discovery/ROADMAP.md) | Onde estamos e o que falta (fases, Beta, bloqueadores) |
+| [ONBOARDING](08-knowledge-management/ONBOARDING.md) | Comece aqui: setup em 15 minutos |
+| [ADR](02-architecture-design/ADR.md) | Registro de decisões (aponta `DECISOES.md` na raiz) |
+| [MEMORY](08-knowledge-management/MEMORY.md) | Onde o estado do projeto vive e como é atualizado |
+| [TASKS](03-development-process/TASKS.md) | Fluxo de tarefas (protocolo Thinker/Doer, PLANO_MESTRE, issues) |
 
 ## Produto e design
 
 | Doc | O que é |
 |---|---|
-| [DEFINE_THE_USER](DEFINE_THE_USER.md) | Personas e papéis (Free/Plus/Premium/admin/Operador) |
-| [DESIGN](DESIGN.md) | Design system: CATEGORY_TOKENS, real-vs-demo, acessibilidade |
-| [CONTENT](CONTENT.md) | Catálogo, curadoria, vocabulário e conteúdo i18n |
-| [STYLE_GUIDE](STYLE_GUIDE.md) | Convenções de código e armadilhas conhecidas |
+| [DEFINE_THE_USER](01-product-discovery/DEFINE_THE_USER.md) | Personas e papéis (Free/Plus/Premium/admin/Operador) |
+| [DESIGN](02-architecture-design/DESIGN.md) | Design system: CATEGORY_TOKENS, real-vs-demo, acessibilidade |
+| [CONTENT](04-api-integrations/CONTENT.md) | Catálogo, curadoria, vocabulário e conteúdo i18n |
+| [STYLE_GUIDE](02-architecture-design/STYLE_GUIDE.md) | Convenções de código e armadilhas conhecidas |
 
 ## Engenharia
 
 | Doc | O que é |
 |---|---|
-| [SETUP](SETUP.md) | Ambiente local do zero |
-| [DEVELOPMENT](DEVELOPMENT.md) | Dev diário (portas, quirks Windows, command map) |
-| [CHOOSE_TECH_STACK](CHOOSE_TECH_STACK.md) | Stack escolhida e por quê |
-| [TASK_BREAKING_DOWN](TASK_BREAKING_DOWN.md) | Como quebrar tarefas (inventário antes de construir) |
-| [TESTING](TESTING.md) | Suítes, E2E, mutação, RLS, evidência local |
-| [API](API.md) | Contrato REST, auth, CSRF, envelope, Swagger |
-| [ERROR_HANDLING](ERROR_HANDLING.md) | Envelope de erro, 404 pré-Prisma, idempotência |
-| [INTEGRATIONS](INTEGRATIONS.md) | Stripe, Resend, Google, PostHog, Sentry, R2, catálogos |
-| [ANALYTICS](ANALYTICS.md) | PostHog (consentimento), flags, OTEL |
-| [RESEARCH](RESEARCH.md) | Pareceres e pesquisas (jurídico, OTEL, revisão externa) |
+| [SETUP](03-development-process/SETUP.md) | Ambiente local do zero |
+| [DEVELOPMENT](03-development-process/DEVELOPMENT.md) | Dev diário (portas, quirks Windows, command map) |
+| [CHOOSE_TECH_STACK](02-architecture-design/CHOOSE_TECH_STACK.md) | Stack escolhida e por quê |
+| [TASK_BREAKING_DOWN](03-development-process/TASK_BREAKING_DOWN.md) | Como quebrar tarefas (inventário antes de construir) |
+| [TESTING](03-development-process/TESTING.md) | Suítes, E2E, mutação, RLS, evidência local |
+| [API](04-api-integrations/API.md) | Contrato REST, auth, CSRF, envelope, Swagger |
+| [ERROR_HANDLING](07-operations-marketing/ERROR_HANDLING.md) | Envelope de erro, 404 pré-Prisma, idempotência |
+| [INTEGRATIONS](04-api-integrations/INTEGRATIONS.md) | Stripe, Resend, Google, PostHog, Sentry, R2, catálogos |
+| [ANALYTICS](07-operations-marketing/ANALYTICS.md) | PostHog (consentimento), flags, OTEL |
+| [RESEARCH](08-knowledge-management/RESEARCH.md) | Pareceres e pesquisas (jurídico, OTEL, revisão externa) |
 
 ## Qualidade e operação
 
 | Doc | O que é |
 |---|---|
-| [SECURITY_REVIEW](SECURITY_REVIEW.md) | Gates de segurança no CI e processo de triagem |
-| [CODE_REVIEW](CODE_REVIEW.md) | O que um review exige antes do merge |
-| [QA_TESTING](QA_TESTING.md) | Smoke de produção padrão (checklist validado) |
-| [TESTING](TESTING.md) · [E2E](E2E.md) · [LOAD_TESTING](LOAD_TESTING.md) | Testes (geral, E2E, carga) |
-| [PERFORMANCE](PERFORMANCE.md) | Lighthouse, bundle, imagens, p95 |
-| [ACCESSIBILITY](ACCESSIBILITY.md) | Acessibilidade (estado real e regras) |
-| [SEO](SEO.md) | SEO clássico: robots por bot, sitemap, canônicas |
-| [AEO](AEO.md) | Answer Engine Optimization: respostas extraíveis |
-| [GEO](GEO.md) | Generative Engine Optimization: citação por IA |
-| [AIO](AIO.md) | AI Optimization: presença/medição em superfícies de IA |
-| [COMPLIANCE](COMPLIANCE.md) | LGPD, legal, retenção, direitos do titular |
-| [MONITORING](MONITORING.md) | Métricas, logs, alertas, Sentry (aponta OBSERVABILITY.md) |
-| [BACKUP_DR](BACKUP_DR.md) | Backup, disaster recovery, rollback |
-| [PREVIEW_DEPLOYMENT](PREVIEW_DEPLOYMENT.md) | Previews da Vercel (URLs, noindex, ZAP) |
-| [PRODUCTION_DEPLOY](PRODUCTION_DEPLOY.md) | Deploy de produção e rollback |
-| [CHANGELOG](CHANGELOG.md) | Histórico de mudanças por release |
-| [ITERATION](ITERATION.md) | O ciclo completo de uma iteração (TAREFA→PR→merge→smoke) |
+| [SECURITY_REVIEW](05-security-compliance/SECURITY_REVIEW.md) | Gates de segurança no CI e processo de triagem |
+| [CODE_REVIEW](06-devops-deployment/CODE_REVIEW.md) | O que um review exige antes do merge |
+| [QA_TESTING](06-devops-deployment/QA_TESTING.md) | Smoke de produção padrão (checklist validado) |
+| [TESTING](03-development-process/TESTING.md) · [E2E](06-devops-deployment/E2E.md) · [LOAD_TESTING](06-devops-deployment/LOAD_TESTING.md) | Testes (geral, E2E, carga) |
+| [PERFORMANCE](07-operations-marketing/PERFORMANCE.md) | Lighthouse, bundle, imagens, p95 |
+| [ACCESSIBILITY](07-operations-marketing/ACCESSIBILITY.md) | Acessibilidade (estado real e regras) |
+| [SEO](07-operations-marketing/SEO.md) | SEO clássico: robots por bot, sitemap, canônicas |
+| [AEO](07-operations-marketing/AEO.md) | Answer Engine Optimization: respostas extraíveis |
+| [GEO](07-operations-marketing/GEO.md) | Generative Engine Optimization: citação por IA |
+| [AIO](07-operations-marketing/AIO.md) | AI Optimization: presença/medição em superfícies de IA |
+| [COMPLIANCE](05-security-compliance/COMPLIANCE.md) | LGPD, legal, retenção, direitos do titular |
+| [MONITORING](07-operations-marketing/MONITORING.md) | Métricas, logs, alertas, Sentry (aponta OBSERVABILITY.md) |
+| [BACKUP_DR](06-devops-deployment/BACKUP_DR.md) | Backup, disaster recovery, rollback |
+| [PREVIEW_DEPLOYMENT](06-devops-deployment/PREVIEW_DEPLOYMENT.md) | Previews da Vercel (URLs, noindex, ZAP) |
+| [PRODUCTION_DEPLOY](06-devops-deployment/PRODUCTION_DEPLOY.md) | Deploy de produção e rollback |
+| [CHANGELOG](08-knowledge-management/CHANGELOG.md) | Histórico de mudanças por release |
+| [ITERATION](08-knowledge-management/ITERATION.md) | O ciclo completo de uma iteração (TAREFA→PR→merge→smoke) |
 
 ## Docs de aprofundamento (legados, continuam válidos)
 

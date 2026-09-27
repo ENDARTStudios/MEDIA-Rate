@@ -29,7 +29,7 @@ Nenhum. Nenhuma página quebrada, nenhum 5xx, nenhum fluxo de receita bloqueado.
 ### P1 (alto)
 
 **A1 — Performance abaixo da meta (Perf 46–75; LCP 4,9–9,1 s; TBT até 1,5 s).**
-- Evidência: Lighthouse (tabela acima; reports em `docs/lighthouse-reports/*.json`).
+- Evidência: Lighthouse (tabela acima; reports em `docs/07-operations-marketing/lighthouse-reports/*.json`).
 - Causa raiz: TTFB 10 ms exclui o backend. TBT alto aponta hidratação/execução de JS no cliente; LCP tardio aponta imagem principal sem prioridade real e carregada após o JS.
 - Fix sugerido: priorizar a imagem LCP (`priority` + `fetchPriority="high"` no pôster do showcase), reduzir JS de primeira dobra (code-split dos componentes abaixo da dobra), reavaliar `motion/react` no crítico. Re-medir com Lighthouse após cada passo.
 
@@ -76,9 +76,9 @@ Nenhum. Nenhuma página quebrada, nenhum 5xx, nenhum fluxo de receita bloqueado.
 
 ## 4. Evidência
 
-- **Lighthouse:** `docs/lighthouse-reports/{home-pt,catalog-pt,detail-filme,pricing-pt}.json`
-- **Screenshots (desktop+mobile):** `docs/auditoria/*.png` (16 páginas × 2 viewports)
-- **Console/network por página:** `docs/auditoria/achados.json`
+- **Lighthouse:** `docs/07-operations-marketing/lighthouse-reports/{home-pt,catalog-pt,detail-filme,pricing-pt}.json`
+- **Screenshots (desktop+mobile):** `docs/07-operations-marketing/auditoria/*.png` (16 páginas × 2 viewports)
+- **Console/network por página:** `docs/07-operations-marketing/auditoria/achados.json`
 
 ## 5. Recomendação
 

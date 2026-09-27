@@ -1,6 +1,6 @@
 # API — Contrato REST (v1)
 
-Aprofundamento por módulo: `docs/api/` (auth.md). Swagger local:
+Aprofundamento por módulo: `docs/04-api-integrations/api/` (auth.md). Swagger local:
 `SWAGGER_ENABLED=true` → `http://localhost:4000/api/docs` (+ `/api/docs-json`).
 Em produção o Swagger fica **desligado**.
 

@@ -69,7 +69,7 @@ jobs:
           while IFS= read -r f; do
             [ -z "$f" ] && continue
             case "$f" in
-              docs/*|*.md|.claude/*|docs/screenshots/*) ;;
+              docs/*|*.md|.claude/*|docs/07-operations-marketing/screenshots/*) ;;
               *) code=true ;;
             esac
             # T061/D-548: só roda o job E2E FULL quando muda infra de E2E/evidence/CI.
@@ -87,6 +87,10 @@ jobs:
     name: Docs Gate
     runs-on: ubuntu-latest
     steps:
+      - name: Self-test do linkcheck (offline)
+        run: node scripts/ci/linkcheck.self-test.mjs
+      - name: Linkcheck de docs (offline; T115)
+        run: node scripts/ci/linkcheck.mjs
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0

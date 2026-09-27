@@ -26,7 +26,7 @@ Seed idempotente por `(fonte, fonte_id)` — T276 (games lookup-driven via IGDB 
 
 - `apps/web/src/messages/{pt-BR,en-US,es-ES}.json` — paridade estrutural obrigatória
   (guard no CI testa as 3 línguas; chaves ausentes quebram o build do review).
-- Texto legal (Termos/Privacidade): `docs/legal/` (pacote T464) — alteração só com o
+- Texto legal (Termos/Privacidade): `docs/05-security-compliance/legal/` (pacote T464) — alteração só com o
   gate legal e consistência entre Termos, Política e rodapé.
 - Rótulos de status de consumo vêm do vocabulário T239 (nunca hardcode no componente).
 

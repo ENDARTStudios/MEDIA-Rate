@@ -51,4 +51,4 @@ App nativo, feed social/comentários, PWA/offline (LimpezaServiceWorker revisar 
 ## Referências vivas
 
 `PLANO_MESTRE.md` (fases), `SPRINT.md` (iteração corrente), [ROADMAP](ROADMAP.md)
-(bloqueadores da Beta), `docs/legal/` (pacote jurídico T464).
+(bloqueadores da Beta), `docs/05-security-compliance/legal/` (pacote jurídico T464).

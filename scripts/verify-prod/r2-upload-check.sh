@@ -3,7 +3,7 @@
 #
 # Pré-requisitos:
 #   - R2 ativado na conta Cloudflare + bucket media-rate-assets criado
-#     (senão: EPROTO no TLS do endpoint S3 — ver docs/legal/R2-TEST-MEDIA.md);
+#     (senão: EPROTO no TLS do endpoint S3 — ver docs/05-security-compliance/legal/R2-TEST-MEDIA.md);
 #   - E2E_TEST_EMAIL/E2E_TEST_PASSWORD no .env (usuário promovido a ADMIN
 #     temporariamente — despromover após o teste);
 #   - media de teste 424e6a91-5b5c-4659-b805-bb06ed13547d existente.

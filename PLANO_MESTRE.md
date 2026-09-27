@@ -115,7 +115,7 @@
 - [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse.
 - [x] 3.8 Rate limit específico /auth (6 req/min login).
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
-- [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
+- [x] 3.10 Documentação API Auth: `docs/04-api-integrations/api/auth.md`.
 - [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
   evid. T029: enforcement provado em produção (smoke T027, 2026-09-21 — register exige verificação real via Resend); rota `google/callback` (OAuth Google) ativa e não inventariada acima.
 
@@ -253,7 +253,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
 - [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
-- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/runbooks/migration-manual.md`) — `docs/06-devops-deployment/b1-prod-guards.md`.
+- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/06-devops-deployment/runbooks/migration-manual.md`) — `docs/06-devops-deployment/b1-prod-guards.md`.
 - [x] 9.13 `security.yml` verde (T033): audit governado (`npm run audit:ci` — runtime blocking + allowlist dev-only P009/D-462), CodeQL `@v4`, Trivy pinado ao SHA imutável de `v0.36.0` (ambos jobs) e trigger em PR; scan de imagem em **modo relatório** (SARIF). PR #172 aberto, `security.yml` verde (scan 2m22s; Trivy Image Scan 1m26s). Ver D-534.
 - [~] 9.14 Alertas métricos automatizados 5xx/auth (T040/D-538): `scripts/ci/metric-alerts.mjs` (thresholds 5xx >1%/>=5 abs; auth >50/1min/>=10/5min; parser Prometheus+JSON; dedup de issue) + self-test determinístico 18/18 + workflow `alertas-metricos.yml` (schedule 15min; **dry-run por padrão**; live só com `vars.METRICS_URL`+`secrets.ADMIN_TOKEN`; sem infra paga/deploy). PR aberto, sem merge; ativação live depende do Operador.
 - [~] 9.15 Uptime sintético de endpoints públicos (T042/D-539): `scripts/ci/uptime-check.mjs` (lógica pura; GET/HEAD só em rotas públicas, timeout 10s; dedup de issue create/update/close) + self-test 11/11 + workflow `uptime-check.yml` (schedule 10min; concurrency; permissions contents:read+issues:write). Coleta live 7/7 OK. PR aberto, sem merge; UptimeRobot externo complementar = P015.
@@ -350,7 +350,7 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
    por-request), go/no-go S0→S1 (≥24h métricas), T466 (UUID truncado no
    evento Sentry — aguarda request URL), T468 (KV via token com KV:Edit).
    **Gate legal F17 FECHADO** (parecer valida auditoria; 7 recomendações em
-   backlog F19/F20 — docs/legal/2026-09-15-revisao-legal/parecer-recebido/).
+   backlog F19/F20 — docs/05-security-compliance/legal/2026-09-15-revisao-legal/parecer-recebido/).
 2. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
 3. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
 4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags

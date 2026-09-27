@@ -30,7 +30,7 @@
 | 3.2-3.3 rotas | `auth.controller.ts`: register, login, logout, me, refresh, verify-email, resend-verification, forgot-password, reset-password + **google/callback** (não citado no plano — OAuth Google completo) | Confere, +1 rota extra |
 | 3.6/3.7 audit auth | eventos no service: USER_REGISTERED, LOGIN_SUCCESS/FAILED, LOGOUT, PASSWORD_RESET_REQUESTED/COMPLETED | Confere |
 | 3.11 email verification | 403 EMAIL_NOT_VERIFIED enforced (`auth.service.ts` ~L278) — **provado em produção** (smoke T027: register exige verificação real via Resend) | Confere |
-| 3.9/3.10 testes/docs | 7 arquivos de teste auth; `docs/api/auth.md` existe | Confere |
+| 3.9/3.10 testes/docs | 7 arquivos de teste auth; `docs/04-api-integrations/api/auth.md` existe | Confere |
 | 3.5 RBAC sem permissions | coerente com 2.4 [~] | Confere |
 
 **Conclusão Fase 3:** premissa de divergência **REFUTADA** — auth/reset/audit está
