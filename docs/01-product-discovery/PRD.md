@@ -44,6 +44,23 @@ autenticada apresentada como pública, ou alegação factual contrária ao produ
 - Regressão: `apps/web/test/home-truthfulness.spec.ts` (copy/paridade) e
   `apps/web/e2e/home-truthfulness.spec.ts` (links/keys nos 3 locales).
 
+## Metadados de mídia — honestidade e fontes (T122/BETA-GAP-06)
+
+A ficha de mídia exibe apenas metadados **reais** (sinopse localizada, ano, tipo,
+gêneros, classificação indicativa, país/origem, prêmios, franquias, duração,
+streamings, score por fontes, temporadas). **Não inventar** sinopse, elenco,
+nota, autor, editora, estúdio ou fato editorial.
+
+- **Fonte primária:** os dados já persistidos (`Midia`/`AvaliacaoFonte`/`Temporada`),
+  alimentados por coletas/seed existentes (TMDB/OMDb/IGDB/OpenLibrary/Jikan etc.).
+- **Ausência = empty state honesto:** a UI mostra "Sinopse indisponível",
+  "Elenco ainda não disponível", "Nenhuma avaliação disponível" — nunca `0`,
+  `null`, `undefined` ou placeholder fabricado.
+- **Elenco/créditos e avaliações em prosa** não têm fonte legítima populada no
+  escopo atual → status do gap: `PARTIAL_UI_CONTRACT_READY` (contrato/UI honestos;
+  popular exige provider/schema em tarefa própria). Relatório de cobertura:
+  `.claude/reports/media-metadata-2026-09-28.md`.
+
 ## Personas e papéis
 
 Ver [DEFINE_THE_USER](DEFINE_THE_USER.md). Resumo: Visitante (browse público),
