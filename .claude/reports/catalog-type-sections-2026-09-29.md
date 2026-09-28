@@ -51,7 +51,10 @@
   a cobertura de dados reais persistidos é garantida pelos testes de API do
   `/midias` e pelo smoke de produção.
 
-## 5. PR / merge / smoke (preenchido após merge)
+## 5. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `6a3ced6e` · branch `feat/t128-beta-gap-11-catalog-type-sections` (base `f8f76c52`).
+- PR: **#346** `OPEN → MERGED`; merge commit **`60ec5bb8`**.
+- Required verdes (run `36471504590`): Lint & Audit, Test & Coverage (**web 443/443**), Build, RLS Isolation, Docs Gate, Migration Safety. `E2E Playwright` e `E2E Full` **pass**; `Vercel` **pass**.
+- `123ce28e`: exit **1** (ausente). Smoke 7/7 → **200**; URLs por tipo (`?type=movie|series|game|book|comic|manga`) → **200**.
+- **BETA-GAP-11 = DONE.** BETA-GAP-06 permanece `PARTIAL_UI_CONTRACT_READY`. Programa **11/18 DONE + 1 PARTIAL**.
