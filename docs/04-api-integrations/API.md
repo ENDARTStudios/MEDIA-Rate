@@ -33,6 +33,7 @@ Em produção o Swagger fica **desligado**.
 | `/api/v1/watchlist` | CRUD | Kanban; `PATCH /:id/move` valida máquina D-528 (inválida → 400) |
 | `/api/v1/interacoes` | GET | Envelope `{items, total, porStatus, nextCursor}`; `limit` 1-50; cursor opaco base64url (inválido → 400) |
 | `/api/v1/interacoes/:midiaId` | GET/PUT | upsert status+reação; valida D-528 |
+| `/api/v1/midias/:id/relacoes` | GET/POST/DELETE | Grafo bidirecional de obras relacionadas (ADAPTACAO_DE/SEQUENCIA_DE/PREQUELA_DE/SPINOFF_DE/MESMO_UNIVERSO/MESMA_HISTORIA_REAL); GET público retorna o **slug canônico** de cada obra relacionada (link correto); POST/DELETE `@Roles('ADMIN')` |
 | `/api/v1/listas` · `/historico` · `/perfil` · `/quota` · `/notificacoes` | — | CRUDs auxiliares |
 | `/api/v1/premium/*` · `/recommendations` | GET | inteligência pessoal (gated por plano) |
 | `/api/v1/consent` · LGPD | — | consentimento granular, export/exclusão do titular |
