@@ -56,7 +56,11 @@ inventada: apenas os campos persistidos + fallback determinístico.
 - Se um título não tiver `titulo_en/es`, o fallback é `titulo` (PT) — comportamento
   determinístico e honesto (não é "tradução"; é o dado real disponível).
 
-## 6. PR / merge / smoke (preenchido após merge)
+## 6. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `0106c84e` · branch `feat/t129-beta-gap-15-title-localization` (base `695c4ba4`).
+- PR: **#348** `OPEN → MERGED`; merge commit **`6d090373`**.
+- Required verdes (run `36473852238`): Lint & Audit, Test & Coverage (**web 444/444**, API +2), Build, RLS Isolation, Docs Gate, Migration Safety. `E2E Playwright` e `E2E Full` **pass**; `Vercel` **pass**.
+- `123ce28e`: exit **1** (ausente). Smoke 7/7 → **200**; `/en-US/catalog?q=matrix` e `/es-ES/catalog?q=matrix` → **200**.
+- **Verificado ao vivo:** `GET /api/v1/search?q=matrix` retorna `titulo_en: "The Matrix"` (campo novo presente após o deploy).
+- **BETA-GAP-15 = DONE.** BETA-GAP-06 permanece `PARTIAL_UI_CONTRACT_READY`. Programa **12/18 DONE + 1 PARTIAL**.
