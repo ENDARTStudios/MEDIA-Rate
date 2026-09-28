@@ -148,6 +148,7 @@
     "mediaScoreAria": "MEDIA Score {score} out of 100",
     "mediaScoreAria10": "MEDIA Score {score} out of 10",
     "loadingCatalog": "Updating catalog...",
+    "seeAll": "See all",
     "catalogAria": "Media catalog",
     "synopsisUnavailable": "Synopsis unavailable.",
     "cast": "Cast",

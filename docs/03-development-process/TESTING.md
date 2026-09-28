@@ -135,6 +135,19 @@ cd apps/web && NODE_ENV=test npx vitest run test/catalog-search.spec.tsx test/ca
 cd apps/web && npx playwright test e2e/catalog-sidebar.spec.ts
 ```
 
+## Seções por tipo no catálogo (BETA-GAP-11 / T128)
+
+`CatalogTypeSections` exibe rows por tipo (Filmes/Séries/…) **somente com itens
+reais** (`getCatalog({type, limit})`); tipo sem itens é omitido; "Ver todos"
+aponta para `/catalog?type=<tipo>` (slug canônico nos cards). Some na visão
+filtrada. Regressão: `apps/web/test/catalog-type-sections.spec.tsx` e
+`apps/web/e2e/catalog-type-sections.spec.ts` (contract mock; `sections_mode=contract_mock`).
+
+```bash
+cd apps/web && NODE_ENV=test npx vitest run test/catalog-type-sections.spec.tsx
+cd apps/web && npx playwright test e2e/catalog-type-sections.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
