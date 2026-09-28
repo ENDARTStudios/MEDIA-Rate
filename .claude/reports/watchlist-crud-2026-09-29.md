@@ -73,6 +73,8 @@ a exclusão é por **soft delete da conta** (`dados_para_exclusao_at`, +30d;
 Cobertura completa → **DONE sem alteração de código**. PR **docs-only** com este
 relatório + worklog (evidência de mapeamento), conforme o packet ("não abrir PR vazio").
 
-## 9. PR / merge
+## 9. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · base `6661b9e1`.
+- Commit: `411270d4` · PR: **#351** (docs-only) · base `6661b9e1` · merge commit **`7a347df3`**.
+- Required (docs-only): Docs Gate + Migration Safety verdes; `Vercel` **pass**. `123ce28e` ausente.
+- Smoke pós-merge 7/7 → **200**. **T131 = DONE** (cobertura completa; sem alteração de código). Nenhum BETA-GAP tocado; BETA-GAP-06 segue `PARTIAL_UI_CONTRACT_READY`. Marcação formal do `PLANO_MESTRE` 4.4 fica para o REVIEW do Thinker.
