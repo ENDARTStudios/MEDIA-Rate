@@ -73,6 +73,12 @@ export class DiscoverService {
       items: itens.map((i) => ({
         id: i.id,
         titulo: i.titulo,
+        // BETA-GAP-15/T129: títulos localizados já persistidos (D-369) — o
+        // resultado de busca passa a expô-los (aditivo/retrocompatível) para a
+        // UI exibir o título no locale ativo com fallback real.
+        titulo_original: i.titulo_original,
+        titulo_en: i.titulo_en,
+        titulo_es: i.titulo_es,
         tipo: i.tipo,
         ano_lancamento: i.ano,
         sinopse: null,

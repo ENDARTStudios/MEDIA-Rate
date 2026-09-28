@@ -58,4 +58,32 @@ describe("getCatalog — busca aplica ano/ordem (BETA-GAP-10/T127)", () => {
     const r = await getCatalog({ search: "a", sort: "title", limit: 12 });
     expect(r.items.map((i) => i.title)).toEqual(["Alpha", "Beta", "Zeta"]);
   });
+
+  it("resultado de busca carrega título LOCALIZADO (BETA-GAP-15/T129)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              items: [
+                {
+                  ...it_("9", "Matrix", 1999),
+                  titulo_original: "The Matrix",
+                  titulo_en: "The Matrix",
+                  titulo_es: "Matrix (ES)",
+                },
+              ],
+              total: 1,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+      ),
+    );
+    const r = await getCatalog({ search: "matrix", limit: 12 });
+    expect(r.items[0]?.titleLocalized?.en).toBe("The Matrix");
+    expect(r.items[0]?.titleLocalized?.es).toBe("Matrix (ES)");
+    // PT permanece o canônico.
+    expect(r.items[0]?.titleLocalized?.pt).toBe("Matrix");
+  });
 });

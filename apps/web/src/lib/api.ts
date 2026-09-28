@@ -120,6 +120,10 @@ interface ApiMidiaList {
 interface ApiSearchItem {
   id: string;
   titulo: string;
+  /** BETA-GAP-15/T129: títulos localizados persistidos (D-369) — opcionais. */
+  titulo_original?: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
   tipo: string;
   ano_lancamento: number | null;
   sinopse: string | null;
@@ -983,6 +987,9 @@ function mediaFromSearchItem(it: ApiSearchItem): Media {
     id: it.id,
     slug: it.slug,
     title: it.titulo,
+    // BETA-GAP-15/T129: mesmo título localizado do catálogo/detalhe (D-369) —
+    // resultados de busca não ficam mais só em PT nos locales en/es.
+    titleLocalized: buildTitleLocalized(it.titulo, it.titulo_en, it.titulo_es, it.titulo_original),
     type: mapTipo(it.tipo),
     preview: isPreviewTipo(mapTipo(it.tipo)),
     year: it.ano_lancamento ?? new Date().getFullYear(),
