@@ -5,11 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
 import { getCatalog, waitlistNotify } from "@/lib/api";
-import type { MediaType, Media, CatalogResponse } from "@/lib/types";
+import type { MediaType, CatalogResponse } from "@/lib/types";
+import { mapToMediaItem } from "@/lib/catalog-item";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
 import { CatalogTypeBar } from "./CatalogTypeBar";
+import { CatalogTypeSections } from "./CatalogTypeSections";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { Button } from "@/components/ui/button";
 import type { MediaItem } from "./MediaCard";
@@ -53,33 +55,6 @@ function asMediaType(value: string | undefined): MediaType | undefined {
     default:
       return undefined;
   }
-}
-
-function mapToMediaItem(media: Media): MediaItem {
-  return {
-    id: media.id,
-    titulo: media.title,
-    // T414: titulo_original = titleLocalized.en (cadeia D-369) — sem isso o
-    // MediaCard caía no título PT em /en-US (achado b do Operador).
-    titulo_original: media.titleLocalized?.en ?? media.title,
-    slug: media.slug,
-    tipo:
-      media.type === "movie"
-        ? "FILME"
-        : media.type === "series"
-          ? "SERIE"
-          : media.type === "game"
-            ? "GAME"
-            : media.type === "manga"
-              ? "MANGA"
-              : media.type === "comic"
-                ? "COMIC"
-                : "LIVRO",
-    ano_lancamento: media.year,
-    imagem_url: media.posterUrl,
-    score: media.score?.consolidated ?? null,
-    preview: media.preview,
-  };
 }
 
 function CatalogContent({
@@ -429,6 +404,9 @@ export function CatalogPageClient({
     <div>
       <Suspense fallback={null}>
         <CatalogTypeBar />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CatalogTypeSections />
       </Suspense>
       <div className="flex flex-col lg:flex-row gap-8">
         <Suspense fallback={null}>
