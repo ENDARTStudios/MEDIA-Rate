@@ -643,7 +643,8 @@
     "genero": "Gênero",
     "todosGeneros": "Todos os gêneros",
     "somenteCritica": "Somente com crítica disponível (split crítica/público do MEDIA Score)",
-    "anoLabel": "Ano"
+    "anoLabel": "Ano",
+    "advancedUnavailableSearch": "Gênero, nota e crítica se aplicam ao catálogo sem busca. Limpe a busca para usá-los."
   },
   "watchlist": {
     "title": "Watchlist",

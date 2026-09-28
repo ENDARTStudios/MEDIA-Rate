@@ -469,7 +469,12 @@ function MobileFilterBar({
   return (
     <>
       <div className="lg:hidden flex items-center justify-between">
-        <Button variant="outline" size="sm" onClick={() => setDrawerOpen(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          data-testid="catalog-filters-mobile-open"
+          onClick={() => setDrawerOpen(true)}
+        >
           {tFilters("filters")}
           {activeCount > 0 ? ` (${activeCount})` : ""}
         </Button>

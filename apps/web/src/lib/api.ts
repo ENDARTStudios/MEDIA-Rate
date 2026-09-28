@@ -909,9 +909,19 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       `/api/v1/search?q=${encodeURIComponent(filters.search)}&limit=100`,
     );
     if (data?.items) {
-      const items = data.items
+      let items = data.items
         .filter((it) => !filters.type || mapTipo(it.tipo) === filters.type)
         .map((it) => mediaFromSearchItem(it));
+      // BETA-GAP-10/T127: o /search casa título/sinopse mas NÃO aplica
+      // ano/ordem — aplicamos localmente os que os dados suportam (ano e
+      // ordenação por título/ano). Gênero/nota/crítica ficam desabilitados na
+      // UI durante a busca (não há dado no payload para honrá-los).
+      const anoMin = filters.anoMin;
+      const anoMax = filters.anoMax;
+      if (anoMin != null) items = items.filter((m) => m.year >= anoMin);
+      if (anoMax != null) items = items.filter((m) => m.year <= anoMax);
+      if (filters.sort === "title") items.sort((a, b) => a.title.localeCompare(b.title));
+      else if (filters.sort === "year") items.sort((a, b) => b.year - a.year);
       return applyLocalPagination(items, filters);
     }
   } else {

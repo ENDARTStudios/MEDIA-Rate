@@ -120,6 +120,21 @@ input validado (Zod), filtros em allowlist, keyset pagination determinístico e
 cd apps/api && NODE_ENV=test npx vitest run test/discover-service.spec.ts
 ```
 
+## Sidebar de filtros do catálogo (BETA-GAP-10 / T127)
+
+Filtros reais (tipo, ano, gênero, nota, crítica, ordenação) com estado na URL e
+drawer no mobile. Durante **busca textual** (`q`), o `/api/v1/search` não aplica
+gênero/nota/crítica → esses controles ficam **desabilitados com hint** (estado
+honesto, nunca divergente da request); ano/ordenação são aplicados localmente.
+Regressão: `apps/web/test/catalog-search.spec.tsx`,
+`apps/web/test/catalog-filters-api.spec.ts` e
+`apps/web/e2e/catalog-sidebar.spec.ts`.
+
+```bash
+cd apps/web && NODE_ENV=test npx vitest run test/catalog-search.spec.tsx test/catalog-filters-api.spec.ts
+cd apps/web && npx playwright test e2e/catalog-sidebar.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
