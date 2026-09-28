@@ -50,7 +50,10 @@
   `getCatalog` sem o filtro de ano (retornava itens fora da faixa).
 - Suíte web completa **439/439**; `tsc` web 0; eslint/prettier 0.
 
-## 5. PR / merge / smoke (preenchido após merge)
+## 5. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `8453d0b1` · branch `feat/t127-beta-gap-10-catalog-sidebar` (base `9bbff10e`).
+- PR: **#344** `OPEN → MERGED`; merge commit **`d4893fc0`**.
+- Required verdes (run `36468298568`): Lint & Audit, Test & Coverage (**web 439/439**), Build, RLS Isolation, Docs Gate, Migration Safety. `E2E Playwright` e `E2E Full` **pass**; `Vercel` **pass**.
+- `123ce28e`: exit **1** (ausente). Smoke 7/7 → **200**; URLs filtradas (`?genero=acao`, `?q=matrix`, `/en-US/catalog?genero=acao`) → **200**.
+- **BETA-GAP-10 = DONE.** BETA-GAP-06 permanece `PARTIAL_UI_CONTRACT_READY`. Programa **10/18 DONE + 1 PARTIAL**.
