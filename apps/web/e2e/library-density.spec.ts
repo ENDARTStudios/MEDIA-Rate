@@ -104,6 +104,19 @@ async function abrirEmedir(page: Page, largura: number, altura: number, rotulo: 
   });
 
   const m = await medir(page);
+  // Log sanitizado (apenas geometria/títulos de fixture) — vira evidência no step.
+
+  console.log(
+    `[density] ${rotulo} ${JSON.stringify({
+      viewport: `${largura}x${altura}`,
+      display: m.display,
+      columns: m.columns,
+      overflowX: m.overflowX,
+      cards: m.cards,
+      dims: m.dims,
+      density_mode: DENSITY_MODE,
+    })}`,
+  );
   test.info().annotations.push({
     type: rotulo,
     description: JSON.stringify({

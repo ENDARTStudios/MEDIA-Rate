@@ -195,7 +195,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
     >
       <div
         ref={glowRef}
-        className="pointer-events-none absolute -inset-1 rounded-md opacity-0 z-0"
+        className="pointer-events-none absolute inset-0 rounded-md opacity-0 z-0"
         style={{ boxShadow: `0 0 30px ${NEON_COLOR}30, 0 0 8px ${NEON_COLOR}15` }}
         aria-hidden="true"
       />
