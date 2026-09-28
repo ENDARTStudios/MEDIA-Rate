@@ -19,7 +19,7 @@
 | BETA-GAP-11 | PENDENTE | — | — | — | — |
 | BETA-GAP-12 | PENDENTE | — | — | — | — |
 | BETA-GAP-13 | DONE | #303 | 565750be | run 36340154322 / job 108678561019 / step 15 success; y/altura CTAs e altura cards <=1px (3 locales) + mobile CTA>=40px; causa raiz era 23px; fix: CTA ultimo elemento | 2026-09-28 |
-| BETA-GAP-14 | BLOCKED | #324 | 638895b7 | PR #324 OPEN, `mergeStateStatus=UNSTABLE` (não mergeável neste ciclo). Baseline da Biblioteca (spec autenticado) ainda pendente — rota/seletor autenticados a descobrir. Follow-up próprio (T117). | 2026-09-28 |
+| BETA-GAP-14 | DONE | #324 | 7ea5e574 | Destravado por T125 via **mock de contrato** (`page.route` em `GET /api/v1/interacoes`, fixture 8× QUERO_CONSUMIR). Evidência autoritativa do **STEP** (run 36458375633 / job 109050493741): `Densidade da Biblioteca (BETA-GAP-14)` = **success**. Números: desktop 1280×800 display=grid, **columns=6**, **overflowX=false**, cards=8, card 203×391; mobile 390×844 **columns=2**, overflowX=false, card 189×369; `density_mode=contract_mock`. Causa raiz do overflow: glow decorativo `-inset-1` do `MediaCard` (bleed 4px) → `inset-0`. Todos required + E2E + Vercel verdes; smoke 7/7. | 2026-09-28 |
 | BETA-GAP-15 | PENDENTE | — | — | — | — |
 | BETA-GAP-16 | PENDENTE | — | — | — | — |
 | BETA-GAP-17 | PENDENTE | — | — | — | — |
