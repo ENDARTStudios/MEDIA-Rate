@@ -112,7 +112,8 @@
 - [x] 3.4 AuthGuard (valida sessão, anexa `request.user`).
 - [x] 3.5 RBAC: `RolesGuard` + `PlanGuard` (sem permissions granulares — postergado).
 - [x] 3.6 Reset de senha (T206): token uso único, expiração 1h, rate limit, revogação de sessões, audit.
-- [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse.
+- [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse. **T133 (2026-09-28) — cobertura auditada:** wiring real em `auth.service.ts` (USER_REGISTERED, EMAIL_VERIFICATION_SENT, USER_LOGIN_SUCCESS, USER_LOGIN_FAILED `invalid_credentials`/`email_not_verified`, USER_LOGIN_SOCIAL, TOKEN_REFRESHED, TOKEN_REFRESH_REUSE_DETECTED, SESSION_REVOKED_ALL, PASSWORD_RESET_REQUESTED/COMPLETED, USER_LOGOUT) + `email-verification.service` (EMAIL_VERIFIED/RESENT); **PII minimizada na persistência por D-545** (`sanitizarPii`: e-mail mascarado, IP coarsenado, `userAgent`/sensível → `[Redacted]`); resposta de login não revela existência de conta.
+  evid: `test/auth-audit.spec.ts` (T213) — register/login success/failed/logout/reset/refresh-reuse, sem senha/token; relatório `.claude/reports/auth-audit-logging-2026-09-29.md`.
 - [x] 3.8 Rate limit específico /auth (6 req/min login).
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
 - [x] 3.10 Documentação API Auth: `docs/04-api-integrations/api/auth.md`.
