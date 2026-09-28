@@ -72,6 +72,19 @@ cd apps/api && NODE_ENV=test npx vitest run test/admin-rbac.spec.ts test/rbac.sp
 cd apps/api && NODE_ENV=test npx vitest run test/google-auth.spec.ts
 ```
 
+## Home truthfulness (BETA-GAP-05 / T121)
+
+A home não pode prometer funcionalidade inexistente nem exibir link quebrado.
+Regressão: `apps/web/test/home-truthfulness.spec.ts` (copy: escala do score,
+paridade de chaves, CTAs sem "em breve") e
+`apps/web/e2e/home-truthfulness.spec.ts` (links internos resolvem < 400, sem
+chave i18n crua, sem 5xx, nos 3 locales).
+
+```bash
+cd apps/web && NODE_ENV=test npx vitest run test/home-truthfulness.spec.ts
+cd apps/web && npx playwright test e2e/home-truthfulness.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
