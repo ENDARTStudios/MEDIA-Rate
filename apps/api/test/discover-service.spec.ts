@@ -11,6 +11,8 @@ interface MockRow {
   sinopse: string;
   imagem_url: string | null;
   genero?: string;
+  /** Slug canônico persistido (nullable — exercita o fallback). */
+  slug?: string | null;
 }
 
 interface MockDiscoverPrisma {
@@ -93,6 +95,17 @@ const DB: MockRow[] = [
     imagem_url: null,
     genero: "drama",
   },
+  {
+    // BETA-GAP-12/T126: slug canônico DESAMBIGUADO (difere de slugify(titulo)).
+    id: "8",
+    titulo: "Duna",
+    slug: "duna-livro",
+    tipo: "LIVRO",
+    ano_lancamento: 1965,
+    sinopse: "Desert planet",
+    imagem_url: null,
+    genero: "ficcao",
+  },
 ];
 
 function makePrisma(rows: MockRow[] = DB) {
@@ -159,6 +172,7 @@ function makePrisma(rows: MockRow[] = DB) {
 
     return results.map((r) => ({
       id: r.id,
+      slug: r.slug ?? null,
       titulo: r.titulo,
       tipo: r.tipo,
       ano_lancamento: r.ano_lancamento,
@@ -443,5 +457,27 @@ describe("DiscoverService (unit)", () => {
     const idsSem = semAcento.items.map((i: { id: string }) => i.id).sort();
     const idsCom = comAcento.items.map((i: { id: string }) => i.id).sort();
     expect(idsCom).toEqual(idsSem);
+  });
+
+  // ---------------- T126/BETA-GAP-12: slug canônico no resultado ----------------
+
+  it("T126 — discover retorna o slug CANÔNICO do servidor (não slugify(titulo))", async () => {
+    const result = await service.discover({ q: "duna" });
+    const duna = result.itens.find((i: { titulo: string }) => i.titulo === "Duna");
+    expect(duna, "Duna deve aparecer").toBeTruthy();
+    // Canônico é "duna-livro"; slugify("Duna") seria "duna".
+    expect((duna as { slug: string }).slug).toBe("duna-livro");
+  });
+
+  it("T126 — /search legado também propaga o slug canônico", async () => {
+    const result = await service.search("duna");
+    const duna = result.items.find((i: { titulo: string }) => i.titulo === "Duna");
+    expect(duna, "Duna deve aparecer").toBeTruthy();
+    expect((duna as { slug: string }).slug).toBe("duna-livro");
+  });
+
+  it("T126 — fallback slugify(titulo) quando o servidor não tem slug (compat)", async () => {
+    const result = await service.discover({ q: "inception" });
+    expect(result.itens[0].slug).toBe("inception");
   });
 });

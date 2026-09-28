@@ -109,6 +109,17 @@ cd apps/api && NODE_ENV=test npx vitest run test/relacoes.spec.ts
 cd apps/web && NODE_ENV=test npx vitest run test/discovery.spec.tsx
 ```
 
+## Busca / descoberta (BETA-GAP-12 / T126)
+
+`/search` e `/discover` operam sobre mídias reais (`deleted_at IS NULL`), com
+input validado (Zod), filtros em allowlist, keyset pagination determinístico e
+`slug` **canônico** no resultado (links corretos). Regressão:
+`apps/api/test/discover-service.spec.ts`.
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/discover-service.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

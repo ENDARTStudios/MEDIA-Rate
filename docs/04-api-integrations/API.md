@@ -29,7 +29,7 @@ Em produção o Swagger fica **desligado**.
 | `/metrics` | GET | Prometheus; IP allowlist OU sessão ADMIN OU `X-Admin-Token` |
 | `/api/v1/auth/*` | — | register/login/logout/me/refresh/verify-email/resend-verification/forgot/reset/google/callback |
 | `/api/v1/midias` | GET | cursor, filtro tipo, sort; POST/PUT/DELETE admin |
-| `/api/v1/search` · `/discover` · `/trending` · `/catalog` | GET | tsquery sanitizada, trgm GIN, cache 30s anônimo (discover) |
+| `/api/v1/search` · `/discover` · `/trending` · `/catalog` | GET | `q` (≥3 = tsvector `to_tsquery` prefixo; <3 = pg_trgm), `tipo`/`genero` (allowlist), `cursor` keyset, `limit` ≤50; **rate limit 30/min** por rota/IP; resultado retorna o **`slug` canônico** do servidor (link `/media/{slug}` correto). `/search` (legado) delega ao `/discover`. Cache 30s anônimo. |
 | `/api/v1/watchlist` | CRUD | Kanban; `PATCH /:id/move` valida máquina D-528 (inválida → 400) |
 | `/api/v1/interacoes` | GET | Envelope `{items, total, porStatus, nextCursor}`; `limit` 1-50; cursor opaco base64url (inválido → 400) |
 | `/api/v1/interacoes/:midiaId` | GET/PUT | upsert status+reação; valida D-528 |
