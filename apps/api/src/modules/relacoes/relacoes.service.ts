@@ -35,6 +35,7 @@ export class RelacoesService {
         origem: {
           select: {
             id: true,
+            slug: true,
             titulo: true,
             tipo: true,
             imagem_url: true,
@@ -46,6 +47,7 @@ export class RelacoesService {
         destino: {
           select: {
             id: true,
+            slug: true,
             titulo: true,
             tipo: true,
             imagem_url: true,

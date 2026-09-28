@@ -46,6 +46,7 @@ interface ApiRelacao {
   direcao: "saida" | "entrada";
   midia: {
     id: string;
+    slug?: string | null;
     titulo: string;
     tipo: string;
     imagem_url: string | null;
@@ -68,7 +69,10 @@ export function relacaoFromApi(r: ApiRelacao): RelacaoItem {
       imagemUrl: r.midia.imagem_url,
       score: r.midia.score,
       anoLancamento: r.midia.ano_lancamento,
-      slug: slugify(r.midia.titulo),
+      // BETA-GAP-07/T123: usa o slug CANÔNICO do servidor quando presente
+      // (slugify(titulo) pode divergir — ex.: sufixo `-{tipo}` — e gerar link
+      // quebrado/errado). Fallback preserva compatibilidade.
+      slug: r.midia.slug?.trim() || slugify(r.midia.titulo),
       generos: (r.midia.generos ?? []).map((g) => g.genero),
     },
   };

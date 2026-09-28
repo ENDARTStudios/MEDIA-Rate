@@ -58,8 +58,8 @@ describe("T198 — relacoes.service (grafo Addendum 3 Parte 2)", () => {
       nota_editorial: "Baseado no livro de 1965",
       origem_id: "filme-1",
       destino_id: "livro-1",
-      origem: { id: "filme-1", titulo: "Dune", tipo: "FILME", score: 91.2 },
-      destino: { id: "livro-1", titulo: "Duna", tipo: "LIVRO", score: 95.0 },
+      origem: { id: "filme-1", slug: "dune-2021", titulo: "Dune", tipo: "FILME", score: 91.2 },
+      destino: { id: "livro-1", slug: "duna-livro", titulo: "Duna", tipo: "LIVRO", score: 95.0 },
     });
     const r = await service.listarBidirecional("filme-1");
     expect(r.relacoes.length).toBe(1);
@@ -68,6 +68,13 @@ describe("T198 — relacoes.service (grafo Addendum 3 Parte 2)", () => {
     expect(r.relacoes[0].midia.tipo).toBe("LIVRO");
     expect(r.relacoes[0].midia.score).toBe(95.0);
     expect(r.relacoes[0].notaEditorial).toBe("Baseado no livro de 1965");
+    // BETA-GAP-07/T123: slug CANÔNICO propagado (link do card não pode depender
+    // de slugify(titulo), que diverge em títulos desambiguados por tipo).
+    expect(r.relacoes[0].midia.slug).toBe("duna-livro");
+    // A query PEDE o slug das duas pontas (contrato).
+    const include = prisma.relacaoObra.findMany.mock.calls[0][0].include;
+    expect(include.origem.select.slug).toBe(true);
+    expect(include.destino.select.slug).toBe(true);
 
     // Aresta vista pelo DESTINO: direção invertida.
     const r2 = await service.listarBidirecional("livro-1");

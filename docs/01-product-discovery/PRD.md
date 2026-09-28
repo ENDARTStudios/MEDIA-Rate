@@ -61,6 +61,17 @@ nota, autor, editora, estúdio ou fato editorial.
   popular exige provider/schema em tarefa própria). Relatório de cobertura:
   `.claude/reports/media-metadata-2026-09-28.md`.
 
+## Sequências e conteúdo relacionado (T123/BETA-GAP-07)
+
+- **Sequências/relacionados usam apenas o grafo explícito `RelacaoObra`** (tipos
+  `ADAPTACAO_DE`, `SEQUENCIA_DE`, `PREQUELA_DE`, `SPINOFF_DE`, `MESMO_UNIVERSO`,
+  `MESMA_HISTORIA_REAL`). Não inventar ordem, prelúdio, continuação, spin-off ou
+  coleção. Franquias/coleções vêm de `Franquia`/`MidiaFranquia`.
+- **Sem relação → seção omitida** (`RelatedWorksBlock` retorna `null`); nunca card
+  fabricado/link quebrado.
+- **Links usam o slug canônico** do servidor (`GET /api/v1/midias/:id/relacoes`
+  retorna `slug`) — `slugify(titulo)` divergia em títulos desambiguados por tipo.
+
 ## Personas e papéis
 
 Ver [DEFINE_THE_USER](DEFINE_THE_USER.md). Resumo: Visitante (browse público),

@@ -97,6 +97,18 @@ estática: sem placeholders genéricos de elenco) + `apps/web/test/detail-t188.s
 cd apps/web && NODE_ENV=test npx vitest run test/media-metadata.spec.ts test/detail-t188.spec.tsx
 ```
 
+## Sequências / relacionados (BETA-GAP-07 / T123)
+
+As obras relacionadas usam o grafo explícito `RelacaoObra` (nada inventado) e o
+link do card precisa do **slug canônico** do servidor (não `slugify(titulo)`).
+Regressão: `apps/api/test/relacoes.spec.ts` (o select pede `slug` e o propaga) +
+`apps/web/test/discovery.spec.tsx` (`relacaoFromApi` prefere o slug do servidor).
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/relacoes.spec.ts
+cd apps/web && NODE_ENV=test npx vitest run test/discovery.spec.tsx
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
