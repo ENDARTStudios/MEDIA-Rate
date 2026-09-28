@@ -85,6 +85,18 @@ cd apps/web && NODE_ENV=test npx vitest run test/home-truthfulness.spec.ts
 cd apps/web && npx playwright test e2e/home-truthfulness.spec.ts
 ```
 
+## Metadados de mídia (BETA-GAP-06 / T122)
+
+A ficha de mídia não pode exibir metadado/crédito fabricado; ausência = empty
+state honesto. Regressão: `apps/web/test/media-metadata.spec.ts` (guarda
+estática: sem placeholders genéricos de elenco) + `apps/web/test/detail-t188.spec.tsx`
+(`MediaDetailClient` com sinopse/elenco/avaliações vazios → `synopsisUnavailable`/
+`castUnavailable`/`noReviews`, sem crédito fabricado).
+
+```bash
+cd apps/web && NODE_ENV=test npx vitest run test/media-metadata.spec.ts test/detail-t188.spec.tsx
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

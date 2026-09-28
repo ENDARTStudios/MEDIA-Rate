@@ -109,10 +109,10 @@ vi.mock("@/components/ui/rate-limited", () => ({ RateLimited: () => `<div />` })
 vi.mock("@/components/ui/empty-state", () => ({ EmptyState: () => `<div />` }));
 vi.mock("@/components/ui/error-state", () => ({ ErrorState: () => `<div />` }));
 vi.mock("@radix-ui/react-tabs", () => ({
-  Root: ({ children }: { children: React.ReactNode }) => `<div>${children}</div>`,
-  List: ({ children }: { children: React.ReactNode }) => `<div>${children}</div>`,
-  Trigger: ({ children }: { children: React.ReactNode }) => `<button>${children}</button>`,
-  Content: ({ children }: { children: React.ReactNode }) => `<div>${children}</div>`,
+  Root: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  List: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Trigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  Content: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 import { MediaDetailClient } from "@/components/MediaDetailClient";
@@ -139,5 +139,23 @@ describe("MediaDetailClient (T188)", () => {
     expect(plataformas).toBeTruthy();
     expect(plataformas?.textContent).toContain("PlayStation 5");
     expect(plataformas?.querySelector("svg")).toBeTruthy();
+  });
+
+  // BETA-GAP-06/T122: ausência de metadado = empty state honesto (nunca
+  // placeholder fabricado/`0`/`null`).
+  it("mídia sem sinopse/elenco/avaliações mostra estados honestos (sem crédito fabricado)", () => {
+    const qc = new QueryClient();
+    const { container } = render(
+      <QueryClientProvider client={qc}>
+        <MediaDetailClient slug="bg3" initialData={mediaMock as never} />
+      </QueryClientProvider>,
+    );
+    const texto = container.textContent ?? "";
+    expect(texto).toContain("synopsisUnavailable");
+    expect(texto).toContain("castUnavailable");
+    expect(texto).toContain("noReviews");
+    // Nunca exibir crédito placeholder fabricado.
+    expect(texto).not.toContain("Desenvolvedor");
+    expect(texto).not.toContain("Disponível em breve");
   });
 });

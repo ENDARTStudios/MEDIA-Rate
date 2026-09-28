@@ -395,8 +395,10 @@ function game(
       ],
       explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica.",
     },
-    cast: [{ name: "Desenvolvedor", role: "Desenvolvimento", photoUrl: null }],
-    crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }],
+    // BETA-GAP-06: o fallback de demonstração NÃO inventa créditos. A UI de
+    // detalhe mostra empty state honesto quando cast/crew estão vazios.
+    cast: [],
+    crew: [],
     reviews: [],
     streaming: platforms.map((p) => ({ name: p })),
   };
