@@ -424,3 +424,9 @@ Descoberta read-only (.claude/reports/beta-gap-remaining-spec-2026-09-29.md): 12
 - Hosting (T124): decidir A (Vercel Pro) / B (migrar web) / C (aceitar Hobby temporariamente).
 
 Nenhum segredo/PII registrado.
+
+## T133 (2026-09-28) — Decisao pendente: politica de falha do audit de auth
+
+Descoberta: a Fase 3.7 (audit logging de auth) JA esta coberta (eventos + testes + PII minimizada por D-545). Porem AuditLogService.log() propaga erro de DB e auth.service faz await ...log(...) sem catch -> politica FAIL-CLOSED (falha de auditoria pode derrubar login/logout/reset).
+
+Decidir: (A) manter fail-closed (garante trilha de auditoria; risco de indisponibilidade de auth se o DB de audit falhar) ou (B) fail-open nao bloqueante (auth segue; erro sanitizado logado) — exige ADR. Nenhuma mudanca aplicada nesta tarefa. Sem segredo/PII.
