@@ -412,3 +412,15 @@ Depois de feito: responda "feito o item Nº 17" indicando A ou B.
 > Para ativar (P014): criar `vars.METRICS_URL` (URL do `/metrics`) + `secrets.ADMIN_TOKEN` **read-only
 > dedicado**; rodar `workflow_dispatch dry_run=false` e conferir a issue; **rollback** = remover as
 > vars/secrets. Uptime externo (P015) = UptimeRobot (guia em `docs/OBSERVABILITY.md`).
+
+## T130 (2026-09-28) — Decisoes pendentes do programa BETA-GAP
+
+Descoberta read-only (.claude/reports/beta-gap-remaining-spec-2026-09-29.md): 12/18 DONE + 1 PARTIAL. Os gaps restantes exigem devolutiva:
+
+- BETA-GAP-04: sem definicao/aceite no repo -> fornecer objetivo + criterio de aceite.
+- BETA-GAP-08: sem definicao; indicio de notas de criticos por provider -> indicar provider licenciado (sem improvisar integracao).
+- BETA-GAP-16 / BETA-GAP-17 / BETA-GAP-18: sem definicao/aceite no repo -> fornecer objetivo + criterio de aceite.
+- BETA-GAP-06 (PARTIAL): decidir fonte legitima de elenco/creditos e avaliacoes em prosa (provider licenciado OU dataset curado documentado OU adiar). Proibido scraping/traducao automatica/LLM inventando conteudo.
+- Hosting (T124): decidir A (Vercel Pro) / B (migrar web) / C (aceitar Hobby temporariamente).
+
+Nenhum segredo/PII registrado.
