@@ -64,7 +64,11 @@ livros, HQs e mangás — de 0 a 10" (EN/ES equivalentes).
 - **Vermelho evidenciado:** regex no copy de `HEAD` acusa a alegação errada nos
   3 locales; verde após a correção (unit 4/4).
 
-## 6. PR / merge / smoke (preenchido após merge)
+## 6. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `595e3eea` (+ `db35904b` hardening do E2E) · branch `feat/t121-beta-gap-05-home-truthfulness` (base `4833c346`).
+- PR: **#332** `OPEN → MERGED`; merge commit **`6dca4b01`** (merge commit).
+- Required verdes (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety. `Test & Coverage` job `108739153897` → `home-truthfulness.spec.ts` (4 tests) verde; web **430/430**. `E2E Playwright` job `108739671632` **pass** (novo spec E2E). `Vercel` **pass** (janela de rate limit liberada).
+- `123ce28e`: exit **1** (ausente).
+- Smoke pós-merge 7/7 → **200**; produção `/pt-BR` **sem** "mangás de 0 a 100" e **com** a copy corrigida (verificado live).
+- **BETA-GAP-05 = DONE.** BETA-GAP-14 segue **BLOCKED** (PR #324 OPEN). Programa **6/18**.
