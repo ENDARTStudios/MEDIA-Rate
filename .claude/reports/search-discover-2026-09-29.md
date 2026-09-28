@@ -48,7 +48,10 @@ contrato novo (mesmo campo, valor correto).
 - `tsc -p apps/api` = 0; eslint/prettier = 0.
 - E2E de UI de busca já existe (`apps/web/e2e/search.spec.ts`); mudança é backend-only (web é pass-through do `slug`).
 
-## 5. PR / merge / smoke (preenchido após merge)
+## 5. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `67a64fd4` · branch `feat/t126-beta-gap-12-search-discover` (base `82e77b58`).
+- PR: **#342** `OPEN → MERGED`; merge commit **`e1a1c920`**.
+- Required verdes (run `36465753434`): Lint & Audit, Test & Coverage (API **963**/963 — +3; web 434), Build, RLS Isolation, Docs Gate, Migration Safety. `E2E Playwright` **pass**; `Vercel` **pass**.
+- `123ce28e`: exit **1** (ausente). Smoke 7/7 → **200**; `/api/v1/search?q=matrix` → **200**; `/api/v1/search` sem `q` → **400** (previsível, sem 5xx).
+- **BETA-GAP-12 = DONE.** BETA-GAP-06 permanece `PARTIAL`. Programa **9/18 DONE + 1 PARTIAL**.
