@@ -874,7 +874,7 @@
     "languagesSeoBody": "Cada idioma possui URLs canônicas, metadados e conteúdo localizados, garantindo indexação correta nos buscadores e uma experiência totalmente adaptada à sua região.",
     "faqTitle": "Perguntas Frequentes",
     "faq1Q": "O que é o MEDIA Score™ e como ele é calculado?",
-    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic e Steam em uma nota única por mídia — jogos e mangás de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
+    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic e Steam em uma nota única por mídia — jogos de 0 a 100; demais mídias — filmes, séries, livros, HQs e mangás — de 0 a 10 — com indicador de confiança (alta/média/baixa).",
     "faq2Q": "Preciso de conta para usar o MEDIA Rate?",
     "faq2A": "Não. O catálogo, busca e MEDIA Score™ são gratuitos. Recomendações ilimitadas, perfil de gosto e assistente (em breve) exigem plano Plus ou Premium.",
     "faq3Q": "Posso cancelar minha assinatura quando quiser?",
@@ -890,7 +890,7 @@
   "pricingFaq": {
     "title": "Perguntas frequentes",
     "faq1Q": "O que é o MEDIA Score™ e como é calculado?",
-    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic e Steam em uma nota única por mídia — jogos e mangás de 0 a 100, demais mídias de 0 a 10 — com indicador de confiança (alta/média/baixa).",
+    "faq1A": "O MEDIA Score™ consolida avaliações de fontes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic e Steam em uma nota única por mídia — jogos de 0 a 100; demais mídias — filmes, séries, livros, HQs e mangás — de 0 a 10 — com indicador de confiança (alta/média/baixa).",
     "faq2Q": "Quais fontes de avaliação vocês usam?",
     "faq2A": "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, Letterboxd e Trakt para filmes e séries; IGDB, OpenCritic, Steam e SteamSpy para games.",
     "faq3Q": "O MEDIA Score é uma crítica?",

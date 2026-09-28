@@ -874,7 +874,7 @@
     "languagesSeoBody": "Cada idioma tiene URLs canónicas, metadatos y contenido localizados, garantizando una indexación correcta en buscadores.",
     "faqTitle": "Preguntas Frecuentes",
     "faq1Q": "¿Qué es el MEDIA Score y cómo se calcula?",
-    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic y Steam en una nota única por medio: juegos y mangas de 0 a 100, demás medios de 0 a 10.",
+    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic y Steam en una nota única por medio: juegos de 0 a 100; demás medios — películas, series, libros, cómics y mangas — de 0 a 10.",
     "faq2Q": "¿Necesito una cuenta para usar MEDIA Rate?",
     "faq2A": "No. El catálogo, búsqueda y MEDIA Score son gratuitos. Las recomendaciones ilimitadas requieren Plus o Premium.",
     "faq3Q": "¿Puedo cancelar mi suscripción cuando quiera?",
@@ -890,7 +890,7 @@
   "pricingFaq": {
     "title": "Preguntas frecuentes",
     "faq1Q": "Qué es el MEDIA Score y cómo se calcula?",
-    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic y Steam en una nota única por medio: juegos y mangas de 0 a 100, demás medios de 0 a 10, con indicador de confianza (alta/media/baja).",
+    "faq1A": "El MEDIA Score consolida valoraciones de fuentes como IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic y Steam en una nota única por medio: juegos de 0 a 100; demás medios — películas, series, libros, cómics y mangas — de 0 a 10, con indicador de confianza (alta/media/baja).",
     "faq2Q": "Qué fuentes de valoración utilizan?",
     "faq2A": "Utilizamos IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, Letterboxd y Trakt para películas y series; IGDB, OpenCritic, Steam y SteamSpy para juegos.",
     "faq3Q": "Es el MEDIA Score una crítica?",

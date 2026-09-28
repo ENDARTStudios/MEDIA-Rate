@@ -31,6 +31,19 @@ comparável por obra e uma biblioteca pessoal por status de consumo.
   (T472), direitos executáveis com revogação testada (T473).
 - **Admin**: upload de assets (R2), stats, flags, curadoria.
 
+## Honestidade de produto (home) — T121/BETA-GAP-05
+
+**Home não é wishlist.** A home (e a FAQ de planos) só pode apresentar como
+disponível o que está implementado no `main` para o perfil adequado. Proibido:
+link interno quebrado (404/500/loop), botão sem handler, "Em breve" em CTA
+primário, chave i18n crua, recurso pago apresentado como gratuito, área
+autenticada apresentada como pública, ou alegação factual contrária ao produto
+(ex.: escala do score).
+
+- Matriz de verdade: `.claude/reports/home-truthfulness-2026-09-28.md`.
+- Regressão: `apps/web/test/home-truthfulness.spec.ts` (copy/paridade) e
+  `apps/web/e2e/home-truthfulness.spec.ts` (links/keys nos 3 locales).
+
 ## Personas e papéis
 
 Ver [DEFINE_THE_USER](DEFINE_THE_USER.md). Resumo: Visitante (browse público),
