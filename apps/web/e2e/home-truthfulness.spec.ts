@@ -20,14 +20,12 @@ const CLAIM_ESCALA_ERRADA =
 test.describe("BETA-GAP-05 — home truthfulness", () => {
   for (const locale of LOCALES) {
     test(`${locale} — links internos resolvem e copy honesta`, async ({ page }) => {
-      await page.goto(`/${locale}`, { waitUntil: "domcontentloaded" });
+      const nav = await page.goto(`/${locale}`, { waitUntil: "domcontentloaded" });
+      expect(nav?.status() ?? 0, `${locale}: home não pode 4xx/5xx`).toBeLessThan(400);
       await expect(page.locator("body")).toBeVisible({ timeout: 15_000 });
 
       const body = await page.locator("body").innerText();
       expect(body, "sem chave i18n crua").not.toMatch(RE_CHAVE_CRUA);
-      expect(body, "sem erro 5xx").not.toMatch(
-        /500|Internal Server Error|Application error|digest:/i,
-      );
       expect(body, "sem alegação de escala errada (manga 0–100)").not.toMatch(CLAIM_ESCALA_ERRADA);
 
       // Links internos únicos por pathname (evita re-requisitar variantes de query).
