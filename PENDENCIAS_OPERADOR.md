@@ -430,3 +430,18 @@ Nenhum segredo/PII registrado.
 Descoberta: a Fase 3.7 (audit logging de auth) JA esta coberta (eventos + testes + PII minimizada por D-545). Porem AuditLogService.log() propaga erro de DB e auth.service faz await ...log(...) sem catch -> politica FAIL-CLOSED (falha de auditoria pode derrubar login/logout/reset).
 
 Decidir: (A) manter fail-closed (garante trilha de auditoria; risco de indisponibilidade de auth se o DB de audit falhar) ou (B) fail-open nao bloqueante (auth segue; erro sanitizado logado) — exige ADR. Nenhuma mudanca aplicada nesta tarefa. Sem segredo/PII.
+
+## T134 (2026-09-28) — Prontidao do PLANO_MESTRE: pendencias do Operador
+
+Auditoria read-only: NAO ha item de PRODUTO/CODIGO implementavel com seguranca sem decisao externa. Frentes de codigo restantes dependem de:
+
+1. Definicao/aceite: BETA-GAP-04/16/17/18 (BLOCKED_AMBIGUOUS_SPEC) e PLANO 2.7 (data_sources/entity_revisions).
+2. Provider/licenca: BETA-GAP-08 (BLOCKED_EXTERNAL_PROVIDER).
+3. Fonte de dados: BETA-GAP-06 (PARTIAL).
+4. Hosting A/B/C (T124).
+5. ADR politica de falha do audit de auth (T133) - fail-closed vs fail-open.
+6. UptimeRobot (P015) + METRICS_URL/ADMIN_TOKEN (D-538) p/ alertas metricos e uptime live.
+7. Staging/migration path (P012/P013).
+8. Deps HIGH P009; PR #74 (T041); P017 (cifragem de coluna, deferido).
+
+Unico trabalho seguro/determinista restante e docs-only: reconciliar notas obsoletas do PLANO_MESTRE (2.6 D-546; 6.14 feature flags; 9.4 dominio+ruleset; cabecalho Fase 10) -> T135 docs-only proposto. Sem segredo/PII.
