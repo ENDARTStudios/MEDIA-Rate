@@ -13,6 +13,10 @@ interface MockRow {
   genero?: string;
   /** Slug canônico persistido (nullable — exercita o fallback). */
   slug?: string | null;
+  /** BETA-GAP-15/T129: títulos localizados persistidos (D-369). */
+  titulo_original?: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
 }
 
 interface MockDiscoverPrisma {
@@ -53,6 +57,8 @@ const DB: MockRow[] = [
   {
     id: "3",
     titulo: "Inception",
+    titulo_en: "Inception (EN)",
+    titulo_es: "El Origen",
     tipo: "FILME",
     ano_lancamento: 2010,
     sinopse: "Dream heist",
@@ -174,6 +180,9 @@ function makePrisma(rows: MockRow[] = DB) {
       id: r.id,
       slug: r.slug ?? null,
       titulo: r.titulo,
+      titulo_original: r.titulo_original ?? null,
+      titulo_en: r.titulo_en ?? null,
+      titulo_es: r.titulo_es ?? null,
       tipo: r.tipo,
       ano_lancamento: r.ano_lancamento,
       poster_url: r.imagem_url,
@@ -479,5 +488,22 @@ describe("DiscoverService (unit)", () => {
   it("T126 — fallback slugify(titulo) quando o servidor não tem slug (compat)", async () => {
     const result = await service.discover({ q: "inception" });
     expect(result.itens[0].slug).toBe("inception");
+  });
+
+  // ---------------- T129/BETA-GAP-15: títulos localizados no /search ----------------
+
+  it("T129 — /search expõe títulos localizados persistidos (titulo_en/es)", async () => {
+    const result = await service.search("inception");
+    const inc = result.items.find((i: { titulo: string }) => i.titulo === "Inception");
+    expect(inc, "Inception deve aparecer").toBeTruthy();
+    expect((inc as { titulo_en: string }).titulo_en).toBe("Inception (EN)");
+    expect((inc as { titulo_es: string }).titulo_es).toBe("El Origen");
+  });
+
+  it("T129 — /search mantém campos localizados quando ausentes (null, sem inventar)", async () => {
+    const result = await service.search("matrix");
+    const matrix = result.items.find((i: { titulo: string }) => i.titulo === "Matrix");
+    expect(matrix).toBeTruthy();
+    expect((matrix as { titulo_en: string | null }).titulo_en).toBeNull();
   });
 });

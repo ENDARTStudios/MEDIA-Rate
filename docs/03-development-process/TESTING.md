@@ -148,6 +148,21 @@ cd apps/web && NODE_ENV=test npx vitest run test/catalog-type-sections.spec.tsx
 cd apps/web && npx playwright test e2e/catalog-type-sections.spec.ts
 ```
 
+## Localização de títulos (BETA-GAP-15 / T129)
+
+Política canônica (D-369): `pt→titulo`; `en→titulo_en→titulo_original(≠PT)→titulo`;
+`es→titulo_es→titulo_en→titulo`. O `/api/v1/search` passou a expor
+`titulo_original/en/es` (aditivo) e o web monta `titleLocalized` — resultados de
+busca deixam de ficar só em PT nos locales en/es. Regressão:
+`apps/api/test/discover-service.spec.ts`, `apps/web/test/catalog-filters-api.spec.ts`
+e `apps/web/e2e/title-localization.spec.ts` (`title_localization_mode=contract_mock`).
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/discover-service.spec.ts
+cd apps/web && NODE_ENV=test npx vitest run test/catalog-filters-api.spec.ts
+cd apps/web && npx playwright test e2e/title-localization.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
