@@ -46,7 +46,10 @@ vs `.` (filme). Logo, o card podia apontar para **404 ou para a mídia errada**
 - **Vermelho evidenciado:** `HEAD` do service tinha 2 `slug: true` (só gêneros; sem
   slug de mídia) → testes falhariam; verde após fix. tsc api/web 0; eslint/prettier 0.
 
-## 5. PR / merge / smoke (preenchido após merge)
+## 5. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `66d1a294` · branch `feat/t123-beta-gap-07-related-sequences` (base `964c4082`).
+- PR: **#336** `OPEN → MERGED`; merge commit **`2f677c55`** (merge commit).
+- Required verdes (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety. Run `36370981605`: `relacoes.spec.ts` (6) + `discovery.spec.tsx` (8) verdes; `E2E Playwright` job `108767665280` **pass**; `Vercel` **pass**.
+- `123ce28e`: exit **1** (ausente). Smoke pós-merge 7/7 → **200**.
+- **BETA-GAP-07 = DONE.** BETA-GAP-06 permanece `PARTIAL_UI_CONTRACT_READY`. BETA-GAP-14 segue **BLOCKED** (PR #324 OPEN). Programa **7/18 DONE** + 1 PARTIAL + 1 BLOCKED.
