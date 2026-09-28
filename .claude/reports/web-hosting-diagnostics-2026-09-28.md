@@ -65,6 +65,9 @@ plano de ação registrado (A/B), produção web saudável. Decisão **A vs B** 
 do **Operador** (não é bloqueio técnico). Doc canônico:
 `docs/06-devops-deployment/WEB_HOSTING.md`.
 
-## 7. PR / merge (preenchido após merge)
+## 7. PR / merge
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
+- Commit: doc em `docs/06-devops-deployment/WEB_HOSTING.md` + este relatório · branch `feat/t124-web-hosting-deploy` (base `6bc65aa5`).
+- PR: **#338** `OPEN → MERGED`; merge commit **`162d6b51`**.
+- Required (docs-only): Docs Gate + Migration Safety — verdes; `Vercel` = **pass**. `123ce28e`: exit **1** (ausente). Smoke 7/7 → **200**.
+- Zero alteração de código/billing/segredo/infra (docs-only).
