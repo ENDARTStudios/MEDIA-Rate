@@ -648,6 +648,14 @@ jobs:
           npx playwright test e2e/layout-plans-library.spec.ts \
             --project=chromium --project=mobile-chrome \
             --workers=1 --retries=0
+      # T117/BETA-GAP-14: densidade da Biblioteca (spec separado; NAO entra no 48/48).
+      - name: Densidade da Biblioteca (BETA-GAP-14)
+        if: always()
+        working-directory: apps/web
+        run: |
+          npx playwright test e2e/library-density.spec.ts \
+            --project=chromium --project=mobile-chrome \
+            --workers=1 --retries=0
       - name: Upload Playwright report (E2E FULL)
         if: always()
         uses: actions/upload-artifact@v4
