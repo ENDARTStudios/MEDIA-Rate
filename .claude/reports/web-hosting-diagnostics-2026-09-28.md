@@ -60,10 +60,12 @@ surgir bloqueio real, aplicar a regra do doc (`DONE_CODE_READY` no máximo).
 
 ## 6. Status T124
 
-`HOSTING_DIAGNOSED_OK` — causa exata documentada (rate limit Hobby + gate P012),
-plano de ação registrado (A/B), produção web saudável. Decisão **A vs B** pendente
-do **Operador** (não é bloqueio técnico). Doc canônico:
-`docs/06-devops-deployment/WEB_HOSTING.md`.
+**Status: `DONE`** (tarefa de infraestrutura, docs-only). **Evidência:** `HOSTING_DIAGNOSED_OK`
+— causa exata documentada (rate limit de build do Hobby + gate P012), plano de
+ação registrado (A/B/C), produção web saudável. Decisão **A vs B vs C** é
+**pendência do Operador** (não é bloqueio da T124). Doc canônico:
+`docs/06-devops-deployment/WEB_HOSTING.md`. **Não** é um BETA-GAP de produto — não
+infla o registry.
 
 ## 7. PR / merge
 
