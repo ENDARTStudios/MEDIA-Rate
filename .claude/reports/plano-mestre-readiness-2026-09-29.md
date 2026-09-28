@@ -101,3 +101,7 @@ Todas as frentes de **produto/código** estão `NEEDS_OPERATOR_DECISION`.
 ## 12. PR / merge
 
 - Commit: `(a preencher)` · PR: `(a preencher)` · base `220c0949`.
+
+## 13. Follow-up T135 (2026-09-29) - reconciliacao
+
+Notas obsoletas identificadas na T134 foram reconciliadas docs-only na T135: 2.6 (D-546 aplicado), 6.14 (feature flags implementado), 9.4 (dominio live + ruleset protect-main ativo) e cabecalho da Fase 10 (T029-T036 concluidas). As classificacoes materiais desta matriz (COVERED/PARTIAL/NEEDS_OPERATOR_DECISION/NOT_APPLICABLE/BLOCKED) permanecem inalteradas. Evid: .claude/reports/plano-mestre-stale-notes-2026-09-29.md. Nenhum BETA-GAP foi fechado.

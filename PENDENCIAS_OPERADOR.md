@@ -445,3 +445,13 @@ Auditoria read-only: NAO ha item de PRODUTO/CODIGO implementavel com seguranca s
 8. Deps HIGH P009; PR #74 (T041); P017 (cifragem de coluna, deferido).
 
 Unico trabalho seguro/determinista restante e docs-only: reconciliar notas obsoletas do PLANO_MESTRE (2.6 D-546; 6.14 feature flags; 9.4 dominio+ruleset; cabecalho Fase 10) -> T135 docs-only proposto. Sem segredo/PII.
+
+## T135 (2026-09-29) - Reconciliacao docs-only das notas obsoletas do PLANO_MESTRE
+
+Notas reconciliadas com evidencia reconfirmada ao vivo (nenhum codigo/schema/auth/billing/segredo/infra alterado; nenhum BETA-GAP fechado):
+- 2.6 COVERED (D-546 aplicado; created_at explicito em audit-log.service.ts:36-58).
+- 6.14 COVERED (feature-flags.controller/module/service + feature-flags.spec.ts, 7 casos).
+- 9.4 COVERED (mediarate.app 200 nos 3 locales; ruleset protect-main active/branch).
+- Cabecalho Fase 10: status T029-T036 concluidas (fase mantida EM ANDAMENTO).
+
+As 8 pendencias do Operador abaixo permanecem abertas e sao o caminho para destravar as frentes de produto/codigo. Evid: .claude/reports/plano-mestre-stale-notes-2026-09-29.md.

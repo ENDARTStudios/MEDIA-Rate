@@ -20,7 +20,7 @@
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
 - [~] Fase 8 – Testes/segurança `[PARCIAL — API 931/931 (125 arquivos, T072); E2E jornada crítica 48/48 (T074/D-553); web ~309; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
-- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029 concluída (D-439); T030–T033 abertas]` ⚠️
+- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029–T036 concluídas; gaps restantes dependem de definição/provider/fonte/decisão do Operador]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
 - [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
 - [x] Fase 15 – Melhoria contínua `[CONCLUÍDA — T405 perf 46→63; D-402/D-403]` ✅
@@ -75,7 +75,7 @@
 - [x] 2.3 Tabelas de domínio: `midia`, `media_score`, `genero`, `streaming_service`, `midia_genero`, `midia_streaming`.
 - [~] 2.4 Tabelas de auth: `usuario`, `roles`, `user_roles`, `sessions`, `watchlist_entry` ✅; `permissions` granulares ❌ (postergado — RBAC via `@Roles`/`@RequirePlan`).
 - [x] 2.5 Tabelas de billing: `fatura`, planos Free/Plus/Premium, `payment_events`.
-- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`). **T057/D-546:** diagnóstico de **drift de timestamp** (hash usa `new Date()` do app; verificação usa `created_at` do banco) → falso-positivo em `verificarIntegridade()`; sem chamador em runtime; correção recomendada (gravar `created_at` explícito) pendente em PR dedicado. Teste: `audit-integrity-drift.spec.ts`; relatório `.claude/reports/audit-integrity-drift-2026-09-24.md`.
+- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`). **T057/D-546:** drift de timestamp (hash usava `new Date()` do app; verificação usa `created_at` do banco) → falso-positivo em `verificarIntegridade()`. **COVERED:** correção aplicada — grava `created_at` explícito a partir de fonte única de tempo (`created_at: agora`) em `apps/api/src/common/audit-log.service.ts:36-58`. Teste: `audit-integrity-drift.spec.ts`; evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).
@@ -192,7 +192,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 6.11 Fila assíncrona (BullMQ): **postergado** — sem caso de uso concreto (D-017).
 - [~] 6.12 IA/RAG: **postergado** (D-017).
 - [x] 6.13 Exportação de dados (LGPD): export + exclusão com 30 dias de carência + cancelamento.
-- [~] 6.14 Feature flags: não implementado — gap aberto (F11/T292 planejada).
+- [x] 6.14 Feature flags: **COVERED** — `flags/feature-flags.controller.ts` + `feature-flags.module.ts`/`service.ts` + `apps/api/test/feature-flags.spec.ts` (7 casos). evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [~] 6.15 WebSocket: condicional — postergado.
 
 ---
@@ -243,7 +243,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 9.1.6 Deploy em staging: Vercel Preview + Railway; sem staging separado.
 - [~] 9.2 Secrets no CI (8 variáveis via `${{ secrets.X }}`).
 - [~] 9.3 Deploy blue-green/rolling (Vercel atômico + Railway rolling).
-- [~] 9.4 Plataforma: **Vercel (web) + Railway (api) em produção** ✅; domínio mediarate.app pendente; branch protection da main pendente.
+- [x] 9.4 Plataforma: **Vercel (web) + Railway (api) em produção** ✅; domínio `mediarate.app` ✅ (live, HTTP 200 nos 3 locales); branch protection da main ✅ (ruleset `protect-main`, enforcement `active`, target `branch`). evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [x] 9.5.1 Logs centralizados (T217): LokiStream opcional via `LOKI_URL`.
 - [x] 9.5.2 Métricas (T217): prom-client, `GET /metrics` protegido, sem PII.
 - [x] 9.5.3 Alertas (T218): ring buffers, histerese, `/admin/alerts/status`.
