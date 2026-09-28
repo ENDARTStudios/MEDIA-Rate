@@ -53,7 +53,10 @@ em tarefa própria — não improvisar). Follow-ups: popular créditos via adapt
 - **Vermelho evidenciado:** `HEAD` de `lib/api.ts` contém `name: "Desenvolvedor"`
   (guard falharia); verde após a correção (5/5). tsc web 0; eslint/prettier 0.
 
-## 6. PR / merge / smoke (preenchido após merge)
+## 6. PR / merge / smoke
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
-- Required: `(a preencher)` · `123ce28e`: `(a preencher)` · Smoke 7/7: `(a preencher)`
+- Commit: `56708476` · branch `feat/t122-beta-gap-06-media-metadata` (base `e68ab8e7`).
+- PR: **#334** `OPEN → MERGED`; merge commit **`40839308`** (merge commit).
+- Required verdes (ruleset `protect-main`): Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety. `Test & Coverage` job `108745308692` → `media-metadata.spec` (2) + `detail-t188.spec` (3) verdes; **web 433/433**. `E2E Playwright` job `108745799841` **pass**. `Vercel` fail não-required (rate limit) = benigno.
+- `123ce28e`: exit **1** (ausente). Smoke pós-merge 7/7 → **200**.
+- **BETA-GAP-06 = `PARTIAL_UI_CONTRACT_READY`** (contrato/UI honestos; elenco/avaliações em prosa sem fonte legítima no escopo). BETA-GAP-14 segue **BLOCKED** (PR #324 OPEN). Programa: 6 DONE + 1 PARTIAL.
