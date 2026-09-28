@@ -53,6 +53,7 @@
 
 Para cada gap, quando definido, o packet deve conter: `objetivo`, `arquivos_afetados`, `restricoes` (sem tocar auth/billing/segredo/infra; sem inventar dado), `requires_tdd`, `critério_de_pronto` (PR + required verdes + smoke 7/7 + evidência), `hard stops`.
 
-## 8. PR / merge (preenchido após merge)
+## 8. PR / merge
 
-- Commit: `(a preencher)` · PR: `(a preencher)` · merge: `(a preencher)`
+- Commit: `6ba6fa40` · PR: **#350** (docs-only) · base `b349899a`.
+- Diff restrito a docs/relatórios/registro/worklog/pendências; **nenhum** código/schema/segredo/infra. Nenhum gap marcado DONE.
