@@ -1,64 +1,70 @@
 /**
- * BETA-GAP-14 (T117) - densidade dos cards de Minha Biblioteca.
+ * BETA-GAP-14 (T117/T125) — densidade dos cards de "Minha Biblioteca".
  *
- * A Biblioteca le `getInteracoes` (watchlist), entao o spec SEMEIA interacoes
- * QUERO_CONSUMIR antes de medir (senao o grid nao renderiza - empty state).
- * Seed por API existente (PUT /api/v1/interacoes + cookie csrf_token), com
- * fallback: tenta `midiaId` e `midia_id` (contrato defensivo, sem inventar rota).
- * Medicao por CSS computado (gridTemplateColumns). Sem sleep/skip/fixme/expect.soft.
+ * Estratégia: **mock de contrato determinístico** (`page.route`) do endpoint
+ * real consumido por `BibliotecaClient` → `getInteracoes`
+ * (`GET /api/v1/interacoes?status=…&limit=50`, envelope
+ * `{ items, total, porStatus, nextCursor }`). O mock é aceitável porque este
+ * gap é de LAYOUT/DENSIDADE (não de persistência); o teste PROVA que o fixture
+ * foi consumido (título visível na UI) e mede colunas por CSS computado.
+ *
+ * Sem sleep/skip/fixme/expect.soft; waits determinísticos.
  */
 import { test, expect, type Page } from "@playwright/test";
 
 const E2E_FULL = process.env.E2E_FULL === "1";
-const API = process.env.E2E_API_BASE ?? "http://localhost:4000";
 const ROTA = "/pt-BR/biblioteca?status=QUERO_CONSUMIR";
 const SEL_GRID = '[data-testid="biblioteca-grid"]';
 const TOL = 1;
+const DENSITY_MODE = "contract_mock";
 
-function extrairIds(json: unknown): string[] {
-  const obj = json as Record<string, unknown> | null;
-  const arr = (obj?.items ?? obj?.midias ?? obj?.data ?? obj) as unknown;
-  if (!Array.isArray(arr)) return [];
-  return arr
-    .map((m) => {
-      const o = m as Record<string, unknown>;
-      return (o?.id ?? o?.midia_id ?? o?.midiaId) as string | undefined;
-    })
-    .filter((v): v is string => typeof v === "string" && v.length > 0);
+/** Tipos válidos do enum da API (não inventar valores). */
+const TIPOS = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
+
+/** Fixture sanitizada: 8 interações QUERO_CONSUMIR (shape real do contrato). */
+function fixtureBiblioteca() {
+  const agora = new Date("2026-09-28T12:00:00.000Z").toISOString();
+  const items = Array.from({ length: 8 }, (_, k) => {
+    const n = String(k + 1).padStart(2, "0");
+    const midiaId = `fixture-midia-${n}`;
+    return {
+      id: `fixture-interacao-${n}`,
+      midia_id: midiaId,
+      status: "QUERO_CONSUMIR" as const,
+      atualizado_em: agora,
+      midia: {
+        id: midiaId,
+        slug: `fixture-biblioteca-${n}`,
+        titulo: `Fixture Biblioteca ${n}`,
+        tipo: TIPOS[k % TIPOS.length],
+        ano_lancamento: 2000 + k,
+        imagem_url: null,
+        score: 70 + k,
+      },
+    };
+  });
+  return {
+    items,
+    total: items.length,
+    porStatus: { QUERO_CONSUMIR: items.length, CONSUMINDO: 0, CONCLUIDO: 0, ABANDONADO: 0 },
+    nextCursor: null,
+  };
 }
 
-async function semear(page: Page): Promise<number> {
-  // Seed na ORIGEM DO APP (proxy same-origin): a sessao e o csrf_token vivem aqui.
-  await page.goto("/pt-BR/catalog", { waitUntil: "domcontentloaded" });
-  const appOrigin = new URL(page.url()).origin;
-  const cookies = await page.context().cookies(appOrigin);
-  const csrf = cookies.find((c) => c.name === "csrf_token")?.value;
-  const midias = await page.request.get(`${appOrigin}/api/v1/midias?limit=10`, {
-    headers: { Accept: "application/json" },
-  });
-  if (!midias.ok()) return 0;
-  const ids = extrairIds(await midias.json()).slice(0, 10);
-  let ok = 0;
-  for (const id of ids) {
-    for (const campo of ["midiaId", "midia_id"]) {
-      const res = await page.request
-        .put(`${appOrigin}/api/v1/interacoes`, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(csrf ? { "X-CSRF-Token": csrf } : {}),
-          },
-          data: { [campo]: id, status: "QUERO_CONSUMIR" },
-        })
-        .catch(() => null);
-      const st = res?.status() ?? 0;
-      if (st === 200 || st === 201 || st === 409) {
-        ok += 1;
-        break;
-      }
+/** Intercepta SOMENTE o GET de interações; qualquer outro request segue real. */
+async function mockBiblioteca(page: Page): Promise<void> {
+  const fixture = fixtureBiblioteca();
+  await page.route("**/api/v1/interacoes*", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+      return;
     }
-    if (ok >= 4) break;
-  }
-  return ok;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixture),
+    });
+  });
 }
 
 async function medir(page: Page) {
@@ -68,7 +74,7 @@ async function medir(page: Page) {
     return {
       display: cs.display,
       columns: cs.gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length,
-      overflowX: el.scrollWidth > el.clientWidth + TOL,
+      overflowX: el.scrollWidth > el.clientWidth + 1,
     };
   });
   const cards = grid.locator("> *");
@@ -84,12 +90,13 @@ async function medir(page: Page) {
 async function abrirEmedir(page: Page, largura: number, altura: number, rotulo: string) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: largura, height: altura });
-  const seed = await semear(page);
-  expect(seed, "interacoes semeadas (>=4)").toBeGreaterThanOrEqual(4);
+  await mockBiblioteca(page);
 
   await page.goto(ROTA, { waitUntil: "domcontentloaded" });
   const grid = page.locator(SEL_GRID);
   await expect(grid).toBeVisible({ timeout: 20_000 });
+  // Prova de que o MOCK foi consumido (não basta o grid existir).
+  await expect(grid.getByText("Fixture Biblioteca 01")).toBeVisible({ timeout: 10_000 });
   await grid.scrollIntoViewIfNeeded();
   await page.evaluate(async () => {
     await (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready;
@@ -108,6 +115,7 @@ async function abrirEmedir(page: Page, largura: number, altura: number, rotulo: 
       overflowX: m.overflowX,
       cardsMedidos: m.dims.length,
       cardMetrics: m.dims,
+      density_mode: DENSITY_MODE,
       tolerance: "columns/n colunas; overflowX false; cards >= 4",
     }),
   });
