@@ -643,7 +643,8 @@
     "genero": "Genre",
     "todosGeneros": "All genres",
     "somenteCritica": "Only with critic score available (MEDIA Score critic/audience split)",
-    "anoLabel": "Year"
+    "anoLabel": "Year",
+    "advancedUnavailableSearch": "Genre, score and critics apply to the catalog without a search term. Clear the search to use them."
   },
   "watchlist": {
     "title": "Watchlist",

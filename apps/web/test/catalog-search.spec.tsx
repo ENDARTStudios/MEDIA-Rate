@@ -20,7 +20,18 @@ const messages = {
     sortAno: "Ano",
     sortTitulo: "Título",
   },
-  catalogFilters: { filters: "Filtros", clearAll: "Limpar tudo" },
+  catalogFilters: {
+    filters: "Filtros",
+    clearAll: "Limpar tudo",
+    advancedFilters: "Filtros avançados",
+    genero: "Gênero",
+    todosGeneros: "Todos os gêneros",
+    scoreMin: "Mín.",
+    scoreMax: "Máx.",
+    somenteCritica: "Somente crítica",
+    anoLabel: "Ano",
+    advancedUnavailableSearch: "Indisponível com busca",
+  },
   common: {},
 };
 
@@ -140,5 +151,42 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
     // Usuário começa a digitar "cavaleiro dos sete" — o valor local manda.
     fireEvent.change(input, { target: { value: "cavaleiro dos sete" } });
     expect((input as HTMLInputElement).value).toBe("cavaleiro dos sete");
+  });
+
+  // ---------------- BETA-GAP-10/T127: contador e filtros honestos ----------------
+
+  it("contador de filtros inclui gênero e 'somente crítica' (não subconta)", () => {
+    paramsHolder.urlParams = new URLSearchParams("genero=acao&com_critica=true");
+    renderWithProviders(<CatalogFiltersClient />);
+    expect(screen.getByText("Filtros (2)")).toBeTruthy();
+    expect(screen.getByTestId("catalog-clear-all")).toBeTruthy();
+  });
+
+  it("busca ativa desabilita gênero/nota/crítica e mostra hint honesta", () => {
+    paramsHolder.urlParams = new URLSearchParams("q=matrix");
+    renderWithProviders(<CatalogFiltersClient />);
+    fireEvent.click(screen.getByRole("button", { name: "Filtros avançados" }));
+    expect(screen.getByTestId("catalog-advanced-search-hint")).toBeTruthy();
+    expect((screen.getByTestId("catalog-filter-genero") as HTMLSelectElement).disabled).toBe(true);
+    expect((screen.getByTestId("catalog-filter-score-min") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("catalog-filter-score-max") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("catalog-filter-com-critica") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("sem busca, gênero/nota/crítica ficam habilitados", () => {
+    paramsHolder.urlParams = new URLSearchParams();
+    renderWithProviders(<CatalogFiltersClient />);
+    fireEvent.click(screen.getByRole("button", { name: "Filtros avançados" }));
+    expect(screen.queryByTestId("catalog-advanced-search-hint")).toBeNull();
+    expect((screen.getByTestId("catalog-filter-genero") as HTMLSelectElement).disabled).toBe(false);
+    expect((screen.getByTestId("catalog-filter-com-critica") as HTMLInputElement).disabled).toBe(
+      false,
+    );
   });
 });

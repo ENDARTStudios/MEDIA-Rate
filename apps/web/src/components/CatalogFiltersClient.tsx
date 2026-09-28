@@ -84,9 +84,23 @@ export function CatalogFiltersClient() {
 
   const clearAll = () => router.replace(pathname);
 
-  const activeCount = [type, sort, query, anoMin, anoMax, scoreMin, scoreMax].filter(
-    Boolean,
-  ).length;
+  // BETA-GAP-10/T127: o catálogo textual (`/api/v1/search`) só casa título/
+  // sinopse — gênero/nota/crítica NÃO são aplicados nesse modo. Em vez de
+  // exibir um filtro que a request ignora (estado divergente), desabilita com
+  // hint honesta enquanto houver busca ativa.
+  const buscaAtiva = query.trim().length > 0;
+
+  const activeCount = [
+    type,
+    sort,
+    query,
+    anoMin,
+    anoMax,
+    scoreMin,
+    scoreMax,
+    genero,
+    comCritica ? "critica" : "",
+  ].filter(Boolean).length;
 
   return (
     <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
@@ -96,7 +110,11 @@ export function CatalogFiltersClient() {
           {activeCount > 0 ? ` (${activeCount})` : ""}
         </span>
         {activeCount > 0 && (
-          <button onClick={clearAll} className="text-xs text-[#818CF8] hover:text-[#A5B4FC]">
+          <button
+            onClick={clearAll}
+            data-testid="catalog-clear-all"
+            className="text-xs text-[#818CF8] hover:text-[#A5B4FC]"
+          >
             {tf("clearAll")}
           </button>
         )}
@@ -135,6 +153,7 @@ export function CatalogFiltersClient() {
           type="button"
           onClick={() => setAdvancedOpen((v) => !v)}
           aria-expanded={advancedOpen}
+          data-testid="catalog-advanced-toggle"
           className="flex w-full items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-[#EDE7DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded"
         >
           <span>{tf("advancedFilters")}</span>
@@ -151,6 +170,15 @@ export function CatalogFiltersClient() {
 
         {advancedOpen && (
           <div className="mt-3 space-y-3">
+            {buscaAtiva && (
+              <p
+                id="catalog-advanced-search-hint"
+                data-testid="catalog-advanced-search-hint"
+                className="rounded-md border border-[#818CF8]/20 bg-[#818CF8]/5 px-2 py-1.5 text-[11px] leading-4 text-[#9CA3AF]"
+              >
+                {tf("advancedUnavailableSearch")}
+              </p>
+            )}
             <div>
               <span className="block text-xs text-[#6B7280] mb-1.5">{tf("anoLabel")}</span>
               <div className="flex items-center gap-2">
@@ -183,7 +211,10 @@ export function CatalogFiltersClient() {
                   onChange={(e) => setParam("scoreMin", e.target.value)}
                   placeholder={tf("scoreMin")}
                   aria-label={tf("scoreMin")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  disabled={buscaAtiva}
+                  aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+                  data-testid="catalog-filter-score-min"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
                 <span className="text-[#6B7280]">–</span>
                 <input
@@ -192,7 +223,10 @@ export function CatalogFiltersClient() {
                   onChange={(e) => setParam("scoreMax", e.target.value)}
                   placeholder={tf("scoreMax")}
                   aria-label={tf("scoreMax")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  disabled={buscaAtiva}
+                  aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+                  data-testid="catalog-filter-score-max"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
               </div>
             </div>
@@ -202,7 +236,10 @@ export function CatalogFiltersClient() {
                 value={genero}
                 onChange={(e) => setParam("genero", e.target.value)}
                 aria-label={tf("genero")}
-                className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                disabled={buscaAtiva}
+                aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+                data-testid="catalog-filter-genero"
+                className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
               >
                 <option value="">{tf("todosGeneros")}</option>
                 {(generos ?? []).map((g) => (
@@ -217,6 +254,9 @@ export function CatalogFiltersClient() {
                     type="checkbox"
                     checked={comCritica}
                     onChange={(e) => setParam("com_critica", e.target.checked ? "true" : "")}
+                    disabled={buscaAtiva}
+                    aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+                    data-testid="catalog-filter-com-critica"
                     className="mt-0.5 accent-[#818CF8]"
                   />
                   <span>{tf("somenteCritica")}</span>
