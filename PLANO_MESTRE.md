@@ -133,7 +133,8 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade → 409, invalidação de cache, audit.
 - [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confiança, explicabilidade.
 - [x] 4.3 Módulo `recommendations`: serviço real (`RecommendationsService` + controller + DTO + testes e2e) — stubs substituídos.
-- [x] 4.4 Módulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, score_at_add).
+- [x] 4.4 Módulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, `score_at_add`). **T131 (2026-09-28) — cobertura auditada/aprovada:** `UsuarioMidiaInteracao` é a fonte de verdade e `WatchlistEntry` a projeção (dual-write T320/D-375; máquina D-528); endpoints GET/POST/`PATCH :id/move`/`PATCH :id`/DELETE/`PATCH :id/relink` com AuthGuard + UuidParamPipe + Zod; **owner-only** via `comContextoRls`+`usuario_id` (sem IDOR); DTOs anti-escalada; LGPD export inclui watchlist; API watchlist 50/50.
+  evid: `.claude/reports/watchlist-crud-2026-09-29.md`; PR #351 (merge `7a347df3`) + evidência PR #352 (merge `6995da95`); smoke 7/7.
 - [x] 4.5 Módulo `discover/search`: busca real com `?q=` e paridade de acentos (T279: `::uuid` no na_watchlist).
 - [x] 4.6 Módulo `billing`: checkout Stripe (Idempotency-Key) + webhook HMAC; faturas persistidas.
 - [x] 4.7 Módulo `admin` (T221): `/admin/stats` com métricas REAIS, cache 60s, RBAC, audit.

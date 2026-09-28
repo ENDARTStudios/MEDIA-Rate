@@ -78,3 +78,9 @@ relatório + worklog (evidência de mapeamento), conforme o packet ("não abrir 
 - Commit: `411270d4` · PR: **#351** (docs-only) · base `6661b9e1` · merge commit **`7a347df3`**.
 - Required (docs-only): Docs Gate + Migration Safety verdes; `Vercel` **pass**. `123ce28e` ausente.
 - Smoke pós-merge 7/7 → **200**. **T131 = DONE** (cobertura completa; sem alteração de código). Nenhum BETA-GAP tocado; BETA-GAP-06 segue `PARTIAL_UI_CONTRACT_READY`. Marcação formal do `PLANO_MESTRE` 4.4 fica para o REVIEW do Thinker.
+
+## 10. T132 — formalização no PLANO_MESTRE
+
+- **Descoberta:** o item **4.4 do `PLANO_MESTRE.md` já estava `[x]`** — não havia item "pendente" a marcar. A lacuna formal era **evidência**: a linha 4.4 não citava a auditoria T131.
+- **Ação (docs-only):** **enriqueci apenas o item 4.4** (linha 136) com a evidência aprovada da T131 (dual-write T320/D-375; D-528; owner-only `comContextoRls`; anti-escalada; LGPD; API 50/50) + `evid:` com relatório/PRs/smoke. **Nenhum outro item** da Fase 4 ou de outras fases foi alterado; a Fase 4 **não** foi declarada concluída.
+- **Evidência:** PR docs-only; Docs Gate + Migration verdes; smoke passivo 7/7.
