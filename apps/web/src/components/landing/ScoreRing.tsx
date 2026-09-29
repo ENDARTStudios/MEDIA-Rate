@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { scoreColor } from "@/lib/design-tokens";
+import { formatarScoreLocale } from "@/lib/score-utils";
 
 interface ScoreRingProps {
   score: number;
@@ -20,6 +22,7 @@ interface ScoreRingProps {
  */
 export function ScoreRing({ score, scale = "0-10", size = 168, className }: ScoreRingProps) {
   const shouldReduce = useReducedMotion();
+  const locale = useLocale();
   const [display, setDisplay] = useState(0);
   const numRef = useRef<HTMLSpanElement>(null);
 
@@ -48,7 +51,10 @@ export function ScoreRing({ score, scale = "0-10", size = 168, className }: Scor
     return () => cancelAnimationFrame(raf);
   }, [clamped, shouldReduce]);
 
-  const displayText = scale === "0-100" ? Math.round(display) : display.toFixed(1);
+  // T147/B3-B5: sem arredondamento na exibição final — trunca 1 casa e
+  // formata pelo locale (Math.round só para métricas 0-100 inteiras de
+  // marketing é substituído pelo pipeline único).
+  const displayText = formatarScoreLocale(display, locale);
 
   return (
     <div

@@ -163,6 +163,25 @@ cd apps/web && NODE_ENV=test npx vitest run test/catalog-filters-api.spec.ts
 cd apps/web && npx playwright test e2e/title-localization.spec.ts
 ```
 
+## Exibição de notas/escalas (UG-09 / T147)
+
+Política (BETA-GAP-09 + T147): pipeline ÚNICO em `apps/web/src/lib/score-utils.ts`
+— `escalaPorTipo` (SOMENTE games 0-100; **mangá é 0-10**), `exibirScore`
+(normaliza + trunca 1 casa, SEM arredondar: 7,95→7,9), `formatarScoreLocale`
+(pt-BR vírgula; en-US/es-ES ponto). Toda superfície de score (MediaCard,
+MediaCardShell, ScoreDial ×2, StaticScoreDial, MediaScoreBadge, MediaScoreModule,
+ScoreRing, ScoreTrend, SearchCommand) consome o helper; dials não arredondam o
+frame final da animação (idêntico ao reduced-motion) e aria-labels refletem a
+escala real ("7,9 de 10" para mangá — nunca "de 100"). Regressão:
+`apps/web/test/score-display.spec.tsx` (unit/component) + E2E dirigido "live"
+com dados reais (NÃO roda na allowlist web-only do CI — ambiente sem dados
+falha no guard em vez de passar vacuamente):
+
+```bash
+cd apps/web && NODE_ENV=test npx vitest run test/score-display.spec.tsx
+cd apps/web && PLAYWRIGHT_BASE_URL="https://mediarate.app/pt-BR" npx playwright test e2e/score-display.spec.ts --project=chromium
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

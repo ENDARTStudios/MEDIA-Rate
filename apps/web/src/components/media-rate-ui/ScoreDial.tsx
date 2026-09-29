@@ -12,8 +12,10 @@
  * - Sem animação (F7) — estrutura pronta para prefers-reduced-motion.
  */
 import { useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+import { formatarScoreLocale } from "@/lib/score-utils";
 
 export interface ScoreDialProps {
   value: number;
@@ -53,6 +55,14 @@ export function ScoreDial({
   const circ = 2 * Math.PI * cfg.radius;
   const offset = circ - (clamped / max) * circ;
   const shouldReduce = useReducedMotionPref();
+  const locale = useLocale();
+  // T147: aria i18n (scoredial.ariaLabel) com valor FORMATADO — nunca pt-BR
+  // hardcode e nunca valor arredondado (7,9 permanece 7,9).
+  const tScore = useTranslations("scoredial");
+  const ariaLabel = tScore("ariaLabel", {
+    score: formatarScoreLocale(clamped, locale),
+    max: String(max),
+  });
   const rootRef = useRef<HTMLDivElement>(null);
   const [display, setDisplay] = useState(clamped);
 
@@ -83,7 +93,10 @@ export function ScoreDial({
             duration: 800,
             ease: "outQuad",
             onUpdate: () => {
-              if (!cancel) setDisplay(Math.round(target.v));
+              // T147/B3: sem Math.round — o frame final (target.v === clamped)
+              // exibe o mesmo valor truncado do reduced-motion; a formatação
+              // (1 casa, locale) acontece na renderização.
+              if (!cancel) setDisplay(target.v);
             },
           });
         })();
@@ -102,7 +115,7 @@ export function ScoreDial({
       ref={rootRef}
       className={cn("relative inline-flex items-center justify-center shrink-0", className)}
       role="img"
-      aria-label={`Nota ${clamped.toLocaleString("pt-BR")} de ${max}`}
+      aria-label={ariaLabel}
       data-testid={`score-dial-${size}`}
     >
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
@@ -128,7 +141,7 @@ export function ScoreDial({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
         <span className={cn("font-mono font-bold tabular-nums", cfg.number)} style={{ color }}>
-          {display.toLocaleString("pt-BR")}
+          {formatarScoreLocale(display, locale)}
         </span>
         {showConfidence && (
           <span className="mt-0.5 text-xs uppercase tracking-wider" style={{ color }}>

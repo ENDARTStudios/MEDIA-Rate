@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { searchMedia, slugify } from "@/lib/api";
 import { scoreColor, CATEGORY_TOKENS } from "@/lib/design-tokens";
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import { normalizeDisplayScore, formatarScoreLocale } from "@/lib/score-utils";
 import type { MediaType } from "@/lib/types";
 
 interface SearchResult {
@@ -51,6 +51,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function SearchCommand() {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   // T246: hint de tecla por plataforma (⌘ no Mac, Ctrl no Windows/Linux).
   const isMac =
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform ?? "");
@@ -442,9 +443,12 @@ export function SearchCommand() {
                                 )}15`,
                               }}
                             >
-                              {normalizeDisplayScore(
-                                item.score,
-                                item.type === "Game" ? "game" : "movie",
+                              {formatarScoreLocale(
+                                normalizeDisplayScore(
+                                  item.score,
+                                  item.type === "Game" ? "game" : "movie",
+                                ),
+                                locale,
                               )}
                             </span>
                           )}

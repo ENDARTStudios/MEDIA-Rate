@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { Link } from "@/lib/navigation";
 import type { MediaScore as MediaScoreType } from "@/lib/types";
@@ -9,7 +9,12 @@ import { Bar } from "./Bar";
 import { ConfidenceBadge } from "@/components/media-rate-ui/ConfidenceBadge";
 import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import {
+  normalizeDisplayScore,
+  escalaPorTipo,
+  maxDaEscala,
+  formatarScoreLocale,
+} from "@/lib/score-utils";
 import { derivarScores } from "@/lib/media-score-engine";
 import { FONTES_WEB } from "@/lib/source-registry";
 import { isPreviewTipo } from "@/lib/api";
@@ -35,6 +40,7 @@ function relativeTime(dateStr: string, t: ReturnType<typeof useTranslations>): s
  * (isPreviewTipo em lib/api.ts) — nunca hardcoda a lista de tipos aqui. */
 export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   const shouldReduce = useReducedMotion();
   const emPreparacao = mediaType ? isPreviewTipo(mediaType as MediaType) : false;
 
@@ -67,11 +73,11 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   const publico = audienceScore ?? derivado.publicoScore;
   const consenso = consensus ?? derivado.consenso;
 
-  // Score na escala NATIVA do tipo: games/mangás 0-100; demais 0-10.
-  // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
+  // Score na escala NATIVA do tipo (BETA-GAP-09; T147/B2): SOMENTE games 0-100
+  // — mangá é 0-10 como as demais mídias (nunca "7,9 de 100").
   const consolidated = normalizeDisplayScore(rawConsolidated, mediaType);
-  const scale = mediaType === "game" || mediaType === "manga" ? "0-100" : "0-10";
-  const maxScore = scale === "0-100" ? 100 : 10;
+  const scale = escalaPorTipo(mediaType);
+  const maxScore = maxDaEscala(scale);
   // Deduplica fontes por id (defesa contra avaliações duplicadas no banco/mock).
   const fontesUnicas = sources.filter(
     (s, i, arr) => arr.findIndex((x) => x.source === s.source) === i,
@@ -109,7 +115,9 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             viewBox="0 0 120 120"
             role="img"
             aria-label={t("scoreAriaLabel", {
-              score: consolidated,
+              // T147/B5: string pré-formatada — interpolação ICU simples não
+              // aplica locale; o helper garante "7,9" pt-BR / "7.9" en-US.
+              score: formatarScoreLocale(consolidated, locale),
               sources: sources.length,
               scale: maxScore,
             })}
@@ -131,7 +139,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
               strokeWidth="8"
               strokeLinecap="round"
               strokeDasharray={circ}
-              strokeDashoffset={shouldReduce ? circ * (1 - consolidated / 100) : offset}
+              strokeDashoffset={shouldReduce ? circ * (1 - consolidated / maxScore) : offset}
               style={{ transition: shouldReduce ? "none" : "stroke-dashoffset 1.2s ease-out" }}
             />
             <defs>
@@ -145,7 +153,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             className="absolute inset-0 flex items-center justify-center font-heading text-2xl font-bold tabular-nums"
             style={{ color }}
           >
-            {consolidated}
+            {formatarScoreLocale(consolidated, locale)}
           </span>
         </div>
 

@@ -12,7 +12,12 @@
  */
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import {
+  normalizeDisplayScore,
+  escalaPorTipo,
+  maxDaEscala,
+  formatarScoreLocale,
+} from "@/lib/score-utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { titleForLocale } from "@/lib/i18n-content";
 import { isPreviewTipo } from "@/lib/api";
@@ -75,10 +80,11 @@ export function MediaCardShell({
     (media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie"));
   const scoreExibido =
     media.score != null && !semFontesReais ? normalizeDisplayScore(media.score, mediaType) : null;
-  const escala = mediaType === "game" || mediaType === "manga" ? "0-100" : "0-10";
-  const maxScore = escala === "0-100" ? 100 : 10;
+  // T147/B2: escala nativa SOMENTE via pipeline — mangá é 0-10 (nunca 0-100).
+  const escala = escalaPorTipo(mediaType);
+  const maxScore = maxDaEscala(escala);
   const scoreLabel =
-    scoreExibido != null ? `${Math.round(scoreExibido * 10) / 10}/${maxScore}` : "—";
+    scoreExibido != null ? `${formatarScoreLocale(scoreExibido, locale)}/${maxScore}` : "—";
   const tituloLocal = titleForLocale(
     {
       title: media.titulo,
