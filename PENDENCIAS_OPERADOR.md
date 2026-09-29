@@ -421,7 +421,7 @@ Descoberta read-only (.claude/reports/beta-gap-remaining-spec-2026-09-29.md): 12
 - BETA-GAP-08: sem definicao; indicio de notas de criticos por provider -> indicar provider licenciado (sem improvisar integracao).
 - BETA-GAP-16 / BETA-GAP-17 / BETA-GAP-18: sem definicao/aceite no repo -> fornecer objetivo + criterio de aceite.
 - BETA-GAP-06 (PARTIAL): decidir fonte legitima de elenco/creditos e avaliacoes em prosa (provider licenciado OU dataset curado documentado OU adiar). Proibido scraping/traducao automatica/LLM inventando conteudo.
-- Hosting (T124): decidir A (Vercel Pro) / B (migrar web) / C (aceitar Hobby temporariamente).
+- Hosting (T124): decidir A (Vercel Pro) / B (migrar web) / C (aceitar Hobby temporariamente). **[T136/2026-09-30] Rate limit de build Hobby revalidado como liberado (deploys recentes ● Ready; smoke 7/7; Vercel pass em PR; Railway success). Isso NAO elimina o risco de uso comercial/politica no Hobby.** Permanece a decisao A/B/C/D.
 
 Nenhum segredo/PII registrado.
 
@@ -455,3 +455,9 @@ Notas reconciliadas com evidencia reconfirmada ao vivo (nenhum codigo/schema/aut
 - Cabecalho Fase 10: status T029-T036 concluidas (fase mantida EM ANDAMENTO).
 
 As 8 pendencias do Operador abaixo permanecem abertas e sao o caminho para destravar as frentes de produto/codigo. Evid: .claude/reports/plano-mestre-stale-notes-2026-09-29.md.
+
+## T136 (2026-09-30) - Revalidacao da janela de build da Vercel (Hobby)
+
+Read-only/operacional: janela de rate limit Hobby revalidada como **liberada** (evidencia posterior ao status residual de bed93fb5): PR #356 Vercel=pass; `vercel ls`/`--environment=production` com deploys recentes ● Ready; smoke 7/7=200; Railway production=success; runs main (Deploy Reconciler/Health Check/Alertas/Uptime)=success. Classificacao: `VERCEL_WINDOW_RELEASED_OK`.
+
+**Nao resolve:** decisao estrategica A/B/C de hosting (A Vercel Pro / B migrar / C aceitar Hobby temp. com prazo+risco formal). Rate limit transiente != risco de uso comercial/politica no Hobby. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/vercel-window-revalidation-2026-09-30.md`; doc: `docs/06-devops-deployment/WEB_HOSTING.md` sec. 9. Sem segredo/PII.

@@ -3123,3 +3123,9 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Edicoes docs-only no PLANO_MESTRE: 2.6 ([x], nota COVERED), 6.14 ([~]->[x], COVERED), 9.4 ([~]->[x], COVERED), cabecalho Fase 10 (status T029-T036 concluidas; fase MANTIDA EM ANDAMENTO - nao declarei a fase concluida).
 - Relatorio criado: .claude/reports/plano-mestre-stale-notes-2026-09-29.md (decisao DOCUMENTATION_RECONCILED). Readiness report referenciado (.claude/reports/plano-mestre-readiness-2026-09-29.md sec. 13). PENDENCIAS_OPERADOR atualizado (8 pendencias mantidas).
 - Nenhum BETA-GAP alterado (06 PARTIAL/BLOCKED_DATA_SOURCE; 04/16/17/18 BLOCKED_AMBIGUOUS_SPEC; 08 BLOCKED_EXTERNAL_PROVIDER). Diff restrito a docs/relatorios/worklog/exchange. GO convites SUSPENSO.
+
+## [2026-09-30] T136 - Revalidacao da janela Vercel Hobby (docs-only/operacional)
+- Sync live: main=bed93fb5; working tree limpo. Vercel CLI autenticada (endartstudios), uso read-only (`vercel whoami`/`ls`/`ls --environment=production`).
+- Achado: status Vercel do commit bed93fb5 = failure ("rate limited retry 24h") = RESIDUAL (nao reescrito). Evidencia posterior de janela liberada: PR #356 Vercel=pass ("Deployment has completed"); `vercel ls` Production/Preview recentes ● Ready; smoke 7/7=200; Railway production=success; runs main (Deploy Reconciler/Health Check Monitor/Alertas Metricos/Uptime Check)=success.
+- Classificacao: VERCEL_WINDOW_RELEASED_OK. Edicoes docs-only: docs/06-devops-deployment/WEB_HOSTING.md (sec. 9 revalidacao), .claude/reports/vercel-window-revalidation-2026-09-30.md (novo), PENDENCIAS_OPERADOR.md (item hosting), worklog.
+- Nao resolvido (Operador): decisao estrategica A/B/C/D de hosting. Rate limit transiente != risco de uso comercial/politica Hobby. Nenhum BETA-GAP alterado; nenhum codigo/schema/auth/billing/segredo/infra/environment. GO convites SUSPENSO.
