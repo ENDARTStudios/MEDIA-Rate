@@ -528,3 +528,13 @@ Auditoria tecnica+visual em producao (read-only; relatorio `.claude/reports/user
 2. **T140 atualizado - validacao do login Google em navegador REAL.** Teste em webview automatizado reproduziu o sintoma (clique sem reacao visivel), mas Google suprime One Tap em webview - inconclusivo por natureza. Checklist ao Operador: reproduzir em Chrome/Edge real em mediarate.app/pt-BR/login; capturar console (erros "origin"/"client_id"); conferir Authorized JavaScript origins no Google Cloud (mediarate.app + www). Config server-side esta OK (client ID no build; GIS carrega; callback responde 401 a credencial vazia).
 
 B2 (escala manga 0-100 em MediaCard/detail - regressao BETA-GAP-09), B3 (ScoreDial arredonda 7,9->8 na escala 0-10), B4 (MediaScoreBadge sem normalize) e B5 (separador decimal inconsistente) sao executaveis pelo par Thinker/Doer como codigo - candidatas T147+. Sem segredo/PII; nenhum BETA-GAP alterado; GO convites SUSPENSO.
+
+## T149 (2026-09-30) - Tooling de agentes: ativacao do OpenCodeReview e ondas futuras
+
+Adocao de tooling de agentes implementada (docs/03-development-process/AGENT_TOOLING.md). Decisoes que exigem o Operador:
+
+1. **Ativar OpenCodeReview?** Workflow `.github/workflows/open-code-review.yml` instalado, NAO-bloqueante (continue-on-error; nunca trava merge) e DORMENTE: cadastrar secrets `OCR_LLM_URL`, `OCR_LLM_AUTH_TOKEN`, `OCR_LLM_MODEL`, `OCR_LLM_USE_ANTHROPIC` (endpoint/chat-completions de LLM) para o review de IA comentar nas PRs. Sem as secrets, o job sai com skip (zero custo). Ao cadastrar, responder "feito" nesta secao.
+2. **Onda 2 (pilotos de produto IA)** - requer feature de assistente no roadmap: TypeSafe/Jev (chave ja em .env local; piloto com feature flag), ollama, langflow, open-design.
+3. **Onda 3 (orcamento/autorizacao)** - open-seo (conta DataForSEO), screaming-frog-mcp (licenca Screaming Frog), strix (pentest agêntico: SOMENTE staging com dados sinteticos e autorizacao formal em DECISOES.md).
+
+Nada das ondas altera o produto em producao; GO convites permanece SUSPENSO. Sem segredo/PII.

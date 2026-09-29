@@ -1,0 +1,63 @@
+# OpenCodeReview (T149) — review de IA NÃO-BLOQUEANTE por PR.
+#
+# Ferramenta: alibaba/open-code-review (Apache-2.0, action reusável v1.12.11).
+# A action lê o diff e comenta na PR; NUNCA executa código do PR e NUNCA
+# bloqueia o merge (continue-on-error + required checks não incluem este job).
+# O review humano (Thinker/Doer) continua sendo o gate.
+#
+# DORMENTE POR PADRÃO: sem os secrets OCR_LLM_* o job sai cedo (skip) —
+# para ativar, cadastrar em Settings → Secrets:
+#   OCR_LLM_URL           - endpoint chat/completions (ex. https://api.openai.com/v1)
+#   OCR_LLM_AUTH_TOKEN    - token da API de LLM
+#   OCR_LLM_MODEL         - nome do modelo
+#   OCR_LLM_USE_ANTHROPIC - "true" p/ Anthropic, "false" p/ OpenAI-compatível
+# Detalhes: docs/03-development-process/AGENT_TOOLING.md
+#
+# Segurança do trigger: `pull_request` (não `pull_request_target`) — este repo
+# trabalha com branches do próprio repo (sem forks); assim secrets só veem
+# código da base confiável. A action faz o próprio checkout completo.
+
+name: OpenCodeReview
+
+concurrency:
+  group: ocr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  code-review:
+    name: AI Code Review (não-bloqueante)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - name: Gate — precisa de OCR_LLM_AUTH_TOKEN
+        id: gate
+        env:
+          OCR_TOKEN: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+        run: |
+          if [ -n "$OCR_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false — secrets OCR_LLM_* ausentes (workflow dormente, T149)" >> "$GITHUB_OUTPUT"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run OpenCodeReview
+        if: steps.gate.outputs.enabled == 'true'
+        uses: alibaba/open-code-review@v1.12.11
+        with:
+          llm_url: ${{ secrets.OCR_LLM_URL }}
+          llm_auth_token: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          llm_model: ${{ secrets.OCR_LLM_MODEL }}
+          llm_use_anthropic: ${{ secrets.OCR_LLM_USE_ANTHROPIC }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sticky_summary: "true"
+          incremental: "false"
+          upload_artifacts: "false"
