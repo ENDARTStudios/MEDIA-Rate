@@ -29,6 +29,9 @@ export default tseslint.config(
       "deepseek-harness/**",
       // Protótipo de design (Manus/Vite) — referência apenas, nunca parte do produto.
       "design-system/media-rate-dashboard/**",
+      // Skills de agente (T149): upstream vendored + skill autoral — não é
+      // código do produto (mesmo rationale de deepseek-harness/protótipos).
+      ".agents/**",
     ],
   },
 
