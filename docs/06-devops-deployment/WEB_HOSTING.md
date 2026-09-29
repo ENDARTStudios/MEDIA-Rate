@@ -84,3 +84,18 @@ gh pr checks <pr>
 curl -I https://mediarate.app/pt-BR
 curl -I https://media-rate-production.up.railway.app/health
 ```
+
+## 9. Revalidação da janela de rate limit (T136, 2026-09-30)
+
+- **Data/hora UTC:** 2026-09-29T18:07Z · **Base:** `bed93fb5` (main).
+- **Janela de rate limit Hobby: aparentemente liberada.** O status `failure` de
+  Vercel no commit `bed93fb5` ("rate limited — retry in 24 hours") é **residual** e
+  não é reescrito. Evidência posterior: PR #356 check **Vercel = pass**; `vercel ls`
+  e `vercel ls --environment=production` com deploys recentes **● Ready**; smoke
+  público 7/7 = 200; Railway production `success`.
+- **Decisão estratégica A/B/C de hosting continua pendente** (§3–§4). A liberação
+  da janela resolve o **rate limit transiente**, **não** elimina o **risco de uso
+  comercial/política** no plano Hobby.
+- **Regra de evidência mantida (§7):** gaps que dependem de produção web só são
+  `DONE` com produção saudável + smoke verde.
+- Relatório: `.claude/reports/vercel-window-revalidation-2026-09-30.md`.
