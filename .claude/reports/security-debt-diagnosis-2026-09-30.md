@@ -97,3 +97,7 @@ Nenhum comando mutante executado (`npm audit fix`/`install`/`update`/upgrade **n
 - Nenhuma dependência, lockfile, código, schema, migration, segredo ou infra alterada.
 - Nenhum BETA-GAP alterado; GO para convites permanece **SUSPENSO**.
 - Notas stale do PLANO (T041/T044) **não** corrigidas nesta tarefa (fora de escopo) — propostas como follow-up.
+
+## 8. Follow-up T138 (2026-09-30) - reconciliacao
+
+Notas obsoletas de divida de seguranca no PLANO_MESTRE (FASE 10) foram reconciliadas docs-only: T041/T042/T044 -> [x] com evidencia (PR #74 MERGED 2026-09-07; D-470/D-472; D-490); T037 anotado com D-462; 2.10 anotado com D-557. Classificacoes materiais desta matriz permanecem inalteradas. PR #300 registrado como pendencia objetiva do Operador. Evid: .claude/reports/security-debt-stale-notes-2026-09-30.md.
