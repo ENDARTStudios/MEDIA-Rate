@@ -519,3 +519,12 @@ contrato/mecanismo com lacuna de dados/concessao (UG-03/07/09/10/15); 8 PARTIAL;
 T142 alinhar botoes de Planos (UG-13) · T143 auditoria de arredondamento de notas (UG-09) ·
 T144 generos reais na dashboard, remover limite de 6 (UG-16). Nada foi executado nesta
 tarefa (docs-only). Sem segredo/PII; GO convites SUSPENSO.
+
+## T146 (2026-09-30) - Auditoria runtime dos gaps: 2 pendencias novas (B1, T140 checklist)
+
+Auditoria tecnica+visual em producao (read-only; relatorio `.claude/reports/user-gap-runtime-audit-2026-09-30.md`). Confirmon UG-02/UG-16/UG-13 no codigo/producao; encontrados 5 novos defeitos (B1-B5), sendo 2 exigem decisao/credencial do Operador:
+
+1. **B1 [ALTA] - Deletar item de teste do catalogo de producao.** O card "R2 Upload Test - pode delet*..." (2026, sem poster) esta publico em mediarate.app/pt-BR/catalog (residuo do upload test T454; conta nas stats). Exige papel ADMIN (ver T141) ou acesso DB. NAO deletado automaticamente.
+2. **T140 atualizado - validacao do login Google em navegador REAL.** Teste em webview automatizado reproduziu o sintoma (clique sem reacao visivel), mas Google suprime One Tap em webview - inconclusivo por natureza. Checklist ao Operador: reproduzir em Chrome/Edge real em mediarate.app/pt-BR/login; capturar console (erros "origin"/"client_id"); conferir Authorized JavaScript origins no Google Cloud (mediarate.app + www). Config server-side esta OK (client ID no build; GIS carrega; callback responde 401 a credencial vazia).
+
+B2 (escala manga 0-100 em MediaCard/detail - regressao BETA-GAP-09), B3 (ScoreDial arredonda 7,9->8 na escala 0-10), B4 (MediaScoreBadge sem normalize) e B5 (separador decimal inconsistente) sao executaveis pelo par Thinker/Doer como codigo - candidatas T147+. Sem segredo/PII; nenhum BETA-GAP alterado; GO convites SUSPENSO.
