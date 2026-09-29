@@ -485,3 +485,37 @@ Reconfirmacao live e edicao docs-only no PLANO_MESTRE (FASE 10):
 `chore/update-deps` (somente `package-lock.json`), estado **OPEN**. Opcoes: **reviver** (PR proprio com CI) / **fechar** / **substituir** / **adiar**. Nao foi fechado, revivido, comentado ou mergeado.
 
 P009 permanece sob D-462; P017 permanece sob D-557 (sem nova acao tecnica). Nenhum codigo/schema/deps/segredo/infra alterado; nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-stale-notes-2026-09-30.md`. Sem segredo/PII.
+
+## T139 (2026-09-30) - Mapa de gaps do usuario: novas pendencias (Onda 0) e candidatos T140-T145
+
+Devolutiva do usuario (22 gaps: 18 originais + 4 novos requisitos) registrada em
+`.claude/reports/user-gap-registry-2026-09-30.md` com IDs estaveis UG-01..UG-22.
+Resumo: 2 DONE plenos (UG-02 dashboard, UG-14 biblioteca); 5 fechados no
+contrato/mecanismo com lacuna de dados/concessao (UG-03/07/09/10/15); 8 PARTIAL;
+7 NOT_FIXED/BLOCKED. Registry BETA-GAP do repo permanece intocado.
+
+### Novas pendencias do Operador
+
+1. **T140 - Validar login Google real (navegador, evidencia sanitizada).** O endurecimento
+   tecnico (BETA-GAP-01: `email_verified`, botao oculto sem client ID) ja esta merged; falta
+   validar o sintoma real. Abrir `https://mediarate.app/pt-BR/login`, clicar no botao Google e
+   registrar APENAS codigo de erro sanitizado (popup blocked, `invalid_origin`,
+   `redirect_uri_mismatch`); conferir origins autorizadas no Google Cloud (`mediarate.app`,
+   `www.mediarate.app`). Critério: login funciona OU botao oculto com fallback e-mail/senha.
+2. **T141 - Conceder papel ADMIN ao Operador.** Via CLI interna `db:set-role` (runbook
+   BETA-GAP-03); validar `/admin` (200 para admin, 403 para comum); registrar a concessao sem
+   expor e-mail em log publico. O sistema nao pode autopromover cadastro publico a admin.
+
+### Reafirmadas (ja registradas; destravam gaps do mapa - nenhuma duplicata)
+
+- Provider/fonte de dados para metadados/criticos/continuidade (T130; BETA-GAP-06/08) -
+  destrava UG-05/06/08/11/20/21/22.
+- Hosting A/B/C/D (T136) - decisao estrategica continua aberta.
+- ADR politica de falha do audit de auth (T133) - fail-closed vs fail-open.
+- PR #300 `chore/update-deps` (T138) - reviver/fechar/substituir/adiar.
+
+### Candidatos executaveis pelo par Thinker/Doer (sem decisao externa)
+
+T142 alinhar botoes de Planos (UG-13) · T143 auditoria de arredondamento de notas (UG-09) ·
+T144 generos reais na dashboard, remover limite de 6 (UG-16). Nada foi executado nesta
+tarefa (docs-only). Sem segredo/PII; GO convites SUSPENSO.
