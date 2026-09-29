@@ -461,3 +461,14 @@ As 8 pendencias do Operador abaixo permanecem abertas e sao o caminho para destr
 Read-only/operacional: janela de rate limit Hobby revalidada como **liberada** (evidencia posterior ao status residual de bed93fb5): PR #356 Vercel=pass; `vercel ls`/`--environment=production` com deploys recentes ● Ready; smoke 7/7=200; Railway production=success; runs main (Deploy Reconciler/Health Check/Alertas/Uptime)=success. Classificacao: `VERCEL_WINDOW_RELEASED_OK`.
 
 **Nao resolve:** decisao estrategica A/B/C de hosting (A Vercel Pro / B migrar / C aceitar Hobby temp. com prazo+risco formal). Rate limit transiente != risco de uso comercial/politica no Hobby. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/vercel-window-revalidation-2026-09-30.md`; doc: `docs/06-devops-deployment/WEB_HOSTING.md` sec. 9. Sem segredo/PII.
+
+## T137 (2026-09-30) - Diagnostico read-only da divida de seguranca (P009/P017/PR #74)
+
+Read-only/docs-only. Achado: a divida JA esta diagnosticada/decidida com governanca e testes.
+
+- **P009** (deps HIGH): 3 HIGH = **1 cadeia dev-only** (deepmerge-ts GHSA-ggr8-5vv4-36mx -> @prisma/config -> prisma). Runtime @prisma/client nao carrega o pacote. **Aceito (D-462)** com allowlist cirurgica em package.json + gate `npm run audit:ci` **verde**. Fix = downgrade breaking (prisma@6.12.0). Revisao prevista 2026-12. **Decisao do Operador:** manter aceitacao? (recomendado A=manter).
+- **P017** (cifragem de colunas): ColumnEncryptionService (AES-256-GCM) existe mas **nao wired** (0 usos). **Adiada pos-Beta (D-557)** com plano (docs/05-security-compliance/lgpd-column-encryption-plan.md), compensacoes (PII mask D-543, AuditLog sanitizado D-545, argon2id, TLS, LGPD export/delete, DTO allowlist) e **guarda anti-regressao** (apps/api/test/schema-sensitive-columns.spec.ts). **Decisao do Operador:** manter deferimento? (recomendado A=manter).
+- **PR #74/T041**: **MERGED** (2026-09-07) -> T041 resolvido. Notas do PLANO_MESTRE (T041 :280; T044 :283) ficaram **OBSOLETAS** -> candidato a **T138 docs-only** (reconciliar). **Decisao do Operador:** autorizar T138?
+- **PR #300** `chore/update-deps` (so package-lock.json, OPEN/BLOCKED): **decisao de governanca do Operador** (reviver/fechar/substituir/adiar).
+
+Nenhuma dependencia/codigo/schema/segredo/infra alterado. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-diagnosis-2026-09-30.md`. Sem segredo/PII.
