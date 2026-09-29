@@ -79,7 +79,7 @@
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).
-- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/05-security-compliance/LGPD_DADOS.md`. **T049/D-543:** mascaramento de PII em logs de `auth` **implementado** (helper `pii-mask.ts` + `auth-pii-log.spec.ts`); cifragem de coluna **segue bloqueada** (P017). **T055/D-545:** `AuditLog` (novos registros) sanitizado — PII redigida e `ip_origem` coarsenado p/ rede válida (`@db.Inet`), **sem migration** e com a cadeia de hash preservada (`audit-log-pii`/`audit-log-integridade` 4/4).
+- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/05-security-compliance/LGPD_DADOS.md`. **T049/D-543:** mascaramento de PII em logs de `auth` **implementado** (helper `pii-mask.ts` + `auth-pii-log.spec.ts`); cifragem de coluna **segue bloqueada** (P017). **T055/D-545:** `AuditLog` (novos registros) sanitizado — PII redigida e `ip_origem` coarsenado p/ rede válida (`@db.Inet`), **sem migration** e com a cadeia de hash preservada (`audit-log-pii`/`audit-log-integridade` 4/4). **T097/D-557:** cifragem de colunas **adiada para pós-Beta** (exigiria blind index/dual-write/backfill/rotação; ativar às cegas é mais arriscado que as compensações atuais) + guarda anti-regressão `apps/api/test/schema-sensitive-columns.spec.ts` (2/2). evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`.
 - [x] 2.11 Seed de admin + usuários (free/plus/premium).
 - [x] 2.12 Índices em todas as FKs + colunas de busca.
 - [x] 2.13 Unicidades documentadas (`@@unique`: email, fonte+fonte_id, midia_id, usuario+midia, etc.).
@@ -274,13 +274,13 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality · evid: test 6/6 + build OK + srcset 11→8
 - [x] T036 — ladders remotas nativas + <img> estático + bypass total · evid: test 16/16 + build OK
 - [x] T033 — runbook semanal de uso · evid: R038
-- [~] T037 — deps HIGH sem major (PARCIAL: deepmerge-ts residual, P009 no Operador)
+- [~] T037 — deps HIGH sem major (PARCIAL: `deepmerge-ts` residual dev-only; **D-462** aceitou o risco com allowlist cirúrgica + gate `audit:ci`; revisão `2026-12`) · evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`
 - [x] T038 — 6 testes CI-blocker (relógio congelado + mock count) · evid: api 841/841 + web 347/347
 - [x] T039 — gate audit-ci com allowlist cirúrgica · evid: R040 (exit 0/1 bidirecional)
-- [~] T041 — abrir PR do pacote Fase 10 (PR #74 open; checks vermelhos herdados do main)
+- [x] T041 — pacote Fase 10 (`PR #74` **MERGED** `2026-09-07`; checks herdados tratados) · evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`
 - [x] T040 — testes automatizados do gate audit-ci · evid: R041
-- [>] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP)
-- [>] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API)
+- [x] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP) · evid: D-470/D-472 + `audit-ci` verde (EXIT=0)
+- [x] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API) · evid: causa-raiz confirmada (D-490); `PR #74` merged
 - [x] T046 — gh-safe wrappers + origem da injeção (P010) · evid: R045
 
 ---

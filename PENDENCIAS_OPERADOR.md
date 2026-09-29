@@ -472,3 +472,16 @@ Read-only/docs-only. Achado: a divida JA esta diagnosticada/decidida com governa
 - **PR #300** `chore/update-deps` (so package-lock.json, OPEN/BLOCKED): **decisao de governanca do Operador** (reviver/fechar/substituir/adiar).
 
 Nenhuma dependencia/codigo/schema/segredo/infra alterado. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-diagnosis-2026-09-30.md`. Sem segredo/PII.
+
+## T138 (2026-09-30) - Reconciliacao docs-only de notas obsoletas de divida de seguranca
+
+Reconfirmacao live e edicao docs-only no PLANO_MESTRE (FASE 10):
+- T041 -> [x] (PR #74 MERGED 2026-09-07).
+- T042 -> [x] (CI-repair; D-470/D-472; audit-ci verde).
+- T044 -> [x] (diagnostico CI vermelho; causa-raiz D-490; PR #74 merged).
+- T037 anotado com D-462 (P009 aceito dev-only; revisao 2026-12); 2.10 anotado com D-557 (cifragem adiada pos-Beta). Ambos permanecem [~].
+
+### PR #300 - DECISAO PENDENTE DO OPERADOR (nenhuma acao automatica tomada)
+`chore/update-deps` (somente `package-lock.json`), estado **OPEN**. Opcoes: **reviver** (PR proprio com CI) / **fechar** / **substituir** / **adiar**. Nao foi fechado, revivido, comentado ou mergeado.
+
+P009 permanece sob D-462; P017 permanece sob D-557 (sem nova acao tecnica). Nenhum codigo/schema/deps/segredo/infra alterado; nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-stale-notes-2026-09-30.md`. Sem segredo/PII.
