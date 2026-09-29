@@ -9,7 +9,9 @@
  * - Escala via prop ("0-10" | "0-100"); cor por faixa relativa à escala.
  * - aria-label com valor + escala; data-testid idêntico ao ScoreDial (md).
  */
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { formatarScoreLocale } from "@/lib/score-utils";
 
 const SIZE_CONFIG = {
   sm: { ring: "h-10 w-10", number: "text-sm", stroke: 3, radius: 14 },
@@ -43,12 +45,18 @@ export function StaticScoreDial({
   const cfg = SIZE_CONFIG[size];
   const circ = 2 * Math.PI * cfg.radius;
   const offset = circ - (clamped / max) * circ;
+  // T147: mesmo pipeline do ScoreDial client — aria i18n e número por locale.
+  const tScore = useTranslations("scoredial");
+  const locale = useLocale();
 
   return (
     <div
       className={cn("relative inline-flex items-center justify-center shrink-0", className)}
       role="img"
-      aria-label={`Nota ${clamped.toLocaleString("pt-BR")} de ${max}`}
+      aria-label={tScore("ariaLabel", {
+        score: formatarScoreLocale(clamped, locale),
+        max: String(max),
+      })}
       data-testid={`score-dial-${size}`}
     >
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
@@ -74,7 +82,7 @@ export function StaticScoreDial({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
         <span className={cn("font-mono font-bold tabular-nums", cfg.number)} style={{ color }}>
-          {clamped.toLocaleString("pt-BR")}
+          {formatarScoreLocale(clamped, locale)}
         </span>
       </div>
     </div>

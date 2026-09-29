@@ -9,6 +9,14 @@ import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComin
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 
 const messages = {
+  // T147: ScoreDial usa aria i18n (scoredial.ariaLabel) — provider precisa
+  // do namespace como em produção (src/messages/*.json:615).
+  scoredial: {
+    ariaLabel: "Score: {score} de {max}",
+    critic: "Crítica",
+    audience: "Público",
+    consensus: "Consenso",
+  },
   catalog: {
     criticsBar: "Crítica",
     audienceBar: "Público",

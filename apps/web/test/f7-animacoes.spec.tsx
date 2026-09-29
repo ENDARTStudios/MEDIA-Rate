@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageTransition } from "@/components/PageTransition";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
@@ -46,15 +47,31 @@ describe("F7 — reduced-motion desabilita animações", () => {
     expect(container.querySelector("[data-testid=page-transition]")).toBeTruthy();
   });
 
+  // T147: ScoreDial usa useLocale/useTranslations (next-intl) — provider
+  // obrigatório como em produção; aria via scoredial.ariaLabel.
   it("ScoreDial contador pula direto ao valor final com reduced-motion", () => {
     reduced = true;
-    const { container } = render(<ScoreDial value={8.4} scale="0-10" size="md" />);
+    const { container } = render(
+      <NextIntlClientProvider
+        locale="pt-BR"
+        messages={{ scoredial: { ariaLabel: "Score: {score} de {max}" } }}
+      >
+        <ScoreDial value={8.4} scale="0-10" size="md" />
+      </NextIntlClientProvider>,
+    );
     expect(container.textContent).toContain("8,4");
   });
 
   it("ScoreDial mantém aria-label com valor final", () => {
     reduced = true;
-    render(<ScoreDial value={9.2} scale="0-10" />);
+    render(
+      <NextIntlClientProvider
+        locale="pt-BR"
+        messages={{ scoredial: { ariaLabel: "Score: {score} de {max}" } }}
+      >
+        <ScoreDial value={9.2} scale="0-10" />
+      </NextIntlClientProvider>,
+    );
     expect(screen.getByRole("img", { name: /9,2 de 10/ })).toBeTruthy();
   });
 });
