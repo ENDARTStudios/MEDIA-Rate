@@ -76,9 +76,17 @@ tradução pt-BR).
   (prototipagem local) · `awesome-llm-apps` (referência de padrões) ·
   `open-design` (protótipos de UI, projeto jovem).
 - **Onda 3 (condicionadas a orçamento/autorização do Operador):** `open-seo`
-  (exige conta DataForSEO) · `screaming-frog-mcp` (licença Screaming Frog) ·
-  `strix` (pentest agêntico — SOMENTE staging, dados sintéticos, autorização
-  formal em DECISOES.md).
+  (exige conta DataForSEO) · `screaming-frog-mcp` (licença Screaming Frog —
+  **status 2026-09-29/T150**: SF instalado em `D:\Program Files (x86)\Screaming
+  Frog SEO Spider`, porém tier FREE — GUI apenas; `--headless`, crawl e o MCP
+  nativo `--mcp-streamable-http-server` FATALam sem `licence.txt` (testado ao
+  vivo). **Descoberta: o wrapper comunitário bzsasson/screaming-frog-mcp é
+  desnecessário — o SF v24+ tem MCP server nativo**; com licença, usar o
+  nativo. Enquanto isso, baseline SEO gratuito do próprio site via script
+  (`.claude/reports/seo-audit/seo-baseline.py`, não versionado; achados no
+  relatório `seo-baseline-2026-09-29.md` — inclui contradição noindex×sitemap
+  em tipos preview) · `strix` (pentest agêntico — SOMENTE staging, dados
+  sintéticos, autorização formal em DECISOES.md).
 - **Descartados (análise 2026-09-29):** OpenHands (orquestração redundante com
   o harness próprio) · OpenManus (framework p/ construir agentes — não é nosso
   caso) · openviking-plugins (20★, parado, dependência Volcengine) ·

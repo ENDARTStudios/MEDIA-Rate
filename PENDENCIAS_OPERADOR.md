@@ -538,3 +538,13 @@ Adocao de tooling de agentes implementada (docs/03-development-process/AGENT_TOO
 3. **Onda 3 (orcamento/autorizacao)** - open-seo (conta DataForSEO), screaming-frog-mcp (licenca Screaming Frog), strix (pentest agêntico: SOMENTE staging com dados sinteticos e autorizacao formal em DECISOES.md).
 
 Nada das ondas altera o produto em producao; GO convites permanece SUSPENSO. Sem segredo/PII.
+
+## T150 (2026-09-30) - Screaming Frog instalado (tier free) + baseline SEO: achados p/ decisao
+
+- **Screaming Frog**: instalado em `D:\Program Files (x86)\Screaming Frog SEO Spider`, porem **tier FREE — GUI apenas**. Testado ao vivo: `--headless` (crawl) e `--mcp-streamable-http-server` FATALam sem `licence.txt`. O crawl completo/agendamento via MCP exigem **comprar a licenca** (decisao de orcamento; com licenca, usar o MCP NATIVO do SF v24+ — o wrapper comunitario fica desnecessario). Enquanto isso: baseline SEO gratuito ja executado via script proprio (apenas paginas do proprio site).
+- **Achados do baseline (decisao de SEO/ produto, p/ Thinker):**
+  1. **Contradicao noindex x sitemap**: tipos preview (manga/HQ/livro) sao `noindex, follow` (deliberado, T272/isPreviewTipo), MAS essas URLs estao no sitemap.xml (1.827 URLs, centenas de /media/). Decidir: (a) remover noindexadas do sitemap; (b) indexar previews que ja tem score/fontes reais (ex.: Gantz 6,7 de 2 fontes); (c) manter status quo.
+  2. **B1 no sitemap**: `/pt-BR/media/r2-upload-test-pode-deletar` e a 1a URL de midia do sitemap — o item de teste esta sendo OFERTADO ao Google (reforca a limpeza via ADMIN/T141).
+  3. **Descriptions curtas**: /pt-BR/catalog (45 chars; login/register 18/38, menores).
+
+Relatorio completo: `.claude/reports/seo-audit/seo-baseline-2026-09-29.md` (nao versionado; metodo re-executavel). Nada alterado em producao; GO convites SUSPENSO.
