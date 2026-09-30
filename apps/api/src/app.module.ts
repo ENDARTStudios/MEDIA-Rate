@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ScheduleModule } from "@nestjs/schedule";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AppLoggerModule } from "./common/app-logger.module.js";
 import { AnalyticsModule } from "./common/analytics.module.js";
@@ -54,6 +55,7 @@ const enableDebugRoutes =
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     AppLoggerModule,
     AnalyticsModule,
     PrismaModule,
