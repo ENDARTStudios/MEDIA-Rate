@@ -548,3 +548,18 @@ Nada das ondas altera o produto em producao; GO convites permanece SUSPENSO. Sem
   3. **Descriptions curtas**: /pt-BR/catalog (45 chars; login/register 18/38, menores).
 
 Relatorio completo: `.claude/reports/seo-audit/seo-baseline-2026-09-29.md` (nao versionado; metodo re-executavel). Nada alterado em producao; GO convites SUSPENSO.
+
+## T151 (2026-09-30) - Auditoria jurídica externa: verificada; decisões de correção (gate legal)
+
+Auditoria jurídica externa (15 achados, J-001..J-015) foi VERIFICADA contra o código e contra produção (a auditoria externa não conseguiu acessar mediarate.app). Relatório: `.claude/reports/legal-audit-external-verification-2026-09-29.md`. J-001 e J-002 (P0) CONFIRMADOS; J-003/J-005 CONFIRMADOS (J-005 ampliado: 4 cookies reais fora do inventário); J-013/J-014 CONFIRMADOS; J-015 FECHADO com produção (zero cookies Sentry — inventário impreciso nos dois sentidos; zero ph_* sem consentimento = postura correta).
+
+### Decisões do Operador (texto legal = gate legal; agente não edita Termos/Política/LICENSE)
+
+1. **J-001 (P0)** - Política (s7b, 3 línguas) promete "column encryption" que D-557 adiou pós-Beta. DECIDIR: (A) autorizar correção do texto (remover a promessa até D-557 reverter) [recomendado] ou (B) antecipar cifragem.
+2. **J-002 (P0)** - Política promete eliminação +30 dias; worker NÃO existe (lgpd.service.ts:154 "implementar em tarefa futura"). DECIDIR: (A) implementar o worker (tarefa de código proponível: job diário + DELETE em cascata conforme MATRIZ-PROPAGACAO + testes) [recomendado — mantém a promessa] ou (B) alterar o texto.
+3. **J-003** - Termos §3.5 citam Apple; D-335 adiou Apple (custo do Developer Program). DECIDIR: remover Apple do texto + tratar chave i18n continueWithApple.
+4. **J-005/J-015** - Inventário de cookies: adicionar mr_consent, x-mr-uid, mediarate_watchlist, NEXT_LOCALE; corrigir/remover item "cookie Sentry" (não observado em produção).
+5. **J-013/J-014** - LICENSE: remover "confidential" (repo público); reversionar a Política quando correções materiais entrarem.
+6. **J-004/J-006..J-012** - lacunas documentais/governança (endereço, art. 18, portabilidade, retenção, transferências, encarregado, menores, licenças de fontes): triagem jurídica pelo Operador.
+
+Nada alterado em produção nesta tarefa (verificação read-only + registro). GO convites SUSPENSO.
