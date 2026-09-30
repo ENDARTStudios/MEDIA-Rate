@@ -3226,3 +3226,27 @@ Review do Operador (4 boas práticas) implementado com TDD (spec vermelho 9/10 -
 - Sliding window REAL: store custom como CONSTRUTOR no plugin v11 — dívida T020/T021 (Store is not a constructor) era shape errado (instância != classe); classe-fábrica por closure devolve a instância com redis/now. ZSET Redis via CacheService.getRedisClient() com fallback em memória local (nunca fail-open silencioso; por instância no pior caso).
 - 429: envelope do projeto (correlationId=req.id, timestamp); Retry-After setado pelo plugin v11 (default).
 - Suíte: API 979/979 (131 arq); spec novo 10/10; e2e rate-limit 3/3. Docs: ERROR_HANDLING/API (caminhos pós-T111), DECISOES D-558.
+
+## [2026-09-30] D-559 + INCIDENTE — upgrade platform-fastify 11.2.7 (GHSA-9c5c-9qcx-q35q) + push direto acidental em main
+
+**Incidente (transparência):** o fix da reordenação do rate-limit (D-558, commit 04f8050) foi
+commitado e **pushado diretamente em `main` por erro meu** — o worktree estava na `main`
+após o merge do #383 e eu não criei branch (violação do D-457; CI/Security ficaram vermelhos
+na main). O CONTEÚDO do commit é o fix correto (validado: tsc/lint/979/979 e o smoke de
+produção 429+Retry-After passou no deploy subsequente), mas o PROCESSO foi violado.
+
+**Causa dos CI/Security vermelhos (não é o meu código):** advisory NOVO publicado no registry
+na janela entre meu audit local (OK) e o CI — **GHSA-9c5c-9qcx-q35q** (HIGH, CVSS 7.4):
+path-scoped middleware bypass via absolute-form request targets em `@nestjs/platform-fastify <=11.2.3`.
+2 bloqueantes no `audit:ci` (fail-closed correto).
+
+**Correção (branch fix/d559-fastify-middleware-bypass):** upgrade `@nestjs/platform-fastify`
+11.1.28 → **11.2.7** (patch dentro do major 11, conforme OSV: fixed 11.2.4/12.0.2).
+`audit:ci` OK; suíte API 979/979; tsc 0.
+
+**Ação corretiva do processo:** a partir de agora, ANTES de qualquer commit:
+`git branch --show-current` obrigatório + branch `auto/*|fix/*` sempre criada de
+`origin/main`; cleanup de branch só após merge confirmado.
+
+### [2026-09-30] D-559 parte 2 — next 16.2.10 → 16.3.6 (GHSA-vcvr-r3jv-pc5j, CRITICAL RCE next/og)
+Segundo advisory novo no registry (CRITICAL): RCE no ImageResponse (next/og), range 16.2.0-16.3.5, fix 16.3.6. Upgrade exato + audit:ci OK (0 bloqueantes) + web 467/467 + build OK. Mesmo PR #386, commit separado.
