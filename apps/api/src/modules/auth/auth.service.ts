@@ -369,7 +369,7 @@ export class AuthService {
             // por senha — o usuário entra via Google).
             password_hash: randomBytes(32).toString("hex"),
             termos_aceitos_em: new Date(),
-          termos_versao_aceita: TERMS_VERSION,
+            termos_versao_aceita: TERMS_VERSION,
             email_verificado_em: new Date(), // Google já validou o email.
           },
           select: { id: true, email: true, nome: true },
