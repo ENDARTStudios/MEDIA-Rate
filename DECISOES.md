@@ -2459,3 +2459,9 @@ quando `gh run view --log` voltar vazio (#314).
 4. **Fixture** `admin-free@mediarate.test` (FREE+ADMIN) no `db:provision:test-users`, provando independencia de plano em staging/producao.
 5. Sem schema novo, sem migration, sem alterar auth/sessao/cookie/CSRF/rate limit/billing/entitlement.
 **Evidencia:** `apps/api/test/admin-rbac.spec.ts` (6) com guards reais + `rbac.spec.ts` (5) + `auth-guard.spec.ts` (401) verdes; tsc api/web 0; eslint/prettier 0.
+### D-560 - Registro de incidente D-457: push direto em main pelo agente (b3b39dd4), revert + remediacão via PR #372 (2026-09-30)
+**Incidente:** durante o T153, o agente (Doer) pushou direto em `main` a entrada T153 do `worklog.md` (commit `b3b39dd4`), violando o D-457 — o bypass de admin da ruleset `protect-main` permitiu o push. Não houve tentativa de ocultação: o próprio worklog registrou o incidente e a remediação ocorreu pela via correta (PR #372: revert `ea3d825e` + re-aplicação pelo fluxo, merged `6e40a089`).
+**Causa raiz:** erro de execução do agente (uso de `git push origin main` para docs) + bypass de admin habilitado na ruleset (o guard técnico não bloqueou).
+**Correções de processo adotadas (registradas no worklog T153):** (1) checar TODOS os checks sem filtro antes de mergear (o `scan` não-required passou vermelho despercebido na PR #370 por erro de filtro do agente); (2) mesmo conteúdo docs-only entra por PR; (3) push direto por bypass NÃO é exceção válida — exceção só em resposta a incidente real, registrada aqui.
+**Ação de governança recomendada ao Operador (fora do escopo do agente):** avaliar remover/estreitar o bypass de admin da ruleset `protect-main` para que o guard técnico impeça o vetor usado.
+**Evidência:** PR #371 (fix lockfile via PR), PR #372 (remediação), worklog 2026-09-30 (T153 + incidente), parecer jurídico-operacional do Operador (2026-09-30).
