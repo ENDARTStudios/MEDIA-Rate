@@ -30,6 +30,7 @@ interface MockUser {
   ultimo_login_em: Date | null;
   email_verificado_em?: Date | null;
   termos_aceitos_em?: Date | null;
+  termos_versao_aceita?: string | null;
   created_at?: Date;
   plano?: { plano: string; status: string; trial_ends_at: Date | null };
 }
@@ -176,6 +177,8 @@ describe("AuthService (unit)", () => {
     // T306: timestamp de aceite persistido no create.
     const created = userMap.get("new@test.com");
     expect(created?.termos_aceitos_em).toBeInstanceOf(Date);
+    // T155/J-020: versão exata dos Termos aceita registrada no create.
+    expect(created?.termos_versao_aceita).toBe("1.0");
   });
 
   it("register — sem aceite dos termos lança UnprocessableEntityException (422)", async () => {
@@ -434,6 +437,7 @@ function mockPrisma(users: Map<string, MockUser>) {
           email: args.data?.email ?? "",
           password_hash: "hashed",
           nome: args.data?.nome ?? null,
+          termos_versao_aceita: args.data?.termos_versao_aceita ?? null,
           password_reset_token: null,
           password_reset_expira: null,
           ultimo_login_em: null,
@@ -489,6 +493,7 @@ function mockPrisma(users: Map<string, MockUser>) {
                 ultimo_login_em: null,
                 email_verificado_em: null,
                 termos_aceitos_em: a.data?.termos_aceitos_em ?? null,
+                termos_versao_aceita: a.data?.termos_versao_aceita ?? null,
               };
               users.set(email, u);
               return u;
