@@ -89,8 +89,11 @@ Em produção o Swagger fica **desligado**.
 
 ## Rate limits (por rota/usuário)
 
-login 6/min · refresh 10/min · watchlist 30/min · interações PUT 60/min ·
-discover/search/recommendations 30/min · upload 10/min. Global do gateway além disso.
+register 5/min · login/forgot/reset/resend 6/min · refresh 10/min · watchlist 30/min ·
+interações PUT 60/min · discover/search/recommendations 30/min · upload 10/min. Global
+100/min. Algoritmo: **sliding window** (ZSET Redis global, fallback memória — D-558);
+chave por sessão (cookie `sess` hasheado) com fallback IP; 429 sempre com header
+`Retry-After` e envelope padrão.
 
 ## Regras para endpoints novos
 

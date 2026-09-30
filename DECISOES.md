@@ -2465,3 +2465,32 @@ quando `gh run view --log` voltar vazio (#314).
 **Correções de processo adotadas (registradas no worklog T153):** (1) checar TODOS os checks sem filtro antes de mergear (o `scan` não-required passou vermelho despercebido na PR #370 por erro de filtro do agente); (2) mesmo conteúdo docs-only entra por PR; (3) push direto por bypass NÃO é exceção válida — exceção só em resposta a incidente real, registrada aqui.
 **Ação de governança recomendada ao Operador (fora do escopo do agente):** avaliar remover/estreitar o bypass de admin da ruleset `protect-main` para que o guard técnico impeça o vetor usado.
 **Evidência:** PR #371 (fix lockfile via PR), PR #372 (remediação), worklog 2026-09-30 (T153 + incidente), parecer jurídico-operacional do Operador (2026-09-30).
+
+## D-558 — Rate limiting: sliding window real, chave por sessão, register endurecido, 429 com envelope
+
+**Data:** 2026-09-27 · **Fase:** revisão Operador (boas práticas de rate limiting) · **Status:** DECIDIDO (PR em curso)
+
+**Contexto:** Review do Operador apontou 4 lacunas: (1) limite por IP sem identidade de
+usuário — e o `req.user` não existe no hook `onRequest` (guard roda depois), então a chave
+"por usuário" do keyGenerator nunca disparava; (2) `/auth/register` fora das rotas
+sensíveis (herdava o global de 100/min); (3) janela FIXA documentada como dívida desde
+T020/T021 ("Store is not a constructor"); (4) corpo 429 fora do envelope padrão.
+
+**Decisão:**
+1. **Chave por sessão**: `rl:u:<sha256(sess)[:32]>:<rota>` (cookie lido no onRequest via
+   @fastify/cookie — registrado ANTES do rate-limit no bootstrap); anônimos:
+   `rl:ip:<ip>:<rota>`. Token cru nunca persiste na chave.
+2. **Register 5/min** (`registerRateLimit()`, env `RATE_LIMIT_REGISTER_PER_MIN`) ao lado
+   de login/forgot/reset/resend 6/min e refresh 10/min — faixa recomendada 5-10/min.
+3. **Sliding window REAL**: store custom como CONSTRUTOR (plugin v11 aceita `store:` —
+   a dívida T020/T021 era shape errado: instância ≠ classe). Log de timestamps em ZSET
+   Redis (pipeline zrem/zadd/pexpire/zcard) via `CacheService.getRedisClient()`, com
+   **fallback em memória local** quando Redis indisponível — nunca fail-open silencioso
+   (conta igualmente; por instância no pior caso). Sem Redis a store é a mesma (memória).
+4. **429 padronizado**: `errorResponseBuilder` retorna o envelope do projeto
+   (+ `correlationId` = req.id e `timestamp`); header `Retry-After` setado pelo plugin
+   (default v11).
+
+**Testes:** `test/rate-limit-config.spec.ts` (10 casos: chave sessão/IP, envelope,
+register 5/min, ZSET com fake ioredis multi, expiração por entrada, fallback memória,
+child compartilhado). Suíte API: 979/979 (131 arquivos). E2E rate-limit 3/3.

@@ -44,6 +44,12 @@
 5. 500 observado em produção: reproduzir com curl exato (sem credenciais no log!),
    triar em `docs/05-security-compliance/SECURITY_TRIAGE.md` se for classe de segurança.
 
+## 429 Too Many Requests
+
+- Corpo segue o envelope acima (`statusCode`/`error`/`message` + `correlationId`/`timestamp`); o header `Retry-After` (segundos) é setado pelo plugin de rate limit.
+- Algoritmo: **sliding window** (ZSET Redis global; fallback em memória por instância — nunca fail-open silencioso, D-558).
+- Chave: `rl:u:<hash-da-sessão>:<rota>` autenticado por cookie; `rl:ip:<ip>:<rota>` anônimo.
+
 ## Comportamentos conhecidos (não são bugs)
 
 - `DELETE` com `content-type: application/json` e body vazio → 400 do Fastify

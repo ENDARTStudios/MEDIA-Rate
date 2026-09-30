@@ -14,6 +14,7 @@ import { buildCspHeader, generateRequestNonce } from "./common/security.config.j
 import { buildCorsOptions } from "./common/cors.config.js";
 import {
   buildRateLimitOptions,
+  registerRateLimit,
   loginRateLimit,
   refreshRateLimit,
   uploadRateLimit,
@@ -143,16 +144,6 @@ async function bootstrap(): Promise<void> {
     defaultJsonParser(req, body, done);
   });
 
-  // T020/7.3 + T1.3: Rate limit com key generator por user+IP+rota.
-  // Store em memoria — Redis distribuido depende de infra conectada (T036).
-  await fastifyAdapter.register(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rateLimit as any,
-    buildRateLimitOptions(),
-  );
-  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] rate-limit registered");
-
   // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
   // CSP gerenciada separadamente via hook onSend (T021/7.1).
   await fastifyAdapter.register(
@@ -161,14 +152,10 @@ async function bootstrap(): Promise<void> {
     buildHelmetOptions(),
   );
 
-  // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
-  await fastifyAdapter.register(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cors as any,
-    buildCorsOptions(),
-  );
-
   // T041: @fastify/cookie — plugin necessario para reply.setCookie/clearCookie.
+  // D-558: DEVE ser registrado ANTES do rate-limit — o keyGenerator lê
+  // req.cookies.sess (identidade por sessão) no hook onRequest, e hooks
+  // onRequest rodam na ordem de registro.
   await fastifyAdapter.register(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cookie as any,
@@ -176,6 +163,34 @@ async function bootstrap(): Promise<void> {
       secret: cookieSecret,
       hook: "onRequest",
     },
+  );
+
+  // T020/7.3 + T1.3 + D-558: Rate limit — sliding window (ZSET Redis via
+  // CacheService; fallback em memória local), chave por sessão (hash) com
+  // fallback IP. CacheService é resolvido do container; o cliente ioredis é
+  // criado no construtor (lazyConnect) — comandos executam pós-conexão.
+  const cache = app.get(CacheService, { strict: false });
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rateLimit as any,
+    buildRateLimitOptions({
+      redisFactory: () => {
+        try {
+          return cache?.getRedisClient?.() ?? null;
+        } catch {
+          return null;
+        }
+      },
+    }),
+  );
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
+  console.log("[boot] rate-limit registered (sliding window)");
+
+  // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cors as any,
+    buildCorsOptions(),
   );
 
   // T216: @fastify/multipart — upload de posters (1 arquivo, 5MB; validação
@@ -188,7 +203,7 @@ async function bootstrap(): Promise<void> {
     },
   );
   // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] plugins registered (rate-limit, helmet, cors, cookie)");
+  console.log("[boot] plugins registered (helmet, cookie, rate-limit sliding, cors, multipart)");
 
   const fastify = fastifyAdapter.getInstance();
 
@@ -211,14 +226,21 @@ async function bootstrap(): Promise<void> {
       "/api/v1/auth/login",
       "/api/v1/auth/forgot-password",
       "/api/v1/auth/reset-password",
-      "/api/v1/auth/refresh",
       "/api/v1/auth/resend-verification",
     ];
     if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};
-      // T212: /refresh é público — 10 req/min por IP (rotação é cara).
-      routeOptions.config.rateLimit =
-        routeOptions.url === "/api/v1/auth/refresh" ? refreshRateLimit() : loginRateLimit();
+      routeOptions.config.rateLimit = loginRateLimit();
+    }
+    // T212: /refresh é público — 10 req/min (rotação é cara).
+    if (routeOptions.url === "/api/v1/auth/refresh" && routeOptions.method === "POST") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = refreshRateLimit();
+    }
+    // D-558: /register é rota crítica de cadastro — 5 req/min (faixa 5-10).
+    if (routeOptions.url === "/api/v1/auth/register" && routeOptions.method === "POST") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = registerRateLimit();
     }
     // T198: escrita de interação (status+reação) — 60/min por usuário/rota.
     if (routeOptions.url.startsWith("/api/v1/interacoes") && routeOptions.method === "PUT") {
