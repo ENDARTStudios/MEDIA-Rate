@@ -3218,3 +3218,11 @@ Ciclo conforme prompt autonomo do Operador. Bootstrap revalidado ao vivo (seed 2
 - Método: edição byte-safe por par "key": json.dumps(old->new) com assert count==1; verificação por achado nas 3 línguas; JSON válido; prettier OK; suíte web 467/467 (guard i18n/paridade incluído). Correções de processo durante a execução: script da 1a passada gravava sem writer (bug meu, corrigido); verificação en/es usava só o termo pt "portabilidade" (falso REGREDIU — termos corretos: portability/portabilidad).
 - PR #381 MERGED (5fcbac6a), required todos verdes + E2E Playwright pass. Produção validada: /pt-BR/privacy com "rate limiting", SEM "column encryption", "Versão: 1.1" (deploy Vercel confirmado ao vivo). Smoke health/privacy/terms = 200.
 - Próximo passo do marco do Operador: nova auditoria de conformidade -> reavaliar GO. GO convites SUSPENSO.
+
+## [2026-09-27] D-558 — rate limiting: sliding window real + chave por sessão + register 5/min + 429 envelope (branch auto/d558-rate-limiting)
+Review do Operador (4 boas práticas) implementado com TDD (spec vermelho 9/10 -> verde 10/10):
+- Chave por SESSÃO: rl:u:<sha256(sess)[:32]>:<rota> (cookie lido no onRequest — @fastify/cookie AGORA registrado antes do rate-limit); anônimo rl:ip:<ip>:<rota>. O req.user não existe no onRequest (guard depois) — a chave por usuário antiga nunca disparava.
+- Register 5/min (RATE_LIMIT_REGISTER_PER_MIN) ao lado de login/forgot/reset/resend 6/min, refresh 10/min.
+- Sliding window REAL: store custom como CONSTRUTOR no plugin v11 — dívida T020/T021 (Store is not a constructor) era shape errado (instância != classe); classe-fábrica por closure devolve a instância com redis/now. ZSET Redis via CacheService.getRedisClient() com fallback em memória local (nunca fail-open silencioso; por instância no pior caso).
+- 429: envelope do projeto (correlationId=req.id, timestamp); Retry-After setado pelo plugin v11 (default).
+- Suíte: API 979/979 (131 arq); spec novo 10/10; e2e rate-limit 3/3. Docs: ERROR_HANDLING/API (caminhos pós-T111), DECISOES D-558.
