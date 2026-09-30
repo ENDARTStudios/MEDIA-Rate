@@ -25,7 +25,7 @@ export class AdminController {
     private readonly adminService: AdminService,
     private readonly flags: FeatureFlagService,
     @Optional() private readonly auditLog?: AuditLogService,
-    private readonly lgpdPurge?: LgpdPurgeService,
+    @Optional() private readonly lgpdPurge?: LgpdPurgeService,
   ) {}
 
   /**
