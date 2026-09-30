@@ -81,6 +81,10 @@ export interface MeResult {
  * - Lockout antes da verificação de senha (evita timing attack).
  * - Analytics de registro/login para T1.9 (sem PII em properties).
  */
+/** T155/J-020: versão dos Termos registrada no aceite (evidência LGPD).
+ * Atualizar aqui a cada revisão material dos Termos (texto i18n: "Versão: N"). */
+export const TERMS_VERSION = "1.0";
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -142,6 +146,7 @@ export class AuthService {
           password_hash,
           nome: dto.nome ?? null,
           termos_aceitos_em: new Date(),
+          termos_versao_aceita: TERMS_VERSION,
           // T360 (D-339): verificação de email REAL reativada (Resend em
           // produção). email_verificado_em fica null → login exige verificação
           // (403 EMAIL_NOT_VERIFIED) e o front redireciona para "confira seu email".
@@ -364,6 +369,7 @@ export class AuthService {
             // por senha — o usuário entra via Google).
             password_hash: randomBytes(32).toString("hex"),
             termos_aceitos_em: new Date(),
+            termos_versao_aceita: TERMS_VERSION,
             email_verificado_em: new Date(), // Google já validou o email.
           },
           select: { id: true, email: true, nome: true },
