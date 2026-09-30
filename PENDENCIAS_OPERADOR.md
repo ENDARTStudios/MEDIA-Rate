@@ -563,3 +563,13 @@ Auditoria jurídica externa (15 achados, J-001..J-015) foi VERIFICADA contra o c
 6. **J-004/J-006..J-012** - lacunas documentais/governança (endereço, art. 18, portabilidade, retenção, transferências, encarregado, menores, licenças de fontes): triagem jurídica pelo Operador.
 
 Nada alterado em produção nesta tarefa (verificação read-only + registro). GO convites SUSPENSO.
+
+## T152 (2026-09-30) - 2a auditoria jurídica: J-016..J-020 verificados + proposta de revisão CONSOLIDADA
+
+Segunda auditoria externa (commit 631c5072) confirmou T151 sem correções (correto: texto legal aguarda gate) e trouxe 4 achados novos — TODOS VERIFICADOS no código: J-016 CONFIRMADO (Resend trata e-mail de verificação/reset; NÃO consta na Política; as 4 ocorrências "resend" em pt-BR.json são chaves de UI verifyResend* = falso positivo descartado); J-017 CONFIRMADO (PostHog identify(user.id,{plan}) - PostHogProvider.tsx:61; Política diz "anonimizado" - correto é PSEUDONIMIZADO; mitigação real: e-mail/nome não enviados); J-018 CONFIRMADO (Sentry identifica via user.id com sendDefaultPii:false + redaction - sentry.ts:67-68,144; claim "anonimizados" excessivo); J-020 CONFIRMADO (schema só tem termos_aceitos_em - sem versão). J-019 = B1 (já registrado).
+
+### DECISÃO RECOMENDADA: revisão jurídica CONSOLIDADA (1 autorização de gate, 1 PR)
+
+Os ajustes de texto se acumulam nos mesmos documentos (Termos/Política/LICENSE). Proposta: Operador autoriza UM ciclo de revisão jurídica e o agente executa num único PR cobrindo: J-001 (remover claim encryption) + J-003 (remover Apple) + J-005 (inventário de cookies real) + J-016 (incluir Resend) + J-017/J-018 ("anônimo"->"pseudonimizado") + J-006/J-007 (art.18 + portabilidade) + J-004 (endereço) + J-010 (encarregado) + J-013 (LICENSE) + J-014 (reversionar Política). Em paralelo, DUAS tarefas de CÓDIGO independem do gate: (1) J-002-A worker de eliminação +30d (recomendada); (2) J-020 campo terms_version_accepted (schema+migration, pede label migration-review).
+
+Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verification-2026-09-29.md`. Read-only; GO convites SUSPENSO.

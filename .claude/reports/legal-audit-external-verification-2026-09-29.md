@@ -44,3 +44,32 @@ postura correta e auditável.
   item Sentry (gate legal).
 - **J-013/J-014**: LICENSE sem "confidential"; reversionar a Política quando os
   ajustes materiais entrarem (gate legal).
+
+---
+
+# Adendo T152 — segunda auditoria externa: novos achados verificados (2026-09-30)
+
+Segunda auditoria externa (commit 631c5072) confirmou T151 e adicionou
+J-016..J-020. Verificação própria:
+
+| ID | Claim | Veredito | Evidência |
+|---|---|---|---|
+| J-016 (P1) | Resend trata e-mail e não consta na Política | **CONFIRMADO** | `apps/api/src/modules/mailer/resend-mail.transport.ts` + `mailer.module.ts:22-23` (MAIL_PROVIDER=resend + RESEND_API_KEY); política não lista Resend (as 4 ocorrências "resend" em pt-BR.json são chaves de UI `verifyResend*` = "Reenviar link", falso positivo verificado) |
+| J-017 (P1) | PostHog recebe user.id mas Política diz "anônimo" | **CONFIRMADO** | `PostHogProvider.tsx:61` `posthog.identify(user.id, { plan })` (comentário T452: "sem PII — apenas id + plano"); Política usa "anonimizado(s)" (linhas 711/721/723). Tecnicamente: **pseudonimizado**, não anônimo; mitigação real (e-mail/nome não enviados) |
+| J-018 (P1) | Sentry pode receber user.id; Política diz "anonimizados" | **CONFIRMADO** | `apps/api/src/common/sentry.ts:67-68` (`sendDefaultPii: false`, "identificação explícita via user.id (não email)") e `:144` (`out.user = { id }`); redaction web em `sentry-redact.ts`. Controles bons; claim jurídico excessivo |
+| J-020 (P2) | Aceite dos Termos grava timestamp, não versão | **CONFIRMADO** | `schema.prisma:105` só `termos_aceitos_em`; sem campo de versão |
+| J-019 | Item de teste R2 no catálogo público | **Já registrado** | = B1 (T146) + reforço T150 (1ª URL de mídia do sitemap) |
+
+## Proposta: revisão jurídica CONSOLIDADA (uma única autorização de gate)
+
+Os ajustes de texto se acumulam nos mesmos documentos. Em vez de edições
+parceladas, propõe-se **um ciclo único de revisão jurídica** que o Operador
+autoriza e o agente executa num PR, cobrindo: J-001 (remover claim de
+encryption), J-003 (remover Apple), J-005 (inventário de cookies real: 4
+próprios + corrigir Sentry), J-016 (incluir Resend como operador),
+J-017/J-018 ("anônimo" → "pseudonimizado/identificador interno"), J-006/J-007
+(art. 18 completo + separar acesso de portabilidade), J-004 (endereço), J-010
+(encarregado), J-013 (LICENSE), J-014 (reversionar Política). Em paralelo, duas
+tarefas de CÓDIGO não dependem do gate: **worker de eliminação (J-002-A)**
+e **`terms_version_accepted` (J-020)** — schema+migration (pede label
+`migration-review`).
