@@ -165,27 +165,6 @@ async function bootstrap(): Promise<void> {
     },
   );
 
-  // T020/7.3 + T1.3 + D-558: Rate limit — sliding window (ZSET Redis via
-  // CacheService; fallback em memória local), chave por sessão (hash) com
-  // fallback IP. CacheService é resolvido do container; o cliente ioredis é
-  // criado no construtor (lazyConnect) — comandos executam pós-conexão.
-  const cache = app.get(CacheService, { strict: false });
-  await fastifyAdapter.register(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rateLimit as any,
-    buildRateLimitOptions({
-      redisFactory: () => {
-        try {
-          return cache?.getRedisClient?.() ?? null;
-        } catch {
-          return null;
-        }
-      },
-    }),
-  );
-  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] rate-limit registered (sliding window)");
-
   // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
   await fastifyAdapter.register(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,9 +181,6 @@ async function bootstrap(): Promise<void> {
       limits: { fileSize: 10 * 1024 * 1024, files: 1 },
     },
   );
-  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] plugins registered (helmet, cookie, rate-limit sliding, cors, multipart)");
-
   const fastify = fastifyAdapter.getInstance();
 
   // T020/7.7: Upload route com bodyLimit de 50 MiB.
@@ -282,6 +258,29 @@ async function bootstrap(): Promise<void> {
       routeOptions.config.rateLimit = discoverRateLimit();
     }
   });
+
+  // T020/7.3 + T1.3 + D-558: Rate limit — sliding window (ZSET Redis via
+  // CacheService; fallback em memória local), chave por sessão (hash) com
+  // fallback IP. DEVE ser registrado DEPOIS do addHook("onRoute") acima:
+  // o plugin lê config.rateLimit no SEU onRoute (no boot) — se ele bootar
+  // antes do hook do main, lê a config antes de eu escrevê-la e o limite
+  // por rota morre silenciosamente (bug de ordem, provado em produção).
+  const cache = app.get(CacheService, { strict: false });
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rateLimit as any,
+    buildRateLimitOptions({
+      redisFactory: () => {
+        try {
+          return cache?.getRedisClient?.() ?? null;
+        } catch {
+          return null;
+        }
+      },
+    }),
+  );
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
+  console.log("[boot] rate-limit registered (sliding window, pós-onRoute)");
 
   // T021/7.1: CSP com nonce dinamico por requisicao (script-src sem 'unsafe-inline').
   fastify.addHook("onSend", (_request, reply, _payload, done) => {
