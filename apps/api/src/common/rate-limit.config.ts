@@ -157,18 +157,19 @@ export function buildRateLimitOptions(
   };
 
   // D-558: sliding window com fallback em memória (a store nunca falha o request).
-  // O plugin espera o CONSTRUTOR (`new Store(globalParams)`) — a classe abaixo é
-  // uma fábrica por closure que devolve a instância real com redis/now injetados
-  // (era exatamente este o shape errado da dívida T020/T021: instância ≠ classe).
+  // O plugin espera o CONSTRUTOR (`new Store(globalParams)`) — uma função que
+  // RETORNA o objeto já satisfaz o `new` (constructor-return) e devolve a
+  // instância real com redis/now injetados (a dívida T020/T021 era shape errado:
+  // instância ≠ classe/fábrica).
   const redisFactory = overrides.redisFactory;
   const nowOverride = overrides.now;
-  class SlidingWindowStorePlugin {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(_globalParams: any) {
-      return new SlidingWindowRateLimitStore({ redis: redisFactory, now: nowOverride });
-    }
+  function slidingWindowStorePlugin(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _globalParams: unknown,
+  ): SlidingWindowRateLimitStore {
+    return new SlidingWindowRateLimitStore({ redis: redisFactory, now: nowOverride });
   }
-  return { ...opcoes, store: SlidingWindowStorePlugin } as unknown as FastifyRateLimitOptions;
+  return { ...opcoes, store: slidingWindowStorePlugin } as unknown as FastifyRateLimitOptions;
 }
 
 export function loginRateLimit(): { max: number; timeWindow: string } {
