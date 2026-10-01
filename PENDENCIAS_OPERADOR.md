@@ -577,3 +577,22 @@ Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verif
 > **ATUALIZAÇÃO 2026-09-30 (T154-T156):** J-020 entregue (PR #374 — `termos_versao_aceita` + migration + backfill, label migration-review); J-002-A entregue (PR #377 — `LgpdPurgeService`, cron diário 03h UTC + gatilho admin, cascade conforme MATRIZ com contexto RLS do usuário purgado); incidente D-457 registrado como **D-560** (PR #373). Próximo passo do marco: **revisão jurídica CONSOLIDADA** (1 gate → 1 PR com J-001/003/004/005/006/007/010/013/014/016/017/018) → auditoria de conformidade → reavaliar GO.
 
 > **ATUALIZAÇÃO 2026-09-30 (T158):** revisão jurídica CONSOLIDADA entregue (PR #381 merged, produção validada) — fechados os achados textuais **J-001, J-003, J-005, J-006, J-007, J-010, J-013, J-014, J-016, J-017, J-018** nas 3 línguas + LICENSE. **J-004 (endereço físico completo) continua PENDENTE de input do Operador** — forneça o endereço empresarial para inclusão em Termos/rodapé (o agente não inventa). J-002-A/J-020 já entregues (PRs #377/#374). Próximo passo: **nova auditoria de conformidade → reavaliar GO**. J-019/B1 (item de teste) segue dependente de ADMIN/T141.
+
+---
+
+### [18] Gov-01 — Reforço de Branch Protection (pós-incidente PR #388 / D-561)
+
+**Status:** PENDENTE — **prioridade alta** (foi o que permitiu o incidente).
+
+**Ação necessária:** confirmar/ajustar o ruleset `protect-main` (Settings → Rules → Rulesets → protect-main). Estado coletado em 2026-10-01 via API (evidência D-561):
+
+- [x] Block force pushes (`non_fast_forward`) — já ativo.
+- [x] Required status checks (Docs Gate, Migration Safety B1, Lint, Test, Build, RLS) — já ativo (aplica-se a PRs).
+- [ ] **Require a pull request before merging** — **AUSENTE** (é a regra `pull_request` do ruleset; sem ela o push direto passa).
+- [ ] **Bypass `always` do usuário admin** — ativo hoje; remover ou restringir a modo `pull_requests` (elevação só em emergência P0 com post-mortem em 24h, conforme D-561).
+
+**Motivo:** dois pushes diretos em `main` durante o ciclo do PR #388 passaram exatamente pelo bypass admin + ausência da regra de PR. O job RLS mitigou por sorte secundária, não por barreira.
+
+**Como saber que deu certo:** `git push origin main` local (sem PR) passa a ser rejeitado pelo GitHub mesmo para o admin.
+
+**Depois de feito:** responda "feito o item Nº 18".

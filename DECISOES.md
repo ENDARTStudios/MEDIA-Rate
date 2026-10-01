@@ -2494,3 +2494,21 @@ T020/T021 ("Store is not a constructor"); (4) corpo 429 fora do envelope padrão
 **Testes:** `test/rate-limit-config.spec.ts` (10 casos: chave sessão/IP, envelope,
 register 5/min, ZSET com fake ioredis multi, expiração por entrada, fallback memória,
 child compartilhado). Suíte API: 979/979 (131 arquivos). E2E rate-limit 3/3.
+
+## D-561 — Incidente de processo: pushes diretos em `main` durante o ciclo do PR #388 (violação D-457)
+
+**Data:** 2026-10-01 · **Fase:** T150 (review do PR #388) · **Status:** DECIDIDO (manutenção das mudanças + volta imediata ao fluxo padrão + Gov-01)
+
+**Descrição:** Durante o ciclo das correções de busca/i18n/ordenação/limit (PR #388, D-558/D-559/D-560), ocorreram **dois pushes diretos na `main`** (commits `04f8050` e `a2f6df8d`), violando a D-457 (obrigatoriedade de PR → Review → CI para toda alteração). O worktree estava na `main` após merges anteriores e branches não foram criadas.
+
+**Impacto:** Técnico imediato baixo — o job RLS (required no CI) validou as migrations em DB virgem antes do deploy e a suíte completa rodou verde em ambos os commits; smoke de produção positivo. **Risco processual alto**: nada BLOQUEIA o push direto — a mitigação foi secundária (sorte + validação no boot), não conformidade primária; um bug sutil ou migration destrutiva poderia alcançar produção sem revisão.
+
+**Causa raiz (evidência técnica, coletada via API GitHub em 2026-10-01):** a ruleset `protect-main` [active] contém apenas `deletion`, `required_status_checks` e `non_fast_forward` — **não exige pull request** — e possui **bypass `always` para o usuário admin**. O push direto não é bloqueado fisicamente.
+
+**Decisão:**
+1. As alterações técnicas do ciclo são **mantidas** (em produção, saudáveis, com smoke positivo).
+2. O processo volta IMEDIATAMENTE ao fluxo padrão: Branch → PR → Review → Merge. O Doer passa a verificar `git branch --show-current` e criar branch a partir de `origin/main` antes de qualquer commit.
+3. **Gov-01** aberta em `PENDENCIAS_OPERADOR.md`: reforço físico do ruleset (require PR + restringir bypass admin), independentemente de disciplina do agente.
+4. Hotfix direto em produção passa a exigir o procedimento de emergência (D-457): registrado em `DECISOES.md` com post-mortem em 24h — precedentes deste incidente: registros no worklog de 2026-09-30/10-01.
+
+**Relacionados:** D-457, D-527, T151 (registro), Gov-01 (pendência Operador).
