@@ -41,6 +41,26 @@
         "ghsa": "GHSA-4mh8-r7rc-xpvc",
         "motivo": "D-559b: mesmo lote do GHSA-w2qp (fastify <=5.12.4) — ver entrada anterior",
         "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-667r-xxjv-c9mm",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-9q9j-q6p8-xq58",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-hwr6-493r-vm6h",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-p68q-wchp-6fh7",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
       }
     ]
   },
