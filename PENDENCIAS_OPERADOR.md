@@ -516,7 +516,7 @@ contrato/mecanismo com lacuna de dados/concessao (UG-03/07/09/10/15); 8 PARTIAL;
 
 ### Candidatos executaveis pelo par Thinker/Doer (sem decisao externa)
 
-T142 alinhar botoes de Planos (UG-13) · T143 auditoria de arredondamento de notas (UG-09) ·
+T142 alinhar botoes de Planos (UG-13) — **RESOLVIDO 2026-10-01** (medição Playwright: CTAs y=859 idênticos em 1280px; .claude/reports/ug13-pricing-cta-evidence-2026-10-01.md) · T143 auditoria de arredondamento de notas (UG-09) ·
 T144 generos reais na dashboard, remover limite de 6 (UG-16). Nada foi executado nesta
 tarefa (docs-only). Sem segredo/PII; GO convites SUSPENSO.
 

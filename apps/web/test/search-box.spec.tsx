@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { readFileSync } from "node:fs";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { SearchCommand } from "@/components/SearchCommand";
@@ -20,6 +21,7 @@ const messages = {
     livro: "Livro",
     comic: "HQ",
     manga: "Mangá",
+    searchPlaceholder: "Buscar filmes, séries, games...",
     paletaMinChars: "Digite pelo menos 2 letras para buscar...",
     paletaSearching: "Buscando...",
     paletaEmpty: "Nenhum resultado encontrado.",
@@ -147,5 +149,42 @@ describe("SearchCommand (T233) — renderiza a resposta do /discover sem filtro 
     expect(screen.queryByText(/nenhum resultado/i)).toBeNull();
     // Sem resultados falsos de MOCK_MEDIA (ex.: títulos que contêm "acao").
     expect(screen.queryByText(/Jujutsu/i)).toBeNull();
+  });
+
+  /**
+   * D-560/T153 — o placeholder da busca global NUNCA pode ser hardcoded
+   * (audit 2026-09-30: "Buscar filmes, séries, games..." vazava em /en-US).
+   * Renderiza os 3 locales com seus messages e verifica o placeholder i18n.
+   */
+  describe("D-560/T153 — placeholder da busca i18n (3 locales)", () => {
+    const placeholders = {
+      "pt-BR": "Buscar filmes, séries, games...",
+      "en-US": "Search movies, series, games...",
+      "es-ES": "Buscar películas, series y juegos...",
+    };
+
+    for (const [locale, esperado] of Object.entries(placeholders)) {
+      it(`${locale} → "${esperado}"`, async () => {
+        const msgs = JSON.parse(
+          // messages reais do repo (paridade garantida pelo i18n-guard)
+          readFileSync(new URL("../src/messages/" + locale + ".json", import.meta.url), "utf8"),
+        );
+        render(
+          <NextIntlClientProvider locale={locale} messages={msgs}>
+            <SearchCommand />
+          </NextIntlClientProvider>,
+        );
+        // abre o dialog (o placeholder só existe com ele aberto)
+        fireEvent.click(screen.getByRole("button"));
+        const box = await screen.findByPlaceholderText(esperado);
+        expect(box).toBeTruthy();
+        // anti-regressão: nenhum outro locale vaza como placeholder
+        for (const outro of Object.values(placeholders)) {
+          if (outro !== esperado) {
+            expect(screen.queryByPlaceholderText(outro)).toBeNull();
+          }
+        }
+      });
+    }
   });
 });

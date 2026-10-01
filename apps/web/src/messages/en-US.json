@@ -187,7 +187,7 @@
     "today": "today",
     "daysAgo": "{days} day{days, plural, one {} other {s}} ago",
     "monthsAgo": "{months} month{months, plural, one {} other {s}} ago",
-    "searchPlaceholder": "Search movies, series, games, books, comics, manga...",
+    "searchPlaceholder": "Search movies, series, games...",
     "typeBook": "Book",
     "typeComic": "Comic",
     "typeManga": "Manga",

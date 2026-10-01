@@ -3293,3 +3293,7 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - DECISOES D-561: incidente formalizado (2 pushes diretos, commits 04f8050/a2f6df8d), impacto, causa raiz COM EVIDÊNCIA da API GitHub (ruleset protect-main sem regra pull_request + bypass always do admin) e decisão (manter mudanças; volta imediata ao fluxo Branch→PR→Review→Merge; Gov-01).
 - PENDENCIAS Gov-01: checklist do ruleset (falta require PR; bypass admin always ativo; non_fast_forward e required checks já ativos) + critério de verificação.
 - Evidência coletada via gh api rulesets (2026-10-01). Nenhum código alterado.
+
+## [2026-10-01] T152/T153 — CTAs de planos (UG-13 fechado com evidência) + placeholder da busca i18n (branch fix/t152-t153-pricing-search-polish)
+- T152/UG-13: medição Playwright em produção — 3 CTAs de planos ALINHADOS (y=859 idêntico, 298×40, desktop 1280; mobile consistente x=41/w=289). O fix BETA-GAP-13 (mt-auto) já resolvia; UG-13 marcado RESOLVIDO na PENDENCIAS com evidência .claude/reports/ug13-pricing-cta-evidence-2026-10-01.md. Nenhum código necessário.
+- T153: placeholder da busca global hardcoded ("Buscar filmes, séries, games..." vazava em /en-US) → catalog.searchPlaceholder ×3 línguas (pt/en/es). Spec search-box estendida: renderiza os 3 locales com messages reais e verifica placeholder + anti-vazamento entre locales — 7/7.
