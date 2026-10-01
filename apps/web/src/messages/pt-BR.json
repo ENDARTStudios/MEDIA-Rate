@@ -187,7 +187,7 @@
     "today": "hoje",
     "daysAgo": "há {days} dia{days, plural, one {} other {s}}",
     "monthsAgo": "há {months} mês{months, plural, one {} other {es}}",
-    "searchPlaceholder": "Buscar filmes, séries, games, livros, HQs, mangás...",
+    "searchPlaceholder": "Buscar filmes, séries, games...",
     "typeBook": "Livro",
     "typeComic": "HQ",
     "typeManga": "Mangá",

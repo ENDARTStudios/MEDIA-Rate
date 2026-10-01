@@ -277,7 +277,7 @@ export function SearchCommand() {
                   setQuery(e.target.value);
                   setSelectedIdx(0);
                 }}
-                placeholder="Buscar filmes, séries, games..."
+                placeholder={t("searchPlaceholder")}
                 className="flex-1 bg-transparent text-sm text-[#EDE7DC] placeholder-[#6B7280] outline-none border-none"
                 autoComplete="off"
                 spellCheck={false}
