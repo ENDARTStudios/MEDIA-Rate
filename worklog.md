@@ -3297,3 +3297,12 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 ## [2026-10-01] T152/T153 — CTAs de planos (UG-13 fechado com evidência) + placeholder da busca i18n (branch fix/t152-t153-pricing-search-polish)
 - T152/UG-13: medição Playwright em produção — 3 CTAs de planos ALINHADOS (y=859 idêntico, 298×40, desktop 1280; mobile consistente x=41/w=289). O fix BETA-GAP-13 (mt-auto) já resolvia; UG-13 marcado RESOLVIDO na PENDENCIAS com evidência .claude/reports/ug13-pricing-cta-evidence-2026-10-01.md. Nenhum código necessário.
 - T153: placeholder da busca global hardcoded ("Buscar filmes, séries, games..." vazava em /en-US) → catalog.searchPlaceholder ×3 línguas (pt/en/es). Spec search-box estendida: renderiza os 3 locales com messages reais e verifica placeholder + anti-vazamento entre locales — 7/7.
+
+### [2026-10-01] T152/T153 fechamento — no ar e verificado
+- Deploy b9035150 SUCCESS; smoke browser EN: dialog "Global media search" + placeholder "Search movies, series, games..." ✓ (leak pt eliminado).
+- Quirk registrado: specs que renderizam SearchCommand com fixture próprio de messages precisam da chave catalog.searchPlaceholder no fixture (ctrlk.spec quebrou no CI; corrigido).
+
+## [2026-10-01] T154/UG-16 — radar/taxonomia Top 8 (branch fix/t154-radar-top8, PR em curso)
+- UG-16 confirmado: limite .slice(0,6) em 2 superfícies (radarFromStats + ProfileContent topGeneros); backend já retorna todos os gêneros.
+- Fix: Top 8 por peso (>0) nas 2 superfícies; TDD vermelho→verde (spec: 10 gêneros → 8 eixos ordenados, peso 0 fora).
+- Suíte web 471/471; tsc/lint 0. Radar com 8 eixos continua legível (escolha UX do Thinker: Top 8 ou todos >0).

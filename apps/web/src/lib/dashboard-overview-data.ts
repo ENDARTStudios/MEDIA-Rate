@@ -334,7 +334,7 @@ export const RADAR_DEMO: RadarAxis[] = [
 ];
 
 /**
- * Radar a partir dos gêneros reais do usuário (top 6, normalizado 0-100).
+ * Radar a partir dos gêneros reais do usuário (Top 8 por peso, normalizado 0-100 — T154/UG-16).
  * A série "anterior" não existe na API — derivada como demonstração (85% do
  * valor atual). Menos de 3 eixos → dataset de demonstração do protótipo.
  */
@@ -342,7 +342,7 @@ export function radarFromStats(generos: Record<string, number>): RadarAxis[] {
   const entradas = Object.entries(generos)
     .filter(([, v]) => v > 0)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
+    .slice(0, 8); // T154/UG-16: Top 8 (era 6)
   if (entradas.length < 3) return RADAR_DEMO;
   const max = entradas[0][1];
   return entradas.map(([label, v]) => ({

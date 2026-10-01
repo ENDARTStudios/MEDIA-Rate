@@ -82,7 +82,7 @@ export function ProfileContent() {
     const g = stats?.generos ?? {};
     return Object.entries(g)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
+      .slice(0, 8); // T154/UG-16: Top 8 (era 6)
   }, [stats]);
 
   // T321: últimas 10 atividades (ordem do API: atualizado_em desc).
