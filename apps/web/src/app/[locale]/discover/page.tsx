@@ -9,8 +9,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations("catalog");
   return {
-    title: "Descobrir — MEDIA Rate",
+    title: `${t("discoverTitle")} — MEDIA Rate`,
     description: "Descubra novas mídias no MEDIA Rate.",
     alternates: { canonical: `https://mediarate.app/${locale}/discover` },
     robots: { index: true, follow: true },
@@ -26,7 +27,7 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">Descobrir</h1>
+      <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">{t("discoverTitle")}</h1>
       <p className="text-[#9CA3AF] mb-6">
         Mídias em destaque com maiores MEDIA Scores.{" "}
         <a href="/catalog" className="text-[#818CF8] hover:text-[#A5B4FC] underline">

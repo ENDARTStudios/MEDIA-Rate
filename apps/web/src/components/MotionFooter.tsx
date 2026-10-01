@@ -95,7 +95,6 @@ export async function MotionFooter({ locale }: { locale: string }) {
               {[
                 // Telegram: link real. Instagram: sem link ainda (placeholder).
                 { label: t("socialTelegram"), href: "https://t.me/MEDIARate2026" },
-                { label: t("socialInstagram"), href: "" },
               ].map((social) =>
                 social.href ? (
                   <a

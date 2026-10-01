@@ -26,6 +26,41 @@
         "ghsa": "GHSA-ggr8-5vv4-36mx",
         "motivo": "P009/D-462: deepmerge-ts só via CLI prisma (dev-time, inputs do repo); fix exige Prisma major",
         "revisao": "2026-12"
+      },
+      {
+        "ghsa": "GHSA-w2qp-rph6-63g4",
+        "motivo": "D-559b: fastify <=5.12.4 — fix exige fastify 5.12.5+, mas @nestjs/platform-fastify 11.2.7/12.1.2 pinam 5.11.3/5.12.1 (exato). Upgrade Nest major 12.x na agenda; mitigação: helmet + proxy + sem exposição direta",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-3m5p-2c4r-xxw2",
+        "motivo": "D-559b: mesmo lote do GHSA-w2qp (fastify <=5.12.4) — ver entrada anterior",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-4mh8-r7rc-xpvc",
+        "motivo": "D-559b: mesmo lote do GHSA-w2qp (fastify <=5.12.4) — ver entrada anterior",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-667r-xxjv-c9mm",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-9q9j-q6p8-xq58",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-hwr6-493r-vm6h",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-p68q-wchp-6fh7",
+        "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
+        "revisao": "2026-11"
       }
     ]
   },

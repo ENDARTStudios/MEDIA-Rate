@@ -145,7 +145,8 @@ describe("Pagination helper (T4.5 + T4.6 sort allowlist)", () => {
 
     it("permite campo:direção", () => {
       const result = validateSortField("titulo:desc", ALLOWED);
-      expect(result).toEqual({ field: "titulo", direction: "desc" });
+      // D-560: DESC carrega nulls:last (títulos sem score não lideram).
+      expect(result).toEqual({ field: "titulo", direction: "desc", nulls: "last" });
     });
 
     it("rejeita campo fora da allowlist", () => {

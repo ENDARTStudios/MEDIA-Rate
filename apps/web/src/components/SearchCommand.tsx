@@ -242,7 +242,7 @@ export function SearchCommand() {
           className="fixed inset-0 z-modal flex items-start justify-center pt-[15vh]"
           role="dialog"
           aria-modal="true"
-          aria-label="Busca global de mídia"
+          aria-label={t("searchDialogAria")}
         >
           <div
             className="fixed inset-0 bg-[#09090F]/80 backdrop-blur-sm"
