@@ -26,6 +26,21 @@
         "ghsa": "GHSA-ggr8-5vv4-36mx",
         "motivo": "P009/D-462: deepmerge-ts só via CLI prisma (dev-time, inputs do repo); fix exige Prisma major",
         "revisao": "2026-12"
+      },
+      {
+        "ghsa": "GHSA-w2qp-rph6-63g4",
+        "motivo": "D-559b: fastify <=5.12.4 — fix exige fastify 5.12.5+, mas @nestjs/platform-fastify 11.2.7/12.1.2 pinam 5.11.3/5.12.1 (exato). Upgrade Nest major 12.x na agenda; mitigação: helmet + proxy + sem exposição direta",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-3m5p-2c4r-xxw2",
+        "motivo": "D-559b: mesmo lote do GHSA-w2qp (fastify <=5.12.4) — ver entrada anterior",
+        "revisao": "2026-11"
+      },
+      {
+        "ghsa": "GHSA-4mh8-r7rc-xpvc",
+        "motivo": "D-559b: mesmo lote do GHSA-w2qp (fastify <=5.12.4) — ver entrada anterior",
+        "revisao": "2026-11"
       }
     ]
   },

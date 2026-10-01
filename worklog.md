@@ -3274,3 +3274,8 @@ Segundo advisory novo no registry (CRITICAL): RCE no ImageResponse (next/og), ra
 - NÃO-bugs esclarecidos: "godfather" 0 resultados = título removido do banco recentemente (curadoria paralela; home exibia cache) — busca correta; cards da home TÊM link /media/<slug> (T274) — seletor do audit falhou por estrutura.
 - Pendências que exigem decisão/credencial (registradas): Comics sem scores (escolher fontes de rating p/ o tipo — ComicVine tem ratings); deleção de "R2 Upload Test" e dedupe All-Star Superman exigem sessão/token ADMIN de produção; detalhe do título mínimo (cast/plataformas/temporadas) = frentes grandes de produto.
 - Suítes: API 979/979, web 467/467, tsc/lint 0, paridade i18n ok.
+
+### [2026-10-01] D-559b — 3º lote de advisories (fastify <=5.12.4) → allowlist temporária
+- GHSA-w2qp-rph6-63g4 / GHSA-3m5p-2c4r-xxw2 / GHSA-4mh8-r7rc-xpvc (HIGH, fastify <=5.12.4): fix exige fastify 5.12.5+, mas @nestjs/platform-fastify 11.2.7 e 12.1.2 PINAM fastify exato (5.11.3/5.12.1). Sem platform-fastify compatível hoje.
+- Decisão (menor risco): allowlist temporária das 3 GHSAs no config.auditAllowlist (padrão P009/D-462) com revisão 2026-11; agenda: upgrade Nest 12.x quando release pinar fastify >=5.12.5.
+- Quirk descoberto: npm local bloqueia postinstall (install-scripts policy) — após npm ci, rodar npx prisma generate manualmente (client sem enums quebrava 34 testes).
