@@ -134,6 +134,34 @@ describe("dashboard-overview-data (T460)", () => {
     expect(demo[0].label).toBe("Drama");
   });
 
+  it("T154/UG-16 — radar aceita até 8 eixos (Top 8 por peso, >0)", () => {
+    const generos: Record<string, number> = {
+      Drama: 50,
+      Ação: 40,
+      Comédia: 30,
+      Ficção: 25,
+      Terror: 20,
+      Romance: 15,
+      Documentário: 10,
+      Animação: 8,
+      Thriller: 5,
+      Musical: 0,
+    };
+    const eixos = radarFromStats(generos);
+    expect(eixos).toHaveLength(8); // Top 8 (Musical com peso 0 fora; Thriller é o 8º)
+    expect(eixos.map((e) => e.label)).toEqual([
+      "Drama",
+      "Ação",
+      "Comédia",
+      "Ficção",
+      "Terror",
+      "Romance",
+      "Documentário",
+      "Animação",
+    ]);
+    expect(eixos[7].value).toBeGreaterThan(0);
+  });
+
   it("nicheFromApiTipo mapeia o enum da API e cai em movie p/ desconhecido", () => {
     expect(nicheFromApiTipo("FILME")).toBe("movie");
     expect(nicheFromApiTipo("serie")).toBe("series");
