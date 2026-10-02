@@ -3306,3 +3306,13 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - UG-16 confirmado: limite .slice(0,6) em 2 superfícies (radarFromStats + ProfileContent topGeneros); backend já retorna todos os gêneros.
 - Fix: Top 8 por peso (>0) nas 2 superfícies; TDD vermelho→verde (spec: 10 gêneros → 8 eixos ordenados, peso 0 fora).
 - Suíte web 471/471; tsc/lint 0. Radar com 8 eixos continua legível (escolha UX do Thinker: Top 8 ou todos >0).
+
+### [2026-10-01] T154 fechamento — PR #394 merged (CI: E2E flaky de fontes Google no 1º run; rerun verde — flaky documentado)
+- Smoke dashboard logado (conta E2E free): página renderiza sem erro (53 SVGs; radar gated Free→preview conforme T402). Evidência funcional do Top 8 = spec unit vermelho→verde; smoke visual com 8 eixos reais exigiria conta Plus/Premium com 8+ gêneros (nota honesta).
+## [2026-10-02] T154 Opção A — teto 12 eixos + a11y/legibilidade (continuação da #394, branch feat/t154-dashboard-genre-radar-limit)
+
+- MAX_EIXOS_RADAR=12 (const exportada): todos os gêneros >0 até 12; acima, trunca por relevância (sem eixo Outros — semântica estranha em radar).
+
+- RadarGraphic: fontSize 8.5 quando >8 eixos; textAnchor dinâmico pelo lado; label radius 116; <desc> dinâmico com dados reais para leitores de tela; aria-label com contagem de eixos quando >8 (chave dashboard.radarAriaEixos ×3).
+
+- Specs: 14→12 truncado por relevância; 9→9 inteiros; 8→8; regressão T460 preservada (25/25). Web 473/473; tsc/lint 0. Contaminação 123ce28e verificada: NÃO ancestral. Smoke 7/7 pré-PR.

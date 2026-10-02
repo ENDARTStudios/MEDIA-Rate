@@ -134,7 +134,7 @@ describe("dashboard-overview-data (T460)", () => {
     expect(demo[0].label).toBe("Drama");
   });
 
-  it("T154/UG-16 — radar aceita até 8 eixos (Top 8 por peso, >0)", () => {
+  it("T154 Opção A — gêneros ativos ≤ teto passam inteiros (9 → 9 eixos)", () => {
     const generos: Record<string, number> = {
       Drama: 50,
       Ação: 40,
@@ -148,7 +148,7 @@ describe("dashboard-overview-data (T460)", () => {
       Musical: 0,
     };
     const eixos = radarFromStats(generos);
-    expect(eixos).toHaveLength(8); // Top 8 (Musical com peso 0 fora; Thriller é o 8º)
+    expect(eixos).toHaveLength(9); // teto é 12 — os 9 ativos passam (Musical com peso 0 fora)
     expect(eixos.map((e) => e.label)).toEqual([
       "Drama",
       "Ação",
@@ -158,8 +158,25 @@ describe("dashboard-overview-data (T460)", () => {
       "Romance",
       "Documentário",
       "Animação",
+      "Thriller",
     ]);
     expect(eixos[7].value).toBeGreaterThan(0);
+  });
+
+  it("T154 Opção A — teto de 12 eixos: 14 gêneros truncam por relevância (desc)", () => {
+    const generos: Record<string, number> = {};
+    for (let i = 1; i <= 14; i++) generos["Gênero " + i] = 100 - i * 5;
+    const eixos = radarFromStats(generos);
+    expect(eixos).toHaveLength(12);
+    expect(eixos[0].label).toBe("Gênero 1");
+    expect(eixos[11].label).toBe("Gênero 12");
+    expect(eixos.map((e) => e.value)).toEqual([...eixos.map((e) => e.value)].sort((a, b) => b - a));
+  });
+
+  it("T154 — 8 gêneros → 8 eixos (não corta no meio)", () => {
+    const generos: Record<string, number> = {};
+    for (let i = 1; i <= 8; i++) generos["G" + i] = 90 - i * 5;
+    expect(radarFromStats(generos)).toHaveLength(8);
   });
 
   it("nicheFromApiTipo mapeia o enum da API e cai em movie p/ desconhecido", () => {
