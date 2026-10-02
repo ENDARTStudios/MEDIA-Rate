@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { createHash } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 import type { Prisma } from "@prisma/client";
+import { mascararIpInet, sanitizarPii } from "./pii-mask.js";
 
 /**
  * AuditLogService — registra eventos de auditoria imutáveis (append-only)
@@ -32,13 +33,18 @@ export class AuditLogService {
   }): Promise<void> {
     const anterior = await this.getUltimoHash();
 
+    // T058/D-546: fonte ÚNICA de tempo — o mesmo `agora` alimenta o hash e o
+    // `created_at` do INSERT. Elimina o drift app↔banco que causava falso-positivo
+    // em `verificarIntegridade()`. Retrocompatível (sem migration; histórico intacto).
+    const agora = new Date();
+
     const payload = JSON.stringify({
       anterior,
       entidade: params.entidade,
       entidade_id: params.entidadeId,
       acao: params.acao,
       usuario_id: params.usuarioId,
-      timestamp: new Date().toISOString(),
+      timestamp: agora.toISOString(),
     });
 
     const hashCadeia = createHash("sha256").update(payload).digest("hex");
@@ -49,19 +55,26 @@ export class AuditLogService {
       acao: params.acao,
       hash_cadeia: hashCadeia,
       hash_anterior: anterior,
-      ip_origem: params.ipOrigem,
+      created_at: agora,
     };
+
+    // T055/D-545: minimização de PII em NOVOS registros. O `ip_origem` é
+    // `@db.Inet`, então recebe uma rede coarsenada válida (não `x.x`).
+    const ipMask = mascararIpInet(params.ipOrigem);
+    if (ipMask) {
+      data.ip_origem = ipMask;
+    }
 
     if (params.usuarioId) {
       data.usuario_id = params.usuarioId;
     }
 
     if (params.dadosAntes) {
-      data.dados_antes = params.dadosAntes as Prisma.InputJsonValue;
+      data.dados_antes = sanitizarPii(params.dadosAntes) as Prisma.InputJsonValue;
     }
 
     if (params.dadosDepois) {
-      data.dados_depois = params.dadosDepois as Prisma.InputJsonValue;
+      data.dados_depois = sanitizarPii(params.dadosDepois) as Prisma.InputJsonValue;
     }
 
     await this.prisma.auditLog.create({ data });

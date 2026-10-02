@@ -3,6 +3,18 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import { InteracoesService } from "../src/modules/interacoes/interacoes.service.js";
 
+// Mídia devolvida pelo include real (MIDIA_INTERACAO_SELECT) — o mapper (T038)
+// exige `midia` no item devolvido pelo upsert.
+const midiaDe = (id: string) => ({
+  id,
+  slug: `slug-${id}`,
+  titulo: `Título ${id}`,
+  tipo: "FILME",
+  ano_lancamento: 2024,
+  imagem_url: null,
+  score: 80,
+});
+
 function mockPrisma() {
   const prisma = {
     midia: {
@@ -45,6 +57,7 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
     prisma.usuarioMidiaInteracao.upsert.mockImplementation(async ({ create }: any) => ({
       id: "i1",
       ...create,
+      midia: midiaDe(create.midia_id),
     }));
     const r = await service.upsert("user-1", "m-destino", { origemRelacaoId: "rel-1" });
     expect(r.origem_relacao_id).toBe("rel-1");
@@ -82,6 +95,7 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
     prisma.usuarioMidiaInteracao.upsert.mockImplementation(async ({ update }: any) => ({
       ...existente,
       ...update,
+      midia: midiaDe(existente.midia_id),
     }));
     const r = await service.upsert("user-1", "m-destino", { status: "CONSUMINDO" });
     expect(r.origem_relacao_id).toBe("rel-1");

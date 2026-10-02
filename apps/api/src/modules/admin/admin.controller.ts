@@ -1,10 +1,11 @@
-import { Controller, Get, Req, Res, Optional, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Req, Res, Optional, NotFoundException } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { Roles } from "../../common/decorators/roles.decorator.js";
 import { AdminService } from "./admin.service.js";
 import { FeatureFlagService } from "../flags/feature-flags.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
+import { LgpdPurgeService } from "../lgpd/lgpd-purge.service.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 
 /**
@@ -24,7 +25,24 @@ export class AdminController {
     private readonly adminService: AdminService,
     private readonly flags: FeatureFlagService,
     @Optional() private readonly auditLog?: AuditLogService,
+    @Optional() private readonly lgpdPurge?: LgpdPurgeService,
   ) {}
+
+  /**
+   * T156/J-002-A — gatilho MANUAL da purga LGPD (o cron diário é o executor
+   * primário; este endpoint dá evidência e agilidade ao admin). Executa o
+   * mesmo lote do worker: elimina definitivamente usuários com a carência
+   * de 30 dias expirada (cascata conforme MATRIZ-PROPAGACAO-OPERADORES.md).
+   */
+  @Post("lgpd/purge")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Executa a purga LGPD dos usuários com carência expirada (admin)" })
+  async purgeLgpd(): Promise<{ verificados: number; purgados: number; falhas: number }> {
+    if (!this.lgpdPurge) {
+      throw new NotFoundException("LgpdPurgeService indisponível.");
+    }
+    return this.lgpdPurge.purgeExpirados();
+  }
 
   @Get("stats")
   @Roles("ADMIN")

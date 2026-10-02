@@ -129,4 +129,14 @@ describe("T199 — descoberta cross-mídia", () => {
     expect(r.midia.score).toBe(95);
     expect(r.tipo).toBe("ADAPTACAO_DE");
   });
+
+  // BETA-GAP-07/T123: link do card deve usar o slug CANÔNICO do servidor
+  // (slugify(titulo) divergia em títulos desambiguados → link errado/404).
+  it("relacaoFromApi prefere o slug canônico do servidor quando presente", () => {
+    const comSlug = {
+      ...RELACAO_API,
+      midia: { ...RELACAO_API.midia, slug: "duna-livro" },
+    };
+    expect(relacaoFromApi(comSlug as never).midia.slug).toBe("duna-livro");
+  });
 });

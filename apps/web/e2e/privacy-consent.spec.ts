@@ -87,17 +87,17 @@ test("banner aparece sem consentimento; escolha persiste após reload", async ({
   context,
   page,
 }) => {
-  // sem cookie -> banner visível
+  // sem cookie -> banner visível (T474: role="region" — não é modal)
   await context.clearCookies();
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const banner = page.getByRole("dialog", { name: /privacy|privacidade/i });
+  const banner = page.getByRole("region", { name: /privacy|privacidade/i });
   await expect(banner).toBeVisible();
   // aceitar todos
   await page.getByRole("button", { name: /aceitar todos|accept all|aceptar todos/i }).click();
   await expect(banner).toBeHidden();
   // persiste após reload
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("dialog", { name: /privacy|privacidade/i })).toBeHidden();
+  await expect(page.getByRole("region", { name: /privacy|privacidade/i })).toBeHidden();
 });
 
 test("Cookies em sessão limpa: ph_* ausente antes da escolha; presente após aceitar analytics", async ({

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { scoreColor } from "@/lib/design-tokens";
+import { truncar1, formatarScoreLocale } from "@/lib/score-utils";
 
 interface ScoreDialProps {
   score: number;
@@ -63,7 +64,10 @@ export function ScoreDial({
   const ringPercent = scale === "0-100" ? clamped / 100 : clamped / 10;
   const fillOffset = circumference - ringPercent * circumference;
   const displayOffset = shouldReduce || !inView ? fillOffset : circumference;
-  const displayValue = scale === "0-100" ? Math.round(clamped) : Math.round(clamped * 10) / 10;
+  // T147/B3-B5: trunca (não arredonda) e formata pelo locale — games 79,2
+  // permanecem 79,2; 0-10 com 1 casa (7,9).
+  const locale = useLocale();
+  const displayValue = truncar1(clamped);
 
   const staticBars = [
     { label: tScore("critic"), pct: STATIC_BAR_PCTS[0], color: STATIC_BAR_COLORS[0] },
@@ -128,7 +132,7 @@ export function ScoreDial({
         )}
         style={{ color, fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        {scale === "0-100" ? Math.round(clamped) : displayValue}
+        {formatarScoreLocale(displayValue, locale)}
       </span>
     </div>
   );
@@ -178,7 +182,7 @@ export function ScoreDial({
       onMouseEnter={() => !showBreakdown && setHovered(true)}
       onMouseLeave={() => !showBreakdown && setHovered(false)}
       aria-label={tScore("ariaLabel", {
-        score: displayValue,
+        score: formatarScoreLocale(displayValue, locale),
         max: scale === "0-100" ? "100" : "10",
       })}
       role="status"

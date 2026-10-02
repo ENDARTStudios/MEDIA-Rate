@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { createHash } from "node:crypto";
 import { MailerService } from "../modules/mailer/mailer.service.js";
+import { mascararEmail } from "./pii-mask.js";
 
 /**
  * T342 — MockMailService como facade do mailer provider-agnostic (T341).
@@ -30,7 +31,7 @@ export class MockMailService {
   async enviarResetSenha(email: string, token: string): Promise<void> {
     await this.mailer.enviar("reset_senha", email, { token }, { dedupeTtlMs: 0 });
     this.logger.debug(
-      `Reset de senha (mailer): email=${email} hash_truncado=${this.hashTruncado(token)}`,
+      `Reset de senha (mailer): email=${mascararEmail(email)} hash_truncado=${this.hashTruncado(token)}`,
     );
   }
 
@@ -47,7 +48,7 @@ export class MockMailService {
       { dedupeTtlMs: 0 },
     );
     this.logger.debug(
-      `Verificacao de email (mailer): email=${email} hash_truncado=${this.hashTruncado(token)}`,
+      `Verificacao de email (mailer): email=${mascararEmail(email)} hash_truncado=${this.hashTruncado(token)}`,
     );
   }
 }

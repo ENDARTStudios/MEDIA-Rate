@@ -12,6 +12,7 @@ const messages = {
   catalog: {
     search: "Buscar mídia",
     typeMovie: "Filme",
+    searchPlaceholder: "Buscar filmes, séries, games...",
     typeSerie: "Série",
     typeGame: "Game",
     typeBook: "Livro",

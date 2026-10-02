@@ -315,7 +315,7 @@ function main() {
     console.error(
       `Como cumprir: adicione a label "${LABEL_OBRIGATORIA}" e, na descrição do PR, ` +
         `uma seção "## Rollback" com o plano e uma linha "Migration:" com a intenção. ` +
-        `Contrato completo: docs/b1-prod-guards.md`,
+        `Contrato completo: docs/06-devops-deployment/b1-prod-guards.md`,
     );
     process.exit(1);
   }

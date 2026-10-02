@@ -1,0 +1,121 @@
+# T092 (REPLAN) — Reconciliador da fila de deploy `waiting` (P012 como decisão técnica).
+#
+# Aprova CONDICIONADO o run Deploy `waiting` do environment `Production` apenas quando
+# head == origin/main e CI+Security success+smoke passivo 4/4 200; cancela runs
+# superseded; ignora o resto. Lógica pura em scripts/ci/deploy-reconciler.mjs (self-test).
+#
+# Limitação técnica conhecida (registrada): o GITHUB_TOKEN pode não ter permissão para
+# aprovar pending deployments de environment com required reviewer — nesse caso o step
+# de aprovação registra WARN sanitizado e o reconciliador continua cancelando
+# superseded; a aprovação condicionada é executável por CLI admin (mesmo algoritmo).
+name: Deploy Reconciler
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  actions: write
+  contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-reconciler
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: Reconcilia fila Production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Self-test da lógica pura
+        run: node scripts/ci/deploy-reconciler.mjs --self-test
+
+      - name: Coleta runs waiting, head atual e gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=main&per_page=30" \
+            --jq '[.workflow_runs[] | select(.name=="Deploy") | select(.status=="waiting" or .status=="pending") | {id, name, head_sha, status}]' \
+            > /tmp/dr-runs.json
+          cat /tmp/dr-runs.json
+          git fetch origin main --quiet
+          git rev-parse origin/main > /tmp/dr-head.txt
+          head=$(cat /tmp/dr-head.txt)
+          gh api "repos/$GITHUB_REPOSITORY/commits/$head/check-runs?per_page=100" \
+            --jq '[.check_runs[] | select(.name=="CI" or .name=="Security") | {name, conclusion}]' \
+            > /tmp/dr-checks.json
+          cat /tmp/dr-checks.json
+
+      - name: Smoke passivo (4 checks)
+        run: |
+          : > /tmp/dr-smoke.txt
+          for url in \
+            "https://media-rate-production.up.railway.app/health" \
+            "https://mediarate.app/pt-BR" \
+            "https://mediarate.app/en-US" \
+            "https://mediarate.app/es-ES"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -A "Mozilla/5.0 ( reconciler )" --max-time 30 "$url")
+            echo "$code" >> /tmp/dr-smoke.txt
+          done
+          cat /tmp/dr-smoke.txt
+
+      - name: Decide (lógica pura)
+        run: |
+          node - <<'NODE'
+          const { readFileSync, writeFileSync } = require("node:fs");
+          const ci = JSON.parse(readFileSync("/tmp/dr-checks.json", "utf8"));
+          const pega = (n) => ci.find((c) => c.name === n)?.conclusion ?? null;
+          const smoke = readFileSync("/tmp/dr-smoke.txt", "utf8")
+            .split(/\r?\n/).filter(Boolean).map(Number);
+          writeFileSync(
+            "/tmp/dr-gates.json",
+            JSON.stringify({
+              ci: pega("CI"),
+              security: pega("Security"),
+              smoke,
+              smokeOk: smoke.length === 4 && smoke.every((s) => s === 200),
+            }),
+          );
+          NODE
+          head=$(cat /tmp/dr-head.txt)
+          node scripts/ci/deploy-reconciler.mjs --decide \
+            --runs-file /tmp/dr-runs.json --head-sha "$head" --gates-file /tmp/dr-gates.json \
+            > /tmp/dr-decision.json
+          cat /tmp/dr-decision.json
+
+      - name: Aplica cancelamentos (superseded)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(jq -r '.cancelar[].id' /tmp/dr-decision.json); do
+            echo "cancelando run superseded $id"
+            gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$id/cancel" >/dev/null 2>&1 \
+              || echo "::warning::cancelamento do run $id não concluído (já concluído/sem permissão)"
+          done
+
+      - name: Aplica aprovações condicionadas
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          envid=$(gh api "repos/$GITHUB_REPOSITORY/environments" \
+            --jq '.environments[] | select(.name=="Production") | .id')
+          for id in $(jq -r '.aprovar[].id' /tmp/dr-decision.json); do
+            echo "aprovando run condicionado $id (environment Production)"
+            if gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$id/pending_deployments" \
+                 -F "environment_ids[]=$envid" \
+                 -f state=approved \
+                 -f comment="Auto-aprovado pelo Deploy Reconciler (T092): head==origin/main, CI+Security success, smoke 4/4 200" \
+                 >/dev/null 2>&1; then
+              echo "run $id aprovado"
+            else
+              echo "::warning::aprovação do run $id negada para GITHUB_TOKEN (limitação de environment com reviewer humano) — executar via CLI admin; superseded continua sendo cancelado"
+            fi
+          done

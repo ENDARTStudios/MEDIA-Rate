@@ -66,7 +66,7 @@ test.describe("Navegacao e i18n", () => {
     // T461 (D-492): planos vêm da API/billing — CI sobe só o web.
     test.skip(
       process.env.E2E_FULL !== "1",
-      "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/E2E.md",
+      "T461: requer API+DB (E2E_FULL=1) — CI sobe só o web; ver docs/06-devops-deployment/E2E.md",
     );
     await page.goto("/pricing");
 

@@ -120,6 +120,10 @@ interface ApiMidiaList {
 interface ApiSearchItem {
   id: string;
   titulo: string;
+  /** BETA-GAP-15/T129: títulos localizados persistidos (D-369) — opcionais. */
+  titulo_original?: string | null;
+  titulo_en?: string | null;
+  titulo_es?: string | null;
   tipo: string;
   ano_lancamento: number | null;
   sinopse: string | null;
@@ -395,8 +399,10 @@ function game(
       ],
       explanation: conf === "high" ? "Alto consenso da crítica." : "Avaliações mistas da crítica.",
     },
-    cast: [{ name: "Desenvolvedor", role: "Desenvolvimento", photoUrl: null }],
-    crew: [{ name: "Disponível em breve", role: "Desenvolvedora" }],
+    // BETA-GAP-06: o fallback de demonstração NÃO inventa créditos. A UI de
+    // detalhe mostra empty state honesto quando cast/crew estão vazios.
+    cast: [],
+    crew: [],
     reviews: [],
     streaming: platforms.map((p) => ({ name: p })),
   };
@@ -907,9 +913,19 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       `/api/v1/search?q=${encodeURIComponent(filters.search)}&limit=100`,
     );
     if (data?.items) {
-      const items = data.items
+      let items = data.items
         .filter((it) => !filters.type || mapTipo(it.tipo) === filters.type)
         .map((it) => mediaFromSearchItem(it));
+      // BETA-GAP-10/T127: o /search casa título/sinopse mas NÃO aplica
+      // ano/ordem — aplicamos localmente os que os dados suportam (ano e
+      // ordenação por título/ano). Gênero/nota/crítica ficam desabilitados na
+      // UI durante a busca (não há dado no payload para honrá-los).
+      const anoMin = filters.anoMin;
+      const anoMax = filters.anoMax;
+      if (anoMin != null) items = items.filter((m) => m.year >= anoMin);
+      if (anoMax != null) items = items.filter((m) => m.year <= anoMax);
+      if (filters.sort === "title") items.sort((a, b) => a.title.localeCompare(b.title));
+      else if (filters.sort === "year") items.sort((a, b) => b.year - a.year);
       return applyLocalPagination(items, filters);
     }
   } else {
@@ -971,6 +987,9 @@ function mediaFromSearchItem(it: ApiSearchItem): Media {
     id: it.id,
     slug: it.slug,
     title: it.titulo,
+    // BETA-GAP-15/T129: mesmo título localizado do catálogo/detalhe (D-369) —
+    // resultados de busca não ficam mais só em PT nos locales en/es.
+    titleLocalized: buildTitleLocalized(it.titulo, it.titulo_en, it.titulo_es, it.titulo_original),
     type: mapTipo(it.tipo),
     preview: isPreviewTipo(mapTipo(it.tipo)),
     year: it.ano_lancamento ?? new Date().getFullYear(),

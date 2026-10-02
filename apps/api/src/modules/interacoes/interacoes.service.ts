@@ -12,6 +12,8 @@ import { STATUS_PARA_COLUNA } from "../../common/status-coluna.js";
 import { TRANSOES_VALIDAS } from "../../common/estados-consumo.js";
 import { reacaoEditavelPara } from "./signal-engine.js";
 import type { ListInteracoesQueryDto } from "./interacoes.dto.js";
+import { MIDIA_INTERACAO_SELECT, mapearInteracaoResponse } from "./interacoes.mapper.js";
+import type { InteracoesPageResponseDto, InteracaoResponseDto } from "./interacoes-response.dto.js";
 
 /**
  * Addendum 4, Parte 3 — máquina de estados de consumo.
@@ -57,6 +59,9 @@ export interface Descoberta {
   };
 }
 
+/** T086/D-557: teto conservador do offset do cursor (muito acima de qualquer página real). */
+const MAX_CURSOR_OFFSET = 1_000_000;
+
 export interface TasteMonth {
   month: string; // "YYYY-MM"
   genreWeights: Record<string, number>;
@@ -69,12 +74,7 @@ export class InteracoesService {
   async listar(
     usuarioId: string,
     filtro: ListInteracoesQueryDto = {},
-  ): Promise<{
-    items: Awaited<ReturnType<InteracoesService["mapearItem"]>>[];
-    total: number;
-    porStatus: Record<string, number>;
-    nextCursor: string | null;
-  }> {
+  ): Promise<InteracoesPageResponseDto> {
     const limit = filtro.limit ?? 50;
     const offset = this.decodificarCursor(filtro.cursor);
     const where: Prisma.UsuarioMidiaInteracaoWhereInput = {
@@ -91,17 +91,7 @@ export class InteracoesService {
           skip: offset,
           take: limit,
           include: {
-            midia: {
-              select: {
-                id: true,
-                slug: true,
-                titulo: true,
-                tipo: true,
-                ano_lancamento: true,
-                imagem_url: true,
-                score: true,
-              },
-            },
+            midia: { select: MIDIA_INTERACAO_SELECT },
           },
         }),
         tx.usuarioMidiaInteracao.count({ where }),
@@ -122,7 +112,10 @@ export class InteracoesService {
         porStatus[linha.status] = linha._count._all;
       }
 
-      const items = interacoes.map((i) => this.mapearItem(i));
+      // T036/D-536: mapper ALLOWLIST — o item público não vaza colunas
+      // internas/legadas (usuario_id, tenant_id, created_at, tipo, rating,
+      // comentario); preserva reacao/motivo_abandono (consumidos pelo store).
+      const items = interacoes.map(mapearInteracaoResponse);
       // Página curta (ou vazia) = última página — evita cursor infinito.
       const nextCursor =
         items.length === limit && offset + items.length < total
@@ -133,31 +126,6 @@ export class InteracoesService {
     });
   }
 
-  /**
-   * Item estável da resposta (snake_case, contrato da API). Pass-through
-   * COMPLETO dos campos da interação — o fetchAll do use-interaction-store
-   * lê reacao/motivo_abandono do payload cru (D-525: não fatiar aqui).
-   */
-  private mapearItem(
-    i: Prisma.UsuarioMidiaInteracaoGetPayload<{
-      include: {
-        midia: {
-          select: {
-            id: true;
-            slug: true;
-            titulo: true;
-            tipo: true;
-            ano_lancamento: true;
-            imagem_url: true;
-            score: true;
-          };
-        };
-      };
-    }>,
-  ) {
-    return i;
-  }
-
   /** Cursor opaco = offset em base64url; inválido → 400 (nunca 500). */
   private codificarCursor(offset: number): string {
     return Buffer.from(String(offset), "utf8").toString("base64url");
@@ -165,33 +133,39 @@ export class InteracoesService {
 
   private decodificarCursor(cursor: string | undefined): number {
     if (cursor === undefined) return 0;
-    const decodificado = Number.parseInt(Buffer.from(cursor, "base64url").toString("utf8"), 10);
-    if (!Number.isInteger(decodificado) || decodificado < 0) {
+    const texto = Buffer.from(cursor, "base64url").toString("utf8");
+    // T086/D-557: ESTRITO — só dígitos (offset), inteiro seguro e dentro de um
+    // teto conservador. Evita leniência do parseInt ("12abc"→12, "1; DROP"→1) e
+    // offsets gigantes (que dariam `skip` inválido e 500 no Prisma).
+    if (!/^\d+$/.test(texto)) {
+      throw new BadRequestException("Cursor inválido.");
+    }
+    const decodificado = Number(texto);
+    if (
+      !Number.isSafeInteger(decodificado) ||
+      decodificado < 0 ||
+      decodificado > MAX_CURSOR_OFFSET
+    ) {
       throw new BadRequestException("Cursor inválido.");
     }
     return decodificado;
   }
 
-  async obter(usuarioId: string, midiaId: string) {
+  async obter(usuarioId: string, midiaId: string): Promise<InteracaoResponseDto | null> {
     const interacao = await this.prisma.usuarioMidiaInteracao.findUnique({
       where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
-      include: {
-        midia: {
-          select: {
-            id: true,
-            titulo: true,
-            tipo: true,
-            imagem_url: true,
-            score: true,
-          },
-        },
-      },
+      include: { midia: { select: MIDIA_INTERACAO_SELECT } },
     });
-    return interacao ?? null;
+    // T038/D-537: mesmo contrato allowlist do GET lista — sem colunas internas.
+    return interacao ? mapearInteracaoResponse(interacao) : null;
   }
 
   /** Cria/atualiza status+reação com validação da máquina de estados. */
-  async upsert(usuarioId: string, midiaId: string, dto: UpsertInteracaoDto) {
+  async upsert(
+    usuarioId: string,
+    midiaId: string,
+    dto: UpsertInteracaoDto,
+  ): Promise<InteracaoResponseDto> {
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const midia = await this.prisma.midia.findUnique({
         where: { id: midiaId },
@@ -273,6 +247,7 @@ export class InteracoesService {
           concluido_em: proximoStatus === "CONCLUIDO" ? agora : null,
           atualizado_em: agora,
         },
+        include: { midia: { select: MIDIA_INTERACAO_SELECT } },
       });
 
       // D-375: dual-write transacional — usuario_midia_interacao é a fonte de
@@ -289,7 +264,7 @@ export class InteracoesService {
         update: { coluna: STATUS_PARA_COLUNA[proximoStatus] },
       });
 
-      return interacao;
+      return mapearInteracaoResponse(interacao);
     });
   }
 

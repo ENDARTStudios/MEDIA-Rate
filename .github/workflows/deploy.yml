@@ -32,6 +32,12 @@ jobs:
   validate:
     name: Validate (lint + test + audit)
     runs-on: ubuntu-latest
+    # T034/P012 (Opção A): gate humano via GitHub Environment. ADVERTÊNCIA
+    # HONESTA: o deploy NATIVO (Vercel/Railway) é disparado pelo push em `main`
+    # e NÃO é bloqueado por este environment — que apenas faz ESTE workflow
+    # aguardar aprovação (sinal + janela de reação). Trava de verdade exigiria
+    # staging (Opção B). Reversível: remover a linha restaura o fluxo.
+    environment: Production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -81,6 +87,8 @@ jobs:
     name: Post-promotion Health Check
     runs-on: ubuntu-latest
     needs: [validate]
+    # T034/P012 (Opção A): aguarda aprovação no environment `Production`.
+    environment: Production
     steps:
       - name: Aguarda e checa API health
         run: |

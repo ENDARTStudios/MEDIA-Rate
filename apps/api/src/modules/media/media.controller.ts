@@ -126,9 +126,14 @@ export class MediaController {
       imagem_url: string | null;
     }> & { total: number }
   > {
+    // D-560: clamp defensivo — PaginationDto.max(100) rejeita com ZodError e
+    // o .parse() manual aqui vira 500 (audit: limit>100 → 500 em produção).
+    const limitClamped = String(
+      Math.min(100, Math.max(1, Number.parseInt(limit ?? "20", 10) || 20)),
+    );
     const params: PaginationDtoType = PaginationDto.parse({
       cursor,
-      limit: limit ?? "20",
+      limit: limitClamped,
       direction: "forward",
     });
 
@@ -201,7 +206,11 @@ export class MediaController {
     const sortResult = validateSortField(sort, ALLOWED_SORT_FIELDS);
     let orderBy: unknown = { created_at: "desc" as const };
     if (sortResult) {
-      orderBy = { [sortResult.field]: sortResult.direction };
+      // D-560: nulos por último no DESC (sem score não lidera o catálogo).
+      orderBy =
+        sortResult.nulls === "last"
+          ? { [sortResult.field]: { sort: sortResult.direction, nulls: "last" } }
+          : { [sortResult.field]: sortResult.direction };
     }
 
     // D-132: Free tem até 3 "recomendações" (listagem por score) por dia.

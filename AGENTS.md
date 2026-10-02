@@ -49,11 +49,54 @@ navegar primeiro. Isso economiza tokens e reduz acertos às cegas.
 - **CI/merges (D-457/T459):** nenhum merge em `main` sem CI verde; **push direto
   com bypass é proibido** (exceção só em resposta a incidente, registrada em
   `DECISOES.md`). PRs só-de-docs são gateados pelo job leve `docs-gate`
-  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/CI.md`.
+  (requerido); os jobs pesados pulam docs-only. Detalhes em `docs/06-devops-deployment/CI.md`.
 - **Fidelidade de mocks do Prisma (D-447):** mocks devem refletir os tipos reais
   do driver (`bigint` → `BigInt`, `bytea` → `Buffer`, etc.); todo endpoint novo
   exige teste que serializa a resposta (`JSON.stringify`) — é o que pega 500
   de serialização sem precisar de produção.
+
+## Project Automation Guidelines
+
+### Strict Rule: Terminal & CLI First Policy
+
+You (the AI Agent) have complete command-line and terminal access to this environment. You must maximize your autonomy using CLIs and never delegate web-based infrastructure tasks to the human operator.
+
+### 1. Prohibited Requests
+
+* **NEVER** ask the operator to manually open a browser or log into dashboards (such as Vercel, Railway, Supabase, Netlify, AWS, or GitHub web).
+* **NEVER** ask the operator to manually create projects, trigger deployments, set environment variables, or check build logs inside a web user interface.
+
+### 2. Autonomous Execution Flow
+
+* **CLI Over Web UI:** If an infrastructure action is needed, immediately use the respective terminal tool (e.g., vercel, railway, gh).
+* **Session Verification:** Before asking for credentials, autonomously check if a session exists using commands like vercel whoami, railway whoami, or gh auth status.
+* **Deployments & Variables:** Always use execution commands (e.g., vercel deploy, railway up) and pipe/inject environment variables directly via the CLI tool tools instead of requesting manual copy-pasting.
+
+### 3. Allowed Exceptions
+
+You may only prompt the human operator regarding external platforms if:
+
+* The CLI tool explicitly requires a browser-based OAuth validation link that your environment cannot automatically bypass.
+* There is a terminal-blocking account restriction (e.g., payment failure or missing team permissions) that cannot be handled programmatically.
+
+### No contexto deste repositório (aplicação da política)
+
+- **CLIs disponíveis e comprovados**: `gh` (PRs/checks/runs/API), `vercel` (deploy/ls/env),
+  `railway` (status/deployment list/variables/logs/service), `posthog-cli` (flags — receita
+  em `docs/07-operations-marketing/ANALYTICS.md`), `npx @sentry/cli` (releases/sourcemaps — `docs/OBSERVABILITY.md`).
+- **Verificação de sessão antes de pedir credencial**: `gh auth status`, `vercel whoami`,
+  `railway whoami`. Quirk conhecido (P010): `GITHUB_TOKEN` inválido injetado pelo harness
+  sombreia o login válido do `gh` — contorno: `env -u GITHUB_TOKEN gh …`.
+- **Variáveis/deploy via CLI, não web**: `railway variables --service <nome>`,
+  `vercel env …`; deploys de produção continuam sendo pelo fluxo PR→merge (D-457/D-527) —
+  a política CLI-first **não** autoriza push direto ou `--prod` fora de incidente
+  registrado (ver `docs/03-development-process/RULES.md` e `docs/06-devops-deployment/PRODUCTION_DEPLOY.md`).
+- **Serviço Railway**: projeto "MEDIA Rate", serviço "MEDIA Rate" (API);
+  `railway deployment list --service "MEDIA Rate" --environment production`.
+- **O que segue sendo do Operador** (não é tarefa de web UI — é decisão/governança):
+  aprovações no environment `Production` (gate P012), decisões P012/P013, rotação de
+  segredos no dashboard Stripe (exceção legítima: sem CLI para account settings),
+  criação de contas externas (ex.: UptimeRobot).
 
 ## Lembrete
 

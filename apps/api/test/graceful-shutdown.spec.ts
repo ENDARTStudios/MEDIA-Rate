@@ -139,4 +139,34 @@ describe("GracefulShutdownService (T211)", () => {
     expect(queue.closeAll).toHaveBeenCalled();
     expect(processMock.exit).toHaveBeenCalledWith(0);
   });
+
+  it("T044: timeout configurável via SHUTDOWN_TIMEOUT_MS", async () => {
+    process.env.SHUTDOWN_TIMEOUT_MS = "1000";
+    try {
+      processMock.exit.mockClear();
+      service.enableShutdown(async () => new Promise(() => undefined));
+      processMock.handlers["SIGTERM"]();
+      await vi.advanceTimersByTimeAsync(999);
+      expect(processMock.exit).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1);
+      expect(processMock.exit).toHaveBeenCalledWith(1);
+    } finally {
+      delete process.env.SHUTDOWN_TIMEOUT_MS;
+    }
+  });
+
+  it("T044: timeout inválido cai no default (30s)", async () => {
+    process.env.SHUTDOWN_TIMEOUT_MS = "abc";
+    try {
+      processMock.exit.mockClear();
+      service.enableShutdown(async () => new Promise(() => undefined));
+      processMock.handlers["SIGTERM"]();
+      await vi.advanceTimersByTimeAsync(29_999);
+      expect(processMock.exit).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1);
+      expect(processMock.exit).toHaveBeenCalledWith(1);
+    } finally {
+      delete process.env.SHUTDOWN_TIMEOUT_MS;
+    }
+  });
 });
