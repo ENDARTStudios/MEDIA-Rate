@@ -21,6 +21,7 @@ import {
   interacoesRateLimit,
   watchlistRateLimit,
   discoverRateLimit,
+  userRightsRateLimit,
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
@@ -217,6 +218,12 @@ async function bootstrap(): Promise<void> {
     if (routeOptions.url === "/api/v1/auth/register" && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};
       routeOptions.config.rateLimit = registerRateLimit();
+    }
+    // T473: exportação LGPD (GET /user/data) agrega 9 relações por chamada —
+    // limite dedicado (6/min) além do global (100/min).
+    if (routeOptions.url === "/api/v1/user/data" && routeOptions.method === "GET") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = userRightsRateLimit();
     }
     // T198: escrita de interação (status+reação) — 60/min por usuário/rota.
     if (routeOptions.url.startsWith("/api/v1/interacoes") && routeOptions.method === "PUT") {
