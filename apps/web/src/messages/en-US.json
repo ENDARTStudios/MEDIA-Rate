@@ -98,8 +98,7 @@
     "notFoundTitle": "Page not found",
     "notFoundBody": "The address you tried to access does not exist or has been moved. Check the URL or go back to the home page.",
     "notFoundCta": "Back to home",
-    "sourcesLabel": "MEDIA Score™ aggregates 11 rating sources",
-    "ctaTrust": "Free plan: free forever · No card required · 3 languages"
+    "sourcesLabel": "MEDIA Score™ aggregates 11 rating sources"
   },
   "biblioteca": {
     "metaTitle": "Library — MEDIA Rate",
