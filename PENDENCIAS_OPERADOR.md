@@ -596,3 +596,19 @@ Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verif
 **Como saber que deu certo:** `git push origin main` local (sem PR) passa a ser rejeitado pelo GitHub mesmo para o admin.
 
 **Depois de feito:** responda "feito o item Nº 18".
+
+---
+
+### [19] P019 — Triagem da PR #300 (deps obsoleta) — T160/2026-10-03
+
+**Status:** PENDENTE decisão do Operador
+
+**Diagnóstico:** PR #300 CONFLICTING/DIRTY em package-lock.json, criada 2026-09-27 por automação (github-actions), anterior a D-559 (fastify/next security upgrades). Não traz CVEs não tratados; audit:ci da main está OK.
+
+**Recomendação técnica:** FECHAR_OBSOLETA (ou substituir por nova PR de deps limpa a partir do main atual).
+
+**Ação:** `gh pr close 300 --comment "Close as obsolete. Current main already has green audit after #363. This PR conflicts on package-lock.json and predates subsequent dependency/security repairs. If specific CVE fixes are still needed, open a fresh dependency PR from current main with npm audit evidence."`
+
+**Como saber que deu certo:** PR #300 fechada; dependabot/automação abrirá nova PR se houver updates relevantes.
+
+**Depois de feito:** responda "feito o item Nº 19".
