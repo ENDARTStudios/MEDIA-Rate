@@ -221,3 +221,27 @@ arquivo. `use.storageState` (só com `E2E_FULL=1`) injeta a sessão; o spec **n�
 0 flaky, 0 skipped (16 testes × `--repeat-each=3`). Logins no run: **3** (antes: 32).
 
 Comando: `E2E_FULL=1 npx playwright test e2e/jornada-critica.spec.ts --project=chromium --project=mobile-chrome --workers=1 --retries=0 --repeat-each=3`.
+
+## Flaky conhecido: fontes Google no build Turbopack (runner) — T155 runbook
+
+**Sintoma:** o job `E2E Playwright` (ou `E2E Full`) falha com dezenas/centenas de
+`Error: Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'`
+no `[WebServer]` — o build de dev do Turbopack não consegue baixar as fontes Google
+(rede instável do runner). **Não é regressão de código.** Quantificado em 2026-10-01:
+936 ocorrências no log de um único run afetado (PR #396).
+
+**Identificação:**
+```bash
+gh run view --job <job-id> --log | grep -c "font/google/font"
+# centenas de ocorrências = flaky de rede; 0 = falha real de teste
+```
+
+**Procedimento:**
+1. **Rerun do job falho**: `gh run rerun <run-id> --failed` — historicamente resolve
+   no 1º ou 2º rerun (ex.: PRs #394/#396).
+2. Se persistir por 3 reruns, é falha real — investigar o spec (não é o flaky).
+3. **Não** adicionar retry cego/skip/timeout maior para "resolver" (proibido).
+
+**Mitigação estrutural (follow-up, quando priorizado):**
+- Migrar fontes para `next/font/local` (bundled, zero rede no build) OU
+- aceitar o flaky com rerun documentado (custo: ~4min de CI por ocorrência).
