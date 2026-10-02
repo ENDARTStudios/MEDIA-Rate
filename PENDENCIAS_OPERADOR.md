@@ -612,3 +612,18 @@ Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verif
 **Como saber que deu certo:** PR #300 fechada; dependabot/automação abrirá nova PR se houver updates relevantes.
 
 **Depois de feito:** responda "feito o item Nº 19".
+
+---
+
+## PACOTE DE GO — consolidação 2026-10-03 (T161)
+
+As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.claude/reports/beta-readiness-2026-10-03.md` (seção Pacote de GO). Referência rápida:
+
+| # | Ação | Onde | Verificação |
+|---|---|---|---|
+| 1 | **Gov-01** — ruleset protect-main: require PR + restringir bypass admin | GitHub UI (Settings → Rulesets) | `git push origin main` rejeitado |
+| 2 | **P019** — fechar #300 como obsoleta | `gh pr close 300 --comment "..." `(comando no relatório pr-300-triage) | PR CLOSED |
+| 3 | **B1** — deleção do item de teste via sessão ADMIN | Painel /admin ou API admin | R2 Upload Test ausente na home/catálogo |
+| 4 | **UG-01** — validar Google Login em navegador real | /login → botão Google | Dashboard carrega pós-auth |
+
+**GO técnico: VERDE.** Após as 4: Beta Fechada (convites controlados) liberável — decisão formal do Operador.

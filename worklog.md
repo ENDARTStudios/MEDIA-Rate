@@ -3363,3 +3363,11 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - Classificação: STALE_CLOSE_OBSOLETE. Recomendação: fechar (Operador decide — P019 em PENDENCIAS). Nenhuma ação executada na #300.
 
 - Relatório: .claude/reports/pr-300-triage-2026-10-03.md.
+### [2026-10-03] T160 fechamento — PR #401 merged (8bacec48); triagem da #300 em main; smoke 7/7 200.
+## [2026-10-03] T161 — snapshot Beta readiness consolidado + pacote de ações do Operador (docs-only, branch docs/t161)
+
+- Snapshot: .claude/reports/beta-readiness-2026-10-03.md — GO técnico VERDE; matriz de frentes; Pacote de GO com 4 ações do Operador (Gov-01 ruleset / P019 fechar #300 / B1 deleção via ADMIN / UG-01 navegador real) com passo a passo e comandos sanitizados.
+
+- PENDENCIAS: tabela de referência rápida do Pacote de GO (sem encerrar pendências indevidamente).
+
+- Metodologia: consolidação apenas de estados já aprovados (T147-T160); nada inventado. GO mínimo para convites controlados liberável após as 4 ações.
