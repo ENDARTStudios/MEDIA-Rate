@@ -39,6 +39,13 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           </section>
         ))}
         <section>
+          <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+            {t("sRetTableTitle")}
+          </h2>
+          <PipeTable source={t("sRetTable")} />
+          <p className="mt-3 text-sm">{t("sRetNote")}</p>
+        </section>
+        <section>
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">{t("sAiH")}</h2>
           <p className="whitespace-pre-line">{t("sAiB")}</p>
         </section>
@@ -50,38 +57,24 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
             {t("sCookTableTitle")}
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs border border-[#2A2A3D]">
-              <thead>
-                <tr className="bg-[#12121C] text-left text-[#818CF8]">
-                  {t("sCookTable")
-                    .split("\n")[0]
-                    .split("|")
-                    .map((h, k) => (
-                      <th key={k} className="px-2 py-2 font-semibold">
-                        {h.trim()}
-                      </th>
-                    ))}
-                </tr>
-              </thead>
-              <tbody>
-                {t("sCookTable")
-                  .split("\n")
-                  .slice(1)
-                  .map((row, r) => (
-                    <tr key={r} className="border-t border-[#2A2A3D]">
-                      {row.split("|").map((cell, k) => (
-                        <td key={k} className="px-2 py-2 text-[#9CA3AF]">
-                          {cell.trim()}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+          <PipeTable source={t("sCookTable")} />
         </section>
-        {[6, 7, 8, 9, 10, 11, 12].map((n) => (
+        {[6, 7, 8, 9].map((n) => (
+          <section key={n}>
+            <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+              {t("s" + n + "h")}
+            </h2>
+            <p className="whitespace-pre-line">{t("s" + n + "b")}</p>
+          </section>
+        ))}
+        <section>
+          <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+            {t("sTrTableTitle")}
+          </h2>
+          <PipeTable source={t("sTrTable")} />
+          <p className="mt-3 text-sm">{t("sTrNote")}</p>
+        </section>
+        {[10, 11, 12].map((n) => (
           <section key={n}>
             <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
               {t("s" + n + "h")}
@@ -90,6 +83,43 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           </section>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Tabela renderizada de string i18n: primeira linha = cabeçalho, células
+ * separadas por "|" e linhas por "\n" (mesmo formato de sCookTable).
+ * T472: usada pelas matrizes de retenção e transferências (fonte única
+ * docs/PRIVACY_MATRIX.md, guard apps/web/test/i18n-parity.spec.ts).
+ */
+function PipeTable({ source }: { source: string }) {
+  const rows = source.split("\n");
+  const [header, ...body] = rows;
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs border border-[#2A2A3D]">
+        <thead>
+          <tr className="bg-[#12121C] text-left text-[#818CF8]">
+            {header.split("|").map((h, k) => (
+              <th key={k} className="px-2 py-2 font-semibold">
+                {h.trim()}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {body.map((row, r) => (
+            <tr key={r} className="border-t border-[#2A2A3D]">
+              {row.split("|").map((cell, k) => (
+                <td key={k} className="px-2 py-2 text-[#9CA3AF]">
+                  {cell.trim()}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
