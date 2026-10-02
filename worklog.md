@@ -3336,3 +3336,30 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 
 - Operador autorizou via E157 (SIM). Hard stops verificados (head 863c0de8, CLEAN, required verdes, smoke 7/7 pré-merge). Autorização registrada publicamente no PR.
 - Merge commit 5d6e52cd; Railway 996daf64 SUCCESS; smoke 7/7 pós-merge 200; /privacy no ar com Matriz de retenção + Transferências + lastUpdated 30/set.
+
+## [2026-10-02] T158 — PR #140 preparada para REVIEW (SEM merge)
+
+- Branch feat/t473 atualizada para 7f9bf6d1 (origin) + merge de origin/main (ff6d39ae) — conflitos i18n ×3 resolvidos por união (main prevaleceu; ctaTrust descartada T087).
+
+- Conteúdo: lgpd.controller exclusão+revogação, rate limit /user/data 6/min, consent-migration, E2E privacy-consent + lgpd-rights, PRIVACY_RIGHTS_RUNBOOK.
+
+- Testes: i18n/privacy 36/36; web 479/479; tsc 0; prettier OK. CI required 100% verde no head. 123ce28e não ancestral.
+
+- NADA mergeado — Thinker revisa #140 antes do merge. Relatório: .claude/reports/pr-140-resolution-2026-10-02.md.
+
+## [2026-10-03] T159 — PR #140 MERGED (T473: direitos LGPD + revogação + rate limit /user/data + runbook)
+
+- Revalidação: head ff6d39ae inalterado, CLEAN, checks 0 falhas, 123ce28e não ancestral, smoke pré 7/7.
+
+- Merge commit; Railway c39d686c SUCCESS; Vercel Ready; smoke pós-deploy 7/7 + /privacy ×3 200 com conteúdo T473 (matriz retenção/transferências, revogação/direitos).
+
+- Front P1 LGPD completa: #139 (matriz+transferências) + #140 (direitos/revogação/legal hold) em produção. GO convites continua SUSPENSO (Gov-01/B1/UG-01 pendentes).
+## [2026-10-03] T160 — triagem read-only da PR #300 (STALE_CLOSE_OBSOLETE)
+
+- PR #300: OPEN, CONFLICTING/DIRTY, package-lock.json apenas, github-actions, 27/set (stale), workflows aguardando aprovação nunca rodaram.
+
+- Diff = snapshot de lockfile pré-D-559; bumps minor/patch sem CVEs não tratados; main atual tem next 16.3.6 + fastify adapter 11.2.7 + audit:ci OK.
+
+- Classificação: STALE_CLOSE_OBSOLETE. Recomendação: fechar (Operador decide — P019 em PENDENCIAS). Nenhuma ação executada na #300.
+
+- Relatório: .claude/reports/pr-300-triage-2026-10-03.md.
