@@ -267,8 +267,17 @@ function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
         viewBox="0 0 300 300"
         className="h-[300px] w-[300px] max-w-full"
         role="img"
-        aria-label={t("radarAria")}
+        aria-label={
+          axes.length > 8
+            ? `${t("radarAria")} — ${axes.length} ${t("radarAriaEixos")}: ${axes
+                .slice(0, 3)
+                .map((a) => a.label)
+                .join(", ")}…`
+            : t("radarAria")
+        }
       >
+        {/* T154: descrição completa para leitores de tela (dados reais). */}
+        <desc>{axes.map((a) => `${a.label}: ${a.value}/100`).join("; ")}</desc>
         {rings.map((ring) => (
           <polygon
             key={ring}
@@ -326,15 +335,19 @@ function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
           );
         })}
         {axes.map((point, index) => {
-          const label = pointFor(index, 120);
+          const label = pointFor(index, 116);
+          // T154: com 8+ eixos, rótulos menores e ancorados pelo lado evitam
+          // colisão/corte nas bordas do viewBox (overflow-hidden).
+          const dx = label.x - 150;
+          const anchor = Math.abs(dx) < 24 ? "middle" : dx > 0 ? "start" : "end";
           return (
             <text
               key={point.label}
               x={label.x}
               y={label.y}
               fill="rgba(255,255,255,0.65)"
-              fontSize="10"
-              textAnchor="middle"
+              fontSize={axes.length > 8 ? 8.5 : 10}
+              textAnchor={anchor}
               dominantBaseline="middle"
             >
               {point.label}

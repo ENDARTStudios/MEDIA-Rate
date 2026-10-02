@@ -441,7 +441,8 @@
     "demoBadge": "Demo",
     "radarPreviousNote": "The previous reading is an estimate derived from your current taste; the real comparison series arrives with per-genre evolution.",
     "profileNumbersTitle": "Your numbers",
-    "profileWebShare": "Share on the web"
+    "profileWebShare": "Share on the web",
+    "radarAriaEixos": "axes"
   },
   "checkout": {
     "title": "Plan upgrade",
