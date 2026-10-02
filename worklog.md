@@ -3371,3 +3371,6 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - PENDENCIAS: tabela de referência rápida do Pacote de GO (sem encerrar pendências indevidamente).
 
 - Metodologia: consolidação apenas de estados já aprovados (T147-T160); nada inventado. GO mínimo para convites controlados liberável após as 4 ações.
+- T160.3: Gov-01 sandbox proof (push direto do admin rejeitado com GH013 em branch descartável, cleanup sem restos) e aplicação definitiva do ruleset protect-main (pull_request approvals 0, bypass always removido, regras preservadas).
+
+- T160.4: fechamento documental da D1/Gov-01 (PENDENCIAS [18] RESOLVIDA; [19] P019/#300 RESOLVIDA — PR #300 fechada como obsoleta em T159.2; D-562 registrada em DECISOES.md). Fluxo: Branch→PR→checks→merge (novo gate Gov-01 respeitado).
