@@ -3316,3 +3316,11 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - RadarGraphic: fontSize 8.5 quando >8 eixos; textAnchor dinâmico pelo lado; label radius 116; <desc> dinâmico com dados reais para leitores de tela; aria-label com contagem de eixos quando >8 (chave dashboard.radarAriaEixos ×3).
 
 - Specs: 14→12 truncado por relevância; 9→9 inteiros; 8→8; regressão T460 preservada (25/25). Web 473/473; tsc/lint 0. Contaminação 123ce28e verificada: NÃO ancestral. Smoke 7/7 pré-PR.
+### [2026-10-02] T154 Opção A fechamento — PR merged, smoke 7/7, contaminação 123ce28e descartada (não ancestral).
+
+### E2E flaky recorrente: 936 ocorrências do erro font/google/font no runner — registrar follow-up de mitigação (cache de fontes/next/font local).
+## [2026-10-02] T155-docs — runbook flaky E2E + snapshot Beta readiness (branch docs/t155, PR em curso)
+
+- docs/06-devops-deployment/E2E.md: seção do flaky de fontes Google no runner (identificação via grep, procedimento rerun, proibição de máscara, mitigação estrutural next/font local).
+
+- .claude/reports/beta-readiness-2026-10-02.md: GO técnico MANTIDO; bloqueios restantes = 1 Gov-01 (Operador), 2 B1 (ADMIN), 3 UG-01 (manual), 4-6 decisão/dados. Após 1-3: Beta Fechada liberável.
