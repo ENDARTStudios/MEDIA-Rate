@@ -12,3 +12,6 @@ download/
 pnpm-lock.yaml
 package-lock.json
 *.md
+
+# Skills de agente vendored/autorais (T149) — upstream, nao formatar
+.agents/

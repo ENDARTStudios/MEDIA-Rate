@@ -18,9 +18,9 @@
 - [x] Fase 5 – Frontend `[CONCLUÍDA — rotas públicas/privadas, i18n 3 locales, SSR parity]` ✅
 - [~] Fase 6 – Avançado `[PARCIAL — cache/shutdown/upload ok; BullMQ e IA/RAG postergados D-017]` ⚠️
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
-- [~] Fase 8 – Testes/segurança `[PARCIAL — 700+ API + 309 web; IA pipeline N/A]` ⚠️
+- [~] Fase 8 – Testes/segurança `[PARCIAL — API 931/931 (125 arquivos, T072); E2E jornada crítica 48/48 (T074/D-553); web ~309; IA pipeline N/A]` ⚠️
 - [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
-- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029 concluída (D-439); T030–T033 abertas]` ⚠️
+- [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029–T036 concluídas; gaps restantes dependem de definição/provider/fonte/decisão do Operador]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
 - [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
 - [x] Fase 15 – Melhoria contínua `[CONCLUÍDA — T405 perf 46→63; D-402/D-403]` ✅
@@ -75,11 +75,11 @@
 - [x] 2.3 Tabelas de domínio: `midia`, `media_score`, `genero`, `streaming_service`, `midia_genero`, `midia_streaming`.
 - [~] 2.4 Tabelas de auth: `usuario`, `roles`, `user_roles`, `sessions`, `watchlist_entry` ✅; `permissions` granulares ❌ (postergado — RBAC via `@Roles`/`@RequirePlan`).
 - [x] 2.5 Tabelas de billing: `fatura`, planos Free/Plus/Premium, `payment_events`.
-- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`).
+- [x] 2.6 Tabela de auditoria: `audit_log` (append-only, SHA-256 de cadeia, `verificarIntegridade()`). **T057/D-546:** drift de timestamp (hash usava `new Date()` do app; verificação usa `created_at` do banco) → falso-positivo em `verificarIntegridade()`. **COVERED:** correção aplicada — grava `created_at` explícito a partir de fonte única de tempo (`created_at: agora`) em `apps/api/src/common/audit-log.service.ts:36-58`. Teste: `audit-integrity-drift.spec.ts`; evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [ ] 2.7 Tabelas de governança: `data_sources` (procedência), `entity_revisions` (versionamento). **AUSENTES** — gap aberto.
 - [x] 2.8 Senha/token com argon2id (custo ≥ 12, memória 19MiB).
 - [x] 2.9 Soft delete: `Midia.deleted_at` (T215) + índice parcial + filtro em todas as leituras (T280: recommendations/relacoes/slug).
-- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, não wired nas colunas.
+- [~] 2.10 Criptografia de coluna (email/telefone): `ColumnEncryptionService` (AES-256-GCM) criado, **não wired** nas colunas. **T048/D-542:** análise de viabilidade **docs-only** — **não** implementar agora (e-mail buscável por igualdade × IV não determinístico; exige migration+backfill e secret `COLUMN_ENCRYPTION_KEY`) → decisão em **P017**; follow-up de baixo risco: mascarar PII em log (`auth.service.ts:261`). Ver `docs/05-security-compliance/LGPD_DADOS.md`. **T049/D-543:** mascaramento de PII em logs de `auth` **implementado** (helper `pii-mask.ts` + `auth-pii-log.spec.ts`); cifragem de coluna **segue bloqueada** (P017). **T055/D-545:** `AuditLog` (novos registros) sanitizado — PII redigida e `ip_origem` coarsenado p/ rede válida (`@db.Inet`), **sem migration** e com a cadeia de hash preservada (`audit-log-pii`/`audit-log-integridade` 4/4). **T097/D-557:** cifragem de colunas **adiada para pós-Beta** (exigiria blind index/dual-write/backfill/rotação; ativar às cegas é mais arriscado que as compensações atuais) + guarda anti-regressão `apps/api/test/schema-sensitive-columns.spec.ts` (2/2). evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`.
 - [x] 2.11 Seed de admin + usuários (free/plus/premium).
 - [x] 2.12 Índices em todas as FKs + colunas de busca.
 - [x] 2.13 Unicidades documentadas (`@@unique`: email, fonte+fonte_id, midia_id, usuario+midia, etc.).
@@ -112,10 +112,11 @@
 - [x] 3.4 AuthGuard (valida sessão, anexa `request.user`).
 - [x] 3.5 RBAC: `RolesGuard` + `PlanGuard` (sem permissions granulares — postergado).
 - [x] 3.6 Reset de senha (T206): token uso único, expiração 1h, rate limit, revogação de sessões, audit.
-- [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse.
+- [x] 3.7 Audit logging para auth (T213): USER_REGISTERED/LOGIN_SUCCESS/LOGIN_FAILED/LOGOUT/PASSWORD_RESET_* + refresh/reuse. **T133 (2026-09-28) — cobertura auditada:** wiring real em `auth.service.ts` (USER_REGISTERED, EMAIL_VERIFICATION_SENT, USER_LOGIN_SUCCESS, USER_LOGIN_FAILED `invalid_credentials`/`email_not_verified`, USER_LOGIN_SOCIAL, TOKEN_REFRESHED, TOKEN_REFRESH_REUSE_DETECTED, SESSION_REVOKED_ALL, PASSWORD_RESET_REQUESTED/COMPLETED, USER_LOGOUT) + `email-verification.service` (EMAIL_VERIFIED/RESENT); **PII minimizada na persistência por D-545** (`sanitizarPii`: e-mail mascarado, IP coarsenado, `userAgent`/sensível → `[Redacted]`); resposta de login não revela existência de conta.
+  evid: `test/auth-audit.spec.ts` (T213) — register/login success/failed/logout/reset/refresh-reuse, sem senha/token; relatório `.claude/reports/auth-audit-logging-2026-09-29.md`.
 - [x] 3.8 Rate limit específico /auth (6 req/min login).
 - [x] 3.9 Testes auth controller/service (T024): controller 100%, service 93.65%, guard, session, lockout.
-- [x] 3.10 Documentação API Auth: `docs/api/auth.md`.
+- [x] 3.10 Documentação API Auth: `docs/04-api-integrations/api/auth.md`.
 - [x] 3.11 Email verification (T214): token 256-bit TTL 24h, uso único, 403 EMAIL_NOT_VERIFIED no login, backfill.
   evid. T029: enforcement provado em produção (smoke T027, 2026-09-21 — register exige verificação real via Resend); rota `google/callback` (OAuth Google) ativa e não inventariada acima.
 
@@ -133,7 +134,8 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
 - [x] 4.1 CRUD `media` (T215): cursor, filtro tipo, sort, POST/PUT/DELETE admin, soft delete, unicidade → 409, invalidação de cache, audit.
 - [x] 4.2 CRUD `media_scores`: z-score ponderado v3, pesos por tipo, confiança, explicabilidade.
 - [x] 4.3 Módulo `recommendations`: serviço real (`RecommendationsService` + controller + DTO + testes e2e) — stubs substituídos.
-- [x] 4.4 Módulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, score_at_add).
+- [x] 4.4 Módulo `watchlist`: CRUD real (`watchlist.service/controller`, colunas Kanban WANT/WATCHING/COMPLETED/DROPPED, `score_at_add`). **T131 (2026-09-28) — cobertura auditada/aprovada:** `UsuarioMidiaInteracao` é a fonte de verdade e `WatchlistEntry` a projeção (dual-write T320/D-375; máquina D-528); endpoints GET/POST/`PATCH :id/move`/`PATCH :id`/DELETE/`PATCH :id/relink` com AuthGuard + UuidParamPipe + Zod; **owner-only** via `comContextoRls`+`usuario_id` (sem IDOR); DTOs anti-escalada; LGPD export inclui watchlist; API watchlist 50/50.
+  evid: `.claude/reports/watchlist-crud-2026-09-29.md`; PR #351 (merge `7a347df3`) + evidência PR #352 (merge `6995da95`); smoke 7/7.
 - [x] 4.5 Módulo `discover/search`: busca real com `?q=` e paridade de acentos (T279: `::uuid` no na_watchlist).
 - [x] 4.6 Módulo `billing`: checkout Stripe (Idempotency-Key) + webhook HMAC; faturas persistidas.
 - [x] 4.7 Módulo `admin` (T221): `/admin/stats` com métricas REAIS, cache 60s, RBAC, audit.
@@ -148,9 +150,11 @@ REST versionado `/api/v1`. Módulos em `apps/api/src/modules/<nome>/`: admin, au
   evid: benchmark local 2026-09-21; test/discover-service.spec.ts 14/14.
 - [x] 4.13 Endpoints extras: LGPD export/exclusão, historico, perfil, quota, notificações, listas colaborativas, interações, fontes/coleta, metrics, relacoes.
   nota T029: numeração duplicada com "4.13 Watchlist canônica" (acima) — renomear para 4.15 em passe futuro de edição.
+- [x] 4.15 Contrato público de `GET /api/v1/interacoes` com DTO ALLOWLIST (T036/B3, D-536): `interacoes-response.dto.ts` + `interacoes.mapper.ts` removem colunas internas/legadas (`usuario_id`, `tenant_id`, `created_at`, `tipo`, `rating`, `comentario` plaintext) e preservam `reacao`/`motivo_abandono`/`midia` (store/feed). Envelope `{items,total,porStatus,nextCursor}` e Swagger mantidos. TDD: `interacoes-dto.spec.ts` + reforço em `interacoes-lista.spec.ts`. MERGED #183 (merge commit 684620e); smoke autenticado em produção OK (GET /interacoes?limit=1=200; item keys = allowlist; colunas internas ausentes). **Concluído:** lista `#183`/`684620e` + `GET /:midiaId` e `PUT` `#186`/`ebf78a1`; smoke autenticado em produção OK (200; item keys = allowlist; colunas internas ausentes). D-537 APROVADA.
 
 **Verificação:** `npm run test` (API) — 888 testes, 116 arquivos (T027). Zero referências ao projeto antigo "Almanaque dos Clubes".
   evid. T029 (2026-09-21): **897 testes / 117 arquivos** após #163 (UuidParamPipe + specs 404); CI verde no PR #163. Relatório completo: `.claude/reports/beta-blockers.md`.
+  evid. T051 (2026-09-22): **911 testes / 120 arquivos** na suíte API (T049); reconciliação de prontidão em `.claude/reports/beta-readiness-2026-09-24.md` (B1/B2/B3 fechados).
 
 ---
 
@@ -184,11 +188,11 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 6.7 Health checks (`GET /health` + `$queryRaw SELECT 1`).
 - [x] 6.8 Upload seguro (T216): magic bytes, 5MB, UUID server-side, rate limit, audit.
 - [x] 6.9 Cache Redis (T210 `CacheService`): TTL 60s `/midias`, Redis com fallback local.
-- [x] 6.10 Graceful shutdown (T211): `enableShutdownHooks()` + testes.
+- [x] 6.10 Graceful shutdown (T211 + T044/D-540): `GracefulShutdownService` (SIGTERM/SIGINT idempotente; timeout global **configurável** `SHUTDOWN_TIMEOUT_MS`, default 30 s; `process.exit(1)` no estouro) + wiring em `main.ts` (Fastify → Prisma `$disconnect` → Redis `quit` → filas). **T044:** e2e de drenagem (`test/graceful-shutdown.e2e.spec.ts`: requisição em andamento termina 200 após `close()`; novas conexões recusadas; sem `unhandledRejection`) + testes do timeout configurável. `vitest` 9/9; eslint/tsc OK. **MERGED #195 (merge commit `8f5afc2`); smoke pós-merge 7/7 → 200; API reiniciou (uptime reset) — T045.**
 - [~] 6.11 Fila assíncrona (BullMQ): **postergado** — sem caso de uso concreto (D-017).
 - [~] 6.12 IA/RAG: **postergado** (D-017).
 - [x] 6.13 Exportação de dados (LGPD): export + exclusão com 30 dias de carência + cancelamento.
-- [~] 6.14 Feature flags: não implementado — gap aberto (F11/T292 planejada).
+- [x] 6.14 Feature flags: **COVERED** — `flags/feature-flags.controller.ts` + `feature-flags.module.ts`/`service.ts` + `apps/api/test/feature-flags.spec.ts` (7 casos). evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [~] 6.15 WebSocket: condicional — postergado.
 
 ---
@@ -235,23 +239,27 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.1.2 Testes unitários + integração (`vitest --coverage`).
 - [x] 9.1.3 SAST (CodeQL) + dependency scan (`npm audit` + Trivy).
 - [x] 9.1.4 Docker multi-stage (`apps/api/Dockerfile`) com prune de dev deps.
-- [x] 9.1.5 Scan de imagem Trivy (CRITICAL/HIGH, exit 1, SARIF).
+- [x] 9.1.5 Scan de imagem Trivy (SARIF). **T033: modo relatório (exit 0)** — CVE de base (upstream) não trava o CI; gate bloqueante de runtime = `npm run audit:ci` (ver `docs/05-security-compliance/SECURITY_TRIAGE.md`, D-534).
 - [~] 9.1.6 Deploy em staging: Vercel Preview + Railway; sem staging separado.
 - [~] 9.2 Secrets no CI (8 variáveis via `${{ secrets.X }}`).
 - [~] 9.3 Deploy blue-green/rolling (Vercel atômico + Railway rolling).
-- [~] 9.4 Plataforma: **Vercel (web) + Railway (api) em produção** ✅; domínio mediarate.app pendente; branch protection da main pendente.
+- [x] 9.4 Plataforma: **Vercel (web) + Railway (api) em produção** ✅; domínio `mediarate.app` ✅ (live, HTTP 200 nos 3 locales); branch protection da main ✅ (ruleset `protect-main`, enforcement `active`, target `branch`). evid: `.claude/reports/plano-mestre-stale-notes-2026-09-29.md`.
 - [x] 9.5.1 Logs centralizados (T217): LokiStream opcional via `LOKI_URL`.
 - [x] 9.5.2 Métricas (T217): prom-client, `GET /metrics` protegido, sem PII.
 - [x] 9.5.3 Alertas (T218): ring buffers, histerese, `/admin/alerts/status`.
 - [~] 9.5.4 Uptime check externo: UptimeRobot pendente.
 - [x] 9.6 Healthcheck HTTP (`GET /health`).
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
-- [x] 9.8 Plano de resposta a incidentes (docs/INCIDENT_RESPONSE.md).
+- [x] 9.8 Plano de resposta a incidentes (docs/05-security-compliance/INCIDENT_RESPONSE.md).
 - [x] 9.9 `MANUAL_DO_OPERADOR.md` entregue.
 - [x] 9.10 Pipeline de deploy da main íntegro (P0/review #143, D-527): job de migration removido do push path (redundante — entrypoint do Railway aplica migrations no boot; secret GitHub é hostname interno, inalcançável de runners) + `migrate-production.yml` manual com backup.
   evid: deploy.yml SUCCESS pós-merge do PR #153 (run 35647639085, 2m18s) — primeiro verde da série; Railway deploy SUCCESS.
 - [~] 9.11 Script reproduzível de evidência local com API+DB (P2/review #143): `scripts/evidence-local.mjs` + fixture versionada (`prisma/fixtures/evidence-fixture.cjs`); guarda anti-produção (D-530 — recusa DATABASE_URL fora de localhost); execução integrada validada na promoção #153 (evidência #147, E2E 7/7); pendente validação em máquina limpa.
-- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **ESCALONADO** (PRs abertas sem o check; não habilitar até re-run/fechamento — ver D-533/P011), staging/Environment (P012) e caminho de migration manual (P013) — `docs/b1-prod-guards.md`.
+- [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/06-devops-deployment/runbooks/migration-manual.md`) — `docs/06-devops-deployment/b1-prod-guards.md`.
+- [x] 9.13 `security.yml` verde (T033): audit governado (`npm run audit:ci` — runtime blocking + allowlist dev-only P009/D-462), CodeQL `@v4`, Trivy pinado ao SHA imutável de `v0.36.0` (ambos jobs) e trigger em PR; scan de imagem em **modo relatório** (SARIF). PR #172 aberto, `security.yml` verde (scan 2m22s; Trivy Image Scan 1m26s). Ver D-534.
+- [~] 9.14 Alertas métricos automatizados 5xx/auth (T040/D-538): `scripts/ci/metric-alerts.mjs` (thresholds 5xx >1%/>=5 abs; auth >50/1min/>=10/5min; parser Prometheus+JSON; dedup de issue) + self-test determinístico 18/18 + workflow `alertas-metricos.yml` (schedule 15min; **dry-run por padrão**; live só com `vars.METRICS_URL`+`secrets.ADMIN_TOKEN`; sem infra paga/deploy). PR aberto, sem merge; ativação live depende do Operador.
+- [~] 9.15 Uptime sintético de endpoints públicos (T042/D-539): `scripts/ci/uptime-check.mjs` (lógica pura; GET/HEAD só em rotas públicas, timeout 10s; dedup de issue create/update/close) + self-test 11/11 + workflow `uptime-check.yml` (schedule 10min; concurrency; permissions contents:read+issues:write). Coleta live 7/7 OK. PR aberto, sem merge; UptimeRobot externo complementar = P015.
+- [x] 9.16 Triagem de workflows crônicos na `main` (T046/T047/D-541): `Release` (raiz do monorepo sem script `build` → `npm error Missing script: "build"`) e `create-pr-from-branch` (heredoc em coluna 0 → **YAML inválido** → run sem jobs em todo push). Ambos **não-required**. Correção: `Release` → `workflow_dispatch` + `npm run build --if-present`; `create-pr` → corpo via `printf` e disparo **MANUAL** (`workflow_dispatch`) — **não** reativar automação inerte sem decisão (P016). **MERGED #199 (`6264601`); pós-merge sem runs de Release/Auto-create; CI/Security success; smoke 7/7 → 200.** Ver `docs/06-devops-deployment/CI.md`.
 
 ---
 
@@ -266,13 +274,13 @@ Motivo: Image Transformations em ~99% da cota Hobby (4.969/5.000/mês, baseline 
 - [x] T032 — tokens deviceSizes/imageSizes + padronizar unoptimized/quality · evid: test 6/6 + build OK + srcset 11→8
 - [x] T036 — ladders remotas nativas + <img> estático + bypass total · evid: test 16/16 + build OK
 - [x] T033 — runbook semanal de uso · evid: R038
-- [~] T037 — deps HIGH sem major (PARCIAL: deepmerge-ts residual, P009 no Operador)
+- [~] T037 — deps HIGH sem major (PARCIAL: `deepmerge-ts` residual dev-only; **D-462** aceitou o risco com allowlist cirúrgica + gate `audit:ci`; revisão `2026-12`) · evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`
 - [x] T038 — 6 testes CI-blocker (relógio congelado + mock count) · evid: api 841/841 + web 347/347
 - [x] T039 — gate audit-ci com allowlist cirúrgica · evid: R040 (exit 0/1 bidirecional)
-- [~] T041 — abrir PR do pacote Fase 10 (PR #74 open; checks vermelhos herdados do main)
+- [x] T041 — pacote Fase 10 (`PR #74` **MERGED** `2026-09-07`; checks herdados tratados) · evid: `.claude/reports/security-debt-stale-notes-2026-09-30.md`
 - [x] T040 — testes automatizados do gate audit-ci · evid: R041
-- [>] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP)
-- [>] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API)
+- [x] T042 — CI-repair (lint herdado + prisma generate + CodeQL/ZAP) · evid: D-470/D-472 + `audit-ci` verde (EXIT=0)
+- [x] T044 — diagnóstico CI vermelho PR #74 (CodeQL/ZAP/E2E via gh + API) · evid: causa-raiz confirmada (D-490); `PR #74` merged
 - [x] T046 — gh-safe wrappers + origem da injeção (P010) · evid: R045
 
 ---
@@ -287,7 +295,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] P0 T280 — filtro soft-delete nas leituras que vazavam (recommendations, relacoes/grafo, candidatos de slug)
 - [x] T324 — sprint: votos reais nos adapters OpenCritic/AniList/Kitsu (commit `56f3884`) — pull Bayesiano do MEDIA Score v3 ganha massa nas categorias games/anime/mangá; lições D-312 (votos = contagem real, nunca popularity; Number() na fronteira do adapter)
 - [x] T322 — reparo de órfãos curtidos (commit `065550c`): script `db:reparo:orfaos` + endpoint `PATCH /watchlist/:id/relink` + CTA "Buscar substituta"; run em produção pendente do Operador
-- [x] T323 — triagem da revisão externa (15 HIGH confirmados) em `docs/REVISAO_EXTERNA_TRIAGEM.md` · tarefas T325–T341 priorizadas
+- [x] T323 — triagem da revisão externa (15 HIGH confirmados) em `docs/05-security-compliance/REVISAO_EXTERNA_TRIAGEM.md` · tarefas T325–T341 priorizadas
 - [x] T325 — correção HIGH #1: CsrfGuard global em métodos mutantes (commit `0917a41`) + cookie csrf persistente + checkout envia X-CSRF-Token
 - [x] T326 — correção HIGH #2: IdempotencyInterceptor global (mutante+autenticado+Idempotency-Key, commit `5b56f5d`) com `IdempotencyStore` (hash + TTL 24h)
 - [x] T327 — correção HIGH #3: trial único por usuário (`trial_used_at`, commit `b7b4db2`) — gate 409 no checkout PLUS + marca idempotente na ativação
@@ -296,7 +304,7 @@ watchlist Kanban com status de consumo (T238/T249), i18n 3 locales, `?type=` SSR
 - [x] T329 — painel de diagnóstico interno read-only (commit `c00d075`): `GET /api/v1/admin/diagnostics` @Roles(ADMIN) + página `/admin/diagnostics`
 - [x] T346 — perf HIGH original: DiagPanel web dispara chamadas só quando ativo `?diag=1` (commit `f0b5c87`) — eliminado 2 requests por pageview
 - [x] T342 — mailer transacional nos fluxos de auth (verificação/reset, commit `3aaad1d`): MockMailService vira facade do MailerService + templates com escape + dedupe off
-- [x] T347 — runbook único do Operador (commit `f8778a7`): `docs/RUNBOOK_OPERADOR_FINAL.md` (6 passos: Postgres teste → migrate → reparo T322 → deploys → mailer real → verificação)
+- [x] T347 — runbook único do Operador (commit `f8778a7`): `docs/06-devops-deployment/RUNBOOK_OPERADOR_FINAL.md` (6 passos: Postgres teste → migrate → reparo T322 → deploys → mailer real → verificação)
 - [x] T349 — infra: portas parametrizadas no compose + Postgres de teste em 5434 (commit `19c9b02`) — desbloqueia T344/T345
 - [x] T344/T345 — RLS FORCE em `usuario_plano` (owner+SERVICE+ADMIN) + isolamento A≠B (commit `a893f64`): leitores sob `comContextoRls`, teste e2e real `rls-usuario-plano.e2e.spec.ts` 5/5
 - [x] T348 — transport real do mailer (Resend, commit `b7f913a`): `ResendMailTransport` (fetch nativo) + `criarTransport()` (resend se `MAIL_PROVIDER=resend`+`RESEND_API_KEY`, senão mock) — entrega real gateada só na chave do Operador
@@ -344,10 +352,18 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
    por-request), go/no-go S0→S1 (≥24h métricas), T466 (UUID truncado no
    evento Sentry — aguarda request URL), T468 (KV via token com KV:Edit).
    **Gate legal F17 FECHADO** (parecer valida auditoria; 7 recomendações em
-   backlog F19/F20 — docs/legal/2026-09-15-revisao-legal/parecer-recebido/).
+   backlog F19/F20 — docs/05-security-compliance/legal/2026-09-15-revisao-legal/parecer-recebido/).
 2. **Fase 2.7** — tabelas `data_sources` / `entity_revisions` (governança).
 3. **Fase 6.11/6.12** — BullMQ e IA/RAG (postergados por D-017).
 4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags
    no código e no PostHog desde T452/D-491 (`apps/web/src/lib/posthog.ts`).
 5. **F11 em andamento** — T285 → T286 → T287... (ordem D-279).
 6. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot.
+
+### [T091] Triagem read-only de PRs legadas (2026-09-27)
+Evidência: `.claude/reports/legacy-pr-triage-2026-09-27.md`. 7 PRs abertas classificadas; #266 já MERGED.
+Nenhuma mutação no GitHub; higiene de backlog pendente de decisão do Operador. Beta segue NO-GO condicional.
+### [T101] Fechamento técnico do backlog REPLAN (2026-09-27)
+T095/T096/T097 verificados DONE em main; T094/P014 ativado LIVE (secret+var); T098/T099 DONE.
+Guardas verdes: automation-safety, uptime 16/16, migration-safety 10/10, evidence-guard 19/19, metric-alerts 18/18.
+Residual: **PR #286 (T092/T093) aberto/BLOCKED** — GO de Beta condicionado apenas a esse merge. Evidencia: `.claude/reports/technical-closure-final-2026-09-27.md`.

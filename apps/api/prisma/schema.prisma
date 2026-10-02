@@ -103,6 +103,10 @@ model Usuario {
   // T306/D-295: timestamp de aceite dos Termos e Condições (v1.0). Write-once
   // no register; base de consentimento LGPD art. 7º I / RGPD art. 6(1)(a).
   termos_aceitos_em    DateTime?              @map("termos_aceitos_em")
+  // T155/J-020: versão EXATA dos Termos aceita (evidência probatória LGPD —
+  // o timestamp sozinho não prova qual texto foi aceito). Write-once no
+  // register; atualizado em re-aceite. Backfill: '1.0' (única versão publicada).
+  termos_versao_aceita String?                @map("termos_versao_aceita") @db.VarChar(20)
   // T214: token de verificação de email — SHA-256 do token opaco (nunca
   // plaintext) + expiração 24h; uso único (anulado após verificar).
   email_verification_token_hash  String?      @map("email_verification_token_hash") @db.VarChar(64)

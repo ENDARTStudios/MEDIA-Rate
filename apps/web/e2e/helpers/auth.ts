@@ -22,6 +22,15 @@ export async function apiLogin(page: Page, email: string, password: string): Pro
 }
 
 /**
+ * T068: confirma que a sessão criada pelo `apiLogin` é válida no servidor
+ * (`GET /auth/me` → 200). Expõe cedo qualquer anomalia de sessão/harness.
+ */
+export async function apiAuthMeStatus(page: Page): Promise<number> {
+  const res = await page.request.get(`${API_BASE}/api/v1/auth/me`);
+  return res.status();
+}
+
+/**
  * Helper de autenticacao E2E via UI.
  * O app MEDIA Rate usa Zustand + localStorage (sem backend real no modo mock).
  * Registra um usuario novo e faz login.

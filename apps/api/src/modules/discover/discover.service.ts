@@ -39,6 +39,7 @@ function montarTsqueryPrefixo(q: string): Prisma.Sql {
 
 interface DiscoverRow {
   id: string;
+  slug: string | null;
   titulo: string;
   titulo_original: string | null;
   titulo_en: string | null;
@@ -72,6 +73,12 @@ export class DiscoverService {
       items: itens.map((i) => ({
         id: i.id,
         titulo: i.titulo,
+        // BETA-GAP-15/T129: títulos localizados já persistidos (D-369) — o
+        // resultado de busca passa a expô-los (aditivo/retrocompatível) para a
+        // UI exibir o título no locale ativo com fallback real.
+        titulo_original: i.titulo_original,
+        titulo_en: i.titulo_en,
+        titulo_es: i.titulo_es,
         tipo: i.tipo,
         ano_lancamento: i.ano,
         sinopse: null,
@@ -179,7 +186,7 @@ export class DiscoverService {
     }
 
     const rows = await this.prisma.$queryRaw<DiscoverRow[]>(Prisma.sql`
-      SELECT m.id, m.titulo, m.titulo_original, m.titulo_en, m.titulo_es, m.tipo, m.ano_lancamento,
+      SELECT m.id, m.slug, m.titulo, m.titulo_original, m.titulo_en, m.titulo_es, m.tipo, m.ano_lancamento,
              m.imagem_url AS poster_url, s.score,
              ${watchlistSql} AS na_watchlist
       FROM "midia" m ${lateralScore}
@@ -209,7 +216,10 @@ export class DiscoverService {
       poster_url: normalizarImagem(r.poster_url),
       score: r.score,
       na_watchlist: r.na_watchlist === true,
-      slug: slugify(String(r.titulo ?? "")),
+      // BETA-GAP-12/T126: slug CANÔNICO do servidor (o web linka
+      // `/media/{slug}`); `slugify(titulo)` pode divergir (ex.: sufixo
+      // `-{tipo}` em títulos desambiguados) e gerar link quebrado/errado.
+      slug: r.slug?.trim() || slugify(String(r.titulo ?? "")),
     }));
 
     return { itens, proximo_cursor: proximoCursor, total_estimado: totalRows[0]?.total ?? 0 };

@@ -14,11 +14,19 @@ const INTERACAO = (i: number) => ({
   id: `00000000-0000-4000-8000-00000000000${i}`,
   midia_id: `m${i}`,
   status: i % 2 === 0 ? "CONCLUIDO" : "QUERO_CONSUMIR",
-  // D-525: fetchAll do store lê reacao/motivo_abandono do payload cru —
-  // o item da resposta é pass-through completo.
+  // D-525: fetchAll do store lê reacao/motivo_abandono do payload.
+  // T036/D-536: a resposta é ALLOWLIST — reacao/motivo preservados; colunas
+  // internas/legadas descartadas pelo mapper.
   reacao: i % 2 === 0 ? "GOSTEI" : null,
   motivo_abandono: null,
   atualizado_em: new Date(2026, 8, i + 1),
+  // Colunas internas/legadas — NÃO devem aparecer na resposta:
+  usuario_id: "u1",
+  tenant_id: "00000000-0000-0000-0000-000000000001",
+  tipo: "consumo",
+  rating: 5,
+  comentario: "legado",
+  created_at: new Date(2026, 0, 1),
   midia: {
     id: `m${i}`,
     slug: `titulo-${i}`,
@@ -72,7 +80,12 @@ describe("InteracoesService.listar (D-525)", () => {
     });
     expect(r.items[0]?.midia.slug).toBe("titulo-1");
     expect(r.items[0]?.reacao).toBeNull(); // QUERO_CONSUMIR não tem reação
-    expect(r.items[1]?.reacao).toBe("GOSTEI"); // pass-through (fetchAll consome)
+    expect(r.items[1]?.reacao).toBe("GOSTEI"); // preservado (fetchAll consome)
+    // T036/D-536: contrato público — colunas internas/legadas NÃO vazam
+    const item0 = r.items[0] as unknown as Record<string, unknown>;
+    for (const k of ["usuario_id", "tenant_id", "tipo", "rating", "comentario", "created_at"]) {
+      expect(item0).not.toHaveProperty(k);
+    }
     // where só do dono (RLS aplica o contexto)
     expect(prisma.usuarioMidiaInteracao.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { usuario_id: "u1" }, take: 50, skip: 0 }),

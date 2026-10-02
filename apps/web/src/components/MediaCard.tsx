@@ -6,7 +6,12 @@ import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { animate } from "animejs";
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import {
+  normalizeDisplayScore,
+  escalaPorTipo,
+  maxDaEscala,
+  formatarScoreLocale,
+} from "@/lib/score-utils";
 import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
@@ -157,17 +162,19 @@ export function MediaCard({ media }: { media: MediaItem }) {
   // (com fontes AniList/ComicVine/GoogleBooks, o badge desaparece).
   // T408: prior Bayesiano (numFontes=0) NÃO posa de dado real — "—" + badge.
   const semFontesReais = media.numFontes === 0;
+  const locale = useLocale();
   const preview =
     (media.score == null || semFontesReais) &&
     (media.preview ?? isPreviewTipo(TIPO_TO_MEDIA[media.tipo] ?? "movie"));
-  // Score na escala NATIVA do engine: games/mangás 0-100; demais 0-10.
-  // (Reverte o T262 que forçava 0-100 em tudo e multiplicava 0-10 por 10.)
+  // Score na escala NATIVA do tipo (BETA-GAP-09; T147/B2): SOMENTE games
+  // 0-100 — mangá é 0-10 como demais mídias. Truncamento sem arredondamento
+  // e formatação por locale via pipeline único (score-utils).
   const scoreExibido =
     media.score != null && !semFontesReais ? normalizeDisplayScore(media.score, mediaType) : null;
-  const escala = mediaType === "game" || mediaType === "manga" ? "0-100" : "0-10";
-  const maxScore = escala === "0-100" ? 100 : 10;
+  const escala = escalaPorTipo(mediaType);
+  const maxScore = maxDaEscala(escala);
   const scoreLabel =
-    scoreExibido != null ? `${Math.round(scoreExibido * 10) / 10}/${maxScore}` : "—";
+    scoreExibido != null ? `${formatarScoreLocale(scoreExibido, locale)}/${maxScore}` : "—";
   // T: título por locale — usa titulo_original (EN do TMDB) em en/es.
   const tituloLocal = titleForLocale(
     {
@@ -177,7 +184,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
         ? { pt: media.titulo, en: media.titulo_original, es: media.titulo_original }
         : undefined,
     },
-    useLocale(),
+    locale,
   );
   const CategoryIcon = category.icon;
 
@@ -195,7 +202,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
     >
       <div
         ref={glowRef}
-        className="pointer-events-none absolute -inset-1 rounded-md opacity-0 z-0"
+        className="pointer-events-none absolute inset-0 rounded-md opacity-0 z-0"
         style={{ boxShadow: `0 0 30px ${NEON_COLOR}30, 0 0 8px ${NEON_COLOR}15` }}
         aria-hidden="true"
       />
@@ -295,10 +302,9 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
           {scoreExibido != null && (
             <div className={`absolute top-2 right-2 z-20 ${preview ? "opacity-45" : ""}`}>
-              {/* Score na escala NATIVA do tipo (games/mangás 0-100; demais
-                  0-10) — o T262 que forçava 0-100 em tudo foi revertido.
-                  T272: score de item preview fica esmaecido para não competir
-                  com scores ativos. */}
+              {/* Score na escala NATIVA do tipo (T147/B2: somente games
+                  0-100; mangá e demais 0-10). T272: score de item preview
+                  fica esmaecido para não competir com scores ativos. */}
               <ScoreDial value={scoreExibido} size="md" scale={escala} />
             </div>
           )}

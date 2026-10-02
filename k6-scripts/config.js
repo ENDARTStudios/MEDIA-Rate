@@ -5,7 +5,7 @@
 // ============================================================
 
 // Alvo do teste. DEFAULT: localhost (nunca produção sem autorização
-// explícita do Operador — ver docs/LOAD_TESTING.md).
+// explícita do Operador — ver docs/06-devops-deployment/LOAD_TESTING.md).
 export const BASE_URL = __ENV.BASE_URL || "http://localhost:4000";
 
 // VUs máximo do teste de carga (critério Open Beta).

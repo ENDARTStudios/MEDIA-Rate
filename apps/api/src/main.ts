@@ -14,6 +14,7 @@ import { buildCspHeader, generateRequestNonce } from "./common/security.config.j
 import { buildCorsOptions } from "./common/cors.config.js";
 import {
   buildRateLimitOptions,
+  registerRateLimit,
   loginRateLimit,
   refreshRateLimit,
   uploadRateLimit,
@@ -144,16 +145,6 @@ async function bootstrap(): Promise<void> {
     defaultJsonParser(req, body, done);
   });
 
-  // T020/7.3 + T1.3: Rate limit com key generator por user+IP+rota.
-  // Store em memoria — Redis distribuido depende de infra conectada (T036).
-  await fastifyAdapter.register(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rateLimit as any,
-    buildRateLimitOptions(),
-  );
-  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] rate-limit registered");
-
   // T1.2: Helmet (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
   // CSP gerenciada separadamente via hook onSend (T021/7.1).
   await fastifyAdapter.register(
@@ -162,14 +153,10 @@ async function bootstrap(): Promise<void> {
     buildHelmetOptions(),
   );
 
-  // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
-  await fastifyAdapter.register(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cors as any,
-    buildCorsOptions(),
-  );
-
   // T041: @fastify/cookie — plugin necessario para reply.setCookie/clearCookie.
+  // D-558: DEVE ser registrado ANTES do rate-limit — o keyGenerator lê
+  // req.cookies.sess (identidade por sessão) no hook onRequest, e hooks
+  // onRequest rodam na ordem de registro.
   await fastifyAdapter.register(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cookie as any,
@@ -177,6 +164,13 @@ async function bootstrap(): Promise<void> {
       secret: cookieSecret,
       hook: "onRequest",
     },
+  );
+
+  // T1.5: CORS restrito a ALLOWED_ORIGINS (sem wildcard em producao).
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cors as any,
+    buildCorsOptions(),
   );
 
   // T216: @fastify/multipart — upload de posters (1 arquivo, 5MB; validação
@@ -188,9 +182,6 @@ async function bootstrap(): Promise<void> {
       limits: { fileSize: 10 * 1024 * 1024, files: 1 },
     },
   );
-  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
-  console.log("[boot] plugins registered (rate-limit, helmet, cors, cookie)");
-
   const fastify = fastifyAdapter.getInstance();
 
   // T020/7.7: Upload route com bodyLimit de 50 MiB.
@@ -212,14 +203,21 @@ async function bootstrap(): Promise<void> {
       "/api/v1/auth/login",
       "/api/v1/auth/forgot-password",
       "/api/v1/auth/reset-password",
-      "/api/v1/auth/refresh",
       "/api/v1/auth/resend-verification",
     ];
     if (sensitivePostRoutes.includes(routeOptions.url) && routeOptions.method === "POST") {
       routeOptions.config = routeOptions.config ?? {};
-      // T212: /refresh é público — 10 req/min por IP (rotação é cara).
-      routeOptions.config.rateLimit =
-        routeOptions.url === "/api/v1/auth/refresh" ? refreshRateLimit() : loginRateLimit();
+      routeOptions.config.rateLimit = loginRateLimit();
+    }
+    // T212: /refresh é público — 10 req/min (rotação é cara).
+    if (routeOptions.url === "/api/v1/auth/refresh" && routeOptions.method === "POST") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = refreshRateLimit();
+    }
+    // D-558: /register é rota crítica de cadastro — 5 req/min (faixa 5-10).
+    if (routeOptions.url === "/api/v1/auth/register" && routeOptions.method === "POST") {
+      routeOptions.config = routeOptions.config ?? {};
+      routeOptions.config.rateLimit = registerRateLimit();
     }
     // T473: exportação LGPD (GET /user/data) agrega 9 relações por chamada —
     // limite dedicado (6/min) além do global (100/min).
@@ -267,6 +265,29 @@ async function bootstrap(): Promise<void> {
       routeOptions.config.rateLimit = discoverRateLimit();
     }
   });
+
+  // T020/7.3 + T1.3 + D-558: Rate limit — sliding window (ZSET Redis via
+  // CacheService; fallback em memória local), chave por sessão (hash) com
+  // fallback IP. DEVE ser registrado DEPOIS do addHook("onRoute") acima:
+  // o plugin lê config.rateLimit no SEU onRoute (no boot) — se ele bootar
+  // antes do hook do main, lê a config antes de eu escrevê-la e o limite
+  // por rota morre silenciosamente (bug de ordem, provado em produção).
+  const cache = app.get(CacheService, { strict: false });
+  await fastifyAdapter.register(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rateLimit as any,
+    buildRateLimitOptions({
+      redisFactory: () => {
+        try {
+          return cache?.getRedisClient?.() ?? null;
+        } catch {
+          return null;
+        }
+      },
+    }),
+  );
+  // eslint-disable-next-line no-console -- log de bootstrap (marco de inicializacao)
+  console.log("[boot] rate-limit registered (sliding window, pós-onRoute)");
 
   // T021/7.1: CSP com nonce dinamico por requisicao (script-src sem 'unsafe-inline').
   fastify.addHook("onSend", (_request, reply, _payload, done) => {

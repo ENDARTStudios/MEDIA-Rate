@@ -18,10 +18,10 @@ describe("GoogleAuthService (T361)", () => {
     vi.clearAllMocks();
   });
 
-  it("valida token e retorna email/nome", async () => {
+  it("valida token e retorna email/nome (email_verified=true)", async () => {
     process.env.GOOGLE_CLIENT_ID = "client-123";
     vi.mocked(jwtVerify).mockResolvedValue({
-      payload: { email: "ana@exemplo.com", name: "Ana" },
+      payload: { email: "ana@exemplo.com", name: "Ana", email_verified: true },
     } as never);
 
     const profile = await service.verify("jwt-token");
@@ -42,6 +42,28 @@ describe("GoogleAuthService (T361)", () => {
   it("401 quando token sem email", async () => {
     process.env.GOOGLE_CLIENT_ID = "client-123";
     vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: "123" } } as never);
+    await expect(service.verify("jwt-token")).rejects.toMatchObject({ status: 401 });
+  });
+
+  // BETA-GAP-01/T120 — não vincular conta por e-mail não verificado.
+  it("401 quando email_verified=false (não vincula e-mail não verificado)", async () => {
+    process.env.GOOGLE_CLIENT_ID = "client-123";
+    vi.mocked(jwtVerify).mockResolvedValue({
+      payload: { email: "ana@exemplo.com", name: "Ana", email_verified: false },
+    } as never);
+    await expect(service.verify("jwt-token")).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("401 quando email_verified ausente/não-booleano", async () => {
+    process.env.GOOGLE_CLIENT_ID = "client-123";
+    vi.mocked(jwtVerify).mockResolvedValue({
+      payload: { email: "ana@exemplo.com", name: "Ana" },
+    } as never);
+    await expect(service.verify("jwt-token")).rejects.toMatchObject({ status: 401 });
+
+    vi.mocked(jwtVerify).mockResolvedValue({
+      payload: { email: "ana@exemplo.com", name: "Ana", email_verified: "true" },
+    } as never);
     await expect(service.verify("jwt-token")).rejects.toMatchObject({ status: 401 });
   });
 });

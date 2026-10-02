@@ -117,11 +117,14 @@ export function decodeCursor(cursor: string): string {
 export function validateSortField(
   field: string | undefined,
   allowlist: readonly string[],
-): { field: string; direction: "asc" | "desc" } | null {
+): { field: string; direction: "asc" | "desc"; nulls?: "first" | "last" } | null {
   if (!field) return null;
   // Formato: "campo" ou "campo:asc" ou "campo:desc"
   const [f, d] = field.split(":");
   if (!f || !allowlist.includes(f)) return null;
   const direction = d === "desc" ? "desc" : "asc";
-  return { field: f, direction };
+  // D-560: em DESC, nulos por último (Postgres põe NULLS FIRST no DESC —
+  // títulos sem score viravam os primeiros cards do catálogo; audit 2026-09-30).
+  const nulls = direction === "desc" ? "last" : undefined;
+  return { field: f, direction, nulls };
 }

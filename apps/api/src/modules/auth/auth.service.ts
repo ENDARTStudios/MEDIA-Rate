@@ -17,6 +17,7 @@ import { LockoutService } from "./lockout.service.js";
 import { AnalyticsService, AnalyticsEvents } from "../../common/analytics.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { MockMailService } from "../../common/mock-mail.service.js";
+import { mascararEmail, mascararIp } from "../../common/pii-mask.js";
 import { EmailVerificationService } from "./email-verification.service.js";
 import { AlertsService } from "../metrics/alerts.service.js";
 import { RegisterDtoType, type LoginDtoType } from "./dto/auth.dto.js";
@@ -80,6 +81,10 @@ export interface MeResult {
  * - Lockout antes da verificação de senha (evita timing attack).
  * - Analytics de registro/login para T1.9 (sem PII em properties).
  */
+/** T155/J-020: versão dos Termos registrada no aceite (evidência LGPD).
+ * Atualizar aqui a cada revisão material dos Termos (texto i18n: "Versão: N"). */
+export const TERMS_VERSION = "1.0";
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -141,6 +146,7 @@ export class AuthService {
           password_hash,
           nome: dto.nome ?? null,
           termos_aceitos_em: new Date(),
+          termos_versao_aceita: TERMS_VERSION,
           // T360 (D-339): verificação de email REAL reativada (Resend em
           // produção). email_verificado_em fica null → login exige verificação
           // (403 EMAIL_NOT_VERIFIED) e o front redireciona para "confira seu email".
@@ -258,7 +264,7 @@ export class AuthService {
       const result = await this.lockoutService.registerFailure(ip, dto.email);
       if (result.locked) {
         this.logger.warn(
-          `Lockout aplicado para ${dto.email} (IP: ${ip}) após ${result.failedCount} falhas`,
+          `Lockout aplicado para ${mascararEmail(dto.email)} (IP: ${mascararIp(ip)}) após ${result.failedCount} falhas`,
         );
         throw new ForbiddenException({
           statusCode: 403,
@@ -363,6 +369,7 @@ export class AuthService {
             // por senha — o usuário entra via Google).
             password_hash: randomBytes(32).toString("hex"),
             termos_aceitos_em: new Date(),
+            termos_versao_aceita: TERMS_VERSION,
             email_verificado_em: new Date(), // Google já validou o email.
           },
           select: { id: true, email: true, nome: true },
@@ -463,7 +470,7 @@ export class AuthService {
           ipOrigem: options.ip,
           dadosDepois: { userAgent: options.user_agent },
         });
-        this.logger.warn(`Reuse de refresh detectado (IP ${options.ip ?? "unknown"}).`);
+        this.logger.warn(`Reuse de refresh detectado (IP ${mascararIp(options.ip)}).`);
       }
       throw new UnauthorizedException({
         statusCode: 401,

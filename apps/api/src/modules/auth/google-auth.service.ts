@@ -39,6 +39,13 @@ export class GoogleAuthService {
       if (typeof email !== "string" || email.length === 0) {
         throw new Error("email ausente no token");
       }
+      // BETA-GAP-01/T120: só vincula/cria conta com e-mail VERIFICADO pelo
+      // provider (OpenID Connect `email_verified`). Token sem a claim (ou
+      // false/não-booleano) é rejeitado — nunca vincula por e-mail não
+      // verificado (defesa contra account takeover).
+      if (payload.email_verified !== true) {
+        throw new Error("email_verified ausente ou falso");
+      }
       return {
         email,
         nome: typeof payload.name === "string" ? payload.name : null,

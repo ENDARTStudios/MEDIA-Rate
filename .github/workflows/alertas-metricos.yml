@@ -1,0 +1,63 @@
+# T040/D-538 — alertas métricos (5xx + falhas de auth) para a Beta.
+#
+# - Dispara em schedule (a cada 15 min) e manualmente (workflow_dispatch).
+# - Fonte: se `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` estiverem configurados,
+#   coleta ao vivo de /metrics (Prometheus text, protegido por X-Admin-Token);
+#   senão usa o fixture determinístico e FORÇA dry-run (nunca abre issue falso).
+# - Dedup: reusa a issue aberta com o label `alerta-metrico` (update) ou cria só
+#   se não houver; fecha quando normaliza. NUNCA imprime PII/segredos.
+# - Sem nova infra paga, sem deploy, sem alterar o environment Production.
+name: Alertas Metricos
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry-run (não cria/atualiza issue)"
+        type: boolean
+        default: true
+permissions:
+  contents: read
+  issues: write
+jobs:
+  alertas:
+    name: Alertas (5xx/auth)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Self-test (determinístico, sem rede)
+        run: node scripts/ci/metric-alerts.self-test.mjs
+      - name: Coletar métricas (live se configurado; senão fixture)
+        id: coletar
+        env:
+          METRICS_URL: ${{ vars.METRICS_URL }}
+          METRICS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          OUT=scripts/ci/.metricas-snapshot.out
+          if [ -n "$METRICS_URL" ] && [ -n "$METRICS_ADMIN_TOKEN" ]; then
+            echo "live=true" >> "$GITHUB_OUTPUT"
+            curl -fsS "$METRICS_URL" -H "X-Admin-Token: $METRICS_ADMIN_TOKEN" -o "$OUT"
+          else
+            echo "live=false" >> "$GITHUB_OUTPUT"
+            cp scripts/ci/metric-alerts.fixture.json "$OUT"
+          fi
+      - name: Avaliar e agir (dry-run por padrão)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Garante o label (idempotente; ignora erro se já existir).
+          gh label create alerta-metrico --color FBCA04 \
+            --description "Alerta métrico automatizado (T040)" 2>/dev/null || true
+          APPLY=""
+          LIVE="${{ steps.coletar.outputs.live }}"
+          # Só aplica quando a fonte é LIVE e não é dry-run explícito.
+          if [ "$LIVE" = "true" ]; then
+            if [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ inputs.dry_run }}" = "false" ]; then
+              APPLY="--apply"
+            fi
+          fi
+          node scripts/ci/metric-alerts.mjs --input scripts/ci/.metricas-snapshot.out $APPLY

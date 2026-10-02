@@ -348,7 +348,8 @@ describe("MediaController (unit T8.1)", () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     await controller.list(undefined, "10", undefined, "score:desc");
     const call = mockPrisma.midia.findMany.mock.calls[0]?.[0];
-    expect(call?.orderBy).toEqual({ score: "desc" });
+    // D-560: DESC com nulos por último (títulos sem score não lideram).
+    expect(call?.orderBy).toEqual({ score: { sort: "desc", nulls: "last" } });
   });
 
   it("list() com sort inválido cai no default created_at desc", async () => {

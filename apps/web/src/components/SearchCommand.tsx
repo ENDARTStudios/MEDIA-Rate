@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { searchMedia, slugify } from "@/lib/api";
 import { scoreColor, CATEGORY_TOKENS } from "@/lib/design-tokens";
-import { normalizeDisplayScore } from "@/lib/score-utils";
+import { normalizeDisplayScore, formatarScoreLocale } from "@/lib/score-utils";
 import type { MediaType } from "@/lib/types";
 
 interface SearchResult {
@@ -51,6 +51,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function SearchCommand() {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   // T246: hint de tecla por plataforma (⌘ no Mac, Ctrl no Windows/Linux).
   const isMac =
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform ?? "");
@@ -241,7 +242,7 @@ export function SearchCommand() {
           className="fixed inset-0 z-modal flex items-start justify-center pt-[15vh]"
           role="dialog"
           aria-modal="true"
-          aria-label="Busca global de mídia"
+          aria-label={t("searchDialogAria")}
         >
           <div
             className="fixed inset-0 bg-[#09090F]/80 backdrop-blur-sm"
@@ -276,7 +277,7 @@ export function SearchCommand() {
                   setQuery(e.target.value);
                   setSelectedIdx(0);
                 }}
-                placeholder="Buscar filmes, séries, games..."
+                placeholder={t("searchPlaceholder")}
                 className="flex-1 bg-transparent text-sm text-[#EDE7DC] placeholder-[#6B7280] outline-none border-none"
                 autoComplete="off"
                 spellCheck={false}
@@ -442,9 +443,12 @@ export function SearchCommand() {
                                 )}15`,
                               }}
                             >
-                              {normalizeDisplayScore(
-                                item.score,
-                                item.type === "Game" ? "game" : "movie",
+                              {formatarScoreLocale(
+                                normalizeDisplayScore(
+                                  item.score,
+                                  item.type === "Game" ? "game" : "movie",
+                                ),
+                                locale,
                               )}
                             </span>
                           )}

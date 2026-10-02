@@ -6,6 +6,14 @@
       "sourceType": "github",
       "skillPath": "skills/motion-design/SKILL.md",
       "computedHash": "4f16f46c81f25a2a25b7a4720b7ea001e65f384b31b5b7f4b455fef87fbc9016"
+    },
+    "security-audit": {
+      "source": "cloudflare/security-audit-skill",
+      "sourceType": "github",
+      "skillPath": "skills/security-audit/SKILL.md",
+      "computedHash": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+      "vendoredAt": ".agents/skills/security-audit/",
+      "hashNote": "sha256 do SKILL.md vendored (cópia local; upstream pode evoluir)"
     }
   }
 }

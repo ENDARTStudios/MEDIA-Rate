@@ -1,8 +1,12 @@
 name: Release
 
+# T046/D-541: era `on: push: branches:[main]`, mas o job SEMPRE falhava
+# (`npm run build` não existe na raiz do monorepo) e, uma vez corrigido, passaria
+# a publicar um Release + tag (`v<run_number>`) a cada merge — comportamento não
+# decidido pelo Operador. Por isso o disparo virou MANUAL: elimina o ruído
+# crônico na main sem publicar nada e mantém a automação disponível.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions: {}
 concurrency: ${{ github.workflow }}-${{ github.ref }}
@@ -30,7 +34,9 @@ jobs:
         run: npm ci
 
       - name: Build Packages
-        run: npm run build
+        # T046: a raiz do monorepo não tem script `build` (só apps/web e apps/api).
+        # `--if-present` elimina a falha crônica; nada é construído na raiz.
+        run: npm run build --if-present
 
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main'

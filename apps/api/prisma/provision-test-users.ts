@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-// T305 — provisiona (upsert idempotente) os 4 usuarios de teste verificados
+// T305 — provisiona (upsert idempotente) os usuarios de teste verificados
 // para spot-checks em producao (D-294). NAO destrutivo: nunca apaga dados.
 // STANDALONE em prisma/ (D-275). Uso:
 //   TEST_USERS_PASSWORD="..." npm run db:provision:test-users
@@ -23,6 +23,9 @@ const USERS: TestUser[] = [
   { email: "plus@mediarate.test", nome: "Teste Plus", plano: "PLUS", admin: false },
   { email: "premium@mediarate.test", nome: "Teste Premium", plano: "PREMIUM", admin: false },
   { email: "admin@mediarate.test", nome: "Teste Admin", plano: "PREMIUM", admin: true },
+  // BETA-GAP-03/T119: prova que o acesso ADMIN independe de plano pago —
+  // conta FREE com papel ADMIN (promoção interna, nunca por endpoint público).
+  { email: "admin-free@mediarate.test", nome: "Teste Admin Free", plano: "FREE", admin: true },
 ];
 
 async function main(): Promise<void> {
@@ -111,7 +114,7 @@ async function main(): Promise<void> {
       `[provision] ${u.email} plano=${u.plano} verificado=OK admin=${u.admin ? "SIM" : "nao"}`,
     );
   }
-  console.log("[provision] Concluido (4 usuarios upsert, sem exclusao).");
+  console.log("[provision] Concluido (upsert dos usuarios de teste, sem exclusao).");
   await prisma.$disconnect();
 }
 

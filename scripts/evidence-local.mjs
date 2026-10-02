@@ -16,6 +16,7 @@
  */
 import { spawn, execSync } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
+import { parseEvidenceArgs, redigirUrl, validarDatabaseUrlLocal } from "./ci/evidence-guard.mjs";
 
 const ROOT = process.cwd();
 const WEB_DIR = `${ROOT}/apps/web`;
@@ -23,18 +24,15 @@ const DB_URL =
   process.env.EVIDENCE_DATABASE_URL ??
   "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate";
 
-// D-530 (review 2.5): à prova de erro humano — recusa endereço que não seja
-// localhost/loopback (produção/internal jamais).
-if (
-  !/^(postgresql:\/\/)?(localhost|127\.0\.0\.1|::1)\b/.test(DB_URL) &&
-  DB_URL !== "postgresql://mediarate:mediarate_dev@localhost:5434/mediarate"
-) {
-  console.error(
-    "[evidence] DATABASE_URL fora do localhost recusado:",
-    DB_URL.replace(/:[^:@/]+@/, ":***@"),
-  );
+// T061/D-548: guarda anti-produção (módulo puro `evidence-guard`, coberto por
+// `scripts/ci/evidence-guard.self-test.mjs`). Recusa host não-local e qualquer
+// marcador de produção/provider. Nunca imprime credenciais.
+const guarda = validarDatabaseUrlLocal(DB_URL);
+if (!guarda.ok) {
+  console.error("[evidence] DATABASE_URL recusado:", redigirUrl(DB_URL), "→", guarda.motivo);
   process.exit(1);
 }
+const ARGS = parseEvidenceArgs(process.argv.slice(2));
 const API_PORT = 4000;
 const WEB_PORT = 3000;
 
@@ -122,10 +120,12 @@ try {
   });
   await waitHttp(`http://localhost:${WEB_PORT}/pt-BR`, 30, 2000);
 
-  // 6. E2E
-  console.log("== [6/7] E2E (biblioteca + dashboard-gating) ==");
+  // 6. E2E (T061: `--spec` seleciona o alvo; `--repeat` repete; workers=1 e
+  // retries=0 para expor flakiness real).
+  const alvos = ARGS.spec ?? "jornada-critica";
+  console.log(`== [6/7] E2E (${alvos}) x${ARGS.repeat} (workers=1, retries=0) ==`);
   run(
-    `E2E_FULL=1 TEST_USER_FREE_EMAIL=free@mediarate.test TEST_USER_FREE_PASSWORD="Senha@123" NODE_OPTIONS="--dns-result-order=ipv4first" npx playwright test biblioteca dashboard-gating --project=chromium`,
+    `E2E_FULL=1 E2E_TEST_PASSWORD="Senha@123" NODE_OPTIONS="--dns-result-order=ipv4first" npx playwright test ${alvos} --project=chromium --workers=1 --retries=0 --repeat-each=${ARGS.repeat}`,
     { cwd: WEB_DIR },
   );
 

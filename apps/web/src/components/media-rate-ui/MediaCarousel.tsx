@@ -125,8 +125,8 @@ export function MediaCarousel({
           )}
           <CarouselControls
             listId={listId}
-            prevLabel={`Anterior — ${title}`}
-            nextLabel={`Próximo — ${title}`}
+            prevLabel={`${tCatalog("carouselPrev")} — ${title}`}
+            nextLabel={`${tCatalog("carouselNext")} — ${title}`}
           />
         </div>
 

@@ -232,7 +232,9 @@ Verificação T030 pós-deploy (mesmo gate, T034 — branch está 17 commits à 
 
 ---
 
-### [10] P010 — GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
+### [10] P010 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. GITHUB_TOKEN inválido sombreando login válido (D-471/D-481)
 
 Por quê: o harness injeta `GITHUB_TOKEN` (40 chars, inválido) **só no escopo
 Process** de cada shell; por precedência (`GH_TOKEN` > `GITHUB_TOKEN` >
@@ -265,32 +267,332 @@ Como saber que deu certo: PR de teste alterando `apps/api/prisma/schema.prisma` 
 `migration-review` fica impossível de mergear (check vermelho bloqueante).
 Depois de feito: responda "feito o item Nº 11".
 
-> ⚠️ **ESCALONAMENTO (T032, 2026-09-22) — NÃO habilitar ainda.** Inventário das PRs
-> abertas (#140, #139, #133, #4, #3, #2): **nenhuma** tem o check `Migration Safety (B1)`
-> (os últimos runs de #140/#139 são de 20/09, **anteriores** ao guard, mergeado em
-> 22/09). Adicionar o check como required **agora** bloqueia essas PRs ("Expected —
-> aguardando"). **Caminho seguro:** re-executar o CI (ou push de commit) nas PRs que se
-> pretende manter para que o check reporte; fechar as legadas (#2/#3/#4, já vermelhas);
-> então habilitar o required. Ver D-533.
+> ✅ **FEITO (T034, 2026-09-22) — required check HABILITADO.** Aplicado o caminho
+> seguro: `update-branch` (merge de `main` no head) nas PRs mantidas **#140, #139,
+> #133** fez o check `Migration Safety (B1)` **reportar** (pass); **#172** já o tinha.
+> As PRs **#4/#3/#2** são `CONFLICTING`/`DIRTY` (conflito com `main`) — **não são
+> mergeáveis de qualquer forma**, portanto não são bloqueadas pela mudança. A ruleset
+> `protect-main` agora exige `Migration Safety (B1)` (ao lado de Lint & Audit, Test &
+> Coverage, Build, RLS, Docs Gate). Ver D-535.
 
-### [12] P012 — Decidir staging/environment antes de produção (T031/B1, #148 item 9)
+### [12] P012 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir staging/environment antes de produção (T031/B1, #148 item 9)
 
 Por quê: hoje `main` = produção automática; não há ambiente intermediário. O deploy
 Railway é nativo no push de `main` — nenhum gate GitHub atual o impede.
-Onde: opções e passos exatos em `docs/b1-prod-guards.md` §2 (Opção A: GitHub Environment
+Onde: opções e passos exatos em `docs/06-devops-deployment/b1-prod-guards.md` §2 (Opção A: GitHub Environment
 protection — custo 0, gate+sinal pós-merge; Opção B: branch `staging` com Railway
 environment separado — custo mensal, trava de verdade). Nada foi configurado.
 Como saber que deu certo: deploy de produção só ocorre após aprovação/merge no caminho
 escolhido; smoke de produção roda no ambiente novo antes dos usuários.
 Depois de feito: responda "feito o item Nº 12" indicando a opção escolhida.
 
-### [13] P013 — Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
+> 🟡 **PREPARADO (T034, 2026-09-22) — Opção A em PR (SEM merge).** O environment
+> `Production` já existe com **required reviewer** (Operador). O PR `chore/t034-b1-final`
+> adiciona `environment: Production` aos jobs `validate`/`health-check` do `deploy.yml`.
+> **Limitação honesta:** o deploy NATIVO (Vercel/Railway) é disparado pelo push e **não**
+> é bloqueado pelo environment — o gate adiciona **sinal + janela de aprovação** ao
+> workflow do GitHub, não trava o deploy nativo. Reversível (remover a linha). Decisão de
+> mergear é do Operador.
+
+> 📌 **EVIDÊNCIA (T045, 2026-09-22):** após o merge do PR #195 (merge commit `8f5afc2`),
+> o run `deploy.yml` de `main` ficou **`waiting`** no environment `Production`
+> (aguardando aprovação do Operador) — evidência **P012=A** de que o gate está ativo.
+> O deploy **nativo** (Railway) ocorreu mesmo assim (o `uptime` do `/health` resetou) e
+> o smoke pós-merge **7/7 → 200** confirmou saúde. O item **continua aberto** (o waiting
+> já passou de 30 min em merges anteriores); decisão é do Operador.
+
+### [13] P013 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir caminho para migration manual em produção (T031/B1, #148 item 8)
 
 Por quê: `migrate-production.yml` (manual) depende de secret `DATABASE_URL` com hostname
 interno do Railway — inalcançável de runners GitHub.
-Onde: três caminhos com passos em `docs/b1-prod-guards.md` §3 (proxy TCP público com
+Onde: três caminhos com passos em `docs/06-devops-deployment/b1-prod-guards.md` §3 (proxy TCP público com
 allowlist; self-hosted runner na rede; console Railway como padrão de incidente —
 recomendação T031). Nada foi provisionado.
 Como saber que deu certo: uma migration aplicada manualmente com sucesso, com backup
 prévio (`scripts/backup-db.sh`) e log colado no PR correspondente.
 Depois de feito: responda "feito o item Nº 13" indicando o caminho escolhido.
+
+> 🟡 **RECOMENDADO (T034, 2026-09-22) — console Railway (menor privilégio).** Runbook
+> detalhado (matriz comparativa) em `docs/06-devops-deployment/runbooks/migration-manual.md`. Alternativas
+> (**proxy TCP público** e **self-hosted runner**) exigem expor o Postgres ou criar
+> superfície nova → **escalar ao Operador antes de implementar**. Nada foi provisionado
+> (sem segredo, sem migração, sem custo).
+
+### [14] P014 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Ativar alertas métricos LIVE (T040/T041, D-538)
+
+Por quê: o workflow `alertas-metricos.yml` roda em **dry-run por padrão** (nunca
+abre issue falsa). Para detectar 5xx/falhas de auth de verdade precisa da fonte live.
+
+Onde: GitHub → repo → Settings:
+1. **Variables** → New variable → `METRICS_URL` = URL do `/metrics` da API de
+   produção (ex.: `https://media-rate-production.up.railway.app/metrics`).
+2. **Secrets** → New secret → `ADMIN_TOKEN` = token que autoriza a leitura do
+   `/metrics` (header `X-Admin-Token`). **Idealmente um valor read-only dedicado
+   ao metrics**; se reutilizar o `ADMIN_TOKEN` do serviço API, note que ele também
+   autoriza rotas admin de convite — trate como sensível.
+
+Passos extras (opcional): Actions → "Alertas Metricos" → Run workflow com
+`dry_run=false` para o 1º teste real. Sem `METRICS_URL`+`ADMIN_TOKEN`, o
+workflow segue em dry-run (sem issues).
+
+Como saber que deu certo: uma execução (agendada ou manual com `dry_run=false`)
+coleta `/metrics` (`live=true`), imprime o JSON de decisão e, se cruzar o limiar,
+abre/atualiza a issue `alerta-metrico` (fechando-a quando normaliza).
+
+Depois de feito: responda "feito o item Nº 14".
+
+### [15] P015 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. UptimeRobot externo (complementar ao uptime sintético do CI) — T042/D-539
+
+Por quê: o workflow `uptime-check.yml` é um monitor **sintético no CI** (runners do
+GitHub). Ele pega indisponibilidade das rotas públicas, mas **não** é distribuído
+(multi-região) nem independente do GitHub Actions.
+
+Onde: conta gratuita UptimeRobot → monitores HTTP(s):
+- API: `https://media-rate-production.up.railway.app/health`
+- Web: `https://mediarate.app/pt-BR`
+
+Passos: `docs/OBSERVABILITY.md` §UptimeRobot (interval 5 min; alerta após 2 falhas).
+
+Como saber que deu certo: o monitor aparece "Up" no UptimeRobot e alerta por e-mail em queda.
+
+Depois de feito: responda "feito o item Nº 15".
+
+### [16] P016 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir reativar o auto-PR de `feature/**` (create-pr-from-branch) — T046/T047/D-541
+
+Por quê: o workflow `create-pr-from-branch.yml` estava **inerte** desde a criação
+(YAML inválido → nunca executou). Foi corrigido (T046), mas por padrão ficou
+**manual** (`workflow_dispatch`) para **não habilitar automação não solicitada**.
+Reconectar o disparo automático em `feature/**` é uma decisão do Operador.
+
+Onde: `.github/workflows/create-pr-from-branch.yml` — trocar `on: workflow_dispatch`
+por `on: push: branches: ["feature/**"]` (o corpo/job já estão válidos e idempotentes).
+Requisitos antes de reativar: (a) confirmar que PRs automáticas são desejadas;
+(b) validar a idempotência (`gh pr list --head` evita duplicata); (c) testar em uma
+branch `feature/teste` e conferir que a PR nasce correta.
+
+Como saber que deu certo: um push em `feature/*` cria **uma** PR (sem duplicar) e
+o workflow aparece verde.
+
+Depois de feito: responda "feito o item Nº 16".
+
+> 📌 **Estado atual (T047, 2026-09-22):** corrigido e **manual** — não roda em
+> `main`/`chore/*`/`docs/*` nem em `feature/**` até esta decisão. Reversível.
+
+### [17] P017 —
+
+> ♻️ **CONVERTIDA (REPLAN 2026-09-26):** decisão técnica executável pelo par Thinker/Doer — ver `BACKLOG_TECNICO_THINKER_DOER.md`. Histórico abaixo preservado. Decidir o caminho de cifragem de colunas (LGPD) — T048/D-542
+
+Por quê: a análise de viabilidade (T048) concluiu que cifrar agora **não** é seguro
+sem: (a) cifragem **determinística** para o e-mail (senão quebra login);
+(b) **migration + backfill** dos dados em plaintext; (c) secret
+`COLUMN_ENCRYPTION_KEY` presente no runtime (o serviço **lança** sem ela). Nada foi
+alterado (sem schema, sem migration, sem segredo).
+
+Onde: `docs/05-security-compliance/LGPD_DADOS.md` (inventário + decisão) e
+`apps/api/src/common/column-encryption.service.ts`.
+
+Como decidir: (A) manter o status quo e apenas **minimizar PII em logs**
+(follow-up de baixo risco já identificado: `auth.service.ts:261`); ou (B) aprovar o
+plano completo (secret + migration/backfill + cifragem determinística/índice de
+busca) como tarefa própria com janela de manutenção.
+
+Depois de feito: responda "feito o item Nº 17" indicando A ou B.
+
+> 📌 **Runbook de ativação (T078, 2026-09-25):** fluxo validado em **dry-run** (0 issues criadas).
+> Para ativar (P014): criar `vars.METRICS_URL` (URL do `/metrics`) + `secrets.ADMIN_TOKEN` **read-only
+> dedicado**; rodar `workflow_dispatch dry_run=false` e conferir a issue; **rollback** = remover as
+> vars/secrets. Uptime externo (P015) = UptimeRobot (guia em `docs/OBSERVABILITY.md`).
+
+## T130 (2026-09-28) — Decisoes pendentes do programa BETA-GAP
+
+Descoberta read-only (.claude/reports/beta-gap-remaining-spec-2026-09-29.md): 12/18 DONE + 1 PARTIAL. Os gaps restantes exigem devolutiva:
+
+- BETA-GAP-04: sem definicao/aceite no repo -> fornecer objetivo + criterio de aceite.
+- BETA-GAP-08: sem definicao; indicio de notas de criticos por provider -> indicar provider licenciado (sem improvisar integracao).
+- BETA-GAP-16 / BETA-GAP-17 / BETA-GAP-18: sem definicao/aceite no repo -> fornecer objetivo + criterio de aceite.
+- BETA-GAP-06 (PARTIAL): decidir fonte legitima de elenco/creditos e avaliacoes em prosa (provider licenciado OU dataset curado documentado OU adiar). Proibido scraping/traducao automatica/LLM inventando conteudo.
+- Hosting (T124): decidir A (Vercel Pro) / B (migrar web) / C (aceitar Hobby temporariamente). **[T136/2026-09-30] Rate limit de build Hobby revalidado como liberado (deploys recentes ● Ready; smoke 7/7; Vercel pass em PR; Railway success). Isso NAO elimina o risco de uso comercial/politica no Hobby.** Permanece a decisao A/B/C/D.
+
+Nenhum segredo/PII registrado.
+
+## T133 (2026-09-28) — Decisao pendente: politica de falha do audit de auth
+
+Descoberta: a Fase 3.7 (audit logging de auth) JA esta coberta (eventos + testes + PII minimizada por D-545). Porem AuditLogService.log() propaga erro de DB e auth.service faz await ...log(...) sem catch -> politica FAIL-CLOSED (falha de auditoria pode derrubar login/logout/reset).
+
+Decidir: (A) manter fail-closed (garante trilha de auditoria; risco de indisponibilidade de auth se o DB de audit falhar) ou (B) fail-open nao bloqueante (auth segue; erro sanitizado logado) — exige ADR. Nenhuma mudanca aplicada nesta tarefa. Sem segredo/PII.
+
+## T134 (2026-09-28) — Prontidao do PLANO_MESTRE: pendencias do Operador
+
+Auditoria read-only: NAO ha item de PRODUTO/CODIGO implementavel com seguranca sem decisao externa. Frentes de codigo restantes dependem de:
+
+1. Definicao/aceite: BETA-GAP-04/16/17/18 (BLOCKED_AMBIGUOUS_SPEC) e PLANO 2.7 (data_sources/entity_revisions).
+2. Provider/licenca: BETA-GAP-08 (BLOCKED_EXTERNAL_PROVIDER).
+3. Fonte de dados: BETA-GAP-06 (PARTIAL).
+4. Hosting A/B/C (T124).
+5. ADR politica de falha do audit de auth (T133) - fail-closed vs fail-open.
+6. UptimeRobot (P015) + METRICS_URL/ADMIN_TOKEN (D-538) p/ alertas metricos e uptime live.
+7. Staging/migration path (P012/P013).
+8. Deps HIGH P009; PR #74 (T041); P017 (cifragem de coluna, deferido).
+
+Unico trabalho seguro/determinista restante e docs-only: reconciliar notas obsoletas do PLANO_MESTRE (2.6 D-546; 6.14 feature flags; 9.4 dominio+ruleset; cabecalho Fase 10) -> T135 docs-only proposto. Sem segredo/PII.
+
+## T135 (2026-09-29) - Reconciliacao docs-only das notas obsoletas do PLANO_MESTRE
+
+Notas reconciliadas com evidencia reconfirmada ao vivo (nenhum codigo/schema/auth/billing/segredo/infra alterado; nenhum BETA-GAP fechado):
+- 2.6 COVERED (D-546 aplicado; created_at explicito em audit-log.service.ts:36-58).
+- 6.14 COVERED (feature-flags.controller/module/service + feature-flags.spec.ts, 7 casos).
+- 9.4 COVERED (mediarate.app 200 nos 3 locales; ruleset protect-main active/branch).
+- Cabecalho Fase 10: status T029-T036 concluidas (fase mantida EM ANDAMENTO).
+
+As 8 pendencias do Operador abaixo permanecem abertas e sao o caminho para destravar as frentes de produto/codigo. Evid: .claude/reports/plano-mestre-stale-notes-2026-09-29.md.
+
+## T136 (2026-09-30) - Revalidacao da janela de build da Vercel (Hobby)
+
+Read-only/operacional: janela de rate limit Hobby revalidada como **liberada** (evidencia posterior ao status residual de bed93fb5): PR #356 Vercel=pass; `vercel ls`/`--environment=production` com deploys recentes ● Ready; smoke 7/7=200; Railway production=success; runs main (Deploy Reconciler/Health Check/Alertas/Uptime)=success. Classificacao: `VERCEL_WINDOW_RELEASED_OK`.
+
+**Nao resolve:** decisao estrategica A/B/C de hosting (A Vercel Pro / B migrar / C aceitar Hobby temp. com prazo+risco formal). Rate limit transiente != risco de uso comercial/politica no Hobby. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/vercel-window-revalidation-2026-09-30.md`; doc: `docs/06-devops-deployment/WEB_HOSTING.md` sec. 9. Sem segredo/PII.
+
+## T137 (2026-09-30) - Diagnostico read-only da divida de seguranca (P009/P017/PR #74)
+
+Read-only/docs-only. Achado: a divida JA esta diagnosticada/decidida com governanca e testes.
+
+- **P009** (deps HIGH): 3 HIGH = **1 cadeia dev-only** (deepmerge-ts GHSA-ggr8-5vv4-36mx -> @prisma/config -> prisma). Runtime @prisma/client nao carrega o pacote. **Aceito (D-462)** com allowlist cirurgica em package.json + gate `npm run audit:ci` **verde**. Fix = downgrade breaking (prisma@6.12.0). Revisao prevista 2026-12. **Decisao do Operador:** manter aceitacao? (recomendado A=manter).
+- **P017** (cifragem de colunas): ColumnEncryptionService (AES-256-GCM) existe mas **nao wired** (0 usos). **Adiada pos-Beta (D-557)** com plano (docs/05-security-compliance/lgpd-column-encryption-plan.md), compensacoes (PII mask D-543, AuditLog sanitizado D-545, argon2id, TLS, LGPD export/delete, DTO allowlist) e **guarda anti-regressao** (apps/api/test/schema-sensitive-columns.spec.ts). **Decisao do Operador:** manter deferimento? (recomendado A=manter).
+- **PR #74/T041**: **MERGED** (2026-09-07) -> T041 resolvido. Notas do PLANO_MESTRE (T041 :280; T044 :283) ficaram **OBSOLETAS** -> candidato a **T138 docs-only** (reconciliar). **Decisao do Operador:** autorizar T138?
+- **PR #300** `chore/update-deps` (so package-lock.json, OPEN/BLOCKED): **decisao de governanca do Operador** (reviver/fechar/substituir/adiar).
+
+Nenhuma dependencia/codigo/schema/segredo/infra alterado. Nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-diagnosis-2026-09-30.md`. Sem segredo/PII.
+
+## T138 (2026-09-30) - Reconciliacao docs-only de notas obsoletas de divida de seguranca
+
+Reconfirmacao live e edicao docs-only no PLANO_MESTRE (FASE 10):
+- T041 -> [x] (PR #74 MERGED 2026-09-07).
+- T042 -> [x] (CI-repair; D-470/D-472; audit-ci verde).
+- T044 -> [x] (diagnostico CI vermelho; causa-raiz D-490; PR #74 merged).
+- T037 anotado com D-462 (P009 aceito dev-only; revisao 2026-12); 2.10 anotado com D-557 (cifragem adiada pos-Beta). Ambos permanecem [~].
+
+### PR #300 - DECISAO PENDENTE DO OPERADOR (nenhuma acao automatica tomada)
+`chore/update-deps` (somente `package-lock.json`), estado **OPEN**. Opcoes: **reviver** (PR proprio com CI) / **fechar** / **substituir** / **adiar**. Nao foi fechado, revivido, comentado ou mergeado.
+
+P009 permanece sob D-462; P017 permanece sob D-557 (sem nova acao tecnica). Nenhum codigo/schema/deps/segredo/infra alterado; nenhum BETA-GAP alterado; GO convites SUSPENSO. Relatorio: `.claude/reports/security-debt-stale-notes-2026-09-30.md`. Sem segredo/PII.
+
+## T139 (2026-09-30) - Mapa de gaps do usuario: novas pendencias (Onda 0) e candidatos T140-T145
+
+Devolutiva do usuario (22 gaps: 18 originais + 4 novos requisitos) registrada em
+`.claude/reports/user-gap-registry-2026-09-30.md` com IDs estaveis UG-01..UG-22.
+Resumo: 2 DONE plenos (UG-02 dashboard, UG-14 biblioteca); 5 fechados no
+contrato/mecanismo com lacuna de dados/concessao (UG-03/07/09/10/15); 8 PARTIAL;
+7 NOT_FIXED/BLOCKED. Registry BETA-GAP do repo permanece intocado.
+
+### Novas pendencias do Operador
+
+1. **T140 - Validar login Google real (navegador, evidencia sanitizada).** O endurecimento
+   tecnico (BETA-GAP-01: `email_verified`, botao oculto sem client ID) ja esta merged; falta
+   validar o sintoma real. Abrir `https://mediarate.app/pt-BR/login`, clicar no botao Google e
+   registrar APENAS codigo de erro sanitizado (popup blocked, `invalid_origin`,
+   `redirect_uri_mismatch`); conferir origins autorizadas no Google Cloud (`mediarate.app`,
+   `www.mediarate.app`). Critério: login funciona OU botao oculto com fallback e-mail/senha.
+2. **T141 - Conceder papel ADMIN ao Operador.** Via CLI interna `db:set-role` (runbook
+   BETA-GAP-03); validar `/admin` (200 para admin, 403 para comum); registrar a concessao sem
+   expor e-mail em log publico. O sistema nao pode autopromover cadastro publico a admin.
+
+### Reafirmadas (ja registradas; destravam gaps do mapa - nenhuma duplicata)
+
+- Provider/fonte de dados para metadados/criticos/continuidade (T130; BETA-GAP-06/08) -
+  destrava UG-05/06/08/11/20/21/22.
+- Hosting A/B/C/D (T136) - decisao estrategica continua aberta.
+- ADR politica de falha do audit de auth (T133) - fail-closed vs fail-open.
+- PR #300 `chore/update-deps` (T138) - reviver/fechar/substituir/adiar.
+
+### Candidatos executaveis pelo par Thinker/Doer (sem decisao externa)
+
+T142 alinhar botoes de Planos (UG-13) — **RESOLVIDO 2026-10-01** (medição Playwright: CTAs y=859 idênticos em 1280px; .claude/reports/ug13-pricing-cta-evidence-2026-10-01.md) · T143 auditoria de arredondamento de notas (UG-09) ·
+T144 generos reais na dashboard, remover limite de 6 (UG-16). Nada foi executado nesta
+tarefa (docs-only). Sem segredo/PII; GO convites SUSPENSO.
+
+## T146 (2026-09-30) - Auditoria runtime dos gaps: 2 pendencias novas (B1, T140 checklist)
+
+Auditoria tecnica+visual em producao (read-only; relatorio `.claude/reports/user-gap-runtime-audit-2026-09-30.md`). Confirmon UG-02/UG-16/UG-13 no codigo/producao; encontrados 5 novos defeitos (B1-B5), sendo 2 exigem decisao/credencial do Operador:
+
+1. **B1 [ALTA] - Deletar item de teste do catalogo de producao.** O card "R2 Upload Test - pode delet*..." (2026, sem poster) esta publico em mediarate.app/pt-BR/catalog (residuo do upload test T454; conta nas stats). Exige papel ADMIN (ver T141) ou acesso DB. NAO deletado automaticamente.
+2. **T140 atualizado - validacao do login Google em navegador REAL.** Teste em webview automatizado reproduziu o sintoma (clique sem reacao visivel), mas Google suprime One Tap em webview - inconclusivo por natureza. Checklist ao Operador: reproduzir em Chrome/Edge real em mediarate.app/pt-BR/login; capturar console (erros "origin"/"client_id"); conferir Authorized JavaScript origins no Google Cloud (mediarate.app + www). Config server-side esta OK (client ID no build; GIS carrega; callback responde 401 a credencial vazia).
+
+B2 (escala manga 0-100 em MediaCard/detail - regressao BETA-GAP-09), B3 (ScoreDial arredonda 7,9->8 na escala 0-10), B4 (MediaScoreBadge sem normalize) e B5 (separador decimal inconsistente) sao executaveis pelo par Thinker/Doer como codigo - candidatas T147+. Sem segredo/PII; nenhum BETA-GAP alterado; GO convites SUSPENSO.
+
+## T149 (2026-09-30) - Tooling de agentes: ativacao do OpenCodeReview e ondas futuras
+
+Adocao de tooling de agentes implementada (docs/03-development-process/AGENT_TOOLING.md). Decisoes que exigem o Operador:
+
+1. **Ativar OpenCodeReview?** Workflow `.github/workflows/open-code-review.yml` instalado, NAO-bloqueante (continue-on-error; nunca trava merge) e DORMENTE: cadastrar secrets `OCR_LLM_URL`, `OCR_LLM_AUTH_TOKEN`, `OCR_LLM_MODEL`, `OCR_LLM_USE_ANTHROPIC` (endpoint/chat-completions de LLM) para o review de IA comentar nas PRs. Sem as secrets, o job sai com skip (zero custo). Ao cadastrar, responder "feito" nesta secao.
+2. **Onda 2 (pilotos de produto IA)** - requer feature de assistente no roadmap: TypeSafe/Jev (chave ja em .env local; piloto com feature flag), ollama, langflow, open-design.
+3. **Onda 3 (orcamento/autorizacao)** - open-seo (conta DataForSEO), screaming-frog-mcp (licenca Screaming Frog), strix (pentest agêntico: SOMENTE staging com dados sinteticos e autorizacao formal em DECISOES.md).
+
+Nada das ondas altera o produto em producao; GO convites permanece SUSPENSO. Sem segredo/PII.
+
+## T150 (2026-09-30) - Screaming Frog instalado (tier free) + baseline SEO: achados p/ decisao
+
+- **Screaming Frog**: instalado em `D:\Program Files (x86)\Screaming Frog SEO Spider`, porem **tier FREE — GUI apenas**. Testado ao vivo: `--headless` (crawl) e `--mcp-streamable-http-server` FATALam sem `licence.txt`. O crawl completo/agendamento via MCP exigem **comprar a licenca** (decisao de orcamento; com licenca, usar o MCP NATIVO do SF v24+ — o wrapper comunitario fica desnecessario). Enquanto isso: baseline SEO gratuito ja executado via script proprio (apenas paginas do proprio site).
+- **Achados do baseline (decisao de SEO/ produto, p/ Thinker):**
+  1. **Contradicao noindex x sitemap**: tipos preview (manga/HQ/livro) sao `noindex, follow` (deliberado, T272/isPreviewTipo), MAS essas URLs estao no sitemap.xml (1.827 URLs, centenas de /media/). Decidir: (a) remover noindexadas do sitemap; (b) indexar previews que ja tem score/fontes reais (ex.: Gantz 6,7 de 2 fontes); (c) manter status quo.
+  2. **B1 no sitemap**: `/pt-BR/media/r2-upload-test-pode-deletar` e a 1a URL de midia do sitemap — o item de teste esta sendo OFERTADO ao Google (reforca a limpeza via ADMIN/T141).
+  3. **Descriptions curtas**: /pt-BR/catalog (45 chars; login/register 18/38, menores).
+
+Relatorio completo: `.claude/reports/seo-audit/seo-baseline-2026-09-29.md` (nao versionado; metodo re-executavel). Nada alterado em producao; GO convites SUSPENSO.
+
+## T151 (2026-09-30) - Auditoria jurídica externa: verificada; decisões de correção (gate legal)
+
+Auditoria jurídica externa (15 achados, J-001..J-015) foi VERIFICADA contra o código e contra produção (a auditoria externa não conseguiu acessar mediarate.app). Relatório: `.claude/reports/legal-audit-external-verification-2026-09-29.md`. J-001 e J-002 (P0) CONFIRMADOS; J-003/J-005 CONFIRMADOS (J-005 ampliado: 4 cookies reais fora do inventário); J-013/J-014 CONFIRMADOS; J-015 FECHADO com produção (zero cookies Sentry — inventário impreciso nos dois sentidos; zero ph_* sem consentimento = postura correta).
+
+### Decisões do Operador (texto legal = gate legal; agente não edita Termos/Política/LICENSE)
+
+1. **J-001 (P0)** - Política (s7b, 3 línguas) promete "column encryption" que D-557 adiou pós-Beta. DECIDIR: (A) autorizar correção do texto (remover a promessa até D-557 reverter) [recomendado] ou (B) antecipar cifragem.
+2. **J-002 (P0)** - Política promete eliminação +30 dias; worker NÃO existe (lgpd.service.ts:154 "implementar em tarefa futura"). DECIDIR: (A) implementar o worker (tarefa de código proponível: job diário + DELETE em cascata conforme MATRIZ-PROPAGACAO + testes) [recomendado — mantém a promessa] ou (B) alterar o texto.
+3. **J-003** - Termos §3.5 citam Apple; D-335 adiou Apple (custo do Developer Program). DECIDIR: remover Apple do texto + tratar chave i18n continueWithApple.
+4. **J-005/J-015** - Inventário de cookies: adicionar mr_consent, x-mr-uid, mediarate_watchlist, NEXT_LOCALE; corrigir/remover item "cookie Sentry" (não observado em produção).
+5. **J-013/J-014** - LICENSE: remover "confidential" (repo público); reversionar a Política quando correções materiais entrarem.
+6. **J-004/J-006..J-012** - lacunas documentais/governança (endereço, art. 18, portabilidade, retenção, transferências, encarregado, menores, licenças de fontes): triagem jurídica pelo Operador.
+
+Nada alterado em produção nesta tarefa (verificação read-only + registro). GO convites SUSPENSO.
+
+## T152 (2026-09-30) - 2a auditoria jurídica: J-016..J-020 verificados + proposta de revisão CONSOLIDADA
+
+Segunda auditoria externa (commit 631c5072) confirmou T151 sem correções (correto: texto legal aguarda gate) e trouxe 4 achados novos — TODOS VERIFICADOS no código: J-016 CONFIRMADO (Resend trata e-mail de verificação/reset; NÃO consta na Política; as 4 ocorrências "resend" em pt-BR.json são chaves de UI verifyResend* = falso positivo descartado); J-017 CONFIRMADO (PostHog identify(user.id,{plan}) - PostHogProvider.tsx:61; Política diz "anonimizado" - correto é PSEUDONIMIZADO; mitigação real: e-mail/nome não enviados); J-018 CONFIRMADO (Sentry identifica via user.id com sendDefaultPii:false + redaction - sentry.ts:67-68,144; claim "anonimizados" excessivo); J-020 CONFIRMADO (schema só tem termos_aceitos_em - sem versão). J-019 = B1 (já registrado).
+
+### DECISÃO RECOMENDADA: revisão jurídica CONSOLIDADA (1 autorização de gate, 1 PR)
+
+Os ajustes de texto se acumulam nos mesmos documentos (Termos/Política/LICENSE). Proposta: Operador autoriza UM ciclo de revisão jurídica e o agente executa num único PR cobrindo: J-001 (remover claim encryption) + J-003 (remover Apple) + J-005 (inventário de cookies real) + J-016 (incluir Resend) + J-017/J-018 ("anônimo"->"pseudonimizado") + J-006/J-007 (art.18 + portabilidade) + J-004 (endereço) + J-010 (encarregado) + J-013 (LICENSE) + J-014 (reversionar Política). Em paralelo, DUAS tarefas de CÓDIGO independem do gate: (1) J-002-A worker de eliminação +30d (recomendada); (2) J-020 campo terms_version_accepted (schema+migration, pede label migration-review).
+
+Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verification-2026-09-29.md`. Read-only; GO convites SUSPENSO.
+
+> **ATUALIZAÇÃO 2026-09-30 (T154-T156):** J-020 entregue (PR #374 — `termos_versao_aceita` + migration + backfill, label migration-review); J-002-A entregue (PR #377 — `LgpdPurgeService`, cron diário 03h UTC + gatilho admin, cascade conforme MATRIZ com contexto RLS do usuário purgado); incidente D-457 registrado como **D-560** (PR #373). Próximo passo do marco: **revisão jurídica CONSOLIDADA** (1 gate → 1 PR com J-001/003/004/005/006/007/010/013/014/016/017/018) → auditoria de conformidade → reavaliar GO.
+
+> **ATUALIZAÇÃO 2026-09-30 (T158):** revisão jurídica CONSOLIDADA entregue (PR #381 merged, produção validada) — fechados os achados textuais **J-001, J-003, J-005, J-006, J-007, J-010, J-013, J-014, J-016, J-017, J-018** nas 3 línguas + LICENSE. **J-004 (endereço físico completo) continua PENDENTE de input do Operador** — forneça o endereço empresarial para inclusão em Termos/rodapé (o agente não inventa). J-002-A/J-020 já entregues (PRs #377/#374). Próximo passo: **nova auditoria de conformidade → reavaliar GO**. J-019/B1 (item de teste) segue dependente de ADMIN/T141.
+
+---
+
+### [18] Gov-01 — Reforço de Branch Protection (pós-incidente PR #388 / D-561)
+
+**Status:** PENDENTE — **prioridade alta** (foi o que permitiu o incidente).
+
+**Ação necessária:** confirmar/ajustar o ruleset `protect-main` (Settings → Rules → Rulesets → protect-main). Estado coletado em 2026-10-01 via API (evidência D-561):
+
+- [x] Block force pushes (`non_fast_forward`) — já ativo.
+- [x] Required status checks (Docs Gate, Migration Safety B1, Lint, Test, Build, RLS) — já ativo (aplica-se a PRs).
+- [ ] **Require a pull request before merging** — **AUSENTE** (é a regra `pull_request` do ruleset; sem ela o push direto passa).
+- [ ] **Bypass `always` do usuário admin** — ativo hoje; remover ou restringir a modo `pull_requests` (elevação só em emergência P0 com post-mortem em 24h, conforme D-561).
+
+**Motivo:** dois pushes diretos em `main` durante o ciclo do PR #388 passaram exatamente pelo bypass admin + ausência da regra de PR. O job RLS mitigou por sorte secundária, não por barreira.
+
+**Como saber que deu certo:** `git push origin main` local (sem PR) passa a ser rejeitado pelo GitHub mesmo para o admin.
+
+**Depois de feito:** responda "feito o item Nº 18".

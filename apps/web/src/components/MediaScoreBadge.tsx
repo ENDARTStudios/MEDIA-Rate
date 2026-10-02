@@ -2,13 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { scoreColor as getScoreColor } from "@/lib/design-tokens";
-
-function scoreHex(value: number): string {
-  const normalized = value / 10;
-  return getScoreColor(normalized);
-}
+import { escalaPorTipo, normalizeDisplayScore, formatarScoreLocale } from "@/lib/score-utils";
 
 interface MediaScoreBadgeProps {
   score: number;
@@ -16,12 +12,20 @@ interface MediaScoreBadgeProps {
   className?: string;
 }
 
-export function MediaScoreBadge({ score: value, mediaType, className }: MediaScoreBadgeProps) {
+export function MediaScoreBadge({ score, mediaType, className }: MediaScoreBadgeProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   const isGame = mediaType === "game";
   const numRef = useRef<HTMLSpanElement>(null);
   const [inView, setInView] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  // T147/B4: normaliza ANTES de exibir/colorir — valor cru da API pode estar
+  // em 0-100; mangá/filme/série exibem 0-10 truncado (7,9), games 0-100.
+  // Cor usa a escala nativa (getScoreColor espera valor na escala do tipo).
+  const escala = escalaPorTipo(mediaType);
+  const value = normalizeDisplayScore(score, mediaType);
+  const color = getScoreColor(value, escala);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -45,7 +49,7 @@ export function MediaScoreBadge({ score: value, mediaType, className }: MediaSco
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReduced) {
-      numRef.current.textContent = String(value);
+      numRef.current.textContent = formatarScoreLocale(value, locale);
       return;
     }
 
@@ -56,13 +60,13 @@ export function MediaScoreBadge({ score: value, mediaType, className }: MediaSco
       ease: "outExpo",
       onUpdate: () => {
         if (numRef.current) {
-          numRef.current.textContent = String(Math.round(obj.val));
+          // T147/B3: sem Math.round — formatação trunca em 1 casa e o frame
+          // final (val === value) é idêntico ao reduced-motion.
+          numRef.current.textContent = formatarScoreLocale(obj.val, locale);
         }
       },
     });
-  }, [inView, value]);
-
-  const color = scoreHex(value);
+  }, [inView, value, locale]);
 
   return (
     <div
@@ -72,7 +76,9 @@ export function MediaScoreBadge({ score: value, mediaType, className }: MediaSco
         backgroundColor: `${color}1A`,
         border: `1px solid ${color}4D`,
       }}
-      aria-label={t(isGame ? "mediaScoreAria" : "mediaScoreAria10", { score: value })}
+      aria-label={t(isGame ? "mediaScoreAria" : "mediaScoreAria10", {
+        score: formatarScoreLocale(value, locale),
+      })}
       role="status"
     >
       <span ref={numRef} className="font-heading text-sm font-bold tabular-nums" style={{ color }}>

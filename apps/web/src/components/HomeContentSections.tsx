@@ -7,8 +7,8 @@ import { formatPlanPrice } from "@/lib/pricing";
 export async function HomeContentSections({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "homeContent" });
 
-  const plusPrice = formatPlanPrice(4.9, locale);
-  const premiumPrice = formatPlanPrice(9.9, locale);
+  const plusPrice = formatPlanPrice(4.9, locale, "R$");
+  const premiumPrice = formatPlanPrice(9.9, locale, "R$");
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
