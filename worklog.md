@@ -3324,3 +3324,15 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - docs/06-devops-deployment/E2E.md: seção do flaky de fontes Google no runner (identificação via grep, procedimento rerun, proibição de máscara, mitigação estrutural next/font local).
 
 - .claude/reports/beta-readiness-2026-10-02.md: GO técnico MANTIDO; bloqueios restantes = 1 Gov-01 (Operador), 2 B1 (ADMIN), 3 UG-01 (manual), 4-6 decisão/dados. Após 1-3: Beta Fechada liberável.
+## [2026-10-02] T156 — PR #139 preparada para REVIEW (SEM merge)
+
+- Merge de origin/main na branch (8cea8aa6) + resolução união i18n ×3 programática: 7 chaves T472 preservadas (matriz retenção/transferências), colisões com main prevaleceram (evitou regressão legal de 30/set), ctaTrust DESCARTADA (T087 proíbe promessa perpétua).
+
+- ZAP failing ESCLARECIDO: ruído de infra (DNS do preview inexistente — branch longa, pré-D-530); pós-push ZAP PASS com o ci.yml novo.
+
+- CI required 100% verde no head 863c0de8; 123ce28e não ancestral; diff no escopo (6 arquivos). NADA mergeado. Relatório: .claude/reports/pr-139-resolution-2026-10-02.md.
+
+## [2026-10-02] D-536/SIM — PR #139 MERGED (5d6e52cd) + T158 iniciada
+
+- Operador autorizou via E157 (SIM). Hard stops verificados (head 863c0de8, CLEAN, required verdes, smoke 7/7 pré-merge). Autorização registrada publicamente no PR.
+- Merge commit 5d6e52cd; Railway 996daf64 SUCCESS; smoke 7/7 pós-merge 200; /privacy no ar com Matriz de retenção + Transferências + lastUpdated 30/set.
