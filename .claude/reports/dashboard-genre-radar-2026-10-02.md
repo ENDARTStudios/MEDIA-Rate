@@ -33,4 +33,5 @@ client-side. Confirmado também em `ProfileContent` (top gêneros do perfil).
 7/7 endpoints 200 (health, pt/en/es, catalog, pricing, login). Zero chave crua.
 
 ## Deploy/merge
-A preencher após merge (run ids).
+- PR merged com merge commit; CI required verde (E2E flaky de fontes Google no 1º run — 936 ocorrências do erro; rerun SUCCESS).
+- main pós-merge; smoke 7/7 endpoints 200 (health, pt/en/es, catalog, pricing, login); zero 5xx novo.
