@@ -81,7 +81,14 @@ describe("SocialButtons (UG-01 — botão Google oficial renderiza em todo camin
     });
     const [parent, opts] = renderButton.mock.calls[0] as [HTMLElement, Record<string, unknown>];
     expect(parent.getAttribute("data-testid")).toBe("gsi-button");
-    expect(opts).toEqual(expect.objectContaining({ text: "continue_with", locale: "pt-BR" }));
+    // tema dark oficial do GSI (login/cadastro sempre dark)
+    expect(opts).toEqual(
+      expect.objectContaining({
+        text: "continue_with",
+        locale: "pt-BR",
+        theme: "filled_black",
+      }),
+    );
   });
 
   it("não renderiza mais o botão custom morto (prompt One Tap suprimido)", () => {

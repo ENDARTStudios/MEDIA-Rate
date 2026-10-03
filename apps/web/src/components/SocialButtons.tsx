@@ -98,7 +98,9 @@ export function SocialButtons() {
         try {
           gsi.renderButton(container, {
             type: "standard",
-            theme: "outline",
+            // filled_black: tema dark oficial do GSI (login/cadastro são
+            // sempre dark — sem modo claro no app).
+            theme: "filled_black",
             size: "large",
             text: "continue_with",
             shape: "pill",
