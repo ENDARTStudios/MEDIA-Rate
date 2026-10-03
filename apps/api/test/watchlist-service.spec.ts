@@ -267,6 +267,9 @@ function mockPrisma(opts: { plano?: string; prefill?: number } = {}): MockWatchl
         return {};
       },
     },
+    usuarioMidiaInteracao: {
+      deleteMany: async () => ({ count: 1 }),
+    },
     midia: {
       findUnique: async (args: MockWatchlistArgs) =>
         entries.some((e) => e.midia_id === args.where.id)

@@ -62,6 +62,52 @@
         "motivo": "D-559b: lote fastify <=5.12.4 — sem platform-fastify compatível (pina 5.11.3/5.12.1); revisão 2026-11 e upgrade Nest quando pinar >=5.12.5",
         "revisao": "2026-11"
       }
+    ],
+    "auditAllowlistPkg": [
+      {
+        "nome": "@fastify/busboy",
+        "motivo": "D-559c: transitivo de fastify (multipart) — fix exige fastify >=5.13+, bloqueado por Nest 11.2.7 pinar 5.11.3; revisão 2026-11"
+      },
+      {
+        "nome": "@next/eslint-plugin-next",
+        "motivo": "D-559c: dev-only (eslint plugin) — via fast-glob"
+      },
+      {
+        "nome": "@ts-morph/common",
+        "motivo": "D-559c: dev-only (via fast-glob) — sem runtime"
+      },
+      {
+        "nome": "braces",
+        "motivo": "D-559c: dev-only (via micromatch/chokidar) — sem runtime"
+      },
+      {
+        "nome": "chokidar",
+        "motivo": "D-559c: dev-only (file watcher) — sem runtime"
+      },
+      {
+        "nome": "eslint-config-next",
+        "motivo": "D-559c: dev-only (via @next/eslint-plugin-next) — sem runtime"
+      },
+      {
+        "nome": "fast-glob",
+        "motivo": "D-559c: dev-only (via micromatch) — sem runtime"
+      },
+      {
+        "nome": "micromatch",
+        "motivo": "D-559c: dev-only (via braces) — sem runtime"
+      },
+      {
+        "nome": "shadcn",
+        "motivo": "D-559c: dev-only (via fast-glob+ts-morph) — sem runtime"
+      },
+      {
+        "nome": "tailwindcss",
+        "motivo": "D-559c: dev-only (via chokidar+fast-glob+micromatch) — sem runtime"
+      },
+      {
+        "nome": "ts-morph",
+        "motivo": "D-559c: dev-only (via @ts-morph/common) — sem runtime"
+      }
     ]
   },
   "devDependencies": {
