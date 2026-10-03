@@ -6,68 +6,11 @@ import { Link } from "@/lib/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { Clapperboard, Tv, Gamepad2, BookOpen, BookImage, BookMarked, Lock } from "lucide-react";
-import type { MediaType } from "@/lib/types";
-import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
 import { formatPlanPrice, PLANS } from "@/lib/pricing";
 
 type Billing = "monthly" | "annual";
 
 const ANNUAL_DISCOUNT = 0.85;
-
-/** Mídias desbloqueadas por plano (Parte 3.7). */
-const PLAN_MEDIA: Record<string, MediaType[]> = {
-  free: ["movie", "series", "game"],
-  plus: ["movie", "series", "game", "book", "comic"],
-  premium: ["movie", "series", "game", "book", "comic", "manga"],
-};
-
-const MEDIA_ICONS: Record<MediaType, typeof Clapperboard> = {
-  movie: Clapperboard,
-  series: Tv,
-  game: Gamepad2,
-  book: BookOpen,
-  comic: BookImage,
-  manga: BookMarked,
-};
-
-function MediaUnlockRow({ planId }: { planId: string }) {
-  const unlocked = PLAN_MEDIA[planId] ?? [];
-  const all: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
-  return (
-    <div
-      className="flex items-center justify-center gap-2 py-3"
-      role="group"
-      aria-label="Mídias desbloqueadas"
-      data-testid={`media-unlock-${planId}`}
-    >
-      {all.map((type) => {
-        const Icon = MEDIA_ICONS[type];
-        const isUnlocked = unlocked.includes(type);
-        return (
-          <span
-            key={type}
-            className="relative flex h-7 w-7 items-center justify-center rounded-full border"
-            style={{
-              borderColor: isUnlocked ? `${MEDIA_ACCENTS[type]}55` : "#2A2A3D",
-              color: isUnlocked ? MEDIA_ACCENTS[type] : "#6B6B85",
-              opacity: isUnlocked ? 1 : 0.55,
-            }}
-            title={isUnlocked ? type : `${type} — bloqueado neste plano`}
-          >
-            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-            {!isUnlocked && (
-              <Lock
-                className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#12121C] p-px"
-                aria-hidden="true"
-              />
-            )}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
 
 export function PricingCards({
   currencySymbol,
@@ -197,10 +140,9 @@ export function PricingCards({
                 </p>
               </div>
 
-              {/* Grade de mídias desbloqueadas (Parte 3.7) */}
-              <div className="mb-4 rounded-lg border border-[#2A2A3D] bg-[#1B1B2C]/50">
-                <MediaUnlockRow planId={plan.id} />
-              </div>
+              {/* D-560b: a seção de mídias desbloqueadas foi removida —
+                  todos os planos incluem os 6 tipos de mídia, então as bolinhas
+                  eram idênticas em Free/Plus/Premium (audit Operador 2026-10-03). */}
 
               <ul className="space-y-3 mb-8 flex-1 text-sm">
                 {(t.raw(`${plan.id}Features`) as string[]).map((f: string, i: number) => (

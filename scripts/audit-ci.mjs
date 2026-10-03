@@ -19,23 +19,25 @@ export function ghsaDe(via) {
 // Regra recursiva: passa se todos os GHSAs próprios estão allowlistados E
 // (carrega ≥1 GHSA OU todos os pais-vulneráveis do `via` passam).
 // Pais ausentes do mapa = dependentes limpos (neutros). Ciclos = true.
-export function permitido(vulns, allow, nome, visitados = new Set()) {
+export function permitido(vulns, allow, nome, visitados = new Set(), allowPkg = new Set()) {
   if (visitados.has(nome)) return true;
   visitados.add(nome);
   const v = vulns[nome];
   if (!v) return true;
+  // D-559c: allowlist por nome de pacote (advisories sem GHSA mapeado).
+  if (allowPkg.has(nome)) return true;
   const ghsas = ghsaDe(v.via);
   if (!ghsas.every((g) => allow.has(g))) return false;
   const paisVuln = (v.via ?? []).filter((x) => typeof x === "string" && x !== nome && vulns[x]);
   if (ghsas.length === 0 && paisVuln.length === 0) return false;
-  return paisVuln.every((p) => permitido(vulns, allow, p, visitados));
+  return paisVuln.every((p) => permitido(vulns, allow, p, visitados, allowPkg));
 }
 
-export function filtrarBloqueantes(vulns, allow) {
+export function filtrarBloqueantes(vulns, allow, allowPkg = new Set()) {
   const bloqueantes = [];
   for (const [name, v] of Object.entries(vulns ?? {})) {
     if (v.severity !== "high" && v.severity !== "critical") continue;
-    if (!permitido(vulns, allow, name)) {
+    if (!permitido(vulns, allow, name, new Set(), allowPkg)) {
       bloqueantes.push({
         name,
         severity: v.severity,
@@ -82,8 +84,9 @@ function lerReport() {
 function main() {
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   const allow = new Map((pkg?.config?.auditAllowlist ?? []).map((e) => [e.ghsa, e]));
+  const allowPkg = new Set((pkg?.config?.auditAllowlistPkg ?? []).map((e) => e.nome));
   const vulns = lerReport().vulnerabilities ?? {};
-  const bloqueantes = filtrarBloqueantes(vulns, allow);
+  const bloqueantes = filtrarBloqueantes(vulns, allow, allowPkg);
   for (const [name, v] of Object.entries(vulns)) {
     if (v.severity !== "high" && v.severity !== "critical") continue;
     if (!bloqueantes.some((b) => b.name === name)) logAllowlist(vulns, allow, name);

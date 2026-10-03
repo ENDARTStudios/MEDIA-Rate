@@ -425,6 +425,13 @@ export class WatchlistService {
 
       await tx.watchlistEntry.delete({ where: { id: entryId } });
 
+      // T160b (audit Operador 2026-10-03): remove também a interação associada
+      // — sem isso a dashboard continua computando gêneros/gosto de títulos que
+      // o usuário já excluiu da biblioteca. Mesma tx RLS (owner-only).
+      await tx.usuarioMidiaInteracao.deleteMany({
+        where: { usuario_id: usuarioId, midia_id: entry.midia_id },
+      });
+
       // T027: trilha de auditoria (repudiação) — fora da tx RLS.
       await this.auditLog
         ?.log({
