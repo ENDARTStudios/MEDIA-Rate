@@ -6,9 +6,6 @@ import { Link } from "@/lib/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { Clapperboard, Lock } from "lucide-react";
-import type { MediaType } from "@/lib/types";
-import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
 import { formatPlanPrice, PLANS } from "@/lib/pricing";
 
 type Billing = "monthly" | "annual";
