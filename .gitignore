@@ -101,3 +101,5 @@ apps/web/scripts/_*.mjs
 
 # Relatórios Lighthouse gerados localmente (os versionados têm outros nomes)
 docs/lighthouse-reports/s1-*.json
+# Artefatos de sessao do Playwright MCP (T201)
+.playwright-mcp/
