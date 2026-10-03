@@ -629,3 +629,18 @@ As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.clau
 | 4 | **UG-01** — validar Google Login em navegador real | /login → botão Google | Dashboard carrega pós-auth |
 
 **GO técnico: VERDE.** Após as 4: Beta Fechada (convites controlados) liberável — decisão formal do Operador.
+
+## Gate audit:ci VERMELHO em main — 10 bloqueantes sem fix limpo (registro T200; antes commitado como "T161", ID colidiu com o PACOTE DE GO do fluxo paralelo)
+
+`npm run audit:ci` VERMELHO em `main` (drift de advisories em lote — modo T148/T153, agora múltiplo). Como o Lint & Audit (required) executa audit:ci, **PRs de código estão congeladas** até resolução (docs-only passa: jobs pesados pulam). Mapa `npm audit --json` (fixAvailable):
+
+**Fix trivial (runtime):** `@fastify/busboy` 3.2.0 → 3.2.2 (`npm update @fastify/busboy`).
+
+**Sem fix limpo — migração/decisão:**
+1. **Cadeia tailwind 3.4.19** (braces `*`, chokidar 2-3.6, fast-glob, micromatch): fix = **tailwindcss@4.3.3** — migração major v3→v4 (tarefa própria).
+2. **eslint-config-next/@next/eslint-plugin-next 16.2.10**: advisory afeta >=14.3.0 (inclui linha 16.x); "fix" = downgrade 14.2.35 (inviável). Aguardar patch ou allowlist.
+3. **shadcn 4.14.1 / ts-morph / @ts-morph/common**: "fix" = shadcn@1.0.0 (downgrade de linha). Aguardar patch ou allowlist.
+4. **prisma/deepmerge-ts/@prisma/config (6.19.x)**: novos GHSAs, família P009/D-462 — estender allowlist ou planejar ajuste.
+5. **fastify <=5.12.4**: sob **D-559b** (Nest 12 na agenda; revisão 2026-11).
+
+**Opções (Operador):** (A) estender a allowlist do `scripts/audit-ci.mjs` no padrão D-559b (justificativa + revisão datada) destravando PRs de código já; e/ou (B) autorizar as migrações (tailwind 4; avaliar prisma) como tarefas. Nota: fluxo paralelo ativo no mesmo gate (D-559b, PACOTE DE GO) — coordenar. Fix busboy re-aplicável no lote final. Sem segredo/PII; GO convites SUSPENSO.
