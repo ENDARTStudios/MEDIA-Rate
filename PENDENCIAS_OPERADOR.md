@@ -644,3 +644,5 @@ As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.clau
 5. **fastify <=5.12.4**: sob **D-559b** (Nest 12 na agenda; revisão 2026-11).
 
 **Opções (Operador):** (A) estender a allowlist do `scripts/audit-ci.mjs` no padrão D-559b (justificativa + revisão datada) destravando PRs de código já; e/ou (B) autorizar as migrações (tailwind 4; avaliar prisma) como tarefas. Nota: fluxo paralelo ativo no mesmo gate (D-559b, PACOTE DE GO) — coordenar. Fix busboy re-aplicável no lote final. Sem segredo/PII; GO convites SUSPENSO.
+
+> **CONGELAMENTO NA PRÁTICA (2026-10-03):** a PR de higiene #408 (remover artefato commitado `.playwright-mcp/`) ficou VERMELHA no Lint & Audit por causa deste gate — primeira vítima real do congelamento. Ela permanece aberta e mergeia no desbloqueio (A ou B).
