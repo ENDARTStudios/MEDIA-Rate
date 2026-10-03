@@ -164,7 +164,11 @@ export function SocialButtons() {
           <span>{t("continueWithGoogle")}</span>
         </button>
         {/* Botão GSI oficial (iframe do Google) — abre o chooser de forma confiável */}
-        <div ref={gsiBtnRef} className="flex min-h-[44px] items-center justify-center" data-testid="gsi-button" />
+        <div
+          ref={gsiBtnRef}
+          className="flex min-h-[44px] items-center justify-center"
+          data-testid="gsi-button"
+        />
       </div>
       <div className="flex items-center gap-3 my-6">
         <div className="flex-1 h-px bg-surface-border/30" />
