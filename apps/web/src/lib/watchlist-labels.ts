@@ -16,9 +16,12 @@ export function conjugacaoPorTipo(tipo: string | undefined): "ver" | "jogar" | "
     case "game":
     case "GAME":
       return "jogar";
+    // legados (valor cru lowercase que a watchlist emitiu antes do D-233):
     case "book":
     case "comic":
     case "manga":
+    case "livro":
+    case "quadrinho":
     case "LIVRO":
     case "COMIC":
     case "MANGA":

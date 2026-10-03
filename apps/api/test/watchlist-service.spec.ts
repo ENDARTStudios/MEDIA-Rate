@@ -104,6 +104,67 @@ describe("WatchlistService (unit)", () => {
     expect(result.length).toBe(2);
   });
 
+  // D-233: a watchlist cobre os 6 tipos do catálogo — a resposta usa o
+  // vocabulário canônico da UI (book/comic/manga), nunca o cru ("livro").
+  it("list — tipos canônicos D-233 (LIVRO→book, COMIC→comic, MANGA→manga)", async () => {
+    const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+    const tipos: Record<string, string> = {
+      [uuid(1)]: "LIVRO",
+      [uuid(2)]: "COMIC",
+      [uuid(3)]: "MANGA",
+    };
+    const entries = [1, 2, 3].map((n) => ({
+      id: `entry-${n}`,
+      usuario_id: "user-1",
+      midia_id: uuid(n),
+      coluna: "WANT",
+      prioridade: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+    }));
+    const prismaInline = {
+      watchlistEntry: {
+        count: async () => entries.length,
+        findMany: async () => entries.map((e) => ({ ...e })),
+        findFirst: async () => null,
+        findUnique: async () => null,
+        create: async () => {
+          throw new Error("não usado neste teste");
+        },
+        update: async () => null,
+        delete: async () => ({}),
+      },
+      midia: {
+        findUnique: async () => null,
+        findMany: async (args: { where: { id: { in: string[] } } }) =>
+          args.where.id.in.map((id) => ({
+            id,
+            titulo: `Titulo ${id.slice(-1)}`,
+            titulo_original: null,
+            tipo: tipos[id],
+            ano_lancamento: 2026,
+            imagem_url: null,
+            scores: [{ score: 7.5 }],
+            generos: [],
+          })),
+      },
+      usuarioPlano: { findUnique: async () => ({ plano: "FREE" }) },
+    };
+    const mod: TestingModule = await Test.createTestingModule({
+      providers: [WatchlistService, { provide: PrismaService, useValue: prismaInline }],
+    }).compile();
+    const svc = mod.get<WatchlistService>(WatchlistService);
+
+    const result = await svc.list("user-1");
+    // D-447: serializa a resposta — pega 500 de serialização sem produção.
+    expect(JSON.stringify(result)).toBeTruthy();
+    expect(result.map((r) => (r as { media: { type: string } }).media.type)).toEqual([
+      "book",
+      "comic",
+      "manga",
+    ]);
+  });
+
   it("move — move mídia para outra coluna", async () => {
     await service.add("user-1", { midia_id: "m1", coluna: "WANT" });
     const result = await service.move("user-1", "entry-1", "COMPLETED");
