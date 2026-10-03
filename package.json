@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit -p tsconfig.base.json",
+    "typecheck": "npm run typecheck --workspace apps/api && npm exec --workspace apps/web --no -- tsc --noEmit",
     "security:gate": "node --import @swc-node/register/esm-register scripts/security-gate.ts",
     "audit:ci": "node scripts/audit-ci.mjs"
   },

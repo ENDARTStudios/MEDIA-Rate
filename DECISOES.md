@@ -2512,3 +2512,26 @@ child compartilhado). Suíte API: 979/979 (131 arquivos). E2E rate-limit 3/3.
 4. Hotfix direto em produção passa a exigir o procedimento de emergência (D-457): registrado em `DECISOES.md` com post-mortem em 24h — precedentes deste incidente: registros no worklog de 2026-09-30/10-01.
 
 **Relacionados:** D-457, D-527, T151 (registro), Gov-01 (pendência Operador).
+
+## D-562 — D1/Gov-01: exigência de PR em `main` implementada e validada (ruleset protect-main)
+
+**Data:** 2026-10-02 · **Fase:** T160 (fecho documental) · **Status:** IMPLEMENTADA E VALIDADA
+
+**Decisão:** D1/Gov-01 aprovada pelo Operador na Opção A condicionada — exigir PR para
+qualquer mudança em `main`, remover o bypass `always` do usuário admin, approvals
+mínimos = 0 (sem deadlock; Gov-02 pode elevar para 1 em decisão separada).
+
+**Implementação:** ruleset `protect-main` (id 20801818, enforcement active) atualizado
+via API — regra `pull_request` adicionada (`required_approving_review_count: 0`),
+`bypass_actors` vazio (bypass `always` do admin removido), regras `deletion`,
+`required_status_checks` e `non_fast_forward` preservadas.
+
+**Validação empírica (sandbox descartável, sem tocar main):** ruleset temporário
+equivalente mirando branch de teste; push real do admin com commit vazio **rejeitado**
+(`GH013: Changes must be made through a pull request`); SHA remoto inalterado;
+branch e ruleset temporários removidos sem restos. Causa raiz do incidente **D-561**
+endereçada (pushes diretos em `main` permitidos por ruleset incompleto + bypass).
+
+**Escopo:** apenas o ruleset. Nenhuma alteração de código, segurança de aplicação,
+LGPD, i18n, copy jurídica, workflows, dependências ou lockfile. Gov-02, B1, UG-01 e
+GO de convites permanecem fora desta decisão.

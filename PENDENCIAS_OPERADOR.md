@@ -582,14 +582,16 @@ Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verif
 
 ### [18] Gov-01 — Reforço de Branch Protection (pós-incidente PR #388 / D-561)
 
-**Status:** PENDENTE — **prioridade alta** (foi o que permitiu o incidente).
+**Status:** RESOLVIDA (2026-10-02) — implementada e validada empiricamente.
 
-**Ação necessária:** confirmar/ajustar o ruleset `protect-main` (Settings → Rules → Rulesets → protect-main). Estado coletado em 2026-10-01 via API (evidência D-561):
+**Implementação (ruleset `protect-main`, id 20801818, via API — ciclo T160.3):**
 
-- [x] Block force pushes (`non_fast_forward`) — já ativo.
-- [x] Required status checks (Docs Gate, Migration Safety B1, Lint, Test, Build, RLS) — já ativo (aplica-se a PRs).
-- [ ] **Require a pull request before merging** — **AUSENTE** (é a regra `pull_request` do ruleset; sem ela o push direto passa).
-- [ ] **Bypass `always` do usuário admin** — ativo hoje; remover ou restringir a modo `pull_requests` (elevação só em emergência P0 com post-mortem em 24h, conforme D-561).
+- [x] Block force pushes (`non_fast_forward`) — preservado.
+- [x] Required status checks — preservado.
+- [x] **Require a pull request before merging** — regra `pull_request` adicionada (`required_approving_review_count: 0`, sem deadlock; Gov-02 pode elevar para 1 em decisão separada).
+- [x] **Bypass `always` do usuário admin** — removido (`bypass_actors` vazio).
+
+**Validação empírica (sandbox descartável):** ruleset temporário equivalente mirando branch de teste; push real do admin com commit vazio foi **rejeitado** (`GH013: Changes must be made through a pull request`), SHA remoto inalterado; sandbox (branch + ruleset) removida sem restos. `main` nunca recebeu push direto nesta operação. Causa raiz do D-561 endereçada. Verificação: `git push origin main` sem PR é rejeitado pelo GitHub.
 
 **Motivo:** dois pushes diretos em `main` durante o ciclo do PR #388 passaram exatamente pelo bypass admin + ausência da regra de PR. O job RLS mitigou por sorte secundária, não por barreira.
 
@@ -601,7 +603,7 @@ Relatório atualizado (adendo T152): `.claude/reports/legal-audit-external-verif
 
 ### [19] P019 — Triagem da PR #300 (deps obsoleta) — T160/2026-10-03
 
-**Status:** PENDENTE decisão do Operador
+**Status:** RESOLVIDA (2026-10-02, ciclo T159.2) — PR #300 fechada como obsoleta (`CLOSED` em 2026-10-02T20:50:43Z, sem merge, comentário sanitizado, branch preservada). Diagnóstico confirmado: lockfile-only sobre base antiga, sem CVEs novos, audit da main verde; o workflow `dependency-update.yml` agendado regenera PR limpa quando houver updates relevantes.
 
 **Diagnóstico:** PR #300 CONFLICTING/DIRTY em package-lock.json, criada 2026-09-27 por automação (github-actions), anterior a D-559 (fastify/next security upgrades). Não traz CVEs não tratados; audit:ci da main está OK.
 
