@@ -20,6 +20,10 @@ const TIPO_MAP: Record<string, string> = {
   book: "LIVRO",
   comic: "COMIC",
   manga: "MANGA",
+  // D-233: valores legados que a watchlist já emitiu ("livro"/"quadrinho")
+  // continuam tolerados na entrada — nunca caem no fallback FILME.
+  livro: "LIVRO",
+  quadrinho: "COMIC",
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,18 +64,9 @@ export function entryToMediaItem(
 ): MediaItem | null {
   const media = e.media;
   if (!e.mediaId) return null;
-  const tipo =
-    media?.type === "movie"
-      ? "FILME"
-      : media?.type === "series"
-        ? "SERIE"
-        : media?.type === "game"
-          ? "GAME"
-          : media?.type === "comic"
-            ? "COMIC"
-            : media?.type === "manga"
-              ? "MANGA"
-              : "FILME";
+  // D-233: lookup pelos 6 tipos canônicos + legados; desconhecido passa o
+  // enum cru em maiúsculas (MediaCard faz fallback de token) — nunca FILME.
+  const tipo = media?.type ? (TIPO_MAP[media.type] ?? String(media.type).toUpperCase()) : "FILME";
   return {
     id: String(media?.id ?? e.mediaId),
     // T310: fallback chain — título localizado → original → id humanizado →

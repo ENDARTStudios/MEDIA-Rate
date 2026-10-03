@@ -14,6 +14,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 import type { WatchlistEntry } from "@/stores/use-watchlist-store";
+import type { MediaType } from "@/lib/types";
 import { MEDIA_ACCENTS } from "@/components/media-rate-ui/CategoryChip";
 import { REACOES } from "@/lib/api-interactions";
 import { MediaCard } from "@/components/MediaCard";
@@ -87,7 +88,7 @@ function Column({
   removingId: string | null;
   pendingReaction: string | null;
   onReactionDone: () => void;
-  tipoFiltro: "all" | "movie" | "series" | "game";
+  tipoFiltro: "all" | MediaType;
 }) {
   const t = useTranslations("watchlist");
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
@@ -159,7 +160,7 @@ export function WatchlistKanban({
   onRemove: (entryId: string) => void;
   onMove: (entryId: string, coluna: string) => void;
   removingId: string | null;
-  tipoFiltro?: "all" | "movie" | "series" | "game";
+  tipoFiltro?: "all" | MediaType;
 }) {
   const t = useTranslations("watchlist");
   const [view, setView] = useState<"ativos" | "abandonados">("ativos");

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
+import type { MediaType } from "@/lib/types";
 import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { formatDate } from "@/lib/i18n";
 import { animate } from "animejs";
@@ -109,13 +110,16 @@ export function WatchlistClient() {
   const { entries, isLoading, error, fetchWatchlist, removeItem, moveItem } = useWatchlistStore();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [view, setView] = useState<"kanban" | "lista">("kanban");
-  const [filtroTipo, setFiltroTipo] = useState<"all" | "movie" | "series" | "game">("all");
+  const [filtroTipo, setFiltroTipo] = useState<"all" | MediaType>("all");
 
   useEffect(() => {
     fetchWatchlist();
   }, []);
 
   // T190: filtro por mídia dentro da watchlist (chips do catálogo).
+  // D-233: os 6 tipos do catálogo são filtráveis — Livros, Quadrinhos e
+  // Mangás incluídos (antes só filme/série/game e o resto ficava invisível
+  // em qualquer filtro).
   const filtradas = useMemo(
     () =>
       filtroTipo === "all"
@@ -124,10 +128,18 @@ export function WatchlistClient() {
     [entries, filtroTipo],
   );
   const filtroCounts = useMemo(() => {
-    const c = { all: entries.length, movie: 0, series: 0, game: 0 };
+    const c: Record<"all" | MediaType, number> = {
+      all: entries.length,
+      movie: 0,
+      series: 0,
+      game: 0,
+      book: 0,
+      comic: 0,
+      manga: 0,
+    };
     entries.forEach((e) => {
-      const tipo = e.media?.type ?? "movie";
-      if (tipo === "movie" || tipo === "series" || tipo === "game") c[tipo] += 1;
+      const tipo = (e.media?.type ?? "movie") as keyof typeof c;
+      c[tipo] += 1;
     });
     return c;
   }, [entries]);
@@ -272,6 +284,24 @@ export function WatchlistClient() {
           count={filtroCounts.game}
           active={filtroTipo === "game"}
           onClick={() => setFiltroTipo("game")}
+        />
+        <CategoryChip
+          type="book"
+          count={filtroCounts.book}
+          active={filtroTipo === "book"}
+          onClick={() => setFiltroTipo("book")}
+        />
+        <CategoryChip
+          type="comic"
+          count={filtroCounts.comic}
+          active={filtroTipo === "comic"}
+          onClick={() => setFiltroTipo("comic")}
+        />
+        <CategoryChip
+          type="manga"
+          count={filtroCounts.manga}
+          active={filtroTipo === "manga"}
+          onClick={() => setFiltroTipo("manga")}
         />
       </div>
 

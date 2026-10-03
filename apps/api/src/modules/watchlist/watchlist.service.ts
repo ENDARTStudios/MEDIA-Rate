@@ -19,6 +19,20 @@ import type { StatusConsumo, WatchlistColuna, ReacaoConsumo, MotivoAbandono } fr
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
+ * D-233: enum TipoMidia → vocabulário canônico da UI (lib/types.ts MediaType).
+ * A watchlist cobre os 6 tipos do catálogo; desconhecidos caem no lowercase
+ * (compat com valores históricos).
+ */
+const TIPO_UI: Record<string, string> = {
+  FILME: "movie",
+  SERIE: "series",
+  GAME: "game",
+  LIVRO: "book",
+  COMIC: "comic",
+  MANGA: "manga",
+};
+
+/**
  * Limite de itens na watchlist do plano FREE (D-132 monetização; T207: 50).
  * Plus/Premium (incluindo trial) não têm limite.
  */
@@ -203,14 +217,7 @@ export class WatchlistService {
             title: midia.titulo,
             tituloOriginal: midia.titulo_original,
             posterUrl: midia.imagem_url,
-            type:
-              midia.tipo === "FILME"
-                ? "movie"
-                : midia.tipo === "SERIE"
-                  ? "series"
-                  : midia.tipo === "GAME"
-                    ? "game"
-                    : midia.tipo.toLowerCase(),
+            type: TIPO_UI[midia.tipo] ?? midia.tipo.toLowerCase(),
             year: midia.ano_lancamento,
             score: midia.scores[0]?.score ?? null,
             genres: midia.generos.map((g) => g.genero.nome),
