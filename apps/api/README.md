@@ -1,7 +1,20 @@
 # @media-rate/api
 
-Backend NestJS do MEDIA Rate. Setup completo sera feito na Fase 1 (Infra base) do `PLANO_MESTRE.md`.
-Por ora, este diretorio existe apenas para satisfazer a estrutura de workspaces do monolito modular (T0.8).
+Backend NestJS (Fastify) + Prisma/PostgreSQL do MEDIA Rate — sessão opaca, RLS, LGPD, Stripe, MEDIA Score™. Deploy na **Railway** via [`Dockerfile`](./Dockerfile) (push em `main`; `prisma migrate deploy` roda no boot).
+
+## Comandos (da raiz do monorepo)
+
+```bash
+npm run dev -w apps/api            # desenvolvimento
+npm run build -w apps/api          # build (tsc)
+npm run test -w apps/api           # Vitest (unit/e2e com supertest)
+npm run db:migrate -w apps/api     # aplica migrations (prisma migrate deploy)
+npm run db:migrate:dev -w apps/api # cria/aplica migrations em dev
+npm run db:generate -w apps/api    # gera o client Prisma
+npm run db:status -w apps/api      # status das migrations
+```
+
+Migrations novas exigem label `migration-review` na PR (guard fail-closed B1 — ver `docs/06-devops-deployment/b1-prod-guards.md`).
 
 ## Configuração de Ambiente (T204)
 

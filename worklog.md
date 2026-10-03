@@ -3371,6 +3371,12 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - PENDENCIAS: tabela de referência rápida do Pacote de GO (sem encerrar pendências indevidamente).
 
 - Metodologia: consolidação apenas de estados já aprovados (T147-T160); nada inventado. GO mínimo para convites controlados liberável após as 4 ações.
+### [2026-10-03] T161 fechamento — PR #402 merged (7c42615d); snapshot em main; smoke 7/7 200.
+## [2026-09-30] T159 - Higiene de monorepo: README da raiz + READMEs reais dos apps
+- Operador colou guia de organização de monorepo (escrito para outro repo — cita "Almanaque dos Clubes" e Python/venv). Auditoria contra o estado real: o MEDIA Rate JÁ cumpre — apps/web + apps/api (npm workspaces), apps/api/Dockerfile (sem Dockerfile na raiz), docker-compose = só infra de dev, scripts/ + docs/ (8 pilares), lint/prettier únicos, .pre-commit-config.yaml, Python/.venv inexistentes. NADA foi movido.
+- Único gap real: README.md da RAIZ não existia. Criado (propósito, estrutura, pré-requisitos Node>=20/npm — pnpm proibido pelo AGENTS.md, quickstart com comandos reais dos package.json, tabela de comandos, deploys Vercel/Railway/CF, governança). apps/web/README reescrito (4 linhas obsoletas de 'T0.8'); apps/api/README ganhou comandos reais + nota migration-review (conteúdo T204 preservado).
+- Não adotado (decisões do Operador): pnpm (proibido pelo AGENTS.md) e Turborepo/Nx (tooling nova; CI já filtra por path). Strays locais não-rastreados (prototype html/sketch/rw-promote.js) já cobertos pela política do AGENTS.md.
+- Docs-only; docs-gate + required verdes. GO convites SUSPENSO.
 - T160.3: Gov-01 sandbox proof (push direto do admin rejeitado com GH013 em branch descartável, cleanup sem restos) e aplicação definitiva do ruleset protect-main (pull_request approvals 0, bypass always removido, regras preservadas).
 
 - T160.4: fechamento documental da D1/Gov-01 (PENDENCIAS [18] RESOLVIDA; [19] P019/#300 RESOLVIDA — PR #300 fechada como obsoleta em T159.2; D-562 registrada em DECISOES.md). Fluxo: Branch→PR→checks→merge (novo gate Gov-01 respeitado).
