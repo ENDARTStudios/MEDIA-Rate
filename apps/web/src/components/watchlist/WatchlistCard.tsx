@@ -275,6 +275,18 @@ export function WatchlistCard({
         <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
           <span className="text-center text-xs leading-tight text-[#6B6B85]">{tituloFinal}</span>
           <BuscarSubstituta entryId={entry.id} palpite={palpite} />
+          {/* T160b: botão Remover visível no card órfão — o ⋮ escondido não era
+              descoberto pelo usuário (feedback Operador 2026-10-03). */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(entry.id);
+            }}
+            className="mt-1 rounded px-2 py-1 text-[11px] text-[#F87171] hover:bg-[#F87171]/10 hover:text-[#FCA5A5] transition-colors"
+          >
+            {removing ? "..." : t("removeFromWatchlist")}
+          </button>
         </div>
       )}
 

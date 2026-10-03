@@ -74,6 +74,15 @@ function inMemoryPrisma() {
           null
         );
       },
+      deleteMany: async ({ where }: any) => {
+        const antes = interacoes.length;
+        const restantes = interacoes.filter(
+          (i: any) => !(i.usuario_id === where.usuario_id && i.midia_id === where.midia_id),
+        );
+        interacoes.length = 0;
+        interacoes.push(...restantes);
+        return { count: antes - restantes.length };
+      },
       upsert: async ({ where, create, update }: any) => {
         const k = where.usuario_id_midia_id;
         const existente = interacoes.find(
@@ -89,7 +98,7 @@ function inMemoryPrisma() {
       },
     },
   };
-  return { prisma, entries, midias, planos };
+  return { prisma, entries, midias, planos, interacoes };
 }
 
 /** Simula o AuthGuard real: anexa req.user quando "autenticado"; 401 senão. */
@@ -250,7 +259,20 @@ describe("Watchlist CRUD — e2e via HTTP (T207)", () => {
     expect(res.status).toBe(204);
   });
 
-  it("sem autenticação → 401 (AuthGuard)", async () => {
+  it("T160b — DELETE watchlist entry também remove a interação (dashboard para de computar gêneros órfãos)", async () => {
+    const midia = { id: "f0000000-0000-4000-8000-000000000001", tipo: "GAME", generos: [], score: 80 };
+    ctx.midias.set(midia.id, midia);
+    const add = await request(app.getHttpServer())
+      .post("/api/v1/watchlist")
+      .send({ midia_id: midia.id, coluna: "COMPLETED" });
+    expect(add.status).toBe(201);
+    expect(ctx.interacoes.some((i: any) => i.midia_id === midia.id)).toBe(true);
+    const del = await request(app.getHttpServer()).delete(`/api/v1/watchlist/${add.body.id}`);
+    expect(del.status).toBe(204);
+    expect(ctx.interacoes.some((i: any) => i.midia_id === midia.id)).toBe(false);
+  });
+
+    it("sem autenticação → 401 (AuthGuard)", async () => {
     AUTENTICADO = false;
     const res = await request(app.getHttpServer()).get("/api/v1/watchlist");
     expect(res.status).toBe(401);

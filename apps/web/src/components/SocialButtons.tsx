@@ -19,6 +19,18 @@ interface GsiIdConfiguration {
 interface GsiId {
   initialize: (config: GsiIdConfiguration) => void;
   prompt: () => void;
+  /** T-UG01 fix: renderiza o botão oficial do Google (iframe GSI). */
+  renderButton: (
+    parent: HTMLElement,
+    options: {
+      type?: string;
+      theme?: string;
+      size?: string;
+      text?: string;
+      shape?: string;
+      width?: number;
+    },
+  ) => void;
 }
 
 declare global {
@@ -34,6 +46,7 @@ export function SocialButtons() {
   const router = useRouter();
   const { fetchMe } = useAuthStore();
   const googleRef = useRef<GsiId | null>(null);
+  const gsiBtnRef = useRef<HTMLDivElement | null>(null);
   const [busy, setBusy] = useState(false);
   // BETA-GAP-01/T120: `NEXT_PUBLIC_*` é inlinado em build-time. Sem client id
   // (ex.: preview/local sem a var) o provider está DESABILITADO — nunca
@@ -78,6 +91,24 @@ export function SocialButtons() {
 
     if (window.google) {
       initGoogle();
+      // UG-01 fix (2026-10-03): renderiza o botão OFICIAL do Google (iframe
+      // GSI) — o prompt() One Tap é suprimido pelo browser em vários contextos
+      // e o clique no botão custom não abre nada (incidente reportado pelo
+      // Operador). O botão oficial abre o chooser de contas de forma confiável.
+      if (gsiBtnRef.current) {
+        try {
+          window.google.accounts.id.renderButton(gsiBtnRef.current, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            shape: "pill",
+            width: 340,
+          });
+        } catch {
+          // renderButton pode falhar se já renderizado — o container já tem o botão
+        }
+      }
     } else {
       const existing = document.querySelector<HTMLScriptElement>(`script[src="${GIS_SCRIPT}"]`);
       if (!existing) {
@@ -132,6 +163,8 @@ export function SocialButtons() {
           </svg>
           <span>{t("continueWithGoogle")}</span>
         </button>
+        {/* Botão GSI oficial (iframe do Google) — abre o chooser de forma confiável */}
+        <div ref={gsiBtnRef} className="flex min-h-[44px] items-center justify-center" data-testid="gsi-button" />
       </div>
       <div className="flex items-center gap-3 my-6">
         <div className="flex-1 h-px bg-surface-border/30" />

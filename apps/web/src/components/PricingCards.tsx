@@ -197,10 +197,9 @@ export function PricingCards({
                 </p>
               </div>
 
-              {/* Grade de mídias desbloqueadas (Parte 3.7) */}
-              <div className="mb-4 rounded-lg border border-[#2A2A3D] bg-[#1B1B2C]/50">
-                <MediaUnlockRow planId={plan.id} />
-              </div>
+              {/* D-560b: a seção de mídias desbloqueadas foi removida —
+                  todos os planos incluem os 6 tipos de mídia, então as bolinhas
+                  eram idênticas em Free/Plus/Premium (audit Operador 2026-10-03). */}
 
               <ul className="space-y-3 mb-8 flex-1 text-sm">
                 {(t.raw(`${plan.id}Features`) as string[]).map((f: string, i: number) => (
