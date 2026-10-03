@@ -3380,3 +3380,10 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 - T160.3: Gov-01 sandbox proof (push direto do admin rejeitado com GH013 em branch descartável, cleanup sem restos) e aplicação definitiva do ruleset protect-main (pull_request approvals 0, bypass always removido, regras preservadas).
 
 - T160.4: fechamento documental da D1/Gov-01 (PENDENCIAS [18] RESOLVIDA; [19] P019/#300 RESOLVIDA — PR #300 fechada como obsoleta em T159.2; D-562 registrada em DECISOES.md). Fluxo: Branch→PR→checks→merge (novo gate Gov-01 respeitado).
+
+## [2026-10-03] T161 - Gate audit:ci vermelho em main (10 bloqueantes, sem fix limpo) - mapa para decisão
+- `scan` falhou na PR #405 pós-merge e o Lint & Audit (required, roda audit:ci) está vermelho para PRs de código: 10 HIGH/CRITICAL sem fix não-breaking (diferente de T148/T153 que eram unitários).
+- Mapa npm audit: @fastify/busboy (trivial, 3.2.2); cadeia tailwind 3.4.19 -> fix só com tailwind 4.3.3 (migração major); eslint-config-next 16.2.10 (afeta >=14.3.0, fix=downgrade inviável); shadcn/ts-morph (fix=downgrade 1.0.0); prisma 6.19.x (novos GHSAs, família P009/D-462); fastify sob D-559b.
+- PROCESSO (2a falha consecutiva minha): mergeei a #405 com o scan vermelho visível na mesma cadeia de comandos — a checagem precisa virar GATE mecânico: `gh pr checks` exit 0 antes de qualquer merge, sem exceção. Registrado como correção de processo.
+- Ação: PENDENCIAS T161 com mapa completo e opções (A allowlist padrão D-559b / B migrações); NÃO estendi a allowlist nem commitei lockfile parcial (não-mergeável e colide com trabalho paralelo D-559b em curso nos PRs #403/#404). Fix busboy documentado (npm update @fastify/busboy).
+- Read-only; GO convites SUSPENSO.
