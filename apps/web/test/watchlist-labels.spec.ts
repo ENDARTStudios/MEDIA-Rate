@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { conjugacaoPorTipo, colunaLabelKey } from "@/lib/watchlist-labels";
+import { statusLabelKey } from "@/components/interaction/StatusIcons";
 import ptBR from "@/messages/pt-BR.json";
 import enUS from "@/messages/en-US.json";
 import esES from "@/messages/es-ES.json";
@@ -132,5 +133,27 @@ describe("colunaLabelKey (T239) — matriz tipo×coluna×locale", () => {
 
   it("coluna desconhecida → fallback queroVer (nunca quebra)", () => {
     expect(colunaLabelKey("game", "INEXISTENTE")).toBe("queroVer");
+  });
+});
+
+// Incidente Operador (Atividade recente do perfil): "O Hobbit" (livro) exibia
+// "vendo" — o statusLabelKey (espelho local de conjugacaoPorTipo) não conhecia
+// os valores crus "livro"/"quadrinho" e caía no verbo "ver".
+describe("statusLabelKey (perfil/atividade) — livro/quadrinho conjugam ler", () => {
+  it.each([
+    ["livro", "CONSUMINDO", "lendo"],
+    ["livro", "CONCLUIDO", "li"],
+    ["quadrinho", "CONSUMINDO", "lendo"],
+    ["LIVRO", "QUERO_CONSUMIR", "queroLer"],
+    ["book", "CONSUMINDO", "lendo"],
+    ["comic", "CONCLUIDO", "li"],
+    ["movie", "CONSUMINDO", "vendo"],
+    ["game", "CONCLUIDO", "joguei"],
+  ])("%s/%s → %s", (tipo, status, esperado) => {
+    expect(statusLabelKey(tipo, status as never)).toBe(esperado);
+    for (const msgs of Object.values(LOCALES)) {
+      const rotulo = msgs.profile?.[esperado] ?? msgs.interaction?.[esperado];
+      expect(rotulo).toBeTruthy();
+    }
   });
 });
