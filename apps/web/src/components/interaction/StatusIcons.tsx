@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { ConsumoStatus, Reacao } from "@/lib/api-interactions";
 import type { MediaType } from "@/lib/types";
+import { conjugacaoPorTipo } from "@/lib/watchlist-labels";
 
 /**
  * Iconografia de status + reação (Addendum 4 §4.4) reaproveitando tokens:
@@ -147,16 +148,10 @@ export function AddGlyph({ size = 16, className }: { size?: number; className?: 
 export type Conjugacao = "ver" | "jogar" | "ler";
 
 export function conjugacaoPara(mediaType: MediaType | string | undefined): Conjugacao {
-  switch (mediaType) {
-    case "game":
-      return "jogar";
-    case "book":
-    case "comic":
-    case "manga":
-      return "ler";
-    default:
-      return "ver";
-  }
+  // Fonte única (T239, lib/watchlist-labels): o espelho local driftava —
+  // valores crus "livro"/"quadrinho" (perfil/atividade recente) caíam em
+  // "ver" e um livro exibia "vendo".
+  return conjugacaoPorTipo(mediaType);
 }
 
 export const CONJUGACAO_I18N: Record<Conjugacao, Record<ConsumoStatus, string>> = {
