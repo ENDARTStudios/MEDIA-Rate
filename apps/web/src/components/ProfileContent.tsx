@@ -13,11 +13,6 @@ import { ReactionGlyph } from "@/components/interaction/StatusIcons";
 import { tituloHumano } from "@/components/watchlist/WatchlistCard";
 import type { ConsumoStatus } from "@/lib/api-interactions";
 
-interface StatsShape {
-  generos?: Record<string, number>;
-  tipos?: Record<string, number>;
-}
-
 interface Atividade {
   midia_id?: string;
   status?: string;
@@ -46,19 +41,18 @@ export function ProfileContent() {
   const locale = useLocale() as Locale;
   const { user } = useAuthStore();
   const { entries, isLoading, fetchWatchlist } = useWatchlistStore();
-  const [stats, setStats] = useState<StatsShape | null>(null);
   const [atividades, setAtividades] = useState<Atividade[] | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchWatchlist();
+    // D-525: o GET /interacoes retorna o envelope { items, total, porStatus,
+    // nextCursor } — o perfil descartava o envelope e exibia "Nenhuma
+    // atividade recente" mesmo com interações reais. Página curta (limit=10):
+    // a seção mostra só as 10 últimas.
     void api
-      .get<StatsShape>("/api/v1/user/stats")
-      .then(setStats)
-      .catch(() => undefined);
-    void api
-      .get<Atividade[]>("/api/v1/interacoes")
-      .then((d) => setAtividades(Array.isArray(d) ? d : []))
+      .get<{ items?: Atividade[] } | Atividade[]>("/api/v1/interacoes?limit=10")
+      .then((d) => setAtividades(Array.isArray(d) ? d : (d.items ?? [])))
       .catch(() => undefined);
   }, [fetchWatchlist]);
 
@@ -67,6 +61,7 @@ export function ProfileContent() {
   entries.forEach((e) => {
     st[e.status] = (st[e.status] || 0) + 1;
   });
+  const want = st.WANT || 0;
   const completed = st.COMPLETED || 0;
   const watching = st.WATCHING || 0;
   const dropped = st.DROPPED || 0;
@@ -77,13 +72,21 @@ export function ProfileContent() {
     { name: t("activeTitle"), desc: t("activeDesc"), unlocked: watching >= 1 },
   ];
 
-  // T321: top gêneros do /user/stats com labels localizados.
+  // Incidente Operador: "Gêneros favoritos" contava as INTERAÇÕES via
+  // /user/stats (70) em vez da watchlist (18). Deriva agora das entradas da
+  // própria watchlist (genres já vêm no GET /watchlist) — a seção fica
+  // consistente com os indicadores acima.
   const topGeneros = useMemo(() => {
-    const g = stats?.generos ?? {};
+    const g: Record<string, number> = {};
+    entries.forEach((e) => {
+      for (const genero of e.media?.genres ?? []) {
+        g[genero] = (g[genero] ?? 0) + 1;
+      }
+    });
     return Object.entries(g)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8); // T154/UG-16: Top 8 (era 6)
-  }, [stats]);
+  }, [entries]);
 
   // T321: últimas 10 atividades (ordem do API: atualizado_em desc).
   const ultimasAtividades = useMemo(() => (atividades ?? []).slice(0, 10), [atividades]);
@@ -155,11 +158,12 @@ export function ProfileContent() {
 
       {total > 0 && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
             {[
               { label: t("inWatchlist"), value: total },
-              { label: t("completed"), value: completed },
+              { label: t("wantLabel"), value: want },
               { label: t("watching"), value: watching },
+              { label: t("completed"), value: completed },
               { label: t("dropped"), value: dropped },
             ].map(({ label, value }) => (
               <div
