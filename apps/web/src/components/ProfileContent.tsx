@@ -168,12 +168,16 @@ export function ProfileContent() {
             ].map(({ label, value }) => (
               <div
                 key={label}
-                className="bg-[#11111E] rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)]"
+                className="bg-[#11111E] rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)] flex flex-col justify-center"
               >
                 <p className="text-3xl font-heading font-bold text-[#EDE7DC] tabular-nums">
                   {value}
                 </p>
-                <p className="text-xs text-[#9CA3AF] mt-1">{label}</p>
+                {/* área de rótulo com altura fixa: 1 ou 2 linhas, os números
+                    ficam alinhados entre os 5 cards */}
+                <p className="text-xs text-[#9CA3AF] mt-1 min-h-[2.5rem] flex items-center justify-center leading-snug">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
