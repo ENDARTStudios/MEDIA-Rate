@@ -630,6 +630,14 @@ As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.clau
 
 **GO técnico: VERDE.** Após as 4: Beta Fechada (convites controlados) liberável — decisão formal do Operador.
 
+> **RE-SINCRONIZAÇÃO 2026-10-05 (pós-T161): 3 das 4 ações resolvidas — resta B1.**
+> - **[1] Gov-01 ✅ RESOLVIDO** — ruleset `protect-main` ativo: pull_request obrigatório + 6 checks required + `non_fast_forward` + **bypass null** (verificado via `gh api rulesets/20801818`).
+> - **[2] P019 ✅ RESOLVIDO** — PR #300 CLOSED (2026-10-02).
+> - **[4] UG-01 ✅ RESOLVIDO** — causa raiz corrigida (#418: GSI não renderizava no cold-load; #420: tema dark); chooser abre em produção (verificado em navegador) e a app está em uso logado.
+> - **[3] B1 ⏳ PENDENTE** — a rota já existe (`DELETE /api/v1/midias/:id`, `@Roles("ADMIN")`, soft delete T215 com specs); falta sessão ADMIN para executar. O item segue em produção e é referenciado pela conta Teste (1 watchlist + 1 interação) — remoção via DB deixaria referências penduradas (sem FK). UI de clique sendo adicionada ao painel `/admin/diagnostics` (PR separada).
+> - Interlúdio: 8 PRs de correções reportadas pelo Operador mergeados e verificados em produção em 2026-10-03/05 (#411, #418, #420, #422, #424, #425, #426, #427, #429): login Google, watchlist com 6 tipos, perfil (indicadores/gêneros/atividade), dashboard honesta, biblioteca (cards + remoção self-service).
+> - **GO para convites: continua SUSPENSO** até B1 + declaração formal do Operador.
+
 ## Gate audit:ci VERMELHO em main — 10 bloqueantes sem fix limpo (registro T200; antes commitado como "T161", ID colidiu com o PACOTE DE GO do fluxo paralelo)
 
 `npm run audit:ci` VERMELHO em `main` (drift de advisories em lote — modo T148/T153, agora múltiplo). Como o Lint & Audit (required) executa audit:ci, **PRs de código estão congeladas** até resolução (docs-only passa: jobs pesados pulam). Mapa `npm audit --json` (fixAvailable):
