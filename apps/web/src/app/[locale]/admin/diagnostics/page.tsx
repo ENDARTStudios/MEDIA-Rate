@@ -17,6 +17,89 @@ function fmtUptime(segundos: number): string {
   return `${h}h ${m}m ${s}s`;
 }
 
+interface MidiaRemovida {
+  id: string;
+  titulo: string;
+  deleted_at: string;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * T215/B1 — ferramenta de remoção (soft delete) de mídia do catálogo.
+ * A rota DELETE /api/v1/midias/:id já valida RBAC ADMIN no backend; aqui
+ * exigimos confirmação explícita e exibimos o resultado/erro.
+ */
+function RemoverMidiaForm() {
+  const [midiaId, setMidiaId] = useState("");
+  const [resultado, setResultado] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+
+  async function remover() {
+    const id = midiaId.trim();
+    setErro(null);
+    setResultado(null);
+    if (!UUID_RE.test(id)) {
+      setErro("Informe um UUID válido.");
+      return;
+    }
+    if (!window.confirm(`Remover a mídia ${id} do catálogo? (soft delete — preservada no banco)`)) {
+      return;
+    }
+    setOcupado(true);
+    try {
+      const removida = await api.delete<MidiaRemovida>(`/api/v1/midias/${id}`);
+      setResultado(`Removida: "${removida.titulo}" (soft delete em ${removida.deleted_at})`);
+      setMidiaId("");
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao remover a mídia.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  return (
+    <section aria-labelledby="admin-remove-title" className="mb-8">
+      <h2
+        id="admin-remove-title"
+        className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100"
+      >
+        Remover mídia do catálogo (soft delete)
+      </h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 flex flex-wrap items-center gap-3">
+        <input
+          value={midiaId}
+          onChange={(e) => setMidiaId(e.target.value)}
+          placeholder="UUID da mídia"
+          data-testid="admin-remove-input"
+          aria-label="UUID da mídia a remover"
+          className="flex-1 min-w-[16rem] rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm font-mono"
+        />
+        <button
+          type="button"
+          onClick={() => void remover()}
+          disabled={ocupado || midiaId.trim() === ""}
+          data-testid="admin-remove-button"
+          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-40"
+        >
+          {ocupado ? "Removendo…" : "Remover"}
+        </button>
+      </div>
+      {resultado && (
+        <p data-testid="admin-remove-result" className="mt-2 text-sm text-green-600">
+          {resultado}
+        </p>
+      )}
+      {erro && (
+        <p data-testid="admin-remove-error" className="mt-2 text-sm text-red-600" role="alert">
+          {erro}
+        </p>
+      )}
+    </section>
+  );
+}
+
 /**
  * T329 — painel de diagnóstico interno (somente leitura).
  * Acesso restrito a ADMIN no backend (@Roles('ADMIN')); 401/403 vira erro.
@@ -50,6 +133,8 @@ export default function DiagnosticsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">Diagnóstico</h1>
+
+      <RemoverMidiaForm />
 
       <section aria-labelledby="server-title" className="mb-8">
         <h2
