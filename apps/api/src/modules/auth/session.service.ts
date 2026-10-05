@@ -195,6 +195,18 @@ export class SessionService implements OnApplicationBootstrap {
   }
 
   /**
+   * Onda 1 admin: revoga TODAS as sessões ativas do usuário (ban). O
+   * validateToken ignora sessões com revoked_at — o efeito é imediato.
+   */
+  async revogarTodasDoUsuario(usuarioId: string): Promise<number> {
+    const result = await this.prisma.sessao.updateMany({
+      where: { usuario_id: usuarioId, revoked_at: null },
+      data: { revoked_at: new Date() },
+    });
+    return result.count;
+  }
+
+  /**
    * Limpa sessões expiradas (job agendado em Fase posterior).
    */
   async cleanupExpired(): Promise<number> {

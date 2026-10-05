@@ -235,8 +235,19 @@ export class AuthService {
         nome: true,
         password_hash: true,
         email_verificado_em: true,
+        banido_em: true,
       },
     });
+
+    // Onda 1 admin: conta banida não autentica (mensagem genérica — não
+    // revela se o email existe).
+    if (usuario?.banido_em) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: "Forbidden",
+        message: "Credenciais inválidas.",
+      });
+    }
 
     // 3. Verifica senha. Mensagem genérica se usuário não existe.
     let passwordValid = false;
@@ -355,9 +366,18 @@ export class AuthService {
 
     let usuario = await this.prisma.usuario.findUnique({
       where: { email },
-      select: { id: true, email: true, nome: true },
+      select: { id: true, email: true, nome: true, banido_em: true },
     });
     const isNewUser = !usuario;
+
+    // Onda 1 admin: conta banida não autentica via Google.
+    if (usuario?.banido_em) {
+      throw new UnauthorizedException({
+        statusCode: 403,
+        error: "Forbidden",
+        message: "Conta desativada.",
+      });
+    }
 
     if (!usuario) {
       usuario = await this.prisma.$transaction(async (tx) => {
@@ -372,7 +392,7 @@ export class AuthService {
             termos_versao_aceita: TERMS_VERSION,
             email_verificado_em: new Date(), // Google já validou o email.
           },
-          select: { id: true, email: true, nome: true },
+          select: { id: true, email: true, nome: true, banido_em: true },
         });
         await tx.$executeRawUnsafe("SELECT set_config('app.current_user_id', $1, true)", user.id);
         await tx.$executeRawUnsafe("SELECT set_config('app.current_user_role', 'SERVICE', true)");

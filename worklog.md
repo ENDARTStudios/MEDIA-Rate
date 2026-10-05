@@ -3397,3 +3397,7 @@ Review R150 = APPROVED_WITH_CONDITIONS: técnico aprovado; violação D-457 com 
 5. WatchlistCard: botão Remover visível no card órfão (o ⋮ escondido não era descoberto).
 
 Suítes: API 992/992 (132 arq); web 479/479.
+
+### [2026-10-03] fix/user-feedback-batch fechamento — PR #411 merged (d3c4f06c)
+
+- 5 correções do Operador em produção. Smoke 7/7 + /privacy ×3 200. Branch deletada.

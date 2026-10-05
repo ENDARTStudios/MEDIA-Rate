@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { ForbiddenException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { AuthService } from "../src/modules/auth/auth.service.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
@@ -28,6 +29,7 @@ interface MockUser {
   password_reset_token: string | null;
   password_reset_expira: Date | null;
   ultimo_login_em: Date | null;
+  banido_em?: Date | null;
   email_verificado_em?: Date | null;
   termos_aceitos_em?: Date | null;
   termos_versao_aceita?: string | null;
@@ -204,6 +206,23 @@ describe("AuthService (unit)", () => {
     const result = await service.login({ email: "valid@test.com", password: "Senha@123" });
     expect(result.token).toBeDefined();
     expect(result.usuario.email).toBe("valid@test.com");
+  });
+
+  it("login — usuário banido não autentica (403 genérico, sem revelar ban)", async () => {
+    userMap.set("banned@test.com", {
+      id: "u-ban",
+      email: "banned@test.com",
+      password_hash: "hashed",
+      nome: null,
+      password_reset_token: null,
+      password_reset_expira: null,
+      ultimo_login_em: null,
+      banido_em: new Date(),
+      email_verificado_em: null,
+    });
+    await expect(
+      service.login({ email: "banned@test.com", password: "Senha@123" }),
+    ).rejects.toThrow(ForbiddenException);
   });
 
   it("login — senha incorreta lança UnauthorizedException", async () => {
