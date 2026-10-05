@@ -8,6 +8,7 @@ import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { Link } from "@/lib/navigation";
 import {
   getInteracoes,
+  removerInteracao,
   type Interacao,
   type StatusConsumoApi,
   type TipoMidiaApi,
@@ -80,6 +81,7 @@ export function BibliotecaClient({
   const [loading, setLoading] = useState(true);
   const [carregandoMais, setCarregandoMais] = useState(false);
   const [error, setError] = useState(false);
+  const [removendoId, setRemovendoId] = useState<string | null>(null);
 
   const carregar = useCallback(async (f: Filtros, cursor?: string) => {
     const anexando = Boolean(cursor);
@@ -117,6 +119,18 @@ export function BibliotecaClient({
     const novos = { ...filtros, tipo: n };
     setFiltros(novos);
     void carregar(novos);
+  };
+
+  // Exclui a interação (item sai da biblioteca) e atualiza contagens locais.
+  const removerItem = async (i: Interacao) => {
+    setRemovendoId(i.midia.id);
+    const ok = await removerInteracao(i.midia.id);
+    if (ok) {
+      setItems((anteriores) => anteriores.filter((x) => x.midia.id !== i.midia.id));
+      setPorStatus((p) => ({ ...p, [i.status]: Math.max(0, (p[i.status] ?? 1) - 1) }));
+      setTotalFiltrado((t) => Math.max(0, t - 1));
+    }
+    setRemovendoId(null);
   };
 
   const somaPorStatus = (Object.values(porStatus) as number[]).reduce((a, b) => a + b, 0);
@@ -230,7 +244,7 @@ export function BibliotecaClient({
         <>
           <div
             data-testid="biblioteca-grid"
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+            className="grid grid-cols-2 gap-3 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
           >
             {items.map((i) => {
               const item = toMediaItem(i);
@@ -253,6 +267,17 @@ export function BibliotecaClient({
                     <span className="shrink-0 text-[10px] text-white/30">
                       {tc(nicheLabelKey(niche) as never)}
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => void removerItem(i)}
+                      disabled={removendoId === i.midia.id}
+                      data-testid={`biblioteca-remover-${i.midia.id}`}
+                      title={t("removerAria")}
+                      aria-label={t("removerAria")}
+                      className="ml-auto shrink-0 rounded-lg border border-white/[0.12] bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-white/45 transition hover:border-red-400/40 hover:text-red-300 disabled:opacity-40"
+                    >
+                      {removendoId === i.midia.id ? "…" : t("remover")}
+                    </button>
                   </div>
                 </div>
               );

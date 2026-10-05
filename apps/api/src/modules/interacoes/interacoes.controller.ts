@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   UnauthorizedException,
+  Delete,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -166,5 +167,18 @@ export class InteracoesController {
     @Body(new ZodValidationPipe(upsertInteracaoSchema)) body: UpsertInteracaoDto,
   ) {
     return this.service.upsert(this.userId(req), midiaId, body);
+  }
+
+  @Delete(":midiaId")
+  @ApiOperation({
+    summary: "Remove a interação do usuário com uma mídia (item sai da biblioteca)",
+  })
+  @ApiOkResponse({ description: "Interação removida (owner-only)." })
+  @ApiUnauthorizedResponse({ description: "Sem sessão válida." })
+  @ApiNotFoundResponse({
+    description: "404 — midiaId malformado (UUID inválido) ou sem interação.",
+  })
+  async remover(@Req() req: InteracaoRequest, @Param("midiaId", UuidParamPipe) midiaId: string) {
+    return this.service.remover(this.userId(req), midiaId);
   }
 }

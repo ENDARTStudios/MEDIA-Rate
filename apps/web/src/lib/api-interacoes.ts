@@ -150,3 +150,17 @@ export async function listarTodasInteracoes(limiteTotal = 500): Promise<Interaco
   }
   return { ...primeiro, items: items.slice(0, limiteTotal) };
 }
+
+/**
+ * Remove a interação (o item sai da biblioteca). Owner-only (DELETE
+ * /api/v1/interacoes/:midiaId). false em falha de rede/404 — a UI mantém
+ * o item e o usuário pode tentar de novo.
+ */
+export async function removerInteracao(midiaId: string): Promise<boolean> {
+  try {
+    await api.delete(`/api/v1/interacoes/${encodeURIComponent(midiaId)}`);
+    return true;
+  } catch {
+    return false;
+  }
+}

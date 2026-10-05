@@ -104,6 +104,8 @@
     "metaTitle": "Library — MEDIA Rate",
     "metaDescription": "Everything you marked, by status and media type.",
     "title": "My library",
+    "remover": "Remove",
+    "removerAria": "Remove from library",
     "subtitle": "Your picks organized by status — want, watching, completed and dropped — with a media type filter.",
     "loading": "Loading your library…",
     "error": "Could not load your library right now. Try again.",
