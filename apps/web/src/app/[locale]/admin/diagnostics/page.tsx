@@ -18,9 +18,8 @@ function fmtUptime(segundos: number): string {
 }
 
 interface MidiaRemovida {
-  id: string;
-  titulo: string;
-  deleted_at: string;
+  ok?: boolean;
+  message?: string;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -49,8 +48,8 @@ function RemoverMidiaForm() {
     }
     setOcupado(true);
     try {
-      const removida = await api.delete<MidiaRemovida>(`/api/v1/midias/${id}`);
-      setResultado(`Removida: "${removida.titulo}" (soft delete em ${removida.deleted_at})`);
+      const resp = await api.delete<MidiaRemovida>(`/api/v1/midias/${id}`);
+      setResultado(resp?.message ?? "Mídia removida (soft delete).");
       setMidiaId("");
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao remover a mídia.");

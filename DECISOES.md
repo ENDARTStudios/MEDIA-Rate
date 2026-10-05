@@ -2535,3 +2535,34 @@ endereçada (pushes diretos em `main` permitidos por ruleset incompleto + bypass
 **Escopo:** apenas o ruleset. Nenhuma alteração de código, segurança de aplicação,
 LGPD, i18n, copy jurídica, workflows, dependências ou lockfile. Gov-02, B1, UG-01 e
 GO de convites permanecem fora desta decisão.
+
+## D-563 — Elevação ADMIN do Operador, execução do B1 e aceite do roadmap da Área de Administrador
+
+**Data:** 2026-10-05 · **Fase:** pós-T161 (Pacote de GO) · **Status:** EXECUTADA E ACEITA
+
+**Decisão:**
+1. **Elevação ADMIN:** o usuário `90a1c50a-aa71-42d0-97e6-5304802b4d92` (Operador,
+   endart@) recebeu o papel `ADMIN` via DB direto (railway ssh), a pedido do próprio
+   Operador ao se deparar com 403 no painel `/admin/diagnostics`. Justificativa: dono
+   da plataforma; o único ADMIN anterior era a conta sintética
+   `admin***@mediarate.test`. Escrita direta sem trilha de aplicação — registrada
+   aqui como trilha de governança.
+2. **B1 EXECUTADO:** soft delete do item de teste "R2 Upload Test — pode deletar"
+   (`424e6a91-5b5c-4659-b805-bb06ed13547d`) pela rota T215
+   (`DELETE /api/v1/midias/:id`, audit `MEDIA_DELETED`), acionada pelo Operador no
+   painel `/admin/diagnostics` (#432). Referências da conta Teste limpas via
+   sessão (watchlist 0, interações 0 — T160b). **Pacote de GO fecha 4/4**
+   (Gov-01 = D-562; P019; UG-01 = #418/#420; B1) — **GO de convites liberável por
+   declaração formal do Operador.**
+3. **Roadmap da Área de Administrador ACEITO** com prioridades P0–P3 (P0 gestão de
+   usuários + moderação de avaliações; P1 CRUD de catálogo + feature flags no
+   painel; P2 métricas + log de auditoria; P3 LGPD + i18n). Execução em ondas com
+   spec por onda antes do código (TDD), sem inferência de produto além do aceite
+   deste roadmap.
+4. **Higiene pendente (Operador):** a conta sintética `admin***@mediarate.test`
+   permanece ADMIN em produção — trocar credenciais, remover papel ou a conta.
+5. **Fix:** painel `/admin/diagnostics` passou a exibir a mensagem do CONTRATO da
+   rota (`{ ok, message }`) no resultado da remoção — antes mostrava "undefined"
+   (campos inventados pelo formulário).
+
+**Relacionados:** D-562 (Gov-01), T215 (soft delete), T160b (sync watchlist→interações), #432, PR do fix.

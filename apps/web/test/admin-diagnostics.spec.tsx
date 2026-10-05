@@ -7,10 +7,10 @@ import { api } from "@/lib/http";
 // A rota DELETE /api/v1/midias/:id é @Roles("ADMIN") no backend; o formulário
 // exige confirmação e exibe resultado/erro.
 
+const MIDIA_ID = "424e6a91-5b5c-4659-b805-bb06ed13547d";
 const MIDIA = {
-  id: "424e6a91-5b5c-4659-b805-bb06ed13547d",
-  titulo: "R2 Upload Test — pode deletar",
-  deleted_at: "2026-10-05T12:00:00.000Z",
+  ok: true,
+  message: "Mídia removida (soft delete).",
 };
 
 const DIAG = {
@@ -49,15 +49,17 @@ describe("DiagnosticsPage — remover mídia (B1)", () => {
   it("confirma e chama DELETE /midias/:id, exibindo o resultado", async () => {
     renderPage();
     const input = await screen.findByTestId("admin-remove-input");
-    fireEvent.change(input, { target: { value: MIDIA.id } });
+    fireEvent.change(input, { target: { value: MIDIA_ID } });
     fireEvent.click(screen.getByTestId("admin-remove-button"));
 
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith(`/api/v1/midias/${MIDIA.id}`);
+      expect(api.delete).toHaveBeenCalledWith(`/api/v1/midias/${MIDIA_ID}`);
     });
     expect(confirmSpy).toHaveBeenCalledTimes(1);
     await waitFor(() => {
-      expect(screen.getByTestId("admin-remove-result").textContent).toContain(MIDIA.titulo);
+      // exibe a mensagem do CONTRATO da rota ({ ok, message }) — nunca "undefined"
+      expect(screen.getByTestId("admin-remove-result").textContent).toBe(MIDIA.message);
+      expect(screen.getByTestId("admin-remove-result").textContent).not.toContain("undefined");
     });
   });
 
@@ -65,7 +67,7 @@ describe("DiagnosticsPage — remover mídia (B1)", () => {
     confirmSpy.mockReturnValue(false);
     renderPage();
     const input = await screen.findByTestId("admin-remove-input");
-    fireEvent.change(input, { target: { value: MIDIA.id } });
+    fireEvent.change(input, { target: { value: MIDIA_ID } });
     fireEvent.click(screen.getByTestId("admin-remove-button"));
 
     expect(api.delete).not.toHaveBeenCalled();
@@ -87,7 +89,7 @@ describe("DiagnosticsPage — remover mídia (B1)", () => {
     vi.mocked(api.delete).mockRejectedValue(new Error("Mídia não encontrada."));
     renderPage();
     const input = await screen.findByTestId("admin-remove-input");
-    fireEvent.change(input, { target: { value: MIDIA.id } });
+    fireEvent.change(input, { target: { value: MIDIA_ID } });
     fireEvent.click(screen.getByTestId("admin-remove-button"));
 
     await waitFor(() => {
