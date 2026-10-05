@@ -44,7 +44,6 @@ import {
   DEMO_DISCOVERIES,
   NICHE_ORDER,
   OVERVIEW_PERIODS,
-  PERIOD_DELTA,
   PERIOD_SERIES,
   TREND_SERIES,
   affinityFromHistograma,
@@ -461,7 +460,6 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   const topBar = taxonomy.find((b) => b.value > 0);
   const activeNichesCount = taxonomy.filter((b) => b.value > 0).length;
   const periodSeries = PERIOD_SERIES[period];
-  const periodDelta = PERIOD_DELTA[period];
 
   // Métricas reais (auditoria S1): total/afinidade/conclusão derivam da
   // resposta REAL de /api/v1/user/stats; sem dado → "—", nunca inventado.
@@ -640,7 +638,8 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   };
 
   // Cartões de métrica: valor REAL em primeiro lugar; spark/trend REAIS
-  // quando a API fornece série (Premium) — senão demo rotulado (F17).
+  // quando a API fornece série (Premium) — sem série, o card fica 100% real
+  // (sem trend/spark demonstrativos nem selo: o valor nunca é demo — F17).
   const evolucaoTotais = evolucaoReal ? evolucaoReal.map((p) => p.total) : null;
   const metricCards = [
     {
@@ -651,11 +650,11 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         ? deltaReal && !deltaReal.startsWith("-")
           ? `+${deltaReal.replace("+", "")}`
           : deltaReal
-        : periodDelta,
+        : null,
       icon: BarChart3,
       color: "#8b7cff",
-      spark: evolucaoTotais ?? periodSeries.taste,
-      demo: !evolucaoTotais,
+      spark: evolucaoTotais,
+      demo: false,
     },
     {
       label: t("overviewAffinity"),

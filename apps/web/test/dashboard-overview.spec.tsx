@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type * as NextIntl from "next-intl";
 import type * as ApiInteracoes from "@/lib/api-interacoes";
@@ -51,6 +51,7 @@ import {
   ACTIVITY_FEED,
   DEMO_DISCOVERIES,
   OVERVIEW_PERIODS,
+  PERIOD_DELTA,
   PERIOD_SERIES,
   TREND_SERIES,
   affinityFromHistograma,
@@ -338,6 +339,30 @@ describe("DashboardOverview (T460 + auditoria S1)", () => {
     const badges = screen.getAllByTestId("demo-badge");
     expect(badges.length).toBe(5);
     expect(badges.every((b) => b.textContent === "demoBadge")).toBe(true);
+  });
+
+  // Incidente Operador: Plus via "Itens avaliados 65 · DEMONSTRAÇÃO" — o valor
+  // era REAL (interações em consumo) mas o selo demo manchava o card inteiro
+  // porque o spark/trend vinham de série do protótipo (Premium-only).
+  it("Plus sem série Premium: card de itens é 100% real (sem selo/trend/spark demo)", () => {
+    renderOverview({ ...STATS, plano: "PLUS" });
+    const section = screen.getByTestId("overview-metrics");
+    // valor real presente (total de interações em consumo)
+    expect(within(section).getByText("10")).toBeTruthy();
+    // nenhum selo de demonstração manchando o valor real
+    expect(within(section).queryByTestId("demo-badge")).toBeNull();
+    // sem trend de série demonstrativa (periodDelta do protótipo)
+    expect(section.textContent).not.toContain(PERIOD_DELTA["12 meses"]);
+    // sem sparkline de série demonstrativa (o spark era periodSeries.taste)
+    expect(within(section).queryByLabelText("overviewRated")).toBeNull();
+  });
+
+  it("rotulo do card de itens descreve consumo (nao 'avaliados')", () => {
+    renderOverview({ ...STATS, plano: "PLUS" });
+    const section = screen.getByTestId("overview-metrics");
+    // rótulo + helper descrevem consumo (chaves; valores reais nos locales)
+    expect(within(section).getAllByText("overviewRated").length).toBeGreaterThan(0);
+    expect(within(section).getByText("metricRatedHelper")).toBeTruthy();
   });
 
   it("F17: sem 'gerar link público' (rota inexistente — Thinker)", () => {
