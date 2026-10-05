@@ -28,9 +28,7 @@ function mockPrisma() {
           if (where.usuarioPlano && u.plano.plano !== where.usuarioPlano.plano) return false;
           if (where.OR) {
             const q = where.OR[0].nome.contains.toLowerCase();
-            return (
-              u.email.toLowerCase().includes(q) || (u.nome ?? "").toLowerCase().includes(q)
-            );
+            return u.email.toLowerCase().includes(q) || (u.nome ?? "").toLowerCase().includes(q);
           }
           return true;
         }),
@@ -108,7 +106,10 @@ describe("AdminService — gestão de usuários (Onda 1 admin, P0)", () => {
       }),
     );
     expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({ acao: "ADMIN_PLANO_ALTERADO", dadosDepois: { alvo: EDI, plano: "PREMIUM", origem: "MANUAL" } }),
+      expect.objectContaining({
+        acao: "ADMIN_PLANO_ALTERADO",
+        dadosDepois: { alvo: EDI, plano: "PREMIUM", origem: "MANUAL" },
+      }),
     );
     await expect(service.alterarPlano(ADMIN, "nao-existe", "PLUS")).rejects.toThrow(
       NotFoundException,
