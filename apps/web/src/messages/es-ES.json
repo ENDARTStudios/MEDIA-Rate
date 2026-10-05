@@ -104,6 +104,8 @@
     "metaTitle": "Biblioteca — MEDIA Rate",
     "metaDescription": "Todo lo que marcaste, por estado y tipo de medio.",
     "title": "Mi biblioteca",
+    "remover": "Eliminar",
+    "removerAria": "Eliminar de la biblioteca",
     "subtitle": "Tus elecciones organizadas por estado — quiero ver, viendo, terminado y abandonado — con filtro por tipo de medio.",
     "loading": "Cargando tu biblioteca…",
     "error": "No se pudo cargar tu biblioteca ahora. Inténtalo de nuevo.",

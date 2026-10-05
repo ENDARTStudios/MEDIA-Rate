@@ -45,6 +45,14 @@ function mockPrisma() {
         // include real: `{ midia: MIDIA_INTERACAO_SELECT }` (T036/T038).
         return { ...linha, midia: midiaDe(linha.midia_id) };
       }),
+      delete: vi.fn(async ({ where }: any) => {
+        const k = where.usuario_id_midia_id;
+        const idx = estado.findIndex(
+          (e) => e.usuario_id === k.usuario_id && e.midia_id === k.midia_id,
+        );
+        const [removida] = idx >= 0 ? estado.splice(idx, 1) : [];
+        return removida ?? null;
+      }),
     },
     // T286 — descobertas() consulta DiscoveryEvents além das interações.
     discoveryEvent: {
@@ -158,6 +166,20 @@ describe("T198 — interacoes.service (máquina de estados Addendum 4 Parte 3)",
     await expect(service.upsert("user-1", "midia-inexistente", {})).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it("remover apaga a interação (item sai da biblioteca) — owner-only", async () => {
+    await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
+    const r = await service.remover("user-1", "midia-1");
+    expect(r).toEqual({ midiaId: "midia-1" });
+    expect(await service.obter("user-1", "midia-1")).toBeNull();
+  });
+
+  it("remover sem interação → 404 (e não vaza de outro usuário)", async () => {
+    await service.upsert("user-1", "midia-1", { status: "CONSUMINDO" });
+    await expect(service.remover("user-2", "midia-1")).rejects.toThrow(NotFoundException);
+    // a interação de user-1 permanece
+    expect(await service.obter("user-1", "midia-1")).not.toBeNull();
   });
 
   it("D-527 — CONCLUIDO → ABANDONADO é rejeitado (400)", async () => {

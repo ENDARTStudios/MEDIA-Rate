@@ -104,6 +104,8 @@
     "metaTitle": "Biblioteca — MEDIA Rate",
     "metaDescription": "Tudo o que você marcou, por status e tipo de mídia.",
     "title": "Minha biblioteca",
+    "remover": "Remover",
+    "removerAria": "Remover da biblioteca",
     "subtitle": "Suas escolhas organizadas por status — quero ver, assistindo, concluído e abandonado — com filtro por tipo de mídia.",
     "loading": "Carregando sua biblioteca…",
     "error": "Não foi possível carregar sua biblioteca agora. Tente novamente.",

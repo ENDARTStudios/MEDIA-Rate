@@ -160,6 +160,27 @@ export class InteracoesService {
     return interacao ? mapearInteracaoResponse(interacao) : null;
   }
 
+  /**
+   * Remove a interação (o item sai da biblioteca). Owner-only via RLS.
+   * Complemento do T160b: até hoje a interação só saía pela remoção da
+   * watchlist — status criados direto (carousel/ficha) não tinham saída.
+   */
+  async remover(usuarioId: string, midiaId: string): Promise<{ midiaId: string }> {
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const existente = await tx.usuarioMidiaInteracao.findUnique({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+        select: { id: true },
+      });
+      if (!existente) {
+        throw new NotFoundException("Interação não encontrada.");
+      }
+      await tx.usuarioMidiaInteracao.delete({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+      });
+      return { midiaId };
+    });
+  }
+
   /** Cria/atualiza status+reação com validação da máquina de estados. */
   async upsert(
     usuarioId: string,

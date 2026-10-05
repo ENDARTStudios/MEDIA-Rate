@@ -18,10 +18,15 @@ vi.mock("next-intl", async (importOriginal) => {
 });
 
 let getInteracoesMock = vi.fn();
+let removerInteracaoMock = vi.fn();
 
 vi.mock("@/lib/api-interacoes", async (importOriginal) => {
   const actual = await importOriginal<typeof ApiInteracoes>();
-  return { ...actual, getInteracoes: (...args: unknown[]) => getInteracoesMock(...args) };
+  return {
+    ...actual,
+    getInteracoes: (...args: unknown[]) => getInteracoesMock(...args),
+    removerInteracao: (...args: unknown[]) => removerInteracaoMock(...args),
+  };
 });
 
 vi.mock("@/lib/navigation", () => ({
@@ -101,6 +106,7 @@ async function renderBiblioteca(
   initialTipo: ApiInteracoes.TipoMidiaApi | null = null,
 ) {
   getInteracoesMock = vi.fn().mockResolvedValue(paginaConjunto());
+  removerInteracaoMock = vi.fn().mockResolvedValue(true);
   const view = render(
     <NextIntlClientProvider locale="pt-BR" messages={{}}>
       <BibliotecaClient initialStatus={initialStatus} initialTipo={initialTipo} />
@@ -246,5 +252,26 @@ describe("BibliotecaClient (D-525 — envelope paginado)", () => {
     expect(await screen.findByText("error")).toBeTruthy();
     fireEvent.click(screen.getByText("retry"));
     await waitFor(() => expect(screen.getAllByTestId("biblioteca-item")).toHaveLength(4));
+  });
+
+  it("remover da biblioteca: chama DELETE e o item sai com contagens atualizadas", async () => {
+    await renderBiblioteca();
+    fireEvent.click(screen.getByTestId("biblioteca-remover-m-i1"));
+    await waitFor(() => expect(removerInteracaoMock).toHaveBeenCalledWith("m-i1"));
+    await waitFor(() => expect(screen.getAllByTestId("biblioteca-item")).toHaveLength(3));
+    // contagens locais: Todos 4 → 3; aba CONCLUIDO 1 → 0
+    expect(screen.getByText("tabAll · 3")).toBeTruthy();
+    expect(screen.queryByText("concluido · 1")).toBeNull();
+    expect(screen.getByText("concluido · 0")).toBeTruthy();
+    expect(screen.queryByText("Duna: Parte Dois")).toBeNull();
+  });
+
+  it("falha ao remover → item permanece na biblioteca", async () => {
+    await renderBiblioteca();
+    removerInteracaoMock.mockResolvedValue(false);
+    fireEvent.click(screen.getByTestId("biblioteca-remover-m-i1"));
+    await waitFor(() => expect(removerInteracaoMock).toHaveBeenCalledWith("m-i1"));
+    expect(screen.getAllByTestId("biblioteca-item")).toHaveLength(4);
+    expect(screen.getByText("Duna: Parte Dois")).toBeTruthy();
   });
 });
