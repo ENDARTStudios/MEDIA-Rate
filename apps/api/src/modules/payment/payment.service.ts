@@ -348,14 +348,18 @@ export class PaymentService {
           update: manual
             ? {
                 stripe_subscription_id: object.id ?? undefined,
-                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                current_period_end: currentPeriodEnd
+                  ? new Date(currentPeriodEnd * 1000)
+                  : undefined,
                 trial_ends_at: trialEndsAt ?? undefined,
               }
             : {
                 plano,
                 status: "TRIALING",
                 stripe_subscription_id: object.id ?? undefined,
-                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                current_period_end: currentPeriodEnd
+                  ? new Date(currentPeriodEnd * 1000)
+                  : undefined,
                 trial_ends_at: trialEndsAt ?? undefined,
               },
         });
@@ -388,12 +392,16 @@ export class PaymentService {
           where: { usuario_id: usuarioId },
           data: manual
             ? {
-                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                current_period_end: currentPeriodEnd
+                  ? new Date(currentPeriodEnd * 1000)
+                  : undefined,
               }
             : {
                 plano,
                 status: "ATIVA",
-                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                current_period_end: currentPeriodEnd
+                  ? new Date(currentPeriodEnd * 1000)
+                  : undefined,
                 trial_ends_at: null,
               },
         });

@@ -96,7 +96,8 @@ export class AdminController {
   async alterarPlano(
     @Req() req: FastifyRequest,
     @Param("id", UuidParamPipe) id: string,
-    @Body(new ZodValidationPipe(AdminController.planoSchema)) body: z.infer<typeof AdminController.planoSchema>,
+    @Body(new ZodValidationPipe(AdminController.planoSchema))
+    body: z.infer<typeof AdminController.planoSchema>,
   ) {
     const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
     return this.adminService.alterarPlano(adminId, id, body.plano);
@@ -113,7 +114,8 @@ export class AdminController {
   async banir(
     @Req() req: FastifyRequest,
     @Param("id", UuidParamPipe) id: string,
-    @Body(new ZodValidationPipe(AdminController.banSchema)) body: z.infer<typeof AdminController.banSchema>,
+    @Body(new ZodValidationPipe(AdminController.banSchema))
+    body: z.infer<typeof AdminController.banSchema>,
   ) {
     const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
     return this.adminService.banir(adminId, id, body.motivo);
