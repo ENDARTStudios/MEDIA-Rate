@@ -107,6 +107,9 @@ model Usuario {
   // o timestamp sozinho não prova qual texto foi aceito). Write-once no
   // register; atualizado em re-aceite. Backfill: '1.0' (única versão publicada).
   termos_versao_aceita String?                @map("termos_versao_aceita") @db.VarChar(20)
+  // Onda 1 admin: banido_em != null desativa o login (ban ativa; desban
+  // anula). Sessões ativas são revogadas no ato do ban.
+  banido_em            DateTime?            @map("banido_em")
   // T214: token de verificação de email — SHA-256 do token opaco (nunca
   // plaintext) + expiração 24h; uso único (anulado após verificar).
   email_verification_token_hash  String?      @map("email_verification_token_hash") @db.VarChar(64)
@@ -240,6 +243,10 @@ model UsuarioPlano {
   trial_notified_at     DateTime?        @map("trial_notified_at")
   // T327: data da primeira ativação de trial — garante trial único por usuário.
   trial_used_at         DateTime?        @map("trial_used_at")
+  // Onda 1 admin: origem do plano atual — STRIPE (dono) ou MANUAL (exceção
+  // "manual até cancelamento" via painel admin; sync de renovação não
+  // sobrescreve). Nova assinatura Stripe volta a STRIPE.
+  origem               String             @default("STRIPE")
   created_at            DateTime         @default(now()) @map("created_at")
   updated_at            DateTime         @updatedAt @map("updated_at")
 

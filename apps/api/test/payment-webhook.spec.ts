@@ -18,6 +18,9 @@ function montarService() {
       upsert: upsertPlano,
       update: vi.fn().mockResolvedValue({}),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      // Onda 1 admin: sincronizarAssinatura lê a origem p/ respeitar exceção
+      // MANUAL ("plano manual até cancelamento") — default STRIPE nos testes.
+      findUnique: vi.fn().mockResolvedValue({ origem: "STRIPE" }),
     },
   };
   const gateway = {

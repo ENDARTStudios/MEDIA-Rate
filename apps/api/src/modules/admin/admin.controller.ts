@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Req, Res, Optional, NotFoundException } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Query,
+  Param,
+  Req,
+  Res,
+  Optional,
+  NotFoundException,
+} from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { z } from "zod";
 import { Roles } from "../../common/decorators/roles.decorator.js";
+import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
+import { UuidParamPipe } from "../../common/pipes/uuid-param.pipe.js";
 import { AdminService } from "./admin.service.js";
 import { FeatureFlagService } from "../flags/feature-flags.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
@@ -42,6 +57,75 @@ export class AdminController {
       throw new NotFoundException("LgpdPurgeService indisponível.");
     }
     return this.lgpdPurge.purgeExpirados();
+  }
+
+  // ===== Onda 1 admin (P0) — gestão de usuários =====
+
+  private static listarUsuariosQuery = z.object({
+    q: z.string().trim().min(1).max(120).optional(),
+    plano: z.enum(["FREE", "PLUS", "PREMIUM"]).optional(),
+    page: z.coerce.number().int().min(0).default(0),
+  });
+
+  @Get("usuarios")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Lista usuários com busca por nome/email e filtro por plano (admin)",
+  })
+  @ApiBearerAuth()
+  async listarUsuarios(
+    @Req() req: FastifyRequest,
+    @Query(new ZodValidationPipe(AdminController.listarUsuariosQuery))
+    query: z.infer<typeof AdminController.listarUsuariosQuery>,
+  ) {
+    return this.adminService.listarUsuarios({
+      q: query.q,
+      plano: query.plano,
+      page: query.page,
+    });
+  }
+
+  private static planoSchema = z.object({ plano: z.enum(["FREE", "PLUS", "PREMIUM"]) });
+
+  @Patch("usuarios/:id/plano")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Altera o plano criando exceção MANUAL (sync de renovação não sobrescreve)",
+  })
+  @ApiBearerAuth()
+  async alterarPlano(
+    @Req() req: FastifyRequest,
+    @Param("id", UuidParamPipe) id: string,
+    @Body(new ZodValidationPipe(AdminController.planoSchema)) body: z.infer<typeof AdminController.planoSchema>,
+  ) {
+    const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
+    return this.adminService.alterarPlano(adminId, id, body.plano);
+  }
+
+  private static banSchema = z.object({ motivo: z.string().trim().min(1).max(280) });
+
+  @Post("usuarios/:id/ban")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Bane o usuário: desativa login, revoga sessões ativas, registra motivo",
+  })
+  @ApiBearerAuth()
+  async banir(
+    @Req() req: FastifyRequest,
+    @Param("id", UuidParamPipe) id: string,
+    @Body(new ZodValidationPipe(AdminController.banSchema)) body: z.infer<typeof AdminController.banSchema>,
+  ) {
+    const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
+    return this.adminService.banir(adminId, id, body.motivo);
+  }
+
+  @Post("usuarios/:id/desbanir")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Revoga o ban do usuário" })
+  @ApiBearerAuth()
+  async desbanir(@Req() req: FastifyRequest, @Param("id", UuidParamPipe) id: string) {
+    const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
+    return this.adminService.desbanir(adminId, id);
   }
 
   @Get("stats")

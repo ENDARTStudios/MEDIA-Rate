@@ -1,8 +1,25 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, Optional } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { CacheService } from "../../common/cache.service.js";
 import { comContextoRls, DEFAULT_TENANT } from "../../common/rls-context.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
+
+export type PlanoAdmin = "FREE" | "PLUS" | "PREMIUM";
+
+const USUARIOS_PAGE_SIZE = 25;
+
+/** Item da listagem de usuários (Onda 1 admin). Não expõe PII além do
+ * necessário à gestão (nome/email/plano/status) — nunca hash/sessões. */
+export interface UsuarioAdminItem {
+  id: string;
+  nome: string | null;
+  email: string;
+  plano: PlanoAdmin;
+  origem: string;
+  banido: boolean;
+  criado_em: Date;
+}
 
 const STATS_TTL = 60; // segundos (T210 — chave admin:stats)
 
@@ -17,7 +34,160 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
+    @Optional() private readonly auditLog?: AuditLogService,
   ) {}
+
+  /**
+   * Onda 1 admin (P0): lista usuários com busca por nome/email e filtro por
+   * plano, paginada. Sob contexto RLS ADMIN — enxerga todos os usuários.
+   */
+  async listarUsuarios(filtros: {
+    q?: string;
+    plano?: PlanoAdmin;
+    page: number;
+  }): Promise<{ items: UsuarioAdminItem[]; total: number; page: number; pageSize: number }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const where: Record<string, unknown> = {};
+      if (filtros.q) {
+        where.OR = [
+          { nome: { contains: filtros.q, mode: "insensitive" } },
+          { email: { contains: filtros.q, mode: "insensitive" } },
+        ];
+      }
+      if (filtros.plano) {
+        where.usuarioPlano = { plano: filtros.plano };
+      }
+      const [usuarios, total] = await Promise.all([
+        tx.usuario.findMany({
+          where,
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            banido_em: true,
+            created_at: true,
+            plano: { select: { plano: true, origem: true } },
+          },
+          orderBy: { created_at: "desc" as const },
+          skip: filtros.page * USUARIOS_PAGE_SIZE,
+          take: USUARIOS_PAGE_SIZE,
+        }),
+        tx.usuario.count({ where }),
+      ]);
+      const items: UsuarioAdminItem[] = usuarios.map((u) => ({
+        id: u.id,
+        nome: u.nome,
+        email: u.email,
+        plano: (u.plano?.plano ?? "FREE") as PlanoAdmin,
+        origem: u.plano?.origem ?? "STRIPE",
+        banido: u.banido_em != null,
+        criado_em: u.created_at,
+      }));
+      return { items, total, page: filtros.page, pageSize: USUARIOS_PAGE_SIZE };
+    });
+  }
+
+  /**
+   * Onda 1 admin (P0): altera o plano criando exceção MANUAL — o sync de
+   * renovação Stripe não sobrescreve (payment.service, origem MANUAL).
+   */
+  async alterarPlano(
+    adminId: string,
+    usuarioId: string,
+    plano: PlanoAdmin,
+  ): Promise<{ usuarioId: string; plano: PlanoAdmin; origem: "MANUAL" }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const alvo = await tx.usuario.findUnique({
+        where: { id: usuarioId },
+        select: { id: true },
+      });
+      if (!alvo) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      await tx.usuarioPlano.upsert({
+        where: { usuario_id: usuarioId },
+        create: { usuario_id: usuarioId, plano, status: "ATIVA", origem: "MANUAL" },
+        update: { plano, origem: "MANUAL" },
+      });
+      await this.auditLog
+        ?.log({
+          entidade: "UsuarioPlano",
+          entidadeId: usuarioId,
+          acao: "ADMIN_PLANO_ALTERADO",
+          usuarioId: adminId,
+          dadosDepois: { alvo: usuarioId, plano, origem: "MANUAL" },
+        })
+        .catch(() => undefined);
+      return { usuarioId, plano, origem: "MANUAL" as const };
+    });
+  }
+
+  /**
+   * Onda 1 admin (P0): bane o usuário (banido_em setado + TODAS as sessões
+   * ativas revogadas — o efeito é imediato; login bloqueado no auth.service).
+   * Admin não pode banir a si mesmo. Motivo registrado na auditoria.
+   */
+  async banir(
+    adminId: string,
+    usuarioId: string,
+    motivo: string,
+  ): Promise<{ usuarioId: string; banido_em: Date; sessoesRevogadas: number }> {
+    if (adminId === usuarioId) {
+      throw new BadRequestException("Você não pode banir a sua própria conta.");
+    }
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const alvo = await tx.usuario.findUnique({
+        where: { id: usuarioId },
+        select: { id: true },
+      });
+      if (!alvo) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      const banido_em = new Date();
+      await tx.usuario.update({ where: { id: usuarioId }, data: { banido_em } });
+      const sessoes = await tx.sessao.updateMany({
+        where: { usuario_id: usuarioId, revoked_at: null },
+        data: { revoked_at: new Date() },
+      });
+      await this.auditLog
+        ?.log({
+          entidade: "Usuario",
+          entidadeId: usuarioId,
+          acao: "ADMIN_USUARIO_BANIDO",
+          usuarioId: adminId,
+          dadosDepois: { alvo: usuarioId, motivo, sessoesRevogadas: sessoes.count },
+        })
+        .catch(() => undefined);
+      return { usuarioId, banido_em, sessoesRevogadas: sessoes.count };
+    });
+  }
+
+  /** Onda 1 admin (P0): revoga o ban (banido_em volta a null). */
+  async desbanir(
+    adminId: string,
+    usuarioId: string,
+  ): Promise<{ usuarioId: string; banido: false }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const alvo = await tx.usuario.findUnique({
+        where: { id: usuarioId },
+        select: { id: true },
+      });
+      if (!alvo) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      await tx.usuario.update({ where: { id: usuarioId }, data: { banido_em: null } });
+      await this.auditLog
+        ?.log({
+          entidade: "Usuario",
+          entidadeId: usuarioId,
+          acao: "ADMIN_USUARIO_DESBANIDO",
+          usuarioId: adminId,
+          dadosDepois: { alvo: usuarioId },
+        })
+        .catch(() => undefined);
+      return { usuarioId, banido: false as const };
+    });
+  }
 
   /** Retorna as stats com status do cache (X-Cache para o controller). */
   async getStats(): Promise<{ value: AdminStatsResponse; hit: boolean }> {

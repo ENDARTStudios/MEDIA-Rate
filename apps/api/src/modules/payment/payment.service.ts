@@ -320,6 +320,16 @@ export class PaymentService {
     const plano = (object.metadata?.plano as "PLUS" | "PREMIUM" | undefined) ?? "PLUS";
     const currentPeriodEnd = object.current_period_end;
 
+    // Onda 1 admin: exceção MANUAL ("plano manual até cancelamento", via
+    // painel) não tem plano/status sobrescritos pela sincronização de
+    // renovação — só os metadados do Stripe (ids/período) acompanham.
+    // Nova assinatura via checkout (ativarAssinatura) volta a origem STRIPE.
+    const existente = await this.prisma.usuarioPlano.findUnique({
+      where: { usuario_id: usuarioId },
+      select: { origem: true },
+    });
+    const manual = existente?.origem === "MANUAL";
+
     if (status === "trialing") {
       const trialEndsAt = currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
       // T343: escrita de billing sob contexto RLS de serviço.
@@ -335,13 +345,19 @@ export class PaymentService {
             current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
             trial_ends_at: trialEndsAt,
           },
-          update: {
-            plano,
-            status: "TRIALING",
-            stripe_subscription_id: object.id ?? undefined,
-            current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
-            trial_ends_at: trialEndsAt ?? undefined,
-          },
+          update: manual
+            ? {
+                stripe_subscription_id: object.id ?? undefined,
+                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                trial_ends_at: trialEndsAt ?? undefined,
+              }
+            : {
+                plano,
+                status: "TRIALING",
+                stripe_subscription_id: object.id ?? undefined,
+                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                trial_ends_at: trialEndsAt ?? undefined,
+              },
         });
       });
       // T327: trial único — marca a primeira ativação (idempotente).
@@ -370,12 +386,16 @@ export class PaymentService {
       await comContextoRls(this.prisma, { usuarioId, role: ROLE_SERVICE }, async (tx) => {
         await tx.usuarioPlano.update({
           where: { usuario_id: usuarioId },
-          data: {
-            plano,
-            status: "ATIVA",
-            current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
-            trial_ends_at: null,
-          },
+          data: manual
+            ? {
+                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+              }
+            : {
+                plano,
+                status: "ATIVA",
+                current_period_end: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : undefined,
+                trial_ends_at: null,
+              },
         });
       });
       this.logger.log(`Trial encerrado — assinatura ${plano} ativa para usuário ${usuarioId}`);
