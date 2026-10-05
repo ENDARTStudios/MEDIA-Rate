@@ -37,6 +37,8 @@ function tempoRelativo(
 
 export function ProfileContent() {
   const t = useTranslations("profile");
+  // rótulos de status usam o vocabulário de interação (vendo/lendo/joguei…)
+  const ti = useTranslations("interaction");
   const tc = useTranslations("common");
   const locale = useLocale() as Locale;
   const { user } = useAuthStore();
@@ -248,7 +250,9 @@ export function ProfileContent() {
                           <ReactionGlyph reacao={a.reacao as "GOSTEI" | "NAO_GOSTEI"} size={16} />
                         )}
                         <span className="text-sm text-[#F5F5F7] truncate">{titulo}</span>
-                        {label && <span className="text-xs text-[#9CA3AF] shrink-0">{label}</span>}
+                        {label && (
+                          <span className="text-xs text-[#9CA3AF] shrink-0">{ti(label)}</span>
+                        )}
                         <span className="ml-auto text-xs text-[#6B7280] shrink-0">
                           {tempoRelativo(
                             a.atualizado_em,

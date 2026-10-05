@@ -2,13 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type * as NextIntl from "next-intl";
+import type * as StatusIconsNS from "@/components/interaction/StatusIcons";
 
 // Incidente Operador (perfil): (1) faltava o card "Quero assistir/jogar/ler"
 // entre os indicadores; (2) "Gêneros favoritos" contava interações (70) em vez
 // da watchlist (18); (3) "Atividade recente" sempre vazia — o perfil descartava
 // o envelope { items } do GET /interacoes (D-525).
 
-const { entriesMock, getMock } = vi.hoisted(() => {
+const { entriesMock, getMock, setInteracoes } = vi.hoisted(() => {
   const entries = [
     {
       id: "e1",
@@ -42,21 +43,38 @@ const { entriesMock, getMock } = vi.hoisted(() => {
       midia: { id: "m9", titulo: "Filme Ativo", tipo: "FILME" },
     },
   ];
-  const get = vi.fn(async (url: string) => {
-    if (url.includes("/interacoes")) {
-      return { items: atividades, total: 1, porStatus: {}, nextCursor: null };
+  let interacoesPayload: unknown = atividades;
+  const get = vi.fn(async (_url: string): Promise<unknown> => {
+    if (_url.includes("/interacoes")) {
+      return interacoesPayload;
     }
     // /user/stats com gêneros inflados (70) — NÃO deve mais ser usado p/ chips
     return { generos: { Drama: 22, Acao: 8 }, tipos: {} };
   });
-  return { entriesMock: entries, getMock: get };
+  return {
+    entriesMock: entries,
+    getMock: get,
+    setInteracoes: (p: unknown) => {
+      interacoesPayload = p;
+    },
+  };
 });
 
 vi.mock("next-intl", async (importOriginal) => {
   const actual = await importOriginal<typeof NextIntl>();
   return {
     ...actual,
-    useTranslations: () => (key: string, _vals?: Record<string, unknown>) => key,
+    useTranslations: () => {
+      // dicionário mínimo: rótulos de status DEVEM sair traduzidos —
+      // renderizar a chave crua ("queroLer") é o bug desta regressão
+      const dict: Record<string, string> = {
+        queroLer: "Quero ler",
+        lendo: "Lendo",
+        vi: "Vi",
+        vendo: "Vendo",
+      };
+      return (key: string, _vals?: Record<string, unknown>) => dict[key] ?? key;
+    },
     useLocale: () => "pt-BR",
   };
 });
@@ -82,10 +100,11 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("@/lib/genero-labels", () => ({
   generoLabel: (g: string) => g,
 }));
-vi.mock("@/components/interaction/StatusIcons", () => ({
-  statusLabelKey: (_tipo: string, st: string) => `status:${st}`,
-  ReactionGlyph: () => null,
-}));
+// statusLabelKey REAL (a regressão é exatamente o seu resultado); só o glyph é stub
+vi.mock("@/components/interaction/StatusIcons", async (importOriginal) => {
+  const actual = await importOriginal<typeof StatusIconsNS>();
+  return { ...actual, ReactionGlyph: () => null };
+});
 vi.mock("@/components/watchlist/WatchlistCard", () => ({
   tituloHumano: (media?: { title?: string } | null) => media?.title ?? null,
 }));
@@ -142,8 +161,33 @@ describe("ProfileContent (indicadores, gêneros e atividade reais)", () => {
       expect(container.querySelectorAll("li").length).toBe(1);
     });
     expect(container.textContent).toContain("Filme Ativo");
+    // rótulo de status traduzido (namespace interaction), nunca a chave crua
+    expect(container.textContent).not.toContain("CONCLUIDO");
     // pede página curta — o perfil mostra só as 10 últimas
     const chamou = getMock.mock.calls.find(([u]) => String(u).includes("/interacoes"));
     expect(String(chamou?.[0])).toContain("limit=10");
+  });
+
+  it("rótulo do status sai traduzido (não a chave crua tipo 'queroLer')", async () => {
+    setInteracoes({
+      items: [
+        {
+          midia_id: "m10",
+          status: "QUERO_CONSUMIR",
+          reacao: null,
+          atualizado_em: new Date().toISOString(),
+          midia: { id: "m10", titulo: "Livro Teste", tipo: "LIVRO" },
+        },
+      ],
+      total: 1,
+      porStatus: {},
+      nextCursor: null,
+    });
+    const { container } = renderProfile();
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain("Livro Teste");
+    });
+    expect(container.textContent).toContain("Quero ler");
+    expect(container.textContent).not.toContain("queroLer");
   });
 });
