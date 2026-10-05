@@ -12,7 +12,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiNotFoundResponse } from "@nestjs/swagger";
 import { z } from "zod";
 import { Roles } from "../../common/decorators/roles.decorator.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
@@ -93,6 +93,9 @@ export class AdminController {
     summary: "Altera o plano criando exceção MANUAL (sync de renovação não sobrescreve)",
   })
   @ApiBearerAuth()
+  @ApiNotFoundResponse({
+    description: "404 — id malformado (UUID inválido) ou usuário inexistente.",
+  })
   async alterarPlano(
     @Req() req: FastifyRequest,
     @Param("id", UuidParamPipe) id: string,
@@ -111,6 +114,9 @@ export class AdminController {
     summary: "Bane o usuário: desativa login, revoga sessões ativas, registra motivo",
   })
   @ApiBearerAuth()
+  @ApiNotFoundResponse({
+    description: "404 — id malformado (UUID inválido) ou usuário inexistente.",
+  })
   async banir(
     @Req() req: FastifyRequest,
     @Param("id", UuidParamPipe) id: string,
@@ -125,6 +131,9 @@ export class AdminController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Revoga o ban do usuário" })
   @ApiBearerAuth()
+  @ApiNotFoundResponse({
+    description: "404 — id malformado (UUID inválido) ou usuário inexistente.",
+  })
   async desbanir(@Req() req: FastifyRequest, @Param("id", UuidParamPipe) id: string) {
     const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
     return this.adminService.desbanir(adminId, id);
