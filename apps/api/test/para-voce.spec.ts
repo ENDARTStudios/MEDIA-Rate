@@ -82,9 +82,9 @@ function makeMocks(dados: any = {}) {
       deleteMany: vi.fn(async () => ({ count: 0 })),
     },
     $queryRawUnsafe: vi.fn(async () => []),
-    $executeRawUnsafe: vi.fn(async () => {}),
+    $executeRawUnsafe: vi.fn(async () => undefined),
     $transaction: vi.fn(async (fn: any) => fn(prisma)),
-    $disconnect: vi.fn(async () => {}),
+    $disconnect: vi.fn(async () => undefined),
   };
   const service = new InteracoesService(prisma as any);
   return { service, prisma };
