@@ -140,6 +140,13 @@ export default function DiagnosticsPage() {
           className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
         >
           Gestão de usuários →
+        </a>{" "}
+        <a
+          href="/admin/catalogo"
+          data-testid="link-admin-catalogo"
+          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+        >
+          Catálogo →
         </a>
       </p>
 
