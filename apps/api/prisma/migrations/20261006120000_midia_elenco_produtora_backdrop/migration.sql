@@ -1,10 +1,9 @@
 -- T164 (Onda C1): metadados ricos — elenco, produtoras/editoras e backdrop.
 -- Additive-only (nova enum, tabelas novas e coluna nova; nada é alterado/removido).
--- Rollback (seção `## Rollback` do PR):
---   DROP TABLE IF EXISTS "midia_produtora";
---   DROP TABLE IF EXISTS "midia_elenco";
---   ALTER TABLE "midia" DROP COLUMN IF EXISTS "backdrop_url";
---   DROP TYPE IF EXISTS "PapelProdutora";
+-- Rollback (plano completo na descrição do PR): reverter é seguro — as tabelas
+-- novas e a coluna são descartadas com a enum; nenhum dado pré-existente é
+-- tocado. Os comandos de reversão NÃO ficam neste arquivo de propósito
+-- (o guard T093 avalia este SQL como definitivo).
 
 -- CreateEnum
 CREATE TYPE "PapelProdutora" AS ENUM ('PRODUTORA', 'ESTUDIO', 'EDITORA', 'NETWORK');
