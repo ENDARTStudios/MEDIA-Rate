@@ -135,6 +135,7 @@
     "comic": "Cómics",
     "manga": "Manga",
     "sort": "Ordenar",
+    "sortRelevancia": "Relevancia",
     "sortTitulo": "Título (A-Z)",
     "sortAno": "Año (reciente)",
     "sortScore": "MEDIA Score",

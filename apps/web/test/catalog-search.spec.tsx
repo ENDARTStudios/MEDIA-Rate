@@ -17,6 +17,7 @@ const messages = {
     search: "Buscar",
     sort: "Ordenar",
     sortScore: "Score",
+    sortRelevancia: "Relevância",
     sortAno: "Ano",
     sortTitulo: "Título",
   },
@@ -78,6 +79,23 @@ function renderWithProviders(ui: React.ReactElement) {
     </QueryClientProvider>,
   );
 }
+
+describe("CatalogFiltersClient — Ordenar sem duplicata (feedback Operador)", () => {
+  it("option padrão é Relevância; MEDIA Score aparece UMA única vez", () => {
+    const { container } = renderWithProviders(<CatalogFiltersClient />);
+    const sortSelect = container.querySelector("#catalog-sort") as HTMLSelectElement;
+    expect(sortSelect).toBeTruthy();
+    const valores = [...(sortSelect as HTMLSelectElement).options].map((o) => o.value);
+    // valores distintos: score aparece UMA vez (antes: option vazia + score
+    // ambas rotuladas "MEDIA Score" — duplicata visível)
+    expect(valores.filter((v) => v === "score").length).toBe(1);
+    expect(valores).toEqual(["", "score", "year", "title"]);
+    // o option padrão renderiza o label Relevância (não MEDIA Score)
+    const opcoesTexto = [...(sortSelect as HTMLSelectElement).options].map((o) => o.textContent);
+    expect(opcoesTexto[0]).toBe("Relevância");
+    expect(opcoesTexto).not.toContain("MEDIA Score");
+  });
+});
 
 describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
   beforeEach(() => {

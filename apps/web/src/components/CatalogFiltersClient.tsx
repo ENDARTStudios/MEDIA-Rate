@@ -132,13 +132,16 @@ export function CatalogFiltersClient() {
       </div>
 
       <div>
-        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("sort")}</label>
+        <label htmlFor="catalog-sort" className="block text-xs text-[#9CA3AF] mb-1.5">
+          {t("sort")}
+        </label>
         <select
+          id="catalog-sort"
           value={sort}
           onChange={(e) => setParam("sort", e.target.value)}
           className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         >
-          <option value="">{t("sortScore")}</option>
+          <option value="">{t("sortRelevancia")}</option>
           {SORT_OPTIONS.map(({ value, labelKey }) => (
             <option key={value} value={value}>
               {t(labelKey)}
