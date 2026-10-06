@@ -270,7 +270,8 @@ export class AdminService {
         ];
       }
       if (filtros.plano) {
-        where.usuarioPlano = { plano: filtros.plano };
+        // a relação Usuario→UsuarioPlano chama-se `plano` no schema
+        where.plano = { plano: filtros.plano };
       }
       const [usuarios, total] = await Promise.all([
         tx.usuario.findMany({

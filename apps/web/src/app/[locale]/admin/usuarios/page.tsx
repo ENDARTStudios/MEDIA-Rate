@@ -154,15 +154,6 @@ export default function AdminUsuariosPage() {
         Gestão de usuários
       </h1>
 
-      <p className="mb-4">
-        <a
-          href="/admin/catalogo"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          Catálogo →
-        </a>
-      </p>
-
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           value={busca}

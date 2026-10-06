@@ -150,44 +150,6 @@ export default function DiagnosticsPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">Diagnóstico</h1>
 
-      <p className="mb-6">
-        <a
-          href="/admin/usuarios"
-          data-testid="link-admin-usuarios"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          Gestão de usuários →
-        </a>{" "}
-        <a
-          href="/admin/catalogo"
-          data-testid="link-admin-catalogo"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          Catálogo →
-        </a>{" "}
-        <a
-          href="/admin/metricas"
-          data-testid="link-admin-metricas"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          Métricas →
-        </a>{" "}
-        <a
-          href="/admin/auditoria"
-          data-testid="link-admin-auditoria"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          Auditoria →
-        </a>{" "}
-        <a
-          href="/admin/lgpd"
-          data-testid="link-admin-lgpd"
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-        >
-          LGPD →
-        </a>
-      </p>
-
       <RemoverMidiaForm />
 
       <section aria-labelledby="server-title" className="mb-8">
