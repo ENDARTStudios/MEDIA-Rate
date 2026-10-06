@@ -88,6 +88,21 @@ function mockPrisma() {
       findFirst: vi.fn(async () => ({ id: "wl-1" })),
       delete: vi.fn(async () => ({ id: "wl-1" })),
     },
+    auditLog: {
+      findMany: vi.fn(async ({ where }: any) =>
+        [
+          {
+            entidade: "Usuario",
+            entidade_id: EDI,
+            acao: "ADMIN_USUARIO_BANIDO",
+            usuario_id: "admin-1",
+            ip_origem: "1.2.3.4",
+            created_at: new Date("2026-10-05T12:00:00Z"),
+          },
+        ].filter((x) => !where.acao || x.acao === where.acao),
+      ),
+      count: vi.fn(async ({ where }: any) => (where.acao === "ADMIN_USUARIO_BANIDO" ? 1 : 0)),
+    },
   };
 }
 
@@ -197,6 +212,18 @@ describe("AdminService — gestão de usuários (Onda 1 admin, P0)", () => {
     // RLS: contexto ADMIN
     expect(prisma.usuario.findUnique).toHaveBeenCalled();
     await expect(service.atividadeDoUsuario("nao-existe")).rejects.toThrow(NotFoundException);
+  });
+
+  it("listarAuditoria filtra por ação, pagina e NUNCA expõe hashes da cadeia", async () => {
+    const r = await service.listarAuditoria({ acao: "ADMIN_USUARIO_BANIDO", page: 0 });
+    expect(r.total).toBe(1);
+    expect(r.items[0]).toMatchObject({ acao: "ADMIN_USUARIO_BANIDO", ip: "1.2.3.4" });
+    expect(JSON.stringify(r)).not.toContain("hash_cadeia");
+    expect(JSON.stringify(r)).not.toContain("hash_anterior");
+
+    const vazio = await service.listarAuditoria({ acao: "INEXISTENTE", page: 0 });
+    expect(vazio.items).toHaveLength(0);
+    expect(vazio.total).toBe(0);
   });
 
   it("moderação: remover interação audita ADMIN_MODERACAO e 404 sem interação", async () => {

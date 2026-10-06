@@ -42,6 +42,61 @@ export class AdminService {
   ) {}
 
   /**
+   * Onda 5 admin (P2): consulta do log de auditoria com filtros
+   * (usuário/ação/período), paginada. Hashes da cadeia NUNCA expostos.
+   */
+  async listarAuditoria(filtros: {
+    usuarioId?: string;
+    acao?: string;
+    de?: Date;
+    ate?: Date;
+    page: number;
+  }): Promise<{
+    items: {
+      entidade: string;
+      entidadeId: string;
+      acao: string;
+      usuarioId: string | null;
+      ip: string | null;
+      criado_em: Date;
+    }[];
+    total: number;
+    page: number;
+    pageSize: number;
+  }> {
+    const PAGE_SIZE = 25;
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const where: Record<string, unknown> = {};
+      if (filtros.usuarioId) where.usuario_id = filtros.usuarioId;
+      if (filtros.acao) where.acao = filtros.acao;
+      if (filtros.de || filtros.ate) {
+        where.created_at = {
+          ...(filtros.de ? { gte: filtros.de } : {}),
+          ...(filtros.ate ? { lte: filtros.ate } : {}),
+        };
+      }
+      const [rows, total] = await Promise.all([
+        tx.auditLog.findMany({
+          where,
+          orderBy: { created_at: "desc" as const },
+          skip: filtros.page * PAGE_SIZE,
+          take: PAGE_SIZE,
+        }),
+        tx.auditLog.count({ where }),
+      ]);
+      const items = rows.map((r) => ({
+        entidade: r.entidade,
+        entidadeId: r.entidade_id,
+        acao: r.acao,
+        usuarioId: r.usuario_id,
+        ip: r.ip_origem,
+        criado_em: r.created_at,
+      }));
+      return { items, total, page: filtros.page, pageSize: PAGE_SIZE };
+    });
+  }
+
+  /**
    * Onda 2 admin (P0b): histórico de atividade do usuário — interações
    * (status/reação, mais recentes primeiro) + entradas da watchlist.
    * Fonte da moderação: o admin vê exatamente o que o usuário produziu.
@@ -325,6 +380,7 @@ export class AdminService {
         planos,
         totalDiscoveryEvents,
         usuariosComDiscovery,
+        totalInteracoes,
       ] = await Promise.all([
         // Usuários: exclui soft-delete agendado (LGPD).
         tx.usuario.count({ where: { dados_para_exclusao_at: null } }),
@@ -353,6 +409,8 @@ export class AdminService {
         tx.discoveryEvent
           .groupBy({ by: ["usuario_id"], _count: { _all: true } })
           .then((r) => r.length),
+        // Onda 5 admin: interações de consumo registradas ("avaliações").
+        tx.usuarioMidiaInteracao.count(),
       ]);
 
       const porTipoMap: Record<string, number> = {};
@@ -374,6 +432,7 @@ export class AdminService {
           total_eventos: totalDiscoveryEvents,
           usuarios_com_evento: usuariosComDiscovery,
         },
+        interacoes: { total: totalInteracoes },
       };
     });
   }
