@@ -119,6 +119,8 @@ export interface Media {
   }[];
   /** T163: conteúdo relacionado (grafo RelacaoObra, duas direções). */
   relacoes?: RelacionadaFicha[];
+  /** T164 (Onda C): empresas da obra (produtora/estúdio/editora/rede). */
+  produtoras?: { nome: string; papel: string }[];
   duration?: string;
   synopsis: string;
   posterUrl: string | null;
