@@ -66,10 +66,13 @@ function makePrisma(zerado = false) {
         ],
   };
   base.interacoes = base.interacoes ?? 0;
+  base.usuariosCriadosEm = base.usuariosCriadosEm ?? [];
+  base.interacoesAtualizadosEm = base.interacoesAtualizadosEm ?? [];
   return {
     usuario: {
       count: async ({ where }: any) =>
         where?.ultimo_login_em ? base.ativos7d : base.usuariosTotal,
+      findMany: async () => base.usuariosCriadosEm ?? [],
     },
     midia: {
       count: async () => base.midias,
@@ -84,6 +87,7 @@ function makePrisma(zerado = false) {
     // Onda 5 admin — interações de consumo registradas ('avaliações').
     usuarioMidiaInteracao: {
       count: async () => base.interacoes ?? 0,
+      findMany: async () => base.interacoesAtualizadosEm ?? [],
     },
     // T286 — métrica de Descobertas.
     discoveryEvent: {

@@ -32,4 +32,6 @@ export interface AdminStatsResponse {
   interacoes: {
     total: number;
   };
+  // Onda 7 admin: atividade por período (12 meses, zero-preenchida).
+  evolucao: { mes: string; novos_usuarios: number; interacoes: number }[];
 }
