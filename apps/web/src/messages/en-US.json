@@ -1206,6 +1206,14 @@
     "origin_original": "Original work",
     "seasons": "Seasons",
     "seasonLabel": "S{numero}",
+    "relacaoTipo": {
+      "ADAPTACAO_DE": "Adaptation of",
+      "SEQUENCIA_DE": "Sequel to",
+      "PREQUELA_DE": "Prequel to",
+      "SPINOFF_DE": "Spin-off of",
+      "MESMO_UNIVERSO": "Same universe",
+      "MESMA_HISTORIA_REAL": "Based on a true story"
+    },
     "loadingSeasons": "Loading seasons…"
   },
   "discovery": {

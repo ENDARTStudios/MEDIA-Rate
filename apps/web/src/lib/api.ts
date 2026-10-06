@@ -80,6 +80,7 @@ interface ApiMidiaSlug {
     slug: string;
     itens: {
       midia_id: string;
+      slug?: string | null;
       titulo: string;
       tipo: string;
       ano_lancamento: number | null;
@@ -88,6 +89,18 @@ interface ApiMidiaSlug {
       ordem_lancamento: number;
       ordem_cronologica: number | null;
     }[];
+  }[];
+  // T163: grafo de conteúdo relacionado (duas direções, já resolvido pela API).
+  relacoes?: {
+    midia_id: string;
+    slug: string | null;
+    titulo: string;
+    tipo: string;
+    ano_lancamento: number | null;
+    imagem_url: string | null;
+    score: number | null;
+    tipo_relacao: string;
+    nota_editorial: string | null;
   }[];
   streamings: string[];
   score: ApiScore | null;
@@ -311,6 +324,7 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
       slug: f.slug,
       itens: f.itens.map((i) => ({
         midiaId: i.midia_id,
+        slug: i.slug ?? null,
         titulo: i.titulo,
         tipo: mapTipo(i.tipo),
         ano: i.ano_lancamento,
@@ -319,6 +333,18 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
         ordemLancamento: i.ordem_lancamento,
         ordemCronologica: i.ordem_cronologica,
       })),
+    })),
+    // T163: conteúdo relacionado (RelacaoObra nas duas direções).
+    relacoes: (m.relacoes ?? []).map((r) => ({
+      midiaId: r.midia_id,
+      slug: r.slug,
+      titulo: r.titulo,
+      tipo: mapTipo(r.tipo),
+      ano: r.ano_lancamento,
+      imagemUrl: r.imagem_url,
+      score: r.score,
+      tipoRelacao: r.tipo_relacao,
+      notaEditorial: r.nota_editorial,
     })),
     duration: m.duracao_minutos != null ? `${m.duracao_minutos} min` : undefined,
     synopsis: m.sinopse ?? "",

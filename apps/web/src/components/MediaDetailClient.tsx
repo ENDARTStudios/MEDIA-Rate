@@ -19,11 +19,12 @@ import {
   AgeRatingBadge,
   GenreChipRow,
   SHARED_GENRES,
-  SeriatedScoreTree,
   AwardsShowcase,
   FranchiseCarousel,
   OriginBadge,
 } from "@/components/media-rate-ui";
+import { RelacionadasSection } from "./ficha/RelacionadasSection";
+import { TemporadasSection } from "./ficha/TemporadasSection";
 import { titleForLocale, synopsisForLocale, generoTraduzido } from "@/lib/i18n-content";
 import { Monitor, Gamepad2, Smartphone, Tv, Globe } from "lucide-react";
 import { RateLimitedError } from "@/lib/http";
@@ -432,13 +433,13 @@ export function MediaDetailClient({
                 />
               </div>
 
-              {/* Nota por unidade seriada (✅ séries; ➖ demais — sem dado → estado honesto). */}
+              {/* Nota por unidade seriada (T163 — dado real de /temporadas). */}
               {media.type === "series" && (
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                     {tm("seriatedScores")}
                   </h3>
-                  <SeriatedScoreTree unitLabel={tm("seasonUnit") ?? "Temporada"} units={[]} />
+                  <TemporadasSection midiaId={media.id} />
                 </div>
               )}
 
@@ -460,12 +461,20 @@ export function MediaDetailClient({
                 </div>
               )}
 
-              {/* Prêmios (✅ — sem dado → "Não informado", nunca fabricado). */}
+              {/* Prêmios (T163 — dado real de premios; sem dado → "Não informado"). */}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                   {tm("awards")}
                 </h3>
-                <AwardsShowcase awards={[]} />
+                <AwardsShowcase
+                  awards={(media.premios ?? []).map((p) => ({
+                    name: p.nome,
+                    category: p.categoria,
+                    year: p.ano,
+                    won: p.venceu,
+                    organization: p.organizacao,
+                  }))}
+                />
               </div>
 
               {/* Sequências/conteúdo relacionado (✅ — franquia real quando houver). */}
@@ -493,6 +502,10 @@ export function MediaDetailClient({
                 ) : (
                   <FranchiseCarousel items={[]} currentMediaId={media.id} />
                 )}
+                {/* T163: grafo de conteúdo relacionado (adaptações/sequências/universo). */}
+                <div className="mt-4">
+                  <RelacionadasSection relacoes={media.relacoes ?? []} />
+                </div>
               </div>
             </div>
           </Tabs.Content>
