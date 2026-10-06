@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { comContextoRls } from "../../common/rls-context.js";
 import { slugUnico } from "./slug-service.js";
@@ -151,5 +156,173 @@ export class MediaService {
     return this.prisma.midia.findFirst({
       where: { id, deleted_at: null },
     });
+  }
+
+  /**
+   * T162 (Onda A — Rankings): payload do hub /top por tipo.
+   * TOP ordenado pelo score desnormalizado (quirk do engine — ver Midia.score)
+   * com gate de >= 2 fontes e fallback para >= 1 quando o gate esvazia a lista
+   * (livros/quadrinhos hoje têm coleta de fonte única). Franquias aparecem só
+   * com >= 2 mídias ativas do tipo — é o "por onde começar cada universo".
+   */
+  async topPorTipo(
+    tipoRaw: string,
+    limiteRaw?: number,
+    anoRaw?: number,
+  ): Promise<{
+    tipo: string;
+    ano: number;
+    top: Record<string, unknown>[];
+    lancamentos_ano: Record<string, unknown>[];
+    generos: { id: number; nome: string; slug: string; total_midias: number }[];
+    franquias: Record<string, unknown>[];
+  }> {
+    const TIPOS: Record<string, string> = {
+      FILME: "FILME",
+      SERIE: "SERIE",
+      GAME: "GAME",
+      LIVRO: "LIVRO",
+      MANGA: "MANGA",
+      COMIC: "COMIC",
+      // Aliases legados (mesma tabela do controller.list).
+      ANIME: "MANGA",
+      HQ: "COMIC",
+    };
+    const tipo = TIPOS[tipoRaw?.toUpperCase?.() ?? ""] as TipoMidia | undefined;
+    if (!tipo) {
+      throw new BadRequestException({
+        statusCode: 400,
+        error: "Bad Request",
+        message: "Tipo inválido. Use FILME, SERIE, GAME, LIVRO, MANGA ou COMIC.",
+      });
+    }
+    const limite = Math.min(20, Math.max(1, Math.trunc(limiteRaw ?? 10) || 10));
+    const ano = Math.trunc(anoRaw ?? 0) || new Date().getFullYear();
+
+    const SELECT_RESUMO: Prisma.MidiaSelect = {
+      id: true,
+      slug: true,
+      titulo: true,
+      titulo_original: true,
+      titulo_en: true,
+      titulo_es: true,
+      tipo: true,
+      ano_lancamento: true,
+      imagem_url: true,
+      score: true,
+    };
+    const SELECT_COM_FONTE: Prisma.MidiaSelect = {
+      ...SELECT_RESUMO,
+      scores: {
+        select: { num_fontes: true },
+        take: 1,
+        orderBy: { calculado_em: "desc" },
+      },
+    };
+    const orderByScore: Prisma.MidiaOrderByWithRelationInput = {
+      score: { sort: "desc", nulls: "last" },
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- shape do select é dinâmico (gate vs. fallback); payload serializa com JSON.stringify (D-447)
+    const comFonte = (rows: any[]) =>
+      rows.map((r) => {
+        const { scores, ...resto } = r;
+        return { ...resto, num_fontes: scores?.[0]?.num_fontes ?? null };
+      });
+
+    // 1) TOP com gate de >= 2 fontes (amostra menos ruidosa).
+    const comGate = await this.prisma.midia.findMany({
+      where: {
+        deleted_at: null,
+        tipo,
+        score: { not: null },
+        scores: { some: { num_fontes: { gte: 2 } } },
+      },
+      orderBy: orderByScore,
+      take: limite,
+      select: SELECT_COM_FONTE,
+    });
+    // 2) Fallback: < limite no gate → completa com >= 1 fonte, sem duplicar.
+    const top = comFonte(comGate);
+    if (top.length < limite) {
+      const semGate = await this.prisma.midia.findMany({
+        where: { deleted_at: null, tipo, score: { not: null } },
+        orderBy: orderByScore,
+        take: limite,
+        select: SELECT_COM_FONTE,
+      });
+      const ids = new Set(top.map((i) => i.id as string));
+      for (const item of comFonte(semGate)) {
+        if (top.length >= limite) break;
+        if (!ids.has(item.id as string)) {
+          top.push(item);
+          ids.add(item.id as string);
+        }
+      }
+    }
+
+    const lancamentos = comFonte(
+      await this.prisma.midia.findMany({
+        where: { deleted_at: null, tipo, score: { not: null }, ano_lancamento: ano },
+        orderBy: orderByScore,
+        take: limite,
+        select: SELECT_COM_FONTE,
+      }),
+    );
+
+    // genero.midias passa pela junção MidiaGenero — o filtro de tipo/midia
+    // ativa aninha em `midia` (mesmo padrão das franquias abaixo).
+    const generosBrutos = await this.prisma.genero.findMany({
+      where: { midias: { some: { midia: { tipo, deleted_at: null } } } },
+      orderBy: { nome: "asc" },
+      select: {
+        id: true,
+        nome: true,
+        slug: true,
+        _count: { select: { midias: { where: { midia: { tipo, deleted_at: null } } } } },
+      },
+    });
+    const generos = generosBrutos.map((g) => ({
+      id: g.id,
+      nome: g.nome,
+      slug: g.slug,
+      total_midias: g._count.midias,
+    }));
+
+    // "Por onde começar": itens do tipo consultado, ordem cronológica quando
+    // diverge do lançamento (nulls first = quem começa a história).
+    const franquiasBrutas = await this.prisma.franquia.findMany({
+      where: { midias: { some: { midia: { tipo, deleted_at: null } } } },
+      select: {
+        id: true,
+        nome: true,
+        slug: true,
+        midias: {
+          where: { midia: { tipo, deleted_at: null } },
+          orderBy: [
+            { ordem_cronologica: { sort: "asc", nulls: "first" } },
+            { ordem_lancamento: "asc" as const },
+          ],
+          select: {
+            ordem_lancamento: true,
+            ordem_cronologica: true,
+            midia: { select: SELECT_RESUMO },
+          },
+        },
+      },
+    });
+    const franquias = franquiasBrutas
+      .filter((f) => f.midias.length >= 2)
+      .map((f) => ({
+        id: f.id,
+        nome: f.nome,
+        slug: f.slug,
+        itens: f.midias.map((v) => ({
+          ...v.midia,
+          ordens: { lancamento: v.ordem_lancamento, cronologica: v.ordem_cronologica },
+        })),
+      }));
+
+    return { tipo, ano, top, lancamentos_ano: lancamentos, generos, franquias };
   }
 }

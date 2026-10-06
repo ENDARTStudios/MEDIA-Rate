@@ -34,6 +34,7 @@
   "nav": {
     "home": "Inicio",
     "catalog": "Catálogo",
+    "top": "Rankings",
     "pricing": "Planes",
     "login": "Entrar",
     "register": "Registrarse",
@@ -223,12 +224,35 @@
     "previewBadge": "Previo",
     "previewBadgeTitle": "Previo — fuentes en preparación",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Novelas", "No ficción", "Clásicos", "Sagas", "Novedades"],
-    "variant_comic": ["Novelas gráficas", "Superhéroes", "Indie", "Novedades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novedades"],
-    "variant_movie": ["Películas"],
-    "variant_series": ["Series"],
-    "variant_game": ["Juegos"],
+    "variant_book": [
+      "Novelas",
+      "No ficción",
+      "Clásicos",
+      "Sagas",
+      "Novedades"
+    ],
+    "variant_comic": [
+      "Novelas gráficas",
+      "Superhéroes",
+      "Indie",
+      "Novedades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novedades"
+    ],
+    "variant_movie": [
+      "Películas"
+    ],
+    "variant_series": [
+      "Series"
+    ],
+    "variant_game": [
+      "Juegos"
+    ],
     "comingSoonEmailPlaceholder": "tu@email.com",
     "comingSoonEmailLabel": "Correo electrónico",
     "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
@@ -486,7 +510,12 @@
     "upgrade": "Mejorar",
     "subscribe": "Suscribirse",
     "features": "Funcionalidades",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendaciones/día"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendaciones/día"
+    ],
     "plusFeatures": [
       "Prueba gratis de 7 días",
       "Todo del Free",
@@ -1250,5 +1279,19 @@
     "motivo_adaptacao": "Adaptación",
     "motivo_autor": "Mismo autor",
     "motivo_genero": "Mismo género"
+  },
+  "top": {
+    "title": "Rankings",
+    "subtitle": "Lo mejor de cada tipo de obra según el MEDIA Score™",
+    "heroBadge": "Nº 1 del ranking",
+    "top10": "TOP 10",
+    "lancamentos": "Estrenos de {ano}",
+    "porOndeComecar": "Por dónde empezar",
+    "porOndeComecarHint": "Orden sugerido para explorar cada universo",
+    "ordemCronologica": "Orden cronológico: {n}",
+    "categorias": "Categorías",
+    "empty": "Aún no hay obras suficientes evaluadas en este tipo.",
+    "fontes": "{count, plural, one {# fuente} other {# fuentes}}",
+    "erro": "No se pudo cargar el ranking."
   }
 }

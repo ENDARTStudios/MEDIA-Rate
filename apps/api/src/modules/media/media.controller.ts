@@ -498,6 +498,40 @@ export class MediaController {
     };
   }
 
+  /** T162: rota ANTES de @Get(":id") — senão "top" cai no catch-all de id. */
+  @Get("top")
+  @ApiOperation({
+    summary:
+      "Ranking por tipo (T162): TOP pelo MEDIA Score, lançamentos do ano, franquias (por onde começar) e gêneros",
+  })
+  @ApiQuery({
+    name: "tipo",
+    required: false,
+    description:
+      "Tipo canônico ou alias (FILME, SERIE, GAME, LIVRO, MANGA, COMIC, ANIME, HQ). Default FILME.",
+  })
+  @ApiQuery({
+    name: "limite",
+    required: false,
+    description: "Itens por ranking (1–20, default 10)",
+  })
+  @ApiQuery({
+    name: "ano",
+    required: false,
+    description: "Ano para lançamentos (default: ano corrente)",
+  })
+  async top(
+    @Query("tipo") tipo: string | undefined,
+    @Query("limite") limite: string | undefined,
+    @Query("ano") ano: string | undefined,
+  ) {
+    return this.mediaService.topPorTipo(
+      tipo ?? "FILME",
+      limite !== undefined ? Number(limite) : undefined,
+      ano !== undefined ? Number(ano) : undefined,
+    );
+  }
+
   @Get("generos")
   @ApiOperation({ summary: "Lista os gêneros do catálogo (id, nome, slug, total)" })
   async listGeneros(): Promise<{ id: number; nome: string; slug: string; total_midias: number }[]> {

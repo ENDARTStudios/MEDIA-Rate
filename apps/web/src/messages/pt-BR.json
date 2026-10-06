@@ -34,6 +34,7 @@
   "nav": {
     "home": "Início",
     "catalog": "Catálogo",
+    "top": "Rankings",
     "pricing": "Planos",
     "login": "Entrar",
     "register": "Cadastrar",
@@ -223,12 +224,35 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
-    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
-    "variant_movie": ["Filmes"],
-    "variant_series": ["Séries"],
-    "variant_game": ["Games"],
+    "variant_book": [
+      "Romances",
+      "Não-ficção",
+      "Clássicos",
+      "Sagas",
+      "Novidades"
+    ],
+    "variant_comic": [
+      "HQs",
+      "Super-heróis",
+      "Indie",
+      "Novidades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novidades"
+    ],
+    "variant_movie": [
+      "Filmes"
+    ],
+    "variant_series": [
+      "Séries"
+    ],
+    "variant_game": [
+      "Games"
+    ],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -486,7 +510,12 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendações/dia"
+    ],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -1250,5 +1279,19 @@
     "motivo_adaptacao": "Adaptação",
     "motivo_autor": "Mesmo autor",
     "motivo_genero": "Mesmo gênero"
+  },
+  "top": {
+    "title": "Rankings",
+    "subtitle": "O melhor de cada mídia pelo MEDIA Score™",
+    "heroBadge": "Nº 1 do ranking",
+    "top10": "TOP 10",
+    "lancamentos": "Lançamentos de {ano}",
+    "porOndeComecar": "Por onde começar",
+    "porOndeComecarHint": "Ordem sugerida para explorar cada universo",
+    "ordemCronologica": "Ordem cronológica: {n}",
+    "categorias": "Categorias",
+    "empty": "Ainda não há mídias suficientes avaliadas neste tipo.",
+    "fontes": "{count, plural, one {# fonte} other {# fontes}}",
+    "erro": "Não foi possível carregar o ranking."
   }
 }

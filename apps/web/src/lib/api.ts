@@ -1116,6 +1116,46 @@ export async function getMediaBySlug(slug: string): Promise<Media | null> {
   return MOCK_MEDIA.find((m) => m.slug === slug) ?? MOCK_MEDIA.find((m) => m.id === slug) ?? null;
 }
 
+// ===========================================================================
+// T162 (Onda A — Rankings): hub /top por tipo
+// ===========================================================================
+
+/** Item do ranking — shape achatado do /api/v1/midias/top. */
+export interface TopMidia {
+  id: string;
+  slug: string | null;
+  titulo: string;
+  titulo_original: string | null;
+  titulo_en: string | null;
+  titulo_es: string | null;
+  tipo: string;
+  ano_lancamento: number | null;
+  imagem_url: string | null;
+  score: number | null;
+  num_fontes: number | null;
+}
+
+export interface TopFranquiaItem extends TopMidia {
+  ordens: { lancamento: number; cronologica: number | null };
+}
+
+export interface TopPorTipoPayload {
+  tipo: string;
+  ano: number;
+  top: TopMidia[];
+  lancamentos_ano: TopMidia[];
+  generos: { id: number; nome: string; slug: string; total_midias: number }[];
+  franquias: { id: string; nome: string; slug: string; itens: TopFranquiaItem[] }[];
+}
+
+/** Hub de rankings por tipo (T162): TOP, lançamentos do ano, franquias e gêneros. */
+export async function getTopPorTipo(
+  type: MediaType,
+  limite = 10,
+): Promise<TopPorTipoPayload | null> {
+  return apiGet<TopPorTipoPayload>(`/api/v1/midias/top?tipo=${TIPO_TO_API[type]}&limite=${limite}`);
+}
+
 /** Item de /api/v1/discover (T227: busca normalizada com translate()). */
 interface ApiDiscoverItem {
   id: string;
