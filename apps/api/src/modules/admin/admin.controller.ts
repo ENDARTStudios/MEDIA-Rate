@@ -146,7 +146,9 @@ export class AdminController {
     summary: "Histórico de atividade do usuário: interações + watchlist (admin/moderação)",
   })
   @ApiBearerAuth()
-  @ApiNotFoundResponse({ description: "404 — id malformado (UUID inválido) ou usuário inexistente." })
+  @ApiNotFoundResponse({
+    description: "404 — id malformado (UUID inválido) ou usuário inexistente.",
+  })
   async atividade(@Req() req: FastifyRequest, @Param("id", UuidParamPipe) id: string) {
     return this.adminService.atividadeDoUsuario(id);
   }
