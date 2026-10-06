@@ -48,6 +48,46 @@ function mockPrisma() {
     sessao: {
       updateMany: vi.fn(async () => ({ count: 3 })),
     },
+    usuarioMidiaInteracao: {
+      findMany: vi.fn(async () => [
+        {
+          id: "int-1",
+          usuario_id: EDI,
+          midia_id: "11111111-1111-4111-8111-111111111111",
+          status: "CONCLUIDO",
+          reacao: "GOSTEI",
+          motivo_abandono: null,
+          progresso_detalhe: null,
+          iniciado_em: null,
+          concluido_em: new Date("2026-10-01"),
+          atualizado_em: new Date("2026-10-01"),
+          origem_relacao_id: null,
+          midia: {
+            id: "11111111-1111-4111-8111-111111111111",
+            slug: "duna",
+            titulo: "Duna",
+            tipo: "FILME",
+            ano_lancamento: 2021,
+            imagem_url: null,
+            score: 82,
+          },
+        },
+      ]),
+      findUnique: vi.fn(async () => ({ id: "int-1" })),
+      delete: vi.fn(async () => ({ id: "int-1" })),
+    },
+    watchlistEntry: {
+      findMany: vi.fn(async () => [
+        {
+          id: "wl-1",
+          midia_id: "22222222-2222-4222-8222-222222222222",
+          coluna: "WANT",
+          created_at: new Date("2026-09-30"),
+        },
+      ]),
+      findFirst: vi.fn(async () => ({ id: "wl-1" })),
+      delete: vi.fn(async () => ({ id: "wl-1" })),
+    },
   };
 }
 
@@ -137,6 +177,56 @@ describe("AdminService — gestão de usuários (Onda 1 admin, P0)", () => {
 
   it("banir a si mesmo → 400", async () => {
     await expect(service.banir(ADMIN, ADMIN, "motivo")).rejects.toThrow(BadRequestException);
+  });
+
+  it("atividadeDoUsuario devolve interações (DTO allowlist) + watchlist; 404 sem usuário", async () => {
+    const r = await service.atividadeDoUsuario(EDI);
+    expect(r.usuario).toMatchObject({ id: EDI, email: "edi@endart.com" });
+    expect(r.interacoes).toHaveLength(1);
+    // DTO allowlist: sem usuario_id/tenant_id (T036/D-536)
+    expect(JSON.stringify(r.interacoes[0])).not.toContain("usuario_id");
+    expect(r.interacoes[0]).toMatchObject({ status: "CONCLUIDO", midia: { titulo: "Duna" } });
+    expect(r.watchlist).toEqual([
+      {
+        id: "wl-1",
+        midia_id: "22222222-2222-4222-8222-222222222222",
+        coluna: "WANT",
+        criado_em: expect.any(Date),
+      },
+    ]);
+    // RLS: contexto ADMIN
+    expect(prisma.usuario.findUnique).toHaveBeenCalled();
+    await expect(service.atividadeDoUsuario("nao-existe")).rejects.toThrow(NotFoundException);
+  });
+
+  it("moderação: remover interação audita ADMIN_MODERACAO e 404 sem interação", async () => {
+    const midiaId = "11111111-1111-4111-8111-111111111111";
+    const r = await service.removerInteracaoUsuario(ADMIN, EDI, midiaId, "spam");
+    expect(r).toEqual({ usuarioId: EDI, midiaId });
+    expect(prisma.usuarioMidiaInteracao.delete).toHaveBeenCalled();
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acao: "ADMIN_MODERACAO_INTERACAO_REMOVIDA",
+        dadosDepois: expect.objectContaining({ alvo: EDI, midiaId, motivo: "spam" }),
+      }),
+    );
+    prisma.usuarioMidiaInteracao.findUnique.mockResolvedValueOnce(null);
+    await expect(service.removerInteracaoUsuario(ADMIN, EDI, midiaId, "x")).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it("moderação: remover watchlist audita e 404 sem entrada", async () => {
+    const r = await service.removerWatchlistUsuario(ADMIN, EDI, "wl-1", "conteúdo inadequado");
+    expect(r).toEqual({ usuarioId: EDI, entryId: "wl-1" });
+    expect(prisma.watchlistEntry.delete).toHaveBeenCalled();
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({ acao: "ADMIN_MODERACAO_WATCHLIST_REMOVIDA" }),
+    );
+    prisma.watchlistEntry.findFirst.mockResolvedValueOnce(null);
+    await expect(service.removerWatchlistUsuario(ADMIN, EDI, "wl-1", "x")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("desbanir limpa banido_em e audita; usuário inexistente → 404", async () => {

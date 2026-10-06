@@ -3,6 +3,10 @@ import { PrismaService } from "../../prisma/prisma.service.js";
 import { CacheService } from "../../common/cache.service.js";
 import { comContextoRls, DEFAULT_TENANT } from "../../common/rls-context.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
+import {
+  MIDIA_INTERACAO_SELECT,
+  mapearInteracaoResponse,
+} from "../interacoes/interacoes.mapper.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 
 export type PlanoAdmin = "FREE" | "PLUS" | "PREMIUM";
@@ -36,6 +40,117 @@ export class AdminService {
     private readonly cache: CacheService,
     @Optional() private readonly auditLog?: AuditLogService,
   ) {}
+
+  /**
+   * Onda 2 admin (P0b): histórico de atividade do usuário — interações
+   * (status/reação, mais recentes primeiro) + entradas da watchlist.
+   * Fonte da moderação: o admin vê exatamente o que o usuário produziu.
+   */
+  async atividadeDoUsuario(usuarioId: string): Promise<{
+    usuario: { id: string; email: string };
+    interacoes: ReturnType<typeof mapearInteracaoResponse>[];
+    watchlist: { id: string; midia_id: string; coluna: string; criado_em: Date | null }[];
+  }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const usuario = await tx.usuario.findUnique({
+        where: { id: usuarioId },
+        select: { id: true, email: true },
+      });
+      if (!usuario) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      const [interacoes, watchlist] = await Promise.all([
+        tx.usuarioMidiaInteracao.findMany({
+          where: { usuario_id: usuarioId },
+          orderBy: { atualizado_em: "desc" as const },
+          take: 100,
+          include: { midia: { select: MIDIA_INTERACAO_SELECT } },
+        }),
+        tx.watchlistEntry.findMany({
+          where: { usuario_id: usuarioId },
+          orderBy: { created_at: "desc" as const },
+          take: 100,
+          select: { id: true, midia_id: true, coluna: true, created_at: true },
+        }),
+      ]);
+      return {
+        usuario,
+        interacoes: interacoes.map(mapearInteracaoResponse),
+        watchlist: watchlist.map((w) => ({
+          id: w.id,
+          midia_id: w.midia_id,
+          coluna: w.coluna,
+          criado_em: w.created_at,
+        })),
+      };
+    });
+  }
+
+  /**
+   * Onda 2 admin (P0b): moderação — remove a interação de QUALQUER usuário
+   * (conteúdo inadequado/spam). Auditado com o motivo do admin.
+   */
+  async removerInteracaoUsuario(
+    adminId: string,
+    usuarioId: string,
+    midiaId: string,
+    motivo: string,
+  ): Promise<{ usuarioId: string; midiaId: string }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const existente = await tx.usuarioMidiaInteracao.findUnique({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+        select: { id: true },
+      });
+      if (!existente) {
+        throw new NotFoundException("Interação não encontrada para este usuário.");
+      }
+      await tx.usuarioMidiaInteracao.delete({
+        where: { usuario_id_midia_id: { usuario_id: usuarioId, midia_id: midiaId } },
+      });
+      await this.auditLog
+        ?.log({
+          entidade: "UsuarioMidiaInteracao",
+          entidadeId: existente.id,
+          acao: "ADMIN_MODERACAO_INTERACAO_REMOVIDA",
+          usuarioId: adminId,
+          dadosDepois: { alvo: usuarioId, midiaId, motivo },
+        })
+        .catch(() => undefined);
+      return { usuarioId, midiaId };
+    });
+  }
+
+  /**
+   * Onda 2 admin (P0b): moderação — remove entrada da watchlist de
+   * QUALQUER usuário. Auditado.
+   */
+  async removerWatchlistUsuario(
+    adminId: string,
+    usuarioId: string,
+    entryId: string,
+    motivo: string,
+  ): Promise<{ usuarioId: string; entryId: string }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const existente = await tx.watchlistEntry.findFirst({
+        where: { id: entryId, usuario_id: usuarioId },
+        select: { id: true },
+      });
+      if (!existente) {
+        throw new NotFoundException("Entrada da watchlist não encontrada para este usuário.");
+      }
+      await tx.watchlistEntry.delete({ where: { id: entryId } });
+      await this.auditLog
+        ?.log({
+          entidade: "watchlist_entry",
+          entidadeId: entryId,
+          acao: "ADMIN_MODERACAO_WATCHLIST_REMOVIDA",
+          usuarioId: adminId,
+          dadosDepois: { alvo: usuarioId, motivo },
+        })
+        .catch(() => undefined);
+      return { usuarioId, entryId };
+    });
+  }
 
   /**
    * Onda 1 admin (P0): lista usuários com busca por nome/email e filtro por

@@ -22,6 +22,20 @@ interface PaginaUsuarios {
   pageSize: number;
 }
 
+interface AtividadeInteracao {
+  id: string;
+  status: string;
+  reacao: string | null;
+  atualizado_em: string;
+  midia: { id: string; titulo: string | null; tipo: string };
+}
+
+interface Atividade {
+  usuario: { id: string; email: string };
+  interacoes: AtividadeInteracao[];
+  watchlist: { id: string; midia_id: string; coluna: string }[];
+}
+
 const PLANOS: PlanoAdmin[] = ["FREE", "PLUS", "PREMIUM"];
 
 /**
@@ -36,6 +50,8 @@ export default function AdminUsuariosPage() {
   const [data, setData] = useState<PaginaUsuarios | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [atividade, setAtividade] = useState<Atividade | null>(null);
+  const [carregandoAtividade, setCarregandoAtividade] = useState(false);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -86,6 +102,47 @@ export default function AdminUsuariosPage() {
       await carregar();
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao desbanir.");
+    }
+  }
+
+  async function abrirAtividade(u: UsuarioAdmin) {
+    setCarregandoAtividade(true);
+    setErro(null);
+    try {
+      const d = await api.get<Atividade>(`/api/v1/admin/usuarios/${u.id}/atividade`);
+      setAtividade(d);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao carregar atividade.");
+    } finally {
+      setCarregandoAtividade(false);
+    }
+  }
+
+  async function removerInteracao(usuarioId: string, midiaId: string) {
+    const motivo = window.prompt("Motivo da remoção da interação?");
+    if (!motivo || !motivo.trim()) return;
+    try {
+      await api.delete(`/api/v1/admin/usuarios/${usuarioId}/interacoes/${midiaId}`, {
+        body: { motivo: motivo.trim() },
+      });
+      const d = await api.get<Atividade>(`/api/v1/admin/usuarios/${usuarioId}/atividade`);
+      setAtividade(d);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao remover interação.");
+    }
+  }
+
+  async function removerWatchlist(usuarioId: string, entryId: string) {
+    const motivo = window.prompt("Motivo da remoção da watchlist?");
+    if (!motivo || !motivo.trim()) return;
+    try {
+      await api.delete(`/api/v1/admin/usuarios/${usuarioId}/watchlist/${entryId}`, {
+        body: { motivo: motivo.trim() },
+      });
+      const d = await api.get<Atividade>(`/api/v1/admin/usuarios/${usuarioId}/atividade`);
+      setAtividade(d);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao remover da watchlist.");
     }
   }
 
@@ -184,6 +241,14 @@ export default function AdminUsuariosPage() {
                   ) : (
                     <span className="text-green-600">Ativo</span>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => void abrirAtividade(u)}
+                    data-testid={`admin-usuarios-atividade-${u.id}`}
+                    className="ml-2 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Atividade
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   {u.banido ? (
@@ -218,6 +283,82 @@ export default function AdminUsuariosPage() {
           </tbody>
         </table>
       </div>
+
+      {carregandoAtividade && (
+        <p className="text-sm text-gray-500" data-testid="admin-atividade-carregando">
+          Carregando atividade…
+        </p>
+      )}
+
+      {atividade && (
+        <section
+          aria-labelledby="atividade-title"
+          className="mb-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+          data-testid="admin-atividade-painel"
+        >
+          <div className="flex items-center justify-between">
+            <h2
+              id="atividade-title"
+              className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+            >
+              Atividade de {atividade.usuario.email}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setAtividade(null)}
+              className="rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs"
+            >
+              Fechar
+            </button>
+          </div>
+
+          <h3 className="mt-3 text-sm font-semibold">Interações ({atividade.interacoes.length})</h3>
+          <ul className="mt-1 divide-y divide-gray-200 dark:divide-gray-700">
+            {atividade.interacoes.map((i) => (
+              <li key={i.id} className="flex items-center gap-3 py-2 text-sm">
+                <span className="min-w-0 flex-1 truncate">
+                  {i.midia.titulo ?? i.midia.id}{" "}
+                  <span className="text-xs text-gray-400">{i.midia.tipo}</span>
+                </span>
+                <span className="text-xs text-gray-500">{i.status}</span>
+                <span className="text-xs text-gray-500">{i.reacao ?? "—"}</span>
+                <button
+                  type="button"
+                  onClick={() => void removerInteracao(atividade.usuario.id, i.midia.id)}
+                  data-testid={`admin-atividade-remover-${i.midia.id}`}
+                  className="shrink-0 rounded-lg border border-red-300 px-2 py-0.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  Remover
+                </button>
+              </li>
+            ))}
+            {atividade.interacoes.length === 0 && (
+              <li className="py-2 text-xs text-gray-400">Nenhuma interação.</li>
+            )}
+          </ul>
+
+          <h3 className="mt-4 text-sm font-semibold">Watchlist ({atividade.watchlist.length})</h3>
+          <ul className="mt-1 divide-y divide-gray-200 dark:divide-gray-700">
+            {atividade.watchlist.map((w) => (
+              <li key={w.id} className="flex items-center gap-3 py-2 text-sm">
+                <span className="min-w-0 flex-1 truncate font-mono text-xs">{w.midia_id}</span>
+                <span className="text-xs text-gray-500">{w.coluna}</span>
+                <button
+                  type="button"
+                  onClick={() => void removerWatchlist(atividade.usuario.id, w.id)}
+                  data-testid={`admin-watchlist-remover-${w.id}`}
+                  className="shrink-0 rounded-lg border border-red-300 px-2 py-0.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  Remover
+                </button>
+              </li>
+            ))}
+            {atividade.watchlist.length === 0 && (
+              <li className="py-2 text-xs text-gray-400">Watchlist vazia.</li>
+            )}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-4 flex items-center justify-between text-sm">
         <span className="text-gray-500" data-testid="admin-usuarios-total">

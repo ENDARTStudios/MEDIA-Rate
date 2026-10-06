@@ -5,6 +5,8 @@ import { api } from "@/lib/http";
 
 // Onda 1 admin (P0) — painel de gestão de usuários: busca, filtro, alteração
 // de plano (exceção MANUAL) e ban/desban com motivo.
+// Onda 2 admin (P0b) — histórico de atividade + moderação (remover interação
+// e watchlist de qualquer usuário, com motivo auditado).
 
 const EDI_ID = "90a1c50a-aa71-42d0-97e6-5304802b4d92";
 
@@ -34,11 +36,26 @@ const USUARIOS = {
   pageSize: 25,
 };
 
+const ATIVIDADE = {
+  usuario: { id: EDI_ID, email: "edi@endart.com" },
+  interacoes: [
+    {
+      id: "int-1",
+      status: "CONCLUIDO",
+      reacao: "GOSTEI",
+      atualizado_em: "2026-10-01T00:00:00.000Z",
+      midia: { id: "m-1", titulo: "Duna", tipo: "FILME" },
+    },
+  ],
+  watchlist: [{ id: "wl-1", midia_id: "m-2", coluna: "WANT" }],
+};
+
 vi.mock("@/lib/http", () => ({
   api: {
-    get: vi.fn(async () => USUARIOS),
+    get: vi.fn(async (url: string) => (String(url).includes("/atividade") ? ATIVIDADE : USUARIOS)),
     patch: vi.fn(async () => ({ usuarioId: EDI_ID, plano: "PREMIUM", origem: "MANUAL" })),
     post: vi.fn(async () => ({ usuarioId: EDI_ID })),
+    delete: vi.fn(async () => ({ ok: true })),
   },
 }));
 
@@ -122,6 +139,45 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
     renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("admin-usuarios-erro").textContent).toContain("permissão");
+    });
+  });
+});
+
+describe("AdminUsuariosPage (Onda 2 admin — P0b: atividade e moderação)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(window, "prompt").mockReturnValue("violação dos termos");
+  });
+
+  it("Atividade abre o painel com interações e watchlist do usuário", async () => {
+    renderPage();
+    const botao = await screen.findByTestId(`admin-usuarios-atividade-${EDI_ID}`);
+    fireEvent.click(botao);
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(`/api/v1/admin/usuarios/${EDI_ID}/atividade`);
+    });
+    expect(screen.getByTestId("admin-atividade-painel")).toBeTruthy();
+    expect(screen.getByText("Duna")).toBeTruthy();
+    expect(screen.getByTestId("admin-atividade-remover-m-1")).toBeTruthy();
+    expect(screen.getByTestId("admin-watchlist-remover-wl-1")).toBeTruthy();
+  });
+
+  it("remover interação pede motivo, chama DELETE e refresca a atividade", async () => {
+    renderPage();
+    fireEvent.click(await screen.findByTestId(`admin-usuarios-atividade-${EDI_ID}`));
+    const remover = await screen.findByTestId("admin-atividade-remover-m-1");
+    fireEvent.click(remover);
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith(`/api/v1/admin/usuarios/${EDI_ID}/interacoes/m-1`, {
+        body: { motivo: "violação dos termos" },
+      });
+    });
+    // refetch da atividade após a remoção
+    await waitFor(() => {
+      const chamadasAtividade = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(([u]) =>
+        String(u).includes("/atividade"),
+      );
+      expect(chamadasAtividade.length).toBeGreaterThanOrEqual(2);
     });
   });
 });
