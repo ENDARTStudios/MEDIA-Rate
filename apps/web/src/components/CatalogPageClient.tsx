@@ -412,7 +412,7 @@ export function CatalogPageClient({
         <Suspense fallback={null}>
           <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
         </Suspense>
-        <aside className="hidden lg:block w-60 shrink-0">
+        <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
           <Suspense fallback={null}>
             <CatalogFiltersClient />
           </Suspense>
