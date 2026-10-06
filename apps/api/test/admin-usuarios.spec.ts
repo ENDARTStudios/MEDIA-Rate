@@ -25,7 +25,7 @@ function mockPrisma() {
       findUnique: vi.fn(async ({ where }: any) => usuarios.get(where.id) ?? null),
       findMany: vi.fn(async ({ where }: any) =>
         [...usuarios.values()].filter((u) => {
-          if (where.usuarioPlano && u.plano.plano !== where.usuarioPlano.plano) return false;
+          if (where.plano && u.plano.plano !== where.plano.plano) return false;
           if (where.OR) {
             const q = where.OR[0].nome.contains.toLowerCase();
             return u.email.toLowerCase().includes(q) || (u.nome ?? "").toLowerCase().includes(q);
@@ -150,6 +150,13 @@ describe("AdminService — gestão de usuários (Onda 1 admin, P0)", () => {
     expect(r.total).toBe(2);
     expect(r.items[0]).toMatchObject({ plano: "PLUS", origem: "STRIPE", banido: false });
     expect(r.items[1]).toMatchObject({ plano: "FREE", banido: true });
+  });
+
+  it("listarUsuarios com filtro de plano usa a relação `plano` no where", async () => {
+    await service.listarUsuarios({ q: undefined, plano: "PREMIUM", page: 0 });
+    const chamada = prisma.usuario.findMany.mock.calls.at(-1)?.[0];
+    expect(chamada.where.plano).toEqual({ plano: "PREMIUM" });
+    expect(chamada.where.usuarioPlano).toBeUndefined();
   });
 
   it("alterarPlano cria exceção MANUAL, audita e 404 em usuário inexistente", async () => {
