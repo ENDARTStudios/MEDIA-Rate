@@ -186,8 +186,6 @@ export default tseslint.config(
       globals: {
         process: "readonly",
         URL: "readonly",
-        fetch: "readonly",
-        AbortSignal: "readonly",
       },
     },
     rules: {

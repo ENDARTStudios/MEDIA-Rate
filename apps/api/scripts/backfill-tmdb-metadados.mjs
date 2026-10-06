@@ -61,7 +61,16 @@ export function mapearTv(payload) {
 async function buscarTmdb(id, tipo, chave) {
   const append = tipo === "SERIE" ? "credits,aggregate_credits" : "credits";
   const url = `${TMDB_BASE}/${tipo === "SERIE" ? "tv" : "movie"}/${id}?api_key=${chave}&language=pt-BR&append_to_response=${append}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  // AbortController manual (AbortSignal.timeout não é global em todos os
+  // ambientes de lint do repo).
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  let res;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) throw new Error(`TMDB ${res.status} para ${id}`);
   return res.json();
 }
