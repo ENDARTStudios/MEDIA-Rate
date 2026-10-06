@@ -508,7 +508,12 @@ export class AdminService {
       }
 
       return {
-        usuarios: { total: totalUsuarios, ativos_7d: ativos7d, banidos: totalBanidos, excluidas: totalExcluidas },
+        usuarios: {
+          total: totalUsuarios,
+          ativos_7d: ativos7d,
+          banidos: totalBanidos,
+          excluidas: totalExcluidas,
+        },
         midias: { total: totalMidias, por_tipo: porTipoMap },
         watchlists: { total_entries: totalEntries, usuarios_com_watchlist: usuariosComWatchlist },
         sessoes: { ativas: sessoesAtivas },

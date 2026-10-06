@@ -27,7 +27,7 @@ function makeMocks(
   const prisma = {
     usuario: {
       count: vi.fn(async ({ where }: any) => {
-        if (where?.banido_em) return (dados.usuariosBanidos ?? 0);
+        if (where?.banido_em) return dados.usuariosBanidos ?? 0;
         return where?.ultimo_login_em ? (dados.usuariosAtivos7d ?? 0) : (dados.usuariosTotal ?? 0);
       }),
       findMany: vi.fn(async () => dados.usuariosCriadosEm ?? []),
