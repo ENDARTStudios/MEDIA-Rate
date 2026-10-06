@@ -33,6 +33,33 @@ const STATS_TTL = 60; // segundos (T210 — chave admin:stats)
  * via CacheService (readThrough) — invalidação em escrita não é necessária.
  * Banco vazio → zeros (não erro).
  */
+/** Onda 7 admin: série mensal 12m zero-preenchida a partir de timestamps. */
+function serie12m(
+  criadosEm: { created_at: Date }[],
+  atualizadosEm: { atualizado_em: Date }[],
+): { mes: string; novos_usuarios: number; interacoes: number }[] {
+  const agora = new Date();
+  const buckets = new Map<string, { novos_usuarios: number; interacoes: number }>();
+  for (let k = 11; k >= 0; k--) {
+    const d = new Date(agora.getFullYear(), agora.getMonth() - k, 1);
+    buckets.set(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, {
+      novos_usuarios: 0,
+      interacoes: 0,
+    });
+  }
+  for (const u of criadosEm) {
+    const chave = `${u.created_at.getFullYear()}-${String(u.created_at.getMonth() + 1).padStart(2, "0")}`;
+    const b = buckets.get(chave);
+    if (b) b.novos_usuarios += 1;
+  }
+  for (const i of atualizadosEm) {
+    const chave = `${i.atualizado_em.getFullYear()}-${String(i.atualizado_em.getMonth() + 1).padStart(2, "0")}`;
+    const b = buckets.get(chave);
+    if (b) b.interacoes += 1;
+  }
+  return [...buckets.entries()].map(([mes, v]) => ({ mes, ...v }));
+}
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -426,6 +453,8 @@ export class AdminService {
         totalDiscoveryEvents,
         usuariosComDiscovery,
         totalInteracoes,
+        criadosEmUsuarios,
+        atualizadosEmInteracoes,
       ] = await Promise.all([
         // Usuários: exclui soft-delete agendado (LGPD).
         tx.usuario.count({ where: { dados_para_exclusao_at: null } }),
@@ -456,6 +485,9 @@ export class AdminService {
           .then((r) => r.length),
         // Onda 5 admin: interações de consumo registradas ("avaliações").
         tx.usuarioMidiaInteracao.count(),
+        // Onda 7 admin: série mensal p/ os gráficos de atividade.
+        tx.usuario.findMany({ select: { created_at: true } }),
+        tx.usuarioMidiaInteracao.findMany({ select: { atualizado_em: true } }),
       ]);
 
       const porTipoMap: Record<string, number> = {};
@@ -478,6 +510,7 @@ export class AdminService {
           usuarios_com_evento: usuariosComDiscovery,
         },
         interacoes: { total: totalInteracoes },
+        evolucao: serie12m(criadosEmUsuarios, atualizadosEmInteracoes),
       };
     });
   }

@@ -2,6 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/http";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface Stats {
   usuarios: { total: number; ativos_7d: number };
@@ -11,6 +23,7 @@ interface Stats {
   planos: { free: number; plus: number; premium: number };
   descobertas: { total_eventos: number; usuarios_com_evento: number };
   interacoes: { total: number };
+  evolucao: { mes: string; novos_usuarios: number; interacoes: number }[];
 }
 
 function Kpi({ label, valor, extra }: { label: string; valor: string | number; extra?: string }) {
@@ -84,6 +97,77 @@ export default function AdminMetricasPage() {
             extra={`${data.descobertas.usuarios_com_evento} usuários`}
           />
         </dl>
+      </section>
+
+      <section aria-labelledby="graficos-title" className="mb-8">
+        <h2
+          id="graficos-title"
+          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
+        >
+          Atividade por mês (12 meses)
+        </h2>
+        <div
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          data-testid="admin-metricas-grafico-atividade"
+        >
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.evolucao}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#37415155" />
+                <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="novos_usuarios"
+                  name="Novos usuários"
+                  stroke="#818CF8"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="interacoes"
+                  name="Interações"
+                  stroke="#34D399"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="grafico-catalogo-title" className="mb-8">
+        <h2
+          id="grafico-catalogo-title"
+          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
+        >
+          Catálogo por tipo
+        </h2>
+        <div
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          data-testid="admin-metricas-grafico-catalogo"
+        >
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={Object.entries(data.midias.por_tipo).map(([tipo, n]) => ({
+                  tipo,
+                  titulos: n,
+                }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#37415155" />
+                <XAxis dataKey="tipo" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Bar dataKey="titulos" fill="#818CF8" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </section>
 
       <section aria-labelledby="planos-title" className="mb-8">

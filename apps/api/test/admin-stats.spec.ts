@@ -15,6 +15,8 @@ function makeMocks(
     discoveryTotal?: number;
     usuariosComDiscovery?: number;
     interacoesTotal?: number;
+    usuariosCriadosEm?: Date[];
+    interacoesAtualizadosEm?: Date[];
   } = {},
 ) {
   const prisma = {
@@ -22,6 +24,7 @@ function makeMocks(
       count: vi.fn(async ({ where }: any) =>
         where?.ultimo_login_em ? (dados.usuariosAtivos7d ?? 0) : (dados.usuariosTotal ?? 0),
       ),
+      findMany: vi.fn(async () => dados.usuariosCriadosEm ?? []),
     },
     midia: {
       count: vi.fn(async () => dados.midiasTotal ?? 0),
@@ -39,6 +42,7 @@ function makeMocks(
     },
     usuarioMidiaInteracao: {
       count: vi.fn(async () => dados.interacoesTotal ?? 0),
+      findMany: vi.fn(async () => dados.interacoesAtualizadosEm ?? []),
     },
     // T286 — métrica de Descobertas (agregados anonimizados).
     discoveryEvent: {
@@ -95,8 +99,33 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
     expect(value.sessoes.ativas).toBe(33);
     expect(value.planos).toEqual({ free: 100, plus: 15, premium: 5 });
     expect(value.interacoes).toEqual({ total: 26 });
+    // Onda 7: evolução 12m zero-preenchida (sem timestamps no fixture → zeros)
+    expect(value.evolucao).toHaveLength(12);
+    expect(value.evolucao.every((e) => e.novos_usuarios === 0 && e.interacoes === 0)).toBe(true);
     // Nenhum dado sensível na resposta.
     expect(JSON.stringify(value)).not.toMatch(/email|password|token/i);
+  });
+
+  it("Onda 7: evolução mensal conta novos usuários e interações por mês", async () => {
+    m = makeMocks({
+      // construtor local (não UTC) — o bucket usa getFullYear/Month locais
+      usuariosCriadosEm: [
+        { created_at: new Date(2026, 7, 15) },
+        { created_at: new Date(2026, 7, 20) },
+        { created_at: new Date(2026, 8, 2) },
+      ],
+      interacoesAtualizadosEm: [
+        { atualizado_em: new Date(2026, 8, 10) },
+        { atualizado_em: new Date(2026, 8, 11) },
+        { atualizado_em: new Date(2026, 9, 1) },
+      ],
+    });
+    const value = await m.service.getStats().then((r) => r.value);
+    expect(value.evolucao).toHaveLength(12);
+    const ago = value.evolucao.find((e) => e.mes === "2026-08");
+    const set = value.evolucao.find((e) => e.mes === "2026-09");
+    expect(ago).toMatchObject({ novos_usuarios: 2, interacoes: 0 });
+    expect(set).toMatchObject({ novos_usuarios: 1, interacoes: 2 });
   });
 
   it("banco vazio → zeros (não erro) e midias filtram deletadas", async () => {
