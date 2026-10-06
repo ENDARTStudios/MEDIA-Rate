@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 const NAV_ITEMS = [
   { label: "catalog", href: "/catalog" },
+  { label: "top", href: "/top" },
   { label: "pricing", href: "/pricing" },
 ];
 
@@ -264,6 +265,13 @@ export function Navbar({
                 className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
               >
                 {t("catalog")}
+              </Link>
+              <Link
+                href="/top"
+                onClick={() => setMobileOpen(false)}
+                className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+              >
+                {t("top")}
               </Link>
               <Link
                 href="/pricing"
