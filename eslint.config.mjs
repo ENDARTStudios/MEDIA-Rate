@@ -180,7 +180,8 @@ export default tseslint.config(
   // Cada script declara `console` no próprio /*global*/ (por arquivo, sem
   // colisão). Não é código de produto.
   {
-    files: ["scripts/**/*.mjs"],
+    // T163: apps/api/scripts incluído — seed/CLI de operação (não é produto).
+    files: ["scripts/**/*.mjs", "apps/api/scripts/**/*.mjs"],
     languageOptions: {
       globals: {
         process: "readonly",

@@ -13,6 +13,13 @@
  *   DRY_RUN=0            → executa os upserts.
  */
 
+const saida = (msg) =>
+  process.stdout.write(`${msg}
+`);
+const erro = (msg) =>
+  process.stderr.write(`${msg}
+`);
+
 export const FRANQUIAS = [
   {
     slug: "o-senhor-dos-aneis",
@@ -470,22 +477,22 @@ async function main() {
       select: { id: true, titulo: true, tipo: true },
     });
     const plano = construirPlano({ franquias: FRANQUIAS, relacoes: RELACOES }, midias);
-    console.log(
+    saida(
       `PLANO: ${plano.franquias.length} franquias (${plano.franquias.reduce((a, f) => a + f.itens.length, 0)} vínculos), ${plano.relacoes.length} relações`,
     );
     if (plano.ausentes.length) {
-      console.log(`AUSENTES (${plano.ausentes.length}):`);
-      for (const a of plano.ausentes) console.log(`  - [${a.tipo}] ${a.titulo} (${a.contexto})`);
+      saida(`AUSENTES (${plano.ausentes.length}):`);
+      for (const a of plano.ausentes) saida(`  - [${a.tipo}] ${a.titulo} (${a.contexto})`);
     }
     if (plano.ambiguos.length) {
-      console.log(`AMBIGUOS (${plano.ambiguos.length}):`);
-      for (const a of plano.ambiguos) console.log(`  - [${a.tipo}] ${a.titulo} (${a.contexto})`);
+      saida(`AMBIGUOS (${plano.ambiguos.length}):`);
+      for (const a of plano.ambiguos) saida(`  - [${a.tipo}] ${a.titulo} (${a.contexto})`);
     }
     if (dryRun) {
-      console.log("DRY_RUN — nada foi escrito. Execute com DRY_RUN=0 para aplicar.");
+      saida("DRY_RUN — nada foi escrito. Execute com DRY_RUN=0 para aplicar.");
     } else {
       const res = await executar(plano, prisma);
-      console.log(
+      saida(
         `APLICADO: ${res.franquiasCriadas} franquias, ${res.vinculos} vínculos, ${res.relacoes} relações.`,
       );
     }
@@ -500,7 +507,7 @@ const isMain =
   import.meta.url === new URL(`file://${process.argv[1].replace(/\\/g, "/")}`).href;
 if (isMain) {
   main().catch((e) => {
-    console.error("ERRO:", e.message);
+    erro("ERRO:", e.message);
     process.exit(1);
   });
 }
