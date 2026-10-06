@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/http";
 
 interface Diagnostics {
@@ -106,21 +106,38 @@ function RemoverMidiaForm() {
 export default function DiagnosticsPage() {
   const [data, setData] = useState<Diagnostics | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [flagOcupada, setFlagOcupada] = useState<string | null>(null);
+
+  // Onda 4 admin (P1b): extraído para permitir refetch após o toggle.
+  const carregar = useCallback(() => {
+    setErro(null);
+    return api
+      .get<Diagnostics>("/api/v1/admin/diagnostics")
+      .then((d) => setData(d))
+      .catch((e) => {
+        setErro(e instanceof Error ? e.message : "Erro ao carregar diagnóstico");
+      });
+  }, []);
 
   useEffect(() => {
-    let ativo = true;
-    api
-      .get<Diagnostics>("/api/v1/admin/diagnostics")
-      .then((d) => {
-        if (ativo) setData(d);
-      })
-      .catch((e) => {
-        if (ativo) setErro(e instanceof Error ? e.message : "Erro ao carregar diagnóstico");
-      });
-    return () => {
-      ativo = false;
-    };
-  }, []);
+    void carregar();
+  }, [carregar]);
+
+  /**
+   * Onda 4 admin (P1b): liga/desliga a flag via PATCH /admin/flags/:key
+   * (audit FLAG_UPDATE no serviço) e refresca o painel.
+   */
+  async function alternarFlag(key: string, enabled: boolean) {
+    setFlagOcupada(key);
+    try {
+      await api.patch(`/api/v1/admin/flags/${key}`, { enabled: !enabled });
+      await carregar();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao atualizar a flag.");
+    } finally {
+      setFlagOcupada(null);
+    }
+  }
 
   if (erro) {
     return <div className="max-w-4xl mx-auto px-4 py-16 text-red-600">{erro}</div>;
@@ -224,6 +241,9 @@ export default function DiagnosticsPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Rollout
                 </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Ação
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -238,6 +258,17 @@ export default function DiagnosticsPage() {
                     )}
                   </td>
                   <td className="px-4 py-2 text-sm">{f.rollout_percent}%</td>
+                  <td className="px-4 py-2">
+                    <button
+                      type="button"
+                      onClick={() => void alternarFlag(f.key, f.enabled)}
+                      disabled={flagOcupada === f.key}
+                      data-testid={`admin-flag-toggle-${f.key}`}
+                      className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40"
+                    >
+                      {flagOcupada === f.key ? "…" : f.enabled ? "Desligar" : "Ligar"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
