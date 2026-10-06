@@ -550,10 +550,7 @@ export class InteracoesService {
    * (RelacaoObra de obra CONCLUÍDA). Cada item vem com MOTIVO (grafo >
    * gêneros). Sem interações → vazio (nunca chuta).
    */
-  async paraVoce(
-    usuarioId: string,
-    limite = 12,
-  ): Promise<{ itens: Record<string, unknown>[] }> {
+  async paraVoce(usuarioId: string, limite = 12): Promise<{ itens: Record<string, unknown>[] }> {
     return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
       const interacoes = await tx.usuarioMidiaInteracao.findMany({
         where: { usuario_id: usuarioId },

@@ -285,44 +285,44 @@ export function DiscoveriesFeed() {
     <div>
       <ParaVoceSection itens={paraVoce} />
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
-        <li
-          key={`${item.toMediaId}-${item.relationType}`}
-          className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4 flex flex-col"
-          data-testid="discovery-card"
-        >
-          <a
-            href={`/media/${item.toMediaId}`}
-            className="group flex items-start gap-3"
-            aria-label={`${item.toMedia.titulo} — ${t("relatedTo", { titulo: item.fromMedia.titulo })}`}
+        {items.map((item) => (
+          <li
+            key={`${item.toMediaId}-${item.relationType}`}
+            className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4 flex flex-col"
+            data-testid="discovery-card"
           >
-            <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
-              {item.toMedia.imagemUrl ? (
-                <StaticPoster
-                  src={item.toMedia.imagemUrl}
-                  alt={item.toMedia.titulo}
-                  sizes="80px"
-                  imgClass="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
-                  {item.toMedia.titulo.slice(0, 3).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate font-medium text-[#EDE7DC]">{item.toMedia.titulo}</p>
-              <p className="text-xs text-[#9CA3AF] mb-1">
-                {t(`relation_${item.relationType.toLowerCase()}`)}
-              </p>
-              <p className="text-xs text-[#80809B]">
-                {t("relatedTo", { titulo: item.fromMedia.titulo })}
-              </p>
-            </div>
-          </a>
-        </li>
-      ))}
-    </ul>
+            <a
+              href={`/media/${item.toMediaId}`}
+              className="group flex items-start gap-3"
+              aria-label={`${item.toMedia.titulo} — ${t("relatedTo", { titulo: item.fromMedia.titulo })}`}
+            >
+              <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+                {item.toMedia.imagemUrl ? (
+                  <StaticPoster
+                    src={item.toMedia.imagemUrl}
+                    alt={item.toMedia.titulo}
+                    sizes="80px"
+                    imgClass="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
+                    {item.toMedia.titulo.slice(0, 3).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-medium text-[#EDE7DC]">{item.toMedia.titulo}</p>
+                <p className="text-xs text-[#9CA3AF] mb-1">
+                  {t(`relation_${item.relationType.toLowerCase()}`)}
+                </p>
+                <p className="text-xs text-[#80809B]">
+                  {t("relatedTo", { titulo: item.fromMedia.titulo })}
+                </p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
