@@ -136,7 +136,9 @@ export function TopPageClient({
               className="relative rounded-2xl overflow-hidden"
               style={{
                 backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.25) 100%)${
-                  hero.imagem_url ? `, url("${hero.imagem_url}")` : ""
+                  hero.backdrop_url || hero.imagem_url
+                    ? `, url("${hero.backdrop_url || hero.imagem_url}")`
+                    : ""
                 }`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",

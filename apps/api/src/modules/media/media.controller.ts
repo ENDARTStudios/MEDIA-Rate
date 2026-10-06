@@ -401,6 +401,16 @@ export class MediaController {
           },
         },
       },
+      // T164 (Onda C1): metadados ricos — elenco por ordem de relevância e
+      // empresas (produtora/estúdio/editora/rede) por nome.
+      elenco: {
+        orderBy: { ordem: "asc" } satisfies Prisma.MidiaElencoOrderByWithRelationInput,
+        select: { nome: true, personagem: true, ordem: true, foto_url: true },
+      },
+      produtoras: {
+        orderBy: { nome: "asc" } satisfies Prisma.MidiaProdutoraOrderByWithRelationInput,
+        select: { nome: true, papel: true },
+      },
     };
 
     // 1) id UUID direto (rotas legadas /movie/[id] e cards que linkam por id).
@@ -554,6 +564,19 @@ export class MediaController {
         })),
       ],
       streamings: midia.streamings.map((s) => s.service.nome),
+      // T164 (Onda C1): metadados ricos — blindagem defensiva (linhas antigas
+      // dos mocks podem não trazer as relações).
+      elenco: (midia.elenco ?? []).map((a) => ({
+        nome: a.nome,
+        personagem: a.personagem,
+        ordem: a.ordem,
+        foto_url: a.foto_url,
+      })),
+      produtoras: (midia.produtoras ?? []).map((e) => ({
+        nome: e.nome,
+        papel: e.papel,
+      })),
+      backdrop_url: midia.backdrop_url ?? null,
       score: score
         ? {
             score: score.score,

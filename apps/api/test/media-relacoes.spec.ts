@@ -152,4 +152,43 @@ describe("MediaController.getBySlug — relações e franquias (T163)", () => {
     expect(result.relacoes[0].titulo).not.toBe("Spin-off Cancelado");
     void apagada;
   });
+
+  it("T164: expoe elenco, produtoras e backdrop no payload da ficha", async () => {
+    const row = makeMidiaRow({ origem: [], destino: [] });
+    row.elenco = [
+      {
+        nome: "Bryan Cranston",
+        personagem: "Walter White",
+        ordem: 0,
+        foto_url: "https://image.tmdb.org/t/p/w185/hal.jpg",
+      },
+      { nome: "Aaron Paul", personagem: "Jesse Pinkman", ordem: 1, foto_url: null },
+    ];
+    row.produtoras = [
+      { nome: "AMC", papel: "NETWORK" },
+      { nome: "High Bridge Productions", papel: "PRODUTORA" },
+    ];
+    row.backdrop_url = "https://image.tmdb.org/t/p/w1280/bb.jpg";
+    const { controller } = makeController(row);
+    const result = (await controller.getBySlug("matrix")) as any;
+    expect(result.elenco).toHaveLength(2);
+    expect(result.elenco[0]).toMatchObject({ nome: "Bryan Cranston", personagem: "Walter White" });
+    expect(result.produtoras).toEqual([
+      { nome: "AMC", papel: "NETWORK" },
+      { nome: "High Bridge Productions", papel: "PRODUTORA" },
+    ]);
+    expect(result.backdrop_url).toBe("https://image.tmdb.org/t/p/w1280/bb.jpg");
+    expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it("T164: sem elenco/produtoras (linhas antigas) o payload segue serializando", async () => {
+    const row = makeMidiaRow({ origem: [], destino: [] });
+    delete row.elenco;
+    delete row.produtoras;
+    const { controller } = makeController(row);
+    const result = (await controller.getBySlug("matrix")) as any;
+    expect(result.elenco).toEqual([]);
+    expect(result.produtoras).toEqual([]);
+    expect(result.backdrop_url).toBeNull();
+  });
 });

@@ -461,6 +461,25 @@ export function MediaDetailClient({
                 </div>
               )}
 
+              {/* Produtoras/estúdios/editoras (T164 — dado real da fonte). */}
+              {(media.produtoras?.length ?? 0) > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                    {tm("produtoras")}
+                  </h3>
+                  <div className="flex flex-wrap gap-2" data-testid="ficha-produtoras">
+                    {(media.produtoras ?? []).map((e) => (
+                      <span
+                        key={`${e.papel}-${e.nome}`}
+                        className="px-3 py-1 rounded-full bg-[#818CF8]/10 text-[#C7CDFE] text-xs font-medium"
+                      >
+                        {e.nome}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Prêmios (T163 — dado real de premios; sem dado → "Não informado"). */}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">

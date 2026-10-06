@@ -102,6 +102,10 @@ interface ApiMidiaSlug {
     tipo_relacao: string;
     nota_editorial: string | null;
   }[];
+  // T164 (Onda C1): metadados ricos.
+  elenco?: { nome: string; personagem: string | null; ordem: number; foto_url: string | null }[];
+  produtoras?: { nome: string; papel: string }[];
+  backdrop_url?: string | null;
   streamings: string[];
   score: ApiScore | null;
   fontes: ApiFonte[];
@@ -350,7 +354,9 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
     synopsis: m.sinopse ?? "",
     synopsisLocalized: buildSynopsisLocalized(m.sinopse, m.sinopse_en, m.sinopse_es),
     posterUrl: m.imagem_url,
-    backdropUrl: null,
+    // T164: banner panorâmico da fonte (hero).
+    backdropUrl: m.backdrop_url ?? null,
+    produtoras: (m.produtoras ?? []).map((e) => ({ nome: e.nome, papel: e.papel })),
     score: m.score
       ? {
           consolidated: m.score.score,
@@ -371,7 +377,12 @@ function mediaFromApi(m: ApiMidiaSlug, fallbackSlug?: string): Media {
           confidenceScore: m.score.confianca,
         }
       : null,
-    cast: [],
+    // T164: elenco real da fonte (aba "Elenco" da ficha).
+    cast: (m.elenco ?? []).map((a) => ({
+      name: a.nome,
+      role: a.personagem ?? "",
+      photoUrl: a.foto_url,
+    })),
     crew: [],
     reviews: [],
     streaming: m.streamings.map((nome) => ({ name: nome })),
@@ -1157,6 +1168,7 @@ export interface TopMidia {
   tipo: string;
   ano_lancamento: number | null;
   imagem_url: string | null;
+  backdrop_url?: string | null;
   score: number | null;
   num_fontes: number | null;
 }

@@ -368,6 +368,8 @@ model Midia {
   tenant_id            String            @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @map("tenant_id") @db.Uuid
   // URL de pôster/capa.
   imagem_url              String?                @map("imagem_url") @db.Text
+  // T164 (Onda C): banner panorâmico da fonte (TMDB w1280) — hero de /top.
+  backdrop_url            String?                @map("backdrop_url") @db.Text
   duracao_minutos         Int?                   @map("duracao_minutos")
   // T215 (2.9): soft delete — NULL = ativa; data = deletada (preservada).
   deleted_at              DateTime?              @map("deleted_at")
@@ -381,6 +383,9 @@ model Midia {
   streamings              MidiaStreaming[]
   avaliacoes              AvaliacaoFonte[]
   franquias               MidiaFranquia[]
+  // T164 (Onda C) — metadados ricos (elenco + produtoras/estúdios/editoras).
+  elenco                  MidiaElenco[]
+  produtoras              MidiaProdutora[]
   relacoes_origem         RelacaoObra[] @relation("RelacaoObraOrigem")
   relacoes_destino        RelacaoObra[] @relation("RelacaoObraDestino")
   // T286 — eventos de descoberta gerados a partir de reações GOSTEI.
@@ -689,6 +694,51 @@ enum TipoRelacao {
   MESMA_HISTORIA_REAL
   // T397 (D-376): fallback de descobertas por gênero compartilhado.
   MESMO_GENERO
+}
+
+/// T164 (Onda C) — papel da empresa na obra. EDITORA para livros/quadrinhos
+/// (OpenLibrary/Comic Vine), ESTUDIO para games (IGDB), NETWORK para TV.
+enum PapelProdutora {
+  PRODUTORA
+  ESTUDIO
+  EDITORA
+  NETWORK
+}
+
+/// T164 (Onda C) — elenco da obra (fonte oficial: TMDB credits).
+model MidiaElenco {
+  id         String  @id @default(uuid()) @db.Uuid
+  midia_id   String  @map("midia_id") @db.Uuid
+  // Id canônico da pessoa na fonte (ex.: person id do TMDB).
+  fonte      String  @db.VarChar(32)
+  fonte_id   String  @map("fonte_id") @db.VarChar(64)
+  nome       String  @db.VarChar(120)
+  personagem String? @db.VarChar(160)
+  // Ordem de relevância na fonte (0 = protagonista).
+  ordem      Int     @default(0)
+  foto_url   String? @map("foto_url") @db.Text
+
+  midia Midia @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([midia_id, fonte, fonte_id])
+  @@index([midia_id])
+  @@map("midia_elenco")
+}
+
+/// T164 (Onda C) — empresa vinculada à obra (produtora/estúdio/editora/rede).
+model MidiaProdutora {
+  id       String        @id @default(uuid()) @db.Uuid
+  midia_id String        @map("midia_id") @db.Uuid
+  fonte    String        @db.VarChar(32)
+  fonte_id String        @map("fonte_id") @db.VarChar(64)
+  nome     String        @db.VarChar(160)
+  papel    PapelProdutora @default(PRODUTORA)
+
+  midia Midia @relation(fields: [midia_id], references: [id], onDelete: Cascade)
+
+  @@unique([midia_id, fonte, fonte_id])
+  @@index([midia_id])
+  @@map("midia_produtora")
 }
 
 /// Colunas do Kanban de Watchlist.
