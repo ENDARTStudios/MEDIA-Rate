@@ -65,6 +65,7 @@ function makePrisma(zerado = false) {
           { plano: "PREMIUM", _count: { _all: 5 } },
         ],
   };
+  base.interacoes = base.interacoes ?? 0;
   return {
     usuario: {
       count: async ({ where }: any) =>
@@ -80,6 +81,10 @@ function makePrisma(zerado = false) {
     },
     sessao: { count: async () => base.sessoes },
     usuarioPlano: { groupBy: async () => base.planos },
+    // Onda 5 admin — interações de consumo registradas ('avaliações').
+    usuarioMidiaInteracao: {
+      count: async () => base.interacoes ?? 0,
+    },
     // T286 — métrica de Descobertas.
     discoveryEvent: {
       count: async () => base.discoveryEvents ?? 0,

@@ -14,6 +14,7 @@ function makeMocks(
     planos?: { plano: string; _count: { _all: number } }[];
     discoveryTotal?: number;
     usuariosComDiscovery?: number;
+    interacoesTotal?: number;
   } = {},
 ) {
   const prisma = {
@@ -35,6 +36,9 @@ function makeMocks(
     sessao: { count: vi.fn(async () => dados.sessoesAtivas ?? 0) },
     usuarioPlano: {
       groupBy: vi.fn(async () => dados.planos ?? []),
+    },
+    usuarioMidiaInteracao: {
+      count: vi.fn(async () => dados.interacoesTotal ?? 0),
     },
     // T286 — métrica de Descobertas (agregados anonimizados).
     discoveryEvent: {
@@ -60,12 +64,13 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
   let m: ReturnType<typeof makeMocks>;
 
   beforeEach(() => {
-    m = makeMocks();
+    m = makeMocks({ interacoesTotal: 26 });
   });
 
   it("calcula contagens agregadas corretamente (usuários/mídias/watchlists/sessões/planos)", async () => {
     m = makeMocks({
       usuariosTotal: 120,
+      interacoesTotal: 26,
       usuariosAtivos7d: 45,
       midiasTotal: 500,
       porTipo: [
@@ -89,6 +94,7 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
     expect(value.watchlists).toEqual({ total_entries: 2100, usuarios_com_watchlist: 80 });
     expect(value.sessoes.ativas).toBe(33);
     expect(value.planos).toEqual({ free: 100, plus: 15, premium: 5 });
+    expect(value.interacoes).toEqual({ total: 26 });
     // Nenhum dado sensível na resposta.
     expect(JSON.stringify(value)).not.toMatch(/email|password|token/i);
   });

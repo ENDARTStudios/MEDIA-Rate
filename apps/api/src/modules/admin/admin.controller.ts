@@ -153,6 +153,33 @@ export class AdminController {
     return this.adminService.atividadeDoUsuario(id);
   }
 
+  private static auditoriaQuery = z.object({
+    usuarioId: z.string().uuid().optional(),
+    acao: z.string().trim().min(1).max(32).optional(),
+    de: z.string().date().optional(),
+    ate: z.string().date().optional(),
+    page: z.coerce.number().int().min(0).default(0),
+  });
+
+  @Get("auditoria")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Consulta o log de auditoria com filtros de usuário/ação/período (admin)",
+  })
+  @ApiBearerAuth()
+  async auditoria(
+    @Query(new ZodValidationPipe(AdminController.auditoriaQuery))
+    query: z.infer<typeof AdminController.auditoriaQuery>,
+  ) {
+    return this.adminService.listarAuditoria({
+      usuarioId: query.usuarioId,
+      acao: query.acao,
+      de: query.de ? new Date(`${query.de}T00:00:00`) : undefined,
+      ate: query.ate ? new Date(`${query.ate}T23:59:59.999`) : undefined,
+      page: query.page,
+    });
+  }
+
   private static moderacaoSchema = z.object({
     motivo: z.string().trim().min(1).max(280),
   });

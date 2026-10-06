@@ -164,6 +164,20 @@ export default function DiagnosticsPage() {
           className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
         >
           Catálogo →
+        </a>{" "}
+        <a
+          href="/admin/metricas"
+          data-testid="link-admin-metricas"
+          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+        >
+          Métricas →
+        </a>{" "}
+        <a
+          href="/admin/auditoria"
+          data-testid="link-admin-auditoria"
+          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+        >
+          Auditoria →
         </a>
       </p>
 

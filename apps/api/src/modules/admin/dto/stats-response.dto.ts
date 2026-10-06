@@ -28,4 +28,8 @@ export interface AdminStatsResponse {
     total_eventos: number;
     usuarios_com_evento: number;
   };
+  // Onda 5 admin (P2): interações de consumo registradas ("avaliações").
+  interacoes: {
+    total: number;
+  };
 }
