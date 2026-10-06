@@ -9,6 +9,7 @@
  * HTTP via node:https (sem globals de browser p/ lint).
  */
 import { request as httpsRequest } from "node:https";
+import { setTimeout as esperar } from "node:timers";
 
 const USER_AGENT = "MEDIA-Rate/0.1 (beta; metadados editoriais; mediarate.app)";
 
@@ -261,7 +262,7 @@ async function main() {
           if (g.tipo === "GAME") {
             // IGDB/Twitch: limite de 4 req/s — bursts viram 429 silencioso
             // (resposta JSON sem array → apareceria como "sem dado").
-            await new Promise((r) => setTimeout(r, 300));
+            await new Promise((r) => esperar(r, 300));
           }
           const payload = await g.buscar(m);
           const empresas = g.mapear(payload);
