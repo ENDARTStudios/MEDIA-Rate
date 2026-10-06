@@ -66,6 +66,54 @@ interface GrafoSugestao {
   motivo: "franquia" | "adaptacao" | "autor" | "genero";
 }
 
+interface ParaVoceItem {
+  id: string;
+  slug: string | null;
+  titulo: string;
+  tipo: string;
+  ano_lancamento: number | null;
+  imagem_url: string | null;
+  score: number | null;
+  motivo: { tipo: string; rotulo: string };
+}
+
+/** T166 — seção "Para você": indicações pelo gosto, com o motivo explícito. */
+function ParaVoceSection({ itens }: { itens: ParaVoceItem[] }) {
+  const t = useTranslations("discoveries");
+  if (itens.length === 0) return null;
+  return (
+    <section aria-labelledby="pava-title" data-testid="para-voce" className="mb-8">
+      <h2 id="pava-title" className="text-lg font-bold mb-3">
+        {t("paraVoce")}
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {itens.map((item) => (
+          <Link
+            key={`${item.id}-${item.motivo.tipo}`}
+            href={`/media/${item.slug ?? item.id}`}
+            className="group block bg-[#11111E] rounded-xl overflow-hidden border border-[#2A2A3D]"
+          >
+            {item.imagem_url && (
+              <StaticPoster
+                src={item.imagem_url}
+                alt={item.titulo}
+                sizes="(max-width: 640px) 50vw, 25vw"
+                imgClass="h-40 w-full object-cover"
+              />
+            )}
+            <div className="p-3">
+              <p className="font-semibold text-sm leading-snug line-clamp-2 group-hover:underline">
+                {item.titulo}
+              </p>
+              <p className="text-xs text-[#818CF8] mt-1">{item.motivo.rotulo}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /** T286 — feed "Descobertas" (GET /api/v1/discoveries, T201+T286):
  *  obra descoberta (toMedia) + contexto "porque você gostou de X".
  *  T387b — recomendações por grafo (GET /premium/graph) com chips. */
@@ -78,6 +126,8 @@ export function DiscoveriesFeed() {
   const [highlights, setHighlights] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // T166 (Onda C5): indicações pelo gosto (não aleatórias) com motivo.
+  const [paraVoce, setParaVoce] = useState<ParaVoceItem[]>([]);
 
   const carregar = useCallback(async () => {
     try {
@@ -94,6 +144,11 @@ export function DiscoveriesFeed() {
       .get<{ recomendacoes: GrafoSugestao[] }>("/api/v1/premium/graph")
       .then((r) => setGrafo(r.recomendacoes ?? []))
       .catch(() => setGrafo([]));
+    // T166: perfil de gosto → indicações com motivo (vazio se sem histórico).
+    api
+      .get<{ itens: ParaVoceItem[] }>("/api/v1/discoveries/para-voce")
+      .then((r) => setParaVoce(r.itens ?? []))
+      .catch(() => setParaVoce([]));
   }, []);
 
   useEffect(() => {
@@ -227,7 +282,9 @@ export function DiscoveriesFeed() {
   }
 
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <ParaVoceSection itens={paraVoce} />
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
         <li
           key={`${item.toMediaId}-${item.relationType}`}
@@ -266,5 +323,6 @@ export function DiscoveriesFeed() {
         </li>
       ))}
     </ul>
+    </div>
   );
 }

@@ -541,4 +541,126 @@ export class InteracoesService {
       });
     });
   }
+
+  /**
+   * T166 (Onda C5 — item 19): indicações "Para você" pelo GOSTO — nunca
+   * aleatório. Perfil = gêneros das mídias interagidas com peso por status
+   * (CONCLUIDO 2 > CONSUMINDO 1,5 > demais 1); candidatos = não interagidas
+   * com score; ranking = afinidade de gêneros + bônus de adjacência no grafo
+   * (RelacaoObra de obra CONCLUÍDA). Cada item vem com MOTIVO (grafo >
+   * gêneros). Sem interações → vazio (nunca chuta).
+   */
+  async paraVoce(
+    usuarioId: string,
+    limite = 12,
+  ): Promise<{ itens: Record<string, unknown>[] }> {
+    return comContextoRls(this.prisma, { usuarioId, role: "USER" }, async (tx) => {
+      const interacoes = await tx.usuarioMidiaInteracao.findMany({
+        where: { usuario_id: usuarioId },
+        select: { midia_id: true, status: true },
+      });
+      if (interacoes.length === 0) return { itens: [] };
+
+      const PESO: Record<string, number> = { CONCLUIDO: 2, CONSUMINDO: 1.5 };
+      const idsInteragidas = interacoes.map((i) => i.midia_id);
+      const pesoPorMidia = new Map(interacoes.map((i) => [i.midia_id, PESO[i.status] ?? 1]));
+
+      const vinculos = await tx.midiaGenero.findMany({
+        where: { midia_id: { in: idsInteragidas } },
+        select: { midia_id: true, genero: { select: { id: true, nome: true, slug: true } } },
+      });
+      const pesoGenero = new Map<number, number>();
+      for (const v of vinculos) {
+        const peso = pesoPorMidia.get(v.midia_id) ?? 1;
+        pesoGenero.set(v.genero.id, (pesoGenero.get(v.genero.id) ?? 0) + peso);
+      }
+      const generosTop = [...pesoGenero.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12)
+        .map(([id]) => id);
+
+      const candidatos = await tx.midia.findMany({
+        where: {
+          deleted_at: null,
+          score: { not: null },
+          id: { notIn: idsInteragidas },
+          generos: { some: { genero_id: { in: generosTop } } },
+        },
+        select: {
+          id: true,
+          slug: true,
+          titulo: true,
+          tipo: true,
+          ano_lancamento: true,
+          imagem_url: true,
+          score: true,
+          generos: { select: { genero: { select: { id: true, nome: true } } } },
+        },
+        take: 60,
+      });
+
+      // Arestas do grafo a partir das CONCLUÍDAS (adjacência = interesse forte).
+      const concluidas = interacoes.filter((i) => i.status === "CONCLUIDO").map((i) => i.midia_id);
+      const arestas = concluidas.length
+        ? await tx.relacaoObra.findMany({
+            where: {
+              OR: [{ origem_id: { in: concluidas } }, { destino_id: { in: concluidas } }],
+              tipo: { not: "MESMO_GENERO" },
+            },
+            select: {
+              tipo: true,
+              origem_id: true,
+              destino_id: true,
+              origem: { select: { id: true, titulo: true } },
+              destino: { select: { id: true, titulo: true } },
+            },
+          })
+        : [];
+      const adjacencia = new Map<string, string>(); // candidatoId → título da consumida
+      for (const a of arestas) {
+        // O motivo cita a obra CONCLUÍDA pelo usuário (não a candidata).
+        if (concluidas.includes(a.destino_id) && !adjacencia.has(a.origem_id)) {
+          adjacencia.set(a.origem_id, a.destino.titulo);
+        }
+        if (concluidas.includes(a.origem_id) && !adjacencia.has(a.destino_id)) {
+          adjacencia.set(a.destino_id, a.origem.titulo);
+        }
+      }
+
+      const ranqueados = candidatos
+        .map((c) => {
+          const afinidade = (c.generos ?? []).reduce(
+            (acc, g) => acc + (pesoGenero.get(g.genero.id) ?? 0),
+            0,
+          );
+          const base = adjacencia.get(c.id);
+          const bonus = base ? 3 : 0;
+          return { ...c, afinidade: afinidade + bonus };
+        })
+        .filter((c) => c.afinidade > 0)
+        .sort((a, b) => b.afinidade - a.afinidade || (b.score ?? 0) - (a.score ?? 0))
+        .slice(0, limite);
+
+      const nomeGenero = new Map(vinculos.map((v) => [v.genero.id, v.genero.nome]));
+      return {
+        itens: ranqueados.map((c) => {
+          const baseTitulo = adjacencia.get(c.id);
+          const generosComuns = (c.generos ?? [])
+            .map((g) => g.genero.nome)
+            .filter((nome) => [...pesoGenero.keys()].some((id) => nomeGenero.get(id) === nome))
+            .slice(0, 3);
+          const motivo = baseTitulo
+            ? { tipo: "GRAFO", rotulo: `Porque você concluiu ${baseTitulo}` }
+            : {
+                tipo: "GENERO",
+                rotulo: `No seu gosto: ${generosComuns.join(", ") || "afinidade com o seu histórico"}`,
+              };
+          const { generos: _generos, afinidade: _afinidade, ...resto } = c;
+          void _generos;
+          void _afinidade;
+          return { ...resto, motivo };
+        }),
+      };
+    });
+  }
 }
