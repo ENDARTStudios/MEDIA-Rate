@@ -89,6 +89,8 @@ function makePrisma(zerado = false) {
       count: async () => base.interacoes ?? 0,
       findMany: async () => base.interacoesAtualizadosEm ?? [],
     },
+    // Onda 8 admin — contas excluídas (trilha LGPD_USUARIO_PURGADO).
+    auditLog: { count: async () => base.excluidas ?? 0 },
     // T286 — métrica de Descobertas.
     discoveryEvent: {
       count: async () => base.discoveryEvents ?? 0,
@@ -177,7 +179,7 @@ describe("GET /api/v1/admin/stats — e2e (T221)", () => {
       new FakeCache() as any,
     );
     const { value } = await svc.getStats();
-    expect(value.usuarios).toEqual({ total: 0, ativos_7d: 0 });
+    expect(value.usuarios).toEqual({ total: 0, ativos_7d: 0, banidos: 0, excluidas: 0 });
     expect(value.midias).toEqual({ total: 0, por_tipo: {} });
     expect(value.planos).toEqual({ free: 0, plus: 0, premium: 0 });
   });

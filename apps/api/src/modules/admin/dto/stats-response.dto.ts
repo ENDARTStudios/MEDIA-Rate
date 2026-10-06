@@ -6,6 +6,8 @@ export interface AdminStatsResponse {
   usuarios: {
     total: number;
     ativos_7d: number; // com ultimo_login_em nos últimos 7 dias
+    banidos: number; // Onda 8: com banido_em setado
+    excluidas: number; // Onda 8: eliminações LGPD concluídas (audit)
   };
   midias: {
     total: number; // não deletadas (soft delete)
@@ -32,6 +34,8 @@ export interface AdminStatsResponse {
   interacoes: {
     total: number;
   };
+  // Onda 8 admin: interesse do usuário — interações por tipo de mídia.
+  interacoes_por_tipo: Record<string, number>;
   // Onda 7 admin: atividade por período (12 meses, zero-preenchida).
   evolucao: { mes: string; novos_usuarios: number; interacoes: number }[];
 }

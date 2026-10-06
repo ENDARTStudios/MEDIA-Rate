@@ -15,16 +15,25 @@ function makeMocks(
     discoveryTotal?: number;
     usuariosComDiscovery?: number;
     interacoesTotal?: number;
-    usuariosCriadosEm?: Date[];
-    interacoesAtualizadosEm?: Date[];
+    usuariosBanidos?: number;
+    excluidas?: number;
+    usuariosCriadosEm?: { created_at: Date }[];
+    interacoesAtualizadosEm?: {
+      atualizado_em: Date;
+      midia?: { tipo: string };
+    }[];
   } = {},
 ) {
   const prisma = {
     usuario: {
-      count: vi.fn(async ({ where }: any) =>
-        where?.ultimo_login_em ? (dados.usuariosAtivos7d ?? 0) : (dados.usuariosTotal ?? 0),
-      ),
+      count: vi.fn(async ({ where }: any) => {
+        if (where?.banido_em) return (dados.usuariosBanidos ?? 0);
+        return where?.ultimo_login_em ? (dados.usuariosAtivos7d ?? 0) : (dados.usuariosTotal ?? 0);
+      }),
       findMany: vi.fn(async () => dados.usuariosCriadosEm ?? []),
+    },
+    auditLog: {
+      count: vi.fn(async () => dados.excluidas ?? 0),
     },
     midia: {
       count: vi.fn(async () => dados.midiasTotal ?? 0),
@@ -92,7 +101,7 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
       ],
     });
     const { value } = await m.service.getStats();
-    expect(value.usuarios).toEqual({ total: 120, ativos_7d: 45 });
+    expect(value.usuarios).toEqual({ total: 120, ativos_7d: 45, banidos: 0, excluidas: 0 });
     expect(value.midias.total).toBe(500);
     expect(value.midias.por_tipo).toEqual({ FILME: 300, SERIE: 150, GAME: 50 });
     expect(value.watchlists).toEqual({ total_entries: 2100, usuarios_com_watchlist: 80 });
@@ -115,9 +124,9 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
         { created_at: new Date(2026, 8, 2) },
       ],
       interacoesAtualizadosEm: [
-        { atualizado_em: new Date(2026, 8, 10) },
-        { atualizado_em: new Date(2026, 8, 11) },
-        { atualizado_em: new Date(2026, 9, 1) },
+        { atualizado_em: new Date(2026, 8, 10), midia: { tipo: "FILME" } },
+        { atualizado_em: new Date(2026, 8, 11), midia: { tipo: "GAME" } },
+        { atualizado_em: new Date(2026, 9, 1), midia: { tipo: "FILME" } },
       ],
     });
     const value = await m.service.getStats().then((r) => r.value);
@@ -128,9 +137,25 @@ describe("AdminService — stats reais (T221, 4.7)", () => {
     expect(set).toMatchObject({ novos_usuarios: 1, interacoes: 2 });
   });
 
+  it("Onda 8: banidos, contas excluídas (trilha LGPD) e interesse por tipo", async () => {
+    m = makeMocks({
+      usuariosTotal: 120,
+      usuariosBanidos: 3,
+      excluidas: 7,
+      interacoesAtualizadosEm: [
+        { atualizado_em: new Date(2026, 9, 1), midia: { tipo: "FILME" } },
+        { atualizado_em: new Date(2026, 9, 2), midia: { tipo: "FILME" } },
+        { atualizado_em: new Date(2026, 9, 3), midia: { tipo: "GAME" } },
+      ],
+    });
+    const value = await m.service.getStats().then((r) => r.value);
+    expect(value.usuarios).toMatchObject({ banidos: 3, excluidas: 7 });
+    expect(value.interacoes_por_tipo).toEqual({ FILME: 2, GAME: 1 });
+  });
+
   it("banco vazio → zeros (não erro) e midias filtram deletadas", async () => {
     const { value, hit } = await m.service.getStats();
-    expect(value.usuarios).toEqual({ total: 0, ativos_7d: 0 });
+    expect(value.usuarios).toEqual({ total: 0, ativos_7d: 0, banidos: 0, excluidas: 0 });
     expect(value.midias).toEqual({ total: 0, por_tipo: {} });
     expect(value.watchlists).toEqual({ total_entries: 0, usuarios_com_watchlist: 0 });
     expect(value.sessoes.ativas).toBe(0);
