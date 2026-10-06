@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Post,
   Patch,
@@ -137,6 +138,55 @@ export class AdminController {
   async desbanir(@Req() req: FastifyRequest, @Param("id", UuidParamPipe) id: string) {
     const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
     return this.adminService.desbanir(adminId, id);
+  }
+
+  @Get("usuarios/:id/atividade")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Histórico de atividade do usuário: interações + watchlist (admin/moderação)",
+  })
+  @ApiBearerAuth()
+  @ApiNotFoundResponse({ description: "404 — id malformado (UUID inválido) ou usuário inexistente." })
+  async atividade(@Req() req: FastifyRequest, @Param("id", UuidParamPipe) id: string) {
+    return this.adminService.atividadeDoUsuario(id);
+  }
+
+  private static moderacaoSchema = z.object({
+    motivo: z.string().trim().min(1).max(280),
+  });
+
+  @Delete("usuarios/:id/interacoes/:midiaId")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Moderação: remove a interação do usuário com uma mídia (auditada)",
+  })
+  @ApiBearerAuth()
+  @ApiNotFoundResponse({ description: "404 — id/midiaId malformados ou interação inexistente." })
+  async removerInteracao(
+    @Req() req: FastifyRequest,
+    @Param("id", UuidParamPipe) id: string,
+    @Param("midiaId", UuidParamPipe) midiaId: string,
+    @Body(new ZodValidationPipe(AdminController.moderacaoSchema))
+    body: z.infer<typeof AdminController.moderacaoSchema>,
+  ) {
+    const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
+    return this.adminService.removerInteracaoUsuario(adminId, id, midiaId, body.motivo);
+  }
+
+  @Delete("usuarios/:id/watchlist/:entryId")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Moderação: remove entrada da watchlist do usuário (auditada)" })
+  @ApiBearerAuth()
+  @ApiNotFoundResponse({ description: "404 — id/entryId malformados ou entrada inexistente." })
+  async removerWatchlist(
+    @Req() req: FastifyRequest,
+    @Param("id", UuidParamPipe) id: string,
+    @Param("entryId", UuidParamPipe) entryId: string,
+    @Body(new ZodValidationPipe(AdminController.moderacaoSchema))
+    body: z.infer<typeof AdminController.moderacaoSchema>,
+  ) {
+    const adminId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? "";
+    return this.adminService.removerWatchlistUsuario(adminId, id, entryId, body.motivo);
   }
 
   @Get("stats")
