@@ -26,23 +26,32 @@ export const FRANQUIAS = [
     nome: "O Senhor dos Anéis",
     itens: [
       { titulo: "O Hobbit", tipo: "LIVRO", lancamento: 1, cronologica: 1 },
+      // 1954: o livro entra na ordem de lançamento cruzada (universo entre
+      // mídias — mesmo modelo do gibiverso); o filme de 2001 adapta este
+      // volume (relação ADAPTACAO_DE no dataset de relações).
       {
         titulo: "O Senhor dos Anéis: A Sociedade do Anel",
-        tipo: "FILME",
+        tipo: "LIVRO",
         lancamento: 2,
         cronologica: 2,
       },
       {
-        titulo: "O Senhor dos Anéis: As Duas Torres",
+        titulo: "O Senhor dos Anéis: A Sociedade do Anel",
         tipo: "FILME",
         lancamento: 3,
         cronologica: 3,
       },
       {
-        titulo: "O Senhor dos Anéis: O Retorno do Rei",
+        titulo: "O Senhor dos Anéis: As Duas Torres",
         tipo: "FILME",
         lancamento: 4,
         cronologica: 4,
+      },
+      {
+        titulo: "O Senhor dos Anéis: O Retorno do Rei",
+        tipo: "FILME",
+        lancamento: 5,
+        cronologica: 5,
       },
     ],
   },
