@@ -12,6 +12,27 @@
  * Uso (apps/api): DRY_RUN=1 default (só planeja/conta); DRY_RUN=0 aplica.
  * No container de produção: pipe via stdin (a imagem não embarca scripts/).
  */
+import { request as httpsRequest } from "node:https";
+
+/** GET HTTPS com parse JSON — node:https (sem globals de browser p/ lint). */
+function buscarJson(url, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const req = httpsRequest(url, { method: "GET" }, (res) => {
+      let dados = "";
+      res.on("data", (c) => (dados += c));
+      res.on("end", () => {
+        try {
+          resolve(JSON.parse(dados));
+        } catch (e) {
+          reject(new Error(`JSON inválido: ${e.message}`));
+        }
+      });
+    });
+    req.setTimeout(timeoutMs, () => req.destroy(new Error("timeout")));
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -61,18 +82,7 @@ export function mapearTv(payload) {
 async function buscarTmdb(id, tipo, chave) {
   const append = tipo === "SERIE" ? "credits,aggregate_credits" : "credits";
   const url = `${TMDB_BASE}/${tipo === "SERIE" ? "tv" : "movie"}/${id}?api_key=${chave}&language=pt-BR&append_to_response=${append}`;
-  // AbortController manual (AbortSignal.timeout não é global em todos os
-  // ambientes de lint do repo).
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  let res;
-  try {
-    res = await fetch(url, { signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-  if (!res.ok) throw new Error(`TMDB ${res.status} para ${id}`);
-  return res.json();
+  return buscarJson(url);
 }
 
 async function main() {
