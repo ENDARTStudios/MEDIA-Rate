@@ -42,6 +42,51 @@ export class AdminService {
   ) {}
 
   /**
+   * Onda 6 admin (P3): visão LGPD — exclusões agendadas (carência de 30
+   * dias; a coluna já guarda o momento de expiração) e contagens de
+   * consentimento (últimos 1.000 registros). Agregados — sem PII além do
+   * email dos agendados, necessário para o admin agir.
+   */
+  async lgpdPainel(): Promise<{
+    agendados: { id: string; email: string; expira_em: Date }[];
+    totalAgendados: number;
+    consentimentos: { total: number; analyticsAceito: number; monitoringAceito: number };
+  }> {
+    return comContextoRls(this.prisma, { tenantId: DEFAULT_TENANT, role: "ADMIN" }, async (tx) => {
+      const [agendadosRows, totalAgendados, logs] = await Promise.all([
+        tx.usuario.findMany({
+          where: { dados_para_exclusao_at: { not: null } },
+          select: { id: true, email: true, dados_para_exclusao_at: true },
+          orderBy: { dados_para_exclusao_at: "asc" as const },
+          take: 50,
+        }),
+        tx.usuario.count({ where: { dados_para_exclusao_at: { not: null } } }),
+        tx.consentLog.findMany({
+          orderBy: { criado_em: "desc" as const },
+          take: 1000,
+          select: { categorias: true },
+        }),
+      ]);
+      let analyticsAceito = 0;
+      let monitoringAceito = 0;
+      for (const l of logs) {
+        const cat = l.categorias as { analytics?: boolean; monitoring?: boolean } | null;
+        if (cat?.analytics === true) analyticsAceito += 1;
+        if (cat?.monitoring === true) monitoringAceito += 1;
+      }
+      return {
+        agendados: agendadosRows.map((u) => ({
+          id: u.id,
+          email: u.email,
+          expira_em: u.dados_para_exclusao_at as Date,
+        })),
+        totalAgendados,
+        consentimentos: { total: logs.length, analyticsAceito, monitoringAceito },
+      };
+    });
+  }
+
+  /**
    * Onda 5 admin (P2): consulta do log de auditoria com filtros
    * (usuário/ação/período), paginada. Hashes da cadeia NUNCA expostos.
    */

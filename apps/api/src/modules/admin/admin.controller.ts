@@ -50,6 +50,16 @@ export class AdminController {
    * mesmo lote do worker: elimina definitivamente usuários com a carência
    * de 30 dias expirada (cascata conforme MATRIZ-PROPAGACAO-OPERADORES.md).
    */
+  @Get("lgpd")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Visão LGPD: exclusões agendadas (carência 30d) e consentimentos (admin)",
+  })
+  @ApiBearerAuth()
+  async lgpdPainel() {
+    return this.adminService.lgpdPainel();
+  }
+
   @Post("lgpd/purge")
   @Roles("ADMIN")
   @ApiOperation({ summary: "Executa a purga LGPD dos usuários com carência expirada (admin)" })
