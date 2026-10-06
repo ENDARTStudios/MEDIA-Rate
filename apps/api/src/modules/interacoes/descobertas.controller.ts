@@ -42,6 +42,19 @@ export class DescobertasController {
     return this.service.descobertas(usuarioId);
   }
 
+  /** T166 (Onda C5): indicações pelo gosto — perfil de gêneros + grafo. */
+  @Get("discoveries/para-voce")
+  @ApiOperation({
+    summary:
+      "Para você: indicações baseadas no gosto do usuário (gêneros ponderados por status + adjacência no grafo de obras concluídas), com motivo",
+  })
+  async paraVoce(@Req() req: DescobertaRequest) {
+    const usuarioId = this.userId(req);
+    const ativo = await this.flags.avaliavel("discovery-feed-v1", { id: usuarioId });
+    if (!ativo) return { itens: [] };
+    return this.service.paraVoce(usuarioId);
+  }
+
   @Get("taste/history")
   @ApiOperation({ summary: "Evolução do gosto por gênero (últimos 12 meses)" })
   async tasteHistory(@Req() req: DescobertaRequest) {

@@ -1288,7 +1288,8 @@
     "motivo_franquia": "Mismo universo",
     "motivo_adaptacao": "Adaptación",
     "motivo_autor": "Mismo autor",
-    "motivo_genero": "Mismo género"
+    "motivo_genero": "Mismo género",
+    "paraVoce": "Para ti"
   },
   "top": {
     "title": "Rankings",

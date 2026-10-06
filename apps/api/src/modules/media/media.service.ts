@@ -209,6 +209,7 @@ export class MediaService {
       tipo: true,
       ano_lancamento: true,
       imagem_url: true,
+      backdrop_url: true,
       score: true,
     };
     const SELECT_COM_FONTE: Prisma.MidiaSelect = {
