@@ -336,11 +336,20 @@ export class MediaController {
         include: {
           franquia: {
             include: {
+              // T163: só mídias ATIVAS, ordem cronológica (nulls first = começo
+              // da história) e lançamento — antes vinham sem ordem e com
+              // soft-deleted.
               midias: {
+                where: { midia: { deleted_at: null } },
+                orderBy: [
+                  { ordem_cronologica: { sort: "asc", nulls: "first" } },
+                  { ordem_lancamento: "asc" },
+                ] satisfies Prisma.MidiaFranquiaOrderByWithRelationInput[],
                 include: {
                   midia: {
                     select: {
                       id: true,
+                      slug: true,
                       titulo: true,
                       tipo: true,
                       ano_lancamento: true,
@@ -350,6 +359,44 @@ export class MediaController {
                   },
                 },
               },
+            },
+          },
+        },
+      },
+      // T163: grafo de conteúdo relacionado nas duas direções — só arestas
+      // cuja outra ponta está ativa (soft-delete da outra mídia some a aresta).
+      relacoes_origem: {
+        where: { destino: { deleted_at: null } },
+        select: {
+          tipo: true,
+          nota_editorial: true,
+          destino: {
+            select: {
+              id: true,
+              slug: true,
+              titulo: true,
+              tipo: true,
+              ano_lancamento: true,
+              imagem_url: true,
+              score: true,
+            },
+          },
+        },
+      },
+      relacoes_destino: {
+        where: { origem: { deleted_at: null } },
+        select: {
+          tipo: true,
+          nota_editorial: true,
+          origem: {
+            select: {
+              id: true,
+              slug: true,
+              titulo: true,
+              tipo: true,
+              ano_lancamento: true,
+              imagem_url: true,
+              score: true,
             },
           },
         },
@@ -470,6 +517,7 @@ export class MediaController {
         slug: mf.franquia.slug,
         itens: mf.franquia.midias.map((outro) => ({
           midia_id: outro.midia.id,
+          slug: outro.midia.slug,
           titulo: outro.midia.titulo,
           tipo: outro.midia.tipo,
           ano_lancamento: outro.midia.ano_lancamento,
@@ -479,6 +527,32 @@ export class MediaController {
           ordem_cronologica: outro.ordem_cronologica,
         })),
       })),
+      // T163: conteúdo relacionado (grafo RelacaoObra nas duas direções),
+      // deduplicado por mídia+tipo.
+      relacoes: [
+        ...(midia.relacoes_origem ?? []).map((r) => ({
+          midia_id: r.destino.id,
+          slug: r.destino.slug,
+          titulo: r.destino.titulo,
+          tipo: r.destino.tipo,
+          ano_lancamento: r.destino.ano_lancamento,
+          imagem_url: r.destino.imagem_url,
+          score: r.destino.score,
+          tipo_relacao: r.tipo,
+          nota_editorial: r.nota_editorial,
+        })),
+        ...(midia.relacoes_destino ?? []).map((r) => ({
+          midia_id: r.origem.id,
+          slug: r.origem.slug,
+          titulo: r.origem.titulo,
+          tipo: r.origem.tipo,
+          ano_lancamento: r.origem.ano_lancamento,
+          imagem_url: r.origem.imagem_url,
+          score: r.origem.score,
+          tipo_relacao: r.tipo,
+          nota_editorial: r.nota_editorial,
+        })),
+      ],
       streamings: midia.streamings.map((s) => s.service.nome),
       score: score
         ? {

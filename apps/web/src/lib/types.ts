@@ -107,6 +107,7 @@ export interface Media {
     slug: string;
     itens: {
       midiaId: string;
+      slug?: string | null;
       titulo: string;
       tipo: MediaType;
       ano: number | null;
@@ -116,6 +117,8 @@ export interface Media {
       ordemCronologica: number | null;
     }[];
   }[];
+  /** T163: conteúdo relacionado (grafo RelacaoObra, duas direções). */
+  relacoes?: RelacionadaFicha[];
   duration?: string;
   synopsis: string;
   posterUrl: string | null;
@@ -125,6 +128,19 @@ export interface Media {
   crew: CrewMember[];
   reviews: Review[];
   streaming: StreamingService[];
+}
+
+/** T163: aresta do grafo de conteúdo relacionado (RelacaoObra), já em MediaType. */
+export interface RelacionadaFicha {
+  midiaId: string;
+  slug: string | null;
+  titulo: string;
+  tipo: MediaType;
+  ano: number | null;
+  imagemUrl: string | null;
+  score: number | null;
+  tipoRelacao: string;
+  notaEditorial: string | null;
 }
 
 export interface CastMember {
