@@ -13,6 +13,7 @@ const STATS = {
   planos: { free: 100, plus: 15, premium: 5 },
   descobertas: { total_eventos: 44, usuarios_com_evento: 18 },
   interacoes: { total: 26 },
+  interacoes_por_tipo: { FILME: 2, GAME: 1, LIVRO: 1 },
   evolucao: [
     { mes: "2026-08", novos_usuarios: 2, interacoes: 0 },
     { mes: "2026-09", novos_usuarios: 1, interacoes: 3 },
@@ -46,7 +47,7 @@ describe("AdminMetricasPage (Onda 5 admin — P2)", () => {
     await waitFor(() => {
       expect(screen.getByText("198")).toBeTruthy();
     });
-    expect(screen.getByText(/12 ativos nos últimos 7 dias/)).toBeTruthy();
+    expect(screen.getByText(/login nos últimos 7 dias/)).toBeTruthy();
     expect(screen.getByText("625")).toBeTruthy(); // catálogo
     expect(screen.getByText("26")).toBeTruthy(); // interações
     expect(screen.getByText("17%")).toBeTruthy(); // conversão (20/120)
@@ -70,6 +71,24 @@ describe("AdminMetricasPage (Onda 5 admin — P2)", () => {
       expect(screen.getByTestId("admin-metricas-grafico-catalogo")).toBeTruthy();
     });
     expect(screen.getByText("FILME")).toBeTruthy();
+  });
+
+  it("seções separadas: Usuários (banidos/excluídas) e Interação com o site", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByText("Usuários")).toBeTruthy();
+    });
+    expect(screen.getByText("Interação com o site")).toBeTruthy();
+    // KPIs novos da Onda 8 (valores do fixture)
+    expect(screen.getByText("Usuários banidos")).toBeTruthy();
+    expect(screen.getByText("Contas excluídas")).toBeTruthy();
+  });
+
+  it("gráfico de interesse: interações por tipo de mídia", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-metricas-grafico-interesse")).toBeTruthy();
+    });
   });
 
   it("mostra o catálogo por tipo", async () => {

@@ -107,6 +107,18 @@
       {
         "nome": "ts-morph",
         "motivo": "D-559c: dev-only (via @ts-morph/common) — sem runtime"
+      },
+      {
+        "nome": "miniflare",
+        "motivo": "D-559c: dev-only (emulador local do worker, via wrangler — build CF informativo); fix exige wrangler 4.15.2 major; revisão 2026-11"
+      },
+      {
+        "nome": "sharp",
+        "motivo": "D-559c: via wrangler (build CF informativo); fix 0.35.5 bloqueado por wrangler major; runtime de imagem em produção usa o sharp da API (atualizado à parte); revisão 2026-11"
+      },
+      {
+        "nome": "undici",
+        "motivo": "D-559c: via miniflare (build CF informativo) — sem runtime; revisão 2026-11"
       }
     ]
   },

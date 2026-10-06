@@ -1,7 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Optional, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { AuditLogService } from "../../common/audit-log.service.js";
 import { comContextoRls, DEFAULT_TENANT, ROLE_SERVICE } from "../../common/rls-context.js";
 
 export interface PurgeResultado {
@@ -37,7 +38,10 @@ const LOTE_PADRAO = 100;
 export class LgpdPurgeService {
   private readonly logger = new Logger(LgpdPurgeService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly auditLog?: AuditLogService,
+  ) {}
 
   /** Diário, 03:00 UTC — janela de menor tráfego. */
   @Cron("0 3 * * *")
@@ -63,6 +67,16 @@ export class LgpdPurgeService {
           (tx) => tx.usuario.delete({ where: { id } }),
         );
         purgados += 1;
+        // Onda 8 admin: trilha jurídica da eliminação (a Política promete a
+        // eliminação — o audit prova que aconteceu; sobrevive ao delete).
+        await this.auditLog
+          ?.log({
+            entidade: "Usuario",
+            entidadeId: id,
+            acao: "LGPD_USUARIO_PURGADO",
+            dadosDepois: { motivo: "carencia_30d_expirada" },
+          })
+          .catch(() => undefined);
       } catch (erro) {
         falhas += 1;
         const motivo = erro instanceof Error ? erro.message : String(erro);

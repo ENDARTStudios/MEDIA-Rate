@@ -456,6 +456,9 @@ export class AdminService {
         totalInteracoes,
         criadosEmUsuarios,
         atualizadosEmInteracoes,
+        totalBanidos,
+        totalExcluidas,
+        interacoesComTipo,
       ] = await Promise.all([
         // Usuários: exclui soft-delete agendado (LGPD).
         tx.usuario.count({ where: { dados_para_exclusao_at: null } }),
@@ -489,6 +492,10 @@ export class AdminService {
         // Onda 7 admin: série mensal p/ os gráficos de atividade.
         tx.usuario.findMany({ select: { created_at: true } }),
         tx.usuarioMidiaInteracao.findMany({ select: { atualizado_em: true } }),
+        // Onda 8 admin: contas banidas + contas excluídas (trilha LGPD).
+        tx.usuario.count({ where: { banido_em: { not: null } } }),
+        tx.auditLog.count({ where: { acao: "LGPD_USUARIO_PURGADO" } }),
+        tx.usuarioMidiaInteracao.findMany({ select: { midia: { select: { tipo: true } } } }),
       ]);
 
       const porTipoMap: Record<string, number> = {};
@@ -501,7 +508,12 @@ export class AdminService {
       }
 
       return {
-        usuarios: { total: totalUsuarios, ativos_7d: ativos7d },
+        usuarios: {
+          total: totalUsuarios,
+          ativos_7d: ativos7d,
+          banidos: totalBanidos,
+          excluidas: totalExcluidas,
+        },
         midias: { total: totalMidias, por_tipo: porTipoMap },
         watchlists: { total_entries: totalEntries, usuarios_com_watchlist: usuariosComWatchlist },
         sessoes: { ativas: sessoesAtivas },
@@ -511,6 +523,11 @@ export class AdminService {
           usuarios_com_evento: usuariosComDiscovery,
         },
         interacoes: { total: totalInteracoes },
+        interacoes_por_tipo: interacoesComTipo.reduce<Record<string, number>>((acc, i) => {
+          const tipo = i.midia?.tipo ?? "DESCONHECIDO";
+          acc[tipo] = (acc[tipo] ?? 0) + 1;
+          return acc;
+        }, {}),
         evolucao: serie12m(criadosEmUsuarios, atualizadosEmInteracoes),
       };
     });

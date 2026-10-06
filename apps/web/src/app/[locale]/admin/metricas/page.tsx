@@ -16,13 +16,14 @@ import {
 } from "recharts";
 
 interface Stats {
-  usuarios: { total: number; ativos_7d: number };
+  usuarios: { total: number; ativos_7d: number; banidos: number; excluidas: number };
   midias: { total: number; por_tipo: Record<string, number> };
   watchlists: { total_entries: number; usuarios_com_watchlist: number };
   sessoes: { ativas: number };
   planos: { free: number; plus: number; premium: number };
   descobertas: { total_eventos: number; usuarios_com_evento: number };
   interacoes: { total: number };
+  interacoes_por_tipo: Record<string, number>;
   evolucao: { mes: string; novos_usuarios: number; interacoes: number }[];
 }
 
@@ -69,27 +70,49 @@ export default function AdminMetricasPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Métricas</h1>
 
-      <section aria-labelledby="kpi-title" className="mb-8">
-        <h2 id="kpi-title" className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
-          KPIs
+      {/* Onda 8: seção USUÁRIOS separada da seção INTERAÇÃO */}
+      <section aria-labelledby="usuarios-title" className="mb-8">
+        <h2
+          id="usuarios-title"
+          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
+        >
+          Usuários
         </h2>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Kpi label="Total de usuários" valor={data.usuarios.total} />
           <Kpi
-            label="Usuários (não excluídos)"
-            valor={data.usuarios.total}
-            extra={`${data.usuarios.ativos_7d} ativos nos últimos 7 dias`}
+            label="Usuários ativos"
+            valor={data.usuarios.ativos_7d}
+            extra="login nos últimos 7 dias"
           />
+          <Kpi label="Usuários banidos" valor={data.usuarios.banidos} />
+          <Kpi
+            label="Contas excluídas"
+            valor={data.usuarios.excluidas}
+            extra="eliminações LGPD concluídas"
+          />
+          <Kpi
+            label="Conversão paga"
+            valor={`${conversao}%`}
+            extra={`${data.planos.plus + data.planos.premium} contas pagas de ${contasComPlano}`}
+          />
+        </dl>
+      </section>
+
+      <section aria-labelledby="interacao-title" className="mb-8">
+        <h2
+          id="interacao-title"
+          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
+        >
+          Interação com o site
+        </h2>
+        <dl className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Kpi
             label="Interações de consumo"
             valor={data.interacoes.total}
             extra="quero + consumindo + concluído"
           />
           <Kpi label="Títulos no catálogo" valor={data.midias.total} />
-          <Kpi
-            label="Conversão paga"
-            valor={`${conversao}%`}
-            extra={`${data.planos.plus + data.planos.premium} contas pagas de ${contasComPlano}`}
-          />
           <Kpi label="Sessões ativas" valor={data.sessoes.ativas} />
           <Kpi
             label="Descobertas geradas"
@@ -135,6 +158,36 @@ export default function AdminMetricasPage() {
                   dot={false}
                 />
               </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="interesse-title" className="mb-8">
+        <h2
+          id="interesse-title"
+          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
+        >
+          Mídias com mais interesse (interações por tipo)
+        </h2>
+        <div
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          data-testid="admin-metricas-grafico-interesse"
+        >
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={Object.entries(data.interacoes_por_tipo).map(([tipo, n]) => ({
+                  tipo,
+                  interacoes: n,
+                }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#37415155" />
+                <XAxis dataKey="tipo" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Bar dataKey="interacoes" fill="#34D399" radius={[4, 4, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
