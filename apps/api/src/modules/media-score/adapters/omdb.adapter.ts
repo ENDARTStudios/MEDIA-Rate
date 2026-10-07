@@ -7,6 +7,43 @@ interface OmdbResponse {
   imdbID?: string;
   imdbVotes?: string;
   Response?: string;
+  Ratings?: { Source: string; Value: string }[];
+}
+
+/**
+ * T175: extrai as notas de CRÍTICA do array Ratings do OMDb (Rotten
+ * Tomatoes "85%" e Metacritic "77/100") — sem scraping, mesma resposta da
+ * API. Escalas conforme o source-registry (0-100, fator100: 1).
+ */
+export function mapearRatingsOmdb(
+  ratings: { Source: string; Value: string }[] | undefined,
+  url: string,
+): NotaColetada[] {
+  const criticas: NotaColetada[] = [];
+  const stats = estatisticas("0-100");
+  for (const r of ratings ?? []) {
+    const primeiro = (r.Value ?? "").split("/")[0] ?? "";
+    const bruto = Number.parseInt(primeiro.replace(/[^0-9]/g, ""), 10);
+    if (!Number.isFinite(bruto) || bruto <= 0) continue;
+    if (/rotten tomatoes/i.test(r.Source)) {
+      criticas.push({
+        fonte: "rottentomatoes",
+        rating: Math.min(100, bruto),
+        media_fonte: stats.media,
+        desvio_fonte: stats.desvio,
+        url,
+      });
+    } else if (/metacritic/i.test(r.Source)) {
+      criticas.push({
+        fonte: "metacritic",
+        rating: Math.min(100, bruto),
+        media_fonte: stats.media,
+        desvio_fonte: stats.desvio,
+        url,
+      });
+    }
+  }
+  return criticas;
 }
 
 /** OMDb (dados IMDb) — key gratuita (OMDB_API_KEY), 1k req/dia. imdbRating 0–10. */
@@ -35,6 +72,7 @@ export class OmdbAdapter implements FonteAdapter {
     if (!Number.isFinite(rating)) return [];
     const votosBrutos = Number(dados.imdbVotes?.replace(/,/g, "") ?? "");
     const stats = estatisticas("0-10");
+    const urlImdb = `https://www.imdb.com/title/${dados.imdbID}`;
     return [
       {
         fonte: this.id,
@@ -42,8 +80,10 @@ export class OmdbAdapter implements FonteAdapter {
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
         votos: Number.isFinite(votosBrutos) && votosBrutos > 0 ? votosBrutos : undefined,
-        url: `https://www.imdb.com/title/${dados.imdbID}`,
+        url: urlImdb,
       },
+      // T175: crítica real (RT/Metacritic) da MESMA resposta — sem scraping.
+      ...mapearRatingsOmdb(dados.Ratings, urlImdb),
     ];
   }
 }
