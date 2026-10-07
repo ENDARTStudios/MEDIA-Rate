@@ -88,7 +88,9 @@ export function mapearResultado(r, tipo) {
  * com numérico se preciso ("duna-filme-2"). Convenção T398/T251.
  */
 export function resolverSlugs(candidatos, slugsExistentes) {
-  const ocupados = new Set(slugsExistentes);
+  // Set recebido é MUTADO (persiste entre páginas do import) — array é
+  // copiado apenas na primeira chamada.
+  const ocupados = slugsExistentes instanceof Set ? slugsExistentes : new Set(slugsExistentes);
   const saida = [];
   for (const c of candidatos) {
     const base = slugify(c.titulo) || c.fonte_id;
@@ -141,6 +143,7 @@ async function main() {
       saida(`ALVO ${tipo}: ${primeira.total_results} títulos em ${paginas} páginas`);
       let importados = 0;
       let pulados = 0;
+      let falhas = 0;
       for (let pag = 1; pag <= paginas; pag++) {
         const lista = pag === 1 ? primeira : await httpJson(`${urlBase}&page=${pag}`);
         const novos = [];
@@ -155,10 +158,10 @@ async function main() {
         }
         // Slugs resolvidos por página (contra existentes + páginas anteriores)
         if (novos.length && !dryRun) {
-          const comSlug = resolverSlugs(novos, slugsExistentes);
-          const criadas = await prisma.$transaction(
-            comSlug.map((m) =>
-              prisma.midia.create({
+          const comSlug = resolverSlugs(novos, slugsOcupados);
+          for (const m of comSlug) {
+            try {
+              const criada = await prisma.midia.create({
                 data: {
                   fonte: m.fonte,
                   fonte_id: m.fonte_id,
@@ -171,38 +174,37 @@ async function main() {
                   slug: m.slug,
                   score: m.score,
                 },
-              }),
-            ),
-          );
-          // score desnormalizado + media_score + avaliacao (fonte público)
-          for (let i = 0; i < criadas.length; i++) {
-            const criada = criadas[i];
-            const m = comSlug[i];
-            if (m.score == null) continue;
-            await prisma.mediaScore.create({
-              data: {
-                midia_id: criada.id,
-                score: m.score,
-                num_fontes: 1,
-                pesos_usados: {},
-                score_publico: m.score,
-                votos_total: m.votos,
-              },
-            });
-            const stats = { media: 7.0, desvio: 1.5 }; // escala 0-10 (TMDB)
-            await prisma.avaliacaoFonte.create({
-              data: {
-                midia_id: criada.id,
-                fonte: "tmdb",
-                rating: m.score / 10,
-                media_fonte: stats.media,
-                desvio_fonte: stats.desvio,
-                votos: m.votos,
-                url: m.url,
-              },
-            });
+              });
+              if (m.score != null) {
+                await prisma.mediaScore.create({
+                  data: {
+                    midia_id: criada.id,
+                    score: m.score,
+                    num_fontes: 1,
+                    pesos_usados: {},
+                    score_publico: m.score,
+                    votos_total: m.votos,
+                  },
+                });
+                // escala 0-10 do TMDB (média/desvio de referência)
+                await prisma.avaliacaoFonte.create({
+                  data: {
+                    midia_id: criada.id,
+                    fonte: "tmdb",
+                    rating: m.score / 10,
+                    media_fonte: 7.0,
+                    desvio_fonte: 1.5,
+                    votos: m.votos,
+                    url: m.url,
+                  },
+                });
+              }
+              importados++;
+            } catch (e) {
+              falhas++;
+              if (falhas <= 5) saida(`  falha [${m.titulo}]: ${e.message?.slice(0, 120)}`);
+            }
           }
-          importados += criadas.length;
         } else {
           importados += novos.length;
         }
