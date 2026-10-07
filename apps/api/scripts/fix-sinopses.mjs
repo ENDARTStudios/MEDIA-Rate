@@ -23,7 +23,7 @@ function postarJson(url, corpo, headers = {}) {
         res.on("end", () => {
           try {
             resolve(JSON.parse(dados));
-          } catch (e) {
+          } catch {
             reject(new Error(`JSON inválido (${res.statusCode})`));
           }
         });
