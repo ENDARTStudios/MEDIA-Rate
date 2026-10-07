@@ -396,27 +396,6 @@ export function MediaDetailClient({
                         </p>
                       </div>
                     )}
-                    {media.premios && media.premios.length > 0 && (
-                      <div>
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
-                          {tm("awards")}
-                        </h3>
-                        <ul className="space-y-1.5">
-                          {media.premios.map((p) => (
-                            <li key={`${p.nome}-${p.ano}`} className="text-sm text-[#EDE7DC]">
-                              <span className={p.venceu ? "text-[#FBBF24]" : "text-[#9CA3AF]"}>
-                                {p.venceu ? "★ " : ""}
-                              </span>
-                              {p.nome}
-                              <span className="text-[#80809B]">
-                                {" "}
-                                · {p.organizacao} · {p.ano}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
                 );
               })()}

@@ -1,49 +1,49 @@
 titulo;tipo;organizacao;nome;categoria;ano;venceu
-O Poderoso Chefão;FILME;Oscar;Oscar;Melhor Filme;1972;True
-O Poderoso Chefão;FILME;Oscar;Oscar;Melhor Ator (Marlon Brando);1972;True
-O Poderoso Chefão;FILME;Oscar;Oscar;Melhor Roteiro Adaptado;1972;True
+O Poderoso Chefão;FILME;Oscar;Melhor Filme;Melhor Filme;1972;True
+O Poderoso Chefão;FILME;Oscar;Melhor Ator (Marlon Brando);Melhor Ator (Marlon Brando);1972;True
+O Poderoso Chefão;FILME;Oscar;Melhor Roteiro Adaptado;Melhor Roteiro Adaptado;1972;True
 O Poderoso Chefão;FILME;Cannes;Palma de Ouro;Melhor Filme;1972;True
-O Poderoso Chefão: Parte II;FILME;Oscar;Oscar;Melhor Filme;1974;True
-O Poderoso Chefão: Parte II;FILME;Oscar;Oscar;Melhor Diretor (Francis Ford Coppola);1974;True
-O Poderoso Chefão: Parte II;FILME;Oscar;Oscar;Melhor Ator Coadjuvante (Robert De Niro);1974;True
-Os Bons Companheiros;FILME;Oscar;Oscar;Melhor Ator Coadjuvante (Joe Pesci);1990;True
-Os Bons Companheiros;FILME;BAFTA;BAFTA;Melhor Filme;1991;True
+O Poderoso Chefão: Parte II;FILME;Oscar;Melhor Filme;Melhor Filme;1974;True
+O Poderoso Chefão: Parte II;FILME;Oscar;Melhor Diretor (Francis Ford Coppola);Melhor Diretor (Francis Ford Coppola);1974;True
+O Poderoso Chefão: Parte II;FILME;Oscar;Melhor Ator Coadjuvante (Robert De Niro);Melhor Ator Coadjuvante (Robert De Niro);1974;True
+Os Bons Companheiros;FILME;Oscar;Melhor Ator Coadjuvante (Joe Pesci);Melhor Ator Coadjuvante (Joe Pesci);1990;True
+Os Bons Companheiros;FILME;BAFTA;Melhor Filme;Melhor Filme;1991;True
 Pulp Fiction: Tempo de Violência;FILME;Cannes;Palma de Ouro;Melhor Filme;1994;True
-Pulp Fiction: Tempo de Violência;FILME;Oscar;Oscar;Melhor Roteiro Original;1995;True
-Matrix;FILME;Oscar;Oscar;Melhor Edição;2000;True
-Matrix;FILME;Oscar;Oscar;Melhor Som;2000;True
-Matrix;FILME;Oscar;Oscar;Melhores Efeitos Visuais;2000;True
-Guerra nas Estrelas;FILME;Oscar;Oscar;Melhor Trilha Sonora (John Williams);1978;True
-Guerra nas Estrelas;FILME;Oscar;Oscar;Melhores Efeitos Visuais;1978;True
-Guerra nas Estrelas;FILME;Oscar;Oscar;Melhor Direção de Arte;1978;True
-O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Oscar;Melhor Fotografia;2002;True
-O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Oscar;Melhor Maquiagem;2002;True
-O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Oscar;Melhor Trilha Sonora;2002;True
-O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Oscar;Melhores Efeitos Visuais;2002;True
-O Senhor dos Anéis: As Duas Torres;FILME;Oscar;Oscar;Melhor Edição de Som;2003;True
-O Senhor dos Anéis: As Duas Torres;FILME;Oscar;Oscar;Melhores Efeitos Visuais;2003;True
-O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Oscar;Melhor Filme;2004;True
-O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Oscar;Melhor Diretor (Peter Jackson);2004;True
-O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Oscar;Melhor Roteiro Adaptado;2004;True
-Duna: Parte Dois;FILME;Oscar;Oscar;Melhor Som;2025;True
-Duna: Parte Dois;FILME;Oscar;Oscar;Melhores Efeitos Visuais;2025;True
-Coringa;FILME;Oscar;Oscar;Melhor Ator (Joaquin Phoenix);2020;True
-Coringa;FILME;Oscar;Oscar;Melhor Trilha Sonora Original;2020;True
-Homem-Aranha: No Aranhaverso;FILME;Oscar;Oscar;Melhor Animação;2019;True
-Homem-Aranha: Através do Aranhaverso;FILME;Oscar;Oscar;Melhor Animação;2024;True
-Alien: O Oitavo Passageiro;FILME;Oscar;Oscar;Melhores Efeitos Visuais;1980;True
-Your name.;FILME;Prêmio da Academia Japonesa;Prêmio da Academia Japonesa;Melhor Animação;2017;True
-Game of Thrones;SERIE;Emmy;Emmy;Melhor Série Dramática;2015;True
-Game of Thrones;SERIE;Emmy;Emmy;Melhor Série Dramática;2016;True
-Game of Thrones;SERIE;Emmy;Emmy;Melhor Série Dramática;2018;True
-Game of Thrones;SERIE;Emmy;Emmy;Melhor Série Dramática;2019;True
-Breaking Bad;SERIE;Emmy;Emmy;Melhor Série Dramática;2013;True
-Breaking Bad;SERIE;Emmy;Emmy;Melhor Série Dramática;2014;True
-Breaking Bad;SERIE;Golden Globe;Golden Globe;Melhor Série Dramática;2014;True
-Sherlock;SERIE;Emmy;Emmy;Melhor Ator em Minissérie (Benedict Cumberbatch);2014;True
-Sherlock;SERIE;Emmy;Emmy;Melhor Roteiro em Minissérie (Steven Moffat);2014;True
-The Last of Us;SERIE;Emmy;Emmy;Melhor Série Dramática;2023;False
-Cyberpunk: Mercenários;SERIE;Crunchyroll Anime Awards;Crunchyroll Anime Awards;Anime do Ano;2023;True
+Pulp Fiction: Tempo de Violência;FILME;Oscar;Melhor Roteiro Original;Melhor Roteiro Original;1995;True
+Matrix;FILME;Oscar;Melhor Edição;Melhor Edição;2000;True
+Matrix;FILME;Oscar;Melhor Som;Melhor Som;2000;True
+Matrix;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;2000;True
+Guerra nas Estrelas;FILME;Oscar;Melhor Trilha Sonora (John Williams);Melhor Trilha Sonora (John Williams);1978;True
+Guerra nas Estrelas;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;1978;True
+Guerra nas Estrelas;FILME;Oscar;Melhor Direção de Arte;Melhor Direção de Arte;1978;True
+O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Melhor Fotografia;Melhor Fotografia;2002;True
+O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Melhor Maquiagem;Melhor Maquiagem;2002;True
+O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Melhor Trilha Sonora;Melhor Trilha Sonora;2002;True
+O Senhor dos Anéis: A Sociedade do Anel;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;2002;True
+O Senhor dos Anéis: As Duas Torres;FILME;Oscar;Melhor Edição de Som;Melhor Edição de Som;2003;True
+O Senhor dos Anéis: As Duas Torres;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;2003;True
+O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Melhor Filme;Melhor Filme;2004;True
+O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Melhor Diretor (Peter Jackson);Melhor Diretor (Peter Jackson);2004;True
+O Senhor dos Anéis: O Retorno do Rei;FILME;Oscar;Melhor Roteiro Adaptado;Melhor Roteiro Adaptado;2004;True
+Duna: Parte Dois;FILME;Oscar;Melhor Som;Melhor Som;2025;True
+Duna: Parte Dois;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;2025;True
+Coringa;FILME;Oscar;Melhor Ator (Joaquin Phoenix);Melhor Ator (Joaquin Phoenix);2020;True
+Coringa;FILME;Oscar;Melhor Trilha Sonora Original;Melhor Trilha Sonora Original;2020;True
+Homem-Aranha: No Aranhaverso;FILME;Oscar;Melhor Animação;Melhor Animação;2019;True
+Homem-Aranha: Através do Aranhaverso;FILME;Oscar;Melhor Animação;Melhor Animação;2024;True
+Alien: O Oitavo Passageiro;FILME;Oscar;Melhores Efeitos Visuais;Melhores Efeitos Visuais;1980;True
+Your name.;FILME;Prêmio da Academia Japonesa;Melhor Animação;Melhor Animação;2017;True
+Game of Thrones;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2015;True
+Game of Thrones;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2016;True
+Game of Thrones;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2018;True
+Game of Thrones;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2019;True
+Breaking Bad;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2013;True
+Breaking Bad;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2014;True
+Breaking Bad;SERIE;Golden Globe;Melhor Série Dramática;Melhor Série Dramática;2014;True
+Sherlock;SERIE;Emmy;Melhor Ator em Minissérie (Benedict Cumberbatch);Melhor Ator em Minissérie (Benedict Cumberbatch);2014;True
+Sherlock;SERIE;Emmy;Melhor Roteiro em Minissérie (Steven Moffat);Melhor Roteiro em Minissérie (Steven Moffat);2014;True
+The Last of Us;SERIE;Emmy;Melhor Série Dramática;Melhor Série Dramática;2023;False
+Cyberpunk: Mercenários;SERIE;Crunchyroll Anime Awards;Anime do Ano;Anime do Ano;2023;True
 Baldur's Gate 3;GAME;The Game Awards;Game Awards;Jogo do Ano;2023;True
 Baldur's Gate 3;GAME;BAFTA;BAFTA Games;Melhor Jogo;2024;True
 Elden Ring;GAME;The Game Awards;Game Awards;Jogo do Ano;2022;True
@@ -54,13 +54,13 @@ The Witcher 3: Wild Hunt;GAME;The Game Awards;Game Awards;Jogo do Ano;2015;True
 Red Dead Redemption 2;GAME;The Game Awards;Game Awards;Melhor Narrativa;2018;True
 God of War Ragnarök;GAME;The Game Awards;Game Awards;Jogo do Ano;2022;False
 The Legend of Zelda: Tears of the Kingdom;GAME;The Game Awards;Game Awards;Jogo do Ano;2023;False
-Duna;LIVRO;Nebula;Nebula;Melhor Romance;1965;True
-Duna;LIVRO;Hugo;Hugo;Melhor Romance;1966;True
-O Sol é Para Todos;LIVRO;Pulitzer;Pulitzer;Ficção;1961;True
+Duna;LIVRO;Nebula;Melhor Romance;Melhor Romance;1965;True
+Duna;LIVRO;Hugo;Melhor Romance;Melhor Romance;1966;True
+O Sol é Para Todos;LIVRO;Pulitzer;Ficção;Ficção;1961;True
 Harry Potter e a Pedra Filosofal;LIVRO;Smarties;Smarties Book Prize;Ouro — 9 a 11 anos;1997;True
-Watchmen;COMIC;Hugo;Hugo;Outras Formas;1988;True
-Watchmen;COMIC;Eisner;Eisner;Melhor Série Limitada;1988;True
+Watchmen;COMIC;Hugo;Outras Formas;Outras Formas;1988;True
+Watchmen;COMIC;Eisner;Melhor Série Limitada;Melhor Série Limitada;1988;True
 Persépolis;COMIC;Angoulême;Festival de Angoulême;Prêmio de Roteiro;2001;True
 Sandman;COMIC;World Fantasy;World Fantasy Award;Ficção Curta ('Sonho de uma Noite de Verão');1991;True
-Sandman;COMIC;Eisner;Eisner;Melhor Série Contínua;1992;True
-20th Century Boys;MANGA;Eisner;Eisner;Melhor Edição Americana de Material Internacional;2009;True
+Sandman;COMIC;Eisner;Melhor Série Contínua;Melhor Série Contínua;1992;True
+20th Century Boys;MANGA;Eisner;Melhor Edição Americana de Material Internacional;Melhor Edição Americana de Material Internacional;2009;True
