@@ -8,6 +8,7 @@ import {
   maxDaEscala,
   formatarScoreLocale,
 } from "@/lib/score-utils";
+import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
 import type { TopPorTipoPayload, TopMidia } from "@/lib/api";
 
@@ -102,20 +103,39 @@ export function TopPageClient({
 
       {/* Abas por tipo — links canônicos /top?type=… (mesmos slugs do catálogo). */}
       <nav aria-label={t("title")} className="flex flex-wrap gap-2 mb-8" data-testid="top-tabs">
-        {TIPOS_UI.map(({ slug, labelKey }) => (
-          <Link
-            key={slug}
-            href={`/top?type=${slug}`}
-            aria-current={slug === tipo ? "page" : undefined}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              slug === tipo
-                ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-            }`}
-          >
-            {tCat(labelKey)}
-          </Link>
-        ))}
+        {TIPOS_UI.map(({ slug, labelKey }) => {
+          // T168: cor canônica da mídia (design-tokens) — ativa pinta o fundo;
+          // inativa ganha o ponto colorido.
+          const cor = CATEGORY_TOKENS[slug].color;
+          const ativa = slug === tipo;
+          return (
+            <Link
+              key={slug}
+              href={`/top?type=${slug}`}
+              aria-current={ativa ? "page" : undefined}
+              data-color={cor}
+              style={ativa ? { backgroundColor: cor, borderColor: cor } : undefined}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
+                ativa
+                  ? "text-gray-950 font-semibold"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border-transparent"
+              }`}
+            >
+              {ativa ? (
+                tCat(labelKey)
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className="inline-block w-2 h-2 rounded-full"
+                    style={{ backgroundColor: cor }}
+                  />
+                  {tCat(labelKey)}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {!payload ? (

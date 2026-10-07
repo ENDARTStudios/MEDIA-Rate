@@ -1289,7 +1289,8 @@
     "motivo_adaptacao": "Adaptation",
     "motivo_autor": "Same author",
     "motivo_genero": "Same genre",
-    "paraVoce": "For you"
+    "paraVoce": "For you",
+    "relation_mesmo_genero": "Same genre as"
   },
   "top": {
     "title": "Rankings",

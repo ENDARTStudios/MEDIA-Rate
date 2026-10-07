@@ -136,7 +136,7 @@
     "comic": "Quadrinhos",
     "manga": "Mangás",
     "sort": "Ordenar",
-    "sortRelevancia": "Relev\u00e2ncia",
+    "sortRelevancia": "Relevância",
     "sortTitulo": "Título (A-Z)",
     "sortAno": "Ano (recente)",
     "sortScore": "MEDIA Score",
@@ -1289,7 +1289,8 @@
     "motivo_adaptacao": "Adaptação",
     "motivo_autor": "Mesmo autor",
     "motivo_genero": "Mesmo gênero",
-    "paraVoce": "Para você"
+    "paraVoce": "Para você",
+    "relation_mesmo_genero": "Do mesmo gênero de"
   },
   "top": {
     "title": "Rankings",
