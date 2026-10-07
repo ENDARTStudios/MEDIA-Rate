@@ -571,7 +571,8 @@
     "socialInstagram": "Instagram",
     "socialDiscord": "Discord",
     "copyright": "MEDIA Score™ · END ART Studios",
-    "footerLinks": "Enlaces del pie de página"
+    "footerLinks": "Enlaces del pie de página",
+    "atribuicao": "Datos de películas, series y games por TMDB e IGDB.com — este producto usa las APIs de TMDB e IGDB, sin endoso oficial de ellas."
   },
   "auth": {
     "loginTitle": "Entrar",

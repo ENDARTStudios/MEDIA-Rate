@@ -129,6 +129,28 @@ export async function MotionFooter({ locale }: { locale: string }) {
             {`END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios@gmail.com`}
           </p>
         </div>
+        {/* D0 (Onda D): atribuição obrigatória dos provedores de dados — termos
+            do TMDB e da IGDB exigem crédito visível. Aprovada pelo Operador. */}
+        <p className="px-6 pb-4 text-center text-[11px] text-[#4B5563]">
+          {t("atribuicao")}{" "}
+          <a
+            href="https://www.themoviedb.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-[#818CF8]"
+          >
+            themoviedb.org
+          </a>{" "}
+          ·{" "}
+          <a
+            href="https://www.igdb.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-[#818CF8]"
+          >
+            igdb.com
+          </a>
+        </p>
       </div>
     </footer>
   );
