@@ -132,9 +132,11 @@ async function main() {
         })
       ).map((m) => `${m.fonte}::${m.fonte_id}`),
     );
-    const slugsExistentes = (await prisma.midia.findMany({ select: { slug: true } }))
-      .map((m) => m.slug)
-      .filter(Boolean);
+    // Set MUTADO pelo resolverSlugs — slugs criados no import persistem
+    // entre páginas (causa raiz do abort da primeira execução).
+    const slugsOcupados = new Set(
+      (await prisma.midia.findMany({ select: { slug: true } })).map((m) => m.slug).filter(Boolean),
+    );
 
     for (const [tipo, conf] of Object.entries(TIPO_CONF)) {
       const urlBase = `${TMDB_BASE}/discover/${conf.endpoint}?api_key=${chave}&language=pt-BR&vote_average.gte=6&vote_count.gte=300&include_adult=false&sort_by=popularity.desc`;
