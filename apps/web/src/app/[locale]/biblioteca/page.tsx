@@ -55,7 +55,8 @@ export default async function BibliotecaPage({
 
   return (
     <ProtectedPage>
-      <div className="py-8">
+      {/* T174: mesmo container do Catálogo — espaçamento lateral simétrico. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* T388: faixa de identidade do plano (cor via --plan-accent). */}
         <div
           className="mb-6 h-1 w-24 rounded-full"
