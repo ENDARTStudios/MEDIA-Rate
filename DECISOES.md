@@ -2566,3 +2566,27 @@ GO de convites permanecem fora desta decisão.
    (campos inventados pelo formulário).
 
 **Relacionados:** D-562 (Gov-01), T215 (soft delete), T160b (sync watchlist→interações), #432, PR do fix.
+
+## D-574 — Incidente: volume do Postgres cheio durante o recálculo v3 em lote (Onda D)
+
+**Data:** 2026-10-07 · **Autor:** agente (ZCode) a pedido do Operador · **Status:** resolvido
+
+**O que aconteceu:** a Onda D (catálogo em escala, 624 → 17.217 títulos) encheu o volume do
+Postgres (500MB, 97% usados). Durante o recálculo v3 em lote (D4), o WAL estourou
+(`pg_wal/xlogtemp: No space left on device`), o Postgres entrou em crash loop e a API
+retornou 500 nas leituras por ~25 minutos.
+
+**Resolução:** Operador expandiu o volume para **5GB** no dashboard (CLI do Railway não
+expõe resize — única etapa fora do CLI durante o incidente); redeploy do service; recovery
+do WAL completou; recálculo re-executado: **16.568/16.568 títulos, 0 erros**.
+
+**Decisões/lições:**
+1. Volumes de banco em produção: mínimo 5GB e **usage alert ativo** (aba Alerts do volume).
+2. Importers/backfills em escala devem **checar o espaço do volume antes de iniciar**
+   (a incluir como guard nos scripts de importação).
+3. Runs de script que falham em massa com mensagem vazia = suspeita de infraestrutura
+   (conexão/disco), não de dados — diagnosticar com o driver cru antes de re-tentar.
+4. O job cron diário (T4.7) e recálculos manuais dependem deste espaço — monitorar.
+
+**Impacto em dados:** nenhum registro perdido; 10.886 recálculos persistidos antes do
+incidente, 5.682 concluídos no retry pós-expansão.
