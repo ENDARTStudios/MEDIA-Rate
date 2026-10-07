@@ -85,6 +85,24 @@ async function buscarTmdb(id, tipo, chave) {
   return buscarJson(url);
 }
 
+// T173/D-574: guard de disco — aborta antes de escrever se o volume do
+// Postgres estiver acima de 85% (lição do incidente D-574).
+async function guardaDisco(prisma) {
+  const r = await prisma.$queryRawUnsafe(
+    `SELECT pg_database_size(current_database())::bigint AS bytes`,
+  );
+  const usadosMb = Number(r[0].bytes) / 1048576;
+  // Volume 5GB; folga configurável por env.
+  const limiteMb = Number(process.env.DISCO_LIMITE_MB ?? 4250);
+  if (usadosMb > limiteMb) {
+    saida(
+      `ERRO: banco com ${Math.round(usadosMb)}MB — acima do limite ${limiteMb}MB (D-574). Libere espaço e rode de novo.`,
+    );
+    process.exit(1);
+  }
+  saida(`DISCO OK ${Math.round(usadosMb)}MB / ${limiteMb}MB`);
+}
+
 async function main() {
   const dryRun = process.env.DRY_RUN !== "0";
   const chave = process.env.TMDB_API_KEY;
@@ -96,6 +114,7 @@ async function main() {
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
   try {
+    await guardaDisco(prisma);
     const midias = await prisma.midia.findMany({
       where: { deleted_at: null, fonte: { in: ["tmdb", "tmdb_tv"] } },
       select: { id: true, titulo: true, tipo: true, fonte: true, fonte_id: true },
