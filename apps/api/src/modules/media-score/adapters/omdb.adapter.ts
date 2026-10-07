@@ -22,7 +22,8 @@ export function mapearRatingsOmdb(
   const criticas: NotaColetada[] = [];
   const stats = estatisticas("0-100");
   for (const r of ratings ?? []) {
-    const bruto = Number.parseInt(r.Value.split("/")[0].replace(/[^0-9]/g, ""), 10);
+    const primeiro = (r.Value ?? "").split("/")[0] ?? "";
+    const bruto = Number.parseInt(primeiro.replace(/[^0-9]/g, ""), 10);
     if (!Number.isFinite(bruto) || bruto <= 0) continue;
     if (/rotten tomatoes/i.test(r.Source)) {
       criticas.push({
