@@ -35,24 +35,61 @@ function postarJson(url, corpo, headers = {}) {
   });
 }
 
+const ENTIDADES = {
+  "amp": "&",
+  "lt": "<",
+  "gt": ">",
+  "quot": '"',
+  "apos": "'",
+  "nbsp": " ",
+  "rsquo": "\u2019",
+  "lsquo": "\u2018",
+  "ldquo": "\u201C",
+  "rdquo": "\u201D",
+  "hellip": "\u2026",
+  "mdash": "\u2014",
+  "ndash": "\u2013",
+  "#39": "'",
+};
+
 /**
- * Puro (testado): limpa HTML de uma sinopse — remove tags/blocos, decodifica
- * as entidades comuns da Comic Vine, colapsa espaços. Texto sem HTML volta
- * intacto (menos espaços duplicados).
+ * Puro (testado): limpa HTML de uma sinopse com SCANNER de caracteres
+ * (sem regex de sanitização — padrão flagrado pelo CodeQL como
+ * js/bad-tag-filter). Remove tags, decodifica entidades conhecidas e
+ * colapsa espaços. Texto sem HTML volta intacto.
  */
 export function limparHtml(texto) {
   if (!texto) return null;
-  const limpo = String(texto)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#\d+;/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  let saida = "";
+  let dentroTag = false;
+  let entidade = "";
+  for (const ch of String(texto)) {
+    if (dentroTag) {
+      if (ch === ">") dentroTag = false;
+      continue;
+    }
+    if (ch === "<") {
+      dentroTag = true;
+      continue;
+    }
+    if (entidade !== "") {
+      if (ch === ";") {
+        saida += ENTIDADES[entidade.slice(1)] ?? "";
+        entidade = "";
+      } else if (entidade.length > 10) {
+        entidade = ""; // entidade desconhecida/malformada — descarta
+      } else {
+        entidade += ch;
+      }
+      continue;
+    }
+    if (ch === "&") {
+      entidade = "&";
+      continue;
+    }
+    saida += ch;
+  }
+  const limpo = saida.replace(/\s+/g, " ").trim();
   return limpo || null;
 }
 
