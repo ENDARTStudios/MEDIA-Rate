@@ -146,8 +146,10 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
     expect(r.length).toBe(0);
   });
 
-  it("T397 — descobertas vazias caem no fallback por gênero (MESMO_GENERO)", async () => {
-    // 1ª chamada (relações) vazia; 2ª chamada (consumidos) tem um CONCLUIDO.
+  it("T397 revogado (T173) — descobertas vazias retornam [] sem fallback por gênero", async () => {
+    // O fallback MESMO_GENERO produzia sugestões arbitrárias com rótulo
+    // enganoso ("Porque você gostou de X" para títulos sem relação real).
+    // Indicações por gosto são papel exclusivo do Para você (T166).
     prisma.usuarioMidiaInteracao.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([
       {
         midia_id: "m-consumido",
@@ -163,15 +165,10 @@ describe("T201 — interacoes.service (descobertas + taste/history, G4)", () => 
         },
       },
     ]);
-    prisma.midia.findMany.mockResolvedValue([
-      { id: "m-recomendado", titulo: "Interestelar", tipo: "FILME", imagem_url: null, score: 90 },
-    ]);
 
     const r = await service.descobertas("user-1");
-    expect(r.length).toBe(1);
-    expect(r[0].relationType).toBe("MESMO_GENERO");
-    expect(r[0].fromMediaId).toBe("m-consumido");
-    expect(r[0].toMediaId).toBe("m-recomendado");
+    expect(r).toEqual([]);
+    expect(prisma.midia.findMany).not.toHaveBeenCalled();
   });
 
   // ---- GET /taste/history ------------------------------------------------
