@@ -38,7 +38,7 @@ export class RottenTomatoesAdapter implements FonteAdapter {
     const html = await fetchTexto(url, {
       // T176: UA de browser + ratingValue do JSON-LD (o padrão antigo
       // tomatometerScore não está mais na página).
-      headers: { "User-Agent": UA_BROWSER, Accept: "text/html" },
+      headers: { "User-Agent": UA_BROWSER, "Accept": "text/html" },
     });
     const score =
       extrairNumeroPorPadrao(html, /"ratingValue":\s*"?([0-9]{1,3})"?/) ??

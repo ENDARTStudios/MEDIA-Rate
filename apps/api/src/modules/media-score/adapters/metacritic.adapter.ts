@@ -39,7 +39,7 @@ export class MetacriticAdapter implements FonteAdapter {
     const html = await fetchTexto(url, {
       // T176: UA de browser — o site bloqueia UA de bot (403) e a URL exige
       // o segmento /movie|tv|game/ (sem ele: 404).
-      headers: { "User-Agent": UA_BROWSER, Accept: "text/html" },
+      headers: { "User-Agent": UA_BROWSER, "Accept": "text/html" },
     });
     const score = extrairNumeroPorPadrao(
       html,
