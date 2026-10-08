@@ -204,7 +204,7 @@ export class MediaController {
     // orderBy escalar, sem depender de orderBy de relação (quirk do engine).
     const ALLOWED_SORT_FIELDS = ["titulo", "ano_lancamento", "created_at", "score"] as const;
     const sortResult = validateSortField(sort, ALLOWED_SORT_FIELDS);
-    let orderBy: unknown = { created_at: "desc" as const };
+    let orderBy: unknown = { score: { sort: "desc" as const, nulls: "last" as const } };
     if (sortResult) {
       // D-560: nulos por último no DESC (sem score não lidera o catálogo).
       orderBy =

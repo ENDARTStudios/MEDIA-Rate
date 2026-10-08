@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/lib/http";
 
 interface EpisodioApi {
@@ -23,6 +23,7 @@ interface TemporadaApi {
 /** T288 — abas horizontais de temporadas + lista de episódios com notas. */
 export function SeasonTabs({ midiaId }: { midiaId: string }) {
   const t = useTranslations("metadados");
+  const locale = useLocale();
   const [temporadas, setTemporadas] = useState<TemporadaApi[]>([]);
   const [ativa, setAtiva] = useState(0);
   const [carregando, setCarregando] = useState(true);
@@ -87,7 +88,7 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
                 </p>
                 {ep.data_exibicao && (
                   <p className="text-xs text-[#80809B]">
-                    {new Date(ep.data_exibicao).toLocaleDateString()}
+                    {new Date(ep.data_exibicao).toLocaleDateString(locale)}
                   </p>
                 )}
               </div>
