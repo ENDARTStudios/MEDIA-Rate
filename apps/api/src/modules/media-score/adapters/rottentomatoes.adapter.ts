@@ -34,17 +34,15 @@ export class RottenTomatoesAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const slug =
-      consulta.idsExternos?.rottentomatoes ??
-      consulta.titulo
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "");
-    const url = `https://www.rottentomatoes.com/m/${slug}`;
-    const html = await fetchTexto(url);
-    const score = extrairNumeroPorPadrao(html, /"tomatometerScore":\s*(\d{1,3})/);
+    const url = urlRottenTomatoes(consulta);
+    const html = await fetchTexto(url, {
+      // T176: UA de browser + ratingValue do JSON-LD (o padrão antigo
+      // tomatometerScore não está mais na página).
+      headers: { "User-Agent": UA_BROWSER, Accept: "text/html" },
+    });
+    const score =
+      extrairNumeroPorPadrao(html, /"ratingValue":\s*"?([0-9]{1,3})"?/) ??
+      extrairNumeroPorPadrao(html, /"tomatometerScore":\s*(\d{1,3})/);
     if (score == null) return [];
     const stats = estatisticas("0-100");
     return [

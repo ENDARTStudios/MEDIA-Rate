@@ -35,16 +35,12 @@ export class MetacriticAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const slug =
-      consulta.idsExternos?.metacritic ??
-      consulta.titulo
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-    const url = `https://www.metacritic.com/${slug}`;
-    const html = await fetchTexto(url);
+    const url = urlMetacritic(consulta);
+    const html = await fetchTexto(url, {
+      // T176: UA de browser — o site bloqueia UA de bot (403) e a URL exige
+      // o segmento /movie|tv|game/ (sem ele: 404).
+      headers: { "User-Agent": UA_BROWSER, Accept: "text/html" },
+    });
     const score = extrairNumeroPorPadrao(
       html,
       /"aggregateRating":\s*\{\s*"ratingValue":\s*"?(\d{1,3}(?:\.\d+)?)"?/,
