@@ -352,11 +352,11 @@ describe("MediaController (unit T8.1)", () => {
     expect(call?.orderBy).toEqual({ score: { sort: "desc", nulls: "last" } });
   });
 
-  it("list() com sort inválido cai no default created_at desc", async () => {
+  it("list() com sort inválido cai no default score desc (nulos por último)", async () => {
     mockPrisma.midia.findMany.mockResolvedValue([]);
     await controller.list(undefined, "10", undefined, "hack:desc");
     const call = mockPrisma.midia.findMany.mock.calls[0]?.[0];
-    expect(call?.orderBy).toEqual({ created_at: "desc" });
+    expect(call?.orderBy).toEqual({ score: { sort: "desc", nulls: "last" } });
   });
 });
 

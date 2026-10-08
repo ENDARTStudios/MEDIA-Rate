@@ -55,6 +55,9 @@ export function AwardsShowcase({ awards, className }: AwardsShowcaseProps) {
           >
             <span aria-hidden="true">{award.won ? "🏆" : "🥈"}</span>
             <span className="font-medium text-[#F5F5F7]">{award.name}</span>
+            {/* T177: organização visível — Emmy e Globo podem ter o mesmo nome
+                de categoria ("Melhor Série Dramática") e pareciam duplicados. */}
+            <span className="text-[#8B8BA0]">{award.organization}</span>
             <span className="tabular-nums text-[#6B6B85]">{award.year}</span>
           </span>
         ))}
