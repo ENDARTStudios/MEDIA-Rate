@@ -5,6 +5,10 @@
 
 const USER_AGENT = "MEDIA-Rate/0.1 (coleta de notas numericas; contato: media-rate)";
 
+/** T176: UA de browser para os scrapers — Cloudflare bloqueia UA de bot. */
+export const UA_BROWSER =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
 export interface HttpOptions {
   timeoutMs?: number;
   headers?: Record<string, string>;
