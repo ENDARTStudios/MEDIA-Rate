@@ -1,6 +1,6 @@
 import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
 import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
-import { fetchTexto } from "./http.utils.js";
+import { fetchTexto, UA_BROWSER } from "./http.utils.js";
 import { extrairNumeroPorPadrao } from "./scrape-numerico.util.js";
 
 /**
@@ -8,6 +8,21 @@ import { extrairNumeroPorPadrao } from "./scrape-numerico.util.js";
  * aggregateRating em JSON-LD (0–100). Scraping numérico ISOLADO —
  * gate SCRAPE_NUMERICO_ENABLED=true.
  */
+/** T176: URL correta por tipo — /movie/, /tv/ ou /game/ (erro 404 antes). */
+export function urlMetacritic(consulta: ConsultaMedia): string {
+  const PREFIXO: Record<string, string> = { FILME: "movie", SERIE: "tv", GAME: "game" };
+  const slug =
+    consulta.idsExternos?.metacritic ??
+    consulta.titulo
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  const prefixo = PREFIXO[consulta.tipo] ?? "movie";
+  return `https://www.metacritic.com/${prefixo}/${slug}/`;
+}
+
 export class MetacriticAdapter implements FonteAdapter {
   readonly id = "metacritic";
 

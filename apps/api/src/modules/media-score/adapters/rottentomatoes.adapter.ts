@@ -1,6 +1,6 @@
 import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
 import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
-import { fetchTexto } from "./http.utils.js";
+import { fetchTexto, UA_BROWSER } from "./http.utils.js";
 import { extrairNumeroPorPadrao } from "./scrape-numerico.util.js";
 
 /**
@@ -8,6 +8,20 @@ import { extrairNumeroPorPadrao } from "./scrape-numerico.util.js";
  * expõe tomatometerScore em JSON de props (0–100). Scraping numérico
  * ISOLADO — gate SCRAPE_NUMERICO_ENABLED=true.
  */
+/** T176: URL por tipo (/m/ filme, /tv/ série) com slug underscore. */
+export function urlRottenTomatoes(consulta: ConsultaMedia): string {
+  const slug =
+    consulta.idsExternos?.rottentomatoes ??
+    consulta.titulo
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+  const segmento = consulta.tipo === "SERIE" ? "tv" : "m";
+  return `https://www.rottentomatoes.com/${segmento}/${slug}`;
+}
+
 export class RottenTomatoesAdapter implements FonteAdapter {
   readonly id = "rottentomatoes";
 
