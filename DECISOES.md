@@ -2590,3 +2590,34 @@ do WAL completou; recálculo re-executado: **16.568/16.568 títulos, 0 erros**.
 
 **Impacto em dados:** nenhum registro perdido; 10.886 recálculos persistidos antes do
 incidente, 5.682 concluídos no retry pós-expansão.
+
+## D-575 — Crítica em escala: scrapers consertados + decisão de não assinar OMDb
+
+**Data:** 2026-10-08 · **Autor:** agente (ZCode) a pedido do Operador · **Status:** resolvido
+
+**Contexto:** o item 8 do Operador (split crítica × público em escala) exigia fontes de
+crítica para filmes/séries. Os scrapers Rotten Tomatoes (403 Cloudflare), Metacritic
+(404 — URL sem segmento `/movie|tv|game/`) e RogerEbert (403 persistente) estavam
+quebrados; a key gratuita do OMDb hoje retorna `Ratings` só com IMDb (RT/Metacritic
+foram movidos para o plano Patreon de US$1/mês).
+
+**Decisão:** consertar os scrapers (T176) em vez de assinar o OMDb Patreon:
+1. Metacritic: URL por tipo (`/movie|tv|game/{slug}/`) + UA de browser — probe em
+   produção provou (Dune 2 79; Witcher 3 92; Breaking Bad 87);
+2. Rotten Tomatoes: UA de browser + extração do `ratingValue` do JSON-LD (o padrão
+   antigo `tomatometerScore` saiu da página) — Dune 2 92;
+3. RogerEbert: segue inativo (403 persistente) — estado honesto;
+4. O `OmdbAdapter` (T175) já lê o array `Ratings` quando existir: se o Operador
+   assinar o OMDb Patreon no futuro, a crítica via OMDb ativa SEM mudança de código
+   (basta re-coletar).
+
+**Resultado:** coleta no top 300 mais votados com split real — ex.: Breaking Bad
+score 90,5 (crítica 93,3 / público 86,4); Game of Thrones 84,4 (81,7 / 80,1);
+games com OpenCritic (Elden Ring 77,8 com crítica 82,4).
+
+**Lições/limites:**
+1. Scrapers dependem de UA de browser e de URLs atuais — revalidar quando fontes
+   mudarem de layout (gate `SCRAPE_NUMERICO_ENABLED` mantém o controle);
+2. OMRb gratuito sem Patreon: crítica de filmes/séries limitada a Metacritic/RT via
+   scraper — monitorar bloqueios;
+3. Recordar: usage alert no volume (D-574) aplica-se ao crescimento destas coletas.
