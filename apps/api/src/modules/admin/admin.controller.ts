@@ -1,5 +1,6 @@
 import {
   Controller,
+  HttpCode,
   Delete,
   Get,
   Post,
@@ -22,6 +23,7 @@ import { AdminService } from "./admin.service.js";
 import { FeatureFlagService } from "../flags/feature-flags.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { LgpdPurgeService } from "../lgpd/lgpd-purge.service.js";
+import { BackfillService } from "./backfill.service.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 
 /**
@@ -42,6 +44,7 @@ export class AdminController {
     private readonly flags: FeatureFlagService,
     @Optional() private readonly auditLog?: AuditLogService,
     @Optional() private readonly lgpdPurge?: LgpdPurgeService,
+    @Optional() private readonly backfill?: BackfillService,
   ) {}
 
   /**
@@ -58,6 +61,47 @@ export class AdminController {
   @ApiBearerAuth()
   async lgpdPainel() {
     return this.adminService.lgpdPainel();
+  }
+
+  // D-576 — backfills em processo (padrão T4.7): disparo sob demanda com
+  // limite por execução; guard de disco antes de escrever (D-574).
+  @Post("backfills/metadados")
+  @Roles("ADMIN")
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      "Dispara backfill de metadados TMDB (elenco/produtoras/backdrop/país) para títulos sem elenco (limite por execução)",
+  })
+  @ApiBearerAuth()
+  backfillMetadados() {
+    if (!this.backfill) throw new NotFoundException("BackfillService indisponível.");
+    // Fire-and-forget: o job roda em processo (D-576); o admin acompanha por
+    // GET /backfills/status. Um request HTTP não pode segurar ~20min.
+    void this.backfill.enriquecerMetadados(2000).catch(() => undefined);
+    return { iniciado: true, tipo: "metadados", status: this.backfill.status().metadados };
+  }
+
+  @Post("backfills/continuidade")
+  @Roles("ADMIN")
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      "Dispara backfill de continuidade (temporadas/episódios de séries sem temporada + coleções/país de filmes sem país)",
+  })
+  @ApiBearerAuth()
+  backfillContinuidade() {
+    if (!this.backfill) throw new NotFoundException("BackfillService indisponível.");
+    void this.backfill.continuidade(2000).catch(() => undefined);
+    return { iniciado: true, tipo: "continuidade", status: this.backfill.status().continuidade };
+  }
+
+  @Get("backfills/status")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Estado dos backfills (executando/processados/ok/falhas)" })
+  @ApiBearerAuth()
+  backfillStatus() {
+    if (!this.backfill) throw new NotFoundException("BackfillService indisponível.");
+    return this.backfill.status();
   }
 
   @Post("lgpd/purge")
