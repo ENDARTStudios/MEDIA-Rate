@@ -2621,3 +2621,35 @@ games com OpenCritic (Elden Ring 77,8 com crítica 82,4).
 2. OMRb gratuito sem Patreon: crítica de filmes/séries limitada a Metacritic/RT via
    scraper — monitorar bloqueios;
 3. Recordar: usage alert no volume (D-574) aplica-se ao crescimento destas coletas.
+
+## D-576 — Backfills pesados devem ser jobs em processo (OOM no container compartilhado)
+
+**Data:** 2026-10-09 · **Autor:** agente (ZCode) a pedido do Operador · **Status:** decisão registrada; migração pendente
+
+**Contexto:** os backfills em escala (T164 metadados, T165 continuidade) executados via
+`railway ssh` morriam misteriosamente após minutos/horas — sem traceback, sem FIM.
+Investigação com `ps`/contadores no banco provou: o script roda **dentro do container
+da API** e compete pela memória dela; sob picos de payload, o OOM killer mata **o
+script** (a API sobrevive e o service segue "Online"). Agravante: cada merge em main
+redeploya o container e **apaga `/app`**, matando processos e scripts copiados.
+
+**Decisão:**
+1. Backfills pesados (coleta em massa, enriquecimento, continuidade) passam a rodar
+   **dentro da API**, no padrão do job T4.7 (`MediaScoreJobService`): paginação de
+   25/batch, guard de disco (D-574) e reagendamento no boot — imune a deploys e ao
+   OOM de processos externos;
+2. Disparo via rota admin (role ADMIN) para execuções sob demanda, mantendo o
+   cron semanal para a rotina;
+3. Execuções via `railway ssh` ficam restritas a tarefas de < 2 minutos.
+
+**Lições:**
+1. Falha em massa silenciosa (mensagem vazia) + service "Online" = suspeite OOM do
+   processo filho, não bug de dados;
+2. `pg_database_size` (D-574) + `ps etime` no alvo: diagnóstico mínimo antes de
+   re-tentar;
+3. Estado em `/app` é efêmero — scripts de operação vivem no repositório ( já em
+   `apps/api/scripts/`) e são copiados a cada uso.
+
+**Estado atual:** continuidade (T165) concluiu a fase filmes em execução viva
+(97 vínculos, 449 países); metadados (T164) re-executa pelo novo mecanismo
+(6.725 títulos já enriquecidos estão persistidos).
