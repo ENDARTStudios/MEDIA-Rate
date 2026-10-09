@@ -156,7 +156,7 @@ export function mapearEpisodios(seasonPayload: any): EpisodioLista[] {
 }
 
 export function arestasSequencia(filmes: { id: string; ano: number | null }[]) {
-  const ordenados = [...filmes].filter((f) => f.ano).sort((a, b) => a.ano! - b.ano!);
+  const ordenados = [...filmes].filter((f) => f.ano).sort((a, b) => (a.ano ?? 0) - (b.ano ?? 0));
   const saida: { anteriorId: string; sequenciaId: string }[] = [];
   for (let i = 1; i < ordenados.length; i++) {
     const anterior = ordenados[i - 1];
