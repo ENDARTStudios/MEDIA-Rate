@@ -7,10 +7,11 @@ import { FeatureFlagsModule } from "../flags/feature-flags.module.js";
 import { LgpdModule } from "../lgpd/lgpd.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { BackfillService } from "./backfill.service.js";
+import { BackfillDrainService } from "./backfill-drain.service.js";
 
 @Module({
   imports: [PrismaModule, AuthModule, FeatureFlagsModule, LgpdModule],
   controllers: [AdminController],
-  providers: [AdminService, AuditLogService, BackfillService],
+  providers: [AdminService, AuditLogService, BackfillService, BackfillDrainService],
 })
 export class AdminModule {}
