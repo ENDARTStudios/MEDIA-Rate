@@ -33,6 +33,11 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(BackfillDrainService.name);
   private timer: NodeJS.Timeout | undefined;
   private ticks = 0;
+  // T179: fila "presa" (ex.: título sem elenco no TMDB) não pode gerar loop
+  // infinito de reprocessamento — após 2 tiques sem progresso, espaça 6h.
+  private ultimoTotal = -1;
+  private semProgresso = 0;
+  private espacado = false;
   private ultimoResumo: {
     quando: string;
     lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
@@ -67,14 +72,29 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       ticks: this.ticks,
       intervaloMs: intervaloMs(),
       orcamentoMs: orcamentoMs(),
+      espacado: this.espacado,
+      semProgresso: this.semProgresso,
       ultimoResumo: this.ultimoResumo,
     };
   }
 
+  /** Intervalo do próximo tique: longo quando a fila está presa (sem ganho). */
+  private proximoIntervaloMs(): number {
+    return this.espacado ? 6 * 3600 * 1000 : intervaloMs();
+  }
+
   private agendar(ms: number): void {
     this.timer = setTimeout(() => {
-      void this.tique().finally(() => this.agendar(intervaloMs()));
+      void this.tique().finally(() => this.agendar(this.proximoIntervaloMs()));
     }, ms);
+  }
+
+  private total(p: {
+    semElenco: number;
+    seriesSemTemporada: number;
+    filmesSemPais: number;
+  }): number {
+    return p.semElenco + p.seriesSemTemporada + p.filmesSemPais;
   }
 
   /** Um tique do drain — nunca lança (falha vira log + resumo). */
@@ -84,6 +104,9 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       const antes = await this.backfill.contarPendentes();
       const total = antes.semElenco + antes.seriesSemTemporada + antes.filmesSemPais;
       if (total === 0) {
+        this.ultimoTotal = 0;
+        this.semProgresso = 0;
+        this.espacado = false;
         this.logger.log("Drain: filas zeradas — nada a fazer.");
         return;
       }
@@ -100,6 +123,23 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       this.logger.log(
         `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais}`,
       );
+      // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
+      // 6h (fila provavelmente presa: título sem elenco/país na fonte).
+      const totalDepois = this.total(r.pendentesDepois);
+      const progrediu = this.ultimoTotal < 0 || totalDepois < this.ultimoTotal;
+      this.ultimoTotal = totalDepois;
+      if (progrediu || totalDepois === 0) {
+        this.semProgresso = 0;
+        this.espacado = false;
+      } else {
+        this.semProgresso++;
+        if (this.semProgresso >= 2 && !this.espacado) {
+          this.espacado = true;
+          this.logger.warn(
+            `Drain: sem progresso com ${totalDepois} pendentes — espaçando para 6h (fila presa na fonte).`,
+          );
+        }
+      }
     } catch (e) {
       this.logger.warn(`Drain: falha no tique — ${String(e).slice(0, 160)}`);
     }

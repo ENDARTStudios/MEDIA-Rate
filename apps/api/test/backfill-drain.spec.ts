@@ -93,4 +93,47 @@ describe("BackfillDrainService (T179)", () => {
     process.env.MEDIA_BACKFILL_DRAIN_INTERVAL_MS = "1000";
     expect(svc.status().intervaloMs).toBe(5 * 60 * 1000);
   });
+
+  it("fila presa (sem progresso) espaça para 6h em vez de reaprocessar a cada 5min", async () => {
+    // 32 pendentes que NÃO diminuem (título sem elenco na fonte) — 2 tiques
+    // sem progresso devem ativar o espaçamento.
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
+    });
+    backfill.drenarLote.mockImplementation(async () => ({
+      pendentesAntes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
+      pendentesDepois: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
+      lotes: [{ tipo: "metadados", ok: 32, falhas: 0 }],
+    }));
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique(); // 1º tique: baseline (tolerado)
+    expect(svc.status().espacado).toBe(false);
+    await svc.tique(); // 2º: 1 sem progresso (ainda tolerado)
+    expect(svc.status().espacado).toBe(false);
+    await svc.tique(); // 3º: 2 sem progresso → espaça
+    expect(svc.status().espacado).toBe(true);
+    expect(svc.status().semProgresso).toBeGreaterThanOrEqual(2);
+  });
+
+  it("progresso (fila diminuindo) mantém cadência normal", async () => {
+    let n = 100;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: n,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 10;
+      return {
+        pendentesAntes: { semElenco: n + 10, seriesSemTemporada: 0, filmesSemPais: 0 },
+        pendentesDepois: { semElenco: n, seriesSemTemporada: 0, filmesSemPais: 0 },
+        lotes: [{ tipo: "metadados", ok: 10, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(svc.status().espacado).toBe(false);
+  });
 });
