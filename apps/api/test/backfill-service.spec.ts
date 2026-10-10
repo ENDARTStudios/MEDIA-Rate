@@ -181,11 +181,11 @@ describe("truncarCampo (T180)", () => {
     expect(truncarCampo("Homer Simpson", 160)).toBe("Homer Simpson");
     const longo = Array.from({ length: 40 }, (_, i) => `Papel ${i}`).join(" / ");
     expect(longo.length).toBeGreaterThan(160);
-    const r = truncarCampo(longo, LIMITES.elencoPersonagem);
-    expect(r).not.toBeNull();
-    expect(r!.length).toBeLessThanOrEqual(160);
-    expect(r!.endsWith("…")).toBe(true);
-    expect(r!.startsWith("Papel 0 / Papel 1")).toBe(true);
+    const r = truncarCampo(longo, LIMITES.elencoPersonagem) ?? "";
+    expect(r).not.toBe("");
+    expect(r.length).toBeLessThanOrEqual(160);
+    expect(r.endsWith("…")).toBe(true);
+    expect(r.startsWith("Papel 0 / Papel 1")).toBe(true);
   });
 
   it("null/vazio → null (não grava lixo)", () => {
@@ -199,6 +199,8 @@ describe("truncarCampo (T180)", () => {
     const real =
       "Homer Simpson / Itchy / Barney / Abe Simpson / Stage Manager / Krusty the Clown / Mayor Quimby / Mayor's Aide / Multi-Eyed Squirrel / Panicky Man / Sideshow Mel / Mr. Teeny / EPA Official / Kissing Cop / Bear / Boy / Goat / Russ Cargill / NSA Worker";
     expect(real.length).toBeGreaterThan(LIMITES.elencoPersonagem);
-    expect(truncarCampo(real, LIMITES.elencoPersonagem)!.length).toBeLessThanOrEqual(160);
+    const cortado = truncarCampo(real, LIMITES.elencoPersonagem) ?? "";
+    expect(cortado.length).toBeLessThanOrEqual(160);
+    expect(cortado.length).toBeGreaterThan(0);
   });
 });
