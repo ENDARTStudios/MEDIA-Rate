@@ -545,7 +545,7 @@ export class BackfillService {
   }> {
     const inicio = Date.now();
     const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
-    let pendentesAntes = await this.contarPendentes();
+    const pendentesAntes = await this.contarPendentes();
     let erro: string | undefined;
     try {
       // Continuidade primeiro (temporadas/episódios = maior valor visível).
