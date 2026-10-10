@@ -3434,3 +3434,27 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Não executado (decisão do Operador):** rotação de credenciais, purge de histórico,
   tornar repo privado, habilitar secret scanning.
 - **Smoke pós-merge:** 7/7 (200) — sem alteração de produto neste ciclo.
+
+### [2026-10-10] T183 — varredura de outros vazamentos pós-rotação (docs-only, branch docs/t183)
+
+- **Escopo:** read-only/docs-only, sem imprimir valores (apenas nomes/contagens/booleanos).
+  Varredura de HEAD, histórico alcançável, arquivos locais/ignorados, PRs abertas, secret
+  scanning (API) e logs de CI (booleano, 10 runs).
+- **Resultado:** HEAD e histórico **sem novos padrões de alta confiança** (inclui varredura
+  estendida de tokens GitHub/JWT; pickaxe em todos os commits). Connection strings do
+  histórico/HEAD: 100% localhost/placeholders/exemplos documentais.
+- **Blob conhecido refinado:** fragmento no formato de chave Stripe live (prefixo + 2–3
+  caracteres, mascarado) + 1 valor de CSRF (efêmero); demais menções são nomes sem valores
+  (`ADMIN_TOKEN`/`X-Admin-Token`/`DATABASE_URL`/`SENTRY`/`TMDB`); e-mails só de domínio de teste.
+- **Achados adicionais do histórico (já removidos do HEAD à época):** snapshots do Playwright
+  MCP (`facc5d70`→`31775bdf`; sem credenciais), strays T089 (`d6989882`→`64ca3e52`; sem
+  segredos) e literal de senha de teste no relatório beta-auth-smoke (`c929d71d`→`d6989882`;
+  a senha padrão dos usuários de teste tem fallback público em `provision-test-users.ts:33` —
+  verificar provisionamento em produção).
+- **CI do ciclo:** 10/10 runs sem match; 0 artefatos; 0 PRs abertas; secret scanning/push
+  protection confirmados DESABILITADOS (decisão pendente).
+- **Relatório:** `.claude/reports/secret-exposure-sweep-2026-10-11.md` (sanitizado; adicionado
+  por plumbing `update-index` para respeitar a proibição de `git add -f` com `.claude/` ignorado).
+- **Classificação:** `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FOUND`
+  (severidade ALTA mantida; incidente não encerrado).
+- **PR:** docs-only em curso — gates e smoke passivo registrados no STATUS do ciclo.

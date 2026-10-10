@@ -727,7 +727,42 @@ completa em `.claude/reports/secret-incident-exchange-log-2026-10-10.md` (saniti
   ignorado. Aplicada apenas remediação mínima e segura (comentário de prevenção no
   `.gitignore`). **Nenhuma chave foi rotacionada; nenhum histórico foi reescrito.**
 
+### T183 (2026-10-10) — varredura de outros vazamentos (atualização do incidente)
+
+Classificação: `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FOUND`
+(relatório sanitizado: `.claude/reports/secret-exposure-sweep-2026-10-11.md`).
+
+- **HEAD e histórico alcançável: sem novos padrões de alta confiança** (varredura estendida a
+  tokens GitHub/JWT; pickaxe em todos os commits da main = 0 fora do incidente). Connection
+  strings (13 no HEAD / 16 commits): 100% localhost/placeholders/exemplos documentais.
+- **Blob conhecido refinado** (`1e7801f3`, 177 linhas): fragmento no formato de chave Stripe
+  live (prefixo + 2–3 caracteres, mascarado/truncado) e 1 valor de CSRF (efêmero). Demais
+  menções são **nomes sem valores** (`ADMIN_TOKEN`, `X-Admin-Token`, `DATABASE_URL`,
+  `SENTRY`, `TMDB`). E-mails: somente domínio de teste (`@mediarate.test`) — sem PII real.
+- **Achados adicionais do histórico (já removidos/sanitizados à época):** snapshots do
+  Playwright MCP (`facc5d70`→`31775bdf`; sondados sem credenciais), strays T089
+  (`d6989882`→`64ca3e52`; sem segredos) e o literal de senha no relatório
+  `beta-auth-smoke-main-2026-09-26` (`c929d71d`→`d6989882`) — refere-se à senha padrão dos
+  usuários de teste, cujo fallback é **público no código** (`provision-test-users.ts:33`).
+- **CI:** 10/10 runs recentes sem match em logs de falha; 0 artefatos; 0 PRs abertas.
+- **Secret scanning/push protection: CONFIRMADOS DESABILITADOS hoje** (API 404/`disabled`).
+
+**Prioridades abertas (o incidente NÃO está encerrado):**
+
+1. Verificar/rotacionar **Stripe chave live + webhook secret** (evidência de fragmento no blob).
+2. Confirmar se contas `*@mediarate.test` (inclui ADMIN) foram provisionadas em produção
+   sem a variável de senha (fallback público) → se sim, **rotacionar as senhas dessas contas**
+   (relaciona-se à higiene `admin***@mediarate.test` pendente).
+3. Habilitar **secret scanning + push protection**.
+4. Decisão de **purge de histórico/visibilidade** (inalterada).
+5. Backups/alertas Postgres (Decisão 1 — inalterada).
+
 ### Decisão 2 (revisada) — ROTAÇÃO DAS CREDENCIAIS: agora IMEDIATA
+
+> **STATUS (2026-10-10, pacote do Thinker):** TMDB, IGDB, Twitch e Comic Vine =
+> **ROTACIONADAS** (confirmado pelo Operador). A varredura T183 (acima) não encontrou
+> VALORES de `ADMIN_TOKEN`/`SESSION_SECRET`/`GOOGLE_CLIENT_SECRET`/`DATABASE_URL` no blob;
+> permanecem a verificação do Stripe (fragmento) e a decisão sobre as demais.
 
 Deixa de ser higiene e passa a ser resposta a incidente comprovado em repo público.
 
