@@ -62,6 +62,10 @@ mnt/
 -w
 agent-logs/
 outputs/
+# NUNCA usar `git add -f` em arquivos sob .claude/: logs operacionais locais
+# (ex.: exchange_log.jsonl) podem conter padrões de credencial e NÃO devem ser
+# versionados. Relatórios curados (.claude/reports/*.md) são a exceção autorizada
+# e entram por PR normal, quando aplicável. Incidente: D-577/T182 (2026-10-10).
 .claude/
 
 .vercel

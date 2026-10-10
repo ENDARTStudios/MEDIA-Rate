@@ -3418,3 +3418,19 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Gates:** specs 11/11 e 7/7; suíte api 1103/1103; smoke passivo 7/7 (200). PR docs-only.
 - **Fora de escopo (dívida registrada):** `apps/api/test/scrapers-t176.spec.ts` está
   untracked (spec do T176 nunca commitado).
+
+### [2026-10-10] T182 — incidente de segurança: padrão de credencial em histórico (repo público)
+
+- **Descoberta (read-only, sem imprimir valores):** `.claude/exchange_log.jsonl` **não** está
+  no HEAD, mas **esteve versionado** — commit `1e7801f3` (T181) contém o padrão e é
+  alcançável da `main` (merge #512 = `49bb2fe9`); removido em `5679cda4`.
+- **Agravantes:** repositório **PÚBLICO**; `secret scanning`/`push protection`
+  **desabilitados** (sem alertas); conteúdo visível no diff da PR enquanto aberta.
+- **Causa raiz:** `git add -f` forçou arquivo já ignorado (`.claude/` cobre) para o commit.
+- **Classificação:** `TRACKED_OR_HISTORICAL_SECRET_EXPOSURE_SUSPECTED` — severidade ALTA.
+- **Remediação aplicada (mínima/segura):** comentário de prevenção no `.gitignore`
+  (proíbe `git add -f` sob `.claude/`) + relatório sanitizado
+  `.claude/reports/secret-incident-exchange-log-2026-10-10.md`.
+- **Não executado (decisão do Operador):** rotação de credenciais, purge de histórico,
+  tornar repo privado, habilitar secret scanning.
+- **Smoke pós-merge:** 7/7 (200) — sem alteração de produto neste ciclo.

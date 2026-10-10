@@ -707,3 +707,54 @@ Observações:
 
 **Lembrete:** `GO` para convites permanece SUSPENSO; nenhum BETA-GAP é marcado como DONE
 por este registro.
+
+---
+
+## 🔴 INCIDENTE_ABERTO — exposição de padrão de credencial em repositório PÚBLICO (2026-10-10, T182)
+
+**Severidade: ALTA. Ação do Operador é obrigatória e urgente.** Auditoria read-only
+completa em `.claude/reports/secret-incident-exchange-log-2026-10-10.md` (sanitizado).
+
+**Fatos apurados:**
+- O arquivo local `.claude/exchange_log.jsonl` (log operacional, ignorado pelo `.gitignore`)
+  **entrou no histórico** por `git add -f` durante a T181 — commit `1e7801f3`, **alcançável
+  da `main`** (merge de #512 = `49bb2fe9`). Removido no commit seguinte, mas o histórico
+  permanece.
+- **O repositório é PÚBLICO** (`ENDARTStudios/MEDIA-Rate`, branch default `main`).
+- **`secret scanning` e `push protection` estão DESABILITADOS** — sem alertas do GitHub.
+- O conteúdo também ficou visível no diff da PR #512 enquanto esteve aberta.
+- `.gitignore` **já cobria** `.claude/`; a causa raiz foi o `git add -f` forçando arquivo
+  ignorado. Aplicada apenas remediação mínima e segura (comentário de prevenção no
+  `.gitignore`). **Nenhuma chave foi rotacionada; nenhum histórico foi reescrito.**
+
+### Decisão 2 (revisada) — ROTAÇÃO DAS CREDENCIAIS: agora IMEDIATA
+
+Deixa de ser higiene e passa a ser resposta a incidente comprovado em repo público.
+
+```
+DECISAO_OPERADOR_ROTACAO_CHAVES_2026-10-10
+ROTACAO_5_CHAVES_INTEGRACOES = [IMEDIATA | AGENDADA_24H | ADIADA_RISCO_ACEITO]
+CREDENCIAL_1_STATUS = [ROTACIONADA | PENDENTE | NAO_APLICAVEL]
+CREDENCIAL_2_STATUS = [ROTACIONADA | PENDENTE | NAO_APLICAVEL]
+CREDENCIAL_3_STATUS = [ROTACIONADA | PENDENTE | NAO_APLICAVEL]
+CREDENCIAL_4_STATUS = [ROTACIONADA | PENDENTE | NAO_APLICAVEL]
+CREDENCIAL_5_STATUS = [ROTACIONADA | PENDENTE | NAO_APLICAVEL]
+SEGREDOS_ATUALIZADOS_NO_AMBIENTE = [SIM | NAO | PARCIAL]
+VALORES_FORAM_EXPOSTOS_NO_CHAT = NAO
+```
+
+### Decisão 3 (nova) — remediação de histórico e endurecimento do repositório
+
+```
+REMEDIACAO_HISTORICO = [AUTORIZAR_PURGE | ADIAR | RECUSAR_RISCO_ACEITO]
+  # purge = reescrita de histórico (ex.: filter-repo/BFG) + rotação + force-push coordenado
+HABILITAR_SECRET_SCANNING_PUSH_PROTECTION = [SIM | NAO]
+TORNAR_REPO_PRIVADO = [SIM | NAO | AVALIAR]
+```
+
+**Observação de escopo:** o agente **não** executa rotação, purge de histórico, mudança de
+visibilidade do repo nem habilitação de secret scanning — todas dependem de decisão e
+autorização do Operador (credencial, custo, configuração de conta e reescrita de histórico).
+
+**Follow-up técnico (não misturar):** `apps/api/test/scrapers-t176.spec.ts` segue untracked
+(dívida de código, tarefa futura separada).
