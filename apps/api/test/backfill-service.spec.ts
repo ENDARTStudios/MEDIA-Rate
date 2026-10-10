@@ -3,6 +3,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import {
   BackfillService,
+  truncarCampo,
+  LIMITES,
   mapearMetadados,
   mapearListaTemporadas,
   mapearEpisodios,
@@ -171,5 +173,32 @@ describe("BackfillService.enriquecerMetadados (T178)", () => {
       return alvo;
     });
     await expect(svc.enriquecerMetadados(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+});
+
+describe("truncarCampo (T180)", () => {
+  it("curto passa intacto; longo é cortado no limite com reticências", () => {
+    expect(truncarCampo("Homer Simpson", 160)).toBe("Homer Simpson");
+    const longo = Array.from({ length: 40 }, (_, i) => `Papel ${i}`).join(" / ");
+    expect(longo.length).toBeGreaterThan(160);
+    const r = truncarCampo(longo, LIMITES.elencoPersonagem);
+    expect(r).not.toBeNull();
+    expect(r!.length).toBeLessThanOrEqual(160);
+    expect(r!.endsWith("…")).toBe(true);
+    expect(r!.startsWith("Papel 0 / Papel 1")).toBe(true);
+  });
+
+  it("null/vazio → null (não grava lixo)", () => {
+    expect(truncarCampo(null, 10)).toBeNull();
+    expect(truncarCampo("   ", 10)).toBeNull();
+    expect(truncarCampo(undefined, 10)).toBeNull();
+  });
+
+  it("personagem multi-papel de 300 chars do TMDB cabe no limite da coluna", () => {
+    // Caso real (Os Simpsons: O Filme — Dan Castellaneta).
+    const real =
+      "Homer Simpson / Itchy / Barney / Abe Simpson / Stage Manager / Krusty the Clown / Mayor Quimby / Mayor's Aide / Multi-Eyed Squirrel / Panicky Man / Sideshow Mel / Mr. Teeny / EPA Official / Kissing Cop / Bear / Boy / Goat / Russ Cargill / NSA Worker";
+    expect(real.length).toBeGreaterThan(LIMITES.elencoPersonagem);
+    expect(truncarCampo(real, LIMITES.elencoPersonagem)!.length).toBeLessThanOrEqual(160);
   });
 });

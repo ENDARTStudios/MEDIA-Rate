@@ -46,6 +46,21 @@ function estadoVazio(): BackfillEstado {
 // Mappers puros (portados dos scripts T164/T165 e testados)
 // ===========================================================================
 
+/**
+ * T180: limites das colunas do schema (midia_elenco.nome 120,
+ * .personagem 160; midia_produtora.nome 160). O TMDB devolve `character`
+ * com até ~300 chars (créditos multi-papel: "A / B / C / ...") — sem
+ * truncar, o upsert falha com P2000 e o título fica preso na fila.
+ */
+export function truncarCampo(valor: string | null | undefined, max: number): string | null {
+  if (valor == null) return null;
+  const s = String(valor).trim();
+  if (!s) return null;
+  return s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`;
+}
+
+export const LIMITES = { elencoNome: 120, elencoPersonagem: 160, produtoraNome: 160 } as const;
+
 export function slugifyBasico(titulo: string): string {
   return String(titulo ?? "")
     .toLowerCase()
@@ -91,8 +106,11 @@ export function mapearMetadados(payload: any, tipo: "FILME" | "SERIE"): Metadado
   const elenco = cast.slice(0, 15).map((a, i) => ({
     fonte: "tmdb",
     fonte_id: String(a.id),
-    nome: String(a.name ?? ""),
-    personagem: a.roles?.[0]?.character ?? a.character ?? null,
+    nome: truncarCampo(String(a.name ?? ""), LIMITES.elencoNome) ?? "",
+    personagem: truncarCampo(
+      a.roles?.[0]?.character ?? a.character ?? null,
+      LIMITES.elencoPersonagem,
+    ),
     ordem: a.order ?? i,
     foto_url: a.profile_path ? `${IMG}/w185${a.profile_path}` : null,
   }));
@@ -101,12 +119,20 @@ export function mapearMetadados(payload: any, tipo: "FILME" | "SERIE"): Metadado
   for (const c of payload.production_companies ?? []) {
     if (!c?.name || vistas.has(String(c.id))) continue;
     vistas.add(String(c.id));
-    empresas.push({ fonte_id: String(c.id), nome: c.name, papel: "PRODUTORA" });
+    empresas.push({
+      fonte_id: String(c.id),
+      nome: truncarCampo(c.name, LIMITES.produtoraNome) ?? "",
+      papel: "PRODUTORA",
+    });
   }
   for (const n of payload.networks ?? []) {
     if (!n?.name || vistas.has(String(n.id))) continue;
     vistas.add(String(n.id));
-    empresas.push({ fonte_id: String(n.id), nome: n.name, papel: "NETWORK" });
+    empresas.push({
+      fonte_id: String(n.id),
+      nome: truncarCampo(n.name, LIMITES.produtoraNome) ?? "",
+      papel: "NETWORK",
+    });
   }
   return {
     elenco: elenco.filter((a) => a.nome),
