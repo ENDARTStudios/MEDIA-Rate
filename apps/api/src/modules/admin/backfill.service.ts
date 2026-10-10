@@ -501,4 +501,67 @@ export class BackfillService {
       falhas: this.estado.continuidade.falhas,
     };
   }
+
+  /**
+   * T179: contagem das filas pendentes — base do drain auto-reagendável e do
+   * relatório. Zero em todas = backfills completos (nada a fazer).
+   */
+  async contarPendentes(): Promise<{
+    semElenco: number;
+    seriesSemTemporada: number;
+    filmesSemPais: number;
+  }> {
+    const r = await this.prisma.$queryRawUnsafe<
+      { sem_elenco: number; sem_temp: number; sem_pais: number }[]
+    >(`SELECT
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+            AND NOT EXISTS (SELECT 1 FROM midia_elenco e WHERE e.midia_id = m.id)) AS sem_elenco,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte = 'tmdb_tv'
+            AND NOT EXISTS (SELECT 1 FROM temporada t WHERE t.midia_id = m.id)) AS sem_temp,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte = 'tmdb' AND m.tipo = 'FILME'
+            AND m.pais_origem IS NULL) AS sem_pais`);
+    const row = r[0];
+    return {
+      semElenco: Number(row?.sem_elenco ?? 0),
+      seriesSemTemporada: Number(row?.sem_temp ?? 0),
+      filmesSemPais: Number(row?.sem_pais ?? 0),
+    };
+  }
+
+  /**
+   * T179: drain de UMA rodada — alterna continuidade e metadados enquanto
+   * houver fila e o orçamento de tempo permitir. Retorna o que fez; o
+   * agendador (BackfillDrainService) decide quando chamar de novo.
+   * Nunca lança: falha de uma parte vira `erro` no resumo.
+   */
+  async drenarLote(orçamentoMs: number): Promise<{
+    pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
+    pendentesDepois: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
+    erro?: string;
+  }> {
+    const inicio = Date.now();
+    const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
+    const pendentesAntes = await this.contarPendentes();
+    let erro: string | undefined;
+    try {
+      // Continuidade primeiro (temporadas/episódios = maior valor visível).
+      if (pendentesAntes.seriesSemTemporada > 0 || pendentesAntes.filmesSemPais > 0) {
+        const r = await this.continuidade(2000);
+        lotes.push({ tipo: "continuidade", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
+        const r = await this.enriquecerMetadados(2000);
+        lotes.push({ tipo: "metadados", ok: r.ok, falhas: r.falhas });
+      }
+    } catch (e) {
+      erro = String((e as Error)?.message ?? e).slice(0, 200);
+      this.logger.warn(`Drain: ${erro}`);
+    }
+    const pendentesDepois = await this.contarPendentes();
+    return { pendentesAntes, pendentesDepois, lotes, ...(erro ? { erro } : {}) };
+  }
 }

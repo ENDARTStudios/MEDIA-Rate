@@ -24,6 +24,7 @@ import { FeatureFlagService } from "../flags/feature-flags.service.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { LgpdPurgeService } from "../lgpd/lgpd-purge.service.js";
 import { BackfillService } from "./backfill.service.js";
+import { BackfillDrainService } from "./backfill-drain.service.js";
 import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 
 /**
@@ -45,6 +46,7 @@ export class AdminController {
     @Optional() private readonly auditLog?: AuditLogService,
     @Optional() private readonly lgpdPurge?: LgpdPurgeService,
     @Optional() private readonly backfill?: BackfillService,
+    @Optional() private readonly backfillDrain?: BackfillDrainService,
   ) {}
 
   /**
@@ -95,13 +97,29 @@ export class AdminController {
     return { iniciado: true, tipo: "continuidade", status: this.backfill.status().continuidade };
   }
 
+  @Post("backfills/drain/tique")
+  @Roles("ADMIN")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Força um tique do drain interno de backfills (T179)" })
+  @ApiBearerAuth()
+  async backfillDrainTique() {
+    if (!this.backfillDrain) throw new NotFoundException("BackfillDrainService indisponível.");
+    void this.backfillDrain.tique().catch(() => undefined);
+    return { disparado: true, drain: this.backfillDrain.status() };
+  }
+
   @Get("backfills/status")
   @Roles("ADMIN")
-  @ApiOperation({ summary: "Estado dos backfills (executando/processados/ok/falhas)" })
+  @ApiOperation({
+    summary: "Estado dos backfills (executando/processados/ok/falhas) + drain interno (T179)",
+  })
   @ApiBearerAuth()
   backfillStatus() {
     if (!this.backfill) throw new NotFoundException("BackfillService indisponível.");
-    return this.backfill.status();
+    return {
+      ...this.backfill.status(),
+      drain: this.backfillDrain?.status() ?? null,
+    };
   }
 
   @Post("lgpd/purge")
