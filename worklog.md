@@ -3401,3 +3401,20 @@ Suítes: API 992/992 (132 arq); web 479/479.
 ### [2026-10-03] fix/user-feedback-batch fechamento — PR #411 merged (d3c4f06c)
 
 - 5 correções do Operador em produção. Smoke 7/7 + /privacy ×3 200. Branch deletada.
+### [2026-10-10] T181 docs-only — fechamento D-576 + lição P2000 (F06-metadata-drain)
+
+- **Descoberta:** o drain interno (T179/#505) já rodava, mas a verificação expôs 6 títulos
+  falhando com `P2000` em toda execução (créditos multi-papel do TMDB com ~300 chars vs
+  coluna `VARCHAR(160)`) → nunca enriquecidos e presos na fila.
+- **Correção (T180/#509):** `truncarCampo` (limite + `…`; null/vazio → null) aplicado a
+  nome/personagem/empresas. Evidência: pendentes 32→26, erros **6→0**. Os 26 restantes são
+  ausência genuína de elenco no TMDB (estado honesto, com backoff de 6h).
+- **Drain interno:** `BackfillDrainService` na API (sem script externo/sessão), anti-loop
+  verificado em produção (`espaçando para 6h`), sessão temporária revogada (`RESTAM_ATIVAS 0`),
+  rota admin 401 sem credencial.
+- **Docs:** `DECISOES.md` (D-576 FECHAMENTO + regra de normalização de entrada externa),
+  relatório `.claude/reports/metadata-drain-d576-2026-10-10.md`, pacote de decisão do
+  Operador em `PENDENCIAS_OPERADOR.md` (backups/alertas + rotação de chaves).
+- **Gates:** specs 11/11 e 7/7; suíte api 1103/1103; smoke passivo 7/7 (200). PR docs-only.
+- **Fora de escopo (dívida registrada):** `apps/api/test/scrapers-t176.spec.ts` está
+  untracked (spec do T176 nunca commitado).
