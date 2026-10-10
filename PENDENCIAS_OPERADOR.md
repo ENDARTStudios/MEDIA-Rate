@@ -654,3 +654,56 @@ As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.clau
 **Opções (Operador):** (A) estender a allowlist do `scripts/audit-ci.mjs` no padrão D-559b (justificativa + revisão datada) destravando PRs de código já; e/ou (B) autorizar as migrações (tailwind 4; avaliar prisma) como tarefas. Nota: fluxo paralelo ativo no mesmo gate (D-559b, PACOTE DE GO) — coordenar. Fix busboy re-aplicável no lote final. Sem segredo/PII; GO convites SUSPENSO.
 
 > **CONGELAMENTO NA PRÁTICA (2026-10-03):** a PR de higiene #408 (remover artefato commitado `.playwright-mcp/`) ficou VERMELHA no Lint & Audit por causa deste gate — primeira vítima real do congelamento. Ela permanece aberta e mergeia no desbloqueio (A ou B).
+
+---
+
+## Pacote de decisão — Postgres (usage alerts/backups) e rotação de chaves (2026-10-10, T181)
+
+**Contexto:** o ciclo F06-metadata-drain fechou o enriquecimento do catálogo (17.217
+títulos; 131.743 episódios; 10.991 com país). Duas frentes operacionais dependem
+exclusivamente de decisão do Operador — envolvem produção, custo, credencial e secret
+manager, e **não** foram executadas pelo agente (nem devem ser, sem decisão).
+
+### Decisão 1 — Postgres: usage alerts + backups automáticos
+
+Motivação: em 2026-10-07 o volume do Postgres encheu (500MB → 97%) durante um backfill em
+lote; o banco entrou em crash loop e a API ficou 500 por ~25 min (D-574). O volume foi
+expandido para 5GB e o incidente foi documentado. Hoje **não há alerta de uso** nem
+**backup automático** — o dado existe apenas no volume.
+
+Opções (escolher uma):
+- **(A) Habilitar agora**: usage alert (aba Alerts do volume) + backups automáticos
+  (aba Backups do serviço Postgres). Custo: conforme política da Railway para o tamanho.
+- **(B) Adiar com risco aceito**: mantém 5GB sem alerta/backup; risco = perda total do
+  catálogo em falha do volume, sem aviso prévio de crescimento.
+- **(C) Política específica**: definir limite/agenda próprios (ex.: alerta em 70% e backup
+  diário com retenção X) e informar para configuração.
+
+### Decisão 2 — Rotação das 5 chaves/integrações
+
+Motivação: durante o recon da Onda C, a listagem de variáveis do Railway exibiu os
+**valores** das 5 chaves em chat (erro de parse do agente, registrado, sem uso indevido).
+Recomendação: rotacionar por higiene.
+
+Categorias (sem valores): integração de catálogo de filmes/séries (TMDB), integração de
+games (IGDB + credencial Twitch associada), integração de quadrinhos (Comic Vine), e a
+quinta integração configurada no projeto. Nenhum valor, token, cookie ou nome completo de
+variável é registrado aqui.
+
+Opções (escolher uma):
+- **(A) Executar agora** via secret manager/CLI, com janela combinada (o agente pode
+  conduzir a troca no Railway e revalidar a coleta);
+- **(B) Agendar** para data definida;
+- **(C) Adiar com risco aceito** (as chaves seguem válidas; a exposição ficou restrita ao
+  histórico da sessão).
+
+### Template de resposta do Operador
+
+```
+Decisão 1 (Postgres): A | B | C   [se C: limite __%, backup __, retenção __]
+Decisão 2 (Chaves):   A | B | C   [se B: data __]
+Observações:
+```
+
+**Lembrete:** `GO` para convites permanece SUSPENSO; nenhum BETA-GAP é marcado como DONE
+por este registro.

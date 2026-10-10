@@ -2653,3 +2653,58 @@ redeploya o container e **apaga `/app`**, matando processos e scripts copiados.
 **Estado atual:** continuidade (T165) concluiu a fase filmes em execução viva
 (97 vínculos, 449 países); metadados (T164) re-executa pelo novo mecanismo
 (6.725 títulos já enriquecidos estão persistidos).
+
+### D-576 — FECHAMENTO (2026-10-10): drain interno concluído + lição P2000/truncamento
+
+**Status:** CONCLUÍDA · **Evidência aprovada:** T179/PR #505 + T180/PR #509 (REVIEW APPROVED no ciclo F06-metadata-drain)
+
+O "Estado atual" acima está superado por este fechamento. O que foi entregue:
+
+**1. Drain interno à API (T179, #505).** O gatilho dos backfills deixou de ser um script
+externo (que morria na substituição do container e exigia sessão ADMIN de longa duração
+por causa do CSRF) e passou a ser um **reagendador no próprio processo da API**
+(`BackfillDrainService`, padrão do job T4.7): intervalo 5 min / orçamento 45 min por env,
+fila zerada = no-op barato, ativo só em produção e desligável
+(`MEDIA_BACKFILL_DRAIN_ENABLED=false`). Sobrevive a redeploys por construção.
+- Observabilidade: `GET /api/v1/admin/backfills/status` inclui o estado do drain;
+  `POST /api/v1/admin/backfills/drain/tique` força um tique em operação.
+- **Anti-loop de fila presa**: 2 tiques sem progresso → espaça para 6h. Verificado em
+  produção pelo log `Drain: sem progresso com 38 pendentes — espaçando para 6h`.
+- Sessão temporária da operação **revogada** (`RESTAM_ATIVAS 0`) e a rota admin responde
+  **401 sem credencial** — a operação não depende mais de credencial persistente.
+
+**2. Lição técnica — normalização de entrada externa (P2000).** O `OmdbAdapter`/drain
+gravavam `midia_elenco.personagem` (`VARCHAR(160)`) com o `character` do TMDB, que chega a
+**~300 caracteres** em créditos multi-papel (ex.: Os Simpsons: O Filme → "Homer Simpson /
+Itchy / Barney / …"). Resultado: `P2000` em **toda** execução → o título nunca era
+enriquecido e **ficava preso na fila indefinidamente** (a "fila presa" que o anti-loop do
+T179 passou a espaçar). Corrigido em T180 (#509) com `truncarCampo` (puro): passa intacto
+até o limite, acima corta em `max-1` + `…`, `null`/vazio → `null`; aplicado a `nome` (120),
+`personagem` (160) e empresas (160) — os limites reais do schema.
+
+Regra derivada (aplicável a toda integração externa — TMDB/IGDB/Twitch/Comic Vine/OMDb):
+1. **Dados externos são normalizados na fronteira**, antes da persistência — nunca
+   confiando no tamanho/forma que o provedor devolve;
+2. **Limite de coluna é contrato**: não alargar schema silenciosamente para acomodar
+   payload externo (alargar exige decisão formal de contrato de dados);
+3. **Regressão de entrada oversized exige spec dedicada** (aqui: 3 casos de
+   `truncarCampo` + o caso real de 300 chars do TMDB).
+
+**3. Resultado em produção (antes → depois do fix, logs do drain):**
+
+| | Pendentes de elenco | Erros do lote |
+|---|---|---|
+| Antes (T179) | 32 | 6 (`P2000`) |
+| Depois (T180) | **26** | **0** |
+
+Os 6 títulos presos foram destravados e saíram da fila. Os **26 restantes são estado
+honesto**: o TMDB não tem elenco cadastrado para eles — não são falha do drain, não devem
+ser forçados sem nova fonte legítima, e permanecem cobertos pelo backoff de 6h.
+
+**4. Catálogo enriquecido ao fim do ciclo:** 17.217 títulos · 6.346 temporadas ·
+131.743 episódios com nota · 10.966 com elenco real · 10.991 com país de origem ·
+39.262 produtoras/estúdios · 1.595 vínculos de franquia (no início da frente: 637
+temporadas, 12.994 episódios, 449 países, 97 vínculos).
+
+**Meta:** specs 11/11 no arquivo da correção e suíte api **1103/1103**; tsc/eslint/prettier
+limpos; `swagger-contract-guard` 0 violações; smoke passivo 7/7 (200) sem chave i18n crua.
