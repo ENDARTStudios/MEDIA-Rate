@@ -49,6 +49,8 @@ pnpm-debug.log*
 
 # Skills locais (do ambiente, nao do projeto)
 skills/
+# Excecao: skills de agente DO PROJETO (versionadas) vivem em .zcode/skills/.
+!.zcode/skills/
 
 # Uploads de usuario (quando Fase 6 confirmar upload)
 uploads/
