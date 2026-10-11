@@ -822,3 +822,38 @@ autorização do Operador (credencial, custo, configuração de conta e reescrit
 
 **Follow-up técnico (não misturar):** `apps/api/test/scrapers-t176.spec.ts` segue untracked
 (dívida de código, tarefa futura separada).
+
+---
+
+### INCIDENTE_ENCERRAMENTO_VERIFICACAO_T188 (2026-10-11) — pacote de decisão final
+
+Verificação sanitizada concluída (relatório `.claude/reports/incident-closure-verification-2026-10-12.md`).
+Classificação atual: **`MITIGATED_OPEN_PENDING_PURGE_OR_RISK_ACCEPTANCE`** — o incidente **NÃO** foi
+encerrado automaticamente.
+
+**Evidência fresca desta rodada:** repo **PÚBLICO**; **secret scanning ATIVO (0 alertas)**;
+**push protection ATIVO** (verificado via metadados `security_and_analysis`); dependabot security
+updates habilitado; **Security verde nas 3 últimas execuções da `main`**
+(`38155578802`/`38159135317`/`38160575671` — a falha `38151955200` é a de plataforma pré-T186, já
+diagnosticada); Gitleaks bloqueador verde; **PRs de deps intocadas** (sem drift — updatedAt
+idênticos ao T187); rotações completas (TMDB/IGDB/Twitch/ComicVine + Stripe); contas de teste
+neutralizadas (7 senhas / 119 sessões / 1 ADMIN revogado); guardas de provisionamento no código
+(TDD 14/14); PII confirmada `NAO` (D-578); smoke 7/7.
+
+**DECISÃO FINAL DO OPERADOR (uma das três opções):**
+
+```
+DECISAO_OPERADOR_INCIDENTE_ENCERRAMENTO_2026-10-12
+ENCERRAMENTO = [ENCERRAR_RISCO_RESIDUAL_ACEITO | MANTER_ABERTO_MONITORAMENTO | AUTORIZAR_PLANO_PURGE]
+PURGE_HISTORICO = [AUTORIZAR_PLANO | NAO_APLICAVEL_APOS_ROTACAO | ADIADO_RISCO_ACEITO]
+OBSERVACOES = [sem valores de segredo]
+```
+
+- `ENCERRAR_RISCO_RESIDUAL_ACEITO` → encerra com aceite formal do risco histórico (purge vira
+  decisão adiada/opcional).
+- `MANTER_ABERTO_MONITORAMENTO` → permanece aberto em monitoramento passivo.
+- `AUTORIZAR_PLANO_PURGE` → exige plano coordenado de reescrita + janela + force-push com
+  autorização explícita (tarefa própria; recomendável apenas após as rotações — estado atual).
+
+Os demais itens de deps (fechar #515 / nova PR limpa / allowlist) seguem no item 7 deste arquivo.
+**Nenhuma dessas ações é executada pelo agente sem a resposta do Operador.**

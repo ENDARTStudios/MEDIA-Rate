@@ -3546,3 +3546,19 @@ Suítes: API 992/992 (132 arq); web 479/479.
   ressuscitar as antigas); decisão de escopo da limpeza de allowlist com o Operador.
 - **Relatório:** `.claude/reports/deps-prs-triage-2026-10-12.md`; PENDENCIAS atualizado; PR
   docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T188 — verificação sanitizada de encerramento do incidente (docs-only, branch docs/t188)
+
+- **Classificação:** `MITIGATED_OPEN_PENDING_PURGE_OR_RISK_ACCEPTANCE` — **não encerrado automaticamente**
+  (decisão final do Operador no bloco `INCIDENTE_ENCERRAMENTO_VERIFICACAO_T188` do PENDENCIAS).
+- **Evidência fresca (read-only):** repo PÚBLICO; **secret scanning ATIVO (0 alertas)**; **push
+  protection ATIVO** (agora verificado via `security_and_analysis`); dependabot security updates
+  habilitado; code scanning ativo com **30 alertas pré-existentes** (contagem; triagem T189).
+- **Security na main:** 3 execuções verdes consecutivas (`38155578802`/`38159135317`/`38160575671`);
+  a histórica `38151955200` (failure) é a falha de plataforma pré-T186 já diagnosticada.
+- **Deps intocadas:** #515/#518/#522 com updatedAt **idêntico** ao T187 (05:14/16:03/16:06) ⇒ sem drift.
+- **Consolidação documental:** T182→T187 (relatórios versionados ×4; D-577/D-578; SECURITY_INCIDENTS/
+  SECURITY_CI/GITHUB_SECURITY_SETTINGS); rotações completas; contas neutralizadas (7/119/1);
+  guardas TDD 14/14; PII `NAO` (D-578).
+- **Relatório:** `.claude/reports/incident-closure-verification-2026-10-12.md`; PENDENCIAS atualizado;
+  PR docs-only em curso — gates e smoke no STATUS.
