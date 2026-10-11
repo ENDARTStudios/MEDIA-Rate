@@ -1,7 +1,18 @@
 /**
  * Utilitários HTTP para adaptadores de fontes.
  * Usa fetch nativo (Node 20+), com timeout e UA identificável.
+ *
+ * T191 (CodeQL js/request-forgery / SSRF): todo outbound passa pelo url-guard —
+ * allowlist explícita de hosts, somente HTTPS, sem userinfo/IP literal,
+ * validação do IP resolvido (anti-rebinding), redirects manuais validados hop a
+ * hop e limite de saltos — e as mensagens de erro são sanitizadas: a URL
+ * completa (com query, que pode conter chave de API) nunca aparece em erro/log.
  */
+
+import { assertUrlExternaSegura, validarHostExternoResolvido } from "../../../common/url-guard.js";
+
+export { HOSTS_EXTERNOS_PERMITIDOS } from "../../../common/url-guard.js";
+export { UrlExternaBloqueadaError } from "../../../common/url-guard.js";
 
 const USER_AGENT = "MEDIA-Rate/0.1 (coleta de notas numericas; contato: media-rate)";
 
@@ -17,6 +28,8 @@ export interface HttpOptions {
 }
 
 const TEMPO_PADRAO_MS = 8000;
+const MAX_REDIRECIONAMENTOS = 3;
+const STATUS_REDIRECIONAMENTO = new Set([301, 302, 303, 307, 308]);
 
 export class ErroColeta extends Error {
   constructor(
@@ -28,25 +41,76 @@ export class ErroColeta extends Error {
   }
 }
 
-async function requisicao(url: string, opcoes: HttpOptions): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), opcoes.timeoutMs ?? TEMPO_PADRAO_MS);
+/** Forma segura para erro/log: origem + path, SEM query/hash. */
+function urlSegura(url: string | URL): string {
   try {
-    const resposta = await fetch(url, {
-      method: opcoes.method ?? "GET",
-      headers: {
-        "user-agent": USER_AGENT,
-        ...opcoes.headers,
-      },
-      body: opcoes.body,
-      signal: controller.signal,
-    });
-    if (!resposta.ok) {
-      throw new ErroColeta(`HTTP ${resposta.status} em ${url}`, resposta.status);
+    const u = typeof url === "string" ? new URL(url) : url;
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return "[url invalida]";
+  }
+}
+
+/** Valida (URL + DNS) e devolve o alvo normalizado. */
+async function validarAlvo(urlBruto: string): Promise<URL> {
+  const alvo = assertUrlExternaSegura(urlBruto);
+  await validarHostExternoResolvido(alvo);
+  return alvo;
+}
+
+async function requisicao(url: string, opcoes: HttpOptions): Promise<Response> {
+  const metodo = opcoes.method ?? "GET";
+  let alvo = await validarAlvo(url);
+  for (let saltos = 0; ; saltos += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), opcoes.timeoutMs ?? TEMPO_PADRAO_MS);
+    try {
+      const resposta = await fetch(alvo, {
+        method: metodo,
+        headers: {
+          "user-agent": USER_AGENT,
+          ...opcoes.headers,
+        },
+        body: opcoes.body,
+        signal: controller.signal,
+        redirect: "manual",
+      });
+      if (STATUS_REDIRECIONAMENTO.has(resposta.status)) {
+        if (metodo !== "GET") {
+          throw new ErroColeta(
+            `HTTP ${resposta.status} (redirect nao seguido) em ${urlSegura(alvo)}`,
+            resposta.status,
+          );
+        }
+        if (saltos >= MAX_REDIRECIONAMENTOS) {
+          throw new ErroColeta(
+            `redirecionamentos excedidos em ${urlSegura(alvo)}`,
+            resposta.status,
+          );
+        }
+        const location = resposta.headers.get("location");
+        if (!location) {
+          throw new ErroColeta(
+            `HTTP ${resposta.status} sem location em ${urlSegura(alvo)}`,
+            resposta.status,
+          );
+        }
+        let proximo: string;
+        try {
+          proximo = new URL(location, alvo).toString();
+        } catch {
+          throw new ErroColeta(`redirect invalido a partir de ${urlSegura(alvo)}`, resposta.status);
+        }
+        alvo = await validarAlvo(proximo);
+        continue;
+      }
+      if (!resposta.ok) {
+        throw new ErroColeta(`HTTP ${resposta.status} em ${urlSegura(alvo)}`, resposta.status);
+      }
+      return resposta;
+    } finally {
+      clearTimeout(timer);
     }
-    return resposta;
-  } finally {
-    clearTimeout(timer);
   }
 }
 
@@ -56,7 +120,7 @@ export async function fetchJson<T>(url: string, opcoes: HttpOptions = {}): Promi
   try {
     return (await resposta.json()) as T;
   } catch (err) {
-    throw new ErroColeta(`JSON inválido em ${url}: ${String(err)}`);
+    throw new ErroColeta(`JSON inválido em ${urlSegura(url)}: ${String(err)}`);
   }
 }
 
@@ -72,6 +136,6 @@ export async function postJson<T>(url: string, body: string, opcoes: HttpOptions
   try {
     return (await resposta.json()) as T;
   } catch (err) {
-    throw new ErroColeta(`JSON inválido em ${url}: ${String(err)}`);
+    throw new ErroColeta(`JSON inválido em ${urlSegura(url)}: ${String(err)}`);
   }
 }

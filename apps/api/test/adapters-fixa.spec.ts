@@ -3,6 +3,12 @@ import { TraktAdapter } from "../src/modules/media-score/adapters/trakt.adapter.
 import { ComicVineAdapter } from "../src/modules/media-score/adapters/comicvine.adapter.js";
 import { OpenCriticAdapter } from "../src/modules/media-score/adapters/opencritic.adapter.js";
 
+// T191: o http.utils valida o IP resolvido (anti-SSRF); nos testes o DNS é
+// mockado para um IP público — nenhuma resolução real acontece.
+vi.mock("node:dns/promises", () => ({
+  lookup: vi.fn(async () => [{ address: "93.184.216.34", family: 4 }]),
+}));
+
 function mockFetch(respostas: { ok?: boolean; status?: number; body: unknown }[]) {
   let indice = 0;
   vi.stubGlobal(
