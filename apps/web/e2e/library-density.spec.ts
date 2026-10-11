@@ -1,6 +1,11 @@
 /**
  * BETA-GAP-14 (T117/T125) — densidade dos cards de "Minha Biblioteca".
  *
+ * T185 (UG-14): base mobile = 2 colunas (o degrau `xs:grid-cols-3` espremia
+ * 390x844 a ~111px/card e estourava o rodapé do item). As asserções permanecem
+ * as MESMAS (>= 2 colunas e sem overflow); o contrato de classes é guardado
+ * também em apps/web/test/library-density.spec.tsx.
+ *
  * Estratégia: **mock de contrato determinístico** (`page.route`) do endpoint
  * real consumido por `BibliotecaClient` → `getInteracoes`
  * (`GET /api/v1/interacoes?status=…&limit=50`, envelope

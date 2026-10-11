@@ -244,7 +244,7 @@ export function BibliotecaClient({
         <>
           <div
             data-testid="biblioteca-grid"
-            className="grid grid-cols-2 gap-3 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
           >
             {items.map((i) => {
               const item = toMediaItem(i);
@@ -254,7 +254,10 @@ export function BibliotecaClient({
               return (
                 <div key={i.id} data-testid="biblioteca-item" className="flex flex-col">
                   <MediaCard media={item} />
-                  <div className="mt-1.5 flex items-center justify-between gap-2 px-1">
+                  <div
+                    data-testid="biblioteca-item-footer"
+                    className="mt-1.5 flex flex-wrap items-center justify-between gap-2 px-1"
+                  >
                     <span
                       className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-semibold"
                       style={{ color: token.color }}
