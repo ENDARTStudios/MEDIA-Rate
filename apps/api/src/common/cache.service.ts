@@ -1,6 +1,7 @@
 import { Injectable, Logger, type OnModuleDestroy } from "@nestjs/common";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
+import { combinaPattern, validarPattern } from "./cache-key-guard.js";
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Redis: any = require("ioredis");
@@ -104,14 +105,17 @@ export class CacheService implements OnModuleDestroy {
   }
 
   async delPattern(pattern: string): Promise<void> {
+    // T194: valida fail-closed ANTES de tocar memória/Redis e casa com o mesmo
+    // glob `*`-only do Redis KEYS (o replace parcial antigo escapava do namespace).
+    const padrao = validarPattern(pattern);
     for (const k of [...this.memoria.keys()]) {
-      if (k.includes(pattern.replace("*", ""))) this.memoria.delete(k);
+      if (combinaPattern(padrao, k)) this.memoria.delete(k);
     }
     try {
-      const keys = await this.redis.keys(pattern);
+      const keys = await this.redis.keys(padrao);
       if (keys.length > 0) {
         await this.redis.del(...keys);
-        this.logger.debug(`Cache DEL pattern "${pattern}": ${keys.length} keys`);
+        this.logger.debug(`Cache DEL pattern "${padrao}": ${keys.length} keys`);
       }
     } catch {
       /* Redis indisponível — memória já limpa */

@@ -10,8 +10,8 @@
 | `js/request-forgery` (SSRF) — **critical** | `apps/api/src/modules/media-score/adapters/http.utils.ts` | **MITIGADO (T191)** — §2 |
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
-| `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` | pendente (T194) |
-| higiene testes/e2e/scripts (10 alertas) | vários | opcional (T195+) |
+| `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` (+ fakes de teste) | **MITIGADO (T194)** — §2d |
+| higiene testes/e2e/scripts (demais alertas) | vários | opcional (T195+) |
 
 ## 2. Caso 1 — SSRF em `http.utils` (T191): desenho da mitigação
 
@@ -69,7 +69,36 @@
   guarda `isDirectRun` (exporta `main`/`fetchTmdb`/`executar` para teste) — padrão
   dos scripts de provisionamento (D-275).
 
-## 3. Regras para as próximas correções (T194)
+## 2d. Caso 4 — incomplete-sanitization no cache (T194): desenho da mitigação
+
+- **Vetor real:** o fallback de memória do `CacheService.delPattern` filtrava chaves com
+  `k.includes(pattern.replace("*", ""))` — replace **parcial** (só o primeiro `*`) e match
+  **sem âncora**: padrões com múltiplos wildcards não casavam nada na memória (divergência
+  do Redis KEYS, que casaria) e `delPattern("midias:*")` apagava `x:midias:1` — namespace
+  escape no fallback distorcia a invalidação (memória ≠ Redis).
+- **`apps/api/src/common/cache-key-guard.ts`** (novo, puro):
+  - `validarPattern` — fail-closed **antes** de tocar memória/Redis: rejeita ausente/vazio/
+    não-string, comprimento > 256 (`MAX_PATTERN`), caracteres de controle (NUL, `\n`, `\r`,
+    tab, DEL) e metacaracteres que o glob do Redis trataria de outra forma (`?`, `[`, `]`,
+    `\` — único wildcard suportado é `*`); mensagem de erro **nunca** inclui o valor.
+  - `combinaPattern` — casamento glob `*`-only **ancorado** (prefixo, sufixo e literais
+    intermediários em ordem; busca mais-à-esquerda; sem `replace` parcial e sem regex
+    construída) — espelha o Redis KEYS para o subconjunto de padrões do serviço.
+- **`cache.service.ts`** — `delPattern` valida o padrão (inválido lança **sem efeitos
+  colaterais**: memória intacta e `redis.keys` não chamado) e filtra a memória com o
+  matcher ancorado; TTL, invalidação, `keys`/`del` e a degradação para memória inalterados.
+- **Fakes dos testes** (`cache.service.spec`, `cache.e2e.spec`, `media-admin-crud.e2e.spec`)
+  passaram a usar o mesmo matcher — o idiom `replace("*","")+includes` replicado nos
+  FakeRedis era a mesma regra (alertas #95/#96/#97) e divergia do Redis real.
+- **Nota CodeQL:** o sink (replace parcial) foi **removido** — diferentemente do T191–T193
+  (guardas mantendo o padrão original), aqui não há `replace` de string parcial no código;
+  se a próxima análise ainda não fechar o alerta (#94), registrar e escalar (nunca suppress).
+
+## 3. Regras para as próximas correções (T195+)
+
+Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão mitigadas
+(§2–§2d). Restam os alertas de higiene em testes/e2e/scripts (opcional) e a triagem
+**humana** dos alertas que persistirem por limitação da regra (#151/#86/#85).
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -91,3 +120,7 @@
 - **2026-10-11 (T193):** clear-text-logging HIGH mitigado (log-redactor + seed
   sanitizado; testes com fetch/Prisma/console mockados, sem banco real). Relatório:
   `.claude/reports/codeql-clear-text-logging-seed-2026-10-12.md`.
+- **2026-10-11 (T194):** incomplete-sanitization HIGH mitigado (cache-key-guard +
+  `delPattern` ancorado/fail-closed; fakes idênticos nos 3 specs). Suíte API
+  **1323/1323**. Relatório:
+  `.claude/reports/codeql-incomplete-sanitization-cache-2026-10-12.md`.

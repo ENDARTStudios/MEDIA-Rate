@@ -3636,3 +3636,24 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2c + histórico) e relatório
   `.claude/reports/codeql-clear-text-logging-seed-2026-10-12.md`. Nenhum alerta
   interagido; sem deps/incidente/produção; PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T194 — incomplete-sanitization (CodeQL) mitigado no cache.service (branch fix/t194)
+
+- **Causa raiz:** fallback de memória do `delPattern` usava
+  `k.includes(pattern.replace("*", ""))` — replace parcial (só o 1º `*`) e match sem
+  âncora: multi-wildcard não casava nada na memória (divergência do Redis KEYS) e
+  `delPattern("midias:*")` apagava `x:midias:1` (namespace escape no fallback).
+- **Correção cirúrgica:** `src/common/cache-key-guard.ts` novo (puro): `validarPattern`
+  fail-closed (vazio/não-string, >256, controle NUL/`\n`/`\r`/tab/DEL, metacaracteres
+  `? [ ] \` não suportados; erro nunca inclui o valor) + `combinaPattern` glob `*`-only
+  **ancorado** (sem replace parcial, sem regex construída) + `cache.service.ts`
+  (`delPattern` valida antes de tocar memória/Redis e filtra com o matcher; TTL/
+  invalidação/degradação inalterados) + fakes dos 3 specs com o mesmo matcher
+  (removeu o idiom replicado — alertas #95/#96/#97).
+- **TDD vermelho→verde:** 2 specs novos (helper + service com FakeRedis-oracle
+  independente) — 46/46; specs de cache afetados 74/74; suíte API **1323/1323**;
+  tsc 0; eslint 0; prettier limpo. RED provou os 3 vetores (escape, multi-wildcard,
+  ausência de fail-closed).
+- **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2d + status + histórico; fila runtime
+  esgotada) e relatório `.claude/reports/codeql-incomplete-sanitization-cache-2026-10-12.md`.
+  Nenhum alerta interagido; sem deps/incidente/produção; PR em curso — gates e smoke no STATUS.
