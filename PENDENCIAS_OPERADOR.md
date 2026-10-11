@@ -857,3 +857,26 @@ OBSERVACOES = [sem valores de segredo]
 
 Os demais itens de deps (fechar #515 / nova PR limpa / allowlist) seguem no item 7 deste arquivo.
 **Nenhuma dessas ações é executada pelo agente sem a resposta do Operador.**
+
+---
+
+### T189 (2026-10-11) — triagem dos alertas de code scanning (read-only; nenhum alerta interagido)
+
+Relatório: `.claude/reports/code-scanning-alerts-triage-2026-10-12.md` · Política permanente:
+`docs/08-security/SECURITY_ALERTS_TRIAGE.md`.
+
+- **Correção de contagem:** os “30 alertas” citados antes eram o **page-size padrão da API**
+  (`per_page=30`). Total real: **134 open** · 0 dismissed · 15 fixed — **Trivy 119**
+  (39/44/36) e **CodeQL 15** (1 critical/13 high/1 medium).
+- **Trivy (119):** estrutura de imagem/base — 51 layer da imagem, 38 npm-internal do base image,
+  12 deps do app na imagem, 18 lockfile (lote governado pela allowlist; mitigação = nova PR de deps
+  já pendente no item 7). Ruído continuará acumulando por design (modo relatório D-534).
+- **CodeQL (15) — código-fonte; 5 de runtime (ESCALADOS, não corrigidos nesta tarefa):**
+  - **CRITICAL `js/request-forgery` (SSRF)** em `apps/api/src/modules/media-score/adapters/http.utils.ts`;
+  - HIGH `js/path-injection` em `upload.controller.ts`; HIGH `js/clear-text-logging` em
+    `prisma/seed-origem.ts`; HIGH `js/incomplete-sanitization` em `src/common/cache.service.ts`;
+  - demais 10 em testes/e2e/scripts (higiene opcional).
+- **Recomendação (decisão do Operador):** autorizar **T191 — correção dedicada dos alertas CodeQL de
+  runtime** (uma regra por vez, TDD + review; SSRF primeiro) e, quando a nova PR de deps for
+  autorizada, reavaliar o volume Trivy. Nenhuma contenção de emergência foi aplicada — alertas
+  pré-existentes, sem evidência de exploração.

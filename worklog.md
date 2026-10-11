@@ -3562,3 +3562,22 @@ Suítes: API 992/992 (132 arq); web 479/479.
   guardas TDD 14/14; PII `NAO` (D-578).
 - **Relatório:** `.claude/reports/incident-closure-verification-2026-10-12.md`; PENDENCIAS atualizado;
   PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T189 — triagem read-only dos alertas de code scanning (docs-only, branch docs/t189)
+
+- **Correção de contagem:** “30 alertas” era o page-size padrão da API (`per_page=30`); total real
+  **134 open** (0 dismissed; 15 fixed) — **Trivy 119** (39 high/44 medium/36 low) e **CodeQL 15**
+  (1 **critical**/13 high/1 medium).
+- **Trivy (119):** 51 layer da imagem, 38 npm-internal do base image, 12 deps do app na imagem,
+  18 lockfile — lote governado pela allowlist (D-462/D-559b/D-559c); mitigação real = nova PR de
+  deps (decisão pendente do item 7 do PENDENCIAS).
+- **CodeQL (15) — código-fonte; 5 de runtime ESCALADOS (sem correção nesta tarefa):**
+  **CRITICAL `js/request-forgery` (SSRF)** em `apps/api/src/modules/media-score/adapters/http.utils.ts`;
+  HIGH `js/path-injection` (`upload.controller.ts`); HIGH `js/clear-text-logging`
+  (`prisma/seed-origem.ts`); HIGH `js/incomplete-sanitization` (`src/common/cache.service.ts`);
+  +10 em testes/e2e/scripts (higiene opcional).
+- **Nenhum alerta interagido** (sem dismiss/comment/update); nenhum código/workflow/deps alterado;
+  somente metadados sanitizados (sem descrições/snippets).
+- **Docs:** relatório `.claude/reports/code-scanning-alerts-triage-2026-10-12.md` + política
+  `docs/08-security/SECURITY_ALERTS_TRIAGE.md` (campos permitidos, proibições, quando escalar);
+  PENDENCIAS (recomendação T191); PR docs-only em curso — gates e smoke no STATUS.
