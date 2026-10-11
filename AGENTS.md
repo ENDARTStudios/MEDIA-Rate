@@ -98,6 +98,20 @@ You may only prompt the human operator regarding external platforms if:
   segredos no dashboard Stripe (exceção legítima: sem CLI para account settings),
   criação de contas externas (ex.: UptimeRobot).
 
+## Tooling de agentes (ZCode) — use antes de reinventar o fluxo
+
+- **Subagentes de projeto** (`.zcode/agents/`): `ci-pr-doctor` (diagnóstico de CI/PR sem
+  despejar logs), `prod-inspector` (produção read-only via railway ssh, agregados),
+  `docs-pr-ship` (ciclo docs-only ponta a ponta: relatório por `update-index`, PR,
+  gates, merge, smoke).
+- **Skills de projeto** (`.zcode/skills/`): `media-rate-ci-ops` (receitas de CI/PR/
+  merge/flakes/gh), `media-rate-security-ops` (segredos, Gitleaks/CodeQL, incidente
+  D-577/D-578), `media-rate-prod-access` (railway ssh/RLS/guards). Complementam
+  `.agents/skills/media-rate-conventions` (política) — leia a skill ANTES do domínio.
+- Regras de segurança dessas skills valem como AGENTS.md: nunca imprimir valores de
+  segredo/PII; nunca `git add -f`; nunca aprovar Production; nunca interagir com
+  alertas de code scanning.
+
 ## Lembrete
 
 Se o agente não estiver usando o grafo, lembre-o:
