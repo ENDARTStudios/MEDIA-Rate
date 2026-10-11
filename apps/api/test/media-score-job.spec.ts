@@ -3,6 +3,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { MediaScoreJobService } from "../src/modules/media-score/media-score-job.service.js";
 
+// T191: testes que exercitam adapters com fetch mockado passam pelo url-guard;
+// o DNS é mockado para um IP público — nenhuma resolução real acontece.
+vi.mock("node:dns/promises", () => ({
+  lookup: vi.fn(async () => [{ address: "93.184.216.34", family: 4 }]),
+}));
+
 function mockDependencias() {
   const prisma = {
     midia: {

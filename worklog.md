@@ -3581,3 +3581,23 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** relatório `.claude/reports/code-scanning-alerts-triage-2026-10-12.md` + política
   `docs/08-security/SECURITY_ALERTS_TRIAGE.md` (campos permitidos, proibições, quando escalar);
   PENDENCIAS (recomendação T191); PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T191 — SSRF (CodeQL js/request-forgery) mitigado em http.utils (branch fix/t191)
+
+- **Causa raiz:** o outbound (`fetchJson`/`fetchTexto`/`postJson`) chamava `fetch` sem
+  validação — sem allowlist/esquema/IP, **follow automático** de redirect e **erros com a URL
+  completa** (query pode conter chave de API); URLs montadas de dados externos em 20+ adapters.
+- **Correção cirúrgica:** `url-guard.ts` (allowlist explícita de 35 hosts reais, HTTPS-only,
+  sem userinfo, IP literal bloqueado incl. formas normalizadas, subdomínio sem sufixo-armadilha,
+  IP resolvido validado **fail-closed** — anti-rebinding) + `ip-guard.ts` (classificação pura
+  v4/v6) + `http.utils` (**redirect manual** ≤3 hop-a-hop, POST não segue, erros sanitizados
+  sem query, timeout preservado).
+- **TDD vermelho→verde:** specs novos `url-guard.spec.ts`/`http-utils-ssrf.spec.ts` (sem rede
+  real: fetch mockado + DNS injetado); 100/100 nos 5 focados; **suíte API 154 arqs/1191 testes
+  verdes**; tsc 0; eslint/prettier limpos. **O guard pegou um host legítimo esquecido**
+  (`opencritic-api.p.rapidapi.com`) → allowlist + teste de regressão.
+- **Mocks DNS** adicionados a 3 specs (adapters-fixa/adapters-novos/media-score-job) para
+  manter determinismo sem resolução real.
+- **Docs:** `docs/08-security/SECURITY_CODEQL_RUNTIME.md` (fila T192–T194 + regras) e relatório
+  `.claude/reports/codeql-ssrf-http-utils-2026-10-12.md`. **Nenhum alerta interagido**;
+  nenhuma dep/workflow/incidente/produção tocados; PR em curso — gates e smoke no STATUS.
