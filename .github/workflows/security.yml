@@ -32,7 +32,12 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
+      # T186/D-578: a publicação do Code Scanning (upload SARIF na analyze) é
+      # dependente de plataforma (code scanning/GHAS/permissão). Achados do
+      # CodeQL vão para a aba Security; falha de plataforma não deve derrubar o
+      # workflow. Gate BLOQUEANTE de segredos: job `gitleaks`.
       - uses: github/codeql-action/analyze@v4
+        continue-on-error: true
       # T033: pin válido — SHA imutável de trivy-action v0.36.0 (antes `@master`,
       # ref móvel e não-reprodutível).
       - name: Trivy vulnerability scanner (fs)
@@ -44,10 +49,14 @@ jobs:
           output: 'trivy-results.sarif'
           exit-code: '0'
       - name: Upload Trivy fs SARIF
-        if: always()
+        # T186/D-578: upload CONDICIONAL (só com SARIF gerado) e NÃO FATAL
+        # (code scanning/GHAS/permissão podem estar indisponíveis). O scan em si
+        # segue a política do repo (modo relatório — D-534).
+        if: ${{ always() && hashFiles('trivy-results.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-results.sarif
+        continue-on-error: true
 
   trivy-image:
     name: Trivy Image Scan
@@ -72,7 +81,46 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: '0'
       - name: Upload Trivy SARIF
-        if: always()
+        # T186/D-578: idem — condicional e não fatal.
+        if: ${{ always() && hashFiles('trivy-image-results.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image-results.sarif
+        continue-on-error: true
+
+  # T186/D-578 — Gitleaks: gate PADRÃO de segredos (tree atual; sem depender de
+  # GHAS/Secret Protection). Finding real ⇒ job FALHA. Histórico NÃO é gate (o
+  # incidente INC-2026-10-11 foi mitigado por rotação). Config: .gitleaks.toml;
+  # política: docs/08-security/SECURITY_CI.md.
+  gitleaks:
+    name: Gitleaks (segredos — tree atual)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      # Versão PINADA (v8.30.1) com verificação de checksum do release oficial.
+      - name: Instalar Gitleaks (v8.30.1, checksum verificado)
+        run: |
+          set -euo pipefail
+          VER=8.30.1
+          ARQ="gitleaks_${VER}_linux_x64.tar.gz"
+          curl -sSfL -o "$ARQ" "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/${ARQ}"
+          curl -sSfL -o checksums.txt "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_checksums.txt"
+          grep "$ARQ" checksums.txt | sha256sum -c -
+          tar -xzf "$ARQ" gitleaks
+          ./gitleaks version
+      - name: Gitleaks detect (tree atual — BLOQUEADOR)
+        run: |
+          ./gitleaks detect --source . --no-git --redact \
+            --config .gitleaks.toml \
+            --report-format sarif --report-path gitleaks.sarif \
+            --exit-code 1
+      - name: Upload Gitleaks SARIF (condicional e não fatal)
+        if: ${{ always() && hashFiles('gitleaks.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: gitleaks.sarif
+          category: gitleaks
+        continue-on-error: true
