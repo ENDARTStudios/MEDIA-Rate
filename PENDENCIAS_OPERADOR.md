@@ -769,9 +769,18 @@ Classificação: `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FO
 5. **PII:** evidência da varredura = somente domínios de teste (`@mediarate.test`) — confirmar
    formalmente `PII_NO_LOG = NAO`.
 6. Backups/alertas Postgres (Decisão 1 — inalterada).
-7. Observação: PRs de dependências abertas pela automação — **#515** (`chore/update-deps`),
-   **#518** (bump vitest) e **#522** (grupo npm_and_yarn, 6 updates). Triagem futura sugerida
-   pelo Thinker como **T187** (like P019: reviver/fechar/substituir).
+7. **PRs de dependências — TRIAGEM T187 CONCLUÍDA (2026-10-11; nenhuma ação tomada):**
+   - **#515** (lockfile-only, CI `action_required` — nunca aprovado/rodou; base anterior aos
+     merges de hoje) → **`STALE_CLOSE_OBSOLETE`** — recomendação: **fechar sem merge** (a
+     automação regenera).
+   - **#518** (vitest 4.1.10→4.1.11, dev) e **#522** (6 bumps: **fastify 5.12.5**, **sharp
+     0.35.5**, **undici 7.29.1**, dompurify 3.4.16, ip-address 10.7.3, postcss-selector-parser
+     7.1.6) → **`STILL_RELEVANT_BUT_REQUIRES_NEW_PR`** — o #522 tem relevância de segurança
+     real: os bumps são exatamente os fixes indicados na allowlist do `audit:ci` (7 GHSAs do
+     lote fastify ≤5.12.4 + sharp + undici HIGH). **Decisão do Operador:** fechar #515?
+     autorizar **nova PR limpa de deps a partir do `main` atual** (não ressuscitar as antigas)?
+     incluir a limpeza da allowlist na mesma PR ou em follow-up?
+   Relatório: `.claude/reports/deps-prs-triage-2026-10-12.md`.
 
 ### Decisão 2 (revisada) — ROTAÇÃO DAS CREDENCIAIS: agora IMEDIATA
 

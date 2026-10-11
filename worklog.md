@@ -3524,3 +3524,25 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** relatório `.claude/reports/library-density-mobile-overflow-2026-10-12.md`,
   `docs/03-development-process/TESTING.md` (regressão da densidade), worklog e exchange log local.
 - **PR:** em curso — merge e smoke registrados no STATUS do ciclo.
+
+### [2026-10-11] T187 — triagem read-only das PRs de dependências (docs-only, branch docs/t187)
+
+- **PRs abertas (3, todas BLOCKED e intocadas):** **#515** (`app/github-actions`, lockfile-only
+  +7572/−7413, CI `action_required` — nunca aprovado/rodou, base 05:14 anterior aos merges do
+  dia) → **`STALE_CLOSE_OBSOLETE`** (recomendação: fechar; precedente P019); **#518** (vitest
+  4.1.10→4.1.11 dev; checks falhando: Web tests/Build Web/Build OpenNext/RLS/Trivy Image) e
+  **#522** (fastify 5.12.5, sharp 0.35.5, undici 7.29.1, dompurify 3.4.16, ip-address 10.7.3,
+  postcss-selector-parser 7.1.6; API tests/Build API/Build OpenNext falhando) →
+  **`STILL_RELEVANT_BUT_REQUIRES_NEW_PR`**.
+- **Ligação com a allowlist governada (`audit:ci` verde no main):** 8 GHSAs allowlistados
+  (deepmerge-ts P009/D-462 + **7 do lote fastify ≤5.12.4 — fix declarado: `fastify 5.12.5+`**)
+  e 14 nomes D-559c (dev-only/CF) **incluindo sharp (fix 0.35.5) e undici (fix disponível)** —
+  exatamente os bumps do #522. Ressalva a verificar em nova PR: pino do
+  `@nestjs/platform-fastify` pode manter fastify vulnerável aninhado.
+- **Higiene atual do main:** CI `38159135226` success (incl. E2E Full); Security `38159135317`
+  success; audit resumo 1 low/10 moderate/**17 high**/0 critical (cobertos pela allowlist);
+  Deploy `38159135211` waiting (não aprovado).
+- **Recomendação:** fechar #515; **nova PR limpa de deps a partir do main atual** (não
+  ressuscitar as antigas); decisão de escopo da limpeza de allowlist com o Operador.
+- **Relatório:** `.claude/reports/deps-prs-triage-2026-10-12.md`; PENDENCIAS atualizado; PR
+  docs-only em curso — gates e smoke no STATUS.
