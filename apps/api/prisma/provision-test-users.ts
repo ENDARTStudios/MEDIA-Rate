@@ -2,12 +2,20 @@
 // T305 — provisiona (upsert idempotente) os usuarios de teste verificados
 // para spot-checks em producao (D-294). NAO destrutivo: nunca apaga dados.
 // STANDALONE em prisma/ (D-275). Uso:
-//   TEST_USERS_PASSWORD="..." npm run db:provision:test-users
-// Em producao, roda via tunnel (`railway connect postgres --tunnel-only`) com
-// DATABASE_URL apontando para o tunel — NUNCA via `db:seed` (destrutivo).
+//   TEST_USERS_PASSWORD="<senha-forte>" npm run db:provision:test-users
+// T184 (incidente 2026-10-11): senha OBRIGATORIA via env (fallback publico
+// removido) e ambiente nao-local exige TEST_USERS_ALLOW_NONLOCAL=1; fora de
+// local o papel ADMIN nunca e concedido. Em producao, roda via tunnel
+// (`railway connect postgres --tunnel-only`) com DATABASE_URL apontando para o
+// tunel — NUNCA via `db:seed` (destrutivo).
 import { PrismaClient, type Plano } from "@prisma/client";
 import argon2 from "argon2";
 import { bootstrapRlsSeed } from "../src/common/rls-context.js";
+import {
+  avaliarAmbienteProvisao,
+  podeConcederAdmin,
+  resolverSenhaProvisao,
+} from "./provision-guards.js";
 
 const prisma = new PrismaClient();
 
@@ -29,8 +37,20 @@ const USERS: TestUser[] = [
 ];
 
 async function main(): Promise<void> {
+  // T184: senha obrigatória via env (sem fallback) + guarda de ambiente.
+  const password = resolverSenhaProvisao(process.env as Record<string, string | undefined>);
+  const ambiente = avaliarAmbienteProvisao({
+    databaseUrl: process.env.DATABASE_URL,
+    allowNonLocal: process.env.TEST_USERS_ALLOW_NONLOCAL,
+  });
+  if (ambiente.bloqueado) {
+    console.error(`[provision] bloqueado: ${ambiente.motivo}`);
+    process.exit(1);
+  }
+  if (ambiente.aviso) console.warn(`[provision] ${ambiente.aviso}`);
+  const concederAdmin = podeConcederAdmin(!ambiente.local);
+
   await bootstrapRlsSeed(prisma);
-  const password = process.env.TEST_USERS_PASSWORD ?? "Senha@123";
   const passwordHash = await argon2.hash(password, {
     type: argon2.argon2id,
     memoryCost: 19456,
@@ -103,12 +123,14 @@ async function main(): Promise<void> {
       create: { usuario_id: usuario.id, papel_id: papelUser.id },
       update: {},
     });
-    if (u.admin) {
+    if (u.admin && concederAdmin) {
       await prisma.usuarioPapel.upsert({
         where: { usuario_id_papel_id: { usuario_id: usuario.id, papel_id: papelAdmin.id } },
         create: { usuario_id: usuario.id, papel_id: papelAdmin.id },
         update: {},
       });
+    } else if (u.admin) {
+      console.log("[provision] papel ADMIN ignorado (guarda T184: ambiente não-local)");
     }
     console.log(
       `[provision] ${u.email} plano=${u.plano} verificado=OK admin=${u.admin ? "SIM" : "nao"}`,

@@ -2,10 +2,30 @@
  * Fixture da evidência local (D-527 / scripts/evidence-local.mjs) — mídias +
  * interações para o usuário de teste PREMIUM. Somente para ambiente LOCAL
  * (nada de dado sensível; rodar APÓS db:provision:test-users).
+ * T184: guarda de ambiente — fora de local exige TEST_USERS_ALLOW_NONLOCAL=1.
  * Uso: DATABASE_URL=<local> node apps/api/prisma/fixtures/evidence-fixture.cjs
  */
 const { PrismaClient } = require("@prisma/client");
 const p = new PrismaClient();
+
+// T184: guarda de ambiente — fixture só roda em local; fora de local exige
+// TEST_USERS_ALLOW_NONLOCAL=1 (nunca em produção por padrão).
+const HOSTS_LOCAIS = ["localhost", "127.0.0.1", "::1"];
+let host = null;
+try {
+  host = new URL(process.env.DATABASE_URL ?? "").hostname.replace(/^\[|\]$/g, "");
+} catch {
+  host = null;
+}
+if (
+  !HOSTS_LOCAIS.includes(host) &&
+  String(process.env.TEST_USERS_ALLOW_NONLOCAL ?? "").trim() !== "1"
+) {
+  console.error(
+    "[fixture] bloqueado: DATABASE_URL não-local sem TEST_USERS_ALLOW_NONLOCAL=1 (guarda T184).",
+  );
+  process.exit(1);
+}
 
 const MIDIAS = [
   { id: "11111111-1111-4111-8111-111111111111", slug: "duna-parte-dois", titulo: "Duna: Parte Dois", tipo: "FILME", ano: 2024 },

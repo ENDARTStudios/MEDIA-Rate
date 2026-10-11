@@ -69,6 +69,12 @@ jobs:
         run: |
           npx prisma generate --schema apps/api/prisma/schema.prisma
           npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Senha efêmera de teste (gerada em runtime; nunca em YAML)
+        run: |
+          SENHA_EFEMERA=$(openssl rand -hex 16)
+          echo "::add-mask::$SENHA_EFEMERA"
+          echo "TEST_USERS_PASSWORD=$SENHA_EFEMERA" >> "$GITHUB_ENV"
+          echo "SMOKE_TEST_PASSWORD=$SENHA_EFEMERA" >> "$GITHUB_ENV"
       - name: Provisionar usuário de teste
         run: npm run db:provision:test-users --workspace=apps/api
       - name: Subir API (background)

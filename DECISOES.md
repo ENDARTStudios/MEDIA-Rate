@@ -2708,3 +2708,40 @@ temporadas, 12.994 episódios, 449 países, 97 vínculos).
 
 **Meta:** specs 11/11 no arquivo da correção e suíte api **1103/1103**; tsc/eslint/prettier
 limpos; `swagger-contract-guard` 0 violações; smoke passivo 7/7 (200) sem chave i18n crua.
+
+---
+
+## D-577 — INC-2026-10-11: exposição histórica de padrão de credencial em repo público — mitigação e remediação (T182–T184)
+
+**Status:** MITIGADO (remediação aplicada e verificada) — **incidente NÃO encerrado** (decisão do
+Thinker após REVIEW; proteção de plataforma bloqueada por plano).
+
+**Fatos (sanitizados):** `.claude/exchange_log.jsonl` entrou no histórico por `git add -f` na T181
+(commit `1e7801f3`, alcançável da `main`; removido em `5679cda4`), com o repositório **público** à
+época e secret scanning/push protection desabilitados. Conteúdo do blob (T183): fragmento no formato
+de chave Stripe live (mascarado) + 1 valor de CSRF efêmero; demais menções são nomes sem valores;
+e-mails somente de domínio de teste.
+
+**Ações tomadas pelo Operador:** rotação de TMDB, IGDB, Twitch e Comic Vine (2026-10-10); rotação
+da chave live da Stripe + webhook secret (2026-10-11); repositório tornado **PRIVADO** (2026-10-11,
+verificado por API).
+
+**Ações do agente (T182–T184):** prevenção no `.gitignore` (`git add -f` proibido sob `.claude/`);
+varredura T183 sem novos padrões de alta confiança (HEAD/histórico/PRs/CI); **remediação T184 das
+contas `@mediarate.test` em produção** (7 contas: senha invalidada em 7, 119 sessões revogadas,
+1 papel ADMIN revogado — sem delete físico; pós-verificação: 0 admins, 0 sessões ativas, 0 eventos
+de auditoria na janela = sem evidência de uso não autorizado); **guardas T184 no código** (TDD 14/14):
+senha obrigatória via env sem fallback, guarda de ambiente não-local no provisionamento/seed/fixture
+(`TEST_USERS_ALLOW_NONLOCAL=1`), ADMIN nunca fora de local, senha efêmera gerada em runtime nos
+workflows (`ci.yml`, `smoke-auth.yml`).
+
+**Bloqueio registrado:** secret scanning/push protection **indisponíveis em repositório privado sem
+GitHub Secret Protection** (API: 422 "not available for this repository"). Passo manual e verificação
+em `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`. **Nada foi declarado habilitado.**
+
+**Pendências:** decisão de custo (Secret Protection) + Dependabot alerts (grátis); purge de histórico
+(opcional pós-rotação); confirmação formal de PII (`PII_NO_LOG=NAO` — evidência: somente domínios de
+teste); backups/alertas Postgres. Registro do incidente: `docs/08-security/SECURITY_INCIDENTS.md`.
+Relatórios: `.claude/reports/secret-incident-exchange-log-2026-10-10.md`,
+`.claude/reports/secret-exposure-sweep-2026-10-11.md`,
+`.claude/reports/incident-remediation-2026-10-11.md`.

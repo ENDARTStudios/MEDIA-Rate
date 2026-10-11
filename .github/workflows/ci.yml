@@ -572,7 +572,8 @@ jobs:
       API_PROXY_TARGET: http://localhost:4000
       E2E_API_BASE: http://localhost:4000
       E2E_TEST_EMAIL: free@mediarate.test
-      E2E_TEST_PASSWORD: "Senha@123"
+      # T184: senha efêmera gerada em runtime (nunca literal no YAML) — ver
+      # passo "Senha efêmera de teste" imediatamente antes do provisionamento.
       # T074: limites de rate limit elevados APENAS no ambiente efêmero de teste
       # (a suíte faz centenas de requisições legítimas; não é override de produto).
       RATE_LIMIT_API_PER_MIN: "100000"
@@ -594,6 +595,12 @@ jobs:
         run: |
           npx prisma generate --schema apps/api/prisma/schema.prisma
           npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Senha efêmera de teste (gerada em runtime; nunca em YAML)
+        run: |
+          SENHA_EFEMERA=$(openssl rand -hex 16)
+          echo "::add-mask::$SENHA_EFEMERA"
+          echo "TEST_USERS_PASSWORD=$SENHA_EFEMERA" >> "$GITHUB_ENV"
+          echo "E2E_TEST_PASSWORD=$SENHA_EFEMERA" >> "$GITHUB_ENV"
       - name: Provisionar usuários de teste + fixture
         run: |
           npm run db:provision:test-users --workspace=apps/api

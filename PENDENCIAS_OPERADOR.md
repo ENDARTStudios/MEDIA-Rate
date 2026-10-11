@@ -720,7 +720,8 @@ completa em `.claude/reports/secret-incident-exchange-log-2026-10-10.md` (saniti
   **entrou no histórico** por `git add -f` durante a T181 — commit `1e7801f3`, **alcançável
   da `main`** (merge de #512 = `49bb2fe9`). Removido no commit seguinte, mas o histórico
   permanece.
-- **O repositório é PÚBLICO** (`ENDARTStudios/MEDIA-Rate`, branch default `main`).
+- **O repositório era PÚBLICO** (`ENDARTStudios/MEDIA-Rate`, branch default `main`) —
+  **tornado PRIVADO em 2026-10-11** (verificado via API: `isPrivate=true`).
 - **`secret scanning` e `push protection` estão DESABILITADOS** — sem alertas do GitHub.
 - O conteúdo também ficou visível no diff da PR #512 enquanto esteve aberta.
 - `.gitignore` **já cobria** `.claude/`; a causa raiz foi o `git add -f` forçando arquivo
@@ -749,20 +750,35 @@ Classificação: `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FO
 
 **Prioridades abertas (o incidente NÃO está encerrado):**
 
-1. Verificar/rotacionar **Stripe chave live + webhook secret** (evidência de fragmento no blob).
-2. Confirmar se contas `*@mediarate.test` (inclui ADMIN) foram provisionadas em produção
-   sem a variável de senha (fallback público) → se sim, **rotacionar as senhas dessas contas**
-   (relaciona-se à higiene `admin***@mediarate.test` pendente).
-3. Habilitar **secret scanning + push protection**.
-4. Decisão de **purge de histórico/visibilidade** (inalterada).
-5. Backups/alertas Postgres (Decisão 1 — inalterada).
+1. ~~Stripe chave live + webhook secret~~ → **ROTACIONADAS pelo Operador (2026-10-11)**.
+2. ~~Contas `*@mediarate.test` em produção~~ → **REMEDIADAS (T184, 2026-10-11)**: 7 contas —
+   senha invalidada em todas, 119 sessões revogadas, 1 papel ADMIN revogado (sem delete
+   físico; pós-verificação: 0 admins, 0 sessões ativas, 0 eventos de auditoria na janela =
+   sem evidência de uso não autorizado). Para retomar spot-checks: re-provisionar com
+   `TEST_USERS_PASSWORD=<forte> TEST_USERS_ALLOW_NONLOCAL=1` (ADMIN fica ignorado fora de
+   local — guarda T184).
+3. **Secret scanning + push protection: BLOQUEADOS por plano** — indisponíveis em repositório
+   privado sem GitHub Secret Protection (API: 422; alerts: 404). Passo manual + verificação:
+   `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`. **Decisão de custo do Operador**
+   (alternativa gratuita sugerida: habilitar Dependabot alerts).
+4. **Visibilidade do repositório** → **PRIVADO confirmado** (2026-10-11). Purge de histórico
+   segue como decisão residual (opcional após as rotações).
+5. **PII:** evidência da varredura = somente domínios de teste (`@mediarate.test`) — confirmar
+   formalmente `PII_NO_LOG = NAO`.
+6. Backups/alertas Postgres (Decisão 1 — inalterada).
+7. Observação: PR **#515** (`chore/update-deps`, automação) aberta — decisão futura
+   (reviver/fechar/substituir), como na triagem P019.
 
 ### Decisão 2 (revisada) — ROTAÇÃO DAS CREDENCIAIS: agora IMEDIATA
 
 > **STATUS (2026-10-10, pacote do Thinker):** TMDB, IGDB, Twitch e Comic Vine =
 > **ROTACIONADAS** (confirmado pelo Operador). A varredura T183 (acima) não encontrou
-> VALORES de `ADMIN_TOKEN`/`SESSION_SECRET`/`GOOGLE_CLIENT_SECRET`/`DATABASE_URL` no blob;
-> permanecem a verificação do Stripe (fragmento) e a decisão sobre as demais.
+> VALORES de `ADMIN_TOKEN`/`SESSION_SECRET`/`GOOGLE_CLIENT_SECRET`/`DATABASE_URL` no blob.
+>
+> **ATUALIZAÇÃO (2026-10-11, T184):** **Stripe (chave live + webhook secret) =
+> ROTACIONADAS** (Operador). Demais segredos internos: sem evidência de valor no blob (T183).
+> Contas de teste remediadas e guardas de código aplicadas — ver bloco de prioridades acima
+> e a decisão **D-577** em `DECISOES.md`.
 
 Deixa de ser higiene e passa a ser resposta a incidente comprovado em repo público.
 

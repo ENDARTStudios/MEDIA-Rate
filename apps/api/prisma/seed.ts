@@ -10,10 +10,23 @@ import {
   type TipoMidia,
 } from "@prisma/client";
 import argon2 from "argon2";
+import { avaliarAmbienteProvisao } from "./provision-guards.js";
 
 const prisma = new PrismaClient();
 
 async function main(): Promise<void> {
+  // T184: seed é DESTRUTIVO (wipe de tabelas) — só roda em ambiente local;
+  // fora de local exige TEST_USERS_ALLOW_NONLOCAL=1 (autorização consciente).
+  const ambiente = avaliarAmbienteProvisao({
+    databaseUrl: process.env.DATABASE_URL,
+    allowNonLocal: process.env.TEST_USERS_ALLOW_NONLOCAL,
+  });
+  if (ambiente.bloqueado) {
+    console.error(
+      `[seed] bloqueado: ${ambiente.motivo} — seed é destrutivo e não roda fora de local.`,
+    );
+    process.exit(1);
+  }
   console.log("[seed] Iniciando seed...");
 
   // --- Limpeza (ordem reversa para respeitar FKs) ---

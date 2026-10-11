@@ -3458,3 +3458,30 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Classificação:** `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FOUND`
   (severidade ALTA mantida; incidente não encerrado).
 - **PR:** docs-only em curso — gates e smoke passivo registrados no STATUS do ciclo.
+
+### [2026-10-11] T184 — remediação e verificação do incidente (contas de teste, Stripe, repo privado)
+
+- **Confirmações do Operador:** Stripe (chave live + webhook secret) **rotacionadas**; repositório
+  **PRIVADO** (verificado por API: `isPrivate=true`).
+- **Descoberta das contas `@mediarate.test`:** 7 em produção (incl. **1 com ADMIN**), originadas do
+  provisionador de spot-checks (D-294) e da conta LGPD; referências em seeds/fixtures/E2E/CI usam
+  bancos efêmeros/locais.
+- **Remediação em produção (least-destructive, via `railway ssh` com agregados):** 7 senhas
+  invalidadas (hash de valor aleatório desconhecido), **119 sessões revogadas** (UPDATE),
+  **1 papel ADMIN revogado** (delete na junção `usuario_papel`); **sem delete físico de contas**.
+  Pós-verificação: 0 admins, 0 sessões ativas; 0 eventos de auditoria na janela = **sem evidência
+  de uso não autorizado**.
+- **Código (TDD 14/14, vermelho→verde):** `provision-guards.ts` novo (senha obrigatória via env sem
+  fallback; bloqueio de ambiente não-local; ADMIN nunca fora de local); `provision-test-users.ts`,
+  `seed.ts` e `fixtures/evidence-fixture.cjs` com guardas; workflows `ci.yml` (E2E FULL) e
+  `smoke-auth.yml` geram **senha efêmera em runtime** (literal removido do YAML); `evidence-local.mjs`
+  alinhado. tsc 0; eslint 0; prettier limpo.
+- **Secret scanning/push protection: BLOQUEADOS por plano** — repo privado exige GitHub Secret
+  Protection (API 422; alerts 404). Passo manual em
+  `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`. Nada declarado como habilitado.
+- **Docs:** `DECISOES.md` (D-577), `PENDENCIAS_OPERADOR.md`, `docs/08-security/SECURITY_INCIDENTS.md`
+  (novo), `RBAC.md`, `PRODUCTION_DEPLOY.md`; relatório sanitizado
+  `.claude/reports/incident-remediation-2026-10-11.md`. `PLANO_MESTRE.md` sem referências afetadas.
+- **Classificação:** `REMEDIATED_PENDING_PLATFORM_PROTECTION` — incidente **não encerrado** (decisão
+  do Thinker após REVIEW).
+- **PR:** em curso — gates e smoke registrados no STATUS do ciclo.
