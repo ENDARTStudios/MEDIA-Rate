@@ -3601,3 +3601,21 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** `docs/08-security/SECURITY_CODEQL_RUNTIME.md` (fila T192–T194 + regras) e relatório
   `.claude/reports/codeql-ssrf-http-utils-2026-10-12.md`. **Nenhum alerta interagido**;
   nenhuma dep/workflow/incidente/produção tocados; PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T192 — path-injection (CodeQL js/path-injection) mitigado no upload (branch fix/t192)
+
+- **Causa raiz:** o GET público `/uploads/media/:midiaId/:filename` compõe caminho de
+  filesystem (`uploads/media/...`) a partir de params de rota; o código já sanitizava
+  (replace + regex), mas o CodeQL não reconhece padrões custom → alerta HIGH (mesma classe do #151).
+- **Correção cirúrgica:** `src/common/path-guard.ts` novo (`segmentoSeguro` rejeita `.`/`..`/
+  `..` embutido, separadores, absoluto/drive, `~`, controle/NUL e formas decodificadas até 2
+  níveis — `%2e%2e`, `..%2f`, `..%252f`; `garantirContencao` com `resolve`+`startsWith`; erros
+  só com motivo) + `upload.service.ts` (salvar/salvarVariantes/remover/caminhoArquivo via guard,
+  contenção em `uploads/media`; 404 preservado; logs com rótulo curto).
+- **TDD vermelho→verde:** 3 specs novas (guard puro; service com fs real só em `uploads/media`
+  gitignored + cleanup; controller 404 sem tocar disco) + `upload.spec` — 76/76; o próprio TDD
+  revelou a lacuna do segmento `"."` (corrigida no guard). Suíte API completa verde; tsc 0;
+  eslint 0 (`no-control-regex` resolvido com varredura por codePoint); prettier limpo.
+- **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2b + histórico) e relatório
+  `.claude/reports/codeql-path-injection-upload-2026-10-12.md`. **Nenhum alerta interagido**;
+  sem deps/incidente/GitHub settings/produção; PR em curso — gates e smoke no STATUS.
