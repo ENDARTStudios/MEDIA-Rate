@@ -52,7 +52,11 @@ por mecanismo interno com acesso ao banco:
   `docs/06-devops-deployment/runbooks/admin-role.md`.
 - **Seed de teste:** `npm run db:provision:test-users` cria `admin@mediarate.test`
   (PREMIUM+ADMIN) e `admin-free@mediarate.test` (FREE+ADMIN) — este último prova
-  que o acesso admin independe de plano.
+  que o acesso admin independe de plano. **T184 (incidente 2026-10-11):** em
+  ambiente NÃO-local a senha passa a ser obrigatória via env e o papel ADMIN é
+  **ignorado** pela guarda do provisionamento (contas de teste de produção ficam
+  sem ADMIN); as contas `@mediarate.test` existentes em produção tiveram senha
+  invalidada, sessões revogadas e ADMIN revogado.
 
 ## Auditoria
 

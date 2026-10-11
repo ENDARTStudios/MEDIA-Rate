@@ -15,6 +15,7 @@
  * falha se qualquer etapa crítica falhar.
  */
 import { spawn, execSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
 import { parseEvidenceArgs, redigirUrl, validarDatabaseUrlLocal } from "./ci/evidence-guard.mjs";
 
@@ -32,6 +33,10 @@ if (!guarda.ok) {
   console.error("[evidence] DATABASE_URL recusado:", redigirUrl(DB_URL), "→", guarda.motivo);
   process.exit(1);
 }
+// T184: senha efêmera única por execução (nunca literal no código); o
+// provisionamento local e o E2E usam o MESMO valor dentro da execução.
+const SENHA_EFEMERA = randomBytes(16).toString("hex");
+
 const ARGS = parseEvidenceArgs(process.argv.slice(2));
 const API_PORT = 4000;
 const WEB_PORT = 3000;
@@ -99,7 +104,9 @@ try {
 
   // 3. Usuários de teste
   console.log("== [3/7] Provisionar usuários de teste ==");
-  run(`DATABASE_URL="${DB_URL}" npm run db:provision:test-users --workspace=apps/api`);
+  run(
+    `DATABASE_URL="${DB_URL}" TEST_USERS_PASSWORD="${SENHA_EFEMERA}" npm run db:provision:test-users --workspace=apps/api`,
+  );
 
   // 4. Fixture mínima (mídia + interações do premium)
   console.log("== [4/7] Fixture de mídias/interações ==");
@@ -125,7 +132,7 @@ try {
   const alvos = ARGS.spec ?? "jornada-critica";
   console.log(`== [6/7] E2E (${alvos}) x${ARGS.repeat} (workers=1, retries=0) ==`);
   run(
-    `E2E_FULL=1 E2E_TEST_PASSWORD="Senha@123" NODE_OPTIONS="--dns-result-order=ipv4first" npx playwright test ${alvos} --project=chromium --workers=1 --retries=0 --repeat-each=${ARGS.repeat}`,
+    `E2E_FULL=1 E2E_TEST_PASSWORD="${SENHA_EFEMERA}" NODE_OPTIONS="--dns-result-order=ipv4first" npx playwright test ${alvos} --project=chromium --workers=1 --retries=0 --repeat-each=${ARGS.repeat}`,
     { cwd: WEB_DIR },
   );
 

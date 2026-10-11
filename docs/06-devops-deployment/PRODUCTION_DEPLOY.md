@@ -167,11 +167,17 @@ continua rodando os demais). Os fluxos (d) e (e) reusam as contas provisionadas
 ```bash
 # apps/api — via tunel (railway connect postgres --tunnel-only) apontando
 # DATABASE_URL para 127.0.0.1:PORT/railway. NUNCA via db:seed (destrutivo).
-TEST_USERS_PASSWORD="Senha@123" npm run db:provision:test-users
+# T184: senha OBRIGATÓRIA via env (fallback público removido); em ambiente
+# não-local a flag TEST_USERS_ALLOW_NONLOCAL=1 é exigida e o papel ADMIN é
+# ignorado pela guarda (contas de teste de produção ficam sem ADMIN).
+TEST_USERS_PASSWORD="<senha-forte-do-seu-gerenciador>" \
+TEST_USERS_ALLOW_NONLOCAL=1 \
+npm run db:provision:test-users
 ```
 
 Cria/atualiza `free@/plus@/premium@/admin@mediarate.test` (verificados, plano
-correto; admin com papel ADMIN) e adiciona interações de consumo para Plus/Premium
+correto; **em ambiente não-local o papel ADMIN é ignorado pela guarda T184**) e
+adiciona interações de consumo para Plus/Premium
 — o radar só renderiza com dados de `usuario_midia_interacao` (DashboardClient) e
 o sparkline temporal exige `CONCLUIDO`/`CONSUMINDO`.
 
