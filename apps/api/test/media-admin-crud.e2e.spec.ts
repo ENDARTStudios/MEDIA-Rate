@@ -12,6 +12,7 @@ import { MediaScoreService } from "../src/modules/media-score/media-score.servic
 import { SessionService } from "../src/modules/auth/session.service.js";
 import { QuotaService } from "../src/modules/quota/quota.service.js";
 import { CacheService, CacheInvalidationService } from "../src/common/cache.service.js";
+import { combinaPattern } from "../src/common/cache-key-guard.js";
 import { AuditLogService } from "../src/common/audit-log.service.js";
 import { AuthGuard } from "../src/common/guards/auth.guard.js";
 import { RolesGuard } from "../src/common/guards/roles.guard.js";
@@ -58,8 +59,8 @@ class FakeRedisClient {
     return keys.length;
   }
   async keys(pattern: string) {
-    const prefixo = pattern.replace("*", "");
-    return [...this.store.keys()].filter((k) => k.includes(prefixo));
+    // T194: mesmo glob `*`-only do Redis (matcher do guard), sem replace parcial.
+    return [...this.store.keys()].filter((k) => combinaPattern(pattern, k));
   }
   async quit() {
     return "OK";

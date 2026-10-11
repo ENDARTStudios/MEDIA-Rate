@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { CacheService, CacheInvalidationService } from "../src/common/cache.service.js";
+import { combinaPattern } from "../src/common/cache-key-guard.js";
 
 const redisMock = vi.hoisted(() => {
   let falhar = false;
@@ -24,8 +25,8 @@ const redisMock = vi.hoisted(() => {
     }
     async keys(pattern: string) {
       if (falhar) throw new Error("Redis indisponível");
-      const prefixo = pattern.replace("*", "");
-      return [...this.store.keys()].filter((k) => k.includes(prefixo));
+      // T194: mesmo glob `*`-only do Redis (matcher do guard), sem replace parcial.
+      return [...this.store.keys()].filter((k) => combinaPattern(pattern, k));
     }
     async quit() {
       return "OK";
