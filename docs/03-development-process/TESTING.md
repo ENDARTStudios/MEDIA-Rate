@@ -182,6 +182,23 @@ cd apps/web && NODE_ENV=test npx vitest run test/score-display.spec.tsx
 cd apps/web && PLAYWRIGHT_BASE_URL="https://mediarate.app/pt-BR" npx playwright test e2e/score-display.spec.ts --project=chromium
 ```
 
+## Densidade da Biblioteca mobile (BETA-GAP-14 / UG-14 / T185)
+
+Regressão do overflow horizontal em 390x844: o grid da Biblioteca usa base de
+**2 colunas** (`grid-cols-2`; degraus a partir de `sm`/640px) e o rodapé de cada
+item é **`flex-wrap`** — nenhum degrau de colunas abaixo de `sm` (o antigo
+`xs:grid-cols-3` espremia a ~111px/card e estourava o rodapé do item).
+
+- Componente (contrato de classes; sempre roda): `apps/web/test/library-density.spec.tsx`
+- E2E (geometria real; requer E2E_FULL=1 e infra API+DB):
+
+```bash
+cd apps/web && E2E_FULL=1 npx playwright test e2e/library-density.spec.ts
+```
+
+Medição esperada (log `[density]`): mobile 390x844 → `columns=2`, `overflowX=false`;
+desktop 1280x800 → `columns>=6`, `overflowX=false`.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

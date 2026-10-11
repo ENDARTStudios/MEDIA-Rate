@@ -3507,3 +3507,20 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs/decisão:** `docs/08-security/SECURITY_CI.md` (novo), `GITHUB_SECURITY_SETTINGS.md`
   (público/ativos + Gitleaks), `SECURITY_INCIDENTS.md`, **D-578**, PENDENCIAS.
 - **PR:** em curso — gates (incl. Security) e smoke no STATUS do ciclo.
+
+### [2026-10-11] T185 — overflow mobile da Biblioteca (UG-14) corrigido (branch fix/t185)
+
+- **Causa raiz (medida no CI):** em 390x844 o grid tinha `xs:grid-cols-3` (breakpoint
+  `xs:360px`) → 3 colunas de 111px; o rodapé do item (status + tipo + Remover ≈150px)
+  estourava a coluna → `overflowX=true` (dims do run `38151400528`).
+- **Correção (frontend-only):** base mobile = 2 colunas (drop `xs:grid-cols-3`; degraus a
+  partir de `sm`); rodapé com `flex-wrap` + `data-testid`; asserção do E2E intacta;
+  desktop inalterado (6 colunas / 193px).
+- **TDD:** novo `apps/web/test/library-density.spec.tsx` 3/3 vermelho→verde;
+  `biblioteca.spec.tsx` 12/12; suíte web 554/554; tsc/eslint/prettier limpos.
+- **CI:** PR #524 com **E2E Full PASSOU** (run `38158220006`, job `114525513868`) —
+  `[density]` mobile: columns=2 / overflowX=false / card 173px; desktop inalterado.
+  O sinal do E2E Full foi restaurado.
+- **Docs:** relatório `.claude/reports/library-density-mobile-overflow-2026-10-12.md`,
+  `docs/03-development-process/TESTING.md` (regressão da densidade), worklog e exchange log local.
+- **PR:** em curso — merge e smoke registrados no STATUS do ciclo.
