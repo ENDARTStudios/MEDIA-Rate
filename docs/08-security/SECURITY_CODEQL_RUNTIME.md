@@ -9,7 +9,7 @@
 |---|---|---|
 | `js/request-forgery` (SSRF) — **critical** | `apps/api/src/modules/media-score/adapters/http.utils.ts` | **MITIGADO (T191)** — §2 |
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
-| `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | pendente (T193) |
+| `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` | pendente (T194) |
 | higiene testes/e2e/scripts (10 alertas) | vários | opcional (T195+) |
 
@@ -49,7 +49,27 @@
 - **Nota CodeQL:** assim como no SSRF (#151), a regra pode não reconhecer guard custom como
   sanitizer — se o alerta persistir, registrar e escalar (nunca suppress).
 
-## 3. Regras para as próximas correções (T193/T194)
+## 2c. Caso 3 — clear-text-logging no seed de origem (T193): desenho da mitigação
+
+- **Vetor real:** o `fetchTmdb` monta a URL com `api_key=<valor>` na query e a
+  mensagem de erro (`TMDB <status>: <path>`) carregava a URL inteira até o
+  `console.error(e)` do script — o Pino (redact de propriedades do HTTP) e o
+  `sanitizarPii` (D-543, objetos) não cobrem mensagens soltas.
+- **`apps/api/src/common/log-redactor.ts`** (novo, puro): nível **string** — pares
+  nome-valor sensíveis (`password|senha|secret|token|api[_-]?key|apikey|client_secret|
+  admin_token|session_secret|database_url`) → `[REDACTED]`, headers
+  `Authorization`/`Cookie` (com lookahead p/ não consumir `Bearer` já redigido),
+  `Bearer <token>`, credenciais em URL (`scheme://[REDACTED]@host`, preserva host),
+  e-mail via `mascararEmail` (D-543; nunca re-mascara o que já é marca/URL) e
+  truncamento em 500 chars; nível **objeto** — cópia recursiva (ciclo-safe,
+  profundidade ≤ 6) com chaves sensíveis → `[REDACTED]`; `resumoSeguro` para JSON
+  de log; `redigirErro` devolve **nome + mensagem** redigidos — **nunca o stack**.
+- **`prisma/seed-origem.ts`**: o erro do fetch já nasce redigido (defesa em
+  profundidade) e o script ganhou `executar()` com `console.error` sanitizado +
+  guarda `isDirectRun` (exporta `main`/`fetchTmdb`/`executar` para teste) — padrão
+  dos scripts de provisionamento (D-275).
+
+## 3. Regras para as próximas correções (T194)
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -68,3 +88,6 @@
 - **2026-10-11 (T192):** path-injection HIGH mitigado (path-guard + contenção em
   `uploads/media`; filesystem real apenas em tmp/gitignored nos testes). Relatório:
   `.claude/reports/codeql-path-injection-upload-2026-10-12.md`.
+- **2026-10-11 (T193):** clear-text-logging HIGH mitigado (log-redactor + seed
+  sanitizado; testes com fetch/Prisma/console mockados, sem banco real). Relatório:
+  `.claude/reports/codeql-clear-text-logging-seed-2026-10-12.md`.
