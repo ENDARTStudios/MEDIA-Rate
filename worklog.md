@@ -3619,3 +3619,20 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2b + histórico) e relatório
   `.claude/reports/codeql-path-injection-upload-2026-10-12.md`. **Nenhum alerta interagido**;
   sem deps/incidente/GitHub settings/produção; PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T193 — clear-text-logging (CodeQL) mitigado no seed de origem (branch fix/t193)
+
+- **Causa raiz:** `fetchTmdb` monta a URL com `api_key=` na query e o erro
+  `TMDB <status>: <path>` chegava inteiro ao `console.error(e)` (mensagem + stack) —
+  nem o redact do Pino (HTTP) nem o `sanitizarPii` (objetos) cobrem mensagens soltas.
+- **Correção cirúrgica:** `src/common/log-redactor.ts` novo (string: pares sensíveis/
+  headers/Bearer/URL de conexão→`scheme://[REDACTED]@host`/e-mail via pii-mask/trunc;
+  objeto recursivo ciclo-safe; `redigirErro` sem stack) + `seed-origem.ts` (erro já
+  redigido no fetch; `executar()` com catch sanitizado; `isDirectRun` + exports p/ teste).
+- **TDD vermelho→verde:** 2 specs novos com fetch/Prisma/console mockados (sem banco
+  real) — 20/20; **2 lacunas achadas pelo TDD**: Bearer duplo-processado (lookahead
+  `(?!Bearer)`) e e-mail re-mascarando URL já redigida (guarda `[`/`/`). Suíte API
+  **1277/1277**; tsc 0; eslint 0; prettier limpo.
+- **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2c + histórico) e relatório
+  `.claude/reports/codeql-clear-text-logging-seed-2026-10-12.md`. Nenhum alerta
+  interagido; sem deps/incidente/produção; PR em curso — gates e smoke no STATUS.

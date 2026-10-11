@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Seed de origem da produção (Addendum 2 §5) — preenche `midia.pais_origem`
  * a partir do `origin_country` do TMDB (discover de séries), sem apagar
@@ -6,6 +7,7 @@
  * Uso: DATABASE_URL=... TMDB_API_KEY=... npx tsx prisma/seed-origem.ts
  */
 import { PrismaClient } from "@prisma/client";
+import { redigirErro, redigirTexto } from "../src/common/log-redactor.js";
 
 const prisma = new PrismaClient();
 
@@ -16,15 +18,17 @@ interface TmdbItem {
   origin_country?: string[];
 }
 
-async function fetchTmdb<T>(path: string): Promise<T> {
+export async function fetchTmdb<T>(path: string): Promise<T> {
   const res = await fetch(`${TMDB_BASE}${path}`, {
     headers: { accept: "application/json" },
   });
-  if (!res.ok) throw new Error(`TMDB ${res.status}: ${path}`);
+  // T193: o path carrega `api_key=` na query — a mensagem de erro passa pelo
+  // redator (defesa em profundidade; o catch de `executar` também redige).
+  if (!res.ok) throw new Error(redigirTexto(`TMDB ${res.status}: ${path}`));
   return (await res.json()) as T;
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   let atualizadas = 0;
   for (let pagina = 1; pagina <= 10; pagina++) {
     const data = await fetchTmdb<{ results: TmdbItem[] }>(
@@ -44,9 +48,23 @@ async function main(): Promise<void> {
   console.log(`[seed:origem] ${atualizadas} séries com país de origem preenchido.`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
+/**
+ * Executa o seed com logging sanitizado (T193): erro sai como nome+mensagem
+ * redigidos — nunca o objeto/stack completo com a chave da URL.
+ */
+export async function executar(): Promise<void> {
+  try {
+    await main();
+  } catch (e) {
+    console.error(`[seed:origem] falhou: ${redigirErro(e)}`);
     process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+const isDirectRun =
+  import.meta.url === new URL(process.argv[1] ?? "", "file:").href ||
+  process.argv[1]?.endsWith("seed-origem.ts");
+
+if (isDirectRun) void executar();
