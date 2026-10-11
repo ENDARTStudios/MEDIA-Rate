@@ -3,12 +3,20 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, writeFile, rm } from "node:fs/promises";
 import * as path from "node:path";
 import { detectarImagem } from "../../common/utils/file-validation.util.js";
+import { caminhoContidoNaBase } from "../../common/path-guard.js";
 import { nomeVariante, VARIANT_WIDTHS } from "./variants.js";
 
 export const UPLOAD_MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOADS_DIR = path.join(process.cwd(), "uploads", "media");
 const UPLOAD_MAX_POR_ADMIN = 10;
 const UPLOAD_JANELA_MS = 60 * 60 * 1000; // 1h
+
+/** Rótulo curto p/ log — nunca o valor bruto do parâmetro. */
+function rotuloLog(midiaId: string): string {
+  return String(midiaId)
+    .replace(/[^a-zA-Z0-9-]/g, "")
+    .slice(0, 36);
+}
 
 export interface UploadResultado {
   filename: string;
@@ -71,11 +79,10 @@ export class UploadService {
 
   /** Persiste os bytes em uploads/media/:midiaId/ (cria o diretório). */
   async salvar(midiaId: string, buffer: Buffer, filename: string): Promise<string> {
-    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
-    const dir = path.join(UPLOADS_DIR, idLimpo);
-    await mkdir(dir, { recursive: true });
-    const destino = path.join(dir, filename);
-    // path.join já normaliza; filename é UUID.ext gerado por nós.
+    // T192: caminho montado com o guard (segmentos validados + contenção
+    // resolvida dentro de UPLOADS_DIR); filename é UUID.ext gerado por nós.
+    const destino = caminhoContidoNaBase(UPLOADS_DIR, midiaId, filename);
+    await mkdir(path.dirname(destino), { recursive: true });
     await writeFile(destino, buffer);
     return destino;
   }
@@ -89,8 +96,8 @@ export class UploadService {
     filename: string,
     ladder: Map<number, Buffer>,
   ): Promise<{ width: number; filename: string }[]> {
-    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
-    const dir = path.join(UPLOADS_DIR, idLimpo);
+    // T192: dir e cada arquivo passam pelo guard (contenção em UPLOADS_DIR).
+    const dir = caminhoContidoNaBase(UPLOADS_DIR, midiaId);
     await mkdir(dir, { recursive: true });
     const salvas: { width: number; filename: string }[] = [];
     try {
@@ -98,23 +105,26 @@ export class UploadService {
         const buf = ladder.get(w);
         if (!buf) continue;
         const nome = nomeVariante(filename, w);
-        await writeFile(path.join(dir, nome), buf);
+        await writeFile(caminhoContidoNaBase(UPLOADS_DIR, midiaId, nome), buf);
         salvas.push({ width: w, filename: nome });
       }
       return salvas;
     } catch (e) {
       for (const s of salvas) {
-        await rm(path.join(dir, s.filename), { force: true }).catch(() => undefined);
+        await rm(caminhoContidoNaBase(UPLOADS_DIR, midiaId, s.filename), { force: true }).catch(
+          () => undefined,
+        );
       }
-      this.logger.error(`falha persistindo variantes de ${idLimpo}/${filename}: ${e}`);
+      this.logger.error(`falha persistindo variantes de ${rotuloLog(midiaId)}: ${e}`);
       throw e;
     }
   }
 
   /** Remove o original (rollback de upload cuja ladder falhou — sem órfãos). */
   async remover(midiaId: string, filename: string): Promise<void> {
-    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
-    await rm(path.join(UPLOADS_DIR, idLimpo, filename), { force: true }).catch(() => undefined);
+    // T192: entrada fora do padrão é rejeitada pelo guard (não remove em silêncio).
+    const destino = caminhoContidoNaBase(UPLOADS_DIR, midiaId, filename);
+    await rm(destino, { force: true }).catch(() => undefined);
   }
 
   /** Rate limit por admin: 10 uploads/hora (janela deslizante). */
@@ -137,11 +147,14 @@ export class UploadService {
     this.uploadsPorAdmin.set(adminId, recentes);
   }
 
-  /** Caminho absoluto de um arquivo servido (valida o nome gerado por nós). */
+  /** Caminho absoluto de um arquivo servido (valida o nome gerado por nós + contenção). */
   caminhoArquivo(midiaId: string, filename: string): string | null {
-    const idLimpo = String(midiaId).replace(/[^a-zA-Z0-9-]/g, "");
     if (!/^[a-f0-9-]{36}(-w(320|640|960))?\.(jpg|png|gif|webp)$/.test(filename)) return null;
-    return path.join(UPLOADS_DIR, idLimpo, filename);
+    try {
+      return caminhoContidoNaBase(UPLOADS_DIR, midiaId, filename);
+    } catch {
+      return null;
+    }
   }
 
   getUploadsDir(): string {

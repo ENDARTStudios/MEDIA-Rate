@@ -8,7 +8,7 @@
 | Regra | Arquivo | Status |
 |---|---|---|
 | `js/request-forgery` (SSRF) — **critical** | `apps/api/src/modules/media-score/adapters/http.utils.ts` | **MITIGADO (T191)** — §2 |
-| `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` | pendente (T192) |
+| `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | pendente (T193) |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` | pendente (T194) |
 | higiene testes/e2e/scripts (10 alertas) | vários | opcional (T195+) |
@@ -35,7 +35,21 @@
   OpenCritic via RapidAPI (`opencritic-api.p.rapidapi.com`) ausente da primeira
   varredura — adicionado com teste.
 
-## 3. Regras para as próximas correções (T192–T194)
+## 2b. Caso 2 — path-injection no upload (T192): desenho da mitigação
+
+- **`apps/api/src/common/path-guard.ts`** — `segmentoSeguro` rejeita: vazio, `.`/`..`/qualquer
+  `..` embutido, separadores (`/` `\`), absoluto/drive (`C:`), `~`, caracteres de controle
+  (inclui NUL) e **formas codificadas** (decodifica até 2 níveis — pega `%2e%2e`, `..%2f`,
+  `..%252f`); `garantirContencao` usa `path.resolve` + `startsWith(base + path.sep)`;
+  `caminhoContidoNaBase` compõe com validação por segmento.
+- **`upload.service.ts`** — `salvar`, `salvarVariantes`, `remover` e `caminhoArquivo` montam
+  caminhos **somente** via guard (contenção em `uploads/media`); `caminhoArquivo` mantém o
+  regex estrito do nome gerado por nós (UUID + variante + ext) e devolve `null` (→ 404) para
+  qualquer entrada rejeitada; logs usam rótulo curto, nunca o valor bruto.
+- **Nota CodeQL:** assim como no SSRF (#151), a regra pode não reconhecer guard custom como
+  sanitizer — se o alerta persistir, registrar e escalar (nunca suppress).
+
+## 3. Regras para as próximas correções (T193/T194)
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -51,3 +65,6 @@
   redirect guard + erros sanitizados). Suíte API 1191/1191 na validação; o guard pegou
   um host legítimo esquecido (RapidAPI/OpenCritic) — corrigido com teste.
   Relatório: `.claude/reports/codeql-ssrf-http-utils-2026-10-12.md`.
+- **2026-10-11 (T192):** path-injection HIGH mitigado (path-guard + contenção em
+  `uploads/media`; filesystem real apenas em tmp/gitignored nos testes). Relatório:
+  `.claude/reports/codeql-path-injection-upload-2026-10-12.md`.
