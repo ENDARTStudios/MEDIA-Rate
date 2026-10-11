@@ -35,12 +35,19 @@ encerramento formal pelo Operador/Thinker.
   histórico; 0 eventos de auditoria envolvendo as contas de teste desde a janela de
   exposição (**sem evidência de uso não autorizado**); CI 10/10 runs sem match.
 - **Pendências (incidente NÃO encerrado):**
-  1. Secret scanning/push protection **indisponíveis** em repositório privado sem GitHub
-     Secret Protection (API 422) — passo manual em
-     `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`.
+  1. ~~Secret scanning/push protection indisponíveis~~ → **ATIVOS (2026-10-11):** repositório
+     novamente **PÚBLICO** por decisão do Operador; `secret-scanning/alerts` disponível
+     (0 alertas) e `code-scanning/alerts` disponível (30 alertas pré-existentes). Padrão do
+     projeto: **Gitleaks** como gate bloqueador no CI (T186/**D-578** —
+     `docs/08-security/SECURITY_CI.md`; verificação em
+     `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`).
   2. Purge de histórico (decisão do Operador; opcional após as rotações).
   3. PII: evidência = somente domínios de teste — confirmação formal pendente.
   4. Backups/alertas Postgres (decisão do Operador).
+- **Atualização (2026-10-11, T186/D-578):** workflow `Security` corrigido — Gitleaks adotado
+  como padrão bloqueador do tree atual; uploads SARIF condicionais/não-fatais; diagnóstico do
+  run `38151955200` (falha de plataforma, sem achado novo). Decisões do Operador registradas
+  (PII não; repo público; Secret Protection ativado; Gitleaks padrão).
 - **Artefatos sanitizados:** `.claude/reports/secret-incident-exchange-log-2026-10-10.md`,
   `.claude/reports/secret-exposure-sweep-2026-10-11.md`,
   `.claude/reports/incident-remediation-2026-10-11.md`; decisão **D-577** em `DECISOES.md`.

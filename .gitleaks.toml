@@ -1,0 +1,54 @@
+# T186 / D-578 — Gitleaks: gate PADRÃO de segredos do projeto (tree atual no CI).
+#
+# Política (ver docs/08-security/SECURITY_CI.md):
+# - escaneia apenas o TREE ATUAL (--no-git); o histórico NÃO é gate (o incidente
+#   INC-2026-10-11 foi mitigado por rotação; inventário em relatório separado);
+# - finding real em código versionado FALHA o job (--exit-code 1);
+# - allowlist restrita a exclusões ESTRUTURAIS (deps/build/logs locais) e a
+#   FIXTURES SINTÉTICOS justificados — nunca padrões amplos que possam esconder
+#   credenciais reais.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "T186/D-578 — exclusões estruturais (geradas/local, ausentes no checkout do CI)"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)\.next/''',
+  '''(^|/)dist/''',
+  '''(^|/)coverage/''',
+  '''(^|/)\.turbo/''',
+  '''(^|/)\.git/''',
+  '''(^|/)mnt/''',
+  '''(^|/)\.claude/''',
+  '''(^|/)\.playwright-mcp/''',
+  '''(^|/)playwright-report/''',
+  '''(^|/)test-results/''',
+  '''(^|/)\.agents/''',
+  '''(^|/)skills/''',
+  '''(^|/)\.od-skills/''',
+  '''(^|/)design-system/''',
+  '''(^|/)\.kilo/''',
+  '''(^|/)graft/''',
+  '''(^|/)uploads?/''',
+  '''(^|/)\.vercel/''',
+  '''(^|/)\.wrangler/''',
+  '''(^|/)\.open-next/''',
+  '''(^|/)\.e2e-pass$''',
+  '''(^|/)\.env$''',
+  '''(^|/)\.env\.local$''',
+]
+
+[[allowlists]]
+description = "T186/D-578 — fixtures sintéticos deliberados (testam redação/detecção; sem credencial real)"
+paths = [
+  '''apps/api/test/sentry-redact\.spec\.ts''',
+]
+
+[[allowlists]]
+description = "T186/D-578 — falsos positivos verificados (valores sintéticos já públicos no repo)"
+regexes = [
+  '''SenhaForte123''', # admin-rbac.spec.ts:149 — senha de fixture do teste do DTO de registro
+  '''lgpd-consent-v1''', # LgpdBanner.tsx:8 — constante de chave de consentimento (cookie), não credencial
+]

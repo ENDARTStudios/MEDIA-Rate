@@ -757,17 +757,21 @@ Classificação: `NO_NEW_EXPOSURE_IN_HEAD — ADDITIONAL_HISTORICAL_ARTIFACTS_FO
    sem evidência de uso não autorizado). Para retomar spot-checks: re-provisionar com
    `TEST_USERS_PASSWORD=<forte> TEST_USERS_ALLOW_NONLOCAL=1` (ADMIN fica ignorado fora de
    local — guarda T184).
-3. **Secret scanning + push protection: BLOQUEADOS por plano** — indisponíveis em repositório
-   privado sem GitHub Secret Protection (API: 422; alerts: 404). Passo manual + verificação:
-   `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`. **Decisão de custo do Operador**
-   (alternativa gratuita sugerida: habilitar Dependabot alerts).
-4. **Visibilidade do repositório** → **PRIVADO confirmado** (2026-10-11). Purge de histórico
-   segue como decisão residual (opcional após as rotações).
+3. ~~Secret scanning + push protection~~ → **ATIVOS (2026-10-11)**: repositório voltou a
+   **PÚBLICO** por decisão do Operador; `secret-scanning/alerts` **disponível (0 alertas)** e
+   `code-scanning/alerts` **disponível (30 alertas pré-existentes — triagem opcional futura)**.
+   Padrão do projeto: **Gitleaks** como gate bloqueador do tree atual no CI
+   (T186/**D-578** — `docs/08-security/SECURITY_CI.md`). Verificação:
+   `docs/06-devops-deployment/GITHUB_SECURITY_SETTINGS.md`.
+4. **Visibilidade do repositório** → **PÚBLICO** (decisão do Operador, 2026-10-11; era privado
+   desde o T184). Purge de histórico: `RECOMENDADO_NÃO_APLICÁVEL_APÓS_ROTAÇÃO — aguarda
+   confirmação explícita ou aceite de risco` (D-578).
 5. **PII:** evidência da varredura = somente domínios de teste (`@mediarate.test`) — confirmar
    formalmente `PII_NO_LOG = NAO`.
 6. Backups/alertas Postgres (Decisão 1 — inalterada).
-7. Observação: PR **#515** (`chore/update-deps`, automação) aberta — decisão futura
-   (reviver/fechar/substituir), como na triagem P019.
+7. Observação: PRs de dependências abertas pela automação — **#515** (`chore/update-deps`),
+   **#518** (bump vitest) e **#522** (grupo npm_and_yarn, 6 updates). Triagem futura sugerida
+   pelo Thinker como **T187** (like P019: reviver/fechar/substituir).
 
 ### Decisão 2 (revisada) — ROTAÇÃO DAS CREDENCIAIS: agora IMEDIATA
 

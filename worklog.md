@@ -3485,3 +3485,25 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Classificação:** `REMEDIATED_PENDING_PLATFORM_PROTECTION` — incidente **não encerrado** (decisão
   do Thinker após REVIEW).
 - **PR:** em curso — gates e smoke registrados no STATUS do ciclo.
+
+### [2026-10-11] T186 — Security CI: Gitleaks como padrão + SARIF condicional (branch chore/t186)
+
+- **Diagnóstico do run 38151955200:** falha de plataforma em repositório privado à época
+  (`Resource not accessible by integration`; `Path does not exist: trivy-results.sarif`) —
+  **não** é achado novo de segredo. As permissões do workflow **já estavam corretas**
+  (`contents: read` + `security-events: write`); o bloqueio era code scanning indisponível.
+- **Estado verificado via API:** repositório **PÚBLICO** (decisão do Operador); secret scanning
+  **ATIVO** (0 alertas); code scanning **ATIVO** (30 alertas pré-existentes).
+- **Gitleaks v8.30.1 (pinado + checksum SHA-256)** adotado como gate **BLOQUEADOR** do tree
+  atual: validado localmente (3 falsos-positivos triados; 0 achados após allowlist curada) e o
+  gate comprovadamente **falha** (exit 1) com fixture sintética de formato real. `--redact`
+  sempre; **histórico não é gate** (incidente mitigado por rotação).
+- **`security.yml`:** job `gitleaks` novo (instalação pinada/checksum); uploads SARIF
+  **condicionais** (`hashFiles`) e **não fatais**; CodeQL analyze não-fatal para falha de
+  plataforma; scans reais seguem a política (Trivy modo relatório D-534; `audit:ci` bloqueador).
+- **`.gitleaks.toml`:** allowlist restrita — exclusões estruturais (node_modules/build/logs) +
+  fixture `sentry-redact.spec.ts` + regexes precisos (`SenhaForte123`, `lgpd-consent-v1`).
+  Spec do T184 ajustado para construção dinâmica (remove falso positivo na fonte).
+- **Docs/decisão:** `docs/08-security/SECURITY_CI.md` (novo), `GITHUB_SECURITY_SETTINGS.md`
+  (público/ativos + Gitleaks), `SECURITY_INCIDENTS.md`, **D-578**, PENDENCIAS.
+- **PR:** em curso — gates (incl. Security) e smoke no STATUS do ciclo.

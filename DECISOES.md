@@ -2745,3 +2745,39 @@ teste); backups/alertas Postgres. Registro do incidente: `docs/08-security/SECUR
 Relatórios: `.claude/reports/secret-incident-exchange-log-2026-10-10.md`,
 `.claude/reports/secret-exposure-sweep-2026-10-11.md`,
 `.claude/reports/incident-remediation-2026-10-11.md`.
+
+---
+
+## D-578 — INC-2026-10-11: decisões do Operador e Gitleaks como padrão de varredura (T186)
+
+**Data:** 2026-10-11 · **Status:** REGISTRADA — incidente **mitigado com risco residual**
+(não encerrado automaticamente; encerramento após T186 verde e confirmação de que não há
+segredos não rotacionados).
+
+**Decisões do Operador:**
+
+- `PII_NO_LOG = NAO`
+- `VISIBILIDADE_REPO = PUBLICO`
+- `GITHUB_SECRET_PROTECTION = ATIVADO` (verificado via API: `secret-scanning/alerts` disponível; 0 alertas)
+- `SCANNER_PADRAO_DE_SEGREDOS = GITLEAKS` (gate bloqueador do tree atual no CI)
+- `CODE_SCANNING_SARIF = OPCIONAL_NAO_BLOQUEANTE_QUANDO_INDISPONIVEL`
+- `PURGE_HISTORICO = RECOMENDADO_NAO_APLICAVEL_APOS_ROTACAO_AGUARDA_CONFIRMACAO_EXPLICITA_OU_ACEITE_DE_RISCO`
+
+**Evidência (sanitizada):**
+
+- T184 neutralizou as contas `@mediarate.test` em produção (7 senhas invalidadas, 119 sessões
+  revogadas, 1 ADMIN revogado) e aplicou guardas de provisionamento (TDD 14/14).
+- Stripe (chave live + webhook secret) rotacionadas pelo Operador; TMDB/IGDB/Twitch/Comic Vine
+  rotacionadas anteriormente.
+- Run `38151955200` (Security): falha por permissão/code scanning/SARIF ausente em repositório
+  **privado à época** — `Resource not accessible by integration` e `Path does not exist:
+  trivy-results.sarif` — **não** por novo achado de segredo.
+- Code scanning verificado **ATIVO** agora (repositório público): 30 alertas pré-existentes
+  (triagem opcional futura).
+- Gitleaks v8.30.1 (pinado com checksum) validado localmente: tree atual = **0 achados** após
+  allowlist curada; o gate comprovadamente **falha** com fixture sintética de formato real.
+
+**Mudanças (T186):** workflow `Security` corrigido (job `gitleaks` BLOQUEADOR; uploads SARIF
+condicionais e não-fatais; CodeQL analyze não-fatal apenas para falha de plataforma);
+`.gitleaks.toml` novo; `docs/08-security/SECURITY_CI.md` novo; `GITHUB_SECURITY_SETTINGS.md` e
+`SECURITY_INCIDENTS.md` atualizados. Política: **histórico não é gate** de CI.
