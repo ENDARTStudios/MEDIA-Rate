@@ -7,7 +7,7 @@
 
 | Regra | Arquivo | Status |
 |---|---|---|
-| `js/request-forgery` (SSRF) — **critical** | `apps/api/src/modules/media-score/adapters/http.utils.ts` | **MITIGADO (T191)** — §2 |
+| `js/request-forgery` (SSRF) — **critical** | `apps/api/src/modules/media-score/adapters/http.utils.ts` | **MITIGADO (T191)** — §2 · **#151 `OPEN_MITIGATED_DOCUMENTED` (T211)** |
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` (+ fakes de teste) | **MITIGADO (T194)** — §2d |
@@ -118,8 +118,13 @@ Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão 
 (§2–§2d); as análises pós-merge fecharam #85/#86/#94–#97. **Triagem não-runtime em T195**
 (read-only) achou **1 runtime de display** — o **#88**, agora **MITIGADO em T196-C** (§2e).
 **Fila não-runtime ENCERRADA em T196-b** — #93/#98 (e2e `i18n-leak`) e #149 (script de prêmios)
-mitigados. Resta apenas o **#151** (único runtime open), que permanece **triagem humana do
-Operador**. Relatórios: `reports/codeql-nonruntime-triage-2026-10-12.md`,
+mitigados. Resta apenas o **#151** (único runtime open), **formalizado em T211** como
+**`OPEN_MITIGATED_DOCUMENTED`** — mantido **open** por **limitação da regra** `js/request-forgery`
+em reconhecer a barreira custom (`url-guard`/`ip-guard`) como sanitizer; o **runtime está
+mitigado** (§2), a decisão é **manter open com evidência** (não dismiss automático) e a
+**contagem de CodeQL open = 1**. Relatório:
+`reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`. Demais relatórios:
+`reports/codeql-nonruntime-triage-2026-10-12.md`,
 `reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`,
 `reports/codeql-test-substring-sanitization-2026-10-12.md` e
 `reports/codeql-e2e-script-sanitization-2026-10-12.md`.
@@ -170,3 +175,9 @@ Operador**. Relatórios: `reports/codeql-nonruntime-triage-2026-10-12.md`,
   com 10 casos) e no-op `replace(/^tt/,"tt")` **removido** (identidade provada). Suíte web
   **564/564**; suíte API **1375/1375**; tsc web 0; eslint/prettier limpos. **Fila não-runtime
   encerrada.** Relatório: `docs/08-security/reports/codeql-e2e-script-sanitization-2026-10-12.md`.
+- **2026-10-13 (T211):** **#151** (`js/request-forgery`, o único CodeQL runtime open)
+  **formalizado como `OPEN_MITIGATED_DOCUMENTED`** — docs-only, sem interagir com o alerta
+  (apenas `GET` de metadados sanitizados). Registrado que permanece open por **limitação da
+  regra** em reconhecer a barreira custom (`url-guard`/`ip-guard`) e que o **runtime está
+  mitigado** (T191/PR #528 `cf993017`). Contagem CodeQL open = **1**. Relatório:
+  `docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`.

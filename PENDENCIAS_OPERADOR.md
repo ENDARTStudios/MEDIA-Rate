@@ -1205,3 +1205,28 @@ Relatório: `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-ac
   #515/#518/#522 + Trivy) · `T212` (backups/alertas Postgres) · `T213` (purge) · Deploy `waiting`
   no environment Production · **GO final explícito do Operador**.
 - **GO:** segue **SUSPENSO** — encerramento documental **não** libera GO.
+
+---
+
+### T211 (2026-10-13) — alerta CodeQL **#151** formalizado como `OPEN_MITIGATED_DOCUMENTED` (docs-only; **pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`.
+
+- **Classificação:** `ALERTA_151 = OPEN_MITIGATED_DOCUMENTED`. Metadados coletados **apenas por GET**
+  sanitizado: `state=open`, `rule=js/request-forgery`, `severity=error`, arquivo
+  `apps/api/src/modules/media-score/adapters/http.utils.ts` (linhas 68–77), `dismissed_at=null`.
+  **Contagem CodeQL open = 1** (o #151 é o único de runtime).
+- **Motivo de permanecer open:** limitação da regra em reconhecer a **barreira custom**
+  (`url-guard`+`ip-guard`) como sanitizer; o **runtime está mitigado** (T191 / PR #528 `cf993017`:
+  allowlist explícita, https-only, IP literal/DNS resolvido fail-closed, redirect por hop, erros
+  sanitizados). Testes: `url-guard.spec` (7), `http-utils-ssrf.spec` (10), `https-redirect.e2e.spec` (4).
+- **Decisão:** **manter open com evidência** — **não** dismiss automático (dismiss é decisão humana);
+  **nenhum alerta foi interagido** nesta tarefa.
+- **Sem alterações proibidas:** nenhum código (`http.utils.ts`/`url-guard.ts`/`ip-guard.ts`/testes),
+  deps, workflows, GitHub settings, produção, backups, purge ou GO. Diff docs-only.
+- **Docs:** relatório novo + `SECURITY_CODEQL_RUNTIME.md` (§3/T211 + histórico) +
+  `GO_READINESS_CHECKLIST.md` (frente #151 → RESOLVIDA_DOCUMENTALMENTE_COM_ALERTA_MANTIDO_OPEN) +
+  `PENDENCIAS_OPERADOR.md` + `worklog.md`.
+- **Permanecem pendentes (não tocados):** `T209` (deps #515/#518/#522 + Trivy) · `T212` (backups) ·
+  `T213` (purge) · Deploy `waiting` em Production · **GO final explícito do Operador**.
+- **GO:** segue **SUSPENSO**.

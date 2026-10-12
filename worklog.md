@@ -3995,3 +3995,20 @@ Suítes: API 992/992 (132 arq); web 479/479.
   `PENDENCIAS_OPERADOR.md` (incidente deixa de ser bloqueador; bloco T210).
 - **Diff docs-only:** nenhum código/schema/deps/infra/produção/alerta/GitHub setting alterado.
 - **GO:** segue **SUSPENSO** — encerramento documental **não** libera GO.
+
+### [2026-10-13] T211 — alerta CodeQL #151 formalizado como `OPEN_MITIGATED_DOCUMENTED`
+
+- **Classificação:** `ALERTA_151 = OPEN_MITIGATED_DOCUMENTED`; metadados **apenas por GET**
+  sanitizado (`state=open`, `js/request-forgery`, `error`, `.../media-score/adapters/http.utils.ts`
+  linhas 68–77, `dismissed_at=null`); **contagem CodeQL open = 1** (único de runtime).
+- **Por que segue open:** limitação da regra em reconhecer a barreira custom (`url-guard`+`ip-guard`)
+  como sanitizer — **runtime mitigado** (T191 / PR #528 `cf993017`). **Decisão:** manter open com
+  evidência, **sem** dismiss/comentário/update — **nenhum alerta interagido**.
+- **Evidência de mitigação:** allowlist explícita + https-only + IP literal bloqueado + DNS resolvido
+  fail-closed + redirect por hop + erros sanitizados; testes `url-guard.spec` (7),
+  `http-utils-ssrf.spec` (10), `https-redirect.e2e.spec` (4).
+- **Docs:** novo relatório `docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`
+  + `SECURITY_CODEQL_RUNTIME.md` (§1/§3 + histórico T211) + `GO_READINESS_CHECKLIST.md`
+  (frente #151 → RESOLVIDA_DOCUMENTALMENTE_COM_ALERTA_MANTIDO_OPEN) + `PENDENCIAS_OPERADOR.md`.
+- **Diff docs-only:** nenhum código/`http.utils.ts`/`url-guard.ts`/`ip-guard.ts`/deps/workflow/GitHub
+  setting/produção/backup/purge alterado; sem `git add -f`; GO segue **SUSPENSO**.
