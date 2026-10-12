@@ -51,8 +51,12 @@ irreversíveis; MFA como follow-up estratégico.
   re-verificar: specs `apps/api/test/admin-rate-limit.e2e.spec.ts`,
   `admin-probing-monitor.spec.ts` e relatório
   `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md`.
-- ⏳ Pendente (T204): step-up para destrutivas, MFA estratégico, refinamento do probe do gate
-  (endpoint dedicado ou flag admin em `/auth/me`).
+- ⏳ Pendente (T204 design produzido — **nada implementado**): step-up (Fase 1: re-auth de
+  senha, janela curta), MFA (Fase 2: TOTP; Fase 3: WebAuthn) e refinamento do probe do gate
+  (T206: endpoint dedicado `GET /api/v1/admin/gate`). Design completo:
+  `docs/08-security/SECURITY_AUTH_DESIGN.md` +
+  `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`.
+  Implementação só mediante autorização explícita (T205/T206, template de decisão no design).
 
 ## Como auditar (read-only)
 
