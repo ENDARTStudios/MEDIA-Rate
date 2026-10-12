@@ -1312,3 +1312,30 @@ Recomendação técnica (não vinculante): `1=AUTORIZAR_CONFIGURACAO_MINIMA` · 
 `8=EXIGIR_T224_AUDIT` · `9=AUTORIZAR_MINIMA` · `10=CONDICIONADO_AOS_ITENS_ACIMA`.
 
 - **GO:** segue **SUSPENSO** — nenhuma decisão acima é executável pelo agente sem autorização.
+
+---
+
+### T224 (2026-10-13) — auditoria da jornada mínima de beta (read-only/docs-only; **pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md`.
+
+- **13 fluxos auditados** (landing, catálogo, busca, detalhe, MEDIA Score, auth, watchlist/biblioteca,
+  pricing, LGPD/consentimento, i18n, a11y, erros/estados, gate admin): **todos `PRONTO_PARA_BETA`** —
+  **nenhum** `BLOQUEADO_*` e **nenhum** `NECESSITA_CORRECAO_ANTES_GO`.
+- **Evidência:** 34 specs de E2E em `apps/web/e2e/` (required `auth`+`navigation`; job `E2E Full` roda
+  `jornada-critica.spec.ts` **3× com `retries=0`**, chromium+mobile) + análise estática + smoke 7/7.
+  Copy honesta de indisponível nos 3 locales (`synopsisUnavailable`, `castUnavailable`,
+  `streamingUnavailable`, `scoreUnavailable`, `scoreComingSoon`).
+- **Ressalva metodológica (honesta):** **não** houve sessão navegada nova nesta rodada — a autoridade é
+  o CI (E2E) + estática; rodar E2E completo local exigiria API+DB+dev server (não viável com segurança
+  nesta árvore compartilhada).
+- **O que bloqueia o GO não é o produto:** é o eixo operacional (**backups P1** — T220) + a aprovação
+  manual do Deploy em Production + a declaração formal de escopo/GO.
+- **Reconciliação documental:** `PLANO_MESTRE.md` atualizado **apenas nas seções de estado atual**
+  (snapshot 2026-10-13: API 1422/1422, web 615/615, 34 specs E2E, uptime sintético ativo; domínio e
+  proteção da `main` resolvidos) — história **não** reescrita.
+- **Nada alterado** em código/testes/flags/deps/schema/infra/produção/alertas; nenhuma conta real ou PII
+  usada; nenhum BETA-GAP marcado como DONE.
+- **Permanecem pendentes (decisão do Operador):** backups automáticos + alerta de falha de backup +
+  restore de ensaio · aprovação de Production · **GO final** · tooling (vitest/fastify/majors).
+- **GO:** segue **SUSPENSO**.

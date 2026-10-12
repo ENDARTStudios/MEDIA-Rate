@@ -267,6 +267,24 @@ MFA (TOTP/WebAuthn) para destrutivas admin **continua não implementado** — de
 `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`
 (§7 Plano de testes); só com packet próprio.
 
+## Jornada mínima de beta — auditoria navegada (T224)
+
+A auditoria navegada da jornada de beta é **read-only** e usa o E2E existente como autoridade
+(método da T224: `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md`). O corpus e2e vive
+em `apps/web/e2e/` (34 specs). Os comandos de referência:
+
+```bash
+# required em todo PR (sem E2E_FULL): navegação + auth
+cd apps/web && npx playwright test e2e/auth.spec.ts e2e/navigation.spec.ts --project=chromium
+
+# jornada crítica navegada (job E2E Full; E2E_FULL=1 com API+DB sintéticos)
+cd apps/web && npx playwright test e2e/jornada-critica.spec.ts   --project=chromium --project=mobile-chrome --workers=1 --retries=0 --repeat-each=3
+```
+
+Requisições ao ambiente de E2E exigem API+DB efêmeros/fixtures sintéticos — **nunca** produção, nunca
+conta real, nunca PII. Se o ambiente local não for viável, o **CI é a autoridade** e a limitação deve
+ser registrada no relatório de auditoria. Esta seção não altera testes nem adiciona specs.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

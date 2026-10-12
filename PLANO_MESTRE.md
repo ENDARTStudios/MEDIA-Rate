@@ -5,6 +5,11 @@
 > Atualização 2026-08-10: consolidação — removida duplicação e atualizados os
 > itens concluídos com evidência do repositório (T180–T278). F11 (D-279)
 > registrada em 2026-08-10.
+> **Reconciliação 2026-10-13 (T224, docs-only):** apenas as seções de **estado atual**
+> (contagens de teste, uptime, pendências de plataforma) foram atualizadas para o estado real
+> — história do projeto **não** reescrita. Snapshot: API **1422/1422** (168 arquivos),
+> web **615/615** (89 arquivos), **34 specs E2E**, uptime sintético **ATIVO**.
+> Relatório: `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md`.
 
 ---
 
@@ -18,8 +23,8 @@
 - [x] Fase 5 – Frontend `[CONCLUÍDA — rotas públicas/privadas, i18n 3 locales, SSR parity]` ✅
 - [~] Fase 6 – Avançado `[PARCIAL — cache/shutdown/upload ok; BullMQ e IA/RAG postergados D-017]` ⚠️
 - [x] Fase 7 – Hardening `[CONCLUÍDA — 10/10 (2 N/A condicionais documentados)]` ✅
-- [~] Fase 8 – Testes/segurança `[PARCIAL — API 931/931 (125 arquivos, T072); E2E jornada crítica 48/48 (T074/D-553); web ~309; IA pipeline N/A]` ⚠️
-- [~] Fase 9 – CI/CD e deploy `[PARCIAL — pipeline + observabilidade ok; domínio e UptimeRobot pendentes]` ⚠️
+- [~] Fase 8 – Testes/segurança `[PARCIAL — snapshot 2026-10-13 (T224): API 1422/1422 (168 arquivos); web 615/615 (89 arquivos); 34 specs E2E (incl. jornada crítica navegada no job E2E Full, 3× retries=0); IA pipeline N/A]` ⚠️
+- [~] Fase 9 – CI/CD e deploy `[PARCIAL — snapshot 2026-10-13 (T224): pipeline + observabilidade OK (5xx/auth/uptime/Sentry); domínio `mediarate.app` ✅ e proteção da `main` ✅ resolvidos; UptimeRobot externo N/A — uptime sintético ATIVO (D-556); pendente: aprovação manual do Deploy em Production + backups/DR (P1)]` ⚠️
 - [~] Fase 10 – Image Optimization `[EM ANDAMENTO — T029–T036 concluídas; gaps restantes dependem de definição/provider/fonte/decisão do Operador]` ⚠️
 - [~] Fase 11 – PRD + Addenda + Arquitetura `[EM ANDAMENTO — T279/T280 concluídas; T285/T286 em curso]` ⚠️
 - [x] Fase 14 – Polimento final `[CONCLUÍDA — D-369…D-397]` ✅
@@ -247,7 +252,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [x] 9.5.1 Logs centralizados (T217): LokiStream opcional via `LOKI_URL`.
 - [x] 9.5.2 Métricas (T217): prom-client, `GET /metrics` protegido, sem PII.
 - [x] 9.5.3 Alertas (T218): ring buffers, histerese, `/admin/alerts/status`.
-- [~] 9.5.4 Uptime check externo: UptimeRobot pendente.
+- [x] 9.5.4 Uptime: **uptime sintético interno ATIVO** (T042/D-556; `uptime-check.yml` `*/10` → Issues `uptime`) — substitui o UptimeRobot externo, que fica em **N/A** (complementar opcional). *(snapshot 2026-10-13, T224)*
 - [x] 9.6 Healthcheck HTTP (`GET /health`).
 - [x] 9.7 Backup PostgreSQL diário (scripts/backup-db.sh, retenção 30 dias).
 - [x] 9.8 Plano de resposta a incidentes (docs/05-security-compliance/INCIDENT_RESPONSE.md).
@@ -258,7 +263,7 @@ Stack: Next.js App Router + TypeScript + TailwindCSS + Motion/GSAP/Anime.js + sh
 - [~] 9.12 Guarda `migration-safety` no CI (T031/B1, D-532, #148 item 7): script fail-closed + job `Migration Safety (B1)` — PR com migration/schema exige label `migration-review` + plano de rollback + declaração. **Mergeado (#168, merge commit `bc99630`, 2026-09-22; CI/Deploy de `main` verdes).** Pendente: required check na ruleset (P011) — **FEITO (T034, 2026-09-22)**: `Migration Safety (B1)` habilitado como required (D-535), staging/Environment (P012) **PREPARADO em PR sem merge** e caminho de migration manual (P013) **RECOMENDADO** (console Railway; `docs/06-devops-deployment/runbooks/migration-manual.md`) — `docs/06-devops-deployment/b1-prod-guards.md`.
 - [x] 9.13 `security.yml` verde (T033): audit governado (`npm run audit:ci` — runtime blocking + allowlist dev-only P009/D-462), CodeQL `@v4`, Trivy pinado ao SHA imutável de `v0.36.0` (ambos jobs) e trigger em PR; scan de imagem em **modo relatório** (SARIF). PR #172 aberto, `security.yml` verde (scan 2m22s; Trivy Image Scan 1m26s). Ver D-534.
 - [~] 9.14 Alertas métricos automatizados 5xx/auth (T040/D-538): `scripts/ci/metric-alerts.mjs` (thresholds 5xx >1%/>=5 abs; auth >50/1min/>=10/5min; parser Prometheus+JSON; dedup de issue) + self-test determinístico 18/18 + workflow `alertas-metricos.yml` (schedule 15min; **dry-run por padrão**; live só com `vars.METRICS_URL`+`secrets.ADMIN_TOKEN`; sem infra paga/deploy). PR aberto, sem merge; ativação live depende do Operador.
-- [~] 9.15 Uptime sintético de endpoints públicos (T042/D-539): `scripts/ci/uptime-check.mjs` (lógica pura; GET/HEAD só em rotas públicas, timeout 10s; dedup de issue create/update/close) + self-test 11/11 + workflow `uptime-check.yml` (schedule 10min; concurrency; permissions contents:read+issues:write). Coleta live 7/7 OK. PR aberto, sem merge; UptimeRobot externo complementar = P015.
+- [x] 9.15 Uptime sintético de endpoints públicos (T042/D-539): `scripts/ci/uptime-check.mjs` (lógica pura; GET/HEAD só em rotas públicas, timeout 10s; dedup de issue create/update/close) + self-test 11/11 + workflow `uptime-check.yml` (schedule 10min; concurrency; permissions contents:read+issues:write). Coleta live 7/7 OK. **MERGED e ATIVO em produção** (snapshot 2026-10-13, T224 — substituiu o UptimeRobot externo, que fica N/A/complementar = P015).
 - [x] 9.16 Triagem de workflows crônicos na `main` (T046/T047/D-541): `Release` (raiz do monorepo sem script `build` → `npm error Missing script: "build"`) e `create-pr-from-branch` (heredoc em coluna 0 → **YAML inválido** → run sem jobs em todo push). Ambos **não-required**. Correção: `Release` → `workflow_dispatch` + `npm run build --if-present`; `create-pr` → corpo via `printf` e disparo **MANUAL** (`workflow_dispatch`) — **não** reativar automação inerte sem decisão (P016). **MERGED #199 (`6264601`); pós-merge sem runs de Release/Auto-create; CI/Security success; smoke 7/7 → 200.** Ver `docs/06-devops-deployment/CI.md`.
 
 ---
@@ -358,7 +363,7 @@ O Doer procura o primeiro `[ ]` de cima para baixo. Gaps atuais de maior priorid
 4. ~~**Fase 6.14** — feature flags (planejada em F11/T292)~~ — infra de flags
    no código e no PostHog desde T452/D-491 (`apps/web/src/lib/posthog.ts`).
 5. **F11 em andamento** — T285 → T286 → T287... (ordem D-279).
-6. **Pendências do Operador:** billing Railway, domínio mediarate.app, branch protection da main, UptimeRobot.
+6. **Pendências do Operador (snapshot 2026-10-13, T224):** **backups/DR Postgres (P1)** + alerta de falha de backup + restore de ensaio · **aprovação manual do Deploy em Production** (`waiting`) · **GO/escopo de convites** (declaração formal) · tooling bloqueado (vitest/fastify) e majors adiados. *(Resolvidos desde a redação original: billing Railway, domínio `mediarate.app`, branch protection da `main`; UptimeRobot → N/A, uptime sintético ativo.)*
 
 ### [T091] Triagem read-only de PRs legadas (2026-09-27)
 Evidência: `.claude/reports/legacy-pr-triage-2026-09-27.md`. 7 PRs abertas classificadas; #266 já MERGED.

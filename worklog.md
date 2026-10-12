@@ -4173,3 +4173,27 @@ rodando de novo em http://localhost:3000.
 - **Diff docs-only**; sem código/deps/schema/infra/produção/alertas/backups/purge;
   contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo, sem
   plumbing — árvores idênticas). **GO segue SUSPENSO.**
+
+### [2026-10-13] T224 — auditoria da jornada mínima de beta (read-only/docs-only) + reconciliação do PLANO_MESTRE
+
+- **Relatório:** `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md` — **13 fluxos**
+  auditados (landing, catálogo, busca, detalhe, MEDIA Score, auth, watchlist/biblioteca, pricing,
+  LGPD/consentimento, i18n, a11y, erros/estados, gate admin): **todos `PRONTO_PARA_BETA`**; nenhum
+  `BLOQUEADO_*` e nenhum `NECESSITA_CORRECAO_ANTES_GO`.
+- **Evidência:** 34 specs E2E (`apps/web/e2e/`), incl. `jornada-critica.spec.ts` (job `E2E Full`,
+  **3× `retries=0`**, chromium+mobile) e os required `auth`+`navigation`; análise estática (rotas/
+  componentes/flags/messages) e smoke 7/7. Copy honesta de indisponível nos 3 locales
+  (`synopsisUnavailable`, `castUnavailable`, `streamingUnavailable`, `scoreUnavailable`,
+  `scoreComingSoon`).
+- **Nada corrigido** (read-only): não é tarefa de produto. **Ressalva honesta:** não houve sessão
+  navegada nova nesta rodada — autoridade = CI (E2E) + estática; E2E completo local exigiria
+  API+DB+dev server.
+- **O que bloqueia o GO não é o produto:** backups P1 (T220) + aprovação manual de Production +
+  declaração formal de escopo/GO.
+- **PLANO_MESTRE reconciliado** apenas nas seções de estado atual (snapshot 2026-10-13: API
+  **1422/1422**, web **615/615**, **34 specs E2E**, uptime sintético **ATIVO**; domínio e proteção da
+  `main` resolvidos) — história não reescrita. Também atualizados `GO_READINESS_CHECKLIST`
+  (frente beta → AUDITADA_COM_LACUNAS), `TESTING.md` (método navegável) e `PENDENCIAS_OPERADOR`.
+- **Diff docs-only**; sem código/testes/flags/deps/schema/infra/produção/alertas; nenhuma conta real
+  ou PII; contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo).
+  **GO segue SUSPENSO.**
