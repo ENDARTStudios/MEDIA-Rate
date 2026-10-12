@@ -1238,17 +1238,23 @@ Relatório: `docs/08-security/reports/codeql-alert-151-open-mitigated-documented
 Relatório: `docs/08-security/reports/deps-clean-pr-2026-10-13.md`.
 
 - **PR limpa** a partir do `main` atual com **apenas updates seguros** (patch/minor, same-major):
-  `sharp 0.35.4→0.35.5` · `vitest ^4.1.10→^4.1.11` (api+web) · `wrangler ^4.132.0→^4.149.0`.
-  `npm audit` **28 → 21** (−3 high, −4 moderate); `audit:ci` **OK**.
+  `sharp 0.35.4→0.35.5` (api) · `wrangler ^4.132.0→^4.149.0` (web).
+  `npm audit` **28 → 24** (−3 high, −1 moderate); `audit:ci` **OK**.
 - **Excluído — `fastify` ^5.12.5:** o bump criou **instância duplicada** (5.12.5 topo vs 5.11.3 sob
   `@nestjs/platform-fastify`) e **quebrou o `tsc` da API** (`setCookie`/`clearCookie`/`cookies`
   inexistentes — augmentação de tipos de `@fastify/cookie`). **Revertido**; mantido `^5.10.0`
   (resolve 5.11.3 dedupado) e o `tsc` volta a **0**. *Obs.: o #522 também pedia isso — o #522 não
   estava validado.*
+- **Excluído — `vitest` ^4.1.11:** o bump **des-hoisteou** o `@vitest/coverage-v8` da raiz para
+  `apps/api/node_modules`, quebrando o provider de coverage do `vitest` hoisted → o job required
+  **`Test & Coverage`** falhou (`Cannot find package '@vitest/coverage-v8'`, 0 teste coletado).
+  Alinhar o provider a `^4.1.11` **não** re-hoisteou e `npm dedupe` causou churn anormal sem
+  corrigir → **revertido** (vitest fica `^4.1.10`; provider volta hoisted; `--coverage` provado
+  **verde** local). É **workaround de infra**, não de dependência.
 - **Excluídos — MAJORS** (exigem mudança de código/config → tarefa própria): `tailwindcss` 3→4 e
   `vitest` 4→5. O advisory do `braces` (via `tailwindcss`) segue **allowlistado** (governado).
 - **Validações:** `tsc` API **0** e web **0**; suíte API **168/168 (1422/1422)**; suíte web
-  **89/89 (613/613)**; `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
+  **89/89 (615/615)**; `npx vitest run --coverage` **verde** (modo do CI); `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
   (árvore em edição do Operador) → **CI é a autoridade**.
 - **Nenhum código/schema/migration/workflow/infra/segredo/produção/alerta alterado**; diff restrito
   a `apps/api/package.json`, `apps/web/package.json`, `package-lock.json` + docs. Nenhum alerta

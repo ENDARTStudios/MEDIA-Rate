@@ -46,7 +46,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 
 | Frente | Estado | Evidência |
 |---|---|---|
-| PRs #515/#518/#522 | ✅ RESOLVIDA_PARCIALMENTE (T209) | **#518/#522 supersedidas** e **#515 fechada** por uma **PR limpa** (`sharp 0.35.5`, `vitest 4.1.11`, `wrangler 4.149.0`; `npm audit` **28→21**). **Majors excluídos** (`tailwindcss` 3→4, `vitest` 4→5) por exigirem código/config — tarefa própria. Relatório: `reports/deps-clean-pr-2026-10-13.md` |
+| PRs #515/#518/#522 | ✅ RESOLVIDA_PARCIALMENTE (T209) | **#518/#522 supersedidas** e **#515 fechada** por uma **PR limpa** (`sharp 0.35.5`, `wrangler 4.149.0`; `npm audit` **28→24**). **Excluídos com falha real medida:** `vitest 4.1.11` (des-hoisting do provider de coverage → `--coverage` do CI quebrava) e `fastify 5.12.5` (instância duplicada → `tsc` da API quebrava). **Majors** (`tailwindcss` 3→4, `vitest` 4→5) → tarefa de código. Relatório: `reports/deps-clean-pr-2026-10-13.md` |
 | Trivy (119 estruturais) | 🔁 MONITORADA | ruído por design (D-534); parcialmente ligado à decisão de deps/imagem base; recontado por GET (sem interagir com alertas) |
 | audit:ci | ✅ PRONTA | verde no main (gate Lint & Audit required) |
 

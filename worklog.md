@@ -4117,18 +4117,22 @@ rodando de novo em http://localhost:3000.
 ### [2026-10-13] T209 — PR limpa de dependências (supersede #518/#522, fecha #515)
 
 - **Updates seguros aplicados** (patch/minor, same-major): `sharp 0.35.4→0.35.5` (api) ·
-  `vitest ^4.1.10→^4.1.11` (api+web) · `wrangler ^4.132.0→^4.149.0` (web). `npm audit`
-  **28 → 21** (−3 high, −4 moderate); `audit:ci` **OK**. Diff restrito a `apps/api/package.json`,
+  `wrangler ^4.132.0→^4.149.0` (web). `npm audit` **28 → 24** (−3 high, −1 moderate); `audit:ci` **OK**. Diff restrito a `apps/api/package.json`,
   `apps/web/package.json` e `package-lock.json`.
 - **Excluído — `fastify` ^5.12.5:** o bump gerou **instância duplicada** (5.12.5 topo vs 5.11.3 sob
   `@nestjs/platform-fastify`) e **quebrou o `tsc` da API** (`setCookie`/`clearCookie`/`cookies` —
   augmentação de `@fastify/cookie`); **revertido** (mantido `^5.10.0` → 5.11.3 dedupado; `tsc` = 0).
   *O #522 também pedia isso — logo o #522 não estava validado.*
+- **Excluído — `vitest` ^4.1.11:** o bump **des-hoisteou** o `@vitest/coverage-v8` da raiz para
+  `apps/api/node_modules` e o job required **`Test & Coverage`** falhou (`Cannot find package
+  '@vitest/coverage-v8'`, 0 teste coletado). Alinhar o provider a `^4.1.11` não re-hoisteou e o
+  `npm dedupe` churnou (added 7/removed 16/changed 58) sem corrigir → **revertido** (vitest fica
+  `^4.1.10`; `--coverage` provado **verde** local). É workaround de infra.
 - **Excluídos — MAJORS** (exigem código/config → tarefa própria): `tailwindcss` 3→4 e `vitest` 4→5
   (adotado o alvo do #518, 4.1.11, que já resolve o advisory). `braces` (via tailwind) segue
   allowlistado/governado.
 - **Validações:** `tsc` API **0** e web **0**; suíte API **168/168 (1422/1422)**; suíte web
-  **89/89 (613/613)**; `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
+  **89/89 (615/615)**; `npx vitest run --coverage` **verde**; `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
   (árvore do Operador em edição — erro de JSX em arquivo alheio, fora do meu diff) → **CI é a
   autoridade**.
 - **Base/ambiente:** `origin/main` avançou para `d11b4e97` (#551 do Operador); o working tree é
