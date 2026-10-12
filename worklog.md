@@ -3773,3 +3773,23 @@ Suítes: API 992/992 (132 arq); web 479/479.
   tipo e extração (T176/T198)") com o comando de regressão; worklog + exchange atualizados.
 - Diff: versionamento do spec (test-only) + 1 doc. Sem código de produção alterado; sem deps/
   incidente/alertas/GitHub settings/produção/segredos. PR em curso — gates e smoke no STATUS.
+
+### [2026-10-12] T199 — auditoria consolidada de prontidão para GO (branch docs/t199; GO NÃO declarado)
+
+- **Coleta read-only (gh api, GET-only, sanitizada):** `security_and_analysis` → secret
+  scanning `enabled`/**0 alertas**, push protection `enabled`, Dependabot `enabled`;
+  ruleset `protect-main` (20801818) `active` com 4 regras e `bypass_actors`=0; code scanning
+  **120 open = 1 CodeQL (#151) + 119 Trivy** (12 CodeQL `fixed`); runs do main: CI/Security
+  `success` @ `40ee2b9`, monitores `success`, Deploy `waiting` (não aprovado); PRs de deps
+  #515/#518/#522 OPEN sem drift; smoke passivo **7/7 → 200**.
+- **Classificação (sem converter pendência humana em pronta):** PRONTAS = proteção de segredos,
+  Governança, CI/Security/monitores, fila CodeQL de correção, audit, Pacote de GO 4/4;
+  PENDENTE_OPERADOR = #151, incidente/purge, deps+Trivy, backups PG, higiene admin sintética,
+  Deploy waiting, Gov-02 (opcional); MONITORADAS = flakes (Build/Turbopack + suíte API),
+  26 títulos sem elenco.
+- **Docs:** `docs/06-devops-deployment/GO_READINESS_CHECKLIST.md` (novo, canônico) +
+  `docs/08-security/reports/go-readiness-audit-2026-10-12.md` (novo; **template
+  `DECISAO_OPERADOR_GO_READINESS_2026-10-12`**; cópia local em `.claude/reports/`) + bloco T199
+  consolidado em `PENDENCIAS_OPERADOR.md` + worklog + exchange.
+- **GO permanece SUSPENSO** — nada foi alterado (nenhuma config/alerta/PR/deploy); nenhum
+  segredo/PII impresso; PR docs-only em curso — gates e smoke no STATUS.

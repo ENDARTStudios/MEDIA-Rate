@@ -991,3 +991,31 @@ Doc canônico: `docs/06-devops-deployment/GITHUB_BRANCH_PROTECTION.md` (novo).
   revisor humano ativo; qualquer mudança deve ser validada em branch descartável (método D-561).
 - **GO:** Gov-01 **não bloqueia** — seguem pendentes #151, incidente/purge, deps/Trivy,
   B1/UG-01/backups e o monitor do flake da suíte API.
+
+---
+
+### T199 (2026-10-12) — auditoria consolidada de prontidão para GO (read-only; **GO NÃO declarado**)
+
+Relatório: `docs/08-security/reports/go-readiness-audit-2026-10-12.md` (com **template de
+resposta**) · Checklist canônica: `docs/06-devops-deployment/GO_READINESS_CHECKLIST.md` (novo).
+
+- **PRONTAS (evidência objetiva, 2026-10-12):** secret scanning `enabled` com **0 alertas**;
+  push protection `enabled`; Dependabot security updates `enabled`; Gitleaks gate verde;
+  **Gov-01** ruleset `protect-main` (20801818) `active`, regras deletion + non_fast_forward +
+  pull_request + 6 checks required, `bypass_actors` = 0; CI e Security do main `success`
+  @ `40ee2b9`; monitores `success`; audit:ci verde; **Pacote de GO 4/4** (2026-10-05) com
+  Gov-01 reconfirmado; fila CodeQL de correção **esgotada** (12 alertas `fixed` em 2026-10-11);
+  smoke passivo 7/7 → 200.
+- **PENDENTES DO OPERADOR (decisão/ação humana — não convertidas em PRONTA por inferência):**
+  (1) **#151** — único CodeQL open (critical, mitigado): manter open c/ evidência OU dismiss
+  documentado; (2) **INC-2026-10-11** — ENCERRAR_RISCO_RESIDUAL_ACEITO | MANTER_ABERTO |
+  AUTORIZAR_PLANO_PURGE (+ PURGE_HISTORICO); (3) **deps** — fechar #515 / nova PR limpa
+  #518+#522 / adiar; **Trivy 119** — aceitar risco estrutural ou vincular à deps; (4)
+  **backups/alertas Postgres**; (5) **higiene `admin***@mediarate.test`** (conta sintética
+  ainda ADMIN); (6) **Deploy waiting** @ `40ee2b9` (gate P012 — aprovação é do Operador);
+  (7) **Gov-02** (opcional; exige 2º revisor humano).
+- **MONITORADAS:** flake Google Fonts/Turbopack no Build (rerun resolveu em 2026-10-11);
+  flake 1× na suíte API (não reproduzido); 26 títulos sem elenco.
+- **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador**,
+  respondendo o template `DECISAO_OPERADOR_GO_READINESS_2026-10-12` do relatório. Nenhuma
+  configuração/alerta/PR/deploy foi alterado nesta auditoria (read-only).
