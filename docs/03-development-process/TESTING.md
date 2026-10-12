@@ -199,6 +199,22 @@ cd apps/web && E2E_FULL=1 npx playwright test e2e/library-density.spec.ts
 Medição esperada (log `[density]`): mobile 390x844 → `columns=2`, `overflowX=false`;
 desktop 1280x800 → `columns>=6`, `overflowX=false`.
 
+## Scrapers anti-bot — URL por tipo e extração (T176 / T198)
+
+Regressão dos consertos dos scrapers (T176): **Metacritic exige prefixo por tipo**
+(`/movie/`, `/tv/`, `/game/` — sem ele a URL dá 404), **RT usa `/m/` para filme e
+`/tv/` para série** (slug com underscore) e a página nova do RT expõe o rating no
+**JSON-LD** (`ratingValue`), não mais no `tomatometerScore`. `idsExternos.metacritic`
+vence o slug derivado do título.
+
+- Teste (unitário puro, sem rede — fixtures são strings): `apps/api/test/scrapers-t176.spec.ts`
+  (as URLs esperadas são o **resultado**, nunca uma chamada; o probe real de produção
+  documentado no próprio spec está no comentário)
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/scrapers-t176.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
