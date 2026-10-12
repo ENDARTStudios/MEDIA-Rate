@@ -4113,3 +4113,31 @@ rodando de novo em http://localhost:3000.
   (frente #151 → RESOLVIDA_DOCUMENTALMENTE_COM_ALERTA_MANTIDO_OPEN) + `PENDENCIAS_OPERADOR.md`.
 - **Diff docs-only:** nenhum código/`http.utils.ts`/`url-guard.ts`/`ip-guard.ts`/deps/workflow/GitHub
   setting/produção/backup/purge alterado; sem `git add -f`; GO segue **SUSPENSO**.
+
+### [2026-10-13] T209 — PR limpa de dependências (supersede #518/#522, fecha #515)
+
+- **Updates seguros aplicados** (patch/minor, same-major): `sharp 0.35.4→0.35.5` (api) ·
+  `vitest ^4.1.10→^4.1.11` (api+web) · `wrangler ^4.132.0→^4.149.0` (web). `npm audit`
+  **28 → 21** (−3 high, −4 moderate); `audit:ci` **OK**. Diff restrito a `apps/api/package.json`,
+  `apps/web/package.json` e `package-lock.json`.
+- **Excluído — `fastify` ^5.12.5:** o bump gerou **instância duplicada** (5.12.5 topo vs 5.11.3 sob
+  `@nestjs/platform-fastify`) e **quebrou o `tsc` da API** (`setCookie`/`clearCookie`/`cookies` —
+  augmentação de `@fastify/cookie`); **revertido** (mantido `^5.10.0` → 5.11.3 dedupado; `tsc` = 0).
+  *O #522 também pedia isso — logo o #522 não estava validado.*
+- **Excluídos — MAJORS** (exigem código/config → tarefa própria): `tailwindcss` 3→4 e `vitest` 4→5
+  (adotado o alvo do #518, 4.1.11, que já resolve o advisory). `braces` (via tailwind) segue
+  allowlistado/governado.
+- **Validações:** `tsc` API **0** e web **0**; suíte API **168/168 (1422/1422)**; suíte web
+  **89/89 (613/613)**; `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
+  (árvore do Operador em edição — erro de JSX em arquivo alheio, fora do meu diff) → **CI é a
+  autoridade**.
+- **Base/ambiente:** `origin/main` avançou para `d11b4e97` (#551 do Operador); o working tree é
+  compartilhado e o `git checkout` foi recusado pelas edições locais do Operador. Reposicionamento
+  por **plumbing** (`git branch` + `symbolic-ref` + `read-tree --reset`), **sem tocar no working
+  tree** — trabalho do Operador **intacto**. `package-lock.json` reconstruído do blob do `HEAD`
+  (write de arquivo) só para descartar o churn provisório do `fastify`; **sem** `checkout --`,
+  `reset --hard`, `clean`, `stash`, `rebase` ou `force push`.
+- **PRs antigas:** #518/#522 **supersedidas** e #515 **fechada** após o merge, com comentário
+  sanitizado; nenhum alerta interagido (CodeQL/Trivy só por GET); sem interação com settings do
+  Dependabot/alerts/secrets/environments. Relatório:
+  `docs/08-security/reports/deps-clean-pr-2026-10-13.md`. **GO segue SUSPENSO.**

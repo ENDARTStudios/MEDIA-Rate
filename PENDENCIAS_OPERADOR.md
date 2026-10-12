@@ -1230,3 +1230,33 @@ Relatório: `docs/08-security/reports/codeql-alert-151-open-mitigated-documented
 - **Permanecem pendentes (não tocados):** `T209` (deps #515/#518/#522 + Trivy) · `T212` (backups) ·
   `T213` (purge) · Deploy `waiting` em Production · **GO final explícito do Operador**.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T209 (2026-10-13) — PR limpa de dependências: supersede #518/#522, fecha #515 (deps + docs; **pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/deps-clean-pr-2026-10-13.md`.
+
+- **PR limpa** a partir do `main` atual com **apenas updates seguros** (patch/minor, same-major):
+  `sharp 0.35.4→0.35.5` · `vitest ^4.1.10→^4.1.11` (api+web) · `wrangler ^4.132.0→^4.149.0`.
+  `npm audit` **28 → 21** (−3 high, −4 moderate); `audit:ci` **OK**.
+- **Excluído — `fastify` ^5.12.5:** o bump criou **instância duplicada** (5.12.5 topo vs 5.11.3 sob
+  `@nestjs/platform-fastify`) e **quebrou o `tsc` da API** (`setCookie`/`clearCookie`/`cookies`
+  inexistentes — augmentação de tipos de `@fastify/cookie`). **Revertido**; mantido `^5.10.0`
+  (resolve 5.11.3 dedupado) e o `tsc` volta a **0**. *Obs.: o #522 também pedia isso — o #522 não
+  estava validado.*
+- **Excluídos — MAJORS** (exigem mudança de código/config → tarefa própria): `tailwindcss` 3→4 e
+  `vitest` 4→5. O advisory do `braces` (via `tailwindcss`) segue **allowlistado** (governado).
+- **Validações:** `tsc` API **0** e web **0**; suíte API **168/168 (1422/1422)**; suíte web
+  **89/89 (613/613)**; `audit:ci` OK; prettier limpo. **`next build` local não é gate válido**
+  (árvore em edição do Operador) → **CI é a autoridade**.
+- **Nenhum código/schema/migration/workflow/infra/segredo/produção/alerta alterado**; diff restrito
+  a `apps/api/package.json`, `apps/web/package.json`, `package-lock.json` + docs. Nenhum alerta
+  interagido (CodeQL/Trivy lidos só por GET).
+- **PRs antigas:** #518/#522 **supersedidas** e #515 **fechada** (após o merge desta), com
+  comentário sanitizado. Branches antigas não resolvidas; nenhuma interação com settings do
+  Dependabot/alerts/secrets/environments.
+- **Permanecem pendentes (não tocados):** `T212` (backups/alertas Postgres) · `T213` (purge) ·
+  Deploy `waiting` em Production (aprovação humana) · **GO final explícito do Operador** ·
+  majors de deps como tarefa de código (Tailwind 4 / Vitest 5).
+- **GO:** segue **SUSPENSO**.
