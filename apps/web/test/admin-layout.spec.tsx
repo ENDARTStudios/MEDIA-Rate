@@ -23,16 +23,23 @@ vi.mock("@/lib/navigation", () => ({
     </a>
   ),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: backMock, prefetch: vi.fn() }),
+  redirect: vi.fn(),
+}));
+
+// T202: o layout virou gate server-side — nos testes de UX o gate passa (ADMIN).
+vi.mock("@/lib/admin-auth-server", () => ({
+  getServerAdminGate: vi.fn(async () => ({ autenticado: true, isAdmin: true })),
 }));
 
 import AdminLayout from "@/app/[locale]/admin/layout";
 
-function renderLayout() {
+async function renderLayout() {
   return render(
     <NextIntlClientProvider locale="pt-BR" messages={{}}>
-      <AdminLayout>
-        <div data-testid="conteudo-pagina">conteúdo</div>
-      </AdminLayout>
+      {await AdminLayout({
+        children: <div data-testid="conteudo-pagina">conteúdo</div>,
+        params: Promise.resolve({ locale: "pt-BR" }),
+      })}
     </NextIntlClientProvider>,
   );
 }
@@ -42,8 +49,8 @@ describe("AdminLayout — navegação global da Área de Administrador", () => {
     backMock.mockClear();
   });
 
-  it("renderiza os 6 atalhos em todas as páginas do /admin", () => {
-    renderLayout();
+  it("renderiza os 6 atalhos em todas as páginas do /admin", async () => {
+    await renderLayout();
     for (const rota of ["diagnostics", "usuarios", "catalogo", "metricas", "auditoria", "lgpd"]) {
       expect(screen.getByTestId(`admin-nav-link-${rota}`)).toBeTruthy();
     }
@@ -51,8 +58,8 @@ describe("AdminLayout — navegação global da Área de Administrador", () => {
     expect(screen.getByTestId("conteudo-pagina")).toBeTruthy();
   });
 
-  it("botão Voltar retorna à página anterior (router.back)", () => {
-    renderLayout();
+  it("botão Voltar retorna à página anterior (router.back)", async () => {
+    await renderLayout();
     fireEvent.click(screen.getByTestId("admin-voltar"));
     expect(backMock).toHaveBeenCalledTimes(1);
   });

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api } from "@/lib/http";
+import { api, ApiError } from "@/lib/http";
+import AdminAcessoNegado from "@/components/admin/AdminAcessoNegado";
 
 interface Agendado {
   id: string;
@@ -15,6 +16,12 @@ interface LgpdPainel {
   consentimentos: { total: number; analyticsAceito: number; monitoringAceito: number };
 }
 
+/** T202: negação (403/„sem permissão") substitui TODO o painel — early-return seguro. */
+function ehNegacaoAcesso(e: unknown): boolean {
+  if (e instanceof ApiError) return e.status === 403;
+  return e instanceof Error && /permiss/i.test(e.message);
+}
+
 /**
  * Onda 6 admin (P3) — visão LGPD: exclusões agendadas (carência de 30 dias)
  * com gatilho manual da purga (POST /admin/lgpd/purge — mesmo lote do cron)
@@ -23,6 +30,7 @@ interface LgpdPainel {
 export default function AdminLgpdPage() {
   const [data, setData] = useState<LgpdPainel | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [negado, setNegado] = useState(false);
   const [purga, setPurga] = useState<{
     verificados: number;
     purgados: number;
@@ -36,6 +44,10 @@ export default function AdminLgpdPage() {
       .get<LgpdPainel>("/api/v1/admin/lgpd")
       .then(setData)
       .catch((e) => {
+        if (ehNegacaoAcesso(e)) {
+          setNegado(true);
+          return;
+        }
         setErro(e instanceof Error ? e.message : "Falha ao carregar a visão LGPD.");
       });
   }, []);
@@ -61,10 +73,18 @@ export default function AdminLgpdPage() {
       setPurga(r);
       await carregar();
     } catch (e) {
+      if (ehNegacaoAcesso(e)) {
+        setNegado(true);
+        return;
+      }
       setErro(e instanceof Error ? e.message : "Falha ao executar a purga.");
     } finally {
       setOcupado(false);
     }
+  }
+
+  if (negado) {
+    return <AdminAcessoNegado />;
   }
 
   return (

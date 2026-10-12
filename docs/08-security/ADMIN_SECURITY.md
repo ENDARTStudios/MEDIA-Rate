@@ -34,10 +34,14 @@ irreversíveis; MFA como follow-up estratégico.
 
 - ✅ API: `@Roles("ADMIN")` em todos os endpoints do `AdminController`; CSRF global; audit no
   purge e nas ações admin; `RolesGuard` banco-por-request.
-- ❌ Web: layout/páginas `/admin/*` são `"use client"` **sem validação** — shell + botão
-  destrutivo renderizam para qualquer autenticado (achado T201
-  `ADMIN_UI_LEAK_SERVER_BOUNDARY_MISSING`). **Correção = T202** (layout server component
-  validando ADMIN antes de renderizar + páginas com early-return no 403 + rate limit admin).
+- ✅ Web: **gate server-side implementado (T202)** — `admin/layout.tsx` valida sessão + papel
+  `ADMIN` via `getServerAdminGate()` (probe ao endpoint `@Roles("ADMIN")`, fail-closed)
+  **antes** de renderizar o `AdminShell`/páginas; não-admin recebe mensagem genérica
+  (`admin.acessoNegado`) sem nenhuma superfície administrativa; anônimo vai para login;
+  página LGPD com early-return na negação. Como re-verificar:
+  `rg -n "getServerAdminGate" apps/web/src/app/[locale]/admin/layout.tsx` (gate presente) e
+  specs `apps/web/test/admin-layout-auth.spec.tsx` / `admin-auth-server.spec.ts`.
+- ⏳ Pendente (T203): rate limit específico admin, step-up para destrutivas, MFA estratégico.
 
 ## Como auditar (read-only)
 

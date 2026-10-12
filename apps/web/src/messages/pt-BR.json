@@ -484,7 +484,8 @@
     "totalUsers": "Total de usuários",
     "activeSubscriptions": "Assinaturas ativas",
     "plusUsers": "Usuários Plus",
-    "premiumUsers": "Usuários Premium"
+    "premiumUsers": "Usuários Premium",
+    "acessoNegado": "Acesso não autorizado."
   },
   "pricing": {
     "headline": "Escolha como você quer descobrir seu próximo título",
