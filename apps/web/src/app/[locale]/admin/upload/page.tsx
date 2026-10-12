@@ -64,7 +64,7 @@ export default function AdminUploadPage() {
       </h1>
       <form onSubmit={enviar} className="space-y-4">
         <label className="block">
-          <span className="text-sm text-gray-600 dark:text-gray-300">ID da mídia</span>
+          <span className="text-sm text-gray-300">ID da mídia</span>
           <input
             value={midiaId}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setMidiaId(e.target.value)}
@@ -73,7 +73,7 @@ export default function AdminUploadPage() {
           />
         </label>
         <label className="block">
-          <span className="text-sm text-gray-600 dark:text-gray-300">Tipo</span>
+          <span className="text-sm text-gray-300">Tipo</span>
           <select
             value={tipo}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => setTipo(e.target.value)}
@@ -86,7 +86,7 @@ export default function AdminUploadPage() {
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-gray-600 dark:text-gray-300">Arquivo (JPEG/PNG/WebP/AVIF, máx 10 MiB)</span>
+          <span className="text-sm text-gray-300">Arquivo (JPEG/PNG/WebP/AVIF, máx 10 MiB)</span>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp,image/avif"

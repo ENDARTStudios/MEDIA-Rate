@@ -1,0 +1,408 @@
+/* ==========================================================================
+ * category-orbit.module.css — constelação das 6 categorias (hero).
+ *
+ * Contrato: .agents/skills/media-rate-ui-ux/references/hero-playbook.md
+ * Tokens: cores canônicas vêm de CATEGORY_TOKENS (design-tokens.ts) via --c.
+ *
+ * Três camadas de movimento (motion-design):
+ *  1. primária  — entrada em cascata (iconIn) no <a>
+ *  2. secundária— flutuação ambiente + brilho pulsante (iconFloat/glowPulse)
+ *  3. ambiente  — anel orbital girando + pulso radial (ringSpin/ringPulse)
+ *
+ * Somente transform/opacity/filter são animados (sem reflow, sem CLS).
+ * prefers-reduced-motion desliga tudo e mantém os 6 tiles visíveis.
+ * ========================================================================== */
+
+.stage {
+  --r: 126px;
+  --tile: 86px;
+  --rh: 58px; /* raio do hub central (usado pelos spokes) */
+  position: relative;
+  /* Tamanho fixo no desktop: o anel e os rótulos são absolutos, então a altura
+     precisa ser explícita (senão o stage colapsa) e folgada o bastante para o
+     rótulo do tile inferior (200 + 126 + 43 + 8 + 12 = 389 < 400). */
+  width: 400px;
+  height: 400px;
+  margin-inline: auto;
+  perspective: 900px;
+}
+
+/* 1024–1279px: coluna mais estreita — encolhe anel, hub e tile juntos. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .stage {
+    --r: 108px;
+    --tile: 72px;
+    --rh: 50px;
+    width: 340px;
+    height: 340px;
+  }
+}
+
+/* Wrapper do tilt de ponteiro (--tx/--ty no .stage). */
+.tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg));
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- camada de ambiente: anel orbital ---------- */
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1);
+  border: 1px dashed rgba(129, 140, 248, 0.28);
+  border-radius: 9999px;
+}
+
+/* Cometa que percorre o anel. Filho do .ring de propósito: o recorte do mask
+   é relativo à caixa do ANEL (antes, sendo irmão, calculava sobre o stage
+   inteiro e o arco saía maior que a órbita dos ícones). */
+.ringArc {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(129, 140, 248, 0.34) 42deg,
+    rgba(225, 29, 72, 0.28) 78deg,
+    transparent 130deg
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent 96.5%, #000 97.5%);
+  mask: radial-gradient(closest-side, transparent 96.5%, #000 97.5%);
+  animation: ringSpin 26s linear infinite;
+}
+
+/* Ligações hub → categoria (leitura de "constelação"). */
+.spokes {
+  position: absolute;
+  inset: 0;
+}
+
+.spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: calc(var(--r) - var(--rh));
+  transform-origin: 50% 0;
+  transform: rotate(var(--a)) translateY(var(--rh));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--c) 4%, transparent),
+    color-mix(in srgb, var(--c) 22%, transparent)
+  );
+}
+
+.ringPulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  border-radius: 9999px;
+  opacity: 0;
+  animation: ringPulse 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: calc(var(--rh) * 2);
+  height: calc(var(--rh) * 2);
+  margin: calc(var(--rh) * -1) 0 0 calc(var(--rh) * -1);
+  place-items: center;
+  border: 1px solid rgba(129, 140, 248, 0.16);
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(129, 140, 248, 0.14), transparent 62%),
+    rgba(18, 18, 28, 0.72);
+  text-align: center;
+}
+
+.hubWord {
+  font-family: var(--font-heading);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #a0a0b8;
+}
+
+/* ---------- lista + itens ---------- */
+
+.list {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--tile);
+  height: var(--tile);
+  margin: calc(var(--tile) / -2) 0 0 calc(var(--tile) / -2);
+  /* Posiciona no anel mantendo o ícone "em pé" (contra-rotação). */
+  transform: rotate(var(--a)) translate(var(--r)) rotate(calc(var(--a) * -1));
+}
+
+.tileLink {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: iconIn 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 80ms);
+}
+
+.iconBox {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--c) 26%, transparent);
+  border-radius: 22px;
+  background-color: color-mix(in srgb, var(--c) 9%, #101018);
+  box-shadow:
+    inset 0 1px 0 rgba(245, 245, 247, 0.06),
+    0 0 22px color-mix(in srgb, var(--c) 12%, transparent);
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    background-color 200ms ease,
+    box-shadow 260ms ease,
+    opacity 200ms ease,
+    filter 200ms ease;
+}
+
+.iconFloat {
+  display: grid;
+  place-items: center;
+  animation: iconFloat 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.77s);
+}
+
+/* Brilho colorido atrás do tile — só opacity anima. */
+.iconGlow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 26px;
+  background: var(--c);
+  filter: blur(16px);
+  opacity: 0.16;
+  animation: glowPulse 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.77s);
+}
+
+.label {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--c);
+  opacity: 0.82;
+  transition: opacity 200ms ease;
+}
+
+/* ---------- interação ---------- */
+
+.tileLink:hover .iconBox,
+.tileLink:focus-visible .iconBox {
+  transform: translateY(-7px) scale(1.06);
+  border-color: color-mix(in srgb, var(--c) 70%, transparent);
+  background-color: color-mix(in srgb, var(--c) 18%, #101018);
+  box-shadow:
+    inset 0 1px 0 rgba(245, 245, 247, 0.1),
+    0 22px 40px -16px var(--c),
+    0 0 30px color-mix(in srgb, var(--c) 26%, transparent);
+}
+
+.tileLink:hover .label,
+.tileLink:focus-visible .label {
+  opacity: 1;
+}
+
+.tileLink:hover .iconGlow,
+.tileLink:focus-visible .iconGlow {
+  opacity: 0.3;
+  animation-play-state: paused;
+}
+
+/* Staging (1/3 rule): com um item em foco, os irmãos recuam. */
+.list:has(.tileLink:hover) .tileLink:not(:hover) .iconBox,
+.list:has(.tileLink:focus-visible) .tileLink:not(:focus-visible) .iconBox {
+  opacity: 0.5;
+  filter: saturate(0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none;
+    transition: none;
+  }
+
+  .tileLink,
+  .iconFloat,
+  .iconGlow,
+  .ringArc,
+  .ringPulse {
+    animation: none;
+  }
+
+  .tileLink {
+    opacity: 1;
+  }
+
+  .iconGlow {
+    opacity: 0.2;
+  }
+
+  .ringPulse {
+    opacity: 0.18;
+  }
+
+  .iconBox,
+  .label {
+    transition: none;
+  }
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes iconIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.62);
+    filter: blur(6px);
+  }
+  60% {
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes iconFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.14;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes ringSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  35% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+/* ---------- responsivo ---------- */
+
+/* Abaixo de 1024px a constelação colapsa numa grade 3×2 (mesmo DOM). */
+@media (max-width: 1023px) {
+  .stage {
+    width: 100%;
+    height: auto;
+    max-width: 420px;
+    perspective: none;
+  }
+
+  .tilt {
+    position: static;
+    transform: none;
+    transition: none;
+  }
+
+  .ring,
+  .ringArc,
+  .ringPulse,
+  .spokes,
+  .hub {
+    display: none;
+  }
+
+  .list {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 22px 26px;
+  }
+
+  .item {
+    position: static;
+    margin: 0;
+    width: 78px;
+    height: 78px;
+    transform: none;
+  }
+
+  .label {
+    top: calc(100% + 6px);
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 400px) {
+  .item {
+    width: 68px;
+    height: 68px;
+  }
+
+  .list {
+    gap: 18px 20px;
+  }
+}
+

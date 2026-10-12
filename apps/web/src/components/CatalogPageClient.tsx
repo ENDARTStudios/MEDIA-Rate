@@ -210,7 +210,7 @@ function CatalogContent({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
         <svg
-          className="w-14 h-14 text-gray-600 mb-4"
+          className="w-14 h-14 text-gray-400 mb-4"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -240,7 +240,7 @@ function CatalogContent({
     <>
       <p className="text-sm text-[#9CA3AF] mb-4">{t("count", { count: data.total })}</p>
       {isFetching && !isLoading && (
-        <div className="mb-3 flex items-center gap-2 text-xs text-[#6B7280]" aria-live="polite">
+        <div className="mb-3 flex items-center gap-2 text-xs text-[#9CA3AF]" aria-live="polite">
           <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
               className="opacity-25"

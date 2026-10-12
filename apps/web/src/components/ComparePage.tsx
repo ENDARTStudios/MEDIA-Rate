@@ -36,7 +36,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
   const score = stats.score_medio;
   return (
     <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6 flex-1">
-      <p className="text-xs uppercase tracking-widest text-[#6B6B85] mb-1">{label}</p>
+      <p className="text-xs uppercase tracking-widest text-[#85859F] mb-1">{label}</p>
       <h3 className="text-xl font-heading font-bold text-[#F5F5F7] mb-5">
         {stats.usuario.nome ?? "Perfil"}
       </h3>
@@ -53,7 +53,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
             style={{
               color:
                 score == null
-                  ? "#6B6B85"
+                  ? "#85859F"
                   : score >= 70
                     ? "#34D399"
                     : score >= 40
@@ -71,7 +71,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {Object.entries(stats.por_tipo).length === 0 && (
-          <span className="text-xs text-[#6B6B85]">—</span>
+          <span className="text-xs text-[#85859F]">—</span>
         )}
         {Object.entries(stats.por_tipo).map(([tipo, count]) => (
           <span
@@ -87,7 +87,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
         {t("topGenres")}
       </p>
       <ul className="mt-2 space-y-1">
-        {stats.generos_top.length === 0 && <li className="text-xs text-[#6B6B85]">—</li>}
+        {stats.generos_top.length === 0 && <li className="text-xs text-[#85859F]">—</li>}
         {stats.generos_top.map((g) => (
           <li key={g.nome} className="flex justify-between text-sm">
             <span className="text-[#A0A0B8]">{g.nome}</span>
@@ -144,7 +144,7 @@ export function ComparePage() {
                 setIds(next);
               }}
               placeholder={t("userId") + ` ${i + 1}`}
-              className="flex-1 rounded-md border border-[#2A2A3D] bg-[#12121C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="flex-1 rounded-md border border-[#2A2A3D] bg-[#12121C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             />
           ))}
           <Button onClick={() => void comparar()} disabled={busy}>
@@ -173,7 +173,7 @@ export function ComparePage() {
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-[#2A2A3D] py-20 text-center">
-            <p className="text-sm text-[#6B6B85]">{t("hint")}</p>
+            <p className="text-sm text-[#85859F]">{t("hint")}</p>
           </div>
         )}
       </div>

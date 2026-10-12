@@ -17,9 +17,12 @@ export const colors = {
   text: {
     primary: "#F5F5F7",
     secondary: "#A0A0B8",
-    // D-203 define #6B6B85; Ajuste AA: #80809B (5.3:1 sobre #05050A) —
-    // o valor original (3.99:1) falha WCAG AA para texto normal.
-    muted: "#80809B",
+    // D-203 define #6B6B85 (reprova AA). T210: muted = #85859F — passa AA de
+    // texto normal sobre as TRÊS superfícies do produto (fundo 5.67:1, card
+    // 5.18:1, elevado #1B1B2C 4.72:1). O valor anterior (#85859F, 5.31:1) só
+    // falhava sobre superfície elevada (4.42:1) — era o "débito conhecido"
+    // apontado pelo detector de DOM nos badges de contagem do catálogo.
+    muted: "#85859F",
   },
   score: {
     9: "#34D399",
@@ -238,7 +241,7 @@ export const surface = {
 export const text = {
   primary: "#F5F5F7",
   secondary: "#A0A0B8",
-  muted: "#80809B",
+  muted: "#85859F",
   inverse: "#05050A",
 } as const;
 export const score = {

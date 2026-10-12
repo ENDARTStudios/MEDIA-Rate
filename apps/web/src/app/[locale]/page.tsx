@@ -15,6 +15,9 @@ import {
   siteUrl,
 } from "@/lib/seo";
 import { getCatalog } from "@/lib/api";
+// D-209/T191: contagem e nomes de fontes são DERIVADOS do registro — o hero
+// nunca volta a exibir número hardcoded nem lista fixa de 6 nomes.
+import { FONTES_ATIVAS, NUM_FONTES_ATIVAS } from "@/lib/sources";
 import { HomeContentSections } from "@/components/HomeContentSections";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
 import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
@@ -71,6 +74,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const tCatalog = await getTranslations("catalog");
   const tWatchlist = await getTranslations("watchlist");
   const tInteraction = await getTranslations("interaction");
+  const tScoreDial = await getTranslations("scoredial");
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -115,14 +119,21 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     <LayeredBackground>
       <StructuredData data={[websiteJsonLd, orgJsonLd]} />
       <HeroSection
-        eyebrow={t("heroEyebrow")}
         title={t("hero")}
         subtitle={t("heroSubtitle")}
         cta={t("cta")}
         ctaHref="/register"
         ctaSecondary={t("ctaSecondary")}
         ctaSecondaryHref="/catalog"
-        sourcesLabel={t("sourcesLabel")}
+        ctaHint={t("ctaHint")}
+        categoriesLabel={t("categoriesLabel")}
+        proofTitle={t("proofTitle")}
+        proofBody={t("proofBody")}
+        criticLabel={tScoreDial("critic")}
+        audienceLabel={tScoreDial("audience")}
+        consensusLabel={tScoreDial("consensus")}
+        sourcesLabel={t("sourcesLabel", { count: NUM_FONTES_ATIVAS })}
+        sourceNames={FONTES_ATIVAS.map((fonte) => fonte.nome)}
       />
 
       <HomeStats />

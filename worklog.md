@@ -3936,6 +3936,107 @@ Suítes: API 992/992 (132 arq); web 479/479.
   `SECURITY_AUTH_DESIGN.md` (Opção B movida para implementada) + `TESTING.md` (comando com
   admin-gate.spec) + PENDENCIAS (bloco T206). PR em curso — gates e smoke no STATUS.
 
+### [2026-10-12] T207 — tooling de UI/UX versionado + redesenho da hero (D-579)
+
+- **Tooling instalado/configurado** (skills de projeto versionadas em `.zcode/skills/`):
+  `media-rate-ui-ux` (SKILL + `references/tokens|anti-patterns|performance-lcp|marketing-funnel|hero-playbook`),
+  `ux-copywriting`, `design-review` (+ `scripts/contrast-audit.mjs`), `visual-qa`
+  (+ `scripts/visual-qa.mjs`). Ponteiros de descoberta em `.agents/skills/` (git-ignored,
+  conforme `.gitignore` §50-53) e **AGENTS.md** atualizado — único canal lido por todo agente
+  (o `/skill` deste harness não resolve nenhuma skill nesta sessão, nem as pré-existentes).
+- **Subagentes novos** (`.zcode/agents/`): `ui-ux-designer`, `ux-copywriter`,
+  `design-reviewer`, `visual-qa-auditor` + `README.md` com o pipeline recomendado.
+- **Hero redesenhada** (`HeroSection.tsx` server-first; `CategoryIconRow.tsx` + `category-orbit.module.css`;
+  `HeroSourcesMarquee.tsx` + `hero-proof.module.css`; copy nova em 3 locales; `page.tsx` passa
+  `FONTES_ATIVAS`/`NUM_FONTES_ATIVAS`/`scoredial.*`): layout assimétrico (o trio centralizado era
+  proibido por D-065), funil gancho→promessa→prova→CTA, 6 ícones canônicos com movimento em 3
+  camadas (CSS puro: cascata de entrada, flutuação+glow, anel orbital com cometa; tilt de ponteiro
+  ±6° só em desktop/fine pointer; `prefers-reduced-motion` desliga tudo e mantém os 6 visíveis).
+- **Correções de verdade/dados**: `landing.sourcesLabel` deixou de dizer "11 fontes" hardcoded
+  (o valor derivado é 14) e virou ICU `{count}` via `NUM_FONTES_ATIVAS`; a antiga lista fixa de 6
+  nomes deu lugar ao marquee com `FONTES_ATIVAS` (14 nomes reais). `HomeStats`: `#6B6B85`
+  (3,99:1, reprova AA) → `#80809B` (5,31:1).
+- **Evidência**: web **591/591** (86 arquivos; inclui `test/hero-constellation.spec.tsx`, 12 casos:
+  ordem do funil, 6 tokens canônicos, contagem derivada de fontes, `{count}` sem dígito, bloco de
+  reduced-motion no CSS, guarda T087) · `tsc --noEmit` API+web 0 · `contrast-audit` 50/51 (débito
+  documentado: `text.muted` sobre `#1B1B2C`) · `visual-qa --axe` pt/en/es: 0 violações **na hero**,
+  sem overflow, CTA acima da dobra em 1440/1024/768/375 · artefatos em `.dsh-artifacts/visual-qa/`.
+- **Pendências registradas (não corrigidas)**: navbar com 13 px de overflow horizontal em 768 px
+  (`Navbar.tsx`, `hidden md:flex`), débito `color-contrast` pré-existente da página
+  (`#6B7280`/`#6B6B85` em `HomeContentSections`/`kbd`/cards) e sweep opcional de `#6B6B85`→`#80809B`
+  (56 ocorrências em `apps/web/src`). Bundle experimental de agent-team **não** habilitado
+  (decisão do Operador).
+
+### [2026-10-12] T208 — auditoria das 22 ferramentas de UI/UX + detector determinístico + registries (D-580)
+
+- **Auditoria**: 22 URLs analisadas por 8 subagentes em 2 workflows (pesquisa web real,
+  licença e método de instalação verificados no repositório/pacote). Matriz de decisão
+  versionada em `.zcode/skills/media-rate-ui-ux/references/design-tooling.md`;
+  atribuições em `.zcode/skills/THIRD-PARTY.md`.
+- **Instalado**: `impeccable@4.5.2` (Apache-2.0) como devDependency **fixa** na raiz
+  (zero deps de runtime; engine por pacote opcional de plataforma) + wrapper
+  `apps/web/scripts/design-detect.mjs` (fixa versão, desliga telemetria, resume por
+  regra, preserva exit 0/2/1) e scripts `design:detect`, `design:detect:json`,
+  `design:contrast`, `design:visual`. `.impeccable/config.json` com ignores
+  justificados; `.gitignore` para o estado local do detector.
+- **Registries** em `apps/web/components.json`: `@react-bits` (MIT+Commons Clause,
+  allow-list), `@kokonutui`, `@bklit`, `@componentry`, `@obsidian` (MIT). Sem
+  Aceternity (proprietária, proíbe copiar), sem Kobra (free = uso pessoal), sem
+  FigmaToCode (GPL-3.0) e sem 21st.dev (API key + metering). Documentado o
+  workaround `npm_config_userconfig` (o `allow-scripts` do `~/.npmrc` quebra
+  `shadcn add` em instalação project-scoped).
+- **Implementado no produto**: `CountUpValue` (adaptado do `CountUp` do React Bits
+  para locale-aware + SSR-safe + reduced-motion) usado por `HomeStats`, corrigindo
+  de passagem o `toLocaleString("pt-BR")` fixo; `<MotionConfig reducedMotion="user">`
+  global em `providers/motion-provider.tsx` (antes inexistente, o gate de movimento
+  dependia de cada componente lembrar de checar).
+- **Skills vendorizadas (locais, git-ignored)** em `.agents/skills/`: 10 do
+  `emilkowalski/skills` (MIT) + `redesign-skill`/`output-skill` do `taste-skill` (MIT),
+  com `_upstream/README.md` (como atualizar + precedência) e as licenças originais.
+  Recortes versionados: `references/motion-review-standards.md` (10 padrões, gatilhos,
+  hierarquia de remédio, orçamento por elemento, mapa GSAP/motion/animejs) e
+  `references/marketing-preflight.md`.
+- **Evidência**: web 591/591 (86 arquivos) · `tsc --noEmit` web 0 · eslint 0 nos
+  alterados · `design:detect` 5 achados/2 regras (pré-existentes; ignores D-066 e
+  T031 aplicados) · `design:contrast` 50/51 · axe sem violação nova · SSR conferido nos
+  3 locales (`data-countup`: 17.217 pt-BR / 17,217 en-US; 14 fontes; 6 categorias).
+- **Observação de ambiente**: `npm run typecheck` da RAIZ falha em `apps/api` por
+  arquivos **não commitados de outro agente** (`admin-stepup.*` referencia módulos
+  inexistentes) — fora do escopo, preservado intocado (mesmo rationale de T206).
+
+**Adendo T208 (mesma rodada).** (1) Harness de **regressão visual** do Playwright
+criado em `apps/web/playwright.visual.config.ts` + `apps/web/visual/hero.visual.spec.ts`
+(`npm run test:visual` / `test:visual:update`), com baseline de pixel sob
+`prefers-reduced-motion: reduce` (única forma de obter frames estáveis) + teste
+estrutural cross-platform; baselines git-ignored por máquina e **fora do CI** (o job
+de E2E roda em Linux). (2) O `shadcn add` subiu `motion` para 12.43.0 como efeito
+colateral — **revertido** (`apps/web/package.json` restaurado, `npm install`
+reconciliou `motion`/`motion-dom` em 12.42.2); o `package-lock.json` agora tem apenas
+adição (+106 linhas: `impeccable` e os 5 pacotes de plataforma `@impeccable/cli-*`),
+zero remoção. `apps/web/next-env.d.ts` (reescrito pelo `next build` para `.next/types`)
+também restaurado. (3) Dev server órfão em `:3000` (o kill do job no Windows não mata
+o processo `next dev`) foi encerrado com `taskkill /PID 22860 /F`; servidor limpo
+rodando de novo em http://localhost:3000.
+
+### [2026-10-12] T209 — hero sem eyebrow chip + baseline de DOM renderizado (D-581)
+
+- **Detector no modo DOM** (`node node_modules/impeccable/cli/bin/cli.js detect <url>`)
+  medido em 3 rotas: `/pt-BR` 56 → **53** achados após corrigir o hero;
+  `/pt-BR/catalog` 21; `/pt-BR/pricing` 13 (inclui `skipped-heading`).
+- **Corrigido**: pill de marca acima do H1 removido (achado `hero-eyebrow-chip`,
+  D-065 e duplicação do wordmark), chave `landing.heroEyebrow` removida dos 3
+  locales, regra adicionada em `anti-patterns.md` e guardas novas no spec do hero.
+- **Implementado das skills adotadas**: teste de dados worst-case (`break-ui`) para
+  o hero (título longo de i18n, 1 fonte, nenhuma fonte) e spec nova do contador
+  (`countup-value.spec.tsx`) travando locale/SSR/extremos.
+- **Harness visual**: recorte de pixel agora é região fixa de página (abaixo do
+  cabeçalho `fixed`) — determinístico; `test:visual` passou 4/4 em duas execuções
+  consecutivas após re-semear o baseline.
+- **Evidência final**: web **607/607** (89 arquivos; +16 testes nesta tarefa) ·
+  `tsc --noEmit` web 0 · eslint 0 nos alterados · `design:detect` 5 achados/2
+  regras (fonte) · `design:contrast` 50/51 · build de produção (em execução no
+  fechamento da rodada; verde na rodada anterior com o mesmo conjunto).
+
 ### [2026-10-13] T205 Fase 1 — step-up por re-auth de senha nas ações destrutivas admin
 
 - **API:** `POST /api/v1/admin/step-up` (`@Roles("ADMIN")`) reusa `PasswordService.verify`

@@ -109,9 +109,12 @@ export function PricingCards({
               )}
 
               <div className="mb-4">
-                <h3 className="text-lg font-heading font-bold text-[#F5F5F7] capitalize">
+                {/* T210: era <h3> e a página (/pricing) só tem <h1> → pulava o
+                    nível 2 (achado `skipped-heading` do detector de DOM).
+                    O componente é usado APENAS nesta página. */}
+                <h2 className="text-lg font-heading font-bold text-[#F5F5F7] capitalize">
                   {t(plan.id)}
-                </h3>
+                </h2>
                 <div className="mt-3 flex items-baseline gap-1">
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.span
@@ -131,7 +134,7 @@ export function PricingCards({
                     /{safeBilling === "annual" ? t("year") : t("month")}
                   </span>
                 </div>
-                <p className="text-xs text-[#6B6B85] mt-0.5">
+                <p className="text-xs text-[#85859F] mt-0.5">
                   {plan.price === 0
                     ? t("noCard")
                     : safeBilling === "annual"
@@ -177,14 +180,14 @@ export function PricingCards({
                   {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
                       explícitos ANTES do clique (nunca consequência escondida). */}
                   {plan.id === "plus" && plan.price > 0 && (
-                    <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
+                    <p className="text-xs text-[#85859F] text-center mt-2 leading-relaxed">
                       {t("trialPlus", {
                         value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                       })}
                     </p>
                   )}
                   {plan.id === "premium" && (
-                    <p className="text-xs text-[#80809B] text-center mt-2 leading-relaxed">
+                    <p className="text-xs text-[#85859F] text-center mt-2 leading-relaxed">
                       {t("renewInfo", {
                         value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                       })}

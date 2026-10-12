@@ -195,7 +195,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   );
                 })()
               ) : (
-                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280]">
+                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#9CA3AF]">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -259,7 +259,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                     setShared(true);
                     setTimeout(() => setShared(false), 2000);
                   }}
-                  className="text-xs text-[#6B7280] hover:text-[#818CF8] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
+                  className="text-xs text-[#9CA3AF] hover:text-[#818CF8] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
                   title={t("share")}
                   aria-label={t("share")}
                 >
@@ -308,7 +308,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               )}
             </div>
           ) : (
-            <p className="text-sm text-[#6B7280] italic">{t("synopsisUnavailable")}</p>
+            <p className="text-sm text-[#9CA3AF] italic">{t("synopsisUnavailable")}</p>
           )}
         </div>
 
@@ -321,12 +321,12 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   key={c.name}
                   className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-[#1C1C2E]"
                 >
-                  <div className="w-9 h-9 rounded-full bg-[#1C1C2E] flex items-center justify-center text-[#6B7280] text-xs font-bold">
+                  <div className="w-9 h-9 rounded-full bg-[#1C1C2E] flex items-center justify-center text-[#9CA3AF] text-xs font-bold">
                     {c.name[0]}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm text-[#EDE7DC] truncate">{c.name}</p>
-                    <p className="text-xs text-[#6B7280] truncate">{c.role}</p>
+                    <p className="text-xs text-[#9CA3AF] truncate">{c.role}</p>
                   </div>
                 </div>
               ))}
@@ -334,7 +334,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
           </div>
         ) : (
           <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
-            <p className="text-sm text-[#6B7280]">{t("castUnavailable")}</p>
+            <p className="text-sm text-[#9CA3AF]">{t("castUnavailable")}</p>
           </div>
         )}
 
@@ -357,7 +357,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
         ) : (
           <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
             <svg
-              className="w-8 h-8 text-[#6B7280] mx-auto mb-3"
+              className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -369,7 +369,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-sm text-[#6B7280]">
+            <p className="text-sm text-[#9CA3AF]">
               {media.type === "game" ? t("streamingUnavailableGame") : t("streamingUnavailable")}
             </p>
           </div>

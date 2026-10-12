@@ -100,7 +100,7 @@ function CatalogTypeRow({ type }: { type: MediaType }) {
         <p
           data-testid={`catalog-type-${type}-loading`}
           role="status"
-          className="py-6 text-sm text-[#6B7280]"
+          className="py-6 text-sm text-[#9CA3AF]"
         >
           {t("loadingCatalog")}
         </p>

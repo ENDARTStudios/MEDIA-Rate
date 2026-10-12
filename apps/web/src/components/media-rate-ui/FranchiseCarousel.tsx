@@ -41,7 +41,7 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
 
   if (items.length === 0) {
     return (
-      <p className={`text-sm text-[#6B6B85] ${className ?? ""}`} role="status">
+      <p className={`text-sm text-[#85859F] ${className ?? ""}`} role="status">
         {t("franchiseNone")}
       </p>
     );
@@ -62,7 +62,7 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
         {hasChronological ? (
           <FranchiseOrderToggle order={order} onChange={setOrder} />
         ) : (
-          <span className="text-xs text-[#6B6B85]">{t("orderRelease")}</span>
+          <span className="text-xs text-[#85859F]">{t("orderRelease")}</span>
         )}
       </div>
       <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">

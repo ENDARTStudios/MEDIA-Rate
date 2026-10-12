@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/lib/navigation";
 import { motion, useReducedMotion } from "motion/react";
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 import {
   normalizeDisplayScore,
   escalaPorTipo,
@@ -304,8 +304,10 @@ export function MediaCard({ media }: { media: MediaItem }) {
             <div className={`absolute top-2 right-2 z-20 ${preview ? "opacity-45" : ""}`}>
               {/* Score na escala NATIVA do tipo (T147/B2: somente games
                   0-100; mangá e demais 0-10). T272: score de item preview
-                  fica esmaecido para não competir com scores ativos. */}
-              <ScoreDial value={scoreExibido} size="md" scale={escala} />
+                  fica esmaecido para não competir com scores ativos.
+                  T210: onArtwork → disco atrás do anel para o número não cair
+                  no pixel da capa (contraste por pixel medido em 1,1:1–1,7:1). */}
+              <ScoreDial value={scoreExibido} size="md" scale={escala} onArtwork />
             </div>
           )}
         </div>

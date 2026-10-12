@@ -140,7 +140,7 @@ export function VerifyEmailClient() {
                   placeholder={t("emailPlaceholder")}
                   required
                   aria-label={t("emailLabel")}
-                  className="w-full rounded-lg border border-[#2A2A3D] bg-[#0D0D1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6B6B85] outline-none focus:border-[#818CF8]"
+                  className="w-full rounded-lg border border-[#2A2A3D] bg-[#0D0D1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#85859F] outline-none focus:border-[#818CF8]"
                 />
                 <button
                   type="submit"

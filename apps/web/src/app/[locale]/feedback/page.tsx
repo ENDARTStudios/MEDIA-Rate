@@ -22,7 +22,7 @@ export default function FeedbackPage() {
               </button>
             ))}
           </div>
-          <p className="text-xs text-[#6B7280]">
+          <p className="text-xs text-[#9CA3AF]">
             Ou fale diretamente:{" "}
             <a href="https://discord.gg/mediarate" className="text-[#818CF8]">
               Discord

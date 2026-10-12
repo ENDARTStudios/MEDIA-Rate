@@ -1,0 +1,15 @@
+{
+  "detector": {
+    "ignoreRules": ["codex-grid-background", "overused-font"],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": ["apps/web/src/components/MediaDetailClient.tsx"],
+        "createdAt": "2026-10-12T18:09:20.671Z",
+        "reason": "T031: <img> estatico com srcSet propria (next/image nao aceita srcSet customizado); src sempre vem do guard media.posterUrl - falso positivo do detector"
+      }
+    ]
+  }
+}

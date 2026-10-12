@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { animate, stagger } from "animejs";
+import { animate } from "animejs/animation";
+import { stagger } from "animejs/utils";
 
 interface CatalogSkeletonProps {
   count?: number;

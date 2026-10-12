@@ -143,7 +143,7 @@ export function MediaDetailClient({
             <p className="text-sm font-medium text-[#F5F5F7] truncate">
               {titleForLocale(media, locale)}
             </p>
-            <p className="text-xs text-[#80809B]">
+            <p className="text-xs text-[#85859F]">
               {tipoLabel} · {media.year}
             </p>
           </div>
@@ -240,7 +240,7 @@ export function MediaDetailClient({
                   );
                 })()
               ) : (
-                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#6B7280] shadow-surface-2">
+                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#9CA3AF] shadow-surface-2">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -280,7 +280,7 @@ export function MediaDetailClient({
 
               {media.streaming.length > 0 ? (
                 <div data-testid="platforms-section">
-                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider mb-2">
+                  <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider mb-2">
                     {media.type === "game" ? t("whereToPlay") : t("whereToWatch")}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -518,7 +518,7 @@ export function MediaDetailClient({
                     key={c.name}
                     className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-surface-border/20"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#6B7280] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#9CA3AF] text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
@@ -532,7 +532,7 @@ export function MediaDetailClient({
                     key={c.name + c.role}
                     className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-surface-border/20 opacity-60"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#6B7280] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#9CA3AF] text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
@@ -566,7 +566,7 @@ export function MediaDetailClient({
                       >
                         {r.rating}
                       </span>
-                      <span className="text-xs text-[#6B7280] ml-auto">{r.date}</span>
+                      <span className="text-xs text-[#9CA3AF] ml-auto">{r.date}</span>
                     </div>
                     <p className="text-sm text-[#EDE7DC] leading-relaxed">{r.text}</p>
                   </div>
@@ -648,7 +648,7 @@ function EmptySection({ message }: { message: string }) {
   return (
     <div className="bg-[#11111E] rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
       <svg
-        className="w-8 h-8 text-[#6B7280] mx-auto mb-3"
+        className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -660,7 +660,7 @@ function EmptySection({ message }: { message: string }) {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <p className="text-sm text-[#6B7280]">{message}</p>
+      <p className="text-sm text-[#9CA3AF]">{message}</p>
     </div>
   );
 }

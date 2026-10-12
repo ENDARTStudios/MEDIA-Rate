@@ -28,7 +28,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
             <div className="text-lg font-heading font-bold text-[#EDE7DC] mb-2">MEDIA Rate</div>
-            <p className="text-sm text-[#6B7280] leading-relaxed">{t("tagline")}</p>
+            <p className="text-sm text-[#9CA3AF] leading-relaxed">{t("tagline")}</p>
           </div>
 
           <div>
@@ -120,18 +120,18 @@ export async function MotionFooter({ locale }: { locale: string }) {
         </div>
 
         <div className="pt-8 border-t border-[rgba(129,140,248,0.08)] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[#6B7280]">{`MEDIA Rate. ${t("rights")}`}</p>
-          <p className="text-xs text-[#6B7280]">
+          <p className="text-xs text-[#9CA3AF]">{`MEDIA Rate. ${t("rights")}`}</p>
+          <p className="text-xs text-[#9CA3AF]">
             {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React). */}
             {`Copyright © ${year} END ART Studios`}
           </p>
-          <p className="text-xs text-[#6B7280] mt-1">
+          <p className="text-xs text-[#9CA3AF] mt-1">
             {`END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios@gmail.com`}
           </p>
         </div>
         {/* D0 (Onda D): atribuição obrigatória dos provedores de dados — termos
             do TMDB e da IGDB exigem crédito visível. Aprovada pelo Operador. */}
-        <p className="px-6 pb-4 text-center text-[11px] text-[#4B5563]">
+        <p className="px-6 pb-4 text-center text-[11px] text-[#85859F]">
           {t("atribuicao")}{" "}
           <a
             href="https://www.themoviedb.org/"

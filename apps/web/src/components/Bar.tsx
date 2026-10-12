@@ -22,7 +22,7 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
   const highConsensus = gap !== null && gap <= 10;
 
   if (!hasCritics && !hasAudience) {
-    return <p className="text-sm text-[#6B7280]">{t("noRatingsYet")}</p>;
+    return <p className="text-sm text-[#9CA3AF]">{t("noRatingsYet")}</p>;
   }
 
   return (
@@ -33,7 +33,7 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
           {hasCritics ? (
             <span className="text-[#38BDF8] tabular-nums font-medium">{criticsScore}</span>
           ) : (
-            <span className="text-[#6B7280]" data-testid="sem-critica">
+            <span className="text-[#9CA3AF]" data-testid="sem-critica">
               {t("semCritica")}
             </span>
           )}
@@ -53,7 +53,7 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
           {hasAudience ? (
             <span className="text-[#F59E0B] tabular-nums font-medium">{audienceScore}</span>
           ) : (
-            <span className="text-[#6B7280]" data-testid="sem-publico">
+            <span className="text-[#9CA3AF]" data-testid="sem-publico">
               {t("semPublico")}
             </span>
           )}
@@ -68,7 +68,7 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
         </div>
       </div>
       {gap !== null && (
-        <p className="text-xs text-[#6B7280] mt-1">
+        <p className="text-xs text-[#9CA3AF] mt-1">
           {t("consensusLabel")}:{" "}
           {highConsensus ? t("highConsensus") : `${t("lowConsensus")} (${gap.toFixed(1)}pts)`}
         </p>

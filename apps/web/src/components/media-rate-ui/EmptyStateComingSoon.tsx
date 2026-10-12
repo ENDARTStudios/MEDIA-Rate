@@ -93,7 +93,7 @@ export function EmptyStateComingSoon({
         {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga")} —{" "}
         {t("emConstrucao")}
       </p>
-      <p className="mt-1 max-w-sm text-sm text-[#6B6B85]">{t("comingSoonSubscribe")}</p>
+      <p className="mt-1 max-w-sm text-sm text-[#85859F]">{t("comingSoonSubscribe")}</p>
 
       {onNotify && !sent && (
         <form
@@ -111,7 +111,7 @@ export function EmptyStateComingSoon({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("comingSoonEmailPlaceholder")}
-            className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+            className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
           />
           <button
             type="submit"

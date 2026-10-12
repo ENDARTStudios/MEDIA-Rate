@@ -21,7 +21,7 @@ export function ReleaseTimeline({ items, className }: ReleaseTimelineProps) {
         role="status"
         data-testid="release-timeline-empty"
       >
-        <p className="text-sm text-[#6B6B85]">
+        <p className="text-sm text-[#85859F]">
           Calendário de lançamentos chega quando houver datas de estreia no catálogo.
         </p>
       </div>

@@ -94,7 +94,7 @@ export function PublicProfileContent({ userId }: { userId: string }) {
           {t("favoriteGenres")}
         </h2>
         {data.generos_top.length === 0 ? (
-          <p className="text-sm text-[#80809B]">{t("noData")}</p>
+          <p className="text-sm text-[#85859F]">{t("noData")}</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {data.generos_top.map((g) => (
@@ -114,7 +114,7 @@ export function PublicProfileContent({ userId }: { userId: string }) {
           {t("typeDistribution")}
         </h2>
         {data.total === 0 ? (
-          <p className="text-sm text-[#80809B]">{t("noData")}</p>
+          <p className="text-sm text-[#85859F]">{t("noData")}</p>
         ) : (
           <div className="space-y-3">
             {Object.entries(data.por_tipo).map(([tipo, count]) => {

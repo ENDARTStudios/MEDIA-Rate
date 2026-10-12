@@ -200,7 +200,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
         <div className="mb-8">
           <h1 className="text-3xl font-heading font-bold text-[#F5F5F7]">{lista.titulo}</h1>
           {lista.descricao && <p className="mt-1 text-sm text-[#A0A0B8]">{lista.descricao}</p>}
-          <p className="mt-2 text-xs text-[#6B6B85]">
+          <p className="mt-2 text-xs text-[#85859F]">
             {t("byOwner", { owner: lista.dono.nome ?? "—" })} ·{" "}
             {t("itemsCount", { count: lista.itens.length })}
           </p>
@@ -236,7 +236,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
                     if (e.key === "Enter") void buscar();
                   }}
                   placeholder={t("searchPlaceholder")}
-                  className="flex-1 rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="flex-1 rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
                 <Button size="sm" onClick={() => void buscar()}>
                   {t("search")}
@@ -252,7 +252,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
                         className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-[#F5F5F7] hover:bg-[#1B1B2C]"
                       >
                         <span className="truncate">{r.title ?? r.name ?? r.id}</span>
-                        <span className="ml-2 shrink-0 text-xs text-[#6B6B85]">+ {t("add")}</span>
+                        <span className="ml-2 shrink-0 text-xs text-[#85859F]">+ {t("add")}</span>
                       </button>
                     </li>
                   ))}
@@ -265,7 +265,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
 
       {lista.itens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[#2A2A3D] py-20 text-center">
-          <p className="text-sm text-[#6B6B85]">{t("emptyItems")}</p>
+          <p className="text-sm text-[#85859F]">{t("emptyItems")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -293,7 +293,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
       )}
 
       {!isAuthenticated && (
-        <p className="mt-8 text-center text-xs text-[#6B6B85]">
+        <p className="mt-8 text-center text-xs text-[#85859F]">
           {t("loginToContribute")} {user ? "" : ""}
         </p>
       )}

@@ -64,6 +64,23 @@ mnt/
 -w
 agent-logs/
 outputs/
+# T207/D-579: evidência visual gerada pelo harness DSH (screenshots + report.json
+# do skill visual-qa). Artefato de máquina, não versionado — anexe os PNGs no PR.
+.dsh-artifacts/
+# T208/D-580: Impeccable (detector de anti-padrões de UI). Versionados apenas
+# `.impeccable/config.json` e `.impeccable/design.json` (decisões do projeto);
+# os demais são estado local da máquina/agente.
+.impeccable/config.local.json
+.impeccable/cache/
+.impeccable/tmp/
+.impeccable/sessions/
+.impeccable-live/
+# T208/D-580: baselines de regressão visual do Playwright (pixel, por SO/fonte)
+# e artefatos da execução. Rodam LOCAL (`npm run test:visual`), nunca no CI —
+# gere/atualize na sua máquina com `npm run test:visual:update`.
+apps/web/visual/**-snapshots/
+apps/web/visual/.artifacts/
+apps/web/visual/test-results/
 # NUNCA usar `git add -f` em arquivos sob .claude/: logs operacionais locais
 # (ex.: exchange_log.jsonl) podem conter padrões de credencial e NÃO devem ser
 # versionados. Relatórios curados (.claude/reports/*.md) são a exceção autorizada

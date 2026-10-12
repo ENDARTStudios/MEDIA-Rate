@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 import { useLocale, useTranslations } from "next-intl";
 import { scoreColor as getScoreColor } from "@/lib/design-tokens";
 import { escalaPorTipo, normalizeDisplayScore, formatarScoreLocale } from "@/lib/score-utils";

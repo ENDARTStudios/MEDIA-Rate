@@ -1,8 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import { gsap, SplitText } from "@/lib/gsap-config";
 
+/**
+ * Título com reveal por palavra (SplitText + ScrollTrigger).
+ *
+ * T210 (padronização de animação, D-582): `useGSAP()` no lugar de
+ * `useEffect` + `gsap.context` manual e `gsap.matchMedia()` no lugar do
+ * `matchMedia(...).matches` lido uma única vez. Ganhos:
+ *  - cleanup automático (contexto revertido no unmount, sem vazar ScrollTrigger);
+ *  - `scope` explícito (seletores limitados ao componente);
+ *  - reduced-motion REATIVO: se o usuário mudar a preferência do SO com a página
+ *    aberta, o matchMedia reverte a animação em vez de mantê-la congelada.
+ */
 export function AnimatedHeading({
   children,
   className,
@@ -16,28 +28,27 @@ export function AnimatedHeading({
 }) {
   const ref = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced || !ref.current) return;
-
-    const ctx = gsap.context(() => {
-      const split = new SplitText(ref.current, { type: "words" });
-      gsap.from(split.words, {
-        opacity: 0,
-        y: 20,
-        stagger: 0.04,
-        duration: 0.5,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 85%",
-        },
+  useGSAP(
+    () => {
+      const el = ref.current;
+      if (!el) return;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const split = new SplitText(el, { type: "words" });
+        gsap.from(split.words, {
+          opacity: 0,
+          y: 20,
+          stagger: 0.04,
+          duration: 0.5,
+          ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 85%" },
+        });
+        return () => split.revert();
       });
-      return () => split.revert();
-    }, ref);
-
-    return () => ctx.revert();
-  }, []);
+      return () => mm.revert();
+    },
+    { scope: ref },
+  );
 
   return (
     <Tag ref={ref} id={id} className={className}>

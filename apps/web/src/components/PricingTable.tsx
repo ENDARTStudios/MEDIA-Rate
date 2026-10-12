@@ -55,7 +55,7 @@ export function PricingTable() {
               {Object.keys(plans).map((plan) => (
                 <td
                   key={plan}
-                  className={`py-3 px-4 text-center ${plan === "plus" ? "text-[#818CF8]" : "text-[#6B7280]"}`}
+                  className={`py-3 px-4 text-center ${plan === "plus" ? "text-[#818CF8]" : "text-[#9CA3AF]"}`}
                 >
                   {check(plan, feat) ? "✓" : "—"}
                 </td>

@@ -119,19 +119,19 @@ export default function AdminAuditoriaPage() {
         <table className="min-w-full" data-testid="admin-auditoria-tabela">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
                 Quando
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
                 Ação
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
                 Entidade
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
                 Usuário
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
                 IP
               </th>
             </tr>
@@ -139,7 +139,7 @@ export default function AdminAuditoriaPage() {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {(data?.items ?? []).map((item, idx) => (
               <tr key={`${item.entidadeId}-${idx}`} data-testid="admin-auditoria-linha">
-                <td className="px-4 py-2 text-xs text-gray-500">
+                <td className="px-4 py-2 text-xs text-gray-400">
                   {new Date(item.criado_em).toLocaleString("pt-BR")}
                 </td>
                 <td className="px-4 py-2 text-sm font-medium">{item.acao}</td>
@@ -152,12 +152,12 @@ export default function AdminAuditoriaPage() {
                 <td className="px-4 py-2 text-xs font-mono">
                   {item.usuarioId?.slice(0, 8) ?? "—"}
                 </td>
-                <td className="px-4 py-2 text-xs text-gray-500">{item.ip ?? "—"}</td>
+                <td className="px-4 py-2 text-xs text-gray-400">{item.ip ?? "—"}</td>
               </tr>
             ))}
             {data && data.items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
                   Nenhum registro para os filtros.
                 </td>
               </tr>
@@ -167,7 +167,7 @@ export default function AdminAuditoriaPage() {
       </div>
 
       <div className="mt-4 flex items-center justify-between text-sm">
-        <span className="text-gray-500" data-testid="admin-auditoria-total">
+        <span className="text-gray-400" data-testid="admin-auditoria-total">
           {data ? `${data.total} registros` : ""}
         </span>
         <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function AdminAuditoriaPage() {
           >
             Anterior
           </button>
-          <span className="text-gray-500">
+          <span className="text-gray-400">
             Página {page + 1} de {totalPaginas}
           </span>
           <button

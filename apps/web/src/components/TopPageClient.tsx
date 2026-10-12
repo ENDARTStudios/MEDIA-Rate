@@ -68,7 +68,7 @@ function TopCard({ item, locale }: { item: TopMidia; locale: string }) {
         <p className="font-semibold text-sm leading-snug group-hover:underline line-clamp-2">
           {tituloExibicao(item, locale)}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center justify-between">
+        <p className="text-xs text-gray-400 mt-1 flex items-center justify-between">
           <span>{item.ano_lancamento ?? ""}</span>
           {scoreExibido(item, locale) && (
             <span className="font-bold text-gray-900 dark:text-gray-100">
@@ -98,7 +98,7 @@ export function TopPageClient({
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <header className="mb-6">
         <h1 className="text-3xl font-bold">{t("title")}</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">{t("subtitle")}</p>
+        <p className="text-gray-400 mt-1">{t("subtitle")}</p>
       </header>
 
       {/* Abas por tipo — links canônicos /top?type=… (mesmos slugs do catálogo). */}
@@ -139,11 +139,11 @@ export function TopPageClient({
       </nav>
 
       {!payload ? (
-        <p className="py-16 text-center text-gray-500" data-testid="top-erro">
+        <p className="py-16 text-center text-gray-400" data-testid="top-erro">
           {t("erro")}
         </p>
       ) : payload.top.length === 0 ? (
-        <p className="py-16 text-center text-gray-500" data-testid="top-vazio">
+        <p className="py-16 text-center text-gray-400" data-testid="top-vazio">
           {t("empty")}
         </p>
       ) : (
@@ -199,7 +199,7 @@ export function TopPageClient({
                   className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3"
                 >
                   <span
-                    className="w-8 text-2xl font-bold text-gray-400 dark:text-gray-500 text-center shrink-0"
+                    className="w-8 text-2xl font-bold text-gray-400 text-center shrink-0"
                     aria-label={`${i + 1}`}
                   >
                     {i + 1}
@@ -219,7 +219,7 @@ export function TopPageClient({
                     >
                       {tituloExibicao(item, locale)}
                     </Link>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-gray-400 mt-0.5">
                       {item.ano_lancamento ?? ""}
                       {numFontes(item) > 0 ? ` · ${t("fontes", { count: numFontes(item) })}` : ""}
                     </p>
@@ -252,9 +252,7 @@ export function TopPageClient({
               <h2 id="top-franquias-title" className="text-xl font-semibold mb-1">
                 {t("porOndeComecar")}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {t("porOndeComecarHint")}
-              </p>
+              <p className="text-sm text-gray-400 mb-4">{t("porOndeComecarHint")}</p>
               <div className="grid gap-4 md:grid-cols-2">
                 {payload.franquias.map((franquia) => (
                   <div
@@ -265,7 +263,7 @@ export function TopPageClient({
                     <ol className="space-y-2">
                       {franquia.itens.map((item, i) => (
                         <li key={item.id} className="flex items-baseline gap-3 text-sm">
-                          <span className="font-bold text-gray-400 dark:text-gray-500 w-5 text-right shrink-0">
+                          <span className="font-bold text-gray-400 w-5 text-right shrink-0">
                             {i + 1}.
                           </span>
                           <span className="min-w-0 flex-1">

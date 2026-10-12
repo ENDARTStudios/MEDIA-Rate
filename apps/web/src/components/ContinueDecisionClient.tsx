@@ -119,7 +119,7 @@ export function ContinueDecisionClient() {
                     })()
                   ) : (
                     <div
-                      className="flex h-full items-center justify-center text-[#6B6B85]"
+                      className="flex h-full items-center justify-center text-[#85859F]"
                       aria-hidden="true"
                     >
                       <svg

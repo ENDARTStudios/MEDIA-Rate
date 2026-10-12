@@ -125,7 +125,7 @@ export function NotificationBell() {
 
           <ul className="max-h-80 overflow-y-auto">
             {items.length === 0 && (
-              <li className="px-4 py-6 text-center text-sm text-[#6B6B85]">{t("empty")}</li>
+              <li className="px-4 py-6 text-center text-sm text-[#85859F]">{t("empty")}</li>
             )}
             {items.map((n) => (
               <li key={n.id}>

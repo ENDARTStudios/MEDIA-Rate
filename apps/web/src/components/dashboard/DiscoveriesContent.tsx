@@ -92,7 +92,7 @@ function Item({ d, locale }: { d: Discovery; locale: string }) {
           {td("feedDiscovered")} <span className="font-medium text-[#EDE7DC]">{toTitle}</span>{" "}
           {td("feedFrom")} <span className="text-[#EDE7DC]">{fromTitle}</span>
         </p>
-        <p className="mt-0.5 flex items-center gap-2 text-xs text-[#6B6B85]">
+        <p className="mt-0.5 flex items-center gap-2 text-xs text-[#85859F]">
           <ToIcon className="h-3 w-3" style={{ color: toToken.color }} aria-hidden="true" />
           {trel(relationLabelKey(d.relationType))} · {formatData(d.discoveredAt, locale)}
         </p>
@@ -129,7 +129,7 @@ export function DiscoveriesContent() {
       <p className="text-sm text-[#A0A0B8] mb-8">{t("discoveriesSub")}</p>
 
       {data == null ? (
-        <p className="text-sm text-[#6B6B85]" role="status">
+        <p className="text-sm text-[#85859F]" role="status">
           {t("loading")}
         </p>
       ) : data.length === 0 ? (

@@ -34,7 +34,33 @@ function contrastRatio(hex1: string, hex2: string): number {
 
 const BG = "#09090F";
 const SURFACE = "#11111E";
+/** Superfície elevada real do produto (`colors.ce` / `bg-[#1B1B2C]`). */
+const ELEVATED = "#1B1B2C";
 const AA_MIN = 4.5;
+
+describe("T210 — escala de texto muted/secundário passa AA em TODAS as superfícies", () => {
+  // Regressão do débito que o detector de DOM apontou nos badges de contagem do
+  // catálogo: #80809B sobre #1B1B2C dava 4.42:1 (reprova). O token muted subiu
+  // para #85859F e agora passa nas três superfícies — este teste impede que
+  // alguém reintroduza um muted que só funcione sobre o fundo.
+  const superficies: [string, string][] = [
+    ["fundo home", BG],
+    ["card", SURFACE],
+    ["elevado", ELEVATED],
+  ];
+
+  for (const [nome, hex] of superficies) {
+    it(`text.muted (${colors.text.muted}) sobre ${nome} — >= ${AA_MIN}`, () => {
+      const ratio = contrastRatio(colors.text.muted, hex);
+      expect(ratio, `muted vs ${nome}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_MIN);
+    });
+
+    it(`text.secondary (${colors.text.secondary}) sobre ${nome} — >= ${AA_MIN}`, () => {
+      const ratio = contrastRatio(colors.text.secondary, hex);
+      expect(ratio, `secondary vs ${nome}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_MIN);
+    });
+  }
+});
 
 const SCORE_FAIXAS: { label: string; hex: string }[] = [
   { label: ">=9 (emerald)", hex: colors.score[9] },

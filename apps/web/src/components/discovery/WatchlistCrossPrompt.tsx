@@ -60,7 +60,7 @@ export function WatchlistCrossPrompt({
         <button
           onClick={onDismiss}
           aria-label={t("dismiss")}
-          className="rounded p-1 text-[#6B7280] hover:text-[#EDE7DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+          className="rounded p-1 text-[#9CA3AF] hover:text-[#EDE7DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
         >
           <svg
             className="h-4 w-4"

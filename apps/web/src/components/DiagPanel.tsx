@@ -133,7 +133,7 @@ export function DiagPanel() {
 
   const row = (label: string, value: React.ReactNode) => (
     <div className="flex gap-1">
-      <span className="text-[#6B7280] shrink-0">{label}: </span>
+      <span className="text-[#9CA3AF] shrink-0">{label}: </span>
       <span className="text-[#EDE7DC] break-all">{value}</span>
     </div>
   );
@@ -141,7 +141,7 @@ export function DiagPanel() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md px-3 py-1.5 text-xs font-mono text-[#9CA3AF]">
-        <button onClick={() => setMinimized(false)} className="text-[#6B7280] hover:text-[#EDE7DC]">
+        <button onClick={() => setMinimized(false)} className="text-[#9CA3AF] hover:text-[#EDE7DC]">
           Diag
         </button>
       </div>
@@ -157,7 +157,7 @@ export function DiagPanel() {
         <span className="text-[#818CF8] font-bold text-[12px]">MEDIA Rate Diag</span>
         <button
           onClick={() => setMinimized(true)}
-          className="text-[#6B7280] hover:text-[#EDE7DC] leading-none"
+          className="text-[#9CA3AF] hover:text-[#EDE7DC] leading-none"
         >
           _
         </button>

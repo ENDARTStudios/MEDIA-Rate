@@ -84,10 +84,10 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
             >
               <div className="min-w-0">
                 <p className="truncate text-[#EDE7DC]">
-                  <span className="text-[#6B6B85]">{ep.numero}.</span> {ep.titulo}
+                  <span className="text-[#85859F]">{ep.numero}.</span> {ep.titulo}
                 </p>
                 {ep.data_exibicao && (
-                  <p className="text-xs text-[#80809B]">
+                  <p className="text-xs text-[#85859F]">
                     {new Date(ep.data_exibicao).toLocaleDateString(locale)}
                   </p>
                 )}

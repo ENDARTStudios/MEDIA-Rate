@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * Perfil. Nomes de plano são próprios (não traduzidos); aria-label localizado.
  */
 const PLAN_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  FREE: { color: "#05050A", bg: "#80809B", label: "Free" },
+  FREE: { color: "#05050A", bg: "#85859F", label: "Free" },
   PLUS: { color: "#05050A", bg: "#E11D48", label: "Plus" },
   PREMIUM: { color: "#05050A", bg: "#D4AF37", label: "Premium" },
 };

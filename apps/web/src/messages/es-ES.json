@@ -81,9 +81,12 @@
     "cta": "Empezar ahora"
   },
   "landing": {
-    "heroEyebrow": "MEDIA Score™",
-    "hero": "Todo tu entretenimiento. Un solo score.",
-    "heroSubtitle": "Descubre qué ver, leer y jugar",
+    "hero": "Deja de elegir a ciegas qué ver, leer o jugar.",
+    "heroSubtitle": "Una sola nota que combina crítica, público y consenso para películas, series, juegos, libros, cómics y mangas. Decide en segundos, no en horas de scroll.",
+    "ctaHint": "Sin cuenta para explorar el catálogo.",
+    "categoriesLabel": "Seis categorías. Una sola nota.",
+    "proofTitle": "Cómo nace cada nota",
+    "proofBody": "Crítica, público y consenso entran en el mismo cálculo, ponderados por tipo de medio: nunca el promedio de un solo sitio.",
     "cta": "Crear cuenta gratis",
     "ctaSecondary": "Explorar catálogo",
     "features": "Características",
@@ -99,7 +102,7 @@
     "notFoundTitle": "Página no encontrada",
     "notFoundBody": "La dirección que intentaste acceder no existe o se ha movido. Verifica la URL o vuelve al inicio.",
     "notFoundCta": "Volver al inicio",
-    "sourcesLabel": "MEDIA Score™ agrega 11 fuentes de valoración"
+    "sourcesLabel": "MEDIA Score™ agrega {count} fuentes de valoración"
   },
   "biblioteca": {
     "metaTitle": "Biblioteca — MEDIA Rate",
@@ -275,6 +278,9 @@
     "carouselPrev": "Anterior",
     "carouselNext": "Siguiente",
     "searchDialogAria": "Búsqueda global de medios",
+    "discoverSubtitle": "Títulos destacados con las notas más altas del MEDIA Score.",
+    "discoverFullCatalog": "Catálogo completo",
+    "discoverListTitle": "Lista de destacados",
     "discoverTitle": "Descubrir"
   },
   "dashboard": {

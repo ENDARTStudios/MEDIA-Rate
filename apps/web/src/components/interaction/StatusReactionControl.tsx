@@ -288,7 +288,7 @@ export function StatusReactionControl({
               </button>
             </div>
           )}
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#80809B]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
             {t("updateStatus")}
           </p>
 
@@ -322,7 +322,7 @@ export function StatusReactionControl({
           {/* Reações — habilitadas com foco visual só em CONCLUIDO/ABANDONADO */}
           {(pendingStatus === "CONCLUIDO" || pendingStatus === "ABANDONADO" || canReact) && (
             <div className="mt-3">
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#80809B]">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
                 {t("reactOptional")}
               </p>
               <div className="flex gap-1.5" role="group" aria-label={t("reactionGroup")}>
@@ -352,7 +352,7 @@ export function StatusReactionControl({
           {/* Motivo de abandono — opcional, só quando status = ABANDONADO */}
           {(pendingStatus === "ABANDONADO" || status === "ABANDONADO") && (
             <div className="mt-3">
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#80809B]">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
                 {t("motivoOpcional")}
               </p>
               <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("motivoGroup")}>
@@ -378,7 +378,7 @@ export function StatusReactionControl({
             </div>
           )}
 
-          <p className="mt-3 text-xs text-[#6B6B85]">{t("optionalHint")}</p>
+          <p className="mt-3 text-xs text-[#85859F]">{t("optionalHint")}</p>
         </motion.div>
       )}
     </div>

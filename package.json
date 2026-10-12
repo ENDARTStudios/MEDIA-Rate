@@ -17,6 +17,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck --workspace apps/api && npm exec --workspace apps/web --no -- tsc --noEmit",
+    "design:detect": "node apps/web/scripts/design-detect.mjs",
+    "design:detect:json": "node apps/web/scripts/design-detect.mjs --json",
+    "design:contrast": "node .zcode/skills/design-review/scripts/contrast-audit.mjs",
+    "design:visual": "node .zcode/skills/visual-qa/scripts/visual-qa.mjs",
     "security:gate": "node --import @swc-node/register/esm-register scripts/security-gate.ts",
     "audit:ci": "node scripts/audit-ci.mjs"
   },
@@ -127,6 +131,7 @@
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.6",
+    "impeccable": "4.5.2",
     "prettier": "^3.9.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.64.0"

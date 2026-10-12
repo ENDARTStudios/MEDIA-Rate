@@ -15,7 +15,7 @@ import { colunaLabelKey } from "@/lib/watchlist-labels";
 import type { MediaType } from "@/lib/types";
 import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { formatDate } from "@/lib/i18n";
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 import { useReducedMotion } from "motion/react";
 import { useRouter } from "@/lib/navigation";
 import { CategoryChip } from "@/components/media-rate-ui/CategoryChip";
@@ -369,7 +369,7 @@ export function WatchlistClient() {
                           );
                         })()
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[#6B6B85]">
+                        <div className="flex h-full w-full items-center justify-center text-[#85859F]">
                           <svg
                             className="h-4 w-4"
                             fill="none"
@@ -391,7 +391,7 @@ export function WatchlistClient() {
                       <span className="block truncate text-sm font-medium text-[#F5F5F7] hover:text-[#818CF8]">
                         {item.titulo}
                       </span>
-                      <span className="text-xs text-[#6B6B85]">{item.ano_lancamento ?? "—"}</span>
+                      <span className="text-xs text-[#85859F]">{item.ano_lancamento ?? "—"}</span>
                     </Link>
                     <span className="text-xs text-[#A0A0B8]">{t(statusLabel)}</span>
                     <ScoreDelta entry={entry} />
@@ -401,7 +401,7 @@ export function WatchlistClient() {
                         void removeItem(entry.id).finally(() => setDeleting(null));
                       }}
                       disabled={deleting === entry.id}
-                      className="text-xs text-[#6B6B85] hover:text-red-400 transition-colors"
+                      className="text-xs text-[#85859F] hover:text-red-400 transition-colors"
                     >
                       {deleting === entry.id ? "..." : t("removeFromWatchlist")}
                     </button>

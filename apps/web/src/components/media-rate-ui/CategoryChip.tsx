@@ -89,7 +89,7 @@ export function CategoryChip({
         <span
           className={cn(
             "tabular-nums rounded-full px-1.5 text-xs leading-4",
-            active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#80809B]",
+            active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#85859F]",
           )}
         >
           {formatoCompacto(count)}

@@ -31,6 +31,14 @@ export interface StaticScoreDialProps {
   scale?: "0-10" | "0-100";
   size?: "sm" | "md" | "lg";
   className?: string;
+  /**
+   * T210: o dial é desenhado só com anel + número (centro transparente). Sobre
+   * PÔSTER o número cai no pixel da capa e o contraste real despenca (o detector
+   * de DOM mediu 1,1:1–1,7:1 nos carrosséis). Com `onArtwork`, um disco escuro
+   * entra atrás do anel e garante leitura em qualquer arte — sem afetar os usos
+   * sobre superfície sólida (ficha, dashboard).
+   */
+  onArtwork?: boolean;
 }
 
 export function StaticScoreDial({
@@ -38,6 +46,7 @@ export function StaticScoreDial({
   scale = "0-10",
   size = "md",
   className,
+  onArtwork = false,
 }: StaticScoreDialProps) {
   const max = scale === "0-100" ? 100 : 10;
   const clamped = Math.max(0, Math.min(max, value));
@@ -59,6 +68,11 @@ export function StaticScoreDial({
       })}
       data-testid={`score-dial-${size}`}
     >
+      {onArtwork && (
+        // Fundo do badge (atrás do anel): 85% de #05050A garante ≥ 4.5:1 para o
+        // número mesmo sobre capa branca. Pinta antes do SVG → anel visível.
+        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
+      )}
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
         <circle
           cx="30"

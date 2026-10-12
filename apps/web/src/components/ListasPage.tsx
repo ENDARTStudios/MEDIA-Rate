@@ -105,7 +105,7 @@ export function ListasPage() {
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               placeholder={t("titlePlaceholder")}
-              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             />
             <label htmlFor="lista-descricao" className="block text-sm text-[#A0A0B8]">
               {t("descriptionLabel")}
@@ -115,7 +115,7 @@ export function ListasPage() {
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               rows={2}
-              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6B6B85] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             />
             <div className="flex gap-2">
               <Button onClick={() => void criar()} disabled={creating || !titulo.trim()}>
@@ -138,7 +138,7 @@ export function ListasPage() {
 
         {!loading && listas.length === 0 && !showCreate && (
           <div className="rounded-lg border border-dashed border-[#2A2A3D] py-20 text-center">
-            <p className="text-sm text-[#6B6B85]">{t("empty")}</p>
+            <p className="text-sm text-[#85859F]">{t("empty")}</p>
           </div>
         )}
 
@@ -153,7 +153,7 @@ export function ListasPage() {
                 {lista.descricao && (
                   <p className="mt-1 text-sm text-[#A0A0B8] line-clamp-2">{lista.descricao}</p>
                 )}
-                <p className="mt-3 text-xs text-[#6B6B85]">
+                <p className="mt-3 text-xs text-[#85859F]">
                   {t("itemsCount", { count: lista.total_itens })} · /listas/{lista.slug}
                 </p>
               </Link>

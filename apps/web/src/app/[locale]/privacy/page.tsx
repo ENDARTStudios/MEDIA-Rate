@@ -28,7 +28,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("h1")}</h1>
-      <p className="text-sm text-[#6B7280] mb-8">{t("lastUpdated")}</p>
+      <p className="text-sm text-[#9CA3AF] mb-8">{t("lastUpdated")}</p>
       <div className="space-y-8 text-[#9CA3AF] leading-relaxed">
         {[1, 2, 3, 4, 5].map((n) => (
           <section key={n}>

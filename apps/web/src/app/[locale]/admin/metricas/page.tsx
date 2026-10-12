@@ -30,7 +30,7 @@ interface Stats {
 function Kpi({ label, valor, extra }: { label: string; valor: string | number; extra?: string }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4" data-testid="admin-metrica">
-      <dt className="text-xs text-gray-500 dark:text-gray-400">{label}</dt>
+      <dt className="text-xs text-gray-400">{label}</dt>
       <dd className="text-2xl font-bold mt-1">{valor}</dd>
       {extra && <p className="text-xs text-gray-400 mt-1">{extra}</p>}
     </div>
@@ -57,7 +57,7 @@ export default function AdminMetricasPage() {
     return <div className="max-w-5xl mx-auto px-4 py-16 text-red-600">{erro}</div>;
   }
   if (!data) {
-    return <div className="max-w-5xl mx-auto px-4 py-16 text-gray-500">Carregando…</div>;
+    return <div className="max-w-5xl mx-auto px-4 py-16 text-gray-400">Carregando…</div>;
   }
 
   const contasComPlano = data.planos.free + data.planos.plus + data.planos.premium;

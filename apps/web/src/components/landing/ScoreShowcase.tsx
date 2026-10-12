@@ -186,7 +186,7 @@ function BreakdownBar({ label, pct, color }: { label: string; pct: number | null
   const safe = pct != null ? Math.max(0, Math.min(100, pct)) : 0;
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span className="w-12 shrink-0 text-[#80809B]">{label}</span>
+      <span className="w-12 shrink-0 text-[#85859F]">{label}</span>
       <div className="h-1 flex-1 rounded-full bg-[#1C1C2E]">
         <div
           className="h-full rounded-full"

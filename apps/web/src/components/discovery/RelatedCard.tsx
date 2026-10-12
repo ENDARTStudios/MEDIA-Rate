@@ -87,7 +87,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
           })()
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Icon className="h-8 w-8 text-[#6B7280]" aria-hidden="true" />
+            <Icon className="h-8 w-8 text-[#9CA3AF]" aria-hidden="true" />
           </div>
         )}
         <span

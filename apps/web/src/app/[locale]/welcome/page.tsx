@@ -47,7 +47,7 @@ export default function WelcomePage() {
       />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <motion.p
-          className="mb-3 font-heading text-xs uppercase tracking-[0.22em] text-[#E11D48]"
+          className="mb-3 font-heading text-xs uppercase tracking-[0.22em] text-[#FB7185]"
           initial={shouldReduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
         >

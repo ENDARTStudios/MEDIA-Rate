@@ -56,7 +56,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("h1")}</h1>
-      <p className="text-sm text-[#6B7280] mb-8">{t("lastUpdated")}</p>
+      <p className="text-sm text-[#9CA3AF] mb-8">{t("lastUpdated")}</p>
       <div className="space-y-8 text-[#9CA3AF] leading-relaxed">
         {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
           <section key={n}>

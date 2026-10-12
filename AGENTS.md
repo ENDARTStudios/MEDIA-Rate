@@ -103,11 +103,31 @@ You may only prompt the human operator regarding external platforms if:
 - **Subagentes de projeto** (`.zcode/agents/`): `ci-pr-doctor` (diagnóstico de CI/PR sem
   despejar logs), `prod-inspector` (produção read-only via railway ssh, agregados),
   `docs-pr-ship` (ciclo docs-only ponta a ponta: relatório por `update-index`, PR,
-  gates, merge, smoke).
+  gates, merge, smoke), `ui-ux-designer`/`ux-copywriter` (implementam UI e copy),
+  `design-reviewer` (crítica read-only antes do PR), `visual-qa-auditor` (evidência
+  visual Playwright/axe). Índice e forma de invocar: `.zcode/agents/README.md`.
 - **Skills de projeto** (`.zcode/skills/`): `media-rate-ci-ops` (receitas de CI/PR/
   merge/flakes/gh), `media-rate-security-ops` (segredos, Gitleaks/CodeQL, incidente
-  D-577/D-578), `media-rate-prod-access` (railway ssh/RLS/guards). Complementam
-  `.agents/skills/media-rate-conventions` (política) — leia a skill ANTES do domínio.
+  D-577/D-578), `media-rate-prod-access` (railway ssh/RLS/guards),
+  `media-rate-ui-ux` (contrato visual: tokens, anti-padrões D-065, server-first/LCP,
+  funil de marketing, playbook da hero — com `references/`), `ux-copywriting` (voz e
+  regras de copy nos 3 locales), `design-review` (+ `scripts/contrast-audit.mjs`),
+  `visual-qa` (+ `scripts/visual-qa.mjs`). Complementam
+  `.agents/skills/media-rate-conventions` (política) e `.agents/skills/motion-design`
+  (animação) — leia a skill ANTES do domínio.
+- **Mudança visual (UI/UX)**: ler `media-rate-ui-ux` + `motion-design` antes de
+  escrever JSX/CSS; validar com `npm run design:detect` (anti-padrões de UI,
+  Impeccable — advisory), `npm run design:contrast` (AA dos tokens) e
+  `npm run design:visual` (screenshots/overflow/axe; exige dev server); anexar
+  screenshots 375/1024/1440 no PR (ver `.zcode/skills/visual-qa/SKILL.md`).
+- **Registries de componentes** (`apps/web/components.json`, T208/D-580): apenas os
+  de licença permissiva (`@react-bits`, `@kokonutui`, `@bklit`, `@componentry`,
+  `@obsidian`). **Aceternity UI** (todos os direitos reservados; proíbe copiar) e
+  **Kobra** (free = uso pessoal) são proibidos; **FigmaToCode** é GPL-3.0 (não
+  vendorizar). Instalar por registry exige
+  `$env:npm_config_userconfig="<npmrc vazio>"` nesta máquina e revisão do diff
+  (o CLI pode sobrescrever `src/components/ui/`). Política completa e allow-list:
+  `.zcode/skills/media-rate-ui-ux/references/design-tooling.md`.
 - Regras de segurança dessas skills valem como AGENTS.md: nunca imprimir valores de
   segredo/PII; nunca `git add -f`; nunca aprovar Production; nunca interagir com
   alertas de code scanning.

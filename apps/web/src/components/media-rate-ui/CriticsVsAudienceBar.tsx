@@ -46,7 +46,7 @@ export function CriticsVsAudienceBar({
 
   if (c == null && a == null) {
     return (
-      <p className={cn("text-sm text-[#80809B]", className)} role="status">
+      <p className={cn("text-sm text-[#85859F]", className)} role="status">
         {t("noRatingsYet")}
       </p>
     );
@@ -64,7 +64,7 @@ export function CriticsVsAudienceBar({
           {c != null ? (
             <span className="tabular-nums text-[#A0A0B8]">{c.toFixed(1)}</span>
           ) : (
-            <span className="text-[#6B6B85]" data-testid="sem-critica">
+            <span className="text-[#85859F]" data-testid="sem-critica">
               {t("semCritica")}
             </span>
           )}
@@ -115,7 +115,7 @@ export function CriticsVsAudienceBar({
             />
             {highConsensus ? t("highConsensus") : t("lowConsensus")}
           </span>
-          {!compact && <span className="tabular-nums text-[#80809B]">{gap.toFixed(1)}pts</span>}
+          {!compact && <span className="tabular-nums text-[#85859F]">{gap.toFixed(1)}pts</span>}
         </div>
       )}
       {/* Gradiente visual do consenso: ponte entre crítica (#38BDF8) e público (#E11D48). */}

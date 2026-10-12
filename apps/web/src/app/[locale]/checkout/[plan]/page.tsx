@@ -97,7 +97,7 @@ export default function CheckoutPage({
           {planKey === "PLUS" ? t("plus") : t("premium")}
         </h2>
 
-        <ul className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
+        <ul className="space-y-2 mb-6 text-sm text-gray-400">
           {planKey === "PLUS" && (
             <>
               <li>✓ {t("plusB1")}</li>
