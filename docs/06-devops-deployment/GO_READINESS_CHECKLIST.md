@@ -51,7 +51,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
 | Backups/alertas Postgres | ⚠️ PENDENTE_OPERADOR | decisão operacional |
-| Higiene `admin***@mediarate.test` | ⚠️ PENDENTE_OPERADOR | conta sintética ainda ADMIN |
+| Higiene `admin***@mediarate.test` | ✅ PRONTA (resolvida) | **T200 (2026-10-12):** 0 admins no domínio de teste (7 contas = USER ×7), 0 sessões ativas, 0 atividade pós-remediação T184; único ADMIN de produção é a conta legítima do Operador (D-563). O item era **drift documental** — `synthetic-admin-reconciliation-2026-10-12.md` |
 | Monitor 26 títulos sem elenco | 🔁 MONITORADA | honestidade de dados; sem bloqueio técnico |
 | Monitor flakes | 🔁 MONITORADA | ver §2 |
 
@@ -66,8 +66,9 @@ heurístico (APIs DOM inline), não chave i18n crua.
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/monitores,
   fila CodeQL de correção, audit, Pacote de GO 4/4.
 - **PENDENTES DO OPERADOR (decisão):** #151 · incidente (encerrar/manter/purge) ·
-  deps (#515/#518/#522) + Trivy · backups/alertas Postgres · higiene da conta admin sintética ·
+  deps (#515/#518/#522) + Trivy · backups/alertas Postgres ·
   Deploy waiting (quando aprovar) · eventualmente Gov-02.
+  *(Higiene da conta sintética ADMIN: **resolvida** — reconciliada pela T200.)*
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.
