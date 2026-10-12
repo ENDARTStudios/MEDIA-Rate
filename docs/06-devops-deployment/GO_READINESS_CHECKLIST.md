@@ -1,8 +1,9 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (**T220**, pacote de evidência pré-GO, read-only) · **GO: SUSPENSO** —
-este documento **não declara GO**; consolida evidência para a **declaração formal do Operador**.
-**Snapshot canônico:** `docs/08-security/reports/pre-go-evidence-pack-2026-10-13.md`.
+**Última auditoria:** 2026-10-13 (**T224**, auditoria da jornada mínima de beta, read-only) ·
+**GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
+do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md` e
+`reports/beta-core-journey-audit-2026-10-13.md`.
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -62,8 +63,8 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
 | Backups/DR PostgreSQL | ⚠️ **PENDENTE_OPERADOR (P1)** | **Existe:** `scripts/backup-db.sh` (dump diário, retenção 30 d) + `BACKUP_DR.md` (restore documentado, RPO ≤24 h honesto) + backup pré-migration (P013). **Falta:** backup automático **não configurado** em produção (dado só no volume — T181), **sem alerta de falha de backup**, **restore de ensaio não validado**. Decisão A/B/C pendente (T181/PENDENCIAS) |
 | Observabilidade mínima | ✅ PRONTA com 1 lacuna | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs. **Lacuna:** alerta de falha de backup; probing/step-up admin são **logados** mas não alert-ificados |
-| Jornada mínima de beta | ⚠️ PENDENTE_OPERADOR | 38 grupos de rota + **34 specs e2e** (jornada-critica/auth/biblioteca/catalog/dashboard-gating/i18n-leak/a11y) + flags + copy honesta de indisponível; **falta auditoria navegada consolidada → T224** |
-| PLANO_MESTRE | ⚠️ DRIFT | cabeçalho 2026-08-10; Fase 8 diz `API 931/931` e `web ~309` (real: **1422/1422** e **615/615**); Fase 9 diz UptimeRobot pendente (uptime sintético **ativo**); frentes T205–T211 não refletidas |
+| Jornada mínima de beta | ✅ **AUDITADA_COM_LACUNAS (T224)** | **T224 (2026-10-13):** 13 fluxos auditados (read-only) — **todos `PRONTO_PARA_BETA`** por evidência de CI (34 specs E2E, incl. `jornada-critica` 3× retries=0) + estática + smoke; copy honesta de indisponível nos 3 locales. **Lacunas** (não de produto): backups P1, aprovação de Production, escopo formal. Relatório: `reports/beta-core-journey-audit-2026-10-13.md` |
+| PLANO_MESTRE | ✅ RECONCILIADO (T224) | seções de estado atual atualizadas para o snapshot 2026-10-13 (API **1422/1422**, web **615/615**, **34 specs E2E**, uptime sintético **ATIVO**, domínio/proteção da `main` resolvidos); história não reescrita |
 | Higiene `admin***@mediarate.test` | ✅ PRONTA (resolvida) | **T200 (2026-10-12):** 0 admins no domínio de teste (7 contas = USER ×7), 0 sessões ativas, 0 atividade pós-remediação T184; único ADMIN de produção é a conta legítima do Operador (D-563). O item era **drift documental** — `synthetic-admin-reconciliation-2026-10-12.md` |
 | Monitor 26 títulos sem elenco | 🔁 MONITORADA | honestidade de dados; sem bloqueio técnico |
 | Monitor flakes | 🔁 MONITORADA | ver §2 |
@@ -81,12 +82,13 @@ heurístico (APIs DOM inline), não chave i18n crua.
   **encerramento do incidente INC-2026-10-11** (risco residual aceito, sem purge — T210),
   **observabilidade mínima (5xx/auth/uptime/Sentry)**.
 - **PENDENTES DO OPERADOR (decisão):** **backups/DR Postgres (P1)** + alerta de falha de backup +
-  restore de ensaio · **jornada de beta** (auditoria T224) · purge de histórico (NAO_APLICAVEL
-  recomendado) · Deploy `waiting` (aprovar) · eventualmente Gov-02 · majors de deps
+  restore de ensaio · purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) ·
+  escopo/GO de convites (declaração formal) · eventualmente Gov-02 · majors de deps
   (`tailwindcss` 4, `vitest` 5).
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
   documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.
-  Deps #515/#518/#522: **resolvidas** — T209.)*
+  Deps #515/#518/#522: **resolvidas** — T209. Jornada de beta: **auditada sem bloqueio de
+  produto** — T224.)*
 - **BLOQUEADAS (tooling):** `vitest ^4.1.11` (hoisting do coverage — T221) e `fastify ^5.12.5`
   (duplicação de tipos — T222); não forçar.
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco · Trivy estrutural.
