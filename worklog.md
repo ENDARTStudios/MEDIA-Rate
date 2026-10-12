@@ -3793,3 +3793,22 @@ Suítes: API 992/992 (132 arq); web 479/479.
   consolidado em `PENDENCIAS_OPERADOR.md` + worklog + exchange.
 - **GO permanece SUSPENSO** — nada foi alterado (nenhuma config/alerta/PR/deploy); nenhum
   segredo/PII impresso; PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-12] T200 — reconciliação read-only das contas sintéticas ADMIN (branch docs/t200)
+
+- **Divergência (escalada pelo Thinker no R199):** T184 (2026-10-11) registrou 1 ADMIN revogado
+  e 0 admins pós-remediação; T199 (2026-10-12) listou "admin\*\*\*@mediarate.test ainda ADMIN"
+  — item herdado da memória do Pacote de GO (2026-10-05, ANTERIOR à remediação) sem re-verificar.
+- **Evidência read-only (railway ssh; scripts efêmeros em /app removidos; bootstrapRlsSeed;
+  apenas count/groupBy/datas — sem PII):** 7 contas `@mediarate.test` = **USER ×7, 0 ADMIN**;
+  0 sessões ativas; 0 atividade pós-remediação (último evento **2026-10-05**; logins 25 pré /
+  **0 pós** 2026-10-11; última sessão criada 2026-10-09); **1 ADMIN total** na produção, fora
+  do domínio de teste = conta legítima do Operador (D-563).
+- **Classificação: `SYNTHETIC_ADMIN_ALREADY_REVOKED_DOC_DRIFT`** — remediação T184 íntegra;
+  item era drift documental; **T201 desnecessária**; bloqueio factual removido da checklist.
+- **Docs:** `docs/08-security/reports/synthetic-admin-reconciliation-2026-10-12.md` (novo; cópia
+  local em `.claude/reports/`) + `GO_READINESS_CHECKLIST.md` (higiene → PRONTA/resolvida) +
+  `SECURITY_INCIDENTS.md` (registro T200) + PENDENCIAS (bloco T200; item 5 do T199 resolvido) +
+  worklog + exchange.
+- **Nenhuma mutação** em produção; nenhum segredo/PII impresso; GO permanece SUSPENSO pelas
+  demais decisões; PR docs-only em curso — gates e smoke no STATUS.

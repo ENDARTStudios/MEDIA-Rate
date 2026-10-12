@@ -1011,11 +1011,29 @@ resposta**) · Checklist canônica: `docs/06-devops-deployment/GO_READINESS_CHEC
   documentado; (2) **INC-2026-10-11** — ENCERRAR_RISCO_RESIDUAL_ACEITO | MANTER_ABERTO |
   AUTORIZAR_PLANO_PURGE (+ PURGE_HISTORICO); (3) **deps** — fechar #515 / nova PR limpa
   #518+#522 / adiar; **Trivy 119** — aceitar risco estrutural ou vincular à deps; (4)
-  **backups/alertas Postgres**; (5) **higiene `admin***@mediarate.test`** (conta sintética
-  ainda ADMIN); (6) **Deploy waiting** @ `40ee2b9` (gate P012 — aprovação é do Operador);
+  **backups/alertas Postgres**; (5) ~~higiene `admin***@mediarate.test`~~ **RESOLVIDA pela T200**
+  (drift documental — ver bloco T200 abaixo); (6) **Deploy waiting** @ `40ee2b9` (gate P012 — aprovação é do Operador);
   (7) **Gov-02** (opcional; exige 2º revisor humano).
 - **MONITORADAS:** flake Google Fonts/Turbopack no Build (rerun resolveu em 2026-10-11);
   flake 1× na suíte API (não reproduzido); 26 títulos sem elenco.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador**,
   respondendo o template `DECISAO_OPERADOR_GO_READINESS_2026-10-12` do relatório. Nenhuma
   configuração/alerta/PR/deploy foi alterado nesta auditoria (read-only).
+
+---
+
+### T200 (2026-10-12) — reconciliação read-only das contas sintéticas ADMIN (**drift documental resolvido**)
+
+Relatório: `docs/08-security/reports/synthetic-admin-reconciliation-2026-10-12.md`.
+
+- **Divergência:** T199 listou "admin\*\*\*@mediarate.test ainda ADMIN" (herdado do Pacote de GO
+  de **2026-10-05**, anterior à remediação); T184 (2026-10-11) havia revogado o papel.
+- **Evidência read-only (railway ssh, agregados, sem PII; 2026-10-12):** 7 contas
+  `@mediarate.test` = **`USER` ×7, 0 ADMIN**, 0 sessões ativas, **0 atividade pós-remediação**
+  (último evento de auditoria **2026-10-05**; logins 25 pré / **0 pós** o corte 2026-10-11).
+  Único ADMIN de produção = **conta legítima do Operador** (D-563; fora do domínio de teste).
+- **Classificação:** `SYNTHETIC_ADMIN_ALREADY_REVOKED_DOC_DRIFT` — a remediação T184 está
+  íntegra; **não há T201** (nada a higienizar); bloqueio factual removido da checklist de GO.
+- **Opcional (não bloqueia GO):** remoção/renomeação das 7 contas de teste `USER` inativas —
+  permanece decisão do Operador.
+- **Nenhuma mutação** foi feita em produção; nenhum segredo/PII impresso.

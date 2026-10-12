@@ -51,3 +51,12 @@ encerramento formal pelo Operador/Thinker.
 - **Artefatos sanitizados:** `.claude/reports/secret-incident-exchange-log-2026-10-10.md`,
   `.claude/reports/secret-exposure-sweep-2026-10-11.md`,
   `.claude/reports/incident-remediation-2026-10-11.md`; decisão **D-577** em `DECISOES.md`.
+
+- **2026-10-12 (T200) — reconciliação read-only das contas sintéticas:** divergência levantada
+  pela T199 ("admin\*\*\*@mediarate.test ainda ADMIN") resolvida como **drift documental** —
+  a remediação T184 está íntegra em produção: 7 contas `@mediarate.test` = `USER` ×7,
+  **0 ADMIN**, 0 sessões ativas, **0 atividade pós-remediação** (último evento 2026-10-05;
+  logins 25 pré / 0 pós o corte de 2026-10-11). Único ADMIN de produção = conta legítima do
+  Operador (D-563, fora do domínio de teste). Probes agregados via `railway ssh` (somente
+  `count`/`groupBy`, sem PII; scripts efêmeros removidos). Sem necessidade de higiene T201.
+  Relatório: `docs/08-security/reports/synthetic-admin-reconciliation-2026-10-12.md`.
