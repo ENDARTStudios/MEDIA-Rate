@@ -7,8 +7,10 @@ import {
   Param,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from "@nestjs/common";
 import { z } from "zod";
+import { AdminStepUpGuard } from "../admin/admin-stepup.guard.js";
 import type { FastifyRequest } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { FeatureFlagService } from "./feature-flags.service.js";
@@ -35,6 +37,8 @@ const flagUpdateSchema = flagSchema.omit({ key: true });
 @ApiBearerAuth()
 @Controller("api/v1/admin/flags")
 @Roles("ADMIN")
+// T205 Fase 1: step-up por senha nas mutantes (guard filtra GET; roda após a cadeia global).
+@UseGuards(AdminStepUpGuard)
 export class FeatureFlagsController {
   constructor(private readonly service: FeatureFlagService) {}
 

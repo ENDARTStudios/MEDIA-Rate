@@ -9,9 +9,10 @@ import { LgpdModule } from "../lgpd/lgpd.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { BackfillService } from "./backfill.service.js";
 import { BackfillDrainService } from "./backfill-drain.service.js";
+import { AdminStepupModule } from "./admin-stepup.module.js";
 
 @Module({
-  imports: [PrismaModule, AuthModule, FeatureFlagsModule, LgpdModule],
+  imports: [PrismaModule, AuthModule, FeatureFlagsModule, LgpdModule, AdminStepupModule],
   controllers: [AdminController, AdminGateController],
   providers: [AdminService, AuditLogService, BackfillService, BackfillDrainService],
 })

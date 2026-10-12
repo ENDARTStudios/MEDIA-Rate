@@ -485,7 +485,12 @@
     "activeSubscriptions": "Active subscriptions",
     "plusUsers": "Plus users",
     "premiumUsers": "Premium users",
-    "acessoNegado": "Access unauthorized."
+    "acessoNegado": "Access unauthorized.",
+    "stepupTitulo": "Confirm your password",
+    "stepupLabel": "Password",
+    "stepupConfirmar": "Confirm",
+    "stepupCancelar": "Cancel",
+    "stepupErro": "Invalid credentials. Try again."
   },
   "pricing": {
     "headline": "Choose how you want to discover your next title",

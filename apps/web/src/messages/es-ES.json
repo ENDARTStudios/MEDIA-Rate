@@ -485,7 +485,12 @@
     "activeSubscriptions": "Suscripciones activas",
     "plusUsers": "Usuarios Plus",
     "premiumUsers": "Usuarios Premium",
-    "acessoNegado": "Acceso no autorizado."
+    "acessoNegado": "Acceso no autorizado.",
+    "stepupTitulo": "Confirma tu contraseña",
+    "stepupLabel": "Contraseña",
+    "stepupConfirmar": "Confirmar",
+    "stepupCancelar": "Cancelar",
+    "stepupErro": "Credenciales inválidas. Inténtalo de nuevo."
   },
   "pricing": {
     "headline": "Elige cómo quieres descubrir tu próximo título",

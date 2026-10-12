@@ -290,6 +290,16 @@ export function aplicarRateLimitAdmin(routeOptions: RotaConfig): void {
   ).toUpperCase();
   routeOptions.config = routeOptions.config ?? {};
   if (routeOptions.config.rateLimit) return;
+  // T205 Fase 1: o próprio step-up tem limite mais estrito (brute force de senha).
+  if (url === "/api/v1/admin/step-up" && method === "POST") {
+    const stepUpPerMinute = envInt("RATE_LIMIT_ADMIN_STEPUP_PER_MIN", 6);
+    routeOptions.config.rateLimit = {
+      max: stepUpPerMinute,
+      timeWindow: "1 minute",
+      errorResponseBuilder: resposta429Padrao,
+    };
+    return;
+  }
   if (method === "GET") {
     routeOptions.config.rateLimit = {
       ...adminRateLimit(),

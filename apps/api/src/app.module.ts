@@ -15,6 +15,7 @@ import { EchoModule } from "./echo/echo.module.js";
 import { DebugModule } from "./debug/debug.module.js";
 import { AuthModule } from "./modules/auth/auth.module.js";
 import { AdminModule } from "./modules/admin/admin.module.js";
+import { AdminStepupModule } from "./modules/admin/admin-stepup.module.js";
 import { PremiumModule } from "./modules/premium/premium.module.js";
 import { MediaModule } from "./modules/media/media.module.js";
 import { MediaScoreModule } from "./modules/media-score/media-score.module.js";
@@ -64,6 +65,7 @@ const enableDebugRoutes =
     ...(enableDebugRoutes ? [DebugModule, ColetaModule] : []),
     AuthModule,
     AdminModule,
+    AdminStepupModule,
     PremiumModule,
     RecommendationsModule,
     DiscoveryModule,

@@ -2,6 +2,7 @@ import { redirect } from "@/lib/navigation";
 import { getServerAdminGate } from "@/lib/admin-auth-server";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminAcessoNegado from "@/components/admin/AdminAcessoNegado";
+import AdminStepUpDialog from "@/components/admin/AdminStepUpDialog";
 
 /**
  * T202 — gate server-side da Área de Administrador
@@ -36,6 +37,10 @@ export default async function AdminLayout({
     <div>
       <AdminShell />
       {children}
+      {/* T205 Fase 1 — diálogo de step-up (client): escuta o evento disparado
+          pelo wrapper comStepUp quando a API responde 428. Só existe após o
+          gate ADMIN acima. */}
+      <AdminStepUpDialog />
     </div>
   );
 }

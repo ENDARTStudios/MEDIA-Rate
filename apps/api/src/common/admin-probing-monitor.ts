@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
-/** T203 — categorias de negação monitoradas na superfície admin. */
-export type NegacaoAdmin = "NEGADO" | "RATE_LIMIT";
+/** T203/T205 — categorias de negação monitoradas na superfície admin. */
+export type NegacaoAdmin = "NEGADO" | "RATE_LIMIT" | "STEPUP_FAIL";
 
 export interface RegistroNegacaoAdmin {
   /** true quando a contagem na janela EXCEDE o limite (log por excedente). */
