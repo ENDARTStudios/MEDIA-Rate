@@ -9,6 +9,7 @@ import {
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { randomUUID } from "node:crypto";
 import { capturarSentry } from "./sentry.js";
+import { adminProbingMonitor } from "./admin-probing-monitor.js";
 
 interface ErrorResponseBody {
   statusCode: number;
@@ -166,6 +167,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         internalMessage = `Non-Error com statusCode honrado ${honrado}: ${descreverNaoErro(exception)}`;
       } else {
         internalMessage = `Non-Error thrown: ${descreverNaoErro(exception)}`;
+      }
+    }
+
+    // T203: anti-probing — negações (403) em rotas /api/v1/admin/* alimentam o
+    // monitor (hash de sessão, SEM IP/user-agent/e-mail); "repetida" (excedente
+    // da janela) vira log sanitizado para detecção.
+    if (statusCode === 403 && request.url.startsWith("/api/v1/admin/")) {
+      const cookies = (request as unknown as { cookies?: Record<string, string> }).cookies;
+      const r = adminProbingMonitor.registrar(
+        "NEGADO",
+        request.url.split("?")[0] ?? "/api/v1/admin",
+        cookies?.sess,
+      );
+      if (r.repetida) {
+        this.logger.warn(
+          `ADMIN_ACCESS_DENIED_REPEAT route=${request.url.split("?")[0]} sess=${r.hash} count=${r.contagem}`,
+        );
       }
     }
 

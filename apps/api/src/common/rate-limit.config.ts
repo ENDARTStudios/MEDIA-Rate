@@ -1,6 +1,10 @@
 import { FastifyRateLimitOptions } from "@fastify/rate-limit";
+import { Logger } from "@nestjs/common";
 import type { FastifyRequest } from "fastify";
 import { createHash } from "node:crypto";
+import { adminProbingMonitor } from "./admin-probing-monitor.js";
+
+const rateLimitLogger = new Logger("RateLimit");
 
 export interface RateLimitConfigOptions {
   apiPerMinute?: number;
@@ -145,15 +149,7 @@ export function buildRateLimitOptions(
       }
       return `rl:ip:${ip}:${route}`;
     },
-    errorResponseBuilder: (req: FastifyRequest, context: { max: number; ttl: number }) => {
-      return {
-        statusCode: 429,
-        error: "Too Many Requests",
-        message: `Limite de ${context.max} requisicoes por ${Math.round((context.ttl ?? 60_000) / 1000)}s atingido. Tente novamente em breve.`,
-        correlationId: (req as unknown as { id?: string }).id,
-        timestamp: new Date().toISOString(),
-      };
-    },
+    errorResponseBuilder: resposta429Padrao,
   };
 
   // D-558: sliding window com fallback em memória (a store nunca falha o request).
@@ -163,10 +159,7 @@ export function buildRateLimitOptions(
   // instância ≠ classe/fábrica).
   const redisFactory = overrides.redisFactory;
   const nowOverride = overrides.now;
-  function slidingWindowStorePlugin(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _globalParams: unknown,
-  ): SlidingWindowRateLimitStore {
+  function slidingWindowStorePlugin(_globalParams: unknown): SlidingWindowRateLimitStore {
     return new SlidingWindowRateLimitStore({ redis: redisFactory, now: nowOverride });
   }
   return { ...opcoes, store: slidingWindowStorePlugin } as unknown as FastifyRateLimitOptions;
@@ -223,4 +216,89 @@ export function interacoesRateLimit(): { max: number; timeWindow: string } {
 export function userRightsRateLimit(): { max: number; timeWindow: string } {
   const userRightsPerMinute = envInt("RATE_LIMIT_USER_RIGHTS_PER_MIN", 6);
   return { max: userRightsPerMinute, timeWindow: "1 minute" };
+}
+
+/**
+ * T203 — leituras da superfície admin (/api/v1/admin/* GET): 60/min por
+ * sessão/IP+rota — mais estrito que o global (100/min), suficiente para a
+ * navegação legítima do ADMIN e para o probe do gate do frontend
+ * (admin-auth-server), e baixo o bastante para inutilizar probing.
+ */
+export function adminRateLimit(): { max: number; timeWindow: string } {
+  const adminPerMinute = envInt("RATE_LIMIT_ADMIN_PER_MIN", 60);
+  return { max: adminPerMinute, timeWindow: "1 minute" };
+}
+
+/**
+ * T203 — ações destrutivas/sensíveis admin (purge LGPD, ban/desbanir, plano,
+ * moderação, backfills): 10/min por sessão/IP+rota — bem abaixo das leituras.
+ */
+export function adminDestructiveRateLimit(): { max: number; timeWindow: string } {
+  const adminDestructivePerMinute = envInt("RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN", 10);
+  return { max: adminDestructivePerMinute, timeWindow: "1 minute" };
+}
+
+interface RotaConfig {
+  url?: string;
+  method?: string | string[];
+  config?: { rateLimit?: unknown } & Record<string, unknown>;
+}
+
+/**
+ * T203/D-558 — corpo 429 padronizado + anti-probing em rotas admin.
+ * Exportada porque o @fastify/rate-limit com config POR ROTA não herda o
+ * errorResponseBuilder global — cada config.rateLimit precisa do builder.
+ */
+export function resposta429Padrao(
+  req: FastifyRequest,
+  context: { max: number; ttl: number },
+): Record<string, unknown> {
+  // T203: negações repetidas (429) em rotas admin alimentam o monitor
+  // anti-probing — registro sanitizado (hash de sessão, sem IP/UA/token).
+  const rotaRaw = (req as unknown as Record<string, unknown>).raw
+    ? (((req as unknown as Record<string, unknown>).raw as Record<string, string>).url ?? "/")
+    : (req.url ?? "/");
+  const rota = rotaRaw.split("?")[0] ?? "/";
+  if (rota.startsWith("/api/v1/admin/")) {
+    const sess = (req as unknown as { cookies?: Record<string, string> }).cookies?.sess;
+    const r = adminProbingMonitor.registrar("RATE_LIMIT", rota, sess);
+    if (r.repetida) {
+      rateLimitLogger.warn(
+        `ADMIN_RATE_LIMIT_EXCEEDED route=${rota} sess=${r.hash} count=${r.contagem}`,
+      );
+    }
+  }
+  return {
+    statusCode: 429,
+    error: "Too Many Requests",
+    message: `Limite de ${context.max} requisicoes por ${Math.round((context.ttl ?? 60_000) / 1000)}s atingido. Tente novamente em breve.`,
+    correlationId: (req as unknown as { id?: string }).id,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/**
+ * T203 — aplica os limites admin num routeOptions (chamado pelo hook onRoute do
+ * main.ts e pelo helper de segurança dos testes e2e). NÃO sobrescreve um rate
+ * limit já aplicado (ex.: upload de assets usa o uploadRateLimit).
+ */
+export function aplicarRateLimitAdmin(routeOptions: RotaConfig): void {
+  const url = routeOptions.url ?? "";
+  if (!url.startsWith("/api/v1/admin/")) return;
+  const method = String(
+    Array.isArray(routeOptions.method) ? routeOptions.method[0] : (routeOptions.method ?? "GET"),
+  ).toUpperCase();
+  routeOptions.config = routeOptions.config ?? {};
+  if (routeOptions.config.rateLimit) return;
+  if (method === "GET") {
+    routeOptions.config.rateLimit = {
+      ...adminRateLimit(),
+      errorResponseBuilder: resposta429Padrao,
+    };
+    return;
+  }
+  routeOptions.config.rateLimit = {
+    ...adminDestructiveRateLimit(),
+    errorResponseBuilder: resposta429Padrao,
+  };
 }

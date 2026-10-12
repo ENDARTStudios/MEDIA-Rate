@@ -1081,3 +1081,26 @@ Relatório: `docs/08-security/reports/admin-authz-hardening-2026-10-12.md` · Po
   eslint 0; prettier limpo; i18n ×3 com paridade. E2E navegado = autoridade do CI.
 - **Pendências desta frente:** REVIEW do Thinker; **T203** (rate limit admin específico +
   step-up/MFA — packet próprio); bloqueio de GO do UI leak **levantado após REVIEW**.
+
+---
+
+### T203 (2026-10-12) — rate limit admin + anti-probing executado (**pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md` · Política:
+`docs/08-security/ADMIN_SECURITY.md` (seção rate limit/anti-probing).
+
+- **Fecha o achado secundário `ADMIN_RATE_LIMIT_WEAK` (T201)** usando apenas infraestrutura
+  existente (`@fastify/rate-limit` + sliding window Redis/fallback + Pino) — **nenhuma
+  dependência nova**, auth core/guards/schema intocados.
+- **Controles:** leituras `/api/v1/admin/*` **60/min**; destrutivas (purge/ban/plano/
+  moderação/backfills) **10/min** (env configurável); aplicado por `aplicarRateLimitAdmin`
+  no hook `onRoute` (antes do registro do plugin — bug de ordem já documentado) e replicado
+  no helper e2e; **anti-probing sanitizado**: 403/429 repetidos em rotas admin alimentam
+  `AdminProbingMonitor` (janela 60s, limite 5, **hash de sessão** — nunca IP/UA/token) com
+  logs `ADMIN_ACCESS_DENIED_REPEAT`/`ADMIN_RATE_LIMIT_EXCEEDED`; 429 por rota agora herda o
+  envelope padronizado (builder exportado `resposta429Padrao`).
+- **Evidência:** TDD 29/29 nos focados (monitor 7; config +7; e2e burst admin 4 — 11ª req
+  destrutiva = 429 com as 10 primeiras caindo no 401 do guard, **sem bypass/mutação**);
+  suíte API **1395/1395** (165 arquivos); tsc 0; eslint 0; prettier limpo.
+- **Pendências desta frente:** REVIEW do Thinker; **T204** (design próprio: step-up/MFA +
+  refinamento do probe do gate — endpoint dedicado ou flag admin em `/auth/me`).

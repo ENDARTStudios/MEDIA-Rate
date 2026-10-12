@@ -22,6 +22,7 @@ import {
   watchlistRateLimit,
   discoverRateLimit,
   userRightsRateLimit,
+  aplicarRateLimitAdmin,
 } from "./common/rate-limit.config.js";
 import { GlobalExceptionFilter } from "./common/global-exception.filter.js";
 import { HttpsRedirectGuard } from "./common/https-redirect.guard.js";
@@ -187,6 +188,10 @@ async function bootstrap(): Promise<void> {
   // T020/7.7: Upload route com bodyLimit de 50 MiB.
   // Rate limit específico para rotas sensíveis (brute force).
   fastify.addHook("onRoute", (routeOptions) => {
+    // T203: superfície admin — leituras 60/min, destrutivas 10/min (não
+    // sobrescreve limites já aplicados, ex.: upload de assets). O probe do
+    // gate do frontend (/admin/backfills/status) fica coberto pelo limite de leitura.
+    aplicarRateLimitAdmin(routeOptions as never);
     // T216: multipart de upload de poster (5MB validados no service).
     if (routeOptions.url === "/api/v1/midias/:id/upload" && routeOptions.method === "POST") {
       routeOptions.bodyLimit = 52_428_800; // 50 MiB (multipart)
