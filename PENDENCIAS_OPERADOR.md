@@ -923,3 +923,22 @@ Relatório: `docs/08-security/reports/codeql-incomplete-url-substring-normalizar
 - **Status:** PR em curso (required verdes + smoke no STATUS). **Pendente de REVIEW do Thinker.**
 - **Ainda aguardando autorização:** **T196-A** (`SAFE_TEST_FIX` #89–#92) e **T196-B**
   (`E2E_SCRIPT_FIX` #93/#98/#149) — só após o REVIEW da T196-C. **#151** segue com o Operador.
+
+---
+
+### T196-A (2026-10-11) — correção dos alertas #89-#92 (substring de URL em specs de teste)
+
+Relatório: `docs/08-security/reports/codeql-test-substring-sanitization-2026-10-12.md`.
+
+- **Alertas:** #89/#90/#91 em `apps/api/test/audit-igdb-ids.spec.ts` (o mock de fetch roteava por
+  `url.includes(...)`) e #92 em **`apps/web/test/game-posters-integrity.spec.ts`** (asserção de
+  domínio de pôster — o packet citava `apps/api/test`; o path real é `apps/web/test`, teste puro).
+- **Correção:** comparação de **hostname parseado** (`new URL(url).hostname === …`) — 6
+  substituições no spec da API + 2 no spec web; intenção preservada e **mais estrita** que
+  `includes`; sem `skip`/`soft`/remoção de casos. Os `body.includes(...)` (corpo GraphQL do mock)
+  foram intocados por não serem URL.
+- **Evidência:** `audit-igdb-ids.spec` 25/25; `game-posters-integrity.spec` 7/7; suíte API
+  **1375/1375**; tsc API e web 0; eslint 0; prettier limpo.
+- **Status:** PR em curso (required verdes + smoke no STATUS). **Pendente de REVIEW do Thinker.**
+- **Fila restante:** **T196-B** (`E2E_SCRIPT_FIX` #93/#98/#149) aguardando REVIEW/autorização;
+  **#151** segue com o Operador.

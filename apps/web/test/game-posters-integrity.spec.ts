@@ -11,6 +11,15 @@ const GAME_DOMAINS = [
   "upload.wikimedia.org",
 ];
 
+/** T196-A (#92): compara HOST parseado — substring de URL nunca é allowlist. */
+function hostDe(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
+
 describe("T141 — game poster structural integrity", () => {
   it("0 games with posterUrl null", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
@@ -23,7 +32,7 @@ describe("T141 — game poster structural integrity", () => {
 
   it("0 games with poster from movie domain (tmdb)", () => {
     const games = MOCK_MEDIA.filter((m) => m.type === "game");
-    const tmdbGames = games.filter((m) => m.posterUrl && m.posterUrl.includes("image.tmdb.org"));
+    const tmdbGames = games.filter((m) => m.posterUrl && hostDe(m.posterUrl) === "image.tmdb.org");
     expect(
       tmdbGames,
       `${tmdbGames.length} games with tmdb poster: ${tmdbGames.map((m) => m.title).join(", ")}`,
@@ -35,7 +44,7 @@ describe("T141 — game poster structural integrity", () => {
     for (const g of games) {
       const url = g.posterUrl;
       if (url) {
-        const ok = GAME_DOMAINS.some((d) => url.includes(d));
+        const ok = GAME_DOMAINS.some((d) => hostDe(url) === d);
         expect(ok, `${g.title} poster ${url} is not from game domain`).toBe(true);
       }
     }

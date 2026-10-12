@@ -3694,3 +3694,21 @@ Suítes: API 992/992 (132 arq); web 479/479.
   histórico) + bloco T196-C em `PENDENCIAS_OPERADOR.md`.
 - Nenhum alerta interagido; sem deps/incidente/produção/segredos; T196-A/B não iniciadas;
   PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T196-A — #89-#92 (substring de URL em specs) mitigados (branch test/t196a)
+
+- **Alvos:** #89/#90/#91 em `apps/api/test/audit-igdb-ids.spec.ts` (mock de fetch roteava por
+  `url.includes("id.twitch.tv"|"api.igdb.com")`) e #92 em `apps/web/test/game-posters-integrity.spec.ts`
+  (asserção de domínio de pôster por `includes`; o packet citava `apps/api/test`, o path real é
+  `apps/web/test`).
+- **Correção (test-only):** helper local `hostDe(url)` = `new URL(url).hostname` com try/catch e
+  **8 substituições** (6 na API + 2 no web) — comparação de hostname exato é mais estrita que
+  substring (rejeita host enganoso/domínio no path). Intenção dos testes preservada; sem
+  `skip`/`fixme`/`expect.soft`/remoção de casos; `body.includes(...)` (corpo GraphQL) intocados.
+- **Evidência sem rede:** `audit-igdb-ids` **25/25**; `game-posters-integrity` **7/7**; suíte API
+  **1375/1375** (162 arquivos); tsc API 0 e web 0; eslint 0; prettier limpo.
+- **Docs:** `docs/08-security/reports/codeql-test-substring-sanitization-2026-10-12.md` (novo;
+  cópia local em `.claude/reports/`) + `SECURITY_CODEQL_RUNTIME.md` (fila/status + histórico) +
+  bloco T196-A em `PENDENCIAS_OPERADOR.md`.
+- Nenhum código de produção alterado; sem deps/incidente/produção/segredos; #151 e T196-B
+  intocados; PR em curso — gates e smoke no STATUS.

@@ -51,6 +51,18 @@ function mockFetch(handler: (url: string, init?: RequestInit) => Promise<Respons
   vi.stubGlobal("fetch", vi.fn(handler));
 }
 
+/**
+ * T196-A (#89-#91): roteia o mock por HOST parseado — substring de URL nunca é
+ * allowlist (`url.includes("api.igdb.com")` casaria `evil.example/?u=api.igdb.com`).
+ */
+function hostDe(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
+
 function mockPrisma(sobre: Record<string, unknown> = {}) {
   const base = {
     avaliacaoFonte: {
@@ -136,9 +148,9 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       process.env.TWITCH_CLIENT_ID = "cid";
       process.env.TWITCH_CLIENT_SECRET = "sec";
       mockFetch((url, init) => {
-        if (url.includes("id.twitch.tv"))
+        if (hostDe(url) === "id.twitch.tv")
           return Promise.resolve(jsonRes({ access_token: "tok", expires_in: 3600 }));
-        if (url.includes("api.igdb.com")) {
+        if (hostDe(url) === "api.igdb.com") {
           expect(String(init?.body)).toContain('where slug = "elden-ring"');
           return Promise.resolve(jsonRes([{ id: 119133, slug: "elden-ring" }]));
         }
@@ -151,9 +163,9 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       process.env.TWITCH_CLIENT_ID = "cid";
       process.env.TWITCH_CLIENT_SECRET = "sec";
       mockFetch((url, init) => {
-        if (url.includes("id.twitch.tv"))
+        if (hostDe(url) === "id.twitch.tv")
           return Promise.resolve(jsonRes({ access_token: "tok", expires_in: 3600 }));
-        if (url.includes("api.igdb.com")) {
+        if (hostDe(url) === "api.igdb.com") {
           const body = String(init?.body ?? "");
           if (body.includes("search")) {
             return Promise.resolve(
@@ -402,9 +414,9 @@ describe("T276 — auditoria de ids IGDB (D-265)", () => {
       process.env.TWITCH_CLIENT_ID = "cid";
       process.env.TWITCH_CLIENT_SECRET = "sec";
       mockFetch((url, init) => {
-        if (url.includes("id.twitch.tv"))
+        if (hostDe(url) === "id.twitch.tv")
           return Promise.resolve(jsonRes({ access_token: "tok", expires_in: 3600 }));
-        if (url.includes("api.igdb.com")) return handler(String(init?.body ?? ""));
+        if (hostDe(url) === "api.igdb.com") return handler(String(init?.body ?? ""));
         return Promise.resolve(jsonRes([]));
       });
     }
