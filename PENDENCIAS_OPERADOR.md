@@ -942,3 +942,26 @@ Relatório: `docs/08-security/reports/codeql-test-substring-sanitization-2026-10
 - **Status:** PR em curso (required verdes + smoke no STATUS). **Pendente de REVIEW do Thinker.**
 - **Fila restante:** **T196-B** (`E2E_SCRIPT_FIX` #93/#98/#149) aguardando REVIEW/autorização;
   **#151** segue com o Operador.
+
+---
+
+### T196-b (2026-10-11) — alertas #93/#98 (e2e) e #149 (script) — **último lote de higiene**
+
+Relatório: `docs/08-security/reports/codeql-e2e-script-sanitization-2026-10-12.md`.
+
+- **#93/#98** (`apps/web/e2e/i18n-leak.spec.ts`): o `semScripts` usava
+  `html.replace(/<script[\s\S]*?<\/script>/gi, "")` (regex de tag + replace de multichar).
+  Correção: helper puro **`apps/web/e2e/utils/sem-scripts.ts`** com **varredura determinística
+  de tokens** (sem regex de tag, sem `replace` de multichar; autofechado; **fail-safe** sem
+  fechamento; preserva `<scriptt>`), mantendo o contrato do gate (HTML sem scripts; tags e
+  atributos preservados). 10 casos unitários novos.
+- **#149** (`apps/api/scripts/seed-premios-wikidata.mjs`): `ext.imdb_id.replace(/^tt/, "tt")`
+  era **identidade** (no-op morto, provado sem rede) — **removido** (o TMDB já entrega `tt…`).
+- **Evidência:** `sem-scripts.spec` 10/10; suíte web **564/564**; `premios-wikidata` 7/7; suíte
+  API **1375/1375** (1 falha intermitente em 1 execução, **não reproduzida em 2** — flake, sem
+  relação com o diff); Playwright `--list` 14 testes (o e2e compila); tsc web 0; eslint/prettier
+  limpos. O e2e real exige `E2E_FULL=1` + browser + API → **CI é a autoridade**.
+- **Status:** PR em curso (required verdes + smoke no STATUS). **Pendente de REVIEW do Thinker.**
+- **Fila CodeQL NÃO-RUNTIME ENCERRADA** após este lote. Permanecem decisões humanas: **#151**
+  (runtime conhecido — manter open com evidência ou dismiss documentado), Trivy (deps/imagem
+  base), incidente/purge, Gov-01/B1/UG-01/backups.

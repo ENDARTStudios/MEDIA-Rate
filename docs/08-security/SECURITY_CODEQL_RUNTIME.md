@@ -11,7 +11,7 @@
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` (+ fakes de teste) | **MITIGADO (T194)** — §2d |
-| higiene não-runtime (8 alertas) | vários | **TRIADO (T195)** · **#88 MITIGADO (T196-C)** (§2e) · **#89-#92 MITIGADOS (T196-A)** · restantes: 3 e2e/script (**T196-B**) + #151 (humano) |
+| higiene não-runtime (8 alertas) | vários | **TRIADO (T195)** · **#88 MITIGADO (T196-C)** (§2e) · **#89-#92 MITIGADOS (T196-A)** · **#93/#98/#149 MITIGADOS (T196-b)** — **fila não-runtime ENCERRADA** (só #151, humano) |
 
 ## 2. Caso 1 — SSRF em `http.utils` (T191): desenho da mitigação
 
@@ -117,11 +117,12 @@
 Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão mitigadas
 (§2–§2d); as análises pós-merge fecharam #85/#86/#94–#97. **Triagem não-runtime em T195**
 (read-only) achou **1 runtime de display** — o **#88**, agora **MITIGADO em T196-C** (§2e).
-Restam: **3 `E2E_SCRIPT_FIX`** (#93/#98/#149) — lote **T196-B** — e o **#151** (único runtime
-open), que permanece **triagem humana do Operador**; os **#89–#92** (testes) foram
-**MITIGADOS em T196-A**. Relatórios: `reports/codeql-nonruntime-triage-2026-10-12.md`,
-`reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md` e
-`reports/codeql-test-substring-sanitization-2026-10-12.md`.
+**Fila não-runtime ENCERRADA em T196-b** — #93/#98 (e2e `i18n-leak`) e #149 (script de prêmios)
+mitigados. Resta apenas o **#151** (único runtime open), que permanece **triagem humana do
+Operador**. Relatórios: `reports/codeql-nonruntime-triage-2026-10-12.md`,
+`reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`,
+`reports/codeql-test-substring-sanitization-2026-10-12.md` e
+`reports/codeql-e2e-script-sanitization-2026-10-12.md`.
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -162,3 +163,10 @@ open), que permanece **triagem humana do Operador**; os **#89–#92** (testes) f
   preservada, sem skip/soft, sem remover casos. `audit-igdb-ids.spec` 25/25;
   `game-posters-integrity.spec` 7/7; suíte API **1375/1375**; tsc/eslint/prettier limpos.
   Relatório: `docs/08-security/reports/codeql-test-substring-sanitization-2026-10-12.md`.
+- **2026-10-11 (T196-b):** `js/bad-tag-filter`/`js/incomplete-multi-character-sanitization`
+  (**#93/#98**, e2e `i18n-leak`) e `js/identity-replacement` (**#149**, script de prêmios)
+  mitigados — `semScripts` reescrito como **varredura determinística de tokens** (sem regex de
+  tag, sem `replace` de multichar; fail-safe; helper puro em `apps/web/e2e/utils/sem-scripts.ts`
+  com 10 casos) e no-op `replace(/^tt/,"tt")` **removido** (identidade provada). Suíte web
+  **564/564**; suíte API **1375/1375**; tsc web 0; eslint/prettier limpos. **Fila não-runtime
+  encerrada.** Relatório: `docs/08-security/reports/codeql-e2e-script-sanitization-2026-10-12.md`.

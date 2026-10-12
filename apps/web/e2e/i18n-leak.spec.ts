@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
+import { semScripts } from "./utils/sem-scripts";
 
 /**
  * Gate i18n-leak (D-266) — HTML SSR sem JS:
@@ -11,7 +12,8 @@ import { test, expect, type APIRequestContext } from "@playwright/test";
  * Nota: o HTML bruto contém o flight payload do RSC com o dicionário de
  * mensagens (chaves como "continueWithGoogle" aparecem como dados de
  * hidratação, não como texto visível). Por isso as checagens de texto/chave
- * rodam sobre o HTML com <script> removido.
+ * rodam sobre o HTML com os blocos `<script>` removidos por
+ * `utils/sem-scripts` (T196-b: varredura determinística, sem regex de tag).
  */
 
 const REGISTER_PT_PROIBIDOS = [
@@ -43,10 +45,6 @@ const CHAVES_CRUAS = [
 ];
 
 const LOCALES = ["pt-BR", "en-US", "es-ES"] as const;
-
-function semScripts(html: string): string {
-  return html.replace(/<script[\s\S]*?<\/script>/gi, "");
-}
 
 async function fetchSsr(request: APIRequestContext, url: string) {
   const res = await request.get(url);
