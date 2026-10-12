@@ -1,10 +1,11 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (T211, docs-only/read-only) · **GO: SUSPENSO** — este
+**Última auditoria:** 2026-10-13 (T209, deps + docs) · **GO: SUSPENSO** — este
 documento **não declara GO**; consolida evidência para a **declaração formal do Operador**.
 Relatórios: `docs/08-security/reports/go-readiness-audit-2026-10-12.md`,
-`docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md` e
-`docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`.
+`docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
+`docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
+`docs/08-security/reports/deps-clean-pr-2026-10-13.md`.
 
 Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão humana ·
 **BLOQUEADA** = exige ação antes de GO · **MONITORADA** = acompanhamento contínuo.
@@ -19,7 +20,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Dependabot security updates | ✅ PRONTA | `enabled` |
 | CodeQL — fila de correção | ✅ PRONTA | esgotada (T191–T194, T195, T196-A/C/b); 12 alertas `fixed` |
 | CodeQL — #151 (SSRF) | ✅ RESOLVIDA_DOCUMENTALMENTE_COM_ALERTA_MANTIDO_OPEN | **T211 (2026-10-13):** `#151 = OPEN_MITIGATED_DOCUMENTED` — permanece **open por limitação da regra** (`js/request-forgery` não reconhece a barreira custom), **runtime mitigado** (T191/PR #528 `cf993017`: url-guard/ip-guard); **contagem CodeQL open = 1**; decisão = manter open com evidência (não dismiss automático). Relatório: `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` |
-| Trivy (119 estruturais) | ⚠️ PENDENTE_OPERADOR | ruído por design (D-534); ligado à decisão de deps/imagem base |
+| Trivy (119 estruturais) | 🔁 MONITORADA | ruído por design (D-534); parcialmente ligado à decisão de deps/imagem base (T209 reduziu o audit de 28→21; Trivy segue estrutural) |
 | Incidente INC-2026-10-11 | ✅ RESOLVIDA_DOCUMENTALMENTE_COM_RISCO_RESIDUAL_ACEITO | **T210 (2026-10-13):** `CLOSED_RISK_ACCEPTED_NO_PURGE` — encerrado com risco residual aceito, **sem purge**; rotação + neutralização + secret scanning/push protection + Gitleaks verificados. Relatório: `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md` |
 | Hardening admin (T201–T206 + T205 Fase 1) | ✅ PRONTA | deny-by-default + rate limit/anti-probing + probe dedicado + **step-up por senha** (fail-closed) em produção; Fases 2/3 (TOTP/WebAuthn) não implementadas |
 
@@ -45,7 +46,8 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 
 | Frente | Estado | Evidência |
 |---|---|---|
-| PRs #515/#518/#522 | ⚠️ PENDENTE_OPERADOR | OPEN/sem drift; classificação T187 (#515 STALE; #518/#522 requerem nova PR limpa) |
+| PRs #515/#518/#522 | ✅ RESOLVIDA_PARCIALMENTE (T209) | **#518/#522 supersedidas** e **#515 fechada** por uma **PR limpa** (`sharp 0.35.5`, `wrangler 4.149.0`; `npm audit` **28→24**). **Excluídos com falha real medida:** `vitest 4.1.11` (des-hoisting do provider de coverage → `--coverage` do CI quebrava) e `fastify 5.12.5` (instância duplicada → `tsc` da API quebrava). **Majors** (`tailwindcss` 3→4, `vitest` 4→5) → tarefa de código. Relatório: `reports/deps-clean-pr-2026-10-13.md` |
+| Trivy (119 estruturais) | 🔁 MONITORADA | ruído por design (D-534); parcialmente ligado à decisão de deps/imagem base; recontado por GET (sem interagir com alertas) |
 | audit:ci | ✅ PRONTA | verde no main (gate Lint & Audit required) |
 
 ## 5. Produto/Beta
@@ -69,11 +71,13 @@ heurístico (APIs DOM inline), não chave i18n crua.
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/monitores,
   fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
   **encerramento do incidente INC-2026-10-11 (risco residual aceito, sem purge — T210)**.
-- **PENDENTES DO OPERADOR (decisão):** deps (#515/#518/#522) + Trivy (T209) ·
-  backups/alertas Postgres (T212) · purge de histórico (T213, confirmação explícita) ·
-  Deploy waiting (quando aprovar) · eventualmente Gov-02.
+- **PENDENTES DO OPERADOR (decisão):** backups/alertas Postgres (T212) ·
+  purge de histórico (T213, confirmação explícita) ·
+  Deploy waiting (quando aprovar) · eventualmente Gov-02 ·
+  majors de deps (`tailwindcss` 4, `vitest` 5) como tarefa de código.
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
-  documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.)*
+  documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.
+  Deps #515/#518/#522: **resolvidas** — T209.)*
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.
