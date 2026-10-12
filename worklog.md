@@ -3657,3 +3657,19 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** `SECURITY_CODEQL_RUNTIME.md` (§2d + status + histórico; fila runtime
   esgotada) e relatório `.claude/reports/codeql-incomplete-sanitization-cache-2026-10-12.md`.
   Nenhum alerta interagido; sem deps/incidente/produção; PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T195 — triagem CodeQL não-runtime (docs-only; nenhum alerta interagido) (branch docs/t195)
+
+- **Inventário (paginate correto):** 128 open = 119 Trivy (fora do escopo) + 9 CodeQL; #151
+  excluído por ser o runtime conhecido (mitigado, aguarda triagem humana).
+- **Classificação dos 8 restantes:** #88 high **RUNTIME de display** (`normalizar-imagem.ts`,
+  D-262 — `includes` de substring em transformação de URL IGDB; callers discover/media, sem
+  sink de rede) → **RUNTIME_ESCALATION_SE_HOUVER** (recomendado lote próprio T196-C); #89–#92
+  high em testes (mocks/asserções de URL) → `SAFE_TEST_FIX` (T196-A); #93/#98 high no e2e
+  i18n-leak (strip de `<script>` via regex) + #149 medium no script de prêmios (replace
+  no-op) → `E2E_SCRIPT_FIX` (T196-B). Sem falso positivo/inconclusivo; nenhum
+  segredo/PII/snippet de alerta impresso.
+- **Docs:** `docs/08-security/reports/codeql-nonruntime-triage-2026-10-12.md` (novo; cópia
+  local em `.claude/reports/`) + `SECURITY_CODEQL_RUNTIME.md` (fila/status + histórico) +
+  bloco T195 em `PENDENCIAS_OPERADOR.md`.
+- Nenhum código/dep/config alterado; PR docs-only em curso — gates e smoke no STATUS.
