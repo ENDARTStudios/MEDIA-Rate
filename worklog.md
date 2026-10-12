@@ -3836,3 +3836,28 @@ Suítes: API 992/992 (132 arq); web 479/479.
   correção = T202 hardening: layout server component validando ADMIN + early-return + rate limit).
 - Nada alterado (sem clique/purge/credencial admin/código); GO permanece SUSPENSO; PR docs-only
   em curso — gates e smoke no STATUS.
+
+### [2026-10-12] T202 — hardening do boundary admin: deny-by-default server-side (branch fix/t202)
+
+- **Arquitetura:** `admin/layout.tsx` virou **server component gate** — `getServerAdminGate()`
+  (novo `lib/admin-auth-server.ts`) valida sessão + papel ADMIN via **probe ao endpoint
+  `@Roles("ADMIN")` existente** (`GET /admin/backfills/status`, síncrono/barato) com o cookie
+  `sess`; 200=ADMIN, 403=autenticado sem ADMIN, 401/outros/erro/timeout=**fail-closed**.
+  Anônimo → redirect login (i18n-aware); não-admin → `AdminAcessoNegado` (mensagem genérica
+  i18n `admin.acessoNegado` ×3) **sem shell/nav/abas/tabelas/botões**; ADMIN → `AdminShell`
+  (client, conteúdo anterior do layout) + página. LGPD com **early-return** na negação
+  (`ApiError.status===403` ou mensagem) — nem botão de purga nem tabelas antes da confirmação.
+  A UX do ADMIN inalterada; **API de autorização intocada** (o gate reusa o RolesGuard; /auth/me
+  não precisou expor papel).
+- **TDD vermelho→verde:** 3 specs novos/atualizados — `admin-auth-server.spec` (7 casos: 200/
+  403/401/5xx/erro de rede/sem cookie/cookie no probe), `admin-layout-auth.spec` (ADMIN /
+  não-admin sem superfície / anônimo redirect), `admin-layout.spec` (adaptado ao gate),
+  `admin-lgpd.spec` (+403→negado sem controles; +erro genérico mantém painel) — **17/17**;
+  suíte web completa **575/575** (85 arquivos); tsc web 0; eslint 0; prettier limpo (TS/TSX;
+  messages mantêm formato do main — guard D-210 é a verificação deles).
+- **Docs:** `docs/08-security/reports/admin-authz-hardening-2026-10-12.md` (novo; cópia local
+  em `.claude/reports/`) + `ADMIN_SECURITY.md` (gate implementado + como re-verificar) +
+  `TESTING.md` (seção Boundary admin) + PENDENCIAS (T202 executada, pendente REVIEW; T203
+  rate limit/step-up permanece).
+- Limitação: E2E navegado exige `E2E_FULL=1`+infra → CI é a autoridade (E2E Full no PR). PR em
+  curso — gates e smoke no STATUS.

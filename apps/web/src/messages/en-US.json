@@ -484,7 +484,8 @@
     "totalUsers": "Total users",
     "activeSubscriptions": "Active subscriptions",
     "plusUsers": "Plus users",
-    "premiumUsers": "Premium users"
+    "premiumUsers": "Premium users",
+    "acessoNegado": "Access unauthorized."
   },
   "pricing": {
     "headline": "Choose how you want to discover your next title",

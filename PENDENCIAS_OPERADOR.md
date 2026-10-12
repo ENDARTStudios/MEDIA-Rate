@@ -1063,3 +1063,21 @@ permanente: `docs/08-security/ADMIN_SECURITY.md` (novo).
   component validando sessão + ADMIN antes de renderizar (não-admin → 403/redirect) +
   early-return nas páginas + rate limit admin (+ step-up opcional).
 - **Nada foi alterado** nesta auditoria (read-only; sem clique/purge/credencial admin).
+
+---
+
+### T202 (2026-10-12) — hardening do boundary admin executado (**pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/admin-authz-hardening-2026-10-12.md` · Política:
+`docs/08-security/ADMIN_SECURITY.md` (atualizada: gate implementado).
+
+- **Correção do achado T201:** `admin/layout.tsx` virou **server component gate** — sessão +
+  papel `ADMIN` validados via `getServerAdminGate()` (probe ao endpoint `@Roles("ADMIN")`
+  existente, **fail-closed**) antes de renderizar qualquer UI; anônimo → login; não-admin →
+  mensagem genérica **sem nenhuma superfície administrativa**; ADMIN → UX inalterada. Página
+  LGPD com **early-return** na negação (nem o botão de purga aparece antes da confirmação).
+  **API de autorização intocada.**
+- **Evidência:** TDD 17/17 nos specs focados (helper/gate/lgpd); suíte web **575/575**; tsc 0;
+  eslint 0; prettier limpo; i18n ×3 com paridade. E2E navegado = autoridade do CI.
+- **Pendências desta frente:** REVIEW do Thinker; **T203** (rate limit admin específico +
+  step-up/MFA — packet próprio); bloqueio de GO do UI leak **levantado após REVIEW**.

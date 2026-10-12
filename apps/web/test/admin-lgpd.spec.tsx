@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import type * as HttpNs from "@/lib/http";
 
 // Onda 6 admin (P3) — visão LGPD: exclusões agendadas (carência 30d),
 // gatilho manual da purga (confirm obrigatório) e contagens de consentimento.
@@ -27,18 +28,26 @@ const { getMock, postMock } = vi.hoisted(() => {
   };
 });
 
-vi.mock("@/lib/http", () => ({
-  api: {
-    get: getMock,
-    post: postMock,
-  },
-}));
+// T202: preserva o ApiError real (a página o usa para detectar negação 403).
+vi.mock("@/lib/http", async (importOriginal) => {
+  const real = await importOriginal<typeof HttpNs>();
+  return {
+    ...real,
+    api: {
+      get: getMock,
+      post: postMock,
+    },
+  };
+});
 
 import AdminLgpdPage from "@/app/[locale]/admin/lgpd/page";
 
 function renderPage() {
   return render(
-    <NextIntlClientProvider locale="pt-BR" messages={{}}>
+    <NextIntlClientProvider
+      locale="pt-BR"
+      messages={{ admin: { acessoNegado: "Acesso não autorizado." } }}
+    >
       <AdminLgpdPage />
     </NextIntlClientProvider>,
   );
@@ -80,11 +89,27 @@ describe("AdminLgpdPage (Onda 6 admin — P3)", () => {
     });
   });
 
-  it("403 da API vira mensagem de erro na página", async () => {
-    getMock.mockRejectedValueOnce(new Error("Você não tem permissão para acessar este recurso."));
+  it("403 da API → estado negado (T202): SEM botão de purga, tabela ou contadores", async () => {
+    const { ApiError } = await import("@/lib/http");
+    getMock.mockRejectedValueOnce(
+      new ApiError(403, "Você não tem permissão para acessar este recurso."),
+    );
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText(/permissão/)).toBeTruthy();
+      expect(screen.getByTestId("admin-acesso-negado")).toBeTruthy();
     });
+    expect(screen.queryByTestId("admin-lgpd-purgar")).toBeNull();
+    expect(screen.queryByTestId("admin-lgpd-agendados")).toBeNull();
+    expect(screen.queryByTestId("admin-consent-total")).toBeNull();
+  });
+
+  it("erro genérico (não-negativa) mantém o painel com a mensagem de erro", async () => {
+    getMock.mockRejectedValueOnce(new Error("Falha de rede"));
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-lgpd-erro")).toBeTruthy();
+    });
+    // controles continuam (o ADMIN pode tentar de novo); nada foi negado
+    expect(screen.getByTestId("admin-lgpd-purgar")).toBeTruthy();
   });
 });

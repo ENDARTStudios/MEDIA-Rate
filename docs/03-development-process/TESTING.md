@@ -215,6 +215,21 @@ vence o slug derivado do título.
 cd apps/api && NODE_ENV=test npx vitest run test/scrapers-t176.spec.ts
 ```
 
+## Boundary admin — deny-by-default (T201/T202)
+
+Regressão do gate server-side da área admin: **nenhuma superfície administrativa** (shell,
+nav, abas, tabelas, contadores, botão de purga) pode renderizar para anônimo ou usuário sem
+papel ADMIN. O gate vive no **layout** (`admin/layout.tsx`, server component) e consulta o
+RolesGuard da API via `getServerAdminGate()` (fail-closed); a página LGPD faz early-return na
+negação (403).
+
+```bash
+cd apps/web && npx vitest run test/admin-auth-server.spec.ts test/admin-layout-auth.spec.tsx test/admin-layout.spec.tsx test/admin-lgpd.spec.tsx
+```
+
+E2E navegado (anônimo/não-admin/ADMIN em browser) requer `E2E_FULL=1` + infra API+DB — CI é
+a autoridade. Política: `docs/08-security/ADMIN_SECURITY.md`.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
