@@ -1,8 +1,9 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-12 (T199, read-only/docs-only) · **GO: SUSPENSO** — este
+**Última auditoria:** 2026-10-13 (T210, docs-only/read-only) · **GO: SUSPENSO** — este
 documento **não declara GO**; consolida evidência para a **declaração formal do Operador**.
-Relatório completo: `docs/08-security/reports/go-readiness-audit-2026-10-12.md`.
+Relatórios: `docs/08-security/reports/go-readiness-audit-2026-10-12.md` e
+`docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
 
 Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão humana ·
 **BLOQUEADA** = exige ação antes de GO · **MONITORADA** = acompanhamento contínuo.
@@ -18,7 +19,8 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | CodeQL — fila de correção | ✅ PRONTA | esgotada (T191–T194, T195, T196-A/C/b); 12 alertas `fixed` |
 | CodeQL — #151 (SSRF) | ⚠️ PENDENTE_OPERADOR | único CodeQL open (critical), mitigado por url-guard/ip-guard; manter open c/ evidência **ou** dismiss documentado (decisão humana) |
 | Trivy (119 estruturais) | ⚠️ PENDENTE_OPERADOR | ruído por design (D-534); ligado à decisão de deps/imagem base |
-| Incidente INC-2026-10-11 | ⚠️ PENDENTE_OPERADOR | `MITIGATED_OPEN_PENDING_PURGE_OR_RISK_ACCEPTANCE` — chaves rotacionadas, contas de teste neutralizadas; falta ENCERRAR/MANTER/PURGE (template em PENDENCIAS) |
+| Incidente INC-2026-10-11 | ✅ RESOLVIDA_DOCUMENTALMENTE_COM_RISCO_RESIDUAL_ACEITO | **T210 (2026-10-13):** `CLOSED_RISK_ACCEPTED_NO_PURGE` — encerrado com risco residual aceito, **sem purge**; rotação + neutralização + secret scanning/push protection + Gitleaks verificados. Relatório: `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md` |
+| Hardening admin (T201–T206 + T205 Fase 1) | ✅ PRONTA | deny-by-default + rate limit/anti-probing + probe dedicado + **step-up por senha** (fail-closed) em produção; Fases 2/3 (TOTP/WebAuthn) não implementadas |
 
 ## 2. CI/CD
 
@@ -64,11 +66,14 @@ heurístico (APIs DOM inline), não chave i18n crua.
 ## 7. Resumo
 
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/monitores,
-  fila CodeQL de correção, audit, Pacote de GO 4/4.
-- **PENDENTES DO OPERADOR (decisão):** #151 · incidente (encerrar/manter/purge) ·
-  deps (#515/#518/#522) + Trivy · backups/alertas Postgres ·
+  fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
+  **encerramento do incidente INC-2026-10-11 (risco residual aceito, sem purge — T210)**.
+- **PENDENTES DO OPERADOR (decisão):** #151 (evidência documental em T211) ·
+  deps (#515/#518/#522) + Trivy (T209) · backups/alertas Postgres (T212) ·
+  purge de histórico (T213, confirmação explícita) ·
   Deploy waiting (quando aprovar) · eventualmente Gov-02.
-  *(Higiene da conta sintética ADMIN: **resolvida** — reconciliada pela T200.)*
+  *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
+  documentalmente** — T210.)*
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.

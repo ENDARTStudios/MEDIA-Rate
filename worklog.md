@@ -3969,3 +3969,29 @@ Suítes: API 992/992 (132 arq); web 479/479.
 - **Docs:** relatório `docs/08-security/reports/admin-stepup-fase1-2026-10-13.md` +
   `ADMIN_SECURITY.md` (Fase 1 implementada) + `SECURITY_AUTH_DESIGN.md` (Fase 1 ✅) +
   `TESTING.md` (seção step-up) + `PENDENCIAS_OPERADOR.md` (bloco T205). **GO segue SUSPENSO.**
+
+### [2026-10-13] T210 — encerramento formal do incidente INC-2026-10-11 (risco residual aceito, sem purge)
+
+- **Classificação final:** `CLOSED_RISK_ACCEPTED_NO_PURGE` — o incidente deixa de ser bloqueador
+  formal; **purge de histórico NÃO executada nem autorizada** (T213 exige confirmação explícita).
+- **Evidências consolidadas (sanitizadas):** rotação TMDB/IGDB/Twitch/Comic Vine (2026-10-10) +
+  Stripe live/webhook (2026-10-11); contas `@mediarate.test` neutralizadas (7 senhas, 119 sessões,
+  1 ADMIN — T184) com **0 ADMIN ativo** reconfirmado em produção (T200); secret scanning **ATIVO
+  (0 alertas)** + push protection **ATIVO**; **Gitleaks** como gate do CI; hardening admin
+  T201–T206 + **T205 Fase 1** (step-up fail-closed); **0 eventos de auditoria** na janela e
+  **0 atividade pós-remediação** (sem uso não autorizado).
+- **Produção/CI no SHA atual:** CI `main` **success** (run 38297883806) e Security `main`
+  **success** (38297883795); Deploy `main` **waiting** no environment Production (não aprovado;
+  decisão do Operador); smoke canônico **7/7 → 200** (`/health`, `/pt-BR`, `/en-US`, `/es-ES`,
+  `/pt-BR/catalog`, `/pt-BR/pricing`, `/pt-BR/login`).
+- **Riscos residuais ACEITOS:** blob no histórico público (sem purge); repositório PÚBLICO
+  (decisão do Operador); contas de teste mantidas no banco (neutralizadas); `#151` OPEN mitigado
+  (T211); 119 alertas Trivy estruturais (T209).
+- **Governança:** kill-switch `ADMIN_STEPUP_REQUIRED=0` tratado como **mudança sensível**
+  (política registrada em `ADMIN_SECURITY.md`); novos endpoints admin mutantes devem herdar o guard.
+- **Docs:** novo relatório `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`
+  + `SECURITY_INCIDENTS.md` (§Encerramento) + `GO_READINESS_CHECKLIST.md` (frente →
+  RESOLVIDA_DOCUMENTALMENTE_COM_RISCO_RESIDUAL_ACEITO) + `ADMIN_SECURITY.md` (kill-switch) +
+  `PENDENCIAS_OPERADOR.md` (incidente deixa de ser bloqueador; bloco T210).
+- **Diff docs-only:** nenhum código/schema/deps/infra/produção/alerta/GitHub setting alterado.
+- **GO:** segue **SUSPENSO** — encerramento documental **não** libera GO.

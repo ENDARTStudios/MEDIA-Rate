@@ -34,7 +34,7 @@ encerramento formal pelo Operador/Thinker.
 - **Verificação:** varredura sanitizada (T183) sem novos padrões de alta confiança em HEAD/
   histórico; 0 eventos de auditoria envolvendo as contas de teste desde a janela de
   exposição (**sem evidência de uso não autorizado**); CI 10/10 runs sem match.
-- **Pendências (incidente NÃO encerrado):**
+- **Pendências (histórico — resolvidas ou convertidas em risco aceito; ver §Encerramento T210):**
   1. ~~Secret scanning/push protection indisponíveis~~ → **ATIVOS (2026-10-11):** repositório
      novamente **PÚBLICO** por decisão do Operador; `secret-scanning/alerts` disponível
      (0 alertas) e `code-scanning/alerts` disponível (30 alertas pré-existentes). Padrão do
@@ -60,3 +60,24 @@ encerramento formal pelo Operador/Thinker.
   Operador (D-563, fora do domínio de teste). Probes agregados via `railway ssh` (somente
   `count`/`groupBy`, sem PII; scripts efêmeros removidos). Sem necessidade de higiene T201.
   Relatório: `docs/08-security/reports/synthetic-admin-reconciliation-2026-10-12.md`.
+
+### Encerramento formal (2026-10-13, T210) — `CLOSED_RISK_ACCEPTED_NO_PURGE`
+
+- **Decisão do Operador:** incidente **ENCERRADO com risco residual aceito, sem purge**.
+- **Mitigação efetiva (verificada):** rotação das credenciais conhecidas (TMDB/IGDB/Twitch/
+  Comic-Vine + Stripe live/webhook); neutralização das contas `@mediarate.test`
+  (7 senhas invalidadas, 119 sessões revogadas, 1 ADMIN revogado — T184) com **0 ADMIN ativo**
+  reconfirmado em produção (T200); secret scanning **ATIVO (0 alertas)** + push protection
+  **ATIVO**; **Gitleaks** como gate bloqueador do CI.
+- **Hardening admin consolidado:** T201 (auditoria) → T202 (deny-by-default) → T203 (rate limit +
+  anti-probing) → T204 (design) → T206 (probe dedicado) → **T205 Fase 1 (step-up por re-auth de
+  senha, fail-closed)**.
+- **Sem evidência de uso não autorizado** (0 eventos de auditoria na janela; 0 atividade pós-remediação).
+- **Riscos residuais ACEITOS:** o blob **permanece no histórico público** (sem purge; a purge exige
+  confirmação explícita separada — T213); repositório **PÚBLICO** por decisão do Operador; contas de
+  teste mantidas no banco (neutralizadas); **#151** OPEN mitigado (formalização em T211); 119 alertas
+  Trivy estruturais (T209).
+- **Governança:** kill-switch `ADMIN_STEPUP_REQUIRED=0` tratado como **mudança sensível**
+  (`ADMIN_SECURITY.md` §governança).
+- **GO para convites: continua SUSPENSO** — encerramento documental **não** libera GO.
+- **Relatório:** `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
