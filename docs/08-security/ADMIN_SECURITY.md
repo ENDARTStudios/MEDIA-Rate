@@ -73,6 +73,25 @@ específico de admin (T203)** + **step-up por re-auth de senha (T205 Fase 1)**. 
   Seguem pendentes: MFA (Fase 2: TOTP; Fase 3: WebAuthn) e timeout de sessão admin.
   Design completo: `docs/08-security/SECURITY_AUTH_DESIGN.md` +
   `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`.
+- ✅ **Incidente INC-2026-10-11** — encerrado formalmente com **risco residual aceito, sem purge**
+  (T210, 2026-10-13, `CLOSED_RISK_ACCEPTED_NO_PURGE`); a frente admin (T201–T206 + T205 Fase 1)
+  faz parte do pacote de hardening consolidado nesse encerramento.
+  Relatório: `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
+
+## Governança do kill-switch `ADMIN_STEPUP_REQUIRED=0` (mudança sensível)
+
+O kill-switch do step-up **não é uma feature flag inocente**: desligá-lo remove a exigência de
+re-auth de senha nas ações destrutivas admin. Política mínima:
+
+- **default:** habilitado (step-up **exigido**);
+- **desabilitar:** apenas por **decisão operacional explícita**, documentada;
+- **registro:** worklog / mudança sensível, com **janela curta**;
+- **monitoramento:** picos de `ADMIN_STEPUP_FAIL` e ações destrutivas admin **sem** step-up;
+- **reativação:** imediata após a contingência.
+
+Além disso, **todo novo endpoint admin mutante** deve herdar o `AdminStepUpGuard` (ou ser
+explicitamente classificado como não destrutivo, com justificativa revisada); a **metadata spec**
+deve continuar falhando quando uma rota mutante admin não estiver coberta.
 
 ## Como auditar (read-only)
 

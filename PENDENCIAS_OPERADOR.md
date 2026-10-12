@@ -711,9 +711,17 @@ por este registro.
 
 ---
 
-## 🔴 INCIDENTE_ABERTO — exposição de padrão de credencial em repositório PÚBLICO (2026-10-10, T182)
+## ✅ INCIDENTE_ENCERRADO (T210, 2026-10-13) — `CLOSED_RISK_ACCEPTED_NO_PURGE` — exposição de padrão de credencial em repositório PÚBLICO (2026-10-10, T182)
 
-**Severidade: ALTA. Ação do Operador é obrigatória e urgente.** Auditoria read-only
+> **Encerrado formalmente com risco residual aceito e SEM purge** (T210, docs-only).
+> Rotação das credenciais conhecidas + neutralização das contas de teste + secret scanning/
+> push protection ATIVOS + Gitleaks gate; **sem evidência de uso não autorizado**. Ver bloco
+> **T210** no fim deste arquivo e o relatório
+> `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
+> A **purge** de histórico permanece **não autorizada** (exige confirmação explícita — T213).
+> Registro histórico abaixo preservado (o incidente **não** é mais um bloqueador formal).
+
+**Severidade: ALTA (histórico).** Auditoria read-only
 completa em `.claude/reports/secret-incident-exchange-log-2026-10-10.md` (sanitizado).
 
 **Fatos apurados:**
@@ -1172,3 +1180,28 @@ Relatório: `docs/08-security/reports/admin-stepup-fase1-2026-10-13.md`.
   cookies/tokens, schema, migrations, `package.json` e infra — **intactos**. TOTP/WebAuthn/
   timeout de sessão admin **não** implementados (Fases 2/3).
 - **GO:** segue **SUSPENSO** (declaração formal explícita do Operador).
+
+---
+
+### T210 (2026-10-13) — encerramento formal do incidente INC-2026-10-11 com risco residual aceito, **sem purge** (docs-only; **pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
+
+- **Classificação final:** `CLOSED_RISK_ACCEPTED_NO_PURGE`. O incidente **deixa de ser bloqueador
+  formal**; a purga de histórico **não** foi executada nem autorizada (T213 exige confirmação
+  explícita separada).
+- **Evidências consolidadas (sanitizadas):** rotação de TMDB/IGDB/Twitch/Comic Vine (10-10) +
+  Stripe live/webhook (10-11); contas `@mediarate.test` neutralizadas (7 senhas, 119 sessões,
+  1 ADMIN — T184) com **0 ADMIN ativo** reconfirmado (T200); secret scanning **ATIVO (0 alertas)**
+  + push protection **ATIVO**; **Gitleaks** gate do CI; hardening admin T201–T206 + **T205 Fase 1**;
+  CI `main` **success** (38297883806) e Security `main` **success** (38297883795); smoke 7/7 → 200.
+- **Sem evidência de uso não autorizado** (0 eventos de auditoria na janela; 0 atividade pós-remediação).
+- **Riscos residuais ACEITOS:** blob no histórico público (sem purge); repositório PÚBLICO (decisão
+  do Operador); contas de teste mantidas no banco (neutralizadas); `#151` OPEN mitigado (T211);
+  119 alertas Trivy estruturais (T209).
+- **Governança:** kill-switch `ADMIN_STEPUP_REQUIRED=0` passa a ser tratado como **mudança sensível**
+  (`ADMIN_SECURITY.md` §governança).
+- **Blocos que permanecem em aberto (não tocados aqui):** `T211` (#151 evidência) · `T209` (deps
+  #515/#518/#522 + Trivy) · `T212` (backups/alertas Postgres) · `T213` (purge) · Deploy `waiting`
+  no environment Production · **GO final explícito do Operador**.
+- **GO:** segue **SUSPENSO** — encerramento documental **não** libera GO.
