@@ -1,9 +1,10 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (T210, docs-only/read-only) · **GO: SUSPENSO** — este
+**Última auditoria:** 2026-10-13 (T211, docs-only/read-only) · **GO: SUSPENSO** — este
 documento **não declara GO**; consolida evidência para a **declaração formal do Operador**.
-Relatórios: `docs/08-security/reports/go-readiness-audit-2026-10-12.md` e
-`docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`.
+Relatórios: `docs/08-security/reports/go-readiness-audit-2026-10-12.md`,
+`docs/08-security/reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md` e
+`docs/08-security/reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md`.
 
 Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão humana ·
 **BLOQUEADA** = exige ação antes de GO · **MONITORADA** = acompanhamento contínuo.
@@ -17,7 +18,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Gitleaks (gate do tree) | ✅ PRONTA | job `Gitleaks (segredos — tree atual)` verde no main |
 | Dependabot security updates | ✅ PRONTA | `enabled` |
 | CodeQL — fila de correção | ✅ PRONTA | esgotada (T191–T194, T195, T196-A/C/b); 12 alertas `fixed` |
-| CodeQL — #151 (SSRF) | ⚠️ PENDENTE_OPERADOR | único CodeQL open (critical), mitigado por url-guard/ip-guard; manter open c/ evidência **ou** dismiss documentado (decisão humana) |
+| CodeQL — #151 (SSRF) | ✅ RESOLVIDA_DOCUMENTALMENTE_COM_ALERTA_MANTIDO_OPEN | **T211 (2026-10-13):** `#151 = OPEN_MITIGATED_DOCUMENTED` — permanece **open por limitação da regra** (`js/request-forgery` não reconhece a barreira custom), **runtime mitigado** (T191/PR #528 `cf993017`: url-guard/ip-guard); **contagem CodeQL open = 1**; decisão = manter open com evidência (não dismiss automático). Relatório: `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` |
 | Trivy (119 estruturais) | ⚠️ PENDENTE_OPERADOR | ruído por design (D-534); ligado à decisão de deps/imagem base |
 | Incidente INC-2026-10-11 | ✅ RESOLVIDA_DOCUMENTALMENTE_COM_RISCO_RESIDUAL_ACEITO | **T210 (2026-10-13):** `CLOSED_RISK_ACCEPTED_NO_PURGE` — encerrado com risco residual aceito, **sem purge**; rotação + neutralização + secret scanning/push protection + Gitleaks verificados. Relatório: `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md` |
 | Hardening admin (T201–T206 + T205 Fase 1) | ✅ PRONTA | deny-by-default + rate limit/anti-probing + probe dedicado + **step-up por senha** (fail-closed) em produção; Fases 2/3 (TOTP/WebAuthn) não implementadas |
@@ -68,12 +69,11 @@ heurístico (APIs DOM inline), não chave i18n crua.
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/monitores,
   fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
   **encerramento do incidente INC-2026-10-11 (risco residual aceito, sem purge — T210)**.
-- **PENDENTES DO OPERADOR (decisão):** #151 (evidência documental em T211) ·
-  deps (#515/#518/#522) + Trivy (T209) · backups/alertas Postgres (T212) ·
-  purge de histórico (T213, confirmação explícita) ·
+- **PENDENTES DO OPERADOR (decisão):** deps (#515/#518/#522) + Trivy (T209) ·
+  backups/alertas Postgres (T212) · purge de histórico (T213, confirmação explícita) ·
   Deploy waiting (quando aprovar) · eventualmente Gov-02.
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
-  documentalmente** — T210.)*
+  documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.)*
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.
