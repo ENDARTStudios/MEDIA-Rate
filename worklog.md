@@ -3712,3 +3712,27 @@ Suítes: API 992/992 (132 arq); web 479/479.
   bloco T196-A em `PENDENCIAS_OPERADOR.md`.
 - Nenhum código de produção alterado; sem deps/incidente/produção/segredos; #151 e T196-B
   intocados; PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T196-b — #93/#98 (e2e) e #149 (script) mitigados — fila CodeQL não-runtime encerrada (branch test/t196b)
+
+- **#93/#98** (`apps/web/e2e/i18n-leak.spec.ts`): o helper `semScripts` era
+  `html.replace(/<script[\s\S]*?<\/script>/gi, "")` (regex de tag + replace de multichar) →
+  novo helper puro `apps/web/e2e/utils/sem-scripts.ts` com **varredura determinística de
+  tokens** (sem regex de tag, sem `replace` de multichar; autofechado; **fail-safe** quando o
+  script não fecha; preserva `<scriptt>`); contrato do gate mantido (HTML sem scripts; tags e
+  atributos preservados para as checagens de `href`/`og:locale`/`aria-label`).
+- **#149** (`apps/api/scripts/seed-premios-wikidata.mjs`): `replace(/^tt/, "tt")` era
+  **identidade** (no-op morto — provado por `node -e` sem rede) → removido; o TMDB já entrega o
+  id com prefixo `tt`.
+- **TDD/evidência:** spec novo `apps/web/test/sem-scripts.spec.ts` (10 casos: chave i18n dentro
+  de script **não** gera falso positivo; chave crua **fora** continua detectada; autofechado;
+  sem fechamento; `scriptt`; multilinha/unicode) — RED antes do helper, GREEN **10/10**; suíte
+  web **564/564**; `premios-wikidata` 7/7; suíte API **1375/1375** (1 falha intermitente
+  observada e **não reproduzida em 2 execuções** — flake); Playwright `--list` **14 testes**
+  (e2e compila com o import); tsc web 0; eslint 0; prettier limpo. E2E real exige
+  `E2E_FULL=1`+browser+API (autoridade = CI).
+- **Docs:** `docs/08-security/reports/codeql-e2e-script-sanitization-2026-10-12.md` (novo; cópia
+  local em `.claude/reports/`) + `SECURITY_CODEQL_RUNTIME.md` (fila **encerrada** + histórico) +
+  bloco T196-b em `PENDENCIAS_OPERADOR.md`.
+- Nenhum código de produção alterado; sem deps/incidente/produção/segredos; #151 intocado;
+  PR em curso — gates e smoke no STATUS.

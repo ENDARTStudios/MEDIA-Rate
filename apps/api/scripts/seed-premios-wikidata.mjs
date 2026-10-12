@@ -177,7 +177,7 @@ async function main() {
           `${TMDB_BASE}/${caminho}/${m.fonte_id}/external_ids?api_key=${chave}`,
         );
         if (ext.imdb_id) {
-          midiaPorId.set(ext.imdb_id.replace(/^tt/, "tt"), { midiaId: m.id, titulo: m.titulo });
+          midiaPorId.set(ext.imdb_id, { midiaId: m.id, titulo: m.titulo });
           imdbOk++;
         } else imdbFalha++;
       } catch {
