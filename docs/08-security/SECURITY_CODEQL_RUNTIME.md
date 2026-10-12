@@ -11,7 +11,7 @@
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` (+ fakes de teste) | **MITIGADO (T194)** — §2d |
-| higiene não-runtime (8 alertas: 4 testes + 3 e2e/script + 1 runtime de display) | vários | **TRIADO (T195)** — `reports/codeql-nonruntime-triage-2026-10-12.md` |
+| higiene não-runtime (8 alertas) | vários | **TRIADO (T195)** · **#88 MITIGADO (T196-C)** (§2e) · restantes: 4 testes + 3 e2e/script (lotes T196-A/B aguardando autorização) |
 
 ## 2. Caso 1 — SSRF em `http.utils` (T191): desenho da mitigação
 
@@ -94,16 +94,33 @@
   (guardas mantendo o padrão original), aqui não há `replace` de string parcial no código;
   se a próxima análise ainda não fechar o alerta (#94), registrar e escalar (nunca suppress).
 
+## 2e. Caso 5 — incomplete-url-substring-sanitization em `normalizar-imagem` (T196-C)
+
+- **Vetor real:** a normalização de URL de imagem do IGDB (D-262) decidia por
+  `url.includes("images.igdb.com")` + `url.replace("t_thumb", "t_cover_big")` — **substring como
+  allowlist**: `images.igdb.com.evil.com`, `evil.com/?u=images.igdb.com/t_thumb`, userinfo, porta
+  arbitrária, `javascript:`/`data:`/`file:` e relativas passavam e eram transformadas (o `replace`
+  ainda podia tocar query/hash, não só o path).
+- **`apps/api/src/common/image-url-guard.ts`** (novo, puro): `hostDeImagemPermitido` — apenas URL
+  **absoluta https**, sem **userinfo**, sem **porta explícita**, com `hostname` **parseado**
+  (`new URL`) comparado **exatamente** (case-insensitive) contra allowlist explícita
+  (`images.igdb.com`); `normalizarUrlImagem` troca `t_thumb` → `t_cover_big` **somente no
+  pathname** (primeira ocorrência) e devolve a string **intacta** em qualquer outro caso.
+- **`normalizar-imagem.ts`** delega ao guard; contrato preservado (`falsy → null`; não lança;
+  demais URLs intactas) e callers (`discover.service.ts:216`, `media.controller.ts:504/964`)
+  inalterados. Contexto `IMAGE_DISPLAY_URL_TRANSFORM` — **sem sink de rede/exec**.
+- **Nota:** https-only é consistente com `url-guard.ts` (T191); http legado, se existir, apenas
+  perde o upgrade de tamanho (cosmético).
+
 ## 3. Regras para as próximas correções (T195+)
 
 Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão mitigadas
-(§2–§2d); as análises pós-merge fecharam #85/#86/#94–#97. **Triagem não-runtime feita em T195**
-(read-only): dos 8 alertas restantes (fora o #151), **1 é runtime de display**
-(`normalizar-imagem.ts` — **escalado**, recomenda-se task própria **T196-C** com `new URL` +
-hostname), **4 são `SAFE_TEST_FIX`** (#89–#92) e **3 são `E2E_SCRIPT_FIX`** (#93/#98/#149).
-Relatório: `reports/codeql-nonruntime-triage-2026-10-12.md`. Lotes recomendados: **T196-A**
-(testes), **T196-B** (e2e/script) e **T196-C** (runtime #88, separada). A triagem **humana**
-de #151 (único runtime open) permanece com o Operador.
+(§2–§2d); as análises pós-merge fecharam #85/#86/#94–#97. **Triagem não-runtime em T195**
+(read-only) achou **1 runtime de display** — o **#88**, agora **MITIGADO em T196-C** (§2e).
+Restam: **4 `SAFE_TEST_FIX`** (#89–#92) e **3 `E2E_SCRIPT_FIX`** (#93/#98/#149) — lotes
+**T196-A/B aguardando autorização** — e o **#151** (único runtime open), que permanece
+**triagem humana do Operador**. Relatórios: `reports/codeql-nonruntime-triage-2026-10-12.md` e
+`reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`.
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -134,3 +151,7 @@ de #151 (único runtime open) permanece com o Operador.
   #89–#92 `SAFE_TEST_FIX`; #93/#98/#149 `E2E_SCRIPT_FIX`; #151 excluído (conhecido).
   Nenhum alerta interagido; nenhum código alterado. Relatório:
   `docs/08-security/reports/codeql-nonruntime-triage-2026-10-12.md`.
+- **2026-10-11 (T196-C):** incomplete-url-substring-sanitization HIGH (**#88**)
+  mitigado — `image-url-guard.ts` (https + hostname parseado exato + troca só no
+  pathname); 11 casos de bypass provados no RED; suíte API **1375/1375**. Relatório:
+  `docs/08-security/reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`.

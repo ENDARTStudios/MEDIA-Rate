@@ -3673,3 +3673,24 @@ Suítes: API 992/992 (132 arq); web 479/479.
   local em `.claude/reports/`) + `SECURITY_CODEQL_RUNTIME.md` (fila/status + histórico) +
   bloco T195 em `PENDENCIAS_OPERADOR.md`.
 - Nenhum código/dep/config alterado; PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T196-C — #88 incomplete-url-substring-sanitization mitigado em normalizar-imagem (branch fix/t196c)
+
+- **Causa raiz:** a normalização de URL de imagem do IGDB (D-262)
+  (`url.includes("images.igdb.com")` + `replace("t_thumb", …)`) usava **substring como
+  allowlist**: subdomínio enganoso, domínio só em path/query, userinfo, porta não padrão,
+  `javascript:`/`data:`/`file:` e relativas eram transformados (e o replace podia tocar
+  query/hash).
+- **Correção cirúrgica:** `src/common/image-url-guard.ts` novo (puro) — https-only, sem
+  userinfo/porta, `hostname` **parseado** (`new URL`) comparado exatamente (case-insensitive)
+  com allowlist explícita; troca `t_thumb`→`t_cover_big` **somente no pathname** (1ª
+  ocorrência) e string **intacta** em qualquer outro caso + `normalizar-imagem.ts` delegando
+  (contrato preservado: falsy → null, sem lançar; callers discover/media inalterados).
+- **TDD vermelho→verde sem rede:** RED provou os 11 vetores contra o contrato antigo; GREEN
+  55/55 (matriz de allowlist + transformação/pathname/query/hash + intocáveis); suíte API
+  **1375/1375** (162 arquivos); tsc 0; eslint 0; prettier limpo.
+- **Docs:** `docs/08-security/reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`
+  (novo; cópia local em `.claude/reports/`) + `SECURITY_CODEQL_RUNTIME.md` (§2e + status +
+  histórico) + bloco T196-C em `PENDENCIAS_OPERADOR.md`.
+- Nenhum alerta interagido; sem deps/incidente/produção/segredos; T196-A/B não iniciadas;
+  PR em curso — gates e smoke no STATUS.
