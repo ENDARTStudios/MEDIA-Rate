@@ -1,9 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   buildRateLimitOptions,
   registerRateLimit,
+  adminRateLimit,
+  adminDestructiveRateLimit,
+  aplicarRateLimitAdmin,
   SlidingWindowRateLimitStore,
 } from "../src/common/rate-limit.config.js";
+import { adminProbingMonitor } from "../src/common/admin-probing-monitor.js";
 import { createHash } from "node:crypto";
 
 /**
@@ -235,5 +239,93 @@ describe("rate-limit — sliding window store (ZSET + fallback memória)", () =>
   it("child(routeOptions) compartilha a instância (chaves já incluem rota)", () => {
     const store = new SlidingWindowRateLimitStore({ redis: () => null, now: () => 0 });
     expect(store.child({ path: "/x", prefix: "" } as never)).toBe(store);
+  });
+});
+
+// ============================================================================
+// T203 — rate limit admin específico + anti-probing sanitizado
+// ============================================================================
+
+describe("T203 — limites admin", () => {
+  beforeEach(() => {
+    delete process.env.RATE_LIMIT_ADMIN_PER_MIN;
+    delete process.env.RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN;
+  });
+
+  it("admin (leituras /admin/*): 60/min por padrão, configurável por env", () => {
+    expect(adminRateLimit()).toEqual({ max: 60, timeWindow: "1 minute" });
+    process.env.RATE_LIMIT_ADMIN_PER_MIN = "30";
+    expect(adminRateLimit().max).toBe(30);
+  });
+
+  it("admin destrutivas (purge/ban/plano/moderação/backfills): 10/min por padrão, env", () => {
+    expect(adminDestructiveRateLimit()).toEqual({ max: 10, timeWindow: "1 minute" });
+    process.env.RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN = "5";
+    expect(adminDestructiveRateLimit().max).toBe(5);
+    expect(adminDestructiveRateLimit().max).toBeLessThan(adminRateLimit().max);
+    delete process.env.RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN;
+    expect(adminDestructiveRateLimit().max).toBeLessThan(adminRateLimit().max);
+  });
+
+  it("aplicarRateLimitAdmin: GET admin → limite de leitura", () => {
+    const rota = { url: "/api/v1/admin/stats", method: "GET" };
+    aplicarRateLimitAdmin(rota as never);
+    expect((rota as { config?: { rateLimit?: { max: number } } }).config?.rateLimit?.max).toBe(60);
+  });
+
+  it("aplicarRateLimitAdmin: POST/DELETE/PATCH admin → limite destrutivo mais estrito", () => {
+    for (const method of ["POST", "DELETE", "PATCH"]) {
+      const rota = { url: "/api/v1/admin/lgpd/purge", method };
+      aplicarRateLimitAdmin(rota as never);
+      expect((rota as { config?: { rateLimit?: { max: number } } }).config?.rateLimit?.max).toBe(
+        10,
+      );
+    }
+  });
+
+  it("aplicarRateLimitAdmin: NÃO sobrescreve rate limit já aplicado (ex.: upload de assets)", () => {
+    const rota = {
+      url: "/api/v1/admin/assets/x",
+      method: "POST",
+      config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    };
+    aplicarRateLimitAdmin(rota as never);
+    expect((rota as { config: { rateLimit: { max: number } } }).config.rateLimit.max).toBe(10);
+  });
+
+  it("aplicarRateLimitAdmin: rota não-admin não é tocada", () => {
+    const rota = { url: "/api/v1/discover", method: "GET" };
+    aplicarRateLimitAdmin(rota as never);
+    expect((rota as { config?: unknown }).config).toBeUndefined();
+  });
+
+  it("429 em rota admin registra probing SANITIZADO (token cru NUNCA vira chave/log)", () => {
+    const espiao = vi.spyOn(adminProbingMonitor, "registrar");
+    const opts = buildRateLimitOptions();
+    const req = reqFake({
+      url: "/api/v1/admin/stats",
+      cookies: { sess: "sess-token-super-secreto" },
+    });
+    (opts.errorResponseBuilder as (r: never, c: { max: number; ttl: number }) => unknown)(req, {
+      max: 60,
+      ttl: 60_000,
+    });
+    expect(espiao).toHaveBeenCalledWith(
+      "RATE_LIMIT",
+      "/api/v1/admin/stats",
+      "sess-token-super-secreto",
+    );
+    espiao.mockRestore();
+  });
+
+  it("429 em rota NÃO-admin não registra probing admin", () => {
+    const espiao = vi.spyOn(adminProbingMonitor, "registrar");
+    const opts = buildRateLimitOptions();
+    (opts.errorResponseBuilder as (r: never, c: { max: number; ttl: number }) => unknown)(
+      reqFake({ url: "/api/v1/discover" }),
+      { max: 100, ttl: 60_000 },
+    );
+    expect(espiao).not.toHaveBeenCalled();
+    espiao.mockRestore();
   });
 });

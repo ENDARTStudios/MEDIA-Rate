@@ -3861,3 +3861,31 @@ Suítes: API 992/992 (132 arq); web 479/479.
   rate limit/step-up permanece).
 - Limitação: E2E navegado exige `E2E_FULL=1`+infra → CI é a autoridade (E2E Full no PR). PR em
   curso — gates e smoke no STATUS.
+
+### [2026-10-12] T203 — rate limit admin + anti-probing sanitizado (branch fix/t203)
+
+- **Fecha o `ADMIN_RATE_LIMIT_WEAK` (T201)** com infra existente (`@fastify/rate-limit` +
+  sliding window Redis/fallback + Pino) — **zero dependências novas**; auth core/guards
+  intocados; rate limit não substitui autorização (ordem Auth→CSRF→Roles→Plan preservada).
+- **Controles:** `/api/v1/admin/*` leituras **60/min** e destrutivas **10/min**
+  (env `RATE_LIMIT_ADMIN_PER_MIN`/`RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN`) via
+  `aplicarRateLimitAdmin` (nova função no `rate-limit.config.ts`) chamada no hook `onRoute`
+  do `main.ts` (antes do registro do plugin — bug de ordem documentado) e replicada no
+  `apply-security.ts` dos e2e; não sobrescreve limites já aplicados (assets = upload 10/min).
+- **Anti-probing sanitizado:** `AdminProbingMonitor` (novo, janela 60s/limite 5, chave =
+  **sha256 da sessão** + rota + tipo — nunca IP/UA/token) alimentado por (a) 429 em rota
+  admin (`errorResponseBuilder` por rota) e (b) 403 em rota admin (GlobalExceptionFilter);
+  excedente loga `ADMIN_RATE_LIMIT_EXCEEDED`/`ADMIN_ACCESS_DENIED_REPEAT` com hash+contagem.
+  **Descoberta:** 429 por rota não herda o builder global — `resposta429Padrao` exportada e
+  incluída em cada `config.rateLimit` (envelope D-558 preservado).
+- **TDD vermelho→verde:** `admin-probing-monitor.spec` (7), `rate-limit-config.spec` (+7:
+  60/10+env, GET vs destrutivas, preserva assets, não-admin intocado, probing com token fora
+  de chave/log), `admin-rate-limit.e2e.spec` (novo, 4: burst anônimo destrutiva **11ª=429**
+  com 10×401 do guard antes — sem bypass/mutação; 429 sanitizado; leitura 61ª=429; não-admin
+  não herda) — **29/29**; suíte API **1395/1395** (165 arquivos); tsc 0; eslint 0; prettier limpo.
+- **Docs:** `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md` (novo; cópia
+  local em `.claude/reports/`) + `ADMIN_SECURITY.md` (rate limit/anti-probing implementados;
+  T204: step-up/MFA + refinamento do probe) + `TESTING.md` (seção Rate limit admin) +
+  PENDENCIAS (bloco T203).
+- Sem deps/auth core/infra/produção/segredos alterados; nenhuma credencial admin usada;
+  PR em curso — gates e smoke no STATUS.

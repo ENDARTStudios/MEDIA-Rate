@@ -41,7 +41,18 @@ irreversíveis; MFA como follow-up estratégico.
   página LGPD com early-return na negação. Como re-verificar:
   `rg -n "getServerAdminGate" apps/web/src/app/[locale]/admin/layout.tsx` (gate presente) e
   specs `apps/web/test/admin-layout-auth.spec.tsx` / `admin-auth-server.spec.ts`.
-- ⏳ Pendente (T203): rate limit específico admin, step-up para destrutivas, MFA estratégico.
+- ✅ API: **rate limit admin específico (T203)** — `/api/v1/admin/*` leituras **60/min**
+  (`RATE_LIMIT_ADMIN_PER_MIN`), destrutivas **10/min**
+  (`RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN`), sliding window por sessão(hash)/IP+rota com
+  fallback local; aplicado por `aplicarRateLimitAdmin` no hook `onRoute` (antes do registro
+  do plugin — bug de ordem documentado no main.ts); **anti-probing sanitizado**: 403/429
+  repetidos em rotas admin alimentam `AdminProbingMonitor` (hash de sessão — nunca IP/UA/
+  token) e excedente loga `ADMIN_ACCESS_DENIED_REPEAT`/`ADMIN_RATE_LIMIT_EXCEEDED`. Como
+  re-verificar: specs `apps/api/test/admin-rate-limit.e2e.spec.ts`,
+  `admin-probing-monitor.spec.ts` e relatório
+  `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md`.
+- ⏳ Pendente (T204): step-up para destrutivas, MFA estratégico, refinamento do probe do gate
+  (endpoint dedicado ou flag admin em `/auth/me`).
 
 ## Como auditar (read-only)
 

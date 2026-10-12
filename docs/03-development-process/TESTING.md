@@ -230,6 +230,18 @@ cd apps/web && npx vitest run test/admin-auth-server.spec.ts test/admin-layout-a
 E2E navegado (anônimo/não-admin/ADMIN em browser) requer `E2E_FULL=1` + infra API+DB — CI é
 a autoridade. Política: `docs/08-security/ADMIN_SECURITY.md`.
 
+## Rate limit admin + anti-probing (T201/T203)
+
+Regressão da proteção anti-abuso da superfície admin: leituras `/api/v1/admin/*` **60/min**,
+destrutivas **10/min** (env `RATE_LIMIT_ADMIN_PER_MIN`/`RATE_LIMIT_ADMIN_DESTRUCTIVE_PER_MIN`);
+negações (403/429) repetidas em rotas admin alimentam o `AdminProbingMonitor` (registro por
+**hash de sessão** — nunca IP/UA/token) com log de excedente. Burst anônimo em rota admin
+atinge 429 **antes** dos guards — sem bypass e sem mutação.
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/admin-probing-monitor.spec.ts test/rate-limit-config.spec.ts test/admin-rate-limit.e2e.spec.ts
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
