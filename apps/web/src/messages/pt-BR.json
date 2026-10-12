@@ -485,7 +485,12 @@
     "activeSubscriptions": "Assinaturas ativas",
     "plusUsers": "Usuários Plus",
     "premiumUsers": "Usuários Premium",
-    "acessoNegado": "Acesso não autorizado."
+    "acessoNegado": "Acesso não autorizado.",
+    "stepupTitulo": "Confirme sua senha",
+    "stepupLabel": "Senha",
+    "stepupConfirmar": "Confirmar",
+    "stepupCancelar": "Cancelar",
+    "stepupErro": "Credencial inválida. Tente novamente."
   },
   "pricing": {
     "headline": "Escolha como você quer descobrir seu próximo título",

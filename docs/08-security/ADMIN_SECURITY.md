@@ -26,9 +26,9 @@ Aplica-se a **qualquer** rota `/admin/*` (web) e `/api/v1/admin/*` (API), hoje e
 
 Exigem **todas** as camadas: `ADMIN` (server-side) + **CSRF** (double-submit global) +
 **audit log imutável** (ex.: `LGPD_USUARIO_PURGADO` "prova que aconteceu; sobrevive ao
-delete") + validação Zod da entrada + resposta sem stack/PII. Recomendado (T202+):
-**rate limit estrito específico de admin** e step-up (re-confirmar senha) nas ações
-irreversíveis; MFA como follow-up estratégico.
+delete") + validação Zod da entrada + resposta sem stack/PII + **rate limit estrito
+específico de admin (T203)** + **step-up por re-auth de senha (T205 Fase 1)**. MFA
+(TOTP/WebAuthn) permanece como follow-up estratégico.
 
 ## Estado atual (2026-10-12)
 
@@ -57,11 +57,22 @@ irreversíveis; MFA como follow-up estratégico.
   fallback); fail-closed em erro/timeout. Como re-verificar: specs
   `apps/api/test/admin-gate.spec.ts` / `apps/web/test/admin-auth-server.spec.ts` e relatório
   `docs/08-security/reports/admin-gate-probe-refinement-2026-10-13.md`.
-- ⏳ Pendente (T204 design produzido — **nada implementado**): step-up (Fase 1: re-auth de
-  senha, janela curta), MFA (Fase 2: TOTP; Fase 3: WebAuthn). Design completo:
-  `docs/08-security/SECURITY_AUTH_DESIGN.md` +
+- ✅ **Step-up por re-auth de senha (T205 Fase 1)** — `POST /api/v1/admin/step-up`
+  (`@Roles("ADMIN")`, reusa `PasswordService.verify` — **não modificado**) concede uma
+  **marca TTL** (default 900 s, `ADMIN_STEPUP_TTL_SECONDS`) no `CacheService` compartilhado,
+  chave `admin:stepup:<sha256(sessao_id)[:32]>`. `AdminStepUpGuard` (aplicado à **classe**
+  de `AdminController`/`FeatureFlagsController`/`AssetUploadController`) exige a marca em
+  **toda** rota mutante admin, respondendo **428** `{code:"ADMIN_STEPUP_REQUIRED"}` quando
+  ausente/inválida — **fail-closed** (erro de storage → nega). Senha errada → 401 genérico +
+  audit `ADMIN_STEPUP_FAIL` + anti-probing `STEPUP_FAIL`; sucesso → `ADMIN_STEPUP_SUCCESS`.
+  Rollback sem deploy: `ADMIN_STEPUP_REQUIRED=0`. Web: wrapper `comStepUp` + diálogo no
+  layout admin. Como re-verificar: specs `apps/api/test/admin-stepup*.spec.ts` e
+  `apps/web/test/admin-stepup-*.spec.ts*` e relatório
+  `docs/08-security/reports/admin-stepup-fase1-2026-10-13.md`.
+- ⏳ Pendente parcialmente: **T205 Fase 1 IMPLEMENTADA (2026-10-13)** — ver bullet acima.
+  Seguem pendentes: MFA (Fase 2: TOTP; Fase 3: WebAuthn) e timeout de sessão admin.
+  Design completo: `docs/08-security/SECURITY_AUTH_DESIGN.md` +
   `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`.
-  Implementação só mediante autorização explícita (T205, template de decisão no design).
 
 ## Como auditar (read-only)
 

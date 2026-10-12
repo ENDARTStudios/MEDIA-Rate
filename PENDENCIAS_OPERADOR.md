@@ -1145,3 +1145,30 @@ Doc vivo: `docs/08-security/SECURITY_AUTH_DESIGN.md` (novo).
   autorizar T206 (probe) / T205-Fase1 (step-up) / Fase2 design / Fase3 adiar / timeout de
   sessão admin. Implementação só com packet próprio.
 - **GO:** sem impacto direto — segue SUSPENSO pelas demais decisões.
+
+---
+
+### T205 Fase 1 (2026-10-13) — step-up por re-auth de senha nas destrutivas admin (**implementado**; autorizado pelo Operador)
+
+Relatório: `docs/08-security/reports/admin-stepup-fase1-2026-10-13.md`.
+
+- **Implementa a Fase 1 do design T204:** `POST /api/v1/admin/step-up` (`@Roles("ADMIN")`,
+  reusa `PasswordService.verify` — **não modificado**) concede **marca TTL** (default 900 s,
+  `ADMIN_STEPUP_TTL_SECONDS`) no `CacheService` compartilhado, chave
+  `admin:stepup:<sha256(sessao_id)[:32]>`. `AdminStepUpGuard` (aplicado à **classe** de
+  `AdminController`/`FeatureFlagsController`/`AssetUploadController`) exige a marca em toda
+  rota mutante admin → **428** `ADMIN_STEPUP_REQUIRED`, **fail-closed**.
+- **Rate limit:** `POST /api/v1/admin/step-up` → **6/min** (`RATE_LIMIT_ADMIN_STEPUP_PER_MIN`).
+  Senha errada → 401 genérico + audit `ADMIN_STEPUP_FAIL` + anti-probing `STEPUP_FAIL`;
+  sucesso → `ADMIN_STEPUP_SUCCESS`. Rollback sem deploy: `ADMIN_STEPUP_REQUIRED=0`.
+- **Web:** wrapper `comStepUp` (428 → retry único) + `AdminStepUpDialog` montado no layout
+  admin (após o gate), i18n nos 3 locales; 4 páginas (LGPD, usuários, catálogo, diagnostics).
+- **Evidência:** TDD — API `admin-stepup.service.spec` (8) + `admin-stepup.spec` (7) +
+  `admin-stepup-guard.spec` (8); web `admin-stepup-client.spec` (5) +
+  `admin-stepup-dialog.spec` (5). Suítes **API 168/168 (1422/1422)** e **web 89/89 (607/607)**;
+  `tsc` API/web 0; `eslint` 0. Spec pré-existente `sentry-e2e.spec.ts` adaptado
+  (`overrideGuard`) — o `AdminController` agora tem guard de classe.
+- **Sem mudanças proibidas:** auth core (Auth/Roles/Csrf/Plan), `PasswordService`, sessão/
+  cookies/tokens, schema, migrations, `package.json` e infra — **intactos**. TOTP/WebAuthn/
+  timeout de sessão admin **não** implementados (Fases 2/3).
+- **GO:** segue **SUSPENSO** (declaração formal explícita do Operador).

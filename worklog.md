@@ -3935,3 +3935,37 @@ Suítes: API 992/992 (132 arq); web 479/479.
   local em `.claude/reports/`) + `ADMIN_SECURITY.md` (probe dedicado implementado) +
   `SECURITY_AUTH_DESIGN.md` (Opção B movida para implementada) + `TESTING.md` (comando com
   admin-gate.spec) + PENDENCIAS (bloco T206). PR em curso — gates e smoke no STATUS.
+
+### [2026-10-13] T205 Fase 1 — step-up por re-auth de senha nas ações destrutivas admin
+
+- **API:** `POST /api/v1/admin/step-up` (`@Roles("ADMIN")`) reusa `PasswordService.verify`
+  (argon2id+pepper, **não modificado**) e concede **marca TTL** (default 900 s,
+  `ADMIN_STEPUP_TTL_SECONDS`) no `CacheService` compartilhado — chave
+  `admin:stepup:<sha256(sessao_id)[:32]>`. `AdminStepUpGuard` aplicado à **classe** de
+  `AdminController`/`FeatureFlagsController`/`AssetUploadController` exige a marca em toda
+  rota mutante admin → **428** `{code:"ADMIN_STEPUP_REQUIRED"}`, **fail-closed** (erro de
+  storage → nega); GET/HEAD/OPTIONS e o próprio `/step-up` liberados; kill-switch
+  `ADMIN_STEPUP_REQUIRED=0`. `AdminStepupModule` `@Global` montado no `AppModule` e
+  importado nos 3 módulos que hospedam os controllers (resolve o guard também em
+  TestModules isolados).
+- **Rate limit / anti-probing / audit:** `POST /step-up` → **6/min**
+  (`RATE_LIMIT_ADMIN_STEPUP_PER_MIN`); senha errada → **401 genérico** + `AuditLog`
+  `ADMIN_STEPUP_FAIL` + `AdminProbingMonitor` `STEPUP_FAIL` (hash de sessão — nunca
+  IP/UA/token/senha); sucesso → `ADMIN_STEPUP_SUCCESS`. Payload mínimo `{ok:true,expiresIn}`.
+- **Web:** `lib/admin-stepup-client.ts` (`comStepUp`: 428 → dispara evento, aguarda a senha,
+  **retry único**) + `components/admin/AdminStepUpDialog.tsx` (label/foco/Escape/`aria-live`/
+  botões desabilitados; senha só no estado efêmero do input) montado no `admin/layout.tsx`
+  **após** o gate ADMIN; 4 páginas integradas (LGPD, usuários, catálogo, diagnostics);
+  chaves `admin.stepup*` nos 3 locales.
+- **Evidência:** TDD — API `admin-stepup.service.spec` (8) + `admin-stepup.spec` (7) +
+  `admin-stepup-guard.spec` (8); web `admin-stepup-client.spec` (5) +
+  `admin-stepup-dialog.spec.tsx` (5). Suítes **API 168/168 arquivos (1422/1422 testes)** e
+  **web 89/89 (607/607)**; `tsc --noEmit` API **0** e web **0**; `eslint` **0**; prettier
+  limpo nos arquivos novos. Spec pré-existente `sentry-e2e.spec.ts` adaptado via
+  `overrideGuard(AdminStepUpGuard)` (o `AdminController` passou a ter guard de classe).
+- **Fora de escopo (não implementado):** TOTP/WebAuthn/backup codes, MFA obrigatório,
+  IP allowlist, device binding, timeout de sessão admin; remoção do fallback do probe (T206).
+  Sem mudança de auth core/`PasswordService`/sessão/cookies/schema/migrations/`package.json`/infra.
+- **Docs:** relatório `docs/08-security/reports/admin-stepup-fase1-2026-10-13.md` +
+  `ADMIN_SECURITY.md` (Fase 1 implementada) + `SECURITY_AUTH_DESIGN.md` (Fase 1 ✅) +
+  `TESTING.md` (seção step-up) + `PENDENCIAS_OPERADOR.md` (bloco T205). **GO segue SUSPENSO.**

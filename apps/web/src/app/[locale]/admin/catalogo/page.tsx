@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/http";
+import { comStepUp } from "@/lib/admin-stepup-client";
 
 type TipoMidia = "FILME" | "SERIE" | "GAME" | "LIVRO" | "MANGA" | "COMIC";
 
@@ -135,12 +136,12 @@ export default function AdminCatalogoPage() {
     setOcupado(true);
     try {
       if (editandoId) {
-        await api.patch(`/api/v1/midias/${editandoId}`, payload);
+        await comStepUp(() => api.patch(`/api/v1/midias/${editandoId}`, payload));
         setMensagem(`Mídia atualizada: "${payload.titulo as string}"`);
       } else {
         payload.fonte = "manual";
         payload.fonte_id = `manual-${crypto.randomUUID()}`;
-        await api.post("/api/v1/midias", payload);
+        await comStepUp(() => api.post("/api/v1/midias", payload));
         setMensagem(`Mídia criada: "${payload.titulo as string}"`);
       }
       setEditandoId(null);
@@ -160,7 +161,7 @@ export default function AdminCatalogoPage() {
     setErro(null);
     setMensagem(null);
     try {
-      const r = await api.delete<{ message?: string }>(`/api/v1/midias/${id}`);
+      const r = await comStepUp(() => api.delete<{ message?: string }>(`/api/v1/midias/${id}`));
       setMensagem(r?.message ?? "Mídia removida.");
       setItems((anteriores) => anteriores.filter((i) => i.id !== id));
       setTotal((t) => Math.max(0, t - 1));

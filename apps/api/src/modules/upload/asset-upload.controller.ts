@@ -15,6 +15,7 @@ import { UploadService } from "./upload.service.js";
 import { AuthGuard } from "../../common/guards/auth.guard.js";
 import { RolesGuard } from "../../common/guards/roles.guard.js";
 import { Roles } from "../../common/decorators/roles.decorator.js";
+import { AdminStepUpGuard } from "../admin/admin-stepup.guard.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { PrismaService } from "../../prisma/prisma.service.js";
 
@@ -35,6 +36,8 @@ type MultipartRequest = FastifyRequest & {
  * InMemory em dev/test (sem credenciais).
  */
 @Controller("api/v1/admin/assets")
+// T205 Fase 1: step-up por senha nas mutantes (guard filtra GET; roda após a cadeia global).
+@UseGuards(AdminStepUpGuard)
 export class AssetUploadController {
   constructor(
     private readonly assets: AssetUploadService,

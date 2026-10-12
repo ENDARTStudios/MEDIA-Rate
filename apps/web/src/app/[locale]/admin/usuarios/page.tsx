@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/http";
+import { comStepUp } from "@/lib/admin-stepup-client";
 
 type PlanoAdmin = "FREE" | "PLUS" | "PREMIUM";
 
@@ -75,7 +76,7 @@ export default function AdminUsuariosPage() {
 
   async function alterarPlano(id: string, plano: PlanoAdmin) {
     try {
-      await api.patch(`/api/v1/admin/usuarios/${id}/plano`, { plano });
+      await comStepUp(() => api.patch(`/api/v1/admin/usuarios/${id}/plano`, { plano }));
       setErro(null);
       await carregar();
     } catch (e) {
@@ -87,7 +88,9 @@ export default function AdminUsuariosPage() {
     const motivo = window.prompt(`Motivo do ban de ${u.email}?`);
     if (!motivo || !motivo.trim()) return;
     try {
-      await api.post(`/api/v1/admin/usuarios/${u.id}/ban`, { motivo: motivo.trim() });
+      await comStepUp(() =>
+        api.post(`/api/v1/admin/usuarios/${u.id}/ban`, { motivo: motivo.trim() }),
+      );
       setErro(null);
       await carregar();
     } catch (e) {
@@ -97,7 +100,7 @@ export default function AdminUsuariosPage() {
 
   async function desbanir(u: UsuarioAdmin) {
     try {
-      await api.post(`/api/v1/admin/usuarios/${u.id}/desbanir`);
+      await comStepUp(() => api.post(`/api/v1/admin/usuarios/${u.id}/desbanir`));
       setErro(null);
       await carregar();
     } catch (e) {
@@ -122,9 +125,11 @@ export default function AdminUsuariosPage() {
     const motivo = window.prompt("Motivo da remoção da interação?");
     if (!motivo || !motivo.trim()) return;
     try {
-      await api.delete(`/api/v1/admin/usuarios/${usuarioId}/interacoes/${midiaId}`, {
-        body: { motivo: motivo.trim() },
-      });
+      await comStepUp(() =>
+        api.delete(`/api/v1/admin/usuarios/${usuarioId}/interacoes/${midiaId}`, {
+          body: { motivo: motivo.trim() },
+        }),
+      );
       const d = await api.get<Atividade>(`/api/v1/admin/usuarios/${usuarioId}/atividade`);
       setAtividade(d);
     } catch (e) {
@@ -136,9 +141,11 @@ export default function AdminUsuariosPage() {
     const motivo = window.prompt("Motivo da remoção da watchlist?");
     if (!motivo || !motivo.trim()) return;
     try {
-      await api.delete(`/api/v1/admin/usuarios/${usuarioId}/watchlist/${entryId}`, {
-        body: { motivo: motivo.trim() },
-      });
+      await comStepUp(() =>
+        api.delete(`/api/v1/admin/usuarios/${usuarioId}/watchlist/${entryId}`, {
+          body: { motivo: motivo.trim() },
+        }),
+      );
       const d = await api.get<Atividade>(`/api/v1/admin/usuarios/${usuarioId}/atividade`);
       setAtividade(d);
     } catch (e) {

@@ -246,12 +246,26 @@ Probe dedicado do gate (T206): `GET /api/v1/admin/gate` (`@Roles("ADMIN")`, `{ok
 probe primário do frontend com fallback fail-closed ao probe antigo (404) — specs
 `apps/api/test/admin-gate.spec.ts` + `apps/web/test/admin-auth-server.spec.ts`.
 
-## Boundary admin — step-up/MFA (PLANNED — não implementado)
+## Boundary admin — step-up por re-auth de senha (T205 Fase 1 — implementado)
 
-Os testes de step-up (re-auth de senha) e MFA para ações destrutivas admin ainda **não
-existem** — o design faseado está em `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`
-(§7 Plano de testes) e a implementação (T205) depende de autorização. Não criar specs
-"adiantados" sem o packet da T205.
+Ações mutantes admin exigem **step-up**: `POST /api/v1/admin/step-up` (`@Roles("ADMIN")`)
+valida a senha via `PasswordService.verify` e concede marca TTL no `CacheService`
+(`admin:stepup:<hash de sessão>`, default 900 s); sem marca, `AdminStepUpGuard` (classe)
+responde **428** `ADMIN_STEPUP_REQUIRED` (**fail-closed**). Senha errada → 401 genérico +
+audit `ADMIN_STEPUP_FAIL` + anti-probing `STEPUP_FAIL`; sucesso → `ADMIN_STEPUP_SUCCESS`;
+rollback por `ADMIN_STEPUP_REQUIRED=0`. Specs cobrem service (TTL/fail-closed), handler
+(sucesso/401/audit/probing) e guard (GET liberado, mutante sem marca → 428, kill-switch);
+no web, `comStepUp` (428 → retry único) e o diálogo (foco/Escape/erro/aria-live/sem vazar
+a senha).
+
+```bash
+cd apps/api && NODE_ENV=test npx vitest run test/admin-stepup.service.spec.ts test/admin-stepup.spec.ts test/admin-stepup-guard.spec.ts
+cd apps/web && npx vitest run test/admin-stepup-client.spec.ts test/admin-stepup-dialog.spec.tsx
+```
+
+MFA (TOTP/WebAuthn) para destrutivas admin **continua não implementado** — design faseado em
+`docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`
+(§7 Plano de testes); só com packet próprio.
 
 ## Fixtures e contas
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/http";
+import { comStepUp } from "@/lib/admin-stepup-client";
 
 interface Diagnostics {
   server: { node_env: string; versao: string; uptime_segundos: number; agora: string };
@@ -130,7 +131,7 @@ export default function DiagnosticsPage() {
   async function alternarFlag(key: string, enabled: boolean) {
     setFlagOcupada(key);
     try {
-      await api.patch(`/api/v1/admin/flags/${key}`, { enabled: !enabled });
+      await comStepUp(() => api.patch(`/api/v1/admin/flags/${key}`, { enabled: !enabled }));
       await carregar();
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao atualizar a flag.");

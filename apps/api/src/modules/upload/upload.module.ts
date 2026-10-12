@@ -8,9 +8,10 @@ import { selecionarStorage } from "./storage/select-storage.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
+import { AdminStepupModule } from "../admin/admin-stepup.module.js";
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, AdminStepupModule],
   controllers: [UploadController, UploadsController, AssetUploadController],
   providers: [
     UploadService,

@@ -6,9 +6,10 @@ import { AuthModule } from "../auth/auth.module.js";
 import { CacheModule } from "../../common/cache.module.js";
 import { AuditLogService } from "../../common/audit-log.service.js";
 import { PrismaService } from "../../prisma/prisma.service.js";
+import { AdminStepupModule } from "../admin/admin-stepup.module.js";
 
 @Module({
-  imports: [PrismaModule, AuthModule, CacheModule],
+  imports: [PrismaModule, AuthModule, CacheModule, AdminStepupModule],
   controllers: [FeatureFlagsController],
   providers: [FeatureFlagService, AuditLogService],
   exports: [FeatureFlagService],

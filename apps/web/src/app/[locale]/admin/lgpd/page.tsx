@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/http";
+import { comStepUp } from "@/lib/admin-stepup-client";
 import AdminAcessoNegado from "@/components/admin/AdminAcessoNegado";
 
 interface Agendado {
@@ -67,8 +68,10 @@ export default function AdminLgpdPage() {
     setOcupado(true);
     setErro(null);
     try {
-      const r = await api.post<{ verificados: number; purgados: number; falhas: number }>(
-        "/api/v1/admin/lgpd/purge",
+      const r = await comStepUp(() =>
+        api.post<{ verificados: number; purgados: number; falhas: number }>(
+          "/api/v1/admin/lgpd/purge",
+        ),
       );
       setPurga(r);
       await carregar();

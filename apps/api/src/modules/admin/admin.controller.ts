@@ -12,11 +12,13 @@ import {
   Res,
   Optional,
   NotFoundException,
+  UseGuards,
 } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiNotFoundResponse } from "@nestjs/swagger";
 import { z } from "zod";
 import { Roles } from "../../common/decorators/roles.decorator.js";
+import { AdminStepUpGuard } from "./admin-stepup.guard.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
 import { UuidParamPipe } from "../../common/pipes/uuid-param.pipe.js";
 import { AdminService } from "./admin.service.js";
@@ -39,6 +41,9 @@ import type { AdminStatsResponse } from "./dto/stats-response.dto.js";
 @ApiTags("admin")
 @ApiBearerAuth()
 @Controller("api/v1/admin")
+// T205 Fase 1: step-up por senha nas mutantes — guard de classe roda APÓS a cadeia
+// global (Auth->CSRF->Roles->Plan); filtra GET (liberado) e o próprio /step-up.
+@UseGuards(AdminStepUpGuard)
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
