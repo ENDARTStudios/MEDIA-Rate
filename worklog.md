@@ -3756,3 +3756,20 @@ Suítes: API 992/992 (132 arq); web 479/479.
   `PENDENCIAS_OPERADOR.md`.
 - Nenhuma config do GitHub alterada; sem código/deps/segredos/produção; PR docs-only em curso —
   gates e smoke no STATUS.
+
+### [2026-10-11] T198 — spec untracked dos scrapers T176 regularizado (branch test/t198)
+
+- **Inspeção read-only:** `apps/api/test/scrapers-t176.spec.ts` (50 linhas) está **untracked e
+  NÃO ignorado** (`git check-ignore` exit 1 → versionável sem `-f`); **zero padrões sensíveis**
+  (api_key/token/secret/PII); as URLs do arquivo são **fixtures de slug** (resultado esperado),
+  sem `fetch`/axios/rede; importa 3 funções de produção que existem e exportam
+  (`urlMetacritic`, `urlRottenTomatoes`, `extrairNumeroPorPadrao`). Classificação: **SAFE_TEST**.
+- **Higiene:** o spec tinha 6 `as any` (reprova `no-explicit-any` no Lint & Audit) → **removidos**;
+  os literais satisfazem `ConsultaMedia` (só `tipo`/`titulo` obrigatórios), então o teste fica
+  tipado de verdade, sem cast.
+- **Evidência (sem rede):** spec **4/4** (`NODE_ENV=test npx vitest run test/scrapers-t176.spec.ts`);
+  `tsc -p apps/api` 0; eslint 0; prettier limpo.
+- **Docs:** seção nova em `docs/03-development-process/TESTING.md` ("Scrapers anti-bot — URL por
+  tipo e extração (T176/T198)") com o comando de regressão; worklog + exchange atualizados.
+- Diff: versionamento do spec (test-only) + 1 doc. Sem código de produção alterado; sem deps/
+  incidente/alertas/GitHub settings/produção/segredos. PR em curso — gates e smoke no STATUS.
