@@ -225,7 +225,7 @@ export function DiscoveriesFeed() {
                       {g.poster_url ? (
                         <StaticPoster src={g.poster_url} alt={g.titulo} sizes="56px" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
+                        <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
                           {g.titulo.slice(0, 3).toUpperCase()}
                         </div>
                       )}
@@ -260,14 +260,14 @@ export function DiscoveriesFeed() {
                       {h.posterUrl ? (
                         <StaticPoster src={h.posterUrl} alt={h.title} sizes="56px" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
+                        <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
                           {h.title.slice(0, 3).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-[#EDE7DC]">{h.title}</p>
-                      <p className="text-xs text-[#80809B]">
+                      <p className="text-xs text-[#85859F]">
                         {h.type} · {h.year}
                       </p>
                     </div>
@@ -305,7 +305,7 @@ export function DiscoveriesFeed() {
                     imgClass="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-[#6B6B85]">
+                  <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
                     {item.toMedia.titulo.slice(0, 3).toUpperCase()}
                   </div>
                 )}
@@ -315,7 +315,7 @@ export function DiscoveriesFeed() {
                 <p className="text-xs text-[#9CA3AF] mb-1">
                   {t(`relation_${item.relationType.toLowerCase()}`)}
                 </p>
-                <p className="text-xs text-[#80809B]">
+                <p className="text-xs text-[#85859F]">
                   {t("relatedTo", { titulo: item.fromMedia.titulo })}
                 </p>
               </div>

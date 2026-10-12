@@ -186,7 +186,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("relinkPlaceholder")}
         aria-label={t("buscarSubstituta")}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#EDE7DC] placeholder-[#6B7280] outline-none focus:border-[#818CF8]"
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#EDE7DC] placeholder-[#9CA3AF] outline-none focus:border-[#818CF8]"
       />
       {erro && <p className="text-xs text-red-400">{t("relinkError")}</p>}
       <div className="max-h-32 overflow-y-auto rounded border border-[#2A2A3D]">
@@ -197,7 +197,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
             onClick={() => void relinkItem(entryId, r.id)}
             className="block w-full text-left rounded px-1.5 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
           >
-            {r.title} <span className="text-[#6B7280]">{r.year}</span>
+            {r.title} <span className="text-[#9CA3AF]">{r.year}</span>
           </button>
         ))}
       </div>
@@ -268,7 +268,7 @@ export function WatchlistCard({
         // T322: órfão sem título resolvível — NUNCA um beco "Título
         // indisponível" estático; oferece a recuperação "Buscar substituta".
         <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
-          <span className="text-center text-xs leading-tight text-[#6B6B85]">{tituloFinal}</span>
+          <span className="text-center text-xs leading-tight text-[#85859F]">{tituloFinal}</span>
           <BuscarSubstituta entryId={entry.id} palpite={palpite} />
           {/* T160b: botão Remover visível no card órfão — o ⋮ escondido não era
               descoberto pelo usuário (feedback Operador 2026-10-03). */}
@@ -320,7 +320,7 @@ export function WatchlistCard({
             }}
             aria-label={t("moveTo")}
             aria-expanded={menuAberto}
-            className="text-xs text-[#6B6B85] hover:text-[#F5F5F7] transition-colors px-1"
+            className="text-xs text-[#85859F] hover:text-[#F5F5F7] transition-colors px-1"
           >
             ⋮
           </button>
@@ -370,7 +370,7 @@ export function WatchlistCard({
           className="mt-1 flex items-center gap-1.5 px-1"
           data-testid={showReactionPrompt ? "reaction-prompt" : "reaction-inline"}
         >
-          {showReactionPrompt && <span className="text-xs text-[#80809B]">{t("reactNow")}</span>}
+          {showReactionPrompt && <span className="text-xs text-[#85859F]">{t("reactNow")}</span>}
           {REACOES.map((r) => {
             const active = reacao === r;
             return (

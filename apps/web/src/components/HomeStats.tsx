@@ -5,10 +5,17 @@
  * - Fontes de avaliação: DISTINTAS fontes ativas (derivadas de
  *   PESOS_POR_TIPO_WEB + FONTES_WEB).
  * - Categorias: T394 — 6 tipos ativos (Filme/Série/Game/Livro/HQ/Mangá).
+ *
+ * T208: os números são animados por `CountUpValue` (ilha client mínima, abaixo da
+ * dobra). O HTML do servidor continua saindo com o valor final formatado — o
+ * contador só assume depois da hidratação e apenas quando entra em viewport, e
+ * nunca com `prefers-reduced-motion`. A formatação passou a usar o locale da
+ * rota (antes era `toLocaleString("pt-BR")` fixo, errado em en-US/es-ES).
  */
 import { getCatalog } from "@/lib/api";
 import { NUM_FONTES_ATIVAS } from "@/lib/sources";
 import { getTranslations } from "next-intl/server";
+import { CountUpValue } from "@/components/media-rate-ui/CountUpValue";
 
 // T394: 6 tipos cobertos (F13 destravou Livro/HQ/Mangá).
 const CATEGORIAS_COBERTAS = ["movie", "series", "game", "book", "comic", "manga"] as const;
@@ -18,13 +25,13 @@ export async function HomeStats() {
   const data = await getCatalog({ limit: 1 });
   const totalTitulos = data?.total ?? null;
 
-  const stats: { value: string; label: string }[] = [];
+  const stats: { value: number; label: string }[] = [];
   if (totalTitulos != null) {
     // T: rótulos via i18n (EN: 'titles in catalog'; ES: 'títulos en el catálogo').
-    stats.push({ value: totalTitulos.toLocaleString("pt-BR"), label: t("statsTitulos") });
+    stats.push({ value: totalTitulos, label: t("statsTitulos") });
   }
-  stats.push({ value: String(NUM_FONTES_ATIVAS), label: t("statsFontes") });
-  stats.push({ value: String(CATEGORIAS_COBERTAS.length), label: t("statsCategorias") });
+  stats.push({ value: NUM_FONTES_ATIVAS, label: t("statsFontes") });
+  stats.push({ value: CATEGORIAS_COBERTAS.length, label: t("statsCategorias") });
 
   return (
     <section className="px-4 pb-4" aria-label={t("statsAria")}>
@@ -32,9 +39,11 @@ export async function HomeStats() {
         {stats.map((s) => (
           <div key={s.label} className="text-center">
             <dd className="font-heading text-3xl font-bold tabular-nums text-[#818CF8]">
-              {s.value}
+              <CountUpValue value={s.value} />
             </dd>
-            <dt className="text-xs uppercase tracking-widest text-[#6B6B85]">{s.label}</dt>
+            {/* AA: #6B6B85 (3,99:1 sobre #05050A) reprovava para texto normal;
+                #85859F é o muted do design system (5,3:1) — ver design-tokens. */}
+            <dt className="text-xs uppercase tracking-widest text-[#85859F]">{s.label}</dt>
           </div>
         ))}
       </dl>

@@ -2781,3 +2781,154 @@ segredos não rotacionados).
 condicionais e não-fatais; CodeQL analyze não-fatal apenas para falha de plataforma);
 `.gitleaks.toml` novo; `docs/08-security/SECURITY_CI.md` novo; `GITHUB_SECURITY_SETTINGS.md` e
 `SECURITY_INCIDENTS.md` atualizados. Política: **histórico não é gate** de CI.
+
+---
+
+## D-579 — UI/UX: tooling de design versionado + redesenho da hero (T207)
+
+**Data:** 2026-10-12 · **Fase:** pós-beta (F13+) · **Status:** REGISTRADA (aguarda PR/CI)
+
+**Contexto.** A hero da home era um trio centralizado (padrão proibido por D-065) com
+microcopy fraca: pill de marca sem valor, 6 nomes de fonte hardcoded contra um rótulo que
+afirmava "11 fontes" (o contador real e derivado de `FONTES_ATIVAS` é **14**), faixa de
+fontes em `#80809B` + lista fixa, e nenhum movimento nos 6 ícones canônicos. Não havia
+tooling de UI/UX versionado no repo (nenhuma skill de design, nenhum gate de contraste
+executável, nenhum harness de evidência visual).
+
+**Decisões.**
+
+1. **Skills de projeto versionadas** em `.zcode/skills/` (convenção do `.gitignore` §50-53:
+   `.agents/skills/` é local do ambiente): `media-rate-ui-ux` (contrato + `references/`),
+   `ux-copywriting`, `design-review` (+ `contrast-audit.mjs`), `visual-qa`
+   (+ `visual-qa.mjs`). Em `.agents/skills/` ficam apenas **ponteiros** de descoberta.
+2. **Subagentes de projeto** em `.zcode/agents/`: `ui-ux-designer`, `ux-copywriter`,
+   `design-reviewer` (read-only), `visual-qa-auditor` (read-only) + `README.md` (índice).
+3. **AGENTS.md** passa a apontar para esse tooling (é o único canal que todo agente lê,
+   independente de o `/skill` do harness estar ativo).
+4. **Hero redesenhada** (estrutura + copy + movimento), respeitando D-065/D-380/T405/T474/T087:
+   - layout **assimétrico** (copy + constelação) no lugar do trio centralizado;
+   - funil explícito gancho → promessa → prova → CTA (`hero` = gancho, `heroSubtitle` =
+     promessa, faixa de método = prova, CTA primária mantida no catálogo);
+   - os 6 pares ícone+cor **canônicos** (`CATEGORY_TOKENS`) preservados, agora com movimento
+     em 3 camadas em CSS puro (entrada em cascata, flutuação+brilho ambiente, anel orbital),
+     tilt de ponteiro ±6° só em desktop com ponteiro fino, e `prefers-reduced-motion`
+     desligando tudo;
+   - **verdade dos números**: `sourcesLabel` virou ICU `{count}` alimentado por
+     `NUM_FONTES_ATIVAS`, e o marquee lista `FONTES_ATIVAS` (14 nomes reais) em vez de 6
+     nomes digitados;
+   - coleção de prova = explicação do método (crítica/público/consenso, `scoredial.*`) +
+     fontes reais; nenhuma imagem nova acima da dobra (LCP segue o H1 como texto);
+   - `HomeStats`: `#6B6B85` (3,99:1 — reprova AA) → `#80809B` (5,31:1), o muted do design system.
+
+**Evidência.** web 591/591 (86 arquivos, inclui a nova `hero-constellation.spec.tsx` com 12
+casos); `tsc --noEmit` API+web 0; `contrast-audit` 50/51 (1 débito documentado:
+`text.muted` sobre `#1B1B2C` = 4,42:1 — **não** usar muted em superfície elevada);
+`visual-qa` pt/en/es sem overflow e com CTA acima da dobra; axe **0 violações** na hero nos
+3 locales (o débito `color-contrast` da página é pré-existente: `#6B7280`/`#6B6B85` em
+`HomeContentSections`/`kbd`, fora da hero); navbar em 768 px tem overflow horizontal de
+13 px **pré-existente** (`hidden md:flex items-center space-x-4`), registrado como pendência.
+
+**Não feito (deliberado).** Não habilitar o bundle experimental
+`@deepseek-ai/dsh-experimental-agent-team-profile` (muda o profile do harness inteiro e
+sobrepõe as ferramentas de subagente) — decisão do Operador.
+
+---
+
+## D-580 — Tooling de UI/UX: auditoria das 22 ferramentas + detector determinístico + registries sob licença
+
+**Data:** 2026-10-12 · **Fase:** pós-beta (F13+) · **Status:** REGISTRADA (aguarda PR/CI) · **Tarefa:** T208
+
+**Contexto.** O Operador pediu auditoria, instalação e implementação das 22
+ferramentas/skills/registries de UI/UX listadas. Várias se apresentam como
+"design system" e algumas promovem exatamente o que D-065 proíbe
+(glassmorphism blanket, aurora-blob). Licença foi tratada como critério de
+bloqueio (produto proprietário).
+
+**Decisões.**
+
+1. **Adotado**: detector determinístico do **Impeccable** (Apache-2.0) como
+   devDependency fixa `impeccable@4.5.2` + wrapper `apps/web/scripts/design-detect.mjs`
+   (`npm run design:detect`, telemetria desligada, exit 0/2/1 preservados) —
+   **advisory**, não gate de merge, para não criar dois gates de design
+   contraditórios. **React Bits** (MIT + Commons Clause) como registry
+   `@react-bits`, com allow-list; **Playwright**, **GSAP** e **Motion** já estavam
+   instalados e ganharam padrão de uso (`references/motion-review-standards.md`)
+   e gate global `<MotionConfig reducedMotion="user">`
+   (`apps/web/src/providers/motion-provider.tsx` — antes ausente no repo).
+2. **Adaptado** (padrão/recorte, não instalação em bloco): `emilkowalski/skills`
+   (MIT, 10 skills vendorizadas em `.agents/skills/` + recorte versionado),
+   `Leonxlnx/taste-skill` (MIT, `redesign-skill`/`output-skill` + pre-flight
+   versionado), **Kokonut/Bklit/Componentry/Obsidian** (namespaces de registry
+   registrados em `apps/web/components.json`, código só sob demanda),
+   **Anime.js** (import por subpath para tree-shaking).
+3. **Descartado por licença**: **Aceternity UI** (termos "All Rights Reserved",
+   uso pessoal, proibição de copiar/redistribuir) — ⚠️ **conflita com a linha
+   ~541 do DECISOES.md**, que listou um "Animated Hero" da Aceternity como
+   candidato (T5.9); esse item **não pode** ser adotado sem licença escrita do
+   vendor. **Kobra** (free = "personal use only"), **FigmaToCode** (GPL-3.0:
+   não vendorizar/forkar), **Replit** (SaaS proprietário sem ganho sobre o fluxo
+   CLI-first), **21st.dev** (exige API key + limite de 2 instalações/dia),
+   **UI UX Pro Max**/**Refero**/**Bencho**/**Loading**/**metal-fx** (referência
+   ou caso de uso que colide com LCP server-first).
+4. **Implementação real no produto**: `HomeStats` passou a usar
+   `CountUpValue` (`apps/web/src/components/media-rate-ui/CountUpValue.tsx`),
+   derivado do `CountUp` do React Bits e **reimplementado** por três motivos
+   obrigatórios do repo: locale-aware (`useLocale()`), SSR-safe (o HTML do
+   servidor já sai com o valor final — o original renderiza `<span>` vazio) e
+   `prefers-reduced-motion`. No mesmo passo, corrigiu-se o
+   `toLocaleString("pt-BR")` fixo (errado em en-US/es-ES).
+
+**Evidência.** web **591/591** (86 arquivos) · `tsc --noEmit` web 0 ·
+eslint 0 nos arquivos alterados · `npm run design:detect` = 5 achados em 2 regras
+(`gradient-text` ×4, `overused-font` ×1 — pré-existentes, nenhum no hero),
+com `codex-grid-background` (D-066) e `broken-image` (T031, falso positivo)
+aceitos com motivo em `.impeccable/config.json` · `npm run design:contrast`
+50/51 (débito de `text.muted` sobre `#1B1B2C`) · axe sem violação nova
+(30 nós pré-existentes em 1440) · SSR verificado: `data-countup` =
+**17.217 (pt-BR) / 17,217 (en-US)** títulos, 14 fontes, 6 categorias.
+
+**Pendências registradas.** (a) API fora do typecheck por trabalho concorrente
+não commitado (`apps/api/src/modules/admin/admin-stepup.*` referencia
+`../prisma/prisma.module.js`, `../cache.service.js`, `AdminProbingMonitor` e
+`PrismaService` inexistentes) — **não** é desta tarefa e não foi tocado;
+(b) 4 `gradient-text` e 1 `overfont` aguardam decisão por tela;
+(c) sweep `#6B6B85`→`#80809B` (56 ocorrências) segue pendente (D-579).
+
+---
+
+## D-581 — Hero sem eyebrow chip + baseline de DOM renderizado (T209)
+
+**Data:** 2026-10-12 · **Fase:** pós-beta (F13+) · **Status:** REGISTRADA (aguarda PR/CI)
+
+**Contexto.** Com o detector rodando no modo de DOM renderizado (T208), a home
+ganhou 56 achados dos quais um era do próprio hero: `hero-eyebrow-chip` — label
+pequeno em caixa alta (ou pill) imediatamente acima de uma headline grande é o
+hero padrão de "AI SaaS". No nosso caso o pill ainda era redundante: "MEDIA Score™"
+já aparecia no hub da constelação e em `sourcesLabel`, e ele era o topo do "trio
+centralizado" que D-065 proíbe.
+
+**Decisões.**
+
+1. **Removido o pill de marca** do hero (`HeroSection`), com o gancho virando o
+   primeiro elemento da coluna. Efeitos: H1 ~46px mais alto na dobra, zero texto
+   decorativo antes da mensagem, e o achado `hero-eyebrow-chip` zerado na home
+   (53 achados restantes). Chave órfã `landing.heroEyebrow` removida dos 3 locales
+   (paridade mantida: 22 chaves em cada).
+2. **Guarda de regressão**: `test/hero-constellation.spec.tsx` exige
+   `previousElementSibling === null` no `#hero-title` e nenhum `uppercase`/
+   `tracking-[0.2em]` antes do gancho; a regra entrou em
+   `media-rate-ui-ux/references/anti-patterns.md` (seção de anti-padrões de DOM).
+3. **Baseline de DOM renderizado documentado** em
+   `design-review/references/design-linter.md` (composição por rota + prioridades):
+   `low-contrast` 37 (score sobre pôster + débito de muted), `line-length` 14
+   (`HomeContentSections`), `gradient-text` 1, `overused-font` 1.
+4. **Harness visual determinístico**: o screenshot de pixel passou a usar recorte
+   fixo de PÁGINA (y=64 → abaixo do cabeçalho `fixed`) em vez de screenshot de
+   elemento — o cabeçalho sobreposto ao topo do hero deixava o diff instável
+   (~5–7% dos pixels). Duas execuções consecutivas de `npm run test:visual`
+   passaram 4/4.
+
+**Não decidido (fica com o Operador).** Sweep de `low-contrast` (scrim em score
+sobre pôster; `#6B7280`/`#6B6B85` → tokens AA), `max-w-[70ch]` nas seções de
+conteúdo, ordem de headings em `/pricing`, `gradient-text` (4 pontos) e
+`font-family:Arial` na janela de impressão do dashboard.

@@ -55,7 +55,7 @@ export function AdminOverview() {
     return (
       <div
         role="status"
-        className="mx-auto max-w-7xl px-4 py-16 text-sm text-gray-600 sm:px-6 lg:px-8"
+        className="mx-auto max-w-7xl px-4 py-16 text-sm text-gray-400 sm:px-6 lg:px-8"
       >
         Carregando…
       </div>
@@ -64,7 +64,7 @@ export function AdminOverview() {
 
   const planoCard = (label: string, valor: number, destaque: boolean) => (
     <div key={label} className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="text-sm text-gray-400">{label}</p>
       <p
         className={`text-3xl font-bold ${destaque ? "text-[#8b7cff]" : "text-gray-900 dark:text-gray-100"}`}
       >

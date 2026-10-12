@@ -116,7 +116,7 @@ export function ProfileContent() {
             {t("planFreeSince", { plan: user?.plan ?? "FREE", date: membroDesde })}
           </p>
           {total > 0 && (
-            <p className="text-xs text-[#6B7280] mt-1">
+            <p className="text-xs text-[#9CA3AF] mt-1">
               {total} {t("titles")}
             </p>
           )}
@@ -127,7 +127,7 @@ export function ProfileContent() {
       {user?.id && (
         <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5 mb-8">
           <p className="text-sm font-semibold text-[#F5F5F7] mb-1">{t("shareLink")}</p>
-          <p className="text-xs text-[#80809B] mb-3">{t("shareHint")}</p>
+          <p className="text-xs text-[#85859F] mb-3">{t("shareHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             <code className="rounded-md border border-[#2A2A3D] bg-[#09090F] px-3 py-1.5 text-xs text-[#A0A0B8] break-all">
               {`${window.location.origin}/pt-BR/user/${user.id}`}
@@ -190,7 +190,7 @@ export function ProfileContent() {
             </h2>
             <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
               {topGeneros.length === 0 ? (
-                <p className="text-sm text-[#6B7280] text-center py-8">{t("tasteEmpty")}</p>
+                <p className="text-sm text-[#9CA3AF] text-center py-8">{t("tasteEmpty")}</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {topGeneros.map(([g, n]) => (
@@ -215,7 +215,7 @@ export function ProfileContent() {
               {badges.map((b) => (
                 <div
                   key={b.name}
-                  className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-[#818CF8]/10 border-[#818CF8]/30 text-[#818CF8]" : "bg-[#11111E] border-[rgba(129,140,248,0.08)] text-[#6B7280]"}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-[#818CF8]/10 border-[#818CF8]/30 text-[#818CF8]" : "bg-[#11111E] border-[rgba(129,140,248,0.08)] text-[#9CA3AF]"}`}
                 >
                   {b.unlocked ? "★" : "☆"} {b.name}
                   <span className="ml-2 text-xs opacity-60">{b.desc}</span>
@@ -230,7 +230,7 @@ export function ProfileContent() {
             </h2>
             <div className="bg-[#11111E] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
               {ultimasAtividades.length === 0 ? (
-                <p className="text-sm text-[#6B7280] text-center py-8">{t("recentEmpty")}</p>
+                <p className="text-sm text-[#9CA3AF] text-center py-8">{t("recentEmpty")}</p>
               ) : (
                 <ul className="divide-y divide-[#2A2A3D]">
                   {ultimasAtividades.map((a, i) => {
@@ -253,7 +253,7 @@ export function ProfileContent() {
                         {label && (
                           <span className="text-xs text-[#9CA3AF] shrink-0">{ti(label)}</span>
                         )}
-                        <span className="ml-auto text-xs text-[#6B7280] shrink-0">
+                        <span className="ml-auto text-xs text-[#9CA3AF] shrink-0">
                           {tempoRelativo(
                             a.atualizado_em,
                             t as (k: string, vals?: Record<string, unknown>) => string,

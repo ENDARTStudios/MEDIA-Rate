@@ -1,6 +1,6 @@
 "use client";
 
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 import { useCallback, type MouseEvent } from "react";
 
 export function useRipple() {

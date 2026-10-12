@@ -84,10 +84,7 @@ export default function AdminStepUpDialog() {
         <p aria-live="polite" data-testid="admin-stepup-erro" className="mb-2 text-sm text-red-600">
           {erro ? t("stepupErro") : ""}
         </p>
-        <label
-          htmlFor="admin-stepup-senha"
-          className="mb-1 block text-sm text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="admin-stepup-senha" className="mb-1 block text-sm text-gray-300">
           {t("stepupLabel")}
         </label>
         <input

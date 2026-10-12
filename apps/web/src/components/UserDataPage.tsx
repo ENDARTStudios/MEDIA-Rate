@@ -70,7 +70,7 @@ export function UserDataPage() {
 
         <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
           <p className="text-sm text-[#F5F5F7] mb-1">{user?.email ?? "—"}</p>
-          <p className="text-xs text-[#6B6B85] mb-5">{t("includes")}</p>
+          <p className="text-xs text-[#85859F] mb-5">{t("includes")}</p>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => void baixar("json")} disabled={busy != null}>
               {busy === "json" ? "..." : t("downloadJson")}
@@ -94,7 +94,7 @@ export function UserDataPage() {
           <Button variant="destructive" disabled>
             {t("deleteData")}
           </Button>
-          <p className="mt-2 text-xs text-[#6B6B85]">{t("deleteSoon")}</p>
+          <p className="mt-2 text-xs text-[#85859F]">{t("deleteSoon")}</p>
         </div>
       </div>
     </ProtectedPage>

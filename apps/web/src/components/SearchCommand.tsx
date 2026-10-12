@@ -213,7 +213,7 @@ export function SearchCommand() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(129,140,248,0.12)] bg-[#11111E] text-xs text-[#6B7280] hover:text-[#9CA3AF] hover:border-[rgba(129,140,248,0.25)] transition-colors"
+        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(129,140,248,0.12)] bg-[#11111E] text-xs text-[#9CA3AF] hover:text-[#9CA3AF] hover:border-[rgba(129,140,248,0.25)] transition-colors"
         aria-label={t("search") ?? "Buscar mídia"}
       >
         <svg
@@ -231,7 +231,7 @@ export function SearchCommand() {
           />
         </svg>
         <span>{t("search") ?? "Buscar"}</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#9CA3AF] border border-[rgba(129,140,248,0.08)] font-mono">
           {/* T246: hint por plataforma — ⌘ K no Mac, Ctrl K no Windows/Linux. */}
           <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>K
         </kbd>
@@ -256,7 +256,7 @@ export function SearchCommand() {
           >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[rgba(129,140,248,0.08)]">
               <svg
-                className="w-4 h-4 text-[#6B7280] shrink-0"
+                className="w-4 h-4 text-[#9CA3AF] shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -278,7 +278,7 @@ export function SearchCommand() {
                   setSelectedIdx(0);
                 }}
                 placeholder={t("searchPlaceholder")}
-                className="flex-1 bg-transparent text-sm text-[#EDE7DC] placeholder-[#6B7280] outline-none border-none"
+                className="flex-1 bg-transparent text-sm text-[#EDE7DC] placeholder-[#9CA3AF] outline-none border-none"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -288,7 +288,7 @@ export function SearchCommand() {
                     setQuery("");
                     inputRef.current?.focus();
                   }}
-                  className="text-[#6B7280] hover:text-[#9CA3AF]"
+                  className="text-[#9CA3AF] hover:text-[#9CA3AF]"
                 >
                   <svg
                     className="w-3.5 h-3.5"
@@ -305,20 +305,20 @@ export function SearchCommand() {
                   </svg>
                 </button>
               )}
-              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#6B7280] border border-[rgba(129,140,248,0.08)] font-mono">
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#9CA3AF] border border-[rgba(129,140,248,0.08)] font-mono">
                 Esc
               </kbd>
             </div>
 
             <div className="max-h-[50vh] overflow-y-auto">
               {debouncedQuery.length < 2 && (
-                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                <div className="px-4 py-10 text-center text-sm text-[#9CA3AF]">
                   {t("paletaMinChars")}
                 </div>
               )}
 
               {debouncedQuery.length >= 2 && searching && (
-                <div className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                <div className="px-4 py-10 text-center text-sm text-[#9CA3AF]">
                   {t("paletaSearching")}
                 </div>
               )}
@@ -326,14 +326,14 @@ export function SearchCommand() {
               {debouncedQuery.length >= 2 && searchError && (
                 <div className="px-4 py-10 text-center">
                   <p className="text-sm text-[#F87171] mb-1">{t("paletaError")}</p>
-                  <p className="text-xs text-[#6B7280]">{t("paletaErrorHint")}</p>
+                  <p className="text-xs text-[#9CA3AF]">{t("paletaErrorHint")}</p>
                 </div>
               )}
 
               {debouncedQuery.length >= 2 && !searching && !searchError && totalResults === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="text-sm text-[#9CA3AF] mb-1">{t("paletaEmpty")}</p>
-                  <p className="text-xs text-[#6B7280]">{t("paletaEmptyHint")}</p>
+                  <p className="text-xs text-[#9CA3AF]">{t("paletaEmptyHint")}</p>
                 </div>
               )}
 
@@ -364,7 +364,7 @@ export function SearchCommand() {
                               aria-hidden="true"
                             />
                             {item.title}
-                            <span className="text-[#6B7280]">{item.year}</span>
+                            <span className="text-[#9CA3AF]">{item.year}</span>
                           </button>
                         );
                       })}
@@ -375,7 +375,7 @@ export function SearchCommand() {
               {debouncedQuery.length >= 2 &&
                 Object.entries(groupedRest).map(([group, items]) => (
                   <div key={group}>
-                    <div className="px-4 py-2 text-xs text-[#6B7280] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
+                    <div className="px-4 py-2 text-xs text-[#9CA3AF] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
                       {group}
                     </div>
                     {items.map((item) => {
@@ -400,7 +400,7 @@ export function SearchCommand() {
                               />
                             ) : (
                               <svg
-                                className="w-4 h-4 text-[#6B7280]"
+                                className="w-4 h-4 text-[#9CA3AF]"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -419,7 +419,7 @@ export function SearchCommand() {
                             <p className="text-sm text-[#EDE7DC] font-heading truncate">
                               {item.title}
                             </p>
-                            <p className="text-xs text-[#6B7280]">
+                            <p className="text-xs text-[#9CA3AF]">
                               {item.type} &middot; {item.year}
                             </p>
                           </div>

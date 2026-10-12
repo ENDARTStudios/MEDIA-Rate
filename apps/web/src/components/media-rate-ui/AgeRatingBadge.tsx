@@ -66,7 +66,7 @@ export function AgeRatingBadge({
       >
         {rating}
       </span>
-      <div className="text-xs leading-tight text-[#6B6B85]">
+      <div className="text-xs leading-tight text-[#85859F]">
         {source === "sugerida" && <span>Classificação sugerida pela editora</span>}
         {perSeason && <span>Pode variar por temporada</span>}
         {labels.length > 0 && (

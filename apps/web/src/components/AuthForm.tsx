@@ -114,7 +114,7 @@ export function LoginForm() {
           {t("noAccount")}{" "}
           <Link
             href="/register"
-            className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all"
+            className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
           >
             {t("signUp")}
           </Link>
@@ -316,7 +316,7 @@ export function RegisterForm() {
           {t("hasAccount")}{" "}
           <Link
             href="/login"
-            className="bg-gradient-to-r from-[#818CF8] to-[#38BDF8] bg-clip-text text-transparent hover:brightness-125 transition-all"
+            className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
           >
             {t("signIn")}
           </Link>

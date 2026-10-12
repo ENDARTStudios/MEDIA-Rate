@@ -11,6 +11,7 @@ import { DiagPanelLoader } from "../../components/DiagPanelLoader";
 import { PageTransition } from "../../components/PageTransition";
 import { LimpezaServiceWorker } from "../../components/LimpezaServiceWorker";
 import { QueryProvider } from "../../providers/query-provider";
+import { MotionProvider } from "../../providers/motion-provider";
 import { PostHogProvider } from "../../components/PostHogProvider";
 import { Toaster } from "sonner";
 import "../globals.css";
@@ -86,20 +87,23 @@ export default async function LocaleLayout({
     <QueryProvider>
       <NextIntlClientProvider>
         <PostHogProvider>
-          {/* D-525: desregistra SW estranho da origem (o app não tem SW próprio). */}
-          <LimpezaServiceWorker />
-          <a href="#main" className="skip-link">
-            {t("skipToContent")}
-          </a>
-          <AuthHeader />
-          <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <MotionFooter locale={locale} />
-          <ConsentBanner />
-          <Toaster theme="dark" position="top-right" />
-          {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
-          <DiagPanelLoader />
+          {/* T208/D-580: gate global de movimento (reducedMotion="user"). */}
+          <MotionProvider>
+            {/* D-525: desregistra SW estranho da origem (o app não tem SW próprio). */}
+            <LimpezaServiceWorker />
+            <a href="#main" className="skip-link">
+              {t("skipToContent")}
+            </a>
+            <AuthHeader />
+            <main id="main" className="flex-1 min-h-[calc(100vh-4rem)]">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <MotionFooter locale={locale} />
+            <ConsentBanner />
+            <Toaster theme="dark" position="top-right" />
+            {/* DiagPanel: dynamic ssr:false + ErrorBoundary → nunca crasha a pagina */}
+            <DiagPanelLoader />
+          </MotionProvider>
         </PostHogProvider>
       </NextIntlClientProvider>
     </QueryProvider>

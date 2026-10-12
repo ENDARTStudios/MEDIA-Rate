@@ -31,7 +31,7 @@ export function AwardsShowcase({ awards, className }: AwardsShowcaseProps) {
 
   if (awards.length === 0) {
     return (
-      <p className={`text-sm text-[#6B6B85] ${className ?? ""}`} role="status">
+      <p className={`text-sm text-[#85859F] ${className ?? ""}`} role="status">
         {t("awardsNone")}
       </p>
     );
@@ -58,7 +58,7 @@ export function AwardsShowcase({ awards, className }: AwardsShowcaseProps) {
             {/* T177: organização visível — Emmy e Globo podem ter o mesmo nome
                 de categoria ("Melhor Série Dramática") e pareciam duplicados. */}
             <span className="text-[#8B8BA0]">{award.organization}</span>
-            <span className="tabular-nums text-[#6B6B85]">{award.year}</span>
+            <span className="tabular-nums text-[#85859F]">{award.year}</span>
           </span>
         ))}
         {ocultos > 0 && !expanded && (

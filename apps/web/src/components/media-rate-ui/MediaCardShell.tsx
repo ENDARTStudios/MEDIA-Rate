@@ -249,7 +249,9 @@ export function MediaCardShell({
 
           {scoreExibido != null && (
             <div className={`absolute top-2 right-2 z-20 ${preview ? "opacity-45" : ""}`}>
-              <StaticScoreDial value={scoreExibido} size="md" scale={escala} />
+              {/* T210: onArtwork → disco atrás do anel; sem ele o número do score
+                  fica sobre o pixel da capa (contraste medido 1,1:1–1,7:1). */}
+              <StaticScoreDial value={scoreExibido} size="md" scale={escala} onArtwork />
             </div>
           )}
         </div>

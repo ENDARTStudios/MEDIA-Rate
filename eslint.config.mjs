@@ -122,11 +122,18 @@ export default tseslint.config(
   // e2e (Playwright) — codigo descartavel/one-off: console e globals de
   // browser sao legitimamente usados, e regras estritas de tipagem/limpeza
   // sao relaxadas (nao e codigo de producao).
+  // T207/D-579: scripts das skills de UI/UX (.zcode/skills/**/scripts/*.mjs) —
+  // mesmo caso (CLI Node + page.evaluate no browser), entao entram aqui em vez
+  // de virar ignore (mantem parser/no-undef valendo).
+  // T208/D-580: harness de regressao visual do Playwright (visual/ + config).
   {
     files: [
       "apps/web/scripts/**/*.{mjs,js,ts}",
       "apps/web/e2e/**/*.{ts,tsx}",
+      "apps/web/visual/**/*.{ts,tsx}",
       "apps/web/playwright.config.ts",
+      "apps/web/playwright.visual.config.ts",
+      ".zcode/skills/**/scripts/**/*.{mjs,js,ts}",
     ],
     languageOptions: {
       globals: {

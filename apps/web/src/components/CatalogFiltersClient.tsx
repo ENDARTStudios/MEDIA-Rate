@@ -127,7 +127,7 @@ export function CatalogFiltersClient() {
           value={draftQuery}
           onChange={(e) => setDraftQuery(e.target.value)}
           placeholder={t("search")}
-          className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+          className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         />
       </div>
 
@@ -183,7 +183,7 @@ export function CatalogFiltersClient() {
               </p>
             )}
             <div>
-              <span className="block text-xs text-[#6B7280] mb-1.5">{tf("anoLabel")}</span>
+              <span className="block text-xs text-[#9CA3AF] mb-1.5">{tf("anoLabel")}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -191,22 +191,22 @@ export function CatalogFiltersClient() {
                   onChange={(e) => setParam("anoMin", e.target.value)}
                   placeholder={tf("anoMin")}
                   aria-label={tf("anoMin")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
-                <span className="text-[#6B7280]">–</span>
+                <span className="text-[#9CA3AF]">–</span>
                 <input
                   type="number"
                   value={anoMax}
                   onChange={(e) => setParam("anoMax", e.target.value)}
                   placeholder={tf("anoMax")}
                   aria-label={tf("anoMax")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
               </div>
             </div>
 
             <div>
-              <span className="block text-xs text-[#6B7280] mb-1.5">MEDIA Score (0–100)</span>
+              <span className="block text-xs text-[#9CA3AF] mb-1.5">MEDIA Score (0–100)</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -217,9 +217,9 @@ export function CatalogFiltersClient() {
                   disabled={buscaAtiva}
                   aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
                   data-testid="catalog-filter-score-min"
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
-                <span className="text-[#6B7280]">–</span>
+                <span className="text-[#9CA3AF]">–</span>
                 <input
                   type="number"
                   value={scoreMax}
@@ -229,12 +229,12 @@ export function CatalogFiltersClient() {
                   disabled={buscaAtiva}
                   aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
                   data-testid="catalog-filter-score-max"
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
+                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
               </div>
             </div>
             <div>
-              <span className="block text-xs text-[#6B7280] mb-1.5">{tf("genero")}</span>
+              <span className="block text-xs text-[#9CA3AF] mb-1.5">{tf("genero")}</span>
               <select
                 value={genero}
                 onChange={(e) => setParam("genero", e.target.value)}
@@ -251,7 +251,7 @@ export function CatalogFiltersClient() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1.5 text-xs text-[#6B7280]">
+              <p className="mt-1.5 text-xs text-[#9CA3AF]">
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input
                     type="checkbox"

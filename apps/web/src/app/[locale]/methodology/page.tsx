@@ -86,7 +86,7 @@ export default async function MethodologyPage({ params }: PageProps) {
         <p className="mt-4 text-lg text-muted-foreground">{copy.lead}</p>
       </header>
 
-      <div className="prose prose-invert max-w-none prose-headings:font-heading prose-a:text-primary">
+      <div className="prose prose-invert max-w-[38rem] prose-headings:font-heading prose-a:text-primary">
         <ScrollReveal>
           <section aria-labelledby="score-title">
             <h2 id="score-title">{copy.scoreTitle}</h2>

@@ -35,7 +35,7 @@ export function ComingSoonRails() {
               >
                 {t(section.labelKey)}
               </h2>
-              <span className="text-xs text-[#6B6B85]">{t(section.countKey)}</span>
+              <span className="text-xs text-[#85859F]">{t(section.countKey)}</span>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
               {[0, 1, 2, 3, 4].map((i) => (

@@ -1,0 +1,77 @@
+/* ==========================================================================
+ * hero-proof.module.css — faixa de prova do hero: marquee das fontes reais.
+ * Sem JS (CSS puro): o marquee não hidrata e não compete com o LCP.
+ * Em prefers-reduced-motion a lista vira estática (uma cópia, com wrap).
+ * ========================================================================== */
+
+.marquee {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  gap: 32px;
+  animation: marquee 46s linear infinite;
+}
+
+.marquee:hover .track {
+  animation-play-state: paused;
+}
+
+.group {
+  display: flex;
+  flex: none;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  flex: none;
+  border: 1px solid rgba(42, 42, 61, 0.9);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  background-color: rgba(18, 18, 28, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: #a0a0b8;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Duas cópias idênticas: -50% (-1 gap) reinicia sem salto visível. */
+    transform: translateX(calc(-50% - 16px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .track {
+    width: auto;
+    animation: none;
+  }
+
+  .group[data-copy="duplicate"] {
+    display: none;
+  }
+
+  .group {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 10px;
+  }
+}

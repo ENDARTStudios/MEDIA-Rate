@@ -50,7 +50,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         className="bg-[#11111E] rounded-2xl p-6 border border-[#1C1C2E]"
         data-testid="score-empty"
       >
-        <p className="text-sm text-[#6B7280]">{t("scoreUnavailable")}</p>
+        <p className="text-sm text-[#9CA3AF]">{t("scoreUnavailable")}</p>
       </div>
     );
   }
@@ -191,7 +191,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             )}
           </div>
           {updatedAt && (
-            <p className="text-xs text-[#6B7280] mb-1" data-testid="last-updated">
+            <p className="text-xs text-[#9CA3AF] mb-1" data-testid="last-updated">
               {t("updated")} {relativeTime(updatedAt, t)}
               {isStale && (
                 <span className="ml-1 px-1.5 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] rounded text-xs">
@@ -209,7 +209,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
       <div className="pt-3 border-t border-[#1C1C2E]">
         <Bar criticsScore={criticos} audienceScore={publico} consensus={consenso} />
         {temAjusteBayesiano && (
-          <p className="mt-2 text-xs text-[#6B7280]" data-testid="bayes-note">
+          <p className="mt-2 text-xs text-[#9CA3AF]" data-testid="bayes-note">
             {t("bayesNote")}{" "}
             <Link
               href="/methodology"
@@ -222,11 +222,11 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
       </div>
 
       <div className="space-y-2 pt-3 border-t border-[#1C1C2E]">
-        <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wider">
+        <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider">
           {t("sources")}
         </p>
         {fontesUnicas.length === 0 ? (
-          <p className="text-xs text-[#6B7280]">{t("noReviews")}</p>
+          <p className="text-xs text-[#9CA3AF]">{t("noReviews")}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {fontesUnicas.map((s) => {

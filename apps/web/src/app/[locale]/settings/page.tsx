@@ -104,7 +104,7 @@ export default function SettingsPage() {
                 >
                   {ts("cancelSubscription")}
                 </button>
-                <p className="mt-1.5 text-xs text-[#6B7280]">{ts("cancelHint")}</p>
+                <p className="mt-1.5 text-xs text-[#9CA3AF]">{ts("cancelHint")}</p>
               </div>
             )}
 
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                   aria-label={tc("monitoring")}
                 />
               </label>
-              <p className="text-xs text-[#6B7280]">{tc("necessary")}</p>
+              <p className="text-xs text-[#9CA3AF]">{tc("necessary")}</p>
             </div>
           </div>
 

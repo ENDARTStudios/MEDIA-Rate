@@ -55,7 +55,7 @@ export function GenreChipRow({
 
   if (sharedGenres.length === 0 && mediaSpecificGenres.length === 0) {
     return (
-      <p className={cn("text-sm text-[#6B6B85]", className)} role="status">
+      <p className={cn("text-sm text-[#85859F]", className)} role="status">
         Não informado
       </p>
     );

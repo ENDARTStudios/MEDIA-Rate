@@ -23,6 +23,12 @@ export interface ScoreDialProps {
   size?: "sm" | "md" | "lg";
   showConfidence?: boolean;
   className?: string;
+  /**
+   * T210: ver `StaticScoreDial` — disco escuro atrás do anel quando o dial é
+   * sobreposto a pôster (contraste por pixel). Default `false` para não alterar
+   * os usos sobre superfície sólida.
+   */
+  onArtwork?: boolean;
 }
 
 const SIZE_CONFIG = {
@@ -47,6 +53,7 @@ export function ScoreDial({
   size = "md",
   showConfidence = false,
   className,
+  onArtwork = false,
 }: ScoreDialProps) {
   const max = scale === "0-100" ? 100 : 10;
   const clamped = Math.max(0, Math.min(max, value));
@@ -85,7 +92,7 @@ export function ScoreDial({
         if (!entries[0]?.isIntersecting || cancel) return;
         observer.disconnect();
         void (async () => {
-          const { animate } = await import("animejs");
+          const { animate } = await import("animejs/animation");
           if (cancel) return;
           const target = { v: 0 };
           animate(target, {
@@ -118,6 +125,10 @@ export function ScoreDial({
       aria-label={ariaLabel}
       data-testid={`score-dial-${size}`}
     >
+      {onArtwork && (
+        // T210: fundo do badge (atrás do anel) — ver `StaticScoreDial`.
+        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
+      )}
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
         <circle
           cx="30"

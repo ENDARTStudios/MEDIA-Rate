@@ -81,9 +81,12 @@
     "cta": "Start now"
   },
   "landing": {
-    "heroEyebrow": "MEDIA Score™",
-    "hero": "All your entertainment. One score.",
-    "heroSubtitle": "Discover what to watch, read and play",
+    "hero": "Stop guessing what to watch, read or play.",
+    "heroSubtitle": "One score that blends critics, audiences and consensus across movies, series, games, books, comics and manga. Decide in seconds, not in hours of scrolling.",
+    "ctaHint": "No account needed to browse the catalog.",
+    "categoriesLabel": "Six categories. One score.",
+    "proofTitle": "How every score is built",
+    "proofBody": "Critics, audiences and consensus feed the same calculation, weighted by media type — never an average from a single site.",
     "cta": "Start free",
     "ctaSecondary": "Browse catalog",
     "features": "Features",
@@ -99,7 +102,7 @@
     "notFoundTitle": "Page not found",
     "notFoundBody": "The address you tried to access does not exist or has been moved. Check the URL or go back to the home page.",
     "notFoundCta": "Back to home",
-    "sourcesLabel": "MEDIA Score™ aggregates 11 rating sources"
+    "sourcesLabel": "MEDIA Score™ aggregates {count} rating sources"
   },
   "biblioteca": {
     "metaTitle": "Library — MEDIA Rate",
@@ -275,6 +278,9 @@
     "carouselPrev": "Previous",
     "carouselNext": "Next",
     "searchDialogAria": "Global media search",
+    "discoverSubtitle": "Featured titles with the highest MEDIA Scores.",
+    "discoverFullCatalog": "Full catalog",
+    "discoverListTitle": "Top picks",
     "discoverTitle": "Discover"
   },
   "dashboard": {

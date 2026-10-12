@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap } from "@/lib/gsap-config";
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 import { useReducedMotion } from "motion/react";
 import type { Variants } from "motion/react";
 

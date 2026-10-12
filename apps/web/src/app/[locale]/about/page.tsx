@@ -128,7 +128,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             className="text-[#9CA3AF] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("roadmapBody")) }}
           />
-          <p className="mt-3 text-xs text-[#6B7280]">
+          <p className="mt-3 text-xs text-[#9CA3AF]">
             {t("availableIn")}{" "}
             <Link href="/about" locale="en-US" className="text-[#818CF8] underline">
               {t("enLabel")}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useId } from "react";
-import { animate } from "animejs";
+import { animate } from "animejs/animation";
 
 const SIZES = {
   sm: { symbol: "h-7 w-7", media: "text-sm", rate: "text-xs", gap: "gap-1.5" },

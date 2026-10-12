@@ -78,7 +78,7 @@ export default async function SourcesPage({ params }: PageProps) {
         <p className="mt-4 text-lg text-muted-foreground">{copy.lead}</p>
       </header>
 
-      <div className="prose prose-invert max-w-none prose-headings:font-heading prose-a:text-primary">
+      <div className="prose prose-invert max-w-[38rem] prose-headings:font-heading prose-a:text-primary [&>section]:mt-12 [&>section:first-child]:mt-0">
         <section aria-labelledby="coverage-title">
           <h2 id="coverage-title">{copy.coverageTitle}</h2>
           <p>{copy.coverageBody}</p>
@@ -100,7 +100,7 @@ export default async function SourcesPage({ params }: PageProps) {
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       fonte.tipo === "critica"
                         ? "bg-[#38BDF8]/15 text-[#38BDF8]"
-                        : "bg-[#E11D48]/15 text-[#E11D48]"
+                        : "bg-[#E11D48]/15 text-[#FB7185]"
                     }`}
                   >
                     {fonte.tipo === "critica" ? "Crítica" : "Público"}

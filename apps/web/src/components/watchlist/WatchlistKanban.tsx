@@ -118,7 +118,7 @@ function Column({
 
       {entries.length === 0 ? (
         <div className="flex-1 flex items-center justify-center rounded-md border border-dashed border-[#2A2A3D]">
-          <p className="text-xs text-[#6B6B85]">{t("emptyColumn")}</p>
+          <p className="text-xs text-[#85859F]">{t("emptyColumn")}</p>
         </div>
       ) : (
         <SortableContext items={entries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
@@ -260,7 +260,7 @@ export function WatchlistKanban({
         <div className="flex flex-wrap gap-5" data-testid="abandonados-list">
           {abandonados.length === 0 ? (
             <div className="w-full flex items-center justify-center rounded-md border border-dashed border-[#2A2A3D] p-10">
-              <p className="text-sm text-[#6B6B85]">{t("emptyAbandonados")}</p>
+              <p className="text-sm text-[#85859F]">{t("emptyAbandonados")}</p>
             </div>
           ) : (
             abandonados.map((e) => {
