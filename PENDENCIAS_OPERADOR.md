@@ -1266,3 +1266,49 @@ Relatório: `docs/08-security/reports/deps-clean-pr-2026-10-13.md`.
   Deploy `waiting` em Production (aprovação humana) · **GO final explícito do Operador** ·
   majors de deps como tarefa de código (Tailwind 4 / Vitest 5).
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T220 (2026-10-13) — pacote de evidência pré-GO (read-only/docs-only; **pendente de REVIEW**)
+
+Relatório (snapshot canônico): `docs/08-security/reports/pre-go-evidence-pack-2026-10-13.md`.
+Checklist reconciliado: `docs/06-devops-deployment/GO_READINESS_CHECKLIST.md`.
+
+- **`main` = `8bb38ae0`.** PRs do ciclo MERGED (#549/#550/#551/#552/#553); #515/#518/#522 CLOSED.
+  CI `success` (`38309415248`) · Security `success` (`38309415263`) · Railway deploy `SUCCESS` ·
+  Deploy `main` **`waiting`** em Production (**não aprovado**) · smoke **7/7 → 200**.
+- **Alertas:** CodeQL **1** (#151 `open`, `updated_at` inalterado) + Trivy **117** = **total 118**
+  (baseline pré-T209: 120). `npm audit` **24**, `audit:ci` OK. Nenhum alerta interagido.
+- **Backups/DR — P1:** existe `scripts/backup-db.sh` (retenção 30 d) + `BACKUP_DR.md` (restore
+  documentado, RPO ≤24 h honesto), mas **o backup automático não está configurado em produção**
+  (T181), **não há alerta de falha de backup** e **o restore de ensaio não foi validado**.
+- **Observabilidade — PRONTA com 1 lacuna:** alertas de `5xx_rate` (CRITICAL) e `auth_failures`
+  (WARNING) já existem (T218, sem serviço externo), uptime sintético ativo, Sentry, `/metrics`,
+  logs pino→Railway. **Lacuna:** alerta de falha de backup; probing/step-up admin logados mas não
+  alert-ificados.
+- **Jornada de beta:** 38 grupos de rota + **34 specs e2e** + flags + copy honesta de indisponível;
+  **falta auditoria navegada consolidada (T224)**.
+- **Tooling:** `vitest ^4.1.11` (hoisting do coverage → T221) e `fastify ^5.12.5` (duplicação de
+  tipos → T222) **BLOQUEADOS**; majors Tailwind 4 / Vitest 5 **ADIADOS** (T223).
+- **Reconciliação documental:** `PLANO_MESTRE.md` **defasado** (Fase 8 diz API `931/931`/web `~309`;
+  real `1422/1422`/`615/615`; Fase 9 diz UptimeRobot pendente, mas o uptime sintético está ativo).
+- **Diff docs-only**; sem código/deps/infra/produção/alertas; nenhum segredo/PII.
+
+**Decisões do Operador (template `DECISAO_OPERADOR_PRE_GO_2026-10-13`):**
+```
+1. BACKUPS_PG        = AUTORIZAR_CONFIGURACAO_MINIMA | ACEITAR_RISCO_FORMAL | ADIAR_GO
+2. PURGE_HISTORICO   = NAO_APLICAVEL_APOS_ROTACAO | AUTORIZAR_PLANO_SEPARADO | ADIAR
+3. DEPLOY_PRODUCTION = MANTER_WAITING | APROVAR_MANUAL_APOS_CHECKLIST
+4. TRIVY_POS_T209    = ACEITAR_RISCO_ESTRUTURAL | EXIGIR_NOVA_PR | EXIGIR_BASE_IMAGE_TASK
+5. VITEST_HOISTING   = AUTORIZAR_T221_READ_ONLY | AUTORIZAR_T221_IMPL | ADIAR
+6. FASTIFY_COOKIE    = AUTORIZAR_T222_READ_ONLY | AUTORIZAR_T222_IMPL | ADIAR
+7. MAJOR_UPGRADES    = ADIAR | AUTORIZAR_T223_DESIGN
+8. BETA_SCOPE        = DEFINIR_MINIMO_VIABIL | EXIGIR_T224_AUDIT | ADIAR_GO
+9. OBSERVABILITY     = AUTORIZAR_MINIMA | ACEITAR_RISCO_FORMAL | ADIAR_GO
+10. GO_CONVITES      = SUSPENDER | CONDICIONADO_AOS_ITENS_ACIMA | LIBERAR_FORMALMENTE
+```
+Recomendação técnica (não vinculante): `1=AUTORIZAR_CONFIGURACAO_MINIMA` · `2=NAO_APLICAVEL_APOS_ROTACAO` ·
+`3=MANTER_WAITING` · `4=ACEITAR_RISCO_ESTRUTURAL` · `5/6=AUTORIZAR_*_READ_ONLY` · `7=ADIAR` ·
+`8=EXIGIR_T224_AUDIT` · `9=AUTORIZAR_MINIMA` · `10=CONDICIONADO_AOS_ITENS_ACIMA`.
+
+- **GO:** segue **SUSPENSO** — nenhuma decisão acima é executável pelo agente sem autorização.

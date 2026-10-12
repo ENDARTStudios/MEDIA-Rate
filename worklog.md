@@ -4145,3 +4145,31 @@ rodando de novo em http://localhost:3000.
   sanitizado; nenhum alerta interagido (CodeQL/Trivy só por GET); sem interação com settings do
   Dependabot/alerts/secrets/environments. Relatório:
   `docs/08-security/reports/deps-clean-pr-2026-10-13.md`. **GO segue SUSPENSO.**
+
+### [2026-10-13] T220 — pacote de evidência pré-GO (read-only/docs-only)
+
+- **Snapshot canônico:** `docs/08-security/reports/pre-go-evidence-pack-2026-10-13.md` +
+  `GO_READINESS_CHECKLIST.md` reconciliado (frentes classificadas; legenda + RISCO_ACEITO).
+- **Estado:** `main` `8bb38ae0`; PRs #549/#550/#551/#552/#553 MERGED, #515/#518/#522 CLOSED;
+  CI `success` (38309415248) e Security `success` (38309415263); Railway deploy `SUCCESS`;
+  Deploy `main` **`waiting`** em Production (não aprovado); smoke **7/7 → 200**.
+- **Alertas (GET apenas):** CodeQL **1** (#151 `open`, `updated_at` inalterado) + Trivy **117** =
+  **118** (baseline pré-T209 120). `npm audit` 24; `audit:ci` OK. Nenhum alerta interagido.
+- **Backups/DR (P1):** `scripts/backup-db.sh` (retenção 30 d) + `BACKUP_DR.md` (restore documentado,
+  RPO ≤24 h honesto) **existem**, mas o backup automático **não está configurado** em produção
+  (T181), **sem alerta de falha de backup** e **restore de ensaio não validado**.
+- **Observabilidade:** alertas de `5xx_rate` (CRITICAL) e `auth_failures` (WARNING) já existem
+  (T218, sem serviço externo), uptime sintético ativo (substitui UptimeRobot), Sentry, `/metrics`,
+  logs pino→Railway. **Lacuna:** alerta de falha de backup; probing/step-up admin logados, não
+  alert-ificados.
+- **Jornada de beta:** 38 grupos de rota + **34 specs e2e** + flags (`discovery-feed-v1`,
+  `lgpd-consent-v1`…) + copy honesta de indisponível (`synopsisUnavailable`, `scoreComingSoon`…);
+  **falta auditoria navegada consolidada (T224)**.
+- **Tooling BLOQUEADO:** `vitest ^4.1.11` (hoisting do `@vitest/coverage-v8` → T221) e
+  `fastify ^5.12.5` (instância duplicada → `tsc` → T222); majors Tailwind 4 / Vitest 5 **ADIADOS**
+  (T223).
+- **Reconciliação documental:** `PLANO_MESTRE.md` **defasado** (Fase 8: `API 931/931`, `web ~309` —
+  real `1422/1422` e `615/615`; Fase 9: UptimeRobot "pendente", mas uptime sintético ativo).
+- **Diff docs-only**; sem código/deps/schema/infra/produção/alertas/backups/purge;
+  contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo, sem
+  plumbing — árvores idênticas). **GO segue SUSPENSO.**
