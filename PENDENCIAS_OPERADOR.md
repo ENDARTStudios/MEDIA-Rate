@@ -1104,3 +1104,26 @@ Relatório: `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md` 
   suíte API **1395/1395** (165 arquivos); tsc 0; eslint 0; prettier limpo.
 - **Pendências desta frente:** REVIEW do Thinker; **T204** (design próprio: step-up/MFA +
   refinamento do probe do gate — endpoint dedicado ou flag admin em `/auth/me`).
+
+---
+
+### T204 (2026-10-13) — design step-up/MFA + probe do gate (docs-only; **nada implementado**)
+
+Design: `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md` ·
+Doc vivo: `docs/08-security/SECURITY_AUTH_DESIGN.md` (novo).
+
+- **Estado real documentado:** gate server-side fail-closed (T202), RolesGuard banco-por-
+  request, rate limit 60/10 (T203), anti-probing por hash, audit em destrutivas, argon2id+
+  pepper e feature flags existentes (base pronta para step-up sem auth core novo).
+- **Recomendações de design:** **T206** = probe dedicado `GET /api/v1/admin/gate`
+  (`@Roles("ADMIN")`, `{ok:true}`, fallback automático ao probe atual); **T205-Fase 1** =
+  step-up por re-auth de senha (reusa `PasswordService.verify`, janela ~15 min, flag de
+  feature, rate limit 6/min, audit `ADMIN_STEPUP_*`); Fase 2 = TOTP com backup codes
+  (migration); Fase 3 = WebAuthn (futuro). Opção C (`isAdmin` em `/auth/me`) rejeitada
+  (superfície); Opção D (web→banco) proibida (boundary).
+- **Critérios de não-aceite:** bypass client-side, log de PII, MFA sem recuperação, step-up
+  parcial, endpoint admin sem RolesGuard, dep sem aprovação, auth core sem packet.
+- **Decisão do Operador (template `DECISAO_OPERADOR_ADMIN_STEPUP_MFA_2026-10-13` no design):**
+  autorizar T206 (probe) / T205-Fase1 (step-up) / Fase2 design / Fase3 adiar / timeout de
+  sessão admin. Implementação só com packet próprio.
+- **GO:** sem impacto direto — segue SUSPENSO pelas demais decisões.

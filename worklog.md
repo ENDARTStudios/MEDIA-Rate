@@ -3889,3 +3889,24 @@ Suítes: API 992/992 (132 arq); web 479/479.
   PENDENCIAS (bloco T203).
 - Sem deps/auth core/infra/produção/segredos alterados; nenhuma credencial admin usada;
   PR em curso — gates e smoke no STATUS.
+
+### [2026-10-13] T204 — design step-up/MFA admin + refinamento do probe (branch docs/t204; nada implementado)
+
+- **Estado real documentado (verificado em código):** controles T201–T203 (gate fail-closed,
+  RolesGuard banco-por-request, rate limit 60/10, anti-probing por hash, audit) + base pronta
+  para step-up (`PasswordService.verify` argon2id+pepper; sessão opaca com família de
+  rotação; feature flags).
+- **Design:** STRIDE da área admin (gap principal = sessão roubada executa destrutivas);
+  opções de probe A–E → **Opção B recomendada** (`GET /api/v1/admin/gate` dedicado, fallback
+  ao probe atual), C rejeitada (superfície), D proibida (boundary); roadmap faseado —
+  **Fase 1** step-up por re-auth de senha (reusa PasswordService, janela ~15min, flag,
+  rate 6/min, audit `ADMIN_STEPUP_*`), **Fase 2** TOTP+backup codes (migration), **Fase 3**
+  WebAuthn, opcional IP allowlist; política de sessão admin; eventos de audit mínimos;
+  plano de testes/rollout (flag→canário)→rollback (flag off = no-op); critérios de não-aceite;
+  template `DECISAO_OPERADOR_ADMIN_STEPUP_MFA_2026-10-13`.
+- **Docs:** `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`
+  (novo; cópia local em `.claude/reports/`) + `docs/08-security/SECURITY_AUTH_DESIGN.md`
+  (NOVO — doc vivo estado+roadmap) + `ADMIN_SECURITY.md` (link ao design, pendente explícito)
+  + `TESTING.md` (step-up/MFA = PLANNED) + PENDENCIAS (bloco T204).
+- **Nada implementado** (nenhum código/auth core/deps/infra); GO permanece SUSPENSO;
+  PR docs-only em curso — gates e smoke no STATUS.

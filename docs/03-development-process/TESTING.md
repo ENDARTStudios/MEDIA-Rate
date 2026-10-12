@@ -242,6 +242,13 @@ atinge 429 **antes** dos guards — sem bypass e sem mutação.
 cd apps/api && NODE_ENV=test npx vitest run test/admin-probing-monitor.spec.ts test/rate-limit-config.spec.ts test/admin-rate-limit.e2e.spec.ts
 ```
 
+## Boundary admin — step-up/MFA (PLANNED — não implementado)
+
+Os testes de step-up (re-auth de senha) e MFA para ações destrutivas admin ainda **não
+existem** — o design faseado está em `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`
+(§7 Plano de testes) e a implementação (T205) depende de autorização. Não criar specs
+"adiantados" sem o packet da T205.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
