@@ -1,9 +1,10 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (**T224**, auditoria da jornada mínima de beta, read-only) ·
+**Última auditoria:** 2026-10-13 (**T225**, design de prontidão de backups, read-only) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
-do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md` e
-`reports/beta-core-journey-audit-2026-10-13.md`.
+do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
+`reports/beta-core-journey-audit-2026-10-13.md` e
+`reports/backup-operational-readiness-design-2026-10-13.md`.
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -61,7 +62,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Frente | Estado | Evidência |
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
-| Backups/DR PostgreSQL | ⚠️ **PENDENTE_OPERADOR (P1)** | **Existe:** `scripts/backup-db.sh` (dump diário, retenção 30 d) + `BACKUP_DR.md` (restore documentado, RPO ≤24 h honesto) + backup pré-migration (P013). **Falta:** backup automático **não configurado** em produção (dado só no volume — T181), **sem alerta de falha de backup**, **restore de ensaio não validado**. Decisão A/B/C pendente (T181/PENDENCIAS) |
+| Backups/DR PostgreSQL | ⚠️ **DESIGN_PRONTO_PARA_DECISAO_OPERADOR (T225)** | **T225 (2026-10-13):** design read-only concluído — opções A–E, política de destino/segredos/PII, **alerta de falha** (padrão GitHub Issues), **restore de ensaio**, RPO/RTO e **template de decisão**. Estado real: script validado (`pg_dump -F c` + `pg_restore --list`) e runbook **existem**, mas **não há backup automático**, o **destino é local/efêmero** e **não há alerta**; o backup pré-migration é **fail-open** e bloqueado pelo hostname interno (**D-527**). Relatório: `reports/backup-operational-readiness-design-2026-10-13.md` |
 | Observabilidade mínima | ✅ PRONTA com 1 lacuna | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs. **Lacuna:** alerta de falha de backup; probing/step-up admin são **logados** mas não alert-ificados |
 | Jornada mínima de beta | ✅ **AUDITADA_COM_LACUNAS (T224)** | **T224 (2026-10-13):** 13 fluxos auditados (read-only) — **todos `PRONTO_PARA_BETA`** por evidência de CI (34 specs E2E, incl. `jornada-critica` 3× retries=0) + estática + smoke; copy honesta de indisponível nos 3 locales. **Lacunas** (não de produto): backups P1, aprovação de Production, escopo formal. Relatório: `reports/beta-core-journey-audit-2026-10-13.md` |
 | PLANO_MESTRE | ✅ RECONCILIADO (T224) | seções de estado atual atualizadas para o snapshot 2026-10-13 (API **1422/1422**, web **615/615**, **34 specs E2E**, uptime sintético **ATIVO**, domínio/proteção da `main` resolvidos); história não reescrita |
@@ -81,10 +82,10 @@ heurístico (APIs DOM inline), não chave i18n crua.
   fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
   **encerramento do incidente INC-2026-10-11** (risco residual aceito, sem purge — T210),
   **observabilidade mínima (5xx/auth/uptime/Sentry)**.
-- **PENDENTES DO OPERADOR (decisão):** **backups/DR Postgres (P1)** + alerta de falha de backup +
-  restore de ensaio · purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) ·
-  escopo/GO de convites (declaração formal) · eventualmente Gov-02 · majors de deps
-  (`tailwindcss` 4, `vitest` 5).
+- **PENDENTES DO OPERADOR (decisão):** **backups/DR Postgres (P1 — design pronto, T225)**:
+  escolher estratégia A–E, autorizar configuração mínima + alerta de falha + restore de ensaio ·
+  purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) · escopo/GO de convites
+  (declaração formal) · eventualmente Gov-02 · majors de deps (`tailwindcss` 4, `vitest` 5).
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
   documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.
   Deps #515/#518/#522: **resolvidas** — T209. Jornada de beta: **auditada sem bloqueio de

@@ -285,6 +285,25 @@ Requisições ao ambiente de E2E exigem API+DB efêmeros/fixtures sintéticos �
 conta real, nunca PII. Se o ambiente local não for viável, o **CI é a autoridade** e a limitação deve
 ser registrada no relatório de auditoria. Esta seção não altera testes nem adiciona specs.
 
+## Backup e restore drill (T225 — design; nenhum teste novo)
+
+O **restore drill** não é um teste automatizado de produto — é um **procedimento operacional** de
+verificação de recuperação. Método (design `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md`),
+a executar **apenas em ambiente efêmero/staging/local seguro** (nunca produção):
+
+```bash
+# 1) validar integridade do dump (o script já faz na geração)
+pg_restore --list <dump>
+# 2) restaurar em um DB NOVO (efêmero)
+pg_restore -h <host-alvo> -U <user> -d <db-novo> --clean --if-exists <dump>
+# 3) validar: contagens AGREGADAS por tabela sensível (sem listar PII)
+#    + integridade da cadeia SHA-256 do audit_log (prova de não-tampering)
+# 4) subir a app em modo leitura no alvo + smoke; registrar o RTO MEDIDO
+```
+
+Os gates de CI **não** executam backup/restore (não há credencial de produção no CI). A evidência do
+drill é **registrada em relatório/worklog** (contagens e tempo), nunca em teste que toque produção.
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.

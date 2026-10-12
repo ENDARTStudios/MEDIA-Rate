@@ -4197,3 +4197,26 @@ rodando de novo em http://localhost:3000.
 - **Diff docs-only**; sem código/testes/flags/deps/schema/infra/produção/alertas; nenhuma conta real
   ou PII; contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo).
   **GO segue SUSPENSO.**
+
+### [2026-10-13] T225 — design de prontidão operacional de backups (read-only/docs-only)
+
+- **Relatório:** `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md`.
+- **Estado real (evidência lida):** `scripts/backup-db.sh` é de **boa qualidade** (`pg_dump -F c`,
+  **valida com `pg_restore --list`**, **falha em voz alta** sem `pg_dump` — nunca forja) + `BACKUP_DR.md`
+  com restore e RPO ≤24 h honesto. **Mas não há operação de backup:** sem agendamento, **destino
+  local/efêmero** (`./backups`), **sem alerta de falha**, **sem restore validado**.
+- **Achados novos:** o **backup pré-migration é fail-open** (`|| echo "…continuando"` → migration segue
+  sem dump) e **não funciona hoje** — o secret `DATABASE_URL` do CI aponta para o **hostname interno**
+  do Railway (**D-527**).
+- **Design (nada implementado):** opções **A–E** comparadas (agendar script · **backup gerenciado da
+  plataforma** · GitHub Actions · serviço externo · manual) com pró/contra/segredo/PII/rollback;
+  política de **destino/segredos/PII**; **alerta de falha** reusando o padrão **GitHub Issues** com
+  dedup (sem serviço externo); **restore de ensaio** (ambiente seguro, contagens agregadas, RTO medido);
+  **RPO/RTO**; **critérios de não-aceite**; plano **T226/T227/T228**; template
+  `DECISAO_OPERADOR_BACKUP_READINESS_2026-10-13` (10 itens).
+- **Docs:** relatório novo + `BACKUP_DR.md` (estado honesto + design) + `GO_READINESS_CHECKLIST.md`
+  (backups → **DESIGN_PRONTO_PARA_DECISAO_OPERADOR**) + `ADMIN_SECURITY.md` (política de dados/segredos)
+  + `TESTING.md` (método do restore drill) + `PENDENCIAS_OPERADOR.md` (bloco + template).
+- **Nada executado:** sem backup/restore, sem cron/workflow/secret/infra, sem acesso a produção, sem
+  interagir com alertas. Diff docs-only; contaminacao 123ce28e ausente; checkout limpo; trabalho
+  concorrente do Operador preservado. **GO segue SUSPENSO.**

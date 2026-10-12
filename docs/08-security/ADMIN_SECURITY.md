@@ -93,6 +93,18 @@ Além disso, **todo novo endpoint admin mutante** deve herdar o `AdminStepUpGuar
 explicitamente classificado como não destrutivo, com justificativa revisada); a **metadata spec**
 deve continuar falhando quando uma rota mutante admin não estiver coberta.
 
+## Dados, backups e segredos (política)
+
+- **Backup contém dados pessoais** (contas, sessões, consentimentos, auditoria) → tratado como
+  **artefato de dado pessoal**: destino **privado e cifrado**, **least privilege**, retenção definida,
+  **logs sanitizados** e procedimento de exclusão/purga alinhado ao fluxo LGPD (admin-only).
+- **Backup nunca loga** `DATABASE_URL`, senha, token, cookie ou connection string — apenas **nomes** de
+  variáveis. O alerta de falha de backup reporta **estado/idade**, nunca credencial, path ou PII.
+- **Restore de ensaio** só em **ambiente efêmero/staging/local seguro** — **nunca produção** —, com
+  validação por **contagens agregadas** (sem listar PII) e integridade da cadeia SHA-256 do `audit_log`.
+- **Design e decisão pendentes:** `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md`
+  (opções A–E, política de destino/segredos/PII, alerta, drill, RPO/RTO). **Nada implementado.**
+
 ## Como auditar (read-only)
 
 `rg -n "@Roles" apps/api/src/modules/admin/admin.controller.ts` (todos os handlers),

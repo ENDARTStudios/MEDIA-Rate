@@ -1339,3 +1339,46 @@ Relatório: `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md`.
 - **Permanecem pendentes (decisão do Operador):** backups automáticos + alerta de falha de backup +
   restore de ensaio · aprovação de Production · **GO final** · tooling (vitest/fastify/majors).
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T225 (2026-10-13) — design de prontidão operacional de backups (read-only/docs-only; **pendente de REVIEW**)
+
+Relatório: `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md`.
+
+- **Estado real (evidência lida):** o script `scripts/backup-db.sh` é de **boa qualidade** (`pg_dump -F c`,
+  **valida o dump** com `pg_restore --list`, **falha em voz alta** se `pg_dump` ausente — nunca forja) e o
+  runbook `BACKUP_DR.md` tem restore + RPO ≤24 h honesto. **Mas não há operação de backup:** sem
+  agendamento, **destino local/efêmero** (`./backups`), **sem alerta de falha** e **sem restore validado**.
+- **Achados novos:** o **backup pré-migration é fail-open** (`|| echo "…continuando"` → a migration
+  prossegue sem dump) e **não funciona hoje** porque o secret `DATABASE_URL` do CI aponta para o
+  **hostname interno** do Railway (**D-527**).
+- **Design entregue (nada implementado):** opções **A–E** comparadas (agendar script · **backup gerenciado
+  da plataforma** · GitHub Actions · serviço externo · manual) com pró/contra/segredo/PII/rollback;
+  política de **destino** (fora do volume primário e do FS efêmero; cifrado; privado; least privilege;
+  retenção) + **segredos** + **PII/LGPD**; **alerta de falha** reusando o padrão **GitHub Issues** com
+  dedup (sem serviço externo); **procedimento de restore de ensaio** (ambiente seguro, contagens
+  agregadas, RTO medido, periodicidade); **RPO/RTO alvo**; **critérios de não-aceite**; plano futuro
+  **T226/T227/T228**.
+- **Nada executado:** sem backup, sem restore, sem cron/workflow/secret/infra, sem acesso a produção,
+  sem interação com alertas. Diff docs-only.
+- **Permanecem pendentes (decisão do Operador):** escolher a estratégia e autorizar a configuração
+  mínima + alerta + restore de ensaio · aprovação de Production · **GO final** · tooling (vitest/fastify/majors).
+- **GO:** segue **SUSPENSO**.
+
+**Template de decisão (`DECISAO_OPERADOR_BACKUP_READINESS_2026-10-13`):**
+```
+1. ESTRATEGIA        = A_AGENDAR_SCRIPT | B_GERENCIADO_PLATAFORMA | C_GITHUB_ACTIONS | D_SERVICO_EXTERNO | E_MANUAL_RISCO_ACEITO
+2. BACKUPS_PG        = AUTORIZAR_CONFIGURACAO_MINIMA | ACEITAR_RISCO_FORMAL_COM_LIMITES | ADIAR_GO
+3. RETENCAO          = 30d | __ d | PITR/WAL
+4. DESTINO           = plataforma | bucket_privado_externo | __
+5. ALERTA_BACKUP     = AUTORIZAR_VIA_GITHUB_ISSUES | autorizar_outro | ACEITAR_RISCO_FORMAL
+6. RESTORE_ENSAIO    = AUTORIZAR_DRILL_EM_AMBIENTE_SEGURO | ADIAR
+7. RESPONSAVEL       = Operador | Operador+Doer | __
+8. CONVITES_RESTRITOS = SIM_COM_LIMITES | NAO
+9. DEPLOY_PRODUCTION = MANTER_WAITING | APROVAR_MANUAL_APOS_CHECKLIST
+10. GO_CONVITES      = SUSPENDER | CONDICIONADO_A_BACKUP_E_RESTORE | LIBERAR_FORMALMENTE
+```
+Recomendação técnica (não vinculante): `1=B` (menor superfície nova) · `2=AUTORIZAR_CONFIGURACAO_MINIMA` ·
+`3=30d` · `4=plataforma` · `5=AUTORIZAR_VIA_GITHUB_ISSUES` · `6=AUTORIZAR_DRILL` · `7=Operador+Doer` ·
+`8=SIM_COM_LIMITES` · `9=MANTER_WAITING` · `10=CONDICIONADO_A_BACKUP_E_RESTORE`.
