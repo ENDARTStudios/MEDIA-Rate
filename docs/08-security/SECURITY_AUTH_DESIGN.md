@@ -24,7 +24,7 @@ listado como existente**) · Design completo:
 
 | Fase | O quê | Packet |
 |---|---|---|
-| **T206** | **Probe dedicado**: `GET /api/v1/admin/gate` (`@Roles("ADMIN")`, `{ok:true}` apenas) substituindo o probe atual em `/admin/backfills/status` — com fallback automático ao probe antigo | design §4 |
+| **T206** ✅ **IMPLEMENTADA (2026-10-13)** | **Probe dedicado**: `GET /api/v1/admin/gate` (`@Roles("ADMIN")`, `{ok:true}` apenas) é o probe primário do frontend, com **fallback automático** ao probe antigo em 404 (remoção do fallback em tarefa futura) | relatório `reports/admin-gate-probe-refinement-2026-10-13.md` |
 | **T205-Fase 1** | **Step-up por re-auth de senha**: `POST /api/v1/admin/step-up` (reusa `PasswordService.verify` argon2id+pepper); janela curta (15 min default); todas as destrutivas exigem a marca; flag de feature p/ rollback | design §5 |
 | **T205-Fase 2** | **TOTP** para destrutivas (enrollment + backup codes obrigatórios; migration) | design §5 |
 | **T205-Fase 3** | **WebAuthn/passkeys** (futuro) | design §5 |

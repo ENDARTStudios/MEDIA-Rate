@@ -3910,3 +3910,28 @@ Suítes: API 992/992 (132 arq); web 479/479.
   + `TESTING.md` (step-up/MFA = PLANNED) + PENDENCIAS (bloco T204).
 - **Nada implementado** (nenhum código/auth core/deps/infra); GO permanece SUSPENSO;
   PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-13] T206 — probe dedicado do gate admin (branch fix/t206; autorizado pelo Operador)
+
+- **Endpoint:** `GET /api/v1/admin/gate` — `AdminGateController` novo (`@Roles("ADMIN")`,
+  payload mínimo `{ok:true}`, idempotente, sem efeito colateral), registrado no AdminModule;
+  coberto automaticamente pelo rate limit admin de leitura (60/min via
+  `aplicarRateLimitAdmin`); cadeia global de guards inalterada.
+- **Probe do frontend:** `admin-auth-server.ts` usa o gate novo como **primário** (200=ADMIN;
+  **403=não-admin SEM fallback** — negação explícita) com **fallback automático** ao probe
+  antigo (`/admin/backfills/status`) **apenas em 404** (compatibilidade de rollout);
+  401/5xx/erro/timeout/JSON inválido = **fail-closed** em ambos; payload 200 validado como
+  objeto. Step-up/MFA NÃO implementado (T205 após REVIEW).
+- **TDD vermelho→verde:** `admin-gate.spec.ts` (novo, 5 casos — APP_GUARD fakes na ordem real
+  Auth→Roles: ADMIN 200 `{ok:true}`; payload sem vazamento; USER 403; anônimo 401; rate
+  limit 60) + `admin-auth-server.spec.ts` (reescrito, 11 casos: gate 200/403-sem-fallback/
+  404→fallback 200/403/erro, 401 fail-closed sem fallback, 5xx/rede/JSON inválido fail-closed,
+  sem cookie, cookie no probe) — API 5/5 + web 16/16; suítes API **1399/1399** (165) e web
+  **591/591** (86); tsc API/web 0; eslint 0; prettier limpo.
+- **Obs. de ambiente:** working tree com trabalho concorrente do Operador (landing/hero +
+  novos agents) — preservado intocado; staging seletivo cirúrgico; CI é a autoridade (roda
+  apenas o diff desta branch).
+- **Docs:** `docs/08-security/reports/admin-gate-probe-refinement-2026-10-13.md` (novo; cópia
+  local em `.claude/reports/`) + `ADMIN_SECURITY.md` (probe dedicado implementado) +
+  `SECURITY_AUTH_DESIGN.md` (Opção B movida para implementada) + `TESTING.md` (comando com
+  admin-gate.spec) + PENDENCIAS (bloco T206). PR em curso — gates e smoke no STATUS.

@@ -1107,6 +1107,24 @@ Relatório: `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md` 
 
 ---
 
+### T206 (2026-10-13) — probe dedicado do gate admin (**pendente de REVIEW**; autorizado pelo Operador)
+
+Relatório: `docs/08-security/reports/admin-gate-probe-refinement-2026-10-13.md`.
+
+- **Implementa a Opção B do design T204:** `GET /api/v1/admin/gate` (`@Roles("ADMIN")`,
+  payload mínimo `{ok:true}`, sem efeito colateral) em controller dedicado
+  (`AdminGateController`); coberto automaticamente pelo rate limit admin de leitura (60/min).
+- **Probe do frontend** (`admin-auth-server.ts`) usa o gate novo como **primário** com
+  **fallback automático** ao probe antigo **apenas em 404** (compatibilidade de rollout);
+  403 é negação explícita (sem fallback); 401/5xx/erro/timeout/JSON inválido = **fail-closed**.
+- **Evidência:** TDD 5/5 (API, APP_GUARD na ordem real) + 11/11 (web, gate/fallback/fail-closed);
+  suítes API **1399/1399** e web **591/591**; tsc API/web 0; eslint 0; prettier limpo.
+- **Step-up/MFA NÃO implementado** (T205-Fase 1 vem após REVIEW desta). Fallback antigo
+  permanece por compatibilidade (remoção futura).
+- **GO:** segue SUSPENSO (declaração final explícita do Operador).
+
+---
+
 ### T204 (2026-10-13) — design step-up/MFA + probe do gate (docs-only; **nada implementado**)
 
 Design: `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md` ·

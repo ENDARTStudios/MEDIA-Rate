@@ -51,12 +51,17 @@ irreversíveis; MFA como follow-up estratégico.
   re-verificar: specs `apps/api/test/admin-rate-limit.e2e.spec.ts`,
   `admin-probing-monitor.spec.ts` e relatório
   `docs/08-security/reports/admin-rate-limit-hardening-2026-10-12.md`.
+- ✅ **Probe dedicado (T206)** — `GET /api/v1/admin/gate` (`@Roles("ADMIN")`, payload mínimo
+  `{ok:true}`, rate limit de leitura); probe do frontend usa-o como **primário** com
+  **fallback automático** ao probe antigo apenas em 404; 403 é negação explícita (sem
+  fallback); fail-closed em erro/timeout. Como re-verificar: specs
+  `apps/api/test/admin-gate.spec.ts` / `apps/web/test/admin-auth-server.spec.ts` e relatório
+  `docs/08-security/reports/admin-gate-probe-refinement-2026-10-13.md`.
 - ⏳ Pendente (T204 design produzido — **nada implementado**): step-up (Fase 1: re-auth de
-  senha, janela curta), MFA (Fase 2: TOTP; Fase 3: WebAuthn) e refinamento do probe do gate
-  (T206: endpoint dedicado `GET /api/v1/admin/gate`). Design completo:
+  senha, janela curta), MFA (Fase 2: TOTP; Fase 3: WebAuthn). Design completo:
   `docs/08-security/SECURITY_AUTH_DESIGN.md` +
   `docs/08-security/reports/admin-stepup-mfa-probe-refinement-design-2026-10-13.md`.
-  Implementação só mediante autorização explícita (T205/T206, template de decisão no design).
+  Implementação só mediante autorização explícita (T205, template de decisão no design).
 
 ## Como auditar (read-only)
 

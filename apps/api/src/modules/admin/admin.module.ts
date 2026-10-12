@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AdminController } from "./admin.controller.js";
+import { AdminGateController } from "./admin-gate.controller.js";
 import { AdminService } from "./admin.service.js";
 import { PrismaModule } from "../../prisma/prisma.module.js";
 import { AuthModule } from "../auth/auth.module.js";
@@ -11,7 +12,7 @@ import { BackfillDrainService } from "./backfill-drain.service.js";
 
 @Module({
   imports: [PrismaModule, AuthModule, FeatureFlagsModule, LgpdModule],
-  controllers: [AdminController],
+  controllers: [AdminController, AdminGateController],
   providers: [AdminService, AuditLogService, BackfillService, BackfillDrainService],
 })
 export class AdminModule {}

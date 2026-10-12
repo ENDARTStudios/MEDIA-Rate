@@ -239,8 +239,12 @@ negações (403/429) repetidas em rotas admin alimentam o `AdminProbingMonitor` 
 atinge 429 **antes** dos guards — sem bypass e sem mutação.
 
 ```bash
-cd apps/api && NODE_ENV=test npx vitest run test/admin-probing-monitor.spec.ts test/rate-limit-config.spec.ts test/admin-rate-limit.e2e.spec.ts
+cd apps/api && NODE_ENV=test npx vitest run test/admin-gate.spec.ts test/admin-probing-monitor.spec.ts test/rate-limit-config.spec.ts test/admin-rate-limit.e2e.spec.ts
 ```
+
+Probe dedicado do gate (T206): `GET /api/v1/admin/gate` (`@Roles("ADMIN")`, `{ok:true}`) é o
+probe primário do frontend com fallback fail-closed ao probe antigo (404) — specs
+`apps/api/test/admin-gate.spec.ts` + `apps/web/test/admin-auth-server.spec.ts`.
 
 ## Boundary admin — step-up/MFA (PLANNED — não implementado)
 
