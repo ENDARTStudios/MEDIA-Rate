@@ -11,7 +11,7 @@
 | `js/path-injection` — high | `apps/api/src/modules/upload/upload.controller.ts` (sink em `UploadService.caminhoArquivo`) | **MITIGADO (T192)** — §2b |
 | `js/clear-text-logging` — high | `apps/api/prisma/seed-origem.ts` | **MITIGADO (T193)** — §2c |
 | `js/incomplete-sanitization` — high | `apps/api/src/common/cache.service.ts` (+ fakes de teste) | **MITIGADO (T194)** — §2d |
-| higiene testes/e2e/scripts (demais alertas) | vários | opcional (T195+) |
+| higiene não-runtime (8 alertas: 4 testes + 3 e2e/script + 1 runtime de display) | vários | **TRIADO (T195)** — `reports/codeql-nonruntime-triage-2026-10-12.md` |
 
 ## 2. Caso 1 — SSRF em `http.utils` (T191): desenho da mitigação
 
@@ -97,8 +97,13 @@
 ## 3. Regras para as próximas correções (T195+)
 
 Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão mitigadas
-(§2–§2d). Restam os alertas de higiene em testes/e2e/scripts (opcional) e a triagem
-**humana** dos alertas que persistirem por limitação da regra (#151/#86/#85).
+(§2–§2d); as análises pós-merge fecharam #85/#86/#94–#97. **Triagem não-runtime feita em T195**
+(read-only): dos 8 alertas restantes (fora o #151), **1 é runtime de display**
+(`normalizar-imagem.ts` — **escalado**, recomenda-se task própria **T196-C** com `new URL` +
+hostname), **4 são `SAFE_TEST_FIX`** (#89–#92) e **3 são `E2E_SCRIPT_FIX`** (#93/#98/#149).
+Relatório: `reports/codeql-nonruntime-triage-2026-10-12.md`. Lotes recomendados: **T196-A**
+(testes), **T196-B** (e2e/script) e **T196-C** (runtime #88, separada). A triagem **humana**
+de #151 (único runtime open) permanece com o Operador.
 
 - **Uma regra por task/PR**, com **TDD** (teste vermelho primeiro), diff mínimo e review;
 - **Nunca interagir com o alerta** do CodeQL (sem dismiss/resolve/comment) — o alerta
@@ -124,3 +129,8 @@ Fila de runtime **esgotada em T194** — as 4 regras herdadas da triagem estão 
   `delPattern` ancorado/fail-closed; fakes idênticos nos 3 specs). Suíte API
   **1323/1323**. Relatório:
   `.claude/reports/codeql-incomplete-sanitization-cache-2026-10-12.md`.
+- **2026-10-11 (T195):** triagem read-only dos alertas CodeQL **não-runtime** (128 open =
+  9 CodeQL + 119 Trivy): #88 runtime de display **escalado** (`normalizar-imagem.ts`);
+  #89–#92 `SAFE_TEST_FIX`; #93/#98/#149 `E2E_SCRIPT_FIX`; #151 excluído (conhecido).
+  Nenhum alerta interagido; nenhum código alterado. Relatório:
+  `docs/08-security/reports/codeql-nonruntime-triage-2026-10-12.md`.

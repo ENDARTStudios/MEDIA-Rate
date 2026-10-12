@@ -880,3 +880,27 @@ Relatório: `.claude/reports/code-scanning-alerts-triage-2026-10-12.md` · Polí
   runtime** (uma regra por vez, TDD + review; SSRF primeiro) e, quando a nova PR de deps for
   autorizada, reavaliar o volume Trivy. Nenhuma contenção de emergência foi aplicada — alertas
   pré-existentes, sem evidência de exploração.
+
+---
+
+### T195 (2026-10-11) — triagem dos alertas CodeQL não-runtime (read-only; nenhum alerta interagido)
+
+Relatório: `docs/08-security/reports/codeql-nonruntime-triage-2026-10-12.md`.
+
+- **Inventário (paginate correto):** 128 open = **119 Trivy** (fora do escopo; D-534/deps) +
+  **9 CodeQL**.
+- **Fila runtime esgotada (T191–T194):** #151 (SSRF, mitigado — aguarda triagem), #86 e #85 e
+  #94–#97 **fixed** pelas análises pós-merge.
+- **Dos 8 não-runtime (fora o #151):**
+  - **#88 high — RUNTIME de display** (`apps/api/src/common/normalizar-imagem.ts`, D-262;
+    callers discover/media, sem sink de rede) — **ESCALADO**; recomendação: autorizar task
+    própria **T196-C** (fix com `new URL` + `hostname`, TDD, gates completos); sem dismiss
+    automático;
+  - **#89–#92 high** em testes (mocks/asserções com substring de URL) — `SAFE_TEST_FIX`
+    (lote **T196-A**; escopo: `audit-igdb-ids.spec.ts`, `game-posters-integrity.spec.ts`);
+  - **#93/#98 high** no e2e `i18n-leak` (strip de `<script>` por regex) e **#149 medium** no
+    script de prêmios (replace no-op) — `E2E_SCRIPT_FIX` (lote **T196-B**).
+- **Decisões pendentes do Operador:** (1) autorizar **T196-A/B** (higiene) e **T196-C**
+  (runtime #88); (2) **#151** — manter open com evidência ou dismiss documentado; (3)
+  incidente/purge; (4) deps (#515/#518/#522) e volume Trivy; (5) backups/alertas Postgres.
+  Nenhuma ação é executada sem a resposta do Operador.
