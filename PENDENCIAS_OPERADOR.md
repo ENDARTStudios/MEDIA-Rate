@@ -1037,3 +1037,29 @@ Relatório: `docs/08-security/reports/synthetic-admin-reconciliation-2026-10-12.
 - **Opcional (não bloqueia GO):** remoção/renomeação das 7 contas de teste `USER` inativas —
   permanece decisão do Operador.
 - **Nenhuma mutação** foi feita em produção; nenhum segredo/PII impresso.
+
+---
+
+### T201 (2026-10-12) — auditoria da superfície admin `/admin/lgpd` (**NOVO bloqueio de GO**)
+
+Relatório: `docs/08-security/reports/admin-authz-surface-audit-2026-10-12.md` · Política
+permanente: `docs/08-security/ADMIN_SECURITY.md` (novo).
+
+- **Relato do Operador:** usuário autenticado SEM papel ADMIN renderiza `/pt-BR/admin/lgpd`
+  (shell admin, abas, seção "Purga de dados", botão "Executar purga agora") com a mensagem
+  "Você não tem permissão para acessar este recurso."
+- **Classificação: `ADMIN_UI_LEAK_SERVER_BOUNDARY_MISSING` (+ `ADMIN_RATE_LIMIT_WEAK`)**
+  — **a API está blindada** (confirmado ponto a ponto): guards globais Auth → CSRF → Roles →
+  Plan; `@Roles("ADMIN")` em TODOS os endpoints do AdminController (incl. purge); `RolesGuard`
+  lê papéis do **banco por request** (403 = a mensagem do print — a API negou); CSRF
+  double-submit global no purge; audit no purge e nas ações admin. **O frontend é a falha:**
+  `admin/layout.tsx` e páginas são `"use client"` **sem validação** — middleware só exige
+  sessão; o painel inteiro renderiza antes da resposta da API (contadores 0/tabela vazia —
+  **nenhum dado real ou PII vaza**, mas estrutura, abas, hints de endpoint e o controle
+  destrutivo ficam no DOM).
+- **Severidade: moderado-alto** (violação de deny-by-default; sem escalada/disclosure).
+- **NOVO bloqueio de GO:** não liberar convites com superfície admin renderizável por
+  usuário comum. **Correção = T202 (hardening, pendente packet):** layout admin → server
+  component validando sessão + ADMIN antes de renderizar (não-admin → 403/redirect) +
+  early-return nas páginas + rate limit admin (+ step-up opcional).
+- **Nada foi alterado** nesta auditoria (read-only; sem clique/purge/credencial admin).

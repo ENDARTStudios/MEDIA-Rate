@@ -3812,3 +3812,27 @@ Suítes: API 992/992 (132 arq); web 479/479.
   worklog + exchange.
 - **Nenhuma mutação** em produção; nenhum segredo/PII impresso; GO permanece SUSPENSO pelas
   demais decisões; PR docs-only em curso — gates e smoke no STATUS.
+
+### [2026-10-12] T201 — auditoria da superfície admin /admin/lgpd (branch docs/t201)
+
+- **Relato do Operador:** usuário autenticado sem ADMIN renderiza `/pt-BR/admin/lgpd` (shell,
+  abas, bloco "Purga de dados", botão de purge) com a mensagem "Você não tem permissão...".
+- **Frontend (a falha):** `admin/layout.tsx` e `lgpd/page.tsx` são `"use client"` **sem
+  validação** — o layout renderiza nav + children incondicionalmente e a página renderiza o
+  painel inteiro antes da resposta da API; middleware só exige cookie `sess` para `/admin`.
+  Quando a API nega, a página mostra o erro **e continua exibindo shell + controle destrutivo**
+  (contadores 0, tabela vazia — **nenhum dado real/PII vaza**; mas estrutura, abas, hints de
+  endpoint e o botão ficam no DOM).
+- **Backend (blindado, confirmado ponto a ponto):** guards globais Auth → CSRF → Roles → Plan;
+  `@Roles("ADMIN")` em TODOS os handlers do AdminController (incl. `GET lgpd` e `POST
+  lgpd/purge`); RolesGuard lê papéis do banco por request (403 = mensagem do print — a API
+  negou); CsrfGuard global (double-submit) cobre o purge; purge e ações admin gravam audit
+  (`LGPD_USUARIO_PURGADO` "prova que aconteceu; sobrevive ao delete", `ADMIN_USUARIO_BANIDO`, etc.).
+- **Classificação: `ADMIN_UI_LEAK_SERVER_BOUNDARY_MISSING` (+ `ADMIN_RATE_LIMIT_WEAK` — sem
+  Throttler na app)** — severidade moderado-alto; sem `ADMIN_API_AUTHZ_MISSING`, sem disclosure.
+- **Docs:** `docs/08-security/reports/admin-authz-surface-audit-2026-10-12.md` (novo; cópia
+  local em `.claude/reports/`) + `docs/08-security/ADMIN_SECURITY.md` (NOVO — política
+  deny-by-default 3 camadas) + bloco T201 em `PENDENCIAS_OPERADOR.md` (**NOVO bloqueio de GO**;
+  correção = T202 hardening: layout server component validando ADMIN + early-return + rate limit).
+- Nada alterado (sem clique/purge/credencial admin/código); GO permanece SUSPENSO; PR docs-only
+  em curso — gates e smoke no STATUS.
