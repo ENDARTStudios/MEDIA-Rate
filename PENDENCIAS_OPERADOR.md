@@ -904,3 +904,22 @@ Relatório: `docs/08-security/reports/codeql-nonruntime-triage-2026-10-12.md`.
   (runtime #88); (2) **#151** — manter open com evidência ou dismiss documentado; (3)
   incidente/purge; (4) deps (#515/#518/#522) e volume Trivy; (5) backups/alertas Postgres.
   Nenhuma ação é executada sem a resposta do Operador.
+
+---
+
+### T196-C (2026-10-11) — correção do alerta #88 (`incomplete-url-substring-sanitization`)
+
+Relatório: `docs/08-security/reports/codeql-incomplete-url-substring-normalizar-imagem-2026-10-12.md`.
+
+- **Alerta:** #88 high em `apps/api/src/common/normalizar-imagem.ts` (runtime de display, D-262),
+  escalado na T195.
+- **Causa:** `url.includes("images.igdb.com")` + `replace(...)` — **substring como allowlist**;
+  hosts enganosos (subdomínio, domínio só em path/query, userinfo, porta não padrão,
+  `javascript:`/`data:`/`file:`, relativas) eram transformados. 11 casos provados no RED.
+- **Correção:** `image-url-guard.ts` (novo) — **https-only** + `hostname` parseado comparado
+  exatamente contra allowlist explícita + troca `t_thumb`→`t_cover_big` **só no pathname**;
+  contrato público preservado (falsy → null; não lança). TDD 55/55 nos focados; suíte API
+  **1375/1375**; tsc/eslint/prettier limpos.
+- **Status:** PR em curso (required verdes + smoke no STATUS). **Pendente de REVIEW do Thinker.**
+- **Ainda aguardando autorização:** **T196-A** (`SAFE_TEST_FIX` #89–#92) e **T196-B**
+  (`E2E_SCRIPT_FIX` #93/#98/#149) — só após o REVIEW da T196-C. **#151** segue com o Operador.
