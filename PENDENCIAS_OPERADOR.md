@@ -637,6 +637,7 @@ As 4 ações que destravam a Beta Fechada estão consolidadas no snapshot `.clau
 > - **[3] B1 ✅ RESOLVIDO (2026-10-05)** — Operador elevado a ADMIN (D-563), executou o soft delete do item no painel `/admin/diagnostics` (#432; rota T215, audit `MEDIA_DELETED`). Referências da conta Teste limpas (watchlist 0, interações 0). **Pacote de GO 4/4 — GO de convites liberável por declaração formal.**
 > - Interlúdio: 8 PRs de correções reportadas pelo Operador mergeados e verificados em produção em 2026-10-03/05 (#411, #418, #420, #422, #424, #425, #426, #427, #429): login Google, watchlist com 6 tipos, perfil (indicadores/gêneros/atividade), dashboard honesta, biblioteca (cards + remoção self-service).
 > - **GO para convites: SUSPENSO — liberável por declaração formal do Operador (Pacote 4/4).**
+> - **[1] Gov-01 ✅ RECONFIRMADO (2026-10-11, T197)** — reverificação read-only: ruleset `protect-main` id 20801818 `active`, `deletion` + `non_fast_forward` + `pull_request` (0 approvals, sem deadlock) + **6 checks required** (Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate, Migration Safety (B1)), **`bypass_actors` VAZIO** — **sem drift**; nenhuma configuração alterada. Doc canônico: `docs/06-devops-deployment/GITHUB_BRANCH_PROTECTION.md`; relatório: `docs/08-security/reports/gov01-ruleset-verification-2026-10-12.md`.
 
 ## Gate audit:ci VERMELHO em main — 10 bloqueantes sem fix limpo (registro T200; antes commitado como "T161", ID colidiu com o PACOTE DE GO do fluxo paralelo)
 
@@ -965,3 +966,28 @@ Relatório: `docs/08-security/reports/codeql-e2e-script-sanitization-2026-10-12.
 - **Fila CodeQL NÃO-RUNTIME ENCERRADA** após este lote. Permanecem decisões humanas: **#151**
   (runtime conhecido — manter open com evidência ou dismiss documentado), Trivy (deps/imagem
   base), incidente/purge, Gov-01/B1/UG-01/backups.
+
+---
+
+### T197 (2026-10-11) — reverificação read-only do Gov-01 (ruleset da `main`)
+
+Relatório: `docs/08-security/reports/gov01-ruleset-verification-2026-10-12.md` ·
+Doc canônico: `docs/06-devops-deployment/GITHUB_BRANCH_PROTECTION.md` (novo).
+
+- **Método:** `gh api` read-only (settings do repo, branch protection clássica e rulesets);
+  **nenhuma configuração alterada**.
+- **Estado:** branch protection clássica **404** (o repo usa **rulesets**); ruleset
+  **`protect-main` id 20801818**, `target: branch`, **`active`**, refs `~DEFAULT_BRANCH` +
+  `refs/heads/main`; regras **`deletion`** + **`non_fast_forward`** + **`pull_request`** +
+  **`required_status_checks`**; **`bypass_actors: []`** (sem bypass de admin/org/app);
+  6 checks required = Lint & Audit, Test & Coverage, Build, RLS Isolation (T290/T299/T301),
+  Docs Gate, Migration Safety (B1); `required_approving_review_count: 0`;
+  `strict_required_status_checks_policy: false`.
+- **Classificação:** **`GOV01_COMPLETE`** (reconfirmado, **sem drift**) — **nenhum gap de Gov-01**.
+  Observações que não são gaps: 0 approvals = gate de review **processual** (elevar é **Gov-02**,
+  decisão separada); `delete_branch_on_merge: false` é higiene do repo (o fluxo deleta via
+  `gh pr merge --delete-branch`).
+- **Passos do Operador:** nada a corrigir hoje; endurecer approvals (Gov-02) só com um segundo
+  revisor humano ativo; qualquer mudança deve ser validada em branch descartável (método D-561).
+- **GO:** Gov-01 **não bloqueia** — seguem pendentes #151, incidente/purge, deps/Trivy,
+  B1/UG-01/backups e o monitor do flake da suíte API.

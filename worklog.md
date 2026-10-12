@@ -3736,3 +3736,23 @@ Suítes: API 992/992 (132 arq); web 479/479.
   bloco T196-b em `PENDENCIAS_OPERADOR.md`.
 - Nenhum código de produção alterado; sem deps/incidente/produção/segredos; #151 intocado;
   PR em curso — gates e smoke no STATUS.
+
+### [2026-10-11] T197 — reverificação read-only do Gov-01 (ruleset da main) (branch docs/t197)
+
+- **Método:** `gh api` read-only (settings, branch protection clássica, rulesets) — **nenhuma
+  configuração alterada**; metadados sanitizados (booleanos, nomes de checks, contagens).
+  Quirk registrado: no Git Bash o endpoint não pode começar com `/` (MSYS reescreve o path).
+- **Estado:** protection clássica **404** (repo usa rulesets); **`protect-main` id 20801818**
+  `active`/`branch`, refs `~DEFAULT_BRANCH`+`refs/heads/main`, regras `deletion` +
+  `non_fast_forward` + `pull_request` + `required_status_checks`, **`bypass_actors: []`**,
+  6 checks required (Lint & Audit, Test & Coverage, Build, RLS Isolation, Docs Gate,
+  Migration Safety B1), 0 approvals exigidas, strict=false.
+- **Classificação:** **`GOV01_COMPLETE`** (reconfirmado, **sem drift**; nenhum gap) —
+  observações não-gap: 0 approvals = gate processual (elevar é Gov-02) e
+  `delete_branch_on_merge:false` é higiene do repo.
+- **Docs:** `docs/06-devops-deployment/GITHUB_BRANCH_PROTECTION.md` (novo, canônico) +
+  `docs/08-security/reports/gov01-ruleset-verification-2026-10-12.md` (novo; cópia local em
+  `.claude/reports/`) + linha de reconfirmação no Pacote de GO e bloco T197 em
+  `PENDENCIAS_OPERADOR.md`.
+- Nenhuma config do GitHub alterada; sem código/deps/segredos/produção; PR docs-only em curso —
+  gates e smoke no STATUS.
