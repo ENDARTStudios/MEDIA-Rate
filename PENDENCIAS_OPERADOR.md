@@ -1382,3 +1382,27 @@ Relatório: `docs/08-security/reports/backup-operational-readiness-design-2026-1
 Recomendação técnica (não vinculante): `1=B` (menor superfície nova) · `2=AUTORIZAR_CONFIGURACAO_MINIMA` ·
 `3=30d` · `4=plataforma` · `5=AUTORIZAR_VIA_GITHUB_ISSUES` · `6=AUTORIZAR_DRILL` · `7=Operador+Doer` ·
 `8=SIM_COM_LIMITES` · `9=MANTER_WAITING` · `10=CONDICIONADO_A_BACKUP_E_RESTORE`.
+
+---
+
+### T226 (2026-10-13) — configuração mínima segura de backup: **preparação feita + bloqueio manual** (pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/backup-automation-minimum-2026-10-13.md`.
+
+- **Estratégia (decidida pelo Operador):** **B** (backup gerenciado da plataforma) **+ complemento A** (script).
+- **Implementado (versionável, seguro):** `scripts/backup-db.sh` passou a suportar
+  **`BACKUP_UPLOADER`** (executável chamado com o dump — envia a destino durável; falha ⇒ **aborta**;
+  **sem `eval`**) e **`BACKUP_STATUS_FILE`** (JSON **sanitizado** `ts/ok/bytes/retidos/uploaded`, base do
+  alerta T227) + **aviso** quando o destino é local/efêmero. Contrato preservado (`DATABASE_URL` posicional).
+  **Verificação:** `bash -n` OK + **5 testes herméticos** (upload OK, falha de upload aborta, uploader
+  ausente aborta, sem `pg_dump` aborta, sem uploader avisa) — **segredo não vaza** em log/status.
+- **BLOQUEIO MANUAL (não automatizável):** o **backup gerenciado do Postgres** e o **alerta de uso do
+  volume** são **dashboard-only** — o **CLI do Railway não expõe backup** (`railway volume` apenas) e o
+  `railway.json` não tem cron. Checklist sanitizada em §5 do relatório.
+- **Estado honesto:** a **operação** de backup **continua não confiável** — sem agendamento, **destino
+  durável não configurado**, sem alerta, sem restore validado; o pré-migration segue **fail-open**.
+- **Follow-ups autorizados (não iniciados):** **T227** (alerta lendo o status) · **T228** (restore drill) ·
+  **T229** (fail-closed, **só após** backup confiável + alerta).
+- **Nada executado:** sem backup real/restore, sem painel/produção, sem segredo/infra, sem workflow novo
+  com `DATABASE_URL` interno (D-527), sem alertas interagidos. Diff: script + docs.
+- **GO:** segue **SUSPENSO**.

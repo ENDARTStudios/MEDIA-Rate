@@ -5,10 +5,17 @@
 - `scripts/backup-db.sh` — dump do PostgreSQL em formato custom (`pg_dump -F c`), **retenção 30 dias**,
   com **validação do dump** (`pg_restore --list`) e **falha em voz alta** se `pg_dump` estiver ausente
   (nunca fabrica um backup falso).
-- **Estado operacional (honesto, 2026-10-13 / T225):** o script **existe e é de boa qualidade**, mas
-  **não há backup automático em produção**, o **destino é local** (`$BACKUP_DIR`, default `./backups` —
-  FS efêmero, perdido em redeploy) e **não há alerta de falha**. Ou seja: **não há operação de backup
-  hoje** — o dado existe apenas no volume do Postgres (T181).
+- **Estado operacional (honesto, 2026-10-13 / T226):** o script é de **boa qualidade** e agora está
+  **preparado** para destino durável (`BACKUP_UPLOADER`) e para emitir **status sanitizado**
+  (`BACKUP_STATUS_FILE`). **Mas a operação ainda NÃO é confiável:** não há backup agendado em produção,
+  o **destino durável não está configurado** (sem uploader/volume), **não há alerta de falha** (T227) e
+  **não há restore validado** (T228). Enquanto isso, **o dado existe apenas no volume do Postgres**
+  (T181). Relatório: `docs/08-security/reports/backup-automation-minimum-2026-10-13.md`.
+- **Variáveis do script:** `BACKUP_DIR` (destino; precisa ser **durável**), `RETENTION_DAYS` (default 30),
+  `BACKUP_UPLOADER` (executável chamado com o dump como `$1` para envio a destino externo; falha ⇒ o
+  script **aborta**), `BACKUP_STATUS_FILE` (JSON sanitizado `ts/ok/bytes/retidos/uploaded`).
+- **Agendamento:** deve rodar **dentro do ambiente da plataforma** (acesso à rede interna do banco).
+  **NÃO** usar runner externo/CI — o hostname interno não é alcançável de fora (**D-527**).
 - **Backup pré-migration** (`migrate-production.yml`, P013): chama o script antes da migration, porém é
   **fail-open** (`|| echo "…continuando"`) — se o dump falha, a migration **prossegue**. Além disso, o
   secret `DATABASE_URL` do CI aponta para o **hostname interno** do Railway (**D-527**), inacessível
@@ -47,10 +54,13 @@ pg_restore -h <host> -U <user> -d <db> --clean --if-exists <dump>
 
 ## Checklist pré-Beta (pendente)
 
-- [ ] Operador decide a **estratégia** (design T225: opções A–E) e autoriza a configuração mínima.
-- [ ] Operador valida um **restore de ensaio** (dump → ambiente seguro → app sobe) e
-      registra a evidência + **RTO medido** no worklog.
-- [ ] Alerta de **falha de backup** ativo (padrão GitHub Issues — T227).
+- [ ] **Operador** habilita no painel o **backup gerenciado** do Postgres + **alerta de uso do volume**
+      (não automatizável pelo CLI — checklist em `reports/backup-automation-minimum-2026-10-13.md` §5).
+- [ ] **Operador** define o **destino durável** do complemento portátil (`BACKUP_UPLOADER` + agendador
+      **dentro da plataforma**; nunca runner externo — D-527).
+- [ ] **T227** — alerta de falha de backup lendo o `BACKUP_STATUS_FILE` (padrão GitHub Issues).
+- [ ] **T228** — restore de ensaio validado em ambiente seguro (+ **RTO medido**).
+- [ ] **T229** — corrigir o **fail-open** do pré-migration (**somente após** backup confiável + alerta).
 - [ ] P012 (staging) melhora o ensaio de DR (ambiente alvo pronto).
-- [ ] P013 (caminho de migration manual) define onde o `resolve --rolled-back` roda **e** corrige o
-      secret `DATABASE_URL` do CI (D-527) para um endereço alcançável.
+- [ ] P013 (caminho de migration manual) corrige o secret `DATABASE_URL` do CI (D-527) para um
+      endereço alcançável.
