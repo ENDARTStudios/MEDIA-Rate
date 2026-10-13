@@ -4321,3 +4321,29 @@ rodando de novo em http://localhost:3000.
 - **Nenhum** restore/delete/lock/PITR/R2/billing/segredo/var/rede/domínio/deploy/código; nenhum
   ID/`externalId`/`creatorId`/URL/PII impresso; nenhum alerta interagido. Diff docs-only;
   contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T236 — verificação (read-only) da materialização do backup: `EM_PROGRESSO`
+
+- **Objetivo:** o backup permanente `pre-go-2026-10-13` materializa ou está travado? Existe sinal de
+  conclusão no CLI?
+- **Achado estrutural:** o CLI **não tem `backup status`** (`unrecognized subcommand`) e o
+  `backup list --json` **não expõe campo de status/state/phase** — o **único proxy é `usedMB`**.
+  ⇒ **`CONFIRMADA` é inalcançável por CLI**.
+- **Série observada (`pre-go`, `referencedMB` 630):** 0 → 2 → 4 → 4 → **86** → 87 → 93 → 94 → **95 MB**
+  em ~45 min (polling limitado: 5 leituras, ~4 min). **Monotônica, sem estagnação, sem falha** ≈
+  **15 %** — abaixo do limiar de confirmação (≥90 %).
+- **Classificação: `EM_PROGRESSO`** → status **DONE_WITH_ESCALATION** (monitor).
+- **Backups agendados:** **0 com `scheduleId` não-nulo** → **o schedule ainda não produziu backup**.
+- **Mitigação temporária:** `Online resize to 5000MB` (413/483 MB, **materializado**) vale até
+  **2026-10-28** — há ponto de recuperação materializado por ~2 semanas.
+- **Impacto:** a frase da T232 *"penhasco eliminado"* vale **só** para o **registro** (`expiresAt: None`),
+  **não** para o payload. **T227 (alerta) NÃO é liberada como pronta** (o packet condiciona a
+  `CONFIRMADA`) — thresholds revisados (proxy de tamanho/idade, `usedMB` estagnado, `never` com
+  payload baixo, ausência de backup agendado). **T228 é o teste definitivo.**
+- **Docs:** relatório novo `docs/08-security/reports/railway-backup-materialization-verification-2026-10-13.md`
+  + `BACKUP_DR.md` (5 dimensões separadas) + `GO_READINESS_CHECKLIST.md`
+  (→ **BACKUP_MATERIALIZACAO_EM_PROGRESSO**) + ponteiro/correção no relatório T232 +
+  `PENDENCIAS_OPERADOR.md`.
+- **Read-only:** nada criado/restaurado/deletado/lockado; schedule e PITR intocados; nenhum
+  ID/`externalId`/`creatorId`/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only;
+  contaminacao 123ce28e ausente. **GO segue SUSPENSO.**

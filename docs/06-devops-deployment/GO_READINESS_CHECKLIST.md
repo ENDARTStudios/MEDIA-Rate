@@ -1,14 +1,15 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (**T234**, hardening de retenção de backup) ·
+**Última auditoria:** 2026-10-13 (**T236**, verificação de materialização do backup) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
 do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
 `reports/beta-core-journey-audit-2026-10-13.md`,
 `reports/backup-operational-readiness-design-2026-10-13.md`,
 `reports/backup-automation-minimum-2026-10-13.md`,
 `reports/railway-cli-backup-evidence-2026-10-13.md`,
-`reports/railway-pro-backup-activation-2026-10-13.md` e
-`reports/railway-backup-retention-hardening-2026-10-13.md`.
+`reports/railway-pro-backup-activation-2026-10-13.md`,
+`reports/railway-backup-retention-hardening-2026-10-13.md` e
+`reports/railway-backup-materialization-verification-2026-10-13.md`.
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -66,7 +67,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Frente | Estado | Evidência |
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
-| Backups/DR PostgreSQL | ⚠️ **BACKUP_RETENCAO_MAXIMA_SUPORTADA_GE7D** (com **ressalva de materialização**) | **T234 (2026-10-13, CLI):** retenção **ampliada** — schedule **acumulado** **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d** (`schedule set --daily --weekly --monthly`; o CLI **não** tem flag de retenção). **Janela máxima = 89 d** (≥30 d atingido por cadência mensal), daily preservado. **PITR `disabled`** (T235). **⚠️ RISCO ABERTO:** o backup permanente `pre-go-2026-10-13` (`expiresAt: None`) tem **`usedMB` em progresso (0 → 2 MB)** → **restaurabilidade NÃO verificada**; **T227** deve usar `usedMB > 0` como critério e **T228** deve usar backup materializado. **Pendente:** T227 alerta · T228 drill · T229 fail-closed. Relatório: `reports/railway-backup-retention-hardening-2026-10-13.md` |
+| Backups/DR PostgreSQL | ⏳ **BACKUP_MATERIALIZACAO_EM_PROGRESSO** | **T236 (2026-10-13, read-only + polling):** retenção ✅ **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d**; backup permanente ✅ registrado (`expiresAt: None`); **materialização ⏳ EM_PROGRESSO** — `usedMB` **0 → 95 MB** de 630 (~15 %), série monotônica; **restaurabilidade ❌ não verificada** (só o **T228** prova); **alerta ⏳ pendente (T227)** — o **CLI não expõe campo de status**, então o critério de sucesso é frágil. **Mitigação:** `Online resize to 5000MB` (413/483 MB, materializado) vale até **2026-10-28**. **O schedule ainda não produziu backup.** Relatório: `reports/railway-backup-materialization-verification-2026-10-13.md` |
 | Observabilidade mínima | ✅ PRONTA com 1 lacuna | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs. **Lacuna:** alerta de falha de backup; probing/step-up admin são **logados** mas não alert-ificados |
 | Jornada mínima de beta | ✅ **AUDITADA_COM_LACUNAS (T224)** | **T224 (2026-10-13):** 13 fluxos auditados (read-only) — **todos `PRONTO_PARA_BETA`** por evidência de CI (34 specs E2E, incl. `jornada-critica` 3× retries=0) + estática + smoke; copy honesta de indisponível nos 3 locales. **Lacunas** (não de produto): backups P1, aprovação de Production, escopo formal. Relatório: `reports/beta-core-journey-audit-2026-10-13.md` |
 | PLANO_MESTRE | ✅ RECONCILIADO (T224) | seções de estado atual atualizadas para o snapshot 2026-10-13 (API **1422/1422**, web **615/615**, **34 specs E2E**, uptime sintético **ATIVO**, domínio/proteção da `main` resolvidos); história não reescrita |
@@ -86,10 +87,10 @@ heurístico (APIs DOM inline), não chave i18n crua.
   fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
   **encerramento do incidente INC-2026-10-11** (risco residual aceito, sem purge — T210),
   **observabilidade mínima (5xx/auth/uptime/Sentry)**.
-- **PENDENTES DO OPERADOR (decisão):** **backups — automação ATIVA + retenção ampliada (T232/T234)**;
-  resta **T227** (alerta — prioridade **alta**: incluir `usedMB > 0` no critério) → **T228** (restore
-  drill com backup **materializado**) → **T229** (fail-closed) · **⚠️ risco aberto:** restaurabilidade do
-  backup permanente não evidenciada (`usedMB = 0`) · **PITR** (T235, opcional) · **T233** (R2, opcional) ·
+- **PENDENTES DO OPERADOR (decisão):** **backups — automação ATIVA + retenção ampliada; materialização
+  do backup permanente ⏳ EM_PROGRESSO e restaurabilidade ❌ não verificada (T236)**;
+  **T227** (alerta) **não liberado como pronto** (o CLI não expõe status de conclusão) → **T228**
+  (restore drill = **teste definitivo**) → **T229** (fail-closed) · **PITR** (T235) · **T233** (R2) ·
   purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) · escopo/GO de convites
   (declaração formal) · eventualmente Gov-02 · majors de deps (`tailwindcss` 4, `vitest` 5).
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado

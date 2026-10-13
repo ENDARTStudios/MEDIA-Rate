@@ -9,13 +9,18 @@
   **DAILY 6 d** (frescor) + **WEEKLY 27 d** + **MONTHLY 89 d** → **janela máxima de 89 dias**
   (`railway postgres pitr schedule set --daily --weekly --monthly`). O CLI **não** expõe flag de
   retenção por schedule, então 6/27/89 d são os defaults da plataforma para cada cadência.
-- **⚠️ RISCO ABERTO (T234):** o backup permanente `pre-go-2026-10-13` tem `expiresAt: None`
-  (**nunca expira**), mas seu **`usedMB` ainda está em progresso** (observado **0 → 2 MB**),
-  enquanto os backups anteriores têm `usedMB ≈ referencedMB`. **A restaurabilidade NÃO está
-  verificada** — o teste definitivo é o **restore drill (T228)**, que deve usar um backup
-  **materializado** e **não** confiar no rótulo `never`. A **T227** deve incluir `usedMB > 0` como
-  critério de sucesso. Relatório:
-  `docs/08-security/reports/railway-backup-retention-hardening-2026-10-13.md`.
+- **⚠️ Estado separado por dimensão (T236, 2026-10-13 — verificação read-only com polling limitado):**
+  1. **Retenção (política):** ✅ DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d.
+  2. **Backup permanente (registro):** ✅ `pre-go-2026-10-13` com `expiresAt: None`.
+  3. **Materialização:** ⏳ **`EM_PROGRESSO`** — `usedMB` subiu **0 → 95 MB** de `referencedMB` 630
+     (~15 %) numa série **monotônica** (0→2→4→4→86→87→93→94→95) em ~45 min. **NÃO concluída.**
+  4. **Restaurabilidade:** ❌ **NÃO verificada** — só o **restore drill (T228)** prova.
+  5. **Alerta:** ⏳ pendente (**T227**) — **não** liberado como pronto: o **CLI não expõe campo de
+     status/completion** (só `usedMB` como proxy), então um critério baseado em `usedMB > 0` seria fraco.
+  **Mitigação temporária:** o backup `Online resize to 5000MB` (413/483 MB, **materializado**) vale até
+  **2026-10-28** — há ponto de recuperação materializado nas próximas ~2 semanas.
+  **O schedule ainda NÃO produziu backup** (0 com `scheduleId` não-nulo). Relatório:
+  `docs/08-security/reports/railway-backup-materialization-verification-2026-10-13.md`.
 - **Estado operacional (honesto, 2026-10-13 / T232 — pós Railway PRO, evidência por CLI):**
   ✅ **Schedule DAILY ATIVO** (criado 2026-10-13) · ✅ **backup permanente `pre-go-2026-10-13`**
   (`expiresAt: None`) — **com a ressalva de materialização acima**.
