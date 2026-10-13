@@ -4,6 +4,13 @@
 **Natureza:** descoberta + **listagem read-only** via CLI. **Nenhum** restore, **nenhum** delete,
 **nenhuma** alteração de dados/schema/segredos/vars/billing/deploy. **GO: SUSPENSO.**
 
+> **ATUALIZAÇÃO (T232, 2026-10-13):** o bloqueio de plano foi **resolvido** — com o **Railway PRO**
+> ativo, `schedule set --daily` e `backup create` **passaram a funcionar**. Estado atual:
+> **schedule DAILY ativo** (retenção default 6 d) + **backup `pre-go-2026-10-13` criado com expiração
+> `never`** (elimina o penhasco de 2026-10-28). PITR segue `disabled`. Ver
+> `railway-pro-backup-activation-2026-10-13.md`. O restante deste documento é o **estado PRÉ-PRO**
+> (mantido como histórico da evidência).
+
 > Sanitização: nenhum token, cookie, connection string, `DATABASE_URL`, URL assinada, e-mail, IP ou
 > **ID de backup** é registrado (IDs omitidos/truncados). Apenas nomes, datas, tamanhos e estados.
 
@@ -99,6 +106,9 @@ alguém precisa **manter backups manuais antes de 2026-10-28**.
 ---
 
 ## 5. Próximos passos (não iniciados)
+
+> **Status pós-T232:** os itens 1 e 2 abaixo foram **resolvidos** (PRO ativo → `schedule set --daily` e
+> `backup create` executaram). Restam T227/T228/T229 e a decisão de retenção/PITR.
 
 | Tarefa | Depende de |
 |---|---|

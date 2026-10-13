@@ -5,25 +5,31 @@
 - `scripts/backup-db.sh` — dump do PostgreSQL em formato custom (`pg_dump -F c`), **retenção 30 dias**,
   com **validação do dump** (`pg_restore --list`) e **falha em voz alta** se `pg_dump` estiver ausente
   (nunca fabrica um backup falso).
-- **Estado operacional (honesto, 2026-10-13 / T230 — evidência por CLI):**
-  `railway postgres pitr status` → **`disabled`** (HA `no`, bucket `no`);
-  `postgres pitr schedule list` → **"No backup schedule configured"**;
-  `postgres pitr backup list` → **2 backups, AMBOS `manual`**: `Pre-Security-Patch Backup`
-  (2026-08-23, 65 MB, **expirado em 2026-09-22**) e `Online resize to 5000MB`
-  (2026-10-07, 413 MB, **expira em 2026-10-28**).
-  `postgres pitr backup create` → **falha**: *"Manual backups and backup schedules are only available
-  for **Pro workspaces**"*.
-  **Consequência:** sem ação, **a partir de 2026-10-28 o banco fica sem nenhum backup retido**.
-  Relatório: `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md`.
+- **Estado operacional (honesto, 2026-10-13 / T232 — pós Railway PRO, evidência por CLI):**
+  ✅ **Schedule DAILY ATIVO** (`railway postgres pitr schedule set --daily`, criado 2026-10-13;
+  **retenção default = 6 dias / 518400 s** — ⚠️ abaixo do ideal; ver decisão pendente abaixo).
+  ✅ **Backup permanente criado** (`pre-go-2026-10-13`, **expira `never`**) — **elimina o penhasco de
+  2026-10-28**: passa a existir um backup que **não expira**.
+  Estado: `pitr status` → **`disabled`** (não habilitado; decisão separada, T235) · `backup list` →
+  3 backups (dois antigos `manual` + o novo `never`).
+  **Pendente:** **alerta de falha** (T227) e **restore drill validado** (T228); pré-migration segue
+  **fail-open** (T229). Relatório: `docs/08-security/reports/railway-pro-backup-activation-2026-10-13.md`.
+- **⚠️ Decisão pendente — retenção:** o default de **6 dias** cobre falhas recentes mas **não** corrupção
+  de descoberta tardia. Opções (Operador): `schedule set --daily --weekly --monthly` (estende a janela),
+  habilitar **PITR** (T235) ou manter 6 d com o limite registrado.
+- **Estado anterior (2026-10-13 / T230, pré-PRO):** PITR `disabled`, **sem schedule**, 2 backups
+  **manuais** (um já expirado; o outro expirava em 2026-10-28) e `backup create` **bloqueado**
+  (*"only available for Pro workspaces"*). Relatório:
+  `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md`.
 - **Variáveis do script:** `BACKUP_DIR` (destino; precisa ser **durável**), `RETENTION_DAYS` (default 30),
   `BACKUP_UPLOADER` (executável chamado com o dump como `$1` para envio a destino externo; falha ⇒ o
   script **aborta**), `BACKUP_STATUS_FILE` (JSON sanitizado `ts/ok/bytes/retidos/uploaded`).
-- **Agendamento:** via **CLI** (`railway postgres pitr schedule set --daily`) — hoje **bloqueado por
-  plano** (*Pro workspaces*). Alternativa sem custo: rodar o script (`BACKUP_UPLOADER`) a partir de um
-  agendador **dentro do ambiente da plataforma** (acesso à rede interna do banco). **NÃO** usar runner
-  externo/CI — o hostname interno não é alcançável de fora (**D-527**).
-- **⚠️ Prazo:** o único backup válido **expira em 2026-10-28** — antes disso é preciso **decisão**
-  (Pro) **ou** backup manual de reposição **ou** aceite formal de risco.
+- **Agendamento:** ✅ **ATIVO via CLI** (`railway postgres pitr schedule set --daily`, retenção 6 d
+  default). ⚠️ **Não** habilitar **PITR** sem decisão explícita (T235). O complemento portátil
+  (`scripts/backup-db.sh` → `BACKUP_UPLOADER`) pode rodar a partir de um agendador **dentro do ambiente
+  da plataforma**; **NÃO** usar runner externo/CI — o hostname interno não é alcançável de fora (**D-527**).
+- **✅ Resolvido:** o prazo de **2026-10-28** deixou de ser um penhasco — o backup `pre-go-2026-10-13`
+  **não expira** (`never`). Continua valendo **revisar a retenção** (6 d) por decisão do Operador.
 - **Backup pré-migration** (`migrate-production.yml`, P013): chama o script antes da migration, porém é
   **fail-open** (`|| echo "…continuando"`) — se o dump falha, a migration **prossegue**. Além disso, o
   secret `DATABASE_URL` do CI aponta para o **hostname interno** do Railway (**D-527**), inacessível
@@ -62,13 +68,12 @@ pg_restore -h <host> -U <user> -d <db> --clean --if-exists <dump>
 
 ## Checklist pré-Beta (pendente)
 
-- [ ] **Operador** habilita no painel o **backup gerenciado** do Postgres + **alerta de uso do volume**
-      (não automatizável pelo CLI — checklist em `reports/backup-automation-minimum-2026-10-13.md` §5).
-- [ ] **Operador** define o **destino durável** do complemento portátil (`BACKUP_UPLOADER` + agendador
-      **dentro da plataforma**; nunca runner externo — D-527).
-- [ ] **T227** — alerta de falha de backup lendo o `BACKUP_STATUS_FILE` (padrão GitHub Issues).
+- [x] ~~Backup gerenciado habilitado~~ → **T232 (2026-10-13):** schedule **DAILY ativo** + backup
+      permanente `pre-go-2026-10-13` (**`never`**).
+- [ ] **Decisão de retenção** (Operador): 6 d default vs `--weekly`/`--monthly` vs PITR (T235).
+- [ ] **T227** — alerta de falha de backup (lê o `BACKUP_STATUS_FILE`; padrão GitHub Issues).
 - [ ] **T228** — restore de ensaio validado em ambiente seguro (+ **RTO medido**).
-- [ ] **T229** — corrigir o **fail-open** do pré-migration (**somente após** backup confiável + alerta).
-- [ ] P012 (staging) melhora o ensaio de DR (ambiente alvo pronto).
-- [ ] P013 (caminho de migration manual) corrige o secret `DATABASE_URL` do CI (D-527) para um
-      endereço alcançável.
+- [ ] **T229** — corrigir o **fail-open** do pré-migration (agora **pode** avançar: há backup confiável).
+- [ ] **T233** (opcional) — R2 como destino durável secundário portátil (read-only primeiro).
+- [ ] **T235** (opcional) — decisão sobre habilitar **PITR** (continuous backup; possível custo).
+- [ ] P012 (staging) melhora o ensaio de DR · P013 corrige o secret `DATABASE_URL` do CI (D-527).

@@ -5,6 +5,11 @@
 **Resultado:** `DONE_WITH_ESCALATION` — **parte versionável preparada e verificada**; **destino durável e
 backup gerenciado bloqueados em ação manual do Operador** (checklist §5). **GO: SUSPENSO.**
 
+> **ATUALIZAÇÃO (T232, 2026-10-13):** o bloqueio do §5 foi **resolvido** com o **Railway PRO** —
+> **schedule DAILY ativo** + **backup permanente `pre-go-2026-10-13` (`never`)**. Ver
+> `railway-pro-backup-activation-2026-10-13.md`. O **complemento A** (script com `BACKUP_UPLOADER`)
+> segue pronto como camada portátil (possível R2 em T233), **não** obrigatório para o backup primário.
+
 > Sanitização: nenhum `DATABASE_URL`, senha, token, connection string, host real ou PII é impresso.
 > Nenhum backup real foi executado contra produção; nenhum restore; nenhum segredo/infra tocado.
 

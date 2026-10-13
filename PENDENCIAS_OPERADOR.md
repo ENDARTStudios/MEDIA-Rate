@@ -1435,3 +1435,29 @@ Relatório: `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md`
 - **Permanecem pendentes:** `T227` (alerta de falha), `T228` (restore drill), `T229` (fail-closed) —
   condicionadas a backup confiável — · Deploy `waiting` · **GO final**.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T232 (2026-10-13) — backup via Railway PRO: **schedule diário ativo + backup permanente** (pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/railway-pro-backup-activation-2026-10-13.md`.
+
+- **PRO verificado por CLI** (não só pela declaração): `schedule set --daily` e `backup create` —
+  que antes falhavam com *"only available for Pro workspaces"* — **executaram com sucesso**.
+- **✅ Schedule DAILY ativo:** criado 2026-10-13, **retenção default = 6 dias** (518400 s).
+  ⚠️ **Abaixo do limiar de 7 d** → **escalonamento** (o packet manda escalar, não expandir sozinho).
+- **✅ Backup permanente criado:** `pre-go-2026-10-13` (2026-10-13) com expiração **`never`** →
+  **o penhasco de 2026-10-28 foi ELIMINADO** (há um backup que não expira).
+- **PITR segue `disabled`** (não habilitado — decisão separada, **T235**).
+- **DECISÕES DO OPERADOR:**
+  1. **Retenção:** estender com `railway postgres pitr schedule set --daily --weekly --monthly`
+     (a CLI aceita combinação) **ou** habilitar **PITR** (T235) **ou** aceitar 6 d com o limite
+     registrado. *(Recomendação técnica: estender com `--weekly --monthly`.)*
+  2. **T233** (opcional) — avaliar **R2** como destino durável secundário portátil (read-only primeiro).
+  3. **T235** (opcional) — habilitar **PITR** (continuous backup; possível custo/armazenamento).
+- **Permanecem pendentes:** **T227** (alerta de falha — agora é o gap mais relevante) · **T228** (restore
+  drill) · **T229** (fail-open do pré-migration, agora **desbloqueado** para avançar) · Deploy `waiting` ·
+  **GO final**.
+- **Sem custo não autorizado:** nenhum PITR/R2/billing/segredo/rede/domínio/deploy alterado; sem restore,
+  sem delete; nenhum ID/URL/segredo impresso; nenhum alerta interagido. Diff docs-only.
+- **GO:** segue **SUSPENSO**.
