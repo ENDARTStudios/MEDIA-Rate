@@ -4271,3 +4271,28 @@ rodando de novo em http://localhost:3000.
 - **Somente leitura** por CLI (status/list) + uma tentativa de criação que falhou por plano; **sem**
   restore/delete/upgrade/billing, **sem** segredo/PII/URL assinada/ID impresso, **sem** alertas
   interagidos. Diff docs-only; contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T232 — Railway PRO: schedule diário de backup ativo + backup permanente criado
+
+- **Operador declarou Railway PRO + Vercel PRO** — tratado como autorização, **verificado por CLI**
+  antes de concluir.
+- **PRO efetivo (comandos antes bloqueados agora passam):**
+  `railway postgres pitr schedule set --daily --service Postgres` → **OK**
+  ("Updated the backup schedule for Postgres: daily"). `schedule list`:
+  **DAILY / `Daily` / criado 2026-10-13T02:52:50Z / retenção 518400 s = 6 dias** ⚠️.
+  `railway postgres pitr backup create --name pre-go-2026-10-13` → **OK** ("Started an on-demand
+  backup"); `backup list` confirma `pre-go-2026-10-13` (2026-10-13, **expira `never`**).
+- **✅ Impacto:** o **penhasco de 2026-10-28 foi ELIMINADO** — passa a existir um backup **permanente**;
+  e a automação **DAILY** remove a dependência de ação manual recorrente.
+- **⚠️ Escalonamento (retenção):** default **6 d < 7 d** → o packet manda **escalar**, não expandir
+  sozinho. Opções ao Operador: `schedule set --daily --weekly --monthly`, habilitar PITR (T235), ou
+  aceitar 6 d registrando o limite. *(Recomendação: estender com `--weekly --monthly`.)*
+- **Fora de escopo (respeitado):** **PITR não habilitado** (`disabled`), **sem R2**, sem restore, sem
+  delete, sem billing/segredos/vars/rede/domínio/deploy.
+- **Vercel PRO:** apenas **observado** — nenhum setting alterado (Monitor de quota segue).
+- **Docs:** relatório novo `docs/08-security/reports/railway-pro-backup-activation-2026-10-13.md` +
+  `BACKUP_DR.md` (automação ativa, retenção pendente) + `GO_READINESS_CHECKLIST.md`
+  (→ **BACKUP_AUTOMATICO_ATIVO_SE_CONFIRMADO** com escalonamento de retenção) + ponteiros pós-PRO nos
+  relatórios T226/T230 + `PENDENCIAS_OPERADOR.md` (decisões: retenção, T233 R2, T235 PITR).
+- **Sem segredo/PII/ID/URL impresso**; nenhum alerta interagido. Diff docs-only; contaminacao 123ce28e
+  ausente; trabalho concorrente do Operador preservado. **GO segue SUSPENSO.**
