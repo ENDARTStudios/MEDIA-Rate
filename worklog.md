@@ -4220,3 +4220,30 @@ rodando de novo em http://localhost:3000.
 - **Nada executado:** sem backup/restore, sem cron/workflow/secret/infra, sem acesso a produção, sem
   interagir com alertas. Diff docs-only; contaminacao 123ce28e ausente; checkout limpo; trabalho
   concorrente do Operador preservado. **GO segue SUSPENSO.**
+
+### [2026-10-13] T226 — configuração mínima segura de backup (preparação + bloqueio manual)
+
+- **Estratégia do Operador:** **B** (backup gerenciado da plataforma) **+ complemento A** (script).
+- **Descoberta:** o **CLI do Railway não expõe comando de backup** (`railway volume` apenas) e o
+  `railway.json` não tem `cronSchedule` → o **backup gerenciado é dashboard-only** = **ação manual do
+  Operador** (escalonamento). Não foi criado workflow de backup: o hostname interno do banco não é
+  alcançável de runner externo (**D-527**) — seria automação decorativa.
+- **Implementado (versionável):** `scripts/backup-db.sh` ganhou **`BACKUP_UPLOADER`** (executável
+  chamado com o dump como `$1` → destino durável; **sem `eval`**; falha ⇒ **aborta com exit 1**) e
+  **`BACKUP_STATUS_FILE`** (JSON **sanitizado** `ts/ok/bytes/retidos/uploaded` — base do alerta T227) +
+  **aviso** quando não há uploader (destino local pode ser perdido em redeploy). Contrato preservado
+  (`DATABASE_URL` posicional usado por `migrate-production.yml`), validação `pg_restore --list` e
+  "nunca fabricar backup" mantidos; **nada de `DATABASE_URL` em log**.
+- **Verificação:** `bash -n` OK (shellcheck ausente na máquina) + **5 testes herméticos** com stubs em
+  temp (sem banco real/produção): T1 upload OK (status `ok:true,uploaded:true`, **segredo ausente** do
+  log e do status), T2 upload falha → exit 1, T3 uploader inexistente → exit 1, T4 sem `pg_dump` →
+  exit 1, T5 sem uploader → exit 0 + aviso. Busca por sentinela: **0 ocorrências** de secret.
+- **Honestidade:** a **operação** de backup **continua não confiável** — sem agendamento, **destino
+  durável não configurado**, sem alerta (T227), sem restore validado (T228); pré-migration segue
+  **fail-open** (corrigir só na T229, após backup confiável — senão bloquearia deploys).
+- **Docs:** relatório novo `docs/08-security/reports/backup-automation-minimum-2026-10-13.md` (inclui
+  **checklist manual sanitizada** §5) + `BACKUP_DR.md` (estado real + variáveis + agendamento na
+  plataforma) + `GO_READINESS_CHECKLIST.md` (backups → **IMPLEMENTACAO_PARCIAL**) + `PENDENCIAS_OPERADOR.md`.
+- **Nada executado:** sem backup/restore real, sem painel/produção, sem segredo/infra/settings, sem
+  alertas interagidos. Diff: `scripts/backup-db.sh` + docs; contaminacao 123ce28e ausente; trabalho
+  concorrente do Operador preservado. **GO segue SUSPENSO.**
