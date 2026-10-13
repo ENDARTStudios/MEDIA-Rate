@@ -1,6 +1,6 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-13 (**T236**, verificação de materialização do backup) ·
+**Última auditoria:** 2026-10-13 (**T228**, restore drill condicional — discovery + BLOCKED) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
 do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
 `reports/beta-core-journey-audit-2026-10-13.md`,
@@ -8,8 +8,9 @@ do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-1
 `reports/backup-automation-minimum-2026-10-13.md`,
 `reports/railway-cli-backup-evidence-2026-10-13.md`,
 `reports/railway-pro-backup-activation-2026-10-13.md`,
-`reports/railway-backup-retention-hardening-2026-10-13.md` e
-`reports/railway-backup-materialization-verification-2026-10-13.md`.
+`reports/railway-backup-retention-hardening-2026-10-13.md`,
+`reports/railway-backup-materialization-verification-2026-10-13.md` e
+`reports/railway-restore-drill-2026-10-13.md`.
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -67,6 +68,7 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Frente | Estado | Evidência |
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
+| Backup/DR — **restore drill** | 🚫 **RESTORE_DRILL_BLOQUEADO_INSEGURO (+ CUSTO)** | **T228 (2026-10-13, discovery read-only):** `pitr backup restore <ID>` **não expõe alvo/novo serviço** → **in-place em produção** (proibido); `pitr restore --at` **cria SERVIÇO NOVO** ⇒ **billable** (exige autorização de custo do Operador). **Nada executado.** ⚠️ **PITR agora `enabled` (bucket wired)** — mudança observada, **não** executada por mim. Plano sanitizado (Opção A/B) no relatório: `reports/railway-restore-drill-2026-10-13.md` |
 | Backups/DR PostgreSQL | ⏳ **BACKUP_MATERIALIZACAO_EM_PROGRESSO** | **T236 (2026-10-13, read-only + polling):** retenção ✅ **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d**; backup permanente ✅ registrado (`expiresAt: None`); **materialização ⏳ EM_PROGRESSO** — `usedMB` **0 → 95 MB** de 630 (~15 %), série monotônica; **restaurabilidade ❌ não verificada** (só o **T228** prova); **alerta ⏳ pendente (T227)** — o **CLI não expõe campo de status**, então o critério de sucesso é frágil. **Mitigação:** `Online resize to 5000MB` (413/483 MB, materializado) vale até **2026-10-28**. **O schedule ainda não produziu backup.** Relatório: `reports/railway-backup-materialization-verification-2026-10-13.md` |
 | Observabilidade mínima | ✅ PRONTA com 1 lacuna | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs. **Lacuna:** alerta de falha de backup; probing/step-up admin são **logados** mas não alert-ificados |
 | Jornada mínima de beta | ✅ **AUDITADA_COM_LACUNAS (T224)** | **T224 (2026-10-13):** 13 fluxos auditados (read-only) — **todos `PRONTO_PARA_BETA`** por evidência de CI (34 specs E2E, incl. `jornada-critica` 3× retries=0) + estática + smoke; copy honesta de indisponível nos 3 locales. **Lacunas** (não de produto): backups P1, aprovação de Production, escopo formal. Relatório: `reports/beta-core-journey-audit-2026-10-13.md` |

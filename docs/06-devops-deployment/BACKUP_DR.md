@@ -14,7 +14,11 @@
   2. **Backup permanente (registro):** ✅ `pre-go-2026-10-13` com `expiresAt: None`.
   3. **Materialização:** ⏳ **`EM_PROGRESSO`** — `usedMB` subiu **0 → 95 MB** de `referencedMB` 630
      (~15 %) numa série **monotônica** (0→2→4→4→86→87→93→94→95) em ~45 min. **NÃO concluída.**
-  4. **Restaurabilidade:** ❌ **NÃO verificada** — só o **restore drill (T228)** prova.
+  4. **Restaurabilidade:** ❌ **NÃO verificada** — e o **restore drill (T228)** foi **BLOQUEADO**:
+     `pitr backup restore` **não isolável** (in-place em produção) e `pitr restore --at` **cria serviço
+     novo** (billable) → exige **autorização de custo**. Plano em
+     `docs/08-security/reports/railway-restore-drill-2026-10-13.md`.
+     ⚠️ **PITR agora `enabled` (bucket wired)** — mudança observada em 2026-10-13, **não** executada pelo agente.
   5. **Alerta:** ⏳ pendente (**T227**) — **não** liberado como pronto: o **CLI não expõe campo de
      status/completion** (só `usedMB` como proxy), então um critério baseado em `usedMB > 0` seria fraco.
   **Mitigação temporária:** o backup `Online resize to 5000MB` (413/483 MB, **materializado**) vale até

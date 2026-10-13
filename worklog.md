@@ -4347,3 +4347,33 @@ rodando de novo em http://localhost:3000.
 - **Read-only:** nada criado/restaurado/deletado/lockado; schedule e PITR intocados; nenhum
   ID/`externalId`/`creatorId`/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only;
   contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T228 — restore drill condicional: discovery read-only → **BLOCKED (sem execução)**
+
+- **Resultado: `BLOCKED`** — nenhum caminho de restore **isolado e sem custo novo** foi encontrado.
+  Classificação: **`RESTORE_DRILL_BLOQUEADO_INSEGURO`** (+ **`BLOQUEADO_CUSTO`** no caminho isolado).
+- **Discovery read-only (o que decidiu):**
+  `postgres pitr backup restore <ID>` — **não expõe** `--new-service-name` nem opção de alvo →
+  **in-place no serviço de produção** (packet proíbe: `UNSAFE_RESTORE_TARGET`).
+  `postgres pitr restore --at` — *"into a **new service**"* (`--new-service-name`) → **cria SERVIÇO
+  NOVO** = **recurso billable** → exige confirmação explícita de custo (`AWAITING_OPERATOR_COST_CONFIRMATION`).
+  Não há outra superfície de restore (`postgres` = `pitr`/`ha`/`pgbouncer`/`history`).
+- **Não improvisei:** sem `--yes`, sem tocar produção, **sem criar recurso algum** — nada foi executado.
+- **⚠️ Mudança de estado observada (NÃO executada por mim):** o **PITR passou de `disabled` para
+  `enabled`** com **bucket wired** (estava `disabled` nas T232/T234/T236). Provável ação do Operador no
+  painel; implica possível **custo/comportamento** (*continuous backup*) → registrado para confirmação.
+- **Plano sanitizado entregue (Opção A):** autorizar 1 serviço Postgres **temporário**, comando
+  pretendido `railway postgres pitr restore --at <ts> --new-service-name drill-t228-<data>`, validação
+  **somente agregada** (tabelas críticas, `count(*)`, cadeia SHA-256 do `audit_log`), **RTO medido**;
+  cleanup na **T239**. **Opção B (sem custo):** dump portátil (T226) → Postgres local/efêmero.
+- **Estado no momento:** `pre-go` **102 MB de 630** (EM_PROGRESSO); **0 backups agendados**
+  (`scheduleId` nulo); mitigação vigente = `Online resize to 5000MB` (materializado) até **2026-10-28**.
+- **Impacto:** **T227** (alerta) e **T229** (fail-closed) **não liberadas** — dependem de backup
+  **comprovadamente restaurável**.
+- **Docs:** relatório novo `docs/08-security/reports/railway-restore-drill-2026-10-13.md` +
+  `GO_READINESS_CHECKLIST.md` (frente restore drill → **RESTORE_DRILL_BLOQUEADO_INSEGURO**) +
+  `BACKUP_DR.md` (dimensão restaurabilidade detalhada) + `PENDENCIAS_OPERADOR.md` (decisões de custo +
+  confirmação do PITR).
+- **Nenhuma mutação:** sem restore, sem recurso criado, sem delete/lock, schedule intocado, R2 não usado;
+  nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only; contaminacao 123ce28e
+  ausente. **GO segue SUSPENSO.**
