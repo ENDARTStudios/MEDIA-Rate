@@ -1406,3 +1406,32 @@ Relatório: `docs/08-security/reports/backup-automation-minimum-2026-10-13.md`.
 - **Nada executado:** sem backup real/restore, sem painel/produção, sem segredo/infra, sem workflow novo
   com `DATABASE_URL` interno (D-527), sem alertas interagidos. Diff: script + docs.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T230 (2026-10-13) — evidência de backups por Railway CLI (**decisão de custo pendente**; pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md`.
+
+- **Correção de premissa:** o CLI **expõe** backup/schedule/PITR sob `railway postgres pitr`
+  (`backup list/create`, `schedule list/set`). A afirmação da T226 ("CLI não expõe backup") era
+  **inferência de um `grep` no help de topo** e estava **imprecisa** — corrigida nos docs.
+- **Estado autoritativo (CLI v5.47.1, serviço `Postgres`, produção):** PITR **`disabled`** ·
+  **sem schedule** ("No backup schedule configured") · **2 backups, ambos `manual`**:
+  `Pre-Security-Patch Backup` (2026-08-23, 65 MB, **expirado em 2026-09-22**) e
+  `Online resize to 5000MB` (2026-10-07, 413 MB, **expira em 2026-10-28**).
+- **Bloqueio confirmado pelo CLI:** `postgres pitr backup create` → *"Manual backups and backup
+  schedules are only available for **Pro workspaces**"* → **custo/plano** (nenhum custo gerado; a
+  tentativa falhou sem efeito).
+- **⚠️ Risco com prazo:** sem ação, **a partir de 2026-10-28 o banco fica sem nenhum backup retido**.
+- **Classificação:** `BACKUP_CLI_BLOQUEADO_CUSTO`.
+- **DECISÕES DO OPERADOR:**
+  1. **`OperatorDecision-Railway-Pro-upgrade-se-necessario`** — autorizar o **plano Pro** (libera
+     `backup create` + `schedule set --daily` + PITR) **ou** registrar **aceite formal de risco** com
+     limites (janela curta, monitoramento manual, sem promessa de recuperação total).
+  2. Garantir **backup retido antes de 2026-10-28** (Pro, backup manual de reposição, ou aceite).
+- **Sem custo, sem segredo, sem restore/delete/upgrade:** apenas **leitura** por CLI + uma tentativa de
+  criação que falhou por plano. Nenhum ID de backup/URL assinada/segredo impresso.
+- **Permanecem pendentes:** `T227` (alerta de falha), `T228` (restore drill), `T229` (fail-closed) —
+  condicionadas a backup confiável — · Deploy `waiting` · **GO final**.
+- **GO:** segue **SUSPENSO**.

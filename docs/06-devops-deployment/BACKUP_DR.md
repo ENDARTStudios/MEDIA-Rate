@@ -5,17 +5,25 @@
 - `scripts/backup-db.sh` — dump do PostgreSQL em formato custom (`pg_dump -F c`), **retenção 30 dias**,
   com **validação do dump** (`pg_restore --list`) e **falha em voz alta** se `pg_dump` estiver ausente
   (nunca fabrica um backup falso).
-- **Estado operacional (honesto, 2026-10-13 / T226):** o script é de **boa qualidade** e agora está
-  **preparado** para destino durável (`BACKUP_UPLOADER`) e para emitir **status sanitizado**
-  (`BACKUP_STATUS_FILE`). **Mas a operação ainda NÃO é confiável:** não há backup agendado em produção,
-  o **destino durável não está configurado** (sem uploader/volume), **não há alerta de falha** (T227) e
-  **não há restore validado** (T228). Enquanto isso, **o dado existe apenas no volume do Postgres**
-  (T181). Relatório: `docs/08-security/reports/backup-automation-minimum-2026-10-13.md`.
+- **Estado operacional (honesto, 2026-10-13 / T230 — evidência por CLI):**
+  `railway postgres pitr status` → **`disabled`** (HA `no`, bucket `no`);
+  `postgres pitr schedule list` → **"No backup schedule configured"**;
+  `postgres pitr backup list` → **2 backups, AMBOS `manual`**: `Pre-Security-Patch Backup`
+  (2026-08-23, 65 MB, **expirado em 2026-09-22**) e `Online resize to 5000MB`
+  (2026-10-07, 413 MB, **expira em 2026-10-28**).
+  `postgres pitr backup create` → **falha**: *"Manual backups and backup schedules are only available
+  for **Pro workspaces**"*.
+  **Consequência:** sem ação, **a partir de 2026-10-28 o banco fica sem nenhum backup retido**.
+  Relatório: `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md`.
 - **Variáveis do script:** `BACKUP_DIR` (destino; precisa ser **durável**), `RETENTION_DAYS` (default 30),
   `BACKUP_UPLOADER` (executável chamado com o dump como `$1` para envio a destino externo; falha ⇒ o
   script **aborta**), `BACKUP_STATUS_FILE` (JSON sanitizado `ts/ok/bytes/retidos/uploaded`).
-- **Agendamento:** deve rodar **dentro do ambiente da plataforma** (acesso à rede interna do banco).
-  **NÃO** usar runner externo/CI — o hostname interno não é alcançável de fora (**D-527**).
+- **Agendamento:** via **CLI** (`railway postgres pitr schedule set --daily`) — hoje **bloqueado por
+  plano** (*Pro workspaces*). Alternativa sem custo: rodar o script (`BACKUP_UPLOADER`) a partir de um
+  agendador **dentro do ambiente da plataforma** (acesso à rede interna do banco). **NÃO** usar runner
+  externo/CI — o hostname interno não é alcançável de fora (**D-527**).
+- **⚠️ Prazo:** o único backup válido **expira em 2026-10-28** — antes disso é preciso **decisão**
+  (Pro) **ou** backup manual de reposição **ou** aceite formal de risco.
 - **Backup pré-migration** (`migrate-production.yml`, P013): chama o script antes da migration, porém é
   **fail-open** (`|| echo "…continuando"`) — se o dump falha, a migration **prossegue**. Além disso, o
   secret `DATABASE_URL` do CI aponta para o **hostname interno** do Railway (**D-527**), inacessível
