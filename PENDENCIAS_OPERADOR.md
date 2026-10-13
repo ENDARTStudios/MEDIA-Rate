@@ -1486,3 +1486,31 @@ Relatório: `docs/08-security/reports/railway-backup-retention-hardening-2026-10
 - **Nenhum** restore/delete/lock/PITR/R2/billing/segredo/var/rede/domínio/deploy/código; nenhum
   ID/`externalId`/`creatorId`/URL/PII impresso; nenhum alerta interagido. Diff docs-only.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T236 (2026-10-13) — verificação de materialização do backup (read-only; pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/railway-backup-materialization-verification-2026-10-13.md`.
+
+- **Classificação: `EM_PROGRESSO`.** `usedMB` do `pre-go-2026-10-13` subiu **0 → 95 MB** de
+  `referencedMB` 630 (**~15 %**) numa série **monotônica** (0→2→4→4→86→87→93→94→95) em ~45 min —
+  **progresso real, sem estagnação e sem status de falha**.
+- **Achado estrutural:** o CLI **não tem** `backup status` e o `--json` **não expõe campo de
+  status/state/phase** — o **único proxy é `usedMB`**. ⇒ **`CONFIRMADA` é inalcançável por CLI**
+  (o critério de ≥90 % não foi atingido: 15 %).
+- **O schedule ainda NÃO produziu backup** (0 backups com `scheduleId` não-nulo).
+- **Mitigação temporária:** `Online resize to 5000MB` (413/483 MB, **materializado**) permanece válido
+  até **2026-10-28** — há ponto de recuperação materializado por ~2 semanas.
+- **DECISÕES/PRÓXIMOS PASSOS:**
+  1. **T227 (alerta) NÃO é liberada como pronta** (o packet condiciona a liberação a `CONFIRMADA`).
+     Thresholds revisados no relatório §6 (proxy de tamanho + idade: materializado > 36 h → alerta;
+     `usedMB` estagnado em 3 leituras → alerta; `never` com `usedMB` baixo por > 2 h → alerta;
+     nenhum backup com `scheduleId` após N dias → alerta).
+  2. **T228 (restore drill)** é o **teste definitivo** de restaurabilidade — não depende de nenhum
+     campo do CLI.
+  3. **Monitor** da materialização do `pre-go` e da 1ª execução do schedule.
+- **Read-only:** nada criado/restaurado/deletado/lockado; schedule e PITR intocados; polling limitado
+  (5 leituras ≈ 20 min); nenhum ID/`externalId`/`creatorId`/URL/segredo/PII impresso; nenhum alerta
+  interagido. Diff docs-only.
+- **GO:** segue **SUSPENSO**.

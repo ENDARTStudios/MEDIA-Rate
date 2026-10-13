@@ -4,6 +4,12 @@
 **Resultado:** **`DONE_WITH_ESCALATION`** — **schedule diário ativo** e **backup on-demand criado**;
 **escalonamento** por **retenção default de 6 dias** (abaixo do limiar de 7 d do packet). **GO: SUSPENSO.**
 
+> **ATUALIZAÇÃO (T236, 2026-10-13):** verificado por CLI (read-only, polling limitado) que
+> `pre-go-2026-10-13` está **em materialização** (`usedMB` **0 → 95 MB** de 630, série monotônica) —
+> **não concluída** — e que o **CLI não expõe campo de status de conclusão**. A frase *"penhasco
+> eliminado"* deve ser lida **apenas** como *"existe um backup que não expira (registro)"*, **não**
+> como garantia de payload restaurável. Ver `railway-backup-materialization-verification-2026-10-13.md`.
+
 > **ATUALIZAÇÃO (T234, 2026-10-13):** a **retenção** foi ampliada — schedule acumulado
 > **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d** (janela máxima **89 d**). **⚠️ Correção importante:** o
 > backup permanente `pre-go-2026-10-13` (`expiresAt: None`) apresenta **`usedMB = 0`** →
