@@ -15,12 +15,13 @@ backup gerenciado bloqueados em ação manual do Operador** (checklist §5). **G
 | Verificação | Resultado |
 |---|---|
 | `railway.json` no repo | existe, mas **sem** `cronSchedule` e **sem** configuração de backup (só `startCommand`) |
-| **Railway CLI** | **não expõe comando de backup** (`railway volume` apenas) → backup gerenciado é **dashboard-only** |
+| **Railway CLI** | ⚠️ **CORRIGIDO na T230** (ver `railway-cli-backup-evidence-2026-10-13.md`): o CLI **expõe** backup/schedule/PITR sob **`railway postgres pitr`** (`backup list/create`, `schedule list/set`) — a afirmação original desta T226 ("não expõe comando de backup") era **inferência de um `grep` no help de topo** e estava **imprecisa**. A execução é **bloqueada por plano** (*"only available for Pro workspaces"*) |
 | Workflow de backup agendado | **não existe** (e **não deve** ser criado como solução principal: o hostname interno não é alcançável de runner externo — **D-527**) |
 | Script existente | bom (`pg_dump -F c`, valida com `pg_restore --list`, falha em voz alta) — **mas** escrevia só em destino local |
 
-**Conclusão:** a metade "opção B" exige **ação no painel da plataforma** (não automatizável pelo CLI) ⇒
-**escalonamento manual**. A metade "opção A" (script) é **versionável** e foi **preparada** agora.
+**Conclusão:** a metade "opção B" depende do **plano/plataforma** — e a **T230 provou por CLI** que a
+capacidade existe mas é **Pro-gated** ⇒ **decisão de custo do Operador**. A metade "opção A" (script) é
+**versionável** e foi **preparada** nesta tarefa.
 
 ---
 
@@ -91,9 +92,13 @@ backup gerenciado bloqueados em ação manual do Operador** (checklist §5). **G
 > Nada abaixo foi executado pelo agente. Envolve painel/plataforma/custo ⇒ **decisão do Operador**.
 
 **A. Habilitar o backup gerenciado (opção B) e o alerta de uso do volume**
-1. Painel do provedor do Postgres → serviço do banco → **Backups automáticos**: habilitar, definir
-   **retenção** e confirmar que a **região/cifra** atendem à política de PII.
-2. Ainda no serviço do banco → **Alerts do volume** (uso de disco): habilitar alerta (ex.: 70%).
+> **Atualizado pela T230:** o caminho é pelo **CLI** (`railway postgres pitr schedule set --daily` /
+> `backup create`), **não** "dashboard-only" — porém ambos são **bloqueados por plano**
+> (*"only available for Pro workspaces"*). Ver `railway-cli-backup-evidence-2026-10-13.md`.
+1. Decidir o **plano Pro** (libera `backup create`, `schedule set --daily` e PITR) — **decisão de custo
+   do Operador** — ou registrar **aceite formal de risco**. **Urgente:** o único backup válido
+   **expira em 2026-10-28**.
+2. Habilitar o **alerta de uso do volume** (aba Alerts) — independente do Pro.
 3. Registrar em `PENDENCIAS_OPERADOR.md`/worklog: retenção escolhida + data + responsável (**sem**
    copiar valores de credencial ou string de conexão).
 

@@ -4247,3 +4247,27 @@ rodando de novo em http://localhost:3000.
 - **Nada executado:** sem backup/restore real, sem painel/produção, sem segredo/infra/settings, sem
   alertas interagidos. Diff: `scripts/backup-db.sh` + docs; contaminacao 123ce28e ausente; trabalho
   concorrente do Operador preservado. **GO segue SUSPENSO.**
+
+### [2026-10-13] T230 — evidência de backups por Railway CLI (correção de premissa + bloqueio de custo)
+
+- **Correção aceita e verificada:** a afirmação da T226 ("o CLI do Railway não expõe backup") era
+  **inferência de um `grep` no help de topo** — **imprecisa**. O CLI **v5.47.1 expõe**
+  **`railway postgres pitr`** com `backup list/create/delete/lock/restore` e
+  `schedule list/set --daily|--weekly|--monthly|--none`. Corrigido no relatório da T226.
+- **Estado autoritativo por CLI (serviço `Postgres`, produção):** PITR **`disabled`** (HA `no`,
+  bucket `no`) · **sem schedule** ("No backup schedule configured for Postgres") · **2 backups, ambos
+  `manual`**: `Pre-Security-Patch Backup` (2026-08-23, 65 MB, **expirado em 2026-09-22**) e
+  `Online resize to 5000MB` (2026-10-07, 413 MB, **expira em 2026-10-28**). IDs omitidos.
+- **Bloqueio confirmado pelo CLI:** `postgres pitr backup create --name t230-cli-manual-2026-10-13`
+  → *"Manual backups and backup schedules are only available for **Pro workspaces**"*. **Nenhum custo
+  gerado** (a tentativa **falhou** sem efeito) e nenhuma ação destrutiva.
+- **⚠️ Achado com prazo:** sem ação, **a partir de 2026-10-28 o banco fica sem nenhum backup retido**
+  (o único válido expira) — torna o GO dependente de **decisão de custo** (Pro) **ou** aceite formal.
+- **Classificação:** `BACKUP_CLI_BLOQUEADO_CUSTO` (não é limitação de ferramenta).
+- **Docs:** relatório novo `docs/08-security/reports/railway-cli-backup-evidence-2026-10-13.md` +
+  correção da premissa em `backup-automation-minimum-2026-10-13.md` + `BACKUP_DR.md` (estado real por
+  CLI + prazo) + `GO_READINESS_CHECKLIST.md` (→ BACKUP_CLI_BLOQUEADO_CUSTO) + `PENDENCIAS_OPERADOR.md`
+  (decisão de custo + `OperatorDecision-Railway-Pro-upgrade-se-necessario`).
+- **Somente leitura** por CLI (status/list) + uma tentativa de criação que falhou por plano; **sem**
+  restore/delete/upgrade/billing, **sem** segredo/PII/URL assinada/ID impresso, **sem** alertas
+  interagidos. Diff docs-only; contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
