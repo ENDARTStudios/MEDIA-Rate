@@ -5,18 +5,26 @@
 - `scripts/backup-db.sh` — dump do PostgreSQL em formato custom (`pg_dump -F c`), **retenção 30 dias**,
   com **validação do dump** (`pg_restore --list`) e **falha em voz alta** se `pg_dump` estiver ausente
   (nunca fabrica um backup falso).
+- **Retenção final (2026-10-13 / T234):** schedule **acumulado** —
+  **DAILY 6 d** (frescor) + **WEEKLY 27 d** + **MONTHLY 89 d** → **janela máxima de 89 dias**
+  (`railway postgres pitr schedule set --daily --weekly --monthly`). O CLI **não** expõe flag de
+  retenção por schedule, então 6/27/89 d são os defaults da plataforma para cada cadência.
+- **⚠️ RISCO ABERTO (T234):** o backup permanente `pre-go-2026-10-13` tem `expiresAt: None`
+  (**nunca expira**), mas seu **`usedMB` ainda está em progresso** (observado **0 → 2 MB**),
+  enquanto os backups anteriores têm `usedMB ≈ referencedMB`. **A restaurabilidade NÃO está
+  verificada** — o teste definitivo é o **restore drill (T228)**, que deve usar um backup
+  **materializado** e **não** confiar no rótulo `never`. A **T227** deve incluir `usedMB > 0` como
+  critério de sucesso. Relatório:
+  `docs/08-security/reports/railway-backup-retention-hardening-2026-10-13.md`.
 - **Estado operacional (honesto, 2026-10-13 / T232 — pós Railway PRO, evidência por CLI):**
-  ✅ **Schedule DAILY ATIVO** (`railway postgres pitr schedule set --daily`, criado 2026-10-13;
-  **retenção default = 6 dias / 518400 s** — ⚠️ abaixo do ideal; ver decisão pendente abaixo).
-  ✅ **Backup permanente criado** (`pre-go-2026-10-13`, **expira `never`**) — **elimina o penhasco de
-  2026-10-28**: passa a existir um backup que **não expira**.
-  Estado: `pitr status` → **`disabled`** (não habilitado; decisão separada, T235) · `backup list` →
-  3 backups (dois antigos `manual` + o novo `never`).
+  ✅ **Schedule DAILY ATIVO** (criado 2026-10-13) · ✅ **backup permanente `pre-go-2026-10-13`**
+  (`expiresAt: None`) — **com a ressalva de materialização acima**.
+  `pitr status` → **`disabled`** (decisão separada, T235) · `backup list` → 3 backups.
   **Pendente:** **alerta de falha** (T227) e **restore drill validado** (T228); pré-migration segue
   **fail-open** (T229). Relatório: `docs/08-security/reports/railway-pro-backup-activation-2026-10-13.md`.
-- **⚠️ Decisão pendente — retenção:** o default de **6 dias** cobre falhas recentes mas **não** corrupção
-  de descoberta tardia. Opções (Operador): `schedule set --daily --weekly --monthly` (estende a janela),
-  habilitar **PITR** (T235) ou manter 6 d com o limite registrado.
+- **⚠️ Decisão pendente — retenção:** ✅ **resolvida na T234** (DAILY 6 d + WEEKLY 27 d +
+  **MONTHLY 89 d**). O que resta decidir é se a **cadência mensal de 89 d** é suficiente ou se vale
+  **PITR** (T235) para recuperação contínua.
 - **Estado anterior (2026-10-13 / T230, pré-PRO):** PITR `disabled`, **sem schedule**, 2 backups
   **manuais** (um já expirado; o outro expirava em 2026-10-28) e `backup create` **bloqueado**
   (*"only available for Pro workspaces"*). Relatório:
