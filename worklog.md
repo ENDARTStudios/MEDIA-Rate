@@ -4296,3 +4296,28 @@ rodando de novo em http://localhost:3000.
   relatórios T226/T230 + `PENDENCIAS_OPERADOR.md` (decisões: retenção, T233 R2, T235 PITR).
 - **Sem segredo/PII/ID/URL impresso**; nenhum alerta interagido. Diff docs-only; contaminacao 123ce28e
   ausente; trabalho concorrente do Operador preservado. **GO segue SUSPENSO.**
+
+### [2026-10-13] T234 — hardening de retenção de backup (+ achado material que corrige a T232)
+
+- **Opção 1 indisponível:** `postgres pitr schedule set` **não tem flag de retenção** (só
+  `--daily/--weekly/--monthly/--none`). **Opção 2 aplicada** (a "Bom" da hierarquia):
+  `railway postgres pitr schedule set --daily --weekly --monthly --service Postgres` → **OK**.
+- **Retenção final (CLI, `schedule list`):** **DAILY 6 d** (518400 s — **frescor preservado**, não foi
+  trocado) + **WEEKLY 27 d** (2332800 s) + **MONTHLY 89 d** (7689600 s) → **janela máxima 89 dias**
+  (**≥30 d** atingido por cadência mensal). **PITR segue `disabled`** (T235, fora de escopo).
+- **⚠️ ACHADO MATERIAL (corrige a T232):** o backup permanente `pre-go-2026-10-13` tem
+  `expiresAt: None`, mas **`usedMB` está em progresso** — observado **0 → 2 MB** em ~30 min, enquanto
+  os backups anteriores têm `usedMB ≈ referencedMB` (65/128 e 413/483). O job **não está travado**
+  (o número **cresce**), mas **a restaurabilidade NÃO está verificada**: "penhasco eliminado" vale
+  para o **registro**, não para o **payload**. `postgres history` mostra todos os comandos `ok`.
+- **Impacto nos próximos passos:** **T227 (alerta) sobe para prioridade ALTA** com **`usedMB > 0`**
+  como critério (thresholds no relatório §6: daily > 24–36 h · weekly > 8 d · monthly > 32 d ·
+  retenção efetiva < 7 d · schedule vazio) e **T228 (restore drill)** deve usar backup
+  **materializado**, não confiar no rótulo `never`.
+- **Docs:** relatório novo `docs/08-security/reports/railway-backup-retention-hardening-2026-10-13.md`
+  + `BACKUP_DR.md` (retenção final + risco aberto) + `GO_READINESS_CHECKLIST.md`
+  (→ **BACKUP_RETENCAO_MAXIMA_SUPORTADA_GE7D** com ressalva) + ponteiro/correção no relatório T232 +
+  `PENDENCIAS_OPERADOR.md`.
+- **Nenhum** restore/delete/lock/PITR/R2/billing/segredo/var/rede/domínio/deploy/código; nenhum
+  ID/`externalId`/`creatorId`/URL/PII impresso; nenhum alerta interagido. Diff docs-only;
+  contaminacao 123ce28e ausente. **GO segue SUSPENSO.**

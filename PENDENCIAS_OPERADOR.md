@@ -1461,3 +1461,28 @@ Relatório: `docs/08-security/reports/railway-pro-backup-activation-2026-10-13.m
 - **Sem custo não autorizado:** nenhum PITR/R2/billing/segredo/rede/domínio/deploy alterado; sem restore,
   sem delete; nenhum ID/URL/segredo impresso; nenhum alerta interagido. Diff docs-only.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T234 (2026-10-13) — hardening de retenção de backup + **achado material** (pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/railway-backup-retention-hardening-2026-10-13.md`.
+
+- **Retenção ✅ RESOLVIDA (opção 2 do packet):** `railway postgres pitr schedule set --daily --weekly
+  --monthly` → **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d** (**janela máxima 89 d**, ≥30 d atingido por
+  cadência mensal; **daily preservado**, sem reduzir frescor). O CLI **não** expõe flag de retenção
+  (opção 1 indisponível). **PITR segue `disabled`** (T235).
+- **⚠️ ACHADO MATERIAL (corrige a T232):** o backup permanente `pre-go-2026-10-13`
+  (`expiresAt: None`) tem **`usedMB` em progresso** (observado **0 → 2 MB**), enquanto os backups anteriores têm
+  `usedMB ≈ referencedMB` (65/128 e 413/483). **A restaurabilidade NÃO está verificada**
+  — "penhasco eliminado" vale para o **registro**, não para o **payload**.
+  *Hipóteses:* finalização assíncrona em curso; campo de tamanho atualizado só ao concluir; job preso.
+- **DECISÕES/PRÓXIMOS PASSOS:**
+  1. **T227 (alerta) sobe para prioridade ALTA** e deve incluir **`usedMB > 0`** como critério de
+     sucesso (thresholds sugeridos no relatório §6: daily > 24–36 h, weekly > 8 d, monthly > 32 d,
+     retenção efetiva < 7 d, schedule vazio).
+  2. **T228 (restore drill)** deve usar um backup **materializado** — **não** confiar no rótulo `never`.
+  3. **T235 (PITR)** e **T233 (R2)** seguem opcionais.
+- **Nenhum** restore/delete/lock/PITR/R2/billing/segredo/var/rede/domínio/deploy/código; nenhum
+  ID/`externalId`/`creatorId`/URL/PII impresso; nenhum alerta interagido. Diff docs-only.
+- **GO:** segue **SUSPENSO**.

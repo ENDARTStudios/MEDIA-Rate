@@ -4,6 +4,13 @@
 **Resultado:** **`DONE_WITH_ESCALATION`** — **schedule diário ativo** e **backup on-demand criado**;
 **escalonamento** por **retenção default de 6 dias** (abaixo do limiar de 7 d do packet). **GO: SUSPENSO.**
 
+> **ATUALIZAÇÃO (T234, 2026-10-13):** a **retenção** foi ampliada — schedule acumulado
+> **DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d** (janela máxima **89 d**). **⚠️ Correção importante:** o
+> backup permanente `pre-go-2026-10-13` (`expiresAt: None`) apresenta **`usedMB = 0`** →
+> **a restaurabilidade NÃO está evidenciada**. A frase deste documento de que *"o penhasco de
+> 2026-10-28 foi ELIMINADO"* vale para o **registro** (existe backup que não expira), **não** para a
+> garantia de payload. Ver `railway-backup-retention-hardening-2026-10-13.md` §4.
+
 > Sanitização: nenhum **ID** de backup/projeto/serviço, workflow, URL de download, token, cookie,
 > connection string, `DATABASE_URL` ou PII. Apenas **nomes, datas, tamanhos, estados** e a retenção.
 > **Nenhum** restore, **nenhum** delete, **nenhum** PITR habilitado, **nenhuma** alteração de
