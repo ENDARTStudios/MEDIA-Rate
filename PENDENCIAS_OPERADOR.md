@@ -1514,3 +1514,31 @@ Relatório: `docs/08-security/reports/railway-backup-materialization-verificatio
   (5 leituras ≈ 20 min); nenhum ID/`externalId`/`creatorId`/URL/segredo/PII impresso; nenhum alerta
   interagido. Diff docs-only.
 - **GO:** segue **SUSPENSO**.
+
+---
+
+### T228 (2026-10-13) — restore drill condicional: **BLOCKED (sem execução)** (pendente de REVIEW)
+
+Relatório: `docs/08-security/reports/railway-restore-drill-2026-10-13.md`.
+
+- **Classificação: `RESTORE_DRILL_BLOQUEADO_INSEGURO`** (+ **`BLOQUEADO_CUSTO`** no caminho isolado).
+- **Discovery (read-only) decisiva:** `postgres pitr backup restore <ID>` **não expõe** opção de
+  alvo/novo serviço → **in-place no serviço de produção** (proibido pelo packet);
+  `postgres pitr restore --at` **cria um SERVIÇO NOVO** (`--new-service-name`) ⇒ **recurso billable**,
+  que exige **confirmação explícita de custo do Operador**. **Nada foi executado** (sem `--yes`, sem
+  tocar produção, sem criar recurso).
+- **⚠️ Mudança de estado observada (não executada por mim):** o **PITR passou de `disabled` para
+  `enabled`** com **bucket wired** (estava `disabled` nas T232/T234/T236). Provável ação do Operador no
+  painel; **implica possível custo/comportamento** (*continuous backup*) → **confirmar intenção**.
+- **Plano sanitizado (Opção A — drill isolado):** Operador autoriza 1 serviço Postgres **temporário**;
+  comando pretendido `railway postgres pitr restore --at <ts> --new-service-name drill-t228-<data>`;
+  validação **somente agregada** (tabelas críticas, `count(*)`, cadeia SHA-256 do `audit_log`), **RTO
+  medido**; cleanup na **T239**. **Opção B (sem custo):** dump portátil → Postgres local/efêmero.
+- **DECISÕES DO OPERADOR:**
+  1. **`OperatorDecision-Restore-Drill-Custo`** — autorizar (ou não) o serviço temporário do drill.
+  2. **Confirmar o PITR habilitado** (intencional? custo aceito?).
+- **Impacto:** **T227** (alerta) e **T229** (fail-closed) seguem **não liberadas** — ambos dependem de
+  backup **comprovadamente restaurável**.
+- **Nada mutado:** sem restore, sem criação de recurso, sem delete/lock, schedule intocado, R2 não usado;
+  nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only.
+- **GO:** segue **SUSPENSO**.
