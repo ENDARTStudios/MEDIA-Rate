@@ -1,5 +1,17 @@
 # Restore drill condicional (T228) — discovery read-only + **BLOCKED** (sem execução)
 
+> **⚠️ NOTA DE CORREÇÃO (2026-10-14, T242).** A conclusão de estado deste relatório
+> ("**restaurabilidade não provada**") foi **SUPERADA** pelo **D-594** (T211 cont. 12, **mesmo dia**),
+> que registra o drill **executado e aprovado** pelo caminho **não destrutivo** (`pitr restore` →
+> serviço irmão, origem intocada; contagens produção = restaurado) — corroborado pela trilha local
+> `railway postgres history` (`pitr restore … --new-service-name pitr-drill-20261013 -y`, `success`).
+> O que **permanece válido** da T228: `pitr backup restore <ID>` é **in-place** (não é caminho de
+> validação) e `pitr restore --at` **cria serviço novo** (billable). O que **não** permanece: a
+> afirmação de que a restaurabilidade não estava provada.
+> **Resíduo identificado na T242:** o `service delete` do drill **não** removeu o volume
+> **`postgres-restored`** (50 GB provisionados, desanexado) → **T239**.
+> Ver `docs/08-security/reports/railway-cli-capability-audit-2026-10-14.md`.
+
 **Data:** 2026-10-13 · **Fase:** F09-ci-cd-deploy · **Tarefa:** T228 · **Base:** `8efd3453` (`origin/main`)
 **Resultado:** **`BLOCKED`** — nenhum caminho de restore **isolado e sem custo novo** foi encontrado.
 **Classificação:** **`RESTORE_DRILL_BLOQUEADO_INSEGURO`** (+ `BLOQUEADO_CUSTO` no caminho isolado).
