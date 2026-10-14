@@ -1542,3 +1542,46 @@ Relatório: `docs/08-security/reports/railway-restore-drill-2026-10-13.md`.
 - **Nada mutado:** sem restore, sem criação de recurso, sem delete/lock, schedule intocado, R2 não usado;
   nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only.
 - **GO:** segue **SUSPENSO**.
+
+### T242 (2026-10-14) — auditoria read-only do Railway CLI (contexto PRO): **drill já provado + resíduo billable**
+
+Relatório: `docs/08-security/reports/railway-cli-capability-audit-2026-10-14.md`.
+
+Contexto: o Operador confirmou **Railway PRO** (supera o bloqueio de plano *"only available for Pro
+workspaces"*, **sem** autorizar custo/produção/PII). Auditoria **100% read-only** do CLI.
+
+- **Achado 1 — o restore drill JÁ foi executado e APROVADO (D-594).** A trilha local
+  (`railway postgres history`) registra `postgres pitr restore --at … --new-service-name
+  pitr-drill-20261013 -y` (`success`) a partir desta máquina em 2026-10-13; corroborado por
+  `worklog.md` (T211 cont. 12) e **D-594** (contagens produção = restaurado: 190 MB, 40 tabelas,
+  `midia` 17.268, `episodio` 131.743, `media_score` 16.667, `temporada` 6.346, `usuario` 198). O
+  serviço irmão foi removido. Confirmado read-only: **nenhum** serviço `pitr-drill*` existe.
+  → **Restaurabilidade provada.** A conclusão "não provada" da **T228** foi **superada** (drift
+  documental corrigido na T242).
+- **Achado 2 — resíduo billable (NOVO, exige decisão):** o `service delete` do drill **não** removeu o
+  **volume `postgres-restored`** — **desanexado** (`Attached to: N/A`), **50 GB provisionados**,
+  `Ready`. É **storage billable** → **T239 é concreto**. Remoção (`railway volume delete`) é
+  **irreversível** → só com autorização explícita.
+- **Achado 3 — caminho seguro de VERIFICAÇÃO existe** (usado): `pitr status` "Live coverage"
+  (`Archiver: enabled`, `Restorable up to`, WAL, backup sets) + `pitr backup list --json`. Zero custo,
+  zero mutação, sem PII → base do runbook/monitor de cobertura.
+- **Achado 4 — sem caminho de restore sem custo/produção/PII:** `pitr restore` sempre cria serviço
+  novo (billable); `pitr backup restore <ID>` é **in-place**; **não há** `pitr backup download/export`
+  → a **Opção B** (T241) **não é implementável pelo CLI** sem ler a produção (PII).
+- **Achado 5 — custo:** `railway usage` → **Backup ≈ US$ 0,014** no período (Volume ≈ US$ 0,092; bill
+  corrente ≈ US$ 2,16). Subsídia **`ACEITO_CUSTO_PITR = SIM`**; o item de custo relevante é o volume órfão.
+- **Achado 6 — Config as Code deprecado:** `railway.json`/`railway.toml` → migrar para
+  `.railway/railway.ts` (`railway config migrate`) antes de **2026-12-01**.
+- **Estado read-only:** PITR `enabled` + `Archiver: enabled`; **2 backups agendados materializados**
+  (`Daily Schedule` 2026-10-13 e 2026-10-14) → **o schedule PRODUZ backups** (supera o T236);
+  `pre-go-2026-10-13` ainda EM_PROGRESSO lento (~107/630 MB).
+- **DECISÕES DO OPERADOR (objetivas):**
+  1. **`T239` — limpar o volume órfão `postgres-restored`** (50 GB provisionados) → **AUTORIZO / NÃO**.
+  2. **`T240`** — o drill já foi provado (D-594): **encerrar** ou **reescopar** para re-drill periódico.
+  3. **`T241` (Opção B)** — sem caminho de CLI (PII): **manter bloqueada / descartar**.
+  4. **`T227`/`T229`** — com a restaurabilidade provada, definir o critério de sucesso do alerta
+     (`pitr status`/cobertura + idade) e se destrava o fail-closed.
+  5. **Config as Code** — migrar antes de **2026-12-01**.
+- **Nada mutado:** sem restore; sem criar/alterar/deletar recurso; sem delete/lock; schedule e PITR
+  intocados; R2 não usado; nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only.
+- **GO:** segue **SUSPENSO**.
