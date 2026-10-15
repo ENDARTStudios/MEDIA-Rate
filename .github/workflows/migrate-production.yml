@@ -1,19 +1,29 @@
-# Migration Production — MEDIA Rate (T9.4 / D-527)
+# Migration Production — MEDIA Rate (T9.4 / D-527 / T229)
 #
-# Migration MANUAL em produção, com backup prévio.
+# Migration MANUAL em produção.
 #
 # Por que manual: as migrations de produção são aplicadas automaticamente pelo
 # entrypoint do container da API no boot do deploy (docker-entrypoint.sh →
 # `prisma migrate deploy`) — o deploy nativo do Railway já cobre o caso comum.
-# Este workflow existe para o caso raro de aplicar/migrar FORA de um deploy
-# (ex.: backup+verificação antes de uma migration arriscada), sob ação
-# explícita do Operador.
+# Este workflow existe para o caso raro de aplicar/migrar FORA de um deploy,
+# sob ação explícita do Operador.
 #
 # NOTA (D-527): o secret DATABASE_URL do GitHub contém o hostname INTERNO do
 # Railway (postgres.railway.internal), inacessível dos runners do GitHub.
 # Este workflow também falhará enquanto o Operador não apontar o secret para
 # um endereço alcançável (proxy TCP público) — ou executar o comando
 # equivalente a partir de um ambiente com acesso à rede interna do Railway.
+#
+# NOTA (T229): o antigo passo "Backup antes da migration" foi REMOVIDO. Ele era
+# **fail-open** (`|| echo "…continuando"`) e **inoperante** a partir daqui — o
+# próprio `scripts/backup-db.sh` documenta que NÃO deve rodar em runner
+# externo/CI (hostname interno, D-527). Ou seja: não protegia nada e criava
+# **falsa garantia de segurança**. A rede de segurança REAL do banco é:
+#   PITR `enabled` + arquivador de WAL monitorado pelo alerta `backup-health-alert`
+#   (T227) + backups agendados materializados + **restore provado** (drill D-594).
+# Para um backup pré-migration de fato, use o caminho manual em
+# `docs/06-devops-deployment/runbooks/migration-manual.md` (console do serviço,
+# dentro da rede da plataforma) — nunca o CI.
 
 name: Migration Production (manual)
 
@@ -25,7 +35,7 @@ env:
 
 jobs:
   migrate:
-    name: Database Migration (backup + apply + verify)
+    name: Database Migration (apply + verify)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,13 +47,6 @@ jobs:
       - name: Generate Prisma Client
         working-directory: apps/api
         run: npx prisma generate
-      - name: Backup antes da migration (T9.4 / T026 — segurança)
-        working-directory: apps/api
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "[migrate] Iniciando backup antes da migration..."
-          bash ../../scripts/backup-db.sh "$DATABASE_URL" || echo "[migrate] Backup via script indisponível — continuando com migration."
       - name: Apply migration (T9.4)
         working-directory: apps/api
         env:

@@ -4454,3 +4454,37 @@ rodando de novo em http://localhost:3000.
 - **Nada mutado:** sem restore; volume órfão `postgres-restored` **intocado** (T239 segue pendente);
   PITR/schedule/backup intocados; sem deploy/aprovação de Production; nenhum ID/URL/segredo/PII
   impresso; nenhum alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
+
+### [2026-10-15] T229 — backup pré-migration: falso controle REMOVIDO (sem fail-closed)
+
+- **Classificação: `PRE_MIGRATION_BACKUP_DECORATIVO_REMOVIDO`.**
+- **Problema (3 defeitos somados):** o passo `Backup antes da migration` do `migrate-production.yml`
+  era **(1) fail-open** (`|| echo "…continuando"`), **(2) inoperante** (o secret `DATABASE_URL` do CI
+  é o **hostname interno** do Railway, **D-527**, inalcançável dos runners) e **(3) desmentido pelo
+  próprio script** — `scripts/backup-db.sh` documenta "**NÃO usar runner externo/CI**". Resultado: não
+  protegia, não rodava e criava **falsa garantia de segurança**.
+- **Mapa de dependências (nenhuma funcional):** `deploy.yml` só cita em **comentário**; os gates B1
+  (`migration-safety`, `migration-destructive-guard`) validam **plano de rollback/label**, não backup;
+  o runbook manual usa o **console do serviço** (dentro da rede), onde o script funciona.
+- **Decisão (a preferida pelo packet):** **REMOVER** o passo decorativo — o job passou de
+  `(backup + apply + verify)` para `(apply + verify)` — e registrar num comentário no topo do
+  workflow o porquê + a rede real. **Proibido tornar fail-closed**: isso bloquearia migrations por um
+  caminho que **nunca funcionou**.
+- **Rede de segurança REAL (documentada):** PITR `enabled` + **arquivador monitorado pelo alerta
+  (T227)** + backups agendados materializados + **restore provado (drill D-594)**; o dump portátil
+  (`backup-db.sh` + `BACKUP_UPLOADER`) é **complemento manual** — backup pré-migration de fato
+  pertence ao **console** (runbook), nunca ao CI.
+- **Impacto em migration/rollback:** **nenhum** em proteção real (não havia); migrations automáticas
+  (entrypoint no boot) intactas; o workflow segue inoperante de fora (**D-527**) — fato **anterior** e
+  independente desta mudança.
+- **Docs:** relatório novo `docs/08-security/reports/premigration-backup-reconciliation-2026-10-15.md`
+  + `BACKUP_DR.md` (rede real separada + checklist `[x] T229`) + `GO_READINESS_CHECKLIST.md`
+  (**`PRE_MIGRATION_BACKUP_DECORATIVO_REMOVIDO`**) + `PENDENCIAS_OPERADOR.md` +
+  `runbooks/migration-manual.md` (**`BACKUP_DIR` precisa ser durável**) + `VERIFICACOES_OPERACIONAIS.md`
+  (esboço de cron-de-CI marcado como **superado**) + notas de correção nos relatórios **T225/T226**
+  (que recomendavam fail-closed — superado).
+- **Verificação:** YAML válido (passos = checkout/setup-node/npm ci/generate/**apply**/verify);
+  `migration-safety` **10/10**; `migration-destructive-guard` **6/6**; `automation-safety` ✓.
+- **Nada mutado:** sem migration real; PITR/schedule/backup/volume intocados (volume órfão
+  `postgres-restored` **intocado** — T239); sem `RAILWAY_TOKEN`; nenhum segredo/PII impresso; nenhum
+  alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**

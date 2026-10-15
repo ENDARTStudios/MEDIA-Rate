@@ -31,6 +31,14 @@ Não há API key do UptimeRobot nesta máquina. Setup manual (free tier, 50 moni
 
 ## 4. Cron do backup — ⚠️ Script pronto, cron ausente
 
+> **⚠️ SUPERADO (T229/T227, 2026-10-15).** O esboço abaixo **não** deve ser implementado como está:
+> um dump rodando em **runner do CI** não alcança o Postgres (hostname **interno**, D-527) — o
+> `scripts/backup-db.sh` **proíbe** explicitamente uso em CI. O que existe hoje é a trilha
+> gerenciada: **PITR `enabled` + backups agendados materializados (Railway) + alerta de falha
+> (`backup-health-alert`, T227) + restore provado (D-594)**. O dump portátil segue como
+> **complemento manual** (com `BACKUP_UPLOADER` para destino durável), não como cron de CI.
+> Ver `BACKUP_DR.md` e `reports/premigration-backup-reconciliation-2026-10-15.md`.
+
 - `scripts/backup-db.sh` já validado (fail-fast sem `pg_dump` + validação
   `pg_restore --list`).
 - **Sem cron real** — o backup atual roda no runner efêmero do CI (`deploy.yml`),

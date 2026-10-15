@@ -73,10 +73,21 @@
   da plataforma**; **NÃO** usar runner externo/CI — o hostname interno não é alcançável de fora (**D-527**).
 - **✅ Resolvido:** o prazo de **2026-10-28** deixou de ser um penhasco — o backup `pre-go-2026-10-13`
   **não expira** (`never`). Continua valendo **revisar a retenção** (6 d) por decisão do Operador.
-- **Backup pré-migration** (`migrate-production.yml`, P013): chama o script antes da migration, porém é
-  **fail-open** (`|| echo "…continuando"`) — se o dump falha, a migration **prossegue**. Além disso, o
-  secret `DATABASE_URL` do CI aponta para o **hostname interno** do Railway (**D-527**), inacessível
-  dos runners → esse backup **não funciona hoje**.
+- **Backup pré-migration — ❌ NÃO é garantia (removido na T229).** O passo `Backup antes da
+  migration` do `migrate-production.yml` era **fail-open** (`|| echo "…continuando"`) **e inoperante**
+  (o secret `DATABASE_URL` do CI aponta para o **hostname interno** do Railway, **D-527**, inacessível
+  dos runners) — e o próprio `scripts/backup-db.sh` documenta que **não** deve rodar em CI. Não
+  protegia nada e criava **falsa garantia**. Foi **removido** em **2026-10-15 (T229)**; um backup
+  pré-migration de fato pertence ao **caminho manual** (console do serviço, dentro da rede) —
+  `docs/06-devops-deployment/runbooks/migration-manual.md`. Relatório:
+  `docs/08-security/reports/premigration-backup-reconciliation-2026-10-15.md`.
+- **✅ A rede de segurança REAL do banco (separação explícita):**
+  1. **PITR `enabled`** + **arquivador de WAL** → é o que sustenta a janela de recuperação;
+  2. **alerta de falha** (`backup-health-alert`, T227) monitora o arquivador (fail-closed);
+  3. **backups agendados** materializados (DAILY/WEEKLY/MONTHLY) + backup permanente `pre-go-2026-10-13`;
+  4. **restore PROVADO** — drill executado e aprovado (D-594);
+  5. **dump portátil** (`scripts/backup-db.sh` + `BACKUP_UPLOADER`) — **complemento manual/opcional**,
+     nunca um controle automático de segurança nem um passo de CI.
 - **Design de prontidão operacional (docs-only, nada implementado):**
   `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md` — opções A–E, política de
   destino/segredos/PII, alerta de falha (padrão GitHub Issues), procedimento de restore de ensaio,
@@ -176,7 +187,10 @@ exigiriam a **API/CLI do Railway** (token amplo) → pendente de decisão em `PE
       Railway). Limiares CRIT/WARN + fail-closed. Relatório:
       `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
 - [ ] **T239** — remover o volume órfão `postgres-restored` (50 GB provisionados) — **autorização do Operador**.
-- [ ] **T229** — corrigir o **fail-open** do pré-migration (agora **pode** avançar: há backup confiável).
+- [x] ~~**T229** — corrigir o **fail-open** do pré-migration~~ → **T229 (2026-10-15):** o passo
+      decorativo **foi removido** (***não*** torneado fail-closed, o que bloquearia migrations por um
+      caminho que nunca funcionou). Rede real documentada acima. Relatório:
+      `docs/08-security/reports/premigration-backup-reconciliation-2026-10-15.md`.
 - [ ] **T241** (Opção B) — **sem caminho de CLI** (exige export de PII) → manter bloqueada/descartar.
 - [ ] **T233** (opcional) — R2 como destino durável secundário portátil (read-only primeiro).
 - [ ] **T235** (opcional) — decisão sobre habilitar **PITR** (já `enabled`; confirmar intenção/custo).
