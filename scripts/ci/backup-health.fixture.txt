@@ -1,0 +1,12 @@
+# T227 — fixture determinístico (backup SAUDÁVEL) para dry-run.
+# Usado quando vars.METRICS_URL / secrets.ADMIN_TOKEN não estão configurados:
+# o script avalia este texto e o workflow FORÇA dry-run (nunca abre issue falso).
+backup_health_probe_ok 1
+backup_health_ok 1
+backup_health_level 0
+backup_health_reason{reason="ok"} 1
+backup_archive_mode_on 1
+backup_archiver_archived_total 2662
+backup_archiver_failed_total 0
+backup_archiver_last_archived_age_seconds 14
+backup_archiver_last_failed_age_seconds -1

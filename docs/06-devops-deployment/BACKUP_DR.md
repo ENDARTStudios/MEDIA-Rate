@@ -19,6 +19,15 @@
 > 5. **Sem caminho de export/dump pelo CLI** (não há `pitr backup download`) → a "Opção B" (dump →
 >    Postgres local) **não é implementável pelo CLI** sem ler a produção (PII).
 
+> **✅ Atualização (T227, 2026-10-15 — alerta de falha de backup IMPLEMENTADO).** Dimensões separadas:
+> - **Restaurabilidade:** ✅ **PROVADA** (D-594/T242) — nada a provar de novo.
+> - **Verificação read-only:** ✅ `pitr status` (Archiver, `Restorable up to`, backup sets) +
+>   `pitr backup list --json` + `postgres history`; **dentro do app**, `pg_stat_archiver`.
+> - **Alerta automatizado:** ✅ **IMPLEMENTADO (T227)** — ver § "Alerta de falha de backup" abaixo.
+> - **Volume órfão:** ⚠️ `postgres-restored` (desanexado, 50 GB) — pendente da **T239** (decisão do Operador).
+> - **`pre-go-2026-10-13`:** ⏳ `EM_PROGRESSO` lento (~107/630 MB) — **não** crítico para a
+>   restaurabilidade global. Relatório: `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
+
 - `scripts/backup-db.sh` — dump do PostgreSQL em formato custom (`pg_dump -F c`), **retenção 30 dias**,
   com **validação do dump** (`pg_restore --list`) e **falha em voz alta** se `pg_dump` estiver ausente
   (nunca fabrica um backup falso).
@@ -105,6 +114,39 @@ pg_restore -h <host> -U <user> -d <db> --clean --if-exists <dump>
 > Nota (T242): **não** existe `pitr backup download` no CLI — este caminho só é viável a partir de
 > um dump obtido fora do Railway (ex.: `backup-db.sh` + `BACKUP_UPLOADER`), nunca por export do CLI.
 
+## Alerta de falha de backup (T227)
+
+**Como funciona (least-privilege, sem credencial Railway):**
+
+```text
+app (Railway) ── SELECT read-only em pg_stat_archiver ──> /metrics (backup_health_*)
+                                                             │  X-Admin-Token
+GitHub Actions (backup-health-alert.yml, */30) ── GET /metrics ──┘
+        └─ dedup por label `backup-health-alert` (cria/atualiza/fecha issue)
+```
+
+- **Sinal:** `pg_stat_archiver` (arquivamento contínuo de WAL). Se o arquivador para, a janela do
+  PITR **deixa de avançar** — é a falha que importa e a única observável sem credencial ampla.
+- **Credenciais:** `secrets.ADMIN_TOKEN` (**já existente**, criado para `/metrics`) + `vars.METRICS_URL`
+  (**já existente**) + `secrets.GITHUB_TOKEN`. **Nenhum segredo novo.** O token amplo `RAILWAY_TOKEN`
+  **não** é usado (a guarda `automation-safety` agora reprova se ele aparecer neste workflow).
+- **Fail-closed:** falha de coleta ⇒ snapshot vazio ⇒ classificado como indisponível (**nunca**
+  "saudável" fabricado); fixture ⇒ **dry-run forçado** (nunca abre issue falso).
+- **Limiares:** CRIT se probe indisponível, `archive_mode != on`, sem arquivamento, atraso ≥ **12 h**,
+  falha < **1 h** ou falha mais nova que o último sucesso, ou métricas ausentes; WARN se atraso ≥ **2 h**
+  ou falha antiga já recuperada. (`usedMB > 0` **não** é critério.)
+- **Recuperação:** a issue fecha sozinha quando a saúde normaliza.
+
+**Verificação read-only equivalente (manual, para o Operador):**
+
+```bash
+railway postgres pitr status --service Postgres     # Archiver + Restorable up to + backup sets
+curl -s "$METRICS_URL" -H "X-Admin-Token: $ADMIN_TOKEN" | grep '^backup_health'
+```
+
+**Fora de escopo (decisão explícita):** materialização do `Daily Schedule` e `Restorable up to`
+exigiriam a **API/CLI do Railway** (token amplo) → pendente de decisão em `PENDENCIAS_OPERADOR.md`.
+
 ## Cenários e resposta
 
 | Cenário | Resposta | RTO esperado |
@@ -129,8 +171,10 @@ pg_restore -h <host> -U <user> -d <db> --clean --if-exists <dump>
       **PITR restore (serviço irmão)**, contagens produção=restaurado, serviço irmão removido.
       Confirmado read-only na **T242**. Resta **limpar o volume órfão** (T239) e manter o runbook.
 - [ ] **Decisão de retenção** (Operador): 6 d default vs `--weekly`/`--monthly` vs PITR (T235).
-- [ ] **T227** — alerta de falha de backup (lê o `BACKUP_STATUS_FILE`; padrão GitHub Issues).
-      Base existe: critério por `pitr status`/cobertura + idade (o CLI não expõe campo de conclusão).
+- [x] ~~**T227** — alerta de falha de backup~~ → **T227 (2026-10-15):** `backup-health-alert.yml`
+      (`*/30`) + `pg_stat_archiver` via `/metrics` + dedup por issue. **Least-privilege** (sem token
+      Railway). Limiares CRIT/WARN + fail-closed. Relatório:
+      `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
 - [ ] **T239** — remover o volume órfão `postgres-restored` (50 GB provisionados) — **autorização do Operador**.
 - [ ] **T229** — corrigir o **fail-open** do pré-migration (agora **pode** avançar: há backup confiável).
 - [ ] **T241** (Opção B) — **sem caminho de CLI** (exige export de PII) → manter bloqueada/descartar.

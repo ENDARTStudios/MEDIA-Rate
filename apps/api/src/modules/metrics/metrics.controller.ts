@@ -1,6 +1,7 @@
 import { Controller, Get, Req, Res, ForbiddenException } from "@nestjs/common";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { MetricsService } from "./metrics.service.js";
+import { BackupHealthService } from "./backup-health.service.js";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { isAdminTokenValid } from "../../common/admin-token.util.js";
 
@@ -10,11 +11,15 @@ import { isAdminTokenValid } from "../../common/admin-token.util.js";
  * Proteção (T217): IP allowlist (METRICS_ALLOW_IPS, separado por vírgula)
  * OU sessão com papel ADMIN OU X-Admin-Token legado. Non-admin sem IP
  * allowlist → 403. Nunca expõe PII — apenas métricas de infra.
+ *
+ * T227: anexa a saúde do backup (`backup_health_*`, leitura read-only de
+ * `pg_stat_archiver`) — habilita alerta automatizado sem credencial Railway.
  */
 @Controller("metrics")
 export class MetricsController {
   constructor(
     private readonly metricsService: MetricsService,
+    private readonly backupHealth: BackupHealthService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -29,8 +34,9 @@ export class MetricsController {
       });
     }
 
-    const texto = await this.metricsService.getMetricsText();
-    return reply.type("text/plain").status(200).send(texto);
+    const infra = await this.metricsService.getMetricsText();
+    const backup = await this.backupHealth.textoPrometheus();
+    return reply.type("text/plain").status(200).send(`${infra}${backup}`);
   }
 
   private async autorizado(req: FastifyRequest): Promise<boolean> {

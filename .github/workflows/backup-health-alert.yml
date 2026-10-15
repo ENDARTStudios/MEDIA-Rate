@@ -1,0 +1,71 @@
+# T227 — alerta de falha de backup do PostgreSQL (PITR/arquivador de WAL).
+#
+# - Roda em schedule (30 min) e manualmente (workflow_dispatch).
+# - Fonte: `/metrics` (protegido por `X-Admin-Token`) → série `backup_health_*`,
+#   publicada pelo app a partir de `pg_stat_archiver` (LEITURA read-only, sem PII).
+# - **Least-privilege:** usa `vars.METRICS_URL` + `secrets.ADMIN_TOKEN` JÁ existentes.
+#   NÃO usa credencial Railway (token de conta é amplo: cria/deleta serviços e
+#   volumes) — decisão consciente da T227 (ver docs/08-security/reports).
+# - Dedup: reusa a issue aberta com o label `backup-health-alert` (update) ou cria
+#   só se não houver; FECHA quando normaliza. Nunca imprime corpo de resposta/PII.
+# - Fonte fixture ⇒ FORÇA dry-run (nunca abre issue falso). Sem infra paga.
+name: Backup Health Alert
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry-run (não cria/atualiza issue)"
+        type: boolean
+        default: true
+concurrency:
+  group: backup-health-alert
+  cancel-in-progress: false
+permissions:
+  contents: read
+  issues: write
+jobs:
+  backup-health:
+    name: Saúde do backup (arquivador/PITR)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Self-test (determinístico, sem rede)
+        run: node scripts/ci/backup-health.self-test.mjs
+      - name: Coletar /metrics (live se configurado; senão fixture)
+        id: coletar
+        env:
+          METRICS_URL: ${{ vars.METRICS_URL }}
+          METRICS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          OUT=scripts/ci/.backup-health-snapshot.txt
+          if [ -n "$METRICS_URL" ] && [ -n "$METRICS_ADMIN_TOKEN" ]; then
+            echo "live=true" >> "$GITHUB_OUTPUT"
+            # Falha de coleta ⇒ snapshot vazio ⇒ o script classifica como
+            # indisponível (fail-closed), nunca como "saudável".
+            curl -fsS "$METRICS_URL" -H "X-Admin-Token: $METRICS_ADMIN_TOKEN" -o "$OUT" \
+              || { echo "::warning::coleta de /metrics falhou — snapshot vazio (fail-closed)"; : > "$OUT"; }
+          else
+            echo "live=false" >> "$GITHUB_OUTPUT"
+            cp scripts/ci/backup-health.fixture.txt "$OUT"
+          fi
+      - name: Avaliar e agir (dedup de issue; dry-run por padrão)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Garante o label (idempotente; ignora erro se já existir).
+          gh label create backup-health-alert --color B60205 \
+            --description "Saúde do backup (T227)" 2>/dev/null || true
+          APPLY=""
+          LIVE="${{ steps.coletar.outputs.live }}"
+          # Só aplica quando a fonte é LIVE e não é dry-run explícito.
+          if [ "$LIVE" = "true" ]; then
+            if [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ inputs.dry_run }}" = "false" ]; then
+              APPLY="--apply"
+            fi
+          fi
+          node scripts/ci/backup-health.mjs --input scripts/ci/.backup-health-snapshot.txt $APPLY

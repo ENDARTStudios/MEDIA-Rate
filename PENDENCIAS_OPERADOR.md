@@ -1585,3 +1585,34 @@ workspaces"*, **sem** autorizar custo/produção/PII). Auditoria **100% read-onl
 - **Nada mutado:** sem restore; sem criar/alterar/deletar recurso; sem delete/lock; schedule e PITR
   intocados; R2 não usado; nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only.
 - **GO:** segue **SUSPENSO**.
+
+### T227 (2026-10-15) — alerta de falha de backup **IMPLEMENTADO** (least-privilege, sem token Railway)
+
+Relatório: `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
+
+- **Decisão:** **IMPLEMENTADO** — havia caminho **já provisionado e seguro**, então não coube BLOCKED.
+- **Caminho escolhido (least-privilege):** o **app** lê `pg_stat_archiver` (view de sistema,
+  read-only, **sem PII**) e publica `backup_health_*` em `/metrics`; o workflow
+  `backup-health-alert.yml` (`*/30`) lê `/metrics` com `secrets.ADMIN_TOKEN` (**já existente**) +
+  `vars.METRICS_URL` (**já existente**) e abre/atualiza/fecha **uma** issue (label
+  `backup-health-alert`). **Nenhum segredo novo; nenhuma permissão nova; nenhuma escrita.**
+- **⚠️ O que NÃO foi usado e por quê:** o secret **`RAILWAY_TOKEN`** (que existe no repo, mas não é
+  usado por nenhum workflow) **não** foi usado — token de conta Railway é **credencial ampla**
+  (cria/deleta serviços e volumes; executa restore) e o packet lista "token Railway / acesso amplo"
+  como gatilho de **bloqueio**. Usar credencial ampla para **ler** um status seria elevação de
+  privilégio. A guarda `automation-safety` agora **reprova** se `RAILWAY_TOKEN` aparecer neste workflow.
+- **Fail-closed:** coleta falhou ⇒ snapshot vazio ⇒ **CRIT** (nunca "saudável" fabricado); fixture ⇒
+  **dry-run forçado** (nunca issue falso). Limiares: CRIT se probe indisponível, `archive_mode != on`,
+  atraso ≥ 12 h, falha < 1 h / falha após o último sucesso, ou métricas ausentes; WARN se atraso ≥ 2 h.
+  `usedMB > 0` **não** é critério (a T242 mostrou que é fraco).
+- **Verificação:** 14 testes de API novos + 18 no self-test do CI + **1436 testes** da API verdes;
+  `tsc`, `eslint`, `prettier` e a guarda de automações ok; dry-run com fixture = `acao: none`.
+- **Limite honesto:** materialização do `Daily Schedule` e o campo **`Restorable up to`** são do lado
+  Railway e exigiriam o **token amplo** → **fora de escopo por decisão**; o proxy interno é o
+  **arquivador de WAL**, que é a condição de existência da janela PITR.
+- **PENDÊNCIA DO OPERADOR (nova):** quer que se cubra também a **materialização do backup agendado**
+  e o `Restorable up to` (exigiria criar um token Railway **least-privilege dedicado**, com escopo de
+  leitura, para o CI)? → **SIM / NÃO / ADIAR**. (Sem isso, o alerta cobre o modo de falha principal.)
+- **Nada mutado:** sem restore; volume órfão `postgres-restored` **intocado** (T239 segue pendente);
+  PITR/schedule/backup intocados; sem deploy; nenhum segredo/PII impresso; nenhum alerta interagido.
+- **GO:** segue **SUSPENSO**.

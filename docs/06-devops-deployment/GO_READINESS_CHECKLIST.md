@@ -1,7 +1,7 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-14 (**T242**, auditoria read-only do Railway CLI em contexto PRO —
-restaurabilidade reconciliada com D-594 + resíduo órfão identificado) ·
+**Última auditoria:** 2026-10-15 (**T227**, alerta de falha de backup implementado via `/metrics`,
+least-privilege) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
 do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
 `reports/beta-core-journey-audit-2026-10-13.md`,
@@ -11,8 +11,9 @@ do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-1
 `reports/railway-pro-backup-activation-2026-10-13.md`,
 `reports/railway-backup-retention-hardening-2026-10-13.md`,
 `reports/railway-backup-materialization-verification-2026-10-13.md` e
-`reports/railway-restore-drill-2026-10-13.md` e
-`reports/railway-cli-capability-audit-2026-10-14.md`.
+`reports/railway-restore-drill-2026-10-13.md`,
+`reports/railway-cli-capability-audit-2026-10-14.md` e
+`reports/backup-failure-alert-2026-10-15.md`.
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -71,8 +72,8 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
 | Backup/DR — **restore drill** | ✅ **RESTORE_DRILL_PROVADO (D-594)** | **T242 (2026-10-14, auditoria read-only do Railway CLI):** o drill **já foi executado e aprovado** pelo caminho **não destrutivo** — `pitr restore --at … --new-service-name pitr-drill-20261013` → **serviço irmão** (origem intocada), contagens **produção = restaurado** (190 MB; 40 tabelas; `midia` 17.268; `episodio` 131.743; `media_score` 16.667; `temporada` 6.346; `usuario` 198 — **D-594/T211 cont. 12**). Serviço irmão removido. Confirmado read-only: **nenhum** serviço `pitr-drill*` existe. ⚠️ **Drift reconciliado:** a T228 dizia "não provada" — **superada** pelo D-594 (mesmo dia). ⚠️ **Resíduo billable:** volume **`postgres-restored`** (50 GB provisionados, desanexado) → **T239**. Relatórios: `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-restore-drill-2026-10-13.md` |
-| Backups/DR PostgreSQL | ✅ **RESTAURÁVEL + AGENDADO** | **T242 (2026-10-14, read-only):** **restaurabilidade ✅ PROVADA** (D-594); **schedule PRODUZ backups** — 2 `Daily Schedule` materializados (2026-10-13 e 2026-10-14, ~130/670 MB); `pitr status` → **`enabled`**, **`Archiver: enabled`**, `Restorable up to 2026-10-14 22:46:48Z`; retenção ✅ DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d; backup permanente `pre-go-2026-10-13` (`expiresAt: None`, ainda EM_PROGRESSO lento ~107/630 MB). **Resta:** **alerta de falha (T227)** — sem campo de conclusão no CLI, critério por `pitr status`/cobertura+idade; **limpeza do volume órfão (T239)**; **fail-open pré-migration (T229)**. **Mitigação:** `Online resize to 5000MB` (413/483 MB, materializado) até **2026-10-28**. Relatórios: `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-backup-materialization-verification-2026-10-13.md` |
-| Observabilidade mínima | ✅ PRONTA com 1 lacuna | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs. **Lacuna:** alerta de falha de backup; probing/step-up admin são **logados** mas não alert-ificados |
+| Backups/DR PostgreSQL | ✅ **RESTAURÁVEL + AGENDADO** | **T242 (2026-10-14, read-only):** **restaurabilidade ✅ PROVADA** (D-594); **schedule PRODUZ backups** — 2 `Daily Schedule` materializados (2026-10-13 e 2026-10-14, ~130/670 MB); `pitr status` → **`enabled`**, **`Archiver: enabled`**, `Restorable up to 2026-10-14 22:46:48Z`; retenção ✅ DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d; backup permanente `pre-go-2026-10-13` (`expiresAt: None`, ainda EM_PROGRESSO lento ~107/630 MB). **Alerta de falha: ✅ IMPLEMENTADO (T227)** — `backup-health-alert.yml` (`*/30`) lê `backup_health_*` de `/metrics` (derivado de `pg_stat_archiver`), dedup por issue, reconexão automática, **fail-closed**, **sem credencial Railway ampla**. **Resta:** **limpeza do volume órfão (T239)**; **fail-open pré-migration (T229)**. **Mitigação:** `Online resize to 5000MB` (413/483 MB, materializado) até **2026-10-28**. Relatórios: `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-backup-materialization-verification-2026-10-13.md` |
+| Observabilidade mínima | ✅ PRONTA | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs, **alerta de falha de backup (T227 — `backup_health_*` + issue com dedup)**. Lacuna remanescente: probing/step-up admin são **logados** mas ainda não alert-ificados |
 | Jornada mínima de beta | ✅ **AUDITADA_COM_LACUNAS (T224)** | **T224 (2026-10-13):** 13 fluxos auditados (read-only) — **todos `PRONTO_PARA_BETA`** por evidência de CI (34 specs E2E, incl. `jornada-critica` 3× retries=0) + estática + smoke; copy honesta de indisponível nos 3 locales. **Lacunas** (não de produto): backups P1, aprovação de Production, escopo formal. Relatório: `reports/beta-core-journey-audit-2026-10-13.md` |
 | PLANO_MESTRE | ✅ RECONCILIADO (T224) | seções de estado atual atualizadas para o snapshot 2026-10-13 (API **1422/1422**, web **615/615**, **34 specs E2E**, uptime sintético **ATIVO**, domínio/proteção da `main` resolvidos); história não reescrita |
 | Higiene `admin***@mediarate.test` | ✅ PRONTA (resolvida) | **T200 (2026-10-12):** 0 admins no domínio de teste (7 contas = USER ×7), 0 sessões ativas, 0 atividade pós-remediação T184; único ADMIN de produção é a conta legítima do Operador (D-563). O item era **drift documental** — `synthetic-admin-reconciliation-2026-10-12.md` |
@@ -92,13 +93,14 @@ heurístico (APIs DOM inline), não chave i18n crua.
   **encerramento do incidente INC-2026-10-11** (risco residual aceito, sem purge — T210),
   **observabilidade mínima (5xx/auth/uptime/Sentry)**.
 - **PENDENTES DO OPERADOR (decisão):** **backups — automação ATIVA + retenção ampliada +
-  restaurabilidade ✅ PROVADA (D-594); materialização do backup permanente ⏳ EM_PROGRESSO (T236)**;
-  **T239** (limpar o volume órfão `postgres-restored`) · **T227** (alerta de falha — o CLI não expõe
-  status de conclusão; critério por cobertura+idade) · **T229** (fail-closed pré-migration) ·
-  **T240/T241** (drill/Opção B — capacidade já exercida/sem caminho CLI) · **PITR** (T235, já
-  `enabled` — confirmar intenção) · **T233** (R2) · purge de histórico (NAO_APLICAVEL recomendado) ·
-  Deploy `waiting` (aprovar) · escopo/GO de convites (declaração formal) · eventualmente Gov-02 ·
-  majors de deps (`tailwindcss` 4, `vitest` 5) · Config as Code → `.railway/railway.ts` (**2026-12-01**).
+  restaurabilidade ✅ PROVADA (D-594) + alerta de falha ✅ IMPLEMENTADO (T227)**;
+  **T239** (limpar o volume órfão `postgres-restored` — irreversível) · **T229** (fail-closed
+  pré-migration) · **T240/T241** (drill/Opção B — capacidade já exercida/sem caminho CLI) ·
+  **T227-extensão** (materialização do `Daily Schedule`/`Restorable up to` exigiria token Railway
+  amplo — decisão explícita) · **PITR** (T235, já `enabled` — confirmar intenção) · **T233** (R2) ·
+  purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) · escopo/GO de convites
+  (declaração formal) · eventualmente Gov-02 · majors de deps (`tailwindcss` 4, `vitest` 5) ·
+  Config as Code → `.railway/railway.ts` (**2026-12-01**).
   *(Higiene da conta sintética ADMIN: **resolvida** — T200. Incidente: **encerrado
   documentalmente** — T210. CodeQL #151: **formalizado open mitigado documentado** — T211.
   Deps #515/#518/#522: **resolvidas** — T209. Jornada de beta: **auditada sem bloqueio de

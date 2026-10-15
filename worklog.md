@@ -4417,3 +4417,40 @@ rodando de novo em http://localhost:3000.
 - **Nada mutado:** sem restore; sem criar/alterar/deletar recurso; `delete`/`lock` não usados; schedule
   e PITR intocados; R2 não usado; nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff
   **docs-only**; contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
+
+### [2026-10-15] T227 — alerta de falha de backup implementado (least-privilege, sem token Railway)
+
+- **Decisão: IMPLEMENTADO** — havia caminho **já provisionado e seguro**, então não coube BLOCKED.
+- **Discovery read-only:** padrão de alerta do repo (workflows agendados + `issues: write` + dedup por
+  label + scripts `scripts/ci/*.mjs` com self-test determinístico); secrets existentes; `/metrics`
+  protegido por `X-Admin-Token` (`ADMIN_TOKEN`).
+- **Decisão de credencial (material):** o secret **`RAILWAY_TOKEN` existe** no repo (sem uso em nenhum
+  workflow) mas **NÃO foi usado** — token de conta Railway é **credencial ampla** (cria/deleta serviços
+  e volumes, executa restore) e o packet lista "token Railway"/"acesso amplo" como gatilho de
+  **bloqueio**; usar credencial ampla para **ler** um status seria elevação de privilégio.
+- **Caminho escolhido (least-privilege):** o app lê `pg_stat_archiver` (view de sistema, read-only,
+  **sem PII**; confirmado read-only em produção: `archive_mode=on`, `archive_timeout=1min`,
+  `archived_count=2662`, `failed_count=0`, último arquivamento há **14 s**) e publica `backup_health_*`
+  em `/metrics`; `backup-health-alert.yml` (`*/30`) lê `/metrics` com `ADMIN_TOKEN`+`METRICS_URL`
+  (**já existentes**) e abre/atualiza/fecha **uma** issue (label `backup-health-alert`).
+  **Zero segredo novo, zero permissão nova, zero escrita.**
+- **Implementado:** `apps/api/src/modules/metrics/backup-health.ts` (puro) +
+  `backup-health.service.ts` (coleta **fail-closed**) + wiring em `metrics.controller/module` (o
+  `MetricsService` **não** foi tocado → zero risco para specs existentes); `scripts/ci/backup-health.mjs`
+  + `.self-test.mjs` + `.fixture.txt`; workflow novo; `automation-safety.self-test.mjs` estendido
+  (exige `METRICS_URL`+`ADMIN_TOKEN` e **proíbe `RAILWAY_TOKEN`** neste workflow).
+- **Limiares:** CRIT se probe indisponível, `archive_mode != on`, sem arquivamento, atraso ≥ **12 h**,
+  falha < **1 h** / falha após o último sucesso, ou métricas ausentes; WARN se atraso ≥ **2 h**.
+  Fail-closed; fixture ⇒ dry-run forçado; `usedMB > 0` **não** é critério.
+- **Verificação:** **14** testes novos de API (`backup-health.spec.ts`) · **1436** testes da API verdes
+  (169 arquivos) · **18** no self-test do CI · `tsc`, `eslint`, `prettier`, YAML e a guarda de
+  automações ok · dry-run com fixture = `acao: none`.
+- **Limite honesto:** materialização do `Daily Schedule` e `Restorable up to` são do lado Railway e
+  exigiriam o **token amplo** → **fora de escopo por decisão** (vira pergunta ao Operador em
+  `PENDENCIAS_OPERADOR.md`); o proxy interno é o arquivador de WAL (condição de existência da janela PITR).
+- **Docs:** relatório `docs/08-security/reports/backup-failure-alert-2026-10-15.md` · `BACKUP_DR.md`
+  (seção nova "Alerta de falha de backup" + dimensões separadas) · `GO_READINESS_CHECKLIST.md`
+  (**`BACKUP_ALERT_IMPLEMENTADO`**) · `PENDENCIAS_OPERADOR.md` · `TESTING.md`.
+- **Nada mutado:** sem restore; volume órfão `postgres-restored` **intocado** (T239 segue pendente);
+  PITR/schedule/backup intocados; sem deploy/aprovação de Production; nenhum ID/URL/segredo/PII
+  impresso; nenhum alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
