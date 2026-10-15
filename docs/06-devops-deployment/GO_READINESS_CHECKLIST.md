@@ -1,7 +1,7 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-15 (**T229**, reconciliação do backup pré-migration — falso controle
-removido) ·
+**Última auditoria:** 2026-10-15 (**T248**, refresh read-only do pacote pré-GO pós-T227/T229 —
+snapshot consolidado em §7) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
 do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
 `reports/beta-core-journey-audit-2026-10-13.md`,
@@ -14,7 +14,8 @@ do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-1
 `reports/railway-restore-drill-2026-10-13.md`,
 `reports/railway-cli-capability-audit-2026-10-14.md`,
 `reports/backup-failure-alert-2026-10-15.md` e
-`reports/premigration-backup-reconciliation-2026-10-15.md`.
+`reports/premigration-backup-reconciliation-2026-10-15.md` (**refresh T248**:
+`reports/pre-go-evidence-refresh-2026-10-15.md`).
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -90,17 +91,25 @@ heurístico (APIs DOM inline), não chave i18n crua.
 
 ## 7. Resumo
 
+> **Snapshot do refresh T248 (2026-10-15, pós-T227/T229)** — `reports/pre-go-evidence-refresh-2026-10-15.md`.
+> Base `bd91a79a` · CI/Security **verdes** em `main` · **smoke 7/7** · alertas **117** (CodeQL 1 + Trivy 116;
+> `#151` inalterado `OPEN_MITIGATED_DOCUMENTED`) · PITR **`enabled`**, `Archiver: enabled`,
+> `Restorable up to` ≈ **1 min** de atraso, **Backup sets: 3** · schedule **6/27/89 d** ·
+> 2 `Daily Schedule` **materializados** · volume órfão `postgres-restored` **presente** ·
+> `migrate-production.yml` **sem** passo executável de backup.
+
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/uptime/alertas,
   fila CodeQL de correção, audit, Pacote de GO 4/4, **hardening admin (T201–T206 + T205 Fase 1)**,
   **encerramento do incidente INC-2026-10-11** (risco residual aceito, sem purge — T210),
-  **observabilidade mínima (5xx/auth/uptime/Sentry)**.
-- **PENDENTES DO OPERADOR (decisão):** **backups — automação ATIVA + retenção ampliada +
-  restaurabilidade ✅ PROVADA (D-594) + alerta de falha ✅ IMPLEMENTADO (T227) + pré-migration ✅
-  RECONCILIADO (T229 — falso controle removido)**;
+  **observabilidade mínima (5xx/auth/uptime/Sentry)**,
+  **backups: restaurabilidade PROVADA (D-594) + alerta de arquivador IMPLEMENTADO (T227) +
+  falso controle pré-migration REMOVIDO (T229)**.
+- **PENDENTES DO OPERADOR (decisão):**
   **T239** (limpar o volume órfão `postgres-restored` — irreversível) ·
+  **T227-ext** (cobrir materialização do `Daily Schedule`/`Restorable up to` exigiria token Railway
+  **escopado**; o amplo segue recusado — ou aceitar formalmente o risco) ·
   **T240/T241** (drill/Opção B — capacidade já exercida/sem caminho CLI) ·
-  **T227-extensão** (materialização do `Daily Schedule`/`Restorable up to` exigiria token Railway
-  amplo — decisão explícita) · **PITR** (T235, já `enabled` — confirmar intenção) · **T233** (R2) ·
+  **PITR** (T235, já `enabled` — confirmar intenção) · **T233** (R2) ·
   purge de histórico (NAO_APLICAVEL recomendado) · Deploy `waiting` (aprovar) · escopo/GO de convites
   (declaração formal) · eventualmente Gov-02 · majors de deps (`tailwindcss` 4, `vitest` 5) ·
   Config as Code → `.railway/railway.ts` (**2026-12-01**).
@@ -110,6 +119,10 @@ heurístico (APIs DOM inline), não chave i18n crua.
   produto** — T224.)*
 - **BLOQUEADAS (tooling):** `vitest ^4.1.11` (hoisting do coverage — T221) e `fastify ^5.12.5`
   (duplicação de tipos — T222); não forçar.
-- **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco · Trivy estrutural.
+- **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco · Trivy estrutural ·
+  `pre-go-2026-10-13` EM_PROGRESSO lento (não é prova) · **janela transitória merge→deploy do alerta
+  de backup** · **cadência efetiva dos agendados do GitHub ~2–4 h** (throttling da plataforma —
+  bound de latência do alerta, bem abaixo do CRIT de 12 h) · `Restorable up to` (frescor) ·
+  Vercel quota · `railway.json` deprecado.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.

@@ -4488,3 +4488,37 @@ rodando de novo em http://localhost:3000.
 - **Nada mutado:** sem migration real; PITR/schedule/backup/volume intocados (volume órfão
   `postgres-restored` **intocado** — T239); sem `RAILWAY_TOKEN`; nenhum segredo/PII impresso; nenhum
   alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
+
+### [2026-10-15] T248 — refresh read-only do pacote pré-GO (pós-T227/T229)
+
+- **Natureza:** **read-only/docs-only**. Base **`bd91a79a`**. Nenhuma mutação, nenhum token, nenhum custo.
+- **CI/Security:** no último push de `main` → CI **success**, Security **success**, PRR skipped,
+  **Deploy `waiting`** (aprovação manual em Production — **não aprovada**). Smoke **7/7 → 200**.
+- **Alertas de segurança (contagem GET-only, sem interação):** **117** abertos = **CodeQL 1** +
+  **Trivy 116** (era 118 em 2026-10-13; a queda de 1 é natural, sem ação nossa). **`#151`**
+  (`js/request-forgery`, `critical`) **inalterado** (`updated_at` 2026-10-11) → segue
+  **`OPEN_MITIGATED_DOCUMENTED`**.
+- **Alerta de backup (T227):** workflow `Backup Health Alert` **`active`** em `main`; artefatos
+  versionados (workflow, script + self-test + fixture, módulo da API, spec); guarda
+  `automation-safety` ✓ (proíbe `RAILWAY_TOKEN`). **Runs: 1** — o dispatch de validação (dry-run com
+  `/metrics` ao vivo). **Issues `backup-health-alert`: nenhuma** → o alerta nunca disparou.
+- **⚠️ Achado honesto (monitor novo):** **os agendados do GitHub estão fortemente throttled neste
+  repo** — `Uptime Check` (`*/10`) roda a cada ~4 h, `Alertas Metricos` (`*/15`) a cada ~2–4 h,
+  `Deploy Reconciler` (`*/30`) a cada ~2–4 h. Logo a ausência de run agendado do
+  `backup-health-alert` em ~3 h é **consistente com a plataforma, não defeito** (o workflow está
+  `active` e já foi provado ponta-a-ponta). **Bound efetivo de detecção ≈ 2–4 h** — bem abaixo do
+  CRIT de 12 h.
+- **Backup/DR (leitura sanitizada):** PITR **`enabled`**, `Archiver: enabled`, **Backup sets: 3**,
+  `Latest backup 2026-10-15T03:34:35Z`, **`Restorable up to` ≈ 1 min de atraso**; schedules
+  **DAILY 6 d / WEEKLY 27 d / MONTHLY 89 d**; **2 `Daily Schedule` materializados** (13 e 14/10);
+  `pre-go-2026-10-13` **EM_PROGRESSO lento** (107/630 MB, sem expiração); `Online resize` (413/483 MB)
+  até 2026-10-28; **volume órfão `postgres-restored`** presente (1 274 MB / 50 000 MB, desanexado) → **T239**.
+- **Workflow de migration (T229) revalidado em `main`:** **nenhuma** linha executável chamando
+  `backup-db.sh` — só um comentário; job `(apply + verify)`.
+- **Docs:** relatório novo `docs/08-security/reports/pre-go-evidence-refresh-2026-10-15.md` +
+  `GO_READINESS_CHECKLIST.md` (§7 com snapshot consolidado + monitores novos) + `BACKUP_DR.md`
+  (bound de latência do alerta) + `PENDENCIAS_OPERADOR.md` (bloco T248 + **templates** de decisão
+  para T239 e T227-ext).
+- **Nada mutado:** sem migration/restore/backup create-delete-lock; PITR/schedule/volume/produção
+  intocados; volume órfão **intocado**; sem `RAILWAY_TOKEN`; nenhum segredo/ID bruto/URL/PII impresso;
+  nenhum alerta de segurança interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
