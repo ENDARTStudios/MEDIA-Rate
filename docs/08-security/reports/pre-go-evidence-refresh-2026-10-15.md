@@ -130,7 +130,9 @@ a cadência observada é ~12:49 UTC). O `pre-go` continua lento e **não** é al
 
 **Volumes:** `postgres-volume` (Postgres, 687/5000 MB) · `redis-volume` (Redis, 349/5000 MB) ·
 ⚠️ **`postgres-restored` (Attached: N/A, 1274 MB usados / 50000 MB provisionados, Ready)** —
-**resíduo do drill D-594**, intocado → **T239 (decisão do Operador)**.
+**resíduo do drill D-594** → **RESOLVIDO na T239 (2026-10-15):** deleção executada por comando
+documentado; o Railway aplica **carência (~48 h)** → `isPendingDeletion: true`,
+`deletedAt: 2026-10-17T13:26:50Z`. Ver `reports/railway-orphan-volume-cleanup-2026-10-15.md`.
 
 ## 6. Workflow de migration (T229) — revalidado em `main`
 

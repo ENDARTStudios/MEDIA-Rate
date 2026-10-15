@@ -1692,3 +1692,38 @@ OBSERVACAO = opcional, sem segredo
   **GO convites** (declaração formal).
 - **Nada mutado:** leitura apenas; nenhuma aprovação de Production; nenhum segredo/token/custo;
   nenhum alerta interagido. **GO:** segue **SUSPENSO**.
+
+### T239 (2026-10-15) — volume órfão `postgres-restored`: **exclusão AGENDADA** (`DONE_WITH_ESCALATION`)
+
+Relatório: `docs/08-security/reports/railway-orphan-volume-cleanup-2026-10-15.md`.
+Autorização: `DECISAO_THINKER_OPERADOR_DELEGADO_POS_T248A_2026-10-15` (com **hard stops**).
+
+- **Prechecks (read-only, todos aprovados):** exatamente **1** volume `postgres-restored` · desanexado
+  (`serviceName: null`) · **nenhum** serviço o monta · **não** é o `postgres-volume` do Postgres ·
+  1274,25 MB usados / 50 000 MB provisionados · `Ready`.
+- **Executado:** `railway volume delete -v postgres-restored -y` (**comando documentado**, pelo
+  **nome exato**; **sem** 2FA, sem `--force`, sem contorno) → `Volume "postgres-restored" deleted`.
+- **⚠️ Resultado real — exclusão AGENDADA, não imediata:** o Railway aplica **carência (~48 h)**. Pós-estado:
+  `isPendingDeletion: true`, **`deletedAt: 2026-10-17T13:26:50Z`** (`Deletes on: Oct 17 2026 10:26 -03:00`).
+  O volume **ainda consta** na listagem e **ainda ocupa os 50 GB** até lá → **`DONE_WITH_ESCALATION`**
+  (o critério de DONE exigia ausência na pós-listagem).
+- **Pós-checagem — rede real de recuperação intacta:** serviços = `MEDIA Rate`, `Postgres`, `Redis` ·
+  `postgres-volume` e `redis-volume` intactos · **PITR `enabled`** + `Archiver: enabled` +
+  `Restorable up to` ≈1 min · schedules DAILY/WEEKLY/MONTHLY · backups íntegros (o **3º `Daily Schedule`**
+  de hoje é o schedule funcionando) · **nenhuma** issue `backup-health-alert`.
+- **✅ AÇÃO DE FOLLOW-UP (Operador/Doer):** **reconfirmar read-only após 2026-10-17** que o volume
+  **desapareceu**; se não, escalar como `VOLUME_DELETE_NAO_EFETIVADO`.
+- **T227-ext — REGISTRADO:** ⚖️ **risco residual formalmente aceito, sem token Railway** (o alerta cobre
+  o arquivador de WAL; a materialização do `Daily Schedule`/`Restorable up to` fica em monitor read-only).
+  **Nenhum token criado/usado**; o `RAILWAY_TOKEN` amplo segue proibido.
+- **Nada mais mutado:** nenhuma outra deleção; PITR/schedule/backup/secrets/vars/deploy/schema/dados
+  intocados; nenhum ID bruto/segredo/PII impresso. **GO:** segue **SUSPENSO**.
+
+### Fila de decisões do Operador (estado em 2026-10-15)
+
+| # | Decisão | Estado |
+|---|---|---|
+| 1 | **Deploy Production** (`waiting`) | ⏳ **pendente** — aprovação manual explícita |
+| 2 | **GO convites** | ⏳ **SUSPENSO** — declaração formal |
+| 3 | T239 (volume órfão) | ✅ **executada** — exclusão agendada p/ 2026-10-17 (reconfirmar) |
+| 4 | T227-ext (cobertura do alerta) | ✅ **decidida** — risco residual aceito, sem token |

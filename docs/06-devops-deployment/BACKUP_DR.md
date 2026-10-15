@@ -13,9 +13,11 @@
 >    (T236) está **superado**.
 > 3. **PITR está `enabled`** com **`Archiver: enabled`** e **`Restorable up to`** avançando
 >    (não mais `disabled` como em trechos antigos abaixo).
-> 4. **Resíduo billable a limpar (T239):** o volume **`postgres-restored`** (do drill D-594) ficou
->    **desanexado** (`Attached to: N/A`) com **50 GB provisionados** — o `service delete` removeu o
->    serviço mas não o volume. Remoção exige autorização do Operador.
+> 4. **Resíduo billable — 🔄 exclusão AGENDADA (T239, 2026-10-15):** o volume **`postgres-restored`**
+>    (do drill D-594) foi removido com `railway volume delete -v postgres-restored -y`; o Railway
+>    marca **carência (~48 h)** → `deletedAt: 2026-10-17T13:26:50Z` / `isPendingDeletion: true`.
+>    Reconfirmar ausência read-only após essa data. Relatório:
+>    `docs/08-security/reports/railway-orphan-volume-cleanup-2026-10-15.md`.
 > 5. **Sem caminho de export/dump pelo CLI** (não há `pitr backup download`) → a "Opção B" (dump →
 >    Postgres local) **não é implementável pelo CLI** sem ler a produção (PII).
 
@@ -24,7 +26,15 @@
 > - **Verificação read-only:** ✅ `pitr status` (Archiver, `Restorable up to`, backup sets) +
 >   `pitr backup list --json` + `postgres history`; **dentro do app**, `pg_stat_archiver`.
 > - **Alerta automatizado:** ✅ **IMPLEMENTADO (T227)** — ver § "Alerta de falha de backup" abaixo.
-> - **Volume órfão:** ⚠️ `postgres-restored` (desanexado, 50 GB) — pendente da **T239** (decisão do Operador).
+> - **Volume órfão:** 🔄 **`postgres-restored` — EXCLUSÃO AGENDADA (T239, 2026-10-15)**: removido pelo
+>   comando documentado `railway volume delete -v postgres-restored -y`; o Railway aplica **carência
+>   (~48 h)** → `isPendingDeletion: true`, **`deletedAt: 2026-10-17T13:26:50Z`**. Ainda ocupa os 50 GB
+>   provisionados **até lá** → **reconfirmar read-only após 2026-10-17**. Relatório:
+>   `docs/08-security/reports/railway-orphan-volume-cleanup-2026-10-15.md`.
+> - **T227-ext:** ⚖️ **RISCO RESIDUAL FORMALMENTE ACEITO (sem token Railway)** — o alerta cobre o
+>   arquivador de WAL (sinal crítico do PITR); a materialização do `Daily Schedule` / `Restorable up to`
+>   fica monitorada por evidência periódica read-only. **Nenhum token Railway criado/uso** (o amplo
+>   segue proibido).
 > - **`pre-go-2026-10-13`:** ⏳ `EM_PROGRESSO` lento (~107/630 MB) — **não** crítico para a
 >   restaurabilidade global. Relatório: `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
 
@@ -194,7 +204,11 @@ exigiriam a **API/CLI do Railway** (token amplo) → pendente de decisão em `PE
       (`*/30`) + `pg_stat_archiver` via `/metrics` + dedup por issue. **Least-privilege** (sem token
       Railway). Limiares CRIT/WARN + fail-closed. Relatório:
       `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
-- [ ] **T239** — remover o volume órfão `postgres-restored` (50 GB provisionados) — **autorização do Operador**.
+- [x] ~~**T239** — remover o volume órfão `postgres-restored` (50 GB provisionados)~~ → **T239
+      (2026-10-15):** deleção executada por comando documentado; Railway aplica **carência (~48 h)** —
+      `isPendingDeletion: true`, `deletedAt: 2026-10-17T13:26:50Z`. **`DONE_WITH_ESCALATION`** (ainda
+      consta na listagem até 2026-10-17) → **reconfirmar read-only depois**. Relatório:
+      `docs/08-security/reports/railway-orphan-volume-cleanup-2026-10-15.md`.
 - [x] ~~**T229** — corrigir o **fail-open** do pré-migration~~ → **T229 (2026-10-15):** o passo
       decorativo **foi removido** (***não*** torneado fail-closed, o que bloquearia migrations por um
       caminho que nunca funcionou). Rede real documentada acima. Relatório:
