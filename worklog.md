@@ -4522,3 +4522,21 @@ rodando de novo em http://localhost:3000.
 - **Nada mutado:** sem migration/restore/backup create-delete-lock; PITR/schedule/volume/produção
   intocados; volume órfão **intocado**; sem `RAILWAY_TOKEN`; nenhum segredo/ID bruto/URL/PII impresso;
   nenhum alerta de segurança interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
+
+### [2026-10-15] T248 (correção) — o alerta de backup RODA agendado; latência efetiva ~4–6 h
+
+- **Motivo:** o **monitor read-only** feito horas depois **derrubou parte do que a T248 afirmou**.
+- **Antes (T248):** "nenhum run agendado ainda" + "bound efetivo **~2–4 h**" — conclusão tirada de uma
+  **janela curta** (~3 h após o merge).
+- **Agora (verificado read-only):** o `backup-health-alert` tem **2 runs AGENDADOS com sucesso**
+  (`2026-10-15T05:36:11Z` e `10:56:25Z`) e **nenhuma issue** `backup-health-alert` → o alerta **está
+  rodando agendado em produção** e reportando saudável.
+- **Latência efetiva corrigida:** **~4–6 h** (`Backup Health Alert` 05:36→10:56 ≈ 5 h;
+  `Deploy Reconciler` 07:00→12:45 ≈ 5 h45; `Alertas Metricos` 05:15→10:11 ≈ 5 h). Continua **abaixo**
+  do CRIT de 12 h, mas **acima** do WARN de 2 h.
+- **Docs corrigidos:** relatório `pre-go-evidence-refresh-2026-10-15.md` (novo **adendo §4.1** + §4/§7/§8)
+  · `GO_READINESS_CHECKLIST.md` (monitor) · `BACKUP_DR.md` (nota de latência) · `PENDENCIAS_OPERADOR.md`.
+- **Efeito:** evidência **favorável** à decisão pendente (T227-ext) — a T227 é **real e operante**:
+  dois ciclos agendados completos, dedup pronto, nenhuma issue falsa.
+- **Nada mutado:** leitura apenas; sem `RAILWAY_TOKEN`; PITR/schedule/backup/volume/produção intocados;
+  nenhum segredo/PII impresso; nenhum alerta interagido. **GO segue SUSPENSO.**

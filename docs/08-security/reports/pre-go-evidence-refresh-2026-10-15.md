@@ -60,8 +60,9 @@ Sem regressões: os últimos runs de `main` anteriores (push de `4691efbe`) tamb
   `apps/api/src/modules/metrics/backup-health.ts` e `apps/api/tests/backup-health.spec.ts`.
 - **Guardas:** `migration-safety` **10/10**, `automation-safety` ✓ (e ela agora **reprova**
   `RAILWAY_TOKEN` neste workflow).
-- **Runs:** **1** — o `workflow_dispatch` de validação (2026-10-15T00:42:33Z, success, **dry-run com
-  `/metrics` AO VIVO**). **Nenhum run agendado ainda.**
+- **Runs:** **3** — o `workflow_dispatch` de validação (00:42:33Z, dry-run com `/metrics` AO VIVO) e
+  **2 runs AGENDADOS com sucesso** (05:36:11Z e 10:56:25Z). Ver o **adendo §4.1** (o schedule
+  **dispara**; a primeira leitura, de janela curta, dizia "nenhum run agendado ainda" — corrigida).
 - **Issues com o label `backup-health-alert`: nenhuma** (estado `all`) → o alerta **nunca disparou**.
 
 ### ⚠️ Achado honesto: agendamentos do GitHub estão fortemente throttled neste repo
@@ -71,19 +72,39 @@ Os crons nominais do repositório **não** se cumprem na prática:
 | Workflow | Cron nominal | Intervalos observados |
 |---|---|---|
 | `Uptime Check` | `*/10` | ~4 h |
-| `Alertas Metricos` | `*/15` | ~2–4 h |
-| `Deploy Reconciler` | `*/30` | ~2–4 h |
-| `Backup Health Alert` | `*/30` | **nenhum run agendado em ~3 h** |
+| `Alertas Metricos` | `*/15` | ~2–5 h |
+| `Deploy Reconciler` | `*/30` | ~2–6 h |
+| `Backup Health Alert` | `*/30` | **~5 h** (05:36 → 10:56) |
 
 **Interpretação (não é defeito do nosso workflow):** a plataforma entrega os agendamentos com atraso
 grande em todos eles. Logo, a ausência de run agendado do alerta após ~3 h é **consistente com o
 comportamento da plataforma** e **não** indica falha de configuração (o workflow está `active` e já
 foi provado ponta-a-ponta no dispatch).
 
-**Consequência para os limiares (bound de latência):** com cadência efetiva de ~2–4 h, uma parada do
-arquivador seria detectada com atraso de ~2–4 h — **muito abaixo** do limiar CRIT de **12 h** e
-alinhado ao WARN de **2 h**. O limite prático do alerta passa a ser a **cadência efetiva do runner**,
-não o cron nominal. Registrado como monitor.
+**Consequência para os limiares (bound de latência):** com cadência efetiva de **~4–6 h** (ver §4.1),
+uma parada do arquivador seria detectada com atraso de ~4–6 h — **ainda abaixo** do limiar CRIT de
+**12 h**, mas **acima** do WARN de 2 h. O limite prático do alerta passa a ser a **cadência efetiva do
+runner**, não o cron nominal. Registrado como monitor.
+
+### 4.1 ⚠️ Adendo (mesmo dia, ~12:45Z): o schedule **dispara** — latência efetiva ~4–6 h
+
+A primeira leitura desta seção foi feita numa **janela curta** (~3 h após o merge) e concluiu
+"nenhum run agendado ainda". **Observação de acompanhamento (read-only) corrige isso:**
+
+```
+2026-10-15T00:42:33Z | workflow_dispatch | success   (validação, dry-run)
+2026-10-15T05:36:11Z | schedule          | success   ← 1º run AGENDADO (~5 h pós-merge)
+2026-10-15T10:56:25Z | schedule          | success
+issues com label backup-health-alert: NENHUMA
+```
+
+**Conclusão corrigida:** o alerta **está rodando em produção, agendado, com sucesso** — e segue sem
+abrir issue (backup saudável). O **bound efetivo** passa a ser **~5 h** (`05:36 → 10:56`, ~5 h20),
+coerente com o throttling medido nos demais workflows (`Deploy Reconciler` 07:00 → 12:45, ~5 h45;
+`Alertas Metricos` 05:15 → 10:11, ~5 h). Continua **abaixo** do CRIT de 12 h.
+
+Prova adicional de que a T227 é real, não decorativa: **dois ciclos agendados completos em produção**,
+com dedup pronto e nenhuma issue falsa.
 
 ## 5. Backup/DR — leitura (Railway)
 
@@ -138,7 +159,8 @@ chamando `backup-db.sh`; a única menção é um **comentário** (linha 19). O j
 **🔁 MONITORADO**
 - `pre-go-2026-10-13` **EM_PROGRESSO lento** (~107/630 MB) — não é prova principal.
 - **Janela transitória** merge→deploy do alerta (métricas ausentes ⇒ CRIT temporário).
-- **Cadência efetiva dos agendados do GitHub ~2–4 h** (throttling) → bound de latência do alerta.
+- **Cadência efetiva dos agendados do GitHub ~4–6 h** (throttling da plataforma) → bound de latência
+  do alerta de backup (ver §4.1; segue abaixo do CRIT de 12 h).
 - `Restorable up to` (frescor da janela) · Vercel quota · Trivy estrutural · flakes conhecidos ·
   `railway.json` deprecado (**migrar até 2026-12-01**) · `Monitor-26-honest-no-cast-titles`.
 
@@ -146,8 +168,9 @@ chamando `backup-db.sh`; a única menção é um **comentário** (linha 19). O j
 
 1. **Alertas 117, não 118** — queda de 1 desde 2026-10-13; sem ação nossa.
 2. **PITR `Backup sets: 3`** (era 2 na T242) — o arquivador continua produzindo conjuntos.
-3. **Nenhum run agendado do `backup-health-alert`** após ~3 h — explicado pelo throttling (§4),
-   **não** por defeito. Mantido como monitor.
+3. ~~**Nenhum run agendado do `backup-health-alert`**~~ → **RESOLVIDO no adendo §4.1:** há
+   **2 runs agendados com sucesso** (05:36:11Z e 10:56:25Z) e **nenhuma issue**. A latência efetiva
+   real é **~4–6 h** (não ~2–4 h). Mantido como monitor.
 4. **`pre-go` estagnado** em ~107 MB há ~1 dia — não é bloqueante, mas confirma que ele **não** serve
    como alvo de verificação.
 

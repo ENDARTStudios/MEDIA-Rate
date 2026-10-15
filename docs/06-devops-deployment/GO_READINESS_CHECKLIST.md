@@ -121,8 +121,9 @@ heurístico (APIs DOM inline), não chave i18n crua.
   (duplicação de tipos — T222); não forçar.
 - **MONITORADAS:** flakes (Build/Turbopack e suíte API) · 26 títulos sem elenco · Trivy estrutural ·
   `pre-go-2026-10-13` EM_PROGRESSO lento (não é prova) · **janela transitória merge→deploy do alerta
-  de backup** · **cadência efetiva dos agendados do GitHub ~2–4 h** (throttling da plataforma —
-  bound de latência do alerta, bem abaixo do CRIT de 12 h) · `Restorable up to` (frescor) ·
+  de backup** · **cadência efetiva dos agendados do GitHub ~4–6 h** (throttling da plataforma —
+  bound de latência do alerta, **abaixo** do CRIT de 12 h; o alerta **roda agendado**: 2 runs com
+  sucesso em 2026-10-15) · `Restorable up to` (frescor) ·
   Vercel quota · `railway.json` deprecado.
 - **GO para convites: SUSPENSO** — liberável **apenas por declaração formal do Operador** após
   resolver/aceitar as pendências acima. Nenhuma ação do agente declara GO.
