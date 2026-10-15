@@ -38,6 +38,14 @@ do Operador):
 
 1. **Backup antes** (obrigatório): rodar `scripts/backup-db.sh` (retenção 30
    dias) e confirmar o artefato.
+   ⚠️ **O `BACKUP_DIR` precisa ser DURÁVEL.** O `/app` do container é **efêmero** (some no
+   redeploy) — um dump só em `/app/backups` **não** é recuperável depois. Configure
+   `BACKUP_UPLOADER` (destino externo) ou grave em volume persistente; sem isso, **não** conte com
+   esse dump como sua recuperação. A trilha principal segue sendo a gerenciada (PITR + backups
+   agendados + **restore provado**, D-594).
+   ℹ️ **T229 (2026-10-15):** o passo de backup pré-migration que existia no **CI**
+   (`migrate-production.yml`) foi **removido** — era fail-open e inoperante de fora da rede
+   (D-527). O backup pré-migration pertence **a este runbook** (console do serviço), nunca ao CI.
 2. Railway → serviço **API** → aba **Shell** (console do container, com o
    `DATABASE_URL` já injetado pelo serviço — **nenhum valor é impresso/copiado**).
 3. No Shell: `npx prisma migrate deploy --schema=prisma/schema.prisma`.

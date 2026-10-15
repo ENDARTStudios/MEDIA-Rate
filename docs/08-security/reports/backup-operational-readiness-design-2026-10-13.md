@@ -8,6 +8,13 @@ Este documento é **design**, não implementação.
 > Sanitização: apenas nomes de arquivo/variável, formatos e contagens. Nenhum `DATABASE_URL`, senha,
 > token, connection string, host real, PII ou path sensível.
 
+> **ATUALIZAÇÃO (T229, 2026-10-15):** a análise do "backup pré-migration" (§2, item (a)/(b)) foi
+> **resolvida** — o passo fail-open e inoperante **foi removido** do `migrate-production.yml`, e a
+> rede real passou a ser documentada como PITR + arquivador monitorado (T227) + schedule +
+> restore provado (D-594). A T229 optou por **remover**, **não** por tornar fail-closed (isso
+> bloquearia migrations por um caminho que nunca funcionou). Ver
+> `premigration-backup-reconciliation-2026-10-15.md`.
+
 ---
 
 ## 1. Sumário executivo

@@ -1616,3 +1616,32 @@ Relatório: `docs/08-security/reports/backup-failure-alert-2026-10-15.md`.
 - **Nada mutado:** sem restore; volume órfão `postgres-restored` **intocado** (T239 segue pendente);
   PITR/schedule/backup intocados; sem deploy; nenhum segredo/PII impresso; nenhum alerta interagido.
 - **GO:** segue **SUSPENSO**.
+
+### T229 (2026-10-15) — backup pré-migration: **falso controle REMOVIDO**
+
+Relatório: `docs/08-security/reports/premigration-backup-reconciliation-2026-10-15.md`.
+
+- **Classificação: `PRE_MIGRATION_BACKUP_DECORATIVO_REMOVIDO`.**
+- **O que era:** o passo `Backup antes da migration` do `migrate-production.yml` era **fail-open**
+  (`|| echo "…continuando"`) **e inoperante** (secret `DATABASE_URL` = hostname interno, **D-527**,
+  inalcançável dos runners) — e o **próprio `scripts/backup-db.sh` proíbe uso em CI**. Somado: não
+  protegia, não rodava e criava **falsa garantia de segurança**.
+- **O que foi feito:** o passo **foi removido** (***não*** torneado fail-closed — isso bloquearia
+  migrations por um caminho que **nunca funcionou**). O workflow ficou `(apply + verify)`, com um
+  comentário no topo registrando o porquê e a rede real. `deploy.yml`, gates B1
+  (`migration-safety`/`migration-destructive-guard`) e o runbook **não** dependiam do passo.
+- **Rede de segurança REAL (documentada):** PITR `enabled` + **arquivador monitorado pelo alerta
+  (T227)** + backups agendados materializados + **restore provado (D-594)**; o dump portátil
+  (`backup-db.sh` + `BACKUP_UPLOADER`) é **complemento manual** — o backup pré-migration de fato
+  pertence ao **console do serviço** (runbook `migration-manual.md`), nunca ao CI.
+- **Impacto em migration/rollback:** nenhum em proteção real; migrations automáticas (entrypoint no
+  boot) não são afetadas; o workflow segue inoperante de fora (D-527) — fato **anterior** e
+  independente.
+- **Verificação:** YAML ok; `migration-safety` **10/10**; `migration-destructive-guard` **6/6**;
+  `automation-safety` ✓.
+- **DECISÕES DO OPERADOR (recapitulação, sem mudança):** **T239** (remover o volume órfão —
+  irreversível) · **T227-ext** (cobrir `Daily Schedule`/`Restorable up to` exigiria token Railway
+  **escopado**; o amplo segue recusado) · **T245** (Config as Code até 2026-12-01) · **T233** (R2) ·
+  Deploy Production (aprovar) · GO convites (declaração formal).
+- **Nada mutado:** sem migration real; PITR/schedule/backup/volume intocados; sem `RAILWAY_TOKEN`;
+  nenhum segredo/PII impresso; nenhum alerta interagido. **GO:** segue **SUSPENSO**.
