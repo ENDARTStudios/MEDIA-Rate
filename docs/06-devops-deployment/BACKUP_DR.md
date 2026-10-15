@@ -156,12 +156,12 @@ curl -s "$METRICS_URL" -H "X-Admin-Token: $ADMIN_TOKEN" | grep '^backup_health'
 ```
 
 > **ℹ️ Refresh T248 (2026-10-15) — latência real do alerta.** O workflow `backup-health-alert` está
-> **`active`** em `main` e foi **provado ponta-a-ponta** (dispatch em dry-run lendo `/metrics` ao
-> vivo). Porém, **os agendados do GitHub neste repositório são fortemente throttled**: o `*/10` do
-> uptime roda a cada ~4 h, o `*/15` dos alertas métricos a cada ~2–4 h. Logo o bound **efetivo** de
-> detecção do alerta é a **cadência real do runner (~2–4 h)**, não o cron nominal `*/30` — ainda
-> assim **muito abaixo** do limiar CRIT (12 h). Nenhuma issue `backup-health-alert` foi aberta até
-> agora (backup saudável). Detalhes: `reports/pre-go-evidence-refresh-2026-10-15.md`.
+> **`active`** em `main` e **roda agendado em produção**: **2 runs agendados com sucesso**
+> (05:36:11Z e 10:56:25Z) e **nenhuma issue** aberta (backup saudável). Porém, **os agendados do
+> GitHub neste repositório são fortemente throttled**: o cron nominal `*/30` entrega a cada **~5 h**
+> (uptime `*/10` a cada ~4 h; alertas métricos `*/15` a cada ~2–5 h). Logo o bound **efetivo** de
+> detecção do alerta é a **cadência real do runner (~4–6 h)**, não o cron nominal — ainda assim
+> **abaixo** do limiar CRIT (12 h). Detalhes e adendo: `reports/pre-go-evidence-refresh-2026-10-15.md`.
 
 **Fora de escopo (decisão explícita):** materialização do `Daily Schedule` e `Restorable up to`
 exigiriam a **API/CLI do Railway** (token amplo) → pendente de decisão em `PENDENCIAS_OPERADOR.md`.

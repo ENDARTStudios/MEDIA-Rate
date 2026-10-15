@@ -1659,11 +1659,12 @@ Relatório: `docs/08-security/reports/pre-go-evidence-refresh-2026-10-15.md`. Ba
   `migrate-production.yml` **sem** passo executável de backup (só comentário) ·
   workflow `backup-health-alert` **`active`**, artefatos versionados, guarda `automation-safety` ok.
 - **Achado honesto (monitor novo):** **os agendados do GitHub estão fortemente throttled** neste
-  repo — uptime `*/10` roda a cada ~4 h, alertas métricos `*/15` a cada ~2–4 h, e o
-  `backup-health-alert` (`*/30`) **ainda não teve run agendado** em ~3 h (tem **1** run: o dispatch
-  de validação). **Não é defeito** do nosso workflow (`active`, já provado ponta-a-ponta); é o
-  comportamento da plataforma. **Consequência:** o bound **efetivo** de detecção do alerta é
-  ~2–4 h — **muito abaixo** do CRIT de 12 h. Nenhuma issue `backup-health-alert` aberta até agora.
+  repo — uptime `*/10` roda a cada ~4 h, alertas métricos `*/15` a cada ~2–5 h.
+  ⚠️ **Correção (mesmo dia, ~12:45Z):** a primeira leitura dizia "o `backup-health-alert` ainda não
+  teve run agendado em ~3 h" — **era uma conclusão de janela curta**. O acompanhamento read-only
+  mostrou **2 runs AGENDADOS com sucesso** (05:36:11Z e 10:56:25Z) e **nenhuma issue**: o alerta
+  **está rodando agendado em produção**. O bound **efetivo** de detecção é **~4–6 h** (não ~2–4 h) —
+  **abaixo** do CRIT de 12 h, mas **acima** do WARN de 2 h. Detalhe no adendo §4.1 do relatório.
 - **DECISÕES DO OPERADOR (templates objetivos):**
 
 ```text
