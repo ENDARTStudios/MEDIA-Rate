@@ -61,6 +61,18 @@ export function rodarSelfTest(repositorio) {
     "fonte live deve continuar condicionada a METRICS_URL+ADMIN_TOKEN (nunca APPLY com fixture)",
   );
 
+  const bh = yamlDe("backup-health");
+  exige(
+    "backup-health",
+    /METRICS_URL/.test(bh) && /ADMIN_TOKEN/.test(bh),
+    "fonte live deve continuar condicionada a METRICS_URL+ADMIN_TOKEN (nunca APPLY com fixture)",
+  );
+  exige(
+    "backup-health",
+    !/RAILWAY_TOKEN/.test(bh),
+    "alerta de backup não deve usar credencial Railway ampla (T227 — least-privilege)",
+  );
+
   for (const f of falhas) console.error(`  ✗ ${f}`);
   if (falhas.length === 0) console.log("  ✓ política de automações íntegra (T096)");
   else console.error(`automation-safety: ${falhas.length} violação(ões)`);
@@ -73,6 +85,7 @@ function main() {
     "release": readFileSyncSafe(".github/workflows/release.yml"),
     "uptime-check": readFileSyncSafe(".github/workflows/uptime-check.yml"),
     "alertas-metricos": readFileSyncSafe(".github/workflows/alertas-metricos.yml"),
+    "backup-health": readFileSyncSafe(".github/workflows/backup-health-alert.yml"),
   };
   process.exit(rodarSelfTest(repo) ? 0 : 1);
 }

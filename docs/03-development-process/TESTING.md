@@ -304,6 +304,27 @@ pg_restore -h <host-alvo> -U <user> -d <db-novo> --clean --if-exists <dump>
 Os gates de CI **não** executam backup/restore (não há credencial de produção no CI). A evidência do
 drill é **registrada em relatório/worklog** (contagens e tempo), nunca em teste que toque produção.
 
+## Alerta de falha de backup (T227 — teste novo)
+
+O alerta é observabilidade, não produto — mas tem **duas camadas de teste** (nenhuma toca produção):
+
+1. **API (vitest):** `apps/api/test/backup-health.spec.ts` (14 casos) cobre a avaliação **pura**
+   (`avaliarSaudeBackup`: `ok/warn/crit` + motivos), a renderização Prometheus, o **fail-closed** na
+   falha de coleta e a ausência de PII/segredo no texto. A coleta é mockada (`$queryRaw`) — **nenhum
+   banco real**.
+2. **CI (determinístico, sem rede):** `node scripts/ci/backup-health.self-test.mjs` (18 casos) cobre o
+   parser Prometheus, a tradução para alerta, o dedup (`create/update/close/none`) e a sanitização do
+   corpo da issue. Roda como **passo obrigatório** dentro de `.github/workflows/backup-health-alert.yml`
+   (antes de qualquer coleta) — junto de `automation-safety.self-test.mjs`, que agora exige
+   `METRICS_URL`+`ADMIN_TOKEN` e **proíbe `RAILWAY_TOKEN`** nesse workflow.
+
+Dry-run local (sem rede, sem abrir issue):
+
+```bash
+node scripts/ci/backup-health.self-test.mjs
+node scripts/ci/backup-health.mjs --input scripts/ci/backup-health.fixture.txt   # dry-run
+```
+
 ## Fixtures e contas
 
 - `apps/api/prisma/fixtures/evidence-fixture.cjs` — mídias + interações versionadas.
