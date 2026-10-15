@@ -4540,3 +4540,40 @@ rodando de novo em http://localhost:3000.
   dois ciclos agendados completos, dedup pronto, nenhuma issue falsa.
 - **Nada mutado:** leitura apenas; sem `RAILWAY_TOKEN`; PITR/schedule/backup/volume/produção intocados;
   nenhum segredo/PII impresso; nenhum alerta interagido. **GO segue SUSPENSO.**
+
+### [2026-10-15] T239 — volume órfão `postgres-restored`: **exclusão AGENDADA** (`DONE_WITH_ESCALATION`)
+
+- **Autorização:** `DECISAO_THINKER_OPERADOR_DELEGADO_POS_T248A_2026-10-15` (T239 **com hard stops**).
+- **Prechecks read-only (todos aprovados):** exatamente **1** volume `postgres-restored` · desanexado
+  (`serviceName: null`) · **nenhum** serviço o monta · **não** é o `postgres-volume` do Postgres ·
+  **1274,25 MB usados / 50 000 MB provisionados** · `Ready` · `deletedAt: null` ·
+  `isPendingDeletion: false` → **sem divergência**, prossegui.
+  *Nota de método:* o `railway status --json` (`volumeInstances`) **não** reflete anexação (reportou
+  "nenhum" até para o `Postgres`); a fonte autoritativa é o campo **`serviceName`** do
+  `railway volume list`.
+- **Comando executado** (descoberto no `--help`, pelo **nome exato**, sem inventar flags):
+  `railway volume delete -v postgres-restored -y` → `Volume "postgres-restored" deleted`.
+  **Sem** 2FA, **sem** `--force`, **sem** API/GraphQL write, **sem** contorno.
+- **⚠️ Resultado real — exclusão AGENDADA, não imediata:** o Railway aplica **carência (~48 h)**.
+  Pós-estado: **`isPendingDeletion: true`**, **`deletedAt: 2026-10-17T13:26:50.492+00:00`**
+  (`Deletes on: Oct 17 2026 10:26 -03:00`). O volume **ainda consta** e **ainda ocupa os 50 GB**.
+  → **`DONE_WITH_ESCALATION`** (regra dura do packet: "se o delete succeed mas o volume ainda aparecer
+  listado, … **não declarar DONE**").
+- **Pós-checagem — rede real de recuperação intacta:** serviços `production` = **`MEDIA Rate`,
+  `Postgres`, `Redis`** · `postgres-volume` (694/5000 MB) e `redis-volume` (351/5000 MB) intactos ·
+  **PITR `enabled`** + **`Archiver: enabled`** + `Restorable up to 2026-10-15 13:25:41Z` (~1 min) ·
+  schedules **DAILY 6 d / WEEKLY 27 d / MONTHLY 89 d** · backups íntegros (o **3º `Daily Schedule`** de
+  hoje ~12:49Z é o schedule **funcionando**, não efeito do delete) · **nenhuma** issue
+  `backup-health-alert` · runs do alerta inalterados.
+- **T227-ext — registrado:** ⚖️ **risco residual formalmente aceito, sem token Railway** (o alerta cobre
+  o arquivador de WAL; materialização do `Daily Schedule`/`Restorable up to` fica em monitor read-only).
+- **✅ Follow-up:** **reconfirmar read-only após 2026-10-17** que o volume desapareceu; se não, escalar
+  como `VOLUME_DELETE_NAO_EFETIVADO`.
+- **Docs:** relatório novo `docs/08-security/reports/railway-orphan-volume-cleanup-2026-10-15.md` +
+  `BACKUP_DR.md` (exclusão agendada + T227-ext) + `GO_READINESS_CHECKLIST.md` (volume → exclusão
+  agendada; nova linha de risco T227-ext) + ponteiros em `pre-go-evidence-refresh-2026-10-15.md` e
+  `railway-cli-capability-audit-2026-10-14.md` + `PENDENCIAS_OPERADOR.md` (bloco T239 + fila de decisões).
+- **Proibições respeitadas:** única mutação = o volume exatamente nomeado; nenhuma outra deleição;
+  PITR/schedule/backup/secrets/vars/deploy/schema/dados/produção intocados; sem `RAILWAY_TOKEN`; sem
+  segredo novo; nenhum ID bruto/URL/connection string/PII impresso. Contaminação `123ce28e` ausente.
+  **GO segue SUSPENSO.**

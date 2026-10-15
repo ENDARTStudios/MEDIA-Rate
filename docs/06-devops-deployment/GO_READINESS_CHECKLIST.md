@@ -1,7 +1,7 @@
 # Checklist de prontidão para GO de convites (Beta Fechada)
 
-**Última auditoria:** 2026-10-15 (**T248**, refresh read-only do pacote pré-GO pós-T227/T229 —
-snapshot consolidado em §7) ·
+**Última auditoria:** 2026-10-15 (**T239**, remoção do volume órfão — exclusão **agendada** pelo
+Railway; ver `reports/railway-orphan-volume-cleanup-2026-10-15.md`) ·
 **GO: SUSPENSO** — este documento **não declara GO**; consolida evidência para a **declaração formal
 do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-13.md`,
 `reports/beta-core-journey-audit-2026-10-13.md`,
@@ -15,7 +15,8 @@ do Operador**. **Snapshots canônicos:** `reports/pre-go-evidence-pack-2026-10-1
 `reports/railway-cli-capability-audit-2026-10-14.md`,
 `reports/backup-failure-alert-2026-10-15.md` e
 `reports/premigration-backup-reconciliation-2026-10-15.md` (**refresh T248**:
-`reports/pre-go-evidence-refresh-2026-10-15.md`).
+`reports/pre-go-evidence-refresh-2026-10-15.md`; **T239**:
+`reports/railway-orphan-volume-cleanup-2026-10-15.md`).
 Relatórios: `reports/go-readiness-audit-2026-10-12.md`,
 `reports/incident-2026-10-11-formal-closure-risk-acceptance-2026-10-13.md`,
 `reports/codeql-alert-151-open-mitigated-documented-2026-10-13.md` e
@@ -73,7 +74,8 @@ Legenda: **PRONTA** = evidência objetiva · **PENDENTE_OPERADOR** = decisão hu
 | Frente | Estado | Evidência |
 |---|---|---|
 | Pacote de GO (Gov-01/P019/UG-01/B1) | ✅ PRONTA | 4/4 (2026-10-05) + Gov-01 reconfirmado |
-| Backup/DR — **restore drill** | ✅ **RESTORE_DRILL_PROVADO (D-594)** | **T242 (2026-10-14, auditoria read-only do Railway CLI):** o drill **já foi executado e aprovado** pelo caminho **não destrutivo** — `pitr restore --at … --new-service-name pitr-drill-20261013` → **serviço irmão** (origem intocada), contagens **produção = restaurado** (190 MB; 40 tabelas; `midia` 17.268; `episodio` 131.743; `media_score` 16.667; `temporada` 6.346; `usuario` 198 — **D-594/T211 cont. 12**). Serviço irmão removido. Confirmado read-only: **nenhum** serviço `pitr-drill*` existe. ⚠️ **Drift reconciliado:** a T228 dizia "não provada" — **superada** pelo D-594 (mesmo dia). ⚠️ **Resíduo billable:** volume **`postgres-restored`** (50 GB provisionados, desanexado) → **T239**. Relatórios: `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-restore-drill-2026-10-13.md` |
+| Backup/DR — **restore drill** | ✅ **RESTORE_DRILL_PROVADO (D-594)** | **T242 (2026-10-14, auditoria read-only do Railway CLI):** o drill **já foi executado e aprovado** pelo caminho **não destrutivo** — `pitr restore --at … --new-service-name pitr-drill-20261013` → **serviço irmão** (origem intocada), contagens **produção = restaurado** (190 MB; 40 tabelas; `midia` 17.268; `episodio` 131.743; `media_score` 16.667; `temporada` 6.346; `usuario` 198 — **D-594/T211 cont. 12**). Serviço irmão removido. Confirmado read-only: **nenhum** serviço `pitr-drill*` existe. ⚠️ **Drift reconciliado:** a T228 dizia "não provada" — **superada** pelo D-594 (mesmo dia). ⚠️ **Resíduo billable:** volume **`postgres-restored`** — 🔄 **exclusão AGENDADA (T239)**: `isPendingDeletion: true`, `deletedAt: 2026-10-17T13:26:50Z` (carência ~48 h do Railway); **reconfirmar ausência após 2026-10-17**. Relatórios: `reports/railway-orphan-volume-cleanup-2026-10-15.md` + `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-restore-drill-2026-10-13.md` |
+| Cobertura do alerta (T227-ext) | ⚖️ **RISCO_RESIDUAL_FORMALMENTE_ACEITO (SEM TOKEN)** | **Decisão 2026-10-15:** o alerta least-privilege cobre o **arquivador de WAL** (sinal crítico do PITR); **não** cobre automaticamente a materialização do `Daily Schedule` nem o `Restorable up to` do lado Railway. Estender exigiria token Railway — o **amplo segue proibido** e nenhum token escopado foi criado. **Compensação:** monitores read-only + evidência periódica. Registrado em `BACKUP_DR.md` |
 | Backups/DR PostgreSQL | ✅ **RESTAURÁVEL + AGENDADO** | **T242 (2026-10-14, read-only):** **restaurabilidade ✅ PROVADA** (D-594); **schedule PRODUZ backups** — 2 `Daily Schedule` materializados (2026-10-13 e 2026-10-14, ~130/670 MB); `pitr status` → **`enabled`**, **`Archiver: enabled`**, `Restorable up to 2026-10-14 22:46:48Z`; retenção ✅ DAILY 6 d + WEEKLY 27 d + MONTHLY 89 d; backup permanente `pre-go-2026-10-13` (`expiresAt: None`, ainda EM_PROGRESSO lento ~107/630 MB). **Alerta de falha: ✅ IMPLEMENTADO (T227)** — `backup-health-alert.yml` (`*/30`) lê `backup_health_*` de `/metrics` (derivado de `pg_stat_archiver`), dedup por issue, reconexão automática, **fail-closed**, **sem credencial Railway ampla**. **Resta:** **limpeza do volume órfão (T239)**; **T227-ext** (materialização do `Daily Schedule`/`Restorable up to`). **Mitigação:** `Online resize to 5000MB` (413/483 MB, materializado) até **2026-10-28**. Relatórios: `reports/railway-cli-capability-audit-2026-10-14.md` + `reports/railway-backup-materialization-verification-2026-10-13.md` |
 | Backup pré-migration (`migrate-production.yml`) | ✅ **PRE_MIGRATION_BACKUP_DECORATIVO_REMOVIDO** | **T229 (2026-10-15):** o passo `Backup antes da migration` era **fail-open** (`\|\| echo "…continuando"`) **e inoperante** (secret `DATABASE_URL` = hostname interno, **D-527**, inalcançável dos runners) — e o próprio `scripts/backup-db.sh` **proíbe** uso em CI. Não protegia nada e criava **falsa garantia** → **removido**. ***Não*** torneado fail-closed (bloquearia migrations por um caminho que nunca funcionou — proibido). Rede real: **PITR `enabled` + arquivador monitorado (T227) + schedule materializado + restore provado (D-594) + dump portátil manual**. Relatório: `reports/premigration-backup-reconciliation-2026-10-15.md` |
 | Observabilidade mínima | ✅ PRONTA | 5xx (CRITICAL), auth_failures (WARNING), uptime sintético, Sentry, `/metrics`, logs, **alerta de falha de backup (T227 — `backup_health_*` + issue com dedup)**. Lacuna remanescente: probing/step-up admin são **logados** mas ainda não alert-ificados |
@@ -95,7 +97,8 @@ heurístico (APIs DOM inline), não chave i18n crua.
 > Base `bd91a79a` · CI/Security **verdes** em `main` · **smoke 7/7** · alertas **117** (CodeQL 1 + Trivy 116;
 > `#151` inalterado `OPEN_MITIGATED_DOCUMENTED`) · PITR **`enabled`**, `Archiver: enabled`,
 > `Restorable up to` ≈ **1 min** de atraso, **Backup sets: 3** · schedule **6/27/89 d** ·
-> 2 `Daily Schedule` **materializados** · volume órfão `postgres-restored` **presente** ·
+> 2 `Daily Schedule` **materializados** · volume órfão `postgres-restored` — 🔄 **exclusão agendada**
+> (T239; `deletedAt: 2026-10-17T13:26:50Z`) ·
 > `migrate-production.yml` **sem** passo executável de backup.
 
 - **PRONTAS:** proteção de segredos (0 alertas), Governança (Gov-01), CI/Security/uptime/alertas,
@@ -105,7 +108,8 @@ heurístico (APIs DOM inline), não chave i18n crua.
   **backups: restaurabilidade PROVADA (D-594) + alerta de arquivador IMPLEMENTADO (T227) +
   falso controle pré-migration REMOVIDO (T229)**.
 - **PENDENTES DO OPERADOR (decisão):**
-  **T239** (limpar o volume órfão `postgres-restored` — irreversível) ·
+  **T239** ✅ **executada (exclusão AGENDADA para 2026-10-17** — reconfirmar depois) ·
+  **T227-ext** ⚖️ **risco residual formalmente aceito, sem token** ·
   **T227-ext** (cobrir materialização do `Daily Schedule`/`Restorable up to` exigiria token Railway
   **escopado**; o amplo segue recusado — ou aceitar formalmente o risco) ·
   **T240/T241** (drill/Opção B — capacidade já exercida/sem caminho CLI) ·

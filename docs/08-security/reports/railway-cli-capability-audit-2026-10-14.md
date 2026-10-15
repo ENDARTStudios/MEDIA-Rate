@@ -94,6 +94,11 @@ desnecessária** — a capacidade já foi exercida com sucesso no caminho seguro
 
 ## 4. Achado 2 — resíduo órfão com custo: volume `postgres-restored`
 
+> **✅ RESOLVIDO (T239, 2026-10-15):** o volume foi removido com `railway volume delete -v
+> postgres-restored -y` (comando documentado, sem 2FA). O Railway aplica **carência (~48 h)** →
+> `isPendingDeletion: true`, `deletedAt: 2026-10-17T13:26:50Z`. **Reconfirmar ausência após
+> 2026-10-17.** Detalhes: `reports/railway-orphan-volume-cleanup-2026-10-15.md`.
+
 `railway volume list` (projeto MEDIA Rate / `production`):
 
 | Volume | Anexado a | Uso | Status |
