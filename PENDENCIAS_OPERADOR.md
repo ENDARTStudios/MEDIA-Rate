@@ -1645,3 +1645,49 @@ Relatório: `docs/08-security/reports/premigration-backup-reconciliation-2026-10
   Deploy Production (aprovar) · GO convites (declaração formal).
 - **Nada mutado:** sem migration real; PITR/schedule/backup/volume intocados; sem `RAILWAY_TOKEN`;
   nenhum segredo/PII impresso; nenhum alerta interagido. **GO:** segue **SUSPENSO**.
+
+### T248 (2026-10-15) — refresh read-only do pacote pré-GO (pós-T227/T229)
+
+Relatório: `docs/08-security/reports/pre-go-evidence-refresh-2026-10-15.md`. Base **`bd91a79a`**.
+
+- **Estado consolidado:** CI/Security **verdes** em `main` · **smoke 7/7** · alertas **117**
+  (CodeQL **1** + Trivy **116**; `#151` **inalterado** → `OPEN_MITIGATED_DOCUMENTED`) ·
+  PITR **`enabled`**, `Archiver: enabled`, `Restorable up to` ≈ **1 min** de atraso, **Backup sets: 3** ·
+  schedules **DAILY 6 d / WEEKLY 27 d / MONTHLY 89 d** · **2 `Daily Schedule` materializados** ·
+  `pre-go-2026-10-13` **EM_PROGRESSO lento** (não é prova) ·
+  volume órfão **`postgres-restored`** presente (1 274 MB usados / 50 000 MB provisionados, desanexado) ·
+  `migrate-production.yml` **sem** passo executável de backup (só comentário) ·
+  workflow `backup-health-alert` **`active`**, artefatos versionados, guarda `automation-safety` ok.
+- **Achado honesto (monitor novo):** **os agendados do GitHub estão fortemente throttled** neste
+  repo — uptime `*/10` roda a cada ~4 h, alertas métricos `*/15` a cada ~2–4 h, e o
+  `backup-health-alert` (`*/30`) **ainda não teve run agendado** em ~3 h (tem **1** run: o dispatch
+  de validação). **Não é defeito** do nosso workflow (`active`, já provado ponta-a-ponta); é o
+  comportamento da plataforma. **Consequência:** o bound **efetivo** de detecção do alerta é
+  ~2–4 h — **muito abaixo** do CRIT de 12 h. Nenhuma issue `backup-health-alert` aberta até agora.
+- **DECISÕES DO OPERADOR (templates objetivos):**
+
+```text
+DECISAO_T239_VOLUME_ORFAO_2026-10-15
+AUTORIZO_DELETE_VOLUME_POSTGRES_RESTORED = SIM | NAO | ADIAR
+OBSERVACAO = opcional, sem segredo
+# escopo mínimo, se SIM: remover APENAS o volume órfão `postgres-restored`;
+# não tocar Postgres principal, Redis, MEDIA Rate, backups, PITR, schedule, secrets, vars ou deploy.
+```
+
+```text
+DECISAO_T227_EXT_2026-10-15
+AUTORIZO_T227_EXT = SIM_TOKEN_ESCOPO_DEDICADO | NAO_ACEITAR_RISCO_FORMAL | ADIAR
+OBSERVACAO = opcional, sem segredo
+# SIM_TOKEN_ESCOPO_DEDICADO = autorizo criar/usar token Railway de LEITURA mínima (se a plataforma
+#                             oferecer); packet futuro estende o alerta. O RAILWAY_TOKEN amplo
+#                             continua PROIBIDO.
+# NAO_ACEITAR_RISCO_FORMAL   = mantemos o alerta de arquivador/WAL e aceitamos formalmente que a
+#                             materialização do schedule será verificada por auditoria read-only.
+# ADIAR                      = GO continua suspenso até decisão futura.
+```
+
+- **Demais pendências:** **T245** (Config as Code → `.railway/railway.ts`, até **2026-12-01**) ·
+  **T233** (R2 como destino durável) · **Deploy `waiting`** em Production (**aprovar**) ·
+  **GO convites** (declaração formal).
+- **Nada mutado:** leitura apenas; nenhuma aprovação de Production; nenhum segredo/token/custo;
+  nenhum alerta interagido. **GO:** segue **SUSPENSO**.
