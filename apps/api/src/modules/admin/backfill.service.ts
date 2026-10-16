@@ -4,7 +4,9 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { UA_BROWSER } from "../media-score/adapters/http.utils.js";
-import { fetchJson } from "../media-score/adapters/http.utils.js";
+import { fetchJson, postJson } from "../media-score/adapters/http.utils.js";
+import { estatisticas } from "../media-score/adapters/fonte-adapter.interface.js";
+import { MediaScoreService } from "../media-score/media-score.service.js";
 
 /**
  * D-576 — backfills pesados como jobs EM PROCESSO (padrão T4.7): paginação de
@@ -19,8 +21,15 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
 const PAUSA_MS = 220;
 const MAX_TEMPORADAS_POR_RUN = 1500;
+// T-DADOS-03: o IGDB devolve 429 em rajada (~22 requisições medidas em
+// produção) — throttle obrigatório e uma única retentativa com espera longa.
+const IGDB_URL = "https://api.igdb.com/v4/games";
+const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
+const PAUSA_IGDB_MS = 300;
+const ESPERA_429_MS = 1500;
 
-export type BackfillTipo = "metadados" | "continuidade" | "metadadosRicos" | "provedores";
+export type BackfillTipo =
+  "metadados" | "continuidade" | "metadadosRicos" | "provedores" | "criticaIgdb";
 
 interface BackfillEstado {
   executando: boolean;
@@ -339,6 +348,79 @@ export function arestasSequencia(filmes: { id: string; ano: number | null }[]) {
 }
 
 // ===========================================================================
+// T-DADOS-03 — crítica do IGDB (por id, não por busca textual)
+// ===========================================================================
+
+/** T-DADOS-03: crítica do IGDB (0–100) já saneada para `avaliacao_fonte`. */
+export interface CriticaIgdb {
+  rating: number;
+  votos: number | null;
+  url: string | null;
+}
+
+/**
+ * T-DADOS-03: primeiro item da resposta do IGDB (`POST /v4/games`) →
+ * `{ rating, votos, url }`. Só existe crítica quando `aggregated_rating` é
+ * número finito > 0 (o IGDB devolve `null` para jogo sem nota da imprensa);
+ * `aggregated_rating_count` só entra se for inteiro > 0 (senão null — nunca
+ * fabrica volume); `url` deriva do `slug` quando presente. Nunca lança.
+ */
+export function mapearCriticaIgdb(jogo: any): CriticaIgdb | null {
+  const item = Array.isArray(jogo) ? jogo[0] : jogo;
+  const rating = Number(item?.aggregated_rating);
+  if (!Number.isFinite(rating) || rating <= 0) return null;
+  const votosBrutos = Number(item?.aggregated_rating_count);
+  const votos = Number.isInteger(votosBrutos) && votosBrutos > 0 ? votosBrutos : null;
+  const slug = typeof item?.slug === "string" ? item.slug.trim() : "";
+  return { rating, votos, url: slug ? `https://www.igdb.com/games/${slug}` : null };
+}
+
+interface TokenTwitch {
+  access_token?: string;
+  expires_in?: number;
+}
+
+/**
+ * Cache de token do IGDB em módulo — mesmo padrão (e mesmos campos) do
+ * `igdb.adapter.ts` e do `prisma/igdb-http.ts`. O cache do adapter NÃO é
+ * exportável, então é replicado aqui (como o igdb-http.ts já faz) em vez de
+ * mexer no adapter nesta fatia.
+ */
+let igdbTokenCache: { token: string; expiraEm: number } | null = null;
+
+/** Limpa o cache de token do IGDB (usado em testes). */
+export function resetTokenTwitchIgdb(): void {
+  igdbTokenCache = null;
+}
+
+/** Credenciais Twitch presentes (mesma checagem do adapter). */
+export function credenciaisIgdb(): boolean {
+  return Boolean(process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET);
+}
+
+/** Token OAuth Twitch (client_credentials), cacheado até perto da expiração. */
+async function obterTokenTwitch(): Promise<string> {
+  if (igdbTokenCache && Date.now() < igdbTokenCache.expiraEm) return igdbTokenCache.token;
+  const corpo = new URLSearchParams({
+    client_id: process.env.TWITCH_CLIENT_ID ?? "",
+    client_secret: process.env.TWITCH_CLIENT_SECRET ?? "",
+    grant_type: "client_credentials",
+  }).toString();
+  const resposta = await postJson<TokenTwitch>(TWITCH_TOKEN_URL, corpo, {
+    headers: {
+      "accept": "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+    },
+  });
+  if (!resposta.access_token) return "";
+  igdbTokenCache = {
+    token: resposta.access_token,
+    expiraEm: Date.now() + ((resposta.expires_in ?? 3600) - 60) * 1000,
+  };
+  return resposta.access_token;
+}
+
+// ===========================================================================
 // Serviço
 // ===========================================================================
 
@@ -350,9 +432,13 @@ export class BackfillService {
     continuidade: estadoVazio(),
     metadadosRicos: estadoVazio(),
     provedores: estadoVazio(),
+    criticaIgdb: estadoVazio(),
   };
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mediaScore: MediaScoreService,
+  ) {}
 
   status(): Record<BackfillTipo, BackfillEstado> {
     return this.estado;
@@ -813,6 +899,157 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-03 (D3): coleta DEDICADA da crítica de games no IGDB **por id**
+   * (`POST /v4/games` com `where id = <fonte_id>`) e recálculo do MEDIA Score
+   * do título.
+   *
+   * Por que existe: `media_score.score_critica` só existe em 183 de 16.667
+   * títulos e, dos 4.996 games, só 50 têm `avaliacao_fonte.fonte='igdb'` — o
+   * bucket Crítica (diferencial do produto) está vazio. O dado EXISTE na fonte
+   * (sonda read-only: 9/9 games amostrados com `aggregated_rating` entre 91,5
+   * e 100) e nunca foi coletado. A busca textual do `igdb.adapter.ts` (fora do
+   * escopo desta fatia) devolve DLC/porta/expansão por relevância; aqui o
+   * lookup é por id EXATO, então o alvo é o jogo base.
+   *
+   * Alvo: watermark `critica_igdb_em IS NULL` (retomável — não repete título).
+   * Watermark gravado SEMPRE ao fim do título (com ou sem crítica), porque
+   * jogo sem `aggregated_rating` não vira fila presa; exceção de rede/API não
+   * marca (retenta na próxima rodada). Nunca lança por título.
+   *
+   * Throttle: o IGDB responde 429 em rajada (>~22 requisições medidas) — pausa
+   * ≥300ms entre chamadas e uma retentativa com espera longa; se persistir, é
+   * falha do título (sem watermark) e a rodada segue.
+   */
+  async enriquecerCriticaIgdb(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semCritica: number;
+    falhas: number;
+  }> {
+    if (!credenciaisIgdb()) {
+      throw new BadRequestException("TWITCH_CLIENT_ID/TWITCH_CLIENT_SECRET ausentes no ambiente.");
+    }
+    if (this.estado.criticaIgdb.executando) {
+      throw new BadRequestException("Job crítica IGDB já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.criticaIgdb = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
+         AND m.critica_igdb_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1000, 1), 5000)}`,
+    )) as any[];
+    this.logger.log(`Backfill critica IGDB: ${alvo.length} títulos alvo.`);
+    let semCritica = 0;
+    for (const m of alvo) {
+      this.estado.criticaIgdb.processados++;
+      this.estado.criticaIgdb.atual = m.titulo;
+      try {
+        const critica = mapearCriticaIgdb(await this.igdbPorId(m.fonte_id));
+        if (!critica) {
+          // Jogo existe mas não tem nota da imprensa no IGDB — ausência
+          // honesta, não erro: marca o watermark e segue.
+          semCritica++;
+        } else {
+          const stats = estatisticas("0-100");
+          await this.prisma.avaliacaoFonte.upsert({
+            where: { midia_id_fonte: { midia_id: m.id, fonte: "igdb" } },
+            create: {
+              midia_id: m.id,
+              fonte: "igdb",
+              rating: critica.rating,
+              media_fonte: stats.media,
+              desvio_fonte: stats.desvio,
+              votos: critica.votos,
+              url: critica.url,
+            },
+            update: {
+              rating: critica.rating,
+              media_fonte: stats.media,
+              desvio_fonte: stats.desvio,
+              votos: critica.votos,
+              url: critica.url,
+            },
+          });
+          // O bucket Crítica do MEDIA Score só reflete o dado depois do recálculo.
+          await this.mediaScore.recalcularEPersistir(m.id);
+          this.estado.criticaIgdb.ok++;
+        }
+        // Watermark SEMPRE (mesmo sem crítica): sem isso a fila travaria em
+        // todo jogo que o IGDB não pontua.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { critica_igdb_em: new Date() },
+        });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.criticaIgdb.falhas++;
+        this.logger.warn(`Backfill critica IGDB falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.criticaIgdb.executando = false;
+    this.estado.criticaIgdb.atual = `fim: ok=${this.estado.criticaIgdb.ok} sem critica=${semCritica} falhas=${this.estado.criticaIgdb.falhas}`;
+    this.logger.log(
+      `Backfill critica IGDB fim: ok=${this.estado.criticaIgdb.ok} sem critica=${semCritica} falhas=${this.estado.criticaIgdb.falhas}.`,
+    );
+    return {
+      processados: this.estado.criticaIgdb.processados,
+      ok: this.estado.criticaIgdb.ok,
+      semCritica,
+      falhas: this.estado.criticaIgdb.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
+   * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
+   * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
+   * ≥300ms antes de cada chamada e retentativa única em HTTP 429; demais erros
+   * propagam (quem chama conta como falha e não marca o watermark).
+   */
+  private async igdbPorId(fonteId: string): Promise<any[]> {
+    const id = Number(fonteId);
+    // fonte_id não-inteiro não é consultável no IGDB (nenhum jogo) → sem dado.
+    if (!Number.isInteger(id) || id <= 0) return [];
+    const token = await obterTokenTwitch();
+    if (!token) throw new Error("Token do IGDB indisponível (credenciais Twitch).");
+    const corpo = `fields name, slug, aggregated_rating, aggregated_rating_count; where id = ${id}; limit 1;`;
+    const headers = {
+      "client-id": process.env.TWITCH_CLIENT_ID ?? "",
+      "authorization": `Bearer ${token}`,
+      "accept": "application/json",
+      "content-type": "text/plain",
+    };
+    for (let tentativa = 0; ; tentativa++) {
+      await this.pausa(PAUSA_IGDB_MS);
+      try {
+        return await postJson<any[]>(IGDB_URL, corpo, { headers, timeoutMs: 20000 });
+      } catch (e) {
+        const status = (e as { status?: number } | null)?.status;
+        const eh429 = status === 429 || String(e).includes("HTTP 429");
+        if (eh429 && tentativa === 0) {
+          this.logger.warn("Backfill critica IGDB: HTTP 429 — aguardando e repetindo uma vez.");
+          await this.pausa(ESPERA_429_MS);
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+
+  /**
    * T178: continuidade em escala — coleções de filmes (franquia + país) e
    * temporadas/episódios de séries que AINDA NÃO têm temporada — retomável.
    */
@@ -1006,6 +1243,7 @@ export class BackfillService {
     filmesSemPais: number;
     metadadosRicos: number;
     provedores: number;
+    criticaIgdb: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -1014,6 +1252,7 @@ export class BackfillService {
         sem_pais: number;
         ricos: number;
         provedores: number;
+        critica_igdb: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -1030,7 +1269,10 @@ export class BackfillService {
             AND m.metadados_ricos_em IS NULL) AS ricos,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
-            AND m.provedores_em IS NULL) AS provedores`);
+            AND m.provedores_em IS NULL) AS provedores,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
+            AND m.critica_igdb_em IS NULL) AS critica_igdb`);
     const row = r[0];
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
@@ -1038,6 +1280,7 @@ export class BackfillService {
       filmesSemPais: Number(row?.sem_pais ?? 0),
       metadadosRicos: Number(row?.ricos ?? 0),
       provedores: Number(row?.provedores ?? 0),
+      criticaIgdb: Number(row?.critica_igdb ?? 0),
     };
   }
 
@@ -1076,6 +1319,13 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.provedores > 0) {
         const r = await this.enriquecerProvedores(2000);
         lotes.push({ tipo: "provedores", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-03: por último a crítica de games (IGDB por id, com throttle —
+      // é a fila mais lenta: 300ms por título, ~10min num lote de 2000).
+      // `ok` soma os títulos SEM crítica: eles saíram da fila (watermark).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaIgdb > 0) {
+        const r = await this.enriquecerCriticaIgdb(2000);
+        lotes.push({ tipo: "criticaIgdb", ok: r.ok + r.semCritica, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
