@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 import { formatarScoreLocale } from "@/lib/score-utils";
+import { SCORE_DIAL_TRACK, dialGeometry, scoreBand } from "./score-dial-core";
 
 export interface ScoreDialProps {
   value: number;
@@ -31,21 +32,12 @@ export interface ScoreDialProps {
   onArtwork?: boolean;
 }
 
-const SIZE_CONFIG = {
-  sm: { ring: "h-10 w-10", number: "text-sm", stroke: 3, radius: 14 },
-  md: { ring: "h-16 w-16", number: "text-xl", stroke: 4, radius: 24 },
-  lg: { ring: "h-24 w-24", number: "text-3xl", stroke: 6, radius: 38 },
-} as const;
-
-function scoreBand(
-  value: number,
-  scale: "0-10" | "0-100",
-): { color: string; label: "high" | "medium" | "low" } {
-  const n = scale === "0-100" ? value / 10 : value;
-  if (n >= 8) return { color: "#34D399", label: "high" };
-  if (n >= 6) return { color: "#FBBF24", label: "medium" };
-  return { color: "#F87171", label: "low" };
-}
+/**
+ * D-582.4a (T211): a função de faixa era LOCAL e divergia do resto do produto
+ * (3 faixas ≥8/≥6/<6) enquanto `scoreColor()` em `design-tokens.ts` tem 6 faixas
+ * (9/8/7/6/5/low). Resultado: o MESMO score saía com cor diferente no card
+ * (ScoreDial) e no módulo de score. Agora há uma única fonte de verdade.
+ */
 
 export function ScoreDial({
   value,
@@ -55,12 +47,10 @@ export function ScoreDial({
   className,
   onArtwork = false,
 }: ScoreDialProps) {
-  const max = scale === "0-100" ? 100 : 10;
-  const clamped = Math.max(0, Math.min(max, value));
-  const { color, label } = scoreBand(clamped, scale);
-  const cfg = SIZE_CONFIG[size];
-  const circ = 2 * Math.PI * cfg.radius;
-  const offset = circ - (clamped / max) * circ;
+  // D-621: geometria e faixa vêm do núcleo compartilhado com o `StaticScoreDial`
+  // (o `label` de 3 níveis continua sendo calculado aqui, a partir da mesma faixa).
+  const { cfg, max, clamped, circ, offset, color } = dialGeometry(value, scale, size);
+  const { label } = scoreBand(clamped, scale);
   const shouldReduce = useReducedMotionPref();
   const locale = useLocale();
   // T147: aria i18n (scoredial.ariaLabel) com valor FORMATADO — nunca pt-BR
@@ -129,18 +119,18 @@ export function ScoreDial({
         // T210: fundo do badge (atrás do anel) — ver `StaticScoreDial`.
         <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
       )}
-      <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
+      <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 100 100" aria-hidden="true">
         <circle
-          cx="30"
-          cy="30"
+          cx="50"
+          cy="50"
           r={cfg.radius}
           fill="none"
-          stroke="rgba(148,163,255,0.12)"
+          stroke={SCORE_DIAL_TRACK}
           strokeWidth={cfg.stroke}
         />
         <circle
-          cx="30"
-          cy="30"
+          cx="50"
+          cy="50"
           r={cfg.radius}
           fill="none"
           stroke={color}
