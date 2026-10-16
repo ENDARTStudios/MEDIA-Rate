@@ -10,16 +10,27 @@ import { BackfillDrainService } from "../src/modules/admin/backfill-drain.servic
 
 function makeBackfill(over: any = {}) {
   return {
-    contarPendentes: vi.fn(
-      async () => over.pendentes ?? { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0 },
-    ),
+    contarPendentes: vi.fn(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      // T-DADOS-01: quarta fila (metadados ricos TMDB v2).
+      metadadosRicos: 0,
+      ...(over.pendentes ?? {}),
+    })),
     drenarLote: vi.fn(async () => ({
-      pendentesAntes: { semElenco: 10, seriesSemTemporada: 5, filmesSemPais: 20 },
-      pendentesDepois: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0 },
+      pendentesAntes: {
+        semElenco: 10,
+        seriesSemTemporada: 5,
+        filmesSemPais: 20,
+        metadadosRicos: 0,
+      },
+      pendentesDepois: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),
     continuidade: vi.fn(),
     enriquecerMetadados: vi.fn(),
+    enriquecerMetadadosRicos: vi.fn(),
   };
 }
 
@@ -47,7 +58,7 @@ describe("BackfillDrainService (T179)", () => {
 
   it("tique com fila roda um lote e registra resumo observável", async () => {
     const backfill = makeBackfill({
-      pendentes: { semElenco: 10, seriesSemTemporada: 5, filmesSemPais: 20 },
+      pendentes: { semElenco: 10, seriesSemTemporada: 5, filmesSemPais: 20, metadadosRicos: 0 },
     });
     const svc = new BackfillDrainService(backfill as any);
     await svc.tique();
@@ -60,7 +71,7 @@ describe("BackfillDrainService (T179)", () => {
 
   it("falha do lote não derruba o tique (log + resumo com erro)", async () => {
     const backfill = makeBackfill({
-      pendentes: { semElenco: 1, seriesSemTemporada: 0, filmesSemPais: 0 },
+      pendentes: { semElenco: 1, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
     });
     backfill.drenarLote.mockRejectedValueOnce(new Error("boom"));
     const svc = new BackfillDrainService(backfill as any);
@@ -98,11 +109,16 @@ describe("BackfillDrainService (T179)", () => {
     // 32 pendentes que NÃO diminuem (título sem elenco na fonte) — 2 tiques
     // sem progresso devem ativar o espaçamento.
     const backfill = makeBackfill({
-      pendentes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
+      pendentes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
     });
     backfill.drenarLote.mockImplementation(async () => ({
-      pendentesAntes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
-      pendentesDepois: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0 },
+      pendentesAntes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
+      pendentesDepois: {
+        semElenco: 32,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+      },
       lotes: [{ tipo: "metadados", ok: 32, falhas: 0 }],
     }));
     const svc = new BackfillDrainService(backfill as any);
@@ -122,12 +138,23 @@ describe("BackfillDrainService (T179)", () => {
       semElenco: n,
       seriesSemTemporada: 0,
       filmesSemPais: 0,
+      metadadosRicos: 0,
     }));
     backfill.drenarLote.mockImplementation(async () => {
       n -= 10;
       return {
-        pendentesAntes: { semElenco: n + 10, seriesSemTemporada: 0, filmesSemPais: 0 },
-        pendentesDepois: { semElenco: n, seriesSemTemporada: 0, filmesSemPais: 0 },
+        pendentesAntes: {
+          semElenco: n + 10,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+        },
+        pendentesDepois: {
+          semElenco: n,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+        },
         lotes: [{ tipo: "metadados", ok: 10, falhas: 0 }],
       };
     });
@@ -135,5 +162,15 @@ describe("BackfillDrainService (T179)", () => {
     await svc.tique();
     await svc.tique();
     expect(svc.status().espacado).toBe(false);
+  });
+
+  it("T-DADOS-01: fila só de metadados ricos NÃO é tratada como zerada", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 17217 },
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    expect(svc.status().ultimoResumo).not.toBeNull();
   });
 });

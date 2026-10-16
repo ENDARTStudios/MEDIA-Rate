@@ -41,7 +41,13 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
   private ultimoResumo: {
     quando: string;
     lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
-    pendentesDepois: { semElenco: number; seriesSemTemporada: number; filmesSemPais: number };
+    pendentesDepois: {
+      semElenco: number;
+      seriesSemTemporada: number;
+      filmesSemPais: number;
+      // T-DADOS-01: fila de metadados ricos (duração/gêneros/franquia).
+      metadadosRicos: number;
+    };
     erro?: string;
   } | null = null;
 
@@ -93,8 +99,9 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
     semElenco: number;
     seriesSemTemporada: number;
     filmesSemPais: number;
+    metadadosRicos: number;
   }): number {
-    return p.semElenco + p.seriesSemTemporada + p.filmesSemPais;
+    return p.semElenco + p.seriesSemTemporada + p.filmesSemPais + p.metadadosRicos;
   }
 
   /** Um tique do drain — nunca lança (falha vira log + resumo). */
@@ -102,7 +109,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
     this.ticks++;
     try {
       const antes = await this.backfill.contarPendentes();
-      const total = antes.semElenco + antes.seriesSemTemporada + antes.filmesSemPais;
+      const total = this.total(antes);
       if (total === 0) {
         this.ultimoTotal = 0;
         this.semProgresso = 0;
@@ -111,7 +118,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         return;
       }
       this.logger.log(
-        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais}`,
+        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos}`,
       );
       const r = await this.backfill.drenarLote(orcamentoMs());
       this.ultimoResumo = {
@@ -121,7 +128,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         ...(r.erro ? { erro: r.erro } : {}),
       };
       this.logger.log(
-        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais}`,
+        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos}`,
       );
       // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
       // 6h (fila provavelmente presa: título sem elenco/país na fonte).
