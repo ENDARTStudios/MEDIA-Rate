@@ -398,6 +398,10 @@ model Midia {
   temporadas              Temporada[]
   // Última coleta de avaliações das fontes (null = nunca coletado).
   avaliacoes_atualizadas_em DateTime? @map("avaliacoes_atualizadas_em")
+  // T-DADOS-01: watermark do enriquecimento rico TMDB v2 (duração, gêneros,
+  // coleção/franquia). NULL = nunca passou pelo job; o job marca SEMPRE, mesmo
+  // quando a fonte não tem o dado (evita fila presa, como os 26 sem elenco).
+  metadados_ricos_em        DateTime? @map("metadados_ricos_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])

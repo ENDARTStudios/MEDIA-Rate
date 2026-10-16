@@ -20,7 +20,7 @@ const IMG = "https://image.tmdb.org/t/p";
 const PAUSA_MS = 220;
 const MAX_TEMPORADAS_POR_RUN = 1500;
 
-export type BackfillTipo = "metadados" | "continuidade";
+export type BackfillTipo = "metadados" | "continuidade" | "metadadosRicos";
 
 interface BackfillEstado {
   executando: boolean;
@@ -59,7 +59,17 @@ export function truncarCampo(valor: string | null | undefined, max: number): str
   return s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`;
 }
 
-export const LIMITES = { elencoNome: 120, elencoPersonagem: 160, produtoraNome: 160 } as const;
+export const LIMITES = {
+  elencoNome: 120,
+  elencoPersonagem: 160,
+  produtoraNome: 160,
+  // T-DADOS-01: genero.nome/slug são VarChar(64) UNIQUE; franquia.slug VarChar(64)
+  // UNIQUE; franquia.nome VarChar(120).
+  generoNome: 64,
+  generoSlug: 64,
+  franquiaSlug: 64,
+  franquiaNome: 120,
+} as const;
 
 export function slugifyBasico(titulo: string): string {
   return String(titulo ?? "")
@@ -95,6 +105,58 @@ export interface MetadadosTmdb {
   produtoras: EmpresaItem[];
   backdrop_url: string | null;
   pais_origem: string | null;
+  // T-DADOS-01 — mesmos campos do MESMO payload (nenhuma chamada extra).
+  duracao_minutos: number | null;
+  generos: GeneroItem[];
+  colecao: ColecaoItem | null;
+}
+
+/** T-DADOS-01: gênero do `genres[]` do TMDB (payload já vem em pt-BR). */
+export interface GeneroItem {
+  tmdb_id: number;
+  nome: string;
+}
+
+/** T-DADOS-01: coleção/franquia do `belongs_to_collection` (só FILME). */
+export interface ColecaoItem {
+  tmdb_id: number;
+  nome: string;
+}
+
+/** Inteiro positivo ou null (runtime do TMDB chega 0/ausente para alguns títulos). */
+function duracaoValida(valor: unknown): number | null {
+  const n = Number(valor);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+/**
+ * T-DADOS-01: `genres[]` → lista saneada (tmdb_id inteiro > 0, nome truncado em
+ * 64 = VarChar(64) da coluna, sem duplicatas). Entrada inválida é ignorada.
+ */
+export function mapearGeneros(payload: any): GeneroItem[] {
+  const saida: GeneroItem[] = [];
+  const vistos = new Set<number>();
+  for (const g of payload?.genres ?? []) {
+    const tmdb_id = Number(g?.id);
+    if (!Number.isInteger(tmdb_id) || tmdb_id <= 0 || vistos.has(tmdb_id)) continue;
+    const nome = truncarCampo(g?.name, LIMITES.generoNome);
+    if (!nome) continue;
+    vistos.add(tmdb_id);
+    saida.push({ tmdb_id, nome });
+  }
+  return saida;
+}
+
+/**
+ * T-DADOS-01: `belongs_to_collection` → {tmdb_id, nome}. Exclusivo de FILME: a
+ * rota /tv não devolve esse campo (por isso o guard de tipo explícito).
+ */
+export function mapearColecao(payload: any, tipo: "FILME" | "SERIE"): ColecaoItem | null {
+  if (tipo !== "FILME") return null;
+  const tmdb_id = Number(payload?.belongs_to_collection?.id);
+  const nome = truncarCampo(payload?.belongs_to_collection?.name, LIMITES.franquiaNome);
+  if (!Number.isInteger(tmdb_id) || tmdb_id <= 0 || !nome) return null;
+  return { tmdb_id, nome };
 }
 
 /** Payload /movie|/tv com append_to_response=credits → metadados ricos. */
@@ -140,7 +202,41 @@ export function mapearMetadados(payload: any, tipo: "FILME" | "SERIE"): Metadado
     backdrop_url: payload.backdrop_path ? `${IMG}/w1280${payload.backdrop_path}` : null,
     pais_origem:
       payload.production_countries?.[0]?.iso_3166_1 ?? payload.origin_country?.[0] ?? null,
+    // T-DADOS-01 — duração/gêneros/coleção do mesmo payload (sem chamada extra).
+    duracao_minutos:
+      tipo === "SERIE"
+        ? duracaoValida(payload.episode_run_time?.[0])
+        : duracaoValida(payload.runtime),
+    generos: mapearGeneros(payload),
+    colecao: mapearColecao(payload, tipo),
   };
+}
+
+export interface ParteColecao {
+  id: number;
+  release_date: string | null;
+}
+
+/**
+ * T-DADOS-01: partes de uma coleção TMDB na ordem de lançamento REAL
+ * (`release_date` ISO crescente). Data vazia/ausente vai para o FIM (sort
+ * estável preserva a ordem relativa de entrada) — nunca inventa posição.
+ */
+export function ordenarPartesColecao(partes: any[]): ParteColecao[] {
+  return (partes ?? [])
+    .map((p: any) => ({
+      id: Number(p?.id),
+      release_date: (p?.release_date ?? null) as string | null,
+    }))
+    .filter((p) => Number.isInteger(p.id) && p.id > 0)
+    .sort((a, b) => {
+      const da = a.release_date ?? "";
+      const db = b.release_date ?? "";
+      if (!da && !db) return 0;
+      if (!da) return 1;
+      if (!db) return -1;
+      return da < db ? -1 : da > db ? 1 : 0;
+    });
 }
 
 export interface TemporadaLista {
@@ -203,6 +299,7 @@ export class BackfillService {
   private estado: Record<BackfillTipo, BackfillEstado> = {
     metadados: estadoVazio(),
     continuidade: estadoVazio(),
+    metadadosRicos: estadoVazio(),
   };
 
   constructor(private readonly prisma: PrismaService) {}
@@ -342,6 +439,190 @@ export class BackfillService {
     };
     this.estado.metadados.atual = `fim: ok=${r.ok} falhas=${r.falhas}`;
     return r;
+  }
+
+  /**
+   * T-DADOS-01 (D1): enriquecimento rico v2 — duração, gêneros e
+   * coleção/franquia, tudo a partir do MESMO payload do job acima (nenhuma
+   * chamada extra por título; só `/collection/{id}`, uma por coleção NOVA,
+   * memoizada no lote). O alvo é o watermark `metadados_ricos_em IS NULL` —
+   * por isso títulos que já têm elenco (e que o job antigo nunca revisita)
+   * entram na fila. O watermark é gravado SEMPRE (mesmo sem runtime/coleção na
+   * fonte), então a fila drena de verdade; em exceção o título volta depois.
+   */
+  async enriquecerMetadadosRicos(
+    limite: number,
+  ): Promise<{ processados: number; ok: number; falhas: number }> {
+    const chave = process.env.TMDB_API_KEY;
+    if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
+    if (this.estado.metadadosRicos.executando) {
+      throw new BadRequestException("Job metadados ricos já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.metadadosRicos = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; tipo: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.tipo::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+         AND m.metadados_ricos_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 2000, 1), 8000)}`,
+    )) as any[];
+    this.logger.log(`Backfill metadados ricos: ${alvo.length} títulos alvo.`);
+    // T-DADOS-01: 1 chamada TMDB por coleção NOVA (não por título).
+    const partesPorColecao = new Map<number, ParteColecao[]>();
+    let generosVinculados = 0;
+    let partesVinculadas = 0;
+    for (const m of alvo) {
+      const tipo = m.tipo === "SERIE" ? "SERIE" : "FILME";
+      this.estado.metadadosRicos.processados++;
+      this.estado.metadadosRicos.atual = m.titulo;
+      try {
+        const append = tipo === "SERIE" ? "credits,aggregate_credits" : "credits";
+        const caminho = tipo === "SERIE" ? "tv" : "movie";
+        const payload = await this.tmdb(
+          `/${caminho}/${m.fonte_id}?append_to_response=${append}`,
+          chave,
+        );
+        const mapa = mapearMetadados(payload, tipo);
+
+        // Gêneros (tmdb_id → slug → create, com truncagem 64 e colisão tratada).
+        for (const g of mapa.generos) {
+          const genero = await this.resolverGenero(g.tmdb_id, g.nome);
+          if (!genero) continue;
+          await this.prisma.midiaGenero.upsert({
+            where: { midia_id_genero_id: { midia_id: m.id, genero_id: genero.id } },
+            create: { midia_id: m.id, genero_id: genero.id },
+            update: {},
+          });
+          generosVinculados++;
+        }
+
+        // Coleção/franquia: 1 fetch de /collection por coleção nova (memoizado).
+        if (mapa.colecao) {
+          const slug = truncarCampo(slugBaseFranquia(mapa.colecao.nome), LIMITES.franquiaSlug);
+          if (slug) {
+            const franquia = await this.prisma.franquia.upsert({
+              where: { slug },
+              // Slug já existente com outro nome → mantém o existente.
+              update: {},
+              create: {
+                nome: truncarCampo(mapa.colecao.nome, LIMITES.franquiaNome) ?? mapa.colecao.nome,
+                slug,
+              },
+              select: { id: true },
+            });
+            let partes = partesPorColecao.get(mapa.colecao.tmdb_id);
+            if (!partes) {
+              const colecaoPayload = await this.tmdb(`/collection/${mapa.colecao.tmdb_id}`, chave);
+              partes = ordenarPartesColecao(colecaoPayload?.parts ?? []);
+              partesPorColecao.set(mapa.colecao.tmdb_id, partes);
+            }
+            for (const [indice, parte] of partes.entries()) {
+              // Só entram partes que EXISTEM no catálogo (fonte tmdb).
+              const existente = await this.prisma.midia.findFirst({
+                where: { fonte: "tmdb", fonte_id: String(parte.id), deleted_at: null },
+                select: { id: true },
+              });
+              if (!existente) continue;
+              await this.prisma.midiaFranquia.upsert({
+                where: {
+                  midia_id_franquia_id: { midia_id: existente.id, franquia_id: franquia.id },
+                },
+                create: {
+                  midia_id: existente.id,
+                  franquia_id: franquia.id,
+                  // 1-based na ordem de lançamento real vinda do TMDB.
+                  ordem_lancamento: indice + 1,
+                  ordem_cronologica: null, // não inferir — honesto
+                },
+                update: {}, // curadoria preservada
+              });
+              partesVinculadas++;
+            }
+          }
+        }
+
+        // Watermark SEMPRE gravado (mesmo sem runtime/coleção na fonte): sem
+        // isso a fila travaria nos títulos em que o dado não existe.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: {
+            // Só sobrescreve quando a fonte devolve duração (nunca apaga dado).
+            ...(mapa.duracao_minutos ? { duracao_minutos: mapa.duracao_minutos } : {}),
+            metadados_ricos_em: new Date(),
+          },
+        });
+        this.estado.metadadosRicos.ok++;
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.metadadosRicos.falhas++;
+        this.logger.warn(
+          `Backfill metadados ricos falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.metadadosRicos.executando = false;
+    this.estado.metadadosRicos.atual = `fim: ok=${this.estado.metadadosRicos.ok} falhas=${this.estado.metadadosRicos.falhas}`;
+    this.logger.log(
+      `Backfill metadados ricos fim: ok=${this.estado.metadadosRicos.ok} falhas=${this.estado.metadadosRicos.falhas} gêneros=${generosVinculados} partes=${partesVinculadas} coleções=${partesPorColecao.size}.`,
+    );
+    return {
+      processados: this.estado.metadadosRicos.processados,
+      ok: this.estado.metadadosRicos.ok,
+      falhas: this.estado.metadadosRicos.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-01: resolve (ou cria) o `genero` a partir do `genres[]` do TMDB na
+   * ordem tmdb_id (seed do catálogo) → slug → create. Nunca propaga erro: se o
+   * create colidir com unique (nome/slug/tmdb_id), refaz o lookup por slug e
+   * segue; em último caso devolve null e o título continua sem aquele gênero.
+   */
+  private async resolverGenero(tmdbId: number, nome: string): Promise<{ id: number } | null> {
+    const porTmdb = await this.prisma.genero.findUnique({
+      where: { tmdb_id: tmdbId },
+      select: { id: true },
+    });
+    if (porTmdb) return porTmdb;
+    const slug = truncarCampo(slugifyBasico(nome), LIMITES.generoSlug);
+    if (slug) {
+      const porSlug = await this.prisma.genero.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+      if (porSlug) return porSlug;
+    }
+    const nomeFinal = truncarCampo(nome, LIMITES.generoNome);
+    const slugFinal = slug ?? truncarCampo(slugifyBasico(`genero-${tmdbId}`), LIMITES.generoSlug);
+    if (!nomeFinal || !slugFinal) return null;
+    try {
+      return await this.prisma.genero.create({
+        data: { nome: nomeFinal, slug: slugFinal, tmdb_id: tmdbId },
+        select: { id: true },
+      });
+    } catch {
+      const porSlugDepois = await this.prisma.genero.findUnique({
+        where: { slug: slugFinal },
+        select: { id: true },
+      });
+      if (porSlugDepois) return porSlugDepois;
+      const porTmdbDepois = await this.prisma.genero.findUnique({
+        where: { tmdb_id: tmdbId },
+        select: { id: true },
+      });
+      return porTmdbDepois;
+    }
   }
 
   /**
@@ -536,9 +817,10 @@ export class BackfillService {
     semElenco: number;
     seriesSemTemporada: number;
     filmesSemPais: number;
+    metadadosRicos: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
-      { sem_elenco: number; sem_temp: number; sem_pais: number }[]
+      { sem_elenco: number; sem_temp: number; sem_pais: number; ricos: number }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
@@ -548,12 +830,16 @@ export class BackfillService {
             AND NOT EXISTS (SELECT 1 FROM temporada t WHERE t.midia_id = m.id)) AS sem_temp,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte = 'tmdb' AND m.tipo = 'FILME'
-            AND m.pais_origem IS NULL) AS sem_pais`);
+            AND m.pais_origem IS NULL) AS sem_pais,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+            AND m.metadados_ricos_em IS NULL) AS ricos`);
     const row = r[0];
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
       seriesSemTemporada: Number(row?.sem_temp ?? 0),
       filmesSemPais: Number(row?.sem_pais ?? 0),
+      metadadosRicos: Number(row?.ricos ?? 0),
     };
   }
 
@@ -582,6 +868,11 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
         const r = await this.enriquecerMetadados(2000);
         lotes.push({ tipo: "metadados", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-01: por último a fila mais nova (duração/gêneros/franquia).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.metadadosRicos > 0) {
+        const r = await this.enriquecerMetadadosRicos(2000);
+        lotes.push({ tipo: "metadadosRicos", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
