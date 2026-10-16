@@ -10,9 +10,19 @@ import { AuditLogService } from "../../common/audit-log.service.js";
 import { BackfillService } from "./backfill.service.js";
 import { BackfillDrainService } from "./backfill-drain.service.js";
 import { AdminStepupModule } from "./admin-stepup.module.js";
+import { MediaScoreModule } from "../media-score/media-score.module.js";
 
 @Module({
-  imports: [PrismaModule, AuthModule, FeatureFlagsModule, LgpdModule, AdminStepupModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    FeatureFlagsModule,
+    LgpdModule,
+    AdminStepupModule,
+    // T-DADOS-03: o BackfillService recalcula o score após gravar a crítica do
+    // IGDB (mesmo serviço usado pelo MediaScoreJobService).
+    MediaScoreModule,
+  ],
   controllers: [AdminController, AdminGateController],
   providers: [AdminService, AuditLogService, BackfillService, BackfillDrainService],
 })

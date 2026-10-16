@@ -14,6 +14,8 @@ import {
   arestasSequencia,
   slugBaseFranquia,
   mapearProvedores,
+  mapearCriticaIgdb,
+  resetTokenTwitchIgdb,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -24,10 +26,16 @@ import {
 
 vi.mock("../src/modules/media-score/adapters/http.utils.js", async (importOriginal) => {
   const actual = await importOriginal<any>();
-  return { ...actual, fetchJson: vi.fn() };
+  return { ...actual, fetchJson: vi.fn(), postJson: vi.fn() };
 });
 
-import { fetchJson } from "../src/modules/media-score/adapters/http.utils.js";
+import { ErroColeta, fetchJson, postJson } from "../src/modules/media-score/adapters/http.utils.js";
+
+// URLs EXATAS do job (comparação por igualdade — nada de substring de host no
+// teste: o padrão `includes("host")` é alerta js/incomplete-url-substring do CodeQL).
+const URL_IGDB_GAMES = "https://api.igdb.com/v4/games";
+const URL_TOKEN_TWITCH = "https://id.twitch.tv/oauth2/token";
+import { estatisticas } from "../src/modules/media-score/adapters/fonte-adapter.interface.js";
 
 function makeService(over: any = {}) {
   const prisma = {
@@ -65,10 +73,13 @@ function makeService(over: any = {}) {
       create: vi.fn(async ({ data }: any) => ({ id: 9, ...data })),
     },
     midiaStreaming: { upsert: vi.fn(async ({ create }: any) => create) },
+    // T-DADOS-03: crítica do IGDB em avaliacao_fonte (chave { midia_id, fonte }).
+    avaliacaoFonte: { upsert: vi.fn(async ({ create }: any) => create) },
     relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
   };
-  const svc = new BackfillService(prisma as any);
-  return { svc, prisma };
+  const mediaScore = { recalcularEPersistir: vi.fn(async () => ({ score: 82 })) };
+  const svc = new BackfillService(prisma as any, mediaScore as any);
+  return { svc, prisma, mediaScore };
 }
 
 describe("mapearMetadados (T178)", () => {
@@ -446,14 +457,24 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos e provedores (T-DADOS-01/02)", () => {
-  it("conta as 5 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb (T-DADOS-01/02/03)", () => {
+  it("conta as 6 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
-      return [{ sem_elenco: 3, sem_temp: 2, sem_pais: 1, ricos: 17217, provedores: 17230 }];
+      expect(sql).toContain("critica_igdb_em IS NULL");
+      return [
+        {
+          sem_elenco: 3,
+          sem_temp: 2,
+          sem_pais: 1,
+          ricos: 17217,
+          provedores: 17230,
+          critica_igdb: 4946,
+        },
+      ];
     });
     await expect(svc.contarPendentes()).resolves.toEqual({
       semElenco: 3,
@@ -461,6 +482,7 @@ describe("contarPendentes inclui as filas metadadosRicos e provedores (T-DADOS-0
       filmesSemPais: 1,
       metadadosRicos: 17217,
       provedores: 17230,
+      criticaIgdb: 4946,
     });
   });
 
@@ -476,6 +498,7 @@ describe("contarPendentes inclui as filas metadadosRicos e provedores (T-DADOS-0
       filmesSemPais: 0,
       metadadosRicos: 0,
       provedores: 0,
+      criticaIgdb: 0,
     });
   });
 });
@@ -746,11 +769,253 @@ describe("BackfillService.enriquecerProvedores (T-DADOS-02)", () => {
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/sem_elenco/.test(sql)) {
-        return [{ sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 5 }];
+        return [
+          { sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 5, critica_igdb: 0 },
+        ];
       }
       return [];
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "provedores", ok: 0, falhas: 0 }]);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-03 (D3) — crítica de games no IGDB por id (score_critica)
+// ===========================================================================
+
+describe("mapearCriticaIgdb (T-DADOS-03)", () => {
+  it("extrai aggregated_rating/aggregated_rating_count/slug do jogo", () => {
+    expect(
+      mapearCriticaIgdb({
+        name: "The Legend of Zelda: Breath of the Wild",
+        slug: "the-legend-of-zelda-breath-of-the-wild",
+        aggregated_rating: 97.6,
+        aggregated_rating_count: 42,
+        rating: 95.2,
+      }),
+    ).toEqual({
+      rating: 97.6,
+      votos: 42,
+      url: "https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild",
+    });
+    // aceita também o array cru do IGDB (usa o primeiro item)
+    expect(mapearCriticaIgdb([{ aggregated_rating: 91.5, slug: "x" }])).toEqual({
+      rating: 91.5,
+      votos: null,
+      url: "https://www.igdb.com/games/x",
+    });
+  });
+
+  it("null/0/negativo/não-numérico/ausente → null (não fabrica crítica)", () => {
+    expect(mapearCriticaIgdb({ aggregated_rating: null })).toBeNull();
+    expect(mapearCriticaIgdb({ aggregated_rating: 0 })).toBeNull();
+    expect(mapearCriticaIgdb({ aggregated_rating: -3 })).toBeNull();
+    expect(mapearCriticaIgdb({ aggregated_rating: "sem nota" })).toBeNull();
+    expect(mapearCriticaIgdb({})).toBeNull();
+    expect(mapearCriticaIgdb(null)).toBeNull();
+    expect(mapearCriticaIgdb(undefined)).toBeNull();
+    expect(mapearCriticaIgdb([])).toBeNull();
+  });
+
+  it("votos inválidos não invalidam a crítica; sem slug → url null", () => {
+    expect(mapearCriticaIgdb({ aggregated_rating: 88, aggregated_rating_count: 0 })).toEqual({
+      rating: 88,
+      votos: null,
+      url: null,
+    });
+    expect(mapearCriticaIgdb({ aggregated_rating: 88, aggregated_rating_count: 12.5 })).toEqual({
+      rating: 88,
+      votos: null,
+      url: null,
+    });
+    expect(mapearCriticaIgdb({ aggregated_rating: 88, aggregated_rating_count: -1 })).toEqual({
+      rating: 88,
+      votos: null,
+      url: null,
+    });
+    expect(mapearCriticaIgdb({ aggregated_rating: 88, slug: "   " })).toEqual({
+      rating: 88,
+      votos: null,
+      url: null,
+    });
+  });
+});
+
+describe("BackfillService.enriquecerCriticaIgdb (T-DADOS-03)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetTokenTwitchIgdb();
+    process.env.TWITCH_CLIENT_ID = "client-id-de-teste";
+    process.env.TWITCH_CLIENT_SECRET = "segredo-de-teste";
+  });
+
+  /** postJson: token do Twitch + resposta do IGDB (nunca toca a rede). */
+  function mockIgdb(respostas: any[]) {
+    let indice = 0;
+    (postJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_TOKEN_TWITCH) return { access_token: "tok", expires_in: 3600 };
+      const r = respostas[Math.min(indice, respostas.length - 1)];
+      indice++;
+      if (r instanceof Error) throw r;
+      return r;
+    });
+    return () => indice;
+  }
+
+  it("grava avaliacao_fonte (fonte igdb) por id exato, recalcula o score do MESMO título e marca o watermark", async () => {
+    const alvo = [{ id: "m-1", fonte_id: "7346", titulo: "Breath of the Wild" }];
+    const { svc, prisma, mediaScore } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([
+      [
+        {
+          name: "The Legend of Zelda: Breath of the Wild",
+          slug: "the-legend-of-zelda-breath-of-the-wild",
+          aggregated_rating: 97.6,
+          aggregated_rating_count: 42,
+        },
+      ],
+    ]);
+    const r = await svc.enriquecerCriticaIgdb(100);
+    expect(r).toEqual({ processados: 1, ok: 1, semCritica: 0, falhas: 0 });
+    const chamadaIgdb = (postJson as any).mock.calls.find((c: any[]) => c[0] === URL_IGDB_GAMES);
+    // lookup EXATO por id (a busca textual do adapter devolve DLC/porta — fora
+    // do escopo desta fatia, mas o job novo não repete o defeito).
+    expect(chamadaIgdb[1]).toBe(
+      "fields name, slug, aggregated_rating, aggregated_rating_count; where id = 7346; limit 1;",
+    );
+    expect(chamadaIgdb[1]).not.toContain("search");
+    expect(chamadaIgdb[2].headers).toMatchObject({
+      "client-id": "client-id-de-teste",
+      "authorization": "Bearer tok",
+      "accept": "application/json",
+      "content-type": "text/plain",
+    });
+    const stats = estatisticas("0-100");
+    expect(prisma.avaliacaoFonte.upsert).toHaveBeenCalledWith({
+      where: { midia_id_fonte: { midia_id: "m-1", fonte: "igdb" } },
+      create: {
+        midia_id: "m-1",
+        fonte: "igdb",
+        rating: 97.6,
+        media_fonte: stats.media,
+        desvio_fonte: stats.desvio,
+        votos: 42,
+        url: "https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild",
+      },
+      update: {
+        rating: 97.6,
+        media_fonte: stats.media,
+        desvio_fonte: stats.desvio,
+        votos: 42,
+        url: "https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild",
+      },
+    });
+    expect(mediaScore.recalcularEPersistir).toHaveBeenCalledWith("m-1");
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.critica_igdb_em).toBeInstanceOf(Date);
+    expect(svc.status().criticaIgdb.ok).toBe(1);
+    expect(() => JSON.stringify(svc.status())).not.toThrow();
+  });
+
+  it("sem aggregated_rating: marca critica_igdb_em, não grava avaliação e não recalcula (fila drena)", async () => {
+    const alvo = [{ id: "m-2", fonte_id: "999", titulo: "Jogo sem nota de imprensa" }];
+    const { svc, prisma, mediaScore } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([[{ name: "Sem nota", slug: "sem-nota" }]]);
+    const r = await svc.enriquecerCriticaIgdb(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semCritica: 1, falhas: 0 });
+    expect(prisma.avaliacaoFonte.upsert).not.toHaveBeenCalled();
+    expect(mediaScore.recalcularEPersistir).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0].data.critica_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("fonte_id não-inteiro não é consultável: sem dado e SEM travar a fila", async () => {
+    const alvo = [{ id: "m-3", fonte_id: "steam-42", titulo: "Id estranho" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([[]]);
+    const r = await svc.enriquecerCriticaIgdb(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semCritica: 1, falhas: 0 });
+    expect((postJson as any).mock.calls.filter((c: any[]) => c[0] === URL_IGDB_GAMES)).toHaveLength(
+      0,
+    );
+    expect((prisma.midia.update as any).mock.calls[0][0].data.critica_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("HTTP 429: espera e repete UMA vez (>=300ms de throttle antes de cada chamada)", async () => {
+    const alvo = [{ id: "m-4", fonte_id: "74", titulo: "Mass Effect 2" }];
+    const { svc, prisma, mediaScore } = makeService({ alvo });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    mockIgdb([
+      new ErroColeta("HTTP 429 em https://api.igdb.com/v4/games", 429),
+      [{ slug: "mass-effect-2", aggregated_rating: 95.6, aggregated_rating_count: 30 }],
+    ]);
+    const r = await svc.enriquecerCriticaIgdb(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semCritica: 0, falhas: 0 });
+    const chamadasIgdb = (postJson as any).mock.calls.filter((c: any[]) => c[0] === URL_IGDB_GAMES);
+    expect(chamadasIgdb).toHaveLength(2);
+    // throttle (>=300ms) antes de cada tentativa + espera do 429 (1,5s)
+    expect(pausa.mock.calls.filter((c: any[]) => c[0] >= 300).length).toBeGreaterThanOrEqual(2);
+    expect(pausa).toHaveBeenCalledWith(1500);
+    expect(mediaScore.recalcularEPersistir).toHaveBeenCalledWith("m-4");
+    expect((prisma.midia.update as any).mock.calls[0][0].data.critica_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("429 persistente: falha o título e NÃO marca o watermark (retenta na próxima rodada)", async () => {
+    const alvo = [{ id: "m-5", fonte_id: "1070", titulo: "Super Mario World" }];
+    const { svc, prisma, mediaScore } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([new ErroColeta("HTTP 429 em https://api.igdb.com/v4/games", 429)]);
+    const r = await svc.enriquecerCriticaIgdb(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semCritica: 0, falhas: 1 });
+    // 1 tentativa + 1 retentativa; nada além disso.
+    expect((postJson as any).mock.calls.filter((c: any[]) => c[0] === URL_IGDB_GAMES)).toHaveLength(
+      2,
+    );
+    expect(prisma.avaliacaoFonte.upsert).not.toHaveBeenCalled();
+    expect(mediaScore.recalcularEPersistir).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("erro não-429 (falha de rede) também não marca o watermark", async () => {
+    const alvo = [{ id: "m-6", fonte_id: "1", titulo: "Rede caída" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([new Error("fetch failed")]);
+    const r = await svc.enriquecerCriticaIgdb(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semCritica: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("sem credenciais Twitch → BadRequestException; guard de disco bloqueia (D-574)", async () => {
+    const alvo = [{ id: "m-7", fonte_id: "1", titulo: "X" }];
+    const { svc, prisma } = makeService({ alvo });
+    delete process.env.TWITCH_CLIENT_ID;
+    await expect(svc.enriquecerCriticaIgdb(10)).rejects.toBeInstanceOf(BadRequestException);
+    process.env.TWITCH_CLIENT_ID = "client-id-de-teste";
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 5000000000n }];
+      return alvo;
+    });
+    await expect(svc.enriquecerCriticaIgdb(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("drenarLote consome a 6ª fila (fila só de crítica IGDB drena)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          { sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 0, critica_igdb: 3 },
+        ];
+      }
+      return [];
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "criticaIgdb", ok: 0, falhas: 0 }]);
   });
 });

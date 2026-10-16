@@ -405,6 +405,10 @@ model Midia {
   // T-DADOS-02: watermark da coleta de provedores de streaming (BR). NULL =
   // nunca coletado; marcado SEMPRE, mesmo sem provedor (evita fila presa).
   provedores_em             DateTime? @map("provedores_em")
+  // T-DADOS-03: watermark da coleta dedicada de crítica do IGDB (por id).
+  // NULL = nunca tentado; marcado SEMPRE, mesmo quando o IGDB não tem
+  // aggregated_rating para aquele jogo (evita fila presa).
+  critica_igdb_em           DateTime? @map("critica_igdb_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
