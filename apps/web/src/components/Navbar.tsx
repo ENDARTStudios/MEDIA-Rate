@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 import { useState, useEffect, useRef } from "react";
 import { Link } from "@/lib/navigation";
 import { useRouter } from "next/navigation";
@@ -10,6 +11,7 @@ import { Logo } from "./Logo";
 import { SearchCommand } from "./SearchCommand";
 import { GradientMenu } from "./ui/gradient-menu";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { NotificationBell } from "./NotificationBell";
 import { PlanBadge } from "./ui/PlanBadge";
@@ -18,6 +20,8 @@ import { toast } from "sonner";
 const NAV_ITEMS = [
   { label: "catalog", href: "/catalog" },
   { label: "top", href: "/top" },
+  // D-648: "Descobertas" fecha os quatro links do conceito (a rota já existia no menu do usuário).
+  { label: "discoveries", href: "/discoveries" },
   { label: "pricing", href: "/pricing" },
 ];
 
@@ -27,20 +31,17 @@ export function Navbar({
   initialAuth?: { isAuthenticated: boolean; userName: string | null };
 }) {
   const t = useTranslations("nav");
-  // T046: detecta prefers-reduced-motion apos mount.
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener?.("change", apply);
-    return () => mq.removeEventListener?.("change", apply);
-  }, []);
+  // D-584/M3 (T211): o padrão "useState + matchMedia + listener" (repetido em
+  // text-marquee e vertical-marquee) foi substituído pelo hook canônico.
+  const reduce = useReducedMotionPref();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, isAuthenticated, logout, setInitialUser } = useAuthStore();
+  // D-630: a área /admin não tinha entrada na interface (só link direto). O hook consulta o
+  // gate uma vez por sessão; a barreira real continua sendo o gate server-side de /admin.
+  const isAdmin = useIsAdmin();
   const { fetchWatchlist, entries: wlEntries } = useWatchlistStore();
 
   // Use server-provided auth state for initial SSR render (eliminates flash)
@@ -75,7 +76,7 @@ export function Navbar({
   return (
     <nav
       data-authed={effectiveAuth ? "1" : undefined}
-      className={`sticky top-0 z-sticky border-b transition-all duration-normal ${
+      className={`sticky top-0 z-sticky border-b transition-[background-color,border-color,box-shadow] duration-normal ${
         scrolled
           ? "bg-[#09090F]/95 backdrop-blur-md border-[rgba(129,140,248,0.08)]"
           : "bg-[#09090F] border-[rgba(129,140,248,0.06)]"
@@ -83,12 +84,10 @@ export function Navbar({
       aria-label={t("mainNav")}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={`flex justify-between transition-all duration-normal ${scrolled ? "h-14" : "h-16"}`}
-        >
+        <div className={`flex justify-between ${scrolled ? "h-14" : "h-16"}`}>
           <motion.div
             className="flex items-center"
-            whileHover={reduce ? undefined : { scale: 1.02 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ duration: reduce ? 0 : 0.2 }}
           >
             <Link
@@ -112,9 +111,16 @@ export function Navbar({
               <>
                 <NotificationBell />
                 <div className="relative ml-2">
+                  {/* T211 (a11y): o menu só fechava em `onMouseLeave` — usuário de
+                      teclado/leitor de tela ficava preso com o painel aberto. Agora
+                      expõe `aria-expanded`/`aria-haspopup` e fecha em Escape,
+                      clique fora e perda de foco (mesmo padrão do LocaleSwitcher). */}
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#9CA3AF] hover:text-[#EDE7DC] transition-colors"
+                    aria-expanded={menuOpen}
+                    aria-haspopup="menu"
+                    aria-label={effectiveUser?.name ?? t("profile")}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#A0A0B8] hover:text-[#F5F5F7] transition-colors"
                   >
                     <span className="relative w-7 h-7 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-xs font-bold text-[#818CF8] shrink-0">
                       {effectiveUser?.name?.[0] ?? "?"}
@@ -126,49 +132,77 @@ export function Navbar({
                   </button>
                   {menuOpen && (
                     <div
-                      className="absolute top-full right-0 mt-1 w-48 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown"
+                      role="menu"
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setMenuOpen(false);
+                      }}
+                      onBlur={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                          setMenuOpen(false);
+                        }
+                      }}
+                      className="absolute top-full right-0 mt-1 w-48 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown"
                       onMouseLeave={() => setMenuOpen(false)}
                     >
                       {/* T321: ordem de navegação termina em Configurações. */}
                       <Link
                         href="/dashboard"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("dashboard")}
                       </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setMenuOpen(false)}
+                          data-testid="nav-admin"
+                          className="block px-3 py-2 text-sm font-semibold text-[#818CF8] hover:bg-[#1C1C2E] transition-colors"
+                        >
+                          {t("admin")}
+                        </Link>
+                      )}
                       <Link
                         href="/watchlist"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("watchlist")}
                       </Link>
                       <Link
                         href="/discoveries"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("descobertas") ?? "Descobertas"}
                       </Link>
                       <Link
                         href="/listas"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("listas") ?? "Listas"}
                       </Link>
                       <Link
                         href="/profile"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("profile")}
+                      </Link>
+                      {/* D-582.3 (T211): a rota /feedback existia, era privada e NÃO
+                          era linkada em lugar nenhum (inalcançável). */}
+                      <Link
+                        href="/feedback"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
+                      >
+                        {t("feedback")}
                       </Link>
                       <Link
                         href="/settings"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC] transition-colors"
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("settings")}
                       </Link>
@@ -192,13 +226,13 @@ export function Navbar({
               <>
                 <Link
                   href="/login"
-                  className="text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t("login")}
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-[#818CF8] text-[#0F172A] px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all"
+                  className="bg-[#E11D48] text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-[filter]"
                 >
                   {t("register")}
                 </Link>
@@ -218,7 +252,7 @@ export function Navbar({
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
               aria-label={t("openMenu")}
-              className="text-[#9CA3AF] hover:text-[#EDE7DC] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="text-[#A0A0B8] hover:text-[#F5F5F7] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
             >
               <svg
                 className="w-6 h-6"
@@ -262,21 +296,21 @@ export function Navbar({
               <Link
                 href="/catalog"
                 onClick={() => setMobileOpen(false)}
-                className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
               >
                 {t("catalog")}
               </Link>
               <Link
                 href="/top"
                 onClick={() => setMobileOpen(false)}
-                className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
               >
                 {t("top")}
               </Link>
               <Link
                 href="/pricing"
                 onClick={() => setMobileOpen(false)}
-                className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
               >
                 {t("pricing")}
               </Link>
@@ -285,14 +319,14 @@ export function Navbar({
                   <Link
                     href="/profile"
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t("profile")}
                   </Link>
                   <Link
                     href="/watchlist"
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t("watchlist")}
                   </Link>
@@ -311,7 +345,7 @@ export function Navbar({
                   <Link
                     href="/login"
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[#9CA3AF] hover:text-[#EDE7DC] px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t("login")}
                   </Link>

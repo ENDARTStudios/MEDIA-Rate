@@ -69,6 +69,15 @@ const props = {
   consensusLabel: "Consenso",
   sourcesLabel: `MEDIA Score™ agrega ${NUM_FONTES_ATIVAS} fontes de avaliação`,
   sourceNames: FONTES_ATIVAS.map((f) => f.nome),
+  // rótulos reais das 6 faixas (mesma forma de `scoredial.bands`)
+  scoreScaleLabels: {
+    "9": "Excepcional",
+    "8": "Muito bom",
+    "7": "Bom",
+    "6": "Razoável",
+    "5": "Fraco",
+    "low": "Evite",
+  },
 };
 
 function renderHero(overrides: Partial<typeof props> = {}) {

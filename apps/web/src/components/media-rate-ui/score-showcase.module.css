@@ -1,0 +1,53 @@
+/**
+ * D-643 — a sincronia entre o selo (client) e a régua (server).
+ *
+ * O `ScoreShowcase` escreve `data-faixa` no wrapper; a régua reage aqui. É CSS de propósito: o
+ * realce não custa re-render e a régua continua sendo server component (T211/T405). O `:global`
+ * alcança os `data-band`/`data-bar` que a `ScoreScale` renderiza no servidor.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* A faixa ativa fica mais alta e mais clara; as demais recuam um pouco. */
+.wrap :global([data-band] > [data-bar]) {
+  height: 0.375rem;
+  opacity: 0.55;
+  transition:
+    height 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease;
+}
+
+.wrap :global([data-faixa="9"] [data-band="9"] > [data-bar]),
+.wrap :global([data-faixa="8"] [data-band="8"] > [data-bar]),
+.wrap :global([data-faixa="7"] [data-band="7"] > [data-bar]),
+.wrap :global([data-faixa="6"] [data-band="6"] > [data-bar]),
+.wrap :global([data-faixa="5"] [data-band="5"] > [data-bar]),
+.wrap :global([data-faixa="low"] [data-band="low"] > [data-bar]) {
+  height: 0.625rem;
+  opacity: 1;
+}
+
+.wrap :global([data-band] > [data-range]) {
+  color: #85859f;
+  transition: color 200ms ease;
+}
+
+.wrap :global([data-faixa="9"] [data-band="9"] > [data-range]),
+.wrap :global([data-faixa="8"] [data-band="8"] > [data-range]),
+.wrap :global([data-faixa="7"] [data-band="7"] > [data-range]),
+.wrap :global([data-faixa="6"] [data-band="6"] > [data-range]),
+.wrap :global([data-faixa="5"] [data-band="5"] > [data-range]),
+.wrap :global([data-faixa="low"] [data-band="low"] > [data-range]) {
+  color: currentColor;
+}
+
+/* D-065 / D-587: nada de movimento quando o sistema pede menos. */
+@media (prefers-reduced-motion: reduce) {
+  .wrap :global([data-band] > [data-bar]),
+  .wrap :global([data-band] > [data-range]) {
+    transition: none;
+  }
+}
