@@ -29,9 +29,11 @@ function mockFetch(respostas: { ok?: boolean; status?: number; body: unknown }[]
 
 const TOKEN = { access_token: "tok", expires_in: 3600 };
 
-/** Corpo da chamada ao endpoint de games do IGDB (a chamada de token é ignorada). */
+/** Corpo da chamada ao endpoint de games (token OAuth não tem `fields`). */
 function corpoDaBusca(): string {
-  const chamada = vi.mocked(fetch).mock.calls.find(([url]) => String(url).includes("api.igdb.com"));
+  const chamada = vi
+    .mocked(fetch)
+    .mock.calls.find(([, init]) => String(init?.body ?? "").includes("fields name, slug"));
   return String(chamada?.[1]?.body ?? "");
 }
 
