@@ -1,6 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* D-651 (Tailwind 4): as tres diretivas v3 viraram o import unico do v4.
+   O config JS continua sendo a fonte dos tokens, carregado por @config. */
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+/* D-651: no v4 o tema pode ser declarado em CSS. Estas quatro cores do shadcn vinham
+   só do config JS e o `@apply` do próprio globals.css não as enxergava
+   ("Cannot apply unknown utility class border-border"). `inline` preserva a
+   indireção: o utilitário aponta para a var, que continua trocável em runtime. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
 
 :root {
   --bg: #05050a;
