@@ -60,27 +60,27 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
-    "@opennextjs/cloudflare": "^1.20.6",
+    "@axe-core/playwright": "^4.13.0",
+    "@opennextjs/cloudflare": "^1.20.11",
     "@playwright/test": "^1.64.1",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/node": "^20.19.43",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "@types/sanitize-html": "^2.16.1",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.6.1",
     "eslint": "^9.18.0",
-    "eslint-config-next": "^16.2.10",
+    "eslint-config-next": "^16.4.0",
     "jsdom": "^26.0.0",
     "msw": "^2.15.0",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.30",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10",
     "wcag-contrast": "^3.0.0",
-    "wrangler": "^4.149.0"
+    "wrangler": "^4.150.0"
   },
   "peerDependencies": {
     "next": "16.3.8"
