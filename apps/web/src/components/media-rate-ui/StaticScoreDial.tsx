@@ -12,24 +12,17 @@
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatarScoreLocale } from "@/lib/score-utils";
-
-const SIZE_CONFIG = {
-  sm: { ring: "h-10 w-10", number: "text-sm", stroke: 3, radius: 14 },
-  md: { ring: "h-16 w-16", number: "text-xl", stroke: 4, radius: 24 },
-  lg: { ring: "h-24 w-24", number: "text-3xl", stroke: 6, radius: 38 },
-} as const;
-
-function scoreBand(value: number, scale: "0-10" | "0-100"): string {
-  const n = scale === "0-100" ? value / 10 : value;
-  if (n >= 8) return "#34D399";
-  if (n >= 6) return "#FBBF24";
-  return "#F87171";
-}
+import {
+  SCORE_DIAL_TRACK,
+  dialGeometry,
+  type ScoreDialScale,
+  type ScoreDialSize,
+} from "./score-dial-core";
 
 export interface StaticScoreDialProps {
   value: number;
-  scale?: "0-10" | "0-100";
-  size?: "sm" | "md" | "lg";
+  scale?: ScoreDialScale;
+  size?: ScoreDialSize;
   className?: string;
   /**
    * T210: o dial é desenhado só com anel + número (centro transparente). Sobre
@@ -48,12 +41,7 @@ export function StaticScoreDial({
   className,
   onArtwork = false,
 }: StaticScoreDialProps) {
-  const max = scale === "0-100" ? 100 : 10;
-  const clamped = Math.max(0, Math.min(max, value));
-  const color = scoreBand(clamped, scale);
-  const cfg = SIZE_CONFIG[size];
-  const circ = 2 * Math.PI * cfg.radius;
-  const offset = circ - (clamped / max) * circ;
+  const { cfg, max, clamped, circ, offset, color } = dialGeometry(value, scale, size);
   // T147: mesmo pipeline do ScoreDial client — aria i18n e número por locale.
   const tScore = useTranslations("scoredial");
   const locale = useLocale();
@@ -73,18 +61,22 @@ export function StaticScoreDial({
         // número mesmo sobre capa branca. Pinta antes do SVG → anel visível.
         <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
       )}
-      <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 60 60" aria-hidden="true">
+      {/* D-650: o viewBox era 60x60, mas os raios de SCORE_DIAL_SIZE chegam a 38 (lg) e o
+            traço a 6 — 44 > 30 (metade do viewBox), então o círculo era CORTADO e sobravam
+            as quatro pontas (era isso que aparecia como "cantoneiras" no selo do hero).
+            100x100 é o mesmo do ScoreDial, que é o espelho deste componente. */}
+      <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 100 100" aria-hidden="true">
         <circle
-          cx="30"
-          cy="30"
+          cx="50"
+          cy="50"
           r={cfg.radius}
           fill="none"
-          stroke="rgba(148,163,255,0.12)"
+          stroke={SCORE_DIAL_TRACK}
           strokeWidth={cfg.stroke}
         />
         <circle
-          cx="30"
-          cy="30"
+          cx="50"
+          cy="50"
           r={cfg.radius}
           fill="none"
           stroke={color}

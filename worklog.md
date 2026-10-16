@@ -4097,6 +4097,14 @@ rodando de novo em http://localhost:3000.
 - **Diff docs-only:** nenhum código/schema/deps/infra/produção/alerta/GitHub setting alterado.
 - **GO:** segue **SUSPENSO** — encerramento documental **não** libera GO.
 
+**PR aberto (T207–T210):** https://github.com/ENDARTStudios/MEDIA-Rate/pull/551 — branch
+`feat/t207-t210-ui-ux-design-tooling` (commit `4d4db00a`, 139 arquivos). Composto no branch
+corrente `docs/t210-incident-*` do Operador **sem tocar nele**: as mudanças foram levadas por
+patch para um `git worktree` limpo criado a partir de `origin/main` (9e32e5ae), commitadas lá e
+enviadas. `apps/api/**`, `.env.example` e o índice/stage do branch atual ficaram intocados; as
+edições de cor que o sweep havia aplicado em 5 arquivos de admin do outro agente foram
+revertidas ao HEAD. CI disparado (Lint & Audit, Test & Coverage, RLS, Build CF, Trivy, Vercel).
+
 ### [2026-10-13] T211 — alerta CodeQL #151 formalizado como `OPEN_MITIGATED_DOCUMENTED`
 
 - **Classificação:** `ALERTA_151 = OPEN_MITIGATED_DOCUMENTED`; metadados **apenas por GET**
@@ -4146,6 +4154,62 @@ rodando de novo em http://localhost:3000.
   Dependabot/alerts/secrets/environments. Relatório:
   `docs/08-security/reports/deps-clean-pr-2026-10-13.md`. **GO segue SUSPENSO.**
 
+### [2026-10-12] T211 — auditoria de UI/UX do site inteiro (D-582)
+
+Reavaliação pedida pelo Operador: 45 rotas / 144 componentes, probe HTTP das 30 rotas
+principais, `impeccable detect` no DOM de 20 rotas públicas, censo estático (hex,
+`text-white*`, `dark:`, `transition-all`, `hover:`, `100vh`, `role="list"`, `alt`,
+headings, estados por rota) e 4 auditorias paralelas por superfície. Relatório:
+`docs/02-architecture-design/AUDITORIA-UI-UX-2026-10.md`; decisão: D-582.
+
+**Bloqueadores corrigidos:** CTA do checkout com classes inexistentes (`bg-primary-700`
+etc. → sem fundo e sem foco); **hydration mismatch** em `/billing/success`
+(`ConfettiCelebration` SSR `<canvas>` vs cliente `null` com movimento reduzido);
+vazamento de pt-BR em EN/ES nas institucionais (`MIDIA_LABEL`, "Crítica/Público",
+`terms.h1`, selo de classificação) — medido 71 → 0 em `/en-US/sources`; `prose` inerte
+(plugin ausente) em `/sources` e `/methodology`; medida de leitura de `/terms` e
+`/privacy` (14 e 11 achados → 0).
+
+**Também:** 58 pontos de `text-white/25..42` (2,20–3,81:1) → `#85859F`; `Arial` → Inter
+(13); loop rAF infinito do `glowing-effect` com gate; `scroll-behavior` no gate de
+movimento; `hoverOnlyWhenSupported` (296 hovers presos no touch); `role="list"` em 25
+`<ul>`; foco/Escape no `NotificationBell` e no menu do `Navbar`; inputs do `AuthForm` com
+16px; `viewportFit: cover` + safe-area; emojis do `/onboarding` → Lucide; eyebrow do
+`/welcome` removido; blobs do hero → radial-gradient; `/faq` e `/sources` no rodapé;
+`/discover` e `/top` no sitemap; `robots` do `/login`; guarda i18n estendida a `terms`.
+
+**Verificação:** detector 0 (fonte) e 0 no DOM de 20 rotas; contraste 51/51; vitest
+615/615; tsc 0; eslint 0; regressão visual 4/4; `next build` 0. Dívida aberta e as 10
+decisões do Operador ficam listadas em D-582 (admin light-mode-first, 2º design system do
+dashboard, `/feedback` que não envia, dials concorrentes, estados por rota, `text-white`
+vs AA no CTA da marca, etc.). **Sem tocar** nos arquivos do trabalho concorrente
+(`admin/{usuarios,lgpd,diagnostics,catalogo}`, `apps/api/**`).
+
+### [2026-10-12] T211 (continuação) — decisões tomadas e implementadas (D-583)
+
+O Operador delegou as 10 decisões abertas da auditoria. Implementado: **admin**
+`darkMode: "class"` (1 linha conserta os 108 `dark:`; verificado no CSS compilado —
+`.dark\:bg-gray-800` presente e nenhuma `prefers-color-scheme`) + harness visual agora em
+`colorScheme: "light"`; **`/feedback`** reescrito honesto (i18n ×3, `Star` do Lucide,
+envio por `mailto` real) e linkado no menu de conta; **dial de score** com fonte única de
+faixas (`scoreColor`) nos dois dials do produto e fim do breakdown fictício `[40,40,20]`;
+**"público"** no token rose (número em `#FB7185` por AA); **estados**: `loading.tsx` do
+segmento `[locale]` com `RouteSkeleton` + `global-error.tsx` com a marca (eram 0 e 0);
+**`/onboarding` aposentado** (rota + 10 chaves × 3 locales + middleware); **`text.onBrand`**
+(token com escopo + exceção registrada ao D-065, com guarda); **`alt` em pt-BR** → i18n;
+**LCP da ficha** (rung de display 1280 + `fetchPriority`); **`100vh` → `dvh`** (7);
+**`<a>` dentro de `<a>`** removido (Histórico e Listas).
+
+**Bug pego no processo**: o primeiro `loading.tsx` tentava `await params` — no App Router o
+`loading.tsx` não recebe `params`, e TODA rota passou a responder 500. Corrigido para client
+component com `useTranslations`; o dev server foi o que denunciou.
+
+**Verificação**: vitest **618/618**; tsc **0**; eslint **0**; `next build` **0**;
+`design:detect` 0 na fonte e 0 no DOM de 18 rotas; `design:contrast` **51/51**; regressão
+visual **4/4 duas vezes** (em modo claro). Decisões bloqueadas/escaladas: migração do admin
+para tokens e consolidação da remoção de mídia (arquivos do outro agente) e o
+`LgpdBanner` (compliance).
+
 ### [2026-10-13] T220 — pacote de evidência pré-GO (read-only/docs-only)
 
 - **Snapshot canônico:** `docs/08-security/reports/pre-go-evidence-pack-2026-10-13.md` +
@@ -4174,6 +4238,35 @@ rodando de novo em http://localhost:3000.
   contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo, sem
   plumbing — árvores idênticas). **GO segue SUSPENSO.**
 
+### [2026-10-12] T211 (continuação 2) — feedback de ação, gate de cor e limpeza (D-584)
+
+**Feedback de ação (B4):** o produto não dava retorno nas ações centrais. Agora
+`WatchlistButton` confirma adicionar/mover/remover e a remoção tem **Desfazer** (re-insere na
+coluna anterior); erros deixam de ser silenciosos; `ListaViewPage` confirma adicionar/remover/
+salvar e `ListasPage` confirma a criação. Usa o `sonner` que já estava montado, e reusa as
+chaves `watchlist.*` que existiam traduzidas e órfãs (+ `watchlist.undo` e 4 em `listas`).
+
+**Gate de sessão:** `/listas`, `/historico` e `/compare` não estavam em
+`privateRoutePrefixes` — renderizavam "Verificando sessão..." e só redirecionavam ao login
+pelo cliente (~5s). Agora é **307 do servidor** com `callbackUrl`. `/discoveries` mantido com
+estado anônimo por desenho.
+
+**Gate de cor novo:** `npm run design:hex` (script `design-hex-census.mjs`) congela os **55
+valores / 972 ocorrências** de cor fora de token e falha (exit 2) em valor NOVO — testado com
+`#123456`. Antes, `design:detect` (advisory) e `design:contrast` (tokens) conviviam com todo
+esse drift. Documentado em AGENTS.md e no design-linter.
+
+**Também:** i18n em `SourceMiniCard`/`CatalogTypeBar`/`lazy.tsx`/`/assistant`; `/settings` sem
+o score inventado (7.9/9.4 → cadeado + rótulo); `transition-all` **zerado** (17 → 0) e a
+animação de altura do Navbar removida; 6 componentes migrados para `useReducedMotionPref`;
+`sizes` nos 9 `<Image>` do dashboard; dead code de 15 arquivos + CSS morto removidos
+(inclusive `Seasons` e seu spec, que só existia para testar componente sem consumidor).
+**`image/avif` NÃO foi habilitado**: a policy de imagem é travada por D-445 e tem teste +
+snapshot.
+
+**Verificação:** vitest 613/613 (88 arquivos), tsc 0, eslint 0, detect 0 (fonte) e 0 no DOM de
+12 rotas, contraste 51/51, design:hex OK, visual 4/4.
+
 ### [2026-10-13] T224 — auditoria da jornada mínima de beta (read-only/docs-only) + reconciliação do PLANO_MESTRE
 
 - **Relatório:** `docs/08-security/reports/beta-core-journey-audit-2026-10-13.md` — **13 fluxos**
@@ -4198,6 +4291,26 @@ rodando de novo em http://localhost:3000.
   ou PII; contaminacao 123ce28e ausente; trabalho concorrente do Operador preservado (checkout limpo).
   **GO segue SUSPENSO.**
 
+### [2026-10-12] T211 (continuação 3) — ISR: causa refutada por experimento (D-585)
+
+Fui atrás do P1 de maior alavancagem (pré-render/ISR das rotas públicas) e **testei a hipótese
+da auditoria antes de mexer no shell**. Ela não se sustenta: remover o `AuthHeader` (leitura de
+`cookies()`) do layout **não** devolve pré-render — todas as ~45 rotas seguem `ƒ`. Também
+testados e descartados: `locale`/`messages` explícitos no next-intl, `autoInstrumentServerFunctions:
+false` no Sentry e `Suspense` no `useSearchParams` do DiagPanel (6 builds no total). Com um
+layout **mínimo** o Next *tenta* pré-renderizar e falha só por falta do `QueryProvider` — ou
+seja, as páginas são prerenderizáveis e o bloqueio está na composição do shell.
+
+**Revertido o experimento** (sem benefício medido, com risco de regressão na navbar
+autenticada — caminho que não é verificável aqui, sem credenciais de teste). Ficaram só as duas
+mudanças estritamente melhores e sem custo, marcadas como pré-requisito e não solução: leituras
+de request fora do shell (`getTranslations({locale})`, `getMessages({locale})`, provider com
+`locale`/`messages`) e `<Suspense>` em volta do `DiagPanelLoader` (CSR bailout documentado).
+Racional completo, evidência build a build e o método de bissecção para a tarefa dedicada: D-585.
+
+**Verificação após reverter:** build 0, 613/613 testes, detector 0 na fonte, `design:hex` OK,
+regressão visual 4/4, páginas 200 com navbar renderizada no SSR.
+
 ### [2026-10-13] T225 — design de prontidão operacional de backups (read-only/docs-only)
 
 - **Relatório:** `docs/08-security/reports/backup-operational-readiness-design-2026-10-13.md`.
@@ -4220,6 +4333,68 @@ rodando de novo em http://localhost:3000.
 - **Nada executado:** sem backup/restore, sem cron/workflow/secret/infra, sem acesso a produção, sem
   interagir com alertas. Diff docs-only; contaminacao 123ce28e ausente; checkout limpo; trabalho
   concorrente do Operador preservado. **GO segue SUSPENSO.**
+
+### [2026-10-12] T211 (continuação 4) — dashboard quebrado em componentes + paleta declarada (D-586)
+
+**B3 atacado em duas etapas.** (1) Extração mecânica dos 8 helpers inline para
+`components/dashboard/overview/` (helpers, SectionHead, DemoBadge, PreviewCard, MiniSparkline,
+RadarGraphic, ScoreBadge, HistogramBars): `DashboardOverview.tsx` de **1.757 → 1.464 linhas**,
+com o teste existente (27 casos, `data-testid` por seção) passando sem tocar nele. (2) A paleta
+paralela do protótipo saiu de 217 `className` arbitrários para **uma declaração única** em
+`lib/dashboard-palette.ts`, importada pelo `tailwind.config.ts` (`dash: DASH_PALETTE`) e usada
+como classe (`bg-dash-teal`) ou constante (`DASH.teal` em SVG/gráfico/style). O módulo traz
+`DASH_CANONICO` mapeando cada cor legada ao token canônico mais próximo. Também entrou a escala
+canônica de texto como classe (`text-fg-muted`/`fg-secondary`/`fg-primary`).
+
+**Medido pelo gate de cor:** 55 valores/972 ocorrências fora de token → **35/710** (−262
+ocorrências, −20 valores), sem mudar nenhuma cor (mesmos hex ⇒ mesmo CSS).
+`dashboard-palette.ts` passou a ser fonte declarada do censo.
+
+**Verificação:** tsc 0, eslint 0, 613/613 testes, build 0, detect 0 (fonte), contraste 51/51,
+visual 4/4, `design:hex` OK. **Caveat:** o dashboard não tem baseline visual por pixel (rota
+autenticada, sem `storageState` no harness) — a neutralidade é por construção + teste de
+estrutura; criar baseline autenticado é o próximo passo para migrar `dash-*` → tokens.
+
+### [2026-10-12] T211 (continuação 5) — hydration mismatch, FORMATTING_ERROR e incidente de processos (D-587)
+
+O log do dev server (que morreu no restart de `next.config.ts`) revelou três defeitos e a
+varredura confirmou a extensão deles. **Causa raiz do mismatch**: props de gesto condicionadas a
+`prefers-reduced-motion` — o motion injeta `tabindex="0"` quando `whileTap`/`whileHover` existe,
+então servidor e cliente divergiam em **toda a grade de cards** (`/catalog`, `/discover`,
+`/design-system`). Corrigido tornando os gestos determinísticos (o `MotionConfig
+reducedMotion="user"` global já cuida de quem pediu movimento reduzido). Em `/welcome`, a entrada
+virou CSS (`.enter-rise`/`.enter-fade`), determinística entre servidor/cliente, funcional sem JS
+e desligada em movimento reduzido — antes o HTML nascia invisível (`initial`) e hidratava
+diferente. No `/about`, `sanitizeHtml(t(...))` com mensagem que tem `<strong>` gerava **9
+`FORMATTING_ERROR` por render** (ruído em log/Sentry) → `t.markup()` nos 9 pontos → **0**.
+Varredura nova: 17 rotas públicas × 2 modos de movimento, 0 mismatches.
+
+**Incidente (divulgado em D-587):** ao limpar processos `next` usei filtro largo demais e matei
+dev servers de **outros projetos** (Almanaque dos Clubes — voltou sozinho; Currículo Político —
+relançado como job gerenciado, `.next` regenerado, nenhum fonte/dado tocado). O 500 restante
+naquele projeto é corrida entre o `next build` **dele** e o `next dev` no mesmo `.next`, somada à
+ausência do client Prisma em `apps/web/node_modules/.prisma` (passo `db:generate` do projeto).
+Lição: filtrar por caminho absoluto do workspace e conferir a lista antes de matar.
+
+**Verificação:** 613/613, tsc 0, eslint 0, build 0, detect 0, contraste 51/51, hex OK, visual 4/4.
+
+### [2026-10-12] T211 (continuação 6) — harness autenticado pronto; ambiente bloqueia a sessão (D-588)
+
+A recomendação aprovada (3 → 1 → 2) começa por sessão autenticada local, que nenhum gate tinha.
+Construído: `e2e/web-login-setup.ts` (sessão por API direta **ou** pelo proxy same-origin do web,
+storageState em temp, credenciais nunca impressas), `playwright.auth.config.ts`, os specs
+`auth/admin-a11y.spec.ts` (**axe AA nas 8 telas de admin** + regressão do tema claro) e
+`auth/dashboard-auth.spec.ts` (**baseline visual do dashboard**, pré-requisito do D-586), scripts
+`test:auth`/`test:auth:update` e `.gitignore` para baselines/artefatos.
+
+**Bloqueio:** as credenciais do `.env.local` dão **401 "Credenciais inválidas"** na API que o proxy
+do web usa e a API local (`:4000`) esperada pelo e2e não está no ar — então os itens 3 e 1 ficam
+bloqueados por ambiente (código pronto). O setup agora falha com as três vias de destravar.
+
+**Re-teste do D-585 com verificação de arquivo:** removi o `AuthHeader` conferindo o resultado da
+edição, e o segmento segue 100% `ƒ` — veredito mantido, agora com evidência sólida. Lição de
+método registrada: `Replace` que não casa é no-op silencioso e caminhos com `[locale]` são
+**wildcard** para cmdlets sem `-LiteralPath` (um backup "criado" não existia).
 
 ### [2026-10-13] T226 — configuração mínima segura de backup (preparação + bloqueio manual)
 
@@ -4248,6 +4423,20 @@ rodando de novo em http://localhost:3000.
   alertas interagidos. Diff: `scripts/backup-db.sh` + docs; contaminacao 123ce28e ausente; trabalho
   concorrente do Operador preservado. **GO segue SUSPENSO.**
 
+### [2026-10-12] T211 (continuação 7) — bissecção do ISR: 9 builds, achado decisivo (D-589)
+
+Item 2 da recomendação (o único sem dependência de sessão). Instrumento: `next build` + rotas-sonda
+triviais; leitura: `○/●/ƒ` na tabela. **Eliminados com evidência**: páginas (sonda dentro do
+`[locale]` → `ƒ`), escopo do segmento (sonda na raiz → `ƒ`), `AuthHeader`/`cookies()`, Sentry
+(wrapper e `autoInstrumentServerFunctions`), o bundler (webpack = Turbopack), a composição do shell
+(layout mínimo = real) e o layout raiz (limpo). **Descoberta**: com
+`export const dynamic = "force-static"` a sonda sai **`○`** — o app consegue pré-renderizar; todas
+as rotas é que são dinâmicas por padrão. Suspeito restante não isolado: o plugin `withNextIntl`.
+Registrei a receita do próximo passo e a **mitigação imediata** (opt-in por rota funciona: a home já
+declara `revalidate = 3600`, hoje ignorado) — não apliquei porque define política de cache.
+
+Repo restaurado e verificado (sem resíduos de experimento, tsc 0, build 0, home/about 200).
+
 ### [2026-10-13] T230 — evidência de backups por Railway CLI (correção de premissa + bloqueio de custo)
 
 - **Correção aceita e verificada:** a afirmação da T226 ("o CLI do Railway não expõe backup") era
@@ -4271,6 +4460,20 @@ rodando de novo em http://localhost:3000.
 - **Somente leitura** por CLI (status/list) + uma tentativa de criação que falhou por plano; **sem**
   restore/delete/upgrade/billing, **sem** segredo/PII/URL assinada/ID impresso, **sem** alertas
   interagidos. Diff docs-only; contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-12] T211 (continuação 8) — ISR aplicado nas institucionais: 4 → 22 rotas pré-renderizadas (D-590)
+
+Item (2) fechado na parte que dá ganho real. Seis páginas de conteúdo
+(`about/faq/sources/methodology/terms/privacy`) receberam `dynamic = "force-static"` +
+`revalidate = 3600`, e o `headers()` global do `next.config.ts` foi dividido em duas regras —
+o `Cache-Control: max-age=0` aplicado a tudo **sobrescrevia** o header de ISR do Next e anulava o
+CDN. Medido em build de produção: manifest **4 → 22 rotas**, `/pt-BR/about` passou de
+`public, max-age=0` para **`s-maxage=3600, stale-while-revalidate=…`**, headers de segurança
+intactos, e TTFB no origem de 17–40 ms para **5–9 ms** (vs 18–23 ms numa rota dinâmica de
+controle). Invalidação on-demand já existente (`POST /api/revalidate` →
+`revalidatePath("/", "layout")`) cobre as 18 rotas. Registrado também o que **não** resolve: as
+outras ~40 rotas seguem dinâmicas (causa raiz em aberto, D-589) e respostas com `Set-Cookie` do
+middleware (1ª visita) tendem a não ser cacheadas por CDN — decisão de produto, não alterei.
 
 ### [2026-10-13] T232 — Railway PRO: schedule diário de backup ativo + backup permanente criado
 
@@ -4297,6 +4500,19 @@ rodando de novo em http://localhost:3000.
 - **Sem segredo/PII/ID/URL impresso**; nenhum alerta interagido. Diff docs-only; contaminacao 123ce28e
   ausente; trabalho concorrente do Operador preservado. **GO segue SUSPENSO.**
 
+### [2026-10-12] T211 (continuação 9) — cache de CDN fechado nas rotas estáticas (D-591)
+
+Última medida do ciclo de ISR: as rotas estáticas ainda emitiam `Set-Cookie` (dois emissores —
+`x-mr-uid` no meu middleware e `NEXT_LOCALE` no do next-intl) e resposta com cookie não é cacheável
+por CDN, anulando o ganho na primeira visita. Criado `src/lib/static-content.ts` como **fonte
+única** (6 páginas × 3 locales) consumida por `next.config.ts` e `middleware.ts`; nas rotas de
+conteúdo o hook de plataforma não roda e o `Set-Cookie` é removido da resposta (segue valendo nas
+dinâmicas), com a preferência de idioma passando a ser gravada **no cliente** pelo `LocaleSwitcher`.
+Verificado em `next start`: `/pt-BR/about` e `/es-ES/terms` com `s-maxage=3600` e **zero
+`Set-Cookie`**; `/pt-BR/pricing` com cookies + `x-mr-platform: vercel` (rollout preservado).
+Trade-off documentado: o rollout do Cloudflare não cobre as 18 páginas editoriais. Novo teste de
+contrato (4 casos) trava a lista. 617/617 testes, eslint 0, tsc 0, todos os gates verdes.
+
 ### [2026-10-13] T234 — hardening de retenção de backup (+ achado material que corrige a T232)
 
 - **Opção 1 indisponível:** `postgres pitr schedule set` **não tem flag de retenção** (só
@@ -4321,6 +4537,40 @@ rodando de novo em http://localhost:3000.
 - **Nenhum** restore/delete/lock/PITR/R2/billing/segredo/var/rede/domínio/deploy/código; nenhum
   ID/`externalId`/`creatorId`/URL/PII impresso; nenhum alerta interagido. Diff docs-only;
   contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T211 (continuação 10) — recursos PRO usados com medição; AVIF e cache de ISR provados no CDN real (D-592)
+
+Planos PRO ativos. Reconhecimento por CLI nas duas plataformas (sessões verificadas; projeto
+`media-rate`; produção **intocada** — validação por preview). Baseline real: TTFB médio **209 ms**,
+`X-Vercel-Cache: MISS` + `no-store` em tudo, **32 transformações de imagem em 30 dias** (a cota que
+justificava o WebP-only do D-445 era irrelevante). Habilitei **AVIF** (`formats:
+["image/avif","image/webp"]`) + `minimumCacheTTL` de 31 d: medido no mesmo pôster, **−38% (w320) e
+−46% (w640)**; no CDN, `image/avif` com `X-Vercel-Cache: HIT`. Contrato congelado atualizado com
+justificativa. O preview revelou que o **matcher de `headers()` difere entre local e Vercel**: a
+exclusão por lookahead que funcionava em `next start` não valia na plataforma e o `max-age=0`
+global anulava o ISR → header passou a ser **explícito** (`s-maxage=3600, stale-while-revalidate`).
+Validação final: as 4 estáticas testadas saem `PRERENDER` + `s-maxage` + **sem cookie**; dinâmicas
+preservadas. No Railway, verifiquei a trilha de backup: o item pendente do T234 **materializou**
+(`never` expira, 3 MB dedup / 630 MB referenciados, disco real 646 MB), mas **PITR está desligado e
+sem bucket** — bloqueio do recurso mais forte de DR, registrado em relatório sanitizado novo
+(`railway-backup-pro-verification-2026-10-13.md`), com a ressalva de que `pitr backup restore` não
+documenta raio de impacto e não deve ser exercido em produção. Também levantado: 10 segredos de
+banco/Redis sem uso no projeto web da Vercel (recomendação, não aplicada). 617/617 testes, todos os
+gates verdes, dois previews inspecionados.
+
+### [2026-10-13] T211 (continuação 11) — PRO aplicado: PITR ativo no Postgres + 11 segredos removidos da Vercel (D-593)
+
+Autorizado pelo operador. **PITR habilitado** no Postgres de produção (`pitr enable` criou o bucket
+`Postgres-PITR`, setou 6 variáveis `WAL_ARCHIVE_*` e redeployou o banco). Verificado com evidência:
+`enabled/bucketWired: true`; schedules do T234 intactos (6/27/89 d); `/health` 200 com uptime
+contínuo e **leitura real de banco** em produção (`/pt-BR/catalog` 200, 214,6 KB). O bloqueio do
+`GO` da trilha deixou de ser "PITR indisponível"; ficam (a) a janela não retroativa (começa no
+1º base backup) e (b) a restaurabilidade a validar em projeto de descarte, porque
+`pitr backup restore` não documenta raio de impacto. Higiene: **11 variáveis** de banco/Redis/admin
+sem nenhuma referência no web foram removidas em `production` e `preview`; auditoria pela API da
+Vercel (116 entradas) confirma a limpeza e a presença das essenciais. Achado colateral:
+`POSTHOG_PERSONAL_API_KEY`/`POSTHOG_PROJECT_ID` ausentes → `x-mr-platform` constante (`vercel`),
+rollout do dual-deploy inerte por credencial (default OFF coerente).
 
 ### [2026-10-13] T236 — verificação (read-only) da materialização do backup: `EM_PROGRESSO`
 
@@ -4347,6 +4597,19 @@ rodando de novo em http://localhost:3000.
 - **Read-only:** nada criado/restaurado/deletado/lockado; schedule e PITR intocados; nenhum
   ID/`externalId`/`creatorId`/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only;
   contaminacao 123ce28e ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T211 (continuação 12) — drill de restauração APROVADO: PITR restaurável de ponta a ponta (D-594)
+
+Drill autorizado executado com o caminho **não destrutivo** (`pitr restore` → serviço irmão,
+origem intocada). Comparação exata entre produção e restaurado: **190 MB = 190 MB**, **40 tabelas
+= 40**, `midia` 17.268 = 17.268, `episodio` 131.743 = 131.743, `media_score` 16.667 = 16.667,
+`temporada` 6.346 = 6.346, `usuario` 198 = 198. Arquivador saudável (1 backup set, WAL contínuo,
+`Restorable up to 03:33:42Z`). Drill removido com `railway service delete --service … -y` (escopado
+por nome — `railway delete` apaga o **projeto** e foi evitado). **Correção de premissa revelada pelo
+drill:** `pitr backup restore <ID>` é **in-place/destrutivo** (docs oficiais; o `--help` não avisa),
+então o backup de volume não serve para validar DR — só o PITR restore. Produção verificada depois:
+banco íntegro, PITR ativo, API e web 200. O bloqueio de capacidade do `GO` está fechado; resta
+procedimento (runbook + acompanhamento da cobertura).
 
 ### [2026-10-13] T228 — restore drill condicional: discovery read-only → **BLOCKED (sem execução)**
 
@@ -4377,6 +4640,40 @@ rodando de novo em http://localhost:3000.
 - **Nenhuma mutação:** sem restore, sem recurso criado, sem delete/lock, schedule intocado, R2 não usado;
   nenhum ID/URL/segredo/PII impresso; nenhum alerta interagido. Diff docs-only; contaminacao 123ce28e
   ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T211 (continuação 13) — sessão de login com a "lâmina" (D-595)
+
+Referência pública (reel de `_code_and_chill_`): **não assisti ao vídeo** — usei a legenda do autor
+(descrição textual da mecânica) e descartei a capa, que é arte promocional ("Flip the page") e não
+corresponde ao efeito. Implementado `AuthBladeCard`: **uma lâmina com a largura do card**,
+`translateX(-100% → 100%)`, cobrindo o card por completo na metade do percurso (easing simétrico,
+560 ms) — é nesse instante que Login e Criar conta trocam de lugar; volta espelhada; **sem nenhum
+fade**, só `transform`; painéis na mesma célula de grid (altura estável entre 2 e 5 campos).
+Cabeçalho, linha de troca e botões sociais foram para dentro dos painéis (senão o topo continuava
+"Entrar" após a revelação) e a linha duplicada do rodapé é suprimida via `onSwitch`. A11y: painel
+inativo com `inert` + `aria-hidden` + `visibility: hidden` (nunca opacidade — é o que o gate do
+D-587 reprova), foco bloqueado verificado; movimento reduzido troca em 60 ms sem lâmina. Evidência
+em `docs/02-architecture-design/evidencias/auth-blade-*.png` (5 capturas) + 7 asserções. Gates:
+617/617 testes, hidratação 36/36, detector 0, contraste 51/51, visual 4/4, e **hex −6 ocorrências**
+(cabeçalho migrado para tokens canônicos e variáveis CSS em vez de repetir hex). Limitação
+registrada e medida: a URL não acompanha a troca (o `replaceState` no App Router re-renderiza a rota
+antiga e desfaz o estado; `router.replace` cortaria a lâmina).
+
+### [2026-10-13] T211 (continuação 14) — faixa inclinada de verdade (D-596)
+
+As capturas da referência chegaram e **mostram o código do autor**: `skewX(var(--rake))
+translateX(var(--sweep))` na faixa e a transformação **inversa** no conteúdo (`.band_inner`), com
+`overflow: hidden` cortando o título na diagonal. Ou seja: o D-595 tinha implementado uma lâmina
+reta; corrigido para a mecânica real — a faixa é inclinada, **existe em repouso** carregando o texto
+de marca, viaja com uma única `translateX` e a troca dos estados acontece sob a cobertura, com duas
+costuras de luz nas bordas. `/login` e `/register` deixaram as duas colunas (marketing + formulário)
+e viraram um **card único centralizado**, que é a estrutura da referência. Adaptações assumidas: 
+paleta escura do produto (`color-mix` de indigo sobre o token para a cunha existir), formulário
+mantendo o cartão do `AuthForm`, `font-heading` no lugar da serifada. Verificado: matriz de skew real
+no repouso, direçõesdas varreduras, foco bloqueado no painel inativo, movimento reduzido em 80 ms,
+mobile sem scroll horizontal; 7 capturas em `docs/02-architecture-design/evidencias/`. Gates:
+617/617 testes, hidratação 36/36, detector 0, contraste 51/51, visual 4/4 e **hex −14** (a
+reestruturação removeu mais hex legado do que a feature acrescentou).
 
 ### [2026-10-14] T242 — auditoria read-only do Railway CLI (contexto PRO): drill já provado + resíduo billable
 
@@ -4455,6 +4752,62 @@ rodando de novo em http://localhost:3000.
   PITR/schedule/backup intocados; sem deploy/aprovação de Production; nenhum ID/URL/segredo/PII
   impresso; nenhum alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
 
+### [2026-10-13] T211 (continuação 15) — toolkit reescrito para o MEDIA Rate + conceito visual "O Placar como Interface" (D-597)
+
+Duas entregas. (a) `docs/UI-UX-TOOLKIT.md` era cópia de outro projeto (clubes, Tailwind v4/@theme,
+Barlow, plugin `media-rate-design`) e foi reescrito para a realidade deste repo: Tailwind 3.4.17,
+tokens em `design-tokens.ts`, dark-only, 3 locales, `components.json` existente com 5 registries,
+Anime.js **em uso** (6 imports, ao contrário do que a cópia dizia), §7 nova com os gates reais
+(detect 0, contraste 51/51, hex 696/−14, visual 4/4, hidratação 36/36, auth bloqueado) e §6 nova
+documentando o FigCraft (552 comandos, `run`, `export`, `--no-system-fonts`). (b) Conceito visual
+"O Placar como Interface": 6 problemas nomeáveis + 6 pilares (placar como interface com a `<Regua>`,
+densidade escolhida, camadas e não sombras, movimento em 3 batidas com aposentadoria do
+`blur(4px)`, comparação a um toque, nenhuma tela morta), tokens só como aliases (censo de hex
+intocado), rollout em 4 fases com gate de saída e critérios medíveis. Maquetes geradas pelo FigCraft
+por script versionado (918 comandos/916 nós → 4 PNGs em `docs/02-architecture-design/evidencias/conceito/`).
+Nenhum código de produto alterado; `/admin` e o projeto Almanaque dos Clubes ficaram fora de escopo
+por regra de não interferência.
+
+### [2026-10-13] T211 (continuação 16) — conceito do D-597 excluído: eu usei base de outro projeto (D-598)
+
+O Operador apontou o erro e ele é meu: propus o conceito visual partindo do `UI-UX-TOOLKIT.md`
+**copiado de outro projeto** e da minha **memória** da auditoria, sem abrir a base deste repo. Não li
+a `AUDITORIA-UI-UX-2026-10.md` (287 linhas, 5 bloqueadores + 6 altos + 7 médios + 8 baixos abertos),
+o `DESIGN.md`, os **142 componentes** nem as **33 rotas** antes de propor — e os "P1–P6" que apresentei
+como diagnóstico eram inferência minha, não os achados numerados. Removidos o documento, as 4 maquetes
+e o pipeline do FigCraft (`git status` limpo). Método corrigido registrado: ler a auditoria e mapear
+cada achado aberto em requisito → inventariar componentes/rotas → capturar as telas reais como
+evidência → só então propor, com cada pilar ligado a um achado e a um gate. O toolkit reescrito fica,
+mas com os vereditos por ferramenta marcados como **pendentes de re-verificação** individual.
+
+### [2026-10-13] T211 (continuação 17) — conceito refeito a partir da base real (D-599)
+
+Método corrigido aplicado: li a auditoria inteira (287 linhas, achados numerados + as 7 cegueiras de
+gate), o DESIGN.md, e inventariei **144 componentes / 45 rotas**; capturei **11 telas do app rodando**
+e olhei a ficha e o catálogo antes de escrever. As capturas confirmaram o **A4** (anel 9 em 0–10,
+barras 93.3/86.4 em 0–100, procedência em âmbar e "Alta confiança" em verde — quatro cores, duas
+escalas), a extensão dele no catálogo (anel sempre ciano, `scoreColor()` não usado no card), a
+formatação inconsistente ("8,2" × "93.3") e um **achado novo (N1): título duplicado sobre o pôster na
+ficha**. Conceito "Um placar só, um sistema só" com cinco pilares amarrados a achados e a gates;
+protótipo HTML com os tokens reais comparando hoje × proposta; sequência = a do backlog da auditoria
+(§10), com **A3 registrado como já resolvido** (D-589/590/591). `/admin`, dashboard sem credencial e
+o projeto Almanaque ficaram fora de escopo. Nada implementado.
+
+### [2026-10-13] T211 (continuação 18) — toolkit verificado + upgrades e 2 gates novos (D-600)
+
+Conceito do D-599 rejeitado pelo Operador ("prefiro o atual") e retirado do repo (doc + protótipo;
+capturas mantidas). Feito o que ele pediu: verificar as 22 URLs em fonte primária e implementar.
+Achados que mudam decisão: **emil/taste-skill já vendorizados** (MIT, nada a instalar); **impeccable**
+Apache-2.0 e no CLI 4.5.2 = atual; **UI/UX Pro Max é MIT** mas a URL redireciona para `uupm.cc` →
+vendorizadas 3 skills com a regra de não adotar paletas/fontes; **FigmaToCode é GPL-3.0** → barrado
+(FigCraft cobre a função); **5 registries declarados todos vivos** (864/74/59/58/57 componentes) e
+nenhum gate verificava. Ações: **Motion 12→14**, **lucide 1.26→1.57**, **Playwright 1.62→1.64** +
+browsers (tudo passou tsc, 617 testes, hidratação 36/36, pixel 4/4, build e os 3 gates de design);
+**`design:registries`** (5/5, com `--ci`); **`design:figcraft`** (52 cores → variáveis do FigCraft com
+`codeSyntax` = `var(--…)` + guia de tokens em PNG, com os erros de API registrados: `cornerRadius`
+array, `VariableID:N`, nome aceito em update/bind, `color` rejeita `rgba`). Nenhum componente de
+registry instalado (o backlog não pede); consolidação dos 3 motores de animação exige medir bundle.
+
 ### [2026-10-15] T229 — backup pré-migration: falso controle REMOVIDO (sem fail-closed)
 
 - **Classificação: `PRE_MIGRATION_BACKUP_DECORATIVO_REMOVIDO`.**
@@ -4488,6 +4841,21 @@ rodando de novo em http://localhost:3000.
 - **Nada mutado:** sem migration real; PITR/schedule/backup/volume intocados (volume órfão
   `postgres-restored` **intocado** — T239); sem `RAILWAY_TOKEN`; nenhum segredo/PII impresso; nenhum
   alerta interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
+
+### [2026-10-13] T211 (continuação 19) — auditoria visual: 13 achados de máquina → 0 (D-601)
+
+Auditoria com detector no DOM (18 rotas, SO em modo claro) + capturas reais + código + gates.
+Corrigido: **contraste AA 3,7:1** (`#E11D48` como texto sobre a própria tinta → `#FB7185`, a
+convenção do repo), **hierarquia** (`h1`→`h3` na ficha: módulo de score e 9 seções agora `h2`),
+**5 cards aninhados** na ficha (fontes viram linhas) e **1 no card de auth** (regressão minha do
+D-595), **medida de leitura** e **excesso de travessão** em `/about` (5 frases reescritas nos 3
+locales), **separador decimal** (a ficha mostrava "93.3" enquanto os cards mostravam "8,2" — os dois
+componentes passaram a usar o `formatarScoreLocale` que já existia; **2 testes codificavam o defeito**
+e foram corrigidos, +1 teste de locale), **47 cinzas default do Tailwind no produto público → 4** e
+**`/top` light-first → tokens** (28 classes; a primeira tentativa deu 2,7:1 no chip ativo e o detector
+pegou). Censo de hex **696 → 679**. Refutei dois achados meus com evidência (anel por faixa está
+correto; o "título duplicado" é a arte oficial do TMDB). 618/618 testes, hidratação 36/36, pixel 4/4,
+build 0, detect 0, contraste 51/51, 0 achados no DOM em 18 rotas.
 
 ### [2026-10-15] T248 — refresh read-only do pacote pré-GO (pós-T227/T229)
 
@@ -4523,6 +4891,36 @@ rodando de novo em http://localhost:3000.
   intocados; volume órfão **intocado**; sem `RAILWAY_TOKEN`; nenhum segredo/ID bruto/URL/PII impresso;
   nenhum alerta de segurança interagido. Contaminação `123ce28e` ausente. **GO segue SUSPENSO.**
 
+### [2026-10-13] T211 (continuação 20) — formatação de número unificada no locale (D-602)
+
+Fechei o item "bounded" que ficou do D-601: **10 sites em 8 arquivos** ainda mostravam número com
+ponto (`toFixed(1)` ou interpolação crua) enquanto os cards usavam o separador do locale — `Bar.tsx`
+(crítica, público e o gap de consenso), `CriticsVsAudienceBar`, `SeasonTabs`, `SeriatedScoreTree`,
+`ComparePage`, `PublicProfileContent`, `WatchlistCard` (ScoreDelta) e `DashboardOverview` (2 pontos).
+O `CategoryChip` tinha `toFixed(1).replace(".", ",")` — **assumia pt-BR no código**; agora usa o
+locale. Só as 2 ocorrências em `RadarGraphic` ficaram: são coordenadas de SVG, não número de leitura.
+Descoberta relevante: **5 arquivos de teste afirmavam o formato errado** ("40.0pts", "81.5", "8.4",
+"7.0", "9.0") — a inconsistência estava contratada por teste, e é por isso que sobreviveu; todas
+corrigidas com o porquê no comentário, e um teste novo garante que em pt-BR nenhum número sai com
+ponto. Verificação: tsc 0, eslint 0, 618/618 testes, hidratação 36/36, pixel 4/4, build 0, detect 0,
+contraste 51/51, hex 679 (−31).
+
+### [2026-10-13] T211 (continuação 21) — os 4 itens abertos implementados (D-603)
+
+1) **A7**: `/verificar-email` ganhou casco SSR (h1 + descrição + fallback com texto real); o cliente
+ficou só com o desfecho — sem JS a página deixou de nascer em branco (prova: h1 nos 3 locales no HTML
+servido). 2) **M16**: `ListasPage`/`ListaViewPage` separam **404** (estado honesto + link) de
+**rede/servidor** (`ErrorState` com "Tentar novamente"); chave `listas.backToListas` nos 3 locales.
+3) **M14**: a home largou as 6 perguntas paralelas e passou a mostrar as 3 primeiras da fonte canônica
+(`institutional-content`) com CTA para `/faq` (era `/pricing#faq`); 13 chaves órfãs removidas por
+locale; **6 H1 institucionais** unificados em um único padrão (eram 3 tamanhos e 2 cores) e a `/faq`
+saiu de hex fora de token. 4) **§11.6**: novo `test/reduced-motion.spec.tsx` (guarda na fonte, guarda
+estrutural do `MotionConfig`, execução sob reduce) — ignorando comentários, porque a 1ª versão
+acusava o comentário que documenta o bug antigo. Teste de veracidade da home reescrito para o novo
+lugar da garantia (positiva nos planos, negativa na fonte canônica) + teste que impede o retorno do
+FAQ paralelo. Verificação: tsc 0, eslint 0, **622/622** testes, hidratação 36/36, pixel 4/4, build 0,
+detect 0, contraste 51/51, **hex 661 (−49)**, 0 achados no DOM em 8 rotas.
+
 ### [2026-10-15] T248 (correção) — o alerta de backup RODA agendado; latência efetiva ~4–6 h
 
 - **Motivo:** o **monitor read-only** feito horas depois **derrubou parte do que a T248 afirmou**.
@@ -4540,6 +4938,21 @@ rodando de novo em http://localhost:3000.
   dois ciclos agendados completos, dedup pronto, nenhuma issue falsa.
 - **Nada mutado:** leitura apenas; sem `RAILWAY_TOKEN`; PITR/schedule/backup/volume/produção intocados;
   nenhum segredo/PII impresso; nenhum alerta interagido. **GO segue SUSPENSO.**
+
+### [2026-10-13] T211 (continuação 22) — cegueiras de gate fechadas (D-604)
+
+**Censo de hex: 661 → 135 ocorrências (−575 vs baseline 710)** — migrei `#9CA3AF`→`#A0A0B8` (248),
+`#EDE7DC`→`#F5F5F7` (177) e `#11111E`→`#12121C` (100) em 71 arquivos, fora do `/admin` (outro
+agente). **Gate de contraste de literais**: `contrast-audit.mjs` agora varre pares `text-[#X]` +
+`bg-[#Y]` no mesmo className (estático, cobre admin/dashboard) — cobertura 51 → **221 pares** e
+encontrou **4 falhas AA reais**, todas corrigidas: `billing/success` (rose 3,56:1 → `#FB7185`),
+`WatchlistCrossPrompt`/`CarouselInteractions` (`#6B7280` sobre `#2A2A3E` no disabled, 2,90:1 →
+`#A0A0B8`) e `WatchlistButton` (`#EF4444` 4,25:1 → `#F87171`). Duas correções de falso positivo no
+próprio gate (estado diferente e `after:` de pseudo-elemento). **i18n-leak**: varredura do catálogo
+inteiro nos 3 locales com marcadores PT-only → 0 vazamentos (a 1ª lista usava `título`/`próxim`, que
+são espanhol, e deu 55 falsos positivos). Verificação: tsc 0, eslint 0, **624/624** testes,
+hidratação 36/36, pixel 4/4, build 0, detect 0, contraste 221/221, 0 achados no DOM em 13 rotas.
+Ressalva: uma execução do pixel falhou por timeout sob carga e passou isolada (flakiness de ambiente).
 
 ### [2026-10-15] T239 — volume órfão `postgres-restored`: **exclusão AGENDADA** (`DONE_WITH_ESCALATION`)
 
@@ -4577,3 +4990,268 @@ rodando de novo em http://localhost:3000.
   PITR/schedule/backup/secrets/vars/deploy/schema/dados/produção intocados; sem `RAILWAY_TOKEN`; sem
   segredo novo; nenhum ID bruto/URL/connection string/PII impresso. Contaminação `123ce28e` ausente.
   **GO segue SUSPENSO.**
+
+### [2026-10-15] T211 (continuação 23) — test:auth destravado e a última cegueira medida (D-605)
+
+As chaves estavam no `.env`, mas não valiam em lugar nenhum alcançável: são de usuário
+**provisionado**, e o `.env` aponta para hosts `*.railway.internal` (só dentro da Railway) enquanto a
+API de produção devolve 401. Reproduzi o ambiente do CI **sem tocar em produção**: Postgres efêmero
+(`initdb --auth=trust` com os binários PG 18, porta 55432) + `migrate deploy` + `provision-test-users`
+e `provision-lgpd-test-user` (que gera as credenciais) + **Redis local descartável**
+(`redis-memory-server`; sem ele o guard de admin dá 403 e a tela volta para /login) + usuário
+promovido a ADMIN por SQL no banco efêmero + API na :4000 + web com `API_PROXY_TARGET` local.
+Armadilhas registradas: `--watch` da API em loop sobre `node_modules`, porta 3333 × 4000, e cache de
+papéis exigindo restart. **Resultado: 6 passam / 5 falham, todas violações reais** —
+`color-contrast` em usuarios (8 nós: `#16a34a`/`#1f2937` = 4,45:1 e `#6b7280`/`#05050a` = 4,2:1),
+catálogo (3,03:1), LGPD e diagnostics, mais **um achado novo**: `<dl>` inválido em `/admin/metricas`
+(`definition-list`). Isso confirma e quantifica o B2, mas as correções são report-only (arquivos do
+outro agente). Evidência versionada em `docs/02-architecture-design/evidencias/auth-2026-10-15/`.
+Higiene: nenhum valor de credencial impresso; `.env` restaurado; infra efêmera desmontada.
+
+### [2026-10-15] T211 (continuação 24) — regra dos `.env.example` e o gap do web (D-606)
+
+Instrução do Operador incorporada: **ler os `.env.example` antes de executar**. Ela se paga: `PORT=4000`
+(apps/api:13), `REDIS_URL=localhost:6379` (:45) e `DATABASE_URL=...localhost:5432/media_rate` (:16) + os
+`POSTGRES_PORT`/`REDIS_PORT` da raiz já diziam o que eu descobri por tentativa e erro no D-605. **Gap
+corrigido:** `apps/web/.env.example` afirmava "SOMENTE NEXT_PUBLIC_*", mas o servidor do Next lê
+`API_PROXY_TARGET` (rewrite + validação de sessão — sem ele a sessão local é checada contra produção e
+/admin cai em /login), `REVALIDATE_SECRET` e PostHog server-side; a seção nova documenta os três com os
+valores local/CI. **Pendência fora do limite:** `apps/api/.env.example` e o da raiz não têm o bloco de
+provisionamento de usuários de teste (`TEST_USERS_PASSWORD`, scripts, aviso de cache de papel) — estão em
+edição por outro agente e não foram tocados; recomendação registrada no README da evidência.
+
+### [2026-10-15] T211 (continuação 25) — programa de UI-UX por sessão: base + spec do Catálogo (D-607)
+
+Prioridade do Operador: UI-UX de todas as sessões. Criada a camada de **especificação** (o repo tinha
+auditoria, não spec), mantendo a linguagem visual atual. Entregues: `ui-ux/00-INDICE.md` (25 sessões ×
+44 rotas reais — **6 sessões da lista não têm rota**: Metas e Evolução, Busca Avançada, Cookies,
+Segurança, Direitos do Titular, Gerenciar Cookies), `01-TEMPLATE.md` (12 seções obrigatórias, com os 7
+estados), `02-FUNDAMENTOS.md` (tokens comuns, as duas escalas de score, regras de número/movimento/AA),
+`npm run uiux:evidence` (capturador 1440 página inteira + 375 dobra, banner dispensado, `--state` para
+sessões autenticadas — puladas sem sessão) e `10-catalogo.md` (spec nº 1, com máquina de estados
+verificada e 10 pendências medidas). Dois falsos achados meus foram refutados por verificação — "score
+com ponto" (DOM serve `8,7`) e "filtros no fim da página" (artefato de `fullPage` + `sticky`; no DOM a
+sidebar é o primeiro bloco) — e a armadilha ficou documentada no capturador. Dossiês de Rankings e
+Planos em produção por subagentes para as próximas specs.
+
+### [2026-10-15] T211 (continuação 26) — specs de Rankings e Planos + padrões de referência (D-608)
+
+Sessões 2 e 3 de 25 especificadas. Os dossiês delegados não entregaram (interrompidos após rodar
+demais, sem fechamento) — refiz a ancoragem por grep dirigido + probe de DOM, mais rápido e preciso.
+**Rankings:** `<img>` puro sem dimensão/`sizes` + classe `h-18` inexistente (CLS), erro sem retry, alt
+não explícito (P1), mais selo `amber-400` default, degradê `rgba` hardcoded e falta de `loading.tsx`.
+**Planos:** confirmar CTA × período "Em breve" (P1), hex literal nos CTAs, sem transição de período,
+duplicação de FAQ sem regra. Positivos viraram **padrões de referência** no índice: `nav`+`aria-current`
+(Rankings), `<ol>` de ranking, `aria-pressed` (Planos), `<ul role="list">` (Planos) e **`<th scope="col">`**
+(Planos) — este último é justamente o que falta no Admin. Índice atualizado com Progresso; restam 22.
+
+### [2026-10-15] T211 (continuação 27) — spec do MEDIA Score e o achado dos 4 dials (D-609)
+
+Sessão 4 de 25 especificada. Achado principal, agora com nome e endereço: **quatro implementações de
+dial/anel de score** convivem no repo (`media-rate-ui/ScoreDial.tsx`, `media-rate-ui/StaticScoreDial.tsx`,
+`ui/score-dial.tsx`, `landing/ScoreRing.tsx`) enquanto **14 arquivos** consomem o mesmo pipeline
+(`score-utils.ts`) — é o A4 da auditoria ("linguagem visual de score divergente") quantificado, com a
+proposta de consolidar em um componente com `variant` (grande/card/mini). Registrei também as regras
+duras da sessão: escala nativa por tipo (**game 0–100, demais 0–10**, mangá nunca 0–100 —
+`score-utils.ts:14-25`) e a fonte única de conteúdo em `institutional-content.ts` (D-603). Positivos
+verificados: `aria-label` no anel (a nota é anunciada, não só desenhada), `h2` "MEDIA Score" (corrigido
+no D-601) e estados vazio/parcial presentes. Índice atualizado: 4 feitas, 21 restantes.
+
+### [2026-10-15] T211 (continuação 28) — uiux:auth-env, 7 sessões autenticadas capturadas e o P0 do dashboard (D-610)
+
+Criei `npm run uiux:auth-env` (script descartável: Postgres efêmero trust em TEMP + Redis local +
+provisionamento + promoção a ADMIN sem 2FA + API :4000 + storageState), que substituiu os ~17 passos
+manuais do D-605 e **não escreve no `.env`** nem usa Railway. Com ele capturei as **7 sessões
+autenticadas** (14 imagens 1440/375) e escrevi a spec do Dashboard (sessão 5). A captura real revelou um
+**P0**: com sessão válida, `/dashboard` mostra a interface de visitante (loginHint, "Entrar/Cadastrar",
+"Visitante · Plano Free") porque `DashboardClient.tsx:34` lê o store cliente e nada nessas rotas chama
+`fetchMe`/`useRequireAuth` (só `ProtectedPage`). Provei que **não é artefato**: `/api/v1/auth/me` responde
+200 no mesmo navegador, relativo e absoluto. Anotei ainda a **inconsistência entre rota** (watchlist
+hidrata, dashboard não) e os desencontros de rótulo × destino na sidebar ("Metas e evolução" →
+`/historico`, "Favoritos" → `/listas`). Índice: **5 de 25 feitas, 20 restantes**.
+
+### [2026-10-15] T211 (continuação 29) — sessões 6 e 7 + alcance do P0 (D-611)
+
+Biblioteca especificada (7 pendências, e virou **padrão de referência**: `ProtectedPage`, `tabsAria`/
+`tiposAria`, rótulos de status conjugados por tipo, contagens globais do servidor, vazio específico e
+erro com retry). Metas e Evolução escrita como **A CRIAR**: o menu entrega `/historico` (histórico com
+limite de plano), então a spec propõe 3 blocos (Evolução, Metas, Histórico) reaproveitando
+`MiniSparkline`/`HistogramBars`/`RadarGraphic` do dashboard, com duas dependências fora de mim (decisão
+de produto do Operador e modelo/endpoint de metas em `apps/api`). Medi também o **alcance exato do P0**:
+5 rotas hidratam (`/biblioteca`, `/dashboard/discoveries`, `/profile`, `/settings`, `/watchlist`) e 5
+leem o store sem guard (`/dashboard`, `/historico`, `/listas`, `/listas/[slug]`, `/user/data`), mais
+`Navbar`/`NotificationBell` globais — a spec do Dashboard ganhou a tabela. Corrigi uma linha duplicada
+que eu mesmo introduzi naquela spec (verificação de edit, como sempre). Índice: **7 de 25**, 40 capturas
+em 20 sessões.
+
+### [2026-10-15] T211 (continuação 30) — sessões 8 e 9 (D-612)
+
+**Planos e Assinaturas**: 9 pendências. Achei um **vazamento de i18n no código** que o gate não pega —
+`"Falha no checkout"`/`"Erro desconhecido"` em pt-BR fixo (`checkout/[plan]/page.tsx:70,77`); o
+`test/i18n-leak.spec.ts` varre só o catálogo de mensagens, então fica a pendência de **gate** (varrer
+literais em `src`). Também: F5 no checkout manda usuário logado para o login (P0 do store), sucesso pode
+confirmar pagamento sem checar, cancelamento provavelmente com `window.confirm` em vez do
+`confirm-dialog` do repo. Positivos: CSRF, tela de plano inválido, `role="list"`, cancelamento com
+confirm/sucesso/erro em i18n. **Login/Cadastrar**: 6 pendências, com **`/login` e `/register` sem `h1`**
+(medido: zero `<h1>` no HTML; card começa em `h2`) e **rate limit (429) sem tratamento** (o componente
+`ui/rate-limited.tsx` já existe — é reuso). Positivos: `inert`+`aria-hidden` no painel inativo,
+`sr-only`+`aria-live` nos erros, `aria-invalid`, formulário SSR. Índice: **9 de 25**, 16 restantes.
+
+### [2026-10-15] T211 (continuação 31) — Admin especificado e a medição não reprodutível (D-613)
+
+Sessão 10 (a maior, 8 telas) especificada como **report-only** (arquivos do outro agente). Achados com
+número: **19 `<th>` sem `scope`** em 4 telas (auditoria/diagnostics/usuarios/lgpd — zero com `scope`), com
+o padrão correto já existindo em `PricingTable.tsx:37,43`; **contraste AA reprovando em 4 telas (15 nós)**
+com paleta default do Tailwind (`green-600`/`gray-800` = 4,45:1; `gray-500`/`#1f2937` = 3,03:1); **`<dl>`
+inválido** em `/admin/metricas`; **rótulos do shell hardcoded em pt-BR**; e **sem `aria-current`** no nav.
+Descoberta que muda o uso do gate: **o acesso admin é não determinístico** — três janelas de tempo, mesma
+sessão: 6/8, 2/8 e 1/8 telas renderizaram, e quando redireciona **não há chamada a `/api/v1/admin`**
+(decisão local, não RBAC). Isso reinterpreta o D-605 (a hipótese de step-up não se sustenta) e significa
+que o `test:auth` **não é gate confiável** hoje. O capturador ganhou **retry + aviso** de redirect para
+nunca salvar evidência falsa em silêncio. Índice: **10 de 25**, 15 restantes.
+
+### [2026-10-15] T211 (continuação 32) — sessões 11 e 12 + suspeita refutada (D-614)
+
+**Busca Avançada** escrita como A CRIAR sobre as duas superfícies que já existem (paleta ⌘K com debounce
+de 250 ms/mínimo de 2 caracteres e filtros server-side do catálogo na query string). P1: a paleta **não é
+um diálogo acessível** (sem `role`/`aria-modal`/`aria-activedescendant`), `Escape` não confirmado, e as
+duas superfícies não conversam. P2: 1 caractere é silêncio. **Watchlist**: base sólida (ProtectedPage,
+retry, adição otimista com rollback, ScoreDelta, 402 tratado) com 6 pendências — **texto pt-BR hardcoded
+no store** (`"Erro ao carregar watchlist"`), drag possivelmente sem alternativa de teclado e 402 sem CTA.
+**Refutei minha própria suspeita** do "skeleton infinito" na watchlist: com espera adequada resolve
+(0 skeletons, API 200, `isLoading` limpo no `catch`) — era o tempo da captura; corrigi a spec do Dashboard,
+guardei `1440-resolvido.png` e registrei a lição (captura de página com fetch no cliente precisa de estado
+resolvido). Índice: **12 de 25**, 13 restantes.
+
+### [2026-10-15] T211 (continuação 33) — sessões 13 e 14 + segunda acusação derrubada (D-615)
+
+**Descoberta**: 3 rotas para a mesma intenção (`/discover`, `/discoveries`, `/dashboard/discoveries`), só a
+última protegida; `/discoveries` lê o store sem guard. Dois **padrões de referência** extraídos: a máquina
+de estados do `DiscoverClient` (rate-limit + ErrorState com retry) e a política de imagem do
+`DiscoveriesFeed` (`srcSet`+`sizes` com ladder — o oposto do Rankings). **Listas**: criação inline, vazio
+com ação, **404 honesto separado de erro de rede** (padrão do produto, D-603), com P1 em 402 sem CTA e
+exclusão sem confirm-dialog. **Refutei minha própria acusação** (segunda vez): eu disse que `/listas`
+mostraria vazio falso para quem tem listas; a captura mostra header **autenticado** e vazio **verdadeiro**
+— reescrevi como risco não reproduzido e corrigi a tabela de alcance do P0 para separar risco de falha.
+Índice: **14 de 25**, 11 restantes (Perfil, Configurações + 9 legais).
+
+### [2026-10-15] T211 (continuação 34) — 16/16 de PRODUTO especificadas (D-616)
+
+**Perfil**: duas superfícies (`/profile` com `ProtectedPage`, `/user/[id]` público), estatística derivada
+das interações (não contador), dois vazios distintos; pendências: erro sem retry, 404 público a confirmar,
+gráficos sem alternativa textual. **Configurações**: `/settings` (ProtectedPage, plano, cancelamento,
+LGPD, consentimento) + `/user/data`. **P1 confirmado** (era "a confirmar" em Assinaturas): cancelamento com
+`window.confirm` (`:48`) e **3 `alert()`** (`:63,66,69`) — o repo tem `confirm-dialog` e `sonner`.
+**P1**: `/user/data`, a página mais sensível do produto, está **sem `ProtectedPage`**. **Marco: 16/16 de
+produto** com 12/12 seções cada. Restam as 9 legais (4 sem rota → specs de criação).
+
+### [2026-10-15] T211 (continuação 35) — legais parte 1: Sobre, Metodologia, Privacidade, Termos (D-617)
+
+Quatro legais especificadas (20 de 25 no total). No bloco legal os 7 estados quase não se aplicam — com
+motivo registrado. **Sobre Nós**: bloco "O que NÃO é" como cartão (honestidade editorial), mas
+`border-[#1C1C2E]` fora de token e sem `lastUpdated`. **Metodologia**: `institutional-content` +
+`section aria-labelledby`/`h2 id` + JSON-LD seguro; P1 de produto: **sem canal de contestação de nota**.
+**Privacidade**: 3 tabelas via `PipeTable` que — contra minha suspeita — têm `<table>` + `<th scope="col">`
+(segundo exemplo correto no repo, ao lado de `PricingTable`); o risco real é a tabela viver **dentro de
+strings de i18n**. **Termos**: JSON-LD com `JSON.stringify` cru, único fora do padrão `serializeJsonLd`.
+Também renumerei as specs legais para casar com o índice (estavam um a menos). Restam 5: Planos legal +
+Cookies, Segurança, Direitos do Titular e Gerenciar Cookies (as 4 sem rota).
+
+### [2026-10-15] T211 (continuação 36) — PROGRAMA DE UI-UX CONCLUÍDO: 25/25 (D-618)
+
+Todas as sessões especificadas: **25 de 25** com 12/12 seções, **30 diretórios de evidência (61 imagens)** e
+**146 pendências** classificadas (7 P0 / 57 P1 / 82 P2) com evidência e dono. Artefatos: índice + template +
+fundamentos + 25 specs (10–25 produto, 30–38 legal). Ferramentas reutilizáveis: `uiux:evidence` (capturas
+com retry/aviso de redirect) e `uiux:auth-env` (ambiente autenticado descartável, sem tocar no `.env` nem em
+produção). Seis acusações minhas foram refutadas ou nuançadas antes de virarem fato — todas registradas nas
+specs. Padrões de referência do produto identificados e reusados (sem conceito novo). Pendências que seguem
+com o Operador: P0 do store de sessão, acesso admin não determinístico, gate de i18n sem literais,
+`window.confirm`/`alert`, declarações legais ausentes e consolidação dos 4 dials de score.
+
+### [2026-10-15] T211 (continuação 37) — "implemente todas" (parte 1): P0 corrigido, diálogos nativos, gate de i18n (D-619/D-620)
+
+**P0 do store de sessão CORRIGIDO** (D-619): flag `hydrated` no store + `AuthHydrator` no layout do locale
+(uma consulta por página, com dedupe) + gate nas 5 telas e nos 2 componentes globais + `ProtectedPage` em
+`/user/data`. Verificado: contexto novo em `/dashboard` → header logado, `/auth/me` 200, sem "Entre para ver
+seu dashboard". **Diálogos nativos trocados**: `/settings` (window.confirm + 3 alert → ConfirmDialog +
+sonner) e `/listas/[slug]` (exclusão). **Gate de i18n criado** (`npm run i18n:source`, baseline 35 chaves,
+exit 1 verificado) e ele já achou um vazamento em **primitivo compartilhado** (`EmptyState` com default em
+PT) — corrigido tornando `title` obrigatório. Gates: tsc 0, eslint 0, vitest 624/624, hydration 36/36,
+build 0, detect 0, hex OK, contraste AA OK.
+
+### [2026-10-15] T211 (continuação 38) — "implemente todas" (parte 2): dials 4→2 e as 4 páginas legais (D-621/D-622)
+
+**Dials de score consolidados (D-621)**: `score-dial-core.ts` como fonte única (tamanho, geometria, cor) para
+o dial client e o estático; `landing/ScoreRing.tsx` (zero importadores) e `ui/score-dial.tsx` (só showcase)
+removidos; showcase migrado para o dial do produto; teste do dial migrado (`role="img"`). Dois dials
+permanecem **de propósito** — o estático evita hidratar JS em ~60 cards (D-380/T405) — mas sem duplicação.
+**Páginas legais criadas (D-622)**: `/cookies`, `/seguranca`, `/direitos-do-titular` e `/cookies/gerenciar`
+(esta com `ConsentPreferences` extraído, resolvendo o P1 de não poder revogar consentimento depois da
+primeira decisão — o banner sumia e a única gestão vivia dentro dele). Rodapé ganhou as 4 portas de entrada;
+3 rotas no sitemap (a de gerenciar fica `noindex`); **216 chaves i18n** com paridade nos 3 locales; conteúdo
+só de fato verificável (a página de Segurança declara até o que **não** temos: ISO/SOC 2). Rotas
+pré-renderizadas estáticas nos 3 locales (confirmado no build). Verificação: tsc 0, eslint 0, vitest
+624/624, hydration 36/36, i18n:source OK, hex OK, contraste AA, detect 0, build 0.
+
+### [2026-10-15] T211 (continuação 39) — "implemente todas" (parte 3): correções medidas no /admin (D-623)
+
+Corrigi o que eu havia marcado como report-only: contraste (**36** `text-gray-500` + **7** `text-green-600` +
+**1** `text-gray-600` latente), **15** `<th>` com `scope="col"`, o **`<dl>` inválido** de `/admin/metricas`
+(o `extra` do `Kpi` virou conteúdo do `<dd>`), o **shell** (tokens em vez das classes de modo claro +
+i18n dos 6 rótulos + `aria-current`) e os **3 `window.confirm`** → `ConfirmDialog` com textos em i18n.
+**Correção de um erro meu**: o número real de `<th>` sem `scope` era **15**, não 19 — meu padrão de busca
+casava também `<thead`, e a verificação pós-correção era tautológica (contava os corrompidos como válidos).
+Registro também o incidente: um regex corrompeu 4 `<thead>`, pego pelo tsc; o resto da rodada usou
+substituição literal com verificação independente. 7 testes adaptados (mock de `usePathname`/i18n e clique
+no diálogo). Gates: tsc 0, eslint 0, vitest 624/624, i18n:source OK (dívida 36→33), hex OK, detect 0,
+contraste AA.
+
+### [2026-10-15] T211 (continuação 40) — canais oficiais roteados por finalidade (D-624)
+
+O Operador informou os endereços da END ART Studios. O produto usava **um** endereço genérico para tudo
+(inclusive como canal do DPO na Política e contato dos Termos). Roteado: `+contato` (rodapé, feedback,
+Termos), `+privacidade` (DPO e contestação na Política), `+reembolso` (**novo item no FAQ de planos** com o
+prazo do CDC art. 49), `+suporte`, `+security` (página de Segurança, em botão **e** em texto) e `+direitos`
+(Direitos do Titular). **Zero** ocorrências do genérico restantes. Isso destravou três itens que eu havia
+marcado como decisão do Operador: a oferta agora publica como pedir reembolso, o encarregado tem canal
+próprio (e o texto do DPO foi corrigido — dizia "o mesmo contato do rodapé", o que ficaria falso), e o canal
+de segurança está legível. A redação da política comercial segue precisando de aval jurídico. Verificação:
+tsc 0, eslint 0, vitest 624/624, i18n:source OK, hex OK, e no navegador `/pricing` com 7 perguntas e
+`/direitos-do-titular` exibindo os três canais em pt-BR e es-ES.
+
+### [2026-10-15] T211 (continuação 41) — admin migrado para tokens: 199 classes, 2 defeitos de contraste e um erro que só o CSS pegou (D-625)
+
+Última dívida visual grande do programa: o `/admin` usava pares `light dark:` (`bg-white dark:bg-gray-800`)
+num produto dark-only. **199 classes migradas** por substituição literal (nada de regex sobre marcação) +
+22 duplicatas colapsadas. A migração corrigiu **dois defeitos de contraste que o axe não pegou**:
+`text-white` sobre `bg-indigo-600` (~2,4:1) e `text-red-600` no dark (~4,0:1) — ambos agora em tokens
+(`text-[#0F172A]` 5,98:1 sobre indigo; `score.low` ~6,5:1). **Erro meu, pego pelo CSS gerado**: mapeei
+`bg-indigo-600`→`bg-indigo` e `text-white`→`text-indigo-foreground` confiando no `tailwind.config.ts`, mas
+essas duas classes **não são geradas** — eu teria enviado botões sem fundo. Verifiquei o CSS de produção,
+troquei pelos valores que o resto do produto usa e reconfirmei: todas as classes usadas aparecem como regra.
+Lição: verificar que a classe **existe no código** ≠ verificar que ela é **gerada**. Gates: tsc 0, eslint 0,
+vitest 624/624, build 0, hydration 36/36, contraste AA, hex OK, detect 0, i18n OK, 0 classes paralelas.
+
+### [2026-10-15] T211 (continuação 42) — correções pontuais: Rankings, auth, checkout, 402 (D-627)
+
+Fechei 5 correções pontuais: `h-18` (classe inexistente → CLS na miniatura do Rankings) virou `h-[4.5rem]`
+com `width`/`height`; erro de autenticação passou a ser **persistente e inline** (`role="alert"`) nos dois
+formulários, com tratamento próprio de **429** (o store agora devolve o status); checkout sem texto fixo em
+pt-BR (3 chaves novas); watchlist com **CTA de upgrade no 402** (o store já marcava `limitReached` e a tela
+ignorava). **Duas specs minhas corrigidas**: o `/listas` **já tinha** o CTA do 402 desde o D-603, e o
+`<img>` do Rankings principal já estava correto (`alt=""` decorativo + `aspect-[2/3]` reservando espaço) —
+o defeito real era só a miniatura. Gates: tsc 0, eslint 0, vitest 624/624, build 0, hydration 36/36,
+contraste AA, detect 0, i18n OK, classes novas conferidas no CSS gerado.
+
+### [2026-10-15] T211 (continuação 43) — perfil, pagamento e kanban + 3 diagnósticos meus derrubados (D-628)
+
+**Corrigido**: perfil público separava mal os erros (500 dizia "perfil não encontrado") → agora 404 honesto ×
+falha com **retry**; `/billing/success` **afirmava** ativação de plano, que depende de webhook assíncrono →
+texto passou a dizer o que é verdade (3 locales); kanban tinha **só** `PointerSensor` → ativado o
+`KeyboardSensor` do dnd-kit com `sortableKeyboardCoordinates` (a11y nativa, sem UI inventada). O mock do
+dnd-kit no teste precisou expor o símbolo novo. **Três P1 meus derrubados pela verificação**: a biblioteca
+**já** era um tablist correto com a contagem no nome acessível; os gráficos **já** tinham alternativa textual
+(`role="img"`+`aria-label` no Radar/Sparkline e `<ul role="list">` com valor em texto no histograma); e o
+`/listas` já tinha o CTA do 402 desde o D-603. Total do programa: **nove** diagnósticos meus corrigidos pela
+verificação. Gates: tsc 0, eslint 0, vitest 624/624, build 0, hydration 36/36, contraste AA, hex OK, detect 0,
+i18n OK.

@@ -44,7 +44,7 @@ export function AdminOverview() {
     return (
       <div
         role="alert"
-        className="mx-auto max-w-7xl px-4 py-16 text-sm text-red-600 sm:px-6 lg:px-8"
+        className="mx-auto max-w-7xl px-4 py-16 text-sm text-score-low sm:px-6 lg:px-8"
       >
         {erro}
       </div>
@@ -55,7 +55,7 @@ export function AdminOverview() {
     return (
       <div
         role="status"
-        className="mx-auto max-w-7xl px-4 py-16 text-sm text-gray-400 sm:px-6 lg:px-8"
+        className="mx-auto max-w-7xl px-4 py-16 text-sm text-fg-secondary sm:px-6 lg:px-8"
       >
         Carregando…
       </div>
@@ -63,11 +63,9 @@ export function AdminOverview() {
   }
 
   const planoCard = (label: string, valor: number, destaque: boolean) => (
-    <div key={label} className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-      <p className="text-sm text-gray-400">{label}</p>
-      <p
-        className={`text-3xl font-bold ${destaque ? "text-[#8b7cff]" : "text-gray-900 dark:text-gray-100"}`}
-      >
+    <div key={label} className="rounded-lg bg-surface-card p-6 shadow-sm bg-surface-card">
+      <p className="text-sm text-fg-secondary">{label}</p>
+      <p className={`text-3xl font-bold ${destaque ? "text-[#8b7cff]" : "text-fg-primary"}`}>
         {valor}
       </p>
     </div>
@@ -75,15 +73,10 @@ export function AdminOverview() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-gray-100">
-        Painel administrativo
-      </h1>
+      <h1 className="mb-8 text-3xl font-bold text-fg-primary">Painel administrativo</h1>
 
       <section aria-labelledby="metrics-title" className="mb-8">
-        <h2
-          id="metrics-title"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="metrics-title" className="mb-4 text-xl font-semibold text-fg-primary">
           Métricas
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -95,10 +88,7 @@ export function AdminOverview() {
       </section>
 
       <section aria-labelledby="plans-title" className="mb-8">
-        <h2
-          id="plans-title"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="plans-title" className="mb-4 text-xl font-semibold text-fg-primary">
           Planos
         </h2>
         <div className="grid grid-cols-3 gap-4">
@@ -109,10 +99,7 @@ export function AdminOverview() {
       </section>
 
       <section aria-labelledby="watchlists-title">
-        <h2
-          id="watchlists-title"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="watchlists-title" className="mb-4 text-xl font-semibold text-fg-primary">
           Watchlists
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

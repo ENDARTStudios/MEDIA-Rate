@@ -9,14 +9,20 @@
     "acceptAll": "Accept all",
     "decline": "Decline",
     "manage": "Manage",
-    "save": "Save"
+    "save": "Save",
+    "saved": "Preferences saved.",
+    "manageTitle": "Manage cookies",
+    "manageIntro": "You decide what may be used. Necessary cookies keep the service running; analytics and monitoring are optional and off by default.",
+    "manageEffect": "Your choice applies immediately and can be changed as often as you like."
   },
   "common": {
+    "opensInNewTab": "(opens in a new tab)",
     "appName": "MEDIA Rate",
     "tagline": "Discover what to watch and play",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Retry",
+    "backToListas": "See all lists",
     "notFound": "Page not found",
     "notFoundCta": "Back to home",
     "cancel": "Cancel",
@@ -29,9 +35,13 @@
     "verifyingSession": "Verifying session...",
     "tooManyRequests": "Too many requests",
     "tryAgain": "You can try again now.",
-    "retryIn": "Try again in"
+    "retryIn": "Try again in",
+    "offline": "You are offline. Some features may not load.",
+    "backOnline": "Back online."
   },
   "nav": {
+    "discoveries": "Discoveries",
+    "feedback": "Send feedback",
     "home": "Home",
     "catalog": "Catalog",
     "top": "Rankings",
@@ -41,7 +51,7 @@
     "password": "Password",
     "logout": "Log out",
     "profile": "Profile",
-    "admin": "Admin",
+    "admin": "Administration",
     "mainNav": "Main navigation",
     "planBadgeAria": "Plan {plano}",
     "homeAria": "MEDIA Rate — Home page",
@@ -56,7 +66,7 @@
   },
   "billing": {
     "successTitle": "Payment confirmed!",
-    "successSubtitle": "Your plan has been updated. Enjoy!",
+    "successSubtitle": "We received your payment. Plan activation may take a moment — follow it in Settings.",
     "successPlusTitle": "Congratulations, you're Plus!",
     "successPlusSubtitle": "Unlimited recommendations and release alerts unlocked.",
     "successPremiumTitle": "Congratulations, you're Premium!",
@@ -81,12 +91,14 @@
     "cta": "Start now"
   },
   "landing": {
-    "hero": "Stop guessing what to watch, read or play.",
-    "heroSubtitle": "One score that blends critics, audiences and consensus across movies, series, games, books, comics and manga. Decide in seconds, not in hours of scrolling.",
-    "ctaHint": "No account needed to browse the catalog.",
+    "hero": "Find out what is worth your time to watch, read and play.",
+    "heroSearch": "Type a movie, series, game, book…",
+    "heroSearchCta": "Search",
+    "heroSubtitle": "One score per title, from critics and audiences across sources you can check — no black box.",
+    "ctaHint": "No card to start · cancel anytime",
     "categoriesLabel": "Six categories. One score.",
-    "proofTitle": "How every score is built",
-    "proofBody": "Critics, audiences and consensus feed the same calculation, weighted by media type — never an average from a single site.",
+    "proofTitle": "The scale",
+    "proofBody": "The same scale for everything: movies, series, games, books, comics and manga. The lit band is the one the dial is showing.",
     "cta": "Start free",
     "ctaSecondary": "Browse catalog",
     "features": "Features",
@@ -127,6 +139,9 @@
     "mostrandoDe": "Showing {n} of {total}"
   },
   "catalog": {
+    "typeFilterAria": "Filter by media type",
+    "coverAlt": "Cover of {titulo}",
+    "posterAlt": "Poster of {titulo}",
     "title": "Catalog",
     "count": "{count} titles",
     "search": "Search media...",
@@ -281,7 +296,8 @@
     "discoverSubtitle": "Featured titles with the highest MEDIA Scores.",
     "discoverFullCatalog": "Full catalog",
     "discoverListTitle": "Top picks",
-    "discoverTitle": "Discover"
+    "discoverTitle": "Discover",
+    "paletaRelated": "Related"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -455,7 +471,9 @@
     "radarAriaEixos": "axes"
   },
   "checkout": {
+    "invalidPlan": "Invalid plan",
     "title": "Plan upgrade",
+    "metaDescription": "Complete your MEDIA Rate plan subscription with secure payment.",
     "plus": "Plus",
     "premium": "Premium",
     "subscribe": "Subscribe to {plan}",
@@ -470,7 +488,9 @@
     "premB2": "Personalized recommendations",
     "premB3": "MEDIA Score history",
     "premB4": "Advanced filters",
-    "premB5": "Ad-free"
+    "premB5": "Ad-free",
+    "loadFailed": "We could not start the checkout.",
+    "unknownError": "Unknown error"
   },
   "lgpd": {
     "banner": "We use cookies to improve your experience. You can export or delete your data anytime.",
@@ -481,6 +501,10 @@
     "deleteData": "Request deletion",
     "deleteWarning": "Your data will be deleted in 30 days. You can cancel until then.",
     "confirmDelete": "Confirm deletion"
+  },
+  "assistant": {
+    "title": "Assistant (coming soon)",
+    "body": "Assistant under construction — soon you will be able to describe what you like and get personalized suggestions."
   },
   "admin": {
     "title": "Admin panel",
@@ -496,7 +520,21 @@
     "stepupLabel": "Password",
     "stepupConfirmar": "Confirm",
     "stepupCancelar": "Cancel",
-    "stepupErro": "Invalid credentials. Try again."
+    "stepupErro": "Invalid credentials. Try again.",
+    "navLabel": "Administrator area",
+    "navBack": "Back",
+    "navDiagnostics": "Diagnostics",
+    "navUsers": "User management",
+    "navCatalog": "Catalog",
+    "navMetrics": "Metrics",
+    "navAudit": "Audit log",
+    "navLgpd": "Privacy (LGPD)",
+    "removeMediaTitle": "Remove from catalog",
+    "removeMediaConfirm": "Remove \"{titulo}\" from the catalog? (soft delete — kept in the database)",
+    "removeMedia": "Remove",
+    "purgeTitle": "Run LGPD purge",
+    "purgeConfirm": "Run the purge now? This action is irreversible and will be audited.",
+    "purgeLabel": "Run purge"
   },
   "pricing": {
     "headline": "Choose how you want to discover your next title",
@@ -516,6 +554,7 @@
     "year": "yr",
     "savePercent": "save {pct}%",
     "securePayment": "Secure payment",
+    "billingPeriod": "Billing period",
     "trialPlus": "7 days free; at the end, you confirm if you want to subscribe — no automatic billing.",
     "renewInfo": "Recurring billing of {value}; auto-renews until you cancel. Cancel anytime through the same flow.",
     "currencyNote": "Currency applies by region (e.g., BRL in Brazil, EUR in Europe, USD elsewhere). The final total, including taxes, is shown at checkout before confirmation.",
@@ -568,12 +607,14 @@
     "comingSoonShort": "Soon"
   },
   "footer": {
-    "rights": "All rights reserved.",
+    "rights": "Data subject rights",
     "tagline": "Discover what to watch, read and play",
     "privacy": "Privacy",
     "terms": "Terms",
     "contact": "Contact",
     "about": "About",
+    "faq": "FAQ",
+    "sources": "Sources",
     "legal": "Legal",
     "lgpd": "Your data",
     "social": "Social",
@@ -584,7 +625,10 @@
     "socialDiscord": "Discord",
     "copyright": "MEDIA Score™ · END ART Studios",
     "footerLinks": "Footer links",
-    "atribuicao": "Movie, series and game data by TMDB and IGDB.com — this product uses the TMDB and IGDB APIs but is not endorsed or certified by either."
+    "atribuicao": "Movie, series and game data by TMDB and IGDB.com — this product uses the TMDB and IGDB APIs but is not endorsed or certified by either.",
+    "cookies": "Cookies",
+    "manageCookies": "Manage cookies",
+    "security": "Security"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -596,7 +640,7 @@
     "emailLabel": "Email",
     "emailPlaceholder": "you@email.com",
     "passwordLabel": "Password",
-    "passwordPlaceholder": "••••••",
+    "passwordPlaceholder": "Your password",
     "loginSuccess": "Logged in successfully!",
     "loginError": "Invalid credentials",
     "registerTitle": "Sign up",
@@ -626,6 +670,8 @@
     "consentAnd": "and",
     "tagline": "Discover, rate and organize all your entertainment.",
     "verifyTitle": "Verifying your email…",
+    "verifyMetaTitle": "Email verification",
+    "verifyMetaDescription": "Confirm your email address to activate your MEDIA Rate account.",
     "verifySuccess": "Email verified! Your account is active.",
     "verifySuccessCta": "Sign in",
     "verifyError": "This link is invalid or expired.",
@@ -635,7 +681,8 @@
     "verifyResendError": "Could not resend. Please try again.",
     "passwordWeak": "Weak",
     "passwordMedium": "Medium",
-    "passwordStrong": "Strong"
+    "passwordStrong": "Strong",
+    "rateLimited": "Too many attempts in a short time. Wait a minute and try again."
   },
   "hero": {
     "brandName": "MEDIA Rate",
@@ -663,6 +710,15 @@
     "retry": "Try again"
   },
   "scoredial": {
+    "showcase": "the scale in motion",
+    "bands": {
+      "5": "Weak",
+      "6": "Fair",
+      "7": "Good",
+      "8": "Very good",
+      "9": "Exceptional",
+      "low": "Avoid"
+    },
     "critic": "Critics",
     "audience": "Audience",
     "consensus": "Consensus",
@@ -672,6 +728,24 @@
     "ariaLabel": "Select language"
   },
   "home": {
+    "howTitle": "How the score is born",
+    "howStep1Title": "Public sources",
+    "howStep1Body": "TMDB, IMDb and Metacritic per title, with each one's own rating.",
+    "howStep2Title": "Normalisation",
+    "howStep2Body": "Different scales become one: 0 to 10 (games, 0 to 100).",
+    "howStep3Title": "Band and confidence",
+    "howStep3Body": "The number gets a band, and confidence says how well it holds up.",
+    "decisionTitle": "By decision, not by shelf",
+    "decisionSub": "You do not want to browse — you want to know whether it is worth it. Each block answers a question and shows the band, not a promise.",
+    "decisionCta": "see selection →",
+    "decisionBlock9Title": "Worth every minute",
+    "decisionBlock9Body": "Titles at the top of the scale, where critics and audiences agree.",
+    "decisionBlock8Title": "A safe pick",
+    "decisionBlock8Body": "Lands well without needing context — for when you just do not want to miss.",
+    "decisionBlock7Title": "Worth a look",
+    "decisionBlock7Body": "Above average, with caveats the page shows before you start.",
+    "decisionNotaTitle": "No marketing numbers.",
+    "decisionNotaBody": "No number on this page is hardcoded: band, source count and order all come from the calculation.",
     "metaTitle": "MEDIA Rate — Discover what to watch and play",
     "metaDescription": "Media discovery platform with unified MEDIA Score™ for movies, series, games, books, comics and manga.",
     "metaOgTitle": "MEDIA Rate",
@@ -698,6 +772,7 @@
     "advancedUnavailableSearch": "Genre, score and critics apply to the catalog without a search term. Clear the search to use them."
   },
   "watchlist": {
+    "undo": "Undo",
     "title": "Watchlist",
     "empty": "Your watchlist is empty.",
     "emptyColumn": "No titles here",
@@ -726,8 +801,8 @@
     "retry": "Try again",
     "exploreCatalog": "Explore catalog",
     "mediaItem": "Media {id}",
-    "limitReached": "Free plan limit reached (20 watchlist items).",
-    "upgradeCta": "Upgrade to Plus",
+    "limitReached": "You have reached your plan's item limit.",
+    "upgradeCta": "See plans",
     "planFree": "Free plan",
     "planPlus": "Plus plan",
     "planPremium": "Premium plan",
@@ -748,7 +823,8 @@
     "buscarSubstituta": "Find substitute",
     "relinkPlaceholder": "Search for the correct title...",
     "relinkError": "Could not re-link. Please try again.",
-    "inWatchlist": "In watchlist"
+    "inWatchlist": "In watchlist",
+    "loadError": "We could not load your watchlist right now."
   },
   "privacy": {
     "metaTitle": "Privacy Policy — MEDIA Rate",
@@ -756,9 +832,9 @@
     "h1": "Privacy Policy",
     "lastUpdated": "Last updated: September 30, 2026 · Version: 1.1",
     "s1h": "1. Controller and Contact",
-    "s1b": "MEDIA Rate is operated by END ART Studios (CNPJ 45.370.930/0001-75, Osasco, São Paulo — Brazil). END ART Studios designates endart.studios@gmail.com as the official channel of the Data Protection Officer (DPO). Use it for privacy questions, to exercise your rights, or for data-processing matters.",
+    "s1b": "MEDIA Rate is operated by END ART Studios (CNPJ 45.370.930/0001-75, Osasco, São Paulo — Brazil). END ART Studios designates endart.studios+privacidade@gmail.com as the official channel of the Data Protection Officer (DPO). Use it for privacy questions, to exercise your rights, or for data-processing matters.",
     "sAiH": "Recommendations and AI",
-    "sAiB": "Recommendations and taste profile: we use your watchlist, consumption history, ratings and interactions to generate content recommendations and a taste profile (what you tend to watch, read or play).\nData: watchlist, history (status: want to consume, consuming, completed, abandoned), ratings, genres and relationships between works (e.g., adaptations, sequels, shared universe).\nRecommendation factors (general weights): genre (predominant), relationship between works (adaptations/sequels/universe) and recent history. The Premium plan adds advanced profile layers. We do not use sensitive data or data from other purposes to recommend.\nAI and algorithm: recommendations use an ALGORITHM of rules based on genre, relationship and history — we do NOT use generative AI (we do not generate text, images or new content from your data) nor high-impact automated decisions (credit, employment, health, insurance, individual pricing, eligibility or access to rights).\nLegal basis: recommendations (legitimate interest; contract in paid plans), taste profile (contract), advanced Premium profile (contract).\nRetention: the taste profile is kept while the account is active and is deleted/anonymized on deletion (soft delete +30 days). We do not use it for model training.\nContestation and rights: you may review the general factors of a recommendation, correct your data, turn off personalization, delete your taste profile, or contest an outcome via the channel in section 1 (endart.studios@gmail.com). Recommendations are discovery aids and may contain errors, omissions, staleness or coverage biases.",
+    "sAiB": "Recommendations and taste profile: we use your watchlist, consumption history, ratings and interactions to generate content recommendations and a taste profile (what you tend to watch, read or play).\nData: watchlist, history (status: want to consume, consuming, completed, abandoned), ratings, genres and relationships between works (e.g., adaptations, sequels, shared universe).\nRecommendation factors (general weights): genre (predominant), relationship between works (adaptations/sequels/universe) and recent history. The Premium plan adds advanced profile layers. We do not use sensitive data or data from other purposes to recommend.\nAI and algorithm: recommendations use an ALGORITHM of rules based on genre, relationship and history — we do NOT use generative AI (we do not generate text, images or new content from your data) nor high-impact automated decisions (credit, employment, health, insurance, individual pricing, eligibility or access to rights).\nLegal basis: recommendations (legitimate interest; contract in paid plans), taste profile (contract), advanced Premium profile (contract).\nRetention: the taste profile is kept while the account is active and is deleted/anonymized on deletion (soft delete +30 days). We do not use it for model training.\nContestation and rights: you may review the general factors of a recommendation, correct your data, turn off personalization, delete your taste profile, or contest an outcome via the channel in section 1 (endart.studios+privacidade@gmail.com). Recommendations are discovery aids and may contain errors, omissions, staleness or coverage biases.",
     "sMinH": "Minors",
     "sMinB": "MEDIA Rate is intended for individuals aged 14 and over for free use (account, catalog and MEDIA Score). Paid subscription (Plus/Premium), trial period and personalization/recommendation features may only be purchased by individuals aged 18 or over, or — if you are 14 to 17 — with authorization from a legal guardian who is responsible for the account. We do not knowingly collect data from children under 14. If you believe a child has provided data, contact us so we can promptly delete it.",
     "sCookTableTitle": "Cookies and technologies",
@@ -797,7 +873,7 @@
     "metaDescription": "MEDIA Rate Terms and Conditions of Use: registration, plans, payment, intellectual property, privacy (LGPD) and limitation of liability.",
     "ogTitle": "Terms and Conditions — MEDIA Rate",
     "ogDescription": "MEDIA Rate Terms and Conditions of Use (v1.0, Aug 13 2026).",
-    "h1": "Termos de Uso",
+    "h1": "Terms and Conditions",
     "lastUpdated": "Last updated: August 13, 2026 · Version: 1.0",
     "s1h": "1. Purpose and Acceptance",
     "s1b": "1.1. These Terms and Conditions of Use (\"Terms\") govern access to and use of the MEDIA Rate platform, available at https://mediarate.app, operated by END ART Studios (\"we,\" \"the Platform\"), a legal entity registered under CNPJ 45.370.930/0001-75, with registered address at Osasco, São Paulo — Brazil.\n1.2. By creating an account or using any feature of MEDIA Rate, you (\"User\") acknowledge that you have read, understood, and fully accepted these Terms, as well as our Privacy Policy, which is incorporated by reference into this document.\n1.3. If you do not agree with any provision of these Terms, you should not create an account or use the Platform.",
@@ -830,7 +906,20 @@
     "s15h": "15. Governing Law and Jurisdiction",
     "s15b": "15.1. These Terms are governed by the laws of the Federative Republic of Brazil.\n15.2. Any disputes arising from these Terms shall be submitted to the courts of Osasco, São Paulo — Brazil, without prejudice to any non-waivable right the User may have, under their own local consumer-protection law, to bring proceedings in their place of residence.",
     "s16h": "16. Contact",
-    "s16b": "Questions about these Terms may be sent to endart.studios@gmail.com."
+    "s16b": "Questions about these Terms may be sent to endart.studios+contato@gmail.com."
+  },
+  "feedback": {
+    "h1": "Feedback",
+    "lead": "How was your experience with MEDIA Rate? Your answer goes straight to the people building the product.",
+    "ratingLabel": "Your rating",
+    "ratingOption": "Rate {nota} out of 5",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "What worked well and what got in the way?",
+    "sendButton": "Send by email",
+    "mailHint": "Opens your email app with the message ready — nothing is sent until you confirm.",
+    "mailSubject": "MEDIA Rate feedback",
+    "mailRating": "Rating",
+    "mailContext": "Sent from the MEDIA Rate feedback page."
   },
   "faq": {
     "metaTitle": "Frequently Asked Questions — MEDIA Rate",
@@ -846,14 +935,14 @@
     "title": "About MEDIA Rate",
     "lead": "MEDIA Rate aggregates ratings from public sources into a unified and transparent score to help you decide what to watch or play.",
     "whatIsTitle": "What is MEDIA Rate",
-    "whatIsBody": "MEDIA Rate is a platform that aggregates ratings from public sources — such as TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic, and Steam — into a single consolidated score, the MEDIA Score™. Instead of checking multiple sites to decide if a movie, series, or game is worth your time, you find the context in one place.",
+    "whatIsBody": "MEDIA Rate is a platform that aggregates ratings from public sources, such as TMDB, IMDb, Rotten Tomatoes, Metacritic, TVMaze, IGDB, OpenCritic, and Steam — into a single consolidated score, the MEDIA Score™. Instead of checking multiple sites to decide if a movie, series, or game is worth your time, you find the context in one place.",
     "whatIsNotTitle": "What MEDIA Rate is not",
-    "whatIsNotBody": "MEDIA Rate <strong>is not a review</strong> nor an editorial opinion. The MEDIA Score™ does not reflect an author's taste — it is a <strong>transparent aggregation of public ratings</strong>, with an open and verifiable methodology. Each score displays its sources, confidence level, and how much critics and audiences agree.",
+    "whatIsNotBody": "MEDIA Rate <strong>is not a review</strong> nor an editorial opinion. The MEDIA Score™ does not reflect an author's taste: it is a <strong>transparent aggregation of public ratings</strong>, with an open and verifiable methodology. Each score displays its sources, confidence level, and how much critics and audiences agree.",
     "whatIsNotCta": "Read the full methodology →",
     "categoriesTitle": "Categories covered today",
     "categoriesIntro": "MEDIA Rate covers <strong>six media types</strong>: Movies, Series, Games, Books, Comics, and Manga. Movies, Series and Games have full source coverage; Books, Comics and Manga use the public sources available today.",
     "categoriesMovie": "<strong>Movies:</strong> aggregated scores from TMDB, IMDb, and Rotten Tomatoes.",
-    "categoriesSeries": "<strong>Series:</strong> including anime — covered as a genre within Series, with data from TMDB and TVMaze.",
+    "categoriesSeries": "<strong>Series:</strong> including anime, covered as a genre within Series, with data from TMDB and TVMaze.",
     "categoriesGame": "<strong>Games:</strong> scores from IGDB, OpenCritic, and Steam.",
     "categoriesBook": "<strong>Books:</strong> aggregated scores from OpenLibrary, Google Books, Goodreads, Skoob, and LibraryThing.",
     "categoriesComic": "<strong>Comics:</strong> aggregated scores from Comic Vine and ComicBookRoundup.",
@@ -862,12 +951,12 @@
     "howItWorksBody": "MEDIA Score™ v3 computes the rating per media type with specific weights (critics, audience and consensus) and a Bayesian estimator that pulls titles with few votes toward the catalog average. Consensus feeds the score; the confidence level (High/Medium/Low) and the full methodology are documented on the methodology page.",
     "howItWorksCta": "View methodology →",
     "transparencyTitle": "Transparency & compliance",
-    "transparencyBody": "Every MEDIA Score™ displays its sources and confidence level. No score is hidden — low-confidence scores are flagged, never suppressed. We comply with data protection regulations: you can access, correct, export, or delete your data at any time.",
+    "transparencyBody": "Every MEDIA Score™ displays its sources and confidence level. No score is hidden: low-confidence scores are flagged, never suppressed. We comply with data protection regulations: you can access, correct, export, or delete your data at any time.",
     "transparencyCta": "Privacy Policy →",
     "languagesTitle": "Languages",
     "languagesBody": "MEDIA Rate is available in three languages: Portuguese (Brazil), English (US), and Spanish (Spain). Use the language selector in the top-right corner to switch at any time.",
     "roadmapTitle": "What's next",
-    "roadmapBody": "<strong>All six media types — Movies, Series, Games, Books, Comics and Manga — are live in the catalog.</strong> Movies, Series and Games have full source coverage; Books, Comics and Manga use the public sources available today, with more being added.",
+    "roadmapBody": "<strong>All six media types (Movies, Series, Games, Books, Comics and Manga) are live in the catalog.</strong> Movies, Series and Games have full source coverage; Books, Comics and Manga use the public sources available today, with more being added.",
     "availableIn": "This page is also available in",
     "enLabel": "English",
     "esLabel": "Spanish",
@@ -930,20 +1019,7 @@
     "languagesSwitchBody": "Use the language selector in the top-right corner (globe icon) to switch between Portuguese, English and Spanish.",
     "languagesSeoTitle": "Multilingual SEO and localized experience",
     "languagesSeoBody": "Each language has localized canonical URLs, metadata and content, ensuring correct search engine indexing.",
-    "faqTitle": "Frequently Asked Questions",
-    "faq1Q": "What is MEDIA Score and how is it calculated?",
-    "faq1A": "MEDIA Score consolidates ratings from sources like IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, IGDB, OpenCritic and Steam into a single per-media score: games 0-100; other media — movies, series, books, comics and manga — 0-10.",
-    "faq2Q": "Do I need an account to use MEDIA Rate?",
-    "faq2A": "No. The catalog, search and MEDIA Score are free. Unlimited recommendations require Plus or Premium.",
-    "faq3Q": "Can I cancel my subscription at any time?",
-    "faq3A": "Yes. All paid plans can have their renewal canceled at any time, with no penalties or advance notice; access continues until the end of the paid cycle. The right of withdrawal and refund for an undue charge are preserved.",
-    "faq4Q": "Can I change plans later?",
-    "faq4A": "Yes. You can upgrade at any time. Downgrades happen by canceling your subscription — access remains until the end of the paid cycle.",
-    "faq5Q": "Is MEDIA Score a review?",
-    "faq5A": "No. MEDIA Score is a consolidated indicator of rating signals from public sources. It should be used as a starting point for discovery.",
-    "faq6Q": "Which rating sources do you use?",
-    "faq6A": "We use IMDb, Rotten Tomatoes, TMDB, Metacritic, TVMaze, Letterboxd and Trakt for movies and series; IGDB, OpenCritic, Steam and SteamSpy for games.",
-    "faqCta": "Full plan FAQ"
+    "faqCta": "See all questions →"
   },
   "pricingFaq": {
     "title": "Frequently Asked Questions",
@@ -958,7 +1034,9 @@
     "faq5Q": "Can I cancel at any time?",
     "faq5A": "Yes. All paid plans can have their renewal canceled at any time, with no penalties or advance notice; access continues until the end of the paid cycle. The right of withdrawal and refund for an undue charge are preserved.",
     "faq6Q": "Can I change plans later?",
-    "faq6A": "Yes. You can upgrade at any time. Downgrades happen by canceling your subscription — access remains until the end of the paid cycle."
+    "faq6A": "Yes. You can upgrade at any time. Downgrades happen by canceling your subscription — access remains until the end of the paid cycle.",
+    "faq7Q": "How do I request a refund or withdraw from the purchase?",
+    "faq7A": "Write to endart.studios+reembolso@gmail.com with the account e-mail and the purchase date. The right of withdrawal under the Brazilian Consumer Code (art. 49) applies for 7 days from the purchase, and any improper charge is refunded regardless of deadline. For access or recurring billing issues, the support channel is endart.studios+suporte@gmail.com."
   },
   "profile": {
     "explorerTitle": "Explorer",
@@ -1004,9 +1082,12 @@
     "hoursAgo": "{n} h ago",
     "daysAgo": "{n} d ago",
     "tituloIndisponivel": "Title unavailable",
-    "totalWatchlist": "Watchlist titles"
+    "totalWatchlist": "Watchlist titles",
+    "publicLoadError": "We could not load this profile right now.",
+    "retry": "Try again"
   },
   "settings": {
+    "lockedFeatures": "Locked features",
     "title": "Settings",
     "trialEnded": "Your trial period has ended. To keep accessing Plus features, subscribe now.",
     "trialEndedCta": "Subscribe now",
@@ -1023,18 +1104,6 @@
     "cancelError": "Could not cancel the subscription right now. Try again.",
     "cancelSubscription": "Cancel subscription",
     "cancelHint": "Canceling ends plan benefits at the end of the current cycle."
-  },
-  "onboarding": {
-    "h1": "Welcome to MEDIA Rate",
-    "lead": "Your discovery platform with a unified score.",
-    "step1": "Explore the catalog",
-    "step1d": "discover movies, series, games, books, comics and manga with MEDIA Score",
-    "step2": "Understand the score",
-    "step2d": "see the critics/audience/consensus breakdown",
-    "step3": "Build your watchlist",
-    "step3d": "save what you want to watch, are watching or have watched",
-    "step4": "Quick search",
-    "step4d": "press K to search any title"
   },
   "genres": {
     "acao": "Action",
@@ -1151,6 +1220,10 @@
     "error": "Could not fetch one of the profiles."
   },
   "listas": {
+    "itemAdded": "Item added to the list",
+    "itemRemoved": "Item removed from the list",
+    "saved": "List updated",
+    "created": "List created",
     "title": "Lists",
     "create": "New list",
     "titleLabel": "Title",
@@ -1164,6 +1237,7 @@
     "itemsCount": "{count} items",
     "loading": "Loading...",
     "error": "Something went wrong.",
+    "backToListas": "See all lists",
     "notFound": "List not found.",
     "byOwner": "by {owner}",
     "edit": "Edit",
@@ -1318,5 +1392,76 @@
     "empty": "Not enough rated titles in this type yet.",
     "fontes": "{count, plural, one {# source} other {# sources}}",
     "erro": "Could not load the ranking."
-  }
+  },
+  "cookiesPage": {
+    "metaTitle": "Cookies — MEDIA Rate",
+    "metaDescription": "Which cookies MEDIA Rate uses, what they are for and how to decline the optional ones.",
+    "title": "Cookies",
+    "lastUpdated": "Last updated: October 2026",
+    "intro": "We use the minimum needed for the service to work and only turn measurement on with your permission. The default is the strictest: analytics and monitoring stay off until you choose.",
+    "necessaryTitle": "Necessary (always on)",
+    "necessaryBody": "Session and security. Without them sign-in does not work. They do not identify you to third parties and are not used for measurement.",
+    "analyticsTitle": "Analytics — PostHog",
+    "analyticsBody": "Understand which screens are used and where the friction is. Off by default.",
+    "monitoringTitle": "Monitoring — Sentry",
+    "monitoringBody": "Detect errors so we can fix them. Off by default. We do not use it for advertising.",
+    "noAds": "We do not sell data and do not use third-party advertising cookies — there is no ad tracker in this product.",
+    "changeTitle": "Change my choice",
+    "changeBody": "You can review and change it at any time — the choice applies immediately and you do not need to sign in again.",
+    "changeCta": "Manage cookies",
+    "privacyNoteTitle": "Full inventory",
+    "privacyNoteBody": "The cookie list with purpose and duration is in the Privacy Policy, in the cookies section.",
+    "privacyNoteCta": "See it in the Privacy Policy"
+  },
+  "securityPage": {
+    "metaTitle": "Security — MEDIA Rate",
+    "metaDescription": "How MEDIA Rate protects accounts and data, and how to report a vulnerability.",
+    "title": "Security",
+    "lastUpdated": "Last updated: October 2026",
+    "intro": "We describe here only what is implemented and verifiable. We do not display badges or certifications we do not hold.",
+    "transportTitle": "Traffic and browser",
+    "transportBody": "All traffic is HTTPS. The application sends Content-Security-Policy, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: strict-origin-when-cross-origin and a Permissions-Policy restricting camera, microphone and geolocation.",
+    "accountTitle": "Account and access",
+    "accountBody": "The session lives in an HttpOnly cookie. Sensitive actions require an anti-CSRF token, and the admin area requires additional verification (second factor / step-up) beyond the password.",
+    "dataTitle": "Data",
+    "dataBody": "Every database row is isolated per user (row level security). Backups have point-in-time recovery, and restore is tested periodically — a backup that was never restored is not a backup.",
+    "monitoringTitle": "Monitoring and detection",
+    "monitoringBody": "Errors are tracked with Sentry, and code goes through static analysis and secret scanning in continuous integration (CodeQL and Gitleaks).",
+    "reportTitle": "Report a vulnerability",
+    "reportBody": "If you found a flaw, write to us with the steps to reproduce it. We ask that you do not exploit it, do not access other people's data and give us reasonable time before publishing.",
+    "reportCta": "Send a security report",
+    "noCertTitle": "What we do not claim",
+    "noCertBody": "We hold neither ISO 27001 nor SOC 2 certification, so we do not display those badges. If that changes, this page changes with it."
+  },
+  "rightsPage": {
+    "metaTitle": "Data subject rights — MEDIA Rate",
+    "metaDescription": "Which rights the LGPD grants, how to exercise each one at MEDIA Rate and how long a reply takes.",
+    "title": "Data subject rights",
+    "lastUpdated": "Last updated: October 2026",
+    "intro": "The LGPD gives you control over your personal data. Below is what you can request, how to request it and what happens next.",
+    "selfServiceTitle": "Do it yourself, right now",
+    "selfServiceBody": "Exporting and deleting need no request and no waiting: they are in your account settings.",
+    "exportLabel": "Download my data (export)",
+    "deleteLabel": "Delete my account and my data",
+    "deleteNote": "Deletion takes two steps so it cannot happen by accident. Billing records may be kept for the legally required period — and that is stated before you confirm.",
+    "rightsListTitle": "What you can request",
+    "rightConfirm": "Confirmation that we process your data",
+    "rightAccess": "Access to the data we hold about you",
+    "rightCorrect": "Correction of incomplete, inaccurate or outdated data",
+    "rightAnonymize": "Anonymisation, blocking or deletion of unnecessary or excessive data",
+    "rightPortability": "Portability to another provider",
+    "rightSharing": "Information about who we share with",
+    "rightRevoke": "Withdrawal of consent (optional cookies)",
+    "noAccountTitle": "No account?",
+    "noAccountBody": "Requests also apply to non-users — for example, if you appear in a base we received from a third party. Write to the channel below describing the request; an account is not required.",
+    "deadlineTitle": "Deadline",
+    "deadlineBody": "The LGPD provides for a reply within 15 days of the request. Access and deletion requests made in the panel itself are served immediately.",
+    "dpoTitle": "Data protection officer (DPO)",
+    "dpoBody": "The Data Protection Officer (DPO) channel is endart.studios+privacidade@gmail.com: formal requests, communications with the ANPD and any data-processing matter go through it. For account access problems or service failures, use endart.studios+suporte@gmail.com.",
+    "anpdTitle": "If the reply is not enough",
+    "anpdBody": "You may complain to the Brazilian Data Protection Authority (ANPD). The official link is below.",
+    "anpdCta": "ANPD website",
+    "contactCta": "Contact the officer"
+  },
+  "search": {}
 }

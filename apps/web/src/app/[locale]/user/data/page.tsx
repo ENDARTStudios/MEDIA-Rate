@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { UserDataPage } from "../../../../components/UserDataPage";
+import { ProtectedPage } from "@/components/ProtectedPage";
 
 export async function generateMetadata({
   params,
@@ -15,5 +16,10 @@ export async function generateMetadata({
 export default async function UserDataRoute({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <UserDataPage />;
+  // D-619 (P1 da spec): pagina com dados pessoais precisa de guarda de sessao.
+  return (
+    <ProtectedPage>
+      <UserDataPage />
+    </ProtectedPage>
+  );
 }

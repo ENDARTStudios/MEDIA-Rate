@@ -21,7 +21,15 @@ function mockMeExpired() {
 
 describe("Auth Store (T052)", () => {
   beforeEach(() => {
-    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false, error: null });
+    // D-619: `hydrated` faz parte do estado. Sem resetá-lo, o dedupe do `fetchMe` (que no
+    // app evita duas consultas por página) faria os testes pularem a chamada.
+    useAuthStore.setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      hydrated: false,
+    });
     vi.restoreAllMocks();
     // Limpar localStorage
     localStorage.clear();

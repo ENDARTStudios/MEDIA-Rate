@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+
 import { motion } from "motion/react";
 
 interface TextMarqueeProps {
@@ -19,14 +20,7 @@ export function TextMarquee({
   pauseOnHover = true,
 }: TextMarqueeProps) {
   // T046: detecta prefers-reduced-motion apos mount (evita mismatch SSR/cliente).
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener?.("change", apply);
-    return () => mq.removeEventListener?.("change", apply);
-  }, []);
+  const reduce = useReducedMotionPref();
 
   if (reduce) {
     return (
@@ -55,7 +49,7 @@ export function TextMarquee({
         {[...items, ...items].map((item, i) => (
           <span
             key={i}
-            className={`inline-block px-4 py-2 rounded-full bg-surface-card border border-surface-border/50 text-gray-300 text-sm font-medium hover:text-white hover:border-accent-500/50 transition-colors ${itemClassName ?? ""}`}
+            className={`inline-block px-4 py-2 rounded-full bg-surface-card border border-surface-border/50 text-fg-secondary text-sm font-medium hover:text-white hover:border-accent-500/50 transition-colors ${itemClassName ?? ""}`}
           >
             {item}
           </span>

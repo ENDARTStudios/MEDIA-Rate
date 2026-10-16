@@ -1,12 +1,27 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
-import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
+import { FONTES_ATIVAS, MIDIA_LABEL_KEY } from "@/lib/sources";
 import type { MediaType } from "@/lib/types";
 
 const TIPO_MATRIZ: MediaType[] = ["movie", "series", "game", "book", "comic", "manga"];
 import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
+
+/**
+ * D-590 (T211) — opt-in de renderização estática para conteúdo institucional.
+ *
+ * Estas seis páginas são conteúdo editorial (sem dado de usuário, sem cookie, sem
+ * `searchParams`): podem ser pré-renderizadas e servidas por CDN. Hoje **todas as
+ * rotas do app são dinâmicas por padrão** (ver D-589: o `force-static` é o único
+ * caminho que produz `○` no build), então o opt-in é explícito.
+ *
+ * `revalidate = 3600`: o conteúdo muda quando alguém edita as mensagens/fontes —
+ * uma hora de defasagem é aceitável para texto institucional, e o endpoint
+ * `/api/revalidate` (já existente) permite invalidação sob demanda em publicação.
+ */
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -46,6 +61,11 @@ export default async function SourcesPage({ params }: PageProps) {
   setRequestLocale(locale);
   const copy = getInstitutionalContent(locale).sources;
   const pageUrl = localizedUrl(locale, "/sources");
+  // T211: rótulos de tipo de mídia e de bucket (crítica/público) vinham
+  // hardcoded em pt-BR e apareciam em en-US/es-ES. Agora usam as chaves
+  // canônicas já traduzidas nos 3 locales.
+  const tCat = await getTranslations("catalog");
+  const tScore = await getTranslations("scoredial");
 
   const jsonLd = [
     {
@@ -72,13 +92,16 @@ export default async function SourcesPage({ params }: PageProps) {
     <article className="container mx-auto max-w-4xl px-4 py-12">
       <StructuredData data={jsonLd} />
       <header className="mb-10 text-center">
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+        <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
           {copy.title}
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">{copy.lead}</p>
       </header>
 
-      <div className="prose prose-invert max-w-[38rem] prose-headings:font-heading prose-a:text-primary [&>section]:mt-12 [&>section:first-child]:mt-0">
+      {/* T211: `prose prose-invert` era INERTE (o plugin @tailwindcss/typography
+          não está instalado) — títulos saíam no default do browser e links no azul
+          nativo sobre fundo escuro. Estilos agora explícitos pelos tokens. */}
+      <div className="max-w-[34rem] space-y-12 [&_a]:text-[#818CF8] [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#F5F5F7] [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[#A0A0B8]">
         <section aria-labelledby="coverage-title">
           <h2 id="coverage-title">{copy.coverageTitle}</h2>
           <p>{copy.coverageBody}</p>
@@ -92,10 +115,10 @@ export default async function SourcesPage({ params }: PageProps) {
             {FONTES_ATIVAS.map((fonte) => (
               <div
                 key={fonte.id}
-                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{fonte.nome}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
+                <dt className="font-heading text-lg font-semibold text-[#F5F5F7]">{fonte.nome}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       fonte.tipo === "critica"
@@ -103,9 +126,9 @@ export default async function SourcesPage({ params }: PageProps) {
                         : "bg-[#E11D48]/15 text-[#FB7185]"
                     }`}
                   >
-                    {fonte.tipo === "critica" ? "Crítica" : "Público"}
+                    {fonte.tipo === "critica" ? tScore("critic") : tScore("audience")}
                   </span>{" "}
-                  {fonte.midias.map((m) => MIDIA_LABEL[m]).join(" · ")}
+                  {fonte.midias.map((m) => tCat(MIDIA_LABEL_KEY[m])).join(" · ")}
                 </dd>
               </div>
             ))}
@@ -117,7 +140,7 @@ export default async function SourcesPage({ params }: PageProps) {
           {/* Matriz de cobertura por categoria (fonte única: FONTES_ATIVAS +
               MIDIA_LABEL). Torna explícito quais categorias estão cobertas e
               quais estão em preparação — transparência do escopo real. */}
-          <ul className="not-prose mt-6 grid gap-3 sm:grid-cols-2">
+          <ul role="list" className="not-prose mt-6 grid gap-3 sm:grid-cols-2">
             {TIPO_MATRIZ.map((tipo) => {
               const fontes = FONTES_ATIVAS.filter((f) => f.midias.includes(tipo));
               const coberto = fontes.length > 0;
@@ -125,11 +148,11 @@ export default async function SourcesPage({ params }: PageProps) {
                 <li
                   key={tipo}
                   data-testid={`coverage-${tipo}`}
-                  className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+                  className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-heading text-base font-semibold text-[#EDE7DC]">
-                      {MIDIA_LABEL[tipo]}
+                    <span className="font-heading text-base font-semibold text-[#F5F5F7]">
+                      {tCat(MIDIA_LABEL_KEY[tipo])}
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -141,7 +164,7 @@ export default async function SourcesPage({ params }: PageProps) {
                       {coberto ? copy.covered : copy.inPreparation}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">
+                  <p className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">
                     {coberto ? fontes.map((f) => f.nome).join(" · ") : copy.inPreparation}
                   </p>
                 </li>

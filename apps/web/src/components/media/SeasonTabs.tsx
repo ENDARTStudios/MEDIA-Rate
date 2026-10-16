@@ -1,5 +1,7 @@
 "use client";
 
+import { formatarScoreLocale } from "@/lib/score-utils";
+
 import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/lib/http";
@@ -47,7 +49,7 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
     };
   }, [midiaId]);
 
-  if (carregando) return <div className="py-4 text-sm text-[#9CA3AF]">{t("loadingSeasons")}</div>;
+  if (carregando) return <div className="py-4 text-sm text-[#A0A0B8]">{t("loadingSeasons")}</div>;
   if (temporadas.length === 0) return null;
 
   const atual = temporadas[ativa] ?? temporadas[0];
@@ -67,8 +69,8 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
             onClick={() => setAtiva(i)}
             className={`shrink-0 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
               i === ativa
-                ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
-                : "border-[#2A2A3D] text-[#9CA3AF] hover:bg-[#1C1C2E]"
+                ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
+                : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#1C1C2E]"
             }`}
           >
             {t("seasonLabel", { numero: temp.numero })}
@@ -76,14 +78,17 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
         ))}
       </div>
       {atual && (
-        <ul className="divide-y divide-[#2A2A3D] rounded-xl border border-[#2A2A3D] bg-[#11111E]">
+        <ul
+          role="list"
+          className="divide-y divide-[#2A2A3D] rounded-xl border border-[#2A2A3D] bg-[#12121C]"
+        >
           {atual.episodios.map((ep) => (
             <li
               key={ep.numero}
               className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm"
             >
               <div className="min-w-0">
-                <p className="truncate text-[#EDE7DC]">
+                <p className="truncate text-[#F5F5F7]">
                   <span className="text-[#85859F]">{ep.numero}.</span> {ep.titulo}
                 </p>
                 {ep.data_exibicao && (
@@ -93,8 +98,8 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
                 )}
               </div>
               {ep.nota_publico != null && (
-                <span className="shrink-0 rounded-full bg-[#1C1C2E] px-2 py-0.5 text-xs font-medium text-[#EDE7DC]">
-                  {ep.nota_publico.toFixed(1)}
+                <span className="shrink-0 rounded-full bg-[#1C1C2E] px-2 py-0.5 text-xs font-medium text-[#F5F5F7]">
+                  {formatarScoreLocale(ep.nota_publico, locale)}
                 </span>
               )}
             </li>

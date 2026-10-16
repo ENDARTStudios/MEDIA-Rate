@@ -27,8 +27,8 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">{t("discoverTitle")}</h1>
-      <p className="text-[#9CA3AF] mb-6">
+      <h1 className="text-3xl font-bold mb-2 text-[#F5F5F7]">{t("discoverTitle")}</h1>
+      <p className="text-[#A0A0B8] mb-6">
         {t("discoverSubtitle")}{" "}
         <a href="/catalog" className="text-[#818CF8] hover:text-[#A5B4FC] underline">
           {t("discoverFullCatalog")}

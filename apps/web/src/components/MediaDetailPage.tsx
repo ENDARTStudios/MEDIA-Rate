@@ -17,7 +17,7 @@ import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { MediaItem } from "./MediaCard";
-import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
+import { displaySrc, isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import type { ReactNode } from "react";
 
 function toMediaItem(m: Media): MediaItem {
@@ -58,9 +58,9 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
     return (
       <div className="max-w-5xl mx-auto py-16 px-4">
         <div className="animate-pulse space-y-6">
-          <div className="h-64 bg-[#11111E] rounded-md" />
-          <div className="h-8 w-2/3 bg-[#11111E] rounded-lg" />
-          <div className="h-4 w-1/3 bg-[#11111E] rounded-lg" />
+          <div className="h-64 bg-[#12121C] rounded-md" />
+          <div className="h-8 w-2/3 bg-[#12121C] rounded-lg" />
+          <div className="h-4 w-1/3 bg-[#12121C] rounded-lg" />
         </div>
       </div>
     );
@@ -112,33 +112,39 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
     <article className="pb-16">
       {/* Breadcrumbs */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
-        <nav className="flex items-center gap-2 text-sm text-[#9CA3AF]" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-[#EDE7DC]">
+        <nav className="flex items-center gap-2 text-sm text-[#A0A0B8]" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-[#F5F5F7]">
             {t("home")}
           </Link>
           <span>/</span>
-          <Link href="/catalog" className="hover:text-[#EDE7DC]">
+          <Link href="/catalog" className="hover:text-[#F5F5F7]">
             {t("title")}
           </Link>
           <span>/</span>
-          <Link href={`/catalog?type=${media.type}`} className="hover:text-[#EDE7DC]">
+          <Link href={`/catalog?type=${media.type}`} className="hover:text-[#F5F5F7]">
             {tipoLabel}
           </Link>
           <span>/</span>
-          <span className="text-[#EDE7DC] truncate">{titleForLocale(media, locale)}</span>
+          <span className="text-[#F5F5F7] truncate">{titleForLocale(media, locale)}</span>
         </nav>
       </div>
 
       {/* Hero */}
-      <div className="relative bg-[#11111E] overflow-hidden">
+      <div className="relative bg-[#12121C] overflow-hidden">
         {media.backdropUrl &&
           (() => {
-            // T036: hero full-bleed usa o rung original estático; sem ladder → bypass.
+            // T036: hero full-bleed; D-582/A8 (T211): o ramo de imagem crua (sem otimizador) usava o rung
+            // `original` do TMDB sem hint de prioridade. Como este backdrop é o LCP
+            // da ficha e fica em opacity-30, o rung de display (1280) entrega o
+            // mesmo resultado visual com uma fração dos bytes, e `fetchPriority`
+            // alinha o hint com o ramo `next/image` logo abaixo.
             const ladder = remoteLadder(media.backdropUrl);
             return ladder ? (
               <img
-                src={ladder.src}
+                src={displaySrc(ladder.src, 1280) ?? ladder.src}
                 alt=""
+                fetchPriority="high"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover opacity-30"
               />
             ) : (
@@ -153,7 +159,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               />
             );
           })()}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#11111E]/90 to-[#09090F]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#12121C]/90 to-[#09090F]/90" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#09090F] via-[#09090F]/60 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -165,7 +171,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                       <img
                         src={media.posterUrl}
                         srcSet={localSrcSet(media.posterUrl)}
-                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                         sizes="192px"
                         className="absolute inset-0 h-full w-full object-cover rounded-md"
                       />
@@ -177,7 +183,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                       <img
                         src={ladder.src}
                         srcSet={ladder.srcSet}
-                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                         sizes="192px"
                         className="absolute inset-0 h-full w-full object-cover rounded-md"
                       />
@@ -186,7 +192,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   return (
                     <Image
                       src={media.posterUrl}
-                      alt={`Poster de ${titleForLocale(media, locale)}`}
+                      alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                       fill
                       className="object-cover rounded-md"
                       sizes="192px"
@@ -195,7 +201,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                   );
                 })()
               ) : (
-                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#9CA3AF]">
+                <div className="w-full h-full bg-[#12121C] rounded-md flex items-center justify-center text-[#A0A0B8]">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -212,10 +218,10 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                 <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
                   {tipoLabel}
                 </span>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#F5F5F7] mt-1 leading-tight">
                   {titleForLocale(media, locale)}
                 </h1>
-                <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
+                <div className="flex items-center gap-3 mt-2 text-sm text-[#A0A0B8]">
                   <span>{media.year}</span>
                   {media.duration && (
                     <>
@@ -259,7 +265,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                     setShared(true);
                     setTimeout(() => setShared(false), 2000);
                   }}
-                  className="text-xs text-[#9CA3AF] hover:text-[#818CF8] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
+                  className="text-xs text-[#A0A0B8] hover:text-[#818CF8] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
                   title={t("share")}
                   aria-label={t("share")}
                 >
@@ -288,13 +294,13 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
       {/* Synopsis + Cast */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div>
-          <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">
+          <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-3">
             {t("synopsis")}
           </h2>
           {media.synopsis ? (
             <div>
               <p
-                className={`text-[#9CA3AF] leading-relaxed ${synopsisExpanded ? "" : "line-clamp-3"}`}
+                className={`text-[#A0A0B8] leading-relaxed ${synopsisExpanded ? "" : "line-clamp-3"}`}
               >
                 {synopsisForLocale(media, locale)}
               </p>
@@ -308,46 +314,46 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
               )}
             </div>
           ) : (
-            <p className="text-sm text-[#9CA3AF] italic">{t("synopsisUnavailable")}</p>
+            <p className="text-sm text-[#A0A0B8] italic">{t("synopsisUnavailable")}</p>
           )}
         </div>
 
         {media.cast.length > 0 ? (
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">{t("cast")}</h2>
+            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-3">{t("cast")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {media.cast.map((c) => (
                 <div
                   key={c.name}
-                  className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-[#1C1C2E]"
+                  className="flex items-center gap-3 p-3 bg-[#12121C] rounded-md border border-[#1C1C2E]"
                 >
-                  <div className="w-9 h-9 rounded-full bg-[#1C1C2E] flex items-center justify-center text-[#9CA3AF] text-xs font-bold">
+                  <div className="w-9 h-9 rounded-full bg-[#1C1C2E] flex items-center justify-center text-[#A0A0B8] text-xs font-bold">
                     {c.name[0]}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm text-[#EDE7DC] truncate">{c.name}</p>
-                    <p className="text-xs text-[#9CA3AF] truncate">{c.role}</p>
+                    <p className="text-sm text-[#F5F5F7] truncate">{c.name}</p>
+                    <p className="text-xs text-[#A0A0B8] truncate">{c.role}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
-            <p className="text-sm text-[#9CA3AF]">{t("castUnavailable")}</p>
+          <div className="bg-[#12121C] rounded-lg border border-[#1C1C2E] p-6 text-center">
+            <p className="text-sm text-[#A0A0B8]">{t("castUnavailable")}</p>
           </div>
         )}
 
         {media.streaming && media.streaming.length > 0 ? (
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-3">
+            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-3">
               {media.type === "game" ? t("whereToPlay") : t("whereToWatch")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {media.streaming.map((s) => (
                 <span
                   key={s.name}
-                  className="px-3 py-1.5 bg-[#11111E] border border-[#1C1C2E] rounded-full text-sm text-[#9CA3AF]"
+                  className="px-3 py-1.5 bg-[#12121C] border border-[#1C1C2E] rounded-full text-sm text-[#A0A0B8]"
                 >
                   {s.name}
                 </span>
@@ -355,9 +361,9 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
             </div>
           </div>
         ) : (
-          <div className="bg-[#11111E] rounded-lg border border-[#1C1C2E] p-6 text-center">
+          <div className="bg-[#12121C] rounded-lg border border-[#1C1C2E] p-6 text-center">
             <svg
-              className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3"
+              className="w-8 h-8 text-[#A0A0B8] mx-auto mb-3"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -369,7 +375,7 @@ export function MediaDetailPage({ id, type, children }: MediaDetailPageProps) {
                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-sm text-[#9CA3AF]">
+            <p className="text-sm text-[#A0A0B8]">
               {media.type === "game" ? t("streamingUnavailableGame") : t("streamingUnavailable")}
             </p>
           </div>

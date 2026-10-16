@@ -8,7 +8,8 @@
  *   book #FBBF24, comic #F472B6, anime #A78BFA.
  * - Estado ativo: fundo/accent no chip; foco visível para teclado.
  */
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatarScoreLocale } from "@/lib/score-utils";
 import { cn } from "@/lib/utils";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import type { MediaType } from "@/lib/types";
@@ -42,11 +43,17 @@ const TIPO_KEY: Record<MediaType, string> = {
   manga: "manga",
 };
 
-/** Formato compacto: 1200 → "1.2k". */
-function formatoCompacto(n: number): string {
+/**
+ * Formato compacto: 1200 → "1,2k" em pt-BR e "1.2k" em en-US.
+ *
+ * Achado 2026-10-13: a versão anterior fazia `toFixed(1).replace(".", ",")`, isto é,
+ * **assumia pt-BR dentro do código** — em ingles ou espanhol o número saía com vírgula
+ * mesmo assim. Agora o separador vem do locale, pelo mesmo helper do resto do produto.
+ */
+function formatoCompacto(n: number, locale: string): string {
   if (n >= 1000) {
     const v = n / 1000;
-    return `${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(".", ",")}k`;
+    return `${v % 1 === 0 ? v.toFixed(0) : formatarScoreLocale(v, locale)}k`;
   }
   return String(n);
 }
@@ -60,6 +67,7 @@ export function CategoryChip({
   className,
 }: CategoryChipProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   const { color: accent, icon: Icon } = CATEGORY_TOKENS[type];
   const resolvedLabel =
     label ?? t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga");
@@ -92,7 +100,7 @@ export function CategoryChip({
             active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#85859F]",
           )}
         >
-          {formatoCompacto(count)}
+          {formatoCompacto(count, locale)}
         </span>
       )}
     </button>

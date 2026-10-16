@@ -60,7 +60,7 @@ export default function AdminAuditoriaPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Log de auditoria</h1>
+      <h1 className="text-3xl font-bold mb-6 text-fg-primary">Log de auditoria</h1>
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <input
@@ -72,7 +72,7 @@ export default function AdminAuditoriaPage() {
           placeholder="UUID do usuário"
           data-testid="admin-auditoria-usuario"
           aria-label="Filtrar por usuário (UUID)"
-          className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm font-mono"
+          className="rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm font-mono"
         />
         <input
           value={acao}
@@ -83,7 +83,7 @@ export default function AdminAuditoriaPage() {
           placeholder="Ação (ex.: ADMIN_USUARIO_BANIDO)"
           data-testid="admin-auditoria-acao"
           aria-label="Filtrar por ação"
-          className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm"
+          className="rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
         />
         <input
           type="date"
@@ -94,7 +94,7 @@ export default function AdminAuditoriaPage() {
           }}
           data-testid="admin-auditoria-de"
           aria-label="Data inicial"
-          className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm"
+          className="rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
         />
         <input
           type="date"
@@ -105,59 +105,74 @@ export default function AdminAuditoriaPage() {
           }}
           data-testid="admin-auditoria-ate"
           aria-label="Data final"
-          className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm"
+          className="rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
         />
       </div>
 
       {erro && (
-        <p className="mb-4 text-sm text-red-600" role="alert" data-testid="admin-auditoria-erro">
+        <p className="mb-4 text-sm text-score-low" role="alert" data-testid="admin-auditoria-erro">
           {erro}
         </p>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+      <div className="bg-surface-card rounded-lg shadow-sm overflow-x-auto">
         <table className="min-w-full" data-testid="admin-auditoria-tabela">
           <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+            <tr className="border-b border-surface-border">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-fg-secondary uppercase"
+              >
                 Quando
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-fg-secondary uppercase"
+              >
                 Ação
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-fg-secondary uppercase"
+              >
                 Entidade
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-fg-secondary uppercase"
+              >
                 Usuário
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-fg-secondary uppercase"
+              >
                 IP
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-surface-border">
             {(data?.items ?? []).map((item, idx) => (
               <tr key={`${item.entidadeId}-${idx}`} data-testid="admin-auditoria-linha">
-                <td className="px-4 py-2 text-xs text-gray-400">
+                <td className="px-4 py-2 text-xs text-fg-secondary">
                   {new Date(item.criado_em).toLocaleString("pt-BR")}
                 </td>
                 <td className="px-4 py-2 text-sm font-medium">{item.acao}</td>
                 <td className="px-4 py-2 text-xs">
                   {item.entidade}
-                  <span className="block text-[10px] text-gray-400 font-mono">
+                  <span className="block text-[10px] text-fg-secondary font-mono">
                     {item.entidadeId}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-xs font-mono">
                   {item.usuarioId?.slice(0, 8) ?? "—"}
                 </td>
-                <td className="px-4 py-2 text-xs text-gray-400">{item.ip ?? "—"}</td>
+                <td className="px-4 py-2 text-xs text-fg-secondary">{item.ip ?? "—"}</td>
               </tr>
             ))}
             {data && data.items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-fg-secondary">
                   Nenhum registro para os filtros.
                 </td>
               </tr>
@@ -167,7 +182,7 @@ export default function AdminAuditoriaPage() {
       </div>
 
       <div className="mt-4 flex items-center justify-between text-sm">
-        <span className="text-gray-400" data-testid="admin-auditoria-total">
+        <span className="text-fg-secondary" data-testid="admin-auditoria-total">
           {data ? `${data.total} registros` : ""}
         </span>
         <div className="flex items-center gap-2">
@@ -175,11 +190,11 @@ export default function AdminAuditoriaPage() {
             type="button"
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0 || carregando}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 disabled:opacity-40"
+            className="rounded-lg border border-surface-border px-3 py-1.5 disabled:opacity-40"
           >
             Anterior
           </button>
-          <span className="text-gray-400">
+          <span className="text-fg-secondary">
             Página {page + 1} de {totalPaginas}
           </span>
           <button
@@ -188,7 +203,7 @@ export default function AdminAuditoriaPage() {
               setPage((p) => (data && (p + 1) * data.pageSize < data.total ? p + 1 : p))
             }
             disabled={!data || (page + 1) * data.pageSize >= data.total || carregando}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 disabled:opacity-40"
+            className="rounded-lg border border-surface-border px-3 py-1.5 disabled:opacity-40"
           >
             Próxima
           </button>

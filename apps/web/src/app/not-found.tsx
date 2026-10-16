@@ -20,7 +20,7 @@ export default async function NotFound() {
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div className="min-h-screen bg-[#05050A] text-[#EDE7DC]">
+      <div className="min-h-svh bg-[#05050A] text-[#F5F5F7]">
         <Navbar />
         <main className="flex flex-col items-center justify-center px-4 py-32 text-center">
           <p
@@ -30,7 +30,7 @@ export default async function NotFound() {
             404
           </p>
           <h1 className="mt-4 font-heading text-2xl font-semibold">{t("notFoundTitle")}</h1>
-          <p className="mt-2 max-w-md text-[#9CA3AF]">{t("notFoundBody")}</p>
+          <p className="mt-2 max-w-md text-[#A0A0B8]">{t("notFoundBody")}</p>
           <Link
             href="/"
             className="mt-8 rounded-full bg-[#818CF8] px-6 py-2.5 font-medium text-[#05050A] transition-colors hover:bg-[#A5B4FC]"

@@ -66,11 +66,17 @@ html {
   font-family: var(--font-body);
   background-color: rgb(var(--color-bg));
   color: rgb(var(--color-text-primary));
-  scroll-behavior: smooth;
+}
+
+/* T211: scroll suave só para quem aceita movimento (WCAG 2.3.3). */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: #05050a;
 }
 
@@ -254,50 +260,6 @@ body {
   }
 }
 
-@layer components {
-  .layered-bg {
-    position: relative;
-  }
-  .layered-bg::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-size: 256px 256px;
-    opacity: 0.025;
-    pointer-events: none;
-  }
-  .layered-bg::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-image:
-      linear-gradient(rgba(129, 140, 248, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(129, 140, 248, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-}
-
-@layer utilities {
-  .spotlight {
-    position: relative;
-  }
-  .spotlight::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse 600px 400px at 50% 0%,
-      rgba(129, 140, 248, 0.06) 0%,
-      transparent 70%
-    );
-    pointer-events: none;
-  }
-}
-
 @keyframes beam-h {
   0%,
   100% {
@@ -350,4 +312,181 @@ body {
 }
 [data-card-action="watchlist"][data-in-watchlist="true"] svg {
   fill: currentColor;
+}
+
+/*
+ * D-587 (T211) — entrada de conteúdo por CSS, não por `motion` com `initial`
+ * condicionado a `prefers-reduced-motion`.
+ *
+ * Motivo (bug real observado no log do dev server): `initial={shouldReduce ? false
+ * : { opacity: 0 }}` produz **hydration mismatch** — o servidor não conhece a
+ * preferência do usuário e renderiza o estado "escondido", o cliente conhece e
+ * renderiza o estado final. React então descarta e regenera a árvore.
+ *
+ * Aqui o HTML servido e o hidratado são idênticos (a classe é estática) e a
+ * animação é do CSS — que roda **sem JS** e é desligada inteira para quem pediu
+ * movimento reduzido (o bloco `prefers-reduced-motion: reduce` mais acima zera
+ * `animation`; e abaixo a animação só existe em `no-preference`), deixando o
+ * conteúdo visível de imediato.
+ *
+ * Uso: `className="enter-rise"` + `style={{ "--enter-delay": "80ms" }}`.
+ */
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .enter-rise {
+    animation: enter-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+  .enter-fade {
+    animation: enter-fade 0.4s ease-out both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+}
+
+/**
+ * D-595/D-596 (T211) — a faixa inclinada da sessão de auth (Entrar ⇄ Cadastrar).
+ *
+ * Mecânica (referência VERSO, transcrita do CSS do autor): a faixa é um retângulo
+ * inclinado — `skewX(var(--rake)) translateX(var(--sweep))` — e o conteúdo de dentro
+ * recebe a transformação INVERSA, então vive em coordenadas do card: não desliza junto
+ * e não fica torto. Como a faixa tem `overflow: hidden`, é isso que corta o título na
+ * diagonal. Uma única `translateX` por transição; na metade do percurso ela cobre o card
+ * e é sob essa cobertura que os dois estados trocam de lugar.
+ *
+ * `--sweep-rest` é a distância do repouso (quanto a faixa se afasta do centro). No
+ * mobile ela cresce para o formulário usar a largura toda, e o texto da faixa some.
+ */
+.auth-band {
+  --rake: 7deg;
+  --sweep-rest: 54%;
+  transform: skewX(var(--rake)) translateX(var(--sweep-rest));
+  /* Banho sutil de indigo + gradiente de superfície: no tema escuro é o que faz a
+     cunha existir como plano (no original o contraste creme/verde já fazia isso).
+     `color-mix` sobre o token evita literal de cor novo (gate design:hex). */
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--accent-indigo) 7%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(160deg, var(--surface-elevated) 0%, var(--bg) 100%);
+  overflow: hidden;
+}
+
+.auth-band[data-lado="esquerda"] {
+  transform: skewX(var(--rake)) translateX(calc(-1 * var(--sweep-rest)));
+}
+
+.auth-band__inner {
+  position: absolute;
+  inset: 0;
+  transform: translateX(calc(-1 * var(--sweep-rest))) skewX(calc(-1 * var(--rake)));
+}
+
+.auth-band[data-lado="esquerda"] .auth-band__inner {
+  transform: translateX(var(--sweep-rest)) skewX(calc(-1 * var(--rake)));
+}
+
+/* As duas costuras de luz: linhas de 1px nas bordas da faixa. Como a faixa é
+   inclinada, elas aparecem na tela como diagonais — é o que desenha o corte. */
+.auth-band__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.auth-band__edge--lead {
+  left: 0;
+  background: linear-gradient(180deg, transparent, var(--accent-indigo) 45%, transparent);
+}
+
+.auth-band__edge--trail {
+  right: 0;
+  background: linear-gradient(180deg, transparent, var(--surface-border) 45%, transparent);
+}
+
+@media (max-width: 767px) {
+  .auth-band {
+    --sweep-rest: 84%;
+  }
+
+  .auth-band__copy {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .auth-band[data-varrendo="para-esquerda"] {
+    animation: auth-band-para-esquerda 620ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .auth-band[data-varrendo="para-direita"] {
+    animation: auth-band-para-direita 620ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .auth-band[data-varrendo="para-esquerda"] .auth-band__inner {
+    animation: auth-band-inner-para-direita 620ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .auth-band[data-varrendo="para-direita"] .auth-band__inner {
+    animation: auth-band-inner-para-esquerda 620ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  /* Faixa e conteúdo usam a MESMA curva, então em qualquer instante um é exatamente o
+     inverso do outro (os valores das pontas são inversos e a interpolação acompanha). */
+  @keyframes auth-band-para-esquerda {
+    from {
+      transform: skewX(var(--rake)) translateX(var(--sweep-rest));
+    }
+    to {
+      transform: skewX(var(--rake)) translateX(calc(-1 * var(--sweep-rest)));
+    }
+  }
+
+  @keyframes auth-band-para-direita {
+    from {
+      transform: skewX(var(--rake)) translateX(calc(-1 * var(--sweep-rest)));
+    }
+    to {
+      transform: skewX(var(--rake)) translateX(var(--sweep-rest));
+    }
+  }
+
+  @keyframes auth-band-inner-para-direita {
+    from {
+      transform: translateX(calc(-1 * var(--sweep-rest))) skewX(calc(-1 * var(--rake)));
+    }
+    to {
+      transform: translateX(var(--sweep-rest)) skewX(calc(-1 * var(--rake)));
+    }
+  }
+
+  @keyframes auth-band-inner-para-esquerda {
+    from {
+      transform: translateX(var(--sweep-rest)) skewX(calc(-1 * var(--rake)));
+    }
+    to {
+      transform: translateX(calc(-1 * var(--sweep-rest))) skewX(calc(-1 * var(--rake)));
+    }
+  }
 }

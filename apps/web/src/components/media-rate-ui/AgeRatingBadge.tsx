@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 /**
  * Selo de classificação indicativa (Addendum 2 §2).
  *
@@ -48,6 +50,9 @@ export function AgeRatingBadge({
   perSeason = false,
   className,
 }: AgeRatingBadgeProps) {
+  // T211: as 3 frases estavam hardcoded em pt-BR enquanto as chaves
+  // `metadados.*` já existiam traduzidas nos 3 locales (leak em EN/ES + órfãs).
+  const t = useTranslations("metadados");
   const colors = RATING_COLORS[rating] ?? RATING_COLORS["L"];
   const labels = (descriptors ?? [])
     .map((d) => DESCRIPTOR_LABELS[d.toLowerCase()] ?? d)
@@ -58,17 +63,13 @@ export function AgeRatingBadge({
       <span
         className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-sm font-bold tabular-nums"
         style={{ backgroundColor: colors.bg, color: colors.fg, borderColor: `${colors.fg}44` }}
-        title={
-          source === "sugerida"
-            ? "Classificação sugerida pela editora"
-            : "Classificação indicativa (ClassInd)"
-        }
+        title={source === "sugerida" ? t("suggestedByPublisher") : t("classificationHint")}
       >
         {rating}
       </span>
       <div className="text-xs leading-tight text-[#85859F]">
-        {source === "sugerida" && <span>Classificação sugerida pela editora</span>}
-        {perSeason && <span>Pode variar por temporada</span>}
+        {source === "sugerida" && <span>{t("suggestedByPublisher")}</span>}
+        {perSeason && <span>{t("mayVaryBySeason")}</span>}
         {labels.length > 0 && (
           <span className="mt-0.5 block">
             {labels.map((label, i) => (

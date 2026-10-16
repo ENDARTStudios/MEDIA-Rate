@@ -213,7 +213,7 @@ export function SearchCommand() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(129,140,248,0.12)] bg-[#11111E] text-xs text-[#9CA3AF] hover:text-[#9CA3AF] hover:border-[rgba(129,140,248,0.25)] transition-colors"
+        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(129,140,248,0.12)] bg-[#12121C] text-xs text-[#A0A0B8] hover:text-[#A0A0B8] hover:border-[rgba(129,140,248,0.25)] transition-colors"
         aria-label={t("search") ?? "Buscar mídia"}
       >
         <svg
@@ -231,7 +231,7 @@ export function SearchCommand() {
           />
         </svg>
         <span>{t("search") ?? "Buscar"}</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#9CA3AF] border border-[rgba(129,140,248,0.08)] font-mono">
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#A0A0B8] border border-[rgba(129,140,248,0.08)] font-mono">
           {/* T246: hint por plataforma — ⌘ K no Mac, Ctrl K no Windows/Linux. */}
           <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>K
         </kbd>
@@ -251,12 +251,12 @@ export function SearchCommand() {
           />
           <div
             ref={containerRef}
-            className="relative w-full max-w-lg bg-[#11111E] border border-[rgba(129,140,248,0.15)] rounded-lg shadow-floating overflow-hidden"
+            className="relative w-full max-w-lg bg-[#12121C] border border-[rgba(129,140,248,0.15)] rounded-lg shadow-floating overflow-hidden"
             onKeyDown={handleKeyDown}
           >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[rgba(129,140,248,0.08)]">
               <svg
-                className="w-4 h-4 text-[#9CA3AF] shrink-0"
+                className="w-4 h-4 text-[#A0A0B8] shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -277,8 +277,17 @@ export function SearchCommand() {
                   setQuery(e.target.value);
                   setSelectedIdx(0);
                 }}
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="ctrlk-results"
+                aria-autocomplete="list"
+                aria-activedescendant={
+                  debouncedQuery.length >= 2 && totalResults > 0
+                    ? `ctrlk-opt-${selectedIdx}`
+                    : undefined
+                }
                 placeholder={t("searchPlaceholder")}
-                className="flex-1 bg-transparent text-sm text-[#EDE7DC] placeholder-[#9CA3AF] outline-none border-none"
+                className="flex-1 bg-transparent text-sm text-[#F5F5F7] placeholder-[#A0A0B8] outline-none border-none"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -288,7 +297,7 @@ export function SearchCommand() {
                     setQuery("");
                     inputRef.current?.focus();
                   }}
-                  className="text-[#9CA3AF] hover:text-[#9CA3AF]"
+                  className="text-[#A0A0B8] hover:text-[#A0A0B8]"
                 >
                   <svg
                     className="w-3.5 h-3.5"
@@ -305,45 +314,59 @@ export function SearchCommand() {
                   </svg>
                 </button>
               )}
-              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#9CA3AF] border border-[rgba(129,140,248,0.08)] font-mono">
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[#1C1C2E] text-[#A0A0B8] border border-[rgba(129,140,248,0.08)] font-mono">
                 Esc
               </kbd>
             </div>
 
-            <div className="max-h-[50vh] overflow-y-auto">
-              {debouncedQuery.length < 2 && (
-                <div className="px-4 py-10 text-center text-sm text-[#9CA3AF]">
-                  {t("paletaMinChars")}
-                </div>
-              )}
+            {debouncedQuery.length < 2 && (
+              <div className="px-4 py-10 text-center text-sm text-[#A0A0B8]">
+                {t("paletaMinChars")}
+              </div>
+            )}
 
-              {debouncedQuery.length >= 2 && searching && (
-                <div className="px-4 py-10 text-center text-sm text-[#9CA3AF]">
-                  {t("paletaSearching")}
-                </div>
-              )}
+            {debouncedQuery.length >= 2 && searching && (
+              <div className="px-4 py-10 text-center text-sm text-[#A0A0B8]">
+                {t("paletaSearching")}
+              </div>
+            )}
 
-              {debouncedQuery.length >= 2 && searchError && (
-                <div className="px-4 py-10 text-center">
-                  <p className="text-sm text-[#F87171] mb-1">{t("paletaError")}</p>
-                  <p className="text-xs text-[#9CA3AF]">{t("paletaErrorHint")}</p>
-                </div>
-              )}
+            {debouncedQuery.length >= 2 && searchError && (
+              <div className="px-4 py-10 text-center">
+                <p className="text-sm text-[#F87171] mb-1">{t("paletaError")}</p>
+                <p className="text-xs text-[#A0A0B8]">{t("paletaErrorHint")}</p>
+              </div>
+            )}
 
-              {debouncedQuery.length >= 2 && !searching && !searchError && totalResults === 0 && (
-                <div className="px-4 py-10 text-center">
-                  <p className="text-sm text-[#9CA3AF] mb-1">{t("paletaEmpty")}</p>
-                  <p className="text-xs text-[#9CA3AF]">{t("paletaEmptyHint")}</p>
-                </div>
-              )}
+            {debouncedQuery.length >= 2 && !searching && !searchError && totalResults === 0 && (
+              <div className="px-4 py-10 text-center">
+                <p className="text-sm text-[#A0A0B8] mb-1">{t("paletaEmpty")}</p>
+                <p className="text-xs text-[#A0A0B8]">{t("paletaEmptyHint")}</p>
+              </div>
+            )}
 
+            {/* D-629: a lista só pode conter `option`/`group` — as mensagens de estado
+                ficam FORA dela (a implementação ingênua criaria violação nova). */}
+            <div
+              id="ctrlk-results"
+              role="listbox"
+              aria-label={t("searchDialogAria")}
+              className="max-h-[50vh] overflow-y-auto"
+            >
               {debouncedQuery.length >= 2 &&
                 relatedGroupsList.map((g) => (
-                  <div key={`rel-${slugify(g[0].title)}`}>
-                    <div className="px-4 py-2 text-xs text-[#818CF8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
-                      Relacionados
+                  <div
+                    key={`rel-${slugify(g[0].title)}`}
+                    role="group"
+                    aria-label={t("paletaRelated")}
+                  >
+                    <div
+                      aria-hidden="true"
+                      className="px-4 py-2 text-xs text-[#818CF8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]"
+                    >
+                      {t("paletaRelated")}
                     </div>
-                    <div className="flex items-center gap-1.5 px-4 py-2.5">
+                    <div role="presentation" className="flex items-center gap-1.5 px-4 py-2.5">
                       {g.map((item) => {
                         const token = CATEGORY_TOKENS[item.rawType as MediaType];
                         const Icon = token?.icon ?? CATEGORY_TOKENS.movie.icon;
@@ -352,11 +375,14 @@ export function SearchCommand() {
                         return (
                           <button
                             key={item.id}
+                            role="option"
+                            id={`ctrlk-opt-${idx}`}
+                            aria-selected={isSelected}
                             onClick={() => {
                               router.push(`/media/${item.slug}`);
                               setOpen(false);
                             }}
-                            className={`flex items-center gap-1.5 rounded-full border border-[rgba(129,140,248,0.15)] px-3 py-1.5 text-xs text-[#EDE7DC] transition-colors ${isSelected ? "bg-[#1C1C2E]" : "hover:bg-[#151524]"}`}
+                            className={`flex items-center gap-1.5 rounded-full border border-[rgba(129,140,248,0.15)] px-3 py-1.5 text-xs text-[#F5F5F7] transition-colors ${isSelected ? "bg-[#1C1C2E]" : "hover:bg-[#151524]"}`}
                           >
                             <Icon
                               className="h-3.5 w-3.5"
@@ -364,7 +390,7 @@ export function SearchCommand() {
                               aria-hidden="true"
                             />
                             {item.title}
-                            <span className="text-[#9CA3AF]">{item.year}</span>
+                            <span className="text-[#A0A0B8]">{item.year}</span>
                           </button>
                         );
                       })}
@@ -374,8 +400,11 @@ export function SearchCommand() {
 
               {debouncedQuery.length >= 2 &&
                 Object.entries(groupedRest).map(([group, items]) => (
-                  <div key={group}>
-                    <div className="px-4 py-2 text-xs text-[#9CA3AF] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]">
+                  <div key={group} role="group" aria-label={group}>
+                    <div
+                      aria-hidden="true"
+                      className="px-4 py-2 text-xs text-[#A0A0B8] uppercase tracking-widest font-medium bg-[#0D0D1A] border-b border-[rgba(129,140,248,0.04)]"
+                    >
                       {group}
                     </div>
                     {items.map((item) => {
@@ -384,6 +413,9 @@ export function SearchCommand() {
                       return (
                         <button
                           key={item.id}
+                          role="option"
+                          id={`ctrlk-opt-${idx}`}
+                          aria-selected={isSelected}
                           onClick={() => {
                             router.push(`/media/${item.slug}`);
                             setOpen(false);
@@ -400,7 +432,7 @@ export function SearchCommand() {
                               />
                             ) : (
                               <svg
-                                className="w-4 h-4 text-[#9CA3AF]"
+                                className="w-4 h-4 text-[#A0A0B8]"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -416,10 +448,10 @@ export function SearchCommand() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-[#EDE7DC] font-heading truncate">
+                            <p className="text-sm text-[#F5F5F7] font-heading truncate">
                               {item.title}
                             </p>
-                            <p className="text-xs text-[#9CA3AF]">
+                            <p className="text-xs text-[#A0A0B8]">
                               {item.type} &middot; {item.year}
                             </p>
                           </div>

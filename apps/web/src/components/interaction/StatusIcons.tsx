@@ -25,7 +25,7 @@ export const STATUS_COLORS: Record<ConsumoStatus, string> = {
   QUERO_CONSUMIR: "#818CF8",
   CONSUMINDO: "#38BDF8",
   CONCLUIDO: "#34D399",
-  ABANDONADO: "#9CA3AF",
+  ABANDONADO: "#A0A0B8",
 };
 
 export const REACTION_COLORS: Record<Reacao, string> = {
@@ -134,7 +134,7 @@ export function AddGlyph({ size = 16, className }: { size?: number; className?: 
   return (
     <Plus
       className={className}
-      style={{ width: size, height: size, color: "#9CA3AF" }}
+      style={{ width: size, height: size, color: "#A0A0B8" }}
       strokeWidth={2.2}
       aria-hidden="true"
     />

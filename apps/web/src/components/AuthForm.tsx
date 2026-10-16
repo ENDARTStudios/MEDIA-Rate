@@ -18,7 +18,17 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { Button } from "@/components/ui/button";
 import { getSafeCallbackUrl } from "@/lib/utils";
 
-export function LoginForm() {
+/**
+ * D-595 (T211): quando o formulário vive dentro do `AuthBladeCard`, a troca de modo é
+ * uma transição local (a lâmina varre o card) e não uma navegação. Nesse caso o link
+ * do rodapé vira botão; fora do card o comportamento antigo (Link para a outra rota)
+ * permanece intacto.
+ */
+interface TrocaDeModo {
+  onSwitch?: () => void;
+}
+
+export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
   const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuthStore();
@@ -29,20 +39,27 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginData>({ resolver: zodResolver(loginSchema), mode: "onBlur" });
 
+  // D-627: o erro só existia em toast (que some sozinho) — sem mensagem persistente na tela.
+  const [erroInline, setErroInline] = useState<string | null>(null);
+
   const onSubmit = async (d: LoginData) => {
+    setErroInline(null);
     const result = await login(d.email, d.password);
     if (result.success) {
       toast.success(t("loginSuccess"));
       const cb = new URLSearchParams(window.location.search).get("callbackUrl");
       router.replace(getSafeCallbackUrl(cb));
     } else {
-      toast.error(result.error || t("loginError"));
+      // 429 tem texto próprio: "credenciais inválidas" seria mentira quando o limite foi atingido.
+      const msg = result.status === 429 ? t("rateLimited") : result.error || t("loginError");
+      setErroInline(msg);
+      toast.error(msg);
     }
   };
 
   return (
     <>
-      <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+      <div className="relative bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div
           className="absolute inset-0 rounded-md overflow-hidden pointer-events-none"
           aria-hidden="true"
@@ -78,6 +95,15 @@ export function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+          {erroInline && (
+            <p
+              role="alert"
+              data-testid="auth-erro-inline"
+              className="rounded-lg border border-score-low/40 bg-score-low/10 px-3 py-2 text-sm text-score-low"
+            >
+              {erroInline}
+            </p>
+          )}
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors)
               .map((e) => e?.message)
@@ -89,7 +115,7 @@ export function LoginForm() {
               id="auth-login-email"
               {...register("email")}
               aria-invalid={!!errors.email}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
               placeholder={t("emailPlaceholder")}
             />
           </Field>
@@ -110,21 +136,25 @@ export function LoginForm() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-[#9CA3AF] mt-6">
-          {t("noAccount")}{" "}
-          <Link
-            href="/register"
-            className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
-          >
-            {t("signUp")}
-          </Link>
-        </p>
+        {/* D-595: dentro do `AuthBladeCard` a troca de modo fica no cabeçalho do card
+            (que troca junto com o painel); repetir aqui duplicaria a mesma frase. */}
+        {onSwitch ? null : (
+          <p className="text-center text-sm text-[#A0A0B8] mt-6">
+            {t("noAccount")}{" "}
+            <Link
+              href="/register"
+              className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
+            >
+              {t("signUp")}
+            </Link>
+          </p>
+        )}
       </div>
     </>
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
   const t = useTranslations("auth");
   const locale = useLocale();
   const router = useRouter();
@@ -141,7 +171,11 @@ export function RegisterForm() {
   const strength = getPasswordStrength(pw);
   const acceptTermsAccepted = watch("acceptTerms");
 
+  // D-627: mesma correção do login — erro persistente na tela, não só em toast.
+  const [erroInline, setErroInline] = useState<string | null>(null);
+
   const onSubmit = async (d: RegisterData) => {
+    setErroInline(null);
     const result = await regStore(d.name, d.email, d.password, d.acceptTerms, d.inviteCode, locale);
     if (result.success) {
       if (result.needsVerification) {
@@ -154,13 +188,15 @@ export function RegisterForm() {
         router.replace("/welcome");
       }
     } else {
-      toast.error(result.error || t("registerError"));
+      const msg = result.status === 429 ? t("rateLimited") : result.error || t("registerError");
+      setErroInline(msg);
+      toast.error(msg);
     }
   };
 
   return (
     <>
-      <div className="relative bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+      <div className="relative bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div
           className="absolute inset-0 rounded-md overflow-hidden pointer-events-none"
           aria-hidden="true"
@@ -196,6 +232,15 @@ export function RegisterForm() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+          {erroInline && (
+            <p
+              role="alert"
+              data-testid="auth-erro-inline"
+              className="rounded-lg border border-score-low/40 bg-score-low/10 px-3 py-2 text-sm text-score-low"
+            >
+              {erroInline}
+            </p>
+          )}
           <div className="sr-only" aria-live="polite" role="status">
             {Object.values(errors)
               .map((e) => e?.message)
@@ -207,7 +252,7 @@ export function RegisterForm() {
               id="auth-register-name"
               {...register("name")}
               aria-invalid={!!errors.name}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
               placeholder={t("namePlaceholder")}
             />
           </Field>
@@ -216,7 +261,7 @@ export function RegisterForm() {
               id="auth-register-email"
               {...register("email")}
               aria-invalid={!!errors.email}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
               placeholder={t("emailPlaceholder")}
             />
           </Field>
@@ -274,11 +319,11 @@ export function RegisterForm() {
               id="auth-register-invite-code"
               {...register("inviteCode")}
               aria-invalid={!!errors.inviteCode}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
               placeholder={t("inviteCodePlaceholder")}
             />
           </Field>
-          <label className="flex items-start gap-2 text-xs text-[#9CA3AF] cursor-pointer">
+          <label className="flex items-start gap-2 text-xs text-[#A0A0B8] cursor-pointer">
             <input
               type="checkbox"
               id="auth-register-accept-terms"
@@ -312,15 +357,17 @@ export function RegisterForm() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-[#9CA3AF] mt-6">
-          {t("hasAccount")}{" "}
-          <Link
-            href="/login"
-            className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
-          >
-            {t("signIn")}
-          </Link>
-        </p>
+        {onSwitch ? null : (
+          <p className="text-center text-sm text-[#A0A0B8] mt-6">
+            {t("hasAccount")}{" "}
+            <Link
+              href="/login"
+              className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
+            >
+              {t("signIn")}
+            </Link>
+          </p>
+        )}
       </div>
     </>
   );
@@ -339,7 +386,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs text-[#9CA3AF] mb-1">
+      <label htmlFor={id} className="block text-xs text-[#A0A0B8] mb-1">
         {label}
       </label>
       {children}
@@ -373,13 +420,13 @@ function PasswordInput({
           register.onChange(e);
           onChange?.(e);
         }}
-        className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-sm text-[#EDE7DC] placeholder-[#9CA3AF] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+        className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
         placeholder={t("passwordPlaceholder")}
       />
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#EDE7DC]"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A0A0B8] hover:text-[#F5F5F7]"
         aria-label={show ? t("hidePassword") : t("showPassword")}
       >
         {show ? (

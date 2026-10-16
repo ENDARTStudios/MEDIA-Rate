@@ -1,0 +1,1310 @@
+{"command":"page.add","params":{"name":"Home — conceito v9"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":4900,"name":"Home v9 / 1440"}}
+{"command":"node.set","params":{"name":"Home v9 / 1440","fill":"#05050A"}}
+{"command":"shape.rectangle","params":{"x":0,"y":71,"width":1440,"height":1,"parent":"Home v9 / 1440","props":{"name":"nav/linha"}}}
+{"command":"node.set","params":{"name":"nav/linha","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":112,"y":20,"width":30,"height":30,"parent":"Home v9 / 1440","props":{"name":"logo/marca"}}}
+{"command":"node.set","params":{"name":"logo/marca","fill":"#818CF8","cornerRadius":8}}
+{"command":"text.create","params":{"text":"MEDIA Rate","x":152,"y":26,"parent":"Home v9 / 1440","props":{"name":"logo/nome","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"logo/nome","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Catálogo","x":350,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/Catálogo","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/Catálogo","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Rankings","x":466,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/Rankings","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/Rankings","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Descobertas","x":582,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/Descobertas","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/Descobertas","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Planos","x":698,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/Planos","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/Planos","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":810,"y":18,"width":264,"height":36,"parent":"Home v9 / 1440","props":{"name":"nav/busca"}}}
+{"command":"node.set","params":{"name":"nav/busca","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"Buscar mídia…","x":824,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/busca/hint","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/busca/hint","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"⌘K","x":1044,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/busca/kbd","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"nav/busca/kbd","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":1086,"y":18,"width":78,"height":36,"parent":"Home v9 / 1440","props":{"name":"nav/idioma/bg"}}}
+{"command":"node.set","params":{"name":"nav/idioma/bg","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-nav-idioma-globo.svg","x":1104,"y":36,"center":true}}
+{"command":"node.set","params":{"name":"globe.svg","width":14,"height":14}}
+{"command":"text.create","params":{"text":"PT","x":1116,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/idioma/sigla","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"nav/idioma/sigla","fill":"#A0A0B8"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-nav-idioma-chevron.svg","x":1144,"y":36,"center":true}}
+{"command":"node.set","params":{"name":"chevron-down.svg","width":12,"height":12}}
+{"command":"shape.rectangle","params":{"x":1176,"y":18,"width":152,"height":36,"parent":"Home v9 / 1440","props":{"name":"nav/cta"}}}
+{"command":"node.set","params":{"name":"nav/cta","fill":"#E11D48","cornerRadius":8}}
+{"command":"text.create","params":{"text":"Criar conta grátis","x":1192,"y":28,"parent":"Home v9 / 1440","props":{"name":"nav/cta/txt","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"nav/cta/txt","fill":"#FFFFFF"}}
+{"command":"text.create","params":{"text":"Descubra o que vale","x":112,"y":124,"parent":"Home v9 / 1440","width":640,"props":{"name":"hero/h1a","fontSize":42,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"hero/h1a","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"o seu tempo para assistir,","x":112,"y":178,"parent":"Home v9 / 1440","width":640,"props":{"name":"hero/h1b","fontSize":42,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"hero/h1b","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"ler e jogar.","x":112,"y":232,"parent":"Home v9 / 1440","width":640,"props":{"name":"hero/h1c","fontSize":42,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"hero/h1c","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Um score por título, a partir de crítico e público de fontes que você pode conferir — sem caixa-preta.","x":112,"y":300,"parent":"Home v9 / 1440","width":620,"props":{"name":"hero/sub","fontSize":17,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"hero/sub","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":366,"width":700,"height":56,"parent":"Home v9 / 1440","props":{"name":"hero/busca"}}}
+{"command":"node.set","params":{"name":"hero/busca","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"Digite um filme, série, game, livro…","x":136,"y":386,"parent":"Home v9 / 1440","props":{"name":"hero/busca/hint","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"hero/busca/hint","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":374,"width":90,"height":40,"parent":"Home v9 / 1440","props":{"name":"hero/busca/btn"}}}
+{"command":"node.set","params":{"name":"hero/busca/btn","fill":"#E11D48","cornerRadius":8}}
+{"command":"text.create","params":{"text":"Buscar","x":736,"y":386,"parent":"Home v9 / 1440","props":{"name":"hero/busca/btn/txt","fontSize":14,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"hero/busca/btn/txt","fill":"#FFFFFF"}}
+{"command":"text.create","params":{"text":"Sem cartão para começar · cancele quando quiser","x":112,"y":436,"parent":"Home v9 / 1440","props":{"name":"hero/micro","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"hero/micro","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1028,"y":128,"width":300,"height":300,"parent":"Home v9 / 1440","props":{"name":"selo/anel"}}}
+{"command":"node.set","params":{"name":"selo/anel","fill":"#38BDF8","cornerRadius":150}}
+{"command":"shape.rectangle","params":{"x":1058,"y":158,"width":240,"height":240,"parent":"Home v9 / 1440","props":{"name":"selo/miolo"}}}
+{"command":"node.set","params":{"name":"selo/miolo","fill":"#05050A","cornerRadius":120}}
+{"command":"text.create","params":{"text":"8,7","x":1094,"y":214,"parent":"Home v9 / 1440","props":{"name":"selo/num","fontSize":76,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"selo/num","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"/10","x":1228,"y":266,"parent":"Home v9 / 1440","props":{"name":"selo/max","fontSize":20,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/max","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Muito bom","x":1130,"y":314,"parent":"Home v9 / 1440","props":{"name":"selo/faixa","fontSize":16,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/faixa","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"a régua em movimento · exemplo da escala","x":1016,"y":448,"parent":"Home v9 / 1440","props":{"name":"selo/escala","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/escala","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1028,"y":470,"width":88,"height":28,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/TMDB"}}}
+{"command":"node.set","params":{"name":"selo/fonte/TMDB","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"TMDB","x":1044,"y":477,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/TMDB/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/fonte/TMDB/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":1128,"y":470,"width":88,"height":28,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/IMDb"}}}
+{"command":"node.set","params":{"name":"selo/fonte/IMDb","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"IMDb","x":1144,"y":477,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/IMDb/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/fonte/IMDb/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":1228,"y":470,"width":88,"height":28,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/Metacritic"}}}
+{"command":"node.set","params":{"name":"selo/fonte/Metacritic","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"Metacritic","x":1244,"y":477,"parent":"Home v9 / 1440","props":{"name":"selo/fonte/Metacritic/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"selo/fonte/Metacritic/t","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"seis tipos de obra, uma régua só","x":614,"y":516,"parent":"Home v9 / 1440","props":{"name":"tipos/rotulo","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipos/rotulo","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":301,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/movie/glow"}}}
+{"command":"node.set","params":{"name":"tipo/movie/glow","fill":"#191B30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":307,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/movie/tile"}}}
+{"command":"node.set","params":{"name":"tipo/movie/tile","fill":"#1A1B2C","strokes":["#252848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":308,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/movie/realce"}}}
+{"command":"node.set","params":{"name":"tipo/movie/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-movie-icone.svg","x":350,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Filmes","x":330,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/movie/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/movie/rotulo","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":449,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/series/glow"}}}
+{"command":"node.set","params":{"name":"tipo/series/glow","fill":"#0D2230","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":455,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/series/tile"}}}
+{"command":"node.set","params":{"name":"tipo/series/tile","fill":"#14202C","strokes":["#123548"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":456,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/series/realce"}}}
+{"command":"node.set","params":{"name":"tipo/series/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-series-icone.svg","x":498,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Séries","x":478,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/series/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/series/rotulo","fill":"#38BDF8"}}
+{"command":"shape.rectangle","params":{"x":597,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/game/glow"}}}
+{"command":"node.set","params":{"name":"tipo/game/glow","fill":"#0D2621","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":603,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/game/tile"}}}
+{"command":"node.set","params":{"name":"tipo/game/tile","fill":"#132224","strokes":["#113B2F"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":604,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/game/realce"}}}
+{"command":"node.set","params":{"name":"tipo/game/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-game-icone.svg","x":646,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Games","x":629,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/game/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/game/rotulo","fill":"#34D399"}}
+{"command":"shape.rectangle","params":{"x":745,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/book/glow"}}}
+{"command":"node.set","params":{"name":"tipo/book/glow","fill":"#2C230E","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":751,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/book/tile"}}}
+{"command":"node.set","params":{"name":"tipo/book/tile","fill":"#252019","strokes":["#453511"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":752,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/book/realce"}}}
+{"command":"node.set","params":{"name":"tipo/book/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-book-icone.svg","x":794,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Livros","x":774,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/book/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/book/rotulo","fill":"#FBBF24"}}
+{"command":"shape.rectangle","params":{"x":893,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/comic/glow"}}}
+{"command":"node.set","params":{"name":"tipo/comic/glow","fill":"#2B1626","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":899,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/comic/tile"}}}
+{"command":"node.set","params":{"name":"tipo/comic/tile","fill":"#251926","strokes":["#432137"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":900,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/comic/realce"}}}
+{"command":"node.set","params":{"name":"tipo/comic/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-comic-icone.svg","x":942,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":908,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/comic/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/comic/rotulo","fill":"#F472B6"}}
+{"command":"shape.rectangle","params":{"x":1041,"y":550,"width":98,"height":98,"parent":"Home v9 / 1440","props":{"name":"tipo/manga/glow"}}}
+{"command":"node.set","params":{"name":"tipo/manga/glow","fill":"#1F1A30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":1047,"y":556,"width":86,"height":86,"parent":"Home v9 / 1440","props":{"name":"tipo/manga/tile"}}}
+{"command":"node.set","params":{"name":"tipo/manga/tile","fill":"#1E1B2C","strokes":["#2F2848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":1048,"y":557,"width":84,"height":1,"parent":"Home v9 / 1440","props":{"name":"tipo/manga/realce"}}}
+{"command":"node.set","params":{"name":"tipo/manga/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-tipo-manga-icone.svg","x":1090,"y":599,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Mangás","x":1070,"y":654,"parent":"Home v9 / 1440","props":{"name":"tipo/manga/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"tipo/manga/rotulo","fill":"#A78BFA"}}
+{"command":"shape.rectangle","params":{"x":112,"y":740,"width":1216,"height":1,"parent":"Home v9 / 1440","props":{"name":"regua/linha"}}}
+{"command":"node.set","params":{"name":"regua/linha","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"A régua","x":112,"y":772,"parent":"Home v9 / 1440","props":{"name":"regua/titulo","fontSize":28,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"A mesma escala para tudo. A faixa acesa é a do selo.","x":112,"y":814,"parent":"Home v9 / 1440","width":700,"props":{"name":"regua/sub","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/sub","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/0/trilha"}}}
+{"command":"node.set","params":{"name":"regua/0/trilha","fill":"#1B1B2C","cornerRadius":5}}
+{"command":"shape.rectangle","params":{"x":112,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/0/barra"}}}
+{"command":"node.set","params":{"name":"regua/0/barra","fill":"#34D399","cornerRadius":5}}
+{"command":"text.create","params":{"text":"9,4","x":112,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/0/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/0/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"x":112,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/0/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":317,"y":868,"width":189,"height":18,"parent":"Home v9 / 1440","props":{"name":"regua/1/trilha"}}}
+{"command":"node.set","params":{"name":"regua/1/trilha","fill":"#1B1B2C","cornerRadius":9}}
+{"command":"shape.rectangle","params":{"x":317,"y":868,"width":189,"height":18,"parent":"Home v9 / 1440","props":{"name":"regua/1/barra"}}}
+{"command":"node.set","params":{"name":"regua/1/barra","fill":"#38BDF8","cornerRadius":9}}
+{"command":"text.create","params":{"text":"8,7","x":317,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/1/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/1/nota","fill":"#38BDF8"}}
+{"command":"text.create","params":{"x":317,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/1/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/1/nome","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":522,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/2/trilha"}}}
+{"command":"node.set","params":{"name":"regua/2/trilha","fill":"#1B1B2C","cornerRadius":5}}
+{"command":"shape.rectangle","params":{"x":522,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/2/barra"}}}
+{"command":"node.set","params":{"name":"regua/2/barra","fill":"#818CF8","cornerRadius":5}}
+{"command":"text.create","params":{"text":"7,3","x":522,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/2/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/2/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"x":522,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/2/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":727,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/3/trilha"}}}
+{"command":"node.set","params":{"name":"regua/3/trilha","fill":"#1B1B2C","cornerRadius":5}}
+{"command":"shape.rectangle","params":{"x":727,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/3/barra"}}}
+{"command":"node.set","params":{"name":"regua/3/barra","fill":"#F59E0B","cornerRadius":5}}
+{"command":"text.create","params":{"text":"6,4","x":727,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/3/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/3/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"x":727,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/3/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":932,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/4/trilha"}}}
+{"command":"node.set","params":{"name":"regua/4/trilha","fill":"#1B1B2C","cornerRadius":5}}
+{"command":"shape.rectangle","params":{"x":932,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/4/barra"}}}
+{"command":"node.set","params":{"name":"regua/4/barra","fill":"#F97316","cornerRadius":5}}
+{"command":"text.create","params":{"text":"5,2","x":932,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/4/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/4/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"x":932,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/4/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1137,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/5/trilha"}}}
+{"command":"node.set","params":{"name":"regua/5/trilha","fill":"#1B1B2C","cornerRadius":5}}
+{"command":"shape.rectangle","params":{"x":1137,"y":868,"width":189,"height":10,"parent":"Home v9 / 1440","props":{"name":"regua/5/barra"}}}
+{"command":"node.set","params":{"name":"regua/5/barra","fill":"#F87171","cornerRadius":5}}
+{"command":"text.create","params":{"text":"4,1","x":1137,"y":898,"parent":"Home v9 / 1440","props":{"name":"regua/5/nota","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"regua/5/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"x":1137,"y":928,"parent":"Home v9 / 1440","props":{"name":"regua/5/nome","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/5/nome","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"O selo percorre as seis faixas e acende a barra correspondente — 2,6 s por estado, pausa no ponteiro, desligado em reduced-motion.","x":112,"y":964,"parent":"Home v9 / 1440","width":1100,"props":{"name":"regua/aviso","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"regua/aviso","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":1044,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car0/icone/bg"}}}
+{"command":"node.set","params":{"name":"car0/icone/bg","fill":"#1E1F33","strokes":["#2A2E51"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car0-icone.svg","x":128,"y":1060,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"FILMES","x":156,"y":1050,"parent":"Home v9 / 1440","props":{"name":"car0/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":1074,"parent":"Home v9 / 1440","props":{"name":"car0/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":1044,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car0/seta0"}}}
+{"command":"node.set","params":{"name":"car0/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car0-seta0-icone.svg","x":1312,"y":1060,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":1044,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car0/seta1"}}}
+{"command":"node.set","params":{"name":"car0/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car0-seta1-icone.svg","x":1268,"y":1060,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card0"}}}
+{"command":"node.set","params":{"name":"car0/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card0/poster"}}}
+{"command":"node.set","params":{"name":"car0/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card0/l1"}}}
+{"command":"node.set","params":{"name":"car0/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card0/l2"}}}
+{"command":"node.set","params":{"name":"car0/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card0/chip"}}}
+{"command":"node.set","params":{"name":"car0/card0/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":134,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card0/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card1"}}}
+{"command":"node.set","params":{"name":"car0/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card1/poster"}}}
+{"command":"node.set","params":{"name":"car0/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card1/l1"}}}
+{"command":"node.set","params":{"name":"car0/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card1/l2"}}}
+{"command":"node.set","params":{"name":"car0/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card1/chip"}}}
+{"command":"node.set","params":{"name":"car0/card1/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":330,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card1/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card2"}}}
+{"command":"node.set","params":{"name":"car0/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card2/poster"}}}
+{"command":"node.set","params":{"name":"car0/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card2/l1"}}}
+{"command":"node.set","params":{"name":"car0/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card2/l2"}}}
+{"command":"node.set","params":{"name":"car0/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card2/chip"}}}
+{"command":"node.set","params":{"name":"car0/card2/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":526,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card2/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card3"}}}
+{"command":"node.set","params":{"name":"car0/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card3/poster"}}}
+{"command":"node.set","params":{"name":"car0/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card3/l1"}}}
+{"command":"node.set","params":{"name":"car0/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card3/l2"}}}
+{"command":"node.set","params":{"name":"car0/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card3/chip"}}}
+{"command":"node.set","params":{"name":"car0/card3/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":722,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card3/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card4"}}}
+{"command":"node.set","params":{"name":"car0/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card4/poster"}}}
+{"command":"node.set","params":{"name":"car0/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card4/l1"}}}
+{"command":"node.set","params":{"name":"car0/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card4/l2"}}}
+{"command":"node.set","params":{"name":"car0/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card4/chip"}}}
+{"command":"node.set","params":{"name":"car0/card4/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":918,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card4/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":1096,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car0/card5"}}}
+{"command":"node.set","params":{"name":"car0/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":1108,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car0/card5/poster"}}}
+{"command":"node.set","params":{"name":"car0/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1148,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card5/l1"}}}
+{"command":"node.set","params":{"name":"car0/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1166,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car0/card5/l2"}}}
+{"command":"node.set","params":{"name":"car0/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":1258,"parent":"Home v9 / 1440","props":{"name":"car0/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":1296,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car0/card5/chip"}}}
+{"command":"node.set","params":{"name":"car0/card5/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":1114,"y":1301,"parent":"Home v9 / 1440","props":{"name":"car0/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card5/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":1328,"parent":"Home v9 / 1440","props":{"name":"car0/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car0/card5/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":1440,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car1/icone/bg"}}}
+{"command":"node.set","params":{"name":"car1/icone/bg","fill":"#152533","strokes":["#143C51"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car1-icone.svg","x":128,"y":1456,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"SÉRIES","x":156,"y":1446,"parent":"Home v9 / 1440","props":{"name":"car1/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":1470,"parent":"Home v9 / 1440","props":{"name":"car1/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":1440,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car1/seta0"}}}
+{"command":"node.set","params":{"name":"car1/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car1-seta0-icone.svg","x":1312,"y":1456,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":1440,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car1/seta1"}}}
+{"command":"node.set","params":{"name":"car1/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car1-seta1-icone.svg","x":1268,"y":1456,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card0"}}}
+{"command":"node.set","params":{"name":"car1/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card0/poster"}}}
+{"command":"node.set","params":{"name":"car1/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card0/l1"}}}
+{"command":"node.set","params":{"name":"car1/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card0/l2"}}}
+{"command":"node.set","params":{"name":"car1/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card0/chip"}}}
+{"command":"node.set","params":{"name":"car1/card0/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":134,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card0/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card1"}}}
+{"command":"node.set","params":{"name":"car1/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card1/poster"}}}
+{"command":"node.set","params":{"name":"car1/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card1/l1"}}}
+{"command":"node.set","params":{"name":"car1/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card1/l2"}}}
+{"command":"node.set","params":{"name":"car1/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card1/chip"}}}
+{"command":"node.set","params":{"name":"car1/card1/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":330,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card1/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card2"}}}
+{"command":"node.set","params":{"name":"car1/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card2/poster"}}}
+{"command":"node.set","params":{"name":"car1/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card2/l1"}}}
+{"command":"node.set","params":{"name":"car1/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card2/l2"}}}
+{"command":"node.set","params":{"name":"car1/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card2/chip"}}}
+{"command":"node.set","params":{"name":"car1/card2/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":526,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card2/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card3"}}}
+{"command":"node.set","params":{"name":"car1/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card3/poster"}}}
+{"command":"node.set","params":{"name":"car1/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card3/l1"}}}
+{"command":"node.set","params":{"name":"car1/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card3/l2"}}}
+{"command":"node.set","params":{"name":"car1/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card3/chip"}}}
+{"command":"node.set","params":{"name":"car1/card3/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":722,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card3/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card4"}}}
+{"command":"node.set","params":{"name":"car1/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card4/poster"}}}
+{"command":"node.set","params":{"name":"car1/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card4/l1"}}}
+{"command":"node.set","params":{"name":"car1/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card4/l2"}}}
+{"command":"node.set","params":{"name":"car1/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card4/chip"}}}
+{"command":"node.set","params":{"name":"car1/card4/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":918,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card4/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":1492,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car1/card5"}}}
+{"command":"node.set","params":{"name":"car1/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":1504,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car1/card5/poster"}}}
+{"command":"node.set","params":{"name":"car1/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1544,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card5/l1"}}}
+{"command":"node.set","params":{"name":"car1/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1562,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car1/card5/l2"}}}
+{"command":"node.set","params":{"name":"car1/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":1654,"parent":"Home v9 / 1440","props":{"name":"car1/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":1692,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car1/card5/chip"}}}
+{"command":"node.set","params":{"name":"car1/card5/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":1114,"y":1697,"parent":"Home v9 / 1440","props":{"name":"car1/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card5/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":1724,"parent":"Home v9 / 1440","props":{"name":"car1/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car1/card5/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":1836,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car2/icone/bg"}}}
+{"command":"node.set","params":{"name":"car2/icone/bg","fill":"#142727","strokes":["#134335"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car2-icone.svg","x":128,"y":1852,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"GAMES","x":156,"y":1842,"parent":"Home v9 / 1440","props":{"name":"car2/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":1866,"parent":"Home v9 / 1440","props":{"name":"car2/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":1836,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car2/seta0"}}}
+{"command":"node.set","params":{"name":"car2/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car2-seta0-icone.svg","x":1312,"y":1852,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":1836,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car2/seta1"}}}
+{"command":"node.set","params":{"name":"car2/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car2-seta1-icone.svg","x":1268,"y":1852,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card0"}}}
+{"command":"node.set","params":{"name":"car2/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card0/poster"}}}
+{"command":"node.set","params":{"name":"car2/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card0/l1"}}}
+{"command":"node.set","params":{"name":"car2/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card0/l2"}}}
+{"command":"node.set","params":{"name":"car2/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card0/chip"}}}
+{"command":"node.set","params":{"name":"car2/card0/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":134,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card0/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card1"}}}
+{"command":"node.set","params":{"name":"car2/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card1/poster"}}}
+{"command":"node.set","params":{"name":"car2/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card1/l1"}}}
+{"command":"node.set","params":{"name":"car2/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card1/l2"}}}
+{"command":"node.set","params":{"name":"car2/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card1/chip"}}}
+{"command":"node.set","params":{"name":"car2/card1/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":330,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card1/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card2"}}}
+{"command":"node.set","params":{"name":"car2/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card2/poster"}}}
+{"command":"node.set","params":{"name":"car2/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card2/l1"}}}
+{"command":"node.set","params":{"name":"car2/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card2/l2"}}}
+{"command":"node.set","params":{"name":"car2/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card2/chip"}}}
+{"command":"node.set","params":{"name":"car2/card2/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":526,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card2/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card3"}}}
+{"command":"node.set","params":{"name":"car2/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card3/poster"}}}
+{"command":"node.set","params":{"name":"car2/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card3/l1"}}}
+{"command":"node.set","params":{"name":"car2/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card3/l2"}}}
+{"command":"node.set","params":{"name":"car2/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card3/chip"}}}
+{"command":"node.set","params":{"name":"car2/card3/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":722,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card3/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card4"}}}
+{"command":"node.set","params":{"name":"car2/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card4/poster"}}}
+{"command":"node.set","params":{"name":"car2/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card4/l1"}}}
+{"command":"node.set","params":{"name":"car2/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card4/l2"}}}
+{"command":"node.set","params":{"name":"car2/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card4/chip"}}}
+{"command":"node.set","params":{"name":"car2/card4/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":918,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card4/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":1888,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car2/card5"}}}
+{"command":"node.set","params":{"name":"car2/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":1900,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car2/card5/poster"}}}
+{"command":"node.set","params":{"name":"car2/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1940,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card5/l1"}}}
+{"command":"node.set","params":{"name":"car2/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":1958,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car2/card5/l2"}}}
+{"command":"node.set","params":{"name":"car2/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":2050,"parent":"Home v9 / 1440","props":{"name":"car2/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":2088,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car2/card5/chip"}}}
+{"command":"node.set","params":{"name":"car2/card5/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":1114,"y":2093,"parent":"Home v9 / 1440","props":{"name":"car2/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card5/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":2120,"parent":"Home v9 / 1440","props":{"name":"car2/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car2/card5/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":2232,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car3/icone/bg"}}}
+{"command":"node.set","params":{"name":"car3/icone/bg","fill":"#2C2519","strokes":["#4F3D12"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car3-icone.svg","x":128,"y":2248,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"LIVROS","x":156,"y":2238,"parent":"Home v9 / 1440","props":{"name":"car3/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":2262,"parent":"Home v9 / 1440","props":{"name":"car3/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":2232,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car3/seta0"}}}
+{"command":"node.set","params":{"name":"car3/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car3-seta0-icone.svg","x":1312,"y":2248,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":2232,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car3/seta1"}}}
+{"command":"node.set","params":{"name":"car3/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car3-seta1-icone.svg","x":1268,"y":2248,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card0"}}}
+{"command":"node.set","params":{"name":"car3/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card0/poster"}}}
+{"command":"node.set","params":{"name":"car3/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card0/l1"}}}
+{"command":"node.set","params":{"name":"car3/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card0/l2"}}}
+{"command":"node.set","params":{"name":"car3/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card0/chip"}}}
+{"command":"node.set","params":{"name":"car3/card0/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":134,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card0/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card1"}}}
+{"command":"node.set","params":{"name":"car3/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card1/poster"}}}
+{"command":"node.set","params":{"name":"car3/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card1/l1"}}}
+{"command":"node.set","params":{"name":"car3/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card1/l2"}}}
+{"command":"node.set","params":{"name":"car3/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card1/chip"}}}
+{"command":"node.set","params":{"name":"car3/card1/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":330,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card1/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card2"}}}
+{"command":"node.set","params":{"name":"car3/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card2/poster"}}}
+{"command":"node.set","params":{"name":"car3/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card2/l1"}}}
+{"command":"node.set","params":{"name":"car3/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card2/l2"}}}
+{"command":"node.set","params":{"name":"car3/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card2/chip"}}}
+{"command":"node.set","params":{"name":"car3/card2/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":526,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card2/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card3"}}}
+{"command":"node.set","params":{"name":"car3/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card3/poster"}}}
+{"command":"node.set","params":{"name":"car3/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card3/l1"}}}
+{"command":"node.set","params":{"name":"car3/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card3/l2"}}}
+{"command":"node.set","params":{"name":"car3/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card3/chip"}}}
+{"command":"node.set","params":{"name":"car3/card3/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":722,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card3/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card4"}}}
+{"command":"node.set","params":{"name":"car3/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card4/poster"}}}
+{"command":"node.set","params":{"name":"car3/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card4/l1"}}}
+{"command":"node.set","params":{"name":"car3/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card4/l2"}}}
+{"command":"node.set","params":{"name":"car3/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card4/chip"}}}
+{"command":"node.set","params":{"name":"car3/card4/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":918,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card4/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":2284,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car3/card5"}}}
+{"command":"node.set","params":{"name":"car3/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":2296,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car3/card5/poster"}}}
+{"command":"node.set","params":{"name":"car3/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":2336,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card5/l1"}}}
+{"command":"node.set","params":{"name":"car3/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":2354,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car3/card5/l2"}}}
+{"command":"node.set","params":{"name":"car3/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":2446,"parent":"Home v9 / 1440","props":{"name":"car3/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":2484,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car3/card5/chip"}}}
+{"command":"node.set","params":{"name":"car3/card5/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":1114,"y":2489,"parent":"Home v9 / 1440","props":{"name":"car3/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card5/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":2516,"parent":"Home v9 / 1440","props":{"name":"car3/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car3/card5/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":2628,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car4/icone/bg"}}}
+{"command":"node.set","params":{"name":"car4/icone/bg","fill":"#2B1C2B","strokes":["#4D263E"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car4-icone.svg","x":128,"y":2644,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"QUADRINHOS","x":156,"y":2634,"parent":"Home v9 / 1440","props":{"name":"car4/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":2658,"parent":"Home v9 / 1440","props":{"name":"car4/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":2628,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car4/seta0"}}}
+{"command":"node.set","params":{"name":"car4/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car4-seta0-icone.svg","x":1312,"y":2644,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":2628,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car4/seta1"}}}
+{"command":"node.set","params":{"name":"car4/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car4-seta1-icone.svg","x":1268,"y":2644,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card0"}}}
+{"command":"node.set","params":{"name":"car4/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card0/poster"}}}
+{"command":"node.set","params":{"name":"car4/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card0/l1"}}}
+{"command":"node.set","params":{"name":"car4/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card0/l2"}}}
+{"command":"node.set","params":{"name":"car4/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card0/chip"}}}
+{"command":"node.set","params":{"name":"car4/card0/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":134,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card0/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card1"}}}
+{"command":"node.set","params":{"name":"car4/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card1/poster"}}}
+{"command":"node.set","params":{"name":"car4/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card1/l1"}}}
+{"command":"node.set","params":{"name":"car4/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card1/l2"}}}
+{"command":"node.set","params":{"name":"car4/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card1/chip"}}}
+{"command":"node.set","params":{"name":"car4/card1/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":330,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card1/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card2"}}}
+{"command":"node.set","params":{"name":"car4/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card2/poster"}}}
+{"command":"node.set","params":{"name":"car4/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card2/l1"}}}
+{"command":"node.set","params":{"name":"car4/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card2/l2"}}}
+{"command":"node.set","params":{"name":"car4/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card2/chip"}}}
+{"command":"node.set","params":{"name":"car4/card2/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":526,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card2/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card3"}}}
+{"command":"node.set","params":{"name":"car4/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card3/poster"}}}
+{"command":"node.set","params":{"name":"car4/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card3/l1"}}}
+{"command":"node.set","params":{"name":"car4/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card3/l2"}}}
+{"command":"node.set","params":{"name":"car4/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card3/chip"}}}
+{"command":"node.set","params":{"name":"car4/card3/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":722,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card3/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card4"}}}
+{"command":"node.set","params":{"name":"car4/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card4/poster"}}}
+{"command":"node.set","params":{"name":"car4/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card4/l1"}}}
+{"command":"node.set","params":{"name":"car4/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card4/l2"}}}
+{"command":"node.set","params":{"name":"car4/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card4/chip"}}}
+{"command":"node.set","params":{"name":"car4/card4/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":918,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card4/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":2680,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car4/card5"}}}
+{"command":"node.set","params":{"name":"car4/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":2692,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car4/card5/poster"}}}
+{"command":"node.set","params":{"name":"car4/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":2732,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card5/l1"}}}
+{"command":"node.set","params":{"name":"car4/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":2750,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car4/card5/l2"}}}
+{"command":"node.set","params":{"name":"car4/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":2842,"parent":"Home v9 / 1440","props":{"name":"car4/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":2880,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car4/card5/chip"}}}
+{"command":"node.set","params":{"name":"car4/card5/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":1114,"y":2885,"parent":"Home v9 / 1440","props":{"name":"car4/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card5/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":2912,"parent":"Home v9 / 1440","props":{"name":"car4/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car4/card5/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":3024,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car5/icone/bg"}}}
+{"command":"node.set","params":{"name":"car5/icone/bg","fill":"#221F33","strokes":["#362D52"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car5-icone.svg","x":128,"y":3040,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"MANGÁS","x":156,"y":3030,"parent":"Home v9 / 1440","props":{"name":"car5/titulo","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"car5/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"títulos no catálogo","x":156,"y":3054,"parent":"Home v9 / 1440","props":{"name":"car5/total","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/total","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1296,"y":3024,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car5/seta0"}}}
+{"command":"node.set","params":{"name":"car5/seta0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car5-seta0-icone.svg","x":1312,"y":3040,"center":true}}
+{"command":"node.set","params":{"name":"chevron-left.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":1252,"y":3024,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"car5/seta1"}}}
+{"command":"node.set","params":{"name":"car5/seta1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-car5-seta1-icone.svg","x":1268,"y":3040,"center":true}}
+{"command":"node.set","params":{"name":"chevron-right.svg","width":14,"height":14}}
+{"command":"shape.rectangle","params":{"x":112,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card0"}}}
+{"command":"node.set","params":{"name":"car5/card0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":124,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card0/poster"}}}
+{"command":"node.set","params":{"name":"car5/card0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":138,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card0/l1"}}}
+{"command":"node.set","params":{"name":"car5/card0/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":138,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card0/l2"}}}
+{"command":"node.set","params":{"name":"car5/card0/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":184,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card0/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card0/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":124,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card0/chip"}}}
+{"command":"node.set","params":{"name":"car5/card0/chip","fill":"#1B1B2C","strokes":["#F87171"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"abaixo","x":134,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card0/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card0/chip/t","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":124,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card0/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card0/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":308,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card1"}}}
+{"command":"node.set","params":{"name":"car5/card1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":320,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card1/poster"}}}
+{"command":"node.set","params":{"name":"car5/card1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":334,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card1/l1"}}}
+{"command":"node.set","params":{"name":"car5/card1/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":334,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card1/l2"}}}
+{"command":"node.set","params":{"name":"car5/card1/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":380,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card1/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card1/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":320,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card1/chip"}}}
+{"command":"node.set","params":{"name":"car5/card1/chip","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9 a 10","x":330,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card1/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card1/chip/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":320,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card1/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card1/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":504,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card2"}}}
+{"command":"node.set","params":{"name":"car5/card2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":516,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card2/poster"}}}
+{"command":"node.set","params":{"name":"car5/card2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":530,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card2/l1"}}}
+{"command":"node.set","params":{"name":"car5/card2/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":530,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card2/l2"}}}
+{"command":"node.set","params":{"name":"car5/card2/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":576,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card2/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card2/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":516,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card2/chip"}}}
+{"command":"node.set","params":{"name":"car5/card2/chip","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":526,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card2/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card2/chip/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":516,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card2/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card2/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":700,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card3"}}}
+{"command":"node.set","params":{"name":"car5/card3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":712,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card3/poster"}}}
+{"command":"node.set","params":{"name":"car5/card3/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":726,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card3/l1"}}}
+{"command":"node.set","params":{"name":"car5/card3/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":726,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card3/l2"}}}
+{"command":"node.set","params":{"name":"car5/card3/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":772,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card3/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card3/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":712,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card3/chip"}}}
+{"command":"node.set","params":{"name":"car5/card3/chip","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"7","x":722,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card3/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card3/chip/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":712,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card3/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card3/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":896,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card4"}}}
+{"command":"node.set","params":{"name":"car5/card4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":908,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card4/poster"}}}
+{"command":"node.set","params":{"name":"car5/card4/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":922,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card4/l1"}}}
+{"command":"node.set","params":{"name":"car5/card4/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":922,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card4/l2"}}}
+{"command":"node.set","params":{"name":"car5/card4/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":968,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card4/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card4/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":908,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card4/chip"}}}
+{"command":"node.set","params":{"name":"car5/card4/chip","fill":"#1B1B2C","strokes":["#F59E0B"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"6","x":918,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card4/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card4/chip/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":908,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card4/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card4/nome","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1092,"y":3076,"width":180,"height":292,"parent":"Home v9 / 1440","props":{"name":"car5/card5"}}}
+{"command":"node.set","params":{"name":"car5/card5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":1104,"y":3088,"width":156,"height":176,"parent":"Home v9 / 1440","props":{"name":"car5/card5/poster"}}}
+{"command":"node.set","params":{"name":"car5/card5/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1118,"y":3128,"width":92,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card5/l1"}}}
+{"command":"node.set","params":{"name":"car5/card5/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":1118,"y":3146,"width":60,"height":8,"parent":"Home v9 / 1440","props":{"name":"car5/card5/l2"}}}
+{"command":"node.set","params":{"name":"car5/card5/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":1164,"y":3238,"parent":"Home v9 / 1440","props":{"name":"car5/card5/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card5/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1104,"y":3276,"width":74,"height":22,"parent":"Home v9 / 1440","props":{"name":"car5/card5/chip"}}}
+{"command":"node.set","params":{"name":"car5/card5/chip","fill":"#1B1B2C","strokes":["#F97316"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"5","x":1114,"y":3281,"parent":"Home v9 / 1440","props":{"name":"car5/card5/chip/t","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card5/chip/t","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"título do catálogo","x":1104,"y":3308,"parent":"Home v9 / 1440","props":{"name":"car5/card5/nome","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car5/card5/nome","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Os carrosséis avançam um card por vez com scroll-snap suave; o auto-avanço de 5 s pausa em hover/focus e desliga em reduced-motion.","x":112,"y":3420,"parent":"Home v9 / 1440","width":1200,"props":{"name":"car/nota","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"car/nota","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Por decisão, não por prateleira","x":112,"y":3472,"parent":"Home v9 / 1440","props":{"name":"dec/titulo","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"dec/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Você não quer navegar — quer saber se vale a pena. Cada bloco responde a uma pergunta.","x":112,"y":3516,"parent":"Home v9 / 1440","width":760,"props":{"name":"dec/sub","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dec/sub","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":3576,"width":384,"height":288,"parent":"Home v9 / 1440","props":{"name":"card/0"}}}
+{"command":"node.set","params":{"name":"card/0","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":136,"y":3600,"width":116,"height":168,"parent":"Home v9 / 1440","props":{"name":"card/0/poster"}}}
+{"command":"node.set","params":{"name":"card/0/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":152,"y":3636,"width":84,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/0/poster/l1"}}}
+{"command":"node.set","params":{"name":"card/0/poster/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":152,"y":3654,"width":52,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/0/poster/l2"}}}
+{"command":"node.set","params":{"name":"card/0/poster/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":166,"y":3734,"parent":"Home v9 / 1440","props":{"name":"card/0/poster/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/0/poster/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":364,"y":3600,"width":108,"height":28,"parent":"Home v9 / 1440","props":{"name":"card/0/faixa"}}}
+{"command":"node.set","params":{"name":"card/0/faixa","fill":"#1B1B2C","strokes":["#34D399"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"9+","x":382,"y":3607,"parent":"Home v9 / 1440","props":{"name":"card/0/faixa/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/0/faixa/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"Vale seu tempo","x":136,"y":3790,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/0/t","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/0/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"o que não sai da cabeça depois","x":136,"y":3822,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/0/nota","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/0/nota","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ver seleção →","x":136,"y":3842,"parent":"Home v9 / 1440","props":{"name":"card/0/acao","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/0/acao","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":528,"y":3576,"width":384,"height":288,"parent":"Home v9 / 1440","props":{"name":"card/1"}}}
+{"command":"node.set","params":{"name":"card/1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":552,"y":3600,"width":116,"height":168,"parent":"Home v9 / 1440","props":{"name":"card/1/poster"}}}
+{"command":"node.set","params":{"name":"card/1/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":568,"y":3636,"width":84,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/1/poster/l1"}}}
+{"command":"node.set","params":{"name":"card/1/poster/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":568,"y":3654,"width":52,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/1/poster/l2"}}}
+{"command":"node.set","params":{"name":"card/1/poster/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":582,"y":3734,"parent":"Home v9 / 1440","props":{"name":"card/1/poster/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/1/poster/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":780,"y":3600,"width":108,"height":28,"parent":"Home v9 / 1440","props":{"name":"card/1/faixa"}}}
+{"command":"node.set","params":{"name":"card/1/faixa","fill":"#1B1B2C","strokes":["#38BDF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"8","x":798,"y":3607,"parent":"Home v9 / 1440","props":{"name":"card/1/faixa/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/1/faixa/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"Boa pedida","x":552,"y":3790,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/1/t","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/1/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"acerta sem exigir contexto","x":552,"y":3822,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/1/nota","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/1/nota","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ver seleção →","x":552,"y":3842,"parent":"Home v9 / 1440","props":{"name":"card/1/acao","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/1/acao","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":944,"y":3576,"width":384,"height":288,"parent":"Home v9 / 1440","props":{"name":"card/2"}}}
+{"command":"node.set","params":{"name":"card/2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":968,"y":3600,"width":116,"height":168,"parent":"Home v9 / 1440","props":{"name":"card/2/poster"}}}
+{"command":"node.set","params":{"name":"card/2/poster","fill":"#1B1B2C","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":984,"y":3636,"width":84,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/2/poster/l1"}}}
+{"command":"node.set","params":{"name":"card/2/poster/l1","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":984,"y":3654,"width":52,"height":8,"parent":"Home v9 / 1440","props":{"name":"card/2/poster/l2"}}}
+{"command":"node.set","params":{"name":"card/2/poster/l2","fill":"#2A2A3D","cornerRadius":4}}
+{"command":"text.create","params":{"text":"pôster","x":998,"y":3734,"parent":"Home v9 / 1440","props":{"name":"card/2/poster/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/2/poster/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1196,"y":3600,"width":108,"height":28,"parent":"Home v9 / 1440","props":{"name":"card/2/faixa"}}}
+{"command":"node.set","params":{"name":"card/2/faixa","fill":"#1B1B2C","strokes":["#818CF8"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"afinidade","x":1214,"y":3607,"parent":"Home v9 / 1440","props":{"name":"card/2/faixa/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/2/faixa/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Se você gosta de…","x":968,"y":3790,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/2/t","fontSize":20,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"card/2/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"porque você consumiu","x":968,"y":3822,"parent":"Home v9 / 1440","width":360,"props":{"name":"card/2/nota","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/2/nota","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ver seleção →","x":968,"y":3842,"parent":"Home v9 / 1440","props":{"name":"card/2/acao","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"card/2/acao","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Como o score nasce","x":112,"y":3936,"parent":"Home v9 / 1440","props":{"name":"metodo/titulo","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"metodo/titulo","fill":"#F5F5F7"}}
+{"command":"shape.rectangle","params":{"x":112,"y":3994,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"etapa/0/num"}}}
+{"command":"node.set","params":{"name":"etapa/0/num","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"text.create","params":{"text":"1","x":124,"y":4002,"parent":"Home v9 / 1440","props":{"name":"etapa/0/n","fontSize":15,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/0/n","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Fontes públicas","x":158,"y":4000,"parent":"Home v9 / 1440","width":340,"props":{"name":"etapa/0/t","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/0/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"TMDB, IMDb e Metacritic por título, com a nota de cada uma.","x":112,"y":4044,"parent":"Home v9 / 1440","width":380,"props":{"name":"etapa/0/d","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"etapa/0/d","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":528,"y":3994,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"etapa/1/num"}}}
+{"command":"node.set","params":{"name":"etapa/1/num","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"text.create","params":{"text":"2","x":540,"y":4002,"parent":"Home v9 / 1440","props":{"name":"etapa/1/n","fontSize":15,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/1/n","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Normalização","x":574,"y":4000,"parent":"Home v9 / 1440","width":340,"props":{"name":"etapa/1/t","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/1/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Escalas diferentes viram uma só: 0 a 10 (games, 0 a 100).","x":528,"y":4044,"parent":"Home v9 / 1440","width":380,"props":{"name":"etapa/1/d","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"etapa/1/d","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":944,"y":3994,"width":32,"height":32,"parent":"Home v9 / 1440","props":{"name":"etapa/2/num"}}}
+{"command":"node.set","params":{"name":"etapa/2/num","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"text.create","params":{"text":"3","x":956,"y":4002,"parent":"Home v9 / 1440","props":{"name":"etapa/2/n","fontSize":15,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/2/n","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Faixa e confiança","x":990,"y":4000,"parent":"Home v9 / 1440","width":340,"props":{"name":"etapa/2/t","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"etapa/2/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"O número ganha faixa, e a confiança diz o quanto ele se sustenta.","x":944,"y":4044,"parent":"Home v9 / 1440","width":380,"props":{"name":"etapa/2/d","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"etapa/2/d","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":4112,"width":1216,"height":112,"parent":"Home v9 / 1440","props":{"name":"fecho"}}}
+{"command":"node.set","params":{"name":"fecho","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"Sem nota de marketing.","x":144,"y":4144,"parent":"Home v9 / 1440","props":{"name":"fecho/t","fontSize":24,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"fecho/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Nenhum número nesta página é fixo no código: todo valor vem do cálculo, com a fonte ao lado.","x":144,"y":4184,"parent":"Home v9 / 1440","width":900,"props":{"name":"fecho/d","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"fecho/d","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":0,"y":4288,"width":1440,"height":1,"parent":"Home v9 / 1440","props":{"name":"rodape/linha"}}}
+{"command":"node.set","params":{"name":"rodape/linha","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"MEDIA Rate","x":112,"y":4328,"parent":"Home v9 / 1440","props":{"name":"rodape/marca","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"rodape/marca","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Um score por título, reunindo crítico e público de fontes que você pode conferir.","x":112,"y":4360,"parent":"Home v9 / 1440","width":280,"props":{"name":"rodape/tagline","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/tagline","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"PRODUTO","x":424,"y":4328,"parent":"Home v9 / 1440","props":{"name":"rodape/col0/t","fontSize":11,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"rodape/col0/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Catálogo","x":424,"y":4354,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/0","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Preços","x":424,"y":4376,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Sobre","x":424,"y":4398,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Metodologia","x":424,"y":4420,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/3","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"FAQ","x":424,"y":4442,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/4","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Fontes","x":424,"y":4464,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col0/5","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col0/5","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"LEGAL","x":736,"y":4328,"parent":"Home v9 / 1440","props":{"name":"rodape/col1/t","fontSize":11,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"rodape/col1/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Privacidade","x":736,"y":4354,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/0","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Termos","x":736,"y":4376,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Meus dados (LGPD)","x":736,"y":4398,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Cookies","x":736,"y":4420,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/3","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Gerenciar cookies","x":736,"y":4442,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/4","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Segurança","x":736,"y":4464,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/5","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/5","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Direitos do titular","x":736,"y":4486,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col1/6","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col1/6","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"SOCIAL · CONTATO","x":1048,"y":4328,"parent":"Home v9 / 1440","props":{"name":"rodape/col2/t","fontSize":11,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"rodape/col2/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Telegram","x":1048,"y":4354,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col2/0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col2/0","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Contato","x":1048,"y":4376,"parent":"Home v9 / 1440","width":270,"props":{"name":"rodape/col2/1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/col2/1","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":4550,"width":1216,"height":1,"parent":"Home v9 / 1440","props":{"name":"rodape/legal/linha"}}}
+{"command":"node.set","params":{"name":"rodape/legal/linha","fill":"#0F101D"}}
+{"command":"text.create","params":{"text":"MEDIA Rate. Todos os direitos reservados.","x":112,"y":4570,"parent":"Home v9 / 1440","props":{"name":"rodape/legal/a","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/legal/a","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Copyright © 2026 END ART Studios","x":736,"y":4570,"parent":"Home v9 / 1440","props":{"name":"rodape/legal/b","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/legal/b","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios+contato@gmail.com","x":998,"y":4590,"parent":"Home v9 / 1440","width":330,"props":{"name":"rodape/legal/c","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/legal/c","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Dados de filmes e séries por TMDB e OMDb; de games por IGDB. Este produto usa as APIs do TMDB e da IGDB, mas não é endossado nem certificado por elas.","x":469,"y":4622,"parent":"Home v9 / 1440","width":900,"props":{"name":"rodape/atribuicao","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/atribuicao","fill":"#85859F"}}
+{"command":"page.add","params":{"name":"Selo — estados do ciclo"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":720,"name":"Selo / 6 estados"}}
+{"command":"node.set","params":{"name":"Selo / 6 estados","fill":"#05050A"}}
+{"command":"text.create","params":{"text":"O selo percorre a escala","x":112,"y":56,"parent":"Selo / 6 estados","props":{"name":"sb/titulo","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Seis estados, um por faixa. Em cada um: o número, a cor da faixa e o rótulo — e a régua acende a barra correspondente no mesmo instante.","x":112,"y":104,"parent":"Selo / 6 estados","width":1100,"props":{"name":"sb/sub","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/sub","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/0/anel"}}}
+{"command":"node.set","params":{"name":"sb/0/anel","fill":"#34D399","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":130,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/0/miolo"}}}
+{"command":"node.set","params":{"name":"sb/0/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"9,4","x":168,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/0/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/0/nota","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"Excepcional","x":162,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/0/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/0/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/0/barra"}}}
+{"command":"node.set","params":{"name":"sb/0/barra","fill":"#34D399","cornerRadius":7}}
+{"command":"text.create","params":{"text":"9 a 10","x":112,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/0/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/0/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":328,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/1/anel"}}}
+{"command":"node.set","params":{"name":"sb/1/anel","fill":"#38BDF8","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":346,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/1/miolo"}}}
+{"command":"node.set","params":{"name":"sb/1/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"8,7","x":384,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/1/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/1/nota","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"Muito bom","x":386,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/1/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/1/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":328,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/1/barra"}}}
+{"command":"node.set","params":{"name":"sb/1/barra","fill":"#38BDF8","cornerRadius":7}}
+{"command":"text.create","params":{"text":"8","x":328,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/1/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/1/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":544,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/2/anel"}}}
+{"command":"node.set","params":{"name":"sb/2/anel","fill":"#818CF8","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":562,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/2/miolo"}}}
+{"command":"node.set","params":{"name":"sb/2/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"7,3","x":600,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/2/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/2/nota","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"Bom","x":623,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/2/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/2/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":544,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/2/barra"}}}
+{"command":"node.set","params":{"name":"sb/2/barra","fill":"#818CF8","cornerRadius":7}}
+{"command":"text.create","params":{"text":"7","x":544,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/2/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/2/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":760,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/3/anel"}}}
+{"command":"node.set","params":{"name":"sb/3/anel","fill":"#F59E0B","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":778,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/3/miolo"}}}
+{"command":"node.set","params":{"name":"sb/3/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"6,4","x":816,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/3/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/3/nota","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"Razoável","x":821,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/3/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/3/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":760,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/3/barra"}}}
+{"command":"node.set","params":{"name":"sb/3/barra","fill":"#F59E0B","cornerRadius":7}}
+{"command":"text.create","params":{"text":"6","x":760,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/3/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/3/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":976,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/4/anel"}}}
+{"command":"node.set","params":{"name":"sb/4/anel","fill":"#F97316","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":994,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/4/miolo"}}}
+{"command":"node.set","params":{"name":"sb/4/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"5,2","x":1032,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/4/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/4/nota","fill":"#F97316"}}
+{"command":"text.create","params":{"text":"Fraco","x":1048,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/4/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/4/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":976,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/4/barra"}}}
+{"command":"node.set","params":{"name":"sb/4/barra","fill":"#F97316","cornerRadius":7}}
+{"command":"text.create","params":{"text":"5","x":976,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/4/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/4/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1192,"y":180,"width":180,"height":180,"parent":"Selo / 6 estados","props":{"name":"sb/5/anel"}}}
+{"command":"node.set","params":{"name":"sb/5/anel","fill":"#F87171","cornerRadius":90}}
+{"command":"shape.rectangle","params":{"x":1210,"y":198,"width":144,"height":144,"parent":"Selo / 6 estados","props":{"name":"sb/5/miolo"}}}
+{"command":"node.set","params":{"name":"sb/5/miolo","fill":"#05050A","cornerRadius":72}}
+{"command":"text.create","params":{"text":"4,1","x":1248,"y":232,"parent":"Selo / 6 estados","props":{"name":"sb/5/nota","fontSize":40,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sb/5/nota","fill":"#F87171"}}
+{"command":"text.create","params":{"text":"Evite","x":1264,"y":380,"parent":"Selo / 6 estados","props":{"name":"sb/5/faixa","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/5/faixa","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":1192,"y":410,"width":180,"height":14,"parent":"Selo / 6 estados","props":{"name":"sb/5/barra"}}}
+{"command":"node.set","params":{"name":"sb/5/barra","fill":"#F87171","cornerRadius":7}}
+{"command":"text.create","params":{"text":"abaixo","x":1192,"y":436,"parent":"Selo / 6 estados","props":{"name":"sb/5/rot","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/5/rot","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"2,6 s por estado · 400 ms de transição do número e da cor · pausa no hover/focus · ciclo só com a seção visível · desligado em prefers-reduced-motion (fica no estado da faixa do topo).","x":112,"y":520,"parent":"Selo / 6 estados","width":1300,"props":{"name":"sb/tempo","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/tempo","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"No produto, cada estado é uma obra real: o selo mostra o título e a nota que vieram do cálculo. O ciclo existe para ensinar a escala, não para parecer movimento.","x":112,"y":560,"parent":"Selo / 6 estados","width":1300,"props":{"name":"sb/verdade","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sb/verdade","fill":"#A0A0B8"}}
+{"command":"page.add","params":{"name":"Ícones — efeito Dock"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":980,"name":"Ícones / efeito Dock"}}
+{"command":"node.set","params":{"name":"Ícones / efeito Dock","fill":"#05050A"}}
+{"command":"text.create","params":{"text":"Os ícones crescem sob o ponteiro — como o Dock","x":112,"y":52,"parent":"Ícones / efeito Dock","props":{"name":"dk/titulo","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"dk/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"A peça sob o ponteiro cresce 32%, os vizinhos crescem menos e a fileira sobe junto, em queda progressiva por distância. Nada se move de lugar: só transform, então o layout não é afetado.","x":112,"y":100,"parent":"Ícones / efeito Dock","width":1200,"props":{"name":"dk/sub","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/sub","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ponteiro no 1º ícone","x":112,"y":166,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/rotulo","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/rotulo","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":92,"y":200,"width":126,"height":126,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/movie/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/movie/glow","fill":"#20233E","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":98,"y":206,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/movie/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/movie/tile","fill":"#242640","strokes":["#5C64B1"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":99,"y":207,"width":112,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/movie/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/movie/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-movie-icone.svg","x":155,"y":263,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":82,"height":82}}
+{"command":"text.create","params":{"text":"Filmes","x":135,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/movie/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/movie/rotulo","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":246,"y":216,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/series/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/series/glow","fill":"#0D2230","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":252,"y":222,"width":102,"height":102,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/series/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/series/tile","fill":"#14202C","strokes":["#123548"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":253,"y":223,"width":100,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/series/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/series/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-series-icone.svg","x":303,"y":273,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":73,"height":73}}
+{"command":"text.create","params":{"text":"Séries","x":283,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/series/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/series/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":402,"y":237,"width":99,"height":99,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/game/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/game/glow","fill":"#0D2621","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":408,"y":243,"width":87,"height":87,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/game/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/game/tile","fill":"#132224","strokes":["#113B2F"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":409,"y":244,"width":85,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/game/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/game/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-game-icone.svg","x":451.5,"y":286.5,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Games","x":435,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/game/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/game/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":550,"y":238,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/book/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/book/glow","fill":"#2C230E","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":556,"y":244,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/book/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/book/tile","fill":"#252019","strokes":["#453511"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":557,"y":245,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/book/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/book/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-book-icone.svg","x":599,"y":287,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Livros","x":579,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/book/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/book/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":698,"y":238,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/comic/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/comic/glow","fill":"#2B1626","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":704,"y":244,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/comic/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/comic/tile","fill":"#251926","strokes":["#432137"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":705,"y":245,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/comic/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/comic/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-comic-icone.svg","x":747,"y":287,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":713,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/comic/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/comic/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":846,"y":238,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/manga/glow"}}}
+{"command":"node.set","params":{"name":"dk/0/manga/glow","fill":"#1F1A30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":852,"y":244,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/manga/tile"}}}
+{"command":"node.set","params":{"name":"dk/0/manga/tile","fill":"#1E1B2C","strokes":["#2F2848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":853,"y":245,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/manga/realce"}}}
+{"command":"node.set","params":{"name":"dk/0/manga/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-0-manga-icone.svg","x":895,"y":287,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Mangás","x":875,"y":346,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/manga/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/manga/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":152,"y":332,"width":6,"height":6,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/ponteiro"}}}
+{"command":"node.set","params":{"name":"dk/0/ponteiro","fill":"#818CF8","cornerRadius":3}}
+{"command":"text.create","params":{"text":"sob o ponteiro 1,32  ·  vizinho 1,18  ·  seguinte 1,01","x":1040,"y":279,"parent":"Ícones / efeito Dock","props":{"name":"dk/0/valores","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/0/valores","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ponteiro no 3º ícone","x":112,"y":374,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/rotulo","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/rotulo","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":106,"y":445,"width":99,"height":99,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/movie/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/movie/glow","fill":"#191B30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":112,"y":451,"width":87,"height":87,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/movie/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/movie/tile","fill":"#1A1B2C","strokes":["#252848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":113,"y":452,"width":85,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/movie/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/movie/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-movie-icone.svg","x":155.5,"y":494.5,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Filmes","x":135,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/movie/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/movie/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":246,"y":424,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/series/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/series/glow","fill":"#0D2230","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":252,"y":430,"width":102,"height":102,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/series/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/series/tile","fill":"#14202C","strokes":["#123548"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":253,"y":431,"width":100,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/series/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/series/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-series-icone.svg","x":303,"y":481,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":73,"height":73}}
+{"command":"text.create","params":{"text":"Séries","x":283,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/series/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/series/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":388,"y":408,"width":126,"height":126,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/game/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/game/glow","fill":"#0F3229","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":394,"y":414,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/game/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/game/tile","fill":"#16332F","strokes":["#26956E"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":395,"y":415,"width":112,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/game/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/game/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-game-icone.svg","x":451,"y":471,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":82,"height":82}}
+{"command":"text.create","params":{"text":"Games","x":434,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/game/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/game/rotulo","fill":"#34D399"}}
+{"command":"shape.rectangle","params":{"x":542,"y":424,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/book/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/book/glow","fill":"#2C230E","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":548,"y":430,"width":102,"height":102,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/book/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/book/tile","fill":"#252019","strokes":["#453511"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":549,"y":431,"width":100,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/book/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/book/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-book-icone.svg","x":599,"y":481,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":73,"height":73}}
+{"command":"text.create","params":{"text":"Livros","x":579,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/book/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/book/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":698,"y":445,"width":99,"height":99,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/comic/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/comic/glow","fill":"#2B1626","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":704,"y":451,"width":87,"height":87,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/comic/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/comic/tile","fill":"#251926","strokes":["#432137"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":705,"y":452,"width":85,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/comic/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/comic/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-comic-icone.svg","x":747.5,"y":494.5,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":714,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/comic/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/comic/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":846,"y":446,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/manga/glow"}}}
+{"command":"node.set","params":{"name":"dk/1/manga/glow","fill":"#1F1A30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":852,"y":452,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/manga/tile"}}}
+{"command":"node.set","params":{"name":"dk/1/manga/tile","fill":"#1E1B2C","strokes":["#2F2848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":853,"y":453,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/manga/realce"}}}
+{"command":"node.set","params":{"name":"dk/1/manga/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-1-manga-icone.svg","x":895,"y":495,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Mangás","x":875,"y":554,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/manga/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/manga/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":448,"y":540,"width":6,"height":6,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/ponteiro"}}}
+{"command":"node.set","params":{"name":"dk/1/ponteiro","fill":"#818CF8","cornerRadius":3}}
+{"command":"text.create","params":{"text":"sob o ponteiro 1,32  ·  vizinho 1,18  ·  seguinte 1,01","x":1040,"y":487,"parent":"Ícones / efeito Dock","props":{"name":"dk/1/valores","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/1/valores","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"ponteiro no 5º ícone","x":112,"y":582,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/rotulo","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/rotulo","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":106,"y":654,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/movie/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/movie/glow","fill":"#191B30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":112,"y":660,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/movie/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/movie/tile","fill":"#1A1B2C","strokes":["#252848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":113,"y":661,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/movie/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/movie/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-movie-icone.svg","x":155,"y":703,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Filmes","x":135,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/movie/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/movie/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":254,"y":654,"width":98,"height":98,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/series/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/series/glow","fill":"#0D2230","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":260,"y":660,"width":86,"height":86,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/series/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/series/tile","fill":"#14202C","strokes":["#123548"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":261,"y":661,"width":84,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/series/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/series/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-series-icone.svg","x":303,"y":703,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Séries","x":283,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/series/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/series/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":402,"y":653,"width":99,"height":99,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/game/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/game/glow","fill":"#0D2621","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":408,"y":659,"width":87,"height":87,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/game/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/game/tile","fill":"#132224","strokes":["#113B2F"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":409,"y":660,"width":85,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/game/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/game/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-game-icone.svg","x":451.5,"y":702.5,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":62,"height":62}}
+{"command":"text.create","params":{"text":"Games","x":435,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/game/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/game/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":542,"y":632,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/book/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/book/glow","fill":"#2C230E","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":548,"y":638,"width":102,"height":102,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/book/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/book/tile","fill":"#252019","strokes":["#453511"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":549,"y":639,"width":100,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/book/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/book/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-book-icone.svg","x":599,"y":689,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":73,"height":73}}
+{"command":"text.create","params":{"text":"Livros","x":579,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/book/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/book/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":684,"y":616,"width":126,"height":126,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/comic/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/comic/glow","fill":"#3A1D30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":690,"y":622,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/comic/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/comic/tile","fill":"#392234","strokes":["#AC5182"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":691,"y":623,"width":112,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/comic/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/comic/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-comic-icone.svg","x":747,"y":679,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":82,"height":82}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":713,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/comic/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/comic/rotulo","fill":"#F472B6"}}
+{"command":"shape.rectangle","params":{"x":838,"y":632,"width":114,"height":114,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/manga/glow"}}}
+{"command":"node.set","params":{"name":"dk/2/manga/glow","fill":"#1F1A30","cornerRadius":26}}
+{"command":"shape.rectangle","params":{"x":844,"y":638,"width":102,"height":102,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/manga/tile"}}}
+{"command":"node.set","params":{"name":"dk/2/manga/tile","fill":"#1E1B2C","strokes":["#2F2848"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"shape.rectangle","params":{"x":845,"y":639,"width":100,"height":1,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/manga/realce"}}}
+{"command":"node.set","params":{"name":"dk/2/manga/realce","fill":"#131318"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft/_icone-dk-2-manga-icone.svg","x":895,"y":689,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":73,"height":73}}
+{"command":"text.create","params":{"text":"Mangás","x":875,"y":762,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/manga/rotulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/manga/rotulo","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":744,"y":748,"width":6,"height":6,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/ponteiro"}}}
+{"command":"node.set","params":{"name":"dk/2/ponteiro","fill":"#818CF8","cornerRadius":3}}
+{"command":"text.create","params":{"text":"sob o ponteiro 1,32  ·  vizinho 1,18  ·  seguinte 1,01","x":1040,"y":695,"parent":"Ícones / efeito Dock","props":{"name":"dk/2/valores","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/2/valores","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Só com ponteiro fino e a partir de 1024 px (toque não magnifica). Origem da transformação embaixo ao centro, para a peça crescer para cima como no Dock. Foco por teclado dá o mesmo realce em uma peça, sem empurrar as vizinhas. Em prefers-reduced-motion o crescimento é desligado e fica só o realce de borda e cor.","x":112,"y":900,"parent":"Ícones / efeito Dock","width":1300,"props":{"name":"dk/regras","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"dk/regras","fill":"#85859F"}}

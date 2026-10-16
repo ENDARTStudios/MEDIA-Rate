@@ -1,0 +1,6 @@
+# D-626 — RFC 9116. Canal oficial de relato de vulnerabilidades da END ART Studios.
+Contact: mailto:endart.studios+security@gmail.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: pt-BR, en, es
+Canonical: https://mediarate.app/.well-known/security.txt
+Policy: https://mediarate.app/pt-BR/seguranca

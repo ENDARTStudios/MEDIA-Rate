@@ -158,7 +158,10 @@ describe("TemporadasSection (T163)", () => {
     // T1: média de nota_publico (8,5 + 9,5) / 2 = 9 — truncado, sem arredondar.
     await waitFor(() => expect(screen.getByText(/numero":1/)).toBeInTheDocument());
     expect(screen.getByText(/numero":2/)).toBeInTheDocument();
-    expect(screen.getByText("9.0")).toBeInTheDocument();
+    // Achado 2026-10-13: aqui a nota da temporada saía com ".0" fixo (interpolação
+    // crua com `toFixed(1)`). Agora passa pelo `formatarScoreLocale`, que usa o
+    // separador do locale e não pendura zero — a média 9 rende "9".
+    expect(screen.getByText("9")).toBeInTheDocument();
   });
 
   it("sem temporadas → estado honesto do SeriatedScoreTree", async () => {

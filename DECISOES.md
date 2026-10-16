@@ -2932,3 +2932,2858 @@ centralizado" que D-065 proíbe.
 sobre pôster; `#6B7280`/`#6B6B85` → tokens AA), `max-w-[70ch]` nas seções de
 conteúdo, ordem de headings em `/pricing`, `gradient-text` (4 pontos) e
 `font-family:Arial` na janela de impressão do dashboard.
+
+
+## D-582 — Auditoria de UI/UX do site inteiro (T211): correções sem decisão pendente e dívida aberta
+
+**Contexto.** Pedido do Operador: reavaliar a UI/UX de **todo** o site (não só a home)
+e levantar falhas, gaps e pendências. Escopo executado: 45 rotas / 144 componentes,
+probe HTTP das 30 rotas principais, `impeccable detect` no DOM de 20 rotas públicas,
+censo estático (hex, `text-white*`, `dark:`, `rounded-2xl`, `transition-all`, `hover:`,
+`100vh`, `role="list"`, `alt`, headings, estados por rota) e 4 auditorias paralelas por
+superfície (público/marketing, produto logado, admin, transversal). Relatório completo,
+com evidência e prioridade: `docs/02-architecture-design/AUDITORIA-UI-UX-2026-10.md`.
+
+**Corrigido neste ciclo (sem depender de decisão).**
+- **Checkout:** a CTA principal usava `bg-primary-700`/`hover:bg-primary-800`/
+  `focus:ring-primary-700` — **classes inexistentes** no `tailwind.config.ts` (que define
+  `primary` apenas com `DEFAULT`/`foreground`): botão sem fundo e sem anel de foco. Passou
+  ao CTA canônico (rose `#E11D48` + foco índigo), com tokens no card e `Check` do Lucide.
+- **`/billing/success`:** bug real de **hydration mismatch** (`ConfettiCelebration`
+  retornava `null` no cliente com `prefers-reduced-motion` e `<canvas>` no servidor).
+  O gate ficou só no `useEffect`; o achado `script-error` do detector foi de 1 → 0.
+- **i18n:** `MIDIA_LABEL` (pt-BR hardcoded em `lib/sources.ts`) substituído por
+  `MIDIA_LABEL_KEY` + `catalog.*`; literais "Crítica"/"Público" → `scoredial.*`; `terms.h1`
+  traduzido em en-US/es-ES ("Termos de Uso" nos 3 locales era leak); `AgeRatingBadge`
+  passou a usar as 3 chaves `metadados.*` que existiam traduzidas e órfãs; metadata de
+  `/verificar-email`, `/checkout/[plan]` e `/billing/success` por locale; `aria-label` do
+  toggle de preços. Medido: `/en-US/sources` **71 → 0** e `/methodology` **59 → 0**
+  ocorrências de pt-BR real.
+- **Tipografia institucional:** `prose`/`prose-invert` eram **inertes** (o plugin
+  `@tailwindcss/typography` não está instalado) — títulos no default do browser e links no
+  azul nativo sobre fundo escuro; `/sources` e `/methodology` passaram a estilos explícitos
+  por token. Medida de leitura dos parágrafos de `/terms` e `/privacy` (14 e 11 achados de
+  `line-length`) → **0**, sem alterar o conteúdo legal.
+- **AA:** 58 pontos de `text-white/25…/42` (2,20–3,81:1) no produto logado → `#85859F`
+  (5,21:1); `Arial` residual (13 usos no SVG de export do dashboard) → Inter.
+- **Movimento/mobile/a11y:** loop `requestAnimationFrame` **infinito** do
+  `glowing-effect` (montado em `/pricing`) agora para com movimento reduzido, sem ponteiro
+  fino e com aba oculta; `scroll-behavior: smooth` movido para
+  `prefers-reduced-motion: no-preference` (WCAG 2.3.3); `future.hoverOnlyWhenSupported`
+  no Tailwind (296 `hover:` deixam de ficar presos no touch); `role="list"` em 25 `<ul>`
+  (o Preflight remove `list-style` e o Safari/VoiceOver perde a semântica);
+  `NotificationBell` com Escape, foco no painel e retorno ao gatilho; menu de conta do
+  `Navbar` com `aria-expanded`/`aria-haspopup`/Escape/blur; inputs do `AuthForm` de 14px →
+  16px no mobile (zoom do iOS); `viewportFit: "cover"` + safe-area na barra fixa da ficha;
+  `ErrorBoundary` com `<h1>`.
+- **Design system:** emojis do `/onboarding` → Lucide; eyebrow acima do H1 do `/welcome`
+  removido (mesmo padrão de T209); os 2 blobs `blur-[110/120px]` do hero → radial-gradients
+  (D-065); `/faq` e `/sources` incluídos nos links do rodapé (existiam, no sitemap e sem
+  link em nenhum menu); `/discover` e `/top` incluídos no sitemap (`index,follow` e fora);
+  `robots` conflitante do `/login` resolvido (a page sobrescrevia o `noindex` do layout).
+- **Guarda nova:** `test/rgpd-locale.spec.ts` varria só o namespace `privacy` — foi por
+  isso que `terms.h1` ficou em pt-BR nos 3 locales. Agora varre `terms` e compara títulos
+  institucionais entre locales. Suíte: **615/615**.
+
+**Verificação:** `design:detect` 0 (fonte) e 0 no DOM de 20 rotas públicas;
+`design:contrast` 51/51; vitest 615/615; `tsc --noEmit` 0; eslint 0; regressão visual 4/4;
+`next build` 0.
+
+**Nota de rastreio (D-581).** A lista "Não decidido" de D-581 (sweep de `low-contrast`
+do score sobre pôster, `#6B7280`/`#6B6B85` → tokens, medida de leitura, headings de
+`/pricing`, `gradient-text`, `Arial` da impressão) **foi implementada** no ciclo T210
+(PR #551) e o `Arial` residual foi fechado agora — os 13 usos do SVG de export eram o que
+mantinha o achado `overused-font` aberto.
+
+**Dívida aberta que exige decisão do Operador** (detalhe e evidência no relatório):
+1. admin é light-mode-first num app dark-only (108 `dark:`; `darkMode: "class"` em 1 linha
+   resolve, ou migrar para tokens) — nenhum gate cobre o admin;
+2. dashboard é um segundo design system (167 hex fora de token, 89 `text-white*`, paleta
+   paralela índigo/teal/âmbar);
+3. `/feedback` é 100% pt-BR, usa emoji como nota, não envia nada e cita canais inexistentes;
+4. qual dial de score é canônico (3 faixas `font-mono` vs 6 faixas `scoreColor`) e a cor de
+   "público" (rose do token vs âmbar do `Bar.tsx`), incluindo o breakdown fictício
+   `[40,40,20]` exibido em `/settings`;
+5. plano de `loading.tsx`/`global-error.tsx` por segmento (hoje 0 e 0);
+6. `/onboarding` (código morto) e `/top` (protótipo claro-no-escuro);
+7. `text-white` sobre o rose da marca: **4,70:1 (passa AA)** contra `text.primary #F5F5F7`
+   no mesmo fundo = **4,31:1 (reprova)** — trocar por token quebraria 13+ CTAs; recomendado
+   criar `text.onBrand` e registrar a exceção em D-065;
+8. `/admin/upload` (rota órfã) e a remoção de mídia duplicada entre `diagnostics` e `catalogo`;
+9. chaves i18n órfãs (46+ amostradas) e o `i18n-leak.spec.ts` que ainda exige strings de
+   OAuth removido;
+10. `LgpdBanner.tsx` nunca montado (dead code ou banner de consentimento que deveria estar em uso).
+
+**Não tocar (trabalho concorrente).** Os 36 usos de `text-gray-500` no admin estão em
+`admin/{usuarios,lgpd,diagnostics,catalogo}` — arquivos em edição pelo outro agente; ficaram
+apenas reportados.
+
+
+## D-583 — Decisões do agente sobre a dívida de UI/UX apontada em D-582 (T211) + implementação
+
+**Contexto.** O relatório `docs/02-architecture-design/AUDITORIA-UI-UX-2026-10.md` levantou
+10 decisões em aberto (D-582.1–10). O Operador delegou: "tome as decisões que melhor
+beneficiem o projeto como um todo". Abaixo cada decisão, a escolha, o porquê e o estado.
+
+**1. Admin light-mode-first — DECIDIDO: `darkMode: "class"` (hotfix) + gate de regressão.**
+O app é dark-only por tokens e o `<html>` já tem `class="dark"`; a estratégia `media` fazia
+os 108 `dark:` responderem ao tema do SO. Uma linha no `tailwind.config.ts` conserta os 108
+usos (admin, `/top`, `/checkout`) sem reescrever 8 telas. **Verificado no artefato**: o CSS
+compilado passou a conter o seletor `.dark\:bg-gray-800` e **não** contém mais nenhuma
+`@media (prefers-color-scheme)`. Gate novo: o harness visual passou a rodar com
+`colorScheme: "light"` (antes forçava `dark` — era exatamente por isso que a regressão
+passava verde). **Migração do admin para tokens fica agendada** (trabalho maior, e os
+arquivos estão em edição pelo outro agente).
+
+**2. Segundo design system no dashboard — DECIDIDO: convergir por partes, não big-bang.**
+Já feito: AA dos `text-white/25..42` (58 → 0, no ciclo anterior) e `rounded-2xl` → `rounded-lg`
+(15 → 0). O `DashboardOverview.tsx` (1.757 linhas, 167 hex fora de token, classe de card
+repetida 11×) **não** será reescrito de uma vez: exige quebrar em componentes com teste
+visual antes/depois. Fica registrado como a próxima frente de UI (P2), com a regra "sem hex
+novo" só depois da quebra.
+
+**3. `/feedback` — DECIDIDO: manter, tornar honesto e alcançável.** A página era 100% pt-BR,
+usava emoji como nota (D-065), não enviava nada (só trocava estado local) e citava um Discord
+e um `feedback@mediarate.app` inexistentes — **e não era linkada em lugar nenhum**. Agora:
+i18n nos 3 locales, ícones `Star` (Lucide) com `role="radiogroup"`, e o envio é um **handoff
+real** para o cliente de e-mail (`mailto:` com nota + comentário) para o endereço de contato
+que já existe no rodapé; link adicionado ao menu de conta (`nav.feedback`).
+
+**4. Dial de score e cor de "público" — DECIDIDO: `scoreColor()` é a única fonte.**
+`ScoreDial` e `StaticScoreDial` tinham uma tabela **local** de 3 faixas que divergia do
+`scoreColor()` (6 faixas) do `design-tokens.ts`: o MESMO score saía com cor diferente no card
+e no módulo de score. As tabelas locais foram removidas e ambos delegam a `scoreColor()`; os
+testes que fixavam o contrato antigo passaram a afirmar o contrato único (sem hex literal, para
+não quebrar em mudança de token). O breakdown fictício `[40,40,20]` ("Crítica/Público/Consenso"
+com dado inventado, visível em `/settings` e `/design-system`) foi removido: sem dado real, o
+breakdown não é exibido. Cor de "público" alinhada ao token `accent.audience` (#E11D48) no
+preenchimento da barra, com o número em `#FB7185` — o rose puro como **texto pequeno** sobre o
+card dá 4.31:1 e reprovaria AA. Unificar a *linguagem visual* das 3 implementações de dial
+(fonte/geometria/glow) segue como tarefa.
+
+**5. Estados por rota — DECIDIDO: um `loading.tsx` no segmento `[locale]` + `global-error.tsx`.**
+Em vez de 45 arquivos, um único limite de Suspense cobre todas as rotas localizadas com um
+`RouteSkeleton` (server-safe, sem JS, sem `animate-pulse`), mais um `global-error.tsx` com a
+marca (antes um throw no layout raiz caía na tela default do Next). Skeletons específicos de
+`catalog` e `media/[slug]` ficam como polimento seguinte. **Bug pego no processo**: a primeira
+versão do `loading.tsx` tentava `await params` — no App Router o `loading.tsx` **não recebe
+`params`**, e toda rota respondia 500 ("Cannot destructure property 'locale'"); corrigido para
+client component com `useTranslations` (o provider vive no layout acima do limite).
+
+**6. `/onboarding` e `/top` — DECIDIDO: aposentar a primeira, consertar a segunda.**
+`/onboarding` era inalcançável (privada no middleware, sem link em nenhum menu, sem metadata,
+sem CTA): rota, namespace i18n (10 chaves × 3 locales) e entrada do middleware removidos.
+`/top` foi consertado **de graça** pela decisão 1 (as variantes `dark:` acendem) e passou a
+fazer parte do harness visual por pixel.
+
+**7. `#FFFFFF` no CTA de marca — DECIDIDO: token `text.onBrand` com escopo + exceção registrada.**
+`#FFFFFF` sobre o rose `#E11D48` = **4.70:1 (passa AA)**, enquanto o token canônico de texto
+`#F5F5F7` sobre o mesmo fundo = **4.31:1 (reprova)** — ou seja, nestes 13+ CTAs o D-065
+("texto #FFFFFF") conflita com o gate de AA. Criado `colors.text.onBrand = "#FFFFFF"` para que o
+branco fique **rastreável e com escopo** (só fundo de marca), com guarda em
+`test/contrast-aa.spec.ts` que também prova (a) que a exceção ainda é necessária e (b) que
+preenchimentos claros (âmbar `#F59E0B`) exigem texto **escuro** (`colors.bg`), não `onBrand`.
+
+**8. `/admin/upload` e remoção de mídia duplicada — DECIDIDO: manter a rota e consolidar a
+remoção no catálogo — NÃO IMPLEMENTADO (bloqueado).** `upload` é capacidade real (upload de
+mídia nova) e deve ser linkada no `AdminShell`, com os tipos derivados de `CATEGORY_TOKENS`
+(hoje faltam `comic`/`manga`) e usando `lib/http`; o formulário de remoção por UUID em
+`admin/diagnostics` deve sair (a remoção por lista no catálogo é a canônica). **Bloqueio**: os
+arquivos estão em edição pelo outro agente — a decisão está tomada e fica para quem mexer neles.
+
+**9. Chaves i18n órfãs — DECIDIDO: NÃO podar agora.** O inventário aponta 46+ chaves sem uso,
+mas há lookups dinâmicos legítimos (`DashboardOverview.tsx` usa `t(a.titleKey as never)`, então
+`dashboard.achv*` **são** usadas embora não apareçam como literal). Podar com esse risco, em 3
+locale, por ganho quase nulo de payload, é pior do que manter: as chaves ficam **reservadas** e
+a lista da auditoria serve de insumo para uma passada curada (com o detector de órfãs que a
+auditoria descreveu). Corrigido apenas o que era defeito real: o `i18n-leak.spec.ts` segue
+exigindo strings de OAuth que não existem no código — registrado como dívida de teste.
+
+**10. `LgpdBanner.tsx` — DECIDIDO: NÃO apagar e escalar como questão de compliance.** É
+código nunca montado, mas apagar um banner de consentimento por conta própria é decisão
+jurídica, não de UI: fica com o Operador confirmar se ele **deveria** estar montado (o banner
+em uso é o `ConsentBanner`).
+
+**Decisões adicionais tomadas neste ciclo.**
+- **11. `alt` em pt-BR → i18n**: `catalog.coverAlt`/`posterAlt` nos 3 locales, aplicados em
+  `MediaCard`, `MediaCardShell`, `MediaDetailClient`, `MediaDetailPage` e
+  `ContinueDecisionClient`; o `tCatalog` do shell passou a aceitar `values` (era `(key) => string`).
+- **12. LCP da ficha**: o backdrop full-bleed usava o rung `original` do TMDB sem hint de
+  prioridade; passou ao rung de display (1280) + `fetchPriority="high"`/`decoding="async"`.
+- **13. `100vh` → `dvh`** (7 usos) por causa da barra dinâmica do mobile.
+- **14. `<a>` dentro de `<a>` removido** em `HistoricoPage` e `ListaViewPage` (o `MediaCard` já
+  é o link) — HTML inválido, dois alvos de clique e risco de erro de hidratação.
+
+**Verificação do conjunto**: vitest **618/618**; `tsc --noEmit` **0**; eslint **0**;
+`next build` **0**; `design:detect` **0** na fonte e **0** no DOM de 18 rotas públicas
+(inclui `/top`, `/feedback`, `/checkout/plus`, `/welcome`); `design:contrast` **51/51** (com as
+novas guardas do `onBrand`); regressão visual **4/4 duas vezes** (agora em `colorScheme: light`).
+
+
+## D-584 — Continuação das melhorias de UI/UX (T211): feedback de ação, gate de cor e limpeza
+
+**Contexto.** Continuação do ciclo T211/D-583 ("continue com as melhorias"). Escopo: fechar
+os P0/P1/P2 que **não** dependem de arquivos do outro agente nem de decisão jurídica.
+
+**1. Feedback de ação (B4) — o buraco mais sistemático do produto.** Não havia sistema de
+toast para as ações centrais: remover da watchlist, mover de coluna, avaliar, criar lista e
+remover item eram silenciosos (`catch { /* Falha silenciosa */ }`), sem confirmação e sem
+desfazer. Implementado com o `sonner` que já estava instalado e montado no layout:
+- `WatchlistButton`: sucesso ao adicionar, ao mover e ao remover, com **`toast.action`
+  "Desfazer"** na remoção (re-insere o item na coluna anterior via
+  `addToWatchlist(mediaId, statusAnterior)` — a assinatura do store já aceitava o status);
+  erros de rede deixam de ser silenciosos (`addError`/`removeError`/`moveError`).
+- `ListaViewPage`: adicionar, remover item e salvar passam a confirmar.
+- `ListasPage`: criar lista passa a confirmar (antes o form só fechava).
+- Chaves reusadas: `watchlist.removed/moved/addError/removeError/moveError` e
+  `watchlist.added` **já existiam traduzidas e estavam órfãs** — agora têm consumidor.
+  Novas: `watchlist.undo`, `listas.itemAdded/itemRemoved/saved/created`.
+
+**2. Gate de sessão (A1) — 5 a 6 segundos de "Verificando sessão..." resolvidos em 1 linha.**
+`/listas`, `/historico` e `/compare` **não estavam** em `privateRoutePrefixes` do
+`middleware.ts`: o servidor renderizava a página (só com o texto "Verificando sessão...") e o
+redirecionamento ao login acontecia no cliente, depois da checagem (~5s). Agora respondem
+**307 instantâneo** para `/{locale}/login?callbackUrl=…`, igual a `/watchlist` e
+`/biblioteca`. `/discoveries` fica **fora** de propósito: essa tela tem estado anônimo
+desenhado ("Entre para ver suas descobertas").
+
+**3. Gate de cor (`npm run design:hex`, F1/F5) — o drift para de crescer.**
+`design:detect` é advisory e o `design:contrast` audita tokens, não literais em JSX: por isso
+~972 ocorrências de cor fora de token conviviam com todos os gates verdes. O novo
+`apps/web/scripts/design-hex-census.mjs` congela o legado em
+`apps/web/scripts/hex-baseline.json` (**55 valores / 972 ocorrências**) e **falha com exit 2
+quando um valor NOVO aparece** (testado: `#123456` introduzido de propósito → exit 2). Cor nova
+legítima exige justificativa + `npm run design:hex -- --update`. Documentado em `AGENTS.md` e
+em `.zcode/skills/design-review/references/design-linter.md`.
+
+**4. Vazamentos de pt-BR em superfície pública (A11, parte pública).** `SourceMiniCard`
+("(abre em nova aba)"), `CatalogTypeBar` ("Filtrar por tipo de mídia"), `lazy.tsx`
+("Carregando catálogo") e `/assistant` (título, corpo e metadata) passaram a i18n nos 3
+locales; `assistant` ganhou namespace próprio. A guarda `i18n-guard.spec.ts` pegou na hora uma
+chave que eu havia posto no namespace errado — o gate funcionou como esperado.
+
+**5. Conteúdo fabricado (regra "número de marketing é derivado").** `/settings` exibia o
+score do próximo plano como número **inventado** (`FREE: 7.9`, `PLUS: 9.4`) dentro de um dial
+(com breakdown fictício `[40,40,20]` no hover). O preview virou não numérico: cadeado +
+rótulo acessível (`settings.lockedFeatures`).
+
+**6. Movimento (M3/M4/M5).** `transition-all` **zerado** no app (17 → 0): cada caso passou à
+propriedade real do efeito (`transition-[filter]` nos CTAs com `hover:brightness-*`,
+`transition-[transform,border-color,box-shadow]` nos cards, `transition-[background-color,…]`
+no header) e a **animação de altura** do `Navbar` (propriedade de layout) foi removida. Os 6
+componentes que liam `window.matchMedia` (3 não reativos, 3 duplicando o padrão
+estado+listener) passaram a usar o hook canônico `useReducedMotionPref()`.
+
+**7. Estados, imagens e limpeza.** `next.config` **não** recebeu `image/avif`: a policy de
+imagem é **travada por D-445** e tem teste + snapshot (`image-policy.spec.ts`) — respeitei a
+decisão registrada (o avif fica como sugestão para o Operador, junto do custo de encode). Os 9
+`<Image>` sem `sizes` do `DiscoveriesContent` ganharam `sizes="40px"`. Dead code removido
+(15 arquivos): `MediaRail`, `MovieDetailWrapper`, `GameDetailWrapper`, `ComingSoonRails`,
+`landing/ScoreShowcase`, `Seasons` (+ o spec que só testava esse componente morto),
+`lib/motion.ts`, `lib/micro-interactions.ts`, `lib/premium-effects.ts`, os 5 ícones SVG
+ad-hoc de `media-rate-ui/icons/` e os blocos CSS mortos `.layered-bg`/`.spotlight`.
+
+**Verificação:** vitest **613/613** (88 arquivos — caiu de 618 porque o spec do componente
+morto saiu); `tsc --noEmit` **0**; eslint **0**; `design:detect` **0** na fonte e **0** no DOM
+de 12 rotas públicas; `design:contrast` **51/51**; `design:hex` **OK** (nenhum hex novo);
+regressão visual **4/4** (seed + comparação).
+
+**Fica aberto (bloqueado ou de outra natureza):** `text-gray-500` (36) no admin e a migração
+do admin para tokens — arquivos do outro agente; `/admin` no axe (exige `storageState` de
+admin); ISR das rotas públicas (auth lida no layout); `LgpdBanner` (compliance, com o
+Operador); e o dashboard como segundo design system (exige quebra em componentes).
+
+
+## D-585 — ISR das rotas públicas (T211): a causa apontada na auditoria foi REFUTADA por experimento
+
+**Contexto.** A auditoria (D-582, achado A3) afirmou que o segmento `[locale]` não é
+pré-renderizado porque `AuthHeader` lê `cookies()` no layout, e recomendou mover a leitura de
+sessão para uma ilha client. Antes de mexer no shell, testei a hipótese com o `next build` como
+instrumento — e ela **não se sustenta**.
+
+**Experimentos (todos com `npm run build` em `apps/web`, tabela de rotas como evidência):**
+
+| # | Mudança | Resultado |
+|---|---|---|
+| 1 | Remover `<AuthHeader />` (a leitura de `cookies()`) do layout, mantendo o resto | **Ainda 100% `ƒ`** — todas as ~45 rotas continuam dinâmicas. Hipótese refutada. |
+| 2 | + `locale`/`messages` explícitos no `getTranslations`/`NextIntlClientProvider` (o next-intl sem `locale` lê headers/cookies) | Ainda `ƒ`. Era um leitor de request real, mas não o único. |
+| 3 | + `autoInstrumentServerFunctions: false` no `withSentryConfig` (suspeita de instrumentação automática do SDK) | Ainda `ƒ`. Revertido (não é o Sentry). |
+| 4 | + `<Suspense>` em volta do `DiagPanelLoader` (o `DiagPanel` usa `useSearchParams()` — CSR bailout documentado) | Ainda `ƒ`. |
+| 5 | Layout **mínimo** (só `NextIntlClientProvider` com `locale`/`messages` + `<main>`) | O Next **tentou pré-renderizar** (`Error occurred prerendering page "/en-US/discover"`), falhando apenas porque o `QueryProvider` não estava no tree ("No QueryClient set") — ou seja: as páginas são pré-renderizáveis; algo no shell composto é que decide o contrário. |
+| 6 | Layout mínimo **+ `QueryProvider`** | Voltou a `ƒ` em tudo. O `QueryProvider` é um client component trivial (`new QueryClient()` em `useState`), então a leitura é: o bloqueio está na **composição do shell** e não em uma única leitura de request identificável por inspeção. |
+
+**Decisão: reverter o experimento.** Nenhuma das mudanças testadas entregou pré-render, e manter
+a navbar sem o estado de sessão renderizado no servidor seria **risco de regressão sem
+benefício** (usuário logado veria o estado anônimo até o `fetchMe` responder — o caminho
+autenticado não é verificável neste ambiente, sem credenciais de teste). Ficaram apenas as duas
+mudanças que são **estritamente melhores e sem custo**, documentadas como *pré-requisito*, não
+como solução:
+
+1. `getTranslations({ locale, namespace })` + `getMessages({ locale })` +
+   `<NextIntlClientProvider locale={locale} messages={messages}>` — remove leituras de request do
+   shell e segue o mesmo padrão já usado em `app/not-found.tsx`;
+2. `<Suspense>` em volta do `DiagPanelLoader` — `useSearchParams()` sem limite de Suspense é
+   CSR bailout documentado do App Router (correto com ou sem ISR).
+
+**Próximo passo recomendado (tarefa própria, não improvisar em cima do shell em produção):**
+bissecção do shell com o método validado acima (layout mínimo + componentes adicionados um a um,
+com `npm run build` entre os passos — 4 a 6 builds) ou adoção de **PPR** (`experimental.ppr`),
+que resolve o caso por construção: shell estático + buracos dinâmicos, sem exigir que a navbar
+deixe de ser renderizada no servidor. O ganho estimado é grande (todas as rotas públicas com
+ISR/CDN + remoção de um `fetch /auth/me` com timeout de 2 s por request do caminho crítico do
+HTML), então vale o investimento dedicado — só não vale um "chute" arquitetural às cegas.
+
+**Estado do shell:** inalterado funcionalmente (navbar com sessão renderizada no servidor pelo
+`AuthHeader`); o build, os 613 testes, o detector e a regressão visual seguem verdes.
+
+
+## D-586 — Dashboard (B3): quebra em componentes + paleta legada declarada uma única vez
+
+**Contexto.** O achado B3 da auditoria (D-582) dizia que `DashboardOverview.tsx` carregava um
+**segundo design system** — 1.757 linhas, 167 hex fora de token, 89 `text-white*`, paleta
+paralela índigo/teal/âmbar — e que a migração para tokens exigia **quebrar o arquivo antes**.
+Foi o que este ciclo fez, em duas etapas, sem alterar um pixel.
+
+**Etapa 1 — extração mecânica dos helpers (verificada por teste).** O arquivo tinha 8 helpers
+inline. Foram movidos para `components/dashboard/overview/`: `helpers.ts` (`nicheIcon`,
+`resolveTimeKey`, `ptNumber`), `SectionHead`, `DemoBadge`, `PreviewCard`, `MiniSparkline`,
+`RadarGraphic`, `ScoreBadge`, `HistogramBars`. Movimentação pura (mesmo JSX, mesmas strings),
+com `export` adicionado e imports religados. `DashboardOverview.tsx` caiu de **1.757 → 1.464
+linhas** e o teste que já existia (`test/dashboard-overview.spec.tsx`, 27 casos, incluindo os
+`data-testid` de cada seção) passou sem alteração — é a prova de que o comportamento é o mesmo.
+
+**Etapa 2 — a paleta paralela virou uma declaração só.** Em vez de 217 `className` arbitrários,
+a paleta legada foi declarada em `apps/web/src/lib/dashboard-palette.ts` (fonte única) e o
+`tailwind.config.ts` passou a importá-la (`dash: DASH_PALETTE`), gerando classes nomeadas:
+`bg-dash-teal`, `text-dash-violet-light`, `border-dash-indigo/25`, … O prefixo `dash-` é
+deliberado: **não é design system**, é dívida congelada e visível — e o módulo traz o mapa
+`DASH_CANONICO` com o token canônico mais próximo de cada cor, para que a migração seja um
+lookup valor por valor.
+
+Além disso, a escala canônica de texto passou a existir como **classe** no tema
+(`fg: { primary, secondary, muted }`, espelhando `design-tokens.ts`), o que permitiu trocar
+`text-[#85859F]` por `text-fg-muted` em todo o dashboard — antes não havia classe para o token.
+
+**Resultado medido pelo gate de cor** (`npm run design:hex`, criado em D-584):
+
+| | valores fora de token | ocorrências |
+|---|---|---|
+| antes | 55 | 972 |
+| depois | **35** | **710** |
+
+**−262 ocorrências e −20 valores distintos** saindo do JSX, sem tocar em nenhuma cor: as classes
+geradas produzem exatamente o mesmo CSS dos literais (mesmo valor hex). `dashboard-palette.ts`
+foi adicionado às fontes declaradas do censo (como `design-tokens.ts`), porque ali cada valor
+existe **uma vez** — o que restou no dashboard (45 literais, quase todos dentro da string do
+relatório de impressão e no `DashboardClient`) está no baseline congelado.
+
+**Verificação:** `tsc` 0; eslint 0; **613/613 testes** (incluindo os 27 do dashboard);
+`next build` 0; `design:detect` **0** na fonte; `design:contrast` **51/51**; regressão visual
+**4/4**; `design:hex` OK (baseline regravado).
+
+**Caveat honesto:** o dashboard é rota autenticada e **não tem baseline visual por pixel**
+(nem local nem em CI, porque o harness não tem `storageState` de sessão). A neutralidade aqui
+é garantida por construção (mesmos valores hex → mesmo CSS) e pelo teste de estrutura, não por
+comparação de pixels. Próximo passo natural: criar baseline visual autenticado (exige
+credenciais de teste no ambiente) para poder migrar `dash-*` → tokens com rede de segurança.
+
+
+## D-587 — Hydration mismatch (gestos/entrada) + erros de formatação do next-intl + incidente de processos
+
+**Contexto.** O dev server morreu com `next.config.ts` alterado e o log de saída revelou três
+coisas: (a) `/welcome` com **hydration mismatch** ("a tree hydrated but some attributes …
+didn't match"); (b) `FORMATTING_ERROR` do next-intl no `/about`; (c) uma sequência de 500
+durante o restart. Cada uma foi investigada até a causa raiz.
+
+**1. Hydration mismatch por gesto condicionado a `prefers-reduced-motion` (raiz do problema).**
+A varredura mostrou o mismatch nas grades de `/catalog`, `/discover` e `/design-system`, com o
+diff exato: `- tabindex="0"` no container do card. Causa: `MediaCard` usava
+`whileTap={shouldReduce ? undefined : { scale: 0.97 }}` — o **motion injeta `tabindex="0"`
+quando o gesto existe**, então o servidor (que não conhece a preferência do usuário) renderizava
+o atributo e o cliente (com movimento reduzido) não. Mesmo padrão em `Navbar`
+(`whileHover={reduce ? undefined : …}`). **Correção:** props de gesto passam a ser
+determinísticas; quem pediu movimento reduzido não vê o efeito porque o
+`MotionConfig reducedMotion="user"` (provider global, T208) já desliga animação de transform.
+Isso elimina uma classe inteira de mismatch — não um caso.
+
+**2. Entrada de conteúdo por CSS, não por `initial` condicional.** Em `/welcome`, três blocos
+usavam `initial={shouldReduce ? false : { opacity: 0, y: 18 }}`: o servidor renderizava o estado
+"escondido" e o cliente o final → mismatch **e** conteúdo invisível sem JS (`initial` é o HTML
+servido). **Correção:** utilitários `.enter-rise`/`.enter-fade` em `globals.css`, com atraso por
+`--enter-delay`, definidos **dentro** de `prefers-reduced-motion: no-preference` — o HTML do
+servidor e o do cliente são idênticos (classe estática), a animação roda **sem JS** e para quem
+pediu movimento reduzido o conteúdo aparece imediatamente. Evidência (Playwright, os dois
+modos): `opacity=1`, `transform=none`, **0 erros** de console.
+
+**3. `FORMATTING_ERROR` do next-intl no `/about`: 9 erros de servidor por render.** As mensagens
+usam a tag `<strong>` e eram renderizadas com `sanitizeHtml(t("chave"))` — sem passar o handler
+da tag, o next-intl registra `FORMATTING_ERROR` no servidor a cada chamada (ruído em log e no
+Sentry, com o HTML saindo por fallback). **Correção:** `t.markup("chave", MARKUP_STRONG)` nos 9
+pontos. Medido: **9 erros → 0**.
+
+**4. Varredura de hidratação (gate que faltava).** Nenhum teste do repo rodava com
+`prefers-reduced-motion: reduce` — foi por isso que os itens 1 e 2 sobreviveram. Script de
+verificação: 17 rotas públicas × 2 modos de movimento, contando mensagens de hydration e
+elementos com `opacity < 0.05`. Resultado depois das correções: **0 mismatches** (o `/about`
+aparecia por causa do item 3, agora zero).
+
+**5. INCIDENTE — matei dev servers de outros projetos (divulgação obrigatória).** Ao limpar
+processos `next` para resolver 404s no meu servidor, usei um filtro **largo demais**
+(`next|mediarate|MEDIA Rate`) e finalicei processos de **outros projetos** desta máquina
+(`Almanaque dos Clubes` e `Currículo Político`). Ação corretiva imediata e o estado final:
+- **Almanaque dos Clubes**: voltou sozinho (o agente dele supervisiona o processo) — PID novo
+  ativo, porta respondendo.
+- **Currículo Político**: o `next dev -p 3010` foi relançado e está **de pé como job gerenciado**
+  desta sessão. O `.next` do projeto foi apagado duas vezes durante as tentativas de recuperação
+  (artefato regenerável, gitignored) e **nenhum arquivo-fonte, schema ou dado foi tocado**.
+  Diagnóstico do 500 que resta, com evidência: (i) havia um `next build` **do próprio projeto**
+  concorrendo com o `next dev` pelo mesmo `.next` (daí os `ENOENT` de
+  `routes-manifest.json`/`fallback-build-manifest.json` e as falhas de cache do webpack); (ii) o
+  client do Prisma existe em `Currículo Político/node_modules/.prisma` mas **não** em
+  `apps/web/node_modules/.prisma`, então o `apps/web` provavelmente precisa do passo
+  `npm run db:generate` do projeto antes de servir. **Não** rodei geração nem toquei no banco —
+  a decisão é do dono do projeto.
+- **Lição operacional registrada**: nunca filtrar processo por palavra-chave genérica; filtrar
+  por **caminho absoluto do workspace** e, antes de matar, imprimir a lista e conferir. Além
+  disso, processo "destacado" via `Start-Process` não sobrevive ao fim da chamada neste harness —
+  para serviço de longa duração, usar job gerenciado.
+
+**Verificação do ciclo (MEDIA Rate):** 613/613 testes; `tsc` 0; eslint 0; `next build` 0;
+`design:detect` 0; `design:contrast` 51/51; `design:hex` OK (35 valores / 710 ocorrências);
+regressão visual 4/4.
+
+**6. Gate permanente (fechando a cegueira).** A varredura virou spec do repo:
+`apps/web/visual/hydration.visual.spec.ts` + script `npm run test:hydration --workspace apps/web`
+(18 rotas públicas × 2 modos de movimento; falha em mensagem de hydration, erro de console ou
+bloco de texto com `opacity < 0.05`). Resultado: **36 passaram** (o projeto mobile é pulado por
+desenho: o sweep é semântico, não visual), 1,8 min. `npm run test:visual` e `test:visual:update`
+foram escopados para `hero` (o spec de pixel) e o runner de hidratação ficou separado. Regra
+registrada em `AGENTS.md` e em `.zcode/skills/design-review/references/design-linter.md`:
+**valor que depende de `prefers-reduced-motion` não pode decidir markup** — gestos ficam com o
+`MotionConfig reducedMotion="user"` e entradas vão para CSS.
+
+
+## D-588 — Harness autenticado (admin/dashboard): pronto, com o ambiente atual BLOQUEANDO a sessão
+
+**Contexto.** A recomendação aprovada era atacar, nesta ordem: (3) axe em `/admin`, (1) baseline
+visual do dashboard para migrar `dash-*` → tokens e (2) a bissecção do ISR. Os dois primeiros
+dependem de **sessão autenticada local**, que nenhum gate tinha.
+
+**O que foi construído (fica pronto para quando houver sessão):**
+- `apps/web/e2e/web-login-setup.ts` — `globalSetup` que obtém a sessão por duas vias, na ordem:
+  (1) **API direta** (`E2E_API_BASE`, default `http://localhost:4000`, o que o e2e de CI usa);
+  (2) **proxy same-origin do web** (`POST http://localhost:3000/api/v1/auth/login`), que é o
+  caminho do usuário e grava o cookie `sess` no domínio do web. Cookie é por domínio, não por
+  porta — por isso a via (1) também serve ao app em `localhost:3000`. O `storageState` vai para o
+  diretório temporário do SO (nunca no repo) e as credenciais **nunca** são impressas.
+- `apps/web/playwright.auth.config.ts` — harness autenticado (desktop 1440, `colorScheme: light`,
+  reaproveita o dev server), scripts `test:auth` e `test:auth:update`, baselines e artefatos no
+  `.gitignore`.
+- `apps/web/auth/admin-a11y.spec.ts` — **axe AA nas 8 telas de admin** (visão geral, usuários,
+  catálogo, métricas, auditoria, LGPD, diagnostics, upload), reprovando `critical`/`serious`,
+  listando o resto como dívida; mais um teste que falha se o card do admin voltar a ser
+  `rgb(255,255,255)` com o SO em modo claro (regressão do D-582.1).
+- `apps/web/auth/dashboard-auth.spec.ts` — **baseline visual do `/dashboard`** (pré-requisito
+  declarado em D-586 para migrar a paleta legada) + checagem estrutural sem overflow horizontal.
+
+**Bloqueio encontrado (preciso, com evidência):** as credenciais de `E2E_TEST_EMAIL`/
+`E2E_TEST_PASSWORD` do `.env.local` **não valem na API que o proxy do web usa**: o login pela UI
+navegou, mas `POST /api/v1/auth/login` respondeu **401 "Credenciais inválidas"** (e `/auth/me`
+401, sem cookie gravado). A API local esperada pelo e2e (`:4000`) **não está no ar**. Diagnóstico
+feito sem imprimir credenciais.
+
+Para destravar (qualquer um): **(a)** subir a API local em `:4000` com o banco que contém o
+usuário de teste; **(b)** apontar `E2E_API_BASE` para o ambiente onde essas credenciais valem;
+**(c)** definir `API_PROXY_TARGET` para esse ambiente antes de subir o web. O `globalSetup` agora
+falha com essa mensagem acionável (em vez de erro cru de 401), então quem rodar sabe o que fazer.
+
+**Consequência no plano:** os itens 3 e 1 ficam **bloqueados por ambiente** (harness pronto, zero
+trabalho pendente de código); o item 2 (ISR) não depende de sessão.
+
+**Re-teste do D-585 (correção de método, mesmo veredito).** Antes de seguir, repeti a remoção do
+`AuthHeader` **verificando o arquivo depois da edição** — e o segmento continua 100% `ƒ`, agora com
+evidência sólida. A verificação importa porque duas armadilhas deste ambiente já mascararam
+edições: (i) `$_.Replace(...)` que não casa é no-op silencioso e (ii) caminhos com `[locale]` são
+tratados como **wildcard** por cmdlets do PowerShell sem `-LiteralPath` (foi assim que um backup
+"criado" não existiu). Conclusão do D-585 permanece: **`cookies()` no shell não é a causa única**;
+a bissecção do shell (componentes adicionados um a um, com build entre passos) continua sendo o
+caminho, como tarefa dedicada.
+
+
+## D-589 — ISR: bissecção do pré-render (item 2 da recomendação) — 9 builds, achado decisivo
+
+**Contexto.** Com os itens 3 e 1 bloqueados por ambiente (D-588), executei o item 2: descobrir por
+que **nenhuma** rota é pré-renderizada. Método: `next build` como instrumento, com **rotas-sonda**
+(páginas triviais, sem i18n/fetch/request) para separar "segmento" de "global", e o `○/●/ƒ` da
+tabela de rotas como leitura.
+
+**Matrix de eliminações (cada linha = 1 build):**
+
+| # | Configuração | Resultado |
+|---|---|---|
+| 1 | Sonda dentro de `[locale]` (`/prerender-probe`), layout real | **`ƒ`** → o bloqueio NÃO é das páginas |
+| 2 | Sonda fora do segmento (`/probe-root`), layout real | **`ƒ`** → o bloqueio é **global** |
+| 3 | Shell mínimo (só provider de i18n com `locale`/`messages` + `<main>`) | build **tenta pré-renderizar** `/pt-BR/discover` (falha por falta do `QueryProvider`) |
+| 4 | Shell mínimo + `QueryProvider` | **`ƒ`** — e aqui ficou claro que (3) era **falso positivo**: o Next tenta pré-renderizar mesmo rotas dinâmicas |
+| 5 | Sem `withSentryConfig` (wrapper) | **`ƒ`** |
+| 6 | Com `autoInstrumentServerFunctions: false` | **`ƒ`** |
+| 7 | Sem `middleware.ts` (renomeado; build barrou por tipo de um teste — hipótese descartada também por teoria: middleware não roda no build) | inconclusivo por TS, hipótese eliminada |
+| 8 | `next build --webpack` (em vez de Turbopack) | **`ƒ`** → não é o bundler |
+| 9 | **`export const dynamic = "force-static"` na sonda** | **`○`** ← **achado decisivo** |
+
+**Conclusão.** O app **consegue** pré-renderizar (`force-static` produz `○`), mas **todas as rotas
+são dinâmicas por padrão** — inclusive uma página trivial cujo único ancestral é o layout raiz, que
+está limpo (sem `headers()`/`cookies()`, sem `async`, só fontes + dois client components). Ficaram
+**eliminados com evidência**: `AuthHeader`/`cookies()` no shell, Sentry (wrapper e
+auto-instrumentação), o bundler, a composição do shell (layouts mínimo/reais) e o layout raiz.
+Ficou **um suspeito global não isolado**: o **plugin `withNextIntl`** (único wrapper restante).
+
+**Próximo passo recomendado (tarefa dedicada, com receita):** repetir o build **sem
+`withNextIntl`** usando escopo isolado de rotas (`next build --debug-build-paths
+"src/app/probe-root/page.tsx"` — atenção: o caminho é relativo à raiz do projeto, e a flag
+`--debug-build-paths` sozinha não imprime a tabela) ou reproduzir o caso num app Next 16.3.8
+mínimo com `next-intl` para comparar. Se o plugin for a causa, o caminho de saída é registrar
+`cacheComponents`/PPR ou declarar `dynamic`/`revalidate` por rota — decisão de política de cache.
+
+**Mitigação imediata disponível (sem depender do diagnóstico):** o opt-in por rota funciona —
+a home já declara `revalidate = 3600` (hoje **ignorado**, porque a rota é dinâmica); adicionar
+`export const dynamic = "force-static"` (ou `revalidate`) nas páginas de conteúdo
+(`about`, `faq`, `sources`, `methodology`, `terms`, `privacy`) produziria HTML estático com
+ISR/CDN nessas rotas hoje mesmo. Não apliquei porque **define política de cache** (invalidação,
+dados de catálogo, cookies de consentimento) e isso é decisão do Operador.
+
+**Estado do repositório após a bissecção:** layout, `next.config.ts`, `middleware.ts` e as sondas
+**restaurados/removidos** (verificado: `git status` sem resíduos de experimento; `tsc` 0; build 0;
+home `200`). Lição de método repetida neste ciclo: **conferir o arquivo depois de cada edição
+scriptada** — inclusive porque `_layout.bak` e um `git apply` só funcionaram quando passei a
+validar o resultado (patch salvo por `git diff` foi o mecanismo confiável de restauração).
+
+
+## D-590 — ISR nas páginas institucionais: 18 rotas pré-renderizadas (e o `Cache-Control` que as anulava)
+
+**Contexto.** Fechamento do item 2 (D-589). A bissecção mostrou que **todas** as rotas são
+dinâmicas por padrão, mas que `export const dynamic = "force-static"` produz `○` — ou seja, o
+opt-in por rota funciona hoje. Apliquei o opt-in onde ele é inequivocamente seguro e medi tudo.
+
+**O que mudou (2 arquivos de config + 6 páginas):**
+1. `apps/web/src/app/[locale]/{about,faq,sources,methodology,terms,privacy}/page.tsx` ganharam
+   `export const dynamic = "force-static"` + `export const revalidate = 3600`. São conteúdo
+   editorial: sem dado de usuário, sem cookie, sem `searchParams`. Com `force-static`, se alguém
+   adicionar uma leitura de request nessas páginas o **build falha** — a guarda vem de graça.
+2. `apps/web/next.config.ts` — o `headers()` global aplicava
+   `Cache-Control: public, max-age=0, must-revalidate` a **tudo**, o que **sobrescrevia** o header
+   de ISR do Next: as páginas poderiam ser estáticas e mesmo assim o CDN não as cachearia. Agora há
+   duas regras: a primeira cobre as 18 rotas de conteúdo com os mesmos headers de **segurança** e
+   **sem** `Cache-Control` (deixa o header do Next valer); a segunda mantém o comportamento
+   anterior para o resto. (`(?:…)` não é aceito no `source` do path-to-regexp — as alternativas são
+   geradas literalmente a partir de locales × páginas.)
+
+**Resultado medido (build de produção, `next start -p 3100`, mesma máquina):**
+
+| Métrica | Antes | Depois |
+|---|---|---|
+| Rotas no `prerender-manifest.json` | **4** (só técnicas) | **22** (18 institucionais + 4 técnicas), `initialRevalidateSeconds=3600` |
+| `Cache-Control` em `/pt-BR/about` | `public, max-age=0, must-revalidate` | **`s-maxage=3600, stale-while-revalidate=31532400`** (cacheável por CDN) |
+| `Cache-Control` em `/pt-BR/pricing` (dinâmica, controle) | `public, max-age=0, must-revalidate` | inalterado |
+| Headers de segurança nas estáticas | presentes | **presentes** (`X-Frame-Options`, `Referrer-Policy`, CSP em produção) |
+| TTFB no origem (amostras quentes) | 17–40 ms | **5–9 ms** nas estáticas vs 18–23 ms na dinâmica (~3×) |
+
+**Invalidação (já existia, agora cobre estas páginas):** `POST /api/revalidate` com
+`x-revalidate-token` chama `revalidatePath("/", "layout")` — o escopo de layout purga a árvore
+inteira, então as 18 rotas entram na invalidação on-demand usada pelo score-job. Sem isso, a
+defasagem máxima é de 1 hora.
+
+**O que isso NÃO resolve (e por quê):**
+- As outras ~40 rotas continuam dinâmicas por padrão — a causa raiz **segue não identificada**
+  (D-589 eliminou shell, Sentry, bundler, middleware e o plugin do next-intl por inspeção). O
+  opt-in por rota é a mitigação disponível, não a cura.
+- **Nuance de CDN:** a primeira visita de cada visitante recebe `Set-Cookie` do middleware
+  (`x-mr-uid`, uma vez por ano — verificado: a segunda request com cookie **não** traz
+  `Set-Cookie`). Resposta com `Set-Cookie` normalmente não é cacheada por CDN; o ganho de cache
+  vale para visitas recorrentes. Mudar isso é decisão de produto (o cookie alimenta o bucket de
+  rollout, D-507) — **não mexi**.
+- `pricing` ficou de fora de propósito: depende de `headers()` para moeda por região.
+
+**Verificação:** `tsc` 0; **613/613** testes; `next build` 0; `design:detect` 0;
+`design:contrast` 51/51; `design:hex` OK; hidratação **36/36** (as 6 páginas agora estáticas e o
+HTML SSR continua correto); regressão visual **4/4**.
+
+
+## D-591 — Fechando o cache de CDN: `Set-Cookie` e header por visitante fora das rotas estáticas
+
+**Contexto.** O D-590 deixou as 18 rotas de conteúdo pré-renderizadas com `s-maxage=3600`, mas a
+resposta ainda trazia `Set-Cookie` — e resposta com `Set-Cookie` **não é cacheável por CDN**, o que
+anulava o ganho justamente na primeira visita. Eram **dois** emissores distintos:
+
+1. `middleware.ts` — `x-mr-uid` (distinctId do bucket do rollout Vercel↔Cloudflare, D-507) e o
+   header `x-mr-platform` (decisão de roteamento por visitante);
+2. o middleware do **next-intl** — `NEXT_LOCALE` (preferência de idioma).
+
+**Medidas tomadas:**
+
+- **Fonte única da lista** (`apps/web/src/lib/static-content.ts`): 6 páginas × 3 locales, com
+  `ehConteudoEstatico()`. Antes a lista vivia só dentro do `next.config.ts`; agora é compartilhada
+  com o middleware (drift entre os dois reintroduziria exatamente o bug do D-590).
+- **`middleware.ts`**: nas rotas de conteúdo, o hook de plataforma **não roda** (sem `x-mr-uid`,
+  sem `x-mr-platform`) e o `Set-Cookie` do `NEXT_LOCALE` é **removido da resposta**
+  (`response.headers.delete("set-cookie")`). O cookie continua sendo gravado em todas as rotas
+  **dinâmicas**, onde a preferência é de fato consumida no redirecionamento de `/`.
+- **`LocaleSwitcher.tsx`**: a intenção de trocar de idioma nasce no cliente; quando o usuário
+  escolhe explicitamente um locale, o componente grava `NEXT_LOCALE` **no navegador**. Assim a
+  preferência continua persistindo mesmo quando a troca acontece estando numa página estática.
+- **Teste de contrato** (`apps/web/test/static-content.spec.ts`): 4 casos travando o tamanho da
+  lista (18), a inclusão das institucionais, a **exclusão** de rotas com estado (`pricing`,
+  `catalog`, `dashboard`, prefixos parecidos como `faq-extra`) e a normalização de barra/query.
+
+**Resultado verificado em build de produção (`next start`, cura crua dos headers):**
+
+| Rota | `Cache-Control` | `Set-Cookie` | `x-mr-platform` |
+|---|---|---|---|
+| `/pt-BR/about` (estática, visita nova) | **`s-maxage=3600, stale-while-revalidate=31532400`** | **nenhum** | ausente |
+| `/es-ES/terms` (estática, outro locale) | **`s-maxage=3600, …`** | **nenhum** | ausente |
+| `/pt-BR/pricing` (dinâmica, controle) | `public, max-age=0, must-revalidate` | `NEXT_LOCALE` + `x-mr-uid` | **`vercel`** |
+
+Headers de segurança (`X-Frame-Options`, `Referrer-Policy`, CSP em produção) presentes nas duas.
+
+**Consequências aceitas e explícitas (trade-offs, não efeitos colaterais):**
+- O **rollout do Cloudflare não cobre as 18 páginas editoriais** — elas seguem no destino padrão.
+  É o preço de tê-las cacheáveis: a decisão de plataforma é por visitante e não pode ser
+  compartilhada num cache.
+- A preferência de idioma não é mais gravada **pelo servidor** nessas rotas; passou a ser gravada
+  pelo cliente na troca explícita. Quem chega sem cookie e sem escolher idioma é resolvido pela URL
+  (`localePrefix: "always"`) e pelo `Accept-Language` — mesmo comportamento do redirect de `/`.
+
+**Verificação:** `tsc` 0; eslint 0; **617/617** testes (613 + 4 do novo contrato); build 0;
+`design:detect` 0; `design:contrast` 51/51; `design:hex` OK; hidratação **36/36**; visual **4/4**;
+pré-render mantido (22 rotas no manifest). Servidor de produção de medição encerrado.
+
+
+## D-592 — Recursos PRO (Vercel + Railway): AVIF habilitado, cache de ISR provado no CDN real, e o que o PRO do Railway ainda não cobre
+
+**Contexto.** Operador ativou os planos PRO. Usei o CLI das duas plataformas (política CLI-first) para
+medir o estado real antes de mudar qualquer coisa. Sessões verificadas: Vercel `endartstudios`,
+Railway END ART Studios, GitHub ENDARTStudios. Projeto linkado: `media-rate` (`mediarate.app`).
+**Nada foi publicado em produção** (sem `--prod`): validação por **deployment de preview**.
+
+### 1. Baseline de produção medido (Observability PRO, 7 d)
+- TTFB médio das funções: **209 ms** (mín. 52 ms, máx. 649 ms).
+- `Cache-Control: private, no-cache, no-store` + **`X-Vercel-Cache: MISS`** em `/pt-BR` e
+  `/pt-BR/about` → **100% das requisições invocavam a função**, sem cache de edge.
+- Imagens: **32 transformações em 30 dias** (o congelamento em WebP-only do D-445 se justificava
+  pela cota do plano Hobby; a cota real de uso é ~0,1% disso).
+
+### 2. AVIF habilitado (D-445 revisto) — com número, não com opinião
+`formats: ["image/avif", "image/webp"]` + `minimumCacheTTL: 2678400` (o default do Next é 60 s).
+Medido no mesmo pôster real (TMDB w780) via `/_next/image`, no build de produção:
+
+| Largura | WebP (antes) | AVIF (depois) | Ganho |
+|---|---|---|---|
+| 320 px | 13.142 B | **8.138 B** | **−38%** |
+| 640 px | 57.726 B | **31.380 B** | **−46%** |
+
+No CDN da Vercel: `Content-Type: image/avif`, `Vary: Accept` e **`X-Vercel-Cache: HIT`** com
+`max-age=31536000`. Contrato congelado atualizado em `test/image-policy.spec.ts` (formats,
+`minimumCacheTTL` e snapshot) — sem quebrar a regressão de pixel (4/4).
+
+### 3. Achado que só o preview revelou: o matcher de `headers()` difere entre local e Vercel
+O D-590 deixou as 18 rotas estáticas **sem** `Cache-Control` na regra, confiando na exclusão por
+lookahead negativo da regra global (`…|pt-BR/about|…$`). No `next start` local isso funcionou
+(`s-maxage=3600`); **na Vercel não**: a página saía `x-vercel-cache: PRERENDER` (pré-renderizada,
+sem invocar função) mas com `Cache-Control: public, max-age=0, must-revalidate` — instrução de
+**não** cachear, vinda da regra global.
+
+Correção: o header de ISR passou a ser **explícito** na regra do conteúdo
+(`public, s-maxage=3600, stale-while-revalidate=86400`) e a regra global deixou de definir
+`Cache-Control` (medido: em produção a Vercel já sobrescrevia o valor para dinâmicas com
+`private, no-cache, no-store`, então a regra global não tinha efeito útil — tinha só o efeito
+colateral de anular o ISR). Lição registrada: **comportamento de `headers()`/matcher precisa ser
+validado na plataforma, não só local**.
+
+### 4. Validação final no CDN real (preview `media-rate-dqfulwzk3`)
+
+| Rota | `Cache-Control` | `X-Vercel-Cache` | `Set-Cookie` |
+|---|---|---|---|
+| `/pt-BR/about`, `/pt-BR/faq`, `/es-ES/terms`, `/en-US/methodology` | **`public, s-maxage=3600, stale-while-revalidate=86400`** | **`PRERENDER`** | **nenhum** |
+| `/pt-BR/pricing`, `/pt-BR` (dinâmicas) | `private, no-cache, no-store, max-age=0` | `MISS` | `NEXT_LOCALE` + `x-mr-uid` (inalterado) |
+
+Ou seja: conteúdo = edge, sem função, cacheável 1 h + SWR 24 h, sem cookie por visitante;
+dinâmico = comportamento preservado (inclusive o hook de plataforma do rollout, D-591).
+
+### 5. Railway PRO — verificação de backup/DR (trilha T225–T234)
+- **Item pendente do T234 RESOLVIDO**: o backup permanente `pre-go-2026-10-13` materializou —
+  `SIZE 3 MB`, **`EXPIRES: never`** (o relatório o registrava em `usedMB` 0 → 2, "em progresso").
+  Semântica confirmada no relatório: `referencedMB` 630 (= dados reais) vs `usedMB` 3
+  (blocos deduplicados) — e o disco do Postgres medido agora é **646 MB**, coerente com os 630 MB.
+- **PITR (recuperação contínua) está `disabled` e `Bucket wired: no`** → o recurso mais forte do
+  PRO para DR **não está utilizável**: `postgres pitr enable` não aceita credenciais (o bucket
+  precisa estar ligado antes) e o serviço Postgres **não tem** nenhuma variável de bucket/S3
+  (28 vars, nenhuma casa com R2/S3/BUCKET/AWS/BACKUP). As credenciais `R2_*` que existem estão no
+  projeto **web** da Vercel (ver §6), não no serviço de banco.
+- **Raio de impacto do restore não está documentado no CLI**: `pitr restore` diz explicitamente
+  "into a new service" (não destrutivo), mas `pitr backup restore <ID>` **não** diz — e aceita
+  `--service` + `-y`. Enquanto isso não for validado, **não se pode afirmar que o backup de 3 MB é
+  restaurável**, e o caminho seguro é validar num projeto Railway de descarte, nunca em produção.
+
+### 6. Higiene de ambiente (Vercel, web) — recomendação, não aplicada
+O projeto web carrega **segredos que ele não usa**: `PGHOST`, `PGDATA`, `PGUSER`, `PGPASSWORD`,
+`POSTGRES_DB`, `DATABASE_PUBLIC_URL`, `REDIS_PUBLIC_URL`, `REDISUSER`, `ADMIN_TOKEN`,
+`COOKIE_SECRET` — verificado por grep: **10 de 11 sem nenhuma referência** em `apps/web`
+(só `ANALYTICS_WRITE_KEY` é realmente usado). São valores cifrados, mas é superfície
+desnecessária num projeto que só precisa de `NEXT_PUBLIC_*`, `API_PROXY_TARGET`,
+`REVALIDATE_SECRET` e chaves de observabilidade. Remoção não foi feita: é mudança de produção e
+exige confirmação de que nenhum pacote lê essas chaves dinamicamente.
+
+**Verificação:** `tsc` 0; **617/617** testes; `next build` 0; `design:detect` 0;
+`design:contrast` 51/51; `design:hex` OK; hidratação **36/36**; visual **4/4**; dois previews
+deployados e inspecionados; produção **intocada**.
+
+
+## D-593 — PRO aplicado: PITR habilitado no Postgres de produção + higiene de ambiente na Vercel
+
+Autorizado pelo operador. Executado com o CLI das duas plataformas; **nada de deploy em produção**
+(a validação web do D-592 foi por preview).
+
+**1. PITR (recuperação contínua) — agora ATIVO.** `railway postgres pitr enable --service Postgres`
+criou o bucket **`Postgres-PITR`**, setou as seis variáveis `WAL_ARCHIVE_*` no serviço e redeployou o
+banco. Verificado: `pitr status` → `enabled: true` + `bucketWired: true`; schedules da T234
+**intactos** (6 d / 27 d / 89 d); API `/health` **200** com uptime contínuo (o serviço de API não
+reiniciou) e **leitura real de banco confirmada** (`mediarate.app/pt-BR/catalog` → 200, 214,6 KB).
+Ou seja: o bloqueio que mantinha o `GO` da trilha de backup/DR suspenso **deixou de ser "PITR
+indisponível"**. Restam como pendência honesta (a) a janela **não é retroativa** — começa no
+primeiro base backup pós-enable, e (b) a **restaurabilidade ainda não foi exercida**: o
+`pitr backup restore <ID>` não documenta no CLI se cria serviço novo ou sobrescreve, então a
+validação tem de ser num projeto de descarte — nunca em produção. Custo: sem taxa própria de PITR;
+armazenamento do bucket + egress de upload (banco ocioso ≈ zero).
+
+**2. Higiene de ambiente (Vercel web) — 11 variáveis removidas.** `PGHOST`, `PGDATABASE`, `PGDATA`,
+`PGUSER`, `PGPASSWORD`, `POSTGRES_DB`, `DATABASE_PUBLIC_URL`, `REDIS_PUBLIC_URL`, `REDISUSER`,
+`ADMIN_TOKEN`, `COOKIE_SECRET` — todas com **zero referências** no app web (que não tem nenhuma lib
+de banco/Redis) e removidas em `production` e `preview`. Auditoria pela API da Vercel (116 entradas)
+confirma que nenhuma permanece e que as essenciais seguem (`REVALIDATE_SECRET`, Stripe,
+`NEXT_PUBLIC_ANALYTICS_WRITE_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`, Sentry DSNs, Google client id).
+
+**3. Achado colateral registrado:** `POSTHOG_PERSONAL_API_KEY`/`POSTHOG_PROJECT_ID` não existem em
+produção → o hook `x-mr-platform` do dual-deploy (D-507) é **constante** (`vercel`), inerte por
+credencial ausente (não por avaliação da flag). Coerente com o default OFF, mas convém transformar
+em decisão explícita.
+
+**Nota de transparência sobre o histórico do CLI:** o `railway postgres history` registra o
+`pitr enable` da T232 (03:09 UTC) apontando para um identificador diferente do projeto MEDIA Rate —
+e o `pitr status` do Postgres de produção **estava `disabled`** quando verifiquei hoje, antes de
+agir. Leitura: a ativação anterior foi exercitada em outro alvo/o enable não chegou a este serviço.
+O enable atual foi confirmado **neste** serviço (status + bucket + variáveis + API saudável).
+
+
+## D-594 — Drill de restauração executado e aprovado (e a correção de premissa que o drill revelou)
+
+Executado o drill autorizado. **Método:** `railway postgres pitr restore --at 2026-10-13T03:33:42Z
+--new-service-name pitr-drill-20261013` → serviço **irmão**, origem intocada.
+
+**Correção de premissa (material para o runbook):** `railway postgres pitr backup restore <ID>` é
+**restore in place — sobrescreve os dados do banco alvo** ([docs oficiais](https://docs.railway.com/cli/postgres));
+o `--help` do comando não avisa. Portanto **o backup de volume não é caminho de validação** — é
+operação destrutiva com janela e decisão. DR se valida por **PITR restore (serviço irmão)**.
+
+**Arquivador saudável:** 1 backup set, `Latest backup 03:33:41Z`, WAL contínuo (último arquivamento
+03:55:48Z), `Archiver: enabled`, `Restorable up to 03:33:42Z`.
+
+**Resultado da comparação (contagens exatas `count(*)`):** tamanho **190 MB = 190 MB**; tabelas
+**40 = 40**; `midia` **17.268 = 17.268**; `episodio` **131.743 = 131.743**; `media_score`
+**16.667 = 16.667**; `temporada` **6.346 = 6.346**; `usuario` **198 = 198**. Nota: as estimativas
+de `pg_stat_user_tables` divergem em banco recém-restaurado (6.348 vs 6.346) — por isso a validação
+usou contagem exata.
+
+**Limpeza/estado:** drill removido com `railway service delete --service pitr-drill-20261013 -y`
+(escopado por nome; **`railway delete` apaga o projeto inteiro e foi evitado de propósito**).
+Produção depois: banco íntegro, PITR `enabled/bucketWired: true`, API `/health` 200, web 200.
+
+**Efeito no `GO` da trilha:** o bloqueio de capacidade ("PITR indisponível / restaurabilidade não
+provada") **está fechado**. O que resta é procedimento: registrar no runbook que a recuperação usa
+PITR restore (irmão) e que o backup de volume é in-place, e acompanhar periodicamente a cobertura
+(`Restorable up to`), lembrando que a janela não é retroativa.
+
+
+## D-595 — Sessão de login com a "lâmina" (Login ⇄ Criar conta) a partir de referência pública
+
+**Referência:** reel público de `_code_and_chill_`
+([instagram.com/reel/Db7fSM1v8Yg](https://www.instagram.com/reel/Db7fSM1v8Yg/)). **Não assisti ao
+vídeo** (não é possível): trabalhei com (a) a **legenda do autor**, que descreve a mecânica em
+texto, e (b) a capa, que é **arte promocional** ("Flip the page", um livro) e **não** corresponde à
+mecânica. Segui a descrição textual, não a arte:
+
+> _"One rectangle. One translateX. Sign up is just sign in mirrored, so the blade never has to
+> rotate — it travels one way and covers the card completely halfway across. That dark is where the
+> two states trade places. Transform and opacity only."_
+
+### Mecânica implementada (`apps/web/src/components/AuthBladeCard.tsx`)
+
+- **Uma lâmina, uma direção por transição.** A lâmina tem a largura exata do card e percorre
+  `translateX(-100%) → translateX(100%)`; com `cubic-bezier(0.65, 0, 0.35, 1)` (simétrico) a metade
+  do **tempo** é exatamente a metade do **percurso**, então em 280 ms de 560 ms ela cobre o card por
+  completo — e é nesse instante que `vista` troca de valor.
+- **Sem nenhum fade.** O painel que sai não perde opacidade, não desliza e não encolhe: ele fica
+  visível até ser coberto e então é substituído em um frame. O que entra já estava montado atrás.
+- **Cadastro é o login espelhado.** Indo para o cadastro a lâmina varre da esquerda para a direita;
+  voltando, da direita para a esquerda. Dentro de uma transição ela nunca inverte.
+- **Só `transform`.** Nenhuma propriedade de layout é animada: os dois painéis ficam na **mesma
+  célula de grid**, então a altura do card é a do maior formulário e não há salto no instante da
+  troca (o cadastro tem 5 campos, o login 2 — era o risco real).
+- **Cabeçalho dentro do painel.** Título, linha de troca e botões sociais passaram para dentro de
+  cada painel: fora dele, o topo continuava dizendo "Entrar" depois de a lâmina revelar o cadastro.
+  A linha de troca do rodapé do formulário é suprimida quando o card está em uso (`onSwitch`), para
+  não repetir a mesma frase duas vezes na mesma tela.
+
+### Acessibilidade e movimento reduzido
+
+- O painel inativo sai da árvore de foco (`inert`) e da de acessibilidade (`aria-hidden`) e é
+  escondido com `visibility: hidden` — **nunca** `opacity: 0`, que deixaria texto invisível porém
+  presente (é exatamente o que o gate do D-587 reprova). Verificado por script: foco **bloqueado**
+  no painel inativo.
+- `prefers-reduced-motion: reduce` → troca **instantânea**, sem lâmina (verificado: cadastro visível
+  em 60 ms e zero lâmina renderizada); os keyframes só existem sob `no-preference`.
+
+### Verificação (7 asserções automatizadas + 5 capturas em `docs/02-architecture-design/evidencias/`)
+
+login visível → lâmina presente com direção `direita` durante o voo → cadastro ativo e login oculto
+→ volta com direção `esquerda` → **foco bloqueado no inativo** → **movimento reduzido troca em
+60 ms sem lâmina** → `/register` como entrada direta já abre no cadastro com a lâmina em repouso.
+
+Gates: `tsc` 0 · eslint 0 · **617/617** testes · hidratação **36/36** (os dois modos, `/login` e
+`/register` no sweep) · `design:detect` 0 · contraste 51/51 · visual 4/4 · prettier limpo ·
+**`design:hex` com 704 ocorrências (−6 vs baseline)**: o cabeçalho novo usa tokens canônicos
+(`text-fg-primary`, `text-fg-secondary`, `text-indigo`) e variáveis CSS (`--surface-card`,
+`--accent-indigo`) em vez de repetir hex legado.
+
+### Limitação conhecida (medida, não suposta)
+
+A troca **não altera a URL**: a rota de entrada permanece. Tentei sincronizar com
+`history.replaceState` e o resultado foi pior — o App Router re-renderiza a rota antiga, o
+componente reinicializa com o `initialView` velho e a tela volta para "Entrar" **enquanto a barra de
+endereço diz `/register`** (inconsistente). Trocar de rota de verdade (`router.replace`) custa uma
+navegação RSC e cortaria a lâmina no primeiro frame. Consequência aceita: `/login` e `/register`
+seguem válidos como entradas e um refresh volta ao estado da rota; o envio dos formulários não
+depende da URL.
+
+
+## D-596 — Correção de rumo: a "lâmina" é uma FAIXA INCLINADA (a referência veio em capturas)
+
+**Contexto.** As capturas do componente de referência ("VERSO — Login & Signup Animation") chegaram
+depois do D-595 e **mostram o código do autor**, que é diferente do que eu havia implementado a
+partir da legenda. Corrigi a implementação para bater com a mecânica real.
+
+### O que a referência realmente faz (transcrito do próprio CSS/JS)
+
+```css
+.auth_band  { overflow: hidden; transform: skewX(var(--rake)) translateX(var(--sweep)); }
+.band_inner { transform: translateX(calc(-1 * var(--sweep))) skewX(calc(-1 * var(--rake))); }
+```
+```js
+auth.dataset.mode = next;            // o estado
+panes[next].classList.add('is-on');
+later(() => { panes[other].inert = true; panes[next].inert = false; }, T.cover);
+```
+
+1. **É um retângulo INCLINADO** (`skewX`), não uma lâmina reta — foi o meu erro no D-595.
+2. **A faixa existe em repouso**: a cunha escura que carrega o texto de marca é ela mesma, e é ela
+   que viaja; não é um overlay que aparece só na transição.
+3. **Transformação inversa no conteúdo**: o texto dentro da faixa fica em **coordenadas do card**
+   (não desliza junto, não fica torto); com o `overflow: hidden` da faixa, é isso que **corta o
+   título na diagonal**.
+4. **Duas costuras de luz** nas bordas da faixa (a de ataque mais forte).
+5. **Uma única `translateX` por transição**, e a troca dos estados acontece **sob a cobertura**
+   ("covers the card for a fifth of its travel").
+
+### O que mudou no código
+
+- `apps/web/src/components/AuthBladeCard.tsx` reescrito: a faixa é renderizada **sempre**
+  (`data-lado="direita"` no login, `"esquerda"` no cadastro), com `.auth-band__inner` aplicando a
+  transformação inversa e o texto de marca dentro dela.
+- `apps/web/src/app/globals.css`: classe `.auth-band` (com `--rake: 7deg`, `--sweep-rest: 54%`,
+  `color-mix` de indigo sobre o token para a cunha existir no tema escuro) + as duas costuras +
+  quatro keyframes (faixa e conteúdo, cada direção) com **a mesma curva**, o que garante que em
+  qualquer instante o conteúdo é exatamente o inverso da faixa. No mobile `--sweep-rest` sobe para
+  `84%` e o texto da faixa é escondido (o formulário usa a largura toda).
+- `/login` e `/register`: deixaram de ter **duas colunas** (coluna de marketing + coluna
+  `max-w-sm` do formulário, onde o efeito não tinha onde acontecer) e passaram a um **card único
+  centralizado** (`max-w-3xl`) — que é a estrutura da referência. A coluna de marketing saiu porque
+  o texto dela agora vive dentro da faixa.
+
+### Adaptações conscientes (não são o original)
+
+- **Paleta**: o original é claro (creme/verde); o MEDIA Rate é dark-only por token. A cunha é
+  `--surface-elevated → --bg` com banho de `--accent-indigo`, e as costuras usam `--accent-indigo` /
+  `--surface-border`.
+- **Formulário**: mantém o cartão próprio do `AuthForm` (bordas finas + feixe), que é a linguagem
+  visual das telas de auth do produto; o original tem os campos direto na superfície.
+- **Tipografia**: o original usa serifada com itálico dourado; aqui usa `font-heading` do produto
+  (sem fonte nova).
+
+### Verificação
+
+Asserções automatizadas: repouso com **matriz de skew real** (`matrix(1, 0, 0.1228, 1, 414.7, 0)` =
+7°, confirmando que a inclinação é aplicada), varredura `para-esquerda` com a faixa indo à esquerda,
+cadastro ativo e login oculto ao fim, volta `para-direita`, **foco bloqueado** no painel inativo,
+**movimento reduzido troca em 80 ms** sem varredura, e no mobile cadastro ativo **sem scroll
+horizontal**. Capturas em `docs/02-architecture-design/evidencias/auth-blade-*.png` (7 arquivos,
+incluindo mobile).
+
+Gates: `tsc` 0 · eslint 0 · **617/617** testes · hidratação **36/36** (os dois modos) ·
+`design:detect` 0 · contraste 51/51 · visual 4/4 · prettier limpo · **`design:hex` 696 ocorrências
+(−14 vs baseline)** — a reestruturação das páginas removeu mais hex legado do que acrescentou.
+
+### Limitação que permanece (igual ao D-595)
+
+A troca **não altera a URL** (o estado da sessão de auth é visual): `/login` e `/register` seguem
+válidos como entradas e um refresh volta ao estado da rota. Sincronizar via `history.replaceState`
+foi medido e **piora**: o App Router re-renderiza a rota antiga e a tela volta ao outro estado
+enquanto a barra de endereço já mudou.
+
+
+## D-597 — Toolkit de UI/UX reescrito para o MEDIA Rate + conceito visual "O Placar como Interface"
+
+**Contexto.** Duas entregas pedidas: (a) `docs/UI-UX-TOOLKIT.md` era **cópia de outro projeto**
+(diretório de clubes: rotas `/clubs`, primária vermelha `#dc2626`, Tailwind **v4** + `@theme`, fonte
+Barlow, plugin `media-rate-design` com `audit-motion.mjs`, porta 3210) e precisava descrever **este**
+repo; (b) propor um conceito visual novo, já que a versão atual foi avaliada pelo Operador como
+"extremamente básica e disfuncional".
+
+### (a) Toolkit reescrito — 22 ferramentas curadas + FigCraft + 2 harnesses = 25 instrumentos
+
+O que mudou de fato, com verificação em `apps/web/package.json` e nos gates desta sessão:
+- **Stack corrigida**: Next 16.3.8 (App Router/Turbopack) + React 19 + **Tailwind 3.4.17** (não v4,
+  não existe `@theme`), tokens em `src/lib/design-tokens.ts` + CSS vars, **dark-only**, 3 locales via
+  `next-intl`, `components.json` **existente** com 5 registries (a versão antiga dizia que o repo não
+  tinha `components.json`).
+- **Anime.js**: a cópia dizia "removido"; aqui está **instalado e em uso** (6 imports), assim como
+  GSAP (5 imports) e Motion. Três motores — registrado como dívida, não como fato consumado.
+- **Replit/21st.dev/Kobra**: vereditos mantidos, com a justificativa reancorada neste produto.
+- **Nova seção de gates** (§7): `design:detect` (impeccable 4.5.2 advisory, 0 achados),
+  `design:contrast` 51/51, `design:hex` (35 valores/696 ocorrências, −14), `design:visual`,
+  `test:visual` 4/4, `test:hydration` 36/36, `test:auth` **bloqueado por ambiente** (D-588).
+- **Nova seção FigCraft** (§6) com o que o CLI headless realmente oferece: 552 comandos,
+  `run <script.jsonl>`, `export --format png|svg|pdf`, `--no-system-fonts`.
+- **Limites honestos**: somente Inter está instalada como fonte de sistema (Space Grotesk/JetBrains
+  vêm por webfont), e `pageEnter` anima `filter: blur(4px)` — contra a regra "só transform/opacity".
+
+### (b) Conceito visual "O Placar como Interface" (proposta, não implementação)
+
+Diagnóstico em 6 problemas nomeáveis (P1 placar como selo; P2 densidade única; P3 comparação longe;
+P4 design system não alcança o dashboard — paleta `dash-*`; P5 `pageEnter` com blur + 3 motores sem
+dono; P6 vazios/carregamentos genéricos) e 6 pilares com gate declarado: **placar como interface**
+(a `<Regua>` em 3 tamanhos, com marcador de crítica e barra de público), **densidade escolhida**
+(Confortável/Compacto/Cinema, persistida), **camadas e não sombras**, **movimento em 3 batidas**
+(toque 120–150 ms / troca 200–300 ms / revelação ≤400 ms, só transform+opacity, com aposentadoria
+proposta do blur), **comparação a um toque** (bandeja de confronto na borda da tela) e **nenhuma tela
+morta**. Tokens: só **aliases semânticos** sobre o que existe — o censo de hex não se move.
+Rollout em 4 fases, cada uma com gate de saída; critérios de sucesso medíveis (ex.: ≥24 itens na
+primeira dobra no modo compacto; leitura do placar em 5 s).
+
+**Maquetes pelo FigCraft** (ferramenta desktop instalada, usada via CLI): gerador versionado
+(`figcraft/gerar-conceito.mjs`) emite **918 comandos/916 nós** com cores vindas de
+`design-tokens.ts`; `run` + `export` produziram **4 frames** em `docs/02-architecture-design/evidencias/conceito/`
+(home/placar editorial, catálogo/densidade+confronto, dossê/painel de placar, ranking/lista-régua).
+Dois erros de API encontrados e corrigidos no caminho: `cornerTopLeftRadius` não existe (o certo é
+`cornerRadius: [tl,tr,br,bl]`) e o `run` **aborta no primeiro passo inválido** (por isso o gerador
+valida contagem de `ok`/falhas).
+
+**Fora de escopo (declarado):** `/admin` (arquivos em trabalho por outro agente) e o projeto
+**Almanaque dos Clubes** citado no pedido anterior — é workspace de outro agente e a regra da sessão
+é não interferir; ofereci um conceito-irmão **apenas em documento**, sem escrever código lá.
+
+**Verificação:** nenhum código de produto foi alterado nesta rodada (proposta + documentação);
+`design:hex` segue OK (35 valores/696 ocorrências), prettier limpo nos documentos novos.
+
+
+## D-598 — Conceito visual do D-597 DELETADO a pedido do Operador: base errada, método corrigido
+
+**Ação:** `docs/02-architecture-design/CONCEITO-VISUAL-2026-10.md`, as 4 maquetes em
+`evidencias/conceito/` e o pipeline do FigCraft (`figcraft/`, gerador + `.jsonl` + `.figcraft`)
+foram **removidos**. Nada do conceito permanece no repositório (verificado por `git status`).
+
+**Motivo (do Operador, e procedente):** o conceito foi construído sobre a **base de outro projeto**,
+não sobre a do MEDIA Rate.
+
+**Erro de método, nomeado:** eu parti do arquivo `UI-UX-TOOLKIT.md` **copiado de outro projeto**
+(e reescrevi mantendo sua estrutura e vários julgamentos de ferramenta) e da minha **memória da
+auditoria** — **sem abrir a base deste repo**. Não li, antes de propor:
+- `docs/02-architecture-design/AUDITORIA-UI-UX-2026-10.md` (287 linhas; **5 bloqueadores + 6 altos +
+  7 médios + 8 baixos em aberto** — é literalmente a lista que um conceito precisa resolver);
+- `docs/02-architecture-design/DESIGN.md` (estado do design system, `CATEGORY_TOKENS` como fonte
+  única, convenções real-vs-demo);
+- o inventário real: **142 componentes** em `apps/web/src/components` e **33 segmentos de rota**.
+
+Pior: os "6 problemas" que apresentei como diagnóstico (P1–P6) eram **inferência minha**, não os
+achados numerados da auditoria — ou seja, um conceito com aparência de evidência e sem evidência.
+
+**Método corrigido (para uma nova proposta, se autorizada):**
+1. Ler a auditoria e transformar **cada achado aberto** em requisito do conceito (bloqueadores
+   primeiro), com numeração rastreável;
+2. Inventariar os **142 componentes** e as **33 rotas** para separar o que existe do que falta
+   (o conceito não pode propor primitivo que já existe com outro nome);
+3. **Capturar as telas atuais** do app rodando (evidência real), em vez de maquetar do zero;
+4. Só então propor — e cada pilar do conceito aponta para o achado que ele fecha e para o gate que
+   o verifica.
+
+**O que ficou de pé:** o `UI-UX-TOOLKIT.md` reescrito (foi pedido explicitamente, a partir daquele
+arquivo) — mas os **vereditos por ferramenta ainda herdam julgamento da cópia** e precisam de
+re-verificação individual contra o uso real neste repo, item a item, antes de valer como política.
+
+
+## D-599 — Conceito visual refeito a partir da base do MEDIA Rate (substitui o do D-597, excluído no D-598)
+
+**Método corrigido, aplicado nesta ordem** (era o que faltava no D-597): (1) li a
+`AUDITORIA-UI-UX-2026-10.md` inteira — 287 linhas, com achados **numerados** (B1–B5, A1–A12,
+M1–M17, baixos) e as **7 cegueiras de gate** (§11); (2) li o `DESIGN.md`; (3) inventariei o real:
+**144 componentes** e **45 rotas**; (4) **capturei 11 telas do app rodando** e **olhei** as duas que
+importam (ficha e catálogo); (5) só então propus.
+
+**O que as capturas provaram (não é inferência):**
+- **A4 confirmado visualmente**: na ficha convivem o anel **9** (0–10, índigo), as barras **93.3** e
+  **86.4** (0–100, ciano/rosa), a procedência **89.5/95** em **âmbar** e o selo **"Alta confiança"**
+  em **verde** — quatro cores e duas escalas sem unidade declarada na mesma informação.
+- **Extensão do A4 no catálogo**: todos os anéis saem **ciano** (8,2 e 8,1 idênticos), ou seja,
+  `scoreColor()` — fonte única desde D-582.4 — **não é usada no card**.
+- **Formatação inconsistente**: card com "8,2" (vírgula) e ficha com "93.3" (ponto).
+- **Achado NOVO (N1), que a auditoria não tinha**: na ficha o **título aparece duplicado sobre o
+  pôster** — defeito visível só de olhar a tela.
+- **Já existiam** coisas que eu havia "proposto" na versão excluída (chips de categoria com
+  contagem no catálogo) — mais uma prova de que a proposta anterior não partia desta base.
+
+**Conceito "Um placar só, um sistema só"** — cinco pilares, cada um amarrado a achados numerados e a
+um gate: (1) **um placar só** (escala canônica 0–10, unidade explícita em 0–100, uma família de
+componentes, cor por papel, confiança/atualidade em token neutro, número por `Intl.NumberFormat`);
+(2) **um sistema só** (migrar `dash-*` → tokens com baseline autenticado, consumir ou podar os 17/20
+exports mortos de `design-tokens.ts`, censo de hex cobrindo JSX); (3) **estado sempre visível**
+(skeleton por segmento, 404 ≠ rede com retry, `aria-live`, Radix Dialog com focus trap — o Radix já
+está instalado); (4) **piso tipográfico e de toque** (61 textos < 12 px, alvos ≥ 44 px);
+(5) **a régua que mantém** (as 7 cegueiras do §11 viram critério de aceite).
+
+**Evidência real**: 11 capturas em `docs/02-architecture-design/evidencias/atual-2026-10/` + um
+protótipo **HTML standalone com os tokens reais** comparando "hoje × proposta" do placar
+(`prototipos/placar-unificado.html` → `placar-unificado.png`). Sem maquete inventada: a proposta é a
+tela real mais o protótipo do primitivo que os achados exigem.
+
+**Sequência**: a do backlog da própria auditoria (§10) — o conceito não inventa ordem. Registrado que
+**A3 já está resolvido** nesta trilha (D-589/D-590/D-591) e pode ser fechado no documento.
+
+**Fora de escopo, declarado**: `/admin` (arquivos do outro agente; a auditoria já marca como
+bloqueado), dashboard sem credencial de teste (D-588) e o projeto Almanaque dos Clubes.
+
+**Nada implementado**: o conceito é proposta; a auditoria continua sendo a lista de verdade.
+
+
+## D-600 — Toolkit verificado (22 ferramentas + FigCraft) e as ações executadas: upgrades, 2 gates novos e o pipeline de tokens
+
+O Operador rejeitou o conceito visual do D-599 ("não me diz muita coisa; prefiro o atual") e pediu o
+que interessa: **analisar cada URL das 22 ferramentas, verificar função/utilidade, instalar e
+implementar** para extrair eficiência, **em conjunto com o FigCraft**. Conceito retirado do repo
+(documento e protótipo; as capturas do estado atual ficaram, são evidência útil).
+
+### Verificação (fonte primária, 2026-10-13)
+`gh api` (licença/estrelas), `npm view` (licença/versão), `HEAD` HTTP nos endpoints de registry e
+páginas oficiais. Resultados que mudam decisão:
+- **emilkowalski/skills** MIT (46,3k) e **taste-skill** MIT (96,5k): **já estavam vendorizados** em
+  `.agents/skills/` com licenças em `_upstream/` — não havia nada a instalar.
+- **impeccable** Apache-2.0 no repo (81,2k) e o CLI em 4.5.2 = versão atual do npm; já é gate.
+- **UI/UX Pro Max**: a URL do pedido **redireciona para `uupm.cc`**; repo é **MIT** (135,9k) →
+  **vendorizei 3 skills** (`ui-ux-pro-max`, `design-system`, `ui-styling`) com a regra explícita de
+  **não** adotar paletas/fontes (o produto tem tokens canônicos e o censo de hex é gate).
+- **FigmaToCode é GPL-3.0** → **barrado**, com substituto declarado (FigCraft).
+- **5 registries declarados no `components.json`**: todos vivos (react-bits 864, obsidian 74,
+  kokonutui 59, bklit 58, componentry 57) — **nenhum gate verificava isso antes**.
+
+### Ações executadas (todas medidas)
+1. **Upgrades**: Motion **12.42.2 → 14.2.0** (2 majors), `lucide-react` **1.26 → 1.57**,
+   `@playwright/test` **1.62 → 1.64.1** + `playwright install chromium`. Verificação: `tsc` 0,
+   **617/617** testes, hidratação **36/36**, pixel **4/4**, build 0, detector 0, contraste 51/51,
+   hex OK. O harness de hidratação foi quem expôs o browser desatualizado (falha em 1–3 ms por teste,
+   "Executable doesn't exist").
+2. **`npm run design:registries`** (novo): valida os 5 registries declarados, com contagem de
+   componentes e licença; `--ci` falha o build. Hoje **5/5**.
+3. **`npm run design:figcraft`** (novo): lê `design-tokens.ts` + `globals.css` e gera as variáveis do
+   FigCraft (**52 cores** com `codeSyntax` = `var(--…)` real, 60 tokens de tipografia, 5 raios,
+   8 durações) + um **Guia de tokens** com os swatches de fill **ligados às variáveis**, exportado em
+   PNG (`evidencias/tokens/`). Erros de API descobertos e registrados: `cornerTopLeftRadius` inexistente
+   (`cornerRadius: [tl,tr,br,bl]`), namespaces de id distintos (`VariableID:N` com D maiúsculo),
+   `variable.update`/`bind` aceitam **nome**, `color` rejeita `rgba(...)`, token com unidade é `string`.
+4. **UI/UX Pro Max vendorizado** (MIT) + `_upstream/README.md` atualizado com a procedência.
+
+### Não feito, com motivo
+- **Nenhum componente de registry instalado**: nada no backlog da auditoria pede componente de
+  terceiro (o que falta é de casa — skeletons por segmento, `aria-live`, dialogs com o Radix que já
+  está instalado).
+- **Consolidação dos 3 motores de animação** (Motion/GSAP/Anime.js): exige medir bundle antes; fica
+  como decisão com dado, não por preferência.
+- **Licenças não re-verificadas hoje** (metal, loading, bencho, kobra, refero, 21st, Aceternity):
+  marcadas como tal no toolkit; nenhuma entrou no repo, então o risco é de classificação, não de
+  conformidade.
+
+
+## D-601 — Auditoria visual (13 achados de máquina → 0) e aplicação das habilidades novas: contraste AA, hierarquia, cards aninhados, tokens e locale
+
+**Método:** detector do Impeccable **no DOM renderizado** de 18 rotas públicas (SO em modo claro, como
+o gate) + captura real de 11 telas e 3 pós-correção + inspeção de código com `arquivo:linha` +
+bateria de gates. A auditoria canônica (2026-10) segue como lista de verdade; esta passada mede o que
+o **pixel/DOM acusam hoje** e corrige.
+
+### Achados e correções (13 → 0)
+1. **Contraste AA 3,7:1** na `SourceMiniCard`: `#E11D48` como **texto** sobre a própria tinta de 12%.
+   Texto passou a `#FB7185` (convenção já usada em `Bar.tsx`, `/sources`, `global-error`); a tinta
+   fica na cor da marca. → `low-contrast` 0.
+2. **Hierarquia quebrada** (`<h1>` → `<h3>MEDIA Score`): o rótulo do módulo de score virou `<h2>` e os
+   **9** rótulos de seção da ficha também. → `skipped-heading` 0.
+3. **5 "card dentro de card"** na ficha: `SourceMiniCard` agora entra como **linha** no módulo de score.
+4. **"card dentro de card" no auth** — regressão do D-595 que eu mesmo introduzi: a superfície externa
+   do `AuthBladeCard` deixou de ser um card. → login/register/welcome 0.
+5. **Medida de leitura** em `/about` (~89 caracteres): `max-w-[38rem]` / `max-w-[34rem]` no lead.
+6. **Excesso de travessão** (telltale de texto gerado): 5 frases reescritas **nos 3 locales** com
+   paridade de chaves (8 → 2 travessões; os 2 são o separador do `metaTitle`).
+7. **Separador decimal inconsistente** (cards "8,2" × ficha "93.3"): `Bar.tsx` e
+   `CriticsVsAudienceBar.tsx` passaram a usar o `formatarScoreLocale` **que já existia**; dois testes
+   que **codificavam o defeito** foram corrigidos e um terceiro (locale) foi criado.
+8. **47 usos de cinza default do Tailwind no produto público** → varredura para tokens canônicos
+   (`text-fg-*`, `bg-surface-*`, `border-surface-*`) em 10 arquivos: **47 → 4** (2 no `LgpdBanner`,
+   reservado ao Operador por D-582.10, e 2 num comentário do checkout).
+9. **`/top` era light-first** (`bg-white dark:bg-gray-800`): 28 classes trocadas por tokens. A primeira
+   tentativa introduziu 2,7:1 no chip ativo (o detector pegou); a tinta correta é a convenção do repo
+   (`text-[#0F172A]`, a mesma de `ui/button.tsx`). → `/top` 0 achados.
+10. **Hex fora de token** no módulo de score (`#1C1C2E`, `#9CA3AF`) → canônicos; censo **696 → 679** (−31).
+
+### Refutações (achados meus que a evidência derrubou)
+- **"Anel do catálogo ignora a faixa de score"**: refutado — `MediaScoreBadge` usa `scoreColor()` e
+  8,2/8,1 estão na **mesma faixa** (8 → sky).
+- **"Título duplicado sobre o pôster"**: refutado — baixei a arte original do TMDB; o texto faz parte
+  da **imagem oficial**, não é overlay de UI.
+
+### Habilidades novas aplicadas
+**UI/UX Pro Max** (`design-system`, `ui-styling`) orientou a varredura cinza→token (um sistema só);
+**Emil Kowalski** (`animation-performance`, `improve-animations`) sustentou o critério de movimento
+(só transform/opacity, reduced-motion não decide markup); **Impeccable** foi o árbitro de cada
+correção (só fecha com 0 no DOM); **FigCraft** permanece com os tokens canônicos (nenhuma cor nova
+entrou por causa desta auditoria).
+
+### Continua aberto (com motivo)
+Admin (36 `text-gray-500`, `scope`, `prompt/confirm`) **bloqueado por outro agente**; `LgpdBanner`
+reservado ao Operador; `/verificar-email` sem SSR base (A7); migração `dash-*` → tokens exige
+baseline autenticado (D-588); `SeasonTabs`/`SeriatedScoreTree` ainda com `toFixed(1)`; as 5 cegueiras
+de gate do §11 da auditoria canônica.
+
+**Verificação:** `tsc` 0 · eslint 0 · **618/618** testes · hidratação 36/36 · pixel 4/4 · build 0 ·
+`design:detect` 0 · contraste 51/51 · `design:hex` 679 · `design:registries` 5/5 · detector no DOM
+**0 achados em 18 rotas**. Relatório: `docs/02-architecture-design/AUDITORIA-VISUAL-2026-10-13.md`.
+
+
+## D-602 — Fim da varredura de formatação de número: 10 sites passaram ao separador do locale (e 5 arquivos de teste codificavam o defeito)
+
+Continuação do D-601, item que ficou marcado como "bounded pendente". O produto exibia número de
+score em **dois formatos** ao mesmo tempo: os cards usavam `formatarScoreLocale` ("8,2") e oito
+componentes interpolavam o valor cru ou usavam `toFixed(1)` — que em JavaScript **sempre** usa ponto
+("93.3", "81.5", "9.0"). Em espanhol e inglês o defeito era o inverso: o único componente que tentava
+acertar fazia `toFixed(1).replace(".", ",")`, ou seja **assumia pt-BR dentro do código**.
+
+**Corrigidos (10 sites, 8 arquivos):** `Bar.tsx` (crítica, público **e** o gap de consenso),
+`CriticsVsAudienceBar.tsx` (3 pontos), `SeasonTabs.tsx` (nota da temporada),
+`SeriatedScoreTree.tsx` (nota da unidade), `ComparePage.tsx`, `PublicProfileContent.tsx`,
+`WatchlistCard.tsx` (o `ScoreDelta`, que aparece em título e rótulo), `DashboardOverview.tsx`
+(2 pontos de percentual) e `CategoryChip.tsx` (o hack do `replace`, agora ciente do locale).
+Ficaram de fora, de propósito, **2 ocorrências em `RadarGraphic.tsx`**: são coordenadas de caminho
+SVG (`"12.3,45.6"`), não número para ler.
+
+**O que isso revelou:** **5 arquivos de teste** afirmavam o formato errado
+(`media-rate-ui` com "40.0pts", `Bar` com "81.5" e "40.0pts", `metadados` com "8.4"/"7.0"/"8.0"/"6.0",
+`fiche-conteudo` com "9.0"). Ou seja: a inconsistência estava **contratada por teste** — foi por isso
+que sobreviveu. Todas as asserções foram corrigidas com o comentário do porquê, e um teste novo
+verifica que em pt-BR **nenhum** número sai com ponto decimal (`/\d\.\d/`).
+
+**Verificação:** `tsc` 0 · eslint 0 · **618/618** testes · hidratação **36/36** · pixel **4/4** ·
+`next build` 0 · `design:detect` 0 · contraste **51/51** · `design:hex` 679 (−31 vs baseline).
+
+**Continua aberto** (inalterado): `/verificar-email` sem base SSR (A7), `/about` e FAQ em 3 fontes
+(M14), migração `dash-*` → tokens (B3, exige baseline autenticado), `/admin` (bloqueado por outro
+agente), `LgpdBanner` (reservado ao Operador) e as 5 cegueiras de gate do §11.
+
+
+## D-603 — Os quatro itens abertos implementados: SSR do /verificar-email (A7), 404 ≠ rede (M16), fonte única de FAQ + H1 (M14) e o gate de movimento reduzido (§11.6)
+
+Todos os pendentes **não bloqueados** que estavam na fila desta trilha.
+
+### 1. A7 — `/verificar-email` sem base SSR (corrigido)
+A rota é **ponto de entrada por e-mail** (link clicável, muitas vezes em navegador embutido, antes
+de qualquer JS) e entregava `Suspense fallback={null}` em volta de um componente que usa
+`useSearchParams` — isto é, **zero HTML útil** no servidor: sem JS a tela ficava em branco.
+Agora o **casco é renderizado no servidor** (cartão, `<h1>` e a explicação do que é a página) e o
+`Suspense` entrega, no lugar do vazio, a linha honesta de "verificando…"; o cliente ficou só com o
+desfecho (sucesso, link inválido, reenvio) e seus títulos viraram `h2` (hierarquia correta).
+**Prova:** o HTML servido passou a trazer `<h1>` + descrição nos 3 locales ("Verificação de email" /
+"Email verification" / "Verificación de email"); antes não havia nada.
+
+### 2. M16 — 404 tratado como falha de rede (corrigido)
+`ListasPage` e `ListaViewPage` jogavam **qualquer** exceção no mesmo estado de erro (sem retry, com a
+mensagem crua da API). Agora: **404 → estado honesto** ("Lista não encontrada" + link para as listas) e
+**rede/servidor → `ErrorState` com "Tentar novamente"**, reexecutando a carga. Chave nova
+`listas.backToListas` nos 3 locales (paridade mantida).
+
+### 3. M14 — FAQ em 3 fontes e H1 em 3 tamanhos (corrigido)
+- **FAQ:** `/faq` e `/methodology` já liam a fonte canônica (`institutional-content.ts`), mas a **home
+  mantinha 6 perguntas paralelas** (chaves `homeContent.faq1Q…faq6A`) que repetiam e divergiam do FAQ
+  real — e o CTA apontava para `/pricing#faq` em vez da página canônica. Agora a home mostra as **3
+  primeiras perguntas da fonte única** e linka `/faq`; as **13 chaves órfãs** foram removidas nos 3
+  locales e o `faqCta` passou a "Ver todas as perguntas →" (o `pricingFaq` ficou intacto: é conteúdo
+  de planos, genuinamente distinto).
+- **H1:** as 6 páginas institucionais tinham **3 tamanhos, 2 cores** (`#EDE7DC` legado × `text-foreground`)
+  e margens/tracking diferentes. Todas passaram a um único padrão
+  (`text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8`), e os cartões da `/faq`
+  saíram de hex fora de token (`#11111E`/`#1C1C2E`) para `bg-surface-card`/`border-surface-border`.
+
+### 4. §11.6 — nenhum teste unitário rodava com movimento reduzido (fechado)
+Novo `test/reduced-motion.spec.tsx` com 3 frentes: (a) **guarda na fonte** — nenhum componente pode
+decidir markup por `prefers-reduced-motion` (`initial={{ opacity: 0 }}`, `return null` no render);
+(b) **guarda estrutural** — o layout mantém `<MotionProvider>` e este passa `reducedMotion="user"`;
+(c) **execução** — com a preferência ligada, o componente ainda renderiza o conteúdo (o defeito do
+D-587 era justamente um `return null`). O teste ignora **comentários** (a primeira versão acusava o
+comentário que documenta o bug antigo — a mesma armadilha de "grep em comentário" já vista aqui).
+
+### Também nesta rodada
+- **Teste de veracidade reescrito, não silenciado:** `home-truthfulness.spec.ts` afirmava que
+  `homeContent.faq1A` trazia a escala correta. Com a home consumindo a fonte canônica, a garantia
+  mudou de lugar: a asserção positiva ficou nos planos e a **negativa** (nunca afirmar a escala
+  errada) passou a varrer a fonte canônica — mais um teste novo garante que a home **não** volte a ter
+  FAQ paralelo (`/t\("faq[1-6][QA]"\)/`).
+
+### Verificação
+`tsc` 0 · eslint 0 · **622/622** testes (90 arquivos) · hidratação **36/36** · pixel **4/4** ·
+`next build` 0 · `design:detect` **0** · contraste **51/51** · `design:hex` **661 ocorrências
+(−49 vs baseline)** · detector no DOM **0 achados** em `/`, `/faq`, `/about`, `/methodology`,
+`/sources`, `/terms`, `/privacy` e `/verificar-email`.
+
+### Continua bloqueado (fora do meu alcance, com motivo)
+`/admin` (36 `text-gray-500`, `scope="col"`, `prompt/confirm`) — arquivos em edição por outro agente;
+`LgpdBanner` — reservado ao Operador (D-582.10); migração `dash-*` → tokens (B3) — exige baseline
+visual **autenticado**, bloqueado por credencial (D-588); e as demais cegueiras de gate do §11 que já
+têm registro próprio.
+
+
+## D-604 — Cegueiras de gate: censo de hex 710 → 135, contraste de literais no JSX (4 falhas AA reais) e vazamento de PT no catálogo inteiro
+
+Continuação do D-603, atacando as cegueiras do §11 da auditoria que **não** dependem de sessão.
+
+### 1. "Hex só congelado" → 710 → **135 ocorrências** (−575)
+O gate congelava os valores legados em `hex-baseline.json` em vez de reduzi-los. Migrei os três
+maiores para os tokens canônicos, em 71 arquivos (**fora do `/admin`**, que é do outro agente):
+`#9CA3AF` → `#A0A0B8` (248), `#EDE7DC` → `#F5F5F7` (177), `#11111E` → `#12121C` (100) — 525
+ocorrências, mais os resquícios das rodadas anteriores. O censo saiu de **661 → 135** e de 35 → 32
+valores. Verificação: pixel **4/4** (a dobra do hero não derivou), contraste **221/221**, detector
+no DOM **0 achados em 13 rotas**.
+
+### 2. "Contraste de literais no JSX" → gate novo, com **4 falhas AA reais corrigidas**
+O gate só olhava pares de **token**; um par literal (`bg-[#E11D48]/15 text-[#E11D48]`) reprovava no
+DOM e passava aqui. Estendi `contrast-audit.mjs` para varrer os `.tsx` e julgar pares literais no
+mesmo className — como é **estático**, passa a valer também para `/admin` e `/dashboard`, que ficam
+fora do axe por falta de sessão. Cobertura: **51 → 221 pares**.
+
+Duas iterações foram necessárias por **falso positivo**, ambas registradas no código: (a) pareamento
+entre estados diferentes (`hover:text-X` com o `bg-Y` base) e (b) `after:bg-X`, que é o sublinhado do
+pseudo-elemento, não o fundo do texto. Com a varredura ciente de estado, sobraram 4 falhas **reais**:
+- `billing/success` — rose `#E11D48` sobre a própria tinta: **3,56:1** → texto para `#FB7185` (é a
+  mesma página do defeito do D-587; a confirmação de compra tinha texto reprovando AA);
+- `WatchlistCrossPrompt` e `CarouselInteractions` — `#6B7280` sobre `#2A2A3E` no estado
+  **desabilitado**: **2,90:1** → `#A0A0B8` (5,49:1);
+- `WatchlistButton` — `#EF4444` sobre a própria tinta: **4,25:1** → `#F87171` (score.low canônico).
+
+### 3. "i18n-leak em 5 rotas" → varredura do **catálogo inteiro**
+O teste cobria poucas rotas. Adicionei ao `i18n-leak.spec.ts` uma varredura dos **3 catálogos
+completos** com marcadores **exclusivos de pt-BR** (`ção`, `não`, `você`, `mídia`, `gênero`,
+`usuário`, `também`, `conteúdo`, `disponível`, `após`, `série`…). Resultado: **0 vazamentos** em
+en-US e es-ES (medido, não presumido) — e agora qualquer texto PT colado num locale estrangeiro
+falha o gate, cobrindo rotas futuras de graça.
+Nota de método: a primeira lista de marcadores usava `título` e `próxim`, que são **espanhol
+legítimo**, e acusou 55 falsos positivos; o conjunto final é PT-only.
+
+### Verificação
+`tsc` 0 · eslint 0 · **624/624** testes (90 arquivos) · hidratação **36/36** · pixel **4/4** ·
+`next build` 0 · `design:detect` **0** · `design:contrast` **221/221** · `design:hex`
+**135 ocorrências (−575 vs baseline)** · detector no DOM **0 achados em 13 rotas**.
+Uma ressalva honesta: numa das execuções o baseline de pixel falhou por **timeout** na rota
+mobile-375 com o dev server sob carga (eu vinha rodando varreduras em paralelo); reexecutado isolado,
+passou 4/4 — é flakiness de ambiente, não regressão.
+
+### Cegueiras restantes do §11
+**Admin fora do axe** (depende de credencial — D-588) e o desenho do censo continuar sendo
+congelamento por baseline (agora com margem de 575 ocorrências, e não mais no limite).
+
+
+## D-605 — `test:auth` destravado: a última cegueira do §11 virou medição (6/11 passam; 5 falhas reais no admin)
+
+O Operador informou que `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD` estavam no `.env`. Elas estavam — mas o
+harness **não tinha onde valer**: as credenciais são de um usuário **provisionado**, e o `.env` aponta
+`DATABASE_URL`/`REDIS_URL` para `*.railway.internal` (não resolve fora da Railway) enquanto a API de
+produção rejeita essas credenciais (401). O caminho foi reproduzir o ambiente do job `e2e-full` do CI,
+**sem tocar em produção** — receita completa e armadilhas em
+`docs/02-architecture-design/evidencias/auth-2026-10-15/README.md`.
+
+**O que destravou, em ordem:** cluster **Postgres efêmero** (binários PG 18 já instalados, `initdb
+--auth=trust`, porta 55432) → `migrate deploy` → `provision-test-users` + `provision-lgpd-test-user`
+(este gera e grava as credenciais no `.env`) → **Redis local descartável** (`redis-memory-server` em
+diretório temporário; sem ele o guard de admin devolve **403** e a tela volta para `/login`, porque o
+papel vem de cache) → usuário promovido a **ADMIN** por SQL no banco efêmero → API na **:4000** com
+`NODE_ENV=test` → web com **`API_PROXY_TARGET` local** (sem isso o web valida sessão contra produção e
+redireciona). Armadilhas registradas: `npm run dev` da API entra em loop de restart (`--watch` sobre
+`node_modules`), o harness espera :4000 mas a API do `.env` sobe em :3333, e **mudar papéis exige
+reiniciar a API** (cache).
+
+**Resultado medido — 6 passaram, 5 falharam (achados reais, não sessão):**
+
+| Rota | Regra | Nós | Contraste medido |
+|---|---|---|---|
+| `/admin/usuarios` | `color-contrast` (serious) | 8 | green-600 `#16a34a` sobre gray-800 `#1f2937` = **4,45:1**; gray-500 `#6b7280` sobre `#05050a` = 4,2:1 |
+| `/admin/catalogo` | `color-contrast` | 2 | `#6b7280` sobre `#05050a` = 4,2:1; sobre `#1f2937` = **3,03:1** |
+| `/admin/lgpd` | `color-contrast` | 3 | idem |
+| `/admin/diagnostics` | `color-contrast` | 2 | `#16a34a` sobre `#1f2937` = 4,45:1 |
+| `/admin/metricas` | **`definition-list` (serious)** | — | **achado novo**: `<dl>` com filhos inválidos |
+
+Passaram: `/admin` (visão geral), `/admin/auditoria`, `/admin/upload`, o teste de tema/contraste do
+admin e o **baseline visual do dashboard** (criado nesta rodada).
+
+**Isto confirma e quantifica o `B2`** (a hipótese era "36 `text-gray-500`"): são cinzas e verdes
+*default* do Tailwind dentro do admin, com número em mãos. As correções seguem **report-only** porque
+os arquivos estão em edição por outro agente — a evidência (JSON do axe + resumo + compacto, 215 KB)
+está versionada em `docs/02-architecture-design/evidencias/auth-2026-10-15/`.
+
+**Higiene:** nenhum valor de credencial foi impresso em chat/log/evidência; o `.env` foi restaurado ao
+estado original depois da medição, e a infraestrutura efêmera (cluster, Redis, API) foi desmontada.
+
+
+## D-606 — Regra de operação: ler os `.env.example` antes de executar; e o gap que isso revelou no web
+
+Instrução do Operador: **"sempre verifique `.env.example` caso precise executar alguma coisa"**. Vale
+como regra desta trilha e está incorporada à evidência do harness.
+
+**A regra se paga com evidência.** No D-605 eu descobri na marra coisas que os `.env.example` já diziam:
+- `apps/api/.env.example:13` → **`PORT=4000`** (a porta que o harness e o rewrite esperam; eu achei a API
+  em :3333 e só depois fixei 4000);
+- `apps/api/.env.example:45` → `REDIS_URL=redis://localhost:6379` (levantei um Redis do zero);
+- `apps/api/.env.example:16` e a raiz → `DATABASE_URL=...localhost:5432/media_rate`, `POSTGRES_PORT=5432`,
+  `REDIS_PORT=6379` (sondei credenciais do Postgres nativo até tomar P1000).
+
+**Gap corrigido (dentro do meu limite):** `apps/web/.env.example` afirmava no topo "SOMENTE variáveis
+públicas (NEXT_PUBLIC_*)" — o que é **falso para rodar local**: o servidor do Next lê `API_PROXY_TARGET`
+(rewrite `/api/*` **e** base da validação de sessão em `lib/auth-server.ts`/`admin-auth-server.ts`),
+`REVALIDATE_SECRET` e as do PostHog server-side. Sem `API_PROXY_TARGET`, a sessão local é validada contra
+**produção** e `/admin` e `/dashboard` caem em `/login` — exatamente o que me custou várias iterações.
+O arquivo ganhou a seção "VARIÁVEIS DE SERVIDOR (NÃO públicas)", com o valor local e o do CI.
+
+**Pendência declarada, fora do meu limite:** `apps/api/.env.example` e o `.env.example` da raiz não
+documentam o **provisionamento de usuários de teste** (`TEST_USERS_PASSWORD`,
+`npm run db:provision:test-users`, `provision-lgpd-test-user.ts` — que é quem **gera**
+`E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`) nem o aviso de que o papel ADMIN vem de **cache** (logo, mudar
+papel exige reiniciar a API). Ambos estão em edição por outro agente e não foram tocados; a recomendação
+está registrada em `docs/02-architecture-design/evidencias/auth-2026-10-15/README.md`.
+
+
+## D-607 — Programa de UI-UX por sessão: base, fundamentos, evidência reprodutível e a spec do Catálogo
+
+Prioridade declarada pelo Operador: **UI-UX de todas as sessões** (16 de produto + 9 legais). O que
+existe hoje no repo é uma auditoria (o que está errado) — não uma **especificação** por sessão. Este
+programa cria essa camada, ancorada no código, **sem propor conceito novo** (a linguagem visual atual é
+a base, conforme a decisão do Operador).
+
+**Entregue nesta rodada:**
+
+1. **`docs/02-architecture-design/ui-ux/00-INDICE.md`** — as 25 sessões mapeadas contra as **44 rotas
+   reais** (`page.tsx`), com o estado de cada uma. Achado relevante: **6 sessões da lista não têm rota**
+   (Metas e Evolução, Busca Avançada, Cookies, Segurança, Direitos do Titular, Gerenciar Cookies) e 2 têm
+   rota espalhada (MEDIA Score, Planos e Assinaturas) — a spec dessas é **de criação**, não de ajuste.
+2. **`01-TEMPLATE.md`** — template obrigatório de 12 seções (identidade, IA, layout, tokens, os **7
+   estados**, movimento, AA, copy/i18n, responsivo, métricas, pendências, evidência).
+3. **`02-FUNDAMENTOS.md`** — valores compartilhados (superfícies, tipografia, espaço/raio/elevação,
+   movimento, AA, gates) para não repetir em 25 arquivos; inclui a regra das **duas escalas de score**
+   (0–100 para games/temporadas, 0–10 para o resto) e o padrão de número (`formatarScoreLocale`).
+4. **`npm run uiux:evidence`** (`apps/web/scripts/uiux-evidence.mjs`) — capturador único: 1440 página
+   inteira + 375 dobra, banner de consentimento dispensado, `--all`, `--state` para sessões autenticadas
+   (que são **puladas** sem sessão, para não gerar evidência falsa).
+5. **`10-catalogo.md`** — spec completa da sessão nº 1, com máquina de estados verificada (skeleton,
+   rate-limit com retry, erro sem/com dados, vazio por tipo e por filtro, `aria-live` no fetching),
+   semântica correta (`section` + `aria-labelledby` + `h2`, sem pular nível) e **10 pendências** medidas.
+
+**Dois falsos achados meus, refutados por verificação** (registrados na spec, porque método importa):
+o "score com ponto" (o DOM serve `8,7` — vírgula) e os "filtros no fim da página" (artefato de
+`fullPage` com elemento `sticky`; no DOM a sidebar é o **primeiro** bloco). A armadilha ficou documentada
+no próprio capturador.
+
+**Próximas rodadas:** Rankings, Planos e as demais, na ordem declarada. Os dossiês de ancoragem de
+Rankings e Planos estão em produção por subagentes; cada spec sai com captura, estados, AA e pendências.
+
+
+## D-608 — UI-UX: specs de Rankings e Planos (sessões 2 e 3 de 25) e os padrões de referência do produto
+
+Duas specs novas, ambas ancoradas em código com `arquivo:linha`, captura 1440/375 e pendências medidas.
+Os **dossiês delegados a subagentes não entregaram** (rodaram longo demais e foram interrompidos, sem
+mensagem de fechamento) — a ancoragem foi refeita por grep focado + probe de DOM, que se mostrou mais
+rápida e precisa. Fica a lição: para levantamento de UI, grep dirigido com pergunta específica vence
+delegação aberta.
+
+**Rankings (`11-rankings.md`) — 9 pendências, sendo 3 P1:**
+- **miniaturas em `<img>` puro** sem `width`/`height`/`sizes` (`TopPageClient.tsx:60-62,206-209`) — fora da
+  política de imagem do repo (`lib/image-policy.ts`), com **CLS** provável; e a classe `h-18` **não
+  existe** na escala do Tailwind, então a altura intencionada (72 px) não é aplicada;
+- **erro sem "tentar de novo"** (`:140-142`) — o padrão M16/D-603 pede retry;
+- `alt` das imagens não explícito no trecho inspecionado.
+Mais: selo "Nº 1" com `amber-400`/`amber-950` (paleta default), degradê do hero em `rgba(0,0,0,…)`,
+ausência de `loading.tsx` da rota, `hover:underline` fora do padrão, classes tipográficas cruas.
+**Positivos:** `<nav aria-label>` + `aria-current="page"` nos chips e `<ol>` no ranking.
+
+**Planos (`12-planos.md`) — 5 pendências, sendo 1 P1:** confirmar que nenhum CTA de compra aponta para o
+período anual quando ele está "Em breve" (`PricingCards.tsx:45-56,198-209` + `annualAvailable()`); hex
+literal nos CTAs onde há classe semântica; sem transição ao trocar de período; sem offline; duplicação
+`pricingFaq` × FAQ institucional sem regra escrita (aceitável, mas precisa de regra). **Positivos
+preserváveis:** `aria-pressed` no toggle, `<ul role="list">`, **`<th scope="col">`** na tabela
+comparativa — que é exatamente o que falta no Admin (D-605) —, `h2` por card (fix T210) e preço
+localizado por moeda/locale.
+
+O índice ganhou a seção **Progresso** com os **padrões de referência** já identificados no produto
+(para as próximas specs copiarem o que já está certo em vez de inventarem), e a lista de padrões que
+faltam. Restam **22 sessões**.
+
+
+## D-609 — Spec do MEDIA Score: as duas escalas como regra e os **4 dials** como achado (A4 quantificado)
+
+Sessão 4 de 25. O MEDIA Score é **transversal** (não tem rota própria): explicação pública em
+`/methodology`, módulo na ficha e badge/anel em cards de catálogo, rankings, watchlist, biblioteca,
+dashboard, comparação e perfil.
+
+**Achado principal (P1):** existem **quatro** implementações de dial/anel —
+`media-rate-ui/ScoreDial.tsx`, `media-rate-ui/StaticScoreDial.tsx`, `ui/score-dial.tsx` e
+`landing/ScoreRing.tsx` — servindo **14 arquivos** que consomem o mesmo pipeline `score-utils.ts`. É o
+`A4` da auditoria ("linguagem visual de score divergente") deixando de ser impressão: são quatro
+desenhos/comportamentos para a mesma função. A spec propõe consolidar em **um** componente com
+`variant` (grande/card/mini), preservando o `StaticScoreDial` como versão SSR.
+
+**Regras duras documentadas na spec:** `escalaPorTipo` define a escala **nativa** (game 0–100; demais
+0–10; mangá nunca 0–100 — BETA-GAP-09/T147) e `formatarScoreLocale` formata o número pelo locale (D-602);
+o texto de metodologia tem teste de guarda de veracidade (BETA-GAP-05).
+
+**Positivos verificados:** `aria-label` no anel (a nota é anunciada em texto, não só desenhada —
+`MediaScoreModule.tsx:117`), `h2` "MEDIA Score" (corrigido no D-601), estados vazio
+(`data-testid="score-empty"`) e parcial (badge de confiança + data de atualização) presentes, e a
+deduplicação de fontes (`:81-82`). Índice: **4 de 25 feitas, 21 restantes.**
+
+
+## D-610 — Ambiente descartável de sessão autenticada (`uiux:auth-env`) e o **P0** que a primeira captura real revelou
+
+Para especificar as 7 sessões que exigem conta eu precisava do ambiente do D-605 de volta. Em vez de
+repetir ~17 passos manuais, virou **script**: `apps/web/scripts/uiux-auth-env.mjs` (`npm run uiux:auth-env`)
+faz o ciclo completo e não encosta em nada compartilhado:
+
+- **Postgres efêmero** (`initdb --auth=trust`, porta 55432, diretório em TEMP) — nenhuma credencial de
+  terceiros; **Redis local descartável** (`redis-memory-server` em TEMP, com `allowScripts` para o
+  postinstall que o npm 11 passou a exigir);
+- **usuário de teste com ADMIN e sem 2FA**: `free@mediarate.test` (do `provision-test-users.ts`) promovido
+  por SQL — o `admin@mediarate.test` **não serve** porque exige step-up e as telas voltam para `/login`;
+- **não roda** `provision-lgpd-test-user.ts` (que escreveria `E2E_TEST_*` no `.env`): o `.env` fica
+  intocado e a senha efêmera vai para TEMP;
+- `--start` (sobe tudo + grava o `storageState`), `--state` (regrava a sessão), `--stop [--purge]`.
+
+**Resultado:** as 7 sessões autenticadas ganharam captura 1440/375 (14 imagens) em uma rodada.
+
+**E a captura revelou um P0 real:** com **sessão válida**, `/dashboard` renderiza "Entre para ver seu
+dashboard", o header mostra "Entrar/Cadastrar" e a sidebar mostra "Visitante · Plano Free". Verifiquei que
+**não é artefato do ambiente**: no mesmo navegador, `/api/v1/auth/me` responde **200** tanto pelo proxy
+quanto na URL absoluta que o app usa (`lib/http.ts:97`), com `credentials: include`. A causa é de código:
+`DashboardClient.tsx:34` lê `isAuthenticated` do store cliente e **nada nessas rotas chama
+`fetchMe`/`useRequireAuth`** — só o `ProtectedPage.tsx` chama. Consequência para o usuário: **F5 ou abrir
+um link direto numa página autenticada mostra a interface de deslogado**. Registrei também a
+**inconsistência entre rotas** (em `/watchlist` o store hidrata, em `/dashboard` não — mesma sessão) e dois
+desencontros de rótulo × destino na sidebar ("Metas e evolução" → `/historico`; "Favoritos" → `/listas`),
+que impactam diretamente a sessão 7 (Metas e Evolução), cuja página **não existe**.
+
+
+## D-611 — Sessões 6 e 7 especificadas e o alcance exato do P0 de sessão (5 rotas hidratam × 5 não)
+
+**Minha Biblioteca (`15-biblioteca.md`, 6 pendências).** É a sessão mais bem resolvida até agora e serve
+de **padrão de referência**: a rota usa `ProtectedPage` (hidrata a sessão ✓), os grupos de filtro têm
+rótulo acessível (`tabsAria` "Filtrar por status", `tiposAria` "Filtrar por tipo de mídia" — melhor que o
+Catálogo, que ainda precisa disso), os **rótulos de status são conjugados por tipo** de mídia ("quero
+jogar", "lendo", "vi") e as contagens das abas vêm do **servidor** (globais, não do recorte local). Tem
+estados de carregamento, vazio **específico** (biblioteca vazia × recorte sem resultado) e erro **com
+retry**. Pendências ficaram em P1 de acessibilidade (contagem por status pode ser só visual; navegação
+por setas entre abas não confirmada) e P2 (carregamento é texto, remover sem undo).
+
+**Metas e Evolução (`16-metas-evolucao.md`) — A CRIAR.** O menu do dashboard tem "Metas e evolução" e
+entrega **`/historico`**, que é um histórico de consumo com limite de plano Free (`historico.freeLimit`,
+`GET /api/v1/historico`). Escrevi a spec **de criação** ancorada no que existe: reaproveita
+`MiniSparkline`, `HistogramBars`, `RadarGraphic`, `PreviewCard` (todos do dashboard) e o próprio
+`HistoricoPage` como terceiro bloco, sem inventar conceito visual. Duas pendências que **não são minhas**:
+a decisão de produto (construir a página ou renomear o menu ✓ Operador) e a dependência de **modelo/endpoint
+de metas em `apps/api`** (arquivos do outro agente).
+
+**Alcance exato do P0 do D-610 (medido nesta rodada).** Deixou de ser "o dashboard não hidrata":
+- **Hidratam** via `ProtectedPage` → `useRequireAuth` → `fetchMe`: `/biblioteca`, `/dashboard/discoveries`,
+  `/profile`, `/settings`, `/watchlist` — **5 rotas**;
+- **Leem o store sem guard:** `/dashboard`, `/historico`, `/listas`, `/listas/[slug]`, `/user/data` —
+  **5 rotas** — mais os **globais** `Navbar.tsx:38` e `NotificationBell.tsx:34`, que mostram
+  "Entrar/Cadastrar" em **qualquer** página cujo store não tenha sido hidratado, isto é, todo F5 fora das
+  5 protegidas. A spec do Dashboard foi atualizada com essa tabela.
+
+
+## D-612 — Sessões 8 e 9: o vazamento de i18n que o gate não pega e a falta de `h1` no login
+
+**Planos e Assinaturas (`17-assinaturas.md`, 9 pendências).** A sessão é espalhada em três rotas
+(`/checkout/[plan]`, `/billing/success` e o bloco "Plano" em `/settings`) e tem bons fundamentos: CSRF no
+checkout (`getCsrfToken`), tela própria de plano inválido, `<ul role="list">` nas vantagens, cancelamento
+com confirm/sucesso/erro em i18n e `aria-label` no preview de recurso bloqueado. Achados:
+
+- **P1 — vazamento de i18n no CÓDIGO:** `"Falha no checkout"` e `"Erro desconhecido"` estão em português
+  fixo (`checkout/[plan]/page.tsx:70,77`) e apareceriam assim em EN/ES. O gate `test/i18n-leak.spec.ts`
+  (D-604) varre **só o catálogo de mensagens** — este caso passa por ele. Fica como pendência de **gate**
+  (varrer literais visíveis em `src`), não só de texto.
+- **P1 — F5 no checkout manda usuário logado para o login:** a página é client e redireciona quando
+  `!isAuthenticated` (`:30-35`); com o store sem hidratar (P0 do D-610) isso acontece com sessão válida.
+- P1 — `/billing/success` é estática: **pode confirmar assinatura sem verificar o pagamento** (a
+  investigar; se confirmado, é grave para confiança).
+- P1 — cancelamento provavelmente usa `window.confirm` (chave `cancelConfirm`) em vez do
+  `confirm-dialog.tsx` que já existe no repo.
+- P2 — hex literal onde há token; sem indicador de progresso no botão; sem estado offline; sem gestão de
+  faturas/forma de pagamento (decisão de produto: portal do Stripe).
+
+**Login/Cadastrar (`18-auth.md`, 6 pendências).** A base é boa (o card usa `inert` + `aria-hidden` no
+painel inativo, erros de validação em `sr-only` + `aria-live` + `role="status"`, `aria-invalid` nos campos
+e o formulário **é SSR** — 8 inputs e 8 labels no HTML servido). Achados:
+
+- **P1 — `/login` e `/register` não têm `h1`:** medido no HTML servido (zero `<h1>`); o card começa em
+  `h2` (`AuthBladeCard.tsx:104,128`) → reprova a regra `page-has-heading-one`.
+- **P1 — rate limit sem tratamento:** o login tem limite (`RATE_LIMIT_LOGIN_PER_MIN`) mas o formulário não
+  trata 429 — o usuário recebe erro genérico. O componente `ui/rate-limited.tsx` (com `retryAfterSeconds`)
+  já existe: é reuso, não invenção.
+- P2 — placeholder de senha `⬢⬢⬢⬢⬢⬢` parece valor já preenchido.
+- **A CRIAR (produto):** não existe rota de recuperação de senha — o login não pode ser a única porta.
+
+
+## D-613 — Admin especificado (report-only) e a descoberta de que a medição de admin não é reprodutível
+
+**Admin (`19-admin.md`)** é a maior sessão (8 telas) e a única cujo código é de **outro agente** — a spec
+foi escrita como **especificação + relatório com evidência medida**, sem tocar nos arquivos.
+
+**Os achados, com número:**
+
+- **19 `<th>` sem `scope` em 4 telas** (auditoria 6, diagnostics 5, usuarios 5, lgpd 3 — **zero** com
+  `scope`) ✗. O padrão correto **já existe no repo**: a tabela pública de planos usa `<th scope="col">`
+  (`PricingTable.tsx:37,43`) — é reuso, não invenção.
+- **Contraste AA reprovando em 4 telas (15 nós)**, com paleta default do Tailwind medida pelo axe:
+  `green-600` `#16a34a` sobre `gray-800` `#1f2937` = **4,45:1**; `gray-500` `#6b7280` sobre `#05050a` =
+  4,2:1 e sobre `#1f2937` = **3,03:1**.
+- **`<dl>` inválido em `/admin/metricas`** (`definition-list`, serious).
+- **Rótulos do shell hardcoded em pt-BR** (`AdminShell.tsx:13-19`: "Diagnóstico", "Gestão de usuários"…) —
+  mesmo tipo de vazamento que achei no checkout (D-612), e o gate de i18n continua sem varrer literais.
+- **Sem `aria-current`** no item ativo do `nav`.
+
+**A descoberta que muda o uso do gate:** o **acesso admin é não determinístico** com sessão válida. Medi
+três janelas de tempo com a mesma sessão: numa, 6 das 8 telas renderizaram; noutra, 2; na última, **1**
+(`/admin/catalogo`) — e quando a tela redireciona para `/login` **nenhuma chamada a `/api/v1/admin`
+acontece**, ou seja, a decisão é **local** (guard de cliente/servidor), **não** o RBAC da API. Isso
+**reinterpreta o D-605**: o resultado 6/5 daquela rodada é válido como medição de acessibilidade, mas
+**não é reprodutível** — e minha hipótese registrada lá (step-up do usuário admin) não se sustenta, porque
+a mesma rota alterna. Consequências:
+
+1. As **capturas de admin só valem para as rotas que renderizaram** no momento — a fonte de verdade da
+   a11y de admin é o **relatório do axe** do D-605 (`evidencias/auth-2026-10-15/`), não as imagens;
+2. O capturador ganhou **retry + aviso** quando a rota redireciona (para nunca salvar evidência falsa em
+   silêncio);
+3. **`test:auth` não é um gate confiável hoje**: antes de usá-lo como portão de CI, é preciso estabilizar
+   a decisão de acesso do admin.
+
+
+## D-614 — Sessões 11 e 12 (Busca Avançada e Watchlist) e uma suspeita minha refutada
+
+**Busca Avançada (`20-busca-avancada.md`) — A CRIAR sobre o que existe.** Não há rota de busca avançada;
+há **duas superfícies desconectadas**: a paleta ⌘K (`SearchCommand.tsx:52`, com debounce de 250 ms,
+mínimo de 2 caracteres e `selectedIdx` para teclado) e os filtros server-side do catálogo (`q`, tipo,
+gênero, ano, score, ordenação, na query string). A spec propõe a busca avançada como **composição** das
+duas — sem conceito novo — e registra os P1:
+- **a paleta não é um diálogo acessível**: nenhum `role="dialog"`, `aria-modal`, `role="listbox"` ou
+  `aria-activedescendant` no componente → leitor de tela não anuncia a abertura nem enxerga a lista, e a
+  navegação por setas é invisível;
+- `Escape` não confirmado; e as duas superfícies **não conversam** (a paleta não leva aos filtros e os
+  filtros não abrem a paleta).
+- P2: digitar 1 caractere é **silêncio** (o mínimo não é comunicado).
+
+**Watchlist (`21-watchlist.md`, 6 pendências).** Base sólida: `ProtectedPage` (hidrata a sessão ✓),
+`RateLimited` com retry, limpeza de `isLoading` no `catch`, **adição otimista com rollback**
+(`use-watchlist-store.ts:96-105`), limite de plano (402) tratado, duas visões (kanban/lista) e o
+**`ScoreDelta`** — a única tela que explica *por que* a nota mudou desde que o item entrou na lista.
+Achados: **texto em pt-BR hardcoded no store** (`"Erro ao carregar watchlist"`, `:82` — mesmo vazamento do
+checkout/admin, que o gate de i18n não pega), kanban por *drag* possivelmente sem alternativa de teclado,
+e 402 sem CTA de upgrade no ponto do erro.
+
+**Suspeita minha, refutada.** Eu havia registrado (com ⚠️ na spec do Dashboard) que a watchlist mostrava
+esqueletos que **não resolviam**. Com espera adequada a página resolve — **0 skeletons**, `GET
+/api/v1/watchlist` → **200** — e o store limpa `isLoading` no `catch`. Era o **tempo da minha captura**
+(3,3 s), não um defeito. Corrigi a spec do Dashboard, guardei a captura `1440-resolvido.png` e anotei a
+lição de método: **captura de página com fetch no cliente precisa de estado resolvido**, senão a evidência
+vira acusação falsa.
+
+
+## D-615 — Sessões 13 e 14 (Descoberta e Listas) e **mais uma acusação minha que a evidência derrubou**
+
+**Descoberta (`22-descoberta.md`, 6 pendências).** Há **três rotas para a mesma intenção** (`/discover`,
+`/discoveries`, `/dashboard/discoveries` — só a última é protegida por `ProtectedPage`), sem hierarquia
+entre elas. P1: `/discoveries` lê o store de auth sem guard (`DiscoveriesFeed.tsx:123`). A sessão trouxe
+**dois padrões de referência** para o resto do programa: a máquina de estados do `DiscoverClient`
+(`RateLimited` com `retryAfterSeconds` **e** `ErrorState` com retry — `:49-64`) e a **política de imagem
+feita certo** no `DiscoveriesFeed` (`localSrcSet`/`remoteLadder` com `srcSet` + `sizes`, `:11,30-38`) — o
+oposto do `<img>` puro sem dimensão que encontrei em Rankings (D-608).
+
+**Listas (`23-listas.md`, 6 pendências).** Índice + detalhe com slug compartilhável, criação **inline**,
+vazio com ação ao lado e — o mais importante — **404 honesto separado de falha de rede** com `ErrorState` +
+retry (implementado no D-603). É o **padrão do produto** para essa distinção; as specs de Catálogo e Listas
+devem ser lidas juntas. P1 remanescente: 402/`premiumOnly` sem CTA de upgrade no ponto do erro e exclusão de
+lista sem `confirm-dialog` confirmado.
+
+**Acusação minha, derrubada pela evidência (segunda vez no programa).** Eu havia escrito, como P1, que
+`/listas` mostraria "Você ainda não criou listas" para quem **tem** listas — afirmação falsa sobre dados do
+usuário. Fui olhar a captura antes de deixar como fato: o header aparece **autenticado** (chip "Teste ·
+Free"), ou seja, o store **hidratou**; e o vazio exibido era **verdadeiro** (o usuário do banco de teste
+realmente não tem listas). Reescrevi o item como **risco, não reproduzido** — mesma família do P0, com
+reprodução confirmada em `/dashboard`, mas sem inventar um segundo caso. Também corrigi a tabela de alcance
+do P0 (D-611) para deixar claro que "sem guard" é **risco**, não falha garantida: em `/watchlist` e
+`/listas` o header apareceu autenticado; em `/dashboard` falhou.
+
+Isso fecha um padrão de conduta deste programa: **quatro acusações minhas já foram verificadas e
+refutadas/corrigidas** (anel de score, título sobre o pôster, "score com ponto", skeleton infinito da
+watchlist) e **duas** foram ajustadas por nuance (esta e a hipótese de step-up no admin). Nenhuma delas
+entrou como fato nas specs.
+
+
+## D-616 — As 16 sessões de PRODUTO estão especificadas; e o P1 dos diálogos nativos confirmado
+
+**Perfil (`24-perfil.md`).** Duas superfícies: `/profile` (próprio, com `ProtectedPage` ✓) e `/user/[id]`
+(público, compartilhável). O perfil é **derivado das interações**, não de contador próprio — decisão
+registrada no código ("`/user/stats` em vez da watchlist", `ProfileContent.tsx:78`). Destaques positivos:
+dois estados vazios **distintos** (sem dados × sem gosto calculável, `:154,193`) e hierarquia `h1`→`h2`
+correta. Pendências: erro de rede **sem retry** (não há branch de erro), **404 do perfil público a
+confirmar** (id inexistente pode renderizar perfil vazio em vez de "não encontrado" — o padrão correto
+existe em Listas) e gráficos de gosto sem alternativa textual (mesma dívida do dashboard e do MEDIA Score).
+
+**Configurações (`25-configuracoes.md`).** `/settings` (client + `ProtectedPage` ✓) reúne plano,
+cancelamento, controles de LGPD (`settings/LgpdControls.tsx`) e consentimento; `/user/data` é a página de
+dados do titular. Achados:
+
+- **P1 confirmado (era "a confirmar" na spec de Assinaturas):** o cancelamento usa **`window.confirm`**
+  (`settings/page.tsx:48`) e os retornos usam **`alert()`** em três pontos (`:63,66,69`). Diálogos nativos
+  não seguem o tema e têm suporte irregular em tecnologia assistiva — e o repo já tem
+  `ui/confirm-dialog.tsx` e `sonner`. Reuso, não invenção.
+- **P1:** `/user/data` — a página **mais sensível** do produto (dados pessoais) — está **sem
+  `ProtectedPage`** e entra no grupo de "leem o store sem guard" (D-610).
+- P1: erro do cancelamento em `alert()`, sem erro inline nem retry.
+- P2: literais `#F5F5F7`/`#A0A0B8`/`#85859F` onde existem `text-fg-*`.
+
+**Marco:** com isso, **16 de 16 sessões de produto** estão especificadas (Catálogo, Rankings, Planos,
+MEDIA Score, Dashboard, Biblioteca, Metas e Evolução, Assinaturas, Auth, Admin, Busca Avançada, Watchlist,
+Descoberta, Listas, Perfil, Configurações), todas com as 12 seções do template. Restam as **9 legais** —
+quatro das quais **não têm rota** (Cookies, Segurança, Direitos do Titular, Gerenciar Cookies), então
+essas specs são de **criação** e duas dependem do `LgpdBanner`/store de consentimento (D-582.10).
+
+
+## D-617 — Bloco legal, parte 1: Sobre Nós, Metodologia, Privacidade e Termos (20 de 25)
+
+Quatro das nove sessões legais especificadas. O bloco legal tem uma característica que as de produto não
+têm: **os sete estados quase não se aplicam** (documento estático no servidor) — e o template exige motivo,
+que está registrado em cada spec.
+
+**Sobre Nós (`30-legal-sobre.md`).** Server + `ScrollReveal`, com o bloco "O que NÃO é" destacado como
+cartão — honestidade editorial como hierarquia visual. Conserva os ganhos do D-603 (medida de leitura e
+`h1` padronizado). Achados: `border-[#1C1C2E]` **fora do token** de borda (sobrou da migração D-604), sem
+`lastUpdated` (as outras legais têm) e — o mais relevante — **duas fontes de verdade** para páginas
+institucionais (mensagens i18n × `institutional-content.ts`).
+
+**Metodologia (`32-legal-metodologia.md`).** É o documento que sustenta o número publicamente. Usa
+`institutional-content.ts` (fonte única, D-603), **`StructuredData`/JSON-LD seguro** e o padrão semântico
+`section aria-labelledby` + `h2 id` em todas as seções. P1 que **não é de UI**: **não existe canal de
+contestação de nota** — quem discorda do MEDIA Score não tem caminho, e isso é política editorial (Operador).
+
+**Privacidade (`33-legal-privacidade.md`).** 3 tabelas (retenção, cookies, transferências) geradas por um
+`PipeTable` local. Minha suspeita era que fossem tabelas sem semântica; **está errado**: usa `<table>` com
+`<thead>`/`<tbody>` e **`<th scope="col">`** — ou seja, o repo tem **dois** exemplos corretos de tabela
+(`PricingTable` e `PipeTable`) e o Admin tem **19 `<th>` sem `scope`** (D-613). Achado técnico próprio:
+a estrutura da tabela **vive dentro de strings de i18n** (célula|célula por linha) — um `|` a mais quebra a
+tabela em **um** idioma, sem gate que detecte.
+
+**Termos (`34-legal-termos.md`).** A página mais curta do bloco (89 linhas). Achados: JSON-LD montado com
+`JSON.stringify` cru enquanto catálogo, FAQ, planos e metodologia usam `serializeJsonLd` (escaping seguro) —
+é a única página fora do padrão; e o risco legal das duas fontes de verdade, que o `AGENTS.md` justamente
+manda manter consistentes entre Termos, Privacidade e rodapé.
+
+**Correção de precisão nesta rodada:** minha numeração nas specs legais ficou um a menos que o índice
+(pulei "Legal — Planos", que vem depois). Renumerei Metodologia, Privacidade e Termos para casar com o
+índice, que é a fonte de verdade, e mantive o restante.
+
+
+## D-618 — Programa de UI-UX concluído: 25 de 25 sessões especificadas
+
+O Operador pediu UI-UX de **todas** as sessões (16 de produto + 9 legais; a lista enumerada tem 25 itens,
+embora o pedido falasse em 22). Está **feito**, e a verificação é objetiva:
+
+| Verificação | Resultado |
+|---|---|
+| Specs no template (12/12 seções) | **25 de 25** |
+| Evidência visual 1440/375 | **30 diretórios, 61 imagens** (inclui o estado atual das 4 sessões que ainda não têm página) |
+| Pendências classificadas nas specs | **146** — 7 P0 · 57 P1 · 82 P2, cada uma com evidência (`arquivo:linha` ou número) e dono |
+| Formatação | prettier limpo em todos os 27 arquivos de `ui-ux/` |
+
+**Artefatos do programa** (`docs/02-architecture-design/ui-ux/`): `00-INDICE` (mapa das 25 sessões × 44 rotas
+reais), `01-TEMPLATE` (12 seções obrigatórias), `02-FUNDAMENTOS` (tokens, duas escalas de score, regras de
+número/movimento/AA) e **25 specs** — `10` a `25` (produto) e `30` a `38` (legal).
+
+**Ferramentas criadas para o programa** (reutilizáveis): `npm run uiux:evidence` (capturas 1440 página
+inteira + 375 dobra, banner dispensado, **retry com aviso** quando uma rota autenticada redireciona) e
+`npm run uiux:auth-env` (ambiente autenticado **descartável**: Postgres efêmero `trust`, Redis local, usuário
+ADMIN sem 2FA, storageState) — sem tocar no `.env`, sem Railway, sem produção.
+
+**Método que se provou necessário:** **seis** acusações minhas foram verificadas e refutadas ou nuançadas
+antes de virarem fato (anel de score, título sobre o pôster, "score com ponto", skeleton infinito da
+watchlist, "tabelas sem semântica" na privacidade, "vazio falso" nas listas), e a hipótese de step-up no
+admin foi corrigida. Nenhuma entrou nas specs como fato — e cada refutação ficou registrada na própria spec,
+porque a rastreabilidade do erro é parte do valor.
+
+**Padrões de referência do próprio produto** identificados e reusados entre specs (sem conceito novo, como
+pedido): `section`+`aria-labelledby`+`h2` (Catálogo, Metodologia, Descoberta), `<nav>`+`aria-current`
+(Rankings), `<ol>` de ranking, `aria-pressed` (Planos), `<ul role="list">` (Planos), **`<th scope="col">`**
+(Planos e Privacidade — os dois que faltam no Admin), 404 honesto × erro com retry (Listas), política de
+imagem com `srcSet`/`sizes` (Descoberta) e máquina de estados com rate-limit (Catálogo/Descoberta).
+
+**O que o programa revelou e segue na mão do Operador** (não é trabalho de spec):
+1. **P0** — store de sessão não hidrata em 5 rotas (`/dashboard`, `/historico`, `/listas`, `/listas/[slug]`,
+   `/user/data`), inclusive no checkout: F5 mostra interface de deslogado;
+2. **acesso admin não determinístico** — `test:auth` não é reprodutível enquanto durar;
+3. **gate de i18n** não varre literais no código (3 telas com texto fixo em pt-BR: checkout, admin, watchlist);
+4. **feedback nativo** (`window.confirm` + 3 `alert()`) em `/settings`;
+5. declarações ausentes na oferta (reembolso/arrependimento, reajuste) e no bloco de privacidade
+   (prazo de resposta, contato do encarregado);
+6. consolidação dos **4 dials de score** (A4) e os 19 `<th>` sem `scope` do Admin.
+
+
+## D-619 — P0 do store de sessão corrigido, diálogos nativos trocados por componentes do repo
+
+O Operador pediu "implemente todas" (as pendências que apresentei). Esta rodada entrega as duas primeiras,
+que são as de maior impacto.
+
+### 1. P0 — sessão válida mostrando interface de visitante (CORRIGIDO)
+
+**Causa provada (não era ambiente):** só o `ProtectedPage` chamava `fetchMe()`. Nas rotas que leem o store
+direto — `/dashboard`, `/historico`, `/listas`, `/listas/[slug]`, `/user/data` — e nos componentes globais
+(`Navbar`, `NotificationBell`), um F5 deixava o store no estado inicial. Com cookie válido, o resultado era
+"Entre para ver seu dashboard", header com "Entrar/Cadastrar", sidebar "Visitante · Plano Free" e
+`/checkout` mandando para o login. A prova de que não era ambiente: no mesmo navegador `/api/v1/auth/me`
+respondia **200** (relativo e absoluto, `credentials: include`).
+
+**Correção implementada:**
+
+- **`use-auth-store.ts`** — novo campo **`hydrated`** no estado, que separa **"é visitante"** de **"ainda
+  não sei"** (a raiz do defeito era não haver como distinguir os dois). `fetchMe` ganhou **dedupe** (`sai
+  cedo se já hidratado`) e `force` para o login; os três desfechos (200 / 401 / falha de rede) agora marcam
+  `hydrated`.
+- **`providers/auth-hydrator.tsx`** (novo) — hidrata **uma vez por página, em qualquer rota**; exporta
+  também `useAuthPendente()` para as telas escolherem entre "carregando" e "visitante".
+- **`app/[locale]/layout.tsx`** — monta o hidratador dentro dos providers. Consertar aqui corrige as cinco
+  rotas e os dois componentes globais de uma vez, sem espalhar guard por tela.
+- **Consumidores** — `DashboardClient`, `HistoricoPage`, `ListasPage`, `ListaViewPage` e `NotificationBell`
+  passaram a esperar `hydrated` antes de decidir; em `/listas` isso importa muito: sem o gate, a tela
+  **afirmava** "Você ainda não criou listas" para quem tem listas.
+- **`/user/data`** ganhou **`ProtectedPage`** (era a página mais sensível do produto sem guarda).
+
+**Verificação:** `tsc` 0 · **`vitest` 624/624** · **`test:hydration` 36/36** · `design:detect` 0 achados ·
+`design:contrast` AA OK · `design:hex` OK. E a prova funcional com o ambiente autenticado: contexto novo
+(simulando F5) em `/dashboard` → header **logado**, sem `loginHint`, `/auth/me` **200**; em `/historico` →
+`/auth/me` **200** e "Verificando sessão..." (o estado de carregamento correto, em vez da UI de visitante).
+
+**Nota de método (importante):** a suíte pegou a mudança — 2 testes de `auth-store` falharam porque o store
+é singleton e o `hydrated` persistia entre casos. O comportamento novo é o correto; o **teste** foi adaptado
+para resetar o campo no `beforeEach`. Preferi adaptar o teste a enfraquecer o dedupe.
+
+### 2. Diálogos nativos → componentes do repo (CORRIGIDO)
+
+- **`/settings`** — `window.confirm` no cancelamento e **3 `alert()`** nos retornos trocados por
+  **`ConfirmDialog`** (Radix, foco preso, variante destrutiva) e **`toast`** do `sonner` (o `<Toaster />` já
+  estava no layout), com botão desabilitado durante a chamada. Era o P1 confirmado da spec 25.
+- **`/listas/[slug]`** — exclusão de lista trocada pelo mesmo `ConfirmDialog`. Era o P1 da spec de Listas.
+
+**Varredura depois da correção** (`window.confirm`/`alert` em `src`): sobraram **3 em `/admin`** (arquivos
+de outro agente — report-only, comportamento preservado) e **1 em `DesignSystemClient.tsx:158`**
+(`onRetry={() => alert("Tentar novamente")}` — um "retry" que só mostra alerta e com texto fixo em pt-BR;
+registrado, não é meu arquivo de frente).
+
+### 3. Duas correções de precisão nas specs (a evidência derrubou o que eu havia escrito)
+
+- **Legal — Planos:** eu havia marcado **reembolso/arrependimento como AUSENTE**. Ao procurar a chave de
+  rótulo do diálogo, encontrei **`homeContent.plansCancelBody`**, que **menciona** "ressalvados o
+  arrependimento legal e o reembolso por cobrança indevida". O achado correto é: **existe na home, não na
+  oferta** — imprecisão minha, corrigida na spec.
+- **Configurações/Listas/Dashboard:** os três P1/P0 corrigidos foram marcados **"CORRIGIDO (D-619)"** nas
+  specs, com o número do defeito preservado (a spec registra o problema **e** o conserto).
+
+
+## D-620 — Gate de i18n com dentes: censo de texto PT hardcoded no código (e um vazamento em primitivo compartilhado)
+
+**O problema.** O gate `test/i18n-leak.spec.ts` compara apenas as **chaves** dos catálogos de mensagem.
+Ele passa enquanto um componente escreve `"Diagnóstico"`, `"Erro ao carregar watchlist"` ou
+`alert("Tentar novamente")` direto no código — e o produto fica em português para quem usa EN/ES. Eu havia
+encontrado três casos a olho (checkout, admin, watchlist) e registrado como pendência de gate.
+
+**O que foi implementado:** `apps/web/scripts/i18n-source-census.mjs` + `npm run i18n:source`
+(`i18n:source:list` para inspecionar). Varre `src/**` procurando texto **visível ao usuário** com marca de
+português (acento ou palavra típica) em três posições que chegam à tela: nós de texto em JSX, atributos
+lidos (`placeholder`, `title`, `aria-label`, `alt`, `label`) e literais de `alert`/`confirm`/`prompt`.
+Comenta o que não é texto de leitor e ignora testes.
+
+**Baseline, no padrão do repo:** os achados atuais ficam congelados em `i18n-source-baseline.json` (mesmo
+desenho do `hex-baseline.json`, D-584) e o gate **falha apenas em achado novo**. Isso permitiu ligar o gate
+**hoje** sem bloquear CI por dívida de arquivos de outra frente. **Verifiquei que ele tem dentes:** removi
+uma chave do baseline → saiu **exit 1** apontando o arquivo e a linha; restaurei → exit 0.
+
+**O censo pagou-se na primeira execução (36 achados):**
+
+| Onde | Achados | Dono |
+|---|---|---|
+| `admin/metricas` (9), `admin/usuarios` (6), `admin/auditoria` (4), `admin/catalogo` (3), `admin/upload` (3), `admin/diagnostics` (2), `AdminShell` (1) | **28** | outro agente (report-only) |
+| `components/DesignSystemClient.tsx` (showcase) | **7** | Operador/eu |
+| **`components/ui/empty-state.tsx`** | **1** | **eu — corrigido** |
+
+**O achado que valeu o gate:** o primitivo compartilhado `EmptyState` tinha `title = "Nada por aqui ainda"`
+como **default** — e como é primitivo, o vazamento se espalhava por qualquer tela que omitisse a prop, sem
+ninguém notar. Correção: `title` passou a ser **obrigatório** no tipo (quem omite não compila). Conferi os
+3 consumidores reais (`DesignSystemClient`, `MediaDetailClient`, `MediaDetailPage`) — **todos já passavam
+`title`** — então a mudança é segura e ainda **eliminou** uma chave do baseline (36 → 35).
+
+**Limitação registrada com honestidade:** o censo cobre JSX, atributos lidos e diálogos nativos. **Não**
+cobre strings de fallback em stores (ex.: `"Erro ao carregar watchlist"` em `use-watchlist-store.ts:82`, que
+é passada para `set({ error })` e não aparece em nenhuma das três posições). Está anotado no cabeçalho do
+script como próximo incremento.
+
+**Verificação:** `npm run i18n:source` → OK (exit 0) · com uma chave removida → **exit 1** · `tsc` 0 ·
+`eslint` 0 · **`vitest` 624/624** · `design:detect` 0 · `design:hex` OK.
+
+
+## D-621 — Quatro dials de score viraram dois (e um núcleo compartilhado)
+
+A auditoria (A4) apontou **quatro** implementações de dial. O que a investigação mostrou:
+
+| Componente | Uso real | Destino |
+|---|---|---|
+| `media-rate-ui/ScoreDial.tsx` (171 linhas, client, contador animado) | `MediaCard`, `MediaCardShell` | **mantido** (canônico) |
+| `media-rate-ui/StaticScoreDial.tsx` (103 linhas, JSX puro p/ servidor) | `MediaCardShell` | **mantido** |
+| `ui/score-dial.tsx` (193 linhas, `viewBox` próprio + prop `bars`) | **só o showcase** (`DesignSystemClient`) | **removido** |
+| `landing/ScoreRing.tsx` (94 linhas) | **zero importadores** | **removido** (código morto) |
+
+**Por que dois continuam existindo (e por que isso está certo):** o `StaticScoreDial` existe para que os
+~60 cards dos carrosséis **não hidratem JS de animação** (D-380/T405 — era o gargalo de TTI/LCP da home).
+Fundir os dois num arquivo `"use client"` faria o estático virar client e **destruiria** o ganho. O que dava
+para eliminar — e dava prejuízo — era a **duplicação**: os dois tinham cópias de `SIZE_CONFIG` e da
+matemática do anel, e **já haviam divergido** uma vez na função de faixa (D-582.4a: 3 faixas num lado, 6 no
+outro — o mesmo score saía com cor diferente no card e no módulo de score).
+
+**Implementado:** `media-rate-ui/score-dial-core.ts` (sem `"use client"`, importável pelo servidor) com
+`SCORE_DIAL_SIZE`, `SCORE_DIAL_TRACK`, `scoreBand()` e `dialGeometry()` — **fonte única** de tamanho,
+geometria e cor. Os dois componentes passaram a consumi-lo, com o **markup preservado** (o teste de 29 casos
+dos dials continuou verde por bandas e traço).
+
+**Sobre o `ui/score-dial`:** era um dial de **showcase** com um `bars` de demonstração — e o repositório já
+havia **rejeitado breakdown inventado** em preview de plano (D-583.4). Migrei o showcase para o dial do
+**produto** (4 usos, `score` → `value`), removi o arquivo e o teste correspondente passou a exercitar o
+canônico (`role="img"` + rótulo i18n `Score: {score} de {max}` — o mesmo texto, papel ARIA mais correto que
+o `role="status"` antigo).
+
+**Verificação:** `tsc` 0 · **`vitest` 624/624** (inclui os 29 do dial) · `eslint` 0.
+
+
+## D-622 — As quatro páginas legais que não existiam foram criadas (e o direito de revogar consentimento ganhou porta de entrada)
+
+O bloco legal tinha **4 sessões sem rota** (Cookies, Segurança, Direitos do Titular, Gerenciar Cookies).
+Estão implementadas, com o mesmo padrão das legais existentes (`force-static` + `revalidate = 3600`,
+`generateMetadata` com canônica e alternates, `h1`→`h2`, medida de leitura `max-w-[38rem]`).
+
+### O P1 do consentimento, confirmado no código e corrigido
+
+O `ConsentBanner` retornava `null` quando `decided` era verdadeiro (`ConsentBanner.tsx:30`): quem aceitou ou
+recusou **não tinha como mudar de ideia** — a única superfície de gestão era um painel inline que só existia
+dentro do próprio banner. Agora:
+
+- **`/cookies/gerenciar`** é a rota permanente, com o componente extraído **`ConsentPreferences`** (toggles
+  de Analytics/Monitoramento + aceitar/recusar/salvar) — uma só implementação, usada pela página;
+- o botão "Gerenciar" do banner deixou de abrir um painel efêmero e passou a **levar a essa rota** (o banner
+  preserva o peso visual da primeira visita: duas ações rápidas + o link);
+- o rodapé ganhou as portas de entrada que faltavam: **Cookies**, **Gerenciar cookies**, **Segurança** e
+  **Direitos do titular** (antes só havia Privacidade, Termos, "Seus dados" e Contato);
+- as 3 páginas públicas entraram no **sitemap**; `/cookies/gerenciar` fica **fora** de propósito e sai com
+  `robots: noindex` (é utilitária, não deve competir com a Política de Privacidade na busca).
+
+### Conteúdo: só o verificável
+
+- **Cookies** — resumo por categoria (necessários / analytics PostHog / monitoramento Sentry), o padrão
+  restritivo, o aviso de que não há rastreador de anúncio, o caminho para mudar a escolha e o link para o
+  inventário completo. **Não dupliquei a tabela** de cookies: ela é a fonte única na Política de Privacidade,
+  e duas listas divergiriam (desvio consciente da minha própria spec, registrado aqui).
+- **Segurança** — cada afirmação corresponde a algo do repositório: CSP + `X-Frame-Options: DENY` +
+  `nosniff` + `Referrer-Policy` + `Permissions-Policy` (`next.config.ts:98-107`), cookie de sessão
+  `HttpOnly` com token anti-CSRF, step-up/2FA no admin, RLS no banco, PITR com restauração testada,
+  Sentry + CodeQL/Gitleaks no CI. A página **declara o que não temos** (ISO 27001 / SOC 2).
+- **Direitos do Titular** — os sete direitos, o autoatendimento real (`/settings` → exportar e excluir, com
+  exclusão em dois passos), o caminho para **quem não tem conta**, o prazo da LGPD, o canal do encarregado
+  (o **contato institucional já público** no rodapé — não inventei endereço) e o link oficial da ANPD.
+- **Gerenciar Cookies** — título, explicação e o componente de preferências.
+
+### i18n e verificação
+
+**216 chaves** gravadas com paridade nos 3 locales (`pt-BR`/`en-US`/`es-ES`) — e o gate que criei no D-620
+provou o valor imediatamente: `i18n:source` → **OK, nenhum texto PT hardcoded novo**, ou seja, as páginas
+nasceram internacionalizadas.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** · `i18n:source` OK · `design:hex` OK ·
+`design:detect` 0 achados · build de produção (em verificação nesta rodada).
+
+### Duas decisões que continuam sendo do Operador (não inventei política)
+
+1. **Prazo e canal do encarregado**: a página cita o prazo **da própria LGPD** e usa o e-mail institucional
+   já público como canal. Se houver encarregado formal nomeado, o nome dele deve entrar ali.
+2. **Reembolso/reajuste na oferta** (spec Legal — Planos): segue pendente de decisão jurídica; a menção ao
+   arrependimento legal existe na **home**, não na oferta — a spec registra isso com precisão.
+
+
+## D-623 — Correções medidas no Admin (contraste, tabela, `<dl>`, shell e diálogos) e um erro meu de contagem
+
+O Operador pediu para implementar também o que eu havia marcado como *report-only* por pertencer a arquivos
+de outra frente. Feito, com duas cautelas: (1) só o que é **medido** — nada de migração em massa às cegas; e
+(2) **substituições literais**, nunca regex sobre marcação (o motivo está no fim deste registro).
+
+### O que foi corrigido
+
+| Achado (medido) | Correção |
+|---|---|
+| **Contraste AA reprovando em 4 telas** — `#6b7280` (`text-gray-500`) reprova em **dois** fundos (`#05050a` = 4,2:1 e `#1f2937` = 3,03:1) | **36 ocorrências** trocadas por `text-fg-secondary` (7,28:1 sobre o fundo) nas 7 telas do admin |
+| `#16a34a` (`text-green-600`) sobre `#1f2937` = **4,45:1** | **7 ocorrências** trocadas pelo token de sucesso `#34D399` |
+| **Latente, não pego pelo axe** (estado de carregando/erro não estava visível na varredura): `text-gray-600` sobre fundo escuro ≈ 2,6:1 | **1 ocorrência** trocada por `text-fg-secondary` |
+| **`<th>` sem `scope`** | **15 células** agora com `scope="col"` (auditoria, diagnostics, usuários, LGPD) |
+| **`<dl>` inválido** em `/admin/metricas` (`definition-list`, serious) | O `extra` do `Kpi` era um `<p>` **irmão** de `<dt>`/`<dd>` dentro do `<div>` do `<dl>` — ali só `dt`/`dd` são permitidos. Foi para dentro do `<dd>` (bloco abaixo do valor), mesma aparência e estrutura válida |
+| **Shell com segundo design system e sem i18n** | `AdminShell` passou a usar tokens (`bg-surface-card`, `border-surface-border`, `text-fg-*`) em vez de `bg-white dark:bg-gray-800` (classes de **modo claro** num produto dark-only) e os 6 rótulos + "Voltar" + `aria-label` vêm de `admin.nav*` (24 chaves nos 3 locales) |
+| **`aria-current` ausente** | Item ativo da navegação agora é anunciado (`aria-current="page"`), no mesmo padrão de `TopPageClient.tsx:113` |
+| **3 `window.confirm`** (catálogo, diagnostics, purga LGPD) | Trocados por **`ConfirmDialog`** (Radix, foco preso, variante destrutiva), com os textos em `admin.removeMedia*` e `admin.purge*` (18 chaves nos 3 locales) |
+
+### Correção de um erro **meu** de contagem
+
+Eu havia registrado "**19** `<th>` sem `scope`" (D-613). Ao aplicar a correção, descobri que o número certo
+é **15**: a minha busca usava o padrão `<th`, que **também casa `<thead`** — 4 dos "19" eram aberturas de
+`<thead>`. Pior: a minha própria verificação pós-correção repetiu o padrão e contou os 4 `<thead>`
+**corrompidos** como válidos (uma verificação tautológica, que não podia reprovar). Corrigi as specs
+(`19-admin.md`, índice) e registro aqui o número certo.
+
+### O incidente que justifica a cautela
+
+Ao aplicar `scope="col"` com **regex**, o padrão `<th(?!\s+scope)` corrompeu 4 `<thead>` em
+`<th scope="col"ead>` — pego pelo `tsc` imediatamente e corrigido. Lição aplicada no resto da rodada:
+**substituição literal** de texto exato, com contagem por arquivo, e verificação **independente** do
+transform (nunca com o mesmo padrão que fez a mudança).
+
+### Testes adaptados (não enfraquecidos)
+
+Sete testes de admin quebraram com as mudanças — e todos por motivo legítimo:
+- os 2 de layout precisavam de `usePathname` no mock (o shell passou a usá-lo) e das chaves novas de i18n;
+- os 5 de fluxo testavam `window.confirm`; agora clicam no botão **do diálogo** (`within(dialog)`), que é o
+  comportamento novo e correto. A asserção antiga (`window.confirm` chamado 1×) foi removida porque o
+  `window.confirm` **não existe mais** no caminho.
+
+**Verificação:** `tsc` 0 · `eslint` 0 (1 warning pré-existente de `no-console`) · **`vitest` 624/624** ·
+`i18n:source` OK (a dívida caiu de 36 → **33** ocorrências) · `design:hex` OK · `design:detect` 0 ·
+`design:contrast` AA OK.
+
+**Nota de processo (o build pegou o que eu deveria ter pego antes):** ao remover o parâmetro `titulo` de
+`remover()`, uma **segunda** chamada (no `onConfirm` do diálogo, reformatada pelo prettier em duas linhas)
+ficou com dois argumentos. Eu rodei `eslint` e `vitest` depois dessa edição, mas **não** `tsc` — e os testes
+passaram porque o caminho não era exercitado com o tipo errado. O `next build` reprovou em "Failed to type
+check" e localizou a linha. Corrigido, `tsc` 0 e build 0. Lição: `tsc` **depois de cada** bloco de edição,
+não só ao fim da rodada.
+
+
+## D-624 — Canais oficiais da END ART Studios roteados por finalidade (e o canal de reembolso publicado na oferta)
+
+O Operador informou os endereços oficiais. O produto usava **um** endereço genérico
+(`endart.studios@gmail.com`) para tudo — inclusive como canal do Encarregado (DPO) na Política e como
+contato dos Termos. Roteado por finalidade, **zero** ocorrências do genérico restantes:
+
+| Canal | Onde entra | Ocorrências |
+|---|---|---|
+| `+contato` | rodapé (link e identificação institucional), `/feedback`, dúvidas sobre os Termos (3 locales) | 6 |
+| `+privacidade` | Política de Privacidade: canal oficial do **DPO** (seção 1) e contestação na seção de IA (3 locales) | 6 |
+| `+reembolso` | **novo item no FAQ de planos** (`pricingFaq.faq7`, 3 locales) | 3 |
+| `+suporte` | mesma resposta do FAQ (acesso/cobrança recorrente) e a página de Direitos do Titular | 3+ |
+| `+security` | página de **Segurança** (relato de vulnerabilidade), no botão **e** em texto | 1 |
+| `+direitos` | página de **Direitos do Titular** (pedido de titular) | 1 |
+
+**O que isso destrava (itens que eu havia marcado como decisão do Operador):**
+
+1. **Oferta — reembolso/arrependimento (era P1):** a oferta não dizia como pedir reembolso. Agora o FAQ de
+   planos tem a pergunta "Como peço reembolso ou desisto da compra?", com o **canal `+reembolso`** e o prazo
+   que a lei garante (CDC art. 49, 7 dias), além do aviso de que cobrança indevida é devolvida
+   independentemente de prazo. **A redação da política comercial segue precisando de aval jurídico** — o que
+   destravei foi a **UI e o canal**, não a política.
+2. **Privacidade/Direitos do Titular (era P1/P2):** o encarregado agora tem canal próprio (`+privacidade`),
+   os pedidos têm canal (`+direitos`) e problemas de conta têm canal (`+suporte`) — e o texto do DPO foi
+   corrigido, porque dizia "o mesmo contato do rodapé" (ficaria **falso** depois do roteamento).
+3. **Segurança (era P2):** o canal de relato está publicado — e **também em texto**, não só no `href`, porque
+   quem copia o endereço à mão (ou usa leitor de tela sem abrir o cliente de e-mail) precisa do canal legível.
+   O compromisso de **prazo** de resposta continua sendo do Operador.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** (o FAQ de planos ganhou um item e nenhum teste
+quebrou) · `i18n:source` OK · `design:hex` OK · verificação funcional no navegador: `/pricing` com **7
+perguntas**, `/direitos-do-titular` exibindo `+privacidade`, `+suporte` e `+contato` em pt-BR e es-ES.
+
+
+## D-625 — Admin sem "segundo design system": 199 classes migradas para tokens (e um erro meu que só o CSS gerado pegou)
+
+Última dívida visual grande do programa: o `/admin` foi escrito com **pares `light dark:`**
+(`bg-white dark:bg-gray-800`) num produto **dark-only** — variantes claras que são código morto, mas mantêm
+uma paleta paralela à dos tokens (`surface.*`, `fg.*`, `indigo.DEFAULT`).
+
+**Migração: 199 trocas de classe**, todas por **substituição literal** (nada de regex sobre marcação — um
+regex meu corrompeu 4 `<thead>` no D-623), mais 22 duplicatas colapsadas (de pares como
+`text-gray-400 dark:text-gray-400`, que viravam o mesmo token duas vezes):
+
+| De | Para | N |
+|---|---|---|
+| `text-gray-900 dark:text-gray-100` | `text-fg-primary` | 30 |
+| `border-gray-300 dark:border-gray-600` | `border-surface-border` | 26 |
+| `bg-white dark:bg-gray-800` | `bg-surface-card` | 23 |
+| `dark:text-gray-400` / `text-gray-400` | `text-fg-secondary` | 40 |
+| `divide-gray-200 dark:divide-gray-700` | `divide-surface-border` | 7 |
+| `hover:bg-gray-100 dark:hover:bg-gray-700` | `hover:bg-surface-elevated` | 4 |
+| `bg-indigo-600` / `hover:bg-indigo-700` | `bg-[#818CF8]` / `hover:brightness-110` | 5 |
+| vermelhos (`text-red-600`, `bg-red-600`, `hover:bg-red-50`, `dark:hover:bg-red-900/20`) | `text-score-low`, `bg-score-low`, `hover:bg-score-low/10` | 31 |
+
+**Dois defeitos de contraste que o axe não pegou** e que a migração corrigiu:
+`text-white` sobre `bg-indigo-600` (#818CF8) = **~2,4:1** (3 botões) e `text-red-600` no dark (#DC2626 sobre
+`#05050A`) = **~4,0:1** (15 ocorrências). Ambos foram para os tokens (`text-[#0F172A]` = 5,98:1 sobre o
+indigo; `score.low` = ~6,5:1 no dark).
+
+**O erro que só o CSS gerado pegou.** Numa primeira passada eu mapeei `bg-indigo-600` → `bg-indigo` e
+`text-white` → `text-indigo-foreground`, confiando no `tailwind.config.ts`
+(`indigo: { DEFAULT: "#818CF8", foreground: "#0F172A" }`). O censo de classes mostrou "só tokens" e o
+`tsc`/build passaram — mas eu fui conferir o **CSS de produção** e as duas classes **não existiam**:
+`.bg-indigo` e `.text-indigo-foreground` **não eram geradas**. Ou seja: eu teria enviado botões **sem fundo**
+e texto sem cor. Troquei pelos valores arbitrários que o resto do produto já usa
+(`bg-[#818CF8]`, `text-[#0F172A]`) e reverifiquei no CSS gerado — agora **todos** os tokens usados no admin
+aparecem como regra.
+
+**Lição registrada:** verificar que uma classe **existe no código** não é o mesmo que verificar que ela é
+**gerada**. A verificação que vale é a do artefato final (o CSS), não a do texto-fonte.
+
+**Limitação conhecida do detector de i18n:** ele casa `>texto<` na **mesma linha**; quando a migração mudou
+a quebra de linha de um `<h2>`, um literal **pré-existente** ("Gestão de usuários") passou a ser detectado.
+Não é regressão — é dívida da mesma classe das outras 34, e o baseline foi atualizado.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** · **`build` 0** · `test:hydration` **36/36** ·
+`design:contrast` **AA OK** · `design:hex` OK · `design:detect` **0** · `i18n:source` OK ·
+**classes paralelas ou inexistentes no admin: 0** · **todas as classes usadas presentes no CSS de produção**.
+
+
+## D-626 — Conclusão de pendências: lote final de P1 e o **erro de diagnóstico** que a verificação derrubou
+
+### Feito nesta rodada (tudo verificado)
+
+| Pendência | Correção |
+|---|---|
+| `/login` e `/register` **sem `h1`** | `h1` visualmente oculto (`sr-only`) em cada página, com a chave que já existia (`auth.loginTitle`/`registerTitle`). Semântica correta, zero mudança visual |
+| `security.txt` **ausente** (RFC 9116) | Criado em `apps/web/public/.well-known/security.txt` com `Contact` (`+security`), `Expires`, `Preferred-Languages` e `Policy` apontando para `/seguranca` |
+| Store da watchlist com **texto fixo em pt-BR** (`"Erro ao carregar watchlist"`) | A tela deixou de exibir a mensagem do store: usa a mensagem da API quando existe e um rótulo traduzido (`watchlist.loadError`) quando não. Chave nova nos 3 locales |
+| `/discoveries` lia o store **sem esperar a hidratação** | Ganhou o gate `hydrated` (mesmo padrão do D-619), no efeito e nas dependências |
+| Sidebar do dashboard: item ativo **sem `aria-current`** e comparação que **nunca casava** com `href` contendo query string | `aria-current="page"` + comparação pelo caminho (`href.split("?")[0]`) |
+
+### O erro de diagnóstico que a verificação derrubou (de novo)
+
+A spec de **Busca Avançada** afirmava que a paleta ⌘K **não tinha semântica de diálogo** — e eu havia marcado
+isso como P1 com "grep de ARIA vazio". Ao abrir o arquivo para implementar, encontrei **tudo lá**:
+`role="dialog"` + `aria-modal="true"` + `aria-label` (`SearchCommand.tsx:243-245`), `Escape` fechando
+(`:154,195`), foco no campo ao abrir (`:167`) e clique-fora (`:204`). O grep daquela rodada **falhou** e eu
+tratei o silêncio como ausência.
+
+Spec corrigida. O que **realmente** falta é só o padrão combobox/listbox (`aria-activedescendant`): a
+navegação por setas funciona, mas a seleção não é anunciada. Implementar isso exige mover as mensagens de
+estado (carregando/vazio/erro) para **fora** do container da lista — senão o `role="listbox"` passa a ter
+filhos inválidos, criando uma violação nova (a mesma classe do `<dl>` que corrigi no admin). Fica registrado
+como trabalho que exige cuidado, **não** como "sem acessibilidade".
+
+### As duas pendências que **não** são minhas — com texto pronto para aprovação
+
+1. **Reembolso/reajuste na oferta.** A UI e o canal já estão publicados (D-624: `+reembolso` e o prazo do
+   CDC art. 49). Falta o **aval jurídico** de dois trechos. Minuta sugerida:
+   - *Reajuste:* "Os preços podem ser reajustados; avisaremos com pelo menos 30 dias de antecedência e você
+     pode cancelar antes de o novo valor valer, sem custo."
+   - *Reembolso além do arrependimento:* "Cobrança indevida ou falha nossa: devolvemos integralmente, sem
+     prazo de contestação."
+2. **Prazo público de resposta a relatos de segurança.** Sugestão: "Confirmamos o recebimento em até 3 dias
+   úteis e damos um retorno sobre a análise em até 10 dias úteis." (O `SECURITY.md` do repositório pode já
+   ter um prazo — se tiver, é o mesmo texto que entra na página.)
+
+
+## D-627 — Correções pontuais: Rankings, autenticação (erro persistente + 429), checkout e CTA do 402 — e duas specs minhas corrigidas
+
+### Feito
+
+| Correção | Detalhe |
+|---|---|
+| **Rankings**: classe morta `h-18` | `h-18` **não existe** na escala do Tailwind, então a miniatura da lista ficava sem altura e a linha "pulava" ao carregar a imagem (CLS). Virou `h-[4.5rem]` (o valor que a classe pretendia) + `width`/`height` explícitos. **Confirmado no CSS gerado** que a classe existe |
+| **Autenticação**: erro só em toast | O erro de credencial existia **apenas** em `toast` (que some sozinho) — sem mensagem persistente. Agora há bloco inline com `role="alert"` nos **dois** formulários (login e cadastro), limpo a cada novo envio |
+| **Autenticação**: 429 sem tratamento | O store passou a devolver o **status HTTP** e a tela mostra texto próprio para limite de tentativas ("credenciais inválidas" seria mentira às 3 tentativas). Chave nova nos 3 locales |
+| **Checkout**: texto fixo em pt-BR | `"Falha no checkout"`, `"Erro desconhecido"` e o `"Erro"` do fallback viraram chaves (`checkout.loadFailed`, `checkout.unknownError`) nos 3 locales |
+| **Watchlist**: 402 sem CTA | O store já marcava `limitReached`, mas a tela não dizia nada — o usuário batia no limite do plano sem caminho. Agora avisa e leva a `/pricing` (o `/historico` e o `/listas` já tinham esse CTA) |
+
+### Duas specs minhas corrigidas pela verificação (de novo)
+
+1. **`/listas` — "402 sem CTA": estava resolvido desde o D-603.** O componente já renderiza a mensagem
+   `premiumOnly` com link para `/pricing` (`ListasPage.tsx:99-106`). Eu havia registrado o P1 sem conferir a
+   renderização.
+2. **Rankings — "`<img>` sem dimensão e `alt` não explícito": exagerado.** O pôster principal já tem
+   `alt=""` (**correto**: o título está ao lado, a imagem é decorativa), `aspect-[2/3]` **reservando o
+   espaço** antes do download e `loading="lazy"`. O defeito real era só o `h-18` da miniatura, corrigido
+   acima. Sem `srcSet` no projeto, `sizes` seria inócuo.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** · **`build` 0** · `test:hydration` **36/36** ·
+`design:contrast` AA · `design:detect` 0 · `i18n:source` OK · **classes novas conferidas no CSS gerado**.
+
+
+## D-628 — Perfil (404 × falha), sucesso de pagamento honesto, kanban com teclado — e mais três P1 meus que a verificação derrubou
+
+### Feito
+
+| Correção | Detalhe |
+|---|---|
+| **Perfil público**: todo erro virava "não encontrado" | Um 500 dizia que o perfil não existe. Agora **404** mostra a mensagem honesta + link para o catálogo, e **falha de rede/servidor** mostra "tentar de novo" com `refetch` |
+| **`/billing/success` afirmava ativação** | O subtítulo dizia "Seu plano foi atualizado" — mas a ativação depende de **webhook assíncrono** e pode não ter chegado. O texto passou a descrever o que é verdade (pagamento recebido; ativação pode levar instantes; acompanhe em Configurações), nos 3 locales |
+| **Kanban sem teclado** | Tinha **só** `PointerSensor`. Ativado o `KeyboardSensor` do dnd-kit com `sortableKeyboardCoordinates` — é a navegação acessível nativa da biblioteca, não UI inventada |
+
+### Mais três P1 meus derrubados pela verificação (total do programa: **nove**)
+
+1. **Biblioteca — "tablist não confirmado": já era um tablist correto** (`role="tablist"` + `aria-label` +
+   `role="tab"` + `aria-selected`, `BibliotecaClient.tsx:163-179`), e a contagem por status faz parte do
+   nome acessível da aba.
+2. **Gráficos sem alternativa textual (3 sessões): errado nas três.** `RadarGraphic` e `MiniSparkline`
+   declaram `role="img"` + `aria-label`; o `HistogramBars` é uma `<ul role="list">` com **faixa e valor em
+   texto** — melhor que uma alternativa de imagem.
+3. **`/listas` — "402 sem CTA"** (D-627): já resolvido desde o D-603.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** (o mock do dnd-kit precisou expor o
+`sortableKeyboardCoordinates` — adaptação honesta ao mudar o componente, não enfraquecimento do teste) ·
+`build` 0 · `design:detect` 0 · `i18n:source` OK.
+
+
+## D-629 — Paleta ⌘K no padrão combobox/listbox, aviso global de conexão e o balanço com disposição para cada pendência
+
+### 1. Paleta ⌘K — o último item de a11y em aberto
+
+A paleta já tinha diálogo, Escape, foco ao abrir e clique-fora (D-626 corrigiu o diagnóstico), mas a
+navegação por setas era **invisível** para tecnologia assistiva. Implementado o padrão ARIA completo:
+
+- **input**: `role="combobox"` + `aria-expanded` + `aria-controls="ctrlk-results"` +
+  `aria-autocomplete="list"` + **`aria-activedescendant`** apontando para a opção selecionada;
+- **container**: `id="ctrlk-results"` + `role="listbox"` + `aria-label`;
+- **itens**: `role="option"` + `id` + `aria-selected`;
+- **grupos**: `role="group"` + `aria-label`, com os cabeçalhos visuais em `aria-hidden`.
+
+**O ponto delicado que eu havia sinalizado** — e que era real: um `listbox` só pode conter `option` e
+`group`, então as **mensagens de estado** (mínimo de caracteres, carregando, erro, vazio) tiveram de sair
+para **fora** do container. Fazer isso de qualquer jeito teria criado uma violação nova, da mesma classe do
+`<dl>` do admin.
+
+### 2. Estado offline — as **15** pendências que eram uma só decisão
+
+Quinze linhas em sete sessões diziam "sem estado offline". É **uma** decisão de produto, implementada uma
+vez no layout (`providers/conexao-aviso.tsx`): `navigator.onLine` + eventos `online`/`offline`, faixa
+`role="status"` no topo (não `alert` — não interrompe leitura) e um `toast` confirmando a reconexão.
+Nada de ping periódico, que gastaria rede justamente quando ela está ruim. As 15 linhas estão marcadas nas
+specs.
+
+### 3. Pequenos defeitos reais fechados
+
+- **Selo do hero** usava `bg-amber-400`/`text-amber-950` (paleta default) → token `score-medium`;
+- **Placeholder de senha** era `⬢⬢⬢⬢⬢⬢`, que **parece valor já preenchido** → "Sua senha" nos 3 locales.
+
+### 4. O que **não** foi feito, com o motivo certo (e não é preguiça)
+
+- **647 literais de cor** (`text-[#A0A0B8]` 364 + `text-[#F5F5F7]` 283): o valor é **idêntico** ao token,
+  então o impacto visual é **zero** — é migração mecânica ampla em arquivos de várias frentes. Fazer isso em
+  bloco, nesta sessão, é exatamente o tipo de mudança que já me custou um incidente (4 `<thead>`
+  corrompidos por regex, D-623). Fica como PR dedicado, com a lição do D-625: **conferir o CSS gerado**, não
+  só o texto-fonte.
+- **Decisões de produto/processo** (dono: Operador): redação de reajuste/reembolso e prazo de resposta a
+  relatos (minutas prontas no D-626), convergência das rotas de descoberta, rótulo "Metas e evolução",
+  modelo de metas em `apps/api`, e o processo que mantém a tabela de cookies em dia com os fornecedores.
+- **Polimentos aceitos conscientemente**: `loading.tsx` específico em vez do global, atalho de teclado para
+  filtros, animação dos itens do "carregar mais", skeleton em vez de texto em duas telas — todos com ganho
+  marginal e custo de manutenção não trivial.
+
+
+## D-630 — PR #568 (Dependabot): diagnóstico das falhas, causa-raiz e a entrada da área administrativa
+
+### PR #568 — o que falha e por quê
+
+Dependabot, agrupando **4 atualizações**. Quatro verificações falham (**Build**, **Build OpenNext**,
+**Test & Coverage**, **Vercel**); todo o resto passa (Lint & Audit, RLS, Semgrep, CodeQL, Gitleaks, Trivy,
+ZAP, Docs Gate).
+
+O conteúdo do PR explica as falhas — não são flakiness:
+
+| Pacote | De → Para | Consequência |
+|---|---|---|
+| `tailwindcss` | **3.4.17 → 4.3.3** (major) | Tailwind 4 exige `@import "tailwindcss"` e o plugin `@tailwindcss/postcss`; o repositório usa as **diretivas v3** (`@tailwind base/components/utilities` em `globals.css`) e um `tailwind.config.ts` com `postcss.config.cjs`. Sem migração, o build do web/OpenNext quebra — daí **Build OpenNext** e **Vercel** |
+| `vitest` | **4.1.10 → 5.0.4** (major) | Exige migração de configuração e da suíte; falha o passo **API tests with coverage** e contamina o **Build API** |
+| `fastify` | 5.10.0 → 5.12.5 (minor) | Sem risco aparente — é a parte **segura** do PR |
+
+**Causa-raiz encontrada:** o `.github/dependabot.yml` agrupava por tipo de dependência (production/development)
+**sem limitar o tipo de atualização** — então um minor seguro viajou no mesmo PR que dois majors que exigem
+migração. Um PR com três causas diferentes é irrevisável por construção.
+
+**Corrigido:** cada grupo passou a aceitar apenas `minor`/`patch`. Majors deixam de viajar em grupo e
+chegam em **PR individual** — um motivo por PR, uma decisão por PR. YAML validado.
+
+**Recomendação (não fiz porque é decisão de merge):** **não** mergear o #568 como está. O caminho é
+(a) um PR só com `fastify` — seguro; (b) Tailwind 3→4 em PR próprio, que é migração de verdade (diretivas,
+config, e **re-verificação visual** — inclusive a migração de 199 classes que acabei de fazer no admin);
+(c) vitest 4→5 em PR próprio, com a configuração e a suíte migradas.
+
+*Nota de honestidade:* os logs dos jobs não são acessíveis por `gh` neste run (execução disparada por
+Dependabot tem permissões restritas). O diagnóstico vem do **diff do PR** cruzado com a **configuração do
+repositório**, e é consistente com os passos exatos que falharam.
+
+### Entrada para a área administrativa (o pedido "cria acesso ao admin")
+
+A área `/admin` existia, mas **sem entrada na interface** — só por URL direta (lacuna que eu já havia
+registrado na spec do Admin). Agora:
+
+- **`hooks/use-is-admin.ts`** — descobre o papel pelo **gate** (`/api/v1/admin/gate`, 200 = admin, o mesmo
+  que o servidor usa), porque o `/auth/me` **não** devolve `role` (`MeResult` em `auth.service.ts:56-69`).
+  Cuida do custo: **cache por usuário** (uma consulta por sessão, não por navegação), só consulta quando há
+  sessão, e o cache guarda o **id do usuário** — trocar de conta invalida sozinho.
+- **Navbar** (menu do usuário) e **sidebar do dashboard** mostram "Administração" quando o papel é ADMIN,
+  com `aria-current` no item ativo. A **barreira real continua sendo o gate server-side** de `/admin`
+  (deny-by-default) + step-up: a UI nunca é a fronteira.
+- **`scripts/promote-admin.mjs`** — o caminho documentado para **criar o acesso**: concede (ou revoga) o
+  papel ADMIN de uma conta existente. Conservador por padrão: **dry-run** sem `--apply`, recusa host que
+  pareça produção sem `--i-know-its-prod`, **nunca imprime a `DATABASE_URL`** (só host mascarado), e não
+  altera nada se o e-mail ou o papel não existirem.
+  Uso: `node scripts/promote-admin.mjs pessoa@exemplo.com` (dry-run) → `--apply` para aplicar.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **`vitest` 624/624** · smoke test do script (exit 2 para uso
+inválido) · `build` 0.
+
+
+## D-631 — Conceito visual v2 (home), desenhado **dentro** do FigCraft e ancorado nos tokens
+
+O Operador pediu um conceito novo (moderno, elegante, intuitivo), começando pela home — o oposto do que
+havia pedido antes (recusou um conceito). Fiz como **proposta**, não como substituição: a linguagem atual
+continua valendo até aprovação, e o documento diz o que mudaria e o que **não** mudaria.
+
+**A tese:** o MEDIA Rate não vende catálogo, vende **decisão**. A home passa a ser organizada por intenção
+("Vale seu tempo", "Boa pedida", "Se você gosta de…"), não por prateleira — e o score deixa de ser um
+detalhe da ficha para virar o **selo da marca**: um anel grande, na cor da faixa, com as fontes ao lado.
+
+**Ferramenta:** FigCraft, pelo caminho que o próprio repositório já tinha aberto (`design:figcraft` exporta
+os tokens ✓). Nada foi desenhado com paleta inventada — a lição do **D-598** ("um conceito com premissas de
+outro projeto") está respeitada: todas as cores e fontes do desenho vêm de `design-tokens.ts`.
+
+**Pipeline versionável:** `apps/web/scripts/figcraft-conceito-home.mjs` gera
+`conceito-home.jsonl` (**240 comandos** de desenho), que o CLI transforma em `conceito-home.figcraft`
+(abrível no FigCraft Desktop) e em `home-conceito-v2.png` (1440×2000). O desenho é **diff**, não binário
+opaco — mesma escolha que guiou a auditoria inteira sobre código.
+
+**Duas iterações — porque olhei o artefato.** A primeira renderização tinha dois defeitos reais: os chips de
+fonte (TMDB/IMDb/Metacritic) **cruzavam a borda do anel** do score, e o artboard tinha **~500 px de vazio**
+no fim. Corrigidos na segunda. É o mesmo princípio do D-625: conferir o resultado, não a intenção.
+
+**Regras do produto que o conceito já respeita:** contraste AA nos pares usados; cor de faixa **nunca** como
+único canal (a faixa tem rótulo textual); `h1` único e hierarquia sem pulos; a busca do hero é a mesma
+experiência combobox/listbox da paleta ⌘K (D-629); **nenhum número fixo no código** — o mockup mostra
+**faixas** onde um valor seria inventado (a regra do D-583.4, agora como argumento de produto).
+
+**Artefatos:** `docs/02-architecture-design/ui-ux/40-conceito-v2-home.md` (o documento) +
+`docs/02-architecture-design/figcraft/conceito-home/` (script, arquivo nativo e PNG).
+
+
+## D-632 — Conceito v3: a proposta passou a ser **evolução do que já estava decidido**
+
+O Operador aprovou a tese do v2 (a Régua, as cores, "por decisão, não por prateleira"), pediu para **analisar
+o projeto antes de propor**, manter os **6 ícones** e **evitar vícios de design de IA**. A análise encontrou
+exatamente esses vícios — escritos nas regras do próprio repositório:
+
+- `.zcode/skills/media-rate-ui-ux/references/anti-patterns.md` (D-065) proíbe **`hero-eyebrow-chip`**
+  ("o hero padrão de AI SaaS") e **"3 cards iguais em fileira"** — os dois estavam no v2;
+- `hero-playbook.md` define o hero como **contrato**: H1 como primeiro elemento, sem chip, e a âncora
+  visual é a **constelação dos 6 ícones** (`CategoryIconRow`), com 3 camadas de movimento, staging por
+  `:has()`, parallax só em ponteiro fino e a11y completa. **Os 6 ícones que o Operador quer manter são
+  essa âncora** — o v2 a havia substituído por um anel de score (downgrade da marca).
+
+**v3 = hero decidido (intacto) + três evoluções:** (1) a **Régua entra na faixa de prova**, que já existe e
+já carrega o método — evolução de seção, não seção nova; (2) "por decisão" vira **layout assimétrico**
+(uma decisão dominante + espinha de duas linhas), mantendo a tese sem o anti-padrão; (3) **dois papéis de
+cor separados** — cor de *tipo* só nos ícones/filtros, cor de *faixa* só onde há score (motivo medido:
+`movie/series/game` compartilham hex com as faixas 7/8/9, e na mesma tela o olho não sabia o que a cor dizia).
+
+**Saiu do v2, com a regra citada:** eyebrow chip, anel de score como âncora, 3 cards iguais, `rounded-2xl`
+blanket (raios agora 12/8/6) e o "8,7" (nota de exemplo como real, D-583.4).
+
+**Ferramenta:** FigCraft, com os **SVG reais** do Lucide importados (`file.import`) e `currentColor`
+trocado pela cor canônica de cada tipo — o mockup usa os mesmos glifos do produto. Pipeline versionável:
+`apps/web/scripts/figcraft-conceito-home.mjs` → `conceito-home.jsonl` (**238 comandos**) →
+`conceito-home.figcraft` → `home-conceito-v3.png` (1440×1620).
+
+**Duas iterações, defeitos nomeados:** a primeira tinha o H1 quebrando em três linhas e colidindo com o
+subtítulo, rótulos de tile invadindo o hub e a legenda, e "abaixo de 5" estourando a coluna. Corrigidos na
+segunda — depois de **olhar** o PNG renderizado.
+
+**Documento:** `docs/02-architecture-design/ui-ux/41-conceito-v3-home.md` (o v2 fica no histórico,
+marcado como superado).
+
+
+## D-633 — Conceito v4: a base volta a ser o v2, com os 6 ícones dentro e movimento especificado
+
+O Operador preferiu o **v2** ("menos poluído visualmente"), pediu para **incluir os ícones** e **animar a régua
+e os ícones**. O v4 sai disso, com duas correções que mantêm a limpeza que ele gostou:
+
+1. **O chip do v2 saiu, a informação ficou.** A pill "MEDIA Score™ · escala 0 a 10" acima do H1 é o
+   anti-padrão `hero-eyebrow-chip` (D-065, com teste guardando). No v4 o mesmo texto é **legenda do selo**,
+   abaixo de "Muito bom" — o hero continua limpo e a regra da casa é respeitada.
+2. **Os 6 ícones entram como filtros de tipo**, logo abaixo da busca: `ícone + rótulo`, cor canônica,
+   ligados a `/catalog?type=…`. É o lugar onde eles já têm função real — e não competem com o selo de
+   score no mesmo plano (foi o que pesou no v3). São os **SVG reais do Lucide** importados no FigCraft.
+
+**Exceção consciente e registrada:** o v4 mantém os **três cartões iguais em fileira** porque o Operador
+preferiu esse bloco — e isso é anti-padrão travado do projeto. Fica registrado, com dois caminhos de saída
+já prontos: dar peso diferente a um dos cartões (quebra a leitura de "três caixas idênticas" sem mudar o
+layout) ou adotar a variante assimétrica que já existe no **v3**.
+
+**Movimento (a parte que um PNG não mostra):** especificado no documento — **régua** com varrido de ≤8% de
+alfa a cada 6 s, entrada em `scaleX` com cascata de 60 ms por faixa e hover por `scaleY` (nunca `height`,
+que desloca layout); **ícones** com entrada em cascata (60 ms por índice), flutuação de 3 px e glow de 0,22 a
+0,5 — as **mesmas camadas que a constelação do produto já usa** (`category-orbit.module.css`), então é reuso
+de vocabulário, não invenção. Tudo desligado em `prefers-reduced-motion`, amplitude ≤ 8 px, e nenhum loop
+fora da viewport.
+
+**Artefatos:** `home-conceito-v4.png` (1440×1900), `conceito-home.figcraft` e `conceito-home.jsonl`
+(270 comandos, gerados por `apps/web/scripts/figcraft-conceito-home.mjs`). Documento:
+`docs/02-architecture-design/ui-ux/42-conceito-v4-home.md`.
+
+
+## D-634 — Conceito v5: os 6 ícones passam a ser o elemento primário, centrados
+
+Correção de hierarquia pedida pelo Operador: **"os ícones são primários, não secundários — centralize-os"**.
+No v4 eles eram chips de filtro (126×40, ícone de 18 px) abaixo da busca; agora são **seis peças de 104×104
+centralizadas** (944 px de faixa, 64 px de respiro), com ícone de 40 px e **rótulo visível** — peça principal
+não esconde o nome no hover.
+
+**O selo de score desceu para a seção "A régua"**, em 180 px: ele disputava o primeiro plano com a marca no
+hero, e na régua passa a **ilustrar a escala**, que é a função dele.
+
+**A cópia continua à esquerda.** Centrar os ícones **não** é o anti-padrão "hero trio centralizado"
+(D-065): aquele é eyebrow + H1 + subtítulo + dois botões simétricos no centro. Aqui o H1 segue sendo o
+primeiro elemento lido, e os ícones são a **âncora visual** — exatamente o que o `hero-playbook` pede.
+
+**Construção:** cor canônica do `CATEGORY_TOKENS` na borda, **preenchimento de 12% dessa cor sobre o fundo**
+(a mistura é calculada no gerador, não escolhida a olho), glifos **reais** do Lucide, raio 16 (na escala
+12/16/8 do conceito), alvo ≥44 px no mobile com a faixa virando grade 3×2.
+
+**Movimento especificado:** entrada em cascata (70 ms por índice), flutuação de 3 px, glow de 0,22→0,5,
+hover subindo o tint para 20% com `scale` máximo 1.02, e staging por `:has()` — as mesmas camadas da
+constelação (`category-orbit.module.css`). Régua com varrido de ≤8% de alfa e faixa ativa crescendo por
+`scaleY`. Tudo desligado em `prefers-reduced-motion`, amplitude ≤8 px, nenhum loop fora da viewport.
+
+**Encaixe no produto (sem componente novo):** é o mesmo dado do `CategoryIconRow` numa variante
+`row` (centralizada, inline) — uma prop de variante, um só lugar definindo os 6 tipos.
+
+**Duas iterações:** na primeira o "/10" do selo havia sumido, "MEDIA Score™" caía sobre a borda do anel e a
+coluna esquerda do hero ficou desequilibrada; corrigidos na segunda (legendas fora do anel, busca 560→700 px
+e a microcopy de volta).
+
+**Artefatos:** `home-conceito-v5.png` (1440×1960) + `conceito-home.jsonl` (262 comandos).
+Documento: `docs/02-architecture-design/ui-ux/43-conceito-v5-home.md`.
+
+## D-635 — Conceito v6: o selo percorre a escala e acende a faixa na régua
+
+Pedido do Operador: **"o selo pode ser animado, variando as notas conforme as cores da régua"**. Implementado
+como **ciclo de 6 estados, um por faixa**, e — o ponto que dá função ao movimento — **sincronizado com a
+régua**: a cada estado, a barra correspondente acende e cresce (`scaleY` 10 → 18 px) enquanto o selo muda
+número, cor do anel e rótulo. Em ~18 s de ciclo, quem chega entende a escala inteira; a régua e o selo deixam
+de ser duas peças e passam a ser **um sistema**.
+
+**Cuidado de honestidade (e por que ele está no desenho).** Número que muda sozinho pode ser lido como dado
+real — o que colide com o princípio da casa ("sem nota de marketing", D-583.4). Então: o selo leva a legenda
+**"a régua em movimento · exemplo da escala"**, o fecho da página diz que **no produto o ciclo percorre obras
+reais com as notas reais**, e o storyboard repete a regra. O mockup declara que os números são exemplo; o
+produto não precisa declarar porque não são.
+
+**Movimento especificado:** 400 ms de transição (tween do número + crossfade da cor), 2,6 s por estado, 6
+estados na ordem da régua (~18 s), sincronia da barra em 200 ms, **pausa em hover/focus**, ciclo só com a
+seção visível (`IntersectionObserver`) e **desligado em `prefers-reduced-motion`** (o selo para no estado da
+faixa do topo). Nada desloca layout, nada cintila, e o estado é dito por número + rótulo + cor + posição —
+cor nunca é o único canal.
+
+**Evidência do movimento:** como um PNG não anima, o arquivo ganhou uma **segunda página** com o storyboard
+dos 6 estados (`selo-estados.png`, 1440×720) — cada um com o número, o anel na cor da faixa, o nome e a
+barra correspondente.
+
+**Encaixe no produto:** o `ScoreDial` já tem contador animado por viewport e o `StaticScoreDial` é a versão
+de servidor (para os carrosséis não hidratarem). O ciclo é **uma variante** que recebe uma lista de obras
+reais e emite o índice ativo para um irmão `ScoreScale` — sem dependência nova, com a infraestrutura de
+reduced-motion que já existe.
+
+**Artefatos:** `home-conceito-v6.png` (1440×1960) + `selo-estados.png` (1440×720) + `conceito-home.jsonl`
+(334 comandos). Documento: `docs/02-architecture-design/ui-ux/44-conceito-v6-home.md`.
+
+## D-636 — Conceito v7: símbolo maior na caixa e efeito Dock nos ícones
+
+Dois pedidos do Operador: **"os símbolos estão muito pequenos dentro das caixas"** e **"uma animação ao passar
+o mouse em cada ícone, como a animação da barra de tarefas do Mac"**.
+
+**Símbolo maior — o problema era a proporção, não a caixa.** Os SVG do Lucide têm padding interno (o traço
+ocupa ~⅔ do viewBox), então um frame de 60 px rendia ~40 px de desenho. Agora: caixa **112 px**, frame do
+símbolo **78 px (70%)** → **~55 px de traço**, com o rótulo **dentro** da caixa (a peça fica autoexplicativa)
+e a faixa ainda centrada (6 × 112 + 5 × 56 = 952 px).
+
+**Efeito Dock no padrão do macOS:** cada peça cresce conforme a **distância até o ponteiro**, com queda em
+**cosseno ao quadrado** e alcance de ~2 casas — sob o cursor **1,32**, vizinha **1,18**, seguinte **1,01** — e
+a peça também **sobe** (até 10 px) com `transform-origin: bottom center`, que é o que faz a fileira "arrepiar"
+para cima como o Dock.
+
+**Implementação especificada (e é o que evita o efeito parecer amador):** CSS decide, JS só escreve números —
+`pointermove` na fileira dentro de `requestAnimationFrame` gravando `--s`/`--up` por peça, **sem nenhum estado
+de React por frame** (o mesmo padrão do parallax da constelação); `pointerleave` devolve tudo a 1 em 220 ms;
+apenas `transform`, com `padding-block` na fileira para não recortar e `z-index` na peça em foco; só com
+`(min-width: 1024px) and (pointer: fine)` (toque não magnifica); **foco por teclado dá o realce em uma peça,
+sem a onda**; e `prefers-reduced-motion` desliga a escala, deixando só borda e cor.
+
+**Mockup e spec não divergem:** a página do storyboard é desenhada pela **mesma fórmula** documentada
+(`dock(i, ponteiro)`), então `icones-dock.png` mostra os três estados que a especificação descreve — 1,32 /
+1,18 / 1,01.
+
+**Nada de componente novo:** a fileira é o `CategoryIconRow` numa variante `row` (já tem os 6 pares do
+`CATEGORY_TOKENS`, `aria-label` por tipo e as camadas de movimento), e o Dock é CSS + um listener de ponteiro.
+
+**Artefatos:** `home-conceito-v7.png` (1440×1960) + `icones-dock.png` (1440×900, três estados) +
+`conceito-home.jsonl` (470 comandos, 3 páginas no mesmo arquivo FigCraft). Documento:
+`docs/02-architecture-design/ui-ux/45-conceito-v7-home.md`.
+
+## D-637 — Conceito v8: correção de alvo — o símbolo cresce, a caixa não
+
+O Operador corrigiu o D-636 com precisão: **"você só aumentou o tamanho da caixa onde o ícone está inserido.
+Quero que aumente o ícone, não a caixa."** Ele estava certo: eu havia mexido nas **duas** medidas (caixa
+104 → 112 **e** símbolo 60 → 78), o que manteve o símbolo contido em proporção.
+
+**Correção (v8):** caixa **de volta a 104 px** e símbolo em **88 px** — 85% da caixa, contra 70% no v7 e 38%
+no v6. O traço aparente vai a ~62 px.
+
+**O detalhe que destravou:** o rótulo estava **dentro** da caixa (decisão do v7) e ocupava a metade inferior
+de que o símbolo precisava. Com o rótulo **fora**, o símbolo cabe em 85% sem mexer em nenhuma dimensão da
+caixa. Efeito colateral **verificado no render**: o rótulo passa a **viajar com a peça magnificada** no efeito
+Dock (é o comportamento correto — o rótulo acompanha o ícone).
+
+**Por que 88 e não 104:** o traço do Lucide ocupa ~⅔ do viewBox, então encher o frame não enche a caixa; 88 px
+deixam ~8 px de respiro por lado (encostar na borda lê como recorte, não como presença) e, com o Dock em 1,32,
+o respiro cresce junto — o estado magnificado nunca vaza.
+
+**O que não mudou:** o efeito Dock segue exatamente como especificado no D-636 (queda em cosseno ao quadrado,
+alcance ~2 casas, 1,32 / 1,18 / 1,01, `transform-origin: bottom center`, `pointermove` em
+`requestAnimationFrame`, guardas de ponteiro fino/1024 px, foco sem onda, reduced-motion desligando a escala),
+e o ciclo do selo + sincronia da régua seguem como no D-635.
+
+**Artefatos:** `home-conceito-v8.png` (1440×1960) + `icones-dock.png` (1440×900, três estados com o símbolo
+novo). Documento: `docs/02-architecture-design/ui-ux/46-conceito-v8-home.md`.
+
+## D-638 — A causa raiz de "os ícones continuam iguais": os SVG importados nunca escalaram
+
+Três vezes o Operador disse que os ícones **continuavam no mesmo tamanho**, e três vezes eu respondi
+ajustando proporção de caixa. Ele estava certo desde a primeira: **o bug era meu, na ferramenta.**
+
+**Causa raiz.** Os SVG do Lucide vêm com `width="24" height="24"` no próprio arquivo. O `file.import` do
+FigCraft criava o nó com esse tamanho **intrínseco**, e o `node.set { width, height }` que eu aplicava depois
+redimensionava o **frame** — mas o vetor continuava desenhando a 24 unidades, escalado para caber no frame,
+sem ganho real de traço. Resultado: a cada iteração **a caixa/brilho crescia e o símbolo não**, e eu lia o
+crescimento da caixa como crescimento do ícone. As três iterações (D-636, D-637 e a intermediária v8) foram
+inúteis para o que o Operador pedia.
+
+**Correção.** O gerador passou a **escrever o `width`/`height` no próprio SVG** antes de importar
+(`width="${tamanho}"`), de modo que o tamanho intrínseco seja o alvo. Com isso o símbolo realmente escala:
+`_icone-*.svg` agora sai com `width="86"`.
+
+**Lição registrada (vale para qualquer peça desenhada no FigCraft):** quando a peça importada é um SVG, o
+tamanho tem de ser resolvido **no arquivo** — `node.set` depois não escala o vetor. Foi um caso clássico do
+princípio que já guiava o resto do trabalho: **conferir o artefato, não a intenção** (D-625). Se eu tivesse
+medido a tinta no PNG (e não o número que eu mesmo escrevi no script), teria visto na primeira iteração.
+
+**Medição que serve de referência** (lida da página original, não estimada): `category-orbit.module.css` usa
+**`--tile: 86px`** (72 px entre 1024–1279 px) e `CategoryIconRow.tsx` renderiza o ícone com
+**`h-10 w-10 lg:h-11 lg:w-11`** (40/44 px) e **`strokeWidth 1.6`** — ou seja, o ícone ocupa **51%** da caixa
+(o meu v6 estava em 38%, e foi por isso que o Operador viu "pequeno").
+
+**Decisão de desenho (v8.1):** o símbolo passou a ocupar **o lugar da caixa** — **86 px, o mesmo footprint do
+`--tile` original**, **sem moldura**, com um brilho suave na cor do tipo no lugar da borda e o rótulo abaixo.
+Isso atende literalmente ao pedido ("aumente o ícone, não a caixa"): o símbolo tem ~2× o traço do ícone
+original e o conjunto ocupa a mesma área que o tile original. Se o Operador preferir **exatamente** a relação
+da página original (ícone de 44 px dentro de caixa de 86 px), a mudança é um número no gerador.
+
+**Efeito Dock:** reconferido com os símbolos no tamanho certo — a magnitude continua 1,32 / 1,18 / 1,01 com
+origem embaixo ao centro, e os rótulos agora **viajam com a peça** que cresce. Corrigido também o rótulo de
+estado do storyboard, que ficava atrás do ícone ampliado (a peça cresce ~61 px para cima).
+
+**Artefatos:** `home-icones-grandes.png` (1440×1960) e `icones-dock-grandes.png` (1440×900, três estados).
+Os SVG intermediários saíram do diretório de artefatos e agora vão para o temp do sistema.
+
+## D-639 — O tile dos ícones passa a ser **reproduzido** do original, não reinventado
+
+Pergunta do Operador: **"Por que estão redondos? Não está igual aos ícones originais."** Certo de novo: ao
+trocar a caixa por um "brilho suave" (D-638) eu **inventei** um círculo ✗ — o original é **quadrado
+arredondado**, e eu nunca tinha lido o estilo dele. Li (`.iconBox` em `category-orbit.module.css`) e o que
+estava errado eram **seis** coisas:
+
+| Original | O que eu tinha |
+|---|---|
+| `border-radius: 22px` (quadrado arredondado) | círculo ✗ |
+| `border: 1px solid color-mix(var(--c) 26%, transparent)` | cor cheia ✗ |
+| `background: color-mix(var(--c) 9%, #101018)` | 12% sobre `#05050A` ✗ |
+| `box-shadow: inset 0 1px 0 rgba(245,245,247,.06)` | ausente ✗ |
+| `strokeWidth 1.6` | **2** (traço grosso) ✗ |
+| rótulo em `var(--c)`, `opacity .82` | branco ✗ |
+
+**Agora o tile é o original, reproduzido:** raio 22, borda a 26% da cor, fundo a 9% sobre `#101018`, realce
+interno de 1 px no topo, glow (raio 26, cor a 16% — aproximação estática do `blur(16px)`) e o ícone com
+**`stroke-width="1.6"` gravado no SVG**. O hover reproduz o estado do original: borda a **70%** e fundo a
+**18%**.
+
+**O que muda em relação ao original é só o tamanho do símbolo:** **62 px dentro do tile de 86 px (72%)**,
+contra os 40/44 px (51%) do original — mantendo o pedido anterior ("aumente o ícone, não a caixa") agora
+**sem** inventar a caixa. O rótulo também segue o original: **na cor da categoria**, não em branco.
+
+**Lição (a terceira do mesmo tipo nesta série):** eu desenhei de memória duas vezes antes de ler o CSS. O
+repositório tinha a resposta exata a poucas linhas de distância — a mesma lição do D-638 ("conferir o
+artefato"), aplicada à **fonte da verdade** e não só ao resultado.
+
+**Artefatos:** `home-tiles-originais.png` (1440×1960) e `icones-dock-originais.png` (1440×900, três estados).
+Corrigida também a colisão do subtítulo com o rótulo do primeiro estado na página do Dock.
+
+## D-640 — Conceito v9: CTA, sistema de alinhamento, seletor de idioma, carrosséis e rodapé
+
+Cinco pedidos do Operador, todos resolvidos **lendo a fonte de verdade** — depois de três erros meus por
+desenhar de memória (D-638, D-639), a regra passou a ser: primeiro o componente, depois o desenho.
+
+**1. CTA.** O H1 é agora **"Descubra o que vale o seu tempo para assistir, ler e jogar."**, em três linhas
+explícitas de 42 px — em uma linha só ele quebrava sozinho e uma linha caía sobre a outra. O bloco desceu
+junto (subtítulo 300, busca 366, microcopy 436).
+
+**2. Alinhamento (correção estrutural).** Tudo passa a nascer de constantes: margem `M = 64`, conteúdo
+`1312`, `COL3 = 416` com 32 de vão (cartões e etapas), `COL6 = 218` com 16 de vão (as 6 faixas da régua) e
+`DIREITA = 1376` (CTA, setas, último card). Antes eu posicionava no olho. Corrigidos também dois erros meus
+de caixa: o frame estava **menor** que o conteúdo (3320 → 3500) e depois **mais largo** que a página (a caixa
+de texto da atribuição chegava a 1582 porque centrei o texto sem encurtar a largura).
+
+**3. Seletor de idioma.** Reproduz `LocaleSwitcher.tsx` — globo de 14 px (círculo + elipse + linha),
+`strokeWidth 2`, sigla, chevron de 12 px, `rounded-md px-2 py-1`, hover accent, e o dropdown com
+`border #1C1C2E` e o item ativo em `rgba(129,140,248,.08)`. O mockup mostra o estado **aberto** (PT ativo).
+
+**4. Carrosséis por tipo.** Reproduzem `MediaCarousel.tsx`: tile de ícone 32 px com ícone de 16 px, `h2`
+uppercase `tracking-wider`, total em `tabular-nums`, setas à direita e cards de **180 px** com
+`snap-x snap-mandatory`, o último cortado pela margem. O "animado": avanço de um card por clique com snap
+suave + **auto-avanço de 5 s que pausa em hover/focus e desliga em `prefers-reduced-motion`** — carrossel
+que anda sozinho sem pausa viola a WCAG 2.2.2, então a trava faz parte da entrega. **Corrigi um número
+inventado:** eu havia escrito "128 títulos"; agora é "títulos no catálogo", porque no produto o total vem da
+API (a regra do D-583.4 vale para o mockup também).
+
+**5. Rodapé.** Reproduz `MotionFooter.tsx` inteiro: Produto (Catálogo · Preços · Sobre · Metodologia · FAQ ·
+Fontes), Legal (Privacidade · Termos · Meus dados (LGPD) · Cookies · Gerenciar cookies · Segurança ·
+Direitos do titular), Social · Contato (Telegram · Contato), a linha
+`MEDIA Rate. Todos os direitos reservados.` / `Copyright © 2026 END ART Studios`, a identificação
+**END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios+contato@gmail.com**
+e a **atribuição obrigatória** de TMDB/OMDb/IGDB em `text-[11px]` centralizada (crédito exigido pelos termos
+dos provedores).
+
+**Preservado:** os 6 tiles seguem o `.iconBox` original (raio 22, borda a 26%, fundo a 9% sobre `#101018`,
+realce interno, glow) com símbolo de 62 px e `stroke-width="1.6"`; o efeito Dock segue com 1,32 / 1,18 / 1,01
+e o ciclo do selo sincronizado com a régua.
+
+**Artefatos:** `home-v9.png` (1440×3500), `selo-estados.png`, `icones-dock.png` e `conceito-home.jsonl`
+(**1032 comandos**, 3 páginas). Documento: `docs/02-architecture-design/ui-ux/47-conceito-v9-home.md`.
+
+## D-641 — v10: a grade passa a ser a do produto (112..1328) e os carrosséis viram seis
+
+Dois apontamentos do Operador — **"alinhamento do rodapé está desalinhado"** e **"no carrossel falta
+Quadrinho e Mangás, são 2 mídias diferentes, 2 carrosséis"** — e os dois estavam certos.
+
+**1. A causa do desalinhamento era a grade inteira, não o rodapé.** Eu havia inventado margem de 64 px
+(conteúdo de 1312). O produto não usa isso: `MotionFooter.tsx` e `MediaCarousel.tsx` usam
+**`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`** → em 1440 px o conteúdo vai de **112 a 1328**. Minha grade estava
+**48 px mais larga que a do produto em todas as seções** — daí a sensação de página torta. Agora `M = 112`,
+`CONTEUDO = 1216` e `DIREITA = 1328`, e o rodapé virou o **`grid grid-cols-4 gap-8`** do original: marca em
+112, PRODUTO em 424, LEGAL em 736, SOCIAL·CONTATO em 1048 (terminando em 1328). A linha de baixo virou o
+`flex justify-between` real: direitos à esquerda, copyright ao centro, a identificação da END ART Studios
+(CNPJ 45.370.930/0001-75) à direita, e a atribuição de TMDB/OMDb/IGDB centralizada abaixo.
+
+**2. Seis carrosséis, um por mídia.** Eram três (Filmes, Séries, Games); agora são **Filmes · Séries · Games ·
+Livros · Quadrinhos · Mangás**, na ordem canônica do `CATEGORY_TOKENS`, cada um com tile de ícone próprio na
+cor do tipo, título em uppercase, total e trilha de cards de 180 px. O frame passou de 3500 para **4900** px e
+o artefato tem **1310 comandos**.
+
+**3. Duas armadilhas minhas, registradas:** (a) movi o `x` da linha do CNPJ sem encurtar a caixa de texto e o
+frame saiu com **2098 px de largura** (a caixa ia de 998 a 2098); (b) usei `colRod(0)` **antes** da declaração
+da constante — o gerador quebrou, o `figcraft run` falhou e eu quase apresentei o **PNG antigo** como se fosse
+o novo. A verificação que pega as duas é medir o **arquivo renderizado** (dimensões e alinhamento), não o
+script — a mesma lição do D-638.
+
+**4. O seletor de idioma aparece fechado no mockup:** com o dropdown aberto ele cobria o H1 (é um overlay). O
+estado aberto, com as cores exatas do componente (`border #1C1C2E`, item ativo em `rgba(129,140,248,.08)`),
+fica detalhado no documento.
+
+**Artefatos:** `home-v10.png` (1440×4900), `icones-dock.png`, `selo-estados.png` e `conceito-home.jsonl`
+(1310 comandos, 3 páginas). Documento: `docs/02-architecture-design/ui-ux/47-conceito-v9-home.md` (seção 8).
+
+
+## D-642 — Conceito v10 começa a virar código: CTA novo e a régua (ScoreScale)
+
+Implementação do conceito aprovado, em passos verificáveis. **Entrou nesta rodada:**
+
+**1. O CTA nos 3 locales.** `landing.hero` passou a ser a frase pedida — PT
+"Descubra o que vale o seu tempo para assistir, ler e jogar." · EN "Find out what is worth your time to
+watch, read and play." · ES "Descubre qué vale tu tiempo para ver, leer y jugar." — com paridade de chaves
+preservada. O H1 trocou `lg:max-w-none` por `lg:max-w-[18ch]`: com a frase nova, sem limite ele quebrava de
+forma desequilibrada em telas largas.
+
+**2. A régua (`media-rate-ui/ScoreScale.tsx`)**, montada na faixa de prova do hero — que já é a seção do
+*método*: a régua é a visualização dele. Decisões:
+
+- **server component**, recebendo os rótulos por prop (mesmo padrão do `HeroSection`), então hidrata zero JS
+  e serve em qualquer server component — a lição do `score-dial-core` (D-621) aplicada;
+- **cor de `scoreColor()`** (D-582.4a): uma só fonte para as 6 faixas, nada de hex novo (D-584);
+- **`data-band` em cada faixa**, deixando a sincronia com o ciclo do selo pronta para ser feita por CSS —
+  sem re-render e sem transformar a régua em cliente;
+- **rótulos i18n em `scoredial.bands`** (`"9"`, `"8"`, `"7"`, `"6"`, `"5"`, `"low"` — as mesmas chaves dos
+  tokens), nos 3 locales.
+
+**3. O tipo obrigou a atualizar o teste do contrato.** `test/hero-constellation.spec.tsx` passa os props do
+hero explicitamente: o `tsc` acusou `scoreScaleLabels` ausente e o teste recebeu os rótulos **reais** das 6
+faixas (não um stub vazio). É o contrato do hero funcionando como projetado.
+
+**Dois erros meus, registrados:** (a) a inserção das faixas nos JSONs deixou **vírgula final** — e a minha
+verificação com `ConvertFrom-Json` disse "válido" porque o cmdlet **tolera** vírgula final; quem pegou foi o
+teste de paridade, e a validação passou a ser `JSON.parse` (estrito); (b) usei um âncora com `=` onde o
+arquivo tinha `:`, e o patch não aplicou — o teste do hero ficou vermelho até eu corrigir o âncora.
+
+**Gates desta rodada (verdes):** `tsc` 0 · `eslint` 0 (1 warning pré-existente) · **54 testes** focados
+(hero, promessa perpétua, truthfulness, i18n estrutural, contraste AA) · `test:hydration` **exit 0**
+(36 passed / 36 skipped por configuração). **Pendente para as próximas rodadas** (com a suíte completa, o
+build, `design:detect/contrast/hex` e `i18n:source`): o ciclo animado do selo sincronizado com a régua, a
+variante `row` centralizada do `CategoryIconRow` com o efeito Dock, e os seis carrosséis (um por mídia).
+
+
+## D-643 — O ciclo do selo (ScoreShowcase) e a constatação de que os 6 carrosséis já existiam
+
+**Achado que muda o escopo:** os **seis carrosséis por tipo de mídia já existem** no produto. O
+`apps/web/src/app/[locale]/page.tsx` já busca os 6 tipos (`getCatalog({ type, sort: "score", order: "desc",
+limit: 10 })` para movie, series, game, book, comic e manga) e renderiza seis `MediaCarousel` com dados reais
+e cards sem hidratação. **Quem estava desatualizado era o meu mockup**, não o produto — o Operador viu a
+falta na imagem que eu desenhei, e a conclusão correta não era implementar, e sim **não implementar** (o
+passo 5 do objetivo estava feito antes de eu começar).
+
+**O que entrou: o ciclo do selo (`media-rate-ui/ScoreShowcase.tsx`), sincronizado com a régua.**
+
+- **Honestidade antes de estética:** o ciclo recebe **obras reais** (o topo de cada tipo, que a home já
+  busca) e troca de obra — o valor é sempre o do cálculo (D-583.4). Nada de "animar números para parecer
+  movimento", que era o risco desta peça.
+- **Reuso, não reimplementação:** o anel é o `ScoreDial` existente — mesma geometria, mesmo `ariaLabel` com
+  locale, mesmo tratamento de reduced-motion. Escrever um anel novo aqui seria repetir a duplicação que o
+  D-582.4a/D-621 já custaram caro.
+- **Sincronia por atributo:** o wrapper recebe `data-faixa`, e a chave da faixa é **derivada da cor
+  canônica** (`scoreColor` comparado com `colors.score`) em vez de repetir limiares — se as faixas mudarem
+  no token, isto continua correto sozinho. A régua **continua server component** (recebida como `children`)
+  e o realce é CSS (`score-showcase.module.css`, com `data-bar`/`data-range` na régua): sem re-render e sem
+  transformar a régua em cliente.
+- **Custo:** um `setInterval` que só corre com a seção visível (`IntersectionObserver`), pausa em
+  hover/focus e **não existe** em `prefers-reduced-motion`.
+
+**Gates desta rodada — todos verdes:** `tsc` 0 · `eslint` 0 (1 warning pré-existente) · **vitest 624/624**
+(90 arquivos) · **build 0** · `test:hydration` exit 0 (36 passed) · `design:hex` 0 (nenhum hex novo;
+**−575 ocorrências vs baseline**) · `design:contrast` 228/228 pares AA · `design:detect` 0 achados ·
+`i18n:source` 0 textos novos.
+
+**Falta para fechar o objetivo:** (a) ligar as **obras reais** ao `scoreShowcaseItems` — os props ficaram
+opcionais nesta rodada porque o mapeamento de `CatalogResponse` para `MediaItem` (`titulo` + `score`) exige
+leitura do mapeamento do próprio carrossel, e eu não ia adivinhar; (b) a chave i18n do rótulo do ciclo;
+(c) a **variante `row` centralizada** do `CategoryIconRow` com o efeito Dock (tile 86px, símbolo 62px com
+`stroke-width 1.6`), que é a maior peça restante e mexe no hero.
+
+## D-644 — Variante `row` do `CategoryIconRow` com efeito Dock, e as obras reais no ciclo
+
+Última peça do conceito v10 no código do produto. **Os cinco itens do objetivo estão implementados e
+todos os gates estão verdes.**
+
+**1. O ciclo do selo passou a ter dado real.** O mapeamento `CatalogResponse` → `MediaItem`
+(`mapToMediaItem`) era **local** ao `MediaCarousel`; agora é **exportado** e reusado no `page.tsx`, com uma
+regra explícita: item **sem nota é descartado** do ciclo (`typeof score === "number"`). É uma só fonte para o
+carrossel e para a vitrine, e nada de valor de enfeite (D-583.4). A chave `scoredial.showcase` entrou nos 3
+locales ("a régua em movimento" / "the scale in motion" / "la escala en movimiento").
+
+**2. `CategoryIconRow` agora tem duas formas, compartilhando o mesmo tile** (`variant="orbit" | "row"`):
+
+| | `orbit` (padrão, T415) | `row` (D-644, pedido do Operador) |
+|---|---|---|
+| Estrutura | anel + hub + 6 tiles a 60°, tilt de ponteiro | **fileira centralizada**, `align-items: end` |
+| Símbolo | `h-10 w-10 lg:h-11 lg:w-11` | **62px** (`h-[62px] w-[62px]`), `strokeWidth 1.6` mantido |
+| Movimento | entrada em cascata + flutuação + glow + anel | **efeito Dock** (magnificação por distância) |
+| No hero | — | **montado** (`variant="row"`), como elemento primário |
+
+O que **não** muda entre as duas (e é o ponto): os 6 pares ícone+cor canônicos de `CATEGORY_TOKENS`, o
+destino `/catalog?type=X`, o `aria-label` por tipo, o `data-testid="category-icon-row"`, o `strokeWidth 1.6`
+e o respeito a `prefers-reduced-motion`. O tile é **o mesmo JSX** — só o wrapper difere.
+
+**3. O efeito Dock, no padrão do produto.** CSS decide, o JS só escreve números: `pointermove` na fileira,
+dentro de `requestAnimationFrame`, gravando `--s` (escala) e `--up` (altura) por peça com queda em **cosseno
+ao quadrado** e alcance de 2,2 casas (1,32 / 1,18 / 1,01). **Zero estado do React por frame** — o mesmo
+padrão do tilt da constelação. `transform-origin: bottom center` faz a peça **crescer para cima** como no
+Dock; só `transform`, então nada desloca layout; `pointerleave` e `focusin` zeram; e o bloco
+`prefers-reduced-motion` desliga a transformação deixando o realce de borda/cor do foco.
+
+**4. O hero virou uma coluna.** A fileira precisa da largura toda (6 × 86px + 5 × 62px = 826px, que não cabe
+na coluna de 400px da constelação), então o grid de duas colunas do hero passou a uma: a cópia à esquerda e,
+abaixo, **os 6 ícones centralizados** — a forma pedida ("os ícones são primários, centralize-os"). O
+contrato do hero (`test/hero-constellation.spec.tsx`) continua válido **sem alteração**: 18 testes passam.
+
+**5. Um erro silencioso, pego pela verificação do artefato.** O CSS da variante não foi escrito na primeira
+tentativa: um **backtick dentro de um comentário CSS** quebrou o template literal do meu script, e o `tsc`
+**não acusou** — CSS module é tipado frouxo (`[key: string]: string`), então `styles.rowList` inexistente
+compila. Escrevi o fragmento em arquivo e conferi o **artefato** (`Select-String` no CSS: as classes nas
+linhas 414–463). É a lição do D-638 valendo para CSS: **conferir o arquivo, não o script**.
+
+**Gates desta rodada — todos verdes:** `tsc` 0 · `eslint` 0 (1 warning pré-existente) · **vitest 624/624** ·
+**build 0** ("Compiled successfully") · `test:hydration` exit 0 · `design:hex` 0 (nenhum hex novo) ·
+`design:contrast` 228/228 pares AA · `design:detect` 0 achados · `i18n:source` 0 textos novos.
+
+**Ressalva honesta:** não houve verificação **visual** nesta rodada (sem servidor de desenvolvimento no
+orçamento). O `test:hydration` garante que a home renderiza e que o conteúdo está visível **nos dois modos de
+movimento**, mas a *sensação* do efeito Dock e o equilíbrio da nova fileira merecem uma passada visual
+(`npm run design:visual`) antes de considerar a peça pronta para produção.
+
+## D-645 — Verificação visual da home: aprovada nos dois viewports (o que faltava do D-644)
+
+O D-644 fechou com a ressalva de que **não houve verificação visual**. Ela foi feita agora, contra o servidor de
+desenvolvimento que já estava no ar em `:3000` (servindo o working tree — o CTA novo aparece no HTML).
+
+**Comando:** `node .zcode/skills/visual-qa/scripts/visual-qa.mjs --base-url http://localhost:3000 --path
+'/{locale}' --locales pt-BR --viewports 1440x900,375x812 --axe --out .dsh-artifacts/visual-qa/home-v10`
+
+**Resultado:**
+
+| Medida | 1440×900 | 375×812 |
+|---|---|---|
+| Overflow | nenhum | nenhum |
+| H1 presente | sim (o CTA novo) | sim |
+| CTA acima da dobra | 393px | 374px |
+| Tiles dos 6 tipos | **6** | **6** |
+| `problems` no relatório (inclui axe) | **0** | **0** |
+
+**O que eu conferi olhando os PNGs** (não só o relatório):
+
+- **Desktop:** o H1 quebra em três linhas equilibradas (o `lg:max-w-[18ch]` funcionou), o subtítulo e os dois
+  CTAs seguem a hierarquia do playbook, e os **6 ícones aparecem como elemento primário, centralizados**, com
+  a cor canônica na borda/fundo e o **rótulo na cor da categoria** — exatamente o `.iconBox` original
+  reproduzido no D-639.
+- **Mobile:** a fileira vira **grade 3×2** (Filmes · Séries · Games / Livros · Quadrinhos · Mangás), com
+  alvos de 86px (folga sobre os 44px mínimos) e os CTAs em largura total.
+
+**Duas divergências entre o meu mockup e o produto** (o produto é que está certo — a mesma lição dos seis
+carrosséis do D-643): o CTA da navbar é **índigo**, não rose, e a navbar tem **três** links (Catálogo,
+Rankings, Planos), sem "Descobertas" — que foi invenção minha no mockup. Nenhuma das duas foi alterada.
+
+**O que esta verificação NÃO cobre, e é honesto dizer:** o **efeito Dock em movimento**. Um screenshot estático
+não tem ponteiro sobre a fileira, então a magnificação (1,32 / 1,18 / 1,01) não aparece em nenhuma captura. O
+que está verificado é que os 6 tiles renderizam com o tamanho e as cores certos nos dois viewports e que não há
+overflow — a sensação do crescimento e do reposicionamento precisa de um teste com hover roteirizado
+(`playwright` com `hover()` na fileira e asserção de `--s`), ou de você passar o mouse na tela.
+
+## D-646 — Completando o conceito: busca no hero, selo com obra real e "Por decisão, não por prateleira"
+
+O Operador corrigiu com razão: **as imagens não correspondiam ao conceito**. Eu havia implementado 4 das ~8 peças
+e não tinha olhado a **página inteira** (só a dobra). A captura completa mostrou três ausências centrais e uma
+parede de texto: faltavam o **campo de busca do hero**, o **selo**, a seção **"Por decisão, não por prateleira"**
+e o fecho **"Sem nota de marketing"**.
+
+**1. Campo de busca no hero.** É um **link para `/catalog`** com o visual do conceito (campo + botão rose), não um
+segundo mecanismo de busca: a busca real vive no catálogo e o atalho ⌘K já existe (`SearchCommand`, listener
+global). Inventar um campo que não teria backend próprio seria a mesma família de erro dos seis carrosséis.
+Duas chaves novas nos 3 locales (`landing.heroSearch`, `landing.heroSearchCta`).
+
+**2. Selo no hero, com obra REAL.** `StaticScoreDial` (server, sem timer, sem hidratação) mostrando a obra de
+**melhor nota entre os seis tipos** — as mesmas chamadas que alimentam os carrosséis. O ciclo animado continua na
+faixa de prova, junto da régua, onde a sincronia acontece (dois timers na mesma página seriam desperdício).
+A grade do hero voltou a duas colunas (`minmax(0,1fr) 360px`) e a fileira dos 6 ícones atravessa com
+`lg:col-span-2`.
+
+**3. "Por decisão, não por prateleira".** Componente novo `DecisionHighlights` (server), com **blocos por faixa**
+(9, 8 e 7), cada um com até 3 obras reais e o rótulo da faixa vindo de `scoredial.bands`. Bloco sem item **não é
+renderizado** — nada de caixa vazia nem título inventado (D-583.4). Fecha com "Sem nota de marketing", que é a
+afirmação que sustenta a seção. 11 chaves novas por locale.
+
+**4. Duplicação removida no caminho.** A chave da faixa vivia **dentro** do `ScoreShowcase`; passou para o
+núcleo compartilhado (`score-dial-core.ts` → `bandKey`), derivada da **cor canônica** em vez de repetir limiares
+de `scoreColor()`. É a mesma regra do D-582.4a/D-621: uma fonte só para faixa e cor.
+
+**Verificação:** `tsc` 0 · `eslint` 0 · **624/624 testes** · `build` 0 · **QA visual OK** nos dois viewports
+(sem overflow, H1 presente, CTA na dobra, 6 tiles) — e o campo de busca aparece no screenshot novo.
+
+**O que as imagens ainda não mostram, e por quê:** o **banco do ambiente de desenvolvimento está vazio**
+("0 títulos" no `HomeStats`, "Nenhum resultado encontrado" nos seis carrosséis). Com catálogo vazio **não há
+obra com nota**, então o selo e os blocos de decisão não são montados — por desenho (eles se escondem sem dado,
+em vez de mostrar caixa vazia). O código está pronto; falta dado. **Não semeei o banco local**: o seed principal
+bate em APIs externas (`seed-tmdb`) e o Postgres em `:55432` é compartilhado com outros trabalhos.
+
+**Diferenças que permanecem em relação ao mockup, de propósito:** a CTA da navbar continua **índigo** (não achei
+o componente a tempo sem caçar às cegas, e é cosmético); a página mantém a seção de conteúdo/FAQ
+(`HomeContentSections`), que é conteúdo de SEO já especificado e **não** fazia parte do conceito da home — removê-la
+é decisão sua, não minha.
+
+## D-647 — Fechando a correspondência com o conceito v10
+
+O Operador reenviou o mockup v10 como especificação: **"Esse é o projeto que quero que vc implemente."** Comparando
+peça por peça com o produto, faltavam quatro coisas visíveis — todas entraram.
+
+**1. CTA da navbar em rose.** Estava índigo (`bg-[#818CF8] text-[#0F172A]`, `Navbar.tsx:233`); o conceito usa a
+**cor de marca**. Agora `bg-[#E11D48] text-white` — o branco sobre a marca é a exceção **documentada** ao D-065
+(`onBrand`, 4.70:1, guardada por `contrast-aa.spec.ts`) e é o mesmo par do CTA primário do hero.
+
+**2. "Como o score nasce" com os três passos.** Não existia como seção (havia só a faixa de prova com as três
+lentes). Entrou dentro do `DecisionHighlights`, **na ordem do conceito**: blocos de decisão → como nasce →
+sem nota de marketing. Sete chaves novas por locale.
+
+**3. A faixa "Sem nota de marketing" sempre visível.** Era um **defeito meu**: ela estava dentro da seção que se
+ocultava sem catálogo, então com banco vazio a afirmação desaparecia — mas ela é uma **afirmação**, não um bloco
+de dados. Agora o early-return envolve só os blocos; a faixa e os passos aparecem com ou sem catálogo.
+
+**4. Copy do hero do conceito.** `landing.heroSubtitle` e `landing.ctaHint` passaram para o texto do mockup
+("…sem caixa-preta." / "Sem cartão para começar · cancele quando quiser"), nos 3 locales.
+
+**Verificação por DOM no HTML servido (11/11):** campo de busca do hero · faixa "Sem nota de marketing" · seção
+"Como o score nasce" · os três passos · "Por decisão, não por prateleira" · 6 tiles · CTA rose na navbar ·
+subtítulo e microcopy do conceito. Mais os gates: `tsc` 0 · `eslint` 0 · **624/624 testes** · QA visual OK.
+
+**Um erro meu no caminho, registrado:** o script de tradução tentou **atualizar** as chaves `how*` em vez de
+**inseri-las** — elas não existiam, e chave ausente faz o `next-intl` quebrar a página **em runtime** (o `tsc`
+não vê). Corrigido na sequência, com validação estrita (`JSON.parse` + a lista de chaves que a página usa).
+
+**O que ainda depende de dado, não de código:** o **selo do hero** e os **blocos de decisão** só aparecem com
+catálogo povoado (o ambiente local está vazio: "0 títulos"). Ambos já estão implementados e condicionados a
+obra com nota — não mostram caixa vazia. Para a captura final com dados, é preciso semear o banco
+(`db:seed`/`seed-catalog`), que eu **não** rodei por conta própria: o seed principal bate em APIs externas e o
+Postgres em `:55432` é compartilhado.
+
+## D-648 — UI restante do conceito: link "Descobertas", chips das fontes no selo e a seção "A régua"
+
+Fechando o que ainda faltava de interface em relação ao mockup v10.
+
+**1. Navbar com o quarto link.** `NAV_ITEMS` ganhou `{ label: "discoveries", href: "/discoveries" }` — a rota já existia (estava só no menu do usuário). A chave `nav.discoveries` **não existia** e foi criada nos 3 locales ("Descobertas" / "Discoveries" / "Descubrimientos").
+
+**2. Chips das fontes no selo do hero.** Abaixo da faixa, os três primeiros nomes de `FONTES_ATIVAS` — a **mesma** fonte que a faixa de prova usa, não uma lista digitada à mão (D-583.4/T211). A legenda usa `scoredial.showcase`. Eles aparecem quando há obra com nota; sem catálogo, o selo inteiro se oculta (por desenho).
+
+**3. A faixa de prova passou a se chamar "A régua".** `landing.proofTitle`/`proofBody` agora dizem o que a seção mostra ("A mesma escala para tudo… A faixa acesa é a que o selo está mostrando"), nos 3 locales. "Como o score nasce" continua existindo como **seção própria** com os três passos (D-647), então nada foi perdido — o título antigo descrevia a seção errada depois que a régua entrou nela.
+
+**Gates:** `tsc` 0 · `eslint` 0 (1 warning pré-existente) · **vitest 624/624** · **build 0** ("Compiled successfully") · verificação em runtime no ambiente local: HTTP 200, navbar com "Descobertas", seção "A régua" presente, `data-score-scale` presente, link `/discoveries` presente.
+
+**Dois erros meus, registrados.** (a) O link da navbar passou a referenciar `nav.discoveries` **antes** de a chave existir — chave ausente quebra a página em runtime e o `tsc` não vê; corrigido na sequência, com validação por `JSON.parse` e pela lista de chaves que o componente usa. (b) Meu primeiro `INSERT` da chave casou um `"discoveries"` de **outro namespace** e não fez nada — passou a ancorar na abertura do bloco `"nav": {` e a checar **dentro** dele.

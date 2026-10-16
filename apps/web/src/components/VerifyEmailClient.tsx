@@ -56,8 +56,10 @@ export function VerifyEmailClient() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[60vh] w-full max-w-md items-center justify-center px-4 py-16">
-      <div className="w-full rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center">
+    /* D-602/A7: o casco (cartao, h1 e explicacao) é renderizado pelo SERVIDOR na
+       pagina — aqui fica só o desfecho, para o HTML inicial nunca ficar vazio. */
+    <>
+      <div className="contents">
         {status === "loading" && (
           <div role="status" aria-live="polite">
             <svg
@@ -85,7 +87,7 @@ export function VerifyEmailClient() {
         )}
 
         {status === "success" && (
-          <div role="status" aria-live="polite">
+          <div role="status" aria-live="polite" className="contents">
             <svg
               className="mx-auto mb-4 h-12 w-12 text-[#34D399]"
               fill="none"
@@ -96,12 +98,12 @@ export function VerifyEmailClient() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <h1 className="mb-2 font-heading text-2xl font-bold text-[#F5F5F7]">
+            <h2 className="mb-2 font-heading text-2xl font-bold text-[#F5F5F7]">
               {t("verifySuccess")}
-            </h1>
+            </h2>
             <Link
               href="/login"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
             >
               {t("verifySuccessCta")}
             </Link>
@@ -124,9 +126,9 @@ export function VerifyEmailClient() {
                 d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <h1 className="mb-3 font-heading text-xl font-bold text-[#F5F5F7]">
+            <h2 className="mb-3 font-heading text-xl font-bold text-[#F5F5F7]">
               {t("verifyError")}
-            </h1>
+            </h2>
 
             {resendState === "sent" ? (
               <p className="text-sm text-[#34D399]">{t("verifyResendSent")}</p>
@@ -145,7 +147,7 @@ export function VerifyEmailClient() {
                 <button
                   type="submit"
                   disabled={resendState === "sending"}
-                  className="w-full rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-all hover:brightness-110 disabled:opacity-60"
+                  className="w-full rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110 disabled:opacity-60"
                 >
                   {resendState === "sending" ? "..." : t("verifyResendButton")}
                 </button>
@@ -157,6 +159,6 @@ export function VerifyEmailClient() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

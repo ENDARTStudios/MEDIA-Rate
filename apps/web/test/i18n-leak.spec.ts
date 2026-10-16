@@ -24,6 +24,46 @@ const CHAVES_AUTH_NOVAS = [
   "consentAnd",
 ];
 
+/**
+ * Cegueira do §11 da auditoria de UI/UX: o vazamento de português em EN/ES era
+ * verificado em **poucas rotas**. Aqui a varredura é do **catálogo inteiro**, o que
+ * cobre qualquer rota futura de graça.
+ *
+ * Os marcadores são deliberadamente **exclusivos de pt-BR** — a primeira tentativa
+ * usou `título`/`próxim`, que são espanhol legítimo, e produziu 55 falsos positivos
+ * em es-ES. Com marcadores PT-only o catálogo passou limpo (0 achados nos 2 locales).
+ */
+const MARCADORES_PT =
+  /ção|ções|\bnão\b|você|mídia|gênero|usuário|também|conteúdo|avaliaç|disponível|após|série|\bjá\b/;
+
+/** Chaves onde um marcador PT é legítimo (nome próprio, citação). Hoje: nenhuma. */
+const PERMITIDAS_PT = new Set<string>([]);
+
+function achatar(
+  node: unknown,
+  prefixo = "",
+  saida: { chave: string; texto: string }[] = [],
+): { chave: string; texto: string }[] {
+  if (typeof node === "string") saida.push({ chave: prefixo, texto: node });
+  else if (node && typeof node === "object") {
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+      achatar(v, prefixo ? `${prefixo}.${k}` : k, saida);
+    }
+  }
+  return saida;
+}
+
+describe("i18n-leak — catálogo completo (cegueira do §11)", () => {
+  for (const loc of ["en-US", "es-ES"] as const) {
+    it(`${loc} não contém marcador exclusivo de português`, () => {
+      const ofensores = achatar(LOCALES[loc])
+        .filter(({ chave, texto }) => MARCADORES_PT.test(texto) && !PERMITIDAS_PT.has(chave))
+        .map(({ chave, texto }) => `${chave} = ${texto.slice(0, 80)}`);
+      expect(ofensores, `texto em pt-BR dentro de ${loc}:\n${ofensores.join("\n")}`).toEqual([]);
+    });
+  }
+});
+
 describe("T271 — i18n-leak: chaves do auth/register", () => {
   it("chaves de OAuth/consentimento existem nos 3 locales", () => {
     for (const [loc, msgs] of Object.entries(LOCALES)) {

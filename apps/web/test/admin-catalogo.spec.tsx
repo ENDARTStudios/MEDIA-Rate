@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { api } from "@/lib/http";
 
@@ -48,7 +48,18 @@ import AdminCatalogoPage from "@/app/[locale]/admin/catalogo/page";
 
 function renderPage() {
   return render(
-    <NextIntlClientProvider locale="pt-BR" messages={{}}>
+    <NextIntlClientProvider
+      locale="pt-BR"
+      messages={{
+        admin: {
+          removeMediaTitle: "Remover do catálogo",
+          removeMediaConfirm: 'Remover "{titulo}" do catálogo?',
+          removeMedia: "Remover",
+          navLabel: "Área de administrador",
+          navBack: "Voltar",
+        },
+      }}
+    >
       <AdminCatalogoPage />
     </NextIntlClientProvider>,
   );
@@ -137,6 +148,10 @@ describe("AdminCatalogoPage (Onda 3 admin — P1a: CRUD do catálogo)", () => {
   it("remover: confirma, chama DELETE e tira o item da lista", async () => {
     renderPage();
     fireEvent.click(await screen.findByTestId(`admin-catalogo-remover-${ID_DUNA}`));
+    // D-623: a confirmação agora é um `ConfirmDialog` (não `window.confirm`) — o clique no
+    // botão do diálogo é o que dispara o DELETE.
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /Remover/i }));
     await waitFor(() => {
       expect(api.delete).toHaveBeenCalledWith(`/api/v1/midias/${ID_DUNA}`);
     });

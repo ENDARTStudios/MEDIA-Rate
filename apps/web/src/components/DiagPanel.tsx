@@ -133,15 +133,15 @@ export function DiagPanel() {
 
   const row = (label: string, value: React.ReactNode) => (
     <div className="flex gap-1">
-      <span className="text-[#9CA3AF] shrink-0">{label}: </span>
-      <span className="text-[#EDE7DC] break-all">{value}</span>
+      <span className="text-[#A0A0B8] shrink-0">{label}: </span>
+      <span className="text-[#F5F5F7] break-all">{value}</span>
     </div>
   );
 
   if (minimized) {
     return (
-      <div className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md px-3 py-1.5 text-xs font-mono text-[#9CA3AF]">
-        <button onClick={() => setMinimized(false)} className="text-[#9CA3AF] hover:text-[#EDE7DC]">
+      <div className="fixed bottom-4 right-4 z-50 bg-[#12121C] border border-[#1C1C2E] rounded-md px-3 py-1.5 text-xs font-mono text-[#A0A0B8]">
+        <button onClick={() => setMinimized(false)} className="text-[#A0A0B8] hover:text-[#F5F5F7]">
           Diag
         </button>
       </div>
@@ -150,14 +150,14 @@ export function DiagPanel() {
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 bg-[#11111E] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-xs font-mono text-[#9CA3AF] flex flex-col gap-1"
+      className="fixed bottom-4 right-4 z-50 bg-[#12121C] border border-[#1C1C2E] rounded-md max-w-xs p-3 text-xs font-mono text-[#A0A0B8] flex flex-col gap-1"
       data-diag-panel="true"
     >
       <div className="flex items-center justify-between mb-1">
         <span className="text-[#818CF8] font-bold text-[12px]">MEDIA Rate Diag</span>
         <button
           onClick={() => setMinimized(true)}
-          className="text-[#9CA3AF] hover:text-[#EDE7DC] leading-none"
+          className="text-[#A0A0B8] hover:text-[#F5F5F7] leading-none"
         >
           _
         </button>
@@ -183,19 +183,19 @@ export function DiagPanel() {
       <div className="flex gap-2 mt-2">
         <button
           onClick={() => testMe().then(() => testWatchlist())}
-          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#EDE7DC] hover:bg-[#2A2A3E]"
+          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#F5F5F7] hover:bg-[#2A2A3E]"
         >
           Retestar
         </button>
         <button
           onClick={() => setErrors([])}
-          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#EDE7DC] hover:bg-[#2A2A3E]"
+          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#F5F5F7] hover:bg-[#2A2A3E]"
         >
           Limpar erros
         </button>
         <button
           onClick={copyReport}
-          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#EDE7DC] hover:bg-[#2A2A3E]"
+          className="bg-[#1C1C2E] px-2 py-0.5 rounded text-[#F5F5F7] hover:bg-[#2A2A3E]"
         >
           Copiar relatório
         </button>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
   closestCorners,
   useDroppable,
@@ -11,7 +12,11 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 import type { WatchlistEntry } from "@/stores/use-watchlist-store";
 import type { MediaType } from "@/lib/types";
@@ -174,7 +179,12 @@ export function WatchlistKanban({
     void fetchAll();
   }, [fetchAll]);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  // D-628: sem o KeyboardSensor o kanban só funcionava com ponteiro — não havia como mover um
+  // item por teclado (o dnd-kit já traz a navegação acessível pronta).
+  const sensors = useSensors(
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
 
   const abandonados = useMemo(
     () => Object.values(map).filter((e) => e.status === "ABANDONADO" && e.midia?.id),
@@ -270,7 +280,7 @@ export function WatchlistKanban({
                 <div key={midiaId} className="max-w-[200px]" data-testid="abandonado-card">
                   {item && <MediaCard media={item} />}
                   <div className="mt-1 flex items-center justify-between px-1">
-                    <span className="inline-flex items-center gap-1 text-xs text-[#9CA3AF]">
+                    <span className="inline-flex items-center gap-1 text-xs text-[#A0A0B8]">
                       <StatusGlyph status="ABANDONADO" size={12} />
                       {t("abandonado")}
                     </span>
@@ -299,7 +309,7 @@ export function WatchlistKanban({
                             aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                               active
-                                ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
+                                ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
                                 : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
                             }`}
                           >

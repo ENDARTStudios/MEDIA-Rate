@@ -47,12 +47,20 @@ export const FONTES_ATIVAS: FonteAtiva[] = Object.values(FONTES_WEB)
 /** Contador derivado — usado pela Home e por qualquer página que exiba o total. */
 export const NUM_FONTES_ATIVAS = FONTES_ATIVAS.length;
 
-/** Rótulo das mídias cobertas por uma fonte (pt-BR, para exibição). */
-export const MIDIA_LABEL: Record<MediaType, string> = {
-  movie: "Filmes",
-  series: "Séries",
-  game: "Games",
-  book: "Livros",
-  comic: "Quadrinhos",
-  manga: "Mangás",
+/**
+ * T211: chave i18n canônica de cada tipo de mídia (`catalog.filme` & cia).
+ *
+ * Substitui o antigo `MIDIA_LABEL`, que era um mapa **hardcoded em pt-BR** —
+ * `/sources` e `/methodology` renderizavam "Filmes · Séries · Quadrinhos" também
+ * em en-US/es-ES (o comentário do próprio arquivo admitia "pt-BR, para exibição").
+ * Quem exibe rótulo de tipo DEVE traduzir por esta chave (server:
+ * `getTranslations("catalog")`; client: `useTranslations("catalog")`).
+ */
+export const MIDIA_LABEL_KEY: Record<MediaType, string> = {
+  movie: "filme",
+  series: "serie",
+  game: "game",
+  book: "livro",
+  comic: "comic",
+  manga: "manga",
 };

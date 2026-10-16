@@ -117,8 +117,17 @@ You may only prompt the human operator regarding external platforms if:
   (animação) — leia a skill ANTES do domínio.
 - **Mudança visual (UI/UX)**: ler `media-rate-ui-ux` + `motion-design` antes de
   escrever JSX/CSS; validar com `npm run design:detect` (anti-padrões de UI,
-  Impeccable — advisory), `npm run design:contrast` (AA dos tokens) e
-  `npm run design:visual` (screenshots/overflow/axe; exige dev server); anexar
+  Impeccable — advisory), `npm run design:contrast` (AA dos tokens),
+  `npm run design:hex` (barra **hex novo fora de token** — D-584; o legado está
+  congelado em `apps/web/scripts/hex-baseline.json`, e cor nova legítima exige
+  `npm run design:hex -- --update` + justificativa), `npm run design:visual`
+  (screenshots/overflow/axe; exige dev server) e
+  `npm run test:hydration --workspace apps/web` (hidratação + conteúdo visível
+  nos DOIS modos de movimento — D-587; pegou dois defeitos que nenhum gate via);
+  **`/admin` e `/dashboard` só têm cobertura com sessão**: `npm run test:auth
+  --workspace apps/web` (axe AA nas 8 telas de admin + baseline visual do
+  dashboard — D-588), que exige `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD` válidos no
+  ambiente da API (sem isso o setup falha com mensagem acionável). Anexar
   screenshots 375/1024/1440 no PR (ver `.zcode/skills/visual-qa/SKILL.md`).
 - **Registries de componentes** (`apps/web/components.json`, T208/D-580): apenas os
   de licença permissiva (`@react-bits`, `@kokonutui`, `@bklit`, `@componentry`,

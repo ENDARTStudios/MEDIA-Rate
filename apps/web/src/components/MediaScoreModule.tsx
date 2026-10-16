@@ -47,10 +47,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   if (!score) {
     return (
       <div
-        className="bg-[#11111E] rounded-2xl p-6 border border-[#1C1C2E]"
+        className="bg-[#12121C] rounded-2xl p-6 border border-[#2A2A3D]"
         data-testid="score-empty"
       >
-        <p className="text-sm text-[#9CA3AF]">{t("scoreUnavailable")}</p>
+        <p className="text-sm text-[#A0A0B8]">{t("scoreUnavailable")}</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
 
   return (
     <div
-      className="bg-[#11111E] rounded-2xl p-6 border border-[#1C1C2E] space-y-5"
+      className="bg-[#12121C] rounded-2xl p-6 border border-[#2A2A3D] space-y-5"
       data-testid="score-module"
     >
       <div className="flex items-center gap-5">
@@ -159,7 +159,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">MEDIA Score</h3>
+            <h2 className="text-sm font-semibold text-fg-primary mb-1">MEDIA Score</h2>
             {emPreparacao && (
               <span
                 className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-[#F59E0B] bg-[#F59E0B]/15 mb-1"
@@ -191,7 +191,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             )}
           </div>
           {updatedAt && (
-            <p className="text-xs text-[#9CA3AF] mb-1" data-testid="last-updated">
+            <p className="text-xs text-[#A0A0B8] mb-1" data-testid="last-updated">
               {t("updated")} {relativeTime(updatedAt, t)}
               {isStale && (
                 <span className="ml-1 px-1.5 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] rounded text-xs">
@@ -201,15 +201,15 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             </p>
           )}
           {explanationLocal && (
-            <p className="text-xs text-gray-400 leading-relaxed">{explanationLocal}</p>
+            <p className="text-xs text-fg-secondary leading-relaxed">{explanationLocal}</p>
           )}
         </div>
       </div>
 
-      <div className="pt-3 border-t border-[#1C1C2E]">
+      <div className="pt-3 border-t border-[#2A2A3D]">
         <Bar criticsScore={criticos} audienceScore={publico} consensus={consenso} />
         {temAjusteBayesiano && (
-          <p className="mt-2 text-xs text-[#9CA3AF]" data-testid="bayes-note">
+          <p className="mt-2 text-xs text-[#A0A0B8]" data-testid="bayes-note">
             {t("bayesNote")}{" "}
             <Link
               href="/methodology"
@@ -221,12 +221,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         )}
       </div>
 
-      <div className="space-y-2 pt-3 border-t border-[#1C1C2E]">
-        <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider">
+      <div className="space-y-2 pt-3 border-t border-[#2A2A3D]">
+        <p className="text-xs text-[#A0A0B8] font-medium uppercase tracking-wider">
           {t("sources")}
         </p>
         {fontesUnicas.length === 0 ? (
-          <p className="text-xs text-[#9CA3AF]">{t("noReviews")}</p>
+          <p className="text-xs text-[#A0A0B8]">{t("noReviews")}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {fontesUnicas.map((s) => {
@@ -240,6 +240,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
                   ratingOriginal={s.score}
                   ratingNormalized={Math.round((s.score / s.maxScore) * 100)}
                   classification={meta?.classificacao}
+                  /* Achado 2026-10-13 (detector no DOM): eram 5 "card dentro de card" —
+                     este módulo JÁ é um card, então cada fonte entra como LINHA (sem
+                     superfície nem borda próprias) em vez de cartão. */
+                  className="border-transparent bg-transparent"
                 />
               );
             })}

@@ -22,9 +22,26 @@ export interface SourceMiniCardProps {
   className?: string;
 }
 
+/**
+ * Cor da TINTA do selo (12% de alfa sobre o card).
+ */
 const CLASS_COLOR: Record<NonNullable<SourceMiniCardProps["classification"]>, string> = {
   critica: "#38BDF8",
   publico: "#E11D48",
+};
+
+/**
+ * Cor do TEXTO do selo — **não** é a mesma da tinta.
+ *
+ * Achado 2026-10-13 (auditoria visual, detector no DOM): o rose da marca (#E11D48)
+ * como texto sobre a própria tinta rende **3,7:1** e reprova AA (mínimo 4,5:1). O
+ * repositório já resolve isso com `#FB7185` quando o rose é texto (`Bar.tsx`,
+ * `/sources`, `global-error`); aqui o texto passa a usar esse valor e a tinta
+ * continua na cor da marca.
+ */
+const CLASS_TEXT_COLOR: Record<NonNullable<SourceMiniCardProps["classification"]>, string> = {
+  critica: "#38BDF8",
+  publico: "#FB7185",
 };
 
 export function SourceMiniCard({
@@ -37,6 +54,7 @@ export function SourceMiniCard({
   className,
 }: SourceMiniCardProps) {
   const t = useTranslations("catalog");
+  const tc = useTranslations("common");
 
   const escalaMax = scale === "0-10" ? 10 : 100;
   const notaNormalizada = ratingNormalized != null ? Math.round(ratingNormalized) : null;
@@ -57,7 +75,7 @@ export function SourceMiniCard({
               className="rounded-full px-1.5 py-px text-xs font-semibold uppercase tracking-wide"
               style={{
                 backgroundColor: `${CLASS_COLOR[classification]}1F`,
-                color: CLASS_COLOR[classification],
+                color: CLASS_TEXT_COLOR[classification],
               }}
             >
               {classification === "critica" ? t("criticsBar") : t("audienceBar")}
@@ -90,7 +108,7 @@ export function SourceMiniCard({
         aria-label={`${name} — ${t("sources")}`}
       >
         {inner}
-        <span className="sr-only">(abre em nova aba)</span>
+        <span className="sr-only">{tc("opensInNewTab")}</span>
       </a>
     );
   }

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "motion/react";
+import type { CSSProperties } from "react";
 import { Link } from "@/lib/navigation";
 import { useAuthStore } from "@/stores/use-auth-store";
 
@@ -17,15 +17,26 @@ const STEPS = [
   { key: "step3Title", desc: "step3Desc", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14v7m-3-3h6" },
 ];
 
+/** Delay da entrada em CSS (`--enter-delay`, ver `globals.css` → `.enter-rise`). */
+function delay(ms: number): CSSProperties {
+  return { "--enter-delay": `${ms}ms` } as CSSProperties;
+}
+
 /**
  * T364 (D-336) — boas-vindas pós-cadastro, exibida UMA vez.
  * Flag client-side (localStorage) — trocar por welcome_seen no usuário
  * (PATCH /user/welcome-seen) quando a migration do backend entrar.
+ *
+ * D-587 (T211): a entrada era feita com `motion` e `initial={shouldReduce ? false
+ * : { opacity: 0 }}`. Como o servidor não conhece `prefers-reduced-motion`, o HTML
+ * servido divergia do primeiro render do cliente → **hydration mismatch** (e, sem
+ * JS, o conteúdo ficava invisível: `initial` é o estado do HTML). Agora a entrada
+ * é CSS (`.enter-rise`/`.enter-fade`), determinística entre servidor e cliente,
+ * funcional sem JS e desligada para quem pediu movimento reduzido.
  */
 export default function WelcomePage() {
   const t = useTranslations("welcome");
   const router = useRouter();
-  const shouldReduce = useReducedMotion();
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -40,36 +51,28 @@ export default function WelcomePage() {
   const nome = user?.name?.split(" ")[0];
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] px-4 py-16">
+    <div className="relative min-h-[calc(100dvh-4rem)] px-4 py-16">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(225,29,72,0.08)_0%,transparent_55%)]"
         aria-hidden="true"
       />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
-        <motion.p
-          className="mb-3 font-heading text-xs uppercase tracking-[0.22em] text-[#FB7185]"
-          initial={shouldReduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {t("eyebrow")}
-        </motion.p>
-        <motion.h1
-          className="mb-8 font-heading text-4xl font-bold leading-tight text-[#F5F5F7] sm:text-5xl"
-          initial={shouldReduce ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
+        {/* T211: o eyebrow acima do H1 era o mesmo padrão `hero-eyebrow-chip`
+            removido da home em T209 (e o topo do "trio centralizado" proibido por
+            D-065). O H1 com o nome do usuário já é o gancho desta tela. */}
+        <h1
+          className="enter-rise mb-8 font-heading text-4xl font-bold leading-tight text-[#F5F5F7] sm:text-5xl"
+          style={delay(80)}
         >
           {nome ? t("titleWithName", { nome }) : t("title")}
-        </motion.h1>
+        </h1>
 
         <div className="grid gap-4 sm:grid-cols-3">
           {STEPS.map((step, i) => (
-            <motion.div
+            <div
               key={step.key}
-              className="rounded-xl border border-[rgba(129,140,248,0.12)] bg-[#12121C] p-6 text-left"
-              initial={shouldReduce ? false : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.15 }}
+              className="enter-rise rounded-xl border border-[rgba(129,140,248,0.12)] bg-[#12121C] p-6 text-left"
+              style={delay(150 + i * 150)}
             >
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#818CF8]/15 text-[#818CF8]">
                 <svg
@@ -90,20 +93,15 @@ export default function WelcomePage() {
               <h2 className="mb-1 font-heading text-base font-semibold text-[#F5F5F7]">
                 {t(step.key)}
               </h2>
-              <p className="text-sm text-[#9CA3AF]">{t(step.desc)}</p>
-            </motion.div>
+              <p className="text-sm text-[#A0A0B8]">{t(step.desc)}</p>
+            </div>
           ))}
         </div>
 
-        <motion.div
-          className="mt-10"
-          initial={shouldReduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
+        <div className="enter-fade mt-10" style={delay(600)}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
           >
             {t("cta")}
             <svg
@@ -121,7 +119,7 @@ export default function WelcomePage() {
               />
             </svg>
           </Link>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

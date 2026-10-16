@@ -1,5 +1,7 @@
 "use client";
 
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { animate } from "animejs/animation";
@@ -10,11 +12,12 @@ interface CatalogSkeletonProps {
 }
 
 export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
+  // D-584/M3 (T211): valor reativo (o matchMedia era lido uma vez dentro do efeito).
+  const prefersReduced = useReducedMotionPref();
   const t = useTranslations("common");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced || !ref.current) return;
 
     const ctrl = animate(ref.current.querySelectorAll(".sk-shimmer"), {
@@ -43,20 +46,20 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
           <div
             className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]"
             style={{
-              backgroundImage: "linear-gradient(110deg, #09090F 40%, #11111E 50%, #09090F 60%)",
+              backgroundImage: "linear-gradient(110deg, #09090F 40%, #12121C 50%, #09090F 60%)",
             }}
           />
           <div className="p-3 space-y-2.5">
             <div
               className="h-3.5 w-3/4 rounded-md sk-shimmer bg-[length:200%_100%]"
               style={{
-                backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)",
+                backgroundImage: "linear-gradient(110deg, #12121C 40%, #1C1C2E 50%, #12121C 60%)",
               }}
             />
             <div
               className="h-3 w-1/2 rounded-md sk-shimmer bg-[length:200%_100%]"
               style={{
-                backgroundImage: "linear-gradient(110deg, #11111E 40%, #1C1C2E 50%, #11111E 60%)",
+                backgroundImage: "linear-gradient(110deg, #12121C 40%, #1C1C2E 50%, #12121C 60%)",
               }}
             />
           </div>

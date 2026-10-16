@@ -434,7 +434,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                     type="button"
                     role="menuitem"
                     onClick={() => void selectColumn(popover.mediaId, c)}
-                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-[#9CA3AF] transition-colors hover:bg-[#2A2A3D] hover:text-[#EDE7DC] focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-[#A0A0B8] transition-colors hover:bg-[#2A2A3D] hover:text-[#F5F5F7] focus-visible:ring-2 focus-visible:ring-[#818CF8]"
                   >
                     {tWatch(colunaLabelKey(popover.mediaType, c))}
                   </button>
@@ -469,8 +469,8 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                         disabled
                           ? "cursor-not-allowed text-[#4A4A60]"
                           : active
-                            ? "bg-[#2A2A3D] text-[#EDE7DC]"
-                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
+                            ? "bg-[#2A2A3D] text-[#F5F5F7]"
+                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
                       }`}
                     >
                       <StatusGlyph status={s} size={13} filled={active} />
@@ -493,13 +493,13 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
             className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-[#151524] p-4 shadow-floating"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-heading font-semibold text-[#EDE7DC]">
+              <p className="text-sm font-heading font-semibold text-[#F5F5F7]">
                 {tDisc("crossPromptTitle")}
               </p>
               <button
                 onClick={() => setCrossPrompt(null)}
                 aria-label={tDisc("dismiss")}
-                className="rounded p-1 text-[#9CA3AF] hover:text-[#EDE7DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                className="rounded p-1 text-[#A0A0B8] hover:text-[#F5F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
               >
                 <svg
                   className="h-4 w-4"
@@ -517,7 +517,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                 </svg>
               </button>
             </div>
-            <ul className="mt-3 space-y-2">
+            <ul role="list" className="mt-3 space-y-2">
               {crossPrompt.relacoes.relacoes.slice(0, 3).map((r) => {
                 const token = CATEGORY_TOKENS[r.midia.tipo.toLowerCase() as MediaType];
                 const Icon = token?.icon ?? CATEGORY_TOKENS.movie.icon;
@@ -529,7 +529,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                   >
                     <Link
                       href={`/media/${r.midia.slug}`}
-                      className="flex min-w-0 items-center gap-2 text-sm text-[#EDE7DC] hover:text-[#A5B4FC]"
+                      className="flex min-w-0 items-center gap-2 text-sm text-[#F5F5F7] hover:text-[#A5B4FC]"
                     >
                       <Icon
                         className="h-4 w-4 shrink-0"
@@ -541,7 +541,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                     <button
                       onClick={() => void addRelated(r)}
                       disabled={jaAdicionado}
-                      className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#6B7280] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
+                      className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#A0A0B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
                     >
                       {jaAdicionado ? tDisc("added") : tDisc("addToo")}
                     </button>

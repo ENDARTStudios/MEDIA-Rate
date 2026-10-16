@@ -33,7 +33,7 @@ const TIPO_TO_ITEM: Record<string, string> = {
   manga: "MANGA",
 };
 
-function mapToMediaItem(m: {
+export function mapToMediaItem(m: {
   id: string;
   slug?: string | null;
   title: string;

@@ -10,8 +10,9 @@
  * - Escala-aware: valores em 0–100 por padrão (escala da API); `scale="0-10"`
  *   normaliza internamente.
  */
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { formatarScoreLocale } from "@/lib/score-utils";
 
 export interface CriticsVsAudienceBarProps {
   critics: number | null;
@@ -35,6 +36,7 @@ export function CriticsVsAudienceBar({
   className,
 }: CriticsVsAudienceBarProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
 
   const to100 = (v: number | null): number | null =>
     v == null ? null : scale === "0-10" ? Math.round(v * 10) : Math.round(v);
@@ -62,7 +64,7 @@ export function CriticsVsAudienceBar({
             {t("criticsBar")}
           </span>
           {c != null ? (
-            <span className="tabular-nums text-[#A0A0B8]">{c.toFixed(1)}</span>
+            <span className="tabular-nums text-[#A0A0B8]">{formatarScoreLocale(c, locale)}</span>
           ) : (
             <span className="text-[#85859F]" data-testid="sem-critica">
               {t("semCritica")}
@@ -84,7 +86,9 @@ export function CriticsVsAudienceBar({
           <span className="font-medium" style={{ color: AUDIENCE_COLOR }}>
             {t("audienceBar")}
           </span>
-          {a != null && <span className="tabular-nums text-[#A0A0B8]">{a.toFixed(1)}</span>}
+          {a != null && (
+            <span className="tabular-nums text-[#A0A0B8]">{formatarScoreLocale(a, locale)}</span>
+          )}
         </div>
         <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden" role="presentation">
           {a != null && (
@@ -115,7 +119,11 @@ export function CriticsVsAudienceBar({
             />
             {highConsensus ? t("highConsensus") : t("lowConsensus")}
           </span>
-          {!compact && <span className="tabular-nums text-[#85859F]">{gap.toFixed(1)}pts</span>}
+          {!compact && (
+            <span className="tabular-nums text-[#85859F]">
+              {formatarScoreLocale(gap, locale)}pts
+            </span>
+          )}
         </div>
       )}
       {/* Gradiente visual do consenso: ponte entre crítica (#38BDF8) e público (#E11D48). */}

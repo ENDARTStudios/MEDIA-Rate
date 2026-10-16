@@ -32,13 +32,18 @@ export function NotificationBell() {
   const t = useTranslations("notifications");
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // D-619 (P0): não consultar notificações antes de saber se há sessão.
+  const authHydrated = useAuthStore((s) => s.hydrated);
   const [items, setItems] = useState<Notificacao[]>([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  // T211 (a11y): refs do gatilho e do painel para gerenciar foco (abrir/fechar).
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   async function load() {
-    if (!isAuthenticated) return;
+    if (!authHydrated || !isAuthenticated) return;
     try {
       const data = await api.get<{ items: Notificacao[]; naoLidas: number }>(
         "/api/v1/notificacoes",
@@ -53,11 +58,11 @@ export function NotificationBell() {
   }
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!authHydrated || !isAuthenticated) return;
     void load();
     const timer = window.setInterval(() => void load(), POLL_MS);
     return () => window.clearInterval(timer);
-  }, [isAuthenticated]);
+  }, [authHydrated, isAuthenticated]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -66,6 +71,15 @@ export function NotificationBell() {
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
+
+  // T211 (a11y): ao abrir, move o foco para o painel; ao fechar, devolve ao sino.
+  useEffect(() => {
+    if (open) {
+      panelRef.current?.focus();
+    } else {
+      triggerRef.current?.focus();
+    }
+  }, [open]);
 
   if (!isAuthenticated) return null;
 
@@ -88,9 +102,11 @@ export function NotificationBell() {
     <div className="relative" ref={boxRef}>
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setOpen((v) => !v)}
         aria-label={t("label", { count: unread })}
         aria-expanded={open}
+        aria-haspopup="dialog"
         className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#2A2A3D] bg-[#12121C] text-[#A0A0B8] transition-colors hover:text-[#F5F5F7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
       >
         <Bell className="h-4 w-4" aria-hidden="true" />
@@ -109,6 +125,21 @@ export function NotificationBell() {
           className="absolute right-0 top-11 z-dropdown w-80 rounded-lg border border-[#2A2A3D] bg-[#12121C] shadow-floating"
           role="dialog"
           aria-label={t("title")}
+          // T211 (a11y): o painel declarava `role="dialog"` sem Escape, sem foco ao
+          // abrir e sem devolver o foco ao sino — usuário de teclado ficava sem saída.
+          ref={panelRef}
+          tabIndex={-1}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              setOpen(false);
+            }
+          }}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              setOpen(false);
+            }
+          }}
         >
           <div className="flex items-center justify-between border-b border-[#2A2A3D] px-4 py-3">
             <span className="text-sm font-semibold text-[#F5F5F7]">{t("title")}</span>
@@ -123,7 +154,7 @@ export function NotificationBell() {
             )}
           </div>
 
-          <ul className="max-h-80 overflow-y-auto">
+          <ul role="list" className="max-h-80 overflow-y-auto">
             {items.length === 0 && (
               <li className="px-4 py-6 text-center text-sm text-[#85859F]">{t("empty")}</li>
             )}

@@ -1,11 +1,13 @@
 "use client";
 
+import { formatarScoreLocale } from "@/lib/score-utils";
+
 /**
  * Comparador de perfis (Premium — D-132): dois usuários lado a lado,
  * com stats públicas (watchlist, tipos, gêneros favoritos, score médio).
  */
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/http";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ const TIPO_LABEL_KEY: Record<string, string> = {
 };
 
 function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
+  const locale = useLocale();
   const t = useTranslations("compare");
   const tc = useTranslations("catalog");
   const score = stats.score_medio;
@@ -61,7 +64,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
                       : "#F87171",
             }}
           >
-            {score == null ? "—" : score.toFixed(1)}
+            {score == null ? "—" : formatarScoreLocale(score, locale)}
           </dd>
         </div>
       </dl>
@@ -86,7 +89,7 @@ function PerfilCard({ stats, label }: { stats: PerfilStats; label: string }) {
       <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-[#A0A0B8]">
         {t("topGenres")}
       </p>
-      <ul className="mt-2 space-y-1">
+      <ul role="list" className="mt-2 space-y-1">
         {stats.generos_top.length === 0 && <li className="text-xs text-[#85859F]">—</li>}
         {stats.generos_top.map((g) => (
           <li key={g.nome} className="flex justify-between text-sm">

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
 // B1 — ferramenta de remoção (soft delete) no painel /admin/diagnostics.
@@ -43,7 +43,18 @@ import DiagnosticsPage from "@/app/[locale]/admin/diagnostics/page";
 
 function renderPage() {
   return render(
-    <NextIntlClientProvider locale="pt-BR" messages={{}}>
+    <NextIntlClientProvider
+      locale="pt-BR"
+      messages={{
+        admin: {
+          removeMediaTitle: "Remover do catálogo",
+          removeMediaConfirm: 'Remover "{titulo}" do catálogo?',
+          removeMedia: "Remover",
+          navLabel: "Área de administrador",
+          navBack: "Voltar",
+        },
+      }}
+    >
       <DiagnosticsPage />
     </NextIntlClientProvider>,
   );
@@ -62,10 +73,14 @@ describe("DiagnosticsPage — remover mídia (B1)", () => {
     fireEvent.change(input, { target: { value: MIDIA_ID } });
     fireEvent.click(screen.getByTestId("admin-remove-button"));
 
+    // D-623: a confirmação agora é um `ConfirmDialog` (não `window.confirm`) — o DELETE só
+    // sai depois do clique no botão do diálogo.
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /Remover/i }));
+
     await waitFor(() => {
       expect(deleteMock).toHaveBeenCalledWith(`/api/v1/midias/${MIDIA_ID}`);
     });
-    expect((window.confirm as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     await waitFor(() => {
       expect(screen.getByTestId("admin-remove-result").textContent).toBe(
         "Mídia removida (soft delete).",
@@ -102,6 +117,10 @@ describe("DiagnosticsPage — remover mídia (B1)", () => {
     const input = await screen.findByTestId("admin-remove-input");
     fireEvent.change(input, { target: { value: MIDIA_ID } });
     fireEvent.click(screen.getByTestId("admin-remove-button"));
+
+    // D-623: confirmar no diálogo é o que dispara a chamada (e, aqui, o erro).
+    const dialog404 = await screen.findByRole("dialog");
+    fireEvent.click(within(dialog404).getByRole("button", { name: /Remover/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("admin-remove-error").textContent).toContain(

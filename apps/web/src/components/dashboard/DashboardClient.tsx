@@ -32,6 +32,10 @@ export function DashboardClient() {
   const t = useTranslations("dashboard");
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // D-619 (P0): `hydrated` separa "é visitante" de "ainda não sei". Sem ele, o efeito
+  // abaixo decidia cedo demais e a tela mostrava "Entre para ver seu dashboard" para quem
+  // está logado quando nenhum outro componente tinha hidratado o store.
+  const authHydrated = useAuthStore((s) => s.hydrated);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -49,16 +53,18 @@ export function DashboardClient() {
   }, []);
 
   useEffect(() => {
+    // Espera saber quem é antes de decidir (D-619).
+    if (!authHydrated) return;
     if (!isAuthenticated) {
       setLoading(false);
       return;
     }
     void carregar();
-  }, [isAuthenticated, carregar]);
+  }, [authHydrated, isAuthenticated, carregar]);
 
-  if (!isAuthenticated) {
+  if (authHydrated && !isAuthenticated) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
+      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
         <p className="mb-3">{t("loginHint")}</p>
         <button
           type="button"
@@ -71,7 +77,7 @@ export function DashboardClient() {
     );
   }
 
-  if (loading) return <div className="py-8 text-[#9CA3AF]">{t("loading")}</div>;
+  if (loading) return <div className="py-8 text-[#A0A0B8]">{t("loading")}</div>;
   if (error)
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
@@ -81,7 +87,7 @@ export function DashboardClient() {
 
   if (!stats) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
+      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
         <p className="mb-4">{t("error")}</p>
       </div>
     );
@@ -93,8 +99,8 @@ export function DashboardClient() {
   if (stats.total === 0) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#11111E] p-8 text-center">
-          <p className="text-lg font-medium text-[#EDE7DC]">{t("emptyHint")}</p>
+        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#12121C] p-8 text-center">
+          <p className="text-lg font-medium text-[#F5F5F7]">{t("emptyHint")}</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/catalog"

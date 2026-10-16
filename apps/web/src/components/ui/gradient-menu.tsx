@@ -25,7 +25,7 @@ export function GradientMenu({ items, className }: GradientMenuProps) {
         <Link
           key={item.href}
           href={item.href}
-          className="relative px-3 py-2 text-sm text-[#9CA3AF] underline-offset-4 transition-colors duration-200 hover:text-[#F5F5F7] hover:underline focus-visible:text-[#F5F5F7]"
+          className="relative px-3 py-2 text-sm text-[#A0A0B8] underline-offset-4 transition-colors duration-200 hover:text-[#F5F5F7] hover:underline focus-visible:text-[#F5F5F7]"
         >
           {item.label}
         </Link>

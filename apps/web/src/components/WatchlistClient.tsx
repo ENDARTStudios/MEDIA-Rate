@@ -107,7 +107,8 @@ export function WatchlistClient() {
   const t = useTranslations("watchlist");
   const locale = useLocale();
   const { user } = useAuthStore();
-  const { entries, isLoading, error, fetchWatchlist, removeItem, moveItem } = useWatchlistStore();
+  const { entries, isLoading, error, limitReached, fetchWatchlist, removeItem, moveItem } =
+    useWatchlistStore();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [view, setView] = useState<"kanban" | "lista">("kanban");
   const [filtroTipo, setFiltroTipo] = useState<"all" | MediaType>("all");
@@ -164,7 +165,18 @@ export function WatchlistClient() {
   if (isLoading && entries.length === 0) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{t("title")}</h1>
+        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-4">{t("title")}</h1>
+        {/* D-627: o store já marcava `limitReached` no 402, mas a tela não dizia nada — o
+          usuário batia no limite do plano sem caminho para resolver (o /historico e /listas
+          já têm esse CTA; a watchlist era a única sem). */}
+        {limitReached && (
+          <p className="mb-6 rounded-lg border border-score-medium/40 bg-score-medium/10 px-4 py-3 text-sm text-score-medium">
+            {t("limitReached")}{" "}
+            <Link href="/pricing" className="font-semibold underline underline-offset-4">
+              {t("upgradeCta")}
+            </Link>
+          </p>
+        )}
         <CatalogSkeleton count={6} />
       </div>
     );
@@ -180,7 +192,14 @@ export function WatchlistClient() {
   }
 
   if (error && entries.length === 0) {
-    const errorMsg = typeof error === "string" ? error : error.message;
+    // D-626: `error.message` vinha do store com texto fixo em pt-BR. Aqui a mensagem só é
+    // usada quando é do erro da API; caso contrário, rótulo traduzido do namespace.
+    const errorMsg =
+      error instanceof RateLimitedError
+        ? t("loadError")
+        : typeof error === "string"
+          ? t("loadError")
+          : error.message;
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{t("title")}</h1>
@@ -319,7 +338,10 @@ export function WatchlistClient() {
           tipoFiltro={filtroTipo}
         />
       ) : (
-        <ul className="divide-y divide-[#2A2A3D] rounded-lg border border-[#2A2A3D] bg-[#12121C]">
+        <ul
+          role="list"
+          className="divide-y divide-[#2A2A3D] rounded-lg border border-[#2A2A3D] bg-[#12121C]"
+        >
           {filtradas.map((entry) => {
             const item = entryToMediaItem(entry);
             const status = entry.status ?? entry.coluna ?? "WANT";

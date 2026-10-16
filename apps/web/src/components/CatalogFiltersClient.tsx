@@ -105,7 +105,7 @@ export function CatalogFiltersClient() {
   return (
     <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-[#EDE7DC]">
+        <span className="font-semibold text-[#F5F5F7]">
           {tf("filters")}
           {activeCount > 0 ? ` (${activeCount})` : ""}
         </span>
@@ -121,25 +121,25 @@ export function CatalogFiltersClient() {
       </div>
 
       <div>
-        <label className="block text-xs text-[#9CA3AF] mb-1.5">{t("search")}</label>
+        <label className="block text-xs text-[#A0A0B8] mb-1.5">{t("search")}</label>
         <input
           type="search"
           value={draftQuery}
           onChange={(e) => setDraftQuery(e.target.value)}
           placeholder={t("search")}
-          className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+          className="w-full px-3 py-2 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         />
       </div>
 
       <div>
-        <label htmlFor="catalog-sort" className="block text-xs text-[#9CA3AF] mb-1.5">
+        <label htmlFor="catalog-sort" className="block text-xs text-[#A0A0B8] mb-1.5">
           {t("sort")}
         </label>
         <select
           id="catalog-sort"
           value={sort}
           onChange={(e) => setParam("sort", e.target.value)}
-          className="w-full px-3 py-2 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+          className="w-full px-3 py-2 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
         >
           <option value="">{t("sortRelevancia")}</option>
           {SORT_OPTIONS.map(({ value, labelKey }) => (
@@ -157,7 +157,7 @@ export function CatalogFiltersClient() {
           onClick={() => setAdvancedOpen((v) => !v)}
           aria-expanded={advancedOpen}
           data-testid="catalog-advanced-toggle"
-          className="flex w-full items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-[#EDE7DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded"
+          className="flex w-full items-center justify-between text-xs font-semibold text-[#A0A0B8] hover:text-[#F5F5F7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded"
         >
           <span>{tf("advancedFilters")}</span>
           <svg
@@ -177,13 +177,13 @@ export function CatalogFiltersClient() {
               <p
                 id="catalog-advanced-search-hint"
                 data-testid="catalog-advanced-search-hint"
-                className="rounded-md border border-[#818CF8]/20 bg-[#818CF8]/5 px-2 py-1.5 text-[11px] leading-4 text-[#9CA3AF]"
+                className="rounded-md border border-[#818CF8]/20 bg-[#818CF8]/5 px-2 py-1.5 text-[11px] leading-4 text-[#A0A0B8]"
               >
                 {tf("advancedUnavailableSearch")}
               </p>
             )}
             <div>
-              <span className="block text-xs text-[#9CA3AF] mb-1.5">{tf("anoLabel")}</span>
+              <span className="block text-xs text-[#A0A0B8] mb-1.5">{tf("anoLabel")}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -191,22 +191,22 @@ export function CatalogFiltersClient() {
                   onChange={(e) => setParam("anoMin", e.target.value)}
                   placeholder={tf("anoMin")}
                   aria-label={tf("anoMin")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="w-full px-2 py-1.5 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
-                <span className="text-[#9CA3AF]">–</span>
+                <span className="text-[#A0A0B8]">–</span>
                 <input
                   type="number"
                   value={anoMax}
                   onChange={(e) => setParam("anoMax", e.target.value)}
                   placeholder={tf("anoMax")}
                   aria-label={tf("anoMax")}
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="w-full px-2 py-1.5 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
                 />
               </div>
             </div>
 
             <div>
-              <span className="block text-xs text-[#9CA3AF] mb-1.5">MEDIA Score (0–100)</span>
+              <span className="block text-xs text-[#A0A0B8] mb-1.5">MEDIA Score (0–100)</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -217,9 +217,9 @@ export function CatalogFiltersClient() {
                   disabled={buscaAtiva}
                   aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
                   data-testid="catalog-filter-score-min"
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
+                  className="w-full px-2 py-1.5 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
-                <span className="text-[#9CA3AF]">–</span>
+                <span className="text-[#A0A0B8]">–</span>
                 <input
                   type="number"
                   value={scoreMax}
@@ -229,12 +229,12 @@ export function CatalogFiltersClient() {
                   disabled={buscaAtiva}
                   aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
                   data-testid="catalog-filter-score-max"
-                  className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
+                  className="w-full px-2 py-1.5 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
                 />
               </div>
             </div>
             <div>
-              <span className="block text-xs text-[#9CA3AF] mb-1.5">{tf("genero")}</span>
+              <span className="block text-xs text-[#A0A0B8] mb-1.5">{tf("genero")}</span>
               <select
                 value={genero}
                 onChange={(e) => setParam("genero", e.target.value)}
@@ -242,7 +242,7 @@ export function CatalogFiltersClient() {
                 disabled={buscaAtiva}
                 aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
                 data-testid="catalog-filter-genero"
-                className="w-full px-2 py-1.5 bg-[#11111E] border-[#1C1C2E] rounded-md text-sm text-[#EDE7DC] focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
+                className="w-full px-2 py-1.5 bg-[#12121C] border-[#1C1C2E] rounded-md text-sm text-[#F5F5F7] focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-50"
               >
                 <option value="">{tf("todosGeneros")}</option>
                 {(generos ?? []).map((g) => (
@@ -251,7 +251,7 @@ export function CatalogFiltersClient() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1.5 text-xs text-[#9CA3AF]">
+              <p className="mt-1.5 text-xs text-[#A0A0B8]">
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input
                     type="checkbox"

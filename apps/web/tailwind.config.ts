@@ -1,6 +1,18 @@
 import type { Config } from "tailwindcss";
+// D-586: paleta legada do dashboard em módulo único (fonte para classes e p/ JS).
+import { DASH_PALETTE } from "./src/lib/dashboard-palette";
 
 const config: Config = {
+  // T211 (auditoria de UI/UX): sem isto o Tailwind 3.4 emite `:hover` puro e o
+  // estado fica "preso" no touch (296 usos de hover: no app). O v4 já faz isso
+  // por padrão; aqui ativamos a flag de compatibilidade.
+  future: { hoverOnlyWhenSupported: true },
+  // D-582.1 (T211): o app e dark-only (tokens fixos em globals.css) e o layout ja
+  // renderiza <html class="dark">. Sem esta linha o Tailwind usa a estrategia
+  // `media` e as 108 variantes `dark:` do admin/TOP/checkout respondiam ao tema do
+  // SO — com o SO em modo claro, titulos `text-gray-900` ficavam em 1,05:1 sobre o
+  // fundo escuro. Com `class`, o `dark` do <html> manda e as variantes acendem.
+  darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
@@ -72,6 +84,36 @@ const config: Config = {
           "border": "hsl(var(--sidebar-border))",
           "ring": "hsl(var(--sidebar-ring))",
         },
+        /**
+         * D-586 (T211/B3): escala canônica de texto como CLASSE (`text-fg-muted`),
+         * espelhando `design-tokens.ts` — era o que faltava para o dashboard poder
+         * usar o token em vez de `text-[#85859F]` (mesmo valor, zero mudança visual).
+         */
+        fg: {
+          primary: "#F5F5F7",
+          secondary: "#A0A0B8",
+          muted: "#85859F",
+        },
+        /**
+         * D-586 (T211/B3) — paleta LEGADA do protótipo do dashboard, declarada uma
+         * única vez aqui em vez de espalhada em 217 `className` arbitrários. O
+         * prefixo `dash-` é deliberado: **não** é design system, é dívida
+         * congelada e visível. A coluna da direita do mapa abaixo é o token
+         * canônico mais próximo — a migração é um lookup, valor por valor.
+         *
+         *   dash-teal #62D7C5      → (candidato a novo token `accent.teal`)
+         *   dash-amber #F2C36B     → score.medium #FBBF24
+         *   dash-indigo #8B7CFF    → accent.indigo #818CF8
+         *   dash-indigo-light #A69CFF / dash-violet #9B8CFF / dash-violet-light #B9B0FF
+         *                          → accent.violet #A78BFA
+         *   dash-blue #4DB6FF      → accent.sky #38BDF8
+         *   dash-coral #FF7F66 / dash-coral-light #FF9A86 → score.low #F87171
+         *   dash-surface* #11111B/#171725/#151522/#1A1A28/#131320/#181827
+         *                          → surface.card #12121C / surface.elevated #1B1B2C
+         *   dash-deep #0D0D14 / dash-deeper #0B0B12 → surface.bg #05050A
+         *   dash-muted #9693A8     → fg.muted #85859F
+         */
+        dash: DASH_PALETTE,
       },
       fontFamily: {
         heading: ["var(--font-heading)", "Space Grotesk", "sans-serif"],

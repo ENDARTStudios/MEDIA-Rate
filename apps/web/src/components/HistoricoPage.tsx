@@ -48,12 +48,14 @@ function toMediaItem(i: HistoricoItem): MediaItem {
 
 export function HistoricoPage() {
   const t = useTranslations("historico");
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hydrated: authHydrated } = useAuthStore();
   const [data, setData] = useState<HistoricoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // D-619: espera saber quem e antes de decidir (mantem o skeleton).
+    if (!authHydrated) return;
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -73,7 +75,7 @@ export function HistoricoPage() {
     return () => {
       ativo = false;
     };
-  }, [isAuthenticated]);
+  }, [authHydrated, isAuthenticated]);
 
   return (
     <ProtectedPage>
@@ -113,13 +115,10 @@ export function HistoricoPage() {
         {!loading && data && data.items.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
             {data.items.map((item) => (
-              <Link
-                key={item.midia_id}
-                href={`/media/${item.midia_id}`}
-                className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded-md"
-              >
-                <MediaCard media={toMediaItem(item)} />
-              </Link>
+              // D-582 (T211): o <MediaCard> já renderiza <a href="/media/...">.
+              // Envolvê-lo em outro <Link> produzia <a> dentro de <a> (HTML
+              // inválido, dois alvos de clique e risco de erro de hidratação).
+              <MediaCard key={item.midia_id} media={toMediaItem(item)} />
             ))}
           </div>
         )}

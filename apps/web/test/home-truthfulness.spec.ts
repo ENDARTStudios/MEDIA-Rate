@@ -65,15 +65,34 @@ describe("BETA-GAP-05 — home truthfulness (copy)", () => {
     expect(ofensores, `alegação de escala incorreta:\n${ofensores.join("\n")}`).toEqual([]);
   });
 
-  it("FAQ da home e de planos afirma a escala correta nos 3 locales", () => {
+  it("FAQ de planos afirma a escala correta e a fonte canônica da home não a contradiz", () => {
+    // M14 (2026-10-13): a home deixou de ter FAQ própria — ela renderiza as 3 primeiras
+    // perguntas da fonte canônica (`institutional-content.ts`), a mesma de /faq e
+    // /methodology. A garantia de veracidade mudou de lugar e passa a ser verificada
+    // onde o conteúdo realmente vive: nos planos (positiva) e na fonte canônica
+    // (negativa — nunca afirmar a escala errada).
     for (const locale of LOCALES) {
       const m = load(locale);
-      const homeFaq = String(get(m, "homeContent.faq1A") ?? "");
       const pricingFaq = String(get(m, "pricingFaq.faq1A") ?? "");
-      expect(homeFaq, `${locale}: homeContent.faq1A`).toMatch(ESCALA_POSITIVA);
-      expect(homeFaq, `${locale}: homeContent.faq1A`).not.toMatch(ESCALA_MANGA_100);
+      expect(pricingFaq, `${locale}: pricingFaq.faq1A`).toMatch(ESCALA_POSITIVA);
       expect(pricingFaq, `${locale}: pricingFaq.faq1A`).not.toMatch(ESCALA_MANGA_100);
     }
+
+    const institucional = fs.readFileSync(
+      path.resolve(process.cwd(), "src/lib/institutional-content.ts"),
+      "utf8",
+    );
+    expect(institucional, "fonte do FAQ institucional").not.toMatch(ESCALA_MANGA_100);
+  });
+
+  it("a home consome o FAQ da fonte canônica (não mantém cópia própria)", () => {
+    const home = fs.readFileSync(
+      path.resolve(process.cwd(), "src/components/HomeContentSections.tsx"),
+      "utf8",
+    );
+    expect(home, "a home precisa ler a fonte única").toContain("getInstitutionalContent");
+    // As 6 perguntas paralelas (e divergentes) não podem voltar.
+    expect(home, "FAQ paralelo na home").not.toMatch(/t\("faq[1-6][QA]"\)/);
   });
 
   it("CTAs/hero primários não usam 'em breve/coming soon'", () => {

@@ -27,8 +27,8 @@ export function ErrorState({ title, description, message, onRetry }: ErrorStateP
           />
         </svg>
       </div>
-      {title && <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">{title}</h3>}
-      <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">{displayMessage}</p>
+      {title && <h3 className="text-lg font-heading text-[#F5F5F7] mb-2">{title}</h3>}
+      <p className="text-sm text-[#A0A0B8] mb-6 max-w-md">{displayMessage}</p>
       {onRetry && (
         <button
           onClick={onRetry}

@@ -23,6 +23,7 @@ vi.mock("@/lib/navigation", () => ({
     </a>
   ),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: backMock, prefetch: vi.fn() }),
+  usePathname: () => "/admin/diagnostics",
   redirect: vi.fn(),
 }));
 
@@ -35,7 +36,22 @@ import AdminLayout from "@/app/[locale]/admin/layout";
 
 async function renderLayout() {
   return render(
-    <NextIntlClientProvider locale="pt-BR" messages={{}}>
+    <NextIntlClientProvider
+      locale="pt-BR"
+      messages={{
+        admin: {
+          navLabel: "Área de administrador",
+          navBack: "Voltar",
+          navDiagnostics: "Diagnóstico",
+          navUsers: "Gestão de usuários",
+          navCatalog: "Catálogo",
+          navMetrics: "Métricas",
+          navAudit: "Auditoria",
+          navLgpd: "LGPD",
+          acessoNegado: "Acesso não autorizado.",
+        },
+      }}
+    >
       {await AdminLayout({
         children: <div data-testid="conteudo-pagina">conteúdo</div>,
         params: Promise.resolve({ locale: "pt-BR" }),

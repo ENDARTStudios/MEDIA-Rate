@@ -85,13 +85,22 @@ export function GlowingEffect({
   }, [spread, glow, disabled, proximity, inactiveZone, borderWidth]);
 
   useEffect(() => {
+    // T211 (auditoria de UI/UX): este loop repintava o canvas a cada frame, para
+    // sempre, em TODAS as pricing cards — sem gate de `prefers-reduced-motion` e
+    // sem pausa com a aba oculta. Agora: (a) quem pediu movimento reduzido não
+    // recebe loop; (b) o loop pausa quando a aba está oculta; (c) em telas sem
+    // ponteiro fino (touch) o efeito é inalcançável, então nem monta listener.
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
     const onMove = (e: PointerEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
     const loop = () => {
-      render();
+      if (!document.hidden) render();
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);

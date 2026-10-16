@@ -19,8 +19,10 @@ import { getCatalog } from "@/lib/api";
 // nunca volta a exibir número hardcoded nem lista fixa de 6 nomes.
 import { FONTES_ATIVAS, NUM_FONTES_ATIVAS } from "@/lib/sources";
 import { HomeContentSections } from "@/components/HomeContentSections";
+import { DecisionHighlights } from "@/components/DecisionHighlights";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
-import { MediaCarousel } from "@/components/media-rate-ui/MediaCarousel";
+import { MediaCarousel, mapToMediaItem } from "@/components/media-rate-ui/MediaCarousel";
+import { bandKey } from "@/components/media-rate-ui/score-dial-core";
 
 // T405 (D-380): MediaCarousel agora é SERVER COMPONENT (import estático) —
 // os 60 cards saem como HTML puro no SSR, sem hidratação do shell.
@@ -72,6 +74,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const tNav = await getTranslations("nav");
   const th = await getTranslations("home");
   const tCatalog = await getTranslations("catalog");
+  const tHome = await getTranslations("home");
   const tWatchlist = await getTranslations("watchlist");
   const tInteraction = await getTranslations("interaction");
   const tScoreDial = await getTranslations("scoredial");
@@ -134,6 +137,50 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         consensusLabel={tScoreDial("consensus")}
         sourcesLabel={t("sourcesLabel", { count: NUM_FONTES_ATIVAS })}
         sourceNames={FONTES_ATIVAS.map((fonte) => fonte.nome)}
+        scoreScaleLabels={tScoreDial.raw("bands")}
+        searchLabel={t("heroSearch")}
+        searchCta={t("heroSearchCta")}
+        topItem={(() => {
+          // D-646: o selo do hero mostra a obra REAL de melhor nota entre os seis tipos — as
+          // mesmas chamadas que alimentam os carrosséis. Sem dado, o selo simplesmente não é montado.
+          const rotulos: Record<string, string> = {
+            movie: tCatalog("filme"),
+            series: tCatalog("serie"),
+            game: tCatalog("game"),
+            book: tCatalog("livro"),
+            comic: tCatalog("comic"),
+            manga: tCatalog("manga"),
+          };
+          const melhor = (["movie", "series", "game", "book", "comic", "manga"] as const)
+            .flatMap((type) =>
+              (carousels[type]?.items ?? [])
+                .map(mapToMediaItem)
+                .filter((m) => typeof m.score === "number")
+                .map((m) => ({ titulo: m.titulo, score: m.score as number, tipo: rotulos[type] })),
+            )
+            .sort((a, b) => b.score - a.score)[0];
+          return melhor
+            ? { ...melhor, faixa: tScoreDial.raw("bands")[bandKey(melhor.score)] }
+            : undefined;
+        })()}
+        scoreShowcaseLabel={tScoreDial("showcase")}
+        scoreShowcaseItems={(
+          [
+            ["movie", tCatalog("filme")],
+            ["series", tCatalog("serie")],
+            ["game", tCatalog("game")],
+            ["book", tCatalog("livro")],
+            ["comic", tCatalog("comic")],
+            ["manga", tCatalog("manga")],
+          ] as const
+        ).flatMap(([type, tipo]) => {
+          // D-643: o ciclo do selo usa OBRA REAL — mesmo mapeamento do carrossel (uma só
+          // fonte) e descarte de item sem nota. Nada de valor de enfeite (D-583.4).
+          const primeiro = (carousels[type]?.items ?? []).map(mapToMediaItem)[0];
+          return primeiro && typeof primeiro.score === "number"
+            ? [{ titulo: primeiro.titulo, score: primeiro.score, tipo }]
+            : [];
+        })}
       />
 
       <HomeStats />
@@ -195,18 +242,70 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         locale={locale}
       />
 
+      {/* D-646 — "Por decisão, não por prateleira": blocos por FAIXA, com obras reais do
+          catálogo (as mesmas que alimentam os carrosséis). A seção não é montada se não houver
+          item: caixa vazia e título inventado estão fora (D-583.4). */}
+      <DecisionHighlights
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+        title={tHome("decisionTitle")}
+        sub={tHome("decisionSub")}
+        ctaLabel={tHome("decisionCta")}
+        notaTitulo={tHome("decisionNotaTitle")}
+        notaTexto={tHome("decisionNotaBody")}
+        stepsTitle={tHome("howTitle")}
+        steps={[
+          { n: "1", titulo: tHome("howStep1Title"), descricao: tHome("howStep1Body") },
+          { n: "2", titulo: tHome("howStep2Title"), descricao: tHome("howStep2Body") },
+          { n: "3", titulo: tHome("howStep3Title"), descricao: tHome("howStep3Body") },
+        ]}
+        blocks={(() => {
+          const rotulos: Record<string, string> = {
+            movie: tCatalog("filme"),
+            series: tCatalog("serie"),
+            game: tCatalog("game"),
+            book: tCatalog("livro"),
+            comic: tCatalog("comic"),
+            manga: tCatalog("manga"),
+          };
+          const todos = (["movie", "series", "game", "book", "comic", "manga"] as const).flatMap(
+            (type) =>
+              (carousels[type]?.items ?? [])
+                .map(mapToMediaItem)
+                .filter((m) => typeof m.score === "number")
+                .map((m) => ({
+                  titulo: m.titulo,
+                  score: m.score as number,
+                  tipo: rotulos[type],
+                })),
+          );
+          const bands = tScoreDial.raw("bands");
+          const blocos = [
+            { faixa: "9" as const, chave: "9" },
+            { faixa: "8" as const, chave: "8" },
+            { faixa: "7" as const, chave: "7" },
+          ];
+          return blocos.map((b) => ({
+            faixa: b.faixa,
+            faixaLabel: bands[b.faixa],
+            titulo: tHome(`decisionBlock${b.chave}Title`),
+            descricao: tHome(`decisionBlock${b.chave}Body`),
+            itens: todos.filter((m) => bandKey(m.score) === b.faixa).slice(0, 3),
+          }));
+        })()}
+      />
+
       <section className="border-t border-[rgba(129,140,248,0.08)] px-4 py-20">
         <div className="mx-auto max-w-2xl text-center">
           <LazyAnimatedHeading
             as="h2"
-            className="mb-6 font-heading text-3xl font-bold text-[#EDE7DC]"
+            className="mb-6 font-heading text-3xl font-bold text-[#F5F5F7]"
           >
             {t("cta")}
           </LazyAnimatedHeading>
-          <p className="mb-8 leading-relaxed text-[#9CA3AF]">{th("ctaText")}</p>
+          <p className="mb-8 leading-relaxed text-[#A0A0B8]">{th("ctaText")}</p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
           >
             {tNav("register")}
             <svg

@@ -2,15 +2,24 @@ import { type NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { plataformaParaRequest } from "./lib/platform-routing";
+import { ehConteudoEstatico } from "./lib/static-content";
 
 const intlMiddleware = createMiddleware(routing);
 const privateRoutePrefixes = [
   "/admin",
   "/assistant",
   "/biblioteca",
+  "/compare",
   "/dashboard",
   "/feedback",
-  "/onboarding",
+  "/historico",
+  // D-584 (T211): `/listas`, `/historico` e `/compare` renderizavam "Verificando
+  // sessão..." e só então redirecionavam ao login — sempre pelo cliente, ~5s
+  // depois (a checagem chama a API). Estando na lista, o redirecionamento é do
+  // servidor e acontece antes de qualquer HTML (mesmo comportamento de
+  // /watchlist e /biblioteca). `/discoveries` fica FORA de propósito: essa tela
+  // tem estado anônimo desenhado ("Entre para ver suas descobertas").
+  "/listas",
   "/profile",
   "/settings",
   "/user/",
@@ -69,19 +78,36 @@ export default async function middleware(request: NextRequest) {
   // decisão por request (header x-mr-platform) que a camada de proxy/CDN
   // usa para rotear. Falha/ausência da flag → "vercel" (default OFF, na
   // própria plataforma decidirPlataforma/platform-routing).
-  try {
-    const uid = request.cookies.get(UID_COOKIE)?.value ?? crypto.randomUUID();
-    const plataforma = await plataformaParaRequest(uid);
-    response.headers.set("x-mr-platform", plataforma);
-    if (!request.cookies.get(UID_COOKIE)) {
-      response.cookies.set(UID_COOKIE, uid, {
-        path: "/",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 365,
-      });
+  //
+  // D-591 (T211): as rotas de conteúdo pré-renderizado ficam FORA deste hook.
+  // Elas são servidas como HTML estático cacheável (D-590) e tanto o `Set-Cookie`
+  // do `x-mr-uid` quanto o header `x-mr-platform` variam por visitante — um cache
+  // compartilhado não pode guardar isso (e a primeira visita nunca seria cacheada).
+  // Consequência aceita e explícita: o rollout do Cloudflare não cobre estas 18
+  // páginas editoriais (6 × 3 locales); elas seguem no destino padrão.
+  if (!ehConteudoEstatico(pathname)) {
+    try {
+      const uid = request.cookies.get(UID_COOKIE)?.value ?? crypto.randomUUID();
+      const plataforma = await plataformaParaRequest(uid);
+      response.headers.set("x-mr-platform", plataforma);
+      if (!request.cookies.get(UID_COOKIE)) {
+        response.cookies.set(UID_COOKIE, uid, {
+          path: "/",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 365,
+        });
+      }
+    } catch {
+      // roteamento nunca derruba a request: sem header → default Vercel.
     }
-  } catch {
-    // roteamento nunca derruba a request: sem header → default Vercel.
+  } else {
+    // D-591: resposta estática precisa ser cacheável por CDN — e **qualquer**
+    // `Set-Cookie` inviabiliza cache compartilhado. O `NEXT_LOCALE` é gravado pelo
+    // middleware do next-intl (preferência de idioma); como o app usa
+    // `localePrefix: "always"` (o idioma está sempre na URL), o cookie é
+    // dispensável **nesta resposta** e segue valendo em todas as rotas dinâmicas,
+    // onde a preferência é de fato consumida no próximo redirecionamento de `/`.
+    response.headers.delete("set-cookie");
   }
 
   return response;

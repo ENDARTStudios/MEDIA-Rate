@@ -19,7 +19,7 @@ export function ProtectedPage({
       <Suspense>
         {fallback ?? (
           <div className="min-h-[50vh] flex items-center justify-center">
-            <p className="text-gray-400 text-sm">{t("verifyingSession")}</p>
+            <p className="text-fg-secondary text-sm">{t("verifyingSession")}</p>
           </div>
         )}
       </Suspense>

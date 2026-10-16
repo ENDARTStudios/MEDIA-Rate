@@ -10,6 +10,10 @@ const publicRoutes: {
 }[] = [
   { pathname: "", changeFrequency: "weekly", priority: 1 },
   { pathname: "/catalog", changeFrequency: "weekly", priority: 0.9 },
+  // T211: /discover e /top são hubs públicos com `robots: index,follow` e
+  // canonical próprio, mas ficavam fora do sitemap (achado da auditoria).
+  { pathname: "/discover", changeFrequency: "weekly", priority: 0.8 },
+  { pathname: "/top", changeFrequency: "weekly", priority: 0.8 },
   { pathname: "/pricing", changeFrequency: "monthly", priority: 0.7 },
   { pathname: "/about", changeFrequency: "monthly", priority: 0.6 },
   { pathname: "/methodology", changeFrequency: "monthly", priority: 0.7 },
@@ -17,6 +21,11 @@ const publicRoutes: {
   { pathname: "/faq", changeFrequency: "monthly", priority: 0.6 },
   { pathname: "/privacy", changeFrequency: "monthly", priority: 0.3 },
   { pathname: "/terms", changeFrequency: "monthly", priority: 0.3 },
+  // D-622: páginas legais criadas. `/cookies/gerenciar` fica **fora** de propósito — é
+  // utilitária e sai com `robots: noindex` (não deve competir com a Política na busca).
+  { pathname: "/cookies", changeFrequency: "monthly", priority: 0.3 },
+  { pathname: "/seguranca", changeFrequency: "monthly", priority: 0.3 },
+  { pathname: "/direitos-do-titular", changeFrequency: "monthly", priority: 0.3 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

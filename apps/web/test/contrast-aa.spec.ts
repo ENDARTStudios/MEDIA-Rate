@@ -62,6 +62,44 @@ describe("T210 — escala de texto muted/secundário passa AA em TODAS as superf
   }
 });
 
+/**
+ * D-582.7 — `text.onBrand` é a exceção registrada ao D-065 ("texto #FFFFFF"):
+ * existe **apenas** para fundo de marca, e só porque o token canônico reprova ali.
+ * Este teste fixa a razão da exceção: se alguém clarear o rose até `#F5F5F7`
+ * passar, o teste continua válido (onBrand segue passando); se alguém trocar o
+ * CTA para `text.primary`, o par abaixo documenta por que não pode.
+ */
+describe("D-582.7 — texto sobre fundo de marca passa AA (e o token comum não)", () => {
+  // Só o rose da marca (#E11D48) é escuro o bastante para receber texto branco.
+  // Preenchimentos claros (amber #F59E0B, red-400 #F87171) reprovam com branco
+  // (2.15:1 e 2.93:1) e exigem texto escuro `colors.bg` — por isso o token
+  // `onBrand` tem escopo declarado: **fundo rose da marca**.
+  it(`text.onBrand (${colors.text.onBrand}) sobre accent.brand — >= ${AA_MIN}`, () => {
+    const ratio = contrastRatio(colors.text.onBrand, colors.accent.brand);
+    expect(ratio, `onBrand vs brand: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_MIN);
+  });
+
+  it("justifica a exceção: text.primary reprova sobre o rose da marca", () => {
+    const ratio = contrastRatio(colors.text.primary, colors.accent.brand);
+    expect(
+      ratio,
+      `text.primary sobre brand: ${ratio.toFixed(2)} (se passou, dá para aposentar o onBrand)`,
+    ).toBeLessThan(AA_MIN);
+  });
+
+  it("preenchimentos claros de score exigem texto escuro (não usar onBrand)", () => {
+    const sobreAmber = contrastRatio(colors.text.onBrand, colors.score[6]);
+    expect(
+      sobreAmber,
+      `onBrand sobre amber: ${sobreAmber.toFixed(2)} — usar colors.bg como texto`,
+    ).toBeLessThan(AA_MIN);
+    const bgSobreAmber = contrastRatio(colors.bg, colors.score[6]);
+    expect(bgSobreAmber, `bg sobre amber: ${bgSobreAmber.toFixed(2)}`).toBeGreaterThanOrEqual(
+      AA_MIN,
+    );
+  });
+});
+
 const SCORE_FAIXAS: { label: string; hex: string }[] = [
   { label: ">=9 (emerald)", hex: colors.score[9] },
   { label: ">=8 (sky)", hex: colors.score[8] },

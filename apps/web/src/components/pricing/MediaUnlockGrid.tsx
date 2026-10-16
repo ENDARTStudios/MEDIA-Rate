@@ -38,7 +38,7 @@ export function MediaUnlockGrid() {
             return (
               <tr key={media} className="border-t border-[#2A2A3D]">
                 <td className="py-3 pr-4">
-                  <span className="flex items-center gap-2 text-[#EDE7DC]">
+                  <span className="flex items-center gap-2 text-[#F5F5F7]">
                     <Icon className="h-4 w-4" style={{ color: token.color }} aria-hidden="true" />
                     {t(`media_${media}`)}
                   </span>

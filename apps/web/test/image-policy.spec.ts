@@ -45,11 +45,16 @@ describe("image-policy (T032/D-445)", () => {
     expect(isUnoptimizedSource("https://S4.ANILIST.CO/X.JPG")).toBe(true);
   });
 
-  it("config de images travada (tokens D-445)", () => {
+  it("config de images travada (tokens D-445; formatos revistos no D-592/PRO)", () => {
     const images = (nextConfig as { images?: Record<string, unknown> }).images ?? {};
     expect(images.deviceSizes).toEqual([320, 640, 960, 1280, 1920]);
     expect(images.imageSizes).toEqual([64, 128, 256]);
-    expect(images.formats).toEqual(["image/webp"]);
+    // D-592: o congelamento em WebP-only era por cota do plano Hobby. Com PRO,
+    // AVIF entra primeiro (medido: −38% a −46% nos pôsteres da home/catálogo) e
+    // WebP segue como fallback para quem não anuncia `image/avif`.
+    expect(images.formats).toEqual(["image/avif", "image/webp"]);
+    // D-592: cache de imagem longo (default do Next é 60s) — menos re-otimizações.
+    expect(images.minimumCacheTTL).toBe(2678400);
     expect(images.qualities).toEqual([75]);
   });
 

@@ -6,8 +6,10 @@
  */
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Link } from "@/lib/navigation";
 import { api, ApiError } from "@/lib/http";
+import { ErrorState } from "@/components/ui/error-state";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -23,10 +25,11 @@ interface MinhaLista {
 
 export function ListasPage() {
   const t = useTranslations("listas");
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hydrated: authHydrated } = useAuthStore();
   const [listas, setListas] = useState<MinhaLista[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [naoEncontrada, setNaoEncontrada] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -34,6 +37,8 @@ export function ListasPage() {
   const [premiumNeeded, setPremiumNeeded] = useState(false);
 
   async function carregar() {
+    // D-619: não concluir "você não criou listas" antes de saber se há sessão.
+    if (!authHydrated) return;
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -42,7 +47,14 @@ export function ListasPage() {
       const data = await api.get<MinhaLista[]>("/api/v1/listas");
       setListas(data ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("error"));
+      // M16 da auditoria: 404 (não existe) e falha de rede/servidor não são a mesma
+      // coisa — a primeira é estado honesto, a segunda pede "tentar de novo".
+      if (e instanceof ApiError && e.status === 404) {
+        setNaoEncontrada(true);
+        setError(null);
+      } else {
+        setError(e instanceof Error ? e.message : t("error"));
+      }
     } finally {
       setLoading(false);
     }
@@ -51,7 +63,7 @@ export function ListasPage() {
   useEffect(() => {
     void carregar();
     // carregar depende de isAuthenticated — re-executa no login/logout
-  }, [isAuthenticated]);
+  }, [authHydrated, isAuthenticated]);
 
   async function criar() {
     setCreating(true);
@@ -62,6 +74,8 @@ export function ListasPage() {
       setTitulo("");
       setDescricao("");
       setShowCreate(false);
+      // D-584/B4 (T211): criar lista não dava feedback nenhum (o form só fechava).
+      toast.success(t("created"));
       await carregar();
     } catch (e) {
       if (e instanceof ApiError && e.status === 402) {
@@ -128,10 +142,23 @@ export function ListasPage() {
           </div>
         )}
 
-        {error && (
-          <p className="mb-6 text-sm text-red-400" role="alert">
-            {error}
+        {naoEncontrada && (
+          <p className="mb-6 text-sm text-[#A0A0B8]" role="status">
+            {t("notFound")}
           </p>
+        )}
+
+        {error && (
+          <div className="mb-6">
+            <ErrorState
+              message={error}
+              onRetry={() => {
+                setError(null);
+                setLoading(true);
+                void carregar();
+              }}
+            />
+          </div>
         )}
 
         {loading && <p className="text-[#A0A0B8]">{t("loading")}</p>}
@@ -142,7 +169,7 @@ export function ListasPage() {
           </div>
         )}
 
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul role="list" className="grid gap-4 sm:grid-cols-2">
           {listas.map((lista) => (
             <li key={lista.id}>
               <Link

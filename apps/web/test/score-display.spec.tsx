@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { escalaPorTipo, exibirScore, formatarScoreLocale } from "@/lib/score-utils";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { StaticScoreDial } from "@/components/media-rate-ui/StaticScoreDial";
-import { ScoreDial as UiScoreDial } from "@/components/ui/score-dial";
+import { ScoreDial as UiScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { MediaScoreBadge } from "@/components/MediaScoreBadge";
 import { MediaScoreModule } from "@/components/MediaScoreModule";
 import { MediaCardShell } from "@/components/media-rate-ui/MediaCardShell";
@@ -230,16 +230,16 @@ describe("StaticScoreDial", () => {
 describe("ui ScoreDial (variante de settings)", () => {
   it("game 79,2 exibe 79,2 (não 79) e aria '79,2 de 100'", () => {
     stubIntersectionObserver();
-    providers(<UiScoreDial score={79.2} scale="0-100" size="sm" />);
-    const dial = screen.getByRole("status", { name: "Score: 79,2 de 100" });
+    providers(<UiScoreDial value={79.2} scale="0-100" size="sm" />);
+    const dial = screen.getByRole("img", { name: /79,2 de 100/ });
     expect(dial.textContent).toContain("79,2");
     vi.unstubAllGlobals();
   });
 
   it("0-10: 7,9 permanece 7,9", () => {
     stubIntersectionObserver();
-    providers(<UiScoreDial score={7.9} scale="0-10" size="sm" />);
-    expect(screen.getByRole("status", { name: "Score: 7,9 de 10" }).textContent).toContain("7,9");
+    providers(<UiScoreDial value={7.9} scale="0-10" size="sm" />);
+    expect(screen.getByRole("img", { name: /7,9 de 10/ }).textContent).toContain("7,9");
     vi.unstubAllGlobals();
   });
 });

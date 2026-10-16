@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { WatchlistButton } from "./WatchlistButton";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
+import { displaySrc, isLocalSource, localSrcSet, remoteLadder } from "@/lib/image-policy";
 import { api } from "@/lib/http";
 import {
   AgeRatingBadge,
@@ -64,9 +64,9 @@ export function MediaDetailClient({
     return (
       <div className="max-w-5xl mx-auto py-16 px-4">
         <div className="animate-pulse space-y-6">
-          <div className="h-64 bg-[#11111E] rounded-md" />
-          <div className="h-8 w-2/3 bg-[#11111E] rounded-lg" />
-          <div className="h-4 w-1/3 bg-[#11111E] rounded-lg" />
+          <div className="h-64 bg-[#12121C] rounded-md" />
+          <div className="h-8 w-2/3 bg-[#12121C] rounded-lg" />
+          <div className="h-4 w-1/3 bg-[#12121C] rounded-lg" />
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export function MediaDetailClient({
     <article>
       {/* CTA de watchlist sempre visível: sticky em mobile, fixo no header em desktop. */}
       <div
-        className="fixed bottom-0 inset-x-0 z-sticky lg:hidden border-t border-[#2A2A3D] bg-[#05050A]/95 backdrop-blur px-4 py-3"
+        className="fixed bottom-0 inset-x-0 z-sticky lg:hidden border-t border-[#2A2A3D] bg-[#05050A]/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         data-testid="watchlist-cta-sticky"
       >
         <div className="flex items-center justify-between gap-3 max-w-5xl mx-auto">
@@ -152,17 +152,21 @@ export function MediaDetailClient({
       </div>
 
       {/* Hero */}
-      <div className="relative bg-[#11111E] overflow-hidden">
+      <div className="relative bg-[#12121C] overflow-hidden">
         {media.backdropUrl &&
           (() => {
-            // T036: hero full-bleed usa o rung original estático (qualidade
-            // máxima, zero transformação); sem ladder → bypass.
+            // T036: hero full-bleed; D-582/A8 (T211): o ramo de imagem crua (sem otimizador) usava o rung
+            // `original` do TMDB sem hint de prioridade. O backdrop é o LCP da
+            // ficha e fica em opacity-30, então o rung de display (1280) entrega o
+            // mesmo resultado com uma fração dos bytes.
             const ladder = remoteLadder(media.backdropUrl);
             return ladder ? (
               <img
-                src={ladder.src}
+                src={displaySrc(ladder.src, 1280) ?? ladder.src}
                 alt=""
                 aria-hidden="true"
+                fetchPriority="high"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover opacity-30"
               />
             ) : (
@@ -178,25 +182,25 @@ export function MediaDetailClient({
               />
             );
           })()}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#11111E]/90 to-[#09090F]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#12121C]/90 to-[#09090F]/90" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#09090F] via-[#09090F]/60 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav
-            className="flex items-center gap-2 text-sm text-[#9CA3AF] mb-8"
+            className="flex items-center gap-2 text-sm text-[#A0A0B8] mb-8"
             aria-label="Breadcrumb"
           >
-            <Link href="/catalog" className="hover:text-[#EDE7DC] transition-colors">
+            <Link href="/catalog" className="hover:text-[#F5F5F7] transition-colors">
               {t("title")}
             </Link>
             <span aria-hidden="true">/</span>
             <Link
               href={`/catalog?type=${media.type}`}
-              className="hover:text-[#EDE7DC] transition-colors"
+              className="hover:text-[#F5F5F7] transition-colors"
             >
               {tipoLabel}
             </Link>
             <span aria-hidden="true">/</span>
-            <span className="text-[#EDE7DC] truncate">{titleForLocale(media, locale)}</span>
+            <span className="text-[#F5F5F7] truncate">{titleForLocale(media, locale)}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -210,7 +214,7 @@ export function MediaDetailClient({
                       <img
                         src={media.posterUrl}
                         srcSet={localSrcSet(media.posterUrl)}
-                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                         sizes="192px"
                         className="absolute inset-0 h-full w-full object-cover rounded-md shadow-surface-2"
                       />
@@ -222,7 +226,7 @@ export function MediaDetailClient({
                       <img
                         src={ladder.src}
                         srcSet={ladder.srcSet}
-                        alt={`Poster de ${titleForLocale(media, locale)}`}
+                        alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                         sizes="192px"
                         className="absolute inset-0 h-full w-full object-cover rounded-md shadow-surface-2"
                       />
@@ -231,7 +235,7 @@ export function MediaDetailClient({
                   return (
                     <Image
                       src={media.posterUrl}
-                      alt={`Poster de ${titleForLocale(media, locale)}`}
+                      alt={t("posterAlt", { titulo: titleForLocale(media, locale) })}
                       fill
                       className="object-cover rounded-md shadow-surface-2"
                       sizes="192px"
@@ -240,7 +244,7 @@ export function MediaDetailClient({
                   );
                 })()
               ) : (
-                <div className="w-full h-full bg-[#11111E] rounded-md flex items-center justify-center text-[#9CA3AF] shadow-surface-2">
+                <div className="w-full h-full bg-[#12121C] rounded-md flex items-center justify-center text-[#A0A0B8] shadow-surface-2">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -257,10 +261,10 @@ export function MediaDetailClient({
                 <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
                   {tipoLabel}
                 </span>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#EDE7DC] mt-1 leading-tight">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#F5F5F7] mt-1 leading-tight">
                   {titleForLocale(media, locale)}
                 </h1>
-                <div className="flex items-center gap-3 mt-2 text-sm text-[#9CA3AF]">
+                <div className="flex items-center gap-3 mt-2 text-sm text-[#A0A0B8]">
                   <span>{media.year}</span>
                   {media.duration && (
                     <>
@@ -280,7 +284,7 @@ export function MediaDetailClient({
 
               {media.streaming.length > 0 ? (
                 <div data-testid="platforms-section">
-                  <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider mb-2">
+                  <p className="text-xs text-[#A0A0B8] font-medium uppercase tracking-wider mb-2">
                     {media.type === "game" ? t("whereToPlay") : t("whereToWatch")}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -289,7 +293,7 @@ export function MediaDetailClient({
                       return (
                         <span
                           key={s.name}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#11111E] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#EDE7DC] font-medium"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#12121C] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#F5F5F7] font-medium"
                         >
                           <Icon className="h-3.5 w-3.5 text-[#818CF8]" aria-hidden="true" />
                           {s.name}
@@ -331,7 +335,7 @@ export function MediaDetailClient({
               <Tabs.Trigger
                 key={v}
                 value={v}
-                className="px-4 py-2.5 text-sm text-[#9CA3AF] border-b-2 border-transparent data-[state=active]:border-accent-500 data-[state=active]:text-[#EDE7DC] transition-colors"
+                className="px-4 py-2.5 text-sm text-[#A0A0B8] border-b-2 border-transparent data-[state=active]:border-accent-500 data-[state=active]:text-[#F5F5F7] transition-colors"
               >
                 {l}
               </Tabs.Trigger>
@@ -347,9 +351,9 @@ export function MediaDetailClient({
               {/* Classificação indicativa (✅ — sempre quando houver dado). */}
               {media.classificacaoIndicativa && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                     {tm("classification")}
-                  </h3>
+                  </h2>
                   <AgeRatingBadge
                     rating={media.classificacaoIndicativa as "L" | "10" | "12" | "14" | "16" | "18"}
                     source={
@@ -373,20 +377,20 @@ export function MediaDetailClient({
                   <div className="space-y-6">
                     {media.origemEditorial && (
                       <div>
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
                           {tm("originTitle")}
-                        </h3>
-                        <span className="inline-flex items-center rounded-full border border-[#2A2A3D] bg-[#1C1C2E] px-2.5 py-1 text-xs text-[#EDE7DC]">
+                        </h2>
+                        <span className="inline-flex items-center rounded-full border border-[#2A2A3D] bg-[#1C1C2E] px-2.5 py-1 text-xs text-[#F5F5F7]">
                           {tm(`origin_${media.origemEditorial.toLowerCase()}`)}
                         </span>
                       </div>
                     )}
                     {classificacaoLocal && (
                       <div>
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
                           {tm("regionalRating")}
-                        </h3>
-                        <p className="text-sm text-[#EDE7DC]">
+                        </h2>
+                        <p className="text-sm text-[#F5F5F7]">
                           <AgeRatingBadge
                             rating={
                               classificacaoLocal.valor as "L" | "10" | "12" | "14" | "16" | "18"
@@ -402,9 +406,9 @@ export function MediaDetailClient({
 
               {/* Gêneros (✅ — taxonomia dupla: narrativo compartilhado + específico). */}
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                   {tm("genres")}
-                </h3>
+                </h2>
                 <GenreChipRow
                   sharedGenres={media.genres.filter((g) => SHARED_GENRES.includes(g))}
                   mediaSpecificGenres={media.genres.filter((g) => !SHARED_GENRES.includes(g))}
@@ -415,9 +419,9 @@ export function MediaDetailClient({
               {/* Nota por unidade seriada (T163 — dado real de /temporadas). */}
               {media.type === "series" && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                     {tm("seriatedScores")}
-                  </h3>
+                  </h2>
                   <TemporadasSection midiaId={media.id} />
                 </div>
               )}
@@ -425,9 +429,9 @@ export function MediaDetailClient({
               {/* Origem da produção (⚠️ — só quando houver dado). */}
               {media.paisOrigem && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                     {tm("origin")}
-                  </h3>
+                  </h2>
                   <OriginBadge
                     countryCode={media.paisOrigem}
                     roleLabel={
@@ -443,9 +447,9 @@ export function MediaDetailClient({
               {/* Produtoras/estúdios/editoras (T164 — dado real da fonte). */}
               {(media.produtoras?.length ?? 0) > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                     {tm("produtoras")}
-                  </h3>
+                  </h2>
                   <div className="flex flex-wrap gap-2" data-testid="ficha-produtoras">
                     {(media.produtoras ?? []).map((e) => (
                       <span
@@ -461,9 +465,9 @@ export function MediaDetailClient({
 
               {/* Prêmios (T163 — dado real de premios; sem dado → "Não informado"). */}
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                   {tm("awards")}
-                </h3>
+                </h2>
                 <AwardsShowcase
                   awards={(media.premios ?? []).map((p) => ({
                     name: p.nome,
@@ -477,9 +481,9 @@ export function MediaDetailClient({
 
               {/* Sequências/conteúdo relacionado (✅ — franquia real quando houver). */}
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
                   {tm("franchise")}
-                </h3>
+                </h2>
                 {media.franquias && media.franquias.length > 0 ? (
                   media.franquias.map((franquia) => (
                     <FranchiseCarousel
@@ -516,28 +520,28 @@ export function MediaDetailClient({
                 {media.cast.map((c) => (
                   <div
                     key={c.name}
-                    className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-surface-border/20"
+                    className="flex items-center gap-3 p-3 bg-[#12121C] rounded-md border border-surface-border/20"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#9CA3AF] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-[#12121C] flex items-center justify-center text-[#A0A0B8] text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm text-[#EDE7DC] truncate font-medium">{c.name}</p>
-                      <p className="text-xs text-[#9CA3AF] truncate">{c.role}</p>
+                      <p className="text-sm text-[#F5F5F7] truncate font-medium">{c.name}</p>
+                      <p className="text-xs text-[#A0A0B8] truncate">{c.role}</p>
                     </div>
                   </div>
                 ))}
                 {media.crew.map((c) => (
                   <div
                     key={c.name + c.role}
-                    className="flex items-center gap-3 p-3 bg-[#11111E] rounded-md border border-surface-border/20 opacity-60"
+                    className="flex items-center gap-3 p-3 bg-[#12121C] rounded-md border border-surface-border/20 opacity-60"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#11111E] flex items-center justify-center text-[#9CA3AF] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-[#12121C] flex items-center justify-center text-[#A0A0B8] text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm text-[#EDE7DC] truncate">{c.name}</p>
-                      <p className="text-xs text-[#9CA3AF] truncate">{c.role}</p>
+                      <p className="text-sm text-[#F5F5F7] truncate">{c.name}</p>
+                      <p className="text-xs text-[#A0A0B8] truncate">{c.role}</p>
                     </div>
                   </div>
                 ))}
@@ -553,10 +557,10 @@ export function MediaDetailClient({
                 {media.reviews.map((r) => (
                   <div
                     key={r.author + r.date}
-                    className="p-4 bg-[#11111E] rounded-md border border-surface-border/20"
+                    className="p-4 bg-[#12121C] rounded-md border border-surface-border/20"
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm text-[#EDE7DC] font-medium">{r.author}</span>
+                      <span className="text-sm text-[#F5F5F7] font-medium">{r.author}</span>
                       <span
                         className="px-2 py-0.5 rounded text-xs font-bold"
                         style={{
@@ -566,9 +570,9 @@ export function MediaDetailClient({
                       >
                         {r.rating}
                       </span>
-                      <span className="text-xs text-[#9CA3AF] ml-auto">{r.date}</span>
+                      <span className="text-xs text-[#A0A0B8] ml-auto">{r.date}</span>
                     </div>
-                    <p className="text-sm text-[#EDE7DC] leading-relaxed">{r.text}</p>
+                    <p className="text-sm text-[#F5F5F7] leading-relaxed">{r.text}</p>
                   </div>
                 ))}
               </div>
@@ -595,7 +599,7 @@ function SynopsisBlock({ synopsis }: { synopsis: string }) {
   return (
     <div>
       <p
-        className={`text-[#EDE7DC] leading-relaxed text-base ${!expanded && longEnough ? "line-clamp-4" : ""}`}
+        className={`text-[#F5F5F7] leading-relaxed text-base ${!expanded && longEnough ? "line-clamp-4" : ""}`}
       >
         {synopsis}
       </p>
@@ -646,9 +650,9 @@ function ShareButton() {
 
 function EmptySection({ message }: { message: string }) {
   return (
-    <div className="bg-[#11111E] rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
+    <div className="bg-[#12121C] rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
       <svg
-        className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3"
+        className="w-8 h-8 text-[#A0A0B8] mx-auto mb-3"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -660,7 +664,7 @@ function EmptySection({ message }: { message: string }) {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <p className="text-sm text-[#9CA3AF]">{message}</p>
+      <p className="text-sm text-[#A0A0B8]">{message}</p>
     </div>
   );
 }

@@ -1,13 +1,15 @@
 "use client";
 
+import { formatarScoreLocale } from "@/lib/score-utils";
+
 /**
  * PublicProfileContent (Parte 3.6, T193) — página pública de perfil
  * consumindo GET /api/v1/usuarios/:id/stats (agregados apenas — sem dados
  * pessoais sensíveis, por design do endpoint).
  */
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import { api } from "@/lib/http";
+import { useLocale, useTranslations } from "next-intl";
+import { api, ApiError } from "@/lib/http";
 import { Link } from "@/lib/navigation";
 
 interface PublicStats {
@@ -20,8 +22,9 @@ interface PublicStats {
 }
 
 export function PublicProfileContent({ userId }: { userId: string }) {
+  const locale = useLocale();
   const t = useTranslations("profile");
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["public-profile", userId],
     queryFn: () => api.get<PublicStats>(`/api/v1/usuarios/${userId}/stats`),
     staleTime: 5 * 60 * 1000,
@@ -29,17 +32,32 @@ export function PublicProfileContent({ userId }: { userId: string }) {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto py-16 px-4 text-center text-[#9CA3AF]">{t("loading")}</div>
+      <div className="max-w-3xl mx-auto py-16 px-4 text-center text-[#A0A0B8]">{t("loading")}</div>
     );
   }
 
   if (error || !data) {
+    // D-628: 404 é estado honesto ("não encontrado"); falha de rede/servidor pede
+    // "tentar de novo". Antes tudo caía no mesmo texto — um 500 dizia que o perfil não existe.
+    const naoEncontrado = error instanceof ApiError && error.status === 404;
     return (
       <div className="max-w-3xl mx-auto py-16 px-4 text-center" role="alert">
-        <p className="text-[#A0A0B8] mb-4">{t("publicNotFound")}</p>
-        <Link href="/catalog" className="text-[#818CF8] underline underline-offset-2">
-          {t("exploreCatalog")}
-        </Link>
+        <p className="text-[#A0A0B8] mb-4">
+          {naoEncontrado ? t("publicNotFound") : t("publicLoadError")}
+        </p>
+        {naoEncontrado ? (
+          <Link href="/catalog" className="text-[#818CF8] underline underline-offset-2">
+            {t("exploreCatalog")}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            className="rounded-md bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110"
+          >
+            {t("retry")}
+          </button>
+        )}
       </div>
     );
   }
@@ -57,7 +75,7 @@ export function PublicProfileContent({ userId }: { userId: string }) {
           {data.usuario.nome?.[0] ?? "?"}
         </div>
         <div>
-          <h1 className="text-2xl font-heading font-bold text-[#EDE7DC]">{data.usuario.nome}</h1>
+          <h1 className="text-2xl font-heading font-bold text-[#F5F5F7]">{data.usuario.nome}</h1>
           <p className="text-sm text-[#A0A0B8]">{t("publicStatsHint")}</p>
         </div>
       </div>
@@ -84,7 +102,7 @@ export function PublicProfileContent({ userId }: { userId: string }) {
         <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-4">
           <p className="text-xs text-[#A0A0B8]">{t("avgScore")}</p>
           <p className="mt-1 text-2xl font-heading font-bold tabular-nums text-[#FBBF24]">
-            {data.score_medio != null ? data.score_medio.toFixed(1) : "—"}
+            {data.score_medio != null ? formatarScoreLocale(data.score_medio, locale) : "—"}
           </p>
         </div>
       </div>

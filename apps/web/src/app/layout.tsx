@@ -1,9 +1,16 @@
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { routing } from "@/i18n/routing";
 import { SentryClientInit } from "@/components/SentryClientInit";
 import { HtmlLang } from "@/components/HtmlLang";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // T211: necessário para que `env(safe-area-inset-*)` funcione (barra fixa da ficha).
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app"),
@@ -44,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           spaceGrotesk.variable,
           inter.variable,
           jetbrainsMono.variable,
-          "min-h-screen bg-background text-foreground font-sans antialiased",
+          "min-h-svh bg-background text-foreground font-sans antialiased",
         )}
       >
         <SentryClientInit />

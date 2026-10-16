@@ -53,6 +53,9 @@ vi.mock("@dnd-kit/sortable", () => ({
   }),
   SortableContext: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   verticalListSortingStrategy: {},
+  // D-628: o kanban passou a ativar o KeyboardSensor do dnd-kit (antes só havia ponteiro);
+  // o mock precisa expor o coordinateGetter que o componente importa.
+  sortableKeyboardCoordinates: () => undefined,
 }));
 vi.mock("@dnd-kit/utilities", () => ({
   CSS: { Transform: { toString: () => "" } },

@@ -29,10 +29,18 @@ interface Stats {
 
 function Kpi({ label, valor, extra }: { label: string; valor: string | number; extra?: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4" data-testid="admin-metrica">
-      <dt className="text-xs text-gray-400">{label}</dt>
-      <dd className="text-2xl font-bold mt-1">{valor}</dd>
-      {extra && <p className="text-xs text-gray-400 mt-1">{extra}</p>}
+    <div className="bg-surface-card rounded-lg shadow-sm p-4" data-testid="admin-metrica">
+      <dt className="text-xs text-fg-secondary">{label}</dt>
+      {/*
+        D-623: o `extra` era um `<p>` IRMÃO de `<dt>`/`<dd>` dentro do `<div>` do `<dl>` — e
+        ali só `dt`/`dd` são permitidos, o que reprovava a regra `definition-list` (serious) do
+        axe em `/admin/metricas`. O texto foi para dentro do `<dd>` (bloco abaixo do valor),
+        com a mesma aparência e a estrutura válida.
+      */}
+      <dd className="text-2xl font-bold mt-1">
+        {valor}
+        {extra && <span className="block text-xs font-normal text-fg-secondary mt-1">{extra}</span>}
+      </dd>
     </div>
   );
 }
@@ -54,10 +62,10 @@ export default function AdminMetricasPage() {
   }, []);
 
   if (erro) {
-    return <div className="max-w-5xl mx-auto px-4 py-16 text-red-600">{erro}</div>;
+    return <div className="max-w-5xl mx-auto px-4 py-16 text-score-low">{erro}</div>;
   }
   if (!data) {
-    return <div className="max-w-5xl mx-auto px-4 py-16 text-gray-400">Carregando…</div>;
+    return <div className="max-w-5xl mx-auto px-4 py-16 text-fg-secondary">Carregando…</div>;
   }
 
   const contasComPlano = data.planos.free + data.planos.plus + data.planos.premium;
@@ -68,14 +76,11 @@ export default function AdminMetricasPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Métricas</h1>
+      <h1 className="text-3xl font-bold mb-6 text-fg-primary">Métricas</h1>
 
       {/* Onda 8: seção USUÁRIOS separada da seção INTERAÇÃO */}
       <section aria-labelledby="usuarios-title" className="mb-8">
-        <h2
-          id="usuarios-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="usuarios-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Usuários
         </h2>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -100,10 +105,7 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="interacao-title" className="mb-8">
-        <h2
-          id="interacao-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="interacao-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Interação com o site
         </h2>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -123,14 +125,11 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="graficos-title" className="mb-8">
-        <h2
-          id="graficos-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="graficos-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Atividade por mês (12 meses)
         </h2>
         <div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          className="bg-surface-card rounded-lg shadow-sm p-4"
           data-testid="admin-metricas-grafico-atividade"
         >
           <div className="h-72">
@@ -164,14 +163,11 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="interesse-title" className="mb-8">
-        <h2
-          id="interesse-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="interesse-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Mídias com mais interesse (interações por tipo)
         </h2>
         <div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          className="bg-surface-card rounded-lg shadow-sm p-4"
           data-testid="admin-metricas-grafico-interesse"
         >
           <div className="h-64">
@@ -194,14 +190,11 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="grafico-catalogo-title" className="mb-8">
-        <h2
-          id="grafico-catalogo-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="grafico-catalogo-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Catálogo por tipo
         </h2>
         <div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4"
+          className="bg-surface-card rounded-lg shadow-sm p-4"
           data-testid="admin-metricas-grafico-catalogo"
         >
           <div className="h-64">
@@ -224,10 +217,7 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="planos-title" className="mb-8">
-        <h2
-          id="planos-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="planos-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Planos ativos
         </h2>
         <dl className="grid grid-cols-3 gap-4">
@@ -238,10 +228,7 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="catalogo-title" className="mb-8">
-        <h2
-          id="catalogo-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="catalogo-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Catálogo por tipo
         </h2>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -252,10 +239,7 @@ export default function AdminMetricasPage() {
       </section>
 
       <section aria-labelledby="watchlist-title">
-        <h2
-          id="watchlist-title"
-          className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100"
-        >
+        <h2 id="watchlist-title" className="text-xl font-semibold mb-3 text-fg-primary">
           Watchlist
         </h2>
         <dl className="grid grid-cols-2 gap-4">

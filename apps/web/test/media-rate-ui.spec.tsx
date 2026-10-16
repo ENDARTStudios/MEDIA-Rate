@@ -7,6 +7,7 @@ import { ConfidenceBadge } from "@/components/media-rate-ui/ConfidenceBadge";
 import { SourceMiniCard } from "@/components/media-rate-ui/SourceMiniCard";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
+import { colors, scoreColor } from "@/lib/design-tokens";
 
 const messages = {
   // T147: ScoreDial usa aria i18n (scoredial.ariaLabel) — provider precisa
@@ -73,7 +74,21 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
         <CriticsVsAudienceBar critics={90} audience={50} />,
       );
       expect(container.textContent).toContain("Divergência crítica/público");
-      expect(container.textContent).toContain("40.0pts");
+      // Achado 2026-10-13: o componente formatava com `toFixed(1)` (ponto fixo,
+      // "40.0pts") enquanto o resto do produto usa o separador do locale ("8,2").
+      // Passou a usar `formatarScoreLocale`, que também não deixa ".0" pendurado —
+      // ou seja, a asserção antiga codificava a inconsistência.
+      expect(container.textContent).toContain("40pts");
+    });
+
+    it("não emite decimal com ponto em pt-BR", () => {
+      // O componente arredonda os valores, então o invariante verificável é o
+      // SEPARADOR: em pt-BR nenhum número pode sair com ponto decimal ("40.0pts" era
+      // o formato antigo, que destoava do "8,2" do resto do produto).
+      const { container } = renderWithProviders(
+        <CriticsVsAudienceBar critics={72} audience={61} />,
+      );
+      expect(container.textContent).not.toMatch(/\d\.\d/);
     });
 
     it("escala 0-10 normaliza internamente", () => {
@@ -198,31 +213,41 @@ describe("media-rate-ui — biblioteca de componentes (Parte 4)", () => {
       expect(screen.getByRole("img", { name: /90,4 de 100/ })).toBeTruthy();
     });
 
-    it("faixa alta (≥8) usa verde #34D399", () => {
+    /**
+     * D-582.4a (T211): o dial tinha uma tabela de faixas LOCAL (3 faixas:
+     * ≥8 verde / ≥6 âmbar / <6 vermelho) que divergia de `scoreColor()` do
+     * `design-tokens.ts` (6 faixas: 9/8/7/6/5/low) — o MESMO score saía com cor
+     * diferente no card e no módulo de score. A tabela local foi removida e estes
+     * testes passaram a afirmar o contrato ÚNICO (`scoreColor`), sem hex literal,
+     * para que uma mudança de token não quebre o teste.
+     */
+    it("faixa alta usa a cor canônica de scoreColor (>=8)", () => {
       const { container } = renderWithProviders(<ScoreDial value={8.2} scale="0-10" />);
       const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
-      expect(stroke?.getAttribute("stroke")).toBe("#34D399");
+      expect(stroke?.getAttribute("stroke")).toBe(scoreColor(8.2));
+      expect(stroke?.getAttribute("stroke")).toBe(colors.score[8]);
     });
 
-    it("faixa média (≥6) usa âmbar #FBBF24", () => {
+    it("faixa média usa a cor canônica de scoreColor (>=6)", () => {
       const { container } = renderWithProviders(<ScoreDial value={6.5} scale="0-10" />);
       const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
-      expect(stroke?.getAttribute("stroke")).toBe("#FBBF24");
+      expect(stroke?.getAttribute("stroke")).toBe(scoreColor(6.5));
+      expect(stroke?.getAttribute("stroke")).toBe(colors.score[6]);
     });
 
-    it("faixa baixa (<6) usa vermelho #F87171", () => {
+    it("faixa baixa (<6) usa a cor canônica de scoreColor", () => {
       const { container } = renderWithProviders(<ScoreDial value={4.2} scale="0-10" />);
       const stroke = container.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
-      expect(stroke?.getAttribute("stroke")).toBe("#F87171");
+      expect(stroke?.getAttribute("stroke")).toBe(scoreColor(4.2));
     });
 
-    it("limiares relativos à escala 0-100 (≥80 alto, ≥60 médio)", () => {
+    it("limiares relativos à escala 0-100 (>=80 alto, >=60 médio) seguem scoreColor", () => {
       const { container: alto } = renderWithProviders(<ScoreDial value={85} scale="0-100" />);
       const strokeAlto = alto.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
-      expect(strokeAlto?.getAttribute("stroke")).toBe("#34D399");
+      expect(strokeAlto?.getAttribute("stroke")).toBe(scoreColor(85, "0-100"));
       const { container: medio } = renderWithProviders(<ScoreDial value={62} scale="0-100" />);
       const strokeMedio = medio.querySelector("[data-testid=score-dial-md] circle:nth-of-type(2)");
-      expect(strokeMedio?.getAttribute("stroke")).toBe("#FBBF24");
+      expect(strokeMedio?.getAttribute("stroke")).toBe(scoreColor(62, "0-100"));
     });
 
     it("não estoura em valores fora da escala (clamp)", () => {

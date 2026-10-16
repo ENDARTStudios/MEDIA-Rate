@@ -23,6 +23,16 @@ export const colors = {
     // falhava sobre superfície elevada (4.42:1) — era o "débito conhecido"
     // apontado pelo detector de DOM nos badges de contagem do catálogo.
     muted: "#85859F",
+    // D-582.7 (T211): texto sobre fundo de marca (CTA rose + badges).
+    //
+    // Exceção deliberada e medida ao D-065 ("texto #FFFFFF"): sobre
+    // `accent.audience`/`accent.brand` (#E11D48) o próprio token canônico de texto
+    // reprova AA — `text.primary` #F5F5F7 sobre #E11D48 = 4.31:1 (< 4.5) e
+    // `#FFFFFF` sobre #E11D48 = 4.70:1 (passa). Ou seja: nestes 13+ CTAs, usar o
+    // token de texto comum quebraria o gate AA. Este token existe para que o
+    // #FFFFFF fique rastreável e com escopo (só sobre fundo de marca) em vez de
+    // solto no JSX. Guarda: `test/contrast-aa.spec.ts` ("onBrand").
+    onBrand: "#FFFFFF",
   },
   score: {
     9: "#34D399",

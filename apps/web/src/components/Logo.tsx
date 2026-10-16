@@ -1,5 +1,7 @@
 "use client";
 
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+
 import { useEffect, useRef, useId } from "react";
 import { animate } from "animejs/animation";
 
@@ -16,13 +18,14 @@ interface LogoProps {
 }
 
 export function Logo({ variant = "full", size = "md", className }: LogoProps) {
+  // D-584/M3 (T211): valor reativo (o matchMedia era lido uma vez dentro do efeito).
+  const prefersReduced = useReducedMotionPref();
   const filterId = useId().replace(/:/g, "");
   const diamondRef = useRef<SVGPathElement>(null);
   const ringRef = useRef<SVGCircleElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
     const diamond = diamondRef.current;

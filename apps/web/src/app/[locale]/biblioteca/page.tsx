@@ -63,8 +63,8 @@ export default async function BibliotecaPage({
           style={{ backgroundColor: "var(--plan-accent, #818CF8)" }}
           aria-hidden="true"
         />
-        <h1 className="mb-2 text-3xl font-bold text-[#EDE7DC]">{t("title")}</h1>
-        <p className="mb-6 max-w-2xl text-[#9CA3AF]">{t("subtitle")}</p>
+        <h1 className="mb-2 text-3xl font-bold text-[#F5F5F7]">{t("title")}</h1>
+        <p className="mb-6 max-w-2xl text-[#A0A0B8]">{t("subtitle")}</p>
         <BibliotecaClient initialStatus={initialStatus} initialTipo={initialTipo} />
       </div>
     </ProtectedPage>

@@ -110,7 +110,13 @@ async function main(): Promise<void> {
     { plano: "PREMIUM", chave: "ad_free", valor: "true" },
   ];
   for (const pe of planoEntitlements) {
-    await prisma.planoEntitlement.create({ data: pe });
+    // O tipo local do seed usa `chave`, mas a coluna do schema é `entitlement_chave`
+    // (@map em PlanoEntitlement). Passar `pe` direto fazia o Prisma exigir a relação
+    // `entitlement` e o seed morria ANTES de inserir as mídias — por isso o catálogo do
+    // ambiente local ficava vazio (D-649).
+    await prisma.planoEntitlement.create({
+      data: { plano: pe.plano, entitlement_chave: pe.chave, valor: pe.valor },
+    });
   }
   console.log(`[seed] ${planoEntitlements.length} plano_entitlements criados.`);
 

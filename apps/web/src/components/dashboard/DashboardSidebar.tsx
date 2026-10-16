@@ -15,6 +15,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link, usePathname } from "@/lib/navigation";
+import { useIsAdmin } from "@/hooks/use-is-admin";
+import { ShieldCheck } from "lucide-react";
 import { useAuthStore } from "@/stores/use-auth-store";
 
 /**
@@ -50,6 +52,9 @@ function iniciais(nome: string): string {
 export function DashboardSidebar() {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
+  // D-630: entrada da área administrativa (só aparece para ADMIN).
+  const isAdmin = useIsAdmin();
+  const tNav = useTranslations("nav");
   const [compact, setCompact] = useState(false);
   const user = useAuthStore((s) => s.user);
 
@@ -60,14 +65,14 @@ export function DashboardSidebar() {
     <aside
       data-testid="dashboard-sidebar"
       aria-label={t("navSpace")}
-      className={`sticky top-24 hidden h-[calc(100vh-7rem)] shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-[#0b0b12] lg:flex ${compact ? "w-[80px]" : "w-[230px]"}`}
+      className={`sticky top-24 hidden h-[calc(100dvh-7rem)] shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-dash-deeper lg:flex ${compact ? "w-[80px]" : "w-[230px]"}`}
     >
       <div
         className={`flex h-[64px] items-center border-b border-white/[0.07] ${compact ? "justify-center px-3" : "justify-between px-5"}`}
       >
         {!compact && (
           <div className="flex items-center gap-2.5">
-            <div className="grid h-8 w-8 place-items-center rounded-[10px] bg-[#8b7cff] text-[#0c0c12]">
+            <div className="grid h-8 w-8 place-items-center rounded-[10px] bg-dash-indigo text-[#0c0c12]">
               <Sparkles size={16} strokeWidth={2.7} />
             </div>
             <div className="leading-none">
@@ -81,14 +86,14 @@ export function DashboardSidebar() {
           </div>
         )}
         {compact && (
-          <div className="grid h-8 w-8 place-items-center rounded-[10px] bg-[#8b7cff] text-[#0c0c12]">
+          <div className="grid h-8 w-8 place-items-center rounded-[10px] bg-dash-indigo text-[#0c0c12]">
             <Sparkles size={16} strokeWidth={2.7} />
           </div>
         )}
         <button
           type="button"
           onClick={() => setCompact((v) => !v)}
-          className="rounded-lg p-2 text-white/40 transition hover:bg-white/[0.06] hover:text-white"
+          className="rounded-lg p-2 text-fg-muted transition hover:bg-white/[0.06] hover:text-white"
           aria-label={t("navCollapse")}
         >
           {compact ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
@@ -97,35 +102,51 @@ export function DashboardSidebar() {
 
       <div className="flex-1 px-3 py-5">
         {!compact && (
-          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-fg-muted">
             {t("navSpace")}
           </p>
         )}
         <nav className="space-y-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const selected = pathname === item.href;
+            // D-626: `href` pode conter query string (`/biblioteca?status=…`) e `usePathname` não —
+            // comparar cru nunca marcava o item ativo. Agora compara o caminho e anuncia o estado.
+            const selected = pathname === item.href.split("?")[0];
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold transition ${selected ? "bg-[#8b7cff]/15 text-[#b9b0ff]" : "text-white/45 hover:bg-white/[0.05] hover:text-white"}`}
+                className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold transition ${selected ? "bg-dash-indigo/15 text-dash-violet-light" : "text-white/45 hover:bg-white/[0.05] hover:text-white"}`}
               >
                 <Icon
                   size={17}
                   className={
-                    selected ? "text-[#9b8cff]" : "text-white/40 group-hover:text-white/70"
+                    selected ? "text-dash-violet" : "text-fg-muted group-hover:text-white/70"
                   }
                 />
                 {!compact && <span className="flex-1">{t(item.labelKey)}</span>}
               </Link>
             );
           })}
+          {/* D-630: entrada da área administrativa, só para quem é ADMIN. Fica fora de
+              `NAV_ITEMS` de propósito — aquele array é estático e alimenta o teste de mapa de
+              rotas; a visibilidade aqui depende do gate, não do mapa. */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              aria-current={pathname === "/admin" ? "page" : undefined}
+              data-testid="sidebar-admin"
+              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold transition ${pathname === "/admin" ? "bg-dash-indigo/15 text-dash-violet-light" : "text-dash-violet/80 hover:bg-white/[0.05] hover:text-dash-violet-light"}`}
+            >
+              <ShieldCheck size={17} aria-hidden="true" />
+              {!compact && <span className="flex-1">{tNav("admin")}</span>}
+            </Link>
+          )}
         </nav>
         {!compact && (
           <>
             <div className="my-5 h-px bg-white/[0.07]" />
-            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-fg-muted">
               {t("navShortcuts")}
             </p>
             <nav className="space-y-1">
@@ -137,7 +158,7 @@ export function DashboardSidebar() {
                     href={item.href}
                     className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold text-white/45 transition hover:bg-white/[0.05] hover:text-white"
                   >
-                    <Icon size={17} className="text-white/40 group-hover:text-white/70" />
+                    <Icon size={17} className="text-fg-muted group-hover:text-white/70" />
                     <span className="flex-1">{t(item.labelKey)}</span>
                   </Link>
                 );
@@ -149,21 +170,21 @@ export function DashboardSidebar() {
 
       <div className={`border-t border-white/[0.07] p-4 ${compact ? "flex justify-center" : ""}`}>
         {compact ? (
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#f2c36b] to-[#ff7f66] text-[11px] font-black text-[#351b17]">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-dash-amber to-dash-coral text-[11px] font-black text-[#351b17]">
             {iniciais(user?.name ?? "")}
           </div>
         ) : (
           <div className="flex items-center gap-3 rounded-xl bg-white/[0.04] p-3">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#f2c36b] to-[#ff7f66] text-[11px] font-black text-[#351b17]">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-dash-amber to-dash-coral text-[11px] font-black text-[#351b17]">
               {iniciais(user?.name ?? "")}
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[11px] font-bold text-white">
                 {user?.name || t("navGuest")}
               </p>
-              <p className="mt-0.5 text-[10px] text-white/35">{t(planKey)}</p>
+              <p className="mt-0.5 text-[10px] text-fg-muted">{t(planKey)}</p>
             </div>
-            <MoreHorizontal size={16} className="text-white/35" />
+            <MoreHorizontal size={16} className="text-fg-muted" />
           </div>
         )}
       </div>
