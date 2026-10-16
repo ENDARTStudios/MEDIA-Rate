@@ -3,8 +3,8 @@ import type { Config } from "tailwindcss";
 import { DASH_PALETTE } from "./src/lib/dashboard-palette";
 
 const config: Config = {
-    // D-651 (Tailwind 4): `future.hoverOnlyWhenSupported` virou comportamento padrao do v4
-    // (hover so em ponteiro que suporta) — a flag saiu.
+  // D-651 (Tailwind 4): `future.hoverOnlyWhenSupported` virou comportamento padrao do v4
+  // (hover so em ponteiro que suporta) — a flag saiu.
   // D-582.1 (T211): o app e dark-only (tokens fixos em globals.css) e o layout ja
   // renderiza <html class="dark">. Sem esta linha o Tailwind usa a estrategia
   // `media` e as 108 variantes `dark:` do admin/TOP/checkout respondiam ao tema do
