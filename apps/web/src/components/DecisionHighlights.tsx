@@ -80,7 +80,7 @@ export function DecisionHighlights({
                 <article
                   key={b.faixa}
                   data-decision-block={b.faixa}
-                  className="flex flex-col rounded-xl border border-[#2A2A3D] bg-[#12121C] p-6"
+                  className="flex min-w-0 flex-col rounded-xl border border-[#2A2A3D] bg-[#12121C] p-6"
                 >
                   <span
                     className="w-fit rounded-lg border px-3 py-1 text-xs font-bold"
