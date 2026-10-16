@@ -34,10 +34,23 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  /**
+   * D-619 (P0): já tentamos descobrir a sessão?
+   *
+   * Sem este flag não havia como distinguir **"é visitante"** de **"ainda não sei"** — e
+   * as telas tratavam os dois como visitante. Resultado medido: com sessão válida, um F5
+   * em `/dashboard`, `/historico`, `/listas`, `/listas/[slug]` ou `/user/data` mostrava
+   * "Entre para ver seu dashboard", o header mostrava "Entrar/Cadastrar" e o checkout
+   * mandava para o login. A causa: só o `ProtectedPage` chamava `fetchMe()`.
+   *
+   * Agora o `AuthHydrator` (no layout do locale) chama uma vez, e as telas esperam
+   * `hydrated` antes de decidir entre "carregando" e "visitante".
+   */
+  hydrated: boolean;
   login: (
     email: string,
     password: string,
-  ) => Promise<{ success: boolean; error?: string; code?: string }>;
+  ) => Promise<{ success: boolean; error?: string; code?: string; status?: number }>;
   register: (
     name: string,
     email: string,
@@ -45,9 +58,10 @@ interface AuthState {
     aceitouTermos: boolean,
     inviteCode?: string,
     locale?: string,
-  ) => Promise<{ success: boolean; error?: string; needsVerification?: boolean }>;
+  ) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; status?: number }>;
   logout: () => Promise<void>;
-  fetchMe: () => Promise<void>;
+  /** `force` refaz a consulta mesmo já hidratado (usado no login). */
+  fetchMe: (opts?: { force?: boolean }) => Promise<void>;
   setInitialUser: (name: string) => void;
 }
 
@@ -72,6 +86,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  hydrated: false,
 
   login: async (email, password) => {
     set({ isLoading: true, error: null });
@@ -81,7 +96,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         csrf_token?: string;
       }>("/api/v1/auth/login", { email, password }, { auth: false });
       if (data.csrf_token) setCsrfToken(data.csrf_token);
-      await get().fetchMe();
+      await get().fetchMe({ force: true });
       // T130: Set flag cookie for SSR auth detection (non-PII)
       if (typeof document !== "undefined") {
         document.cookie = `mr_auth=1; SameSite=Lax; Secure; Path=/; max-age=86400`;
@@ -92,7 +107,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         const msg = e.message || "Credenciais inválidas.";
         const code = (e.body as { code?: string } | undefined)?.code;
         set({ isLoading: false, error: msg });
-        return { success: false, error: msg, code };
+        return { success: false, error: msg, code, status: e.status };
       }
       set({ isLoading: false, error: "Erro ao fazer login." });
       return { success: false, error: "Erro ao fazer login." };
@@ -146,19 +161,37 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (typeof document !== "undefined") {
       document.cookie = `mr_auth=; SameSite=Lax; Secure; Path=/; max-age=0`;
     }
-    set({ user: null, isAuthenticated: false, isLoading: false, error: null });
+    set({ user: null, isAuthenticated: false, isLoading: false, error: null, hydrated: true });
   },
 
-  fetchMe: async () => {
+  fetchMe: async (opts) => {
+    // Dedupe (D-619): quem já sabe quem é não consulta de novo — evita duas requisições
+    // por página, porque `ProtectedPage` e `AuthHydrator` chamam os dois.
+    if (get().hydrated && !opts?.force) return;
     set({ isLoading: true });
     try {
       const me = await api.get<MeResponse>("/api/v1/auth/me");
-      set({ user: mapUser(me), isAuthenticated: true, isLoading: false, error: null });
+      set({
+        user: mapUser(me),
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        hydrated: true,
+      });
     } catch (e) {
       if (e instanceof SessionExpiredError || (e instanceof ApiError && e.status === 401)) {
-        set({ user: null, isAuthenticated: false, isLoading: false, error: null });
+        // Definitivo: não há sessão.
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+          hydrated: true,
+        });
       } else {
-        set({ isLoading: false });
+        // Falha de rede/5xx **não** é prova de que não há sessão — mas marcamos `hydrated`
+        // para não repetir a consulta em laço. O estado segue "não autenticado" (piso seguro).
+        set({ isLoading: false, hydrated: true });
       }
     }
   },
@@ -169,6 +202,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       isAuthenticated: true,
       isLoading: false,
       error: null,
+      hydrated: true,
     });
   },
 }));
