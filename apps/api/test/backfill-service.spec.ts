@@ -457,14 +457,18 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb (T-DADOS-01/02/03)", () => {
-  it("conta as 6 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia (T-DADOS-01/02/03/06)", () => {
+  it("conta as 7 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
       expect(sql).toContain("critica_igdb_em IS NULL");
+      // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
+      // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
+      expect(sql).toContain("franquia_membros");
+      expect(sql).toContain("fm.com_ano >= 2");
       return [
         {
           sem_elenco: 3,
@@ -473,6 +477,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb 
           ricos: 17217,
           provedores: 17230,
           critica_igdb: 4946,
+          arestas_franquia: 260,
         },
       ];
     });
@@ -483,6 +488,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb 
       metadadosRicos: 17217,
       provedores: 17230,
       criticaIgdb: 4946,
+      arestasFranquia: 260,
     });
   });
 
@@ -499,6 +505,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb 
       metadadosRicos: 0,
       provedores: 0,
       criticaIgdb: 0,
+      arestasFranquia: 0,
     });
   });
 });
@@ -1017,5 +1024,181 @@ describe("BackfillService.enriquecerCriticaIgdb (T-DADOS-03)", () => {
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "criticaIgdb", ok: 0, falhas: 0 }]);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-06 (D6) — arestas SEQUENCIA_DE nas franquias incompletas
+// ===========================================================================
+
+describe("BackfillService.enriquecerArestasFranquia (T-DADOS-06)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /**
+   * `$queryRawUnsafe` do job: guarda de disco, o alvo (CTE `franquia_membros`,
+   * sem `sem_elenco`) e a busca de membros por franquia (`$1::uuid`). Devolve
+   * também o SQL do alvo capturado (prova da condição de "franquia incompleta").
+   */
+  function setup(franquias: string[], membrosPorFranquia: Record<string, any[]>) {
+    const { svc, prisma } = makeService();
+    const sqls: string[] = [];
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      sqls.push(sql);
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/mf\.franquia_id = \$1/.test(sql)) {
+        // membros da franquia do argumento (o mock ignora params; 1 franquia por caso)
+        return membrosPorFranquia[franquias[0] ?? ""] ?? [];
+      }
+      if (/franquia_membros/.test(sql)) return franquias.map((id) => ({ franquia_id: id }));
+      return [];
+    });
+    const sqlAlvo = () =>
+      sqls.find((s) => /franquia_membros/.test(s) && !/sem_elenco/.test(s)) ?? "";
+    return { svc, prisma, sqlAlvo };
+  }
+
+  it("franquia com 3 membros e 0 arestas → cria 2 na ordem de ano (origem = mais antigo)", async () => {
+    const { svc, prisma } = setup(["f1"], {
+      f1: [
+        { id: "c", ano_lancamento: 2003, titulo: "Parte 3" },
+        { id: "a", ano_lancamento: 2001, titulo: "Parte 1" },
+        { id: "b", ano_lancamento: 2002, titulo: "Parte 2" },
+      ],
+    });
+    prisma.relacaoObra.findFirst.mockResolvedValue(null);
+    prisma.relacaoObra.create.mockResolvedValue({});
+    const r = await svc.enriquecerArestasFranquia(2000);
+    expect(r).toEqual({ processados: 1, ok: 1, arestasCriadas: 2, jaExistiam: 0, falhas: 0 });
+    const criadas = (prisma.relacaoObra.create as any).mock.calls.map((c: any[]) => c[0].data);
+    expect(criadas).toEqual([
+      {
+        origem_id: "a",
+        destino_id: "b",
+        tipo: "SEQUENCIA_DE",
+        nota_editorial: "Sequência direta na coleção",
+      },
+      {
+        origem_id: "b",
+        destino_id: "c",
+        tipo: "SEQUENCIA_DE",
+        nota_editorial: "Sequência direta na coleção",
+      },
+    ]);
+    expect(svc.status().arestasFranquia.ok).toBe(1);
+    expect(svc.status().arestasFranquia.executando).toBe(false);
+    expect(() => JSON.stringify(svc.status())).not.toThrow();
+  });
+
+  it("o ALVO exclui franquia completa: SQL condiciona a incompleta (< com_ano - 1); nada é criado", async () => {
+    // O banco filtra a franquia JÁ COMPLETA (arestas >= membros-1) e as de <2
+    // membros com ano — o job recebe lista vazia e não cria nada.
+    const { svc, prisma, sqlAlvo } = setup([], {});
+    const r = await svc.enriquecerArestasFranquia(2000);
+    expect(r).toEqual({ processados: 0, ok: 0, arestasCriadas: 0, jaExistiam: 0, falhas: 0 });
+    expect(prisma.relacaoObra.create).not.toHaveBeenCalled();
+    const sql = sqlAlvo();
+    // condição honesta: >=2 membros com ano E faltando pelo menos uma aresta
+    expect(sql).toContain("fm.com_ano >= 2");
+    expect(sql).toContain("COALESCE(fa.existentes, 0) < fm.com_ano - 1");
+    expect(sql).toContain("LIMIT 2000");
+  });
+
+  it("membro sem ano_lancamento é ignorado; franquia com só 1 membro com ano não gera aresta", async () => {
+    const { svc, prisma } = setup(["f1"], {
+      f1: [
+        { id: "a", ano_lancamento: 2001, titulo: "Parte 1" },
+        { id: "b", ano_lancamento: null, titulo: "Sem data" },
+      ],
+    });
+    const r = await svc.enriquecerArestasFranquia(2000);
+    // 1 membro com ano → 0 arestas (o alvo nunca deveria trazer; se trouxer, é no-op)
+    expect(r).toEqual({ processados: 1, ok: 1, arestasCriadas: 0, jaExistiam: 0, falhas: 0 });
+    expect(prisma.relacaoObra.create).not.toHaveBeenCalled();
+  });
+
+  it("aresta que já existe NÃO é recriada (conta como jaExistiam)", async () => {
+    const { svc, prisma } = setup(["f1"], {
+      f1: [
+        { id: "a", ano_lancamento: 2001, titulo: "Parte 1" },
+        { id: "b", ano_lancamento: 2002, titulo: "Parte 2" },
+      ],
+    });
+    prisma.relacaoObra.findFirst.mockResolvedValue({ id: "r1" });
+    const r = await svc.enriquecerArestasFranquia(10);
+    expect(r).toEqual({ processados: 1, ok: 1, arestasCriadas: 0, jaExistiam: 1, falhas: 0 });
+    expect(prisma.relacaoObra.create).not.toHaveBeenCalled();
+  });
+
+  it("corrida: create falha com P2002 → conta jaExistiam, nunca falha", async () => {
+    const { svc, prisma } = setup(["f1"], {
+      f1: [
+        { id: "a", ano_lancamento: 2001, titulo: "Parte 1" },
+        { id: "b", ano_lancamento: 2002, titulo: "Parte 2" },
+      ],
+    });
+    prisma.relacaoObra.findFirst.mockResolvedValue(null); // passou pelo findFirst
+    prisma.relacaoObra.create.mockRejectedValue(
+      Object.assign(new Error("unique"), { code: "P2002" }),
+    );
+    const r = await svc.enriquecerArestasFranquia(10);
+    expect(r).toEqual({ processados: 1, ok: 1, arestasCriadas: 0, jaExistiam: 1, falhas: 0 });
+    expect(prisma.relacaoObra.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("erro não-P2002 por franquia conta falha e o job nunca lança", async () => {
+    const { svc, prisma } = setup(["f1"], {
+      f1: [
+        { id: "a", ano_lancamento: 2001, titulo: "Parte 1" },
+        { id: "b", ano_lancamento: 2002, titulo: "Parte 2" },
+      ],
+    });
+    prisma.relacaoObra.findFirst.mockResolvedValue(null);
+    prisma.relacaoObra.create.mockRejectedValue(new Error("banco caiu"));
+    const r = await svc.enriquecerArestasFranquia(10);
+    expect(r).toEqual({ processados: 1, ok: 0, arestasCriadas: 0, jaExistiam: 0, falhas: 1 });
+  });
+
+  it("job em execução não re-entra; guard de disco bloqueia (D-574)", async () => {
+    const { svc, prisma } = makeService();
+    (svc as any).estado.arestasFranquia.executando = true;
+    await expect(svc.enriquecerArestasFranquia(10)).rejects.toBeInstanceOf(BadRequestException);
+    (svc as any).estado.arestasFranquia = {
+      executando: false,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: null,
+      atual: null,
+    };
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 5000000000n }];
+      return [];
+    });
+    await expect(svc.enriquecerArestasFranquia(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("drenarLote consome a 7ª fila (fila só de arestas de franquia drena)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            arestas_franquia: 2,
+          },
+        ];
+      }
+      return [];
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "arestasFranquia", ok: 0, falhas: 0 }]);
   });
 });

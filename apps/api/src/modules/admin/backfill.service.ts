@@ -29,7 +29,13 @@ const PAUSA_IGDB_MS = 300;
 const ESPERA_429_MS = 1500;
 
 export type BackfillTipo =
-  "metadados" | "continuidade" | "metadadosRicos" | "provedores" | "criticaIgdb";
+  | "metadados"
+  | "continuidade"
+  | "metadadosRicos"
+  | "provedores"
+  | "criticaIgdb"
+  // T-DADOS-06: arestas SEQUENCIA_DE nas franquias incompletas (deriva do grafo).
+  | "arestasFranquia";
 
 interface BackfillEstado {
   executando: boolean;
@@ -347,6 +353,42 @@ export function arestasSequencia(filmes: { id: string; ano: number | null }[]) {
   return saida;
 }
 
+/**
+ * T-DADOS-06 — CTEs que definem a "franquia incompleta" (a fila nova). Fonte
+ * única: usada tanto pelo alvo do `enriquecerArestasFranquia` quanto pela
+ * contagem de `contarPendentes` (mudar a condição é mexer num lugar só).
+ * `franquia_membros` conta os membros COM ano; `franquia_arestas` conta as
+ * arestas SEQUENCIA_DE entre esses mesmos membros. Faltam arestas quando
+ * `com_ano >= 2` e `existentes < com_ano - 1`.
+ */
+const SQL_FRANQUIAS_FALTANDO_ARESTA = `
+  franquia_membros AS (
+    SELECT mf.franquia_id, COUNT(*)::int AS com_ano
+    FROM midia_franquia mf
+    JOIN midia m ON m.id = mf.midia_id
+    WHERE m.deleted_at IS NULL AND m.ano_lancamento IS NOT NULL
+    GROUP BY mf.franquia_id
+  ),
+  franquia_arestas AS (
+    SELECT mf1.franquia_id, COUNT(*)::int AS existentes
+    FROM relacao_obra r
+    JOIN midia_franquia mf1 ON mf1.midia_id = r.origem_id
+    JOIN midia_franquia mf2 ON mf2.midia_id = r.destino_id
+    JOIN midia mo ON mo.id = r.origem_id
+    JOIN midia md ON md.id = r.destino_id
+    WHERE r.tipo = 'SEQUENCIA_DE'
+      AND mf1.franquia_id = mf2.franquia_id
+      AND mo.deleted_at IS NULL AND md.deleted_at IS NULL
+      AND mo.ano_lancamento IS NOT NULL AND md.ano_lancamento IS NOT NULL
+    GROUP BY mf1.franquia_id
+  )`;
+
+/** WHERE + join que seleciona as franquias incompletas (ver CTEs acima). */
+const SQL_SELECT_FRANQUIAS_INCOMPLETAS = `
+  FROM franquia_membros fm
+  LEFT JOIN franquia_arestas fa ON fa.franquia_id = fm.franquia_id
+  WHERE fm.com_ano >= 2 AND COALESCE(fa.existentes, 0) < fm.com_ano - 1`;
+
 // ===========================================================================
 // T-DADOS-03 — crítica do IGDB (por id, não por busca textual)
 // ===========================================================================
@@ -433,6 +475,7 @@ export class BackfillService {
     metadadosRicos: estadoVazio(),
     provedores: estadoVazio(),
     criticaIgdb: estadoVazio(),
+    arestasFranquia: estadoVazio(),
   };
 
   constructor(
@@ -1234,6 +1277,125 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-06: fecha as arestas SEQUENCIA_DE que faltam nas franquias
+   * incompletas. O job `continuidade` já sabe derivar essas arestas, mas o
+   * gatilho dele (`seriesSemTemporada`/`filmesSemPais`) já está esgotado — ele
+   * nunca re-roda. As franquias criadas depois (T-DADOS-01) ficaram sem aresta,
+   * e nenhum outro gatilho as revisita.
+   *
+   * NÃO faz chamada externa nenhuma: a aresta é derivada do PRÓPRIO grafo
+   * (`midia_franquia` + `midia.ano_lancamento`) com o mesmo helper
+   * `arestasSequencia` e o MESMO shape de create do `continuidade`
+   * (origem = mais antigo, `tipo: "SEQUENCIA_DE"`, mesma `nota_editorial`).
+   *
+   * Auto-esgotável SEM watermark: a fila é "franquia incompleta" —
+   * `COUNT(membros com ano) >= 2` E
+   * `COUNT(arestas SEQUENCIA_DE entre esses membros) < COUNT(membros com ano) - 1`.
+   * Ao criar a aresta que falta a franquia sai da fila naturalmente; membro sem
+   * `ano_lancamento` não gera aresta (ausência honesta) e franquia com só 1
+   * membro com ano nunca entra na fila.
+   *
+   * Corrida de drain: `@@unique([origem_id, destino_id])` em `relacao_obra` —
+   * `P2002` no create é contado como "já existia" (não como falha). Nunca lança
+   * por franquia.
+   */
+  async enriquecerArestasFranquia(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    arestasCriadas: number;
+    jaExistiam: number;
+    falhas: number;
+  }> {
+    if (this.estado.arestasFranquia.executando) {
+      throw new BadRequestException("Job arestas de franquia já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.arestasFranquia = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<{ franquia_id: string }[]>(
+      `WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
+       SELECT fm.franquia_id::text AS franquia_id
+       ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}
+       ORDER BY fm.franquia_id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 2000, 1), 2000)}`,
+    )) as any[];
+    this.logger.log(`Backfill arestas de franquia: ${alvo.length} franquias alvo.`);
+    let arestasCriadas = 0;
+    let jaExistiam = 0;
+    for (const f of alvo) {
+      this.estado.arestasFranquia.processados++;
+      this.estado.arestasFranquia.atual = f.franquia_id;
+      try {
+        const membros = (await this.prisma.$queryRawUnsafe<
+          { id: string; ano_lancamento: number | null; titulo: string }[]
+        >(
+          `SELECT m.id::text AS id, m.ano_lancamento, m.titulo
+           FROM midia_franquia mf
+           JOIN midia m ON m.id = mf.midia_id
+           WHERE mf.franquia_id = $1::uuid AND m.deleted_at IS NULL
+           ORDER BY m.id`,
+          f.franquia_id,
+        )) as any[];
+        for (const a of arestasSequencia(
+          membros.map((m) => ({ id: m.id, ano: m.ano_lancamento })),
+        )) {
+          const existe = await this.prisma.relacaoObra.findFirst({
+            where: { origem_id: a.anteriorId, destino_id: a.sequenciaId },
+            select: { id: true },
+          });
+          if (existe) {
+            jaExistiam++;
+            continue;
+          }
+          try {
+            await this.prisma.relacaoObra.create({
+              data: {
+                origem_id: a.anteriorId,
+                destino_id: a.sequenciaId,
+                tipo: "SEQUENCIA_DE",
+                nota_editorial: "Sequência direta na coleção",
+              },
+            });
+            arestasCriadas++;
+          } catch (e) {
+            // Corrida com outro drain: a unique (origem_id, destino_id) já
+            // garantiu a aresta — não é falha.
+            if ((e as { code?: string } | null)?.code === "P2002") {
+              jaExistiam++;
+              continue;
+            }
+            throw e;
+          }
+        }
+        this.estado.arestasFranquia.ok++;
+      } catch (e) {
+        this.estado.arestasFranquia.falhas++;
+        this.logger.warn(
+          `Backfill arestas de franquia falha [${f.franquia_id}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.arestasFranquia.executando = false;
+    this.estado.arestasFranquia.atual = `fim: arestas=${arestasCriadas} ja_existiam=${jaExistiam} falhas=${this.estado.arestasFranquia.falhas}`;
+    this.logger.log(
+      `Backfill arestas de franquia fim: franquias=${this.estado.arestasFranquia.ok} arestas=${arestasCriadas} ja_existiam=${jaExistiam} falhas=${this.estado.arestasFranquia.falhas}.`,
+    );
+    return {
+      processados: this.estado.arestasFranquia.processados,
+      ok: this.estado.arestasFranquia.ok,
+      arestasCriadas,
+      jaExistiam,
+      falhas: this.estado.arestasFranquia.falhas,
+    };
+  }
+
+  /**
    * T179: contagem das filas pendentes — base do drain auto-reagendável e do
    * relatório. Zero em todas = backfills completos (nada a fazer).
    */
@@ -1244,6 +1406,7 @@ export class BackfillService {
     metadadosRicos: number;
     provedores: number;
     criticaIgdb: number;
+    arestasFranquia: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -1253,6 +1416,7 @@ export class BackfillService {
         ricos: number;
         provedores: number;
         critica_igdb: number;
+        arestas_franquia: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -1272,7 +1436,9 @@ export class BackfillService {
             AND m.provedores_em IS NULL) AS provedores,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
-            AND m.critica_igdb_em IS NULL) AS critica_igdb`);
+            AND m.critica_igdb_em IS NULL) AS critica_igdb,
+        (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
+          SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
@@ -1281,6 +1447,7 @@ export class BackfillService {
       metadadosRicos: Number(row?.ricos ?? 0),
       provedores: Number(row?.provedores ?? 0),
       criticaIgdb: Number(row?.critica_igdb ?? 0),
+      arestasFranquia: Number(row?.arestas_franquia ?? 0),
     };
   }
 
@@ -1326,6 +1493,13 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaIgdb > 0) {
         const r = await this.enriquecerCriticaIgdb(2000);
         lotes.push({ tipo: "criticaIgdb", ok: r.ok + r.semCritica, falhas: r.falhas });
+      }
+      // T-DADOS-06: fecha as arestas SEQUENCIA_DE que faltam nas franquias
+      // incompletas. Deriva do próprio grafo (zero chamada externa) e é
+      // auto-esgotável — a franquia sai da fila ao ganhar a aresta que falta.
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.arestasFranquia > 0) {
+        const r = await this.enriquecerArestasFranquia(2000);
+        lotes.push({ tipo: "arestasFranquia", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
