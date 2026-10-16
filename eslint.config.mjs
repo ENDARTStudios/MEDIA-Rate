@@ -131,14 +131,21 @@ export default tseslint.config(
       "apps/web/scripts/**/*.{mjs,js,ts}",
       "apps/web/e2e/**/*.{ts,tsx}",
       "apps/web/visual/**/*.{ts,tsx}",
+      // D-588: harness autenticado local (admin/dashboard) — mesma família dos
+      // outros runners locais (console intencional para triagem).
+      "apps/web/auth/**/*.{ts,tsx}",
       "apps/web/playwright.config.ts",
       "apps/web/playwright.visual.config.ts",
+      "apps/web/playwright.auth.config.ts",
       ".zcode/skills/**/scripts/**/*.{mjs,js,ts}",
     ],
     languageOptions: {
       globals: {
         console: "readonly",
         process: "readonly",
+        // Scripts de design (design:registries) usam fetch com timeout.
+        AbortSignal: "readonly",
+        AbortController: "readonly",
         window: "readonly",
         document: "readonly",
         fetch: "readonly",

@@ -24,7 +24,7 @@ export function RelacionadasSection({ relacoes }: { relacoes: RelacionadaFicha[]
   if (curadas.length === 0) return null;
 
   return (
-    <ul className="space-y-2" data-testid="ficha-relacionadas">
+    <ul role="list" className="space-y-2" data-testid="ficha-relacionadas">
       {curadas.map((r) => (
         <li
           key={`${r.midiaId}-${r.tipoRelacao}`}

@@ -37,6 +37,15 @@ export function LocaleSwitcher() {
 
   function switchLocale(newLocale: string) {
     setOpen(false);
+    // D-591 (T211): a preferência de idioma era gravada pelo middleware
+    // (`Set-Cookie: NEXT_LOCALE`), o que impede cache de CDN nas rotas estáticas
+    // — e o middleware deixou de gravá-la lá. Como a intenção nasce AQUI (escolha
+    // explícita do usuário), gravar no cliente preserva a UX sem custo no servidor.
+    try {
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+    } catch {
+      // cookie indisponível (modo privado) — segue só com a URL, que já basta.
+    }
     startTransition(() => {
       const segments = pathname.split("/");
       segments[1] = newLocale;
@@ -49,7 +58,7 @@ export function LocaleSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         disabled={isPending}
-        className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#818CF8] hover:bg-[#11111E] rounded-md px-2 py-1 transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#A0A0B8] hover:text-[#818CF8] hover:bg-[#12121C] rounded-md px-2 py-1 transition-colors"
         aria-label={t("ariaLabel")}
       >
         <svg
@@ -78,7 +87,7 @@ export function LocaleSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-dropdown bg-[#11111E] border border-[#1C1C2E] rounded-md py-1 min-w-[100px] shadow-floating">
+        <div className="absolute right-0 top-full mt-1 z-dropdown bg-[#12121C] border border-[#1C1C2E] rounded-md py-1 min-w-[100px] shadow-floating">
           {LOCALES.map((l) => (
             <button
               key={l.code}
@@ -86,7 +95,7 @@ export function LocaleSwitcher() {
               className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
                 locale === l.code
                   ? "text-[#818CF8] bg-[rgba(129,140,248,0.08)]"
-                  : "text-[#9CA3AF] hover:text-[#EDE7DC] hover:bg-[#11111E]"
+                  : "text-[#A0A0B8] hover:text-[#F5F5F7] hover:bg-[#12121C]"
               }`}
             >
               {l.short}

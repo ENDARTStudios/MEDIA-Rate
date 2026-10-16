@@ -11,7 +11,7 @@ export function Related({ items, title = "" }: RelatedProps) {
 
   return (
     <section className="py-6" data-testid="related" aria-label={title}>
-      <h3 className="text-sm font-heading font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">
+      <h3 className="text-sm font-heading font-semibold text-[#A0A0B8] uppercase tracking-wider mb-3">
         {title}
       </h3>
       <div

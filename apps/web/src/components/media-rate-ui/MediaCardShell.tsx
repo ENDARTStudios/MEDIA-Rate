@@ -66,7 +66,8 @@ export function MediaCardShell({
   locale,
 }: {
   media: MediaItem;
-  tCatalog: (key: string) => string;
+  /** D-582/A11 (T211): aceita `values` para chaves com interpolação (coverAlt). */
+  tCatalog: (key: string, values?: Record<string, string | number>) => string;
   tWatchlist: (key: string) => string;
   tInteraction: (key: string) => string;
   locale: string;
@@ -113,7 +114,7 @@ export function MediaCardShell({
         aria-expanded="false"
         aria-label={tWatchlist("addToWatchlist")}
         title={tWatchlist("addToWatchlist")}
-        className="absolute top-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#11111E]/80 text-[#9CA3AF] transition-colors hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+        className="absolute top-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#12121C]/80 text-[#A0A0B8] transition-colors hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
       >
         <svg
           className="h-4 w-4"
@@ -138,7 +139,7 @@ export function MediaCardShell({
         aria-expanded="false"
         aria-label={tInteraction(colunaLabelKey(mediaType, "WANT"))}
         title={tInteraction(colunaLabelKey(mediaType, "WANT"))}
-        className="absolute bottom-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#11111E]/85 text-[#9CA3AF] transition-colors hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+        className="absolute bottom-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#12121C]/85 text-[#A0A0B8] transition-colors hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
       >
         <svg
           className="h-4 w-4"
@@ -155,7 +156,7 @@ export function MediaCardShell({
 
       <Link
         href={`/media/${media.slug ?? media.id}`}
-        className="relative z-10 block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
+        className="relative z-10 block bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
         aria-label={`${tituloLocal} (${tCatalog(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
@@ -186,7 +187,7 @@ export function MediaCardShell({
                 return (
                   <img
                     src={single}
-                    alt={`Capa de ${tituloLocal}`}
+                    alt={tCatalog("coverAlt", { titulo: tituloLocal })}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     width={300}
                     height={450}
@@ -198,7 +199,7 @@ export function MediaCardShell({
               return (
                 <Image
                   src={src}
-                  alt={`Capa de ${tituloLocal}`}
+                  alt={tCatalog("coverAlt", { titulo: tituloLocal })}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   width={300}
                   height={450}
@@ -209,7 +210,7 @@ export function MediaCardShell({
               );
             })()
           ) : (
-            <div className="flex items-center justify-center h-full text-[#9CA3AF] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
+            <div className="flex items-center justify-center h-full text-[#A0A0B8] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
               <svg
                 className="w-12 h-12 opacity-50"
                 fill="none"
@@ -233,7 +234,7 @@ export function MediaCardShell({
             <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
               {tCatalog(tipoLabel)}
             </span>
-            <span className="text-xs text-[#9CA3AF] mt-0.5">{media.ano_lancamento ?? "—"}</span>
+            <span className="text-xs text-[#A0A0B8] mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
           {preview && (
@@ -256,11 +257,11 @@ export function MediaCardShell({
           )}
         </div>
 
-        <div className="p-3 bg-[#11111E] rounded-b-md">
-          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">
+        <div className="p-3 bg-[#12121C] rounded-b-md">
+          <h3 className="font-heading text-sm font-medium text-[#F5F5F7] truncate group-hover:text-[#F5F5F7] transition-colors">
             {tituloLocal}
           </h3>
-          <p className="text-xs text-[#9CA3AF] mt-1">
+          <p className="text-xs text-[#A0A0B8] mt-1">
             {tCatalog(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}
           </p>
         </div>

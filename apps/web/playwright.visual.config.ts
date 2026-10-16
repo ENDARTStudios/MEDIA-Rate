@@ -38,7 +38,10 @@ export default defineConfig({
   },
   use: {
     baseURL: BASE_URL,
-    colorScheme: "dark",
+    // D-582.1 (T211): o app é dark-only por tokens, então ele DEVE renderizar igual
+    // com o SO em modo claro. Rodar o harness em `light` (default) é o que pega a
+    // classe de bug das variantes `dark:` (antes rodava em `dark` e passava verde).
+    colorScheme: "light",
     trace: "off",
     video: "off",
     screenshot: "off",

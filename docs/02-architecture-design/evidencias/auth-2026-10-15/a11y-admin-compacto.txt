@@ -1,0 +1,26 @@
+### usuários (/pt-BR/admin/usuarios)
+  regras: color-contrast(serious)
+  nós com contraste reprovado: 8
+  #16a34a sobre #1f2937 = 4.45:1
+  #6b7280 sobre #05050a = 4.2:1
+
+### catálogo (/pt-BR/admin/catalogo)
+  regras: color-contrast(serious)
+  nós com contraste reprovado: 2
+  #6b7280 sobre #05050a = 4.2:1
+  #6b7280 sobre #1f2937 = 3.03:1
+
+### métricas (/pt-BR/admin/metricas)
+  regras: definition-list(serious)
+  nós com contraste reprovado: 0
+
+### LGPD (/pt-BR/admin/lgpd)
+  regras: color-contrast(serious)
+  nós com contraste reprovado: 3
+  #6b7280 sobre #05050a = 4.2:1
+  #6b7280 sobre #1f2937 = 3.03:1
+
+### diagnostics (/pt-BR/admin/diagnostics)
+  regras: color-contrast(serious)
+  nós com contraste reprovado: 2
+  #16a34a sobre #1f2937 = 4.45:1

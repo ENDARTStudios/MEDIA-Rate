@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { colunaLabelKey } from "@/lib/watchlist-labels";
@@ -78,6 +79,9 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
       await addToWatchlist(mediaId);
       setAnimate(true);
       setJustAdded(true);
+      // D-584/B4 (T211): a ação mais frequente do produto não dava feedback
+      // nenhum além do ícone. Agora confirma (e o toast carrega o "Desfazer").
+      toast.success(t("added"), { id: `watchlist-add-${mediaId}` });
       setTimeout(() => setAnimate(false), 300);
       // T199 (§3.3): prompt cross-mídia no momento de maior intenção.
       setCrossPromptOpen(true);
@@ -94,7 +98,9 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
         setJustAdded(true);
         return;
       }
-      // Falha silenciosa: o store mantém o estado otimista (rollback feito).
+      // D-584/B4: falha de rede não pode ser silenciosa — o usuário precisa saber
+      // que o item NÃO entrou (antes o rollback acontecia sem aviso).
+      toast.error(t("addError"));
     } finally {
       setLoading(false);
     }
@@ -104,9 +110,12 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     setLoading(true);
     setOpen(false);
     try {
-      if (entry) await moveItem(entry.id, newStatus);
+      if (entry) {
+        await moveItem(entry.id, newStatus);
+        toast.success(t("moved"), { id: `watchlist-move-${mediaId}` });
+      }
     } catch {
-      // Falha silenciosa: o store mantém o estado otimista.
+      toast.error(t("moveError"));
     } finally {
       setLoading(false);
     }
@@ -116,9 +125,23 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
     setLoading(true);
     setOpen(false);
     try {
-      if (entry) await removeItem(entry.id);
+      if (entry) {
+        await removeItem(entry.id);
+        // D-584/B4: remover da watchlist era irreversível e sem confirmação.
+        // O toast oferece "Desfazer" (re-insere na mesma coluna).
+        const statusAnterior = entry.status ?? "QUERO_VER";
+        toast.success(t("removed"), {
+          id: `watchlist-remove-${mediaId}`,
+          action: {
+            label: t("undo"),
+            onClick: () => {
+              void addToWatchlist(mediaId, statusAnterior).catch(() => toast.error(t("addError")));
+            },
+          },
+        });
+      }
     } catch {
-      // Falha silenciosa: o store mantém o estado otimista.
+      toast.error(t("removeError"));
     } finally {
       setLoading(false);
     }
@@ -136,8 +159,8 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
         transition={shouldReduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
         className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
           inWatchlist
-            ? "bg-[#EF4444]/15 text-[#EF4444] hover:bg-[#EF4444]/25"
-            : "bg-[#11111E]/80 text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+            ? "bg-[#EF4444]/15 text-[#F87171] hover:bg-[#EF4444]/25"
+            : "bg-[#12121C]/80 text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
         }`}
         title={titleLabel}
         aria-label={titleLabel}
@@ -161,7 +184,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
           </svg>
         ) : (
           <svg
-            className={`w-4 h-4 transition-transform duration-200 ${inWatchlist ? "fill-[#EF4444] text-[#EF4444]" : "text-[#9CA3AF]"}`}
+            className={`w-4 h-4 transition-transform duration-200 ${inWatchlist ? "fill-[#EF4444] text-[#EF4444]" : "text-[#A0A0B8]"}`}
             viewBox="0 0 24 24"
             fill={inWatchlist ? "currentColor" : "none"}
             stroke="currentColor"
@@ -181,7 +204,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleMove("WANT");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
           >
             {t(colunaLabelKey(mediaType, "WANT"))}
           </button>
@@ -190,7 +213,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleMove("WATCHING");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
           >
             {t(colunaLabelKey(mediaType, "WATCHING"))}
           </button>
@@ -199,7 +222,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleMove("COMPLETED");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#9CA3AF] hover:bg-[#11111E] hover:text-[#EDE7DC] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
           >
             {t(colunaLabelKey(mediaType, "COMPLETED"))}
           </button>
@@ -224,7 +247,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
           <Link
             href="/pricing"
             onClick={(e) => e.stopPropagation()}
-            className="block text-center text-xs font-medium text-[#11111E] bg-[#818CF8] hover:bg-[#6D7BF7] rounded-md px-3 py-1.5 transition-colors"
+            className="block text-center text-xs font-medium text-[#12121C] bg-[#818CF8] hover:bg-[#6D7BF7] rounded-md px-3 py-1.5 transition-colors"
           >
             {t("upgradeCta")}
           </Link>

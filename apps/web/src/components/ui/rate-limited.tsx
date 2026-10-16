@@ -45,8 +45,8 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-heading text-[#EDE7DC] mb-2">{t("tooManyRequests")}</h3>
-      <p className="text-sm text-[#9CA3AF] mb-6 max-w-md">
+      <h3 className="text-lg font-heading text-[#F5F5F7] mb-2">{t("tooManyRequests")}</h3>
+      <p className="text-sm text-[#A0A0B8] mb-6 max-w-md">
         {canRetry ? t("tryAgain") : t("retryIn") + " " + remaining + "s"}
       </p>
       <button

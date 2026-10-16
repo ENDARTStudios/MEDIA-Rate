@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
+// D-591: fonte unica das rotas de conteudo pre-renderizado (compartilhada com o middleware).
+import { GRUPO_CONTEUDO, EXCLUSAO_CONTEUDO } from "./src/lib/static-content";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -28,12 +30,19 @@ const nextConfig: NextConfig = {
   // (ci.yml → "Sentry sourcemaps"). Sem isso o passo sobe 0 arquivos.
   productionBrowserSourceMaps: true,
   images: {
-    // T032/D-445: larguras/formatos/qualidade travados nos tokens do uso
-    // real (cards 300px, hero 100vw) — cada largura a menos é uma
-    // transformação a menos por poster no plano Hobby.
+    // T032/D-445: larguras travadas nos tokens do uso real (cards 300px, hero 100vw).
     deviceSizes: [320, 640, 960, 1280, 1920],
     imageSizes: [64, 128, 256],
-    formats: ["image/webp"],
+    // D-592 (T211): o D-445 fixava `["image/webp"]` por causa da cota de imagens do
+    // plano Hobby. Com o PRO ativo, a cota deixou de ser restrição — medido no
+    // Vercel Observability: **32 transformações em 30 dias** (limite Hobby: 1.000
+    // imagens-fonte). AVIF vem primeiro porque o `Accept` do navegador decide a
+    // ordem: quem suporta recebe AVIF (~20-40% menor que WebP em foto), o resto cai
+    // em WebP e, por último, no formato original.
+    formats: ["image/avif", "image/webp"],
+    // D-592: default do Next é 60s — cada re-otimização custa CPU e uma
+    // transformação. 31 dias alinha o cache da imagem ao ciclo real dos pôsteres.
+    minimumCacheTTL: 2678400,
     qualities: [75],
     remotePatterns: [
       { protocol: "https", hostname: "image.tmdb.org" },
@@ -76,45 +85,76 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     const isProduction = process.env.NODE_ENV === "production";
+    /**
+     * D-590 (T211): as seis páginas de conteúdo institucional passaram a ser
+     * pré-renderizadas (`dynamic = "force-static"` nelas, ver D-589/D-590). O
+     * `Cache-Control` global abaixo **sobrescrevia** o header de ISR que o Next
+     * gera para elas (`s-maxage=…`), então mesmo estáticas o CDN não as cachearia.
+     * Agora há duas regras: a primeira (mesmos headers de SEGURANÇA, sem
+     * `Cache-Control`) cobre só essas rotas e deixa o header do Next valer; a
+     * segunda vale para o resto e mantém `max-age=0, must-revalidate`.
+     */
+    const SEGURANCA = [
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+      // CSP é header de PRODUÇÃO (Next dev usa eval — o header quebraria
+      // o dev server; T196). Em dev, não envia CSP.
+      ...(isProduction
+        ? [
+            {
+              key: "Content-Security-Policy",
+              value: [
+                "default-src 'self'",
+                // T361: Google Identity Services (script + iframe do botão).
+                "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com https://accounts.google.com",
+                // T315: Sentry ingest (regiões us/eu/de — o host é
+                // o<org>.ingest.<região>.sentry.io, logo o wildcard precisa
+                // cobrir cada região explicitamente).
+                "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
+                "frame-src 'self' https://accounts.google.com",
+                "frame-ancestors 'none'",
+                "img-src 'self' data: https:",
+                // T404: GSI injeta folha de estilo externa (accounts.google.com/gsi/style)
+                // — sem ela o botão do Google renderiza sem estilo (achado A2 da T403).
+                "style-src 'self' 'unsafe-inline' https://accounts.google.com",
+                "font-src 'self' data:",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                "upgrade-insecure-requests",
+              ].join("; "),
+            },
+          ]
+        : []),
+    ];
+
     return [
       {
-        source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+        // Conteúdo pré-renderizado: `Cache-Control` de ISR **explícito**, e não
+        // "deixe o Next emitir". Motivo medido em produção (D-592): o Next emite o
+        // header de ISR localmente (`next start`), mas na Vercel o matcher não
+        // honrava a exclusão por lookahead da segunda regra e o `max-age=0` global
+        // vencia — a página saía pré-renderizada (`x-vercel-cache: PRERENDER`) mas
+        // com instrução de não cachear. Explicitar aqui torna o resultado igual nas
+        // duas plataformas.
+        source: `/${GRUPO_CONTEUDO}`,
         headers: [
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-          // CSP é header de PRODUÇÃO (Next dev usa eval — o header quebraria
-          // o dev server; T196). Em dev, não envia CSP.
-          ...(isProduction
-            ? [
-                {
-                  key: "Content-Security-Policy",
-                  value: [
-                    "default-src 'self'",
-                    // T361: Google Identity Services (script + iframe do botão).
-                    "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com https://accounts.google.com",
-                    // T315: Sentry ingest (regiões us/eu/de — o host é
-                    // o<org>.ingest.<região>.sentry.io, logo o wildcard precisa
-                    // cobrir cada região explicitamente).
-                    "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://*.ingest.eu.sentry.io https://*.ingest.de.sentry.io",
-                    "frame-src 'self' https://accounts.google.com",
-                    "frame-ancestors 'none'",
-                    "img-src 'self' data: https:",
-                    // T404: GSI injeta folha de estilo externa (accounts.google.com/gsi/style)
-                    // — sem ela o botão do Google renderiza sem estilo (achado A2 da T403).
-                    "style-src 'self' 'unsafe-inline' https://accounts.google.com",
-                    "font-src 'self' data:",
-                    "object-src 'none'",
-                    "base-uri 'self'",
-                    "form-action 'self'",
-                    "upgrade-insecure-requests",
-                  ].join("; "),
-                },
-              ]
-            : []),
+          ...SEGURANCA,
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
         ],
+      },
+      {
+        // Demais rotas: só segurança. O `Cache-Control` delas é decidido pelo
+        // Next/Vercel por tipo de renderização — medido em produção: dinâmica sai
+        // `private, no-cache, no-store` (a regra global anterior era sobrescrita de
+        // qualquer forma) e estática técnica segue o default da plataforma.
+        source: `/((?!api|_next/static|_next/image|favicon.ico|${EXCLUSAO_CONTEUDO}$).*)`,
+        headers: SEGURANCA,
       },
     ];
   },

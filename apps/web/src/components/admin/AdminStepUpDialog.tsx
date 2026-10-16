@@ -77,14 +77,16 @@ export default function AdminStepUpDialog() {
         if (e.key === "Escape" && !ocupado) fechar(null);
       }}
     >
-      <div className="w-full max-w-sm rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800">
-        <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {t("stepupTitulo")}
-        </h2>
-        <p aria-live="polite" data-testid="admin-stepup-erro" className="mb-2 text-sm text-red-600">
+      <div className="w-full max-w-sm rounded-lg bg-surface-card p-4 shadow-lg bg-surface-card">
+        <h2 className="mb-2 text-lg font-semibold text-fg-primary">{t("stepupTitulo")}</h2>
+        <p
+          aria-live="polite"
+          data-testid="admin-stepup-erro"
+          className="mb-2 text-sm text-score-low"
+        >
           {erro ? t("stepupErro") : ""}
         </p>
-        <label htmlFor="admin-stepup-senha" className="mb-1 block text-sm text-gray-300">
+        <label htmlFor="admin-stepup-senha" className="mb-1 block text-sm text-fg-primary">
           {t("stepupLabel")}
         </label>
         <input
@@ -96,7 +98,7 @@ export default function AdminStepUpDialog() {
           onChange={(e) => setSenha(e.target.value)}
           disabled={ocupado}
           data-testid="admin-stepup-senha"
-          className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+          className="mb-4 w-full rounded border border-surface-border px-3 py-2 text-sm border-surface-border bg-surface-card text-fg-primary"
         />
         <div className="flex justify-end gap-2">
           <button
@@ -104,7 +106,7 @@ export default function AdminStepUpDialog() {
             onClick={() => fechar(null)}
             disabled={ocupado}
             data-testid="admin-stepup-cancelar"
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600"
+            className="rounded border border-surface-border px-3 py-1.5 text-sm border-surface-border"
           >
             {t("stepupCancelar")}
           </button>
@@ -113,7 +115,7 @@ export default function AdminStepUpDialog() {
             onClick={() => void confirmar()}
             disabled={ocupado || senha.length === 0}
             data-testid="admin-stepup-confirmar"
-            className="rounded bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40"
+            className="rounded bg-[#818CF8] px-3 py-1.5 text-sm font-semibold text-[#0F172A] hover:brightness-110 disabled:opacity-40"
           >
             {t("stepupConfirmar")}
           </button>

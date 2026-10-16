@@ -192,7 +192,12 @@ export function MediaCard({ media }: { media: MediaItem }) {
     <motion.div
       ref={cardRef}
       layoutId={`media-${media.id}`}
-      whileTap={shouldReduce ? undefined : { scale: 0.97 }}
+      // D-587 (T211): `whileTap` NÃO pode ser condicionado a `shouldReduce` — o motion
+      // injeta `tabindex="0"` quando o gesto existe, então o servidor (que não conhece a
+      // preferência) e o cliente divergiam → hydration mismatch em toda a grade.
+      // Quem pediu movimento reduzido não vê o efeito porque o `MotionConfig
+      // reducedMotion="user"` (provider global) desliga animação de transform.
+      whileTap={{ scale: 0.97 }}
       transition={{ duration: shouldReduce ? 0 : 0.15, ease: "easeOut" }}
       onMouseEnter={handleEnter}
       onMouseMove={handleMove}
@@ -221,7 +226,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
       <Link
         href={`/media/${media.slug ?? media.id}`}
-        className="relative z-10 block bg-[#11111E] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
+        className="relative z-10 block bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
         role="article"
         aria-label={`${tituloLocal} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
@@ -246,14 +251,14 @@ export function MediaCard({ media }: { media: MediaItem }) {
           {media.imagem_url ? (
             <ImageWithFallback
               src={media.imagem_url}
-              alt={`Capa de ${tituloLocal}`}
+              alt={t("coverAlt", { titulo: tituloLocal })}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               width={300}
               height={450}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-[#9CA3AF] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
+            <div className="flex items-center justify-center h-full text-[#A0A0B8] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
               <svg
                 className="w-12 h-12 opacity-50"
                 fill="none"
@@ -284,7 +289,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
             <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
               {t(tipoLabel)}
             </span>
-            <span className="text-xs text-[#9CA3AF] mt-0.5">{media.ano_lancamento ?? "—"}</span>
+            <span className="text-xs text-[#A0A0B8] mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
           {/* T272: selo de "prévia — fontes em preparação" para itens cujas
@@ -312,11 +317,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
           )}
         </div>
 
-        <div className="p-3 bg-[#11111E] rounded-b-md">
-          <h3 className="font-heading text-sm font-medium text-[#EDE7DC] truncate group-hover:text-[#EDE7DC] transition-colors">
+        <div className="p-3 bg-[#12121C] rounded-b-md">
+          <h3 className="font-heading text-sm font-medium text-[#F5F5F7] truncate group-hover:text-[#F5F5F7] transition-colors">
             {tituloLocal}
           </h3>
-          <p className="text-xs text-[#9CA3AF] mt-1">
+          <p className="text-xs text-[#A0A0B8] mt-1">
             {t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}
           </p>
         </div>
@@ -350,7 +355,7 @@ function ImageWithFallback({
   if (error) {
     return (
       <div
-        className={`flex items-center justify-center bg-gradient-to-br from-[#1C1C2E] to-[#09090F] text-[#9CA3AF] ${className}`}
+        className={`flex items-center justify-center bg-gradient-to-br from-[#1C1C2E] to-[#09090F] text-[#A0A0B8] ${className}`}
       >
         <svg className="w-10 h-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path

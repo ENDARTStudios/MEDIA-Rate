@@ -31,7 +31,10 @@ describe("Bar", () => {
     expect(container.textContent).toContain("Crítica");
     expect(container.textContent).toContain("Público");
     expect(container.textContent).toContain("89");
-    expect(container.textContent).toContain("81.5");
+    // Achado 2026-10-13: o valor era interpolado cru (React usa ponto: "81.5"),
+    // destoando do "8,2" do resto do produto. Passou a usar `formatarScoreLocale`,
+    // então em pt-BR o separador é vírgula — a asserção antiga codificava o defeito.
+    expect(container.textContent).toContain("81,5");
     const bars = container.querySelectorAll(".h-2 > div");
     expect(bars[0]).toHaveStyle({ width: "89%" });
     expect(bars[1]).toHaveStyle({ width: "82%" });
@@ -59,6 +62,8 @@ describe("Bar", () => {
   it("divergência quando gap > 10 pontos", () => {
     const { container } = renderWithProviders(<Bar criticsScore={90} audienceScore={50} />);
     expect(container.textContent).toContain("Divergência crítica/público");
-    expect(container.textContent).toContain("40.0pts");
+    // Achado 2026-10-13: o gap do consenso também era interpolado com `toFixed(1)`
+    // ("40.0pts"). Agora usa o separador do locale e não deixa ".0" pendurado.
+    expect(container.textContent).toContain("40pts");
   });
 });

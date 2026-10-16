@@ -70,7 +70,10 @@ export function ContinueDecisionClient() {
         >
           {t("continueDecision")}
         </h2>
-        <ul className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
+        <ul
+          role="list"
+          className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
+        >
           {items.map((media) => (
             <li key={media.id} className="flex-shrink-0 w-[160px] sm:w-[180px] snap-start">
               <Link
@@ -88,7 +91,7 @@ export function ContinueDecisionClient() {
                           <img
                             src={media.posterUrl}
                             srcSet={localSrcSet(media.posterUrl)}
-                            alt={`Capa de ${media.title}`}
+                            alt={t("coverAlt", { titulo: media.title ?? "" })}
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
@@ -100,7 +103,7 @@ export function ContinueDecisionClient() {
                           <img
                             src={ladder.src}
                             srcSet={ladder.srcSet}
-                            alt={`Capa de ${media.title}`}
+                            alt={t("coverAlt", { titulo: media.title ?? "" })}
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
@@ -109,7 +112,7 @@ export function ContinueDecisionClient() {
                       return (
                         <Image
                           src={media.posterUrl}
-                          alt={`Capa de ${media.title}`}
+                          alt={t("coverAlt", { titulo: media.title ?? "" })}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                           className="object-cover transition-transform duration-700 group-hover:scale-110"

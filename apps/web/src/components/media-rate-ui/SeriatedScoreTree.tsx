@@ -12,8 +12,9 @@
  *   fornecer.
  * - NUNCA recalcula/afeta o MEDIA Score geral da obra.
  */
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { formatarScoreLocale } from "@/lib/score-utils";
 
 export interface SeriatedUnit {
   label: string;
@@ -42,6 +43,7 @@ function mediaDasSubUnidades(subUnits: SeriatedUnit[]): number | null {
 }
 
 function Linha({ unit, depth }: { unit: SeriatedUnit; depth: number }) {
+  const locale = useLocale();
   const t = useTranslations("metadados");
   const score =
     unit.score ??
@@ -61,14 +63,14 @@ function Linha({ unit, depth }: { unit: SeriatedUnit; depth: number }) {
             style={{ color: scoreColor(score) }}
             data-testid="seriated-score"
           >
-            {score.toFixed(1)}
+            {formatarScoreLocale(score, locale)}
           </span>
         ) : (
           <span className="shrink-0 text-xs text-[#85859F]">{t("noVotesYet")}</span>
         )}
       </div>
       {temSub && (
-        <ul className="divide-y divide-[#1B1B2C]">
+        <ul role="list" className="divide-y divide-[#1B1B2C]">
           {unit.subUnits?.map((sub, i) => (
             <Linha key={`${sub.label}-${i}`} unit={sub} depth={depth + 1} />
           ))}
@@ -92,7 +94,7 @@ export function SeriatedScoreTree({ unitLabel, units, className }: SeriatedScore
       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#A0A0B8]">
         {unitLabel}
       </p>
-      <ul className="divide-y divide-[#1B1B2C]">
+      <ul role="list" className="divide-y divide-[#1B1B2C]">
         {units.map((unit, i) => (
           <Linha key={`${unit.label}-${i}`} unit={unit} depth={0} />
         ))}

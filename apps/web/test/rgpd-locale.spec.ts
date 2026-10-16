@@ -74,4 +74,41 @@ describe("T248 — regimes de privacidade por locale", () => {
     // pt-BR é o idioma de origem; só garante que o regime não é RGPD/AEPD.
     expect(pt).not.toContain("RGPD");
   });
+
+  /**
+   * T211 — a guarda acima cobria SÓ o namespace `privacy`: `terms.h1` ficou
+   * "Termos de Uso" em en-US e es-ES sem nenhum teste reclamar (achado da
+   * auditoria de UI/UX). Agora o mesmo regex de leak varre `terms` e os títulos
+   * das páginas institucionais.
+   */
+  it("terms: en-US/es-ES não vazam UI em pt-BR (título traduzido)", () => {
+    for (const loc of ["en-US", "es-ES"] as const) {
+      const t = JSON.stringify(LOCALES[loc].terms ?? {});
+      expect(t, `${loc} terms`).not.toMatch(PT_UI_LEAK);
+    }
+    expect(LOCALES["en-US"].terms.h1).not.toBe("Termos de Uso");
+    expect(LOCALES["es-ES"].terms.h1).not.toBe("Termos de Uso");
+  });
+
+  it("títulos de páginas institucionais não repetem o texto pt-BR em en-US/es-ES", () => {
+    const chaves = ["h1"] as const;
+    for (const ns of ["terms", "privacy", "about"] as const) {
+      const pt = LOCALES["pt-BR"][ns];
+      if (!pt) continue;
+      for (const k of chaves) {
+        const valorPt = pt[k];
+        if (!valorPt) continue;
+        for (const loc of ["en-US", "es-ES"] as const) {
+          const valor = LOCALES[loc][ns]?.[k];
+          if (!valor) continue;
+          // Permite coincidência legítima (nomes próprios curtos), mas bloqueia
+          // frases de UI idênticas ao pt-BR com 2+ palavras.
+          const palavras = valorPt.trim().split(/\s+/).length;
+          if (palavras >= 2 && valor === valorPt) {
+            throw new Error(`${loc}.${ns}.${k} ainda é o texto pt-BR: "${valor}"`);
+          }
+        }
+      }
+    }
+  });
 });

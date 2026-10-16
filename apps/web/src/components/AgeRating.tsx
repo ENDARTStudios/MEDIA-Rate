@@ -9,10 +9,10 @@ export function AgeRating({ rating, type: _type, locale: _locale = "pt-BR" }: Ag
 
   return (
     <div className="inline-flex items-center gap-1.5" data-testid="age-rating">
-      <span className="inline-flex items-center justify-center w-5 h-5 rounded border border-[#6B7280] text-xs font-bold text-[#9CA3AF]">
+      <span className="inline-flex items-center justify-center w-5 h-5 rounded border border-[#6B7280] text-xs font-bold text-[#A0A0B8]">
         R
       </span>
-      <span className="text-xs text-[#9CA3AF]">{rating}</span>
+      <span className="text-xs text-[#A0A0B8]">{rating}</span>
     </div>
   );
 }

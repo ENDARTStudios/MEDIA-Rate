@@ -2,7 +2,7 @@ import { Link } from "@/lib/navigation";
 import { getTranslations } from "next-intl/server";
 
 const linkHover =
-  "relative text-sm text-[#9CA3AF] transition-colors duration-200 hover:text-[#818CF8] after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#818CF8] after:transition-all after:duration-200 hover:after:w-full";
+  "relative text-sm text-[#A0A0B8] transition-colors duration-200 hover:text-[#818CF8] after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#818CF8] after:transition-transform after:duration-200 hover:after:w-full";
 
 /**
  * MotionFooter (T405/D-401 lote b) — agora SERVER COMPONENT estático: sem
@@ -27,15 +27,15 @@ export async function MotionFooter({ locale }: { locale: string }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="text-lg font-heading font-bold text-[#EDE7DC] mb-2">MEDIA Rate</div>
-            <p className="text-sm text-[#9CA3AF] leading-relaxed">{t("tagline")}</p>
+            <div className="text-lg font-heading font-bold text-[#F5F5F7] mb-2">MEDIA Rate</div>
+            <p className="text-sm text-[#A0A0B8] leading-relaxed">{t("tagline")}</p>
           </div>
 
           <div>
-            <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
+            <h4 className="text-xs font-heading font-semibold text-[#F5F5F7] uppercase tracking-widest mb-4">
               {tNav("catalog")}
             </h4>
-            <ul className="space-y-3">
+            <ul role="list" className="space-y-3">
               <li>
                 <Link href="/catalog" className={linkHover}>
                   {tNav("catalog")}
@@ -56,14 +56,26 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   MEDIA Score™
                 </Link>
               </li>
+              {/* T211: /faq e /sources já existiam, estão no sitemap e não eram
+                  linkados em nenhum menu (achado da auditoria de UI/UX). */}
+              <li>
+                <Link href="/faq" className={linkHover}>
+                  {t("faq")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/sources" className={linkHover}>
+                  {t("sources")}
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
+            <h4 className="text-xs font-heading font-semibold text-[#F5F5F7] uppercase tracking-widest mb-4">
               {t("legal")}
             </h4>
-            <ul className="space-y-3">
+            <ul role="list" className="space-y-3">
               <li>
                 <Link href="/privacy" className={linkHover}>
                   {t("privacy")}
@@ -79,8 +91,31 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {t("lgpd")}
                 </Link>
               </li>
+              {/* D-622: portas de entrada que faltavam — inventário de cookies, o
+                  gerenciador permanente (antes só existia dentro do banner, que some
+                  depois da primeira decisão), segurança e direitos do titular. */}
               <li>
-                <Link href="mailto:endart.studios@gmail.com" className={linkHover}>
+                <Link href="/cookies" className={linkHover}>
+                  {t("cookies")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/cookies/gerenciar" className={linkHover}>
+                  {t("manageCookies")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/seguranca" className={linkHover}>
+                  {t("security")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/direitos-do-titular" className={linkHover}>
+                  {t("rights")}
+                </Link>
+              </li>
+              <li>
+                <Link href="mailto:endart.studios+contato@gmail.com" className={linkHover}>
                   {t("contact")}
                 </Link>
               </li>
@@ -88,7 +123,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
           </div>
 
           <div>
-            <h4 className="text-xs font-heading font-semibold text-[#EDE7DC] uppercase tracking-widest mb-4">
+            <h4 className="text-xs font-heading font-semibold text-[#F5F5F7] uppercase tracking-widest mb-4">
               {t("social")}
             </h4>
             <div className="flex flex-col gap-2">
@@ -100,7 +135,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   <a
                     key={social.label}
                     href={social.href}
-                    className="text-sm text-[#9CA3AF] hover:text-[#818CF8] transition-colors duration-200"
+                    className="text-sm text-[#A0A0B8] hover:text-[#818CF8] transition-colors duration-200"
                     aria-label={social.label}
                   >
                     {social.label}
@@ -108,7 +143,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
                 ) : (
                   <span
                     key={social.label}
-                    className="text-sm text-[#9CA3AF]"
+                    className="text-sm text-[#A0A0B8]"
                     aria-label={social.label}
                   >
                     {social.label}
@@ -120,13 +155,13 @@ export async function MotionFooter({ locale }: { locale: string }) {
         </div>
 
         <div className="pt-8 border-t border-[rgba(129,140,248,0.08)] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[#9CA3AF]">{`MEDIA Rate. ${t("rights")}`}</p>
-          <p className="text-xs text-[#9CA3AF]">
+          <p className="text-xs text-[#A0A0B8]">{`MEDIA Rate. ${t("rights")}`}</p>
+          <p className="text-xs text-[#A0A0B8]">
             {/* Expressão única: texto contíguo (sem marcadores <!-- --> do React). */}
             {`Copyright © ${year} END ART Studios`}
           </p>
-          <p className="text-xs text-[#9CA3AF] mt-1">
-            {`END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios@gmail.com`}
+          <p className="text-xs text-[#A0A0B8] mt-1">
+            {`END ART Studios · CNPJ 45.370.930/0001-75 · Osasco, São Paulo — Brasil · endart.studios+contato@gmail.com`}
           </p>
         </div>
         {/* D0 (Onda D): atribuição obrigatória dos provedores de dados — termos

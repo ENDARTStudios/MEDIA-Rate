@@ -59,25 +59,23 @@ export default function AdminUploadPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
-        Upload de assets (R2)
-      </h1>
+      <h1 className="mb-6 text-2xl font-bold text-fg-primary">Upload de assets (R2)</h1>
       <form onSubmit={enviar} className="space-y-4">
         <label className="block">
-          <span className="text-sm text-gray-300">ID da mídia</span>
+          <span className="text-sm text-fg-primary">ID da mídia</span>
           <input
             value={midiaId}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setMidiaId(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
+            className="mt-1 w-full rounded border border-surface-border px-3 py-2 border-surface-border bg-surface-card"
             placeholder="uuid da mídia"
           />
         </label>
         <label className="block">
-          <span className="text-sm text-gray-300">Tipo</span>
+          <span className="text-sm text-fg-primary">Tipo</span>
           <select
             value={tipo}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => setTipo(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
+            className="mt-1 w-full rounded border border-surface-border px-3 py-2 border-surface-border bg-surface-card"
           >
             <option value="filme">filme</option>
             <option value="serie">serie</option>
@@ -86,7 +84,7 @@ export default function AdminUploadPage() {
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-gray-300">Arquivo (JPEG/PNG/WebP/AVIF, máx 10 MiB)</span>
+          <span className="text-sm text-fg-primary">Arquivo (JPEG/PNG/WebP/AVIF, máx 10 MiB)</span>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp,image/avif"
@@ -97,19 +95,19 @@ export default function AdminUploadPage() {
         <button
           type="submit"
           disabled={enviando}
-          className="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="rounded bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] disabled:opacity-50"
         >
           {enviando ? "Enviando…" : "Enviar"}
         </button>
       </form>
 
       {erro && (
-        <p role="alert" className="mt-4 text-sm text-red-600">
+        <p role="alert" className="mt-4 text-sm text-score-low">
           {erro}
         </p>
       )}
       {ok && (
-        <p className="mt-4 break-all text-sm text-green-600">
+        <p className="mt-4 break-all text-sm text-[#34D399]">
           Enviado: <code>{ok}</code>
         </p>
       )}

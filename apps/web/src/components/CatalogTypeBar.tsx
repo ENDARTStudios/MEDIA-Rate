@@ -48,7 +48,7 @@ export function CatalogTypeBar() {
     <div
       className="sticky top-16 z-sticky -mx-4 mb-6 border-b border-[#2A2A3D] bg-[#05050A]/90 px-4 py-3 backdrop-blur-sm"
       role="navigation"
-      aria-label="Filtrar por tipo de mídia"
+      aria-label={t("typeFilterAria")}
     >
       <div className="flex flex-wrap items-center gap-2">
         <CategoryChip

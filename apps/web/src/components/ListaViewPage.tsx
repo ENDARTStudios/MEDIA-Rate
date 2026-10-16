@@ -6,7 +6,11 @@
  */
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { api } from "@/lib/http";
+import { toast } from "sonner";
+import { api, ApiError } from "@/lib/http";
+import { Link } from "@/lib/navigation";
+import { ErrorState } from "@/components/ui/error-state";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -62,10 +66,15 @@ function toMediaItem(i: ListaItem): MediaItem {
 
 export function ListaViewPage({ slug }: { slug: string }) {
   const t = useTranslations("listas");
-  const { isAuthenticated, user } = useAuthStore();
+  const tCommon = useTranslations("common");
+  const { isAuthenticated, user, hydrated: authHydrated } = useAuthStore();
   const [lista, setLista] = useState<ListaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // M16: 404 é estado honesto ("lista não encontrada"); o resto pede "tentar de novo".
+  const [naoEncontrada, setNaoEncontrada] = useState(false);
+  // D-619: exclusão de lista passa por diálogo acessível em vez de `window.confirm`.
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const [adding, setAdding] = useState(false);
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<ResultadoBusca[]>([]);
@@ -80,7 +89,12 @@ export function ListaViewPage({ slug }: { slug: string }) {
       setTitulo(data?.titulo ?? "");
       setDescricao(data?.descricao ?? "");
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("error"));
+      if (e instanceof ApiError && e.status === 404) {
+        setNaoEncontrada(true);
+        setError(null);
+      } else {
+        setError(e instanceof Error ? e.message : t("error"));
+      }
     } finally {
       setLoading(false);
     }
@@ -125,6 +139,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
       setResultados([]);
       setBusca("");
       setAdding(false);
+      // D-584/B4 (T211): a ação não dava feedback nenhum (só recarregava a lista).
+      toast.success(t("itemAdded"));
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
@@ -134,6 +150,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
   async function remover(itemId: string) {
     try {
       await api.delete(`/api/v1/listas/${slug}/itens/${itemId}`, {});
+      // D-584/B4: remover item era silencioso e irreversível.
+      toast.success(t("itemRemoved"));
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
@@ -144,6 +162,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
     try {
       await api.patch(`/api/v1/listas/${slug}`, { titulo, descricao });
       setEditMode(false);
+      toast.success(t("saved"));
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
@@ -151,7 +170,9 @@ export function ListaViewPage({ slug }: { slug: string }) {
   }
 
   async function excluir() {
-    if (!window.confirm(t("confirmDelete"))) return;
+    // D-619: sem `window.confirm` — diálogo nativo não segue o tema nem prende o foco
+    // (P1 da spec de Listas, `23-listas.md` §11). A confirmação é o `ConfirmDialog` do repo.
+    setConfirmarExclusao(false);
     try {
       await api.delete(`/api/v1/listas/${slug}`, {});
       window.location.href = "/listas";
@@ -162,10 +183,28 @@ export function ListaViewPage({ slug }: { slug: string }) {
 
   if (loading) return <p className="max-w-5xl mx-auto py-16 px-4 text-[#A0A0B8]">{t("loading")}</p>;
 
-  if (error || !lista) {
+  if (naoEncontrada || !lista) {
     return (
       <div className="max-w-5xl mx-auto py-16 px-4 text-center">
-        <p className="text-[#A0A0B8] mb-4">{error ?? t("notFound")}</p>
+        <p className="text-[#A0A0B8] mb-4">{t("notFound")}</p>
+        <Link href="/listas" className="text-sm font-medium text-indigo hover:text-indigo-300">
+          {t("backToListas")}
+        </Link>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto py-16 px-4">
+        <ErrorState
+          message={error}
+          onRetry={() => {
+            setError(null);
+            setLoading(true);
+            void carregar();
+          }}
+        />
       </div>
     );
   }
@@ -209,9 +248,19 @@ export function ListaViewPage({ slug }: { slug: string }) {
               <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
                 {t("edit")}
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => void excluir()}>
+              <Button size="sm" variant="destructive" onClick={() => setConfirmarExclusao(true)}>
                 {t("delete")}
               </Button>
+              <ConfirmDialog
+                open={confirmarExclusao}
+                onOpenChange={setConfirmarExclusao}
+                title={t("delete")}
+                description={t("confirmDelete")}
+                confirmLabel={t("delete")}
+                cancelLabel={tCommon("cancel")}
+                variant="destructive"
+                onConfirm={() => void excluir()}
+              />
             </div>
           )}
         </div>
@@ -243,7 +292,10 @@ export function ListaViewPage({ slug }: { slug: string }) {
                 </Button>
               </div>
               {resultados.length > 0 && (
-                <ul className="max-h-64 overflow-y-auto divide-y divide-[#2A2A3D] rounded-md border border-[#2A2A3D]">
+                <ul
+                  role="list"
+                  className="max-h-64 overflow-y-auto divide-y divide-[#2A2A3D] rounded-md border border-[#2A2A3D]"
+                >
                   {resultados.slice(0, 10).map((r) => (
                     <li key={r.id}>
                       <button
@@ -271,12 +323,10 @@ export function ListaViewPage({ slug }: { slug: string }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {lista.itens.map((item) => (
             <div key={item.id} className="relative">
-              <a
-                href={`/media/${item.midia_id}`}
-                className="block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
-              >
-                <MediaCard media={toMediaItem(item)} />
-              </a>
+              {/* D-582 (T211): o <MediaCard> já é um <a href="/media/...">; o
+                  wrapper externo gerava <a> dentro de <a> (HTML inválido e dois
+                  alvos de clique). O botão de remover da lista fica ao lado. */}
+              <MediaCard media={toMediaItem(item)} />
               {lista.eh_dono && (
                 <button
                   type="button"
@@ -292,7 +342,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
         </div>
       )}
 
-      {!isAuthenticated && (
+      {authHydrated && !isAuthenticated && (
         <p className="mt-8 text-center text-xs text-[#85859F]">
           {t("loginToContribute")} {user ? "" : ""}
         </p>

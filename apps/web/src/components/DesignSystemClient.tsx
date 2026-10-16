@@ -1,6 +1,6 @@
 "use client";
 
-import { ScoreDial } from "@/components/ui/score-dial";
+import { ScoreDial } from "@/components/media-rate-ui/ScoreDial";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ const SAMPLE_MEDIA: MediaItem[] = [
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-10">
-      <h2 className="text-lg font-heading font-semibold text-[#EDE7DC] mb-4">{title}</h2>
+      <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">{title}</h2>
       {children}
     </section>
   );
@@ -43,30 +43,30 @@ export function DesignSystemClient() {
   return (
     <LayeredBackground spotlight>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-2">Design System</h1>
-        <p className="text-sm text-[#9CA3AF] mb-8">Componentes base com tokens TRAVADOS V3 §12</p>
+        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-2">Design System</h1>
+        <p className="text-sm text-[#A0A0B8] mb-8">Componentes base com tokens TRAVADOS V3 §12</p>
 
         <Section title="ScoreDial">
-          <div className="flex flex-wrap items-end gap-6 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex flex-wrap items-end gap-6 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             {[10, 9.5, 8.7, 7.2, 6.4, 5.1, 3.5].map((s) => (
               <div key={s} className="flex flex-col items-center gap-1">
-                <ScoreDial score={s} size="sm" />
-                <span className="text-xs text-[#9CA3AF]">{s}</span>
+                <ScoreDial value={s} size="sm" />
+                <span className="text-xs text-[#A0A0B8]">{s}</span>
               </div>
             ))}
           </div>
-          <div className="flex flex-wrap items-end gap-8 mt-4 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex flex-wrap items-end gap-8 mt-4 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <div className="flex flex-col items-center gap-2">
-              <ScoreDial score={8.5} size="sm" />
-              <span className="text-xs text-[#9CA3AF]">sm</span>
+              <ScoreDial value={8.5} size="sm" />
+              <span className="text-xs text-[#A0A0B8]">sm</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <ScoreDial score={8.5} size="md" showBreakdown />
-              <span className="text-xs text-[#9CA3AF]">md + breakdown</span>
+              <ScoreDial value={8.5} size="md" />
+              <span className="text-xs text-[#A0A0B8]">md + breakdown</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <ScoreDial score={8.5} size="lg" />
-              <span className="text-xs text-[#9CA3AF]">lg</span>
+              <ScoreDial value={8.5} size="lg" />
+              <span className="text-xs text-[#A0A0B8]">lg</span>
             </div>
           </div>
         </Section>
@@ -80,7 +80,7 @@ export function DesignSystemClient() {
         </Section>
 
         <Section title="Button">
-          <div className="flex flex-wrap items-center gap-4 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex flex-wrap items-center gap-4 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <Button variant="default">Primary</Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="outline">Outline</Button>
@@ -88,7 +88,7 @@ export function DesignSystemClient() {
             <Button variant="destructive">Destructive</Button>
             <Button variant="link">Link</Button>
           </div>
-          <div className="flex flex-wrap items-center gap-4 mt-4 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex flex-wrap items-center gap-4 mt-4 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <Button size="sm">Small</Button>
             <Button>Default</Button>
             <Button size="lg">Large</Button>
@@ -97,7 +97,7 @@ export function DesignSystemClient() {
         </Section>
 
         <Section title="Input">
-          <div className="max-w-sm space-y-4 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="max-w-sm space-y-4 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <Input label="Título" placeholder="Digite o nome da mídia..." />
             <Input label="Email" placeholder="seu@email.com" type="email" error="Email inválido." />
             <Input placeholder="Sem label" />
@@ -105,7 +105,7 @@ export function DesignSystemClient() {
         </Section>
 
         <Section title="Badge">
-          <div className="flex flex-wrap items-center gap-3 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex flex-wrap items-center gap-3 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <Badge variant="type" typeLabel="Filme" />
             <Badge variant="type" typeLabel="Série" />
             <Badge variant="type" typeLabel="Jogo" />
@@ -119,7 +119,7 @@ export function DesignSystemClient() {
         </Section>
 
         <Section title="Skeleton">
-          <div className="space-y-3 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="space-y-3 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <div className="flex items-center gap-3">
               <Skeleton variant="circle" className="w-10 h-10" />
               <div className="space-y-2 flex-1">
@@ -136,7 +136,7 @@ export function DesignSystemClient() {
         </Section>
 
         <Section title="Spinner">
-          <div className="flex items-center gap-6 bg-[#11111E] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
+          <div className="flex items-center gap-6 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md p-6">
             <Spinner size="sm" />
             <Spinner size="md" />
             <Spinner size="lg" />

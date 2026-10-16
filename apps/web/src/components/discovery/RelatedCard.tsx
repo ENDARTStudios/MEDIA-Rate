@@ -44,7 +44,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
     <Link
       href={`/media/${m.slug}`}
       data-testid="related-card"
-      className="group flex w-[200px] shrink-0 snap-start flex-col rounded-lg border border-[rgba(129,140,248,0.08)] bg-[#11111E] p-2.5 transition-colors hover:border-[rgba(129,140,248,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+      className="group flex w-[200px] shrink-0 snap-start flex-col rounded-lg border border-[rgba(129,140,248,0.08)] bg-[#12121C] p-2.5 transition-colors hover:border-[rgba(129,140,248,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
     >
       <div className="relative h-28 w-full overflow-hidden rounded-md bg-[#1C1C2E]">
         {m.imagemUrl ? (
@@ -87,7 +87,7 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
           })()
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Icon className="h-8 w-8 text-[#9CA3AF]" aria-hidden="true" />
+            <Icon className="h-8 w-8 text-[#A0A0B8]" aria-hidden="true" />
           </div>
         )}
         <span
@@ -100,12 +100,12 @@ export function RelatedCard({ relacao }: { relacao: RelacaoItem }) {
       </div>
 
       <div className="mt-2 flex flex-1 flex-col">
-        <p className="line-clamp-2 text-sm font-heading font-semibold text-[#EDE7DC] group-hover:text-[#A5B4FC]">
+        <p className="line-clamp-2 text-sm font-heading font-semibold text-[#F5F5F7] group-hover:text-[#A5B4FC]">
           {m.titulo}
         </p>
         <p className="mt-1 text-xs text-[#818CF8]">{t(relationLabelKey(relacao.tipo))}</p>
-        <p className="mt-auto pt-1 text-xs text-[#9CA3AF]">
-          <span data-testid="related-score" className="font-semibold text-[#EDE7DC]">
+        <p className="mt-auto pt-1 text-xs text-[#A0A0B8]">
+          <span data-testid="related-score" className="font-semibold text-[#F5F5F7]">
             {scoreLabel}
           </span>{" "}
           {m.anoLancamento ?? ""}

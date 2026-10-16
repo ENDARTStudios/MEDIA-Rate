@@ -1,9 +1,11 @@
 "use client";
 
+import { formatarScoreLocale } from "@/lib/score-utils";
+
 import { useEffect, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 import { useWatchlistStore } from "@/stores/use-watchlist-store";
 import { searchMedia } from "@/lib/api";
@@ -104,6 +106,7 @@ export function interactionMidiaToItem(midia: {
 
 /** T190: indicador "score mudou" — compara score atual com o da adição. */
 export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
+  const locale = useLocale();
   const atual = entry.media?.score ?? null;
   const anterior = entry.scoreAtAdd ?? entry.score_at_add ?? null;
   if (atual == null || anterior == null) return null;
@@ -114,10 +117,10 @@ export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
     <span
       className="inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums"
       style={{ color: subiu ? "#34D399" : "#F87171" }}
-      title={`${subiu ? "Subiu" : "Caiu"} de ${anterior.toFixed(1)} para ${atual.toFixed(1)}`}
+      title={`${subiu ? "Subiu" : "Caiu"} de ${formatarScoreLocale(anterior, locale)} para ${formatarScoreLocale(atual, locale)}`}
       data-testid="score-delta"
     >
-      {subiu ? "↑" : "↓"} {Math.abs(diff).toFixed(1)}
+      {subiu ? "↑" : "↓"} {formatarScoreLocale(Math.abs(diff), locale)}
     </span>
   );
 }
@@ -186,7 +189,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("relinkPlaceholder")}
         aria-label={t("buscarSubstituta")}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#EDE7DC] placeholder-[#9CA3AF] outline-none focus:border-[#818CF8]"
+        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#F5F5F7] placeholder-[#A0A0B8] outline-none focus:border-[#818CF8]"
       />
       {erro && <p className="text-xs text-red-400">{t("relinkError")}</p>}
       <div className="max-h-32 overflow-y-auto rounded border border-[#2A2A3D]">
@@ -197,7 +200,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
             onClick={() => void relinkItem(entryId, r.id)}
             className="block w-full text-left rounded px-1.5 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
           >
-            {r.title} <span className="text-[#9CA3AF]">{r.year}</span>
+            {r.title} <span className="text-[#A0A0B8]">{r.year}</span>
           </button>
         ))}
       </div>
@@ -382,7 +385,7 @@ export function WatchlistCard({
                 aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
                 className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                   active
-                    ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
+                    ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
                     : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
                 }`}
               >

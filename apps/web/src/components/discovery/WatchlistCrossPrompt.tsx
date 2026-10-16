@@ -56,11 +56,11 @@ export function WatchlistCrossPrompt({
       className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-[#151524] p-4 shadow-floating"
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-heading font-semibold text-[#EDE7DC]">{t("crossPromptTitle")}</p>
+        <p className="text-sm font-heading font-semibold text-[#F5F5F7]">{t("crossPromptTitle")}</p>
         <button
           onClick={onDismiss}
           aria-label={t("dismiss")}
-          className="rounded p-1 text-[#9CA3AF] hover:text-[#EDE7DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+          className="rounded p-1 text-[#A0A0B8] hover:text-[#F5F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
         >
           <svg
             className="h-4 w-4"
@@ -79,7 +79,7 @@ export function WatchlistCrossPrompt({
         </button>
       </div>
 
-      <ul className="mt-3 space-y-2">
+      <ul role="list" className="mt-3 space-y-2">
         {relacoes.map((r) => {
           const token = CATEGORY_TOKENS[r.midia.tipo.toLowerCase() as MediaType];
           const Icon = token?.icon ?? CATEGORY_TOKENS.movie.icon;
@@ -91,7 +91,7 @@ export function WatchlistCrossPrompt({
             >
               <Link
                 href={`/media/${r.midia.slug}`}
-                className="flex min-w-0 items-center gap-2 text-sm text-[#EDE7DC] hover:text-[#A5B4FC]"
+                className="flex min-w-0 items-center gap-2 text-sm text-[#F5F5F7] hover:text-[#A5B4FC]"
               >
                 <Icon
                   className="h-4 w-4 shrink-0"
@@ -111,7 +111,7 @@ export function WatchlistCrossPrompt({
                   setAddedIds((prev) => new Set(prev).add(r.midia.id));
                 }}
                 disabled={jaAdicionado}
-                className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#6B7280] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
+                className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#A0A0B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
               >
                 {jaAdicionado ? t("added") : t("addToo")}
               </button>

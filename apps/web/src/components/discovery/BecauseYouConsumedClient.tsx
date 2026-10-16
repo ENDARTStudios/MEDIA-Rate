@@ -56,10 +56,10 @@ export function BecauseYouConsumedClient() {
   return (
     <section data-testid="because-you-consumed" className="px-4 py-10">
       <div className="max-w-6xl mx-auto">
-        <h2 className="font-heading text-2xl font-bold text-[#EDE7DC] mb-1">
+        <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-1">
           {t("becauseYouConsumed", { titulo: origemTitulo ?? "" })}
         </h2>
-        <p className="text-sm text-[#9CA3AF] mb-6">{t("becauseYouConsumedSub")}</p>
+        <p className="text-sm text-[#A0A0B8] mb-6">{t("becauseYouConsumedSub")}</p>
         <div
           className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none -mx-1 px-1"
           role="list"

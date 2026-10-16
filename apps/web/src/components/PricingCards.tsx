@@ -42,7 +42,7 @@ export function PricingCards({
       <div
         className="mb-10 flex items-center justify-center gap-3"
         role="group"
-        aria-label="Periodicidade"
+        aria-label={t("billingPeriod")}
       >
         {(["monthly", "annual"] as Billing[]).map((b) => {
           const unavailable = b === "annual" && !annualAvailable;
@@ -93,7 +93,7 @@ export function PricingCards({
             <div
               key={plan.id}
               data-testid={`plan-card-${plan.id}`}
-              className={`relative rounded-md border p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+              className={`relative rounded-md border p-6 flex flex-col transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 ${
                 isPlus
                   ? "bg-[#12121C] border-[rgba(129,140,248,0.2)]"
                   : "bg-[#12121C] border-[#2A2A3D] hover:border-[rgba(129,140,248,0.3)]"
@@ -147,7 +147,7 @@ export function PricingCards({
                   todos os planos incluem os 6 tipos de mídia, então as bolinhas
                   eram idênticas em Free/Plus/Premium (audit Operador 2026-10-03). */}
 
-              <ul className="space-y-3 mb-8 flex-1 text-sm">
+              <ul role="list" className="space-y-3 mb-8 flex-1 text-sm">
                 {(t.raw(`${plan.id}Features`) as string[]).map((f: string, i: number) => (
                   <li key={i} className="flex items-start gap-2">
                     <svg
@@ -200,7 +200,7 @@ export function PricingCards({
                     plan.price === 0 ? "/register" : `/checkout/${plan.id}?billing=${safeBilling}`
                   }
                   data-testid={`plan-cta-${plan.id}`}
-                  className={`mt-3 block text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  className={`mt-3 block text-center py-2.5 rounded-lg text-sm font-semibold transition-[filter,background-color] duration-300 ${
                     isPlus
                       ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"
                       : "bg-[#1B1B2C] text-[#F5F5F7] hover:bg-[#2A2A3D]"

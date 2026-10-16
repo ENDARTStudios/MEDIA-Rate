@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -11,14 +12,7 @@ interface VerticalMarqueeProps {
 }
 
 export function VerticalMarquee({ items, speed = 30, className }: VerticalMarqueeProps) {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener?.("change", apply);
-    return () => mq.removeEventListener?.("change", apply);
-  }, []);
+  const reduce = useReducedMotionPref();
 
   return (
     <div className={cn("relative w-16 overflow-hidden", className)} aria-hidden="true">
@@ -29,7 +23,7 @@ export function VerticalMarquee({ items, speed = 30, className }: VerticalMarque
           items.map((item, i) => (
             <span
               key={i}
-              className="text-xs text-[#9CA3AF] font-heading tracking-wider"
+              className="text-xs text-[#A0A0B8] font-heading tracking-wider"
               style={{ writingMode: "vertical-rl" }}
             >
               {item}
@@ -49,7 +43,7 @@ export function VerticalMarquee({ items, speed = 30, className }: VerticalMarque
             {[...items, ...items].map((item, i) => (
               <span
                 key={i}
-                className="text-xs text-[#9CA3AF] font-heading tracking-wider whitespace-nowrap"
+                className="text-xs text-[#A0A0B8] font-heading tracking-wider whitespace-nowrap"
                 style={{ writingMode: "vertical-rl" }}
               >
                 {item}

@@ -91,7 +91,7 @@ function ParaVoceSection({ itens }: { itens: ParaVoceItem[] }) {
           <Link
             key={`${item.id}-${item.motivo.tipo}`}
             href={`/media/${item.slug ?? item.id}`}
-            className="group block bg-[#11111E] rounded-xl overflow-hidden border border-[#2A2A3D]"
+            className="group block bg-[#12121C] rounded-xl overflow-hidden border border-[#2A2A3D]"
           >
             {item.imagem_url && (
               <StaticPoster
@@ -121,6 +121,8 @@ export function DiscoveriesFeed() {
   const t = useTranslations("discoveries");
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // D-626: espera a hidratação antes de decidir entre "visitante" e "carregando".
+  const authHydrated = useAuthStore((s) => s.hydrated);
   const [items, setItems] = useState<Descoberta[]>([]);
   const [grafo, setGrafo] = useState<GrafoSugestao[]>([]);
   const [highlights, setHighlights] = useState<Media[]>([]);
@@ -152,12 +154,14 @@ export function DiscoveriesFeed() {
   }, []);
 
   useEffect(() => {
+    // D-626: espera saber se há sessão antes de decidir (mesma família do P0/D-619).
+    if (!authHydrated) return;
     if (!isAuthenticated) {
       setLoading(false);
       return;
     }
     void carregar();
-  }, [isAuthenticated, carregar]);
+  }, [authHydrated, isAuthenticated, carregar]);
 
   // T381: fallback útil quando o usuário ainda não tem descobertas —
   // destaques por score do catálogo (nunca tela morta).
@@ -170,7 +174,7 @@ export function DiscoveriesFeed() {
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
+      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
         <p className="mb-3">{t("loginHint")}</p>
         <button
           type="button"
@@ -184,7 +188,7 @@ export function DiscoveriesFeed() {
   }
 
   if (loading) {
-    return <div className="text-[#9CA3AF] py-8">{t("loading")}</div>;
+    return <div className="text-[#A0A0B8] py-8">{t("loading")}</div>;
   }
 
   if (error) {
@@ -198,12 +202,12 @@ export function DiscoveriesFeed() {
   if (items.length === 0) {
     return (
       <div>
-        <div className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-8 text-center text-[#9CA3AF]">
-          <p className="text-lg font-medium text-[#EDE7DC] mb-1">{t("emptyTitle")}</p>
+        <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
+          <p className="text-lg font-medium text-[#F5F5F7] mb-1">{t("emptyTitle")}</p>
           <p className="mb-4">{t("emptyHint")}</p>
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-all hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110"
           >
             {t("exploreCatalog")}
           </Link>
@@ -214,12 +218,12 @@ export function DiscoveriesFeed() {
             <h2 className="mb-4 font-heading text-lg font-semibold text-[#F5F5F7]">
               {t("fallbackTitle")}
             </h2>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {grafo.map((g) => (
                 <li key={g.id}>
                   <Link
                     href={`/media/${g.id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#11111E] p-3 transition-colors hover:border-[#818CF8]/50"
+                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-3 transition-colors hover:border-[#818CF8]/50"
                   >
                     <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
                       {g.poster_url ? (
@@ -231,7 +235,7 @@ export function DiscoveriesFeed() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-[#EDE7DC]">{g.titulo}</p>
+                      <p className="truncate text-sm font-medium text-[#F5F5F7]">{g.titulo}</p>
                       <span className="mt-1 inline-block rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-2 py-0.5 text-xs text-[#A5B0FF]">
                         {t(`motivo_${g.motivo}`)}
                       </span>
@@ -249,12 +253,12 @@ export function DiscoveriesFeed() {
               {t("fallbackTitle")}
             </h2>
             <p className="mb-4 text-sm text-[#A0A0B8]">{t("fallbackHint")}</p>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {highlights.map((h) => (
                 <li key={h.id}>
                   <Link
                     href={`/media/${h.id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#11111E] p-3 transition-colors hover:border-[#818CF8]/50"
+                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-3 transition-colors hover:border-[#818CF8]/50"
                   >
                     <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
                       {h.posterUrl ? (
@@ -266,7 +270,7 @@ export function DiscoveriesFeed() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-[#EDE7DC]">{h.title}</p>
+                      <p className="truncate text-sm font-medium text-[#F5F5F7]">{h.title}</p>
                       <p className="text-xs text-[#85859F]">
                         {h.type} · {h.year}
                       </p>
@@ -284,11 +288,11 @@ export function DiscoveriesFeed() {
   return (
     <div>
       <ParaVoceSection itens={paraVoce} />
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <li
             key={`${item.toMediaId}-${item.relationType}`}
-            className="rounded-xl border border-[#2A2A3D] bg-[#11111E] p-4 flex flex-col"
+            className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-4 flex flex-col"
             data-testid="discovery-card"
           >
             <a
@@ -311,8 +315,8 @@ export function DiscoveriesFeed() {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate font-medium text-[#EDE7DC]">{item.toMedia.titulo}</p>
-                <p className="text-xs text-[#9CA3AF] mb-1">
+                <p className="truncate font-medium text-[#F5F5F7]">{item.toMedia.titulo}</p>
+                <p className="text-xs text-[#A0A0B8] mb-1">
                   {t(`relation_${item.relationType.toLowerCase()}`)}
                 </p>
                 <p className="text-xs text-[#85859F]">

@@ -35,14 +35,14 @@ function Badge({
 
   if (variant === "type") {
     hasBorder = true;
-    style = { backgroundColor: "#1C1C2E", color: "#9CA3AF", borderColor: "#1C1C2E" };
+    style = { backgroundColor: "#1C1C2E", color: "#A0A0B8", borderColor: "#1C1C2E" };
   } else if (variant === "score" && typeof score === "number") {
     hasBorder = true;
     const c = getScoreColor(score);
     style = { backgroundColor: "transparent", color: c, borderColor: c };
   } else if (variant === "status") {
     if (statusLabel === "Free") {
-      style = { backgroundColor: "#11111E", color: "#9CA3AF" };
+      style = { backgroundColor: "#12121C", color: "#A0A0B8" };
     } else if (statusLabel === "Plus") {
       style = { backgroundColor: "rgba(129,140,248,0.15)", color: "#818CF8" };
     } else if (statusLabel === "Premium") {

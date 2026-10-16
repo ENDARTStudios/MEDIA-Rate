@@ -165,8 +165,8 @@ export function StatusReactionControl({
           title={labelAtual}
           className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
             status
-              ? "bg-[#11111E]/85 text-[#EDE7DC] hover:bg-[#1C1C2E]"
-              : "bg-[#11111E]/85 text-[#9CA3AF] hover:bg-[#1C1C2E] hover:text-[#EDE7DC]"
+              ? "bg-[#12121C]/85 text-[#F5F5F7] hover:bg-[#1C1C2E]"
+              : "bg-[#12121C]/85 text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
           }`}
           data-testid="status-quick"
         >
@@ -209,8 +209,8 @@ export function StatusReactionControl({
                         disabled
                           ? "cursor-not-allowed text-[#4A4A60]"
                           : active
-                            ? "bg-[#2A2A3D] text-[#EDE7DC]"
-                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
+                            ? "bg-[#2A2A3D] text-[#F5F5F7]"
+                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
                       }`}
                     >
                       <StatusGlyph status={s} size={13} filled={active} />
@@ -250,14 +250,14 @@ export function StatusReactionControl({
         data-testid="status-control-full"
         className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
           open
-            ? "border-[#818CF8] bg-[#1C1C2E] text-[#EDE7DC]"
-            : "border-[#2A2A3D] bg-[#11111E] text-[#EDE7DC] hover:bg-[#1C1C2E]"
+            ? "border-[#818CF8] bg-[#1C1C2E] text-[#F5F5F7]"
+            : "border-[#2A2A3D] bg-[#12121C] text-[#F5F5F7] hover:bg-[#1C1C2E]"
         }`}
       >
         {status ? <StatusGlyph status={status} size={15} /> : <AddGlyph size={15} />}
         <span>{displayLabel}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#9CA3AF] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-[#A0A0B8] transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -308,8 +308,8 @@ export function StatusReactionControl({
                     disabled
                       ? "cursor-not-allowed text-[#4A4A60]"
                       : active
-                        ? "bg-[#2A2A3D] text-[#EDE7DC]"
-                        : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#EDE7DC]"
+                        ? "bg-[#2A2A3D] text-[#F5F5F7]"
+                        : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
                   }`}
                 >
                   <StatusGlyph status={s} size={13} filled={active} />
@@ -336,7 +336,7 @@ export function StatusReactionControl({
                       aria-pressed={active}
                       className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                         active
-                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
+                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
                           : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
                       }`}
                     >
@@ -366,7 +366,7 @@ export function StatusReactionControl({
                       aria-pressed={active}
                       className={`rounded-full border px-2.5 py-1 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
                         active
-                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#EDE7DC]"
+                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
                           : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
                       }`}
                     >

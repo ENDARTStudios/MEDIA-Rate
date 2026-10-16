@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { StructuredData } from "@/components/StructuredData";
 import { getInstitutionalContent } from "@/lib/institutional-content";
-import { FONTES_ATIVAS, MIDIA_LABEL } from "@/lib/sources";
+import { FONTES_ATIVAS, MIDIA_LABEL_KEY } from "@/lib/sources";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
+
+/**
+ * D-590 (T211) — opt-in de renderização estática para conteúdo institucional.
+ *
+ * Estas seis páginas são conteúdo editorial (sem dado de usuário, sem cookie, sem
+ * `searchParams`): podem ser pré-renderizadas e servidas por CDN. Hoje **todas as
+ * rotas do app são dinâmicas por padrão** (ver D-589: o `force-static` é o único
+ * caminho que produz `○` no build), então o opt-in é explícito.
+ *
+ * `revalidate = 3600`: o conteúdo muda quando alguém edita as mensagens/fontes —
+ * uma hora de defasagem é aceitável para texto institucional, e o endpoint
+ * `/api/revalidate` (já existente) permite invalidação sob demanda em publicação.
+ */
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -44,6 +59,10 @@ export default async function MethodologyPage({ params }: PageProps) {
   setRequestLocale(locale);
   const copy = getInstitutionalContent(locale).methodology;
   const pageUrl = localizedUrl(locale, "/methodology");
+  // T211: rótulos de tipo de mídia e de bucket vinham hardcoded em pt-BR e
+  // apareciam em en-US/es-ES. Agora usam as chaves canônicas traduzidas.
+  const tCat = await getTranslations("catalog");
+  const tScore = await getTranslations("scoredial");
 
   const jsonLd = [
     {
@@ -80,13 +99,14 @@ export default async function MethodologyPage({ params }: PageProps) {
     <article className="container mx-auto max-w-4xl px-4 py-12">
       <StructuredData data={jsonLd} />
       <header className="mb-10 text-center">
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+        <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
           {copy.title}
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">{copy.lead}</p>
       </header>
 
-      <div className="prose prose-invert max-w-[38rem] prose-headings:font-heading prose-a:text-primary">
+      {/* T211: `prose` era inerte (plugin de typography ausente) → estilos explícitos por token. */}
+      <div className="max-w-[34rem] space-y-12 [&_a]:text-[#818CF8] [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#F5F5F7] [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[#A0A0B8]">
         <ScrollReveal>
           <section aria-labelledby="score-title">
             <h2 id="score-title">{copy.scoreTitle}</h2>
@@ -101,10 +121,10 @@ export default async function MethodologyPage({ params }: PageProps) {
             {copy.calculationItems.map((item) => (
               <div
                 key={item.label}
-                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#EDE7DC]">{item.label}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-[#9CA3AF]">{item.body}</dd>
+                <dt className="font-heading text-lg font-semibold text-[#F5F5F7]">{item.label}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">{item.body}</dd>
               </div>
             ))}
           </dl>
@@ -119,16 +139,16 @@ export default async function MethodologyPage({ params }: PageProps) {
         <section aria-labelledby="sources-title">
           <h2 id="sources-title">{copy.sourceTitle}</h2>
           <p>{copy.sourceBody}</p>
-          <ul className="not-prose mt-4 grid gap-2 sm:grid-cols-2">
+          <ul role="list" className="not-prose mt-4 grid gap-2 sm:grid-cols-2">
             {FONTES_ATIVAS.map((fonte) => (
               <li
                 key={fonte.id}
-                className="flex items-center justify-between rounded-lg border border-surface-border/30 bg-[#11111E] px-4 py-2.5 text-sm"
+                className="flex items-center justify-between rounded-lg border border-surface-border/30 bg-[#12121C] px-4 py-2.5 text-sm"
               >
-                <span className="font-medium text-[#EDE7DC]">{fonte.nome}</span>
-                <span className="text-xs text-[#9CA3AF]">
-                  {fonte.tipo === "critica" ? "Crítica" : "Público"} ·{" "}
-                  {fonte.midias.map((m) => MIDIA_LABEL[m]).join(" · ")}
+                <span className="font-medium text-[#F5F5F7]">{fonte.nome}</span>
+                <span className="text-xs text-[#A0A0B8]">
+                  {fonte.tipo === "critica" ? tScore("critic") : tScore("audience")} ·{" "}
+                  {fonte.midias.map((m) => tCat(MIDIA_LABEL_KEY[m])).join(" · ")}
                 </span>
               </li>
             ))}
@@ -146,12 +166,12 @@ export default async function MethodologyPage({ params }: PageProps) {
             {copy.faqs.map((faq) => (
               <section
                 key={faq.question}
-                className="rounded-lg border border-surface-border/30 bg-[#11111E] p-5"
+                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
               >
-                <h3 className="font-heading text-lg font-semibold text-[#EDE7DC]">
+                <h3 className="font-heading text-lg font-semibold text-[#F5F5F7]">
                   {faq.question}
                 </h3>
-                <p className="mt-2 leading-relaxed text-[#9CA3AF]">{faq.answer}</p>
+                <p className="mt-2 leading-relaxed text-[#A0A0B8]">{faq.answer}</p>
               </section>
             ))}
           </div>

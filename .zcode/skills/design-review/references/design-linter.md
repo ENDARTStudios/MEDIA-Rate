@@ -73,25 +73,39 @@ npx impeccable ignores add-value <regra> "*" --file "<glob>" --reason "<por quê
 
 ## Estado atual (baseline do repo)
 
-`npm run design:detect` em `apps/web/src`: **5 achados** (2 regras), ambos
-pré-existentes ao redesenho da hero e nenhum no hero novo:
+`npm run design:detect` em `apps/web/src`: **0 achados** (T211/D-582–D-584). No DOM
+renderizado, **0 achados** em 18 rotas públicas (home, catálogo, preços, discover, top,
+institucionais, legais, auth, checkout, welcome, feedback, design-system).
 
-| Regra | Onde | Situação |
+Histórico dos achados que existiam e foram fechados:
+
+| Regra | Onde estava | Situação |
 |---|---|---|
-| `gradient-text` | `components/AuthForm.tsx:117`, `:319`, `ui/gradient-menu.tsx:18`, `ui/hover-text-effect.tsx:15` | **aberto** — texto com `bg-clip-text` + gradiente em links/efeitos. É "AI tell" e o gradiente em texto pode reduzir previsibilidade de contraste. Decidir por tela: trocar por cor sólida do token (recomendado em `AuthForm`, que é fluxo de conversão) ou manter como micro-interação deliberada (com justificativa). |
-| `overused-font` | `dashboard/DashboardOverview.tsx:635` | **aberto** — `font-family:Arial` dentro do HTML gerado para a janela de impressão do relatório. Trocar por `Inter`/`Georgia` (ou aceitar: janela de impressão isolada). |
-| `low-contrast` (pixel) | carrosséis (`#carousel-list-*`), `#6B7280`/`#6B6B85` | **aberto** — 68 nós no DOM renderizado das 3 rotas medidas. Prioridade 1: score sobre pôster (scrim). Prioridade 2: sweep de muted (`#6B6B85`→`#80809B`, 56 ocorrências) e `#6B7280`→`#9CA3AF`. |
-| `line-length` | `HomeContentSections` (`p.text-sm`) | **aberto** — 117–124 caracteres/linha; somar `max-w-[70ch]`. |
-| `skipped-heading` | `/pricing` | **aberto** — ordem h1→h2→h3 furada. |
-| `hero-eyebrow-chip` | hero da home | **corrigido em T209** — pill de marca removido; guarda em `test/hero-constellation.spec.tsx`. |
+| `gradient-text` | `AuthForm`, `ui/gradient-menu`, `ui/hover-text-effect` | **fechado** — cor sólida nos links; `hover-text-effect` (dead code) deletado. |
+| `overused-font` | `dashboard/DashboardOverview.tsx` (SVG de export) | **fechado** — `Arial` → `Inter, system-ui, sans-serif` (13 usos). |
+| `low-contrast` (pixel) | carrosséis, `#6B7280`/`#6B6B85`, `text-white/25…40` | **fechado** — scrim do score sobre pôster; sweep de muted para tokens AA; 58 pontos de `text-white/*` → `#85859F`. |
+| `line-length` | `HomeContentSections`, `/terms`, `/privacy`, `/sources`, `/methodology` | **fechado** — medida de ~78 caracteres (parágrafos; tabelas legais seguem largas). |
+| `skipped-heading` | `/pricing`, `/discover`, `ErrorBoundary` | **fechado** — `h3`→`h2`, `h2` acessível, erro com `h1`. |
+| `hero-eyebrow-chip` | hero da home e `/welcome` | **fechado em T209/T211** — pill removido nos dois; guarda em `test/hero-constellation.spec.tsx`. |
+| `script-error` | `/billing/success` | **fechado em T211** — hydration mismatch do confete (SSR `<canvas>` vs cliente `null` com movimento reduzido). |
+| `broken-image` | `MediaDetailPage` | **fechado** — era um falso positivo causado por `<img>` escrito **dentro de um comentário**; comentário reescrito (o detector lê comentários). |
 
 Aceitos por decisão (com motivo registrado em `.impeccable/config.json`):
 
 | Regra | Escopo | Por quê |
 |---|---|---|
-| `codex-grid-background` | `app/globals.css:271` | Grade 40 px faz parte do `LayeredBackground` (D-066) — identidade visual do produto, não enfeite decorativo. |
+| `codex-grid-background` | `app/globals.css` | Grade 40 px faz parte do `LayeredBackground` (D-066) — identidade visual do produto, não enfeite decorativo. |
 | `broken-image` | `components/MediaDetailClient.tsx` | T031: `<img>` estático com `srcSet` própria (o `next/image` não aceita `srcSet` customizado); o `src` sempre vem do guard `media.posterUrl`. Falso positivo. |
-| `overused-font` (Space Grotesk/Inter) | todo o app (modo DOM) | Fontes são decisão travada do design system (V3 §12/D-065). O achado de `Arial` na janela de impressão continua **aberto** (não há ignore para ele). |
+| `overused-font` (Space Grotesk/Inter) | todo o app (modo DOM) | Fontes são decisão travada do design system (V3 §12/D-065). |
+
+### Gate de cor: `npm run design:hex` (D-584)
+
+O detector é advisory e o `design:contrast` audita os **tokens**, não os literais em JSX —
+por isso ~972 ocorrências de cor fora de token conviviam com gates verdes. O script
+`apps/web/scripts/design-hex-census.mjs` congela o legado em
+`apps/web/scripts/hex-baseline.json` (55 valores) e **falha (exit 2) quando um valor NOVO
+aparece**. Cor nova legítima exige justificativa registrada + `npm run design:hex -- --update`.
+Assim o drift para de crescer sem exigir a migração de tudo de uma vez.
 
 ## Regras que valem revisar sempre
 
@@ -100,3 +114,19 @@ Aceitos por decisão (com motivo registrado em `.impeccable/config.json`):
   a11y é `apps/web/e2e/a11y.spec.ts` (axe AA, `E2E_FULL=1`).
 - **Alvos de toque, ordem de headings, comprimento de linha, padding apertado**:
   achados recorrentes em telas de produto (dashboard/biblioteca).
+
+### Gate de hidratação: `npm run test:hydration --workspace apps/web` (D-587)
+
+O detector e o axe não veem **hydration mismatch** nem conteúdo que nasce invisível. Dois defeitos
+reais chegaram na `main` por essa cegueira: gestos (`whileTap`/`whileHover`) condicionados a
+`prefers-reduced-motion` faziam o motion injetar `tabindex="0"` só no servidor, e
+`initial={shouldReduce ? false : { opacity: 0 }}` fazia o HTML servido nascer escondido.
+
+O spec `apps/web/visual/hydration.visual.spec.ts` percorre as rotas públicas nos **dois modos de
+movimento** e falha se houver (a) mensagem de hydration no console, (b) erro de console/`pageerror`
+ou (c) bloco de texto com `opacity < 0.05` depois das animações assentarem. Runner separado do
+e2e de CI (usa o dev server), como a regressão visual por pixel.
+
+**Regra que ficou**: valor que depende de `prefers-reduced-motion` **não** pode decidir markup.
+Use `MotionConfig reducedMotion="user"` (provider global) para gestos e CSS (`prefers-reduced-motion:
+no-preference` + `@keyframes`) para entradas — o HTML do servidor precisa ser igual ao do cliente.

@@ -19,7 +19,7 @@
  * (4.42:1) — débito pré-existente do design system, reportado mas não
  * bloqueante; use `--strict` para tratá-lo como falha.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -126,6 +126,98 @@ for (const [name, hex] of Object.entries(score)) {
   if (!hex.startsWith("#")) continue;
   for (const [sLabel, sHex, advisory] of SURFACES) {
     check("score", `score.${name} sobre ${sLabel}`, hex, sHex, AA_LARGE, advisory);
+  }
+}
+
+/**
+ * Cegueira do §11 da auditoria de UI/UX: este gate só olhava **pares de token**.
+ * Um par literal — `bg-[#E11D48]/15 text-[#E11D48]`, que reprovou AA no DOM em
+ * `/media/breaking-bad` (3,7:1) — passava batido aqui.
+ *
+ * Esta varredura é **estática**, então vale também para `/admin` e `/dashboard`,
+ * que ficam fora do axe por falta de sessão (`test:auth`).
+ *
+ * Regra deliberadamente conservadora: só julga quando o **texto e o fundo aparecem
+ * no mesmo className** — evita falso positivo de fundo herdado de um ancestral.
+ * Fundo com alfa é composto sobre a superfície de card, que é o caso real do produto.
+ */
+function hexSobre(frente, alfa, fundo) {
+  const a = hexToRgb(frente);
+  const b = hexToRgb(fundo);
+  const canais = [0, 1, 2].map((i) =>
+    Math.round(a[i] * alfa + b[i] * (1 - alfa))
+      .toString(16)
+      .padStart(2, "0"),
+  );
+  return `#${canais.join("")}`;
+}
+
+function* arquivosTsx(dir) {
+  for (const nome of readdirSync(dir)) {
+    const caminho = join(dir, nome);
+    if (statSync(caminho).isDirectory()) yield* arquivosTsx(caminho);
+    else if (caminho.endsWith(".tsx")) yield caminho;
+  }
+}
+
+const SRC_WEB = join(REPO, "apps", "web", "src");
+let literaisJulgados = 0;
+
+/**
+ * Quebra um className em utilitários com o seu "estado" (prefixos de variante).
+ *
+ * Duas correções que a primeira versão exigiu, ambas por falso positivo achado ao
+ * rodar: (1) `hover:text-X` não pode ser pareado com o `bg-Y` base — estados
+ * diferentes; (2) `after:bg-X` é pseudo-elemento (o sublinhado), não fundo do texto.
+ */
+function utilitariosDeCor(classe) {
+  const out = [];
+  for (const token of classe.split(/\s+/)) {
+    const m = token.match(
+      /^((?:[a-z0-9-]+:)*)(text|bg)-\[#([0-9A-Fa-f]{6})\](?:\/(\d{1,3}))?$/,
+    );
+    if (!m) continue;
+    out.push({
+      estado: m[1]
+        .split(":")
+        .filter(Boolean)
+        .sort()
+        .join(":"),
+      util: m[2],
+      hex: `#${m[3]}`,
+      alfa: m[4] ? Number(m[4]) / 100 : 1,
+    });
+  }
+  return out;
+}
+
+for (const arquivo of arquivosTsx(SRC_WEB)) {
+  const conteudo = readFileSync(arquivo, "utf8");
+  for (const classe of conteudo.matchAll(/["'`]([^"'`\n]*text-\[#[0-9A-Fa-f]{6}\][^"'`\n]*)["'`]/g)) {
+    const cores = utilitariosDeCor(classe[1]);
+    const rel = arquivo.slice(REPO.length + 1).replace(/\\/g, "/");
+    for (const texto of cores.filter((c) => c.util === "text")) {
+      for (const fundo of cores.filter(
+        (c) =>
+          c.util === "bg" &&
+          c.estado === texto.estado &&
+          !/\b(after|before)\b/.test(c.estado),
+      )) {
+        const fundoEfetivo =
+          fundo.alfa >= 1 ? fundo.hex : hexSobre(fundo.hex, fundo.alfa, colors.cb);
+        literaisJulgados += 1;
+        check(
+          "literal",
+          `${rel}${texto.estado ? ` [${texto.estado}]` : ""}: ${texto.hex} sobre ${fundoEfetivo}${
+            fundo.alfa < 1 ? ` (${fundo.hex}/${Math.round(fundo.alfa * 100)})` : ""
+          }`,
+          texto.hex,
+          fundoEfetivo,
+          AA_TEXT,
+          false,
+        );
+      }
+    }
   }
 }
 

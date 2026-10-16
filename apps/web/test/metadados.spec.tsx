@@ -77,7 +77,8 @@ describe("Metadados estruturados (Addendum 2)", () => {
         />,
       );
       expect(container.querySelectorAll("[data-testid=seriated-score]").length).toBe(1);
-      expect(container.textContent).toContain("8.4");
+      // 2026-10-13: separador do locale (era "8.4" por interpolação crua)
+      expect(container.textContent).toContain("8,4");
       expect(screen.getByText("Ainda sem votos suficientes")).toBeTruthy();
     });
 
@@ -102,9 +103,9 @@ describe("Metadados estruturados (Addendum 2)", () => {
       // além das notas individuais dos episódios com avaliação.
       const scores = container.querySelectorAll("[data-testid=seriated-score]");
       expect(scores.length).toBe(3);
-      expect(scores[0]?.textContent).toBe("7.0");
-      expect(scores[1]?.textContent).toBe("8.0");
-      expect(scores[2]?.textContent).toBe("6.0");
+      expect(scores[0]?.textContent).toBe("7"); // 2026-10-13: `formatarScoreLocale` não deixa ".0" pendurado;
+      expect(scores[1]?.textContent).toBe("8");
+      expect(scores[2]?.textContent).toBe("6");
     });
   });
 

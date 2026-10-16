@@ -3,6 +3,21 @@ import type { Metadata } from "next";
 import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 
 /**
+ * D-590 (T211) — opt-in de renderização estática para conteúdo institucional.
+ *
+ * Estas seis páginas são conteúdo editorial (sem dado de usuário, sem cookie, sem
+ * `searchParams`): podem ser pré-renderizadas e servidas por CDN. Hoje **todas as
+ * rotas do app são dinâmicas por padrão** (ver D-589: o `force-static` é o único
+ * caminho que produz `○` no build), então o opt-in é explícito.
+ *
+ * `revalidate = 3600`: o conteúdo muda quando alguém edita as mensagens/fontes —
+ * uma hora de defasagem é aceitável para texto institucional, e o endpoint
+ * `/api/revalidate` (já existente) permite invalidação sob demanda em publicação.
+ */
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+/**
  * T306 (D-295) — Termos e Condições de Uso (v1.0, 13/08/2026).
  * SSR nos 3 locales com SEO (Open Graph + JSON-LD LegalDocument). Conteúdo
  * vindo de messages/<locale>.json, já sem os marcadores de revisão jurídica
@@ -50,17 +65,19 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
     "publisher": { "@type": "Organization", "name": "MEDIA Rate" },
   };
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 [&_p]:max-w-[38rem] [&_li]:max-w-[38rem]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-8">{t("h1")}</h1>
-      <p className="text-sm text-[#9CA3AF] mb-8">{t("lastUpdated")}</p>
-      <div className="space-y-8 text-[#9CA3AF] leading-relaxed">
+      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
+        {t("h1")}
+      </h1>
+      <p className="text-sm text-[#A0A0B8] mb-8">{t("lastUpdated")}</p>
+      <div className="space-y-8 text-[#A0A0B8] leading-relaxed">
         {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
           <section key={n}>
-            <h2 className="text-xl font-heading font-semibold text-[#EDE7DC] mb-3">
+            <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
               {t("s" + n + "h")}
             </h2>
             <p className="whitespace-pre-line">{t("s" + n + "b")}</p>

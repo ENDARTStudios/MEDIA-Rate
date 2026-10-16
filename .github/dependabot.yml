@@ -5,8 +5,19 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # D-630: os grupos aceitavam QUALQUER tipo de atualizacao, entao um bump minor seguro
+    # (fastify 5.10 -> 5.12) viajou no mesmo PR que dois majors que exigem migracao
+    # (tailwindcss 3.4 -> 4.3 e vitest 4.1 -> 5.0). O PR #568 chegou irrevisavel, com Build,
+    # API tests e OpenNext falhando por causas misturadas. Com `update-types`, os grupos ficam
+    # so com minor/patch e cada major vem em PR individual — um motivo por PR, uma decisao por PR.
     groups:
       production:
         dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
       development:
         dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"

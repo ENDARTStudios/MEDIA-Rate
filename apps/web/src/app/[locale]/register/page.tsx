@@ -1,9 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
-import { RegisterForm } from "@/components/AuthForm";
+import { AuthBladeCard } from "@/components/AuthBladeCard";
 import { Logo } from "@/components/Logo";
-import { SocialButtons } from "@/components/SocialButtons";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -31,45 +30,23 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
   const t = await getTranslations({ locale, namespace: "auth" });
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
-      <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-br from-[#11111E] via-[#1C1C2E] to-[#09090F] p-12 relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.08)_0%,transparent_60%)]"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 max-w-md text-center">
-          <Logo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
-          <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-4">
-            {t("registerTitle")}
-          </h1>
-          <p className="text-[#9CA3AF]">{t("registerSubtitle")}</p>
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center px-4 sm:px-8 py-12">
+      {/* D-626: a página não tinha `h1` — leitor de tela anunciava o card sem título de página.
+          Visualmente oculto: o título visível continua sendo o do card. */}
+      <h1 className="sr-only">{t("registerTitle")}</h1>
+      <div className="w-full max-w-3xl">
+        <div className="lg:hidden mb-8 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
+          >
+            <Logo variant="inline" />
+          </Link>
         </div>
-      </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8 text-center">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
-            >
-              <Logo variant="inline" />
-            </Link>
-          </div>
-
-          <h2 className="text-2xl font-heading font-bold text-[#EDE7DC] mb-1">
-            {t("registerTitle")}
-          </h2>
-          <p className="text-sm text-[#9CA3AF] mb-4">
-            {t("hasAccount")}{" "}
-            <Link href="/login" className="text-[#818CF8] hover:text-[#A5B4FC]">
-              {t("loginButton")}
-            </Link>
-          </p>
-
-          <SocialButtons />
-          <RegisterForm />
-        </div>
+        {/* D-595/D-596 (T211): mesmo card dividido do /login, entrando já no cadastro
+            (a faixa repousa à esquerda, espelhada em relação ao login). */}
+        <AuthBladeCard initialView="register" />
       </div>
     </div>
   );

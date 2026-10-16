@@ -152,7 +152,7 @@ function CatalogContent({
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
-        <p className="text-[#9CA3AF] mb-4">{t("error")}</p>
+        <p className="text-[#A0A0B8] mb-4">{t("error")}</p>
         <Button onClick={() => refetch()}>{t("retry")}</Button>
       </div>
     );
@@ -184,7 +184,7 @@ function CatalogContent({
             {t("retry")}
           </Button>
         </div>
-        <p className="text-sm text-[#9CA3AF] mb-4">{t("count", { count: data.total })}</p>
+        <p className="text-sm text-[#A0A0B8] mb-4">{t("count", { count: data.total })}</p>
         <CatalogResults
           key={filtersKey(type, sort, query)}
           pageData={data}
@@ -210,7 +210,7 @@ function CatalogContent({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
         <svg
-          className="w-14 h-14 text-gray-400 mb-4"
+          className="w-14 h-14 text-fg-secondary mb-4"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -223,7 +223,7 @@ function CatalogContent({
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
         </svg>
-        <p className="text-[#9CA3AF] mb-4">{t("noResults")}</p>
+        <p className="text-[#A0A0B8] mb-4">{t("noResults")}</p>
         <Button
           variant="outline"
           onClick={() => {
@@ -238,9 +238,9 @@ function CatalogContent({
 
   return (
     <>
-      <p className="text-sm text-[#9CA3AF] mb-4">{t("count", { count: data.total })}</p>
+      <p className="text-sm text-[#A0A0B8] mb-4">{t("count", { count: data.total })}</p>
       {isFetching && !isLoading && (
-        <div className="mb-3 flex items-center gap-2 text-xs text-[#9CA3AF]" aria-live="polite">
+        <div className="mb-3 flex items-center gap-2 text-xs text-[#A0A0B8]" aria-live="polite">
           <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
               className="opacity-25"
@@ -412,7 +412,7 @@ export function CatalogPageClient({
         <Suspense fallback={null}>
           <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
         </Suspense>
-        <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
+        <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
           <Suspense fallback={null}>
             <CatalogFiltersClient />
           </Suspense>
@@ -462,10 +462,10 @@ function MobileFilterBar({
           <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
           <div className="absolute inset-y-0 left-0 w-72 bg-surface-card shadow-floating p-5 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-[#EDE7DC] text-sm">{tFilters("filters")}</span>
+              <span className="font-semibold text-[#F5F5F7] text-sm">{tFilters("filters")}</span>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="text-[#9CA3AF] hover:text-gray-200 text-lg leading-none"
+                className="text-[#A0A0B8] hover:text-fg-primary text-lg leading-none"
               >
                 &times;
               </button>

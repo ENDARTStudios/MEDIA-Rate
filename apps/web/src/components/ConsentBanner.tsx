@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/lib/navigation";
 import { useConsentStore } from "@/stores/use-consent-store";
 
 /**
@@ -15,10 +16,7 @@ import { useConsentStore } from "@/stores/use-consent-store";
  */
 export function ConsentBanner() {
   const t = useTranslations("consent");
-  const { decided, analytics, monitoring, setConsent } = useConsentStore();
-  const [open, setOpen] = useState(false);
-  const [analyticsPref, setAnalyticsPref] = useState(analytics);
-  const [monitoringPref, setMonitoringPref] = useState(monitoring);
+  const { decided, setConsent } = useConsentStore();
   // Hidratação (fix): o servidor NÃO vê document.cookie (mr_consent), então SEMPRE
   // renderizava o banner; na hidratação o cliente lê o cookie (decided=true) e quer
   // null → mismatch → o banner "ficava" após o refresh. Solução: só renderizar APÓS
@@ -27,14 +25,10 @@ export function ConsentBanner() {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
-  if (decided && !open) return null;
+  if (decided) return null;
 
   const aceitarTodos = () => setConsent({ analytics: true, monitoring: true });
   const recusar = () => setConsent({ analytics: false, monitoring: false });
-  const salvar = () => {
-    setConsent({ analytics: analyticsPref, monitoring: monitoringPref });
-    setOpen(false);
-  };
 
   return (
     // T474 (a11y): este banner NÃO é modal. `aria-modal="true"` instrui leitores
@@ -46,40 +40,13 @@ export function ConsentBanner() {
     <div
       role="region"
       aria-label={t("title")}
-      className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[440px] z-50 rounded-lg border border-[#2A2A3D] bg-[#0B0B13] p-5 text-[#EDE7DC] shadow-xl"
+      className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[440px] z-50 rounded-lg border border-[#2A2A3D] bg-[#0B0B13] p-5 text-[#F5F5F7] shadow-xl"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-heading text-sm font-semibold">{t("title")}</h2>
-          <p className="mt-1 text-xs text-[#9CA3AF]">{t("body")}</p>
+          <p className="mt-1 text-xs text-[#A0A0B8]">{t("body")}</p>
         </div>
-      </div>
-
-      <div className="mt-4 space-y-2 text-xs">
-        <div className="flex items-center justify-between">
-          <span>{t("necessary")}</span>
-          <span className="text-[#818CF8]">{t("alwaysOn")}</span>
-        </div>
-        <label className="flex items-center justify-between">
-          <span>{t("analytics")}</span>
-          <input
-            type="checkbox"
-            checked={analyticsPref}
-            onChange={(e) => setAnalyticsPref(e.target.checked)}
-            className="h-4 w-4 accent-[#818CF8]"
-            aria-label={t("analytics")}
-          />
-        </label>
-        <label className="flex items-center justify-between">
-          <span>{t("monitoring")}</span>
-          <input
-            type="checkbox"
-            checked={monitoringPref}
-            onChange={(e) => setMonitoringPref(e.target.checked)}
-            className="h-4 w-4 accent-[#818CF8]"
-            aria-label={t("monitoring")}
-          />
-        </label>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -93,26 +60,19 @@ export function ConsentBanner() {
         <button
           type="button"
           onClick={recusar}
-          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#9CA3AF] hover:text-[#EDE7DC]"
+          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#A0A0B8] hover:text-[#F5F5F7]"
         >
           {t("decline")}
         </button>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#9CA3AF] hover:text-[#EDE7DC]"
+        {/* D-622: "Gerenciar" deixa de abrir um painel que só existia aqui (e desaparecia
+            com o banner) e passa a levar à rota permanente `/cookies/gerenciar`, que usa o
+            componente `ConsentPreferences`. Uma só superfície de gestão granular. */}
+        <Link
+          href="/cookies/gerenciar"
+          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#A0A0B8] hover:text-[#F5F5F7]"
         >
           {t("manage")}
-        </button>
-        {open && (
-          <button
-            type="button"
-            onClick={salvar}
-            className="rounded-md bg-[#818CF8] px-3 py-1.5 text-xs font-semibold text-[#0F172A] hover:brightness-110"
-          >
-            {t("save")}
-          </button>
-        )}
+        </Link>
       </div>
     </div>
   );

@@ -85,8 +85,13 @@ export function ConfettiCelebration({ duration = 3000 }: { duration?: number }) 
     };
   }, [shouldReduce, duration]);
 
-  if (shouldReduce) return null;
-
+  // T211 (bug real): o early-return `if (shouldReduce) return null` fazia o
+  // SERVIDOR renderizar `<canvas>` e o CLIENTE renderizar `null` (o valor de
+  // `prefers-reduced-motion` só existe no cliente) → "Hydration failed because the
+  // server rendered HTML didn't match the client" em /billing/success para todo
+  // usuário com movimento reduzido (pegou o detector de DOM). O gate continua no
+  // `useEffect` acima: quem pediu movimento reduzido recebe um canvas inerte, sem
+  // animação — e o HTML servidor/cliente bate.
   return (
     <canvas
       ref={canvasRef}

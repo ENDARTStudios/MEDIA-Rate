@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { useAuthStore } from "../../../../stores/use-auth-store";
 import { getCsrfToken } from "../../../../lib/http";
 
@@ -65,15 +66,15 @@ export default function CheckoutPage({
       });
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ message: "Erro" }));
-        throw new Error(err.message ?? "Falha no checkout");
+        const err = await response.json().catch(() => ({ message: t("unknownError") }));
+        throw new Error(err.message ?? t("loadFailed"));
       }
 
       const data = await response.json();
       // Redireciona para Stripe Checkout URL.
       window.location.href = data.url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      setError(err instanceof Error ? err.message : t("unknownError"));
       setLoading(false);
     }
   }
@@ -81,53 +82,88 @@ export default function CheckoutPage({
   if (!isValidPlan) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Plano inválido</h1>
+        <h1 className="font-heading text-2xl font-bold text-[#F5F5F7]">{t("invalidPlan")}</h1>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
+      {/* T211: a rota usava `text-gray-900 dark:text-gray-100` + `bg-white
+          dark:bg-gray-800` — o app é dark-only (globals.css) e o Tailwind está em
+          darkMode "media", então com o SO em modo claro o card ficava BRANCO e o
+          texto escuro sobre fundo escuro. Tudo aqui passou a usar os tokens. */}
+      <h1 className="text-3xl font-heading font-bold text-center mb-8 text-[#F5F5F7]">
         {t("title")}
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+      <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-8 shadow-surface-2">
+        <h2 className="text-2xl font-heading font-semibold mb-4 text-[#F5F5F7]">
           {planKey === "PLUS" ? t("plus") : t("premium")}
         </h2>
 
-        <ul className="space-y-2 mb-6 text-sm text-gray-400">
+        <ul role="list" className="space-y-2 mb-6 text-sm text-[#A0A0B8]">
           {planKey === "PLUS" && (
             <>
-              <li>✓ {t("plusB1")}</li>
-              <li>✓ {t("plusB2")}</li>
-              <li>✓ {t("plusB3")}</li>
-              <li>✓ {t("plusB4")}</li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("plusB1")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("plusB2")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("plusB3")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("plusB4")}
+              </li>
             </>
           )}
           {planKey === "PREMIUM" && (
             <>
-              <li>✓ {t("premB1")}</li>
-              <li>✓ {t("premB2")}</li>
-              <li>✓ {t("premB3")}</li>
-              <li>✓ {t("premB4")}</li>
-              <li>✓ {t("premB5")}</li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("premB1")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("premB2")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("premB3")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("premB4")}
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                {t("premB5")}
+              </li>
             </>
           )}
         </ul>
 
+        {/* T211: era `bg-primary-700 … hover:bg-primary-800 focus:ring-primary-700`
+            — nenhuma dessas classes existe no tailwind.config.ts, então a CTA
+            principal do checkout ficava SEM fundo e SEM anel de foco. Agora usa o
+            CTA canônico (rose + foco índigo), igual ao da hero. */}
         <button
           type="button"
           onClick={handleCheckout}
           disabled={loading}
-          className="w-full bg-primary-700 text-white font-semibold py-3 rounded-md hover:bg-primary-800 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-700"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] duration-200 hover:brightness-110 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
         >
           {loading ? t("redirecting") : t("subscribe", { plan: planKey })}
         </button>
 
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-600">
+          <p role="alert" className="mt-4 text-sm text-[#F87171]">
             {error}
           </p>
         )}

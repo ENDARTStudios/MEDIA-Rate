@@ -3,11 +3,23 @@ import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 import { ConfettiCelebration } from "@/components/ui/ConfettiCelebration";
 
-export const metadata: Metadata = { robots: { index: false, follow: true } };
-
 interface Props {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ plan?: string }>;
+}
+
+/**
+ * T211: a página era `noindex` mas sem title/description (caía no default do
+ * layout). Agora gera metadata própria por locale via namespace `billing`.
+ */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "billing" });
+  return {
+    title: t("successTitle"),
+    description: t("successSubtitle"),
+    robots: { index: false, follow: true },
+  };
 }
 
 /**
@@ -33,10 +45,10 @@ export default async function BillingSuccessPage({ params, searchParams }: Props
         : t("successSubtitle");
 
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-16">
+    <div className="relative flex min-h-[calc(100dvh-4rem)] items-center justify-center px-4 py-16">
       <ConfettiCelebration />
       <div className="relative z-10 max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#E11D48]/15 text-[#E11D48]">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#E11D48]/15 text-[#FB7185]">
           <svg
             className="h-7 w-7"
             fill="none"
@@ -48,10 +60,10 @@ export default async function BillingSuccessPage({ params, searchParams }: Props
           </svg>
         </div>
         <h1 className="mb-4 font-heading text-3xl font-bold text-[#F5F5F7]">{title}</h1>
-        <p className="mb-8 leading-relaxed text-[#9CA3AF]">{subtitle}</p>
+        <p className="mb-8 leading-relaxed text-[#A0A0B8]">{subtitle}</p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
         >
           {t("startExploring")}
           <svg

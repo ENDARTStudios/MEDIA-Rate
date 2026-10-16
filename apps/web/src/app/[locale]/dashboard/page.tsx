@@ -37,8 +37,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         style={{ backgroundColor: "var(--plan-accent, #818CF8)" }}
         aria-hidden="true"
       />
-      <h1 className="text-3xl font-bold mb-2 text-[#EDE7DC]">{t("title")}</h1>
-      <p className="text-[#9CA3AF] mb-6 max-w-2xl">{t("subtitle")}</p>
+      <h1 className="text-3xl font-bold mb-2 text-[#F5F5F7]">{t("title")}</h1>
+      <p className="text-[#A0A0B8] mb-6 max-w-2xl">{t("subtitle")}</p>
       <DashboardClient />
       <PlanCelebration />
     </div>

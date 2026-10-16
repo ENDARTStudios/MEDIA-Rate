@@ -35,6 +35,7 @@ vi.mock("@/lib/navigation", () => ({
     </a>
   ),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => "/admin/diagnostics",
   redirect: redirectMock,
 }));
 
@@ -50,7 +51,19 @@ async function renderLayout(props?: { gate: unknown }) {
   return render(
     <NextIntlClientProvider
       locale="pt-BR"
-      messages={{ admin: { acessoNegado: "Acesso não autorizado." } }}
+      messages={{
+        admin: {
+          navLabel: "Área de administrador",
+          navBack: "Voltar",
+          navDiagnostics: "Diagnóstico",
+          navUsers: "Gestão de usuários",
+          navCatalog: "Catálogo",
+          navMetrics: "Métricas",
+          navAudit: "Auditoria",
+          navLgpd: "LGPD",
+          acessoNegado: "Acesso não autorizado.",
+        },
+      }}
     >
       {ui}
     </NextIntlClientProvider>,

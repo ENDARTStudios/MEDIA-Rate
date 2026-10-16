@@ -53,7 +53,7 @@ function TopCard({ item, locale }: { item: TopMidia; locale: string }) {
   return (
     <Link
       href={`/media/${item.slug ?? item.id}`}
-      className="group block bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden"
+      className="group block bg-surface-card border border-surface-border rounded-xl shadow-sm overflow-hidden"
       data-testid="top-card"
     >
       {item.imagem_url && (
@@ -68,12 +68,10 @@ function TopCard({ item, locale }: { item: TopMidia; locale: string }) {
         <p className="font-semibold text-sm leading-snug group-hover:underline line-clamp-2">
           {tituloExibicao(item, locale)}
         </p>
-        <p className="text-xs text-gray-400 mt-1 flex items-center justify-between">
+        <p className="text-xs text-fg-secondary mt-1 flex items-center justify-between">
           <span>{item.ano_lancamento ?? ""}</span>
           {scoreExibido(item, locale) && (
-            <span className="font-bold text-gray-900 dark:text-gray-100">
-              {scoreExibido(item, locale)}
-            </span>
+            <span className="font-bold text-fg-primary">{scoreExibido(item, locale)}</span>
           )}
         </p>
       </div>
@@ -98,7 +96,7 @@ export function TopPageClient({
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <header className="mb-6">
         <h1 className="text-3xl font-bold">{t("title")}</h1>
-        <p className="text-gray-400 mt-1">{t("subtitle")}</p>
+        <p className="text-fg-secondary mt-1">{t("subtitle")}</p>
       </header>
 
       {/* Abas por tipo — links canônicos /top?type=… (mesmos slugs do catálogo). */}
@@ -117,8 +115,8 @@ export function TopPageClient({
               style={ativa ? { backgroundColor: cor, borderColor: cor } : undefined}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
                 ativa
-                  ? "text-gray-950 font-semibold"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border-transparent"
+                  ? "text-[#0F172A] font-semibold"
+                  : "bg-surface-card text-fg-secondary hover:bg-surface-elevated border-transparent"
               }`}
             >
               {ativa ? (
@@ -139,11 +137,11 @@ export function TopPageClient({
       </nav>
 
       {!payload ? (
-        <p className="py-16 text-center text-gray-400" data-testid="top-erro">
+        <p className="py-16 text-center text-fg-secondary" data-testid="top-erro">
           {t("erro")}
         </p>
       ) : payload.top.length === 0 ? (
-        <p className="py-16 text-center text-gray-400" data-testid="top-vazio">
+        <p className="py-16 text-center text-fg-secondary" data-testid="top-vazio">
           {t("empty")}
         </p>
       ) : (
@@ -166,7 +164,7 @@ export function TopPageClient({
               }}
             >
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 text-white">
-                <span className="inline-block px-3 py-1 rounded-full bg-amber-400 text-amber-950 text-xs font-bold uppercase tracking-wide mb-3">
+                <span className="inline-block px-3 py-1 rounded-full bg-score-medium text-[#0F172A] text-xs font-bold uppercase tracking-wide mb-3">
                   {t("heroBadge")}
                 </span>
                 <h2 className="text-2xl sm:text-4xl font-bold leading-tight">
@@ -174,7 +172,7 @@ export function TopPageClient({
                     {tituloExibicao(hero, locale)}
                   </Link>
                 </h2>
-                <p className="mt-2 text-sm text-gray-200 flex flex-wrap items-center gap-3">
+                <p className="mt-2 text-sm text-fg-primary flex flex-wrap items-center gap-3">
                   {hero.ano_lancamento && <span>{hero.ano_lancamento}</span>}
                   {scoreExibido(hero, locale) && (
                     <span className="font-semibold" data-testid="top-hero-score">
@@ -196,19 +194,25 @@ export function TopPageClient({
               {payload.top.map((item, i) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3"
+                  className="flex items-center gap-4 bg-surface-card border border-surface-border rounded-xl shadow-sm p-3"
                 >
                   <span
-                    className="w-8 text-2xl font-bold text-gray-400 text-center shrink-0"
+                    className="w-8 text-2xl font-bold text-fg-secondary text-center shrink-0"
                     aria-label={`${i + 1}`}
                   >
                     {i + 1}
                   </span>
+                  {/* D-627: era `w-12 h-18` — `h-18` NÃO existe na escala do Tailwind, então a
+                      altura ficava livre e a linha "pulava" ao carregar a imagem (CLS).
+                      `h-[4.5rem]` é o valor que a classe pretendia (18 × 0.25rem), e
+                      `width`/`height` dão ao navegador a caixa antes do download. */}
                   {item.imagem_url && (
                     <img
                       src={item.imagem_url}
                       alt=""
-                      className="w-12 h-18 object-cover rounded-md shrink-0"
+                      width={48}
+                      height={72}
+                      className="w-12 h-[4.5rem] object-cover rounded-md shrink-0"
                       loading="lazy"
                     />
                   )}
@@ -219,7 +223,7 @@ export function TopPageClient({
                     >
                       {tituloExibicao(item, locale)}
                     </Link>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-fg-secondary mt-0.5">
                       {item.ano_lancamento ?? ""}
                       {numFontes(item) > 0 ? ` · ${t("fontes", { count: numFontes(item) })}` : ""}
                     </p>
@@ -252,18 +256,18 @@ export function TopPageClient({
               <h2 id="top-franquias-title" className="text-xl font-semibold mb-1">
                 {t("porOndeComecar")}
               </h2>
-              <p className="text-sm text-gray-400 mb-4">{t("porOndeComecarHint")}</p>
+              <p className="text-sm text-fg-secondary mb-4">{t("porOndeComecarHint")}</p>
               <div className="grid gap-4 md:grid-cols-2">
                 {payload.franquias.map((franquia) => (
                   <div
                     key={franquia.id}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5"
+                    className="bg-surface-card border border-surface-border rounded-xl shadow-sm p-5"
                   >
                     <h3 className="font-bold text-lg mb-3">{franquia.nome}</h3>
                     <ol className="space-y-2">
                       {franquia.itens.map((item, i) => (
                         <li key={item.id} className="flex items-baseline gap-3 text-sm">
-                          <span className="font-bold text-gray-400 w-5 text-right shrink-0">
+                          <span className="font-bold text-fg-secondary w-5 text-right shrink-0">
                             {i + 1}.
                           </span>
                           <span className="min-w-0 flex-1">
@@ -275,13 +279,13 @@ export function TopPageClient({
                             </Link>
                             {item.ordens?.cronologica != null &&
                               item.ordens.cronologica !== item.ordens.lancamento && (
-                                <span className="text-xs text-gray-400 ml-2">
+                                <span className="text-xs text-fg-secondary ml-2">
                                   {t("ordemCronologica", { n: item.ordens.cronologica })}
                                 </span>
                               )}
                           </span>
                           {item.ano_lancamento && (
-                            <span className="text-xs text-gray-400 shrink-0">
+                            <span className="text-xs text-fg-secondary shrink-0">
                               {item.ano_lancamento}
                             </span>
                           )}
@@ -305,9 +309,9 @@ export function TopPageClient({
                   <Link
                     key={g.id}
                     href={`/catalog?type=${tipo}&genero=${g.slug}`}
-                    className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-sm hover:bg-gray-200 dark:hover:bg-gray-700"
+                    className="px-3 py-1.5 rounded-full bg-surface-card bg-surface-card text-sm hover:bg-surface-elevated hover:bg-surface-elevated"
                   >
-                    {g.nome} <span className="text-gray-400">({g.total_midias})</span>
+                    {g.nome} <span className="text-fg-secondary">({g.total_midias})</span>
                   </Link>
                 ))}
               </div>

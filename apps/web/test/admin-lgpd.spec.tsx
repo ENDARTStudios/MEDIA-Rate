@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type * as HttpNs from "@/lib/http";
 
@@ -46,7 +46,16 @@ function renderPage() {
   return render(
     <NextIntlClientProvider
       locale="pt-BR"
-      messages={{ admin: { acessoNegado: "Acesso não autorizado." } }}
+      messages={{
+        admin: {
+          acessoNegado: "Acesso não autorizado.",
+          purgeTitle: "Executar purga LGPD",
+          purgeConfirm: "Executar a purga agora?",
+          purgeLabel: "Executar purga",
+          navLabel: "Área de administrador",
+          navBack: "Voltar",
+        },
+      }}
     >
       <AdminLgpdPage />
     </NextIntlClientProvider>,
@@ -72,6 +81,9 @@ describe("AdminLgpdPage (Onda 6 admin — P3)", () => {
   it("purga: confirma, chama POST /admin/lgpd/purge e exibe o resultado", async () => {
     renderPage();
     fireEvent.click(await screen.findByTestId("admin-lgpd-purgar"));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /Executar purga/i }));
+
     await waitFor(() => {
       expect(postMock).toHaveBeenCalledWith("/api/v1/admin/lgpd/purge");
     });

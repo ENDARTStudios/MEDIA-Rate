@@ -1,5 +1,7 @@
 "use client";
 
+import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs/animation";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +15,8 @@ interface MediaScoreBadgeProps {
 }
 
 export function MediaScoreBadge({ score, mediaType, className }: MediaScoreBadgeProps) {
+  // D-584/M3 (T211): valor reativo (o matchMedia era lido uma vez dentro do efeito).
+  const prefersReduced = useReducedMotionPref();
   const t = useTranslations("catalog");
   const locale = useLocale();
   const isGame = mediaType === "game";
@@ -45,8 +49,6 @@ export function MediaScoreBadge({ score, mediaType, className }: MediaScoreBadge
 
   useEffect(() => {
     if (!inView || !numRef.current) return;
-
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReduced) {
       numRef.current.textContent = formatarScoreLocale(value, locale);
@@ -84,7 +86,7 @@ export function MediaScoreBadge({ score, mediaType, className }: MediaScoreBadge
       <span ref={numRef} className="font-heading text-sm font-bold tabular-nums" style={{ color }}>
         0
       </span>
-      <span className="text-xs text-gray-400" aria-hidden="true">
+      <span className="text-xs text-fg-secondary" aria-hidden="true">
         MEDIA Score&trade;
       </span>
     </div>

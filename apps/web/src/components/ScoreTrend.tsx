@@ -21,7 +21,7 @@ export function ScoreTrend({ snapshots }: ScoreTrendProps) {
   const delta = latest.score - previous.score;
 
   const arrow = delta > 0 ? "↑" : delta < 0 ? "↓" : "→";
-  const color = delta > 0 ? "#34D399" : delta < 0 ? "#EF4444" : "#9CA3AF";
+  const color = delta > 0 ? "#34D399" : delta < 0 ? "#EF4444" : "#A0A0B8";
   // T147/B5: delta formatado pelo locale (pt-BR vírgula), sinal preservado
   // como antes (trunca 1 casa — sem arredondar para cima).
   const sign = delta > 0 ? "+" : delta < 0 ? "-" : "";

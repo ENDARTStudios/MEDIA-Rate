@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/http";
 import { comStepUp } from "@/lib/admin-stepup-client";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type TipoMidia = "FILME" | "SERIE" | "GAME" | "LIVRO" | "MANGA" | "COMIC";
 
@@ -46,6 +48,8 @@ const FORM_VAZIO: FormMidia = {
  * navegação (somente ativos — soft delete T215 some daqui).
  */
 export default function AdminCatalogoPage() {
+  // D-623: textos do diálogo de confirmação vindos de i18n.
+  const t = useTranslations("admin");
   const [items, setItems] = useState<MidiaAdmin[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
@@ -154,10 +158,13 @@ export default function AdminCatalogoPage() {
     }
   }
 
-  async function remover(id: string, titulo: string) {
-    if (!window.confirm(`Remover "${titulo}" do catálogo? (soft delete — preservada no banco)`)) {
-      return;
-    }
+  const [confirmarRemocao, setConfirmarRemocao] = useState<{ id: string; titulo: string } | null>(
+    null,
+  );
+
+  async function remover(id: string) {
+    // D-623: confirmação em diálogo acessível (Radix) em vez de `window.confirm`.
+    setConfirmarRemocao(null);
     setErro(null);
     setMensagem(null);
     try {
@@ -172,20 +179,28 @@ export default function AdminCatalogoPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">
-        Catálogo ({total})
-      </h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <ConfirmDialog
+        open={confirmarRemocao !== null}
+        onOpenChange={(aberto) => !aberto && setConfirmarRemocao(null)}
+        title={t("removeMediaTitle")}
+        description={t("removeMediaConfirm", { titulo: confirmarRemocao?.titulo ?? "" })}
+        confirmLabel={t("removeMedia")}
+        cancelLabel={t("navBack")}
+        variant="destructive"
+        onConfirm={() => confirmarRemocao && void remover(confirmarRemocao.id)}
+      />
+      <h1 className="text-3xl font-bold mb-2 text-fg-primary">Catálogo ({total})</h1>
+      <p className="mb-6 text-sm text-fg-secondary">
         CRUD admin — criação/edição auditadas; remoção é soft delete (T215).
       </p>
 
       {/* Formulário criar/editar */}
       <section
         aria-labelledby="form-title"
-        className="mb-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+        className="mb-8 rounded-lg border border-surface-border bg-surface-card p-4"
         data-testid="admin-catalogo-form"
       >
-        <h2 id="form-title" className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
+        <h2 id="form-title" className="text-lg font-semibold mb-3 text-fg-primary">
           {editandoId ? "Editar mídia" : "Nova mídia"}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -195,7 +210,7 @@ export default function AdminCatalogoPage() {
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
               data-testid="admin-catalogo-titulo"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2"
             />
           </label>
           <label className="text-sm">
@@ -204,7 +219,7 @@ export default function AdminCatalogoPage() {
               value={form.tipo}
               onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoMidia })}
               data-testid="admin-catalogo-tipo"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2"
             >
               {TIPOS.map((t) => (
                 <option key={t} value={t}>
@@ -220,7 +235,7 @@ export default function AdminCatalogoPage() {
               onChange={(e) => setForm({ ...form, ano_lancamento: e.target.value })}
               inputMode="numeric"
               data-testid="admin-catalogo-ano"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2"
             />
           </label>
           <label className="text-sm">
@@ -229,7 +244,7 @@ export default function AdminCatalogoPage() {
               value={form.titulo_original}
               onChange={(e) => setForm({ ...form, titulo_original: e.target.value })}
               data-testid="admin-catalogo-titulo-original"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2"
             />
           </label>
           <label className="text-sm sm:col-span-2">
@@ -238,7 +253,7 @@ export default function AdminCatalogoPage() {
               value={form.imagem_url}
               onChange={(e) => setForm({ ...form, imagem_url: e.target.value })}
               data-testid="admin-catalogo-imagem"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 font-mono text-xs"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2 font-mono text-xs"
             />
           </label>
           <label className="text-sm sm:col-span-2">
@@ -248,7 +263,7 @@ export default function AdminCatalogoPage() {
               onChange={(e) => setForm({ ...form, sinopse: e.target.value })}
               rows={3}
               data-testid="admin-catalogo-sinopse"
-              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2"
             />
           </label>
         </div>
@@ -258,7 +273,7 @@ export default function AdminCatalogoPage() {
             onClick={() => void salvar()}
             disabled={ocupado}
             data-testid="admin-catalogo-salvar"
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40"
+            className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110 disabled:opacity-40"
           >
             {ocupado ? "Salvando…" : editandoId ? "Salvar alterações" : "Criar mídia"}
           </button>
@@ -269,19 +284,19 @@ export default function AdminCatalogoPage() {
                 setEditandoId(null);
                 setForm(FORM_VAZIO);
               }}
-              className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm"
+              className="rounded-lg border border-surface-border px-4 py-2 text-sm"
             >
               Cancelar
             </button>
           )}
         </div>
         {mensagem && (
-          <p data-testid="admin-catalogo-mensagem" className="mt-2 text-sm text-green-600">
+          <p data-testid="admin-catalogo-mensagem" className="mt-2 text-sm text-[#34D399]">
             {mensagem}
           </p>
         )}
         {erro && (
-          <p data-testid="admin-catalogo-erro" className="mt-2 text-sm text-red-600" role="alert">
+          <p data-testid="admin-catalogo-erro" className="mt-2 text-sm text-score-low" role="alert">
             {erro}
           </p>
         )}
@@ -295,18 +310,18 @@ export default function AdminCatalogoPage() {
           placeholder="Buscar por título…"
           data-testid="admin-catalogo-busca"
           aria-label="Buscar mídias por título"
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
         />
       </div>
 
-      {carregando && <p className="text-sm text-gray-500">Carregando…</p>}
+      {carregando && <p className="text-sm text-fg-secondary">Carregando…</p>}
 
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <ul className="divide-y divide-surface-border rounded-lg border border-surface-border bg-surface-card">
         {items.map((m) => (
           <li key={m.id} className="flex items-center gap-3 px-4 py-3 text-sm">
             <span className="min-w-0 flex-1 truncate">
               {m.titulo}{" "}
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-fg-secondary">
                 {m.tipo} · {m.ano_lancamento ?? "—"}
               </span>
             </span>
@@ -314,22 +329,24 @@ export default function AdminCatalogoPage() {
               type="button"
               onClick={() => void abrirEditar(m.id)}
               data-testid={`admin-catalogo-editar-${m.id}`}
-              className="shrink-0 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="shrink-0 rounded-lg border border-surface-border px-2 py-1 text-xs hover:bg-surface-elevated"
             >
               Editar
             </button>
             <button
               type="button"
-              onClick={() => void remover(m.id, m.titulo)}
+              onClick={() => setConfirmarRemocao({ id: m.id, titulo: m.titulo })}
               data-testid={`admin-catalogo-remover-${m.id}`}
-              className="shrink-0 rounded-lg border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="shrink-0 rounded-lg border border-score-low/40 px-2 py-1 text-xs text-score-low hover:bg-score-low/10 hover:bg-score-low/10"
             >
               Remover
             </button>
           </li>
         ))}
         {!carregando && items.length === 0 && (
-          <li className="px-4 py-8 text-center text-sm text-gray-500">Nenhum título encontrado.</li>
+          <li className="px-4 py-8 text-center text-sm text-fg-secondary">
+            Nenhum título encontrado.
+          </li>
         )}
       </ul>
 
@@ -340,7 +357,7 @@ export default function AdminCatalogoPage() {
             onClick={() => void carregar(busca, cursor, true)}
             disabled={carregando}
             data-testid="admin-catalogo-carregar-mais"
-            className="rounded-xl border border-gray-300 dark:border-gray-600 px-5 py-2 text-sm font-semibold disabled:opacity-40"
+            className="rounded-xl border border-surface-border px-5 py-2 text-sm font-semibold disabled:opacity-40"
           >
             Carregar mais
           </button>

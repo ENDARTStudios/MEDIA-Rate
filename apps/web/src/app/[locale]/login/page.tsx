@@ -1,9 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
-import { LoginForm } from "@/components/AuthForm";
+import { AuthBladeCard } from "@/components/AuthBladeCard";
 import { LazyLogo } from "@/components/lazy";
-import { SocialButtons } from "@/components/SocialButtons";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -22,7 +21,6 @@ export async function generateMetadata({
       canonical: localizedUrl(locale, "/login"),
       languages: localizedAlternates("/login"),
     },
-    robots: { index: true, follow: true },
   };
 }
 
@@ -32,43 +30,27 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   const t = await getTranslations({ locale, namespace: "auth" });
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
-      <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-br from-[#11111E] via-[#1C1C2E] to-[#09090F] p-12 relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.08)_0%,transparent_60%)]"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 max-w-md text-center">
-          <LazyLogo className="w-16 h-16 mx-auto mb-6 text-[#818CF8]" />
-          <h1 className="text-3xl font-heading font-bold text-[#EDE7DC] mb-4">
-            {t("loginSubtitle")}
-          </h1>
-          <p className="text-[#9CA3AF]">{t("tagline")}</p>
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center px-4 sm:px-8 py-12">
+      {/* D-626: a página não tinha `h1` — leitor de tela anunciava o card sem título de página.
+          Visualmente oculto: o título visível continua sendo o do card. */}
+      <h1 className="sr-only">{t("loginTitle")}</h1>
+      <div className="w-full max-w-3xl">
+        <div className="lg:hidden mb-8 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
+          >
+            <LazyLogo className="w-8 h-8" /> MEDIA Rate
+          </Link>
         </div>
-      </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8 text-center">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
-            >
-              <LazyLogo className="w-8 h-8" /> MEDIA Rate
-            </Link>
-          </div>
-
-          <h2 className="text-2xl font-heading font-bold text-[#EDE7DC] mb-1">{t("loginTitle")}</h2>
-          <p className="text-sm text-[#9CA3AF] mb-6">
-            {t("noAccount")}{" "}
-            <Link href="/register" className="text-[#818CF8] hover:text-[#A5B4FC]">
-              {t("signUp")}
-            </Link>
-          </p>
-
-          <SocialButtons />
-          <LoginForm />
-        </div>
+        {/*
+          D-595/D-596 (T211): card único dividido pela faixa inclinada. O texto de marca
+          vive DENTRO da faixa, que troca junto com o formulário — antes havia uma coluna
+          de marketing separada (`hidden md:flex`) mais uma coluna `max-w-sm` só do
+          formulário, e o efeito não teria onde acontecer.
+        */}
+        <AuthBladeCard initialView="login" />
       </div>
     </div>
   );
