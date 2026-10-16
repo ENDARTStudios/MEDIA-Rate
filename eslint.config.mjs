@@ -129,6 +129,9 @@ export default tseslint.config(
   {
     files: [
       "apps/web/scripts/**/*.{mjs,js,ts}",
+      // Scripts de CLI na raiz do repo (ex.: promote-admin.mjs): mesmo caso — CLI Node,
+      // console intencional. Sem esta linha o CI acusa 'console' is not defined em 17 pontos.
+      "scripts/**/*.{mjs,js,ts}",
       "apps/web/e2e/**/*.{ts,tsx}",
       "apps/web/visual/**/*.{ts,tsx}",
       // D-588: harness autenticado local (admin/dashboard) — mesma família dos
