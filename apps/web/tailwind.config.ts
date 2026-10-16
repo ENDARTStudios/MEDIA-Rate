@@ -3,10 +3,8 @@ import type { Config } from "tailwindcss";
 import { DASH_PALETTE } from "./src/lib/dashboard-palette";
 
 const config: Config = {
-  // T211 (auditoria de UI/UX): sem isto o Tailwind 3.4 emite `:hover` puro e o
-  // estado fica "preso" no touch (296 usos de hover: no app). O v4 já faz isso
-  // por padrão; aqui ativamos a flag de compatibilidade.
-  future: { hoverOnlyWhenSupported: true },
+  // D-651 (Tailwind 4): `future.hoverOnlyWhenSupported` virou comportamento padrao do v4
+  // (hover so em ponteiro que suporta) — a flag saiu.
   // D-582.1 (T211): o app e dark-only (tokens fixos em globals.css) e o layout ja
   // renderiza <html class="dark">. Sem esta linha o Tailwind usa a estrategia
   // `media` e as 108 variantes `dark:` do admin/TOP/checkout respondiam ao tema do
