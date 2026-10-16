@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import dynamic from "next/dynamic";
 
 export const LazyAnimatedHeading = dynamic(
@@ -38,19 +40,21 @@ export const LazyLogo = dynamic(() => import("./Logo").then((m) => ({ default: m
 });
 
 function CatalogSkeletonFallback() {
+  // D-584 (T211): aria-label estava hardcoded em pt-BR.
+  const t = useTranslations("common");
   return (
     <div
       className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       aria-busy="true"
       role="status"
-      aria-label="Carregando catálogo"
+      aria-label={t("loadingCatalog")}
     >
       {Array.from({ length: 10 }).map((_, i) => (
         <div key={i} className="rounded-md bg-[#09090F] overflow-hidden shadow-surface-1">
-          <div className="aspect-[2/3] bg-[#11111E]" />
+          <div className="aspect-[2/3] bg-[#12121C]" />
           <div className="p-3 space-y-2.5">
-            <div className="h-3.5 w-3/4 rounded-md bg-[#11111E]" />
-            <div className="h-3 w-1/2 rounded-md bg-[#11111E]" />
+            <div className="h-3.5 w-3/4 rounded-md bg-[#12121C]" />
+            <div className="h-3 w-1/2 rounded-md bg-[#12121C]" />
           </div>
         </div>
       ))}
