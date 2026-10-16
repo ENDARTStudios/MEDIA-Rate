@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global console */
 /**
  * D-630 — concede (ou revoga) o papel **ADMIN** de uma conta existente.
  *
@@ -25,7 +26,9 @@ const REVOGAR = flags.includes("--revoke");
 const PROD_OK = flags.includes("--i-know-its-prod");
 
 if (!email || !email.includes("@")) {
-  console.error("uso: node scripts/promote-admin.mjs <email> [--revoke] [--apply] [--i-know-its-prod]");
+  console.error(
+    "uso: node scripts/promote-admin.mjs <email> [--revoke] [--apply] [--i-know-its-prod]",
+  );
   process.exit(2);
 }
 
@@ -57,7 +60,9 @@ try {
 const mascarado = host.replace(/^([^.]+)/, (p) => p.slice(0, 3) + "***");
 const pareceProd = /railway|production|prod\./i.test(host);
 console.log(`banco: ${mascarado}${pareceProd ? "  (parece PRODUÇÃO)" : ""}`);
-console.log(`ação: ${REVOGAR ? "REVOGAR" : "CONCEDER"} ADMIN para ${email}  [${APLICAR ? "APLICANDO" : "dry-run"}]`);
+console.log(
+  `ação: ${REVOGAR ? "REVOGAR" : "CONCEDER"} ADMIN para ${email}  [${APLICAR ? "APLICANDO" : "dry-run"}]`,
+);
 
 if (pareceProd && !PROD_OK) {
   console.error("Recusado: host de produção. Repita com --i-know-its-prod se for intencional.");
@@ -75,7 +80,10 @@ try {
 const prisma = new PrismaClient({ datasources: { db: { url } } });
 
 try {
-  const usuario = await prisma.usuario.findUnique({ where: { email }, select: { id: true, email: true } });
+  const usuario = await prisma.usuario.findUnique({
+    where: { email },
+    select: { id: true, email: true },
+  });
   if (!usuario) {
     console.error(`Nenhuma conta com o e-mail ${email}. Nada foi alterado.`);
     process.exit(4);
