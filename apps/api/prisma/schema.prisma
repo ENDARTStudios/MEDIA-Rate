@@ -402,6 +402,9 @@ model Midia {
   // coleção/franquia). NULL = nunca passou pelo job; o job marca SEMPRE, mesmo
   // quando a fonte não tem o dado (evita fila presa, como os 26 sem elenco).
   metadados_ricos_em        DateTime? @map("metadados_ricos_em")
+  // T-DADOS-02: watermark da coleta de provedores de streaming (BR). NULL =
+  // nunca coletado; marcado SEMPRE, mesmo sem provedor (evita fila presa).
+  provedores_em             DateTime? @map("provedores_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
@@ -957,6 +960,8 @@ model StreamingService {
   id   Int    @id @default(autoincrement())
   nome String @unique @db.VarChar(128)
   slug String @unique @db.VarChar(128)
+  // T-DADOS-02: id do provedor na TMDB (JustWatch) — vínculo da coleta.
+  tmdb_provider_id Int? @unique @map("tmdb_provider_id")
   midias MidiaStreaming[]
 
   @@map("streaming_service")
