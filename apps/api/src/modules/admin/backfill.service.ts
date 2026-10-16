@@ -20,7 +20,7 @@ const IMG = "https://image.tmdb.org/t/p";
 const PAUSA_MS = 220;
 const MAX_TEMPORADAS_POR_RUN = 1500;
 
-export type BackfillTipo = "metadados" | "continuidade" | "metadadosRicos";
+export type BackfillTipo = "metadados" | "continuidade" | "metadadosRicos" | "provedores";
 
 interface BackfillEstado {
   executando: boolean;
@@ -69,6 +69,9 @@ export const LIMITES = {
   generoSlug: 64,
   franquiaSlug: 64,
   franquiaNome: 120,
+  // T-DADOS-02: streaming_service.nome/slug são VarChar(128) UNIQUE.
+  provedorNome: 128,
+  provedorSlug: 128,
 } as const;
 
 export function slugifyBasico(titulo: string): string {
@@ -239,6 +242,52 @@ export function ordenarPartesColecao(partes: any[]): ParteColecao[] {
     });
 }
 
+/** T-DADOS-02: provedor de assinatura (flatrate) do JustWatch via TMDB. */
+export interface ProvedorItem {
+  tmdb_provider_id: number;
+  nome: string;
+}
+
+/** T-DADOS-02: provedores BR + link de "onde assistir" do JustWatch. */
+export interface ProvedoresMapa {
+  provedores: ProvedorItem[];
+  url_link: string | null;
+}
+
+/**
+ * T-DADOS-02: `"watch/providers".results.BR` (append_to_response=watch/providers)
+ * → provedores de ASSINATURA (`flatrate`) + o `link` de "onde assistir".
+ *
+ * Escopo deliberado: só `flatrate` (Netflix, Prime Video, Max, Crunchyroll…),
+ * que é o conceito documentado em `StreamingService`. `free`/`ads`/`rent`/`buy`
+ * ficam de fora — o schema ainda não distingue categoria de acesso (follow-up).
+ * Região: BR apenas (o produto é pt-BR primário e `MidiaStreaming` não modela
+ * região). Payload ausente/estranho → lista vazia e `url_link: null`, nunca lança.
+ */
+export function mapearProvedores(payload: any): ProvedoresMapa {
+  const br = payload?.["watch/providers"]?.results?.BR;
+  const provedores: ProvedorItem[] = [];
+  const vistos = new Set<number>();
+  for (const p of br?.flatrate ?? []) {
+    const tmdb_provider_id = Number(p?.provider_id);
+    if (
+      !Number.isInteger(tmdb_provider_id) ||
+      tmdb_provider_id <= 0 ||
+      vistos.has(tmdb_provider_id)
+    ) {
+      continue;
+    }
+    const nome = truncarCampo(p?.provider_name, LIMITES.provedorNome);
+    if (!nome) continue;
+    vistos.add(tmdb_provider_id);
+    provedores.push({ tmdb_provider_id, nome });
+  }
+  // Só https:// (o link do JustWatch é sempre https; qualquer outra coisa é lixo).
+  const link = br?.link;
+  const url_link = typeof link === "string" && link.startsWith("https://") ? link : null;
+  return { provedores, url_link };
+}
+
 export interface TemporadaLista {
   numero: number;
   titulo: string | null;
@@ -300,6 +349,7 @@ export class BackfillService {
     metadados: estadoVazio(),
     continuidade: estadoVazio(),
     metadadosRicos: estadoVazio(),
+    provedores: estadoVazio(),
   };
 
   constructor(private readonly prisma: PrismaService) {}
@@ -626,6 +676,143 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-02 (D2): coleta dos provedores de streaming (TMDB
+   * `append_to_response=watch/providers` = JustWatch, região BR). Popula
+   * `streaming_service` + `midia_streaming` — a ficha do produto ("Onde
+   * assistir") nunca teve dado e passa a funcionar pelo caminho de leitura que
+   * já existe. Alvo é o watermark `provedores_em IS NULL`; o watermark é
+   * gravado SEMPRE (mesmo sem provedor no BR), então a fila drena de verdade;
+   * em exceção o título volta depois. Escopo: só `flatrate` (limitação
+   * documentada no mapper `mapearProvedores`).
+   */
+  async enriquecerProvedores(
+    limite: number,
+  ): Promise<{ processados: number; ok: number; falhas: number }> {
+    const chave = process.env.TMDB_API_KEY;
+    if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
+    if (this.estado.provedores.executando) {
+      throw new BadRequestException("Job provedores já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.provedores = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; tipo: string; fonte: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.tipo::text, m.fonte::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+         AND m.provedores_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 2000, 1), 8000)}`,
+    )) as any[];
+    this.logger.log(`Backfill provedores: ${alvo.length} títulos alvo.`);
+    let vinculados = 0;
+    let servicosCriados = 0;
+    for (const m of alvo) {
+      this.estado.provedores.processados++;
+      this.estado.provedores.atual = m.titulo;
+      try {
+        // A rota depende da FONTE (não do tipo): tmdb_tv → /tv, tmdb → /movie.
+        const caminho = m.fonte === "tmdb_tv" ? "tv" : "movie";
+        const payload = await this.tmdb(
+          `/${caminho}/${m.fonte_id}?append_to_response=watch/providers`,
+          chave,
+        );
+        const mapa = mapearProvedores(payload);
+        for (const p of mapa.provedores) {
+          const service = await this.resolverStreamingService(p.tmdb_provider_id, p.nome);
+          if (!service) continue;
+          if (service.criado) servicosCriados++;
+          await this.prisma.midiaStreaming.upsert({
+            where: {
+              midia_id_service_id: { midia_id: m.id, service_id: service.id },
+            },
+            create: { midia_id: m.id, service_id: service.id, url: mapa.url_link },
+            // Coleta sem link não apaga a URL já gravada.
+            update: { url: mapa.url_link ?? undefined },
+          });
+          vinculados++;
+        }
+        // Watermark SEMPRE gravado (mesmo sem provedor no BR): sem isso a fila
+        // travaria nos títulos que não estão em nenhum streaming.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { provedores_em: new Date() },
+        });
+        this.estado.provedores.ok++;
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.provedores.falhas++;
+        this.logger.warn(`Backfill provedores falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.provedores.executando = false;
+    this.estado.provedores.atual = `fim: ok=${this.estado.provedores.ok} falhas=${this.estado.provedores.falhas}`;
+    this.logger.log(
+      `Backfill provedores fim: ok=${this.estado.provedores.ok} falhas=${this.estado.provedores.falhas} vínculos=${vinculados} serviços novos=${servicosCriados}.`,
+    );
+    return {
+      processados: this.estado.provedores.processados,
+      ok: this.estado.provedores.ok,
+      falhas: this.estado.provedores.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-02: resolve (ou cria) o `streaming_service` a partir do provider do
+   * JustWatch na ordem tmdb_provider_id → slug → create. Nunca propaga erro: se
+   * o create colidir com unique (nome/slug/tmdb_provider_id), refaz o lookup e
+   * segue; em último caso devolve null e o título continua sem aquele provedor.
+   */
+  private async resolverStreamingService(
+    tmdbProviderId: number,
+    nome: string,
+  ): Promise<{ id: number; criado: boolean } | null> {
+    const porTmdb = await this.prisma.streamingService.findUnique({
+      where: { tmdb_provider_id: tmdbProviderId },
+      select: { id: true },
+    });
+    if (porTmdb) return { id: porTmdb.id, criado: false };
+    const slug = truncarCampo(slugifyBasico(nome), LIMITES.provedorSlug);
+    if (slug) {
+      const porSlug = await this.prisma.streamingService.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+      if (porSlug) return { id: porSlug.id, criado: false };
+    }
+    const nomeFinal = truncarCampo(nome, LIMITES.provedorNome);
+    const slugFinal =
+      slug ?? truncarCampo(slugifyBasico(`provedor-${tmdbProviderId}`), LIMITES.provedorSlug);
+    if (!nomeFinal || !slugFinal) return null;
+    try {
+      const novo = await this.prisma.streamingService.create({
+        data: { nome: nomeFinal, slug: slugFinal, tmdb_provider_id: tmdbProviderId },
+        select: { id: true },
+      });
+      return { id: novo.id, criado: true };
+    } catch {
+      const porSlugDepois = await this.prisma.streamingService.findUnique({
+        where: { slug: slugFinal },
+        select: { id: true },
+      });
+      if (porSlugDepois) return { id: porSlugDepois.id, criado: false };
+      const porTmdbDepois = await this.prisma.streamingService.findUnique({
+        where: { tmdb_provider_id: tmdbProviderId },
+        select: { id: true },
+      });
+      return porTmdbDepois ? { id: porTmdbDepois.id, criado: false } : null;
+    }
+  }
+
+  /**
    * T178: continuidade em escala — coleções de filmes (franquia + país) e
    * temporadas/episódios de séries que AINDA NÃO têm temporada — retomável.
    */
@@ -818,9 +1005,16 @@ export class BackfillService {
     seriesSemTemporada: number;
     filmesSemPais: number;
     metadadosRicos: number;
+    provedores: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
-      { sem_elenco: number; sem_temp: number; sem_pais: number; ricos: number }[]
+      {
+        sem_elenco: number;
+        sem_temp: number;
+        sem_pais: number;
+        ricos: number;
+        provedores: number;
+      }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
@@ -833,13 +1027,17 @@ export class BackfillService {
             AND m.pais_origem IS NULL) AS sem_pais,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
-            AND m.metadados_ricos_em IS NULL) AS ricos`);
+            AND m.metadados_ricos_em IS NULL) AS ricos,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+            AND m.provedores_em IS NULL) AS provedores`);
     const row = r[0];
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
       seriesSemTemporada: Number(row?.sem_temp ?? 0),
       filmesSemPais: Number(row?.sem_pais ?? 0),
       metadadosRicos: Number(row?.ricos ?? 0),
+      provedores: Number(row?.provedores ?? 0),
     };
   }
 
@@ -873,6 +1071,11 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.metadadosRicos > 0) {
         const r = await this.enriquecerMetadadosRicos(2000);
         lotes.push({ tipo: "metadadosRicos", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-02: fecho com os provedores de streaming (ficha "Onde assistir").
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.provedores > 0) {
+        const r = await this.enriquecerProvedores(2000);
+        lotes.push({ tipo: "provedores", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);

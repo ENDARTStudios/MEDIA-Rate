@@ -13,6 +13,7 @@ import {
   mapearEpisodios,
   arestasSequencia,
   slugBaseFranquia,
+  mapearProvedores,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -57,6 +58,13 @@ function makeService(over: any = {}) {
       create: vi.fn(async ({ data }: any) => ({ id: 42, ...data })),
     },
     midiaGenero: { upsert: vi.fn(async ({ create }: any) => create) },
+    // T-DADOS-02: provedores de streaming (findUnique por tmdb_provider_id/slug;
+    // create com colisão tratada) + vínculo midia_streaming.
+    streamingService: {
+      findUnique: vi.fn(async () => null),
+      create: vi.fn(async ({ data }: any) => ({ id: 9, ...data })),
+    },
+    midiaStreaming: { upsert: vi.fn(async ({ create }: any) => create) },
     relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
   };
   const svc = new BackfillService(prisma as any);
@@ -438,19 +446,21 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui a fila metadadosRicos (T-DADOS-01)", () => {
-  it("conta as 4 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos e provedores (T-DADOS-01/02)", () => {
+  it("conta as 5 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
-      return [{ sem_elenco: 3, sem_temp: 2, sem_pais: 1, ricos: 17217 }];
+      expect(sql).toContain("provedores_em IS NULL");
+      return [{ sem_elenco: 3, sem_temp: 2, sem_pais: 1, ricos: 17217, provedores: 17230 }];
     });
     await expect(svc.contarPendentes()).resolves.toEqual({
       semElenco: 3,
       seriesSemTemporada: 2,
       filmesSemPais: 1,
       metadadosRicos: 17217,
+      provedores: 17230,
     });
   });
 
@@ -465,6 +475,282 @@ describe("contarPendentes inclui a fila metadadosRicos (T-DADOS-01)", () => {
       seriesSemTemporada: 0,
       filmesSemPais: 0,
       metadadosRicos: 0,
+      provedores: 0,
     });
+  });
+});
+
+// ===========================================================================
+// T-DADOS-02 (D2) — provedores de streaming (TMDB watch/providers = JustWatch)
+// ===========================================================================
+
+describe("mapearProvedores (T-DADOS-02)", () => {
+  it("extrai flatrate de watch/providers.results.BR e o link", () => {
+    const r = mapearProvedores({
+      "watch/providers": {
+        results: {
+          BR: {
+            link: "https://www.themoviedb.org/movie/693134-duna-parte-2/watch?locale=BR",
+            flatrate: [
+              { provider_id: 1899, provider_name: "Max", display_priority: 1 },
+              { provider_id: 8, provider_name: "Netflix", display_priority: 2 },
+              { provider_id: 8, provider_name: "Netflix", display_priority: 3 }, // dedupe
+            ],
+          },
+        },
+      },
+    });
+    expect(r.provedores).toEqual([
+      { tmdb_provider_id: 1899, nome: "Max" },
+      { tmdb_provider_id: 8, nome: "Netflix" },
+    ]);
+    expect(r.url_link).toBe("https://www.themoviedb.org/movie/693134-duna-parte-2/watch?locale=BR");
+  });
+
+  it("ignora free/ads/rent/buy (só assinatura) e regiões fora do BR", () => {
+    const r = mapearProvedores({
+      "watch/providers": {
+        results: {
+          US: { flatrate: [{ provider_id: 15, provider_name: "Hulu" }] },
+          BR: {
+            free: [{ provider_id: 300, provider_name: "Globoplay (Free)" }],
+            ads: [{ provider_id: 73, provider_name: "Tubi" }],
+            rent: [{ provider_id: 2, provider_name: "Apple TV (aluguel)" }],
+            buy: [{ provider_id: 3, provider_name: "Google Play (compra)" }],
+            flatrate: [{ provider_id: 337, provider_name: "Disney Plus" }],
+          },
+        },
+      },
+    });
+    expect(r.provedores).toEqual([{ tmdb_provider_id: 337, nome: "Disney Plus" }]);
+    expect(r.url_link).toBeNull(); // sem link no BR → null (não fabrica URL)
+  });
+
+  it("payload sem a chave / sem BR / flatrate ausente → vazio sem lançar", () => {
+    expect(mapearProvedores({})).toEqual({ provedores: [], url_link: null });
+    expect(mapearProvedores(undefined)).toEqual({ provedores: [], url_link: null });
+    expect(mapearProvedores({ "watch/providers": { results: {} } })).toEqual({
+      provedores: [],
+      url_link: null,
+    });
+    expect(mapearProvedores({ "watch/providers": { results: { BR: {} } } })).toEqual({
+      provedores: [],
+      url_link: null,
+    });
+    expect(mapearProvedores({ "watch/providers": null })).toEqual({
+      provedores: [],
+      url_link: null,
+    });
+  });
+
+  it("provider_name > 128 chars é truncado no limite da coluna (VarChar(128))", () => {
+    const longo = `Provedor ${"muito-longo-".repeat(12)}fim`;
+    expect(longo.length).toBeGreaterThan(128);
+    const r = mapearProvedores({
+      "watch/providers": {
+        results: { BR: { flatrate: [{ provider_id: 1, provider_name: longo }] } },
+      },
+    });
+    expect(r.provedores).toHaveLength(1);
+    const nome = r.provedores[0]?.nome ?? "";
+    expect(nome.length).toBeLessThanOrEqual(LIMITES.provedorNome);
+    expect(nome.endsWith("…")).toBe(true);
+  });
+
+  it("provider_id 0/negativo/ausente/fracionário descartado (não fabrica vínculo)", () => {
+    const r = mapearProvedores({
+      "watch/providers": {
+        results: {
+          BR: {
+            flatrate: [
+              { provider_id: 0, provider_name: "Zero" },
+              { provider_id: -4, provider_name: "Negativo" },
+              { provider_name: "Sem id" },
+              { provider_id: 1.5, provider_name: "Fracionário" },
+              { provider_id: 384, provider_name: "  " },
+              { provider_id: 384, provider_name: "Crunchyroll" },
+            ],
+          },
+        },
+      },
+    });
+    expect(r.provedores).toEqual([{ tmdb_provider_id: 384, nome: "Crunchyroll" }]);
+  });
+
+  it("link não-https é descartado (nunca grava URL estranha em midia_streaming.url)", () => {
+    const base = { "watch/providers": { results: { BR: { flatrate: [] } } } };
+    expect(
+      mapearProvedores({
+        "watch/providers": {
+          results: { BR: { ...base["watch/providers"].results.BR, link: "http://x" } },
+        },
+      }).url_link,
+    ).toBeNull();
+    expect(
+      mapearProvedores({
+        "watch/providers": { results: { BR: { ...base["watch/providers"].results.BR, link: 42 } } },
+      }).url_link,
+    ).toBeNull();
+  });
+});
+
+describe("BackfillService.enriquecerProvedores (T-DADOS-02)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.TMDB_API_KEY = "chave-de-teste";
+  });
+
+  it("vincula provedores, cria o serviço e SEMPRE marca provedores_em", async () => {
+    const alvo = [
+      { id: "m-1", tipo: "FILME", fonte: "tmdb", fonte_id: "693134", titulo: "Duna: Parte Dois" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    prisma.streamingService.findUnique.mockResolvedValue(null);
+    prisma.streamingService.create.mockResolvedValue({ id: 9 });
+    (fetchJson as any).mockResolvedValue({
+      "watch/providers": {
+        results: {
+          BR: {
+            link: "https://www.themoviedb.org/movie/693134/watch?locale=BR",
+            flatrate: [{ provider_id: 1899, provider_name: "Max" }],
+          },
+        },
+      },
+    });
+    const r = await svc.enriquecerProvedores(100);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    expect(prisma.streamingService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { nome: "Max", slug: "max", tmdb_provider_id: 1899 },
+      }),
+    );
+    expect(prisma.midiaStreaming.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { midia_id_service_id: { midia_id: "m-1", service_id: 9 } },
+        create: {
+          midia_id: "m-1",
+          service_id: 9,
+          url: "https://www.themoviedb.org/movie/693134/watch?locale=BR",
+        },
+      }),
+    );
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.provedores_em).toBeInstanceOf(Date);
+    expect(svc.status().provedores.ok).toBe(1);
+    expect(() => JSON.stringify(svc.status())).not.toThrow();
+  });
+
+  it("marca provedores_em mesmo SEM provedor no BR (título sai da fila)", async () => {
+    const alvo = [
+      { id: "m-2", tipo: "SERIE", fonte: "tmdb_tv", fonte_id: "1396", titulo: "Breaking Bad" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    // Rota /tv para fonte tmdb_tv (não /movie).
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      expect(url).toContain("/tv/1396?append_to_response=watch/providers");
+      return { "watch/providers": { results: {} } };
+    });
+    const r = await svc.enriquecerProvedores(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    expect(prisma.midiaStreaming.upsert).not.toHaveBeenCalled();
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.provedores_em).toBeInstanceOf(Date);
+  });
+
+  it("serviço existente por tmdb_provider_id é reusado (não recria)", async () => {
+    const alvo = [{ id: "m-3", tipo: "FILME", fonte: "tmdb", fonte_id: "11", titulo: "F1" }];
+    const { svc, prisma } = makeService({ alvo });
+    prisma.streamingService.findUnique.mockResolvedValue({ id: 77 });
+    (fetchJson as any).mockResolvedValue({
+      "watch/providers": {
+        results: { BR: { flatrate: [{ provider_id: 8, provider_name: "Netflix" }] } },
+      },
+    });
+    await svc.enriquecerProvedores(10);
+    expect(prisma.streamingService.create).not.toHaveBeenCalled();
+    expect(prisma.midiaStreaming.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { midia_id_service_id: { midia_id: "m-3", service_id: 77 } },
+        // coleta sem link não apaga URL existente (update url=undefined)
+        update: { url: undefined },
+      }),
+    );
+  });
+
+  it("colisão de unique no create do serviço não derruba o título", async () => {
+    const alvo = [{ id: "m-4", tipo: "FILME", fonte: "tmdb", fonte_id: "2", titulo: "Colisão" }];
+    const { svc, prisma } = makeService({ alvo });
+    prisma.streamingService.findUnique.mockResolvedValue(null);
+    prisma.streamingService.create.mockRejectedValue(
+      new Error("Unique constraint failed on the fields: (`nome`)"),
+    );
+    (fetchJson as any).mockResolvedValue({
+      "watch/providers": {
+        results: { BR: { flatrate: [{ provider_id: 1899, provider_name: "Max" }] } },
+      },
+    });
+    const r = await svc.enriquecerProvedores(10);
+    expect(prisma.streamingService.create).toHaveBeenCalledTimes(1);
+    // create colidiu → refaz lookup (null) → provedor ignorado, título ok.
+    expect(prisma.midiaStreaming.upsert).not.toHaveBeenCalled();
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.provedores_em).toBeInstanceOf(Date);
+  });
+
+  it("colisão recupera o serviço se o lookup posterior por slug o achar", async () => {
+    const alvo = [{ id: "m-5", tipo: "FILME", fonte: "tmdb", fonte_id: "3", titulo: "Recupera" }];
+    const { svc, prisma } = makeService({ alvo });
+    // 1º (por tmdb_provider_id) e 2º (por slug, pré-create) → null; o pós-colisão acha.
+    prisma.streamingService.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 55 });
+    prisma.streamingService.create.mockRejectedValue(
+      new Error("Unique constraint failed on the fields: (`slug`)"),
+    );
+    (fetchJson as any).mockResolvedValue({
+      "watch/providers": {
+        results: { BR: { flatrate: [{ provider_id: 337, provider_name: "Disney Plus" }] } },
+      },
+    });
+    const r = await svc.enriquecerProvedores(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    expect(prisma.midiaStreaming.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { midia_id_service_id: { midia_id: "m-5", service_id: 55 } },
+      }),
+    );
+  });
+
+  it("erro por título vai para falhas SEM watermark (retenta depois)", async () => {
+    const alvo = [{ id: "m-6", tipo: "FILME", fonte: "tmdb", fonte_id: "1", titulo: "Quebrado" }];
+    const { svc, prisma } = makeService({ alvo });
+    (fetchJson as any).mockRejectedValue(new Error("TMDB 500"));
+    const r = await svc.enriquecerProvedores(10);
+    expect(r).toEqual({ processados: 1, ok: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("guard de disco bloqueia (D-574) e job em execução não re-entra", async () => {
+    const alvo = [{ id: "m-1", tipo: "FILME", fonte: "tmdb", fonte_id: "1", titulo: "X" }];
+    const { svc, prisma } = makeService({ alvo });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 5000000000n }];
+      return alvo;
+    });
+    await expect(svc.enriquecerProvedores(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("drenarLote consome a 5ª fila (fila só de provedores drena)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [{ sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 5 }];
+      }
+      return [];
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "provedores", ok: 0, falhas: 0 }]);
   });
 });

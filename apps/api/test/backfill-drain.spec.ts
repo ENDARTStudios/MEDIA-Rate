@@ -16,6 +16,8 @@ function makeBackfill(over: any = {}) {
       filmesSemPais: 0,
       // T-DADOS-01: quarta fila (metadados ricos TMDB v2).
       metadadosRicos: 0,
+      // T-DADOS-02: quinta fila (provedores de streaming).
+      provedores: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -24,13 +26,21 @@ function makeBackfill(over: any = {}) {
         seriesSemTemporada: 5,
         filmesSemPais: 20,
         metadadosRicos: 0,
+        provedores: 0,
       },
-      pendentesDepois: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
+      pendentesDepois: {
+        semElenco: 0,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+      },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),
     continuidade: vi.fn(),
     enriquecerMetadados: vi.fn(),
     enriquecerMetadadosRicos: vi.fn(),
+    enriquecerProvedores: vi.fn(),
   };
 }
 
@@ -112,12 +122,19 @@ describe("BackfillDrainService (T179)", () => {
       pendentes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
     });
     backfill.drenarLote.mockImplementation(async () => ({
-      pendentesAntes: { semElenco: 32, seriesSemTemporada: 0, filmesSemPais: 0, metadadosRicos: 0 },
+      pendentesAntes: {
+        semElenco: 32,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+      },
       pendentesDepois: {
         semElenco: 32,
         seriesSemTemporada: 0,
         filmesSemPais: 0,
         metadadosRicos: 0,
+        provedores: 0,
       },
       lotes: [{ tipo: "metadados", ok: 32, falhas: 0 }],
     }));
@@ -139,6 +156,7 @@ describe("BackfillDrainService (T179)", () => {
       seriesSemTemporada: 0,
       filmesSemPais: 0,
       metadadosRicos: 0,
+      provedores: 0,
     }));
     backfill.drenarLote.mockImplementation(async () => {
       n -= 10;
@@ -148,12 +166,14 @@ describe("BackfillDrainService (T179)", () => {
           seriesSemTemporada: 0,
           filmesSemPais: 0,
           metadadosRicos: 0,
+          provedores: 0,
         },
         pendentesDepois: {
           semElenco: n,
           seriesSemTemporada: 0,
           filmesSemPais: 0,
           metadadosRicos: 0,
+          provedores: 0,
         },
         lotes: [{ tipo: "metadados", ok: 10, falhas: 0 }],
       };
@@ -172,5 +192,53 @@ describe("BackfillDrainService (T179)", () => {
     await svc.tique();
     expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
     expect(svc.status().ultimoResumo).not.toBeNull();
+  });
+
+  it("T-DADOS-02: fila só de provedores entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, provedores: 17230 },
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    // O resumo do drain carrega a 5ª fila (drain sem ela = fila presa, bug D-01).
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ provedores: 0 });
+  });
+
+  it("T-DADOS-02: provedores contam no total() (progresso real da fila)", async () => {
+    let n = 100;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: n,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 10;
+      return {
+        pendentesAntes: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: n + 10,
+        },
+        pendentesDepois: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: n,
+        },
+        lotes: [{ tipo: "provedores", ok: 10, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
+    expect(svc.status().espacado).toBe(false);
   });
 });
