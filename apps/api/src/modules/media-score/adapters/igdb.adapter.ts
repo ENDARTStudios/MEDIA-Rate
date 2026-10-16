@@ -18,6 +18,26 @@ interface JogoIgdb {
 
 let tokenCache: { token: string; expiraEm: number } | null = null;
 
+/** Remove aspas (quebram a query Apicalypse `search "..."`) e colapsa espaços. */
+export function sanitizarTitulo(titulo: string): string {
+  return titulo.replace(/["\\]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Normaliza título para validação de identidade (caixa, acentos, pontuação). */
+export function normalizarTitulo(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Id do IGDB utilizável (string de dígitos)? */
+function idIgdbUtilizavel(id: string | undefined): id is string {
+  return typeof id === "string" && /^\d+$/.test(id.trim());
+}
+
 async function obterTokenTwitch(): Promise<string> {
   if (tokenCache && Date.now() < tokenCache.expiraEm) return tokenCache.token;
   const corpo = new URLSearchParams({
@@ -69,7 +89,14 @@ export class IgdbAdapter implements FonteAdapter {
     if (!token) return [];
     const campo = this.id === "igdb_publico" ? "rating" : "aggregated_rating";
     const campoVotos = this.id === "igdb_publico" ? "rating_count" : "aggregated_rating_count";
-    const corpo = `search "${consulta.titulo}"; fields name, slug, ${campo}, ${campoVotos}; where ${campo} != null; limit 1;`;
+    // T-DADOS-05: o job popula `idsExternos.igdb` com o id exato do IGDB
+    // (gravado por id no T-DADOS-03). Preferir o id ao `search` textual, que
+    // devolvia DLC/ports/entidades homônimas e sobrescrevia a nota correta.
+    const idIgdb = consulta.idsExternos?.igdb;
+    const porId = idIgdbUtilizavel(idIgdb);
+    const corpo = porId
+      ? `fields name, slug, ${campo}, ${campoVotos}; where id = ${idIgdb.trim()}; limit 1;`
+      : `search "${sanitizarTitulo(consulta.titulo)}"; fields name, slug, ${campo}, ${campoVotos}; where ${campo} != null; limit 1;`;
     const jogos = await postJson<JogoIgdb[]>("https://api.igdb.com/v4/games", corpo, {
       headers: {
         "client-id": process.env.TWITCH_CLIENT_ID ?? "",
@@ -79,6 +106,11 @@ export class IgdbAdapter implements FonteAdapter {
       },
     });
     const jogo = jogos[0];
+    // Fallback textual: só aceita se o `name` retornado for a mesma obra
+    // (normalizado) — senão o `search` pode trazer DLC/porta/homônimo.
+    if (!porId && normalizarTitulo(jogo?.name ?? "") !== normalizarTitulo(consulta.titulo)) {
+      return [];
+    }
     const nota = jogo?.[campo];
     if (!nota || nota <= 0) return [];
     const stats = estatisticas("0-100");

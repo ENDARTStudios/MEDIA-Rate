@@ -79,7 +79,10 @@ describe("IgdbAdapter — OAuth Twitch + Apicalypse (aggregated_rating/rating)",
       },
     ]);
     const { IgdbAdapter } = await import("../src/modules/media-score/adapters/igdb.adapter.js");
-    const notas = await new IgdbAdapter("igdb").coletar({ tipo: "GAME", titulo: "Zelda BotW" });
+    const notas = await new IgdbAdapter("igdb").coletar({
+      tipo: "GAME",
+      titulo: "The Legend of Zelda: Breath of the Wild",
+    });
     expect(notas[0].fonte).toBe("igdb");
     expect(notas[0].rating).toBe(97);
     expect(notas[0].url).toBe("https://www.igdb.com/games/zelda-botw");
