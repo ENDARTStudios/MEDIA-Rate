@@ -1,4 +1,4 @@
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { routing } from "@/i18n/routing";
@@ -21,22 +21,22 @@ export const metadata: Metadata = {
 // estão disponíveis em next/font/google nem no Fontsource (E404) — mantido
 // Space Grotesk 600-700 como fonte display (geometrica, mesma familia de
 // estetica, ja aprovada). DECISAO registrada para validacao.
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+const spaceGrotesk = localFont({
+  src: "./fonts/space-grotesk-latin.woff2",
+  weight: "500 700",
   variable: "--font-heading",
   display: "swap",
 });
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const inter = localFont({
+  src: "./fonts/inter-latin.woff2",
+  weight: "400 600",
   variable: "--font-sans",
   display: "swap",
 });
 // Números de score (Parte 2.4): mono tabular com 700 para leitura de score.
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "700"],
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin.woff2",
+  weight: "500 700",
   variable: "--font-mono",
   display: "swap",
 });
