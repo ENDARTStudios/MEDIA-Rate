@@ -224,6 +224,14 @@ describe("MediaScoreService (T4.7)", () => {
       expect(call.update.confianca).toBe(result!.confianca);
       expect(call.update.detalhes).toHaveLength(4);
       expect(call.update.num_fontes).toBe(4);
+      // T-DADOS-20A: o carimbo vai no data (create e update) e é o mesmo
+      // devolvido no retorno — antes ficava congelado no @default(now()).
+      expect(call.update.calculado_em).toBeInstanceOf(Date);
+      expect(call.create.calculado_em).toBe(call.update.calculado_em);
+      expect((call.update.calculado_em as Date).getTime()).toBe(result!.calculado_em.getTime());
+      expect(Math.abs(Date.now() - (call.update.calculado_em as Date).getTime())).toBeLessThan(
+        5_000,
+      );
     });
 
     it("sem avaliações → upsert com prior C (score 70, num_fontes 0)", async () => {

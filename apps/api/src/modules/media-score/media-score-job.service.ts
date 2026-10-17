@@ -279,7 +279,24 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       return { coletadas: [], score: null, resultados };
     }
 
-    await this.prisma.avaliacaoFonte.deleteMany({ where: { midia_id: midia.id } });
+    // T-DADOS-20B: apagar TODAS as fontes e reinserir só as que responderam
+    // apagava as linhas de fontes que falharam (429/timeout) até o próximo
+    // passe (7 dias). Preserva as que deram erro e as puladas por adapter
+    // inativo (não foram consultadas). "Sem nota" foi consultada → pode sair.
+    const preservar = resultados
+      .filter((r) => r.status === "erro" || (r.status === "pulada" && r.motivo === "inativa"))
+      .map((r) => r.fonte);
+    if (preservar.length > 0) {
+      this.logger.warn(
+        `Fonte(s) preservada(s) por erro/inatividade em "${midia.titulo}" (${midia.id}): ${preservar.join(", ")}.`,
+      );
+    }
+    await this.prisma.avaliacaoFonte.deleteMany({
+      where: {
+        midia_id: midia.id,
+        ...(preservar.length ? { fonte: { notIn: preservar } } : {}),
+      },
+    });
     if (coletadas.length > 0) {
       await this.prisma.avaliacaoFonte.createMany({
         data: coletadas.map((r) => ({
