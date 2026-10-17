@@ -27,6 +27,13 @@ import {
   // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
   mapearSynopsisKitsu,
   mapearSynopsisJikan,
+  // T-DADOS-13A/B: refresh de provedores (30d) e autores (OpenLibrary/Jikan/Kitsu).
+  SQL_PROVEDORES_PENDENTES,
+  chaveWorkOpenLibrary,
+  chavesAutoresOpenLibrary,
+  nomeAutorOpenLibrary,
+  mapearAutoresJikan,
+  mapearAutoresKitsu,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -506,6 +513,12 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       // T-DADOS-12: fila da sinopse em inglês dos mangás (Kitsu/Jikan por id).
       expect(sql).toContain("sinopse_en_em IS NULL");
       expect(sql).toContain("btrim(m.sinopse_en) = ''");
+      // T-DADOS-13B: fila de autores (LIVRO OpenLibrary; MANGA Jikan/Kitsu).
+      expect(sql).toContain("autores_em IS NULL");
+      expect(sql).toContain("m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'");
+      expect(sql).toContain("m.tipo = 'MANGA' AND m.fonte IN ('jikan','kitsu')");
+      // T-DADOS-13A: provedores entram na fila de novo após 30 dias.
+      expect(sql).toContain(SQL_PROVEDORES_PENDENTES);
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
       // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
       expect(sql).toContain("franquia_membros");
@@ -524,6 +537,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           localizacao: 10570,
           critica_omdb: 10998,
           sinopse_manga_en: 501,
+          autores_livros: 600,
+          autores_mangas: 501,
         },
       ];
     });
@@ -540,6 +555,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       localizacao: 10570,
       criticaOmdb: 10998,
       sinopseMangaEn: 501,
+      autoresLivros: 600,
+      autoresMangas: 501,
     });
   });
 
@@ -562,6 +579,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       localizacao: 0,
       criticaOmdb: 0,
       sinopseMangaEn: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
     });
   });
 });
@@ -2400,5 +2419,336 @@ describe("BackfillService.enriquecerSinopseMangaEn (T-DADOS-12)", () => {
     expect(r.lotes).toEqual([{ tipo: "sinopseMangaEn", ok: 2, falhas: 0 }]);
     expect(svc.enriquecerSinopseMangaEn).toHaveBeenCalledWith(800);
     expect(r.pendentesAntes.sinopseMangaEn).toBe(2);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-13A — refresh dos provedores de streaming (corte de 30 dias)
+// ===========================================================================
+
+describe("T-DADOS-13A — refresh de provedores (30 dias)", () => {
+  it("entra na fila: NULL e watermark de 31 dias; 29 dias NÃO entra", async () => {
+    const { PGlite } = await import("@electric-sql/pglite");
+    const db = new PGlite();
+    try {
+      await db.exec(`CREATE TABLE midia (id text, provedores_em timestamp)`);
+      await db.exec(
+        `INSERT INTO midia VALUES
+           ('nunca', NULL),
+           ('31d', now() - interval '31 days'),
+           ('29d', now() - interval '29 days')`,
+      );
+      const r = await db.query<{ id: string }>(
+        `SELECT id FROM midia m WHERE ${SQL_PROVEDORES_PENDENTES} ORDER BY id`,
+      );
+      // SQL real (PGlite/Postgres): só NULL e >30 dias; 29 dias fica fora.
+      expect(r.rows.map((row) => row.id)).toEqual(["31d", "nunca"]);
+    } finally {
+      await db.close();
+    }
+  });
+
+  it("alvo do job usa a MESMA condição da contagem (não só provedores_em IS NULL)", async () => {
+    process.env.TMDB_API_KEY = "chave-de-teste";
+    const { svc, prisma } = makeService({ alvo: [] });
+    await svc.enriquecerProvedores(10);
+    const sql = (prisma.$queryRawUnsafe as any).mock.calls
+      .map((c: any[]) => String(c[0]))
+      .find((s: string) => /FROM midia m/.test(s));
+    expect(sql).toBeDefined();
+    expect(sql).toContain(SQL_PROVEDORES_PENDENTES);
+    expect(sql).toContain("m.provedores_em < now() - interval '30 days'");
+    delete process.env.TMDB_API_KEY;
+  });
+});
+
+// ===========================================================================
+// T-DADOS-13B — autores de LIVRO (OpenLibrary) e MANGA (Jikan/Kitsu)
+// ===========================================================================
+
+describe("mappers de autores (T-DADOS-13B)", () => {
+  it("work: authors[].author.key → chave curta, ordem e sem duplicatas", () => {
+    expect(
+      chavesAutoresOpenLibrary({
+        authors: [
+          { author: { key: "/authors/OL34184A" }, type: { key: "/type/author_role" } },
+          { author: { key: "/authors/OL999A" } },
+          { author: { key: "/authors/OL34184A" } },
+          { author: {} },
+          {},
+        ],
+      }),
+    ).toEqual(["OL34184A", "OL999A"]);
+    expect(chavesAutoresOpenLibrary({})).toEqual([]);
+    expect(chavesAutoresOpenLibrary(undefined)).toEqual([]);
+  });
+
+  it("author: name com fallback personal_name; sem nome → null", () => {
+    expect(nomeAutorOpenLibrary({ name: "Ursula K. Le Guin" })).toBe("Ursula K. Le Guin");
+    expect(nomeAutorOpenLibrary({ personal_name: "J. K. Rowling" })).toBe("J. K. Rowling");
+    expect(nomeAutorOpenLibrary({ name: "  ", personal_name: "Fallback" })).toBe("Fallback");
+    expect(nomeAutorOpenLibrary({})).toBeNull();
+    expect(nomeAutorOpenLibrary(undefined)).toBeNull();
+  });
+
+  it("Jikan: data.authors[] → mal_id/name/ordem do índice; inválidos descartados", () => {
+    expect(
+      mapearAutoresJikan({
+        data: {
+          authors: [
+            { mal_id: 1234, type: "Story & Art", name: "Eiichiro Oda" },
+            { mal_id: 0, name: "Sem id" },
+            { mal_id: 55, name: "" },
+            { mal_id: 77, name: "Outro Autor" },
+          ],
+        },
+      }),
+    ).toEqual([
+      { fonte_id: "1234", nome: "Eiichiro Oda", ordem: 0 },
+      { fonte_id: "77", nome: "Outro Autor", ordem: 3 },
+    ]);
+    expect(mapearAutoresJikan({})).toEqual([]);
+  });
+
+  it("Kitsu: staff (Story/Art) + included person → id/nome/ordem; ignora papéis não-autorais", () => {
+    expect(
+      mapearAutoresKitsu({
+        data: [
+          {
+            attributes: { role: "Story & Art" },
+            relationships: { person: { data: { id: "10" } } },
+          },
+          { attributes: { role: "Art" }, relationships: { person: { data: { id: "10" } } } },
+          { attributes: { role: "Editor" }, relationships: { person: { data: { id: "20" } } } },
+          { attributes: { role: "Story" }, relationships: { person: { data: { id: "30" } } } },
+        ],
+        included: [
+          { id: "10", type: "people", attributes: { name: "Autora Kitsu" } },
+          { id: "20", type: "people", attributes: { name: "Editor" } },
+          { id: "30", type: "people", attributes: { name: "Roteirista" } },
+        ],
+      }),
+    ).toEqual([
+      { fonte_id: "10", nome: "Autora Kitsu", ordem: 0 },
+      { fonte_id: "30", nome: "Roteirista", ordem: 1 },
+    ]);
+  });
+
+  it("chaveWorkOpenLibrary aceita fonte_id com ou sem prefixo", () => {
+    expect(chaveWorkOpenLibrary("OL45804W")).toBe("OL45804W");
+    expect(chaveWorkOpenLibrary("/works/OL45804W")).toBe("OL45804W");
+    expect(chaveWorkOpenLibrary("works/OL45804W")).toBe("OL45804W");
+    expect(chaveWorkOpenLibrary("  OL1W  ")).toBe("OL1W");
+  });
+});
+
+describe("BackfillService.enriquecerAutoresLivros (T-DADOS-13B)", () => {
+  const URL_WORK_1 = "https://openlibrary.org/works/OL1W.json";
+  const URL_WORK_2 = "https://openlibrary.org/works/OL2W.json";
+  const URL_AUTOR = "https://openlibrary.org/authors/OL10A.json";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function livro(over: any = {}) {
+    return {
+      id: "m-livro-1",
+      fonte: "openlibrary",
+      fonte_id: "OL1W",
+      titulo: "Um Livro",
+      ...over,
+    };
+  }
+
+  it("grava personagem 'Autor' e ordem 0-based no midia_elenco (fonte openlibrary)", async () => {
+    const { svc, prisma } = makeService({ alvo: [livro()] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_WORK_1) return { authors: [{ author: { key: "/authors/OL10A" } }] };
+      if (url === URL_AUTOR) return { name: "Ursula K. Le Guin" };
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
+    expect(chamada.where).toEqual({
+      midia_id_fonte_fonte_id: {
+        midia_id: "m-livro-1",
+        fonte: "openlibrary",
+        fonte_id: "OL10A",
+      },
+    });
+    expect(chamada.create).toMatchObject({
+      fonte: "openlibrary",
+      personagem: "Autor",
+      ordem: 0,
+      foto_url: null,
+    });
+    expect(chamada.update).toMatchObject({ personagem: "Autor", ordem: 0 });
+    // Nunca toca linhas do TMDB: a chave composta inclui fonte=openlibrary.
+    expect(chamada.where.midia_id_fonte_fonte_id.fonte).not.toBe("tmdb");
+    expect((prisma.midia.update as any).mock.calls[0][0].data).toEqual({
+      autores_em: expect.any(Date),
+    });
+  });
+
+  it("memoiza o autor no lote: dois livros do mesmo autor → UMA chamada ao endpoint do autor", async () => {
+    const alvo = [livro(), livro({ id: "m-livro-2", fonte_id: "OL2W", titulo: "Outro Livro" })];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_WORK_1 || url === URL_WORK_2) {
+        return { authors: [{ author: { key: "/authors/OL10A" } }] };
+      }
+      if (url === URL_AUTOR) return { personal_name: "J. K. Rowling" };
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 2, ok: 2, semAutores: 0, falhas: 0 });
+    const chamadasAutor = (fetchJson as any).mock.calls.filter((c: any[]) => c[0] === URL_AUTOR);
+    expect(chamadasAutor).toHaveLength(1); // memoização por lote
+    expect(prisma.midiaElenco.upsert).toHaveBeenCalledTimes(2);
+    expect((prisma.midia.update as any).mock.calls).toHaveLength(2);
+  });
+
+  it("livro sem authors: marca autores_em, NÃO grava elenco e não trava a fila", async () => {
+    const { svc, prisma } = makeService({ alvo: [livro()] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({ title: "Sem autores" });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 1, falhas: 0 });
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0].data).toEqual({
+      autores_em: expect.any(Date),
+    });
+  });
+
+  it("429: espera ~2s e repete UMA vez (sucesso na segunda)", async () => {
+    const { svc, prisma } = makeService({ alvo: [livro()] });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    let tentativasAutor = 0;
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_WORK_1) return { authors: [{ author: { key: "/authors/OL10A" } }] };
+      if (url === URL_AUTOR) {
+        tentativasAutor++;
+        if (tentativasAutor === 1) throw new ErroColeta("HTTP 429", 429);
+        return { name: "Autor Retentado" };
+      }
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    expect(tentativasAutor).toBe(2);
+    expect(pausa).toHaveBeenCalledWith(2000);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+  });
+
+  it("falha persistente (429 repetido): falhas++ e NÃO marca o watermark", async () => {
+    const { svc, prisma } = makeService({ alvo: [livro()] });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_WORK_1) return { authors: [{ author: { key: "/authors/OL10A" } }] };
+      if (url === URL_AUTOR) throw new ErroColeta("HTTP 429", 429);
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semAutores: 0, falhas: 1 });
+    expect(pausa).toHaveBeenCalledWith(2000);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("Jikan: data.authors[] → personagem 'Autor' com fonte jikan e ordem", async () => {
+    const alvo = [{ id: "m-manga-1", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({
+      data: { authors: [{ mal_id: 1234, name: "Eiichiro Oda" }] },
+    });
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
+    expect(chamada.where.midia_id_fonte_fonte_id).toEqual({
+      midia_id: "m-manga-1",
+      fonte: "jikan",
+      fonte_id: "1234",
+    });
+    expect(chamada.create).toMatchObject({ personagem: "Autor", ordem: 0, foto_url: null });
+  });
+
+  it("Kitsu: /manga/<id>/staff?include=person → autores com fonte kitsu", async () => {
+    const alvo = [{ id: "m-manga-2", fonte: "kitsu", fonte_id: "40005", titulo: "Manga" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({
+      data: [{ attributes: { role: "Story" }, relationships: { person: { data: { id: "10" } } } }],
+      included: [{ id: "10", type: "people", attributes: { name: "Roteirista" } }],
+    });
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    const url = (fetchJson as any).mock.calls[0][0];
+    expect(url).toBe("https://kitsu.io/api/edge/manga/40005/staff?include=person");
+    const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
+    expect(chamada.where.midia_id_fonte_fonte_id.fonte).toBe("kitsu");
+    expect(chamada.create).toMatchObject({ personagem: "Autor", ordem: 0 });
+  });
+});
+
+describe("drenarLote — filas de autores (T-DADOS-13B)", () => {
+  it("consome as duas filas de autores no lote", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            autores_livros: 3,
+            autores_mangas: 2,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerAutoresLivros").mockResolvedValue({
+      processados: 3,
+      ok: 3,
+      semAutores: 0,
+      falhas: 0,
+    });
+    vi.spyOn(svc, "enriquecerAutoresMangas").mockResolvedValue({
+      processados: 2,
+      ok: 2,
+      semAutores: 0,
+      falhas: 0,
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([
+      { tipo: "autoresLivros", ok: 3, falhas: 0 },
+      { tipo: "autoresMangas", ok: 2, falhas: 0 },
+    ]);
+    expect(r.pendentesAntes.autoresLivros).toBe(3);
+    expect(r.pendentesAntes.autoresMangas).toBe(2);
   });
 });

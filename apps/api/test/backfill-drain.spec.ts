@@ -588,3 +588,130 @@ describe("BackfillDrainService (T179)", () => {
     expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ sinopseMangaEn: 0 });
   });
 });
+
+describe("BackfillDrainService — filas de autores (T-DADOS-13B)", () => {
+  const envOriginal = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.NODE_ENV = "production";
+    delete process.env.MEDIA_BACKFILL_DRAIN_ENABLED;
+  });
+
+  afterEach(() => {
+    process.env = { ...envOriginal };
+  });
+
+  it("fila só de autores de livros entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, autoresLivros: 600 },
+    });
+    backfill.drenarLote.mockResolvedValueOnce({
+      pendentesAntes: {
+        semElenco: 0,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+        criticaIgdb: 0,
+        generosGames: 0,
+        arestasFranquia: 0,
+        avaliacaoLivros: 0,
+        localizacao: 0,
+        criticaOmdb: 0,
+        sinopseMangaEn: 0,
+        autoresLivros: 600,
+        autoresMangas: 0,
+      },
+      pendentesDepois: {
+        semElenco: 0,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+        criticaIgdb: 0,
+        generosGames: 0,
+        arestasFranquia: 0,
+        avaliacaoLivros: 0,
+        localizacao: 0,
+        criticaOmdb: 0,
+        sinopseMangaEn: 0,
+        autoresLivros: 0,
+        autoresMangas: 0,
+      },
+      lotes: [{ tipo: "autoresLivros", ok: 600, falhas: 0 }],
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    // O resumo carrega as filas novas (drain sem elas = fila presa).
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({
+      autoresLivros: 0,
+      autoresMangas: 0,
+    });
+  });
+
+  it("autores de mangás contam no total() (progresso real da fila)", async () => {
+    let n = 100;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: 0,
+      sinopseMangaEn: 0,
+      autoresLivros: 0,
+      autoresMangas: n,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 10;
+      return {
+        pendentesAntes: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+          criticaOmdb: 0,
+          sinopseMangaEn: 0,
+          autoresLivros: 0,
+          autoresMangas: n + 10,
+        },
+        pendentesDepois: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+          criticaOmdb: 0,
+          sinopseMangaEn: 0,
+          autoresLivros: 0,
+          autoresMangas: n,
+        },
+        lotes: [{ tipo: "autoresMangas", ok: 10, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
+    expect(svc.status().espacado).toBe(false);
+  });
+});

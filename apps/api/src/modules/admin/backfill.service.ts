@@ -29,6 +29,15 @@ const IGDB_URL = "https://api.igdb.com/v4/games";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 const PAUSA_IGDB_MS = 300;
 const ESPERA_429_MS = 1500;
+// T-DADOS-13B: OpenLibrary/Kitsu/Jikan — throttle de 300ms por chamada
+// (mesma política do IGDB) e uma única retentativa em 429.
+const PAUSA_AUTORES_MS = 300;
+const ESPERA_429_AUTORES_MS = 2000;
+const OL_BASE = "https://openlibrary.org";
+// T-DADOS-13A (D2c): streaming muda todo mês — o watermark completo só é
+// confiável por 30 dias. Mesma condição no alvo do job e na contagem da fila.
+export const DIAS_REFRESH_PROVEDORES = 30;
+export const SQL_PROVEDORES_PENDENTES = `(m.provedores_em IS NULL OR m.provedores_em < now() - interval '${DIAS_REFRESH_PROVEDORES} days')`;
 // T-DADOS-07: OpenLibrary é API aberta e educada — throttle mínimo entre títulos.
 const PAUSA_OPENLIBRARY_MS = 250;
 // T-DADOS-10: OMDb é grátis e limitado (1k/dia) — throttle mínimo por título.
@@ -57,7 +66,11 @@ export type BackfillTipo =
   // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
   | "criticaOmdb"
   // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
-  | "sinopseMangaEn";
+  | "sinopseMangaEn"
+  // T-DADOS-13B: autores de LIVRO (OpenLibrary por id) e de MANGA
+  // (Jikan/Kitsu por id) em midia_elenco com personagem "Autor".
+  | "autoresLivros"
+  | "autoresMangas";
 
 interface BackfillEstado {
   executando: boolean;
@@ -703,6 +716,105 @@ export function mapearSynopsisJikan(payload: any): string | null {
 }
 
 // ===========================================================================
+// T-DADOS-13B — autores de LIVRO (OpenLibrary) e MANGA (Jikan/Kitsu)
+// ===========================================================================
+
+export interface AutorFonte {
+  fonte_id: string;
+  nome: string;
+}
+
+/** Chave do work OpenLibrary sem o prefixo `/works/` (fonte_id = `OL…W`). */
+export function chaveWorkOpenLibrary(fonteId: string): string {
+  return String(fonteId ?? "")
+    .trim()
+    .replace(/^\/?works\//, "");
+}
+
+/**
+ * T-DADOS-13B: `GET /works/<id>.json` → `authors[].author.key` no formato
+ * `/authors/OL123A`. Devolve só a chave curta (`OL123A`), na ordem da fonte e
+ * sem duplicatas. Payload ausente/estranho → [] (ausência honesta).
+ */
+export function chavesAutoresOpenLibrary(payload: any): string[] {
+  const saida: string[] = [];
+  const vistos = new Set<string>();
+  for (const item of payload?.authors ?? []) {
+    const bruto = item?.author?.key;
+    if (typeof bruto !== "string") continue;
+    const chave = bruto.trim().replace(/^\/?authors\//, "");
+    if (!chave || vistos.has(chave)) continue;
+    vistos.add(chave);
+    saida.push(chave);
+  }
+  return saida;
+}
+
+/**
+ * T-DADOS-13B: `GET /authors/<chave>.json` → `name`, com fallback
+ * `personal_name`. Vazio/ausente → null (não grava linha sem nome).
+ */
+export function nomeAutorOpenLibrary(payload: any): string | null {
+  // `name` vazio/whitespace NÃO é nome: cai para `personal_name`.
+  return (
+    truncarCampo(payload?.name, LIMITES.elencoNome) ??
+    truncarCampo(payload?.personal_name, LIMITES.elencoNome)
+  );
+}
+
+/**
+ * T-DADOS-13B: `GET /v4/manga/<id>` → `data.authors[]` (`mal_id` + `name`).
+ * `ordem` é o índice na lista original da fonte (0-based), sem duplicatas.
+ */
+export function mapearAutoresJikan(payload: any): (AutorFonte & { ordem: number })[] {
+  const autores = Array.isArray(payload?.data?.authors) ? payload.data.authors : [];
+  const saida: (AutorFonte & { ordem: number })[] = [];
+  const vistos = new Set<string>();
+  for (const [indice, item] of autores.entries()) {
+    const malId = Number(item?.mal_id);
+    const nome = truncarCampo(item?.name, LIMITES.elencoNome);
+    if (!Number.isInteger(malId) || malId <= 0 || !nome) continue;
+    const fonte_id = String(malId);
+    if (vistos.has(fonte_id)) continue;
+    vistos.add(fonte_id);
+    saida.push({ fonte_id, nome, ordem: indice });
+  }
+  return saida;
+}
+
+/** T-DADOS-13B: papéis do Kitsu que representam autoria (história/arte). */
+const PAPEL_AUTOR_KITSU = /(story|art|author|illustrat)/i;
+
+/**
+ * T-DADOS-13B: `GET /manga/<id>/staff?include=person` → staff com
+ * `person` incluído. Só papéis de autoria entram (Story/Art/Story & Art);
+ * nome vem de `included[]` (`type = "people"`) e `fonte_id` é o id da pessoa.
+ * `ordem` é a posição entre os autores (0-based), sem duplicatas.
+ */
+export function mapearAutoresKitsu(payload: any): (AutorFonte & { ordem: number })[] {
+  const nomes = new Map<string, string>();
+  for (const inc of payload?.included ?? []) {
+    if (inc?.type !== "people" || inc?.id == null) continue;
+    const nome = truncarCampo(inc?.attributes?.name, LIMITES.elencoNome);
+    if (nome) nomes.set(String(inc.id), nome);
+  }
+  const saida: (AutorFonte & { ordem: number })[] = [];
+  const vistos = new Set<string>();
+  for (const staff of payload?.data ?? []) {
+    if (!PAPEL_AUTOR_KITSU.test(String(staff?.attributes?.role ?? ""))) continue;
+    const id = staff?.relationships?.person?.data?.id;
+    if (id == null) continue;
+    const fonte_id = String(id);
+    if (vistos.has(fonte_id)) continue;
+    const nome = nomes.get(fonte_id);
+    if (!nome) continue;
+    vistos.add(fonte_id);
+    saida.push({ fonte_id, nome, ordem: saida.length });
+  }
+  return saida;
+}
+
+// ===========================================================================
 // Serviço
 // ===========================================================================
 
@@ -721,6 +833,8 @@ export class BackfillService {
     generosGames: estadoVazio(),
     criticaOmdb: estadoVazio(),
     sinopseMangaEn: estadoVazio(),
+    autoresLivros: estadoVazio(),
+    autoresMangas: estadoVazio(),
   };
 
   constructor(
@@ -1090,10 +1204,13 @@ export class BackfillService {
    * `append_to_response=watch/providers` = JustWatch, região BR). Popula
    * `streaming_service` + `midia_streaming` — a ficha do produto ("Onde
    * assistir") nunca teve dado e passa a funcionar pelo caminho de leitura que
-   * já existe. Alvo é o watermark `provedores_em IS NULL`; o watermark é
-   * gravado SEMPRE (mesmo sem provedor no BR), então a fila drena de verdade;
-   * em exceção o título volta depois. Escopo: só `flatrate` (limitação
-   * documentada no mapper `mapearProvedores`).
+   * já existe. Alvo é o watermark com REFRESH de 30 dias (T-DADOS-13A/D2c:
+   * streaming muda todo mês — `provedores_em IS NULL OR < now() - 30 days`);
+   * o watermark é gravado SEMPRE (mesmo sem provedor no BR), então a fila
+   * drena de verdade; em exceção o título volta depois. Escopo: só `flatrate`
+   * (limitação documentada no mapper `mapearProvedores`). Limitação conhecida:
+   * o refresh só faz upsert — provedores que saíram da fonte continuam
+   * vinculados até uma futura passada de reconciliação (não há deleção aqui).
    */
   async enriquecerProvedores(
     limite: number,
@@ -1118,7 +1235,7 @@ export class BackfillService {
       `SELECT m.id::text, m.tipo::text, m.fonte::text, m.fonte_id, m.titulo
        FROM midia m
        WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
-         AND m.provedores_em IS NULL
+         AND ${SQL_PROVEDORES_PENDENTES}
        ORDER BY m.id
        LIMIT ${Math.min(Math.max(Math.trunc(limite) || 2000, 1), 8000)}`,
     )) as any[];
@@ -2005,6 +2122,232 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-13B: autores de LIVRO no OpenLibrary, por id EXATO do work.
+   *
+   * A ficha mostra autores na aba "Elenco" (`MidiaElenco` com
+   * `personagem = "Autor"`). Fluxo: `GET /works/<fonte_id>.json` →
+   * `authors[].author.key`; para cada chave, `GET /authors/<chave>.json` →
+   * `name` (fallback `personal_name`). Os nomes são MEMOIZADOS por lote
+   * (`Map`) porque muitos livros compartilham autor — a chamada de um autor
+   * repetido não acontece duas vezes.
+   *
+   * Watermark `autores_em` gravado SEMPRE ao fim do título (mesmo sem
+   * `authors` na fonte: ausência honesta). Erro de rede/429 persistente não
+   * marca (retenta na próxima rodada). Nunca lança por título.
+   */
+  async enriquecerAutoresLivros(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semAutores: number;
+    falhas: number;
+  }> {
+    return this.enriquecerAutores("autoresLivros", "LIVRO", limite);
+  }
+
+  /**
+   * T-DADOS-13B: autores de MANGA por id EXATO da fonte — Jikan
+   * (`data.authors[]`) e Kitsu (`/manga/<id>/staff?include=person`, papéis de
+   * história/arte). Mesma gravação/watermark dos livros, com `fonte` da mídia
+   * (nunca `tmdb`, portanto linhas de elenco do TMDB não são tocadas).
+   */
+  async enriquecerAutoresMangas(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semAutores: number;
+    falhas: number;
+  }> {
+    return this.enriquecerAutores("autoresMangas", "MANGA", limite);
+  }
+
+  private async enriquecerAutores(
+    job: "autoresLivros" | "autoresMangas",
+    tipoMidia: "LIVRO" | "MANGA",
+    limite: number,
+  ): Promise<{ processados: number; ok: number; semAutores: number; falhas: number }> {
+    const rotulo = job === "autoresLivros" ? "autores de livros" : "autores de mangás";
+    if (this.estado[job].executando) {
+      throw new BadRequestException(`Job ${rotulo} já em execução.`);
+    }
+    await this.guardaDisco();
+    this.estado[job] = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    // Filtro de fonte fixo por job (sem input externo na SQL).
+    const filtroFonte =
+      job === "autoresLivros" ? "m.fonte = 'openlibrary'" : "m.fonte IN ('jikan','kitsu')";
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = '${tipoMidia}' AND ${filtroFonte}
+         AND m.autores_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+    )) as any[];
+    this.logger.log(`Backfill ${rotulo}: ${alvo.length} títulos alvo.`);
+    // Memo por lote: autor → nome (null = consultado e sem nome).
+    const nomesOpenLibrary = new Map<string, string | null>();
+    let semAutores = 0;
+    let autoresGravados = 0;
+    for (const m of alvo) {
+      this.estado[job].processados++;
+      this.estado[job].atual = m.titulo;
+      try {
+        const autores =
+          job === "autoresLivros"
+            ? await this.autoresOpenLibrary(m.fonte_id, nomesOpenLibrary)
+            : await this.autoresManga(m.fonte, m.fonte_id);
+        if (autores.length === 0) {
+          // Ausência honesta: marca o watermark e segue (não inventa autor).
+          semAutores++;
+        }
+        for (const a of autores) {
+          await this.prisma.midiaElenco.upsert({
+            // Chave por fonte: linhas de `tmdb` são inalcançáveis aqui.
+            where: {
+              midia_id_fonte_fonte_id: {
+                midia_id: m.id,
+                fonte: m.fonte,
+                fonte_id: a.fonte_id,
+              },
+            },
+            create: {
+              midia_id: m.id,
+              fonte: m.fonte,
+              fonte_id: a.fonte_id,
+              nome: a.nome,
+              personagem: "Autor",
+              ordem: a.ordem,
+              foto_url: null,
+            },
+            update: {
+              nome: a.nome,
+              personagem: "Autor",
+              ordem: a.ordem,
+            },
+          });
+          autoresGravados++;
+        }
+        // Watermark SEMPRE (mesmo sem authors): sem isso a fila travaria em
+        // todo livro/mangá cuja fonte não expõe autores.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { autores_em: new Date() },
+        });
+        this.estado[job].ok++;
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado[job].falhas++;
+        this.logger.warn(`Backfill ${rotulo} falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado[job].executando = false;
+    this.estado[job].atual =
+      `fim: ok=${this.estado[job].ok} sem_autores=${semAutores} falhas=${this.estado[job].falhas}`;
+    this.logger.log(
+      `Backfill ${rotulo} fim: ok=${this.estado[job].ok} sem_autores=${semAutores} autores=${autoresGravados} falhas=${this.estado[job].falhas}.`,
+    );
+    return {
+      processados: this.estado[job].processados,
+      ok: this.estado[job].ok,
+      semAutores,
+      falhas: this.estado[job].falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-13B: work OpenLibrary → autores (id + nome + ordem 0-based). O
+   * `Map` de memo é do LOTE: nome de autor já consultado não gera nova
+   * requisição (nem quando o resultado é `null`).
+   */
+  private async autoresOpenLibrary(
+    fonteId: string,
+    memo: Map<string, string | null>,
+  ): Promise<(AutorFonte & { ordem: number })[]> {
+    const work = chaveWorkOpenLibrary(fonteId);
+    if (!work) return [];
+    const payload = await this.getJsonComThrottle<any>(
+      `${OL_BASE}/works/${encodeURIComponent(work)}.json`,
+      PAUSA_AUTORES_MS,
+      { Accept: "application/json" },
+    );
+    const chaves = chavesAutoresOpenLibrary(payload);
+    const autores: (AutorFonte & { ordem: number })[] = [];
+    for (const [indice, chave] of chaves.entries()) {
+      let nome = memo.get(chave);
+      if (nome === undefined) {
+        const autorPayload = await this.getJsonComThrottle<any>(
+          `${OL_BASE}/authors/${encodeURIComponent(chave)}.json`,
+          PAUSA_AUTORES_MS,
+          { Accept: "application/json" },
+        );
+        nome = nomeAutorOpenLibrary(autorPayload);
+        memo.set(chave, nome);
+      }
+      if (!nome) continue;
+      autores.push({ fonte_id: chave, nome, ordem: indice });
+    }
+    return autores;
+  }
+
+  /** T-DADOS-13B: autores do MANGA pelo id exato (Jikan ou Kitsu). */
+  private async autoresManga(
+    fonte: string,
+    fonteId: string,
+  ): Promise<(AutorFonte & { ordem: number })[]> {
+    const id = encodeURIComponent(String(fonteId));
+    if (fonte === "jikan") {
+      const payload = await this.getJsonComThrottle<any>(
+        `${JIKAN_BASE}/manga/${id}`,
+        PAUSA_AUTORES_MS,
+        { Accept: "application/json" },
+      );
+      return mapearAutoresJikan(payload);
+    }
+    if (fonte === "kitsu") {
+      const payload = await this.getJsonComThrottle<any>(
+        `${KITSU_BASE}/manga/${id}/staff?include=person`,
+        PAUSA_AUTORES_MS,
+        { Accept: "application/vnd.api+json" },
+      );
+      return mapearAutoresKitsu(payload);
+    }
+    return [];
+  }
+
+  /**
+   * T-DADOS-13B: GET JSON com throttle ≥300ms e retry único em 429 (~2s).
+   * Erros não-429 (e 429 persistente) propagam: o título não marca watermark.
+   */
+  private async getJsonComThrottle<T>(
+    url: string,
+    pausaMs: number,
+    headers: Record<string, string>,
+  ): Promise<T> {
+    for (let tentativa = 0; ; tentativa++) {
+      await this.pausa(pausaMs);
+      try {
+        return await fetchJson<T>(url, {
+          headers: { "User-Agent": UA_BROWSER, ...headers },
+          timeoutMs: 20000,
+        });
+      } catch (e) {
+        const status = (e as { status?: number } | null)?.status;
+        const eh429 = status === 429 || String(e).includes("HTTP 429");
+        if (eh429 && tentativa === 0) {
+          this.logger.warn("Backfill autores: HTTP 429 — aguardando ~2s e repetindo uma vez.");
+          await this.pausa(ESPERA_429_AUTORES_MS);
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+
+  /**
    * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
    * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
    * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
@@ -2368,6 +2711,9 @@ export class BackfillService {
     criticaOmdb: number;
     // T-DADOS-12: fila de sinopse em inglês dos mangás (Kitsu/Jikan por id).
     sinopseMangaEn: number;
+    // T-DADOS-13B: autores em midia_elenco (LIVRO OpenLibrary; MANGA Jikan/Kitsu).
+    autoresLivros: number;
+    autoresMangas: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -2383,6 +2729,8 @@ export class BackfillService {
         localizacao: number;
         critica_omdb: number;
         sinopse_manga_en: number;
+        autores_livros: number;
+        autores_mangas: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -2399,7 +2747,7 @@ export class BackfillService {
             AND m.metadados_ricos_em IS NULL) AS ricos,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
-            AND m.provedores_em IS NULL) AS provedores,
+            AND ${SQL_PROVEDORES_PENDENTES}) AS provedores,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
             AND m.critica_igdb_em IS NULL) AS critica_igdb,
@@ -2421,6 +2769,12 @@ export class BackfillService {
             AND m.fonte IN ('kitsu','jikan')
             AND m.sinopse_en_em IS NULL
             AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')) AS sinopse_manga_en,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
+            AND m.autores_em IS NULL) AS autores_livros,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte IN ('jikan','kitsu')
+            AND m.autores_em IS NULL) AS autores_mangas,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -2447,6 +2801,8 @@ export class BackfillService {
       localizacao: Number(row?.localizacao ?? 0),
       criticaOmdb: restanteOmdb > 0 ? Number(row?.critica_omdb ?? 0) : 0,
       sinopseMangaEn: Number(row?.sinopse_manga_en ?? 0),
+      autoresLivros: Number(row?.autores_livros ?? 0),
+      autoresMangas: Number(row?.autores_mangas ?? 0),
     };
   }
 
@@ -2532,6 +2888,18 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseMangaEn ?? 0) > 0) {
         const r = await this.enriquecerSinopseMangaEn(800);
         lotes.push({ tipo: "sinopseMangaEn", ok: r.ok + r.semSynopsis, falhas: r.falhas });
+      }
+      // T-DADOS-13B: autores de LIVRO (OpenLibrary por id, 300ms por requisição
+      // e memo de autor por lote). `ok` já inclui os títulos sem authors (o
+      // watermark foi marcado — ausência honesta).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresLivros ?? 0) > 0) {
+        const r = await this.enriquecerAutoresLivros(800);
+        lotes.push({ tipo: "autoresLivros", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-13B: autores de MANGA por id (Jikan/Kitsu).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresMangas ?? 0) > 0) {
+        const r = await this.enriquecerAutoresMangas(800);
+        lotes.push({ tipo: "autoresMangas", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
