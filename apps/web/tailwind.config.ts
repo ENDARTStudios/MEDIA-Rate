@@ -48,7 +48,9 @@ const config: Config = {
           pink: { DEFAULT: "#F472B6", foreground: "#0F172A" },
           violet: { DEFAULT: "#A78BFA", foreground: "#0F172A" },
         },
-        brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
+        // `hover` é o rose escurecido que os CTAs de marca usavam como hex solto
+        // (`hover:bg-[#C31442]`) — par de `brand` no mesmo espírito do indigo.
+        brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF", hover: "#C31442" },
         media: {
           movie: "#818CF8",
           series: "#38BDF8",

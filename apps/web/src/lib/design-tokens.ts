@@ -7,6 +7,8 @@ export const colors = {
     critics: "#38BDF8",
     audience: "#E11D48",
     brand: "#E11D48",
+    // Rose escurecido do hover dos CTAs de marca (`hover:bg-brand-hover`).
+    brandHover: "#C31442",
     indigo: "#818CF8",
     // Par claro do índigo, usado como estado de hover de links e CTAs índigo
     // (`text-accent-indigo hover:text-accent-indigo-hover` no Tailwind). Existia

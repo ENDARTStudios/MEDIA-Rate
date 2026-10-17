@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { CatalogPageClient } from "../../../components/CatalogPageClient";
+import { PageShell } from "@/components/ui/page-shell";
 import { getCatalog } from "../../../lib/api";
 import type { MediaType } from "../../../lib/types";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
@@ -134,9 +135,7 @@ export default async function CatalogPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-[#F5F5F7]">{t("title")}</h1>
-        <p className="text-[#A0A0B8] mb-6 max-w-2xl">{t("catalogDesc")}</p>
+      <PageShell title={t("title")} intro={t("catalogDesc")}>
         <CatalogPageClient
           initialData={initialData}
           initialDataKey={initialDataKey}
@@ -144,7 +143,7 @@ export default async function CatalogPage({
           initialSort={sp.sort}
           initialQuery={sp.q}
         />
-      </div>
+      </PageShell>
     </>
   );
 }

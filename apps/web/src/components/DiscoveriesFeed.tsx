@@ -91,7 +91,7 @@ function ParaVoceSection({ itens }: { itens: ParaVoceItem[] }) {
           <Link
             key={`${item.id}-${item.motivo.tipo}`}
             href={`/media/${item.slug ?? item.id}`}
-            className="group block bg-[#12121C] rounded-xl overflow-hidden border border-[#2A2A3D]"
+            className="group block bg-surface-card rounded-xl overflow-hidden border border-surface-border"
           >
             {item.imagem_url && (
               <StaticPoster
@@ -105,7 +105,7 @@ function ParaVoceSection({ itens }: { itens: ParaVoceItem[] }) {
               <p className="font-semibold text-sm leading-snug line-clamp-2 group-hover:underline">
                 {item.titulo}
               </p>
-              <p className="text-xs text-[#818CF8] mt-1">{item.motivo.rotulo}</p>
+              <p className="text-xs text-accent-indigo mt-1">{item.motivo.rotulo}</p>
             </div>
           </Link>
         ))}
@@ -174,12 +174,12 @@ export function DiscoveriesFeed() {
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
+      <div className="rounded-xl border border-surface-border bg-surface-card p-8 text-center text-fg-secondary">
         <p className="mb-3">{t("loginHint")}</p>
         <button
           type="button"
           onClick={() => router.push("/login")}
-          className="rounded-lg bg-[#E11D48] px-4 py-2 text-sm font-medium text-white hover:bg-[#C31442]"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-accent-brand-foreground hover:bg-brand-hover"
         >
           {t("login")}
         </button>
@@ -188,7 +188,7 @@ export function DiscoveriesFeed() {
   }
 
   if (loading) {
-    return <div className="text-[#A0A0B8] py-8">{t("loading")}</div>;
+    return <div className="text-fg-secondary py-8">{t("loading")}</div>;
   }
 
   if (error) {
@@ -202,12 +202,12 @@ export function DiscoveriesFeed() {
   if (items.length === 0) {
     return (
       <div>
-        <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
-          <p className="text-lg font-medium text-[#F5F5F7] mb-1">{t("emptyTitle")}</p>
+        <div className="rounded-xl border border-surface-border bg-surface-card p-8 text-center text-fg-secondary">
+          <p className="text-lg font-medium text-fg-primary mb-1">{t("emptyTitle")}</p>
           <p className="mb-4">{t("emptyHint")}</p>
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-accent-indigo px-6 py-2.5 text-sm font-semibold text-accent-indigo-foreground transition-[filter] hover:brightness-110"
           >
             {t("exploreCatalog")}
           </Link>
@@ -215,7 +215,7 @@ export function DiscoveriesFeed() {
 
         {grafo.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-4 font-heading text-lg font-semibold text-[#F5F5F7]">
+            <h2 className="mb-4 font-heading text-lg font-semibold text-fg-primary">
               {t("fallbackTitle")}
             </h2>
             <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -223,20 +223,20 @@ export function DiscoveriesFeed() {
                 <li key={g.id}>
                   <Link
                     href={`/media/${g.id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-3 transition-colors hover:border-[#818CF8]/50"
+                    className="group flex items-center gap-3 rounded-xl border border-surface-border bg-surface-card p-3 transition-colors hover:border-accent-indigo/50"
                   >
-                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-surface-elevated">
                       {g.poster_url ? (
                         <StaticPoster src={g.poster_url} alt={g.titulo} sizes="56px" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
+                        <div className="flex h-full items-center justify-center text-xs text-fg-muted">
                           {g.titulo.slice(0, 3).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-[#F5F5F7]">{g.titulo}</p>
-                      <span className="mt-1 inline-block rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-2 py-0.5 text-xs text-[#A5B0FF]">
+                      <p className="truncate text-sm font-medium text-fg-primary">{g.titulo}</p>
+                      <span className="mt-1 inline-block rounded-full border border-accent-indigo/30 bg-accent-indigo/10 px-2 py-0.5 text-xs text-accent-indigo-hover">
                         {t(`motivo_${g.motivo}`)}
                       </span>
                     </div>
@@ -249,29 +249,29 @@ export function DiscoveriesFeed() {
 
         {highlights.length > 0 && (
           <div className="mt-8">
-            <h2 className="font-heading text-lg font-semibold text-[#F5F5F7]">
+            <h2 className="font-heading text-lg font-semibold text-fg-primary">
               {t("fallbackTitle")}
             </h2>
-            <p className="mb-4 text-sm text-[#A0A0B8]">{t("fallbackHint")}</p>
+            <p className="mb-4 text-sm text-fg-secondary">{t("fallbackHint")}</p>
             <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {highlights.map((h) => (
                 <li key={h.id}>
                   <Link
                     href={`/media/${h.id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-3 transition-colors hover:border-[#818CF8]/50"
+                    className="group flex items-center gap-3 rounded-xl border border-surface-border bg-surface-card p-3 transition-colors hover:border-accent-indigo/50"
                   >
-                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+                    <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-md bg-surface-elevated">
                       {h.posterUrl ? (
                         <StaticPoster src={h.posterUrl} alt={h.title} sizes="56px" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
+                        <div className="flex h-full items-center justify-center text-xs text-fg-muted">
                           {h.title.slice(0, 3).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-[#F5F5F7]">{h.title}</p>
-                      <p className="text-xs text-[#85859F]">
+                      <p className="truncate text-sm font-medium text-fg-primary">{h.title}</p>
+                      <p className="text-xs text-fg-muted">
                         {h.type} · {h.year}
                       </p>
                     </div>
@@ -292,7 +292,7 @@ export function DiscoveriesFeed() {
         {items.map((item) => (
           <li
             key={`${item.toMediaId}-${item.relationType}`}
-            className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-4 flex flex-col"
+            className="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col"
             data-testid="discovery-card"
           >
             <a
@@ -300,7 +300,7 @@ export function DiscoveriesFeed() {
               className="group flex items-start gap-3"
               aria-label={`${item.toMedia.titulo} — ${t("relatedTo", { titulo: item.fromMedia.titulo })}`}
             >
-              <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md bg-[#1C1C2E]">
+              <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md bg-surface-elevated">
                 {item.toMedia.imagemUrl ? (
                   <StaticPoster
                     src={item.toMedia.imagemUrl}
@@ -309,17 +309,17 @@ export function DiscoveriesFeed() {
                     imgClass="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-[#85859F]">
+                  <div className="flex h-full items-center justify-center text-xs text-fg-muted">
                     {item.toMedia.titulo.slice(0, 3).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate font-medium text-[#F5F5F7]">{item.toMedia.titulo}</p>
-                <p className="text-xs text-[#A0A0B8] mb-1">
+                <p className="truncate font-medium text-fg-primary">{item.toMedia.titulo}</p>
+                <p className="text-xs text-fg-secondary mb-1">
                   {t(`relation_${item.relationType.toLowerCase()}`)}
                 </p>
-                <p className="text-xs text-[#85859F]">
+                <p className="text-xs text-fg-muted">
                   {t("relatedTo", { titulo: item.fromMedia.titulo })}
                 </p>
               </div>
