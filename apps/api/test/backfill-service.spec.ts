@@ -15,6 +15,8 @@ import {
   slugBaseFranquia,
   mapearProvedores,
   mapearCriticaIgdb,
+  mapearLocalizacao,
+  classificacaoDeCertificado,
   resetTokenTwitchIgdb,
 } from "../src/modules/admin/backfill.service.js";
 
@@ -75,6 +77,8 @@ function makeService(over: any = {}) {
     midiaStreaming: { upsert: vi.fn(async ({ create }: any) => create) },
     // T-DADOS-03: crítica do IGDB em avaliacao_fonte (chave { midia_id, fonte }).
     avaliacaoFonte: { upsert: vi.fn(async ({ create }: any) => create) },
+    // T-DADOS-08: certificado regional BR/US (upsert por { midia_id, regiao }).
+    classificacaoRegiao: { upsert: vi.fn(async ({ create }: any) => create) },
     relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
   };
   const mediaScore = { recalcularEPersistir: vi.fn(async () => ({ score: 82 })) };
@@ -464,8 +468,8 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia/avaliacaoLivros (T-DADOS-01/02/03/06/07)", () => {
-  it("conta as 8 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia/avaliacaoLivros/localizacao (T-DADOS-01/02/03/06/07/08)", () => {
+  it("conta as 9 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
@@ -474,6 +478,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       expect(sql).toContain("critica_igdb_em IS NULL");
       // T-DADOS-07: fila dos livros sem avaliação coletada.
       expect(sql).toContain("avaliacoes_atualizadas_em IS NULL");
+      // T-DADOS-08: fila da localização (en/es + classificação) do TMDB.
+      expect(sql).toContain("localizacao_em IS NULL");
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
       // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
       expect(sql).toContain("franquia_membros");
@@ -488,6 +494,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           critica_igdb: 4946,
           arestas_franquia: 260,
           avaliacao_livros: 600,
+          localizacao: 10570,
         },
       ];
     });
@@ -500,6 +507,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       criticaIgdb: 4946,
       arestasFranquia: 260,
       avaliacaoLivros: 600,
+      localizacao: 10570,
     });
   });
 
@@ -518,6 +526,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       criticaIgdb: 0,
       arestasFranquia: 0,
       avaliacaoLivros: 0,
+      localizacao: 0,
     });
   });
 });
@@ -1405,5 +1414,310 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "avaliacaoLivros", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerAvaliacaoLivros).toHaveBeenCalledWith(800);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-08 (D8) — localização en/es + classificação indicativa/regional
+// ===========================================================================
+
+describe("mapearLocalizacao (T-DADOS-08)", () => {
+  it("filme: overviews/títulos en/es (data.title) e certificados de release_dates", () => {
+    const r = mapearLocalizacao(
+      {
+        translations: {
+          translations: [
+            { iso_639_1: "en", data: { overview: "  An English overview  ", title: "Title EN" } },
+            { iso_639_1: "es", data: { overview: "Sinopsis ES", title: "Título ES" } },
+          ],
+        },
+        release_dates: {
+          results: [
+            { iso_3166_1: "BR", release_dates: [{ certification: "" }, { certification: "14" }] },
+            { iso_3166_1: "US", release_dates: [{ certification: "PG-13" }] },
+          ],
+        },
+      },
+      "FILME",
+    );
+    expect(r).toEqual({
+      sinopse_en: "An English overview",
+      sinopse_es: "Sinopsis ES",
+      titulo_en: "Title EN",
+      titulo_es: "Título ES",
+      cert_br: "14",
+      cert_us: "PG-13",
+    });
+  });
+
+  it("série: usa data.name e certificados de content_ratings", () => {
+    const r = mapearLocalizacao(
+      {
+        translations: {
+          translations: [
+            { iso_639_1: "en", data: { overview: "EN", name: "Show EN", title: "não usar" } },
+            { iso_639_1: "es", data: { overview: "ES", name: "Show ES" } },
+          ],
+        },
+        content_ratings: {
+          results: [
+            { iso_3166_1: "BR", rating: "16" },
+            { iso_3166_1: "US", rating: "TV-MA" },
+          ],
+        },
+      },
+      "SERIE",
+    );
+    expect(r.titulo_en).toBe("Show EN");
+    expect(r.titulo_es).toBe("Show ES");
+    expect(r.cert_br).toBe("16");
+    expect(r.cert_us).toBe("TV-MA");
+  });
+
+  it("payload sem translations/países → nulls, sem lançar", () => {
+    const vazio = {
+      sinopse_en: null,
+      sinopse_es: null,
+      titulo_en: null,
+      titulo_es: null,
+      cert_br: null,
+      cert_us: null,
+    };
+    expect(mapearLocalizacao(undefined, "FILME")).toEqual(vazio);
+    expect(mapearLocalizacao({}, "SERIE")).toEqual(vazio);
+    expect(mapearLocalizacao({ translations: { translations: [] } }, "FILME")).toEqual(vazio);
+    expect(
+      mapearLocalizacao({ translations: { translations: [{ iso_639_1: "fr" }] } }, "SERIE"),
+    ).toEqual(vazio);
+  });
+
+  it("overview vazio/whitespace → null (não grava string vazia)", () => {
+    const r = mapearLocalizacao(
+      {
+        translations: {
+          translations: [
+            { iso_639_1: "en", data: { overview: "   ", title: "  " } },
+            { iso_639_1: "es", data: { overview: "" } },
+          ],
+        },
+      },
+      "FILME",
+    );
+    expect(r.sinopse_en).toBeNull();
+    expect(r.titulo_en).toBeNull();
+    expect(r.sinopse_es).toBeNull();
+  });
+
+  it("certificação escolhe a primeira não-vazia do país (movie e tv)", () => {
+    const movie = mapearLocalizacao(
+      {
+        release_dates: {
+          results: [
+            {
+              iso_3166_1: "BR",
+              release_dates: [
+                { certification: "" },
+                { certification: "12" },
+                { certification: "16" },
+              ],
+            },
+          ],
+        },
+      },
+      "FILME",
+    );
+    expect(movie.cert_br).toBe("12");
+    const tv = mapearLocalizacao(
+      {
+        content_ratings: {
+          results: [
+            { iso_3166_1: "BR", rating: "" },
+            { iso_3166_1: "BR", rating: "14" },
+          ],
+        },
+      },
+      "SERIE",
+    );
+    expect(tv.cert_br).toBe("14");
+  });
+});
+
+describe("classificacaoDeCertificado (T-DADOS-08)", () => {
+  it("mapeia L/LIVRE/0/10/12/14/16/18 para o enum", () => {
+    expect(classificacaoDeCertificado("L")).toBe("L");
+    expect(classificacaoDeCertificado("livre")).toBe("L");
+    expect(classificacaoDeCertificado(" 0 ")).toBe("L");
+    expect(classificacaoDeCertificado("10")).toBe("DEZ");
+    expect(classificacaoDeCertificado("12")).toBe("DOZE");
+    expect(classificacaoDeCertificado("14")).toBe("CATORZE");
+    expect(classificacaoDeCertificado("16")).toBe("DEZESSEIS");
+    expect(classificacaoDeCertificado("18")).toBe("DEZOITO");
+  });
+
+  it("prefixo numérico claro é aceito ('12 anos' → DOZE)", () => {
+    expect(classificacaoDeCertificado("12 anos")).toBe("DOZE");
+    expect(classificacaoDeCertificado("14 ANOS")).toBe("CATORZE");
+  });
+
+  it("valor desconhecido → null (nunca adivinha)", () => {
+    expect(classificacaoDeCertificado("PG-13")).toBeNull();
+    expect(classificacaoDeCertificado("TV-MA")).toBeNull();
+    expect(classificacaoDeCertificado("12+")).toBe("DOZE");
+    expect(classificacaoDeCertificado("lixo")).toBeNull();
+    expect(classificacaoDeCertificado("")).toBeNull();
+    expect(classificacaoDeCertificado(null)).toBeNull();
+  });
+});
+
+describe("BackfillService.enriquecerLocalizacao (T-DADOS-08)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.TMDB_API_KEY = "chave-de-teste";
+  });
+
+  function alvo(over: any = {}) {
+    return [
+      {
+        id: "m-1",
+        tipo: "FILME",
+        fonte_id: "693134",
+        titulo: "Duna: Parte Dois",
+        sinopse_en: null,
+        sinopse_es: null,
+        titulo_en: null,
+        titulo_es: null,
+        classificacao_indicativa: null,
+        ...over,
+      },
+    ];
+  }
+
+  it("não sobrescreve sinopse_en já preenchida; grava só o que veio", async () => {
+    const { svc, prisma } = makeService({
+      alvo: alvo({ sinopse_en: "Sinopse curada" }),
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({
+      translations: {
+        translations: [
+          { iso_639_1: "en", data: { overview: "Nova EN", title: "Novo título" } },
+          { iso_639_1: "es", data: { overview: "Nueva ES" } },
+        ],
+      },
+      release_dates: {
+        results: [
+          { iso_3166_1: "BR", release_dates: [{ certification: "12" }] },
+          { iso_3166_1: "US", release_dates: [{ certification: "PG-13" }] },
+        ],
+      },
+    });
+    const r = await svc.enriquecerLocalizacao(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    // A asserção que prova a não-sobrescrita:
+    expect("sinopse_en" in data).toBe(false);
+    expect(data.sinopse_es).toBe("Nueva ES");
+    expect(data.titulo_en).toBe("Novo título");
+    expect(data.classificacao_indicativa).toBe("DOZE");
+    expect(data.localizacao_em).toBeInstanceOf(Date);
+    expect(prisma.classificacaoRegiao.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { midia_id_regiao: { midia_id: "m-1", regiao: "BR" } },
+        create: { midia_id: "m-1", regiao: "BR", valor: "12", fonte: "tmdb" },
+        update: { valor: "12", fonte: "tmdb" },
+      }),
+    );
+    expect(svc.status().localizacao.ok).toBe(1);
+    expect(() => JSON.stringify(svc.status())).not.toThrow();
+  });
+
+  it("watermark gravado mesmo sem tradução (título sai da fila)", async () => {
+    const { svc, prisma } = makeService({ alvo: alvo() });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({});
+    const r = await svc.enriquecerLocalizacao(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.localizacao_em).toBeInstanceOf(Date);
+    expect("sinopse_en" in data).toBe(false);
+    expect("sinopse_es" in data).toBe(false);
+    expect(prisma.classificacaoRegiao.upsert).not.toHaveBeenCalled();
+  });
+
+  it("classificação atual não é sobrescrita e série usa /tv + content_ratings", async () => {
+    const { svc, prisma } = makeService({
+      alvo: alvo({ tipo: "SERIE", fonte_id: "1396", classificacao_indicativa: "CATORZE" }),
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      expect(url).toContain("/tv/1396?append_to_response=translations,content_ratings");
+      return {
+        translations: {
+          translations: [{ iso_639_1: "en", data: { overview: "EN", name: "Breakin Bad" } }],
+        },
+        content_ratings: { results: [{ iso_3166_1: "BR", rating: "16" }] },
+      };
+    });
+    await svc.enriquecerLocalizacao(10);
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect("classificacao_indicativa" in data).toBe(false);
+    expect(data.sinopse_en).toBe("EN");
+    // Certificado regional continua sendo registrado (dado bruto do TMDB).
+    expect(prisma.classificacaoRegiao.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: { midia_id: "m-1", regiao: "BR", valor: "16", fonte: "tmdb" },
+      }),
+    );
+  });
+
+  it("erro por título vai para falhas SEM watermark (retenta depois)", async () => {
+    const { svc, prisma } = makeService({ alvo: alvo() });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new Error("TMDB 500"));
+    const r = await svc.enriquecerLocalizacao(10);
+    expect(r).toEqual({ processados: 1, ok: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("guard de disco bloqueia (D-574) e job em execução não re-entra", async () => {
+    const { svc, prisma } = makeService({ alvo: alvo() });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 5000000000n }];
+      return alvo();
+    });
+    await expect(svc.enriquecerLocalizacao(10)).rejects.toBeInstanceOf(BadRequestException);
+    (svc as any).estado.localizacao.executando = true;
+    await expect(svc.enriquecerLocalizacao(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("drenarLote consome a fila de localização", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 3,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerLocalizacao").mockResolvedValue({
+      processados: 3,
+      ok: 3,
+      falhas: 0,
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "localizacao", ok: 3, falhas: 0 }]);
+    expect(svc.enriquecerLocalizacao).toHaveBeenCalledWith(2000);
   });
 });

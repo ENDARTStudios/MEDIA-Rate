@@ -8,6 +8,7 @@ import { fetchJson, postJson } from "../media-score/adapters/http.utils.js";
 import { estatisticas } from "../media-score/adapters/fonte-adapter.interface.js";
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { ColetaService } from "../media-score/coleta.service.js";
+import type { ClassificacaoIndicativa } from "@prisma/client";
 
 /**
  * D-576 — backfills pesados como jobs EM PROCESSO (padrão T4.7): paginação de
@@ -40,7 +41,9 @@ export type BackfillTipo =
   // T-DADOS-06: arestas SEQUENCIA_DE nas franquias incompletas (deriva do grafo).
   | "arestasFranquia"
   // T-DADOS-07: notas públicas de livros no OpenLibrary (por id do work).
-  | "avaliacaoLivros";
+  | "avaliacaoLivros"
+  // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
+  | "localizacao";
 
 interface BackfillEstado {
   executando: boolean;
@@ -308,6 +311,105 @@ export function mapearProvedores(payload: any): ProvedoresMapa {
   return { provedores, url_link };
 }
 
+// ===========================================================================
+// T-DADOS-08 — localização (en/es) e classificação indicativa/regional
+// ===========================================================================
+
+/** T-DADOS-08: traduções e certificados do MESMO payload do TMDB. */
+export interface LocalizacaoTmdb {
+  sinopse_en: string | null;
+  sinopse_es: string | null;
+  titulo_en: string | null;
+  titulo_es: string | null;
+  cert_br: string | null;
+  cert_us: string | null;
+}
+
+/** String não-vazia após trim; qualquer outra coisa → null (nunca fabrica). */
+function textoOuNulo(valor: unknown): string | null {
+  if (typeof valor !== "string") return null;
+  const s = valor.trim();
+  return s ? s : null;
+}
+
+/** Primeira certificação não-vazia de um `results[]` do TMDB para a região. */
+function certificadoDoPais(results: any, iso: string): string | null {
+  if (!Array.isArray(results)) return null;
+  for (const item of results) {
+    if (item?.iso_3166_1 !== iso) continue;
+    // FILME: `release_dates[].certification`; SERIE: `rating`.
+    for (const entrada of Array.isArray(item?.release_dates) ? item.release_dates : []) {
+      const valor = textoOuNulo(entrada?.certification);
+      if (valor) return valor;
+    }
+    const rating = textoOuNulo(item?.rating);
+    if (rating) return rating;
+  }
+  return null;
+}
+
+/**
+ * T-DADOS-08: payload de `/movie|/tv?append_to_response=translations,
+ * release_dates|content_ratings` → sinopse/título en/es + certificados BR/US.
+ *
+ * Honesto por construção: só o que veio é gravado (`null` quando a tradução
+ * existe sem `overview`, por exemplo); payload ausente/estranho devolve todos
+ * os campos nulos e NUNCA lança. Título usa `data.title` (movie) / `data.name`
+ * (tv) — a mesma regra da API do TMDB.
+ */
+export function mapearLocalizacao(payload: any, tipo: "FILME" | "SERIE"): LocalizacaoTmdb {
+  const traducoes = Array.isArray(payload?.translations?.translations)
+    ? payload.translations.translations
+    : [];
+  const dados = new Map<string, any>();
+  for (const t of traducoes) {
+    const locale = t?.iso_639_1;
+    if ((locale === "en" || locale === "es") && !dados.has(locale)) {
+      dados.set(locale, t?.data ?? {});
+    }
+  }
+  const campo = tipo === "FILME" ? "title" : "name";
+  const en = dados.get("en");
+  const es = dados.get("es");
+
+  const certFonte = tipo === "FILME" ? "release_dates" : "content_ratings";
+  const results = payload?.[certFonte]?.results;
+  return {
+    sinopse_en: textoOuNulo(en?.overview),
+    sinopse_es: textoOuNulo(es?.overview),
+    titulo_en: textoOuNulo(en?.[campo]),
+    titulo_es: textoOuNulo(es?.[campo]),
+    cert_br: certificadoDoPais(results, "BR"),
+    cert_us: certificadoDoPais(results, "US"),
+  };
+}
+
+/**
+ * T-DADOS-08: certificado do TMDB → enum brasileiro (DJCTQ). Normaliza
+ * trim/uppercase e aceita prefixo numérico claro ("14 anos" → CATORZE), mas
+ * SÓ quando o valor casa exatamente um dos enums: desconhecido → null (nunca
+ * adivinha, ex.: "PG-13" não vira DOZE).
+ */
+export function classificacaoDeCertificado(cert: string | null): ClassificacaoIndicativa | null {
+  const chave = String(cert ?? "")
+    .trim()
+    .toUpperCase();
+  if (!chave) return null;
+  const mapa: Record<string, ClassificacaoIndicativa> = {
+    "L": "L",
+    "LIVRE": "L",
+    "0": "L",
+    "10": "DEZ",
+    "12": "DOZE",
+    "14": "CATORZE",
+    "16": "DEZESSEIS",
+    "18": "DEZOITO",
+  };
+  if (mapa[chave]) return mapa[chave];
+  const inicial = /^(\d+)/.exec(chave)?.[1];
+  return inicial && mapa[inicial] ? mapa[inicial] : null;
+}
+
 export interface TemporadaLista {
   numero: number;
   titulo: string | null;
@@ -482,6 +584,7 @@ export class BackfillService {
     criticaIgdb: estadoVazio(),
     arestasFranquia: estadoVazio(),
     avaliacaoLivros: estadoVazio(),
+    localizacao: estadoVazio(),
   };
 
   constructor(
@@ -912,6 +1015,125 @@ export class BackfillService {
       processados: this.estado.provedores.processados,
       ok: this.estado.provedores.ok,
       falhas: this.estado.provedores.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-08: localização en/es (sinopse/título) + classificação
+   * indicativa/regional a partir do MESMO payload do TMDB
+   * (`append_to_response=translations,release_dates|content_ratings`).
+   *
+   * Honestidade: grava só o que veio e nunca sobrescreve valor não-nulo já
+   * existente (traduções e classificação lida no SELECT). `classificacao_regiao`
+   * recebe o certificado cru (BR/US) quando existir. O watermark
+   * `localizacao_em` é gravado SEMPRE ao fim do título, mesmo sem tradução —
+   * sem isso a fila travaria nos títulos em que a fonte não tem o dado. Em
+   * exceção o título volta na próxima execução (retentável).
+   */
+  async enriquecerLocalizacao(
+    limite: number,
+  ): Promise<{ processados: number; ok: number; falhas: number }> {
+    const chave = process.env.TMDB_API_KEY;
+    if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
+    if (this.estado.localizacao.executando) {
+      throw new BadRequestException("Job localização já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.localizacao = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      {
+        id: string;
+        tipo: string;
+        fonte_id: string;
+        titulo: string;
+        sinopse_en: string | null;
+        sinopse_es: string | null;
+        titulo_en: string | null;
+        titulo_es: string | null;
+        classificacao_indicativa: string | null;
+      }[]
+    >(
+      `SELECT m.id::text, m.tipo::text, m.fonte_id, m.titulo,
+              m.sinopse_en, m.sinopse_es, m.titulo_en, m.titulo_es,
+              m.classificacao_indicativa::text
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+         AND m.localizacao_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 2000, 1), 3000)}`,
+    )) as any[];
+    this.logger.log(`Backfill localização: ${alvo.length} títulos alvo.`);
+    let semTraducao = 0;
+    let comCertificado = 0;
+    for (const m of alvo) {
+      const tipo = m.tipo === "SERIE" ? "SERIE" : "FILME";
+      this.estado.localizacao.processados++;
+      this.estado.localizacao.atual = m.titulo;
+      try {
+        const caminho = tipo === "SERIE" ? "tv" : "movie";
+        const append =
+          tipo === "SERIE" ? "translations,content_ratings" : "translations,release_dates";
+        const payload = await this.tmdb(
+          `/${caminho}/${m.fonte_id}?append_to_response=${append}`,
+          chave,
+        );
+        const mapa = mapearLocalizacao(payload, tipo);
+
+        // Só escreve o que veio E só quando o valor atual é nulo (curadoria e
+        // coletas anteriores nunca são apagadas/sobrescritas).
+        const data: any = {};
+        if (mapa.sinopse_en && !m.sinopse_en) data.sinopse_en = mapa.sinopse_en;
+        if (mapa.sinopse_es && !m.sinopse_es) data.sinopse_es = mapa.sinopse_es;
+        if (mapa.titulo_en && !m.titulo_en) data.titulo_en = mapa.titulo_en;
+        if (mapa.titulo_es && !m.titulo_es) data.titulo_es = mapa.titulo_es;
+        // DJCTQ é brasileiro: só a certificação BR vira classificacao_indicativa.
+        if (!m.classificacao_indicativa) {
+          const classificacao = classificacaoDeCertificado(mapa.cert_br);
+          if (classificacao) data.classificacao_indicativa = classificacao;
+        }
+
+        const regionais: { regiao: "BR" | "US"; valor: string | null }[] = [
+          { regiao: "BR", valor: mapa.cert_br },
+          { regiao: "US", valor: mapa.cert_us },
+        ];
+        for (const { regiao, valor } of regionais) {
+          if (!valor) continue;
+          await this.prisma.classificacaoRegiao.upsert({
+            where: { midia_id_regiao: { midia_id: m.id, regiao } },
+            create: { midia_id: m.id, regiao, valor: valor.slice(0, 32), fonte: "tmdb" },
+            update: { valor: valor.slice(0, 32), fonte: "tmdb" },
+          });
+        }
+
+        // Watermark SEMPRE gravado (mesmo sem tradução/certificado).
+        data.localizacao_em = new Date();
+        await this.prisma.midia.update({ where: { id: m.id }, data });
+
+        if (!mapa.sinopse_en && !mapa.sinopse_es) semTraducao++;
+        if (mapa.cert_br || mapa.cert_us) comCertificado++;
+        this.estado.localizacao.ok++;
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.localizacao.falhas++;
+        this.logger.warn(`Backfill localização falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.localizacao.executando = false;
+    this.estado.localizacao.atual = `fim: ok=${this.estado.localizacao.ok} sem_traducao=${semTraducao} com_certificado=${comCertificado} falhas=${this.estado.localizacao.falhas}`;
+    this.logger.log(
+      `Backfill localização fim: ok=${this.estado.localizacao.ok} sem_traducao=${semTraducao} com_certificado=${comCertificado} falhas=${this.estado.localizacao.falhas}.`,
+    );
+    return {
+      processados: this.estado.localizacao.processados,
+      ok: this.estado.localizacao.ok,
+      falhas: this.estado.localizacao.falhas,
     };
   }
 
@@ -1544,6 +1766,8 @@ export class BackfillService {
     criticaIgdb: number;
     arestasFranquia: number;
     avaliacaoLivros: number;
+    // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
+    localizacao: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -1555,6 +1779,7 @@ export class BackfillService {
         critica_igdb: number;
         arestas_franquia: number;
         avaliacao_livros: number;
+        localizacao: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -1578,6 +1803,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+            AND m.localizacao_em IS NULL) AS localizacao,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -1594,6 +1822,7 @@ export class BackfillService {
       criticaIgdb: Number(row?.critica_igdb ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
+      localizacao: Number(row?.localizacao ?? 0),
     };
   }
 
@@ -1652,6 +1881,11 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.avaliacaoLivros > 0) {
         const r = await this.enriquecerAvaliacaoLivros(800);
         lotes.push({ tipo: "avaliacaoLivros", ok: r.ok + r.semAvaliacao, falhas: r.falhas });
+      }
+      // T-DADOS-08: localização en/es + classificação (TMDB por id).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.localizacao > 0) {
+        const r = await this.enriquecerLocalizacao(2000);
+        lotes.push({ tipo: "localizacao", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);

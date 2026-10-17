@@ -24,6 +24,8 @@ function makeBackfill(over: any = {}) {
       arestasFranquia: 0,
       // T-DADOS-07: oitava fila (notas de livros no OpenLibrary).
       avaliacaoLivros: 0,
+      // T-DADOS-08: nona fila (localização en/es + classificação do TMDB).
+      localizacao: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -36,6 +38,7 @@ function makeBackfill(over: any = {}) {
         criticaIgdb: 0,
         arestasFranquia: 0,
         avaliacaoLivros: 0,
+        localizacao: 0,
       },
       pendentesDepois: {
         semElenco: 0,
@@ -46,6 +49,7 @@ function makeBackfill(over: any = {}) {
         criticaIgdb: 0,
         arestasFranquia: 0,
         avaliacaoLivros: 0,
+        localizacao: 0,
       },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),
@@ -427,6 +431,66 @@ describe("BackfillDrainService (T179)", () => {
           avaliacaoLivros: n,
         },
         lotes: [{ tipo: "avaliacaoLivros", ok: 10, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
+    expect(svc.status().espacado).toBe(false);
+  });
+
+  it("T-DADOS-08: fila só de localização entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, localizacao: 10570 },
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    // O resumo do drain carrega a 9ª fila (drain sem ela = fila presa, bug D-01).
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ localizacao: 0 });
+  });
+
+  it("T-DADOS-08: localização conta no total() (progresso real da fila)", async () => {
+    let n = 100;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: n,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 10;
+      return {
+        pendentesAntes: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: n + 10,
+        },
+        pendentesDepois: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: n,
+        },
+        lotes: [{ tipo: "localizacao", ok: 10, falhas: 0 }],
       };
     });
     const svc = new BackfillDrainService(backfill as any);
