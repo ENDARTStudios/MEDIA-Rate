@@ -832,6 +832,26 @@ export interface AutorFonte {
   fonte?: string;
 }
 
+/**
+ * T-DADOS-16: o id utilizável do OpenLibrary é `OL<dígitos>W`.
+ *
+ * `fonte_id` que não casa com esse formato (slug, `OL123`, `OL123M`, vazio)
+ * não resolve em `openlibrary.org/works/<id>.json` — a coleta por id dá 404 e,
+ * como falha de rede não marca watermark, a fila nunca drenaria. Validar ANTES
+ * da chamada permite marcar a lacuna honesta sem gastar HTTP.
+ */
+export function openLibraryIdUtilizavel(id: string | null | undefined): id is string {
+  return typeof id === "string" && /^OL\d+W$/.test(id.trim());
+}
+
+/**
+ * T-DADOS-16: id numérico (Kitsu/MAL/IGDB/etc.). `fonte_id` slug não resolve
+ * em `/manga/<id>`; mesma lógica de lacuna honesta sem chamada HTTP.
+ */
+export function idNumericoUtilizavel(id: string | null | undefined): id is string {
+  return typeof id === "string" && /^\d+$/.test(id.trim());
+}
+
 /** Chave do work OpenLibrary sem o prefixo `/works/` (fonte_id = `OL…W`). */
 export function chaveWorkOpenLibrary(fonteId: string): string {
   return String(fonteId ?? "")
@@ -2180,11 +2200,23 @@ export class BackfillService {
     )) as any[];
     this.logger.log(`Backfill sinopse manga (en): ${alvo.length} títulos alvo.`);
     let semSynopsis = 0;
+    let semId = 0;
     for (const m of alvo) {
       this.estado.sinopseMangaEn.processados++;
       this.estado.sinopseMangaEn.atual = m.titulo;
       try {
-        const sinopse = await this.sinopseMangaNaFonte(m.fonte, m.fonte_id);
+        const fonteId = String(m.fonte_id ?? "").trim();
+        if (!idNumericoUtilizavel(fonteId)) {
+          // T-DADOS-16: slug não resolve em /manga/<id> (404 eterno). Marca a
+          // lacuna honesta e NÃO faz chamada HTTP.
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_en_em: new Date() },
+          });
+          continue;
+        }
+        const sinopse = await this.sinopseMangaNaFonte(m.fonte, fonteId);
         if (sinopse) {
           this.estado.sinopseMangaEn.ok++;
         } else {
@@ -2208,9 +2240,9 @@ export class BackfillService {
       }
     }
     this.estado.sinopseMangaEn.executando = false;
-    this.estado.sinopseMangaEn.atual = `fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} falhas=${this.estado.sinopseMangaEn.falhas}`;
+    this.estado.sinopseMangaEn.atual = `fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} sem_id=${semId} falhas=${this.estado.sinopseMangaEn.falhas}`;
     this.logger.log(
-      `Backfill sinopse manga (en) fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} falhas=${this.estado.sinopseMangaEn.falhas}.`,
+      `Backfill sinopse manga (en) fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} sem_id=${semId} falhas=${this.estado.sinopseMangaEn.falhas}.`,
     );
     return {
       processados: this.estado.sinopseMangaEn.processados,
@@ -2530,15 +2562,32 @@ export class BackfillService {
     // Memo por lote: autor → nome (null = consultado e sem nome).
     const nomesOpenLibrary = new Map<string, string | null>();
     let semAutores = 0;
+    let semId = 0;
     let autoresGravados = 0;
     for (const m of alvo) {
       this.estado[job].processados++;
       this.estado[job].atual = m.titulo;
       try {
+        const fonteId = String(m.fonte_id ?? "").trim();
+        const idValido =
+          job === "autoresLivros"
+            ? openLibraryIdUtilizavel(fonteId)
+            : idNumericoUtilizavel(fonteId);
+        if (!idValido) {
+          // T-DADOS-16: id em formato de slug nunca resolve na fonte por id
+          // (404 eterno). Lacuna honesta: marca o watermark e não chama HTTP.
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { autores_em: new Date() },
+          });
+          this.estado[job].ok++;
+          continue;
+        }
         const autores =
           job === "autoresLivros"
-            ? await this.autoresOpenLibrary(m.fonte_id, nomesOpenLibrary)
-            : await this.autoresManga(m.fonte, m.fonte_id);
+            ? await this.autoresOpenLibrary(fonteId, nomesOpenLibrary)
+            : await this.autoresManga(m.fonte, fonteId);
         if (autores.length === 0) {
           // Ausência honesta: marca o watermark e segue (não inventa autor).
           semAutores++;
@@ -2585,9 +2634,9 @@ export class BackfillService {
     }
     this.estado[job].executando = false;
     this.estado[job].atual =
-      `fim: ok=${this.estado[job].ok} sem_autores=${semAutores} falhas=${this.estado[job].falhas}`;
+      `fim: ok=${this.estado[job].ok} sem_autores=${semAutores} sem_id=${semId} falhas=${this.estado[job].falhas}`;
     this.logger.log(
-      `Backfill ${rotulo} fim: ok=${this.estado[job].ok} sem_autores=${semAutores} autores=${autoresGravados} falhas=${this.estado[job].falhas}.`,
+      `Backfill ${rotulo} fim: ok=${this.estado[job].ok} sem_autores=${semAutores} sem_id=${semId} autores=${autoresGravados} falhas=${this.estado[job].falhas}.`,
     );
     return {
       processados: this.estado[job].processados,
