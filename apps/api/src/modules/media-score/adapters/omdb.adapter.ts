@@ -8,10 +8,22 @@ interface OmdbResponse {
   imdbID?: string;
   imdbVotes?: string;
   Response?: string;
+  Error?: string;
   Ratings?: { Source: string; Value: string }[];
 }
 
 const ID_IMDB = /^tt[0-9]{7,}$/;
+
+/**
+ * T-DADOS-21A: erro de cota/credencial do OMDb vem como HTTP 200 (ou 401) com
+ * `Response:"False"`. É transitório e NÃO significa "sem nota": precisa virar
+ * exceção para o ColetaService marcar `status:"erro"` e preservar as notas já
+ * coletadas (só fontes "sem nota" são apagadas).
+ */
+const ERRO_COTA_OMDB = /limit|quota|invalid api key|request limit/i;
+
+/** T-DADOS-21A: mensagem sem detalhe da resposta/chave. */
+export const ERRO_OMDB_COTA = "OMDb: limite de requisições atingido";
 
 /** T-DADOS-10: título do fallback textual sem aspas que quebram o parâmetro. */
 export function sanitizarTituloOmdb(titulo: string): string {
@@ -89,8 +101,16 @@ export class OmdbAdapter implements FonteAdapter {
       if (consulta.ano) params.set("y", String(consulta.ano));
     }
     const url = `https://www.omdbapi.com/?${params.toString()}`;
+    // HTTP não-2xx (401/403/429 — inclusive sem JSON) já lança ErroColeta no
+    // fetchJson; o catch do ColetaService marca "erro" e preserva as fontes.
     const dados = await fetchJson<OmdbResponse>(url);
-    if (dados.Response === "False") return [];
+    if (dados.Response === "False") {
+      if (ERRO_COTA_OMDB.test(String(dados.Error ?? ""))) {
+        throw new Error(ERRO_OMDB_COTA);
+      }
+      // "Movie not found!" e afins são ausência legítima de nota.
+      return [];
+    }
     // Identidade: um lookup por id não pode devolver outra obra.
     if (idValido && dados.imdbID && dados.imdbID !== idValido) return [];
     if (!dados.imdbRating) return [];
