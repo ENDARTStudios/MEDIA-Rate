@@ -15,6 +15,8 @@ import {
   slugBaseFranquia,
   mapearProvedores,
   mapearCriticaIgdb,
+  generosDoPayload,
+  MAPA_GENEROS_IGDB,
   mapearLocalizacao,
   classificacaoDeCertificado,
   resetTokenTwitchIgdb,
@@ -468,14 +470,16 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia/avaliacaoLivros/localizacao (T-DADOS-01/02/03/06/07/08)", () => {
-  it("conta as 9 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao (T-DADOS-01/02/03/06/07/08/09)", () => {
+  it("conta as 10 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
       expect(sql).toContain("critica_igdb_em IS NULL");
+      // T-DADOS-09: fila dos games sem gêneros do IGDB.
+      expect(sql).toContain("generos_igdb_em IS NULL");
       // T-DADOS-07: fila dos livros sem avaliação coletada.
       expect(sql).toContain("avaliacoes_atualizadas_em IS NULL");
       // T-DADOS-08: fila da localização (en/es + classificação) do TMDB.
@@ -492,6 +496,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           ricos: 17217,
           provedores: 17230,
           critica_igdb: 4946,
+          generos_games: 4995,
           arestas_franquia: 260,
           avaliacao_livros: 600,
           localizacao: 10570,
@@ -505,6 +510,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       metadadosRicos: 17217,
       provedores: 17230,
       criticaIgdb: 4946,
+      generosGames: 4995,
       arestasFranquia: 260,
       avaliacaoLivros: 600,
       localizacao: 10570,
@@ -524,6 +530,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       metadadosRicos: 0,
       provedores: 0,
       criticaIgdb: 0,
+      generosGames: 0,
       arestasFranquia: 0,
       avaliacaoLivros: 0,
       localizacao: 0,
@@ -1719,5 +1726,192 @@ describe("BackfillService.enriquecerLocalizacao (T-DADOS-08)", () => {
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "localizacao", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerLocalizacao).toHaveBeenCalledWith(2000);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-09 (D9) — gêneros de games no IGDB por id
+// ===========================================================================
+
+describe("MAPA_GENEROS_IGDB e generosDoPayload (T-DADOS-09)", () => {
+  it("cobre os 23 slugs de /v4/genres e todos os nomes cabem em VarChar(64)", () => {
+    const slugs = Object.keys(MAPA_GENEROS_IGDB);
+    expect(slugs).toHaveLength(23);
+    expect(new Set(slugs).size).toBe(23);
+    for (const slug of slugs) {
+      expect(slug.length).toBeLessThanOrEqual(LIMITES.generoSlug);
+      expect((MAPA_GENEROS_IGDB[slug] ?? "").length).toBeLessThanOrEqual(LIMITES.generoNome);
+    }
+    // Amostra do mapa editorial (slug IGDB → nome pt-BR).
+    expect(MAPA_GENEROS_IGDB["role-playing-rpg"]).toBe("RPG");
+    expect(MAPA_GENEROS_IGDB["hack-and-slash-beat-em-up"]).toBe("Hack and Slash");
+  });
+
+  it("extrai slug, deriva de name, filtra fora do mapa e deduplica", () => {
+    expect(
+      generosDoPayload({
+        genres: [
+          { slug: "adventure", name: "Adventure" },
+          { name: "Shooter" },
+          { slug: "not-a-real-genre", name: "Nope" },
+          { slug: "adventure" },
+        ],
+      }),
+    ).toEqual([{ slug: "adventure" }, { slug: "shooter" }]);
+  });
+
+  it("payload sem genres / estranho devolve [] e nunca lança", () => {
+    expect(generosDoPayload([{ name: "Sem gênero" }])).toEqual([]);
+    expect(generosDoPayload({})).toEqual([]);
+    expect(generosDoPayload(null)).toEqual([]);
+    expect(generosDoPayload(undefined)).toEqual([]);
+    expect(generosDoPayload([])).toEqual([]);
+    expect(generosDoPayload({ genres: [null, 42, {}] })).toEqual([]);
+  });
+});
+
+describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetTokenTwitchIgdb();
+    process.env.TWITCH_CLIENT_ID = "client-id-de-teste";
+    process.env.TWITCH_CLIENT_SECRET = "segredo-de-teste";
+  });
+
+  /** postJson: token do Twitch + resposta do IGDB (nunca toca a rede). */
+  function mockIgdb(respostas: any[]) {
+    let indice = 0;
+    (postJson as any).mockImplementation(async (url: string) => {
+      if (url === URL_TOKEN_TWITCH) return { access_token: "tok", expires_in: 3600 };
+      const r = respostas[Math.min(indice, respostas.length - 1)];
+      indice++;
+      if (r instanceof Error) throw r;
+      return r;
+    });
+    return () => indice;
+  }
+
+  it("reusa o gênero existente por slug (Aventura) em vez de duplicar", async () => {
+    const alvo = [{ id: "m-1", fonte_id: "7346", titulo: "Breath of the Wild" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (prisma.genero.findUnique as any).mockImplementation(async ({ where }: any) => {
+      if (where.slug === "aventura" || where.nome === "Aventura") return { id: 7 };
+      return null;
+    });
+    mockIgdb([[{ name: "Zelda", genres: [{ slug: "adventure", name: "Adventure" }] }]]);
+    const r = await svc.enriquecerGenerosGames(100);
+    expect(r).toEqual({ processados: 1, ok: 1, semGenero: 0, vinculos: 1, falhas: 0 });
+    expect(prisma.genero.findUnique).toHaveBeenCalledWith({
+      where: { slug: "aventura" },
+      select: { id: true },
+    });
+    expect(prisma.genero.create).not.toHaveBeenCalled();
+    expect(prisma.midiaGenero.upsert).toHaveBeenCalledWith({
+      where: { midia_id_genero_id: { midia_id: "m-1", genero_id: 7 } },
+      create: { midia_id: "m-1", genero_id: 7 },
+      update: {},
+    });
+    const chamadaIgdb = (postJson as any).mock.calls.find((c: any[]) => c[0] === URL_IGDB_GAMES);
+    expect(chamadaIgdb[1]).toBe("fields name, genres.name, genres.slug; where id = 7346; limit 1;");
+    expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("cria quando não existe e sobrevive a colisão de unique", async () => {
+    const alvo = [{ id: "m-2", fonte_id: "42", titulo: "Jogo de tiro" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    // 1º lookup (slug) não acha; create colide; lookup pós-colisão acha a linha.
+    let lookupsSlug = 0;
+    (prisma.genero.findUnique as any).mockImplementation(async ({ where }: any) => {
+      if (where.slug === "tiro") {
+        lookupsSlug++;
+        return lookupsSlug > 1 ? { id: 11 } : null;
+      }
+      if (where.nome === "Tiro") return { id: 11 };
+      return null;
+    });
+    (prisma.genero.create as any).mockRejectedValue(new Error("P2002 unique"));
+    mockIgdb([[{ name: "Shooter", genres: [{ name: "Shooter" }] }]]);
+    const r = await svc.enriquecerGenerosGames(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semGenero: 0, vinculos: 1, falhas: 0 });
+    expect(prisma.genero.create).toHaveBeenCalledWith({
+      data: { nome: "Tiro", slug: "tiro" },
+      select: { id: true },
+    });
+    expect(prisma.midiaGenero.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { midia_id_genero_id: { midia_id: "m-2", genero_id: 11 } },
+      }),
+    );
+    expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("marca generos_igdb_em mesmo sem gênero (sai da fila)", async () => {
+    const alvo = [{ id: "m-3", fonte_id: "999", titulo: "Jogo sem gênero" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([[{ name: "Sem gênero" }]]);
+    const r = await svc.enriquecerGenerosGames(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semGenero: 1, vinculos: 0, falhas: 0 });
+    expect(prisma.midiaGenero.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("429 persistente: falha o título e NÃO marca o watermark", async () => {
+    const alvo = [{ id: "m-4", fonte_id: "1070", titulo: "Super Mario World" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([new ErroColeta("HTTP 429 em https://api.igdb.com/v4/games", 429)]);
+    const r = await svc.enriquecerGenerosGames(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semGenero: 0, vinculos: 0, falhas: 1 });
+    expect((postJson as any).mock.calls.filter((c: any[]) => c[0] === URL_IGDB_GAMES)).toHaveLength(
+      2,
+    );
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("sem credenciais Twitch → BadRequestException; job em execução não re-entra", async () => {
+    const alvo = [{ id: "m-5", fonte_id: "1", titulo: "X" }];
+    const { svc } = makeService({ alvo });
+    delete process.env.TWITCH_CLIENT_ID;
+    await expect(svc.enriquecerGenerosGames(10)).rejects.toBeInstanceOf(BadRequestException);
+    process.env.TWITCH_CLIENT_ID = "client-id-de-teste";
+    (svc as any).estado.generosGames.executando = true;
+    await expect(svc.enriquecerGenerosGames(10)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("drenarLote consome a fila e soma sem_genero ao ok (fila drena)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 3,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerGenerosGames").mockResolvedValue({
+      processados: 3,
+      ok: 2,
+      semGenero: 1,
+      vinculos: 4,
+      falhas: 0,
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "generosGames", ok: 3, falhas: 0 }]);
+    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(2000);
   });
 });

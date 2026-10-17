@@ -42,6 +42,8 @@ export type BackfillTipo =
   | "arestasFranquia"
   // T-DADOS-07: notas públicas de livros no OpenLibrary (por id do work).
   | "avaliacaoLivros"
+  // T-DADOS-09: gêneros de games no IGDB (por id; 23 slugs do /v4/genres).
+  | "generosGames"
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
   | "localizacao";
 
@@ -524,6 +526,65 @@ export function mapearCriticaIgdb(jogo: any): CriticaIgdb | null {
   return { rating, votos, url: slug ? `https://www.igdb.com/games/${slug}` : null };
 }
 
+// ===========================================================================
+// T-DADOS-09 — gêneros de games no IGDB (por id)
+// ===========================================================================
+
+/**
+ * T-DADOS-09: mapa curado dos 23 slugs de `/v4/genres` do IGDB (todos em
+ * inglês) para o nome canônico em pt-BR da tabela `genero`. É a decisão
+ * editorial desta fatia: slug IGDB → nome existente/novo. A resolução reusa
+ * linhas por `slugifyBasico(nome)` ("aventura", "musica", "rpg" já existem),
+ * sem renomear nem alterar `tipo`/`midia_alvo` das linhas existentes.
+ */
+export const MAPA_GENEROS_IGDB: Readonly<Record<string, string>> = {
+  "adventure": "Aventura",
+  "music": "Música",
+  "role-playing-rpg": "RPG",
+  "sport": "Esporte",
+  "fighting": "Luta",
+  "shooter": "Tiro",
+  "platform": "Plataforma",
+  "puzzle": "Quebra-cabeça",
+  "racing": "Corrida",
+  "simulator": "Simulação",
+  "strategy": "Estratégia",
+  "real-time-strategy-rts": "Estratégia em Tempo Real",
+  "turn-based-strategy-tbs": "Estratégia por Turnos",
+  "tactical": "Tático",
+  "hack-and-slash-beat-em-up": "Hack and Slash",
+  "quiz-trivia": "Quiz",
+  "pinball": "Pinball",
+  "indie": "Indie",
+  "arcade": "Arcade",
+  "visual-novel": "Visual Novel",
+  "card-and-board-game": "Cartas e Tabuleiro",
+  "moba": "MOBA",
+  "point-and-click": "Point and Click",
+};
+
+/**
+ * T-DADOS-09: `genres[]` do jogo do IGDB → slugs do mapa curado. O `slug` do
+ * item é preferido; sem ele, deriva de `name` via `slugifyBasico`. Slugs fora
+ * do mapa são descartados, duplicatas removidas. Payload estranho/ausente
+ * devolve `[]` e NUNCA lança.
+ */
+export function generosDoPayload(jogo: any): { slug: string }[] {
+  const item = Array.isArray(jogo) ? jogo[0] : jogo;
+  const brutos = Array.isArray(item?.genres) ? item.genres : [];
+  const vistos = new Set<string>();
+  const saida: { slug: string }[] = [];
+  for (const g of brutos) {
+    const slugItem = typeof g?.slug === "string" ? g.slug.trim().toLowerCase() : "";
+    const slug = slugItem || slugifyBasico(typeof g?.name === "string" ? g.name : "").toLowerCase();
+    if (!slug || !Object.prototype.hasOwnProperty.call(MAPA_GENEROS_IGDB, slug)) continue;
+    if (vistos.has(slug)) continue;
+    vistos.add(slug);
+    saida.push({ slug });
+  }
+  return saida;
+}
+
 interface TokenTwitch {
   access_token?: string;
   expires_in?: number;
@@ -585,6 +646,7 @@ export class BackfillService {
     arestasFranquia: estadoVazio(),
     avaliacaoLivros: estadoVazio(),
     localizacao: estadoVazio(),
+    generosGames: estadoVazio(),
   };
 
   constructor(
@@ -1299,6 +1361,145 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-09: resolve (ou cria) o `genero` a partir do nome pt-BR curado.
+   * Ordem: `slugifyBasico(nome)` (reusa "aventura"/"musica"/"rpg") → create →
+   * (colisão de unique) lookup por slug e por nome. Nunca propaga erro: em
+   * último caso devolve null e o título segue sem aquele gênero (a regra é não
+   * deixar o título falhar por unique).
+   */
+  private async resolverGeneroIgdb(nome: string): Promise<{ id: number } | null> {
+    const slugFinal = truncarCampo(slugifyBasico(nome), LIMITES.generoSlug);
+    const nomeFinal = truncarCampo(nome, LIMITES.generoNome);
+    if (!slugFinal || !nomeFinal) return null;
+    const porSlug = await this.prisma.genero.findUnique({
+      where: { slug: slugFinal },
+      select: { id: true },
+    });
+    if (porSlug) return porSlug;
+    try {
+      return await this.prisma.genero.create({
+        data: { nome: nomeFinal, slug: slugFinal },
+        select: { id: true },
+      });
+    } catch {
+      // Colisão de unique (nome ou slug já usados por outra linha): refaz o
+      // lookup e segue — nunca falha o título por causa disso.
+      const porSlugDepois = await this.prisma.genero.findUnique({
+        where: { slug: slugFinal },
+        select: { id: true },
+      });
+      if (porSlugDepois) return porSlugDepois;
+      const porNomeDepois = await this.prisma.genero.findUnique({
+        where: { nome: nomeFinal },
+        select: { id: true },
+      });
+      return porNomeDepois;
+    }
+  }
+
+  /**
+   * T-DADOS-09: coleta DEDICADA dos gêneros de games no IGDB **por id**
+   * (`POST /v4/games` com `where id = <fonte_id>`).
+   *
+   * Por que existe: 4.995 dos 4.996 GAME do catálogo não têm NENHUM gênero
+   * (só 1 tem), e o IGDB tem a fonte legítima (`genres` — 23 slugs medidos).
+   * O catálogo já filtra por gênero em `?genero=`, então é dado de produto.
+   *
+   * Alvo: watermark `generos_igdb_em IS NULL` (retomável). Watermark gravado
+   * SEMPRE ao fim do título (mesmo sem gênero) para a fila drenar; erro de
+   * rede/429 persistente não marca (retenta). Nunca lança por título.
+   *
+   * Reusa o mesmo throttle (≥300ms), retry único em 429 e cache de token do
+   * `enriquecerCriticaIgdb`; apenas o `fields` da consulta muda.
+   */
+  async enriquecerGenerosGames(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semGenero: number;
+    vinculos: number;
+    falhas: number;
+  }> {
+    if (!credenciaisIgdb()) {
+      throw new BadRequestException("TWITCH_CLIENT_ID/TWITCH_CLIENT_SECRET ausentes no ambiente.");
+    }
+    if (this.estado.generosGames.executando) {
+      throw new BadRequestException("Job gêneros de games IGDB já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.generosGames = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
+         AND m.generos_igdb_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1000, 1), 5000)}`,
+    )) as any[];
+    this.logger.log(`Backfill generos IGDB: ${alvo.length} títulos alvo.`);
+    let semGenero = 0;
+    let vinculos = 0;
+    for (const m of alvo) {
+      this.estado.generosGames.processados++;
+      this.estado.generosGames.atual = m.titulo;
+      try {
+        const generos = generosDoPayload(
+          await this.igdbPorId(m.fonte_id, "name, genres.name, genres.slug"),
+        );
+        let vinculosTitulo = 0;
+        for (const { slug } of generos) {
+          const genero = await this.resolverGeneroIgdb(MAPA_GENEROS_IGDB[slug] ?? slug);
+          if (!genero) continue;
+          await this.prisma.midiaGenero.upsert({
+            where: { midia_id_genero_id: { midia_id: m.id, genero_id: genero.id } },
+            create: { midia_id: m.id, genero_id: genero.id },
+            update: {},
+          });
+          vinculosTitulo++;
+        }
+        vinculos += vinculosTitulo;
+        if (generos.length === 0) {
+          // Jogo existe mas o IGDB não devolve gênero — ausência honesta,
+          // não erro: marca o watermark e segue.
+          semGenero++;
+        } else {
+          this.estado.generosGames.ok++;
+        }
+        // Watermark SEMPRE (mesmo sem gênero): sem isso a fila travaria em
+        // todo jogo sem `genres`.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { generos_igdb_em: new Date() },
+        });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.generosGames.falhas++;
+        this.logger.warn(`Backfill generos IGDB falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.generosGames.executando = false;
+    this.estado.generosGames.atual = `fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} falhas=${this.estado.generosGames.falhas}`;
+    this.logger.log(
+      `Backfill generos IGDB fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} falhas=${this.estado.generosGames.falhas}.`,
+    );
+    return {
+      processados: this.estado.generosGames.processados,
+      ok: this.estado.generosGames.ok,
+      semGenero,
+      vinculos,
+      falhas: this.estado.generosGames.falhas,
+    };
+  }
+
+  /**
    * T-DADOS-07: avaliações públicas de LIVROS no OpenLibrary por id do work.
    *
    * Por que existe: dos 651 livros do catálogo, 600 nunca tiveram nota coletada
@@ -1420,13 +1621,16 @@ export class BackfillService {
    * ≥300ms antes de cada chamada e retentativa única em HTTP 429; demais erros
    * propagam (quem chama conta como falha e não marca o watermark).
    */
-  private async igdbPorId(fonteId: string): Promise<any[]> {
+  private async igdbPorId(
+    fonteId: string,
+    fields = "name, slug, aggregated_rating, aggregated_rating_count",
+  ): Promise<any[]> {
     const id = Number(fonteId);
     // fonte_id não-inteiro não é consultável no IGDB (nenhum jogo) → sem dado.
     if (!Number.isInteger(id) || id <= 0) return [];
     const token = await obterTokenTwitch();
     if (!token) throw new Error("Token do IGDB indisponível (credenciais Twitch).");
-    const corpo = `fields name, slug, aggregated_rating, aggregated_rating_count; where id = ${id}; limit 1;`;
+    const corpo = `fields ${fields}; where id = ${id}; limit 1;`;
     const headers = {
       "client-id": process.env.TWITCH_CLIENT_ID ?? "",
       "authorization": `Bearer ${token}`,
@@ -1441,7 +1645,7 @@ export class BackfillService {
         const status = (e as { status?: number } | null)?.status;
         const eh429 = status === 429 || String(e).includes("HTTP 429");
         if (eh429 && tentativa === 0) {
-          this.logger.warn("Backfill critica IGDB: HTTP 429 — aguardando e repetindo uma vez.");
+          this.logger.warn("Backfill IGDB: HTTP 429 — aguardando e repetindo uma vez.");
           await this.pausa(ESPERA_429_MS);
           continue;
         }
@@ -1764,6 +1968,8 @@ export class BackfillService {
     metadadosRicos: number;
     provedores: number;
     criticaIgdb: number;
+    // T-DADOS-09: fila de gêneros de games (IGDB por id).
+    generosGames: number;
     arestasFranquia: number;
     avaliacaoLivros: number;
     // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
@@ -1777,6 +1983,7 @@ export class BackfillService {
         ricos: number;
         provedores: number;
         critica_igdb: number;
+        generos_games: number;
         arestas_franquia: number;
         avaliacao_livros: number;
         localizacao: number;
@@ -1801,6 +2008,9 @@ export class BackfillService {
           WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
             AND m.critica_igdb_em IS NULL) AS critica_igdb,
         (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
+            AND m.generos_igdb_em IS NULL) AS generos_games,
+        (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
         (SELECT COUNT(*)::int FROM midia m
@@ -1820,6 +2030,7 @@ export class BackfillService {
       metadadosRicos: Number(row?.ricos ?? 0),
       provedores: Number(row?.provedores ?? 0),
       criticaIgdb: Number(row?.critica_igdb ?? 0),
+      generosGames: Number(row?.generos_games ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
@@ -1868,6 +2079,12 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaIgdb > 0) {
         const r = await this.enriquecerCriticaIgdb(2000);
         lotes.push({ tipo: "criticaIgdb", ok: r.ok + r.semCritica, falhas: r.falhas });
+      }
+      // T-DADOS-09: gêneros de games no IGDB (mesmo throttle da crítica).
+      // `ok` soma os títulos SEM gênero: eles saíram da fila (watermark).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.generosGames > 0) {
+        const r = await this.enriquecerGenerosGames(2000);
+        lotes.push({ tipo: "generosGames", ok: r.ok + r.semGenero, falhas: r.falhas });
       }
       // T-DADOS-06: fecha as arestas SEQUENCIA_DE que faltam nas franquias
       // incompletas. Deriva do próprio grafo (zero chamada externa) e é
