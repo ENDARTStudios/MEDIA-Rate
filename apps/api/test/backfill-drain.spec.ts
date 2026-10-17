@@ -30,6 +30,8 @@ function makeBackfill(over: any = {}) {
       generosGames: 0,
       // T-DADOS-10: fila da crítica via OMDb (por id IMDb).
       criticaOmdb: 0,
+      // T-DADOS-12: fila de sinopse em inglês dos mangás (Kitsu/Jikan por id).
+      sinopseMangaEn: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -45,6 +47,7 @@ function makeBackfill(over: any = {}) {
         avaliacaoLivros: 0,
         localizacao: 0,
         criticaOmdb: 0,
+        sinopseMangaEn: 0,
       },
       pendentesDepois: {
         semElenco: 0,
@@ -58,6 +61,7 @@ function makeBackfill(over: any = {}) {
         avaliacaoLivros: 0,
         localizacao: 0,
         criticaOmdb: 0,
+        sinopseMangaEn: 0,
       },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),
@@ -571,5 +575,16 @@ describe("BackfillDrainService (T179)", () => {
     await svc.tique();
     expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
     expect(svc.status().espacado).toBe(false);
+  });
+
+  it("T-DADOS-12: fila só de sinopse de mangá entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, sinopseMangaEn: 501 },
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    // O resumo do drain carrega a fila nova (drain sem ela = fila presa).
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ sinopseMangaEn: 0 });
   });
 });
