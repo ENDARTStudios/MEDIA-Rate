@@ -30,6 +30,9 @@ import {
   // T-DADOS-13A/B: refresh de provedores (30d) e autores (OpenLibrary/Jikan/Kitsu).
   SQL_PROVEDORES_PENDENTES,
   chaveWorkOpenLibrary,
+  // T-DADOS-16: guard do formato do fonte_id antes de chamar a fonte.
+  openLibraryIdUtilizavel,
+  idNumericoUtilizavel,
   chavesAutoresOpenLibrary,
   nomeAutorOpenLibrary,
   mapearAutoresJikan,
@@ -3118,5 +3121,126 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
     expect(r.pendentesAntes.sinopseLivros).toBe(0);
     expect(drenar).not.toHaveBeenCalled();
     expect(r.lotes.some((l) => l.tipo === "sinopseLivros")).toBe(false);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-16 — guard do formato do fonte_id (slug nunca resolve por id)
+// ===========================================================================
+
+describe("openLibraryIdUtilizavel / idNumericoUtilizavel (T-DADOS-16)", () => {
+  it("OpenLibrary aceita OL<dígitos>W e rejeita slug, OL123, OL123M, vazio e null", () => {
+    expect(openLibraryIdUtilizavel("OL471932W")).toBe(true);
+    expect(openLibraryIdUtilizavel("o-apanhador-no-campo-de-centeio")).toBe(false);
+    expect(openLibraryIdUtilizavel("OL123")).toBe(false);
+    expect(openLibraryIdUtilizavel("OL123M")).toBe(false);
+    expect(openLibraryIdUtilizavel("")).toBe(false);
+    expect(openLibraryIdUtilizavel(null)).toBe(false);
+    expect(openLibraryIdUtilizavel(undefined)).toBe(false);
+  });
+
+  it("numérico aceita '40005' e rejeita slug, OL1W e vazio", () => {
+    expect(idNumericoUtilizavel("40005")).toBe(true);
+    expect(idNumericoUtilizavel("hunter-x-hunter")).toBe(false);
+    expect(idNumericoUtilizavel("OL1W")).toBe(false);
+    expect(idNumericoUtilizavel("")).toBe(false);
+    expect(idNumericoUtilizavel(null)).toBe(false);
+  });
+});
+
+describe("BackfillService — fonte_id inválido não chama a fonte (T-DADOS-16)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    delete process.env.MAL_CLIENT_ID;
+  });
+
+  it("livro com fonte_id slug: ZERO chamadas HTTP e autores_em marcado", async () => {
+    const alvo = [
+      {
+        id: "m-livro-slug",
+        fonte: "openlibrary",
+        fonte_id: "o-apanhador-no-campo-de-centeio",
+        titulo: "O Apanhador no Campo de Centeio",
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    expect(fetchJson).not.toHaveBeenCalled();
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0]).toEqual({
+      where: { id: "m-livro-slug" },
+      data: { autores_em: expect.any(Date) },
+    });
+    expect(svc.status().autoresLivros.atual).toContain("sem_id=1");
+  });
+
+  it("mangá com fonte_id slug: ZERO chamadas HTTP e autores_em marcado", async () => {
+    process.env.MAL_CLIENT_ID = "mal-client-id-de-teste";
+    const alvo = [
+      {
+        id: "m-manga-slug",
+        fonte: "jikan",
+        fonte_id: "hunter-x-hunter",
+        titulo: "Hunter x Hunter",
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    expect(fetchJson).not.toHaveBeenCalled();
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0]).toEqual({
+      where: { id: "m-manga-slug" },
+      data: { autores_em: expect.any(Date) },
+    });
+    expect(svc.status().autoresMangas.atual).toContain("sem_id=1");
+  });
+
+  it("sinopse mangá com fonte_id slug: ZERO chamadas HTTP e sinopse_en_em marcado", async () => {
+    const alvo = [
+      {
+        id: "m-sinopse-slug",
+        fonte: "kitsu",
+        fonte_id: "hunter-x-hunter",
+        titulo: "Hunter x Hunter",
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semSynopsis: 0, falhas: 0 });
+    expect(fetchJson).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0]).toEqual({
+      where: { id: "m-sinopse-slug" },
+      data: { sinopse_en_em: expect.any(Date) },
+    });
+    expect(svc.status().sinopseMangaEn.atual).toContain("sem_id=1");
+  });
+
+  it("id válido continua chamando a fonte (caminho feliz não regride)", async () => {
+    const alvo = [
+      {
+        id: "m-livro-ok",
+        fonte: "openlibrary",
+        fonte_id: "OL471932W",
+        titulo: "Livro válido",
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({ authors: [] });
+    const r = await svc.enriquecerAutoresLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 1, falhas: 0 });
+    expect(fetchJson).toHaveBeenCalledTimes(1);
+    expect((fetchJson as any).mock.calls[0][0]).toBe(
+      "https://openlibrary.org/works/OL471932W.json",
+    );
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
   });
 });
