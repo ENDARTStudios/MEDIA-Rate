@@ -34,6 +34,10 @@ function makeBackfill(over: any = {}) {
       sinopseMangaEn: 0,
       // T-DADOS-14B: fila de sinopse dos livros (teto diário do Google Books).
       sinopseLivros: 0,
+      // T-DADOS-13B/17: filas de autores (LIVRO, MANGA, COMIC).
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -50,6 +54,9 @@ function makeBackfill(over: any = {}) {
         localizacao: 0,
         criticaOmdb: 0,
         sinopseMangaEn: 0,
+        autoresLivros: 0,
+        autoresMangas: 0,
+        autoresComics: 0,
       },
       pendentesDepois: {
         semElenco: 0,
@@ -64,6 +71,9 @@ function makeBackfill(over: any = {}) {
         localizacao: 0,
         criticaOmdb: 0,
         sinopseMangaEn: 0,
+        autoresLivros: 0,
+        autoresMangas: 0,
+        autoresComics: 0,
       },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),
@@ -765,5 +775,39 @@ describe("BackfillDrainService — filas de autores (T-DADOS-13B)", () => {
     await svc.tique();
     expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
     expect(svc.status().espacado).toBe(false);
+  });
+
+  it("autores de comics contam no total() e aparecem no resumo (T-DADOS-17)", async () => {
+    const pendentes = {
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: 0,
+      sinopseMangaEn: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 31,
+    };
+    const backfill = makeBackfill({ pendentes: { autoresComics: 31 } });
+    backfill.drenarLote.mockResolvedValueOnce({
+      pendentesAntes: pendentes,
+      pendentesDepois: { ...pendentes, autoresComics: 0 },
+      lotes: [{ tipo: "autoresComics", ok: 31, falhas: 0 }],
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    // Fila só de comics NÃO pode ser tratada como "zerada".
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ autoresComics: 0 });
+    expect(svc.status().ultimoResumo?.lotes).toEqual([
+      { tipo: "autoresComics", ok: 31, falhas: 0 },
+    ]);
   });
 });

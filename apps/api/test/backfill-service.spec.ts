@@ -39,6 +39,9 @@ import {
   mapearAutoresKitsu,
   // T-DADOS-15B: autores de mangás de `jikan` pela API oficial do MAL.
   mapearAutoresMal,
+  // T-DADOS-17: autores de COMIC (ComicVine por busca com guarda de identidade).
+  escolherVolumeComicVine,
+  mapearAutoresComicVine,
   // T-DADOS-14B: sinopse de LIVRO (OpenLibrary → Google Books por ISBN),
   // roteada por idioma e limitada pelo teto diário.
   rotaSinopse,
@@ -508,7 +511,7 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn/sinopseLivros (T-DADOS-01/02/03/06/07/08/09/10/12/14B)", () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn/sinopseLivros/autores (T-DADOS-01/02/03/06/07/08/09/10/12/13B/14B/17)", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
@@ -544,6 +547,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       expect(sql).toContain("autores_em IS NULL");
       expect(sql).toContain("m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'");
       expect(sql).toContain("m.tipo = 'MANGA' AND m.fonte IN ('jikan','kitsu')");
+      // T-DADOS-17: fila de autores de COMIC no ComicVine.
+      expect(sql).toContain("m.tipo = 'COMIC' AND m.fonte = 'comicvine'");
       // T-DADOS-13A: provedores entram na fila de novo após 30 dias.
       expect(sql).toContain(SQL_PROVEDORES_PENDENTES);
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
@@ -567,6 +572,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           sinopse_livros: 651,
           autores_livros: 600,
           autores_mangas: 501,
+          autores_comics: 31,
         },
       ];
     });
@@ -586,6 +592,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       sinopseLivros: 651,
       autoresLivros: 600,
       autoresMangas: 501,
+      autoresComics: 31,
     });
   });
 
@@ -611,6 +618,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       sinopseLivros: 0,
       autoresLivros: 0,
       autoresMangas: 0,
+      autoresComics: 0,
     });
   });
 
@@ -2839,7 +2847,298 @@ describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B/15B)", () => {
   });
 });
 
-describe("drenarLote — filas de autores (T-DADOS-13B)", () => {
+// ===========================================================================
+// T-DADOS-17 — autores de COMIC (ComicVine por busca com guarda)
+// ===========================================================================
+
+describe("escolherVolumeComicVine (T-DADOS-17)", () => {
+  const sandman = {
+    id: 4207,
+    name: "The Sandman",
+    start_year: "1989",
+    publisher: { name: "DC Comics" },
+  };
+
+  it("aceita título normalizado igual e ano igual (start_year string ou número)", () => {
+    expect(escolherVolumeComicVine([sandman], "The Sandman", 1989, [])).toBe(sandman);
+    const numerico = { ...sandman, id: 1, start_year: 1989 };
+    expect(escolherVolumeComicVine([numerico], "the sandman", 1989, [])).toBe(numerico);
+    // Acentos/pontuação não impedem a identidade.
+    expect(
+      escolherVolumeComicVine(
+        [{ id: 2, name: "Persépolis", start_year: "2000" }],
+        "Persepolis",
+        2000,
+        [],
+      ),
+    ).toMatchObject({ id: 2 });
+  });
+
+  it("aceita diferença de até 1 ano", () => {
+    for (const ano of [1988, 1989, 1990]) {
+      expect(escolherVolumeComicVine([sandman], "The Sandman", ano, [])).toBe(sandman);
+    }
+  });
+
+  it("rejeita título igual com ano distante — caso Sin City/Jack T. Chick", () => {
+    // Volume homônimo de 2001 (Chick Publications) NÃO é o Sin City da obra.
+    const chick = {
+      id: 53807,
+      name: "Sin City",
+      start_year: "2001",
+      publisher: { name: "Chick Publications" },
+    };
+    expect(escolherVolumeComicVine([chick], "Sin City", 1991, ["Carlsen Verlag"])).toBeNull();
+    // Nem com editora coincidente: o ano é condição obrigatória.
+    expect(escolherVolumeComicVine([chick], "Sin City", 1991, ["Chick Publications"])).toBeNull();
+  });
+
+  it("rejeita candidato com start_year null (sem ano não há identidade)", () => {
+    expect(
+      escolherVolumeComicVine(
+        [{ id: 7, name: "The Sandman", start_year: null, publisher: { name: "DC Comics" } }],
+        "The Sandman",
+        1989,
+        ["DC Comics"],
+      ),
+    ).toBeNull();
+  });
+
+  it("empate de título+ano: desempata pela editora da midia_produtora", () => {
+    const chick = {
+      id: 53807,
+      name: "Sin City",
+      start_year: "1991",
+      publisher: { name: "Chick Publications" },
+    };
+    const carlsen = {
+      id: 98116,
+      name: "Sin City",
+      start_year: "1991",
+      publisher: { name: "Carlsen Verlag" },
+    };
+    expect(escolherVolumeComicVine([chick, carlsen], "Sin City", 1991, ["Carlsen Verlag"])).toBe(
+      carlsen,
+    );
+  });
+
+  it("empate sem desempate (nenhuma editora casa ou mais de uma casa) → null", () => {
+    const a = { id: 1, name: "Sin City", start_year: "1991", publisher: { name: "A" } };
+    const b = { id: 2, name: "Sin City", start_year: "1991", publisher: { name: "B" } };
+    expect(escolherVolumeComicVine([a, b], "Sin City", 1991, ["Carlsen Verlag"])).toBeNull();
+    expect(escolherVolumeComicVine([a, b], "Sin City", 1991, [])).toBeNull();
+    const b2 = { id: 3, name: "Sin City", start_year: "1991", publisher: { name: "B2" } };
+    expect(escolherVolumeComicVine([a, b2], "Sin City", 1991, ["A", "B2"])).toBeNull();
+  });
+
+  it("payload vazio/ano ausente → null (nunca 'primeiro resultado')", () => {
+    expect(escolherVolumeComicVine([], "The Sandman", 1989, [])).toBeNull();
+    expect(escolherVolumeComicVine(null, "The Sandman", 1989, [])).toBeNull();
+    expect(escolherVolumeComicVine([sandman], "The Sandman", null, [])).toBeNull();
+  });
+});
+
+describe("mapearAutoresComicVine (T-DADOS-17)", () => {
+  it("people[] → id + nome + ordem, fonte comicvine; inválidos descartados", () => {
+    expect(
+      mapearAutoresComicVine({
+        results: {
+          people: [
+            { id: 40841, name: "Neil Gaiman" },
+            { id: 0, name: "Sem id" },
+            { id: 1, name: "" },
+            { id: 40841, name: "Duplicado" },
+            { id: 24246, name: "Dave McKean" },
+          ],
+        },
+      }),
+    ).toEqual([
+      { fonte_id: "40841", nome: "Neil Gaiman", fonte: "comicvine", ordem: 0 },
+      { fonte_id: "24246", nome: "Dave McKean", fonte: "comicvine", ordem: 4 },
+    ]);
+    expect(mapearAutoresComicVine({})).toEqual([]);
+    expect(mapearAutoresComicVine(null)).toEqual([]);
+  });
+});
+
+describe("BackfillService.enriquecerAutoresComics (T-DADOS-17)", () => {
+  const CHAVE = "chave-teste";
+  const urlBusca = (titulo: string) =>
+    `https://comicvine.gamespot.com/api/volumes/?api_key=${CHAVE}` +
+    `&format=json&filter=name:${encodeURIComponent(titulo)}` +
+    `&field_list=id,name,start_year,publisher&limit=100`;
+  const urlVolume = (id: number | string) =>
+    `https://comicvine.gamespot.com/api/volume/4050-${id}/?api_key=${CHAVE}` +
+    `&format=json&field_list=id,name,people`;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.COMICVINE_API_KEY = CHAVE;
+  });
+
+  afterEach(() => {
+    delete process.env.COMICVINE_API_KEY;
+  });
+
+  function comic(over: any = {}) {
+    return {
+      id: "m-comic-1",
+      titulo: "The Sandman",
+      ano_lancamento: 1989,
+      editoras: "DC Comics",
+      ...over,
+    };
+  }
+
+  it("mapeia people para midia_elenco com fonte comicvine e personagem Autor", async () => {
+    const { svc, prisma } = makeService({ alvo: [comic()] });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === urlBusca("The Sandman")) {
+        return {
+          results: [
+            { id: 2667, name: "The Sandman", start_year: "1974", publisher: { name: "DC Comics" } },
+            { id: 4207, name: "The Sandman", start_year: "1989", publisher: { name: "DC Comics" } },
+          ],
+        };
+      }
+      if (url === urlVolume(4207)) {
+        return {
+          results: {
+            id: 4207,
+            name: "The Sandman",
+            people: [
+              { id: 40841, name: "Neil Gaiman" },
+              { id: 24246, name: "Dave McKean" },
+            ],
+          },
+        };
+      }
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semMatch: 0, pessoas: 2, falhas: 0 });
+    expect(prisma.midiaElenco.upsert).toHaveBeenCalledTimes(2);
+    const primeira = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
+    expect(primeira.where).toEqual({
+      midia_id_fonte_fonte_id: {
+        midia_id: "m-comic-1",
+        fonte: "comicvine",
+        fonte_id: "40841",
+      },
+    });
+    expect(primeira.create).toMatchObject({
+      fonte: "comicvine",
+      nome: "Neil Gaiman",
+      personagem: "Autor",
+      ordem: 0,
+      foto_url: null,
+    });
+    expect(primeira.update).toMatchObject({
+      nome: "Neil Gaiman",
+      personagem: "Autor",
+      ordem: 0,
+    });
+    expect((prisma.midiaElenco.upsert as any).mock.calls[1][0].create).toMatchObject({
+      fonte_id: "24246",
+      ordem: 1,
+    });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+    // Throttle de 1100ms antes de cada chamada ao ComicVine.
+    expect(pausa).toHaveBeenCalledWith(1100);
+  });
+
+  it("sem match (Sin City/2001 vs obra/1991): marca autores_em e não grava elenco", async () => {
+    const { svc, prisma } = makeService({
+      alvo: [
+        comic({
+          id: "m-sin",
+          titulo: "Sin City",
+          ano_lancamento: 1991,
+          editoras: "Carlsen Verlag",
+        }),
+      ],
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const chamadas: string[] = [];
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      chamadas.push(url);
+      return {
+        results: [
+          {
+            id: 53807,
+            name: "Sin City",
+            start_year: "2001",
+            publisher: { name: "Chick Publications" },
+          },
+        ],
+      };
+    });
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semMatch: 1, pessoas: 0, falhas: 0 });
+    // Nenhum detalhe de volume é consultado quando a guarda rejeita.
+    expect(chamadas).toEqual([urlBusca("Sin City")]);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+  });
+
+  it("429: espera ~3s e repete UMA vez (sucesso na segunda)", async () => {
+    const { svc, prisma } = makeService({ alvo: [comic()] });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    let buscas = 0;
+    (fetchJson as any).mockImplementation(async (url: string) => {
+      if (url === urlBusca("The Sandman")) {
+        buscas++;
+        if (buscas === 1) throw new ErroColeta("HTTP 429", 429);
+        return {
+          results: [
+            { id: 4207, name: "The Sandman", start_year: "1989", publisher: { name: "DC Comics" } },
+          ],
+        };
+      }
+      if (url === urlVolume(4207)) {
+        return { results: { people: [{ id: 40841, name: "Neil Gaiman" }] } };
+      }
+      throw new Error(`URL inesperada: ${url}`);
+    });
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semMatch: 0, pessoas: 1, falhas: 0 });
+    expect(buscas).toBe(2);
+    expect(pausa).toHaveBeenCalledWith(3000);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+  });
+
+  it("falha persistente (429 repetido): falhas++ e NÃO marca o watermark", async () => {
+    const { svc, prisma } = makeService({ alvo: [comic()] });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    let buscas = 0;
+    (fetchJson as any).mockImplementation(async () => {
+      buscas++;
+      throw new ErroColeta("HTTP 429", 429);
+    });
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semMatch: 0, pessoas: 0, falhas: 1 });
+    expect(buscas).toBe(2);
+    expect(pausa).toHaveBeenCalledWith(3000);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("COMICVINE_API_KEY ausente: falha sem HTTP e sem watermark", async () => {
+    delete process.env.COMICVINE_API_KEY;
+    const { svc, prisma } = makeService({ alvo: [comic()] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semMatch: 0, pessoas: 0, falhas: 1 });
+    expect(fetchJson).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("drenarLote — filas de autores (T-DADOS-13B/17)", () => {
   it("consome as duas filas de autores no lote", async () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
@@ -2862,6 +3161,7 @@ describe("drenarLote — filas de autores (T-DADOS-13B)", () => {
             sinopse_manga_en: 0,
             autores_livros: 3,
             autores_mangas: 2,
+            autores_comics: 4,
           },
         ];
       }
@@ -2879,13 +3179,22 @@ describe("drenarLote — filas de autores (T-DADOS-13B)", () => {
       semAutores: 0,
       falhas: 0,
     });
+    vi.spyOn(svc, "enriquecerAutoresComics").mockResolvedValue({
+      processados: 4,
+      ok: 4,
+      semMatch: 1,
+      pessoas: 6,
+      falhas: 0,
+    });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([
       { tipo: "autoresLivros", ok: 3, falhas: 0 },
       { tipo: "autoresMangas", ok: 2, falhas: 0 },
+      { tipo: "autoresComics", ok: 4, falhas: 0 },
     ]);
     expect(r.pendentesAntes.autoresLivros).toBe(3);
     expect(r.pendentesAntes.autoresMangas).toBe(2);
+    expect(r.pendentesAntes.autoresComics).toBe(4);
   });
 });
 
