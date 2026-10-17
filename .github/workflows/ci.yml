@@ -330,7 +330,14 @@ jobs:
       # SENTRY_AUTH_TOKEN. Sem eles, é no-op. (`vars` é válido em `if`;
       # `secrets` não — por isso o gate é pela var, não pelo secret.)
       - name: Sentry sourcemaps (T452, opcional)
-        if: ${{ vars.SENTRY_PROJECT != '' }}
+        # D-653: PRs do Dependabot NAO recebem secrets do repositorio (comportamento de
+        # seguranca do GitHub). O gate anterior era so pela var SENTRY_PROJECT, que EXISTE
+        # no repo, entao o passo rodava com SENTRY_AUTH_TOKEN vazio e o CLI falhava com
+        # "Invalid token header. No credential" — derrubando o Build de TODO PR do
+        # Dependabot, inclusive bumps de patch inofensivos. O nome do passo ja dizia
+        # "opcional"; agora ele se comporta como tal.
+        if: ${{ vars.SENTRY_PROJECT != '' && github.actor != 'dependabot[bot]' }}
+        continue-on-error: true
         working-directory: apps/web
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
