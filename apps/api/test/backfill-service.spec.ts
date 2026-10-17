@@ -34,6 +34,13 @@ import {
   nomeAutorOpenLibrary,
   mapearAutoresJikan,
   mapearAutoresKitsu,
+  // T-DADOS-14B: sinopse de LIVRO (OpenLibrary → Google Books por ISBN),
+  // roteada por idioma e limitada pelo teto diário.
+  rotaSinopse,
+  primeiroIsbnDasEdicoes,
+  volumeInfoGoogleBooks,
+  orcamentoGoogleBooksRestante,
+  ORCAMENTO_GOOGLE_BOOKS_DIARIO,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -61,6 +68,10 @@ function makeService(over: any = {}) {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       // T-DADOS-10: cota diária do OMDb (títulos distintos já consultados hoje).
       if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: over.usados ?? 0 }];
+      // T-DADOS-14B: títulos de sinopse de livro já processados hoje.
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) {
+        return [{ usados: over.usadosGoogle ?? 0 }];
+      }
       return over.alvo ?? [];
     }),
     midiaElenco: { upsert: vi.fn(async ({ create }: any) => create) },
@@ -492,13 +503,15 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn (T-DADOS-01/02/03/06/07/08/09/10/12)", () => {
-  it("conta as 12 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn/sinopseLivros (T-DADOS-01/02/03/06/07/08/09/10/12/14B)", () => {
+  it("conta as 15 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       // T-DADOS-10: consulta separada da cota diária do OMDb.
       if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      // T-DADOS-14B: consulta separada dos títulos de sinopse de livro de hoje.
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 0 }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
       expect(sql).toContain("critica_igdb_em IS NULL");
@@ -513,6 +526,9 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       // T-DADOS-12: fila da sinopse em inglês dos mangás (Kitsu/Jikan por id).
       expect(sql).toContain("sinopse_en_em IS NULL");
       expect(sql).toContain("btrim(m.sinopse_en) = ''");
+      // T-DADOS-14B: fila da sinopse dos livros (openlibrary → Google Books).
+      expect(sql).toContain("sinopse_livro_em IS NULL");
+      expect(sql).toContain("btrim(m.sinopse_es) = ''");
       // T-DADOS-13B: fila de autores (LIVRO OpenLibrary; MANGA Jikan/Kitsu).
       expect(sql).toContain("autores_em IS NULL");
       expect(sql).toContain("m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'");
@@ -537,6 +553,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           localizacao: 10570,
           critica_omdb: 10998,
           sinopse_manga_en: 501,
+          sinopse_livros: 651,
           autores_livros: 600,
           autores_mangas: 501,
         },
@@ -555,6 +572,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       localizacao: 10570,
       criticaOmdb: 10998,
       sinopseMangaEn: 501,
+      sinopseLivros: 651,
       autoresLivros: 600,
       autoresMangas: 501,
     });
@@ -579,6 +597,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       localizacao: 0,
       criticaOmdb: 0,
       sinopseMangaEn: 0,
+      sinopseLivros: 0,
       autoresLivros: 0,
       autoresMangas: 0,
     });
@@ -2750,5 +2769,217 @@ describe("drenarLote — filas de autores (T-DADOS-13B)", () => {
     ]);
     expect(r.pendentesAntes.autoresLivros).toBe(3);
     expect(r.pendentesAntes.autoresMangas).toBe(2);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-14B — sinopse de LIVRO (OpenLibrary editions → Google Books)
+// ===========================================================================
+
+describe("T-DADOS-14B — rota por idioma e ISBN das edições", () => {
+  it("pt/en/es vão para o campo certo; fr, idioma ausente e descrição vazia → null", () => {
+    expect(rotaSinopse("pt", "Texto pt")).toEqual({ campo: "sinopse", texto: "Texto pt" });
+    expect(rotaSinopse("en", " English text ")).toEqual({
+      campo: "sinopse_en",
+      texto: "English text",
+    });
+    expect(rotaSinopse("es", "Texto es")).toEqual({ campo: "sinopse_es", texto: "Texto es" });
+    // Outros idiomas (a amostra do OpenLibrary veio FR/SV) NÃO viram sinopse pt.
+    expect(rotaSinopse("fr", "Texte fr")).toBeNull();
+    expect(rotaSinopse("sv", "Svensk text")).toBeNull();
+    expect(rotaSinopse(undefined, "Sem idioma")).toBeNull();
+    expect(rotaSinopse(null, "Sem idioma")).toBeNull();
+    expect(rotaSinopse("pt", "")).toBeNull();
+    expect(rotaSinopse("pt", "   ")).toBeNull();
+    expect(rotaSinopse("pt", undefined)).toBeNull();
+  });
+
+  it("prefere isbn_13 em qualquer edição e só então isbn_10", () => {
+    expect(
+      primeiroIsbnDasEdicoes({
+        entries: [
+          { isbn_10: ["0123456789"], isbn_13: [] },
+          { isbn_10: ["9876543210"], isbn_13: ["9781234567890"] },
+        ],
+      }),
+    ).toBe("9781234567890");
+    expect(primeiroIsbnDasEdicoes({ entries: [{ isbn_10: ["0123456789"] }] })).toBe("0123456789");
+    expect(primeiroIsbnDasEdicoes({ entries: [{ isbn_13: [""] }] })).toBeNull();
+    expect(primeiroIsbnDasEdicoes({})).toBeNull();
+    expect(primeiroIsbnDasEdicoes(null)).toBeNull();
+  });
+
+  it("volumeInfoGoogleBooks lê language/description do primeiro item", () => {
+    expect(
+      volumeInfoGoogleBooks({
+        items: [{ volumeInfo: { language: "pt", description: "Duna" } }],
+      }),
+    ).toEqual({ language: "pt", description: "Duna" });
+    expect(volumeInfoGoogleBooks({ items: [] })).toEqual({
+      language: null,
+      description: null,
+    });
+    expect(volumeInfoGoogleBooks(null)).toEqual({ language: null, description: null });
+  });
+
+  it("teto diário: 700/dia; 700 usados → 0 restante; 690 → 10", () => {
+    expect(ORCAMENTO_GOOGLE_BOOKS_DIARIO).toBe(700);
+    expect(orcamentoGoogleBooksRestante(0)).toBe(700);
+    expect(orcamentoGoogleBooksRestante(690)).toBe(10);
+    expect(orcamentoGoogleBooksRestante(700)).toBe(0);
+    expect(orcamentoGoogleBooksRestante(1200)).toBe(0);
+    expect(orcamentoGoogleBooksRestante(Number.NaN)).toBe(700);
+  });
+});
+
+describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(fetchJson).mockReset();
+  });
+
+  const alvoBase = {
+    id: "m-livro-1",
+    fonte_id: "OL471932W",
+    titulo: "Duna",
+    sinopse: null,
+    sinopse_en: null,
+    sinopse_es: null,
+  };
+
+  it("sem ISBN: marca o watermark e NÃO chama o Google Books", async () => {
+    const { svc, prisma } = makeService({ alvo: [alvoBase] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.mocked(fetchJson).mockResolvedValueOnce({ entries: [{ isbn_13: [], isbn_10: [] }] });
+    const r = await svc.enriquecerSinopseLivros(10);
+    expect(r).toMatchObject({
+      processados: 1,
+      ok: 0,
+      semIsbn: 1,
+      semIdioma: 0,
+      semDescricao: 0,
+      falhas: 0,
+      interrompidoPorCota: false,
+    });
+    // Só a chamada das editions; nenhuma ao Google Books.
+    expect(fetchJson).toHaveBeenCalledTimes(1);
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-livro-1" },
+      data: { sinopse_livro_em: expect.any(Date) },
+    });
+  });
+
+  it("pt: grava SOMENTE sinopse quando ela está vazia", async () => {
+    const { svc, prisma } = makeService({ alvo: [alvoBase] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.mocked(fetchJson)
+      .mockResolvedValueOnce({ entries: [{ isbn_13: ["9781234567890"] }] })
+      .mockResolvedValueOnce({
+        items: [{ volumeInfo: { language: "pt", description: "Sinopse em português" } }],
+      });
+    const r = await svc.enriquecerSinopseLivros(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, semIsbn: 0, falhas: 0 });
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-livro-1" },
+      data: { sinopse_livro_em: expect.any(Date), sinopse: "Sinopse em português" },
+    });
+  });
+
+  it("NÃO sobrescreve sinopse pt já existente (chave sinopse fora do update)", async () => {
+    const alvo = [{ ...alvoBase, sinopse: "Sinopse curada" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.mocked(fetchJson)
+      .mockResolvedValueOnce({ entries: [{ isbn_13: ["9781234567890"] }] })
+      .mockResolvedValueOnce({
+        items: [{ volumeInfo: { language: "pt", description: "Texto novo da fonte" } }],
+      });
+    await svc.enriquecerSinopseLivros(10);
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.sinopse_livro_em).toBeInstanceOf(Date);
+    expect(data).not.toHaveProperty("sinopse");
+    expect(data).not.toHaveProperty("sinopse_en");
+    expect(data).not.toHaveProperty("sinopse_es");
+  });
+
+  it("429 do Google Books aborta o lote SEM marcar o watermark do título corrente", async () => {
+    const alvo = [
+      { ...alvoBase, id: "m-1", titulo: "Primeiro" },
+      { ...alvoBase, id: "m-2", titulo: "Segundo", fonte_id: "OL2W" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.mocked(fetchJson)
+      .mockResolvedValueOnce({ entries: [{ isbn_13: ["9781234567890"] }] })
+      .mockRejectedValueOnce(
+        new ErroColeta("HTTP 429 em https://www.googleapis.com/books/v1/volumes", 429),
+      );
+    const r = await svc.enriquecerSinopseLivros(10);
+    expect(r).toMatchObject({ processados: 1, ok: 0, falhas: 0, interrompidoPorCota: true });
+    // Nem o título corrente nem o próximo foram marcados.
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+    expect(fetchJson).toHaveBeenCalledTimes(2);
+  });
+
+  it("orçamento esgotado (700 usados hoje): fila 0 e job não processa", async () => {
+    const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 700 });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 700 }];
+      if (/sinopse_livros/.test(sql)) return [{ sinopse_livros: 600 }];
+      return [];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ sinopseLivros: 0 });
+    const r = await svc.enriquecerSinopseLivros(700);
+    expect(r).toMatchObject({ processados: 0, falhas: 0, interrompidoPorCota: false });
+    expect(fetchJson).not.toHaveBeenCalled();
+  });
+
+  it("690 usados hoje: fila 10 e o alvo é limitado a 10", async () => {
+    const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 690 });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 690 }];
+      if (/sinopse_livros/.test(sql)) return [{ sinopse_livros: 600 }];
+      if (/SELECT m\.id::text, m\.fonte_id, m\.titulo/.test(sql)) {
+        expect(sql).toContain("LIMIT 10");
+        return [];
+      }
+      return [];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ sinopseLivros: 10 });
+    const r = await svc.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
+    expect(r.processados).toBe(0);
+    expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(expect.stringContaining("LIMIT 10"));
+  });
+
+  it("drenarLote consome a fila sinopseLivros e conta os sem dado como drenados", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.spyOn(svc, "enriquecerSinopseLivros").mockResolvedValue({
+      processados: 3,
+      ok: 1,
+      semIsbn: 1,
+      semIdioma: 1,
+      semDescricao: 0,
+      falhas: 0,
+      interrompidoPorCota: false,
+    });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 0 }];
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/sem_elenco/.test(sql)) {
+        return [{ sem_elenco: 0, sinopse_livros: 3 }];
+      }
+      // "depois" do lote: fila zerada.
+      return [];
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.pendentesAntes.sinopseLivros).toBe(3);
+    expect(r.lotes).toEqual([{ tipo: "sinopseLivros", ok: 3, falhas: 0 }]);
+    expect(svc.enriquecerSinopseLivros).toHaveBeenCalledWith(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
   });
 });

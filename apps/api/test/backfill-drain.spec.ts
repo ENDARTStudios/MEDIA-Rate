@@ -32,6 +32,8 @@ function makeBackfill(over: any = {}) {
       criticaOmdb: 0,
       // T-DADOS-12: fila de sinopse em inglês dos mangás (Kitsu/Jikan por id).
       sinopseMangaEn: 0,
+      // T-DADOS-14B: fila de sinopse dos livros (teto diário do Google Books).
+      sinopseLivros: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -586,6 +588,56 @@ describe("BackfillDrainService (T179)", () => {
     expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
     // O resumo do drain carrega a fila nova (drain sem ela = fila presa).
     expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ sinopseMangaEn: 0 });
+  });
+
+  it("T-DADOS-14B: fila só de sinopse de livros entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, sinopseLivros: 600 },
+    });
+    backfill.drenarLote.mockResolvedValueOnce({
+      pendentesAntes: {
+        semElenco: 0,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+        criticaIgdb: 0,
+        generosGames: 0,
+        arestasFranquia: 0,
+        avaliacaoLivros: 0,
+        localizacao: 0,
+        criticaOmdb: 0,
+        sinopseMangaEn: 0,
+        sinopseLivros: 600,
+        autoresLivros: 0,
+        autoresMangas: 0,
+      },
+      pendentesDepois: {
+        semElenco: 0,
+        seriesSemTemporada: 0,
+        filmesSemPais: 0,
+        metadadosRicos: 0,
+        provedores: 0,
+        criticaIgdb: 0,
+        generosGames: 0,
+        arestasFranquia: 0,
+        avaliacaoLivros: 0,
+        localizacao: 0,
+        criticaOmdb: 0,
+        sinopseMangaEn: 0,
+        sinopseLivros: 0,
+        autoresLivros: 0,
+        autoresMangas: 0,
+      },
+      lotes: [{ tipo: "sinopseLivros", ok: 600, falhas: 0 }],
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ sinopseLivros: 0 });
+    expect(svc.status().ultimoResumo?.lotes).toEqual([
+      { tipo: "sinopseLivros", ok: 600, falhas: 0 },
+    ]);
   });
 });
 
