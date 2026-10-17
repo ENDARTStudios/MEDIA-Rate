@@ -153,7 +153,10 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       ano: 1972,
       idsExternos: { tmdb: "238" },
     });
-    expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({ where: { midia_id: "m1" } });
+    // T-DADOS-20B: a fonte que falhou é preservada (não entra no deleteMany).
+    expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({
+      where: { midia_id: "m1", fonte: { notIn: ["fonte_errada"] } },
+    });
     const createCall = prisma.avaliacaoFonte.createMany.mock.calls[0]![0] as {
       data: Record<string, unknown>[];
     };
@@ -187,6 +190,92 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       tipo: "GAME",
       titulo: "Baldur's Gate 3",
       ano: 2023,
+    });
+  });
+
+  describe("T-DADOS-20B — preserva fontes que falharam/inativas no deleteMany", () => {
+    const notaOk = (fonte: string) => ({
+      fonte,
+      status: "ok",
+      nota: {
+        fonte,
+        rating: 8.5,
+        media_fonte: 7,
+        desvio_fonte: 1.5,
+        votos: 100,
+        url: `https://exemplo/${fonte}`,
+      },
+    });
+    const alvo = {
+      id: "m1",
+      tipo: "FILME",
+      titulo: "Alvo",
+      ano_lancamento: 2000,
+      fonte: "tmdb",
+      fonte_id: "1",
+    };
+
+    it("adapter A ok + adapter B erro → deleteMany com notIn [B]", async () => {
+      const { prisma, coleta, job } = mockDependencias();
+      coleta.coletarTudo.mockResolvedValue([
+        notaOk("A"),
+        { fonte: "B", status: "erro", motivo: "429" },
+      ]);
+
+      await job.coletarEPersistir(alvo);
+
+      expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({
+        where: { midia_id: "m1", fonte: { notIn: ["B"] } },
+      });
+      const createCall = prisma.avaliacaoFonte.createMany.mock.calls[0]![0] as {
+        data: Record<string, unknown>[];
+      };
+      expect(createCall.data.map((d) => d.fonte)).toEqual(["A"]);
+    });
+
+    it("adapter inativo (pulada/'inativa') também é preservado", async () => {
+      const { prisma, coleta, job } = mockDependencias();
+      coleta.coletarTudo.mockResolvedValue([
+        notaOk("A"),
+        { fonte: "B", status: "pulada", motivo: "inativa" },
+      ]);
+
+      await job.coletarEPersistir(alvo);
+
+      expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({
+        where: { midia_id: "m1", fonte: { notIn: ["B"] } },
+      });
+    });
+
+    it("adapter pulada por 'sem nota' É apagado (foi consultado)", async () => {
+      const { prisma, coleta, job } = mockDependencias();
+      coleta.coletarTudo.mockResolvedValue([
+        notaOk("A"),
+        { fonte: "B", status: "pulada", motivo: "sem nota" },
+      ]);
+
+      await job.coletarEPersistir(alvo);
+
+      expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({
+        where: { midia_id: "m1" },
+      });
+    });
+
+    it("nada respondeu e há avaliações existentes → guard: nenhum delete/upsert", async () => {
+      const { prisma, coleta, mediaScore, job } = mockDependencias();
+      prisma.avaliacaoFonte.count.mockResolvedValue(2);
+      coleta.coletarTudo.mockResolvedValue([{ fonte: "B", status: "erro", motivo: "timeout" }]);
+
+      const resultado = await job.coletarEPersistir(alvo);
+
+      expect(resultado).toEqual({
+        coletadas: [],
+        score: null,
+        resultados: [{ fonte: "B", status: "erro", motivo: "timeout" }],
+      });
+      expect(prisma.avaliacaoFonte.deleteMany).not.toHaveBeenCalled();
+      expect(prisma.avaliacaoFonte.createMany).not.toHaveBeenCalled();
+      expect(mediaScore.recalcularEPersistir).not.toHaveBeenCalled();
     });
   });
 

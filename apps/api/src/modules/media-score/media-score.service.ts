@@ -474,6 +474,10 @@ export class MediaScoreService {
       mediaCatalogo,
       atualizadoEm: midia.avaliacoes_atualizadas_em,
     });
+    // T-DADOS-20A: `calculado_em` só tem @default(now()) no schema (sem
+    // @updatedAt), então precisa ser carimbado explicitamente a cada upsert —
+    // caso contrário o valor congela na criação da linha.
+    const agora = new Date();
     const data = {
       score: resultado.score,
       num_fontes: resultado.num_fontes,
@@ -486,6 +490,7 @@ export class MediaScoreService {
       confianca: resultado.confianca,
       // Interface não satisfaz o índice de assinatura do Json do Prisma.
       detalhes: resultado.detalhes as unknown as Prisma.InputJsonValue,
+      calculado_em: agora,
     };
 
     await this.prisma.mediaScore.upsert({
@@ -500,6 +505,6 @@ export class MediaScoreService {
       data: { score: resultado.score },
     });
 
-    return { ...resultado, calculado_em: new Date() };
+    return { ...resultado, calculado_em: agora };
   }
 }
