@@ -36,6 +36,7 @@ function makeBackfill(over: any = {}) {
         metadadosRicos: 0,
         provedores: 0,
         criticaIgdb: 0,
+        generosGames: 0,
         arestasFranquia: 0,
         avaliacaoLivros: 0,
         localizacao: 0,
@@ -47,6 +48,7 @@ function makeBackfill(over: any = {}) {
         metadadosRicos: 0,
         provedores: 0,
         criticaIgdb: 0,
+        generosGames: 0,
         arestasFranquia: 0,
         avaliacaoLivros: 0,
         localizacao: 0,
@@ -146,6 +148,7 @@ describe("BackfillDrainService (T179)", () => {
         metadadosRicos: 0,
         provedores: 0,
         criticaIgdb: 0,
+        generosGames: 0,
         arestasFranquia: 0,
       },
       pendentesDepois: {
@@ -155,6 +158,7 @@ describe("BackfillDrainService (T179)", () => {
         metadadosRicos: 0,
         provedores: 0,
         criticaIgdb: 0,
+        generosGames: 0,
         arestasFranquia: 0,
       },
       lotes: [{ tipo: "metadados", ok: 32, falhas: 0 }],
@@ -491,6 +495,69 @@ describe("BackfillDrainService (T179)", () => {
           localizacao: n,
         },
         lotes: [{ tipo: "localizacao", ok: 10, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(2);
+    expect(svc.status().espacado).toBe(false);
+  });
+
+  it("T-DADOS-09: fila só de gêneros de games entra no total() e drena (não fica presa)", async () => {
+    const backfill = makeBackfill({
+      pendentes: { semElenco: 0, seriesSemTemporada: 0, filmesSemPais: 0, generosGames: 4995 },
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(backfill.drenarLote).toHaveBeenCalledTimes(1);
+    // O resumo do drain carrega a 10ª fila (drain sem ela = fila presa, bug D-01).
+    expect(svc.status().ultimoResumo?.pendentesDepois).toMatchObject({ generosGames: 0 });
+  });
+
+  it("T-DADOS-09: gêneros de games contam no total() (progresso real da fila)", async () => {
+    let n = 100;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: n,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 10;
+      return {
+        pendentesAntes: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: n + 10,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+        },
+        pendentesDepois: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: n,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+        },
+        lotes: [{ tipo: "generosGames", ok: 10, falhas: 0 }],
       };
     });
     const svc = new BackfillDrainService(backfill as any);

@@ -412,6 +412,9 @@ model Midia {
   // T-DADOS-08: watermark da coleta de localização (en/es) e classificação
   // indicativa/regional do TMDB. NULL = nunca tentado; marcado SEMPRE.
   localizacao_em            DateTime? @map("localizacao_em")
+  // T-DADOS-09: watermark da coleta de gêneros do IGDB (por id).
+  // NULL = nunca tentado; marcado SEMPRE (mesmo sem gênero: evita fila presa).
+  generos_igdb_em           DateTime? @map("generos_igdb_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
