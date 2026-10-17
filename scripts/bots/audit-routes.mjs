@@ -52,9 +52,26 @@ const RX = {
 
 const RX_JSX = /<[A-Za-z]/;
 const RX_REDIRECT = /permanentRedirect\(|redirect\(/;
+const RX_BLOCO = /\/\*[\s\S]*?\*\//g;
+// `//` so vira comentario quando abre a linha ou vem depois de espaco: assim
+// `https://...` dentro de string nao e truncado.
+const RX_LINHA = /(^|\s)\/\/[^\n]*/g;
+
+/**
+ * Medir comentario e medir a tela errada: `page-shell.tsx` diz "sem rounded-2xl"
+ * na docstring e o v2 contava isso como anti-padrao D-065 na rota /discover; o
+ * mesmo vale para o "<h1>" citado em prosa. Os numeros saem do codigo, nao da
+ * conversa sobre o codigo.
+ */
+const semComentarios = (c) =>
+  c
+    .replace(RX_BLOCO, "")
+    .replace(RX_LINHA, (m, prefixo) => prefixo)
+    .replace(/\{\s*\}/g, "");
 
 const medirArquivo = (abs) => {
-  const c = readFileSync(abs, "utf8");
+  const bruto = readFileSync(abs, "utf8");
+  const c = semComentarios(bruto);
   const conta = (re) => (c.match(re) ?? []).length;
   return {
     abs,
@@ -63,12 +80,12 @@ const medirArquivo = (abs) => {
     r2xl: conta(RX.r2xl),
     h1: conta(RX.h1),
     h2: conta(RX.h2),
-    client: RX.client.test(c),
+    client: RX.client.test(bruto),
     i18n: RX.i18n.test(c),
     // Rota que so redireciona nao renderiza nada: "sem token / sem h1" ali nao e
     // divida, e sim a mesma inflacao de escopo que motivou o v2.
-    veu: RX_JSX.test(c) || !RX_REDIRECT.test(c),
-    linhas: c.split("\n").length,
+    veu: RX_JSX.test(c) || !RX_REDIRECT.test(bruto),
+    linhas: bruto.split("\n").length - (bruto.endsWith("\n") ? 1 : 0),
   };
 };
 
