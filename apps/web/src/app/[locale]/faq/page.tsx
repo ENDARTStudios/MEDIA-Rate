@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 import { serializeJsonLd } from "@/lib/json-ld";
+import { HomeContentSections } from "@/components/HomeContentSections";
 import { getInstitutionalContent } from "@/lib/institutional-content";
 
 /**
@@ -88,6 +89,11 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
               <p className="text-[#A0A0B8] leading-relaxed text-sm">{faq.answer}</p>
             </section>
           ))}
+        </div>
+        {/* D-657: as secoes de conteudo que esticavam a home (~8k px) vivem aqui, em rota
+            propria e indexavel, como pedido (opcao 2). A home volta a ser vitrine. */}
+        <div className="mt-16 border-t border-surface-border pt-12">
+          <HomeContentSections locale={locale} />
         </div>
       </div>
     </>
