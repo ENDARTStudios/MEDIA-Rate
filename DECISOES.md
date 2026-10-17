@@ -5787,3 +5787,25 @@ Fechando o que ainda faltava de interface em relação ao mockup v10.
 **Gates:** `tsc` 0 · `eslint` 0 (1 warning pré-existente) · **vitest 624/624** · **build 0** ("Compiled successfully") · verificação em runtime no ambiente local: HTTP 200, navbar com "Descobertas", seção "A régua" presente, `data-score-scale` presente, link `/discoveries` presente.
 
 **Dois erros meus, registrados.** (a) O link da navbar passou a referenciar `nav.discoveries` **antes** de a chave existir — chave ausente quebra a página em runtime e o `tsc` não vê; corrigido na sequência, com validação por `JSON.parse` e pela lista de chaves que o componente usa. (b) Meu primeiro `INSERT` da chave casou um `"discoveries"` de **outro namespace** e não fez nada — passou a ancorar na abertura do bloco `"nav": {` e a checar **dentro** dele.
+
+## D-654 — Plandex: avaliado e **não** vendorizado
+
+**Contexto.** Pedido para investigar <https://github.com/plandex-ai/plandex> e "implementar ao projeto".
+
+**O que é.** Agente de código de terminal (`plandex`/`pdx`) para tarefas grandes: ~2M tokens de
+contexto, project map por tree-sitter, sandbox de diff cumulativo, comandos com rollback,
+multi-modelo, autonomia configurável, debug automatizado, integração com git.
+
+**Decisão.** **Não vendorizar.** Plandex não é biblioteca — não há papel de dependência em
+`apps/web`/`apps/api`. Adotá-lo seria somar um segundo runtime de agente ao lado do harness DSH,
+dos `.zcode/agents/` e das `.zcode/skills/` já existentes, com custo de manutenção e credencial
+e sem ganho claro.
+
+**Fatos que sustentam a decisão (medidos em 2026-10-17).** WSL presente **apenas** com a distro
+`docker-desktop` (utilitária) e o projeto declara não funcionar em PowerShell/CMD; Docker 29.8.1
+presente; `plandex`/`pdx` ausentes; Plandex Cloud encerrando (03/10/2025), restando self-hosted;
+exige chave de provider, que é segredo (só em `.env`/secret manager).
+
+**Se for adotado depois.** Instalar distro Linux no WSL, instalar o CLI dentro dela, subir o local
+mode em Docker, exportar a chave no WSL e **desligar o commit automático** (D-457/T459 proíbe push
+direto; `main` é auto-deployado). Avaliação completa em `docs/03-development-process/AGENT_TOOLING.md`.

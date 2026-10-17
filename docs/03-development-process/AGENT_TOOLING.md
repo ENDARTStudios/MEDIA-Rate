@@ -101,3 +101,63 @@ diagramas) · `typesafe-ai` (skill instalada, dormente) · padrão Agent Skills 
 `anthropics/skills` (formato das skills acima). `codebase-memory-mcp` fica de
 observação — só reavaliar se o Graft mostrar lacuna concreta (ex.: edges HTTP
 entre apps/web e apps/api).
+
+---
+
+## Plandex — avaliado, **não** adotado como runtime do projeto
+
+Fonte: <https://github.com/plandex-ai/plandex> (README, consultado em 2026-10-17).
+
+**O que é.** Agente de código de **terminal** (`plandex`/`pdx`), open source, que planeja e
+executa tarefas grandes que atravessam dezenas de arquivos: contexto de ~2M tokens, project
+map com tree-sitter (30+ linguagens), **sandbox de diff cumulativo** (as mudanças ficam
+separadas dos arquivos do projeto até serem aplicadas), execução de comandos com rollback,
+combinação de modelos (Anthropic/OpenAI/Google/open source), autonomia configurável (de
+total a passo a passo), debug automatizado de build/lint/teste, chat com consciência do
+projeto, versionamento dos planos e integração com git (geração de mensagem de commit e
+commit automático **opcional**).
+
+**Por que não vendorizamos.** Plandex **não é biblioteca** — não existe papel de dependência
+em `apps/web` ou `apps/api`. Adotá-lo significa somar um **segundo runtime de agente** ao lado
+do que já existe neste repositório (harness DSH, `.zcode/agents/`, `.zcode/skills/`, Grafo
+Graft): custo de manutenção e de credencial, sem ganho claro, porque as funções que ele
+oferece já estão cobertas aqui.
+
+**Pré-requisitos, medidos nesta máquina.**
+- `wsl -l -v` → **só a distro `docker-desktop`** (utilitária). Falta uma distro Linux real, e o
+  próprio projeto declara que Plandex **não funciona** em CMD/PowerShell.
+- `docker --version` → **29.8.1 presente** (necessário para o local mode).
+- `plandex`/`pdx` → ausentes.
+- **Plandex Cloud está sendo encerrado** (03/10/2025, sem novos usuários) → resta o self-hosted.
+- Exige chave de provider (OpenRouter/Anthropic/…): segredo, então só em `.env`/secret manager.
+
+**Riscos, se adotado.**
+- **Commit automático tem de ficar desligado.** `main` é auto-deployado e push direto é
+  proibido (D-457/T459) — o fluxo aqui é branch dedicada + PR.
+- Custo de tokens em provider pago, com contexto grande.
+- Mais um serviço local (Docker) para manter.
+
+**Como adotar, se for decisão do Operador.** (1) instalar uma distro Linux no WSL (ex.: Ubuntu);
+(2) instalar o CLI dentro dela (`curl -sL https://plandex.ai/install.sh | bash`); (3) subir o
+local mode em Docker; (4) exportar a chave do provider no ambiente do WSL; (5) **desligar o
+commit automático** e trabalhar em branch, como qualquer agente deste repositório.
+
+## Ideias do Plandex **adotadas** neste repositório
+
+Depois da avaliação (D-654), estas ideias dele foram copiadas — cada uma no formato que já
+existe aqui, sem instalar a ferramenta:
+
+| Ideia do Plandex | Onde já vivia | O que foi feito |
+|---|---|---|
+| Project map (tree-sitter), carregar só o necessário por passo | **Graft** + regra GRAFT-FIRST no `AGENTS.md` | nada a fazer — já coberto |
+| Debug automatizado de build/lint/teste | CI + skill `media-rate-ci-ops` | nada a fazer — já coberto |
+| Chat com consciência do projeto | harness + `.zcode/agents/` | nada a fazer — já coberto |
+| **Sandbox de diff cumulativo / revisão antes de aplicar** | **não existia** | **`npm run review:diff`** — `scripts/review-diff.mjs`: mostra o diff acumulado contra `origin/main`, agrupa por área, conta o que está pendente no working tree e **avisa** acima de 40 arquivos / 1500 linhas ou com diff disperso entre áreas |
+| Commit automático | git — e **proibido** aqui | **rejeitada de propósito**: `main` é auto-deployado e push direto é proibido (D-457/T459) |
+
+**Por que só essa lacuna virou código.** As três primeiras ideias já estavam implementadas
+por outro caminho; repeti-las seria cerimônia. A quarta é a que faltava — e tem um caso real
+que a justifica: um commit único de **386 arquivos** (~21k linhas) atravessou áreas
+diferentes e custou várias rodadas de conserto, porque um diff desse tamanho **não é
+revisável**. O script é *advisory* (não bloqueia merge, não entra no CI): existe para o passo
+de **enxergar** o acumulado antes de publicá-lo.
