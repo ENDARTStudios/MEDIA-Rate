@@ -48,6 +48,10 @@ const PAUSA_SINOPSE_MANGA_MS = 350;
 const ESPERA_429_SINOPSE_MS = 2000;
 const KITSU_BASE = "https://kitsu.io/api/edge";
 const JIKAN_BASE = "https://api.jikan.moe/v4";
+// T-DADOS-15B: api.jikan.moe está bloqueado no egress do Railway; a API
+// oficial do MAL (mesmo id, pois o Jikan é wrapper do MAL) resolve os autores.
+const MAL_BASE = "https://api.myanimelist.net/v2";
+const MAL_CAMPOS_AUTORES = "authors{id,first_name,last_name}";
 // T-DADOS-14B: OpenLibrary editions + Google Books por ISBN — throttle de
 // 300ms entre as chamadas (a cota do Google Books é compartilhada).
 const PAUSA_SINOPSE_LIVRO_MS = 300;
@@ -821,6 +825,11 @@ export function orcamentoGoogleBooksRestante(hojeQueries: number): number {
 export interface AutorFonte {
   fonte_id: string;
   nome: string;
+  /**
+   * Fonte da linha em `midia_elenco`. Ausente = a fonte da própria mídia
+   * (OpenLibrary/Kitsu). T-DADOS-15B grava `mal` nos mangás de `jikan`.
+   */
+  fonte?: string;
 }
 
 /** Chave do work OpenLibrary sem o prefixo `/works/` (fonte_id = `OL…W`). */
@@ -877,6 +886,33 @@ export function mapearAutoresJikan(payload: any): (AutorFonte & { ordem: number 
     if (vistos.has(fonte_id)) continue;
     vistos.add(fonte_id);
     saida.push({ fonte_id, nome, ordem: indice });
+  }
+  return saida;
+}
+
+/**
+ * T-DADOS-15B: `GET https://api.myanimelist.net/v2/manga/<id>?fields=authors{...}`
+ * → `authors[].node` (`id`, `first_name`, `last_name`). O Jikan é um wrapper do
+ * MAL, então o `fonte_id` dos registros `jikan` é o id do MAL. Nome = primeiro
+ * + último nome (truncado a 120); sem `node.id`/nome o item é descartado.
+ * `ordem` é o índice na lista original da fonte (0-based), sem duplicatas.
+ */
+export function mapearAutoresMal(payload: any): (AutorFonte & { ordem: number })[] {
+  const autores = Array.isArray(payload?.authors) ? payload.authors : [];
+  const saida: (AutorFonte & { ordem: number })[] = [];
+  const vistos = new Set<string>();
+  for (const [indice, item] of autores.entries()) {
+    const node = item?.node;
+    const malId = Number(node?.id);
+    const partes = [node?.first_name, node?.last_name].filter(
+      (p): p is string => typeof p === "string" && p.trim() !== "",
+    );
+    const nome = truncarCampo(partes.join(" "), LIMITES.elencoNome);
+    if (!Number.isInteger(malId) || malId <= 0 || !nome) continue;
+    const fonte_id = String(malId);
+    if (vistos.has(fonte_id)) continue;
+    vistos.add(fonte_id);
+    saida.push({ fonte_id, nome, fonte: "mal", ordem: indice });
   }
   return saida;
 }
@@ -981,6 +1017,13 @@ export class BackfillService {
   private filaCriticaOmdbAtiva(): boolean {
     const adapter = this.coleta.adaptadores.find((a) => a.id === "omdb");
     return Boolean(adapter?.ativo());
+  }
+
+  /** T-DADOS-15A: a sinopse de livro está desligada por padrão — a fonte
+   * (Google Books) filtra por país/direitos no egress e devolve zero para
+   * clássicos (medido 2026-10-17). Liga só com opt-in explícito. */
+  private filaSinopseLivrosAtiva(): boolean {
+    return process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED === "true";
   }
 
   /**
@@ -2440,10 +2483,11 @@ export class BackfillService {
   }
 
   /**
-   * T-DADOS-13B: autores de MANGA por id EXATO da fonte — Jikan
-   * (`data.authors[]`) e Kitsu (`/manga/<id>/staff?include=person`, papéis de
-   * história/arte). Mesma gravação/watermark dos livros, com `fonte` da mídia
-   * (nunca `tmdb`, portanto linhas de elenco do TMDB não são tocadas).
+   * T-DADOS-13B: autores de MANGA por id EXATO da fonte — MAL (mangás de
+   * `jikan`, T-DADOS-15B) e Kitsu (`/manga/<id>/staff?include=person`, papéis
+   * de história/arte). Mesma gravação/watermark dos livros, com `fonte` da
+   * mídia (nunca `tmdb`, portanto linhas de elenco do TMDB não são tocadas);
+   * nos mangás de `jikan` a linha de elenco usa `fonte = "mal"`.
    */
   async enriquecerAutoresMangas(limite: number): Promise<{
     processados: number;
@@ -2505,13 +2549,13 @@ export class BackfillService {
             where: {
               midia_id_fonte_fonte_id: {
                 midia_id: m.id,
-                fonte: m.fonte,
+                fonte: a.fonte ?? m.fonte,
                 fonte_id: a.fonte_id,
               },
             },
             create: {
               midia_id: m.id,
-              fonte: m.fonte,
+              fonte: a.fonte ?? m.fonte,
               fonte_id: a.fonte_id,
               nome: a.nome,
               personagem: "Autor",
@@ -2588,19 +2632,29 @@ export class BackfillService {
     return autores;
   }
 
-  /** T-DADOS-13B: autores do MANGA pelo id exato (Jikan ou Kitsu). */
+  /** T-DADOS-13B/15B: autores do MANGA pelo id exato (MAL ou Kitsu). */
   private async autoresManga(
     fonte: string,
     fonteId: string,
   ): Promise<(AutorFonte & { ordem: number })[]> {
     const id = encodeURIComponent(String(fonteId));
     if (fonte === "jikan") {
+      // T-DADOS-15B: api.jikan.moe está bloqueado no egress do Railway. O
+      // `fonte_id` de `jikan` É o id do MAL (o Jikan é wrapper do MAL), então
+      // a API oficial resolve pelo mesmo id. Sem credencial/falha de rede o
+      // erro propaga e o título NÃO marca `autores_em` (retenta).
+      const clientId = process.env.MAL_CLIENT_ID;
+      if (!clientId) {
+        throw new Error(
+          "MAL_CLIENT_ID ausente: sem credencial para consultar autores de mangá no MAL.",
+        );
+      }
       const payload = await this.getJsonComThrottle<any>(
-        `${JIKAN_BASE}/manga/${id}`,
+        `${MAL_BASE}/manga/${id}?fields=${encodeURIComponent(MAL_CAMPOS_AUTORES)}`,
         PAUSA_AUTORES_MS,
-        { Accept: "application/json" },
+        { "Accept": "application/json", "X-MAL-CLIENT-ID": clientId },
       );
-      return mapearAutoresJikan(payload);
+      return mapearAutoresMal(payload);
     }
     if (fonte === "kitsu") {
       const payload = await this.getJsonComThrottle<any>(
@@ -3092,9 +3146,14 @@ export class BackfillService {
     const restanteOmdb = filaCriticaOmdbAtiva
       ? orcamentoOmdbRestante(await this.queriesOmdbHoje())
       : 0;
-    // T-DADOS-14B: fila limitada ao restante do teto diário do Google Books —
-    // cota esgotada = 0 (o drain não gira em falso até o dia seguinte).
-    const restanteGoogleBooks = orcamentoGoogleBooksRestante(await this.titulosSinopseLivroHoje());
+    // T-DADOS-15A: a fila de sinopse de livro fica dormente (0) sem opt-in
+    // explícito — a fonte mediu zero para clássicos no egress do Railway.
+    // T-DADOS-14B: quando ligada, limita ao restante do teto diário do Google
+    // Books — cota esgotada = 0 (o drain não gira em falso até o dia seguinte).
+    const filaSinopseLivrosAtiva = this.filaSinopseLivrosAtiva();
+    const restanteGoogleBooks = filaSinopseLivrosAtiva
+      ? orcamentoGoogleBooksRestante(await this.titulosSinopseLivroHoje())
+      : 0;
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
       seriesSemTemporada: Number(row?.sem_temp ?? 0),
@@ -3108,7 +3167,9 @@ export class BackfillService {
       localizacao: Number(row?.localizacao ?? 0),
       criticaOmdb: restanteOmdb > 0 ? Number(row?.critica_omdb ?? 0) : 0,
       sinopseMangaEn: Number(row?.sinopse_manga_en ?? 0),
-      sinopseLivros: Math.min(Number(row?.sinopse_livros ?? 0), restanteGoogleBooks),
+      sinopseLivros: filaSinopseLivrosAtiva
+        ? Math.min(Number(row?.sinopse_livros ?? 0), restanteGoogleBooks)
+        : 0,
       autoresLivros: Number(row?.autores_livros ?? 0),
       autoresMangas: Number(row?.autores_mangas ?? 0),
     };
