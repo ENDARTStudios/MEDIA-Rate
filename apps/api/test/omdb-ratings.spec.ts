@@ -150,7 +150,7 @@ describe("OmdbAdapter.coletar (T-DADOS-10)", () => {
     expect(notas).toEqual([]);
   });
 
-  it('Response "False" → vazio', async () => {
+  it('Response "False" por título inexistente → vazio (sem nota legítima)', async () => {
     fetchMock.mockResolvedValue({ Response: "False", Error: "Movie not found!" });
     const notas = await new OmdbAdapter().coletar({
       tipo: "FILME",
@@ -158,6 +158,42 @@ describe("OmdbAdapter.coletar (T-DADOS-10)", () => {
       idsExternos: { omdb: "tt9999999" },
     });
     expect(notas).toEqual([]);
+  });
+
+  it('Response "False" por cota → LANÇA em vez de devolver []', async () => {
+    fetchMock.mockResolvedValue({ Response: "False", Error: "Request limit reached!" });
+    const promessa = new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "The Hours",
+      idsExternos: { omdb: "tt0274558" },
+    });
+    // Lançar (não resolver []) é o que preserva as notas no deleteMany.
+    await expect(promessa).rejects.toThrow(/limite de requisições/i);
+  });
+
+  it("credencial inválida → LANÇA (não vira ausência de nota)", async () => {
+    fetchMock.mockResolvedValue({
+      Response: "False",
+      Error: "Invalid API key provided!",
+    });
+    await expect(
+      new OmdbAdapter().coletar({
+        tipo: "FILME",
+        titulo: "The Hours",
+        idsExternos: { omdb: "tt0274558" },
+      }),
+    ).rejects.toThrow(/limite de requisições/i);
+  });
+
+  it("HTTP 401 sem JSON → LANÇA (defensivo)", async () => {
+    fetchMock.mockRejectedValue(new Error("HTTP 401 em https://www.omdbapi.com/"));
+    await expect(
+      new OmdbAdapter().coletar({
+        tipo: "FILME",
+        titulo: "The Hours",
+        idsExternos: { omdb: "tt0274558" },
+      }),
+    ).rejects.toThrow(/HTTP 401/);
   });
 
   it("sanitizarTituloOmdb remove aspas e normaliza espaços", () => {
