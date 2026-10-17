@@ -31,6 +31,8 @@ const PAUSA_IGDB_MS = 300;
 const ESPERA_429_MS = 1500;
 // T-DADOS-07: OpenLibrary é API aberta e educada — throttle mínimo entre títulos.
 const PAUSA_OPENLIBRARY_MS = 250;
+// T-DADOS-10: OMDb é grátis e limitado (1k/dia) — throttle mínimo por título.
+const PAUSA_OMDB_MS = 300;
 
 export type BackfillTipo =
   | "metadados"
@@ -45,7 +47,9 @@ export type BackfillTipo =
   // T-DADOS-09: gêneros de games no IGDB (por id; 23 slugs do /v4/genres).
   | "generosGames"
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
-  | "localizacao";
+  | "localizacao"
+  // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
+  | "criticaOmdb";
 
 interface BackfillEstado {
   executando: boolean;
@@ -631,6 +635,39 @@ async function obterTokenTwitch(): Promise<string> {
 }
 
 // ===========================================================================
+// T-DADOS-10 — crítica via OMDb (lookup exato por id IMDb)
+// ===========================================================================
+
+/**
+ * OMDb grátis = 1.000 requisições/dia. O teto do job é 900 (margem de 10%
+ * sob o limite) para o drain não queimar a cota na primeira hora e ficar em
+ * 429 pelo resto do dia.
+ */
+export const ORCAMENTO_OMDB_DIARIO = 900;
+
+/** Id IMDb válido (`tt` + 7+ dígitos) — o mesmo formato do endpoint ?i=. */
+const ID_IMDB = /^tt[0-9]{7,}$/;
+
+/** T-DADOS-10: quantas consultas OMDb ainda cabem hoje (nunca negativo). */
+export function orcamentoOmdbRestante(hojeQueries: number): number {
+  const usadas = Number.isFinite(hojeQueries) ? Math.max(0, Math.trunc(hojeQueries)) : 0;
+  return Math.max(0, ORCAMENTO_OMDB_DIARIO - usadas);
+}
+
+/**
+ * T-DADOS-10: extrai o id IMDb do payload do TMDB. Filme traz `imdb_id` no
+ * topo; série traz `external_ids.imdb_id` (com append_to_response). Qualquer
+ * outro shape/lixo devolve null (ausência honesta — não gasta cota do OMDb).
+ */
+export function imdbIdDoPayload(payload: any, tipo: string): string | null {
+  const bruto =
+    tipo === "FILME" ? payload?.imdb_id : tipo === "SERIE" ? payload?.external_ids?.imdb_id : null;
+  if (typeof bruto !== "string") return null;
+  const id = bruto.trim();
+  return ID_IMDB.test(id) ? id : null;
+}
+
+// ===========================================================================
 // Serviço
 // ===========================================================================
 
@@ -647,6 +684,7 @@ export class BackfillService {
     avaliacaoLivros: estadoVazio(),
     localizacao: estadoVazio(),
     generosGames: estadoVazio(),
+    criticaOmdb: estadoVazio(),
   };
 
   constructor(
@@ -688,6 +726,27 @@ export class BackfillService {
   private filaAvaliacaoLivrosAtiva(): boolean {
     const adapter = this.coleta.adaptadores.find((a) => a.id === "openlibrary");
     return Boolean(adapter?.ativo());
+  }
+
+  /** T-DADOS-10: a fila OMDb só existe quando a fonte pode rodar. */
+  private filaCriticaOmdbAtiva(): boolean {
+    const adapter = this.coleta.adaptadores.find((a) => a.id === "omdb");
+    return Boolean(adapter?.ativo());
+  }
+
+  /**
+   * T-DADOS-10: títulos distintos que já consumiram a cota do dia
+   * (OMDb/RT/Metacritic). Cada título processado grava ao menos uma linha em
+   * avaliacao_fonte com `coletado_em` de hoje.
+   */
+  private async queriesOmdbHoje(): Promise<number> {
+    const r = await this.prisma.$queryRawUnsafe<{ usados: number | bigint }[]>(
+      `SELECT COUNT(DISTINCT a.midia_id)::int AS usados
+         FROM avaliacao_fonte a
+        WHERE a.fonte IN ('omdb','rottentomatoes','metacritic')
+          AND a.coletado_em::date = CURRENT_DATE`,
+    );
+    return Number(r[0]?.usados ?? 0);
   }
 
   private async tmdb(caminho: string, chave: string): Promise<any> {
@@ -1615,6 +1674,156 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-10: crítica de FILME/SERIE via OMDb **por id IMDb**.
+   *
+   * Por que existe: 10.998 títulos FILME+SERIE e só 148 têm qualquer crítica
+   * externa (metacritic = 0 linhas). O TMDB expõe o `imdb_id` (filme:
+   * `imdb_id`; série: `external_ids.imdb_id`) e o endpoint `?i=<id>` do OMDb
+   * é EXATO e já traz `Ratings` (RT/Metacritic) sem `tomatoes=true`.
+   *
+   * Teto diário: a cota grátis é 1.000 req/dia; o job processa no máximo
+   * `ORCAMENTO_OMDB_DIARIO` (900) títulos por dia, contando os títulos
+   * distintos já consultados hoje em avaliacao_fonte (omdb/RT/MC). Sem
+   * `imdb_id` não há requisição: marca o watermark e segue (ausência
+   * honesta — não gasta cota).
+   *
+   * Watermark `critica_omdb_em` gravado SEMPRE ao fim do título (com ou sem
+   * nota/imdb_id); exceção de rede/429 não marca (retenta amanhã). Nunca
+   * lança por título.
+   */
+  async enriquecerCriticaOmdb(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semImdb: number;
+    semNota: number;
+    falhas: number;
+    queries: number;
+  }> {
+    const chave = process.env.TMDB_API_KEY;
+    if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
+    if (this.estado.criticaOmdb.executando) {
+      throw new BadRequestException("Job crítica OMDb já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.criticaOmdb = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+
+    const usadosHoje = await this.queriesOmdbHoje();
+    const restante = orcamentoOmdbRestante(usadosHoje);
+    if (restante <= 0) {
+      this.estado.criticaOmdb.executando = false;
+      this.estado.criticaOmdb.atual = "fim: cota diária atingida";
+      this.logger.log(
+        `Backfill crítica OMDb: cota diária atingida (${usadosHoje}/${ORCAMENTO_OMDB_DIARIO}) — nada processado.`,
+      );
+      return { processados: 0, ok: 0, semImdb: 0, semNota: 0, falhas: 0, queries: 0 };
+    }
+
+    const limiteEfetivo = Math.min(Math.max(Math.trunc(limite) || 1, 1), restante);
+    const alvoBruto = (await this.prisma.$queryRawUnsafe<
+      { id: string; tipo: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.tipo::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+         AND m.tipo IN ('FILME','SERIE') AND m.critica_omdb_em IS NULL
+       ORDER BY m.id
+       LIMIT ${limiteEfetivo}`,
+    )) as any[];
+    // Defensivo: mesmo que o mock/driver devolva mais linhas que o LIMIT.
+    const alvo = alvoBruto.slice(0, limiteEfetivo);
+    const adapter = this.coleta.adaptadores.find((a) => a.id === "omdb");
+    this.logger.log(
+      `Backfill crítica OMDb: ${alvo.length} títulos alvo (usados hoje=${usadosHoje}, restante=${restante}).`,
+    );
+    let semImdb = 0;
+    let semNota = 0;
+    let queries = 0;
+    for (const m of alvo) {
+      this.estado.criticaOmdb.processados++;
+      this.estado.criticaOmdb.atual = m.titulo;
+      try {
+        if (!adapter || !adapter.ativo()) {
+          throw new Error("Adapter omdb indisponível ou inativo.");
+        }
+        const caminho = `/${m.tipo === "SERIE" ? "tv" : "movie"}/${encodeURIComponent(
+          m.fonte_id,
+        )}?append_to_response=external_ids`;
+        const payload = await this.tmdb(caminho, chave);
+        const imdbId = imdbIdDoPayload(payload, m.tipo);
+        if (!imdbId) {
+          // Ausência honesta: sem id não há consulta ao OMDb (não gasta cota).
+          semImdb++;
+        } else {
+          await this.pausa(PAUSA_OMDB_MS);
+          queries++;
+          const notas = await adapter.coletar({
+            tipo: m.tipo,
+            titulo: m.titulo,
+            idsExternos: { omdb: imdbId },
+          });
+          if (notas.length === 0) {
+            semNota++;
+          } else {
+            for (const nota of notas) {
+              // URL vazia no update preserva a anterior (Prisma omite undefined).
+              const urlNova = nota.url && nota.url.trim() ? nota.url : undefined;
+              await this.prisma.avaliacaoFonte.upsert({
+                where: { midia_id_fonte: { midia_id: m.id, fonte: nota.fonte } },
+                create: {
+                  midia_id: m.id,
+                  fonte: nota.fonte,
+                  rating: nota.rating,
+                  media_fonte: nota.media_fonte,
+                  desvio_fonte: nota.desvio_fonte,
+                  votos: nota.votos,
+                  url: urlNova,
+                },
+                update: {
+                  rating: nota.rating,
+                  media_fonte: nota.media_fonte,
+                  desvio_fonte: nota.desvio_fonte,
+                  votos: nota.votos,
+                  url: urlNova,
+                },
+              });
+            }
+            // O bucket Crítica do MEDIA Score só reflete o dado após o recálculo.
+            await this.mediaScore.recalcularEPersistir(m.id);
+            this.estado.criticaOmdb.ok++;
+          }
+        }
+        // Watermark SEMPRE (mesmo sem id/nota): sem isso a fila travaria em
+        // todo título que o OMDb não pontua.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { critica_omdb_em: new Date() },
+        });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.criticaOmdb.falhas++;
+        this.logger.warn(`Backfill crítica OMDb falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.criticaOmdb.executando = false;
+    this.estado.criticaOmdb.atual = `fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}`;
+    this.logger.log(
+      `Backfill crítica OMDb fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}.`,
+    );
+    return {
+      processados: this.estado.criticaOmdb.processados,
+      ok: this.estado.criticaOmdb.ok,
+      semImdb,
+      semNota,
+      falhas: this.estado.criticaOmdb.falhas,
+      queries,
+    };
+  }
+
+  /**
    * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
    * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
    * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
@@ -1974,6 +2183,8 @@ export class BackfillService {
     avaliacaoLivros: number;
     // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
     localizacao: number;
+    // T-DADOS-10: fila da crítica de FILME/SERIE via OMDb (por id IMDb).
+    criticaOmdb: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -1987,6 +2198,7 @@ export class BackfillService {
         arestas_franquia: number;
         avaliacao_livros: number;
         localizacao: number;
+        critica_omdb: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -2016,12 +2228,22 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
             AND m.localizacao_em IS NULL) AS localizacao,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
+            AND m.tipo IN ('FILME','SERIE')
+            AND m.critica_omdb_em IS NULL) AS critica_omdb,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
     // T-DADOS-07: fila condicionada ao gate da fonte — inativa = 0 (dormente).
     const filaAvaliacaoLivros = this.filaAvaliacaoLivrosAtiva()
       ? Number(row?.avaliacao_livros ?? 0)
+      : 0;
+    // T-DADOS-10: fila gateada pela fonte E pelo orçamento diário do OMDb —
+    // cota esgotada = 0 (o drain não gira em falso até o dia seguinte).
+    const filaCriticaOmdbAtiva = this.filaCriticaOmdbAtiva();
+    const restanteOmdb = filaCriticaOmdbAtiva
+      ? orcamentoOmdbRestante(await this.queriesOmdbHoje())
       : 0;
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
@@ -2034,6 +2256,7 @@ export class BackfillService {
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
+      criticaOmdb: restanteOmdb > 0 ? Number(row?.critica_omdb ?? 0) : 0,
     };
   }
 
@@ -2103,6 +2326,16 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.localizacao > 0) {
         const r = await this.enriquecerLocalizacao(2000);
         lotes.push({ tipo: "localizacao", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-10: crítica de FILME/SERIE via OMDb (throttle 300ms, teto
+      // diário de 900). `ok` soma sem_imdb/sem_nota: saíram da fila.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.criticaOmdb ?? 0) > 0) {
+        const r = await this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO);
+        lotes.push({
+          tipo: "criticaOmdb",
+          ok: r.ok + r.semImdb + r.semNota,
+          falhas: r.falhas,
+        });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);

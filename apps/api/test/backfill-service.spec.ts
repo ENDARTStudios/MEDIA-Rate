@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import {
   BackfillService,
@@ -20,6 +20,10 @@ import {
   mapearLocalizacao,
   classificacaoDeCertificado,
   resetTokenTwitchIgdb,
+  // T-DADOS-10: crítica via OMDb (lookup exato por id IMDb + teto diário).
+  orcamentoOmdbRestante,
+  imdbIdDoPayload,
+  ORCAMENTO_OMDB_DIARIO,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -45,6 +49,8 @@ function makeService(over: any = {}) {
   const prisma = {
     $queryRawUnsafe: vi.fn(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      // T-DADOS-10: cota diária do OMDb (títulos distintos já consultados hoje).
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: over.usados ?? 0 }];
       return over.alvo ?? [];
     }),
     midiaElenco: { upsert: vi.fn(async ({ create }: any) => create) },
@@ -90,9 +96,15 @@ function makeService(over: any = {}) {
     ativo: vi.fn(() => true),
     coletar: vi.fn(async () => [] as any[]),
   };
-  const coleta = { adaptadores: [openlibrary] };
+  // T-DADOS-10: adapter real do ColetaService (mockado — nenhuma rede).
+  const omdb = {
+    id: "omdb",
+    ativo: vi.fn(() => true),
+    coletar: vi.fn(async () => [] as any[]),
+  };
+  const coleta = { adaptadores: [openlibrary, omdb] };
   const svc = new BackfillService(prisma as any, mediaScore as any, coleta as any);
-  return { svc, prisma, mediaScore, coleta, openlibrary };
+  return { svc, prisma, mediaScore, coleta, openlibrary, omdb };
 }
 
 describe("mapearMetadados (T178)", () => {
@@ -470,11 +482,13 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao (T-DADOS-01/02/03/06/07/08/09)", () => {
-  it("conta as 10 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb (T-DADOS-01/02/03/06/07/08/09/10)", () => {
+  it("conta as 11 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      // T-DADOS-10: consulta separada da cota diária do OMDb.
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
       expect(sql).toContain("critica_igdb_em IS NULL");
@@ -484,6 +498,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       expect(sql).toContain("avaliacoes_atualizadas_em IS NULL");
       // T-DADOS-08: fila da localização (en/es + classificação) do TMDB.
       expect(sql).toContain("localizacao_em IS NULL");
+      // T-DADOS-10: fila da crítica via OMDb (watermark por id IMDb).
+      expect(sql).toContain("critica_omdb_em IS NULL");
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
       // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
       expect(sql).toContain("franquia_membros");
@@ -500,6 +516,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           arestas_franquia: 260,
           avaliacao_livros: 600,
           localizacao: 10570,
+          critica_omdb: 10998,
         },
       ];
     });
@@ -514,6 +531,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       arestasFranquia: 260,
       avaliacaoLivros: 600,
       localizacao: 10570,
+      criticaOmdb: 10998,
     });
   });
 
@@ -534,6 +552,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       arestasFranquia: 0,
       avaliacaoLivros: 0,
       localizacao: 0,
+      criticaOmdb: 0,
     });
   });
 });
@@ -1421,6 +1440,263 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "avaliacaoLivros", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerAvaliacaoLivros).toHaveBeenCalledWith(800);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-10 — crítica via OMDb (lookup exato por id IMDb + teto diário)
+// ===========================================================================
+
+describe("orcamentoOmdbRestante / imdbIdDoPayload (T-DADOS-10)", () => {
+  it("teto de 900/dia (margem de 10% sob o limite grátis de 1.000)", () => {
+    expect(ORCAMENTO_OMDB_DIARIO).toBe(900);
+    expect(orcamentoOmdbRestante(0)).toBe(900);
+    expect(orcamentoOmdbRestante(890)).toBe(10);
+    expect(orcamentoOmdbRestante(900)).toBe(0);
+    expect(orcamentoOmdbRestante(1200)).toBe(0);
+    expect(orcamentoOmdbRestante(Number.NaN)).toBe(900);
+  });
+
+  it("filme lê imdb_id; série lê external_ids.imdb_id; lixo é rejeitado", () => {
+    expect(imdbIdDoPayload({ imdb_id: "tt0274558" }, "FILME")).toBe("tt0274558");
+    expect(imdbIdDoPayload({ external_ids: { imdb_id: "tt0903747" } }, "SERIE")).toBe("tt0903747");
+    expect(imdbIdDoPayload({ imdb_id: "abc" }, "FILME")).toBeNull();
+    expect(imdbIdDoPayload({ imdb_id: "tt12" }, "FILME")).toBeNull();
+    expect(imdbIdDoPayload({ external_ids: {} }, "SERIE")).toBeNull();
+    expect(imdbIdDoPayload(null, "FILME")).toBeNull();
+    // O shape de série não serve para filme (e vice-versa).
+    expect(imdbIdDoPayload({ external_ids: { imdb_id: "tt0903747" } }, "FILME")).toBeNull();
+    expect(imdbIdDoPayload({ imdb_id: "tt0274558" }, "SERIE")).toBeNull();
+  });
+});
+
+describe("BackfillService.enriquecerCriticaOmdb (T-DADOS-10)", () => {
+  const envOriginal = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.TMDB_API_KEY = "tmdb-test";
+  });
+
+  afterEach(() => {
+    process.env = { ...envOriginal };
+  });
+
+  const alvo = [{ id: "m-filme-1", tipo: "FILME", fonte_id: "8467", titulo: "The Hours" }];
+
+  /** Mock de contarPendentes com a fila OMDb e a cota do dia. */
+  function mockContagens(prisma: any, opts: { usados: number; pendentes?: number; alvo?: any[] }) {
+    prisma.$queryRawUnsafe.mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: opts.usados }];
+      if (/AS critica_omdb/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: opts.pendentes ?? 10998,
+          },
+        ];
+      }
+      return opts.alvo ?? [];
+    });
+  }
+
+  it("passa idsExternos.omdb ao adapter e busca o TMDB por id com external_ids", async () => {
+    const { svc, omdb } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    omdb.coletar.mockResolvedValue([
+      {
+        fonte: "omdb",
+        rating: 7.5,
+        media_fonte: 7,
+        desvio_fonte: 1.5,
+        votos: 140000,
+        url: "https://www.imdb.com/title/tt0274558",
+      },
+    ]);
+    const r = await svc.enriquecerCriticaOmdb(10);
+    expect((svc as any).tmdb).toHaveBeenCalledWith(
+      "/movie/8467?append_to_response=external_ids",
+      "tmdb-test",
+    );
+    expect(omdb.coletar).toHaveBeenCalledWith({
+      tipo: "FILME",
+      titulo: "The Hours",
+      idsExternos: { omdb: "tt0274558" },
+    });
+    // throttle OMDb antes da consulta.
+    expect((svc as any).pausa).toHaveBeenCalledWith(300);
+    expect(r).toMatchObject({
+      processados: 1,
+      ok: 1,
+      semImdb: 0,
+      semNota: 0,
+      falhas: 0,
+      queries: 1,
+    });
+  });
+
+  it("teto: com 900 consultados hoje a fila zera e o job não processa nada", async () => {
+    const { svc, prisma, omdb } = makeService({ alvo, usados: 900 });
+    mockContagens(prisma, { usados: 900, alvo });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ criticaOmdb: 0 });
+    const r = await svc.enriquecerCriticaOmdb(900);
+    expect(r).toEqual({
+      processados: 0,
+      ok: 0,
+      semImdb: 0,
+      semNota: 0,
+      falhas: 0,
+      queries: 0,
+    });
+    expect(omdb.coletar).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("teto: com 890 usados processa no máximo 10 títulos (corte do alvo)", async () => {
+    const muitos = Array.from({ length: 15 }, (_, i) => ({
+      id: `m-${i}`,
+      tipo: "FILME",
+      fonte_id: String(i + 1),
+      titulo: `Título ${i}`,
+    }));
+    const { svc, prisma, omdb } = makeService({ alvo: muitos, usados: 890 });
+    mockContagens(prisma, { usados: 890, alvo: muitos });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    omdb.coletar.mockResolvedValue([]);
+    // A fila ainda aparece com 890 usados (restam 10).
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ criticaOmdb: 10998 });
+    const r = await svc.enriquecerCriticaOmdb(900);
+    expect(r.processados).toBe(10);
+    expect(r.queries).toBe(10);
+    expect(omdb.coletar).toHaveBeenCalledTimes(10);
+  });
+
+  it("sem imdb_id: marca o watermark e NÃO consulta o OMDb (não gasta cota)", async () => {
+    const { svc, prisma, omdb } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({}));
+    const r = await svc.enriquecerCriticaOmdb(10);
+    expect(r).toMatchObject({
+      processados: 1,
+      ok: 0,
+      semImdb: 1,
+      semNota: 0,
+      falhas: 0,
+      queries: 0,
+    });
+    expect(omdb.coletar).not.toHaveBeenCalled();
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-filme-1" },
+      data: { critica_omdb_em: expect.any(Date) },
+    });
+  });
+
+  it("com nota: upsert por fonte (omdb/RT/MC) e recalcula o score do MESMO título", async () => {
+    const { svc, prisma, mediaScore, omdb } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    const url = "https://www.imdb.com/title/tt0274558";
+    omdb.coletar.mockResolvedValue([
+      { fonte: "omdb", rating: 7.5, media_fonte: 7, desvio_fonte: 1.5, votos: 140000, url },
+      { fonte: "rottentomatoes", rating: 79, media_fonte: 70, desvio_fonte: 15, url },
+      { fonte: "metacritic", rating: 80, media_fonte: 70, desvio_fonte: 15, url },
+    ]);
+    const r = await svc.enriquecerCriticaOmdb(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, falhas: 0, queries: 1 });
+    expect(prisma.avaliacaoFonte.upsert).toHaveBeenCalledTimes(3);
+    expect(prisma.avaliacaoFonte.upsert).toHaveBeenCalledWith({
+      where: { midia_id_fonte: { midia_id: "m-filme-1", fonte: "metacritic" } },
+      create: {
+        midia_id: "m-filme-1",
+        fonte: "metacritic",
+        rating: 80,
+        media_fonte: 70,
+        desvio_fonte: 15,
+        votos: undefined,
+        url,
+      },
+      update: {
+        rating: 80,
+        media_fonte: 70,
+        desvio_fonte: 15,
+        votos: undefined,
+        url,
+      },
+    });
+    expect(mediaScore.recalcularEPersistir).toHaveBeenCalledWith("m-filme-1");
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-filme-1" },
+      data: { critica_omdb_em: expect.any(Date) },
+    });
+  });
+
+  it("URL vazia no update preserva a anterior (undefined omite a coluna)", async () => {
+    const { svc, prisma, omdb } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    omdb.coletar.mockResolvedValue([
+      { fonte: "omdb", rating: 7.5, media_fonte: 7, desvio_fonte: 1.5, url: "" },
+    ]);
+    await svc.enriquecerCriticaOmdb(10);
+    const chamada = (prisma.avaliacaoFonte.upsert as any).mock.calls[0][0];
+    expect(chamada.update.url).toBeUndefined();
+    expect(chamada.create.url).toBeUndefined();
+  });
+
+  it("erro de rede/429: falha o título e NÃO marca o watermark (retenta amanhã)", async () => {
+    const { svc, prisma, omdb } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    omdb.coletar.mockRejectedValue(new Error("HTTP 429"));
+    const r = await svc.enriquecerCriticaOmdb(10);
+    expect(r).toEqual({
+      processados: 1,
+      ok: 0,
+      semImdb: 0,
+      semNota: 0,
+      falhas: 1,
+      queries: 1,
+    });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("fonte inativa/ausente: fila 0 e drenarLote NÃO chama o job (dormente)", async () => {
+    const { svc, prisma, omdb } = makeService({ alvo: [] });
+    omdb.ativo.mockReturnValue(false);
+    mockContagens(prisma, { usados: 0, pendentes: 10998, alvo: [] });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ criticaOmdb: 0 });
+    const job = vi.spyOn(svc, "enriquecerCriticaOmdb");
+    const r = await svc.drenarLote(60_000);
+    expect(job).not.toHaveBeenCalled();
+    expect(r.lotes).toEqual([]);
+  });
+
+  it("drenarLote consome a fila crítica OMDb e soma sem_imdb/sem_nota ao ok", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    vi.spyOn(svc, "enriquecerCriticaOmdb").mockResolvedValue({
+      processados: 4,
+      ok: 1,
+      semImdb: 2,
+      semNota: 1,
+      falhas: 0,
+      queries: 1,
+    });
+    mockContagens(prisma, { usados: 0, pendentes: 10, alvo: [] });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "criticaOmdb", ok: 4, falhas: 0 }]);
+    expect(svc.enriquecerCriticaOmdb).toHaveBeenCalledWith(900);
   });
 });
 

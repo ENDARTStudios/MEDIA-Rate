@@ -1,11 +1,43 @@
-import { describe, it, expect } from "vitest";
-import { mapearRatingsOmdb } from "../src/modules/media-score/adapters/omdb.adapter.js";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 /**
  * T175 — crítica real via array Ratings do OMDb (sem scraping): RT "85%" e
  * Metacritic "77/100" viram NotaColetada na escala 0-100 (bucket crítica do
  * registry); fontes desconhecidas e valores vazios são ignorados.
+ *
+ * T-DADOS-10 — lookup EXATO por `i=<imdb_id>` quando o TMDB fornece o id;
+ * fallback `t=<titulo>&y=<ano>` com validação de identidade. Nenhuma rede:
+ * `fetchJson` é mockado.
  */
+
+vi.mock("../src/modules/media-score/adapters/http.utils.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../src/modules/media-score/adapters/http.utils.js")>();
+  return { ...actual, fetchJson: vi.fn() };
+});
+
+import { fetchJson } from "../src/modules/media-score/adapters/http.utils.js";
+import {
+  OmdbAdapter,
+  mapearRatingsOmdb,
+  sanitizarTituloOmdb,
+} from "../src/modules/media-score/adapters/omdb.adapter.js";
+
+const fetchMock = vi.mocked(fetchJson);
+
+/** Resposta real medida em produção para "The Hours" (tt0274558). */
+const THE_HOURS = {
+  Title: "The Hours",
+  imdbID: "tt0274558",
+  imdbRating: "7.5",
+  imdbVotes: "140,000",
+  Response: "True",
+  Ratings: [
+    { Source: "Internet Movie Database", Value: "7.5/10" },
+    { Source: "Rotten Tomatoes", Value: "79%" },
+    { Source: "Metacritic", Value: "80/100" },
+  ],
+};
 
 describe("mapearRatingsOmdb (T175)", () => {
   const url = "https://www.imdb.com/title/tt0111161";
@@ -33,5 +65,102 @@ describe("mapearRatingsOmdb (T175)", () => {
 
   it("sem Ratings → vazio", () => {
     expect(mapearRatingsOmdb(undefined, url)).toEqual([]);
+  });
+});
+
+describe("OmdbAdapter.coletar (T-DADOS-10)", () => {
+  const envOriginal = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.OMDB_API_KEY = "omdb-test";
+  });
+
+  afterEach(() => {
+    process.env = { ...envOriginal };
+  });
+
+  function paramsDaChamada(): URLSearchParams {
+    const url = String(fetchMock.mock.calls[0][0]);
+    return new URL(url).searchParams;
+  }
+
+  it("com id IMDb: usa i= exato e NÃO envia t=/y=", async () => {
+    fetchMock.mockResolvedValue(THE_HOURS);
+    const notas = await new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "The Hours",
+      ano: 2002,
+      idsExternos: { omdb: "tt0274558" },
+    });
+    const params = paramsDaChamada();
+    expect(params.get("i")).toBe("tt0274558");
+    expect(params.get("t")).toBeNull();
+    expect(params.get("y")).toBeNull();
+    expect(params.get("tomatoes")).toBeNull();
+    // The Hours: IMDb 7.5 + RT 79 + Metacritic 80 = 3 notas.
+    expect(notas).toHaveLength(3);
+    expect(notas[0]).toMatchObject({
+      fonte: "omdb",
+      rating: 7.5,
+      votos: 140000,
+      url: "https://www.imdb.com/title/tt0274558",
+    });
+    expect(notas[1]).toMatchObject({ fonte: "rottentomatoes", rating: 79 });
+    expect(notas[2]).toMatchObject({ fonte: "metacritic", rating: 80 });
+  });
+
+  it("sem id: cai no fallback t= + y=", async () => {
+    fetchMock.mockResolvedValue(THE_HOURS);
+    await new OmdbAdapter().coletar({ tipo: "FILME", titulo: "The Hours", ano: 2002 });
+    const params = paramsDaChamada();
+    expect(params.get("t")).toBe("The Hours");
+    expect(params.get("y")).toBe("2002");
+    expect(params.get("i")).toBeNull();
+  });
+
+  it("id inválido (abc) cai no fallback textual", async () => {
+    fetchMock.mockResolvedValue(THE_HOURS);
+    await new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "The Hours",
+      idsExternos: { omdb: "abc" },
+    });
+    const params = paramsDaChamada();
+    expect(params.get("i")).toBeNull();
+    expect(params.get("t")).toBe("The Hours");
+  });
+
+  it("fallback sanitiza aspas do título", async () => {
+    fetchMock.mockResolvedValue(THE_HOURS);
+    await new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: '  The "Hours"  ',
+    });
+    expect(paramsDaChamada().get("t")).toBe("The Hours");
+  });
+
+  it("identidade: id exato devolvendo outro imdbID é descartado", async () => {
+    fetchMock.mockResolvedValue({ ...THE_HOURS, imdbID: "tt0000001" });
+    const notas = await new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "The Hours",
+      idsExternos: { omdb: "tt0274558" },
+    });
+    expect(notas).toEqual([]);
+  });
+
+  it('Response "False" → vazio', async () => {
+    fetchMock.mockResolvedValue({ Response: "False", Error: "Movie not found!" });
+    const notas = await new OmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "Inexistente",
+      idsExternos: { omdb: "tt9999999" },
+    });
+    expect(notas).toEqual([]);
+  });
+
+  it("sanitizarTituloOmdb remove aspas e normaliza espaços", () => {
+    expect(sanitizarTituloOmdb("  A \"Vida\" é 'Bela'  ")).toBe("A Vida é Bela");
   });
 });
