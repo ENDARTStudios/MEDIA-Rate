@@ -27,6 +27,7 @@
     "design:hex": "node apps/web/scripts/design-hex-census.mjs",
     "review:diff": "node scripts/review-diff.mjs",
     "scan:agents": "node scripts/scan-agents.mjs",
+    "audit:routes": "node scripts/bots/audit-routes.mjs",
     "i18n:source": "node apps/web/scripts/i18n-source-census.mjs",
     "i18n:source:list": "node apps/web/scripts/i18n-source-census.mjs --list",
     "design:visual": "node .zcode/skills/visual-qa/scripts/visual-qa.mjs",
