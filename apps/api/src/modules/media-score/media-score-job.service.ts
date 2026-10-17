@@ -13,6 +13,29 @@ type MidiaParaColeta = Pick<
   "id" | "tipo" | "titulo" | "ano_lancamento" | "fonte" | "fonte_id"
 >;
 
+// T-DADOS-18: o job não pode depender de um timer de 7 dias — cada deploy
+// reiniciava o container e re-armava o intervalo inteiro, então o passe nunca
+// disparava. Ticks curtos + filtro de vencimento (REFRESH_INTERVAL_DAYS) no
+// `where` de `executar()` é que governam a cadência semanal.
+const FIRST_TICK_MS_PADRAO = 120_000; // 2 min após o boot
+const FIRST_TICK_MS_MINIMO = 30_000; // 30 s
+const INTERVAL_MS_PADRAO = 3_600_000; // 1 h
+const INTERVAL_MS_MINIMO = 300_000; // 5 min
+
+/** Lê uma duração em ms do env, aplicando default e mínimo. */
+function lerDuracaoMs(valor: string | undefined, padrao: number, minimo: number): number {
+  const numero = Number(valor);
+  if (!Number.isFinite(numero) || numero <= 0) return padrao;
+  return Math.max(minimo, numero);
+}
+
+/** Humaniza a duração para o log de boot (min/h). */
+function formatarDuracao(ms: number): string {
+  if (ms % 3_600_000 === 0) return `${ms / 3_600_000} h`;
+  if (ms % 60_000 === 0) return `${ms / 60_000} min`;
+  return `${Math.round(ms / 1000)} s`;
+}
+
 export interface ResultadoColetaEPersistir {
   coletadas: ResultadoColeta["nota"][];
   score: (MediaScoreV3Result & { calculado_em: Date }) | null;
@@ -25,19 +48,24 @@ export interface ResultadoColetaEPersistir {
  * `avaliacoes_atualizadas_em` anterior a REFRESH_INTERVAL_DAYS — default 7).
  * Mídias frescas são puladas (0 chamadas externas desnecessárias).
  *
- * - Cadência SEMANAL: agenda o próximo run em MEDIA_SCORE_JOB_TIME (default
- *   03:05 local) a REFRESH_INTERVAL_DAYS dias à frente (ver refresh.config.ts).
+ * - Cadência SEMANAL pelo FILTRO de vencimento (REFRESH_INTERVAL_DAYS, ver
+ *   refresh.config.ts), não pelo timer: ticks curtos (1º em ~2 min; depois a
+ *   cada 1 h) chamam `executar()`, que é no-op barato quando nada venceu.
  * - Ativo apenas em produção (NODE_ENV=production); desative com
  *   MEDIA_SCORE_JOB_ENABLED=false. Run sob demanda: POST /api/v1/midias/score-job
  *   (admin) ou chamando `executar()`.
  * - Guard anti-concorrência: uma segunda execução durante um run é ignorada.
  * - Falha graciosa: se uma coleta retorna 0 fontes para uma mídia que JÁ tem
  *   avaliações, mantém o último score (não regride para o prior Bayesiano).
+ * - Resumibilidade: um redeploy no meio de um passe não perde progresso — os
+ *   títulos já atualizados têm `avaliacoes_atualizadas_em` recente e saem do
+ *   filtro no tique seguinte (não há checkpoint próprio).
  */
 @Injectable()
 export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MediaScoreJobService.name);
   private timer: NodeJS.Timeout | undefined;
+  private intervalMs = INTERVAL_MS_PADRAO;
   private emExecucao = false;
 
   constructor(
@@ -49,33 +77,46 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit(): void {
     if (process.env.NODE_ENV !== "production" || process.env.MEDIA_SCORE_JOB_ENABLED === "false") {
-      this.logger.log("Job diário do MEDIA Score desativado (fora de produção ou via env).");
+      this.logger.log("Job do MEDIA Score desativado (fora de produção ou via env).");
       return;
     }
-    this.agendarProxima();
+    const primeiroTickMs = lerDuracaoMs(
+      process.env.MEDIA_SCORE_JOB_FIRST_TICK_MS,
+      FIRST_TICK_MS_PADRAO,
+      FIRST_TICK_MS_MINIMO,
+    );
+    this.intervalMs = lerDuracaoMs(
+      process.env.MEDIA_SCORE_JOB_INTERVAL_MS,
+      INTERVAL_MS_PADRAO,
+      INTERVAL_MS_MINIMO,
+    );
+    this.logger.log(
+      `Job do MEDIA Score: 1º tique em ${formatarDuracao(primeiroTickMs)}; ` +
+        `ticks de ${formatarDuracao(this.intervalMs)}; ` +
+        `vencimento semanal pelo filtro (${REFRESH_INTERVAL_DAYS}d).`,
+    );
+    this.agendarTick(primeiroTickMs);
   }
 
   onModuleDestroy(): void {
     if (this.timer) clearTimeout(this.timer);
   }
 
-  private agendarProxima(): void {
-    const [hh, mm] = (process.env.MEDIA_SCORE_JOB_TIME ?? "03:05").split(":").map(Number);
-    const agora = new Date();
-    const proxima = new Date(agora);
-    proxima.setHours(hh || 3, mm || 5, 0, 0);
-    if (proxima.getTime() <= agora.getTime()) proxima.setDate(proxima.getDate() + 1);
-    // D-410/T426: cadência SEMANAL — próximo run ao menos REFRESH_INTERVAL_DAYS
-    // à frente (mesmo horário local), em vez de diária.
-    const alvo = agora.getTime() + REFRESH_INTERVAL_MS;
-    while (proxima.getTime() < alvo) proxima.setDate(proxima.getDate() + 1);
-    const delay = proxima.getTime() - agora.getTime();
+  /**
+   * T-DADOS-18: agenda um tick curto e re-arma o próximo ao disparar. O passe
+   * em si pode durar horas (17k títulos); nesse caso os ticks seguintes apenas
+   * caem no guard `emExecucao` e logam "já em execução" — nenhum trabalho
+   * concorrente. Resumibilidade: se o container reiniciar no meio do passe, o
+   * próximo tique repete o `where` de vencimento e os títulos já atualizados
+   * deixam de retornar (progresso preservado no banco).
+   */
+  private agendarTick(delayMs: number): void {
     this.timer = setTimeout(() => {
-      void this.executar().finally(() => this.agendarProxima());
-    }, delay);
-    this.logger.log(
-      `Job semanal do MEDIA Score (${REFRESH_INTERVAL_DAYS}d) agendado para ${proxima.toISOString()}.`,
-    );
+      void this.executar().catch((erro) => {
+        this.logger.error(`Job do MEDIA Score falhou: ${(erro as Error).message}`);
+      });
+      this.agendarTick(this.intervalMs);
+    }, delayMs);
   }
 
   /**
@@ -137,7 +178,9 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         }
         cursor = pagina.length > 0 ? pagina[pagina.length - 1]?.id : undefined;
         if ((processadas + comErro) % 50 === 0 && processadas + comErro > 0) {
-          this.logger.log(`Job diário: ${processadas + comErro} mídias processadas até agora...`);
+          this.logger.log(
+            `Job do MEDIA Score: ${processadas + comErro} mídias processadas até agora...`,
+          );
         }
       } while (pagina.length === take && cursor);
     } finally {

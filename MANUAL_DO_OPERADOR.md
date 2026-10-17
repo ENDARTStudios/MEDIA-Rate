@@ -249,15 +249,23 @@ Operador para não estourar cotas de API (ex.: OpenCritic/RapidAPI) — o catál
   avaliações, o job mantém o último score (não apaga nem regride ao prior).
 
 **Config:**
-- `REFRESH_INTERVAL_DAYS` (env, default **7**): intervalo entre refrescos.
-- `MEDIA_SCORE_JOB_TIME` (env, default `03:05` horário local): hora do run semanal.
+- `REFRESH_INTERVAL_DAYS` (env, default **7**): intervalo entre refrescos; é o
+  **filtro de vencimento** que governa a cadência semanal.
+- `MEDIA_SCORE_JOB_FIRST_TICK_MS` (env, default **120000** = 2 min, mínimo
+  **30000**): atraso do primeiro tique após o boot.
+- `MEDIA_SCORE_JOB_INTERVAL_MS` (env, default **3600000** = 1 h, mínimo
+  **300000** = 5 min): intervalo entre tiques.
 - `MEDIA_SCORE_JOB_ENABLED=false`: desativa o job (fora de produção já é desativado).
 - `MEDIA_SCORE_JOB_DELAY_MS` (env, default 1200): throttle entre mídias (rate limits).
+- `MEDIA_SCORE_JOB_TIME`: **removido** (não agenda mais nada).
 
-**Rotina (execução semanal):** o job roda sozinho na hora configurada
-(`MEDIA_SCORE_JOB_TIME`, a cada `REFRESH_INTERVAL_DAYS` dias). Para rodar sob
-demanda: `POST /api/v1/midias/score-job` com header `x-admin-token`. Para uma
-mídia específica: `POST /api/v1/midias/:id/coletar` (mesmo header).
+**Rotina (execução resiliente):** o job não depende mais de um timer de 7 dias
+(que era re-armado a cada deploy). Ao subir, agenda o 1º tique em ~2 min e
+depois tica a cada 1 h; cada tique é no-op barato se nada venceu. O filtro
+`avaliacoes_atualizadas_em` (7 dias) define o que é re-consultado, e um redeploy
+no meio de um passe é seguro — os títulos já atualizados saem do filtro. Para
+rodar sob demanda: `POST /api/v1/midias/score-job` com header `x-admin-token`.
+Para uma mídia específica: `POST /api/v1/midias/:id/coletar` (mesmo header).
 
 **Nenhuma requisição de usuário consulta fonte externa** — o site/API servem
 sempre de `media_score` (banco). A coleta externa é estritamente um job de
