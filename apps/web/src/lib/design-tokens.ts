@@ -8,6 +8,11 @@ export const colors = {
     audience: "#E11D48",
     brand: "#E11D48",
     indigo: "#818CF8",
+    // Par claro do índigo, usado como estado de hover de links e CTAs índigo
+    // (`text-accent-indigo hover:text-accent-indigo-hover` no Tailwind). Existia
+    // como hex solto em ~20 pontos com esse mesmo par — o valor não muda, só
+    // deixa de ser literal.
+    indigoHover: "#A5B4FC",
     sky: "#38BDF8",
     emerald: "#34D399",
     amber: "#FBBF24",

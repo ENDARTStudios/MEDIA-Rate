@@ -37,7 +37,10 @@ const config: Config = {
           foreground: "hsl(var(--accent-foreground))",
           critics: { DEFAULT: "#38BDF8", foreground: "#0F172A" },
           audience: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
-          indigo: { DEFAULT: "#818CF8", foreground: "#0F172A" },
+          // `hover` (#A5B4FC) é o par claro do índigo: existia como hex solto em
+          // ~20 links/CTAs (`text-[#818CF8] hover:text-[#A5B4FC]`), sempre no
+          // mesmo par. Vira token para a migração das páginas não repetir o literal.
+          indigo: { DEFAULT: "#818CF8", foreground: "#0F172A", hover: "#A5B4FC" },
           brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
           sky: { DEFAULT: "#38BDF8", foreground: "#0F172A" },
           emerald: { DEFAULT: "#34D399", foreground: "#0F172A" },

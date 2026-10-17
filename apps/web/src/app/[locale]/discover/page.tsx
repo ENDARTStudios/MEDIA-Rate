@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { PageShell } from "@/components/ui/page-shell";
+import { Link } from "@/lib/navigation";
 import { DiscoverClient } from "../../../components/DiscoverClient";
 import { getCatalog } from "../../../lib/api";
 
@@ -26,25 +28,31 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
   const initialData = await getCatalog({ page: 1, limit: 10, sort: "score" });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-2 text-[#F5F5F7]">{t("discoverTitle")}</h1>
-      <p className="text-[#A0A0B8] mb-6">
-        {t("discoverSubtitle")}{" "}
-        <a href="/catalog" className="text-[#818CF8] hover:text-[#A5B4FC] underline">
-          {t("discoverFullCatalog")}
-        </a>
-      </p>
-      {/* T210: o grid renderiza cards com <h3> (MediaCardShell) — sem um <h2> a
-          página pulava o nível 2 (achado `skipped-heading` do detector de DOM).
-          O h2 é o rótulo acessível da região de resultados (sr-only: a lista não
-          tem título visual próprio). T210: o texto PT que estava hardcoded aqui
-          virou i18n (discoverSubtitle / discoverFullCatalog). */}
+    <PageShell
+      title={t("discoverTitle")}
+      intro={
+        <>
+          {t("discoverSubtitle")}{" "}
+          <Link
+            href="/catalog"
+            className="text-accent-indigo underline underline-offset-4 transition-colors hover:text-accent-indigo-hover"
+          >
+            {t("discoverFullCatalog")}
+          </Link>
+        </>
+      }
+    >
+      {/* T210: o grid renderiza cards com <h3> (MediaCardShell) — sem o h2 abaixo a
+          página pulava o nível 2 (achado `skipped-heading` do detector de DOM). O
+          h2 é o rótulo acessível da região de resultados; sr-only porque a lista
+          não tem título visual próprio. T210: o texto PT hardcoded que existia
+          aqui virou i18n (discoverSubtitle / discoverFullCatalog). */}
       <section aria-labelledby="discover-list-title">
         <h2 id="discover-list-title" className="sr-only">
           {t("discoverListTitle")}
         </h2>
         <DiscoverClient initialData={initialData} />
       </section>
-    </div>
+    </PageShell>
   );
 }
