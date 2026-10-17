@@ -26,6 +26,10 @@ function makeBackfill(over: any = {}) {
       avaliacaoLivros: 0,
       // T-DADOS-08: nona fila (localização en/es + classificação do TMDB).
       localizacao: 0,
+      // T-DADOS-09: fila de gêneros de games (IGDB por id).
+      generosGames: 0,
+      // T-DADOS-10: fila da crítica via OMDb (por id IMDb).
+      criticaOmdb: 0,
       ...(over.pendentes ?? {}),
     })),
     drenarLote: vi.fn(async () => ({
@@ -40,6 +44,7 @@ function makeBackfill(over: any = {}) {
         arestasFranquia: 0,
         avaliacaoLivros: 0,
         localizacao: 0,
+        criticaOmdb: 0,
       },
       pendentesDepois: {
         semElenco: 0,
@@ -52,6 +57,7 @@ function makeBackfill(over: any = {}) {
         arestasFranquia: 0,
         avaliacaoLivros: 0,
         localizacao: 0,
+        criticaOmdb: 0,
       },
       lotes: [{ tipo: "continuidade", ok: 25, falhas: 0 }],
     })),

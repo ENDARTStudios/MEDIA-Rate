@@ -59,6 +59,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       avaliacaoLivros: number;
       // T-DADOS-08: fila de localização en/es + classificação (TMDB por id).
       localizacao: number;
+      // T-DADOS-10: fila da crítica via OMDb (gated por orçamento diário).
+      criticaOmdb: number;
     };
     erro?: string;
   } | null = null;
@@ -118,6 +120,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
     arestasFranquia: number;
     avaliacaoLivros: number;
     localizacao: number;
+    // T-DADOS-10: fila da crítica via OMDb (por id IMDb).
+    criticaOmdb: number;
   }): number {
     return (
       p.semElenco +
@@ -129,7 +133,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       (p.generosGames ?? 0) +
       p.arestasFranquia +
       (p.avaliacaoLivros ?? 0) +
-      (p.localizacao ?? 0)
+      (p.localizacao ?? 0) +
+      (p.criticaOmdb ?? 0)
     );
   }
 
@@ -147,7 +152,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         return;
       }
       this.logger.log(
-        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos} provedores=${antes.provedores} criticaIgdb=${antes.criticaIgdb} generosGames=${antes.generosGames} arestasFranquia=${antes.arestasFranquia} avaliacaoLivros=${antes.avaliacaoLivros} localizacao=${antes.localizacao}`,
+        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos} provedores=${antes.provedores} criticaIgdb=${antes.criticaIgdb} generosGames=${antes.generosGames} arestasFranquia=${antes.arestasFranquia} avaliacaoLivros=${antes.avaliacaoLivros} localizacao=${antes.localizacao} criticaOmdb=${antes.criticaOmdb}`,
       );
       const r = await this.backfill.drenarLote(orcamentoMs());
       this.ultimoResumo = {
@@ -157,7 +162,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         ...(r.erro ? { erro: r.erro } : {}),
       };
       this.logger.log(
-        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} generosGames=${r.pendentesDepois.generosGames} arestasFranquia=${r.pendentesDepois.arestasFranquia} avaliacaoLivros=${r.pendentesDepois.avaliacaoLivros} localizacao=${r.pendentesDepois.localizacao}`,
+        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} generosGames=${r.pendentesDepois.generosGames} arestasFranquia=${r.pendentesDepois.arestasFranquia} avaliacaoLivros=${r.pendentesDepois.avaliacaoLivros} localizacao=${r.pendentesDepois.localizacao} criticaOmdb=${r.pendentesDepois.criticaOmdb}`,
       );
       // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
       // 6h (fila provavelmente presa: título sem elenco/país na fonte).

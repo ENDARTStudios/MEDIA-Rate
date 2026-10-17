@@ -3,11 +3,22 @@ import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
 import { fetchJson } from "./http.utils.js";
 
 interface OmdbResponse {
+  Title?: string;
   imdbRating?: string;
   imdbID?: string;
   imdbVotes?: string;
   Response?: string;
   Ratings?: { Source: string; Value: string }[];
+}
+
+const ID_IMDB = /^tt[0-9]{7,}$/;
+
+/** T-DADOS-10: título do fallback textual sem aspas que quebram o parâmetro. */
+export function sanitizarTituloOmdb(titulo: string): string {
+  return String(titulo ?? "")
+    .replace(/["']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -63,16 +74,31 @@ export class OmdbAdapter implements FonteAdapter {
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const params = new URLSearchParams({ apikey: this.chave() ?? "", t: consulta.titulo });
-    if (consulta.ano) params.set("y", String(consulta.ano));
+    // T-DADOS-10: quando o id IMDb é conhecido (TMDB), o lookup é EXATO por
+    // `i=<id>` — sem `t`/`y`. O endpoint ?i= não exige tomatoes=true: a
+    // resposta já traz `Ratings` (RT/Metacritic).
+    const idSolicitado = consulta.idsExternos?.omdb?.trim() ?? "";
+    const idValido = ID_IMDB.test(idSolicitado) ? idSolicitado : null;
+    const params = new URLSearchParams({ apikey: this.chave() ?? "" });
+    if (idValido) {
+      params.set("i", idValido);
+    } else {
+      const titulo = sanitizarTituloOmdb(consulta.titulo);
+      if (!titulo) return [];
+      params.set("t", titulo);
+      if (consulta.ano) params.set("y", String(consulta.ano));
+    }
     const url = `https://www.omdbapi.com/?${params.toString()}`;
     const dados = await fetchJson<OmdbResponse>(url);
-    if (dados.Response === "False" || !dados.imdbRating) return [];
+    if (dados.Response === "False") return [];
+    // Identidade: um lookup por id não pode devolver outra obra.
+    if (idValido && dados.imdbID && dados.imdbID !== idValido) return [];
+    if (!dados.imdbRating) return [];
     const rating = Number.parseFloat(dados.imdbRating);
     if (!Number.isFinite(rating)) return [];
     const votosBrutos = Number(dados.imdbVotes?.replace(/,/g, "") ?? "");
     const stats = estatisticas("0-10");
-    const urlImdb = `https://www.imdb.com/title/${dados.imdbID}`;
+    const urlImdb = `https://www.imdb.com/title/${dados.imdbID ?? idValido}`;
     return [
       {
         fonte: this.id,
