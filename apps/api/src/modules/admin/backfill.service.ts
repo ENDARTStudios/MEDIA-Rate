@@ -56,6 +56,13 @@ const MAL_CAMPOS_AUTORES = "authors{id,first_name,last_name}";
 // 300ms entre as chamadas (a cota do Google Books é compartilhada).
 const PAUSA_SINOPSE_LIVRO_MS = 300;
 const GOOGLE_BOOKS_BASE = "https://www.googleapis.com/books/v1/volumes";
+// T-DADOS-17: ComicVine free = 200 recursos/hora; o job faz ~2 chamadas por
+// título (busca + volume). Throttle de 1100ms e uma retentativa longa em 429.
+const COMICVINE_BASE = "https://comicvine.gamespot.com/api";
+const PAUSA_COMICVINE_MS = 1100;
+const ESPERA_429_COMICVINE_MS = 3000;
+const COMICVINE_CAMPOS_BUSCA = "id,name,start_year,publisher";
+const COMICVINE_CAMPOS_VOLUME = "id,name,people";
 /**
  * T-DADOS-14B: teto diário do job de sinopse de livros. A cota gratuita do
  * Google Books é de 1.000/dia e compartilhada com o resto do projeto — o teto
@@ -87,7 +94,10 @@ export type BackfillTipo =
   // T-DADOS-13B: autores de LIVRO (OpenLibrary por id) e de MANGA
   // (Jikan/Kitsu por id) em midia_elenco com personagem "Autor".
   | "autoresLivros"
-  | "autoresMangas";
+  | "autoresMangas"
+  // T-DADOS-17: autores de COMIC (ComicVine por busca de volume, com guarda
+  // de título+ano e desempate por editora).
+  | "autoresComics";
 
 interface BackfillEstado {
   executando: boolean;
@@ -970,6 +980,87 @@ export function mapearAutoresKitsu(payload: any): (AutorFonte & { ordem: number 
 }
 
 // ===========================================================================
+// T-DADOS-17 — autores de COMIC (ComicVine)
+// ===========================================================================
+
+/** Candidato do `/volumes/` do ComicVine (shape real sondado). */
+export interface VolumeComicVineCandidato {
+  id?: number | string;
+  name?: string;
+  /** A API devolve string (ex.: `"1989"`), mas aceitamos número também. */
+  start_year?: number | string | null;
+  publisher?: { id?: number; name?: string } | null;
+}
+
+/** Chatice de comparação: caixa, acentos e tudo que não é alfanumérico fora. */
+export function normalizarTituloComicVine(valor: string | null | undefined): string {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+/**
+ * T-DADOS-17: escolhe o volume do ComicVine por IDENTIDADE, nunca por posição.
+ *
+ * Regra (as duas condições são obrigatórias):
+ *  1. título normalizado igual ao da mídia;
+ *  2. `|start_year - ano_lancamento| <= 1` (`start_year` nulo → rejeitado).
+ *
+ * Mais de um candidato aceito: desempata pela editora (`publisher.name`
+ * normalizado presente em `editoras`, as `midia_produtora` da obra). Se o
+ * empate persistir (ex.: 2+ com a mesma editora, ou nenhum casando), devolve
+ * `null` — lacuna honesta. "Primeiro resultado" NUNCA é usado.
+ */
+export function escolherVolumeComicVine(
+  candidatos: VolumeComicVineCandidato[] | null | undefined,
+  titulo: string,
+  ano: number | null | undefined,
+  editoras: string[] | null | undefined,
+): VolumeComicVineCandidato | null {
+  const alvo = normalizarTituloComicVine(titulo);
+  const anoAlvo = Number(ano);
+  if (!alvo || ano == null || !Number.isFinite(anoAlvo)) return null;
+  const aceitos = (Array.isArray(candidatos) ? candidatos : []).filter((c) => {
+    if (normalizarTituloComicVine(c?.name) !== alvo) return false;
+    if (c?.start_year == null) return false;
+    const anoCandidato = Number(c.start_year);
+    if (!Number.isFinite(anoCandidato)) return false;
+    return Math.abs(anoCandidato - anoAlvo) <= 1;
+  });
+  if (aceitos.length === 0) return null;
+  if (aceitos.length === 1) return aceitos[0] ?? null;
+  // Empate: só a editora desempata (e só quando exatamente UM candidato casa).
+  const editorasAlvo = new Set(
+    (editoras ?? []).map((e) => normalizarTituloComicVine(e)).filter(Boolean),
+  );
+  if (editorasAlvo.size === 0) return null;
+  const porEditora = aceitos.filter((c) => {
+    const nome = normalizarTituloComicVine(c?.publisher?.name);
+    return nome !== "" && editorasAlvo.has(nome);
+  });
+  return porEditora.length === 1 ? (porEditora[0] ?? null) : null;
+}
+
+/** `results.people[]` do volume → autores (id + nome, ordem 0-based, sem dupes). */
+export function mapearAutoresComicVine(payload: any): (AutorFonte & { ordem: number })[] {
+  const pessoas = Array.isArray(payload?.results?.people) ? payload.results.people : [];
+  const saida: (AutorFonte & { ordem: number })[] = [];
+  const vistos = new Set<string>();
+  for (const [indice, pessoa] of pessoas.entries()) {
+    const id = Number(pessoa?.id);
+    const nome = truncarCampo(pessoa?.name, LIMITES.elencoNome);
+    if (!Number.isInteger(id) || id <= 0 || !nome) continue;
+    const fonte_id = String(id);
+    if (vistos.has(fonte_id)) continue;
+    vistos.add(fonte_id);
+    saida.push({ fonte_id, nome, fonte: "comicvine", ordem: indice });
+  }
+  return saida;
+}
+
+// ===========================================================================
 // Serviço
 // ===========================================================================
 
@@ -991,6 +1082,7 @@ export class BackfillService {
     sinopseLivros: estadoVazio(),
     autoresLivros: estadoVazio(),
     autoresMangas: estadoVazio(),
+    autoresComics: estadoVazio(),
   };
 
   constructor(
@@ -2746,6 +2838,173 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-17: autores de COMIC no ComicVine.
+   *
+   * Os COMIC do catálogo têm `fonte_id` em formato de slug (mesmo defeito do
+   * T-DADOS-16), então a resolução NÃO é por id: busca `volumes?filter=name:`
+   * e aplica a guarda de identidade (`escolherVolumeComicVine`) com título +
+   * ano (±1) e editora como desempate. Só o volume aceito é consultado em
+   * `/volume/4050-<id>/` para `people`.
+   *
+   * Watermark `autores_em` gravado SEMPRE ao fim do título (inclusive sem
+   * match: ausência honesta). Falha de rede/429 persistente NÃO marca
+   * (retenta). Nunca lança por título.
+   */
+  async enriquecerAutoresComics(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semMatch: number;
+    pessoas: number;
+    falhas: number;
+  }> {
+    if (this.estado.autoresComics.executando) {
+      throw new BadRequestException("Job autores de comics já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.autoresComics = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; titulo: string; ano_lancamento: number | null; editoras: string | null }[]
+    >(
+      `SELECT m.id::text, m.titulo, m.ano_lancamento,
+              string_agg(DISTINCT p.nome, '||') AS editoras
+       FROM midia m
+       LEFT JOIN midia_produtora p ON p.midia_id = m.id
+       WHERE m.deleted_at IS NULL AND m.tipo = 'COMIC' AND m.fonte = 'comicvine'
+         AND m.autores_em IS NULL
+       GROUP BY m.id, m.titulo, m.ano_lancamento
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 200)}`,
+    )) as any[];
+    this.logger.log(`Backfill autores de comics: ${alvo.length} títulos alvo.`);
+    let semMatch = 0;
+    let pessoasGravadas = 0;
+    for (const m of alvo) {
+      this.estado.autoresComics.processados++;
+      this.estado.autoresComics.atual = m.titulo;
+      try {
+        const editoras = String(m.editoras ?? "")
+          .split("||")
+          .filter(Boolean);
+        const candidatos = await this.buscarVolumesComicVine(m.titulo);
+        const volume = escolherVolumeComicVine(candidatos, m.titulo, m.ano_lancamento, editoras);
+        if (!volume) {
+          semMatch++;
+        } else {
+          const autores = await this.autoresVolumeComicVine(volume.id);
+          for (const a of autores) {
+            await this.prisma.midiaElenco.upsert({
+              // Chave por fonte: linhas de TMDB/MANGA/LIVRO são inalcançáveis.
+              where: {
+                midia_id_fonte_fonte_id: {
+                  midia_id: m.id,
+                  fonte: "comicvine",
+                  fonte_id: a.fonte_id,
+                },
+              },
+              create: {
+                midia_id: m.id,
+                fonte: "comicvine",
+                fonte_id: a.fonte_id,
+                nome: a.nome,
+                personagem: "Autor",
+                ordem: a.ordem,
+                foto_url: null,
+              },
+              update: { nome: a.nome, personagem: "Autor", ordem: a.ordem },
+            });
+            pessoasGravadas++;
+          }
+        }
+        // Watermark SEMPRE (mesmo sem match): a lacuna honesta sai da fila.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { autores_em: new Date() },
+        });
+        this.estado.autoresComics.ok++;
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.autoresComics.falhas++;
+        this.logger.warn(
+          `Backfill autores de comics falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.autoresComics.executando = false;
+    this.estado.autoresComics.atual = `fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} falhas=${this.estado.autoresComics.falhas}`;
+    this.logger.log(
+      `Backfill autores de comics fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} falhas=${this.estado.autoresComics.falhas}.`,
+    );
+    return {
+      processados: this.estado.autoresComics.processados,
+      ok: this.estado.autoresComics.ok,
+      semMatch,
+      pessoas: pessoasGravadas,
+      falhas: this.estado.autoresComics.falhas,
+    };
+  }
+
+  private async buscarVolumesComicVine(titulo: string): Promise<VolumeComicVineCandidato[]> {
+    const chave = this.chaveComicVine();
+    const url =
+      `${COMICVINE_BASE}/volumes/?api_key=${encodeURIComponent(chave)}` +
+      `&format=json&filter=name:${encodeURIComponent(String(titulo ?? "").trim())}` +
+      `&field_list=${COMICVINE_CAMPOS_BUSCA}&limit=100`;
+    const payload = await this.getJsonComicVine<any>(url);
+    return Array.isArray(payload?.results) ? payload.results : [];
+  }
+
+  private async autoresVolumeComicVine(
+    volumeId: number | string | undefined,
+  ): Promise<(AutorFonte & { ordem: number })[]> {
+    const id = String(volumeId ?? "").trim();
+    if (!/^\d+$/.test(id)) return [];
+    const chave = this.chaveComicVine();
+    const payload = await this.getJsonComicVine<any>(
+      `${COMICVINE_BASE}/volume/4050-${id}/?api_key=${encodeURIComponent(chave)}&format=json&field_list=${COMICVINE_CAMPOS_VOLUME}`,
+    );
+    return mapearAutoresComicVine(payload);
+  }
+
+  private chaveComicVine(): string {
+    const chave = process.env.COMICVINE_API_KEY;
+    if (!chave) {
+      throw new Error("COMICVINE_API_KEY ausente: sem credencial para autores de comics.");
+    }
+    return chave;
+  }
+
+  /**
+   * T-DADOS-17: GET JSON com throttle ≥1100ms e retry único em 429 (~3s).
+   * Erros não-429 (e 429 persistente) propagam: o título não marca watermark.
+   */
+  private async getJsonComicVine<T>(url: string): Promise<T> {
+    for (let tentativa = 0; ; tentativa++) {
+      await this.pausa(PAUSA_COMICVINE_MS);
+      try {
+        return await fetchJson<T>(url, {
+          headers: { "User-Agent": UA_BROWSER, "Accept": "application/json" },
+          timeoutMs: 20000,
+        });
+      } catch (e) {
+        const status = (e as { status?: number } | null)?.status;
+        const eh429 = status === 429 || String(e).includes("HTTP 429");
+        if (eh429 && tentativa === 0) {
+          this.logger.warn(
+            "Backfill autores de comics: HTTP 429 — aguardando ~3s e repetindo uma vez.",
+          );
+          await this.pausa(ESPERA_429_COMICVINE_MS);
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+
+  /**
    * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
    * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
    * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
@@ -3114,6 +3373,8 @@ export class BackfillService {
     // T-DADOS-13B: autores em midia_elenco (LIVRO OpenLibrary; MANGA Jikan/Kitsu).
     autoresLivros: number;
     autoresMangas: number;
+    // T-DADOS-17: autores de COMIC (ComicVine por busca com guarda).
+    autoresComics: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -3132,6 +3393,7 @@ export class BackfillService {
         sinopse_livros: number;
         autores_livros: number;
         autores_mangas: number;
+        autores_comics: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -3182,6 +3444,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte IN ('jikan','kitsu')
             AND m.autores_em IS NULL) AS autores_mangas,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'COMIC' AND m.fonte = 'comicvine'
+            AND m.autores_em IS NULL) AS autores_comics,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -3221,6 +3486,7 @@ export class BackfillService {
         : 0,
       autoresLivros: Number(row?.autores_livros ?? 0),
       autoresMangas: Number(row?.autores_mangas ?? 0),
+      autoresComics: Number(row?.autores_comics ?? 0),
     };
   }
 
@@ -3329,6 +3595,13 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresMangas ?? 0) > 0) {
         const r = await this.enriquecerAutoresMangas(800);
         lotes.push({ tipo: "autoresMangas", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-17: autores de COMIC (busca no ComicVine com guarda de
+      // identidade; ~2 chamadas por título, throttle de 1100ms). `ok` inclui
+      // os títulos sem match: o watermark foi marcado (ausência honesta).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresComics ?? 0) > 0) {
+        const r = await this.enriquecerAutoresComics(200);
+        lotes.push({ tipo: "autoresComics", ok: r.ok, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
