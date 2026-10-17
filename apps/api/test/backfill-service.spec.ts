@@ -24,6 +24,9 @@ import {
   orcamentoOmdbRestante,
   imdbIdDoPayload,
   ORCAMENTO_OMDB_DIARIO,
+  // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
+  mapearSynopsisKitsu,
+  mapearSynopsisJikan,
 } from "../src/modules/admin/backfill.service.js";
 
 /**
@@ -482,8 +485,8 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb (T-DADOS-01/02/03/06/07/08/09/10)", () => {
-  it("conta as 11 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn (T-DADOS-01/02/03/06/07/08/09/10/12)", () => {
+  it("conta as 12 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
@@ -500,6 +503,9 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       expect(sql).toContain("localizacao_em IS NULL");
       // T-DADOS-10: fila da crítica via OMDb (watermark por id IMDb).
       expect(sql).toContain("critica_omdb_em IS NULL");
+      // T-DADOS-12: fila da sinopse em inglês dos mangás (Kitsu/Jikan por id).
+      expect(sql).toContain("sinopse_en_em IS NULL");
+      expect(sql).toContain("btrim(m.sinopse_en) = ''");
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
       // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
       expect(sql).toContain("franquia_membros");
@@ -517,6 +523,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           avaliacao_livros: 600,
           localizacao: 10570,
           critica_omdb: 10998,
+          sinopse_manga_en: 501,
         },
       ];
     });
@@ -532,6 +539,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       avaliacaoLivros: 600,
       localizacao: 10570,
       criticaOmdb: 10998,
+      sinopseMangaEn: 501,
     });
   });
 
@@ -553,6 +561,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       avaliacaoLivros: 0,
       localizacao: 0,
       criticaOmdb: 0,
+      sinopseMangaEn: 0,
     });
   });
 });
@@ -2189,5 +2198,207 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "generosGames", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(2000);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-12 — sinopse em inglês de mangás (Kitsu/Jikan por id exato)
+// ===========================================================================
+
+describe("mapearSynopsisKitsu / mapearSynopsisJikan (T-DADOS-12)", () => {
+  it("extrai synopsis e faz trim (Kitsu e Jikan)", () => {
+    expect(
+      mapearSynopsisKitsu({
+        data: { attributes: { synopsis: "  Kinoshita Kazuya is a regular college st…  " } },
+      }),
+    ).toBe("Kinoshita Kazuya is a regular college st…");
+    expect(
+      mapearSynopsisJikan({ data: { synopsis: "\n  A young pirate crew sets sail. \t" } }),
+    ).toBe("A young pirate crew sets sail.");
+  });
+
+  it("vazio/null/payload estranho → null (nunca lança)", () => {
+    expect(mapearSynopsisKitsu({ data: { attributes: { synopsis: "   " } } })).toBeNull();
+    expect(mapearSynopsisKitsu({ data: { attributes: { synopsis: null } } })).toBeNull();
+    expect(mapearSynopsisKitsu({ data: { attributes: {} } })).toBeNull();
+    expect(mapearSynopsisKitsu({ data: {} })).toBeNull();
+    expect(mapearSynopsisKitsu({})).toBeNull();
+    expect(mapearSynopsisKitsu(null)).toBeNull();
+    expect(mapearSynopsisKitsu(undefined)).toBeNull();
+    expect(mapearSynopsisKitsu({ data: { attributes: { synopsis: 42 } } })).toBeNull();
+
+    expect(mapearSynopsisJikan({ data: { synopsis: "" } })).toBeNull();
+    expect(mapearSynopsisJikan({ data: { synopsis: null } })).toBeNull();
+    expect(mapearSynopsisJikan({ data: [] })).toBeNull();
+    expect(mapearSynopsisJikan({})).toBeNull();
+    expect(mapearSynopsisJikan(null)).toBeNull();
+    expect(mapearSynopsisJikan(undefined)).toBeNull();
+  });
+});
+
+describe("BackfillService.enriquecerSinopseMangaEn (T-DADOS-12)", () => {
+  const URL_KITSU_MANGA = "https://kitsu.io/api/edge/manga/40005";
+  const URL_KITSU_ANIME = "https://kitsu.io/api/edge/anime/40005";
+  const URL_JIKAN_MANGA = "https://api.jikan.moe/v4/manga/13";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function mockFetchJson(respostas: any[]) {
+    let indice = 0;
+    (fetchJson as any).mockImplementation(async (_url: string) => {
+      const r = respostas[Math.min(indice, respostas.length - 1)];
+      indice++;
+      if (r instanceof Error) throw r;
+      return r;
+    });
+  }
+
+  it("Kitsu por id exato: grava SOMENTE sinopse_en (nunca sinopse) e marca o watermark", async () => {
+    const alvo = [{ id: "m-1", fonte: "kitsu", fonte_id: "40005", titulo: "Kanojo, Okarishimasu" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockFetchJson([
+      { data: { attributes: { synopsis: "  Kinoshita Kazuya is a regular college student.  " } } },
+    ]);
+    const r = await svc.enriquecerSinopseMangaEn(100);
+    expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
+    expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([URL_KITSU_MANGA]);
+    expect((fetchJson as any).mock.calls[0][1].headers).toMatchObject({
+      Accept: "application/vnd.api+json",
+    });
+    const chamada = (prisma.midia.update as any).mock.calls[0][0];
+    expect(chamada.where).toEqual({ id: "m-1" });
+    expect(chamada.data).toEqual({
+      sinopse_en: "Kinoshita Kazuya is a regular college student.",
+      sinopse_en_em: expect.any(Date),
+    });
+    // Prova de que a sinopse pt NUNCA é tocada.
+    expect(Object.keys(chamada.data)).not.toContain("sinopse");
+    expect(chamada.data).not.toHaveProperty("sinopse");
+    expect(svc.status().sinopseMangaEn.ok).toBe(1);
+  });
+
+  it("Kitsu: tenta manga e cai para anime quando a primeira não traz synopsis", async () => {
+    const alvo = [{ id: "m-2", fonte: "kitsu", fonte_id: "40005", titulo: "Entrada de anime" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockFetchJson([
+      { data: { attributes: { canonicalTitle: "Sem synopsis" } } },
+      { data: { attributes: { synopsis: "An anime synopsis in English." } } },
+    ]);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
+    expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([
+      URL_KITSU_MANGA,
+      URL_KITSU_ANIME,
+    ]);
+    expect((fetchJson as any).mock.calls[1][1].headers).toMatchObject({
+      Accept: "application/vnd.api+json",
+    });
+    expect((prisma.midia.update as any).mock.calls[0][0].data).toEqual({
+      sinopse_en: "An anime synopsis in English.",
+      sinopse_en_em: expect.any(Date),
+    });
+  });
+
+  it("Kitsu: 404 em manga também cai para anime (id pode ser entrada de anime)", async () => {
+    const alvo = [{ id: "m-3", fonte: "kitsu", fonte_id: "40005", titulo: "Id de anime" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockFetchJson([
+      new ErroColeta("HTTP 404 em https://kitsu.io/api/edge/manga/40005", 404),
+      { data: { attributes: { synopsis: "Fallback synopsis." } } },
+    ]);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
+    expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([
+      URL_KITSU_MANGA,
+      URL_KITSU_ANIME,
+    ]);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.sinopse_en).toBe(
+      "Fallback synopsis.",
+    );
+  });
+
+  it("Jikan por id exato: usa data.synopsis e Accept application/json", async () => {
+    const alvo = [{ id: "m-4", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockFetchJson([{ data: { synopsis: "  A young pirate crew sets sail.  " } }]);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
+    expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([URL_JIKAN_MANGA]);
+    expect((fetchJson as any).mock.calls[0][1].headers).toMatchObject({
+      Accept: "application/json",
+    });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.sinopse_en).toBe(
+      "A young pirate crew sets sail.",
+    );
+  });
+
+  it("sem synopsis na fonte: marca sinopse_en_em mesmo assim (sai da fila) e não escreve texto", async () => {
+    const alvo = [{ id: "m-5", fonte: "kitsu", fonte_id: "40005", titulo: "Sem synopsis" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockFetchJson([{ data: { attributes: {} } }, { data: { attributes: {} } }]);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semSynopsis: 1, falhas: 0 });
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data).toEqual({ sinopse_en_em: expect.any(Date) });
+    expect(data).not.toHaveProperty("sinopse_en");
+    expect(data).not.toHaveProperty("sinopse");
+  });
+
+  it("429 persistente: falhas++ e NÃO marca o watermark (retenta na próxima rodada)", async () => {
+    const alvo = [{ id: "m-6", fonte: "kitsu", fonte_id: "40005", titulo: "Rate limit" }];
+    const { svc, prisma } = makeService({ alvo });
+    const pausa = vi.fn(async () => undefined);
+    (svc as any).pausa = pausa;
+    mockFetchJson([new ErroColeta("HTTP 429 em https://kitsu.io/api/edge/manga/40005", 429)]);
+    const r = await svc.enriquecerSinopseMangaEn(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semSynopsis: 0, falhas: 1 });
+    // 1 tentativa + 1 retentativa (sem cair para anime).
+    expect((fetchJson as any).mock.calls).toHaveLength(2);
+    expect(pausa).toHaveBeenCalledWith(2000);
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("drenarLote consome a fila de sinopse (soma sem_synopsis ao ok)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 2,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerSinopseMangaEn").mockResolvedValue({
+      processados: 2,
+      ok: 1,
+      semSynopsis: 1,
+      falhas: 0,
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "sinopseMangaEn", ok: 2, falhas: 0 }]);
+    expect(svc.enriquecerSinopseMangaEn).toHaveBeenCalledWith(800);
+    expect(r.pendentesAntes.sinopseMangaEn).toBe(2);
   });
 });

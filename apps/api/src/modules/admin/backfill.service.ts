@@ -33,6 +33,12 @@ const ESPERA_429_MS = 1500;
 const PAUSA_OPENLIBRARY_MS = 250;
 // T-DADOS-10: OMDb é grátis e limitado (1k/dia) — throttle mínimo por título.
 const PAUSA_OMDB_MS = 300;
+// T-DADOS-12: Kitsu/Jikan são APIs públicas — throttle ≥350ms por requisição e
+// uma única retentativa com espera longa em 429 (mesmo desenho do IGDB).
+const PAUSA_SINOPSE_MANGA_MS = 350;
+const ESPERA_429_SINOPSE_MS = 2000;
+const KITSU_BASE = "https://kitsu.io/api/edge";
+const JIKAN_BASE = "https://api.jikan.moe/v4";
 
 export type BackfillTipo =
   | "metadados"
@@ -49,7 +55,9 @@ export type BackfillTipo =
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
   | "localizacao"
   // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
-  | "criticaOmdb";
+  | "criticaOmdb"
+  // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
+  | "sinopseMangaEn";
 
 interface BackfillEstado {
   executando: boolean;
@@ -668,6 +676,33 @@ export function imdbIdDoPayload(payload: any, tipo: string): string | null {
 }
 
 // ===========================================================================
+// T-DADOS-12 — sinopse em inglês de mangás (Kitsu/Jikan por id exato)
+// ===========================================================================
+
+/**
+ * T-DADOS-12: `GET https://kitsu.io/api/edge/{manga|anime}/<fonte_id>` →
+ * `data.attributes.synopsis`. Regex de trim e string vazia → null (ausência
+ * honesta: o produto cai para a sinopse pt). Payload estranho NUNCA lança.
+ */
+export function mapearSynopsisKitsu(payload: any): string | null {
+  const bruto = payload?.data?.attributes?.synopsis;
+  if (typeof bruto !== "string") return null;
+  const sinopse = bruto.trim();
+  return sinopse || null;
+}
+
+/**
+ * T-DADOS-12: `GET https://api.jikan.moe/v4/manga/<fonte_id>` →
+ * `data.synopsis`. Mesma semântica de trim/null do mapper do Kitsu.
+ */
+export function mapearSynopsisJikan(payload: any): string | null {
+  const bruto = payload?.data?.synopsis;
+  if (typeof bruto !== "string") return null;
+  const sinopse = bruto.trim();
+  return sinopse || null;
+}
+
+// ===========================================================================
 // Serviço
 // ===========================================================================
 
@@ -685,6 +720,7 @@ export class BackfillService {
     localizacao: estadoVazio(),
     generosGames: estadoVazio(),
     criticaOmdb: estadoVazio(),
+    sinopseMangaEn: estadoVazio(),
   };
 
   constructor(
@@ -1824,6 +1860,151 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-12: sinopse em inglês dos mangás, **por id EXATO da fonte**.
+   *
+   * Por que existe: dos 541 MANGA, 501 estão sem `sinopse_en` — o produto tem
+   * locale en-US e hoje cai para a sinopse pt. O dado existe na fonte pelo id
+   * (`fonte_id`): Kitsu `GET /manga/<id>` → `data.attributes.synopsis` e
+   * Jikan `GET /manga/<id>` → `data.synopsis` (sonda: 10/10). Alguns títulos
+   * do catálogo são entradas de ANIME no Kitsu, por isso o fallback
+   * `/anime/<id>` quando `/manga/<id>` não traz synopsis.
+   *
+   * Escreve SOMENTE `sinopse_en` (nunca `sinopse`: texto inglês não é pt) e
+   * nunca sobrescreve `sinopse_en` existente (o alvo já filtra; o objeto de
+   * update é montado condicionalmente). Watermark `sinopse_en_em` gravado
+   * SEMPRE ao fim do título (com ou sem synopsis) para a fila drenar; erro de
+   * rede/429 persistente não marca (retenta na próxima rodada). Nunca lança
+   * por título.
+   *
+   * Throttle ≥350ms entre requisições e retentativa única em 429 (~2s).
+   */
+  async enriquecerSinopseMangaEn(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semSynopsis: number;
+    falhas: number;
+  }> {
+    if (this.estado.sinopseMangaEn.executando) {
+      throw new BadRequestException("Job sinopse de mangá (en) já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.sinopseMangaEn = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA'
+         AND m.fonte IN ('kitsu','jikan')
+         AND m.sinopse_en_em IS NULL
+         AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+    )) as any[];
+    this.logger.log(`Backfill sinopse manga (en): ${alvo.length} títulos alvo.`);
+    let semSynopsis = 0;
+    for (const m of alvo) {
+      this.estado.sinopseMangaEn.processados++;
+      this.estado.sinopseMangaEn.atual = m.titulo;
+      try {
+        const sinopse = await this.sinopseMangaNaFonte(m.fonte, m.fonte_id);
+        if (sinopse) {
+          this.estado.sinopseMangaEn.ok++;
+        } else {
+          // Ausência honesta: fica null e o produto usa a sinopse pt. O
+          // watermark garante que o título sai da fila.
+          semSynopsis++;
+        }
+        // Só `sinopse_en` (nunca `sinopse`). O objeto é montado
+        // condicionalmente: sem synopsis, nenhuma coluna de texto é tocada.
+        const data: { sinopse_en?: string; sinopse_en_em: Date } = {
+          sinopse_en_em: new Date(),
+        };
+        if (sinopse) data.sinopse_en = sinopse;
+        await this.prisma.midia.update({ where: { id: m.id }, data });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.sinopseMangaEn.falhas++;
+        this.logger.warn(
+          `Backfill sinopse manga (en) falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.sinopseMangaEn.executando = false;
+    this.estado.sinopseMangaEn.atual = `fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} falhas=${this.estado.sinopseMangaEn.falhas}`;
+    this.logger.log(
+      `Backfill sinopse manga (en) fim: ok=${this.estado.sinopseMangaEn.ok} sem_synopsis=${semSynopsis} falhas=${this.estado.sinopseMangaEn.falhas}.`,
+    );
+    return {
+      processados: this.estado.sinopseMangaEn.processados,
+      ok: this.estado.sinopseMangaEn.ok,
+      semSynopsis,
+      falhas: this.estado.sinopseMangaEn.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-12: synopsis da fonte pelo id EXATO. Kitsu tenta `manga` e cai
+   * para `anime` quando o id é uma entrada de anime (404 ou sem synopsis);
+   * Jikan consulta `manga`. Cada requisição espera ≥350ms e tem UMA
+   * retentativa em 429 (~2s). Erros não-429 (e 429 persistente) propagam.
+   */
+  private async sinopseMangaNaFonte(fonte: string, fonteId: string): Promise<string | null> {
+    const id = encodeURIComponent(String(fonteId));
+    if (fonte === "kitsu") {
+      const doManga = await this.getSinopse(`${KITSU_BASE}/manga/${id}`, {
+        Accept: "application/vnd.api+json",
+      });
+      if (doManga) return doManga;
+      // 404 ou payload sem synopsis: o id pode ser uma entrada de ANIME.
+      return this.getSinopse(`${KITSU_BASE}/anime/${id}`, {
+        Accept: "application/vnd.api+json",
+      });
+    }
+    if (fonte === "jikan") {
+      return this.getSinopse(`${JIKAN_BASE}/manga/${id}`, { Accept: "application/json" });
+    }
+    return null;
+  }
+
+  /**
+   * T-DADOS-12: GET JSON com throttle ≥350ms e retry único em 429. `404` vira
+   * `null` (ausência honesta — no Kitsu manga significa que o chamador deve
+   * tentar `anime`). 429 persistente e demais erros propagam.
+   */
+  private async getSinopse(url: string, headers: Record<string, string>): Promise<string | null> {
+    for (let tentativa = 0; ; tentativa++) {
+      await this.pausa(PAUSA_SINOPSE_MANGA_MS);
+      try {
+        const payload = await fetchJson<any>(url, {
+          headers: { "User-Agent": UA_BROWSER, ...headers },
+          timeoutMs: 20000,
+        });
+        return url.startsWith(KITSU_BASE)
+          ? mapearSynopsisKitsu(payload)
+          : mapearSynopsisJikan(payload);
+      } catch (e) {
+        const status = (e as { status?: number } | null)?.status;
+        const eh429 = status === 429 || String(e).includes("HTTP 429");
+        if (eh429 && tentativa === 0) {
+          this.logger.warn(
+            "Backfill sinopse manga (en): HTTP 429 — aguardando e repetindo uma vez.",
+          );
+          await this.pausa(ESPERA_429_SINOPSE_MS);
+          continue;
+        }
+        const eh404 = status === 404 || String(e).includes("HTTP 404");
+        if (eh404) return null;
+        throw e;
+      }
+    }
+  }
+
+  /**
    * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
    * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
    * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
@@ -2185,6 +2366,8 @@ export class BackfillService {
     localizacao: number;
     // T-DADOS-10: fila da crítica de FILME/SERIE via OMDb (por id IMDb).
     criticaOmdb: number;
+    // T-DADOS-12: fila de sinopse em inglês dos mangás (Kitsu/Jikan por id).
+    sinopseMangaEn: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -2199,6 +2382,7 @@ export class BackfillService {
         avaliacao_livros: number;
         localizacao: number;
         critica_omdb: number;
+        sinopse_manga_en: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -2232,6 +2416,11 @@ export class BackfillService {
           WHERE m.deleted_at IS NULL AND m.fonte IN ('tmdb','tmdb_tv')
             AND m.tipo IN ('FILME','SERIE')
             AND m.critica_omdb_em IS NULL) AS critica_omdb,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA'
+            AND m.fonte IN ('kitsu','jikan')
+            AND m.sinopse_en_em IS NULL
+            AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')) AS sinopse_manga_en,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -2257,6 +2446,7 @@ export class BackfillService {
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
       criticaOmdb: restanteOmdb > 0 ? Number(row?.critica_omdb ?? 0) : 0,
+      sinopseMangaEn: Number(row?.sinopse_manga_en ?? 0),
     };
   }
 
@@ -2336,6 +2526,12 @@ export class BackfillService {
           ok: r.ok + r.semImdb + r.semNota,
           falhas: r.falhas,
         });
+      }
+      // T-DADOS-12: sinopse em inglês dos mangás (Kitsu/Jikan por id, 350ms por
+      // requisição). `ok` soma os títulos SEM synopsis: saíram da fila.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseMangaEn ?? 0) > 0) {
+        const r = await this.enriquecerSinopseMangaEn(800);
+        lotes.push({ tipo: "sinopseMangaEn", ok: r.ok + r.semSynopsis, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
