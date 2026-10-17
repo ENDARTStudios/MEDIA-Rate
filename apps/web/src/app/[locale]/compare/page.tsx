@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
+import { PageShell } from "@/components/ui/page-shell";
 import { ComparePage } from "../../../components/ComparePage";
 
 export async function generateMetadata({
@@ -23,5 +24,10 @@ export async function generateMetadata({
 export default async function CompareRoute({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ComparePage />;
+  const t = await getTranslations({ locale, namespace: "compare" });
+  return (
+    <PageShell title={t("title")} intro={t("description")}>
+      <ComparePage />
+    </PageShell>
+  );
 }
