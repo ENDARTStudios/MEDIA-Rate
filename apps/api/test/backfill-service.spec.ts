@@ -78,8 +78,15 @@ function makeService(over: any = {}) {
     relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
   };
   const mediaScore = { recalcularEPersistir: vi.fn(async () => ({ score: 82 })) };
-  const svc = new BackfillService(prisma as any, mediaScore as any);
-  return { svc, prisma, mediaScore };
+  // T-DADOS-07: adapter real do ColetaService (mockado — nenhuma rede).
+  const openlibrary = {
+    id: "openlibrary",
+    ativo: vi.fn(() => true),
+    coletar: vi.fn(async () => [] as any[]),
+  };
+  const coleta = { adaptadores: [openlibrary] };
+  const svc = new BackfillService(prisma as any, mediaScore as any, coleta as any);
+  return { svc, prisma, mediaScore, coleta, openlibrary };
 }
 
 describe("mapearMetadados (T178)", () => {
@@ -457,14 +464,16 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
   });
 });
 
-describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia (T-DADOS-01/02/03/06)", () => {
-  it("conta as 7 filas na mesma query", async () => {
+describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/arestasFranquia/avaliacaoLivros (T-DADOS-01/02/03/06/07)", () => {
+  it("conta as 8 filas na mesma query", async () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       expect(sql).toContain("metadados_ricos_em IS NULL");
       expect(sql).toContain("provedores_em IS NULL");
       expect(sql).toContain("critica_igdb_em IS NULL");
+      // T-DADOS-07: fila dos livros sem avaliação coletada.
+      expect(sql).toContain("avaliacoes_atualizadas_em IS NULL");
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
       // incompleta" do alvo do job (membros com ano >= 2 e faltando aresta).
       expect(sql).toContain("franquia_membros");
@@ -478,6 +487,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           provedores: 17230,
           critica_igdb: 4946,
           arestas_franquia: 260,
+          avaliacao_livros: 600,
         },
       ];
     });
@@ -489,6 +499,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       provedores: 17230,
       criticaIgdb: 4946,
       arestasFranquia: 260,
+      avaliacaoLivros: 600,
     });
   });
 
@@ -506,6 +517,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       provedores: 0,
       criticaIgdb: 0,
       arestasFranquia: 0,
+      avaliacaoLivros: 0,
     });
   });
 });
@@ -1200,5 +1212,142 @@ describe("BackfillService.enriquecerArestasFranquia (T-DADOS-06)", () => {
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "arestasFranquia", ok: 0, falhas: 0 }]);
+  });
+});
+
+// ===========================================================================
+// T-DADOS-07 (D7) — avaliações públicas de livros (OpenLibrary por id do work)
+// ===========================================================================
+
+describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** Alvo do job (LIVRO openlibrary com a coluna de watermark nula). */
+  const alvo = [{ id: "m-livro-1", fonte_id: "OL471932W", titulo: "Duna" }];
+
+  it("chama o adapter REAL com idsExternos.openlibrary preenchido", async () => {
+    const { svc, prisma, openlibrary } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    openlibrary.coletar.mockResolvedValue([
+      { fonte: "openlibrary", rating: 4.2, media_fonte: 3.5, desvio_fonte: 0.6, votos: 83 },
+    ]);
+    await svc.enriquecerAvaliacaoLivros(100);
+    expect(openlibrary.coletar).toHaveBeenCalledWith({
+      tipo: "LIVRO",
+      titulo: "Duna",
+      idsExternos: { openlibrary: "OL471932W" },
+    });
+    // throttle da fonte aberta antes da chamada.
+    expect((svc as any).pausa).toHaveBeenCalledWith(250);
+    expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(
+      expect.stringContaining("m.avaliacoes_atualizadas_em IS NULL"),
+    );
+  });
+
+  it("sem nota: marca avaliacoes_atualizadas_em e NÃO grava/recalcula (fila drena)", async () => {
+    const { svc, prisma, mediaScore, openlibrary } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    openlibrary.coletar.mockResolvedValue([]);
+    const r = await svc.enriquecerAvaliacaoLivros(100);
+    expect(r).toEqual({ processados: 1, ok: 0, semAvaliacao: 1, falhas: 0 });
+    expect(prisma.avaliacaoFonte.upsert).not.toHaveBeenCalled();
+    expect(mediaScore.recalcularEPersistir).not.toHaveBeenCalled();
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.avaliacoes_atualizadas_em).toBeInstanceOf(Date);
+    expect(svc.status().avaliacaoLivros.executando).toBe(false);
+  });
+
+  it("com nota: upsert em avaliacao_fonte e recalcula o score do MESMO título", async () => {
+    const { svc, prisma, mediaScore, openlibrary } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    openlibrary.coletar.mockResolvedValue([
+      {
+        fonte: "openlibrary",
+        rating: 4.2289,
+        media_fonte: 3.5,
+        desvio_fonte: 0.6,
+        votos: 83,
+        url: "https://openlibrary.org/works/OL471932W",
+      },
+    ]);
+    const r = await svc.enriquecerAvaliacaoLivros(100);
+    expect(r).toEqual({ processados: 1, ok: 1, semAvaliacao: 0, falhas: 0 });
+    expect(prisma.avaliacaoFonte.upsert).toHaveBeenCalledWith({
+      where: { midia_id_fonte: { midia_id: "m-livro-1", fonte: "openlibrary" } },
+      create: {
+        midia_id: "m-livro-1",
+        fonte: "openlibrary",
+        rating: 4.2289,
+        media_fonte: 3.5,
+        desvio_fonte: 0.6,
+        votos: 83,
+        url: "https://openlibrary.org/works/OL471932W",
+      },
+      update: {
+        rating: 4.2289,
+        media_fonte: 3.5,
+        desvio_fonte: 0.6,
+        votos: 83,
+        url: "https://openlibrary.org/works/OL471932W",
+      },
+    });
+    expect(mediaScore.recalcularEPersistir).toHaveBeenCalledWith("m-livro-1");
+    expect(
+      (prisma.midia.update as any).mock.calls[0][0].data.avaliacoes_atualizadas_em,
+    ).toBeInstanceOf(Date);
+    expect(() => JSON.stringify(svc.status())).not.toThrow();
+  });
+
+  it("adapter inativo/ausente: falha o título e NÃO marca o watermark", async () => {
+    const { svc, prisma, openlibrary } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    openlibrary.ativo.mockReturnValue(false);
+    const r = await svc.enriquecerAvaliacaoLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semAvaliacao: 0, falhas: 1 });
+    expect(openlibrary.coletar).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("erro de rede: falha o título e NÃO marca o watermark (retenta)", async () => {
+    const { svc, prisma, openlibrary } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    openlibrary.coletar.mockRejectedValue(new Error("fetch failed"));
+    const r = await svc.enriquecerAvaliacaoLivros(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semAvaliacao: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("drenarLote consome a 8ª fila e conta os sem nota como drenados", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.spyOn(svc, "enriquecerAvaliacaoLivros").mockResolvedValue({
+      processados: 3,
+      ok: 1,
+      semAvaliacao: 2,
+      falhas: 0,
+    });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 600,
+          },
+        ];
+      }
+      return [];
+    });
+    const r = await svc.drenarLote(60_000);
+    expect(r.lotes).toEqual([{ tipo: "avaliacaoLivros", ok: 3, falhas: 0 }]);
+    expect(svc.enriquecerAvaliacaoLivros).toHaveBeenCalledWith(800);
   });
 });

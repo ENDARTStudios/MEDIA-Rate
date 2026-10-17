@@ -53,6 +53,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       criticaIgdb: number;
       // T-DADOS-06: fila de arestas SEQUENCIA_DE em franquias incompletas.
       arestasFranquia: number;
+      // T-DADOS-07: fila de notas de livros (OpenLibrary por id do work).
+      avaliacaoLivros: number;
     };
     erro?: string;
   } | null = null;
@@ -109,6 +111,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
     provedores: number;
     criticaIgdb: number;
     arestasFranquia: number;
+    avaliacaoLivros: number;
   }): number {
     return (
       p.semElenco +
@@ -117,7 +120,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       p.metadadosRicos +
       p.provedores +
       p.criticaIgdb +
-      p.arestasFranquia
+      p.arestasFranquia +
+      (p.avaliacaoLivros ?? 0)
     );
   }
 
@@ -135,7 +139,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         return;
       }
       this.logger.log(
-        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos} provedores=${antes.provedores} criticaIgdb=${antes.criticaIgdb} arestasFranquia=${antes.arestasFranquia}`,
+        `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos} provedores=${antes.provedores} criticaIgdb=${antes.criticaIgdb} arestasFranquia=${antes.arestasFranquia} avaliacaoLivros=${antes.avaliacaoLivros}`,
       );
       const r = await this.backfill.drenarLote(orcamentoMs());
       this.ultimoResumo = {
@@ -145,7 +149,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         ...(r.erro ? { erro: r.erro } : {}),
       };
       this.logger.log(
-        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} arestasFranquia=${r.pendentesDepois.arestasFranquia}`,
+        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} arestasFranquia=${r.pendentesDepois.arestasFranquia} avaliacaoLivros=${r.pendentesDepois.avaliacaoLivros}`,
       );
       // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
       // 6h (fila provavelmente presa: título sem elenco/país na fonte).
