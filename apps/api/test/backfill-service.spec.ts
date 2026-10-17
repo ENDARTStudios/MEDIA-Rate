@@ -34,6 +34,8 @@ import {
   nomeAutorOpenLibrary,
   mapearAutoresJikan,
   mapearAutoresKitsu,
+  // T-DADOS-15B: autores de mangás de `jikan` pela API oficial do MAL.
+  mapearAutoresMal,
   // T-DADOS-14B: sinopse de LIVRO (OpenLibrary → Google Books por ISBN),
   // roteada por idioma e limitada pelo teto diário.
   rotaSinopse,
@@ -504,7 +506,13 @@ describe("BackfillService.enriquecerMetadadosRicos (T-DADOS-01)", () => {
 });
 
 describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/generosGames/arestasFranquia/avaliacaoLivros/localizacao/criticaOmdb/sinopseMangaEn/sinopseLivros (T-DADOS-01/02/03/06/07/08/09/10/12/14B)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("conta as 15 filas na mesma query", async () => {
+    // T-DADOS-15A: a fila de sinopse de livro exige opt-in explícito.
+    vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
@@ -601,6 +609,32 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresLivros: 0,
       autoresMangas: 0,
     });
+  });
+
+  it("T-DADOS-15A: sem MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED a fila sinopseLivros é 0", async () => {
+    delete process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED;
+    const { svc, prisma } = makeService();
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 0 }];
+      return [{ sinopse_livros: 651 }];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ sinopseLivros: 0 });
+    // Nem a consulta do teto diário roda quando a fila está desligada.
+    expect(prisma.$queryRawUnsafe).not.toHaveBeenCalledWith(
+      expect.stringContaining("sinopse_livro_em::date = CURRENT_DATE"),
+    );
+  });
+
+  it("T-DADOS-15A: com opt-in explícito devolve a contagem real do banco", async () => {
+    vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
+    const { svc, prisma } = makeService();
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 0 }];
+      return [{ sinopse_livros: 651 }];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ sinopseLivros: 651 });
   });
 });
 
@@ -2529,6 +2563,30 @@ describe("mappers de autores (T-DADOS-13B)", () => {
     expect(mapearAutoresJikan({})).toEqual([]);
   });
 
+  it("MAL: authors[].node → id + nome; inválidos descartados (T-DADOS-15B)", () => {
+    expect(
+      mapearAutoresMal({
+        id: 13,
+        authors: [
+          { node: { id: 1881, first_name: "Eiichiro", last_name: "Oda" }, role: "Story & Art" },
+          { node: { id: 0, first_name: "Sem", last_name: "Id" }, role: "Story" },
+          { node: { id: 55, first_name: "", last_name: "" }, role: "Art" },
+          { node: { id: 77, first_name: "Outro", last_name: "Autor" }, role: "Art" },
+          { node: { id: 1881, first_name: "Duplicado", last_name: "Oda" }, role: "Story" },
+        ],
+      }),
+    ).toEqual([
+      { fonte_id: "1881", nome: "Eiichiro Oda", fonte: "mal", ordem: 0 },
+      { fonte_id: "77", nome: "Outro Autor", fonte: "mal", ordem: 3 },
+    ]);
+    // Nome só com um dos campos é aceito.
+    expect(mapearAutoresMal({ authors: [{ node: { id: 1, first_name: "Mononome" } }] })).toEqual([
+      { fonte_id: "1", nome: "Mononome", fonte: "mal", ordem: 0 },
+    ]);
+    expect(mapearAutoresMal({})).toEqual([]);
+    expect(mapearAutoresMal(null)).toEqual([]);
+  });
+
   it("Kitsu: staff (Story/Art) + included person → id/nome/ordem; ignora papéis não-autorais", () => {
     expect(
       mapearAutoresKitsu({
@@ -2681,27 +2739,83 @@ describe("BackfillService.enriquecerAutoresLivros (T-DADOS-13B)", () => {
   });
 });
 
-describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B)", () => {
+describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B/15B)", () => {
+  const URL_MAL_MANGA_13 =
+    "https://api.myanimelist.net/v2/manga/13?fields=" +
+    encodeURIComponent("authors{id,first_name,last_name}");
+
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.MAL_CLIENT_ID = "mal-client-id-de-teste";
   });
 
-  it("Jikan: data.authors[] → personagem 'Autor' com fonte jikan e ordem", async () => {
+  afterEach(() => {
+    delete process.env.MAL_CLIENT_ID;
+  });
+
+  it("MAL: authors[].node → personagem 'Autor' com fonte mal e ordem", async () => {
     const alvo = [{ id: "m-manga-1", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
     (fetchJson as any).mockResolvedValue({
-      data: { authors: [{ mal_id: 1234, name: "Eiichiro Oda" }] },
+      id: 13,
+      authors: [
+        { node: { id: 1881, first_name: "Eiichiro", last_name: "Oda" }, role: "Story & Art" },
+      ],
     });
     const r = await svc.enriquecerAutoresMangas(10);
     expect(r).toEqual({ processados: 1, ok: 1, semAutores: 0, falhas: 0 });
+    expect((fetchJson as any).mock.calls[0][0]).toBe(URL_MAL_MANGA_13);
+    expect((fetchJson as any).mock.calls[0][1].headers).toMatchObject({
+      "Accept": "application/json",
+      "X-MAL-CLIENT-ID": "mal-client-id-de-teste",
+    });
     const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
     expect(chamada.where.midia_id_fonte_fonte_id).toEqual({
       midia_id: "m-manga-1",
-      fonte: "jikan",
-      fonte_id: "1234",
+      fonte: "mal",
+      fonte_id: "1881",
     });
-    expect(chamada.create).toMatchObject({ personagem: "Autor", ordem: 0, foto_url: null });
+    expect(chamada.create).toMatchObject({
+      fonte: "mal",
+      nome: "Eiichiro Oda",
+      personagem: "Autor",
+      ordem: 0,
+      foto_url: null,
+    });
+  });
+
+  it("payload sem authors: marca o watermark e NÃO grava elenco", async () => {
+    const alvo = [{ id: "m-manga-1", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({ id: 13, title: "One Piece" });
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semAutores: 1, falhas: 0 });
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+  });
+
+  it("falha de rede/API: NÃO marca autores_em (retenta)", async () => {
+    const alvo = [{ id: "m-manga-1", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 401 em api.myanimelist.net", 401));
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semAutores: 0, falhas: 1 });
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("MAL_CLIENT_ID ausente: falha sem chamada e sem watermark", async () => {
+    delete process.env.MAL_CLIENT_ID;
+    const alvo = [{ id: "m-manga-1", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const r = await svc.enriquecerAutoresMangas(10);
+    expect(r).toEqual({ processados: 1, ok: 0, semAutores: 0, falhas: 1 });
+    expect(fetchJson).not.toHaveBeenCalled();
+    expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 
   it("Kitsu: /manga/<id>/staff?include=person → autores com fonte kitsu", async () => {
@@ -2838,6 +2952,10 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
     vi.mocked(fetchJson).mockReset();
   });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   const alvoBase = {
     id: "m-livro-1",
     fonte_id: "OL471932W",
@@ -2922,6 +3040,7 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
   });
 
   it("orçamento esgotado (700 usados hoje): fila 0 e job não processa", async () => {
+    vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 700 });
     (svc as any).pausa = vi.fn(async () => undefined);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
@@ -2937,6 +3056,7 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
   });
 
   it("690 usados hoje: fila 10 e o alvo é limitado a 10", async () => {
+    vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 690 });
     (svc as any).pausa = vi.fn(async () => undefined);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
@@ -2956,6 +3076,7 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
   });
 
   it("drenarLote consome a fila sinopseLivros e conta os sem dado como drenados", async () => {
+    vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService({ alvo: [] });
     (svc as any).pausa = vi.fn(async () => undefined);
     vi.spyOn(svc, "enriquecerSinopseLivros").mockResolvedValue({
@@ -2981,5 +3102,21 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-14B)", () => {
     expect(r.pendentesAntes.sinopseLivros).toBe(3);
     expect(r.lotes).toEqual([{ tipo: "sinopseLivros", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerSinopseLivros).toHaveBeenCalledWith(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
+  });
+
+  it("T-DADOS-15A: sem env o drenarLote NÃO chama o job de sinopse de livros", async () => {
+    delete process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED;
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/sem_elenco/.test(sql)) return [{ sem_elenco: 0, sinopse_livros: 651 }];
+      return [];
+    });
+    const drenar = vi.spyOn(svc, "enriquecerSinopseLivros");
+    const r = await svc.drenarLote(60_000);
+    expect(r.pendentesAntes.sinopseLivros).toBe(0);
+    expect(drenar).not.toHaveBeenCalled();
+    expect(r.lotes.some((l) => l.tipo === "sinopseLivros")).toBe(false);
   });
 });
