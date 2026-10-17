@@ -1319,6 +1319,62 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 
+  it("adapter ativo: fila reflete a contagem real de livros sem coleta", async () => {
+    const { svc, prisma } = makeService();
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 600,
+          },
+        ];
+      }
+      return [];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ avaliacaoLivros: 600 });
+  });
+
+  it("adapter inativo ou ausente: fila 0 e drenarLote NÃO chama o job (dormente, sem ruído)", async () => {
+    const { svc, prisma, coleta, openlibrary } = makeService({ alvo: [] });
+    openlibrary.ativo.mockReturnValue(false);
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 600,
+          },
+        ];
+      }
+      return [];
+    });
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ avaliacaoLivros: 0 });
+    const job = vi.spyOn(svc, "enriquecerAvaliacaoLivros");
+    const r = await svc.drenarLote(60_000);
+    expect(job).not.toHaveBeenCalled();
+    expect(r.lotes).toEqual([]);
+    expect(svc.status().avaliacaoLivros.falhas).toBe(0);
+
+    // Adapter removido do ColetaService (fonte indisponível) → mesmo no-op.
+    coleta.adaptadores.length = 0;
+    await expect(svc.contarPendentes()).resolves.toMatchObject({ avaliacaoLivros: 0 });
+  });
+
   it("drenarLote consome a 8ª fila e conta os sem nota como drenados", async () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (svc as any).pausa = vi.fn(async () => undefined);

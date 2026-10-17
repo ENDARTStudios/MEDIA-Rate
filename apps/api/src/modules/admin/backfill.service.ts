@@ -513,6 +513,18 @@ export class BackfillService {
     await new Promise((r) => setTimeout(r, ms));
   }
 
+  /**
+   * T-DADOS-07: a fila de livros só existe quando a fonte está habilitada.
+   * OpenLibrary compartilha o gate de plataforma `MEDIA_PREPARACAO_ENABLED`
+   * (igual aos adapters de scraping). Sem isso o drain tentaria 800 títulos
+   * por tique para sempre, todos falhando, e cairia no backoff de 6h com erro
+   * repetido. Consulta o estado UMA vez (não por título).
+   */
+  private filaAvaliacaoLivrosAtiva(): boolean {
+    const adapter = this.coleta.adaptadores.find((a) => a.id === "openlibrary");
+    return Boolean(adapter?.ativo());
+  }
+
   private async tmdb(caminho: string, chave: string): Promise<any> {
     const url = `${TMDB_BASE}${caminho}${caminho.includes("?") ? "&" : "?"}api_key=${chave}&language=pt-BR`;
     await this.pausa(PAUSA_MS);
@@ -1076,6 +1088,10 @@ export class BackfillService {
    * valha em produção e não duplique HTTP. Watermark gravado SEMPRE ao fim do
    * título (com ou sem nota) para a fila drenar; falha de rede/inatividade não
    * marca (retenta na próxima rodada). Nunca lança por título.
+   *
+   * A fila aparece sozinha quando `MEDIA_PREPARACAO_ENABLED=true` (gate de
+   * plataforma compartilhado com os demais adapters); antes disso é no-op por
+   * desenho — `contarPendentes()` devolve 0 e o drain nem chama este job.
    */
   async enriquecerAvaliacaoLivros(limite: number): Promise<{
     processados: number;
@@ -1565,6 +1581,10 @@ export class BackfillService {
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
+    // T-DADOS-07: fila condicionada ao gate da fonte — inativa = 0 (dormente).
+    const filaAvaliacaoLivros = this.filaAvaliacaoLivrosAtiva()
+      ? Number(row?.avaliacao_livros ?? 0)
+      : 0;
     return {
       semElenco: Number(row?.sem_elenco ?? 0),
       seriesSemTemporada: Number(row?.sem_temp ?? 0),
@@ -1573,7 +1593,7 @@ export class BackfillService {
       provedores: Number(row?.provedores ?? 0),
       criticaIgdb: Number(row?.critica_igdb ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
-      avaliacaoLivros: Number(row?.avaliacao_livros ?? 0),
+      avaliacaoLivros: filaAvaliacaoLivros,
     };
   }
 
