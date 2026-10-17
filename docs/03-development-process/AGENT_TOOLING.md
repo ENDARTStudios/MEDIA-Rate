@@ -141,3 +141,23 @@ oferece já estão cobertas aqui.
 (2) instalar o CLI dentro dela (`curl -sL https://plandex.ai/install.sh | bash`); (3) subir o
 local mode em Docker; (4) exportar a chave do provider no ambiente do WSL; (5) **desligar o
 commit automático** e trabalhar em branch, como qualquer agente deste repositório.
+
+## Ideias do Plandex **adotadas** neste repositório
+
+Depois da avaliação (D-654), estas ideias dele foram copiadas — cada uma no formato que já
+existe aqui, sem instalar a ferramenta:
+
+| Ideia do Plandex | Onde já vivia | O que foi feito |
+|---|---|---|
+| Project map (tree-sitter), carregar só o necessário por passo | **Graft** + regra GRAFT-FIRST no `AGENTS.md` | nada a fazer — já coberto |
+| Debug automatizado de build/lint/teste | CI + skill `media-rate-ci-ops` | nada a fazer — já coberto |
+| Chat com consciência do projeto | harness + `.zcode/agents/` | nada a fazer — já coberto |
+| **Sandbox de diff cumulativo / revisão antes de aplicar** | **não existia** | **`npm run review:diff`** — `scripts/review-diff.mjs`: mostra o diff acumulado contra `origin/main`, agrupa por área, conta o que está pendente no working tree e **avisa** acima de 40 arquivos / 1500 linhas ou com diff disperso entre áreas |
+| Commit automático | git — e **proibido** aqui | **rejeitada de propósito**: `main` é auto-deployado e push direto é proibido (D-457/T459) |
+
+**Por que só essa lacuna virou código.** As três primeiras ideias já estavam implementadas
+por outro caminho; repeti-las seria cerimônia. A quarta é a que faltava — e tem um caso real
+que a justifica: um commit único de **386 arquivos** (~21k linhas) atravessou áreas
+diferentes e custou várias rodadas de conserto, porque um diff desse tamanho **não é
+revisável**. O script é *advisory* (não bloqueia merge, não entra no CI): existe para o passo
+de **enxergar** o acumulado antes de publicá-lo.
