@@ -18,7 +18,6 @@ import { getCatalog } from "@/lib/api";
 // D-209/T191: contagem e nomes de fontes são DERIVADOS do registro — o hero
 // nunca volta a exibir número hardcoded nem lista fixa de 6 nomes.
 import { FONTES_ATIVAS, NUM_FONTES_ATIVAS } from "@/lib/sources";
-import { HomeContentSections } from "@/components/HomeContentSections";
 import { DecisionHighlights } from "@/components/DecisionHighlights";
 import { BecauseYouConsumed } from "@/components/discovery/BecauseYouConsumed";
 import { MediaCarousel, mapToMediaItem } from "@/components/media-rate-ui/MediaCarousel";
@@ -325,8 +324,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           </Link>
         </div>
       </section>
-
-      <HomeContentSections locale={locale} />
     </LayeredBackground>
   );
 }
