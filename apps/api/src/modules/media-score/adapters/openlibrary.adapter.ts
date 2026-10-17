@@ -49,14 +49,14 @@ export function normalizarTituloOpenLibrary(valor: string): string {
 export class OpenLibraryAdapter implements FonteAdapter {
   readonly id = "openlibrary";
 
-  private readonly fasePreparacao = process.env.MEDIA_PREPARACAO_ENABLED === "true";
-
   atendeTipo(tipo: string): boolean {
     return dominioDoTipo(tipo) === "livro";
   }
 
   ativo(): boolean {
-    return this.fasePreparacao;
+    // API aberta, sem scraping; liberada por decisão do Operador (T-DADOS-14A).
+    // As demais fontes do grupo de preparação continuam gateadas.
+    return true;
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
