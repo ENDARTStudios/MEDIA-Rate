@@ -5,6 +5,8 @@ import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { UA_BROWSER } from "../media-score/adapters/http.utils.js";
 import { fetchJson, postJson } from "../media-score/adapters/http.utils.js";
+// T-DADOS-23A: mesma sanitização de termo de busca (aspas/barras) do adapter.
+import { sanitizarTituloOpenLibrary } from "../media-score/adapters/openlibrary.adapter.js";
 import { estatisticas } from "../media-score/adapters/fonte-adapter.interface.js";
 import { MediaScoreService } from "../media-score/media-score.service.js";
 import { ColetaService } from "../media-score/coleta.service.js";
@@ -52,8 +54,8 @@ const JIKAN_BASE = "https://api.jikan.moe/v4";
 // oficial do MAL (mesmo id, pois o Jikan é wrapper do MAL) resolve os autores.
 const MAL_BASE = "https://api.myanimelist.net/v2";
 const MAL_CAMPOS_AUTORES = "authors{id,first_name,last_name}";
-// T-DADOS-14B: OpenLibrary editions + Google Books por ISBN — throttle de
-// 300ms entre as chamadas (a cota do Google Books é compartilhada).
+// T-DADOS-23A: busca no Google Books (título + autores) — throttle de 300ms
+// entre as chamadas (a cota do Google Books é compartilhada).
 const PAUSA_SINOPSE_LIVRO_MS = 300;
 const GOOGLE_BOOKS_BASE = "https://www.googleapis.com/books/v1/volumes";
 // T-DADOS-17: ComicVine free = 200 recursos/hora; o job faz ~2 chamadas por
@@ -88,8 +90,8 @@ export type BackfillTipo =
   | "criticaOmdb"
   // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
   | "sinopseMangaEn"
-  // T-DADOS-14B: sinopse de LIVRO (OpenLibrary editions → Google Books por
-  // ISBN) roteada para sinopse/sinopse_en/sinopse_es pelo idioma.
+  // T-DADOS-14B/23A: sinopse de LIVRO (Google Books por busca título+autores)
+  // roteada para sinopse/sinopse_en/sinopse_es pelo idioma.
   | "sinopseLivros"
   // T-DADOS-13B: autores de LIVRO (OpenLibrary por id) e de MANGA
   // (Jikan/Kitsu por id) em midia_elenco com personagem "Autor".
@@ -754,7 +756,7 @@ export function mapearSynopsisJikan(payload: any): string | null {
 }
 
 // ===========================================================================
-// T-DADOS-14B — sinopse de LIVRO (OpenLibrary → Google Books) por idioma
+// T-DADOS-14B/23A — sinopse de LIVRO (Google Books por busca) por idioma
 // ===========================================================================
 
 /** Campo de sinopse roteado pelo idioma declarado no Google Books. */
@@ -788,38 +790,95 @@ export function rotaSinopse(
 }
 
 /**
- * T-DADOS-14B: `GET /works/<id>/editions.json?fields=isbn_13,isbn_10` →
- * `entries[]`. Devolve o primeiro ISBN não vazio prefirindo `isbn_13` em todas
- * as edições e só então `isbn_10`. Payload ausente/estranho → null.
+ * T-DADOS-23A: normaliza título/autor para comparação de identidade (caixa,
+ * acentos e toda pontuação/espacos fora). "J.R.R. Tolkien" e "J. R. R. Tolkien"
+ * viram `jrrtolkien`; o mesmo vale para o título.
  */
-export function primeiroIsbnDasEdicoes(payload: any): string | null {
-  const entries = Array.isArray(payload?.entries) ? payload.entries : [];
-  for (const campo of ["isbn_13", "isbn_10"] as const) {
-    for (const entry of entries) {
-      const lista = Array.isArray(entry?.[campo]) ? entry[campo] : [];
-      for (const bruto of lista) {
-        if (typeof bruto !== "string") continue;
-        const isbn = bruto.trim();
-        if (isbn) return isbn;
-      }
-    }
-  }
-  return null;
+export function normalizarTituloLivro(valor: string | null | undefined): string {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
 }
 
 /**
- * T-DADOS-14B: `GET /books/v1/volumes?q=isbn:<isbn>` → `items[0].volumeInfo`.
- * Só lê `language`/`description`; payload estranho → ambos null.
+ * T-DADOS-23A: consulta em linguagem natural (o Google Books devolve 0 para os
+ * operadores `intitle:`/`isbn:`). Título + até 2 autores, sanitizados (aspas e
+ * barras quebram a busca) e com espaços colapsados.
  */
-export function volumeInfoGoogleBooks(payload: any): {
+export function montarConsultaGoogleBooks(
+  titulo: string | null | undefined,
+  autores: readonly string[] | null | undefined,
+): string {
+  const partes = [titulo, ...(Array.isArray(autores) ? autores.slice(0, 2) : [])]
+    .map((p) => sanitizarTituloOpenLibrary(String(p ?? "")))
+    .filter(Boolean);
+  return partes.join(" ");
+}
+
+/** Item relevante do `items[]` do Google Books (`volumeInfo`). */
+export interface ItemGoogleBooks {
+  title: string;
+  authors: string[];
   language: string | null;
   description: string | null;
-} {
-  const info = payload?.items?.[0]?.volumeInfo;
-  return {
-    language: typeof info?.language === "string" ? info.language : null,
-    description: typeof info?.description === "string" ? info.description : null,
-  };
+}
+
+/** T-DADOS-23A: lê TODOS os itens (várias edições/idiomas); payload estranho → []. */
+export function itensGoogleBooks(payload: any): ItemGoogleBooks[] {
+  const items = Array.isArray(payload?.items) ? payload.items : [];
+  const saida: ItemGoogleBooks[] = [];
+  for (const item of items) {
+    const info = item?.volumeInfo;
+    if (!info || typeof info !== "object") continue;
+    saida.push({
+      title: typeof info.title === "string" ? info.title : "",
+      authors: Array.isArray(info.authors)
+        ? info.authors.filter((a: unknown): a is string => typeof a === "string")
+        : [],
+      language: typeof info.language === "string" ? info.language : null,
+      description: typeof info.description === "string" ? info.description : null,
+    });
+  }
+  return saida;
+}
+
+/**
+ * T-DADOS-23A: autor do item casa com um autor do banco por igualdade
+ * normalizada OU por containment ("Tolkien" × "J.R.R. Tolkien"). Vazio nunca
+ * casa (não fabrica identidade).
+ */
+export function autorDoLivroCasa(
+  autorItem: string | null | undefined,
+  autorMidia: string | null | undefined,
+): boolean {
+  const a = normalizarTituloLivro(autorItem);
+  const b = normalizarTituloLivro(autorMidia);
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+/**
+ * T-DADOS-23A — guarda dupla: (1) título normalizado OBRIGATORIAMENTE igual;
+ * (2) se a obra tem autores, ao menos um autor do item casa por igualdade ou
+ * containment. Obra sem autor no banco: aceita só pela igualdade de título.
+ * "Primeiro resultado" nunca é usado sem passar por aqui.
+ */
+export function itemCasaComLivro(
+  item: ItemGoogleBooks,
+  tituloMidia: string | null | undefined,
+  autoresMidia: readonly string[] | null | undefined,
+): boolean {
+  const alvo = normalizarTituloLivro(tituloMidia);
+  if (!alvo || normalizarTituloLivro(item?.title) !== alvo) return false;
+  const autores = (Array.isArray(autoresMidia) ? autoresMidia : [])
+    .map((a) => String(a ?? "").trim())
+    .filter(Boolean);
+  if (autores.length === 0) return true;
+  return (item.authors ?? []).some((autorItem) =>
+    autores.some((autorMidia) => autorDoLivroCasa(autorItem, autorMidia)),
+  );
 }
 
 /** T-DADOS-14B: quantas consultas ao Google Books ainda cabem hoje. */
@@ -1131,11 +1190,14 @@ export class BackfillService {
     return Boolean(adapter?.ativo());
   }
 
-  /** T-DADOS-15A: a sinopse de livro está desligada por padrão — a fonte
-   * (Google Books) filtra por país/direitos no egress e devolve zero para
-   * clássicos (medido 2026-10-17). Liga só com opt-in explícito. */
+  /**
+   * T-DADOS-23A: a fila fica ATIVA por padrão — a justificativa anterior
+   * ("a fonte devolve zero") foi refutada: o problema eram os operadores
+   * `intitle:`/`isbn:`. A variável vira KILL-SWITCH:
+   * `MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED=false` desliga; ausente/`true` ativa.
+   */
   private filaSinopseLivrosAtiva(): boolean {
-    return process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED === "true";
+    return process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED?.trim().toLowerCase() !== "false";
   }
 
   /**
@@ -2345,32 +2407,34 @@ export class BackfillService {
   }
 
   /**
-   * T-DADOS-14B: sinopse dos LIVROS do catálogo OpenLibrary, com roteamento
+   * T-DADOS-23A: sinopse dos LIVROS do catálogo OpenLibrary, com roteamento
    * por IDIOMA (D6).
    *
-   * Por que existe: 600 de 651 livros não têm `sinopse` pt e praticamente
-   * nenhum tem `sinopse_en`/`sinopse_es`. O texto do OpenLibrary não declara
-   * idioma (amostra EN/FR/ES/SV), então NÃO pode ir direto para `sinopse`.
-   * Fluxo por id EXATO: `fonte_id` (`OL…W`) →
-   *  - `GET /works/<id>/editions.json?limit=5&fields=isbn_13,isbn_10` →
-   *    primeiro ISBN (prefere `isbn_13`, depois `isbn_10`);
-   *  - `GET /books/v1/volumes?q=isbn:<isbn>` → `items[0].volumeInfo` com
-   *    `language` e `description`.
+   * Por que a consulta mudou: o Google Books devolve `totalItems: 0` para os
+   * operadores `intitle:`/`isbn:` (medido em produção em 2026-10-17, até com
+   * ISBN canônico e país). Busca em linguagem natural funciona:
+   *  - `GET /books/v1/volumes?q=<título + até 2 autores>&maxResults=20&key=…`.
+   * A resposta traz VÁRIAS edições/idiomas — nunca usamos o primeiro item sem
+   * a guarda dupla (`itemCasaComLivro`): título normalizado obrigatoriamente
+   * igual e, se a obra tem autores, ao menos um autor do item casando (igual
+   * ou containment: "J.R.R. Tolkien" × "J. R. R. Tolkien"). Homônimo com autor
+   * diferente é rejeitado.
+   *
    * `rotaSinopse()` só grava pt/en/es no campo correspondente; outros idiomas
-   * ou `language` ausente ficam nulos (lacuna honesta). NUNCA sobrescreve
-   * texto já existente (o update é montado condicionalmente a partir do
-   * SELECT do alvo).
+   * ou `language` ausente ficam nulos (lacuna honesta). Como há várias
+   * edições, uma coluna por idioma pode ser preenchida na mesma rodada. NUNCA
+   * sobrescreve texto já existente (update montado a partir do SELECT do alvo).
    *
    * Teto diário: `ORCAMENTO_GOOGLE_BOOKS_DIARIO` (700), contando os títulos já
    * processados hoje (`sinopse_livro_em::date = CURRENT_DATE`). 429 do Google
    * Books aborta o lote NA HORA (sem marcar o watermark do título corrente);
-   * as próximas rodadas retomam. Sem ISBN: marca o watermark e segue (não gasta
-   * cota). Erro de rede não marca watermark. Nunca lança por título.
+   * as próximas rodadas retomam. Erro de rede não marca watermark. Nunca lança
+   * por título.
    */
   async enriquecerSinopseLivros(limite: number): Promise<{
     processados: number;
     ok: number;
-    semIsbn: number;
+    semMatch: number;
     semIdioma: number;
     semDescricao: number;
     falhas: number;
@@ -2397,7 +2461,7 @@ export class BackfillService {
       return {
         processados: 0,
         ok: 0,
-        semIsbn: 0,
+        semMatch: 0,
         semIdioma: 0,
         semDescricao: 0,
         falhas: 0,
@@ -2414,10 +2478,16 @@ export class BackfillService {
         sinopse: string | null;
         sinopse_en: string | null;
         sinopse_es: string | null;
+        autores: string[] | null;
       }[]
     >(
       `SELECT m.id::text, m.fonte_id, m.titulo,
-              m.sinopse, m.sinopse_en, m.sinopse_es
+              m.sinopse, m.sinopse_en, m.sinopse_es,
+              COALESCE((
+                SELECT array_agg(e.nome ORDER BY e.ordem ASC, e.nome ASC)
+                  FROM midia_elenco e
+                 WHERE e.midia_id = m.id AND e.personagem = 'Autor'
+              ), ARRAY[]::text[]) AS autores
        FROM midia m
        WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
          AND m.sinopse_livro_em IS NULL
@@ -2431,7 +2501,7 @@ export class BackfillService {
     const alvo = alvoBruto.slice(0, limiteEfetivo);
     const chave = process.env.GOOGLE_BOOKS_API_KEY;
     this.logger.log(`Backfill sinopse de livros: ${alvo.length} títulos alvo.`);
-    let semIsbn = 0;
+    let semMatch = 0;
     let semIdioma = 0;
     let semDescricao = 0;
     let interrompidoPorCota = false;
@@ -2439,36 +2509,44 @@ export class BackfillService {
       this.estado.sinopseLivros.processados++;
       this.estado.sinopseLivros.atual = m.titulo;
       try {
-        const editions = await this.openLibraryEditions(m.fonte_id);
-        const isbn = primeiroIsbnDasEdicoes(editions);
-        if (!isbn) {
-          // Ausência honesta: sem ISBN não há consulta ao Google Books.
-          semIsbn++;
-        } else {
-          const payload = await this.googleBooksPorIsbn(isbn, chave);
-          const info = volumeInfoGoogleBooks(payload);
-          const rota = rotaSinopse(info.language, info.description);
-          if (rota) {
-            // Só grava se o campo roteado estiver vazio HOJE — a sinopse pt
-            // curada (ou qualquer tradução já existente) nunca é sobrescrita.
-            const data: Record<string, unknown> = { sinopse_livro_em: new Date() };
-            if (textoVazio(m[rota.campo])) data[rota.campo] = rota.texto;
-            await this.prisma.midia.update({ where: { id: m.id }, data: data as any });
-            this.estado.sinopseLivros.ok++;
-            continue;
-          }
-          if (textoVazio(info.description)) {
-            semDescricao++;
-          } else {
-            semIdioma++;
+        const autores = Array.isArray(m.autores) ? m.autores : [];
+        const payload = await this.googleBooksBusca(m.titulo, autores, chave);
+        // Uma coluna por idioma: várias edições podem preencher pt/en/es na
+        // mesma rodada. O título/autores filtram homônimos e edições erradas.
+        const data: {
+          sinopse_livro_em: Date;
+          sinopse?: string;
+          sinopse_en?: string;
+          sinopse_es?: string;
+        } = { sinopse_livro_em: new Date() };
+        let aceitos = 0;
+        let comDescricao = 0;
+        let roteaveis = 0;
+        for (const item of itensGoogleBooks(payload)) {
+          if (!itemCasaComLivro(item, m.titulo, autores)) continue;
+          aceitos++;
+          if (!textoVazio(item.description)) comDescricao++;
+          const rota = rotaSinopse(item.language, item.description);
+          if (!rota) continue;
+          roteaveis++;
+          // Só grava se o campo estiver vazio HOJE — a sinopse pt curada (ou
+          // qualquer tradução já existente) nunca é sobrescrita.
+          if (textoVazio(m[rota.campo]) && data[rota.campo] === undefined) {
+            data[rota.campo] = rota.texto;
           }
         }
-        // Watermark SEMPRE em título processado (mesmo sem ISBN/idioma/texto):
+        if (aceitos === 0) {
+          semMatch++;
+        } else if (roteaveis > 0) {
+          this.estado.sinopseLivros.ok++;
+        } else if (comDescricao === 0) {
+          semDescricao++;
+        } else {
+          semIdioma++;
+        }
+        // Watermark SEMPRE em título processado (mesmo sem match/idioma/texto):
         // sem isso a fila travaria nesses livros.
-        await this.prisma.midia.update({
-          where: { id: m.id },
-          data: { sinopse_livro_em: new Date() },
-        });
+        await this.prisma.midia.update({ where: { id: m.id }, data });
       } catch (e) {
         if (eh429(e)) {
           // Cota do Google Books esgotada: aborta o lote SEM marcar o
@@ -2488,15 +2566,15 @@ export class BackfillService {
     }
     this.estado.sinopseLivros.executando = false;
     this.estado.sinopseLivros.atual =
-      `fim: ok=${this.estado.sinopseLivros.ok} sem_isbn=${semIsbn} sem_idioma=${semIdioma} sem_descricao=${semDescricao} falhas=${this.estado.sinopseLivros.falhas}` +
+      `fim: ok=${this.estado.sinopseLivros.ok} sem_match=${semMatch} sem_idioma=${semIdioma} sem_descricao=${semDescricao} falhas=${this.estado.sinopseLivros.falhas}` +
       (interrompidoPorCota ? " interrompido_por_cota=1" : "");
     this.logger.log(
-      `Backfill sinopse de livros fim: ok=${this.estado.sinopseLivros.ok} sem_isbn=${semIsbn} sem_idioma=${semIdioma} sem_descricao=${semDescricao} falhas=${this.estado.sinopseLivros.falhas} interrompido_por_cota=${interrompidoPorCota ? 1 : 0}.`,
+      `Backfill sinopse de livros fim: ok=${this.estado.sinopseLivros.ok} sem_match=${semMatch} sem_idioma=${semIdioma} sem_descricao=${semDescricao} falhas=${this.estado.sinopseLivros.falhas} interrompido_por_cota=${interrompidoPorCota ? 1 : 0}.`,
     );
     return {
       processados: this.estado.sinopseLivros.processados,
       ok: this.estado.sinopseLivros.ok,
-      semIsbn,
+      semMatch,
       semIdioma,
       semDescricao,
       falhas: this.estado.sinopseLivros.falhas,
@@ -2504,20 +2582,19 @@ export class BackfillService {
     };
   }
 
-  /** T-DADOS-14B: editions do work (throttle ≥300ms antes da chamada). */
-  private async openLibraryEditions(fonteId: string): Promise<any> {
-    const work = chaveWorkOpenLibrary(fonteId);
-    if (!work) return null;
-    await this.pausa(PAUSA_SINOPSE_LIVRO_MS);
-    return fetchJson<any>(
-      `${OL_BASE}/works/${encodeURIComponent(work)}/editions.json?limit=5&fields=isbn_13,isbn_10`,
-      { headers: { "User-Agent": UA_BROWSER, "Accept": "application/json" }, timeoutMs: 20000 },
-    );
-  }
-
-  /** T-DADOS-14B: Google Books por ISBN (throttle ≥300ms; 429 propaga). */
-  private async googleBooksPorIsbn(isbn: string, chave: string | undefined): Promise<any> {
-    const params = new URLSearchParams({ q: `isbn:${isbn}`, maxResults: "1" });
+  /**
+   * T-DADOS-23A: Google Books por busca em linguagem natural (título + até 2
+   * autores). Throttle ≥300ms; 429 propaga para abortar o lote.
+   */
+  private async googleBooksBusca(
+    titulo: string,
+    autores: readonly string[],
+    chave: string | undefined,
+  ): Promise<any> {
+    const params = new URLSearchParams({
+      q: montarConsultaGoogleBooks(titulo, autores),
+      maxResults: "20",
+    });
     if (chave) params.set("key", chave);
     await this.pausa(PAUSA_SINOPSE_LIVRO_MS);
     return fetchJson<any>(`${GOOGLE_BOOKS_BASE}?${params.toString()}`, {
@@ -3460,10 +3537,10 @@ export class BackfillService {
     const restanteOmdb = filaCriticaOmdbAtiva
       ? orcamentoOmdbRestante(await this.queriesOmdbHoje())
       : 0;
-    // T-DADOS-15A: a fila de sinopse de livro fica dormente (0) sem opt-in
-    // explícito — a fonte mediu zero para clássicos no egress do Railway.
-    // T-DADOS-14B: quando ligada, limita ao restante do teto diário do Google
-    // Books — cota esgotada = 0 (o drain não gira em falso até o dia seguinte).
+    // T-DADOS-23A: a fila de sinopse de livro é ATIVA por padrão (a variável
+    // é kill-switch: `=false` desliga). Quando ativa, limita ao restante do
+    // teto diário do Google Books — cota esgotada = 0 (o drain não gira em
+    // falso até o dia seguinte).
     const filaSinopseLivrosAtiva = this.filaSinopseLivrosAtiva();
     const restanteGoogleBooks = filaSinopseLivrosAtiva
       ? orcamentoGoogleBooksRestante(await this.titulosSinopseLivroHoje())
@@ -3573,14 +3650,14 @@ export class BackfillService {
         const r = await this.enriquecerSinopseMangaEn(800);
         lotes.push({ tipo: "sinopseMangaEn", ok: r.ok + r.semSynopsis, falhas: r.falhas });
       }
-      // T-DADOS-14B: sinopse de LIVRO (OpenLibrary → Google Books, 300ms por
-      // chamada, teto diário de 700). `ok` soma sem_ISBN/idioma/descrição:
-      // saíram da fila pelo watermark.
+      // T-DADOS-23A: sinopse de LIVRO (Google Books por busca título+autores,
+      // 300ms por chamada, teto diário de 700). `ok` soma sem_match/idioma/
+      // descrição: saíram da fila pelo watermark.
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseLivros ?? 0) > 0) {
         const r = await this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
         lotes.push({
           tipo: "sinopseLivros",
-          ok: r.ok + r.semIsbn + r.semIdioma + r.semDescricao,
+          ok: r.ok + r.semMatch + r.semIdioma + r.semDescricao,
           falhas: r.falhas,
         });
       }
