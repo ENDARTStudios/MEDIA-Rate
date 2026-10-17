@@ -409,6 +409,9 @@ model Midia {
   // NULL = nunca tentado; marcado SEMPRE, mesmo quando o IGDB não tem
   // aggregated_rating para aquele jogo (evita fila presa).
   critica_igdb_em           DateTime? @map("critica_igdb_em")
+  // T-DADOS-08: watermark da coleta de localização (en/es) e classificação
+  // indicativa/regional do TMDB. NULL = nunca tentado; marcado SEMPRE.
+  localizacao_em            DateTime? @map("localizacao_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
