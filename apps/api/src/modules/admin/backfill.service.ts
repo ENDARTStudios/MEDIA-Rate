@@ -7,6 +7,7 @@ import { UA_BROWSER } from "../media-score/adapters/http.utils.js";
 import { fetchJson, postJson } from "../media-score/adapters/http.utils.js";
 import { estatisticas } from "../media-score/adapters/fonte-adapter.interface.js";
 import { MediaScoreService } from "../media-score/media-score.service.js";
+import { ColetaService } from "../media-score/coleta.service.js";
 
 /**
  * D-576 — backfills pesados como jobs EM PROCESSO (padrão T4.7): paginação de
@@ -27,6 +28,8 @@ const IGDB_URL = "https://api.igdb.com/v4/games";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 const PAUSA_IGDB_MS = 300;
 const ESPERA_429_MS = 1500;
+// T-DADOS-07: OpenLibrary é API aberta e educada — throttle mínimo entre títulos.
+const PAUSA_OPENLIBRARY_MS = 250;
 
 export type BackfillTipo =
   | "metadados"
@@ -35,7 +38,9 @@ export type BackfillTipo =
   | "provedores"
   | "criticaIgdb"
   // T-DADOS-06: arestas SEQUENCIA_DE nas franquias incompletas (deriva do grafo).
-  | "arestasFranquia";
+  | "arestasFranquia"
+  // T-DADOS-07: notas públicas de livros no OpenLibrary (por id do work).
+  | "avaliacaoLivros";
 
 interface BackfillEstado {
   executando: boolean;
@@ -476,11 +481,15 @@ export class BackfillService {
     provedores: estadoVazio(),
     criticaIgdb: estadoVazio(),
     arestasFranquia: estadoVazio(),
+    avaliacaoLivros: estadoVazio(),
   };
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly mediaScore: MediaScoreService,
+    // T-DADOS-07: o job usa o ADAPTER real (mesma instância do job de score)
+    // para que a correção do lookup por id valha também em produção.
+    private readonly coleta: ColetaService,
   ) {}
 
   status(): Record<BackfillTipo, BackfillEstado> {
@@ -1056,6 +1065,117 @@ export class BackfillService {
   }
 
   /**
+   * T-DADOS-07: avaliações públicas de LIVROS no OpenLibrary por id do work.
+   *
+   * Por que existe: dos 651 livros do catálogo, 600 nunca tiveram nota coletada
+   * (`avaliacoes_atualizadas_em IS NULL`) e ficam fora dos rankings. A fonte
+   * expõe `GET /works/<id>/ratings.json` → `{ summary: { average, count } }`
+   * (escala 0–5) e o import já gravou o id exato em `fonte_id` (`OL…W`).
+   *
+   * Usa o ADAPTER real (`ColetaService`) para que a correção do lookup por id
+   * valha em produção e não duplique HTTP. Watermark gravado SEMPRE ao fim do
+   * título (com ou sem nota) para a fila drenar; falha de rede/inatividade não
+   * marca (retenta na próxima rodada). Nunca lança por título.
+   */
+  async enriquecerAvaliacaoLivros(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semAvaliacao: number;
+    falhas: number;
+  }> {
+    if (this.estado.avaliacaoLivros.executando) {
+      throw new BadRequestException("Job avaliação de livros já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.avaliacaoLivros = {
+      executando: true,
+      processados: 0,
+      ok: 0,
+      falhas: 0,
+      iniciadoEm: new Date().toISOString(),
+      atual: null,
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
+         AND m.avaliacoes_atualizadas_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+    )) as any[];
+    const adapter = this.coleta.adaptadores.find((a) => a.id === "openlibrary");
+    this.logger.log(`Backfill avaliação de livros: ${alvo.length} títulos alvo.`);
+    let semAvaliacao = 0;
+    for (const m of alvo) {
+      this.estado.avaliacaoLivros.processados++;
+      this.estado.avaliacaoLivros.atual = m.titulo;
+      try {
+        if (!adapter || !adapter.ativo()) {
+          throw new Error("Adapter openlibrary indisponível ou inativo.");
+        }
+        await this.pausa(PAUSA_OPENLIBRARY_MS);
+        const notas = await adapter.coletar({
+          tipo: "LIVRO",
+          titulo: m.titulo,
+          idsExternos: { openlibrary: m.fonte_id },
+        });
+        const nota = notas[0];
+        if (!nota) {
+          // Ausência honesta (obra sem nota): sai da fila pelo watermark.
+          semAvaliacao++;
+        } else {
+          await this.prisma.avaliacaoFonte.upsert({
+            where: { midia_id_fonte: { midia_id: m.id, fonte: "openlibrary" } },
+            create: {
+              midia_id: m.id,
+              fonte: "openlibrary",
+              rating: nota.rating,
+              media_fonte: nota.media_fonte,
+              desvio_fonte: nota.desvio_fonte,
+              votos: nota.votos,
+              url: nota.url,
+            },
+            update: {
+              rating: nota.rating,
+              media_fonte: nota.media_fonte,
+              desvio_fonte: nota.desvio_fonte,
+              votos: nota.votos,
+              url: nota.url,
+            },
+          });
+          await this.mediaScore.recalcularEPersistir(m.id);
+          this.estado.avaliacaoLivros.ok++;
+        }
+        // Watermark SEMPRE (reusa a semântica D-410): sem isso a fila travaria
+        // em todo livro sem nota na fonte.
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { avaliacoes_atualizadas_em: new Date() },
+        });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.avaliacaoLivros.falhas++;
+        this.logger.warn(
+          `Backfill avaliação de livros falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.avaliacaoLivros.executando = false;
+    this.estado.avaliacaoLivros.atual = `fim: ok=${this.estado.avaliacaoLivros.ok} sem avaliacao=${semAvaliacao} falhas=${this.estado.avaliacaoLivros.falhas}`;
+    this.logger.log(
+      `Backfill avaliação de livros fim: ok=${this.estado.avaliacaoLivros.ok} sem avaliacao=${semAvaliacao} falhas=${this.estado.avaliacaoLivros.falhas}.`,
+    );
+    return {
+      processados: this.estado.avaliacaoLivros.processados,
+      ok: this.estado.avaliacaoLivros.ok,
+      semAvaliacao,
+      falhas: this.estado.avaliacaoLivros.falhas,
+    };
+  }
+
+  /**
    * T-DADOS-03: `POST /v4/games` por id EXATO (`fonte_id` do jogo), com o
    * mesmo corpo/headers do `igdb.adapter.ts` — mas `where id = <id>` em vez de
    * `search "<titulo>"` (a busca por relevância devolve DLC/porta). Throttle
@@ -1407,6 +1527,7 @@ export class BackfillService {
     provedores: number;
     criticaIgdb: number;
     arestasFranquia: number;
+    avaliacaoLivros: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -1417,6 +1538,7 @@ export class BackfillService {
         provedores: number;
         critica_igdb: number;
         arestas_franquia: number;
+        avaliacao_livros: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -1437,6 +1559,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
             AND m.critica_igdb_em IS NULL) AS critica_igdb,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
+            AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -1448,6 +1573,7 @@ export class BackfillService {
       provedores: Number(row?.provedores ?? 0),
       criticaIgdb: Number(row?.critica_igdb ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
+      avaliacaoLivros: Number(row?.avaliacao_livros ?? 0),
     };
   }
 
@@ -1500,6 +1626,12 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.arestasFranquia > 0) {
         const r = await this.enriquecerArestasFranquia(2000);
         lotes.push({ tipo: "arestasFranquia", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-07: livros sem avaliação pública (OpenLibrary por id, 250ms por
+      // título). `ok` soma os títulos SEM nota: eles saíram da fila (watermark).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.avaliacaoLivros > 0) {
+        const r = await this.enriquecerAvaliacaoLivros(800);
+        lotes.push({ tipo: "avaliacaoLivros", ok: r.ok + r.semAvaliacao, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);

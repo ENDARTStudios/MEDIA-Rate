@@ -21,6 +21,8 @@ import { MediaScoreModule } from "../media-score/media-score.module.js";
     AdminStepupModule,
     // T-DADOS-03: o BackfillService recalcula o score após gravar a crítica do
     // IGDB (mesmo serviço usado pelo MediaScoreJobService).
+    // T-DADOS-07: o MediaScoreModule também exporta o ColetaService — o job de
+    // avaliação de livros usa o adapter real (lookup por id do work).
     MediaScoreModule,
   ],
   controllers: [AdminController, AdminGateController],

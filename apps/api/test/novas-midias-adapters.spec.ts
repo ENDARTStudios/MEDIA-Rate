@@ -121,7 +121,8 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   it("openlibrary: rating 0–5 (público) ×2 na normalização pelo motor", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
     vi.mocked(fetchJson).mockResolvedValue({
-      docs: [{ ratings_average: 4.6, ratings_count: 42000 }],
+      // T-DADOS-07: o fallback textual valida a identidade pelo título do doc.
+      docs: [{ key: "/works/OL1W", title: "Duna", ratings_average: 4.6, ratings_count: 42000 }],
     });
     const adapter = new OpenLibraryAdapter();
     const notas = await adapter.coletar(consulta("Duna", "LIVRO"));
