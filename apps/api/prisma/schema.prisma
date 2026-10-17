@@ -421,6 +421,9 @@ model Midia {
   // T-DADOS-12: watermark da coleta de sinopse em inglês dos mangás.
   // NULL = nunca tentado; marcado SEMPRE (evita fila presa).
   sinopse_en_em             DateTime? @map("sinopse_en_em")
+  // T-DADOS-13B: watermark da coleta de autores (OpenLibrary) para MidiaElenco.
+  // NULL = nunca tentado; marcado SEMPRE (evita fila presa).
+  autores_em DateTime? @map("autores_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
