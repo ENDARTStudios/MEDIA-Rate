@@ -94,7 +94,12 @@ export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
           />
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 relative"
+          noValidate
+          data-testid="form-login"
+        >
           {erroInline && (
             <p
               role="alert"
@@ -231,7 +236,12 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
           />
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 relative" noValidate>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 relative"
+          noValidate
+          data-testid="form-register"
+        >
           {erroInline && (
             <p
               role="alert"

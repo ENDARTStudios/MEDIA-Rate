@@ -12,18 +12,24 @@ const E2E_FULL = process.env.E2E_FULL === "1";
 test.describe("Autenticacao (Login/Logout)", () => {
   test("exibe formulario de login", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.locator("form")).toBeVisible();
-    await expect(page.locator('input[name="email"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
+    // Escopado ao formulario: email e password existem nos DOIS formularios (login e
+    // registro) e o strict mode do Playwright aborta quando o locator casa com 2.
+    const form = page.getByTestId("form-login");
+    await expect(form).toBeVisible();
+    await expect(form.locator('input[name="email"]')).toBeVisible();
+    await expect(form.locator('input[name="password"]')).toBeVisible();
   });
 
   test("exibe formulario de registro", async ({ page }) => {
     await page.goto("/register");
-    await expect(page.locator("form")).toBeVisible();
-    await expect(page.locator('input[name="name"]')).toBeVisible();
-    await expect(page.locator('input[name="email"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
-    await expect(page.locator('input[name="acceptTerms"]')).toBeVisible();
+    // Escopado ao formulario: email e password existem nos DOIS formularios (login e
+    // registro) e o strict mode do Playwright aborta quando o locator casa com 2.
+    const form = page.getByTestId("form-register");
+    await expect(form).toBeVisible();
+    await expect(form.locator('input[name="name"]')).toBeVisible();
+    await expect(form.locator('input[name="email"]')).toBeVisible();
+    await expect(form.locator('input[name="password"]')).toBeVisible();
+    await expect(form.locator('input[name="acceptTerms"]')).toBeVisible();
   });
 
   test("registra novo usuario e redireciona para dashboard", async ({ page }) => {
