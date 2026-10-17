@@ -600,7 +600,9 @@
     "atribuicao": "Movie, series and game data by TMDB and IGDB.com — this product uses the TMDB and IGDB APIs but is not endorsed or certified by either.",
     "cookies": "Cookies",
     "manageCookies": "Manage cookies",
-    "security": "Security"
+    "security": "Security",
+    "groupProduct": "Product",
+    "groupContent": "Content"
   },
   "auth": {
     "loginTitle": "Log in",

@@ -25,7 +25,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-2 gap-8 mb-12 md:grid-cols-3 lg:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
             <div className="text-lg font-heading font-bold text-[#F5F5F7] mb-2">MEDIA Rate</div>
             <p className="text-sm text-[#A0A0B8] leading-relaxed">{t("tagline")}</p>
@@ -46,6 +46,14 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {tNav("pricing")}
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-heading font-semibold text-[#F5F5F7] uppercase tracking-widest mb-4">
+              {t("groupContent")}
+            </h4>
+            <ul role="list" className="space-y-3">
               <li>
                 <Link href="/about" className={linkHover}>
                   {t("about")}
