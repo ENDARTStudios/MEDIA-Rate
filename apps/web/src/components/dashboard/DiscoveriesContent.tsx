@@ -92,8 +92,8 @@ function Item({ d, locale }: { d: Discovery; locale: string }) {
       )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-fg-secondary">
-          {td("feedDiscovered")} <span className="font-medium text-[#F5F5F7]">{toTitle}</span>{" "}
-          {td("feedFrom")} <span className="text-[#F5F5F7]">{fromTitle}</span>
+          {td("feedDiscovered")} <span className="font-medium text-fg-primary">{toTitle}</span>{" "}
+          {td("feedFrom")} <span className="text-fg-primary">{fromTitle}</span>
         </p>
         <p className="mt-0.5 flex items-center gap-2 text-xs text-fg-muted">
           <ToIcon className="h-3 w-3" style={{ color: toToken.color }} aria-hidden="true" />
@@ -102,7 +102,7 @@ function Item({ d, locale }: { d: Discovery; locale: string }) {
       </div>
       <Link
         href={`/media/${d.toMediaId}`}
-        className="shrink-0 rounded-md border border-surface-border px-2.5 py-1 text-xs font-medium text-fg-secondary hover:text-[#F5F5F7] hover:bg-dash-surface-7 transition-colors"
+        className="shrink-0 rounded-md border border-surface-border px-2.5 py-1 text-xs font-medium text-fg-secondary hover:text-fg-primary hover:bg-dash-surface-7 transition-colors"
       >
         {td("openTitle")}
       </Link>

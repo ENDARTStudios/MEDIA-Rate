@@ -104,13 +104,13 @@ function RemoverMidiaForm() {
           }}
           disabled={ocupado || midiaId.trim() === ""}
           data-testid="admin-remove-button"
-          className="rounded-lg bg-score-low px-4 py-2 text-sm font-semibold text-[#0F172A] transition hover:bg-score-low disabled:opacity-40"
+          className="rounded-lg bg-score-low px-4 py-2 text-sm font-semibold text-ink transition hover:bg-score-low disabled:opacity-40"
         >
           {ocupado ? "Removendo…" : "Remover"}
         </button>
       </div>
       {resultado && (
-        <p data-testid="admin-remove-result" className="mt-2 text-sm text-[#34D399]">
+        <p data-testid="admin-remove-result" className="mt-2 text-sm text-accent-emerald">
           {resultado}
         </p>
       )}
@@ -197,7 +197,7 @@ export default function DiagnosticsPage() {
             <dt className="text-xs text-fg-secondary">Banco</dt>
             <dd className="text-lg font-semibold">
               {data.database.ok ? (
-                <span className="text-[#34D399]">{data.database.latencia_ms}ms</span>
+                <span className="text-accent-emerald">{data.database.latencia_ms}ms</span>
               ) : (
                 <span className="text-score-low">indisponível</span>
               )}
@@ -262,7 +262,7 @@ export default function DiagnosticsPage() {
                   <td className="px-4 py-2 text-sm">{f.key}</td>
                   <td className="px-4 py-2 text-sm">
                     {f.enabled ? (
-                      <span className="text-[#34D399]">on</span>
+                      <span className="text-accent-emerald">on</span>
                     ) : (
                       <span className="text-fg-secondary">off</span>
                     )}

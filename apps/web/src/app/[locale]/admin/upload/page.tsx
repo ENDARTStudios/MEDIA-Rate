@@ -95,7 +95,7 @@ export default function AdminUploadPage() {
         <button
           type="submit"
           disabled={enviando}
-          className="rounded bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] disabled:opacity-50"
+          className="rounded bg-accent-indigo px-4 py-2 text-sm font-semibold text-ink disabled:opacity-50"
         >
           {enviando ? "Enviando…" : "Enviar"}
         </button>
@@ -107,7 +107,7 @@ export default function AdminUploadPage() {
         </p>
       )}
       {ok && (
-        <p className="mt-4 break-all text-sm text-[#34D399]">
+        <p className="mt-4 break-all text-sm text-accent-emerald">
           Enviado: <code>{ok}</code>
         </p>
       )}

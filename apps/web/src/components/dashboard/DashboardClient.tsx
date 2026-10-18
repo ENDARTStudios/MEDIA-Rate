@@ -64,12 +64,12 @@ export function DashboardClient() {
 
   if (authHydrated && !isAuthenticated) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
+      <div className="rounded-xl border border-surface-border bg-surface-card p-8 text-center text-fg-secondary">
         <p className="mb-3">{t("loginHint")}</p>
         <button
           type="button"
           onClick={() => router.push("/login")}
-          className="rounded-lg bg-[#E11D48] px-4 py-2 text-sm text-white hover:bg-[#C31442]"
+          className="rounded-lg bg-brand px-4 py-2 text-sm text-white hover:bg-brand-hover"
         >
           {t("login")}
         </button>
@@ -77,7 +77,7 @@ export function DashboardClient() {
     );
   }
 
-  if (loading) return <div className="py-8 text-[#A0A0B8]">{t("loading")}</div>;
+  if (loading) return <div className="py-8 text-fg-secondary">{t("loading")}</div>;
   if (error)
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
@@ -87,7 +87,7 @@ export function DashboardClient() {
 
   if (!stats) {
     return (
-      <div className="rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center text-[#A0A0B8]">
+      <div className="rounded-xl border border-surface-border bg-surface-card p-8 text-center text-fg-secondary">
         <p className="mb-4">{t("error")}</p>
       </div>
     );
@@ -99,8 +99,8 @@ export function DashboardClient() {
   if (stats.total === 0) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#12121C] p-8 text-center">
-          <p className="text-lg font-medium text-[#F5F5F7]">{t("emptyHint")}</p>
+        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-surface-card p-8 text-center">
+          <p className="text-lg font-medium text-fg-primary">{t("emptyHint")}</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/catalog"
