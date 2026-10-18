@@ -51,6 +51,13 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {tNav("pricing")}
                 </Link>
               </li>
+              {/* Entrada para apoiadores, parceiros e patrocinadores (a página
+                  /apoie não vive na Navbar de propósito: é conversa, não navegação). */}
+              <li>
+                <Link href="/apoie" className={linkHover}>
+                  {t("support")}
+                </Link>
+              </li>
             </ul>
           </div>
 

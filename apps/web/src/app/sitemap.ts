@@ -15,6 +15,8 @@ const publicRoutes: {
   { pathname: "/discover", changeFrequency: "weekly", priority: 0.8 },
   { pathname: "/top", changeFrequency: "weekly", priority: 0.8 },
   { pathname: "/pricing", changeFrequency: "monthly", priority: 0.7 },
+  // Página de apoiadores/parceiros/patrocinadores: institucional-comercial, muda raramente.
+  { pathname: "/apoie", changeFrequency: "monthly", priority: 0.6 },
   { pathname: "/about", changeFrequency: "monthly", priority: 0.6 },
   { pathname: "/methodology", changeFrequency: "monthly", priority: 0.7 },
   { pathname: "/sources", changeFrequency: "monthly", priority: 0.6 },
