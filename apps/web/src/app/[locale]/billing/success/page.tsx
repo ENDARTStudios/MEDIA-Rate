@@ -48,7 +48,7 @@ export default async function BillingSuccessPage({ params, searchParams }: Props
     <div className="relative flex min-h-[calc(100dvh-4rem)] items-center justify-center px-4 py-16">
       <ConfettiCelebration />
       <div className="relative z-10 max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#E11D48]/15 text-[#FB7185]">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand/15 text-brand">
           <svg
             className="h-7 w-7"
             fill="none"
@@ -59,11 +59,11 @@ export default async function BillingSuccessPage({ params, searchParams }: Props
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="mb-4 font-heading text-3xl font-bold text-[#F5F5F7]">{title}</h1>
-        <p className="mb-8 leading-relaxed text-[#A0A0B8]">{subtitle}</p>
+        <h1 className="mb-4 font-heading text-3xl font-bold text-fg-primary">{title}</h1>
+        <p className="mb-8 leading-relaxed text-fg-secondary">{subtitle}</p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
+          className="inline-flex items-center gap-2 rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-[filter] hover:brightness-110"
         >
           {t("startExploring")}
           <svg

@@ -1,6 +1,7 @@
 "use client";
 
 import { formatarScoreLocale } from "@/lib/score-utils";
+import { colors } from "@/lib/design-tokens";
 
 import { useEffect, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
@@ -116,7 +117,7 @@ export function ScoreDelta({ entry }: { entry: WatchlistEntry }) {
   return (
     <span
       className="inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums"
-      style={{ color: subiu ? "#34D399" : "#F87171" }}
+      style={{ color: subiu ? colors.score.high : colors.score.low }}
       title={`${subiu ? "Subiu" : "Caiu"} de ${formatarScoreLocale(anterior, locale)} para ${formatarScoreLocale(atual, locale)}`}
       data-testid="score-delta"
     >
@@ -174,7 +175,7 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
           setAberto(true);
           setQuery(palpite);
         }}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#818CF8] hover:bg-[#2A2A3D] transition-colors"
+        className="w-full rounded border border-surface-border bg-surface-card px-1.5 py-1 text-xs text-accent-indigo hover:bg-surface-border transition-colors"
       >
         {t("buscarSubstituta")}
       </button>
@@ -189,18 +190,18 @@ function BuscarSubstituta({ entryId, palpite }: { entryId: string; palpite: stri
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("relinkPlaceholder")}
         aria-label={t("buscarSubstituta")}
-        className="w-full rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-1 text-xs text-[#F5F5F7] placeholder-[#A0A0B8] outline-none focus:border-[#818CF8]"
+        className="w-full rounded border border-surface-border bg-surface-card px-1.5 py-1 text-xs text-fg-primary placeholder-fg-secondary outline-none focus:border-accent-indigo"
       />
       {erro && <p className="text-xs text-red-400">{t("relinkError")}</p>}
-      <div className="max-h-32 overflow-y-auto rounded border border-[#2A2A3D]">
+      <div className="max-h-32 overflow-y-auto rounded border border-surface-border">
         {resultados.map((r) => (
           <button
             key={r.id}
             type="button"
             onClick={() => void relinkItem(entryId, r.id)}
-            className="block w-full text-left rounded px-1.5 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+            className="block w-full text-left rounded px-1.5 py-1 text-xs text-fg-secondary hover:bg-surface-border hover:text-fg-primary"
           >
-            {r.title} <span className="text-[#A0A0B8]">{r.year}</span>
+            {r.title} <span className="text-fg-secondary">{r.year}</span>
           </button>
         ))}
       </div>
@@ -260,7 +261,7 @@ export function WatchlistCard({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
-      className={`max-w-[200px] cursor-grab touch-none rounded-md ${isDragging ? "opacity-60 ring-2 ring-[#818CF8]" : ""}`}
+      className={`max-w-[200px] cursor-grab touch-none rounded-md ${isDragging ? "opacity-60 ring-2 ring-accent-indigo" : ""}`}
       role="listitem"
       aria-label={tituloFinal}
       data-testid="watchlist-card"
@@ -270,8 +271,8 @@ export function WatchlistCard({
       ) : (
         // T322: órfão sem título resolvível — NUNCA um beco "Título
         // indisponível" estático; oferece a recuperação "Buscar substituta".
-        <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#2A2A3D] bg-[#0D0D1A] p-2">
-          <span className="text-center text-xs leading-tight text-[#85859F]">{tituloFinal}</span>
+        <div className="flex aspect-[2/3] w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-surface-border bg-surface-bg p-2">
+          <span className="text-center text-xs leading-tight text-fg-muted">{tituloFinal}</span>
           <BuscarSubstituta entryId={entry.id} palpite={palpite} />
           {/* T160b: botão Remover visível no card órfão — o ⋮ escondido não era
               descoberto pelo usuário (feedback Operador 2026-10-03). */}
@@ -281,7 +282,7 @@ export function WatchlistCard({
               e.stopPropagation();
               onRemove(entry.id);
             }}
-            className="mt-1 rounded px-2 py-1 text-[11px] text-[#F87171] hover:bg-[#F87171]/10 hover:text-[#FCA5A5] transition-colors"
+            className="mt-1 rounded px-2 py-1 text-[11px] text-score-low transition-colors hover:bg-score-low/10"
           >
             {removing ? "..." : t("removeFromWatchlist")}
           </button>
@@ -306,7 +307,7 @@ export function WatchlistCard({
           onChange={(e) => onMove(entry.id, e.target.value)}
           aria-label={t("moveTo")}
           onClick={(e) => e.stopPropagation()}
-          className="flex-1 min-w-0 rounded border border-[#2A2A3D] bg-[#12121C] px-1.5 py-0.5 text-xs text-[#A0A0B8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+          className="flex-1 min-w-0 rounded border border-surface-border bg-surface-card px-1.5 py-0.5 text-xs text-fg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
         >
           {["WANT", "WATCHING", "COMPLETED"].map((c) => (
             <option key={c} value={c}>
@@ -323,7 +324,7 @@ export function WatchlistCard({
             }}
             aria-label={t("moveTo")}
             aria-expanded={menuAberto}
-            className="text-xs text-[#85859F] hover:text-[#F5F5F7] transition-colors px-1"
+            className="text-xs text-fg-muted hover:text-fg-primary transition-colors px-1"
           >
             ⋮
           </button>
@@ -331,7 +332,7 @@ export function WatchlistCard({
             <div
               role="menu"
               data-testid="card-status-menu"
-              className="absolute right-0 bottom-full mb-1 z-20 min-w-[140px] rounded-md border border-[#2A2A3D] bg-[#1A1A28] p-1 shadow-lg"
+              className="absolute right-0 bottom-full mb-1 z-20 min-w-[140px] rounded-md border border-surface-border bg-surface-elevated p-1 shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
               {OPCOES_STATUS.map((c) => (
@@ -344,12 +345,12 @@ export function WatchlistCard({
                     onMove(entry.id, c);
                     setMenuAberto(false);
                   }}
-                  className="block w-full text-left rounded px-2 py-1 text-xs text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                  className="block w-full text-left rounded px-2 py-1 text-xs text-fg-secondary hover:bg-surface-border hover:text-fg-primary"
                 >
                   {t(colunaLabelKey(mediaType, c))}
                 </button>
               ))}
-              <div className="my-1 border-t border-[#2A2A3D]" />
+              <div className="my-1 border-t border-surface-border" />
               <button
                 type="button"
                 role="menuitem"
@@ -358,7 +359,7 @@ export function WatchlistCard({
                   setMenuAberto(false);
                 }}
                 disabled={removing}
-                className="block w-full text-left rounded px-2 py-1 text-xs text-red-400 hover:bg-[#2A2A3D]"
+                className="block w-full text-left rounded px-2 py-1 text-xs text-red-400 hover:bg-surface-border"
               >
                 {removing ? "..." : t("removeFromWatchlist")}
               </button>
@@ -373,7 +374,7 @@ export function WatchlistCard({
           className="mt-1 flex items-center gap-1.5 px-1"
           data-testid={showReactionPrompt ? "reaction-prompt" : "reaction-inline"}
         >
-          {showReactionPrompt && <span className="text-xs text-[#85859F]">{t("reactNow")}</span>}
+          {showReactionPrompt && <span className="text-xs text-fg-muted">{t("reactNow")}</span>}
           {REACOES.map((r) => {
             const active = reacao === r;
             return (
@@ -383,10 +384,10 @@ export function WatchlistCard({
                 onClick={() => react(r)}
                 aria-pressed={active}
                 aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
-                className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                   active
-                    ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
-                    : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
+                    ? "border-accent-indigo bg-surface-border text-fg-primary"
+                    : "border-surface-border text-fg-secondary hover:bg-surface-border"
                 }`}
               >
                 <ReactionGlyph reacao={r} size={12} />

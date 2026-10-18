@@ -44,7 +44,9 @@ const RX = {
   tokens: /surface-card|surface-border|fg-primary|fg-secondary|text-fg-|font-heading|bg-surface/g,
   hexCru: /#[0-9A-Fa-f]{6}\b/g,
   r2xl: /rounded-2xl/g,
-  h1: /<h1\b/g,
+  // `PageTitle`/`PageShell` renderizam o h1 do conceito (D-661): contar só `<h1`
+  // fazia rota migrada aparecer como "SEM H1" — medir a primitiva, não o literal.
+  h1: /<h1\b|<PageTitle\b|<PageShell\b/g,
   h2: /<h2\b/g,
   client: /^["']use client["']/m,
   i18n: /useTranslations|getTranslations/,

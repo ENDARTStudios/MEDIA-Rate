@@ -78,10 +78,10 @@ export function CategoryChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05050A]",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-bg",
         active
-          ? "border-transparent text-[#05050A]"
-          : "border-[#2A2A3D] bg-transparent text-[#A0A0B8] hover:text-[#F5F5F7]",
+          ? "border-transparent text-surface-bg"
+          : "border-surface-border bg-transparent text-fg-secondary hover:text-fg-primary",
         className,
       )}
       style={
@@ -97,7 +97,7 @@ export function CategoryChip({
         <span
           className={cn(
             "tabular-nums rounded-full px-1.5 text-xs leading-4",
-            active ? "bg-black/20 text-inherit" : "bg-[#1B1B2C] text-[#85859F]",
+            active ? "bg-black/20 text-inherit" : "bg-surface-elevated text-fg-muted",
           )}
         >
           {formatoCompacto(count, locale)}

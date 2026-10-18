@@ -29,7 +29,7 @@ export function ConfirmDialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-popover" />
         <DialogPrimitive.Content
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-card rounded-2xl shadow-floating border border-surface-border/30 p-6 z-popover"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-card rounded-xl shadow-floating border border-surface-border/30 p-6 z-popover"
           aria-describedby="confirm-dialog-desc"
         >
           <DialogPrimitive.Title className="text-lg font-semibold text-fg-primary mb-2">

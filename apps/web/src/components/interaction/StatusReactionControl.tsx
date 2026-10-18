@@ -165,8 +165,8 @@ export function StatusReactionControl({
           title={labelAtual}
           className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
             status
-              ? "bg-[#12121C]/85 text-[#F5F5F7] hover:bg-[#1C1C2E]"
-              : "bg-[#12121C]/85 text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
+              ? "bg-surface-card/85 text-fg-primary hover:bg-surface-elevated"
+              : "bg-surface-card/85 text-fg-secondary hover:bg-surface-elevated hover:text-fg-primary"
           }`}
           data-testid="status-quick"
         >
@@ -182,7 +182,7 @@ export function StatusReactionControl({
               transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
               role="dialog"
               aria-label={t("updateStatus")}
-              className="w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
+              className="w-48 rounded-xl border border-surface-border bg-surface-elevated p-2 shadow-floating"
               style={{
                 position: "fixed",
                 zIndex: 70,
@@ -205,12 +205,12 @@ export function StatusReactionControl({
                       }}
                       disabled={disabled}
                       aria-pressed={active}
-                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                         disabled
-                          ? "cursor-not-allowed text-[#4A4A60]"
+                          ? "cursor-not-allowed text-fg-disabled"
                           : active
-                            ? "bg-[#2A2A3D] text-[#F5F5F7]"
-                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                            ? "bg-surface-border text-fg-primary"
+                            : "text-fg-secondary hover:bg-surface-border hover:text-fg-primary"
                       }`}
                     >
                       <StatusGlyph status={s} size={13} filled={active} />
@@ -248,16 +248,16 @@ export function StatusReactionControl({
         aria-expanded={open}
         aria-label={displayLabel}
         data-testid="status-control-full"
-        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
           open
-            ? "border-[#818CF8] bg-[#1C1C2E] text-[#F5F5F7]"
-            : "border-[#2A2A3D] bg-[#12121C] text-[#F5F5F7] hover:bg-[#1C1C2E]"
+            ? "border-accent-indigo bg-surface-elevated text-fg-primary"
+            : "border-surface-border bg-surface-card text-fg-primary hover:bg-surface-elevated"
         }`}
       >
         {status ? <StatusGlyph status={status} size={15} /> : <AddGlyph size={15} />}
         <span>{displayLabel}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#A0A0B8] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-fg-secondary transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -269,7 +269,7 @@ export function StatusReactionControl({
           transition={shouldReduce ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
           role="dialog"
           aria-label={t("updateStatus")}
-          className="absolute left-0 z-popover mt-2 w-56 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-3 shadow-floating"
+          className="absolute left-0 z-popover mt-2 w-56 rounded-xl border border-surface-border bg-surface-elevated p-3 shadow-floating"
           data-testid="status-popover"
         >
           {interactionError && (
@@ -288,7 +288,7 @@ export function StatusReactionControl({
               </button>
             </div>
           )}
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-fg-muted">
             {t("updateStatus")}
           </p>
 
@@ -304,12 +304,12 @@ export function StatusReactionControl({
                   onClick={() => handleSelectStatus(s)}
                   disabled={disabled}
                   aria-pressed={active}
-                  className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                  className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                     disabled
-                      ? "cursor-not-allowed text-[#4A4A60]"
+                      ? "cursor-not-allowed text-fg-disabled"
                       : active
-                        ? "bg-[#2A2A3D] text-[#F5F5F7]"
-                        : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                        ? "bg-surface-border text-fg-primary"
+                        : "text-fg-secondary hover:bg-surface-border hover:text-fg-primary"
                   }`}
                 >
                   <StatusGlyph status={s} size={13} filled={active} />
@@ -322,7 +322,7 @@ export function StatusReactionControl({
           {/* Reações — habilitadas com foco visual só em CONCLUIDO/ABANDONADO */}
           {(pendingStatus === "CONCLUIDO" || pendingStatus === "ABANDONADO" || canReact) && (
             <div className="mt-3">
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-fg-muted">
                 {t("reactOptional")}
               </p>
               <div className="flex gap-1.5" role="group" aria-label={t("reactionGroup")}>
@@ -334,10 +334,10 @@ export function StatusReactionControl({
                       type="button"
                       onClick={() => toggleReaction(r)}
                       aria-pressed={active}
-                      className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                         active
-                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
-                          : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
+                          ? "border-accent-indigo bg-surface-border text-fg-primary"
+                          : "border-surface-border text-fg-secondary hover:bg-surface-border"
                       }`}
                     >
                       <ReactionGlyph reacao={r} size={14} />
@@ -352,7 +352,7 @@ export function StatusReactionControl({
           {/* Motivo de abandono — opcional, só quando status = ABANDONADO */}
           {(pendingStatus === "ABANDONADO" || status === "ABANDONADO") && (
             <div className="mt-3">
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#85859F]">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-fg-muted">
                 {t("motivoOpcional")}
               </p>
               <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("motivoGroup")}>
@@ -364,10 +364,10 @@ export function StatusReactionControl({
                       type="button"
                       onClick={() => toggleMotivo(m)}
                       aria-pressed={active}
-                      className={`rounded-full border px-2.5 py-1 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      className={`rounded-full border px-2.5 py-1 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                         active
-                          ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
-                          : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
+                          ? "border-accent-indigo bg-surface-border text-fg-primary"
+                          : "border-surface-border text-fg-secondary hover:bg-surface-border"
                       }`}
                     >
                       {t(`motivo_${m.toLowerCase()}`)}
@@ -378,7 +378,7 @@ export function StatusReactionControl({
             </div>
           )}
 
-          <p className="mt-3 text-xs text-[#85859F]">{t("optionalHint")}</p>
+          <p className="mt-3 text-xs text-fg-muted">{t("optionalHint")}</p>
         </motion.div>
       )}
     </div>

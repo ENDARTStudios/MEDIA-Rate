@@ -85,46 +85,48 @@ export default function SettingsPage() {
 
   return (
     <ProtectedPage>
-      <div className="max-w-3xl mx-auto py-16 px-4">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{ts("title")}</h1>
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+        <h1 className="mb-8 font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+          {ts("title")}
+        </h1>
 
         <div className="space-y-6">
           {user?.trialEnded && (
             <div
               role="status"
-              className="flex flex-col gap-3 rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 p-5"
+              className="flex flex-col gap-3 rounded-lg border border-score-6/40 bg-score-6/10 p-5"
             >
-              <p className="text-sm text-[#F5F5F7]">{ts("trialEnded")}</p>
+              <p className="text-sm text-fg-primary">{ts("trialEnded")}</p>
               <Link
                 href="/pricing"
-                className="inline-block w-fit rounded-md bg-[#818CF8] px-4 py-2 text-xs font-semibold text-[#0F172A] hover:brightness-110 transition-[filter]"
+                className="inline-block w-fit rounded-md bg-accent-indigo px-4 py-2 text-xs font-semibold text-accent-indigo-foreground hover:brightness-110 transition-[filter]"
               >
                 {ts("trialEndedCta")}
               </Link>
             </div>
           )}
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">Plano</h2>
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">Plano</h2>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#A0A0B8]">Plano atual</span>
-              <span className="rounded-full bg-[#1B1B2C] px-3 py-1 text-sm font-semibold text-[#F5F5F7] border border-[#2A2A3D]">
+              <span className="text-sm text-fg-secondary">Plano atual</span>
+              <span className="rounded-full bg-surface-elevated px-3 py-1 text-sm font-semibold text-fg-primary border border-surface-border">
                 {user?.plan ?? "FREE"}
               </span>
             </div>
 
             {hasPaidPlan && (
-              <div className="mt-5 border-t border-[#2A2A3D] pt-4">
+              <div className="mt-5 border-t border-surface-border pt-4">
                 <button
                   type="button"
                   onClick={() => setConfirmarCancelamento(true)}
                   disabled={cancelando}
-                  className="text-sm text-[#EF4444] hover:text-[#F87171] underline underline-offset-4 disabled:opacity-60"
+                  className="text-sm text-destructive hover:text-score-low underline underline-offset-4 disabled:opacity-60"
                   data-testid="cancel-subscription"
                 >
                   {ts("cancelSubscription")}
                 </button>
-                <p className="mt-1.5 text-xs text-[#A0A0B8]">{ts("cancelHint")}</p>
+                <p className="mt-1.5 text-xs text-fg-secondary">{ts("cancelHint")}</p>
                 <ConfirmDialog
                   open={confirmarCancelamento}
                   onOpenChange={setConfirmarCancelamento}
@@ -139,27 +141,27 @@ export default function SettingsPage() {
             )}
 
             {nextTier && (
-              <div className="mt-5 flex items-center gap-5 rounded-lg border border-dashed border-[#2A2A3D] bg-[#1B1B2C]/40 p-5">
+              <div className="mt-5 flex items-center gap-5 rounded-lg border border-dashed border-surface-border bg-surface-elevated/40 p-5">
                 {/* D-583.4 (T211): preview do próximo plano sem número inventado —
                     cadeado + rótulo acessível no lugar do dial com score fictício. */}
                 <span
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#2A2A3D] bg-[#12121C]"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-surface-border bg-surface-card"
                   role="img"
                   aria-label={ts("lockedFeatures")}
                 >
-                  <Lock className="h-5 w-5 text-[#A0A0B8]" aria-hidden="true" />
+                  <Lock className="h-5 w-5 text-fg-secondary" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#F5F5F7]">
+                  <p className="text-sm font-semibold text-fg-primary">
                     {tp(nextTier.plan.toLowerCase())}
                   </p>
-                  <p className="mt-1 text-xs text-[#A0A0B8]">
+                  <p className="mt-1 text-xs text-fg-secondary">
                     Desbloqueie recomendações ilimitadas, watchlist completa e mais com o{" "}
                     {tp(nextTier.plan.toLowerCase())}.
                   </p>
                   <Link
                     href="/pricing"
-                    className="mt-3 inline-block rounded-md bg-[#818CF8] px-4 py-2 text-xs font-semibold text-[#0F172A] hover:brightness-110 transition-[filter]"
+                    className="mt-3 inline-block rounded-md bg-accent-indigo px-4 py-2 text-xs font-semibold text-accent-indigo-foreground hover:brightness-110 transition-[filter]"
                   >
                     {tp("upgrade")}
                   </Link>
@@ -168,27 +170,27 @@ export default function SettingsPage() {
             )}
           </div>
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {ts("account")}
             </h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-[#A0A0B8]">{ts("name")}</span>
-                <span className="text-[#F5F5F7]">{user?.name ?? "—"}</span>
+                <span className="text-fg-secondary">{ts("name")}</span>
+                <span className="text-fg-primary">{user?.name ?? "—"}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[#A0A0B8]">{ts("email")}</span>
-                <span className="text-[#F5F5F7]">{user?.email ?? "—"}</span>
+                <span className="text-fg-secondary">{ts("email")}</span>
+                <span className="text-fg-primary">{user?.email ?? "—"}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {ts("language")}
             </h2>
-            <p className="text-sm text-[#A0A0B8] mb-3">{ts("languageHint")}</p>
+            <p className="text-sm text-fg-secondary mb-3">{ts("languageHint")}</p>
             <div className="flex gap-2">
               {locales.map((loc) => (
                 <Button
@@ -203,48 +205,50 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-1">
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-1">
               {tc("title")}
             </h2>
-            <p className="text-sm text-[#A0A0B8] mb-4">{tc("body")}</p>
+            <p className="text-sm text-fg-secondary mb-4">{tc("body")}</p>
             <div className="space-y-3 text-sm">
               <label className="flex items-center justify-between">
-                <span className="text-[#F5F5F7]">{tc("analytics")}</span>
+                <span className="text-fg-primary">{tc("analytics")}</span>
                 <input
                   type="checkbox"
                   checked={consentAnalytics}
                   onChange={(e) =>
                     setConsentPrefs({ analytics: e.target.checked, monitoring: consentMonitoring })
                   }
-                  className="h-4 w-4 accent-[#818CF8]"
+                  className="h-4 w-4 accent-accent-indigo"
                   aria-label={tc("analytics")}
                 />
               </label>
               <label className="flex items-center justify-between">
-                <span className="text-[#F5F5F7]">{tc("monitoring")}</span>
+                <span className="text-fg-primary">{tc("monitoring")}</span>
                 <input
                   type="checkbox"
                   checked={consentMonitoring}
                   onChange={(e) =>
                     setConsentPrefs({ analytics: consentAnalytics, monitoring: e.target.checked })
                   }
-                  className="h-4 w-4 accent-[#818CF8]"
+                  className="h-4 w-4 accent-accent-indigo"
                   aria-label={tc("monitoring")}
                 />
               </label>
-              <p className="text-xs text-[#A0A0B8]">{tc("necessary")}</p>
+              <p className="text-xs text-fg-secondary">{tc("necessary")}</p>
             </div>
           </div>
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">{ts("lgpd")}</h2>
-            <p className="text-sm text-[#A0A0B8] mb-4">{ts("lgpdHint")}</p>
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
+              {ts("lgpd")}
+            </h2>
+            <p className="text-sm text-fg-secondary mb-4">{ts("lgpdHint")}</p>
             <LgpdControls />
           </div>
 
-          <div className="bg-[#12121C] rounded-lg p-6 border border-[#2A2A3D]">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+          <div className="bg-surface-card rounded-lg p-6 border border-surface-border">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {ts("session")}
             </h2>
             <Button

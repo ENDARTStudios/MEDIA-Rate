@@ -108,11 +108,11 @@ function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`flex min-w-[280px] flex-shrink-0 snap-start flex-col rounded-lg border bg-[#12121C] p-3 min-h-[220px] transition-colors md:min-w-0 md:flex-1 ${isOver ? "border-[#818CF8]" : "border-[#2A2A3D]"}`}
+      className={`flex min-w-[280px] flex-shrink-0 snap-start flex-col rounded-lg border bg-surface-card p-3 min-h-[220px] transition-colors md:min-w-0 md:flex-1 ${isOver ? "border-accent-indigo" : "border-surface-border"}`}
       data-testid={`watchlist-column-${col.key}`}
     >
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-[#F5F5F7]">{tituloColuna}</h2>
+        <h2 className="text-sm font-semibold text-fg-primary">{tituloColuna}</h2>
         <span
           className="text-xs px-2 py-0.5 rounded-full"
           style={{ backgroundColor: `${accent}1A`, color: accent }}
@@ -122,8 +122,8 @@ function Column({
       </div>
 
       {entries.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center rounded-md border border-dashed border-[#2A2A3D]">
-          <p className="text-xs text-[#85859F]">{t("emptyColumn")}</p>
+        <div className="flex-1 flex items-center justify-center rounded-md border border-dashed border-surface-border">
+          <p className="text-xs text-fg-muted">{t("emptyColumn")}</p>
         </div>
       ) : (
         <SortableContext items={entries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
@@ -224,7 +224,7 @@ export function WatchlistKanban({
     <div>
       {/* Tabs: Ativos (3 colunas) / Abandonados (arquivo). */}
       <div
-        className="mb-4 flex rounded-lg border border-[#2A2A3D] overflow-hidden w-fit"
+        className="mb-4 flex rounded-lg border border-surface-border overflow-hidden w-fit"
         role="group"
         aria-label={t("kanbanTabs")}
       >
@@ -232,7 +232,7 @@ export function WatchlistKanban({
           type="button"
           onClick={() => setView("ativos")}
           aria-pressed={view === "ativos"}
-          className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "ativos" ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#12121C] text-[#A0A0B8] hover:text-[#F5F5F7]"}`}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "ativos" ? "bg-accent-indigo text-accent-indigo-foreground" : "bg-surface-card text-fg-secondary hover:text-fg-primary"}`}
         >
           {t("tabAtivos")}
         </button>
@@ -240,7 +240,7 @@ export function WatchlistKanban({
           type="button"
           onClick={() => setView("abandonados")}
           aria-pressed={view === "abandonados"}
-          className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "abandonados" ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#12121C] text-[#A0A0B8] hover:text-[#F5F5F7]"}`}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "abandonados" ? "bg-accent-indigo text-accent-indigo-foreground" : "bg-surface-card text-fg-secondary hover:text-fg-primary"}`}
         >
           {t("tabAbandonados")}
         </button>
@@ -269,8 +269,8 @@ export function WatchlistKanban({
       ) : (
         <div className="flex flex-wrap gap-5" data-testid="abandonados-list">
           {abandonados.length === 0 ? (
-            <div className="w-full flex items-center justify-center rounded-md border border-dashed border-[#2A2A3D] p-10">
-              <p className="text-sm text-[#85859F]">{t("emptyAbandonados")}</p>
+            <div className="w-full flex items-center justify-center rounded-md border border-dashed border-surface-border p-10">
+              <p className="text-sm text-fg-muted">{t("emptyAbandonados")}</p>
             </div>
           ) : (
             abandonados.map((e) => {
@@ -280,7 +280,7 @@ export function WatchlistKanban({
                 <div key={midiaId} className="max-w-[200px]" data-testid="abandonado-card">
                   {item && <MediaCard media={item} />}
                   <div className="mt-1 flex items-center justify-between px-1">
-                    <span className="inline-flex items-center gap-1 text-xs text-[#A0A0B8]">
+                    <span className="inline-flex items-center gap-1 text-xs text-fg-secondary">
                       <StatusGlyph status="ABANDONADO" size={12} />
                       {t("abandonado")}
                     </span>
@@ -307,10 +307,10 @@ export function WatchlistKanban({
                             onClick={() => setReaction(midiaId, e.reacao === r ? null : r)}
                             aria-pressed={active}
                             aria-label={t(r === "GOSTEI" ? "gostei" : "naoGostei")}
-                            className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                            className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                               active
-                                ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
-                                : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#2A2A3D]"
+                                ? "border-accent-indigo bg-surface-border text-fg-primary"
+                                : "border-surface-border text-fg-secondary hover:bg-surface-border"
                             }`}
                           >
                             <ReactionGlyph reacao={r} size={12} />

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
+import { colors } from "@/lib/design-tokens";
 
 interface Particle {
   x: number;
@@ -15,7 +16,14 @@ interface Particle {
   vr: number;
 }
 
-const COLORS = ["#E11D48", "#D4AF37", "#F5F5F7", "#38BDF8", "#818CF8"];
+// Paleta da marca + dourado (não há token de ouro: 3 usos, todos em celebração/prêmio).
+const COLORS = [
+  colors.accent.brand,
+  "#D4AF37",
+  colors.text.primary,
+  colors.accent.sky,
+  colors.accent.indigo,
+];
 
 /**
  * T363 (D-336) — confete de felicitações pós-compra (canvas, sem lib pesada).

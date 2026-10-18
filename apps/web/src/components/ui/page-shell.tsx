@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 /**
  * PageShell — a casca de página do conceito (D-661).
@@ -26,28 +27,61 @@ import type { ReactNode } from "react";
  * - cores só por token (surface, fg, accent), nunca hex solto;
  * - sem raio gigante em bloco (anti-padrão D-065): raio é lg ou xl, com intenção.
  */
+/**
+ * Container da página: a única definição de max-width + padding horizontal e
+ * vertical do site. Páginas com cabeçalho próprio (título + badges de plano,
+ * abas, estado) compõem `PageContainer` + `PageTitle` em vez de repetir números.
+ */
+export function PageContainer({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8", className)}>{children}</div>
+  );
+}
+
+/** Título h1 do conceito — mesma escala em todas as páginas. */
+export function PageTitle({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <h1
+      className={cn(
+        "font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl",
+        className,
+      )}
+    >
+      {children}
+    </h1>
+  );
+}
+
 export function PageShell({
   title,
   intro,
   actions,
+  top,
   children,
 }: {
   title: ReactNode;
   intro?: ReactNode;
   actions?: ReactNode;
+  /** Elemento acima do título (faixa de identidade do plano, selo, breadcrumb). */
+  top?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <PageContainer>
+      {top ? <div className="mb-6">{top}</div> : null}
       <header className="max-w-3xl">
-        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
-          {title}
-        </h1>
+        <PageTitle>{title}</PageTitle>
         {intro ? <p className="mt-4 text-base leading-relaxed text-fg-secondary">{intro}</p> : null}
         {actions ? <div className="mt-8 flex flex-wrap items-center gap-3">{actions}</div> : null}
       </header>
       <div className="mt-12">{children}</div>
-    </div>
+    </PageContainer>
   );
 }
 

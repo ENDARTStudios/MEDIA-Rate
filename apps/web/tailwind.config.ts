@@ -96,6 +96,9 @@ const config: Config = {
           primary: "#F5F5F7",
           secondary: "#A0A0B8",
           muted: "#85859F",
+          // D-660: estado desabilitado de ícone/texto. Fica abaixo de AA de propósito
+          // (WCAG isenta controle desabilitado); existia como #4A4A60 solto.
+          disabled: "#4A4A60",
         },
         /**
          * D-586 (T211/B3) — paleta LEGADA do protótipo do dashboard, declarada uma

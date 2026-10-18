@@ -159,8 +159,8 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
         transition={shouldReduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
         className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
           inWatchlist
-            ? "bg-[#EF4444]/15 text-[#F87171] hover:bg-[#EF4444]/25"
-            : "bg-[#12121C]/80 text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7]"
+            ? "bg-destructive/15 text-score-low hover:bg-destructive/25"
+            : "bg-surface-card/80 text-fg-secondary hover:bg-surface-elevated hover:text-fg-primary"
         }`}
         title={titleLabel}
         aria-label={titleLabel}
@@ -184,7 +184,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
           </svg>
         ) : (
           <svg
-            className={`w-4 h-4 transition-transform duration-200 ${inWatchlist ? "fill-[#EF4444] text-[#EF4444]" : "text-[#A0A0B8]"}`}
+            className={`w-4 h-4 transition-transform duration-200 ${inWatchlist ? "fill-destructive text-destructive" : "text-fg-secondary"}`}
             viewBox="0 0 24 24"
             fill={inWatchlist ? "currentColor" : "none"}
             stroke="currentColor"
@@ -198,13 +198,13 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
       </motion.button>
 
       {open && inWatchlist && (
-        <div className="absolute top-full left-0 mt-1 w-40 bg-[#1C1C2E] border border-[#2A2A3E] rounded-lg shadow-floating z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 w-40 bg-surface-elevated border border-surface-border rounded-lg shadow-floating z-50 overflow-hidden">
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleMove("WANT");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-fg-secondary hover:bg-surface-card hover:text-fg-primary transition-colors"
           >
             {t(colunaLabelKey(mediaType, "WANT"))}
           </button>
@@ -213,7 +213,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleMove("WATCHING");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-fg-secondary hover:bg-surface-card hover:text-fg-primary transition-colors"
           >
             {t(colunaLabelKey(mediaType, "WATCHING"))}
           </button>
@@ -222,7 +222,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleMove("COMPLETED");
             }}
-            className="w-full text-left px-3 py-2 text-xs text-[#A0A0B8] hover:bg-[#12121C] hover:text-[#F5F5F7] transition-colors"
+            className="w-full text-left px-3 py-2 text-xs text-fg-secondary hover:bg-surface-card hover:text-fg-primary transition-colors"
           >
             {t(colunaLabelKey(mediaType, "COMPLETED"))}
           </button>
@@ -231,7 +231,7 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
               e.stopPropagation();
               handleRemove();
             }}
-            className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors border-t border-[#2A2A3E]"
+            className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors border-t border-surface-border"
           >
             {t("removeFromWatchlist")}
           </button>
@@ -240,14 +240,14 @@ export function WatchlistButton({ mediaId, mediaType, className = "" }: Props) {
 
       {limitReached && (
         <div
-          className="absolute top-full left-0 mt-1 w-48 bg-[#1C1C2E] border border-[#2A2A3E] rounded-lg shadow-floating z-50 p-3 space-y-2"
+          className="absolute top-full left-0 mt-1 w-48 bg-surface-elevated border border-surface-border rounded-lg shadow-floating z-50 p-3 space-y-2"
           role="alert"
         >
-          <p className="text-xs text-[#F59E0B] leading-snug">{t("limitReached")}</p>
+          <p className="text-xs text-score-6 leading-snug">{t("limitReached")}</p>
           <Link
             href="/pricing"
             onClick={(e) => e.stopPropagation()}
-            className="block text-center text-xs font-medium text-[#12121C] bg-[#818CF8] hover:bg-[#6D7BF7] rounded-md px-3 py-1.5 transition-colors"
+            className="block text-center text-xs font-medium text-surface-card bg-accent-indigo hover:brightness-90 rounded-md px-3 py-1.5 transition-[filter]"
           >
             {t("upgradeCta")}
           </Link>

@@ -10,6 +10,7 @@ import {
   Plus,
   type LucideIcon,
 } from "lucide-react";
+import { colors } from "@/lib/design-tokens";
 import type { ConsumoStatus, Reacao } from "@/lib/api-interactions";
 import type { MediaType } from "@/lib/types";
 import { conjugacaoPorTipo } from "@/lib/watchlist-labels";
@@ -134,7 +135,7 @@ export function AddGlyph({ size = 16, className }: { size?: number; className?: 
   return (
     <Plus
       className={className}
-      style={{ width: size, height: size, color: "#A0A0B8" }}
+      style={{ width: size, height: size, color: colors.text.secondary }}
       strokeWidth={2.2}
       aria-hidden="true"
     />

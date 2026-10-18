@@ -98,25 +98,27 @@ export function ProfileContent() {
 
   if (isLoading && total === 0) {
     return (
-      <div className="max-w-4xl mx-auto py-16 px-4 text-center text-[#A0A0B8]">{tc("loading")}</div>
+      <div className="mx-auto max-w-4xl px-4 py-16 text-center text-fg-secondary sm:px-6">
+        {tc("loading")}
+      </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-16 px-4">
+    <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="flex items-center gap-4 mb-12">
-        <div className="w-16 h-16 rounded-full bg-[#818CF8]/20 flex items-center justify-center text-2xl font-heading font-bold text-[#818CF8] shrink-0">
+        <div className="w-16 h-16 rounded-full bg-accent-indigo/20 flex items-center justify-center text-2xl font-heading font-bold text-accent-indigo shrink-0">
           {user?.name?.[0] ?? "?"}
         </div>
         <div>
-          <h1 className="text-2xl font-heading font-bold text-[#F5F5F7]">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
             {user?.name ?? t("user")}
           </h1>
-          <p className="text-sm text-[#A0A0B8]">
+          <p className="text-sm text-fg-secondary">
             {t("planFreeSince", { plan: user?.plan ?? "FREE", date: membroDesde })}
           </p>
           {total > 0 && (
-            <p className="text-xs text-[#A0A0B8] mt-1">
+            <p className="text-xs text-fg-secondary mt-1">
               {total} {t("titles")}
             </p>
           )}
@@ -125,11 +127,11 @@ export function ProfileContent() {
 
       {/* Perfil público compartilhável (T193) — link agregado, sem dados sensíveis. */}
       {user?.id && (
-        <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5 mb-8">
-          <p className="text-sm font-semibold text-[#F5F5F7] mb-1">{t("shareLink")}</p>
-          <p className="text-xs text-[#85859F] mb-3">{t("shareHint")}</p>
+        <div className="rounded-lg border border-surface-border bg-surface-card p-5 mb-8">
+          <p className="text-sm font-semibold text-fg-primary mb-1">{t("shareLink")}</p>
+          <p className="text-xs text-fg-muted mb-3">{t("shareHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <code className="rounded-md border border-[#2A2A3D] bg-[#09090F] px-3 py-1.5 text-xs text-[#A0A0B8] break-all">
+            <code className="rounded-md border border-surface-border bg-surface-bg px-3 py-1.5 text-xs text-fg-secondary break-all">
               {`${window.location.origin}/pt-BR/user/${user.id}`}
             </code>
             <Button
@@ -150,7 +152,7 @@ export function ProfileContent() {
       )}
 
       {total === 0 && (
-        <div className="text-center py-12 text-[#A0A0B8]">
+        <div className="text-center py-12 text-fg-secondary">
           <p className="mb-4">{t("emptyMessage")}</p>
           <Link href="/catalog">
             <Button variant="outline">{t("exploreCatalog")}</Button>
@@ -170,14 +172,14 @@ export function ProfileContent() {
             ].map(({ label, value }) => (
               <div
                 key={label}
-                className="bg-[#12121C] rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)] flex flex-col justify-center"
+                className="bg-surface-card rounded-md p-5 text-center border border-[rgba(129,140,248,0.08)] flex flex-col justify-center"
               >
-                <p className="text-3xl font-heading font-bold text-[#F5F5F7] tabular-nums">
+                <p className="text-3xl font-heading font-bold text-fg-primary tabular-nums">
                   {value}
                 </p>
                 {/* área de rótulo com altura fixa: 1 ou 2 linhas, os números
                     ficam alinhados entre os 5 cards */}
-                <p className="text-xs text-[#A0A0B8] mt-1 min-h-[2.5rem] flex items-center justify-center leading-snug">
+                <p className="text-xs text-fg-secondary mt-1 min-h-[2.5rem] flex items-center justify-center leading-snug">
                   {label}
                 </p>
               </div>
@@ -185,18 +187,18 @@ export function ProfileContent() {
           </div>
 
           <div className="mb-12">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {t("favoriteGenres")}
             </h2>
-            <div className="bg-[#12121C] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
+            <div className="bg-surface-card rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
               {topGeneros.length === 0 ? (
-                <p className="text-sm text-[#A0A0B8] text-center py-8">{t("tasteEmpty")}</p>
+                <p className="text-sm text-fg-secondary text-center py-8">{t("tasteEmpty")}</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {topGeneros.map(([g, n]) => (
                     <span
                       key={g}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#818CF8]/30 bg-[#818CF8]/10 px-3 py-1 text-sm font-medium text-[#818CF8]"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-accent-indigo/30 bg-accent-indigo/10 px-3 py-1 text-sm font-medium text-accent-indigo"
                     >
                       {generoLabel(g, locale)}
                       <span className="text-xs opacity-70 tabular-nums">{n}</span>
@@ -208,14 +210,14 @@ export function ProfileContent() {
           </div>
 
           <div className="mb-12">
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {t("badges")}
             </h2>
             <div className="flex flex-wrap gap-3">
               {badges.map((b) => (
                 <div
                   key={b.name}
-                  className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-[#818CF8]/10 border-[#818CF8]/30 text-[#818CF8]" : "bg-[#12121C] border-[rgba(129,140,248,0.08)] text-[#A0A0B8]"}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border ${b.unlocked ? "bg-accent-indigo/10 border-accent-indigo/30 text-accent-indigo" : "bg-surface-card border-[rgba(129,140,248,0.08)] text-fg-secondary"}`}
                 >
                   {b.unlocked ? "★" : "☆"} {b.name}
                   <span className="ml-2 text-xs opacity-60">{b.desc}</span>
@@ -225,14 +227,14 @@ export function ProfileContent() {
           </div>
 
           <div>
-            <h2 className="text-lg font-heading font-semibold text-[#F5F5F7] mb-4">
+            <h2 className="text-lg font-heading font-semibold text-fg-primary mb-4">
               {t("recentActivity")}
             </h2>
-            <div className="bg-[#12121C] rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
+            <div className="bg-surface-card rounded-md p-6 border border-[rgba(129,140,248,0.08)]">
               {ultimasAtividades.length === 0 ? (
-                <p className="text-sm text-[#A0A0B8] text-center py-8">{t("recentEmpty")}</p>
+                <p className="text-sm text-fg-secondary text-center py-8">{t("recentEmpty")}</p>
               ) : (
-                <ul role="list" className="divide-y divide-[#2A2A3D]">
+                <ul role="list" className="divide-y divide-surface-border">
                   {ultimasAtividades.map((a, i) => {
                     const tipo = a.midia?.tipo?.toLowerCase();
                     const st = a.status as ConsumoStatus | undefined;
@@ -249,11 +251,11 @@ export function ProfileContent() {
                         {a.reacao && (
                           <ReactionGlyph reacao={a.reacao as "GOSTEI" | "NAO_GOSTEI"} size={16} />
                         )}
-                        <span className="text-sm text-[#F5F5F7] truncate">{titulo}</span>
+                        <span className="text-sm text-fg-primary truncate">{titulo}</span>
                         {label && (
-                          <span className="text-xs text-[#A0A0B8] shrink-0">{ti(label)}</span>
+                          <span className="text-xs text-fg-secondary shrink-0">{ti(label)}</span>
                         )}
-                        <span className="ml-auto text-xs text-[#A0A0B8] shrink-0">
+                        <span className="ml-auto text-xs text-fg-secondary shrink-0">
                           {tempoRelativo(
                             a.atualizado_em,
                             t as (k: string, vals?: Record<string, unknown>) => string,

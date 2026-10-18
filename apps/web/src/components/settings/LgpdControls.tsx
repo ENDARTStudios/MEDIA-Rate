@@ -56,7 +56,7 @@ export function LgpdControls() {
 
   if (deleted) {
     return (
-      <p className="text-sm text-[#34D399]" role="status">
+      <p className="text-sm text-accent-emerald" role="status">
         {t("deleteRequested")}
       </p>
     );
@@ -79,7 +79,7 @@ export function LgpdControls() {
           </Button>
         ) : (
           <div className="flex flex-wrap items-center gap-3" role="alert">
-            <span className="text-sm text-[#F87171]">{t("deleteConfirm")}</span>
+            <span className="text-sm text-score-low">{t("deleteConfirm")}</span>
             <Button
               variant="destructive"
               onClick={() => void excluirDefinitivamente()}

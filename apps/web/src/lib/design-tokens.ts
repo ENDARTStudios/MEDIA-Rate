@@ -30,6 +30,8 @@ export const colors = {
     // falhava sobre superfície elevada (4.42:1) — era o "débito conhecido"
     // apontado pelo detector de DOM nos badges de contagem do catálogo.
     muted: "#85859F",
+    // Estado desabilitado (abaixo de AA de propósito: WCAG isenta controle desabilitado).
+    disabled: "#4A4A60",
     // D-582.7 (T211): texto sobre fundo de marca (CTA rose + badges).
     //
     // Exceção deliberada e medida ao D-065 ("texto #FFFFFF"): sobre

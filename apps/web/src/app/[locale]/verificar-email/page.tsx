@@ -41,17 +41,17 @@ export default async function VerifyEmailPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-md items-center justify-center px-4 py-16">
-      <div className="w-full rounded-xl border border-[#2A2A3D] bg-[#12121C] p-8 text-center">
-        <h1 className="mb-2 font-heading text-2xl font-bold text-[#F5F5F7]">
+      <div className="w-full rounded-xl border border-surface-border bg-surface-card p-8 text-center">
+        <h1 className="mb-2 font-heading text-2xl font-bold text-fg-primary">
           {t("verifyMetaTitle")}
         </h1>
-        <p className="mb-6 text-sm text-[#A0A0B8]">{t("verifyMetaDescription")}</p>
+        <p className="mb-6 text-sm text-fg-secondary">{t("verifyMetaDescription")}</p>
 
         {/* useSearchParams exige limite Suspense no App Router — mas o limite não pode
             entregar `null`: aqui ele entrega o estado de "verificando…" no HTML. */}
         <Suspense
           fallback={
-            <p role="status" aria-live="polite" className="text-sm text-[#A0A0B8]">
+            <p role="status" aria-live="polite" className="text-sm text-fg-secondary">
               {t("verifyTitle")}
             </p>
           }
