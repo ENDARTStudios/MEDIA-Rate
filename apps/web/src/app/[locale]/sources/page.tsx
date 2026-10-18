@@ -89,7 +89,7 @@ export default async function SourcesPage({ params }: PageProps) {
   ];
 
   return (
-    <article className="container mx-auto max-w-4xl px-4 py-12">
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <StructuredData data={jsonLd} />
       <header className="mb-10 text-center">
         <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
@@ -101,7 +101,7 @@ export default async function SourcesPage({ params }: PageProps) {
       {/* T211: `prose prose-invert` era INERTE (o plugin @tailwindcss/typography
           não está instalado) — títulos saíam no default do browser e links no azul
           nativo sobre fundo escuro. Estilos agora explícitos pelos tokens. */}
-      <div className="max-w-[34rem] space-y-12 [&_a]:text-[#818CF8] [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#F5F5F7] [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[#A0A0B8]">
+      <div className="max-w-[34rem] space-y-12 [&_a]:text-accent-indigo [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-fg-primary [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-fg-secondary">
         <section aria-labelledby="coverage-title">
           <h2 id="coverage-title">{copy.coverageTitle}</h2>
           <p>{copy.coverageBody}</p>
@@ -115,15 +115,15 @@ export default async function SourcesPage({ params }: PageProps) {
             {FONTES_ATIVAS.map((fonte) => (
               <div
                 key={fonte.id}
-                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
+                className="rounded-lg border border-surface-border/30 bg-surface-card p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#F5F5F7]">{fonte.nome}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">
+                <dt className="font-heading text-lg font-semibold text-fg-primary">{fonte.nome}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-fg-secondary">
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       fonte.tipo === "critica"
-                        ? "bg-[#38BDF8]/15 text-[#38BDF8]"
-                        : "bg-[#E11D48]/15 text-[#FB7185]"
+                        ? "bg-accent-sky/15 text-accent-sky"
+                        : "bg-brand/15 text-brand"
                     }`}
                   >
                     {fonte.tipo === "critica" ? tScore("critic") : tScore("audience")}
@@ -148,23 +148,23 @@ export default async function SourcesPage({ params }: PageProps) {
                 <li
                   key={tipo}
                   data-testid={`coverage-${tipo}`}
-                  className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
+                  className="rounded-lg border border-surface-border/30 bg-surface-card p-5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-heading text-base font-semibold text-[#F5F5F7]">
+                    <span className="font-heading text-base font-semibold text-fg-primary">
                       {tCat(MIDIA_LABEL_KEY[tipo])}
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
                         coberto
-                          ? "bg-[#34D399]/15 text-[#34D399]"
-                          : "bg-[#F59E0B]/15 text-[#F59E0B]"
+                          ? "bg-accent-emerald/15 text-accent-emerald"
+                          : "bg-score-6/15 text-score-6"
                       }`}
                     >
                       {coberto ? copy.covered : copy.inPreparation}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">
+                  <p className="mt-2 text-sm leading-relaxed text-fg-secondary">
                     {coberto ? fontes.map((f) => f.nome).join(" · ") : copy.inPreparation}
                   </p>
                 </li>

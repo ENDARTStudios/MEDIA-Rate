@@ -21,8 +21,10 @@ export default async function AssistantPage({ params }: PageProps) {
   const t = await getTranslations({ locale, namespace: "assistant" });
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="mb-4 font-heading text-2xl font-bold text-[#F5F5F7]">{t("title")}</h1>
-      <p className="text-[#A0A0B8]">{t("body")}</p>
+      <h1 className="mb-4 font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+        {t("title")}
+      </h1>
+      <p className="text-fg-secondary">{t("body")}</p>
     </div>
   );
 }

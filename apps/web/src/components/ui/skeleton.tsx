@@ -9,13 +9,19 @@ export function Skeleton({ variant = "text", className = "" }: SkeletonProps) {
   switch (variant) {
     case "circle":
       return (
-        <div className={`rounded-full aspect-square bg-[#1C1C2E] animate-pulse ${className}`} />
+        <div
+          className={`rounded-full aspect-square bg-surface-elevated animate-pulse ${className}`}
+        />
       );
     case "card":
-      return <div className={`aspect-[2/3] bg-[#1C1C2E] rounded-md animate-pulse ${className}`} />;
+      return (
+        <div className={`aspect-[2/3] bg-surface-elevated rounded-md animate-pulse ${className}`} />
+      );
     case "rect":
-      return <div className={`bg-[#1C1C2E] rounded-md animate-pulse ${className}`} />;
+      return <div className={`bg-surface-elevated rounded-md animate-pulse ${className}`} />;
     default:
-      return <div className={`h-4 bg-[#1C1C2E] rounded-md animate-pulse w-full ${className}`} />;
+      return (
+        <div className={`h-4 bg-surface-elevated rounded-md animate-pulse w-full ${className}`} />
+      );
   }
 }

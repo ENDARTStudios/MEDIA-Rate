@@ -37,9 +37,9 @@ function SearchIcon() {
 export function EmptyState({ icon, title, description, action, className = "" }: EmptyStateProps) {
   return (
     <div className={`flex flex-col items-center text-center py-16 px-4 ${className}`}>
-      <div className="text-[#A0A0B8] mb-4">{icon ?? <SearchIcon />}</div>
-      <h3 className="text-lg font-heading text-[#F5F5F7] mb-2">{title}</h3>
-      {description && <p className="text-sm text-[#A0A0B8] mb-6 max-w-md">{description}</p>}
+      <div className="text-fg-secondary mb-4">{icon ?? <SearchIcon />}</div>
+      <h3 className="text-lg font-heading text-fg-primary mb-2">{title}</h3>
+      {description && <p className="text-sm text-fg-secondary mb-6 max-w-md">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   );

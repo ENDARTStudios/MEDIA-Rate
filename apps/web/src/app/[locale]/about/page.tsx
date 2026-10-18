@@ -67,30 +67,30 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
           {t("title")}
         </h1>
-        <p className="mt-4 max-w-[34rem] text-lg text-[#A0A0B8] leading-relaxed">{t("lead")}</p>
+        <p className="mt-4 max-w-[34rem] text-lg text-fg-secondary leading-relaxed">{t("lead")}</p>
       </header>
 
       <div className="space-y-16">
         <ScrollReveal>
           <section>
-            <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+            <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
               {t("whatIsTitle")}
             </h2>
-            <p className="max-w-[38rem] text-[#A0A0B8] leading-relaxed">{t("whatIsBody")}</p>
+            <p className="max-w-[38rem] text-fg-secondary leading-relaxed">{t("whatIsBody")}</p>
           </section>
         </ScrollReveal>
 
-        <section className="bg-[#12121C] border border-[#1C1C2E] rounded-lg p-8 -mx-2">
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+        <section className="bg-surface-card border border-surface-elevated rounded-lg p-8 -mx-2">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("whatIsNotTitle")}
           </h2>
           <p
-            className="max-w-[38rem] text-[#A0A0B8] leading-relaxed"
+            className="max-w-[38rem] text-fg-secondary leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(t.markup("whatIsNotBody", MARKUP_STRONG)),
             }}
           />
-          <p className="mt-4 text-sm text-[#818CF8]">
+          <p className="mt-4 text-sm text-accent-indigo">
             <Link href="/methodology" className="underline underline-offset-2 hover:brightness-110">
               {t("whatIsNotCta")}
             </Link>
@@ -98,16 +98,16 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </section>
 
         <section>
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("categoriesTitle")}
           </h2>
           <p
-            className="max-w-[38rem] text-[#A0A0B8] leading-relaxed"
+            className="max-w-[38rem] text-fg-secondary leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(t.markup("categoriesIntro", MARKUP_STRONG)),
             }}
           />
-          <ul role="list" className="mt-3 space-y-2 text-[#A0A0B8]">
+          <ul role="list" className="mt-3 space-y-2 text-fg-secondary">
             <li
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(t.markup("categoriesMovie", MARKUP_STRONG)),
@@ -142,11 +142,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </section>
 
         <section>
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("howItWorksTitle")}
           </h2>
-          <p className="max-w-[38rem] text-[#A0A0B8] leading-relaxed">{t("howItWorksBody")}</p>
-          <p className="mt-4 text-sm text-[#818CF8]">
+          <p className="max-w-[38rem] text-fg-secondary leading-relaxed">{t("howItWorksBody")}</p>
+          <p className="mt-4 text-sm text-accent-indigo">
             <Link href="/methodology" className="underline underline-offset-2 hover:brightness-110">
               {t("howItWorksCta")}
             </Link>
@@ -154,11 +154,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </section>
 
         <section>
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("transparencyTitle")}
           </h2>
-          <p className="max-w-[38rem] text-[#A0A0B8] leading-relaxed">{t("transparencyBody")}</p>
-          <p className="mt-4 text-sm text-[#818CF8]">
+          <p className="max-w-[38rem] text-fg-secondary leading-relaxed">{t("transparencyBody")}</p>
+          <p className="mt-4 text-sm text-accent-indigo">
             <Link href="/privacy" className="underline underline-offset-2 hover:brightness-110">
               {t("transparencyCta")}
             </Link>
@@ -166,29 +166,29 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </section>
 
         <section>
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("languagesTitle")}
           </h2>
-          <p className="max-w-[38rem] text-[#A0A0B8] leading-relaxed">{t("languagesBody")}</p>
+          <p className="max-w-[38rem] text-fg-secondary leading-relaxed">{t("languagesBody")}</p>
         </section>
 
         <section>
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] mb-4">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary mb-4">
             {t("roadmapTitle")}
           </h2>
           <p
-            className="max-w-[38rem] text-[#A0A0B8] leading-relaxed"
+            className="max-w-[38rem] text-fg-secondary leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(t.markup("roadmapBody", MARKUP_STRONG)),
             }}
           />
-          <p className="mt-3 text-xs text-[#A0A0B8]">
+          <p className="mt-3 text-xs text-fg-secondary">
             {t("availableIn")}{" "}
-            <Link href="/about" locale="en-US" className="text-[#818CF8] underline">
+            <Link href="/about" locale="en-US" className="text-accent-indigo underline">
               {t("enLabel")}
             </Link>{" "}
             {t("and")}{" "}
-            <Link href="/about" locale="es-ES" className="text-[#818CF8] underline">
+            <Link href="/about" locale="es-ES" className="text-accent-indigo underline">
               {t("esLabel")}
             </Link>
             .

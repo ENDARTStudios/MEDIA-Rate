@@ -10,9 +10,9 @@ type InputProps = {
 export function Input({ label, error, className = "", ...props }: InputProps) {
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-[#A0A0B8] mb-1">{label}</label>}
+      {label && <label className="block text-sm font-medium text-fg-secondary mb-1">{label}</label>}
       <input
-        className="w-full bg-[#12121C] border border-[#1C1C2E] rounded-md text-[#F5F5F7] placeholder:text-[#A0A0B8] px-3 py-2 focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-0 focus:outline-none transition-colors"
+        className="w-full bg-surface-card border border-surface-elevated rounded-md text-fg-primary placeholder:text-fg-secondary px-3 py-2 focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo focus:ring-offset-0 focus:outline-none transition-colors"
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
