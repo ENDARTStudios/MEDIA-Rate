@@ -7,107 +7,105 @@
 
 | Etapa | Entrega | Verificação |
 |---|---|---|
-| Bot v1 | `npm run audit:routes` — 38 rotas medidas | roda ✓ |
-| Casca de página | `apps/web/src/components/ui/page-shell.tsx` (`PageShell` + `SectionBlock`) | `tsc` 0 · `design:detect` 0 · `eslint` 0 |
-| Rodapé por intenção | `MotionFooter.tsx` — Produto / Conteúdo / Legal, 5 colunas | `tsc` 0 · `eslint` 0 · `detect` 0 · JSON ✓ |
-| **Bot v2** | mede **página + componentes** (`--depth`, `--json`, `--all`); ignora comentários; rotas que só redirecionam saem das contas | roda ✓ · árvore limpa após rodar |
-| **/discover** | `PageShell` + tokens; `Link` no lugar de `<a href>` | `tsc` 0 · `eslint` 0 · `detect` 0 · vitest 624/624 |
-| **/compare** | `PageShell` + tokens; cor do score vinda de `design-tokens` | idem |
-| **/catalog** | `PageShell`; `CatalogPageClient` nos tokens | idem |
-| **/discoveries** | `PageShell`; `DiscoveriesFeed` nos tokens (41 literais) | idem |
+| Bot v1 | mede `page.tsx` | superado pelo v2 |
+| Casca de página | `PageShell` + `SectionBlock` + `PageContainer`/`PageTitle` | `tsc` 0 · `eslint` 0 · `detect` 0 |
+| Rodapé por intenção | Produto / Conteúdo / Legal / Social, 5 colunas | idem |
+| **Bot v2** | mede **página + cadeia de componentes** (`--depth`, `--json`, `--all`); ignora comentários; rotas que só redirecionam saem das contas | `npm run audit:routes` |
+| **Bot v3** | `scripts/bots/tokenize-hex.mjs` — troca literal por token com mapa explícito e audita o que sobrou | `--write`, `--rotas=`, `--json` |
+| **Cluster descoberta** | `/discover`, `/compare`, `/catalog`, `/discoveries` | gates por cluster |
+| **Cluster conta** | `/biblioteca`, `/watchlist`, `/profile`, `/settings`, `/historico`, `/user/data`, `/verificar-email`, `/billing/success` | idem |
+| **Cluster institucional** | `/about`, `/methodology`, `/sources`, `/faq`, `/seguranca`, `/assistant`, `/welcome`, `/feedback`, `/design-system`, `/listas`, `/listas/[slug]` | idem |
+| **Clusters legal + detalhe + home** | legal (5 rotas), detalhe (`/media/[slug]`, `/user/[id]`, `/pricing`, `/checkout/[plan]`, `/login`, `/register`) e a home | idem |
+| **Faixa final do rodapé** | idioma (`LocaleSwitcher` com `placement="top"`) · status (link real) · identificação legal | spec `footer-faixa-final` |
+| **`/status`** | sonda `GET /health` na hora (`force-dynamic`, timeout 3 s) — nunca promete status fixo | `tsc` · spec |
 
-Progresso numérico do bot v2 nesta branch: **hex cru 799 → 708**, **rotas com ZERO token
-1 → 0**, **rotas sem `<h1>` 0**, **`rounded-2xl` (D-065) 3 → 3** (`/biblioteca`, `/settings`,
-`/top` — pendências dos próximos clusters).
+### Progresso numérico (bot v2, rotas públicas)
 
-### Tokens novos (com justificativa)
-
-- `accent.indigo.hover` `#A5B4FC` — o par "índigo no hover" existia como hex solto em ~20
-  links/CTAs (`text-[#818CF8] hover:text-[#A5B4FC]`). Sem token, cada rota migrada repetiria
-  o literal.
-- `brand.hover` `#C31442` — rose escurecido do hover dos CTAs de marca.
-- `#1C1C2E` (74 usos: fundo de skeleton, placeholder de pôster, borda de input, hover de item
-  de menu) foi tratado como **duplicata de `surface.elevated` `#1B1B2C`** (delta 1,1,2 em
-  RGB). Migrado em `/discoveries`; os ~71 pontos restantes são varredura mecânica.
-
-## Escopo medido (o que o bot v1 escondia)
-
-O v1 media `page.tsx`. Nas rotas abaixo **o conteúdo vive no componente**, então os números
-de "zero token / sem h1" estavam **inflados** e migrar a página **não muda nada visível**:
-
-| Rota | page.tsx | Componente |
+| Métrica | Início | Agora |
 |---|---|---|
-| `/discover` | 51l | `DiscoverClient` — **migrado** |
-| `/biblioteca` | 73l | `ProtectedPage`, `BibliotecaClient` |
-| `/catalog` | 151l | `CatalogPageClient` — **migrado** |
-| `/discoveries` | 33l | `DiscoveriesFeed` — **migrado** |
-| `/compare` | 28l | `ComparePage` — **migrado** |
-| `/top` | 60l | `TopPageClient` — 325l, 26 tokens, h1 presente: **já conforme** |
+| Hex cru | 799 | **1** (dourado `#D4AF37` do confete — sem token de ouro) |
+| Rotas com ZERO token do conceito | 1 | **0** |
+| Rotas sem `<h1>` | 2 (falsos, eram redirect) | **0** |
+| Rotas com `rounded-2xl` (D-065) | 3 | **1** (`/top`, banner deliberado) |
+| Literais fora de token no app (`design:hex`) | 139 ocorrências / 35 valores | **63 / 26** |
 
-**O trabalho real está nos componentes.** O v2 resolve isso: mede a página e a cadeia de
-componentes que ela importa.
+### Tokens criados nesta fase
+
+| Token | Valor | Por quê |
+|---|---|---|
+| `accent.indigo.hover` | `#A5B4FC` | par de hover do índigo, era hex em ~20 links/CTAs |
+| `brand.hover` | `#C31442` | hover dos CTAs de marca |
+| `fg.disabled` | `#4A4A60` | estado desabilitado (abaixo de AA de propósito) |
+| `surface.border-hover` | `#3A3A52` | borda no hover, era hex em 6 componentes |
+| `ink` | `#0F172A` | tinta sobre fundo de `score.*` (não tem foreground próprio) |
+
+Consolidações (valor antigo → token): `#1C1C2E` e `#11111E` → `surface-card`/`surface-elevated`;
+`#09090F`, `#05050A`, `#0D0D14`, `#0D0D1A` → `surface-bg`; `#151524`, `#18152D`, `#1A1A28` →
+`surface-elevated`; `#12121F` → `surface-card`; `#8B7CFF` → `accent-indigo`; `#A69CFF` →
+`accent-violet`; `#EF4444` → `destructive`; `#2A2A3E` → `surface-border` (D-586 quando aplicável).
 
 ## Armadilhas que já foram pagas (não repita)
 
 1. **`[locale]` em caminho no PowerShell** — `[locale]` é **classe de caracteres**;
-   `Get-Content`/`Select-String` falham em silêncio e devolvem vazio, o que se lê erroneamente
-   como "não existe". Use `-LiteralPath` ou Node.
-2. **`[locale]` também engana o `eslint` e o `git add`** — `eslint "apps/web/src/app/[locale]/x/page.tsx"`
-   linta **zero arquivo e sai 0** (o glob não casa). Escape como `[[]locale[]]` ou rode de
-   dentro do diretório; **confirme com `--format json` contando os arquivos**. `git add`
-   aceitou o caminho literal, mas não confie: `git show --stat` depois de commitar.
-3. **Escrever script/boilerplate via here-string do PowerShell** — regex com `/` se corrompe
-   na travessia. **Use a ferramenta de escrita de arquivo**; here-string só para texto simples.
-4. **Verificar HTML cru para i18n** — o Next serializa as mensagens no HTML, então **toda**
-   chave aparece ali, renderizada ou não. Para "está na tela?" meça o **DOM**.
-5. **Medir comentário como tela** — a docstring do `PageShell` dizia "14 sem `<h1>`" e "sem
-   `rounded-2xl`"; o bot v2 contava as duas frases como atributo da rota. Corrigido: o texto
-   medido passa por strip de comentário (de linha só quando `//` abre a linha ou vem depois de
-   espaço, para não truncar `https://`).
-6. **`PageShell` renderizava `<main>`** — o landmark já é do `[locale]/layout.tsx`
-   (`<main id="main">`, alvo do skip-link); um `<main>` aninhado quebraria o skip-link em
-   todas as rotas migradas. A raiz do shell é uma `div`. **Não "conserte" isso de volta.**
+   `Get-Content`/`Select-String` falham em silêncio. Use `-LiteralPath` ou Node.
+2. **`[locale]` também engana o `eslint`** — `eslint "apps/web/src/app/[locale]/x.tsx"` linta
+   **zero arquivo e sai 0**. Escape `[[]locale[]]` (ou rode de dentro do diretório) e confirme
+   com `--format json` contando arquivos. `git add` aceita o caminho literal, mas confira com
+   `git show --stat`.
+3. **Script/boilerplate via here-string do PowerShell** — regex com `/` se corrompe na
+   travessia. **Use a ferramenta de escrita de arquivo.**
+4. **Verificar HTML cru para i18n** — o Next serializa todas as mensagens no HTML. Para "está
+   na tela?" meça o **DOM**.
+5. **Medir comentário como tela** — o bot v2 ignora comentários (docstring que citava `<h1>` e
+   `rounded-2xl` inflava a rota). Se for mexer no bot, preserve esse strip.
+6. **`PageShell` não pode renderizar `<main>`** — o landmark é do `[locale]/layout.tsx`
+   (`<main id="main">`, alvo do skip-link). A raiz do shell é uma `div`.
+7. **Chave camelCase no `tailwind.config.ts` gera classe morta** — `surface.borderHover`
+   produzia `border-surface-borderHover` (ninguém usa), não `border-surface-border-hover`.
+   Use chave kebab. **Nenhum gate pega isso**: verifique compilando o CSS
+   (`@tailwindcss/postcss` + `globals.css`) e procurando a classe.
+8. **O bot de tokenização só mexe em `-[#RRGGBB]`** (valor arbitrário de classe). Cor em
+   `style={{…}}`, `text-white` e hex em atributo SVG aparecem no relatório como sobra e são
+   decisão humana.
 
-## Próximas etapas, na ordem
+## Como continuar (receita)
 
-1. **Cluster conta**: `/biblioteca` (2 `rounded-2xl` em `BibliotecaClient`), `/watchlist`,
-   `/profile`, `/settings` (2 `rounded-2xl` em `Settings`/`LgpdControls`), `/historico`,
-   `/user/data`, `/listas`, `/listas/[slug]`, `/verificar-email`, `/billing/success`.
-2. **Cluster institucional**: `/about`, `/methodology`, `/sources`, `/faq`, `/seguranca`,
-   `/assistant`, `/welcome`, `/feedback`, `/design-system`.
-3. **Cluster legal**: `/terms`, `/privacy`, `/cookies`, `/cookies/gerenciar`,
-   `/direitos-do-titular`. **Não alterar texto legal** sem manter Termos + Política + rodapé
-   coerentes e o gate legal.
-4. **Cluster detalhe**: `/media/[slug]` (`MediaDetailClient`), `/user/[id]`, `/pricing`,
-   `/checkout/[plan]`, `/login`, `/register`.
-5. **Faixa final do rodapé**: idioma, status e identificação legal.
-6. **Varredura do `#1C1C2E`** (`surface-elevated`) nos ~71 pontos restantes — mecânica, mas
-   confirmar caso a caso quando o hexadecimal estiver em `style={{…}}` e não em classe.
+```bash
+node scripts/bots/audit-routes.mjs                 # mede antes
+node scripts/bots/tokenize-hex.mjs --write --rotas=/rota,/outra
+node scripts/bots/tokenize-hex.mjs                 # lista as sobras
+```
+
+Depois: `tsc` 0 · `eslint` nos arquivos alterados (com `[[]locale[]]`) · `design:detect` 0 ·
+`design:contrast` · `design:hex` · `npm test --workspace apps/web` · `audit:routes` (número
+antes/depois) · captura 375/1024/1440 quando houver mudança visual.
 
 ## Decisões tomadas no caminho (não reabrir sem motivo)
 
-- **`/top` mantém o `rounded-2xl`**: é o banner do Nº 1 (imagem de fundo, raio 16 do conceito).
-  O D-065 proíbe raio grande **em bloco**; um elemento deliberado é permitido. O bot vai
-  continuar sinalizando — é falso positivo conhecido.
-- **Cada rota é um commit**, não o cluster inteiro: a revisão fica possível e o `git bisect`
-  continua útil. O cluster é acompanhado aqui.
+- **`/top` mantém o `rounded-2xl`**: banner do Nº 1 (imagem de fundo, raio 16). O D-065 proíbe
+  raio grande **em bloco**; um elemento deliberado é permitido. O bot sinaliza: falso positivo.
+- **Cada rota/cluster é um commit**, não um commit gigante: revisão possível e `git bisect` útil.
+- **Fluxos centrados** (`/login`, `/register`, `/checkout/[plan]`, `/billing/success`,
+  `/welcome`, `/verificar-email`) mantêm composição centrada própria, mas com a mesma escala de
+  título e os mesmos tokens — PageShell é para páginas de conteúdo.
 - **`scoreColor()` não serve para escalas 0-100 com limiares próprios** (ex.: comparador com
-  70/40): ele tem limiares 9/8/7 na escala 0-10 e trocaria a cor exibida. Use `colors.score.*`.
+  70/40): tem limiares 9/8/7 na escala 0-10. Use `colors.score.*`.
+- **Status do rodapé aponta para `/status`**, que mede na hora. Selo verde fixo seria promessa
+  inventada (regra do `home-truthfulness`).
 
-## Verificação por rota (copiar)
+## Aberto (fora do escopo desta fase)
 
-`tsc` 0 · `eslint` nos arquivos alterados (com `[[]locale[]]`) · `design:detect` 0 ·
-`design:contrast` · `design:hex` · `npm test --workspace apps/web` ·
-`node scripts/bots/audit-routes.mjs` antes/depois · captura 375/1024/1440 quando houver
-mudança visual.
+- **Varredura do hex no admin/dashboard** — `design:hex` ainda lista 63 ocorrências (26 valores,
+  incl. `#9CA3AF` e `#EDE7DC`); é a paleta legada do protótipo, congelada por D-586.
+- **Capturas 375/1024/1440** dos clusters migrados (`npm run design:visual`, exige dev server) —
+  a única verificação do checklist não executada nesta fase.
+- **PR da branch**: os commits estão empurrados; CI só roda em PR para `main` ou push em `main`.
+- **#603** (`vitest` 4.1.10 → 4.1.11): falta declarar os tipos de `toHaveStyle`/
+  `toBeInTheDocument` em `apps/web/test/`.
 
 ## Regras que continuam valendo
 
-`main` auto-deploya; merge só com CI verde e nunca push direto (D-457/T459). Branch dedicada
-por item. Não tocar em `.zcode/` (território de outros agentes) — bots vão em `scripts/bots/`.
-Deploy de `Production` é aprovação do Operador (gate P012).
-
-## Aberto fora deste programa
-
-- **#603** (`vitest` 4.1.10 → 4.1.11): hoisting corrigido; falta declarar os tipos de
-  `toHaveStyle`/`toBeInTheDocument` em `apps/web/test/`.
+`main` auto-deploya; merge só com CI verde e nunca push direto (D-457/T459). Branch dedicada por
+item. Não tocar em `.zcode/` (território de outros agentes) — bots vão em `scripts/bots/`.
+Deploy de `Production` é aprovação do Operador (gate P012). Texto legal não muda sem manter
+Termos + Política + rodapé coerentes e o gate legal.

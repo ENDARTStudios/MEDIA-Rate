@@ -602,7 +602,10 @@
     "manageCookies": "Gestionar cookies",
     "security": "Seguridad",
     "groupProduct": "Producto",
-    "groupContent": "Contenido"
+    "groupContent": "Contenido",
+    "status": "Estado",
+    "rightsReserved": "Todos los derechos reservados.",
+    "language": "Idioma"
   },
   "auth": {
     "loginTitle": "Entrar",
@@ -1437,5 +1440,18 @@
     "anpdCta": "Sitio de la ANPD",
     "contactCta": "Hablar con el encargado"
   },
-  "search": {}
+  "search": {},
+  "status": {
+    "title": "Estado del servicio",
+    "intro": "Comprobación hecha ahora por el servidor contra la API del producto — no es un promedio histórico.",
+    "operational": "Operativo",
+    "degraded": "Degradado",
+    "unavailable": "No disponible",
+    "unverified": "No verificado",
+    "checkedAt": "Comprobado a las {time}",
+    "latency": "Respondió en {ms} ms",
+    "version": "Versión de la API: {version}",
+    "uptime": "En línea desde hace {hours}",
+    "explain": "El monitoreo externo se hace con sondas programadas; esta página solo muestra la comprobación del momento."
+  }
 }

@@ -16,7 +16,7 @@ const SHORT_MAP: Record<string, string> = {
   "es-ES": "ES",
 };
 
-export function LocaleSwitcher() {
+export function LocaleSwitcher({ placement = "bottom" }: { placement?: "bottom" | "top" }) {
   const locale = useLocale();
   const t = useTranslations("localeSwitcher");
   const router = useRouter();
@@ -58,7 +58,7 @@ export function LocaleSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         disabled={isPending}
-        className="flex items-center gap-1.5 text-xs text-[#A0A0B8] hover:text-[#818CF8] hover:bg-[#12121C] rounded-md px-2 py-1 transition-colors"
+        className="flex items-center gap-1.5 text-xs text-fg-secondary hover:text-accent-indigo hover:bg-surface-card rounded-md px-2 py-1 transition-colors"
         aria-label={t("ariaLabel")}
       >
         <svg
@@ -87,15 +87,17 @@ export function LocaleSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-dropdown bg-[#12121C] border border-[#1C1C2E] rounded-md py-1 min-w-[100px] shadow-floating">
+        <div
+          className={`absolute right-0 ${placement === "top" ? "bottom-full mb-1" : "top-full mt-1"} z-dropdown bg-surface-card border border-surface-elevated rounded-md py-1 min-w-[100px] shadow-floating`}
+        >
           {LOCALES.map((l) => (
             <button
               key={l.code}
               onClick={() => switchLocale(l.code)}
               className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
                 locale === l.code
-                  ? "text-[#818CF8] bg-[rgba(129,140,248,0.08)]"
-                  : "text-[#A0A0B8] hover:text-[#F5F5F7] hover:bg-[#12121C]"
+                  ? "text-accent-indigo bg-accent-indigo/10"
+                  : "text-fg-secondary hover:text-fg-primary hover:bg-surface-elevated"
               }`}
             >
               {l.short}

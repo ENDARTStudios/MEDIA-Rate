@@ -602,7 +602,10 @@
     "manageCookies": "Manage cookies",
     "security": "Security",
     "groupProduct": "Product",
-    "groupContent": "Content"
+    "groupContent": "Content",
+    "status": "Status",
+    "rightsReserved": "All rights reserved.",
+    "language": "Language"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -1437,5 +1440,18 @@
     "anpdCta": "ANPD website",
     "contactCta": "Contact the officer"
   },
-  "search": {}
+  "search": {},
+  "status": {
+    "title": "Service status",
+    "intro": "Checked now by the server against the product API — not a historical average.",
+    "operational": "Operational",
+    "degraded": "Degraded",
+    "unavailable": "Unavailable",
+    "unverified": "Not verified",
+    "checkedAt": "Checked at {time}",
+    "latency": "Responded in {ms} ms",
+    "version": "API version: {version}",
+    "uptime": "Up for {hours}",
+    "explain": "External monitoring runs on scheduled probes; this page only shows the check made now."
+  }
 }
