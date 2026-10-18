@@ -99,6 +99,23 @@ referência** do produto para esta distinção (a spec do Catálogo e a de Lista
 - **Conversão do `premiumOnly`** (402 na criação colaborativa).
 - **Exclusões** de lista (arrependimento) e **edições de título** (indica criação apressada).
 
+## 10.1 Compartilhar e PDF (implementado)
+
+A lista nasceu para **indicar**; faltavam o gesto de mandar para alguém e o de arquivar.
+
+| Peça | Onde | Decisão |
+|---|---|---|
+| Compartilhar | `components/listas/ShareLista.tsx` (na `/listas/[slug]`) | a lista já é pública pelo slug (`GET /listas/:slug`), então compartilhar é dar o link — sem conceito novo de "acesso" |
+| Convite | `lib/list-share.ts` → `montarConvite` | título + **recado** + contagem + link, pronto para WhatsApp/e-mail. O recado é a `descricao` da lista (é ali que o dono escreve para quem fez) |
+| Web Share | `navigator.share` quando existe | cancelar o share sheet não é erro |
+| Cópia | Clipboard API, com fallback honesto | sem API, a mensagem diz "selecione e copie à mão" — nunca um falso "copiado" |
+| PDF | `lib/list-pdf.ts` + jsPDF em **import dinâmico** | título, recado, dono, contagem, itens numerados (tipo · ano · nota) e rodapé com marca/data; zero byte no bundle inicial |
+
+Item sem nota ou sem ano aparece **sem o campo** no PDF (nunca "null"); nome do arquivo sai do
+slug, sem acento (`lista-para-o-joao.pdf`). Cobertura: `test/listas-compartilhar-pdf.spec.ts`
+— convite, linhas, nome de arquivo, layout com dublê **e** geração real de jsPDF (header `%PDF-`
+e arquivo maior quando há mais itens).
+
 ## 11. Pendências e achados
 
 | Sev. | Achado | Evidência | Dono | Decisão |
