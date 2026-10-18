@@ -117,7 +117,7 @@ export function ScoreDial({
     >
       {onArtwork && (
         // T210: fundo do badge (atrás do anel) — ver `StaticScoreDial`.
-        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
+        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-surface-bg/85" />
       )}
       <svg className={cn(cfg.ring, "-rotate-90")} viewBox="0 0 100 100" aria-hidden="true">
         <circle

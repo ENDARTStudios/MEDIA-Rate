@@ -7,7 +7,14 @@ export const colors = {
     critics: "#38BDF8",
     audience: "#E11D48",
     brand: "#E11D48",
+    // Rose escurecido do hover dos CTAs de marca (`hover:bg-brand-hover`).
+    brandHover: "#C31442",
     indigo: "#818CF8",
+    // Par claro do índigo, usado como estado de hover de links e CTAs índigo
+    // (`text-accent-indigo hover:text-accent-indigo-hover` no Tailwind). Existia
+    // como hex solto em ~20 pontos com esse mesmo par — o valor não muda, só
+    // deixa de ser literal.
+    indigoHover: "#A5B4FC",
     sky: "#38BDF8",
     emerald: "#34D399",
     amber: "#FBBF24",
@@ -23,6 +30,8 @@ export const colors = {
     // falhava sobre superfície elevada (4.42:1) — era o "débito conhecido"
     // apontado pelo detector de DOM nos badges de contagem do catálogo.
     muted: "#85859F",
+    // Estado desabilitado (abaixo de AA de propósito: WCAG isenta controle desabilitado).
+    disabled: "#4A4A60",
     // D-582.7 (T211): texto sobre fundo de marca (CTA rose + badges).
     //
     // Exceção deliberada e medida ao D-065 ("texto #FFFFFF"): sobre
@@ -59,7 +68,12 @@ export const colors = {
     overlay: "rgba(5, 5, 10, 0.92)",
     ring: "#818CF8",
     border: "#2A2A3D",
+    // Borda no hover (era #3A3A52 solto em 6 componentes).
+    borderHover: "#3A3A52",
   },
+  // Tinta escura sobre fundo de acento (score/chip/badge). Mesmo valor dos
+  // `*-foreground`; existe para fundos `score.*`, que não têm foreground próprio.
+  ink: "#0F172A",
 } as const;
 
 export function scoreColor(score: number, scale: "0-10" | "0-100" = "0-10"): string {

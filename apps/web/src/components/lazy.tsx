@@ -50,11 +50,11 @@ function CatalogSkeletonFallback() {
       aria-label={t("loadingCatalog")}
     >
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="rounded-md bg-[#09090F] overflow-hidden shadow-surface-1">
-          <div className="aspect-[2/3] bg-[#12121C]" />
+        <div key={i} className="rounded-md bg-surface-bg overflow-hidden shadow-surface-1">
+          <div className="aspect-[2/3] bg-surface-card" />
           <div className="p-3 space-y-2.5">
-            <div className="h-3.5 w-3/4 rounded-md bg-[#12121C]" />
-            <div className="h-3 w-1/2 rounded-md bg-[#12121C]" />
+            <div className="h-3.5 w-3/4 rounded-md bg-surface-card" />
+            <div className="h-3 w-1/2 rounded-md bg-surface-card" />
           </div>
         </div>
       ))}

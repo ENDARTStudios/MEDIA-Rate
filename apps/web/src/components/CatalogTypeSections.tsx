@@ -85,13 +85,13 @@ function CatalogTypeRow({ type }: { type: MediaType }) {
   return (
     <section data-testid={`catalog-type-section-${type}`} aria-labelledby={titleId}>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 id={titleId} className="text-xl font-bold text-[#F5F5F7]">
+        <h2 id={titleId} className="text-xl font-bold text-fg-primary">
           {t(TIPO_KEY[type])}
         </h2>
         <Link
           href={`/catalog?type=${type}`}
           data-testid={`catalog-type-see-all-${type}`}
-          className="rounded text-xs font-semibold text-[#818CF8] hover:text-[#A5B4FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+          className="rounded text-xs font-semibold text-accent-indigo hover:text-accent-indigo-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
         >
           {t("seeAll")}
         </Link>
@@ -100,7 +100,7 @@ function CatalogTypeRow({ type }: { type: MediaType }) {
         <p
           data-testid={`catalog-type-${type}-loading`}
           role="status"
-          className="py-6 text-sm text-[#A0A0B8]"
+          className="py-6 text-sm text-fg-secondary"
         >
           {t("loadingCatalog")}
         </p>

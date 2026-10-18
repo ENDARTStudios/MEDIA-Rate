@@ -27,11 +27,13 @@ export default function FeedbackPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
-      <h1 className="mb-4 font-heading text-3xl font-bold text-[#F5F5F7]">{t("h1")}</h1>
-      <p className="mb-8 text-[#A0A0B8]">{t("lead")}</p>
+      <h1 className="mb-4 font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+        {t("h1")}
+      </h1>
+      <p className="mb-8 text-fg-secondary">{t("lead")}</p>
 
       <fieldset className="mb-6">
-        <legend className="mb-3 text-sm font-medium text-[#F5F5F7]">{t("ratingLabel")}</legend>
+        <legend className="mb-3 text-sm font-medium text-fg-primary">{t("ratingLabel")}</legend>
         <div className="flex gap-2" role="radiogroup" aria-label={t("ratingLabel")}>
           {[1, 2, 3, 4, 5].map((n) => {
             const ativo = nota !== null && n <= nota;
@@ -43,10 +45,10 @@ export default function FeedbackPage() {
                 aria-checked={nota === n}
                 aria-label={t("ratingOption", { nota: n })}
                 onClick={() => setNota(n)}
-                className="rounded-md p-1.5 transition-colors hover:bg-[#1B1B2C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+                className="rounded-md p-1.5 transition-colors hover:bg-surface-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
               >
                 <Star
-                  className={`h-7 w-7 ${ativo ? "text-[#FBBF24]" : "text-[#85859F]"}`}
+                  className={`h-7 w-7 ${ativo ? "text-accent-amber" : "text-fg-muted"}`}
                   fill={ativo ? "currentColor" : "none"}
                   aria-hidden="true"
                 />
@@ -58,7 +60,7 @@ export default function FeedbackPage() {
 
       <label
         htmlFor="feedback-comentario"
-        className="mb-2 block text-sm font-medium text-[#F5F5F7]"
+        className="mb-2 block text-sm font-medium text-fg-primary"
       >
         {t("commentLabel")}
       </label>
@@ -68,16 +70,16 @@ export default function FeedbackPage() {
         onChange={(e) => setComentario(e.target.value)}
         rows={5}
         placeholder={t("commentPlaceholder")}
-        className="mb-6 w-full rounded-lg border border-[#2A2A3D] bg-[#09090F] px-3 py-2.5 text-base text-[#F5F5F7] placeholder:text-[#85859F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8] sm:text-sm"
+        className="mb-6 w-full rounded-lg border border-surface-border bg-surface-bg px-3 py-2.5 text-base text-fg-primary placeholder:text-fg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo sm:text-sm"
       />
 
       <a
         href={mailto}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-colors hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
       >
         {t("sendButton")}
       </a>
-      <p className="mt-4 text-xs text-[#85859F]">{t("mailHint")}</p>
+      <p className="mt-4 text-xs text-fg-muted">{t("mailHint")}</p>
     </div>
   );
 }

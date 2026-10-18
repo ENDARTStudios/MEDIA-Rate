@@ -115,7 +115,7 @@ export function TopPageClient({
               style={ativa ? { backgroundColor: cor, borderColor: cor } : undefined}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
                 ativa
-                  ? "text-[#0F172A] font-semibold"
+                  ? "text-ink font-semibold"
                   : "bg-surface-card text-fg-secondary hover:bg-surface-elevated border-transparent"
               }`}
             >
@@ -164,7 +164,7 @@ export function TopPageClient({
               }}
             >
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 text-white">
-                <span className="inline-block px-3 py-1 rounded-full bg-score-medium text-[#0F172A] text-xs font-bold uppercase tracking-wide mb-3">
+                <span className="inline-block px-3 py-1 rounded-full bg-score-medium text-ink text-xs font-bold uppercase tracking-wide mb-3">
                   {t("heroBadge")}
                 </span>
                 <h2 className="text-2xl sm:text-4xl font-bold leading-tight">

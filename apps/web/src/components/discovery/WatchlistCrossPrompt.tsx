@@ -53,14 +53,16 @@ export function WatchlistCrossPrompt({
       data-testid="watchlist-cross-prompt"
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-[#151524] p-4 shadow-floating"
+      className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-surface-elevated p-4 shadow-floating"
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-heading font-semibold text-[#F5F5F7]">{t("crossPromptTitle")}</p>
+        <p className="text-sm font-heading font-semibold text-fg-primary">
+          {t("crossPromptTitle")}
+        </p>
         <button
           onClick={onDismiss}
           aria-label={t("dismiss")}
-          className="rounded p-1 text-[#A0A0B8] hover:text-[#F5F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+          className="rounded p-1 text-fg-secondary hover:text-fg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
         >
           <svg
             className="h-4 w-4"
@@ -87,11 +89,11 @@ export function WatchlistCrossPrompt({
           return (
             <li
               key={r.id}
-              className="flex items-center justify-between gap-2 rounded-md border border-[rgba(129,140,248,0.08)] bg-[#1C1C2E] px-3 py-2"
+              className="flex items-center justify-between gap-2 rounded-md border border-[rgba(129,140,248,0.08)] bg-surface-elevated px-3 py-2"
             >
               <Link
                 href={`/media/${r.midia.slug}`}
-                className="flex min-w-0 items-center gap-2 text-sm text-[#F5F5F7] hover:text-[#A5B4FC]"
+                className="flex min-w-0 items-center gap-2 text-sm text-fg-primary hover:text-accent-indigo-hover"
               >
                 <Icon
                   className="h-4 w-4 shrink-0"
@@ -111,7 +113,7 @@ export function WatchlistCrossPrompt({
                   setAddedIds((prev) => new Set(prev).add(r.midia.id));
                 }}
                 disabled={jaAdicionado}
-                className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#A0A0B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
+                className="shrink-0 rounded-md bg-accent-indigo px-2.5 py-1 text-xs font-semibold text-accent-indigo-foreground transition-colors hover:brightness-110 disabled:bg-surface-border disabled:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo-hover"
               >
                 {jaAdicionado ? t("added") : t("addToo")}
               </button>

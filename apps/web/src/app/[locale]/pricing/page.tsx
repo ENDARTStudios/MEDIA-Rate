@@ -106,12 +106,12 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
       />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-heading font-bold text-[#F5F5F7] mb-4">{t("headline")}</h1>
-          <p className="text-lg text-[#A0A0B8] max-w-2xl mx-auto">{t("subheadline")}</p>
+          <h1 className="text-4xl font-heading font-bold text-fg-primary mb-4">{t("headline")}</h1>
+          <p className="text-lg text-fg-secondary max-w-2xl mx-auto">{t("subheadline")}</p>
         </div>
 
         <PricingCards currencySymbol={currencySymbol} annualAvailable={annualAvailable()} />
-        <p className="text-xs text-[#85859F] text-center max-w-2xl mx-auto px-4 mt-6 leading-relaxed">
+        <p className="text-xs text-fg-muted text-center max-w-2xl mx-auto px-4 mt-6 leading-relaxed">
           {t("currencyNote")}
         </p>
         <PricingTable />

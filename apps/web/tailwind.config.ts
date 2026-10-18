@@ -37,7 +37,10 @@ const config: Config = {
           foreground: "hsl(var(--accent-foreground))",
           critics: { DEFAULT: "#38BDF8", foreground: "#0F172A" },
           audience: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
-          indigo: { DEFAULT: "#818CF8", foreground: "#0F172A" },
+          // `hover` (#A5B4FC) é o par claro do índigo: existia como hex solto em
+          // ~20 links/CTAs (`text-[#818CF8] hover:text-[#A5B4FC]`), sempre no
+          // mesmo par. Vira token para a migração das páginas não repetir o literal.
+          indigo: { DEFAULT: "#818CF8", foreground: "#0F172A", hover: "#A5B4FC" },
           brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
           sky: { DEFAULT: "#38BDF8", foreground: "#0F172A" },
           emerald: { DEFAULT: "#34D399", foreground: "#0F172A" },
@@ -45,7 +48,9 @@ const config: Config = {
           pink: { DEFAULT: "#F472B6", foreground: "#0F172A" },
           violet: { DEFAULT: "#A78BFA", foreground: "#0F172A" },
         },
-        brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF" },
+        // `hover` é o rose escurecido que os CTAs de marca usavam como hex solto
+        // (`hover:bg-[#C31442]`) — par de `brand` no mesmo espírito do indigo.
+        brand: { DEFAULT: "#E11D48", foreground: "#FFFFFF", hover: "#C31442" },
         media: {
           movie: "#818CF8",
           series: "#38BDF8",
@@ -55,13 +60,21 @@ const config: Config = {
           manga: "#A78BFA",
         },
         surface: {
-          bg: "#05050A",
-          card: "#12121C",
-          elevated: "#1B1B2C",
-          overlay: "rgba(5,5,10,0.92)",
-          border: "#2A2A3D",
-          ring: "#818CF8",
+          "bg": "#05050A",
+          "card": "#12121C",
+          "elevated": "#1B1B2C",
+          "overlay": "rgba(5,5,10,0.92)",
+          "border": "#2A2A3D",
+          // Borda no estado hover (era #3A3A52 solto em 6 componentes). A chave é
+          // kebab porque o Tailwind monta o nome do utilitário a partir dela:
+          // `borderHover` geraria `border-surface-borderHover` (classe morta).
+          "border-hover": "#3A3A52",
+          "ring": "#818CF8",
         },
+        // Tinta escura usada SOBRE fundo de acento (score, chip, badge). Os
+        // `*-foreground` dos acentos têm este mesmo valor; o token existe para os
+        // casos em que o fundo é `score.*`, que não tem foreground próprio.
+        ink: "#0F172A",
         score: {
           9: "#34D399",
           8: "#38BDF8",
@@ -91,6 +104,9 @@ const config: Config = {
           primary: "#F5F5F7",
           secondary: "#A0A0B8",
           muted: "#85859F",
+          // D-660: estado desabilitado de ícone/texto. Fica abaixo de AA de propósito
+          // (WCAG isenta controle desabilitado); existia como #4A4A60 solto.
+          disabled: "#4A4A60",
         },
         /**
          * D-586 (T211/B3) — paleta LEGADA do protótipo do dashboard, declarada uma

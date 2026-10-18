@@ -30,15 +30,15 @@ export function RelacionadasSection({ relacoes }: { relacoes: RelacionadaFicha[]
           key={`${r.midiaId}-${r.tipoRelacao}`}
           className="text-sm flex flex-wrap items-baseline gap-x-2"
         >
-          <span className="px-2 py-0.5 rounded-full bg-[#818CF8]/15 text-[#818CF8] text-xs font-medium shrink-0">
+          <span className="px-2 py-0.5 rounded-full bg-accent-indigo/15 text-accent-indigo text-xs font-medium shrink-0">
             {t(`relacaoTipo.${r.tipoRelacao}`)}
           </span>
           <Link href={`/media/${r.slug ?? r.midiaId}`} className="font-medium hover:underline">
             {r.titulo}
           </Link>
-          {r.ano != null && <span className="text-xs text-[#85859F]">{r.ano}</span>}
+          {r.ano != null && <span className="text-xs text-fg-muted">{r.ano}</span>}
           {r.notaEditorial && (
-            <span className="text-xs text-[#85859F] basis-full sm:basis-auto">
+            <span className="text-xs text-fg-muted basis-full sm:basis-auto">
               {r.notaEditorial}
             </span>
           )}

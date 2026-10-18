@@ -86,8 +86,8 @@ function WatchlistRoulette({ items }: { items: { id: string; title: string }[] }
 
   return (
     <div className="flex items-center gap-3">
-      <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] px-4 py-2 min-w-[180px] text-center">
-        <span ref={labelRef} className="block truncate text-sm font-medium text-[#F5F5F7]">
+      <div className="rounded-lg border border-surface-border bg-surface-card px-4 py-2 min-w-[180px] text-center">
+        <span ref={labelRef} className="block truncate text-sm font-medium text-fg-primary">
           {winner ? winner.title : t("queroVer")}
         </span>
       </div>
@@ -164,8 +164,10 @@ export function WatchlistClient() {
 
   if (isLoading && entries.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-4">{t("title")}</h1>
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl mb-4">
+          {t("title")}
+        </h1>
         {/* D-627: o store já marcava `limitReached` no 402, mas a tela não dizia nada — o
           usuário batia no limite do plano sem caminho para resolver (o /historico e /listas
           já têm esse CTA; a watchlist era a única sem). */}
@@ -184,8 +186,10 @@ export function WatchlistClient() {
 
   if (error instanceof RateLimitedError) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{t("title")}</h1>
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl mb-8">
+          {t("title")}
+        </h1>
         <RateLimited retryAfterSeconds={error.retryAfterSeconds} onRetry={() => fetchWatchlist()} />
       </div>
     );
@@ -201,10 +205,12 @@ export function WatchlistClient() {
           ? t("loadError")
           : error.message;
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{t("title")}</h1>
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl mb-8">
+          {t("title")}
+        </h1>
         <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-          <p className="text-[#A0A0B8] mb-2">{errorMsg}</p>
+          <p className="text-fg-secondary mb-2">{errorMsg}</p>
           <Button onClick={() => fetchWatchlist()} variant="ghost" size="sm">
             {t("retry")}
           </Button>
@@ -215,10 +221,12 @@ export function WatchlistClient() {
 
   if (entries.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-8">{t("title")}</h1>
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl mb-8">
+          {t("title")}
+        </h1>
         <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
-          <p className="text-[#A0A0B8] mb-4">{t("empty")}</p>
+          <p className="text-fg-secondary mb-4">{t("empty")}</p>
           <Link href="/catalog">
             <Button>{t("exploreCatalog")}</Button>
           </Link>
@@ -230,26 +238,28 @@ export function WatchlistClient() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7]">{t("title")}</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+          {t("title")}
+        </h1>
         {user?.plan && (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#1B1B2C] text-[#A0A0B8] border border-[#2A2A3D]">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-fg-secondary border border-surface-border">
             {t(planKey)}
           </span>
         )}
         {isTrial && user?.trialEndsAt && (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-[#FBBF24] bg-[#FBBF24]/15 border border-[#FBBF24]/30">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-accent-amber bg-accent-amber/15 border border-accent-amber/30">
             {t("trialActive", { date: formatDate(user.trialEndsAt, locale) })}
           </span>
         )}
         {user?.plan === "FREE" && (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-[#A0A0B8] bg-[#1B1B2C] border border-[#2A2A3D]">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-fg-secondary bg-surface-elevated border border-surface-border">
             {t("itemsCount", { count: entries.length })}
           </span>
         )}
         <div className="ml-auto flex items-center gap-2">
           <WatchlistRoulette items={wantItems} />
           <div
-            className="flex rounded-lg border border-[#2A2A3D] overflow-hidden"
+            className="flex rounded-lg border border-surface-border overflow-hidden"
             role="group"
             aria-label="Vista"
           >
@@ -257,7 +267,7 @@ export function WatchlistClient() {
               type="button"
               onClick={() => setView("kanban")}
               aria-pressed={view === "kanban"}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "kanban" ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#12121C] text-[#A0A0B8] hover:text-[#F5F5F7]"}`}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "kanban" ? "bg-accent-indigo text-accent-indigo-foreground" : "bg-surface-card text-fg-secondary hover:text-fg-primary"}`}
             >
               Kanban
             </button>
@@ -265,7 +275,7 @@ export function WatchlistClient() {
               type="button"
               onClick={() => setView("lista")}
               aria-pressed={view === "lista"}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "lista" ? "bg-[#818CF8] text-[#0F172A]" : "bg-[#12121C] text-[#A0A0B8] hover:text-[#F5F5F7]"}`}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === "lista" ? "bg-accent-indigo text-accent-indigo-foreground" : "bg-surface-card text-fg-secondary hover:text-fg-primary"}`}
             >
               Lista
             </button>
@@ -340,7 +350,7 @@ export function WatchlistClient() {
       ) : (
         <ul
           role="list"
-          className="divide-y divide-[#2A2A3D] rounded-lg border border-[#2A2A3D] bg-[#12121C]"
+          className="divide-y divide-surface-border rounded-lg border border-surface-border bg-surface-card"
         >
           {filtradas.map((entry) => {
             const item = entryToMediaItem(entry);
@@ -351,7 +361,7 @@ export function WatchlistClient() {
                 {item ? (
                   <>
                     {/* T373: miniatura do pôster na visão de lista (antes só texto). */}
-                    <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded bg-[#1C1C2E]">
+                    <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded bg-surface-elevated">
                       {item.imagem_url ? (
                         (() => {
                           // T031/T036: estático com ladder (local ou remota);
@@ -391,7 +401,7 @@ export function WatchlistClient() {
                           );
                         })()
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[#85859F]">
+                        <div className="flex h-full w-full items-center justify-center text-fg-muted">
                           <svg
                             className="h-4 w-4"
                             fill="none"
@@ -410,12 +420,12 @@ export function WatchlistClient() {
                       )}
                     </div>
                     <Link href={`/media/${item.id}`} className="flex-1 min-w-0">
-                      <span className="block truncate text-sm font-medium text-[#F5F5F7] hover:text-[#818CF8]">
+                      <span className="block truncate text-sm font-medium text-fg-primary hover:text-accent-indigo">
                         {item.titulo}
                       </span>
-                      <span className="text-xs text-[#85859F]">{item.ano_lancamento ?? "—"}</span>
+                      <span className="text-xs text-fg-muted">{item.ano_lancamento ?? "—"}</span>
                     </Link>
-                    <span className="text-xs text-[#A0A0B8]">{t(statusLabel)}</span>
+                    <span className="text-xs text-fg-secondary">{t(statusLabel)}</span>
                     <ScoreDelta entry={entry} />
                     <button
                       onClick={() => {
@@ -423,13 +433,13 @@ export function WatchlistClient() {
                         void removeItem(entry.id).finally(() => setDeleting(null));
                       }}
                       disabled={deleting === entry.id}
-                      className="text-xs text-[#85859F] hover:text-red-400 transition-colors"
+                      className="text-xs text-fg-muted hover:text-red-400 transition-colors"
                     >
                       {deleting === entry.id ? "..." : t("removeFromWatchlist")}
                     </button>
                   </>
                 ) : (
-                  <span className="flex-1 text-sm text-[#A0A0B8]">{entry.mediaId}</span>
+                  <span className="flex-1 text-sm text-fg-secondary">{entry.mediaId}</span>
                 )}
               </li>
             );

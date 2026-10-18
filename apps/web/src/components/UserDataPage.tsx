@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { api } from "@/lib/http";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { Button } from "@/components/ui/button";
+import { PageContainer, PageTitle } from "@/components/ui/page-shell";
 import { useAuthStore } from "@/stores/use-auth-store";
 
 function download(filename: string, blob: Blob) {
@@ -64,13 +65,13 @@ export function UserDataPage() {
 
   return (
     <ProtectedPage>
-      <div className="max-w-3xl mx-auto py-16 px-4">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-2">{t("title")}</h1>
-        <p className="text-sm text-[#A0A0B8] mb-8">{t("description")}</p>
+      <PageContainer className="max-w-3xl">
+        <PageTitle className="mb-2">{t("title")}</PageTitle>
+        <p className="text-sm text-fg-secondary mb-8">{t("description")}</p>
 
-        <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-6">
-          <p className="text-sm text-[#F5F5F7] mb-1">{user?.email ?? "—"}</p>
-          <p className="text-xs text-[#85859F] mb-5">{t("includes")}</p>
+        <div className="rounded-lg border border-surface-border bg-surface-card p-6">
+          <p className="text-sm text-fg-primary mb-1">{user?.email ?? "—"}</p>
+          <p className="text-xs text-fg-muted mb-5">{t("includes")}</p>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => void baixar("json")} disabled={busy != null}>
               {busy === "json" ? "..." : t("downloadJson")}
@@ -87,16 +88,16 @@ export function UserDataPage() {
         </div>
 
         <div className="mt-6 rounded-lg border border-red-500/20 bg-red-500/5 p-6">
-          <h2 className="text-lg font-heading font-semibold text-[#F87171] mb-2">
+          <h2 className="text-lg font-heading font-semibold text-score-low mb-2">
             {t("dangerZone")}
           </h2>
-          <p className="text-sm text-[#A0A0B8] mb-4">{t("deleteWarning")}</p>
+          <p className="text-sm text-fg-secondary mb-4">{t("deleteWarning")}</p>
           <Button variant="destructive" disabled>
             {t("deleteData")}
           </Button>
-          <p className="mt-2 text-xs text-[#85859F]">{t("deleteSoon")}</p>
+          <p className="mt-2 text-xs text-fg-muted">{t("deleteSoon")}</p>
         </div>
-      </div>
+      </PageContainer>
     </ProtectedPage>
   );
 }

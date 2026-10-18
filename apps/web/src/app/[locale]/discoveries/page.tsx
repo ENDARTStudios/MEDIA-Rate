@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { PageShell } from "@/components/ui/page-shell";
 import { DiscoveriesFeed } from "../../../components/DiscoveriesFeed";
 
 export async function generateMetadata({
@@ -23,10 +24,8 @@ export default async function DiscoveriesPage({ params }: { params: Promise<{ lo
   const t = await getTranslations("discoveries");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold mb-2 text-[#F5F5F7]">{t("title")}</h1>
-      <p className="text-[#A0A0B8] mb-6 max-w-2xl">{t("subtitle")}</p>
+    <PageShell title={t("title")} intro={t("subtitle")}>
       <DiscoveriesFeed />
-    </div>
+    </PageShell>
   );
 }

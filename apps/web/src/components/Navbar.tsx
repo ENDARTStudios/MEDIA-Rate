@@ -99,7 +99,11 @@ export function Navbar({
             </Link>
           </motion.div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          {/* D-660: era `md:flex`. Em 768 px a barra desktop nao cabe (773 px de
+              conteudo + marca = 865 px de scrollWidth, overflow horizontal real
+              medido pelo visual-qa em TODAS as rotas). O desktop entra em lg; abaixo
+              disso o menu hamburguer assume. */}
+          <div className="hidden lg:flex items-center space-x-4">
             <SearchCommand />
             <GradientMenu
               items={NAV_ITEMS.map((item) => ({
@@ -241,9 +245,9 @@ export function Navbar({
             <LocaleSwitcher />
           </div>
 
-          <div className="md:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-1">
             {effectiveAuth && (
-              <div className="md:hidden">
+              <div className="lg:hidden">
                 <NotificationBell />
               </div>
             )}
@@ -286,7 +290,7 @@ export function Navbar({
         {mobileOpen && (
           <motion.div
             id="mobile-menu"
-            className="md:hidden"
+            className="lg:hidden"
             initial={reduce ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={reduce ? undefined : { opacity: 0, height: 0 }}

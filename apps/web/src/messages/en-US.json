@@ -243,12 +243,35 @@
     "previewBadge": "Preview",
     "previewBadgeTitle": "Preview — sources in preparation",
     "exploreCategory": "Explore {label}",
-    "variant_book": ["Novels", "Non-fiction", "Classics", "Sagas", "New releases"],
-    "variant_comic": ["Graphic novels", "Superheroes", "Indie", "New releases"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "New releases"],
-    "variant_movie": ["Movies"],
-    "variant_series": ["Series"],
-    "variant_game": ["Games"],
+    "variant_book": [
+      "Novels",
+      "Non-fiction",
+      "Classics",
+      "Sagas",
+      "New releases"
+    ],
+    "variant_comic": [
+      "Graphic novels",
+      "Superheroes",
+      "Indie",
+      "New releases"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "New releases"
+    ],
+    "variant_movie": [
+      "Movies"
+    ],
+    "variant_series": [
+      "Series"
+    ],
+    "variant_game": [
+      "Games"
+    ],
     "comingSoonEmailPlaceholder": "your@email.com",
     "comingSoonEmailLabel": "Email",
     "comingSoonDone": "Signed up! We'll notify you when it arrives.",
@@ -539,7 +562,12 @@
     "upgrade": "Upgrade",
     "subscribe": "Subscribe",
     "features": "Features",
-    "freeFeatures": ["Full catalog", "MEDIA Score™", "Watchlist", "3 recommendations/day"],
+    "freeFeatures": [
+      "Full catalog",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recommendations/day"
+    ],
     "plusFeatures": [
       "7-day free trial",
       "Everything in Free",
@@ -600,7 +628,13 @@
     "atribuicao": "Movie, series and game data by TMDB and IGDB.com — this product uses the TMDB and IGDB APIs but is not endorsed or certified by either.",
     "cookies": "Cookies",
     "manageCookies": "Manage cookies",
-    "security": "Security"
+    "security": "Security",
+    "groupProduct": "Product",
+    "groupContent": "Content",
+    "status": "Status",
+    "rightsReserved": "All rights reserved.",
+    "language": "Language",
+    "support": "Support & sponsor"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -1435,5 +1469,58 @@
     "anpdCta": "ANPD website",
     "contactCta": "Contact the officer"
   },
-  "search": {}
+  "search": {},
+  "status": {
+    "title": "Service status",
+    "intro": "Checked now by the server against the product API — not a historical average.",
+    "operational": "Operational",
+    "degraded": "Degraded",
+    "unavailable": "Unavailable",
+    "unverified": "Not verified",
+    "checkedAt": "Checked at {time}",
+    "latency": "Responded in {ms} ms",
+    "version": "API version: {version}",
+    "uptime": "Up for {hours}",
+    "explain": "External monitoring runs on scheduled probes; this page only shows the check made now."
+  },
+  "support": {
+    "title": "Support MEDIA Rate",
+    "intro": "MEDIA Rate exists to answer one simple question: is this worth my time? The answer cannot depend on who distributes the work — that is what we are funding.",
+    "whyTitle": "Why support it",
+    "why1": "Ratings are not for sale: a subscription, partnership or sponsorship never changes the MEDIA Score.",
+    "why2": "Open methodology: weights, sources and cuts are documented and auditable.",
+    "why3": "No ads inside the catalog: deciding what to watch, read or play never happens inside an attention auction.",
+    "apoiadorTitle": "Supporter",
+    "apoiadorWho": "For people who use the product and want it to stay independent.",
+    "apoiadorHow": "Pick a plan — that is the support that keeps the day-to-day running.",
+    "apoiadorExtra": "One-off support, from an individual or a small collective: talk to us.",
+    "apoiadorCta": "See plans",
+    "apoiadorCtaSecondary": "Talk about one-off support",
+    "parceiroTitle": "Partner",
+    "parceiroWho": "For outlets, schools, festivals, libraries and cultural institutions.",
+    "parceiroHow": "We license slices of the catalog and the MEDIA Score for articles, classes and programming — always citing methodology and source.",
+    "parceiroExtra": "Data partnership: whoever produces or maintains work data can propose integration and corrections.",
+    "parceiroCta": "Propose a partnership",
+    "patrocinadorTitle": "Sponsor",
+    "patrocinadorWho": "For brands that want to reach people deciding what to consume.",
+    "patrocinadorHow": "Sponsor a section or a slice of the catalog, always labelled as sponsorship.",
+    "patrocinadorExtra": "Not for sale: the score, the ranking order and the editorial line.",
+    "patrocinadorCta": "Request the deck",
+    "independenceTitle": "The rule that does not change",
+    "independenceBody": "Sponsorship buys visibility, not a score. The day that changes, the product loses its reason to exist — and so does the funding.",
+    "contactApoiador": "Supporting MEDIA Rate",
+    "contactParceiro": "Partnership proposal — MEDIA Rate",
+    "contactPatrocinador": "Sponsorship — MEDIA Rate",
+    "recognition": "Recognition is optional: we publish the name of whoever allows it.",
+    "humanNote": "Every proposal is read by a person. Tell us what you want to do and why.",
+    "metaTitle": "Support, partner or sponsor MEDIA Rate",
+    "metaDescription": "Three ways to sustain an independent catalog: support as an individual, partner as an institution or sponsor a section. The score is not for sale.",
+    "sourcesLabel": "Sources",
+    "concentrationNote": "Concentration cap: no single sponsor goes above 40% of total funding. Past that, independence stops being verifiable.",
+    "registryTitle": "Public sponsorship registry",
+    "registryEmpty": "No active sponsorship. When there is one, it shows up here with an authorised name, section and start date — plus the label you see in the interface.",
+    "registrySponsor": "Sponsor",
+    "registrySection": "Where it appears",
+    "registrySince": "Since"
+  }
 }

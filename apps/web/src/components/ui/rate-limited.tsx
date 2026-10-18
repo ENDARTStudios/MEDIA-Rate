@@ -30,13 +30,8 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
 
   return (
     <div className="flex flex-col items-center text-center py-12 px-4" data-testid="rate-limited">
-      <div className="w-12 h-12 rounded-full bg-[#F59E0B]/10 flex items-center justify-center mb-4">
-        <svg
-          className="w-6 h-6 text-[#F59E0B]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+      <div className="w-12 h-12 rounded-full bg-score-6/10 flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-score-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -45,14 +40,14 @@ export function RateLimited({ retryAfterSeconds, onRetry }: RateLimitedProps) {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-heading text-[#F5F5F7] mb-2">{t("tooManyRequests")}</h3>
-      <p className="text-sm text-[#A0A0B8] mb-6 max-w-md">
+      <h3 className="text-lg font-heading text-fg-primary mb-2">{t("tooManyRequests")}</h3>
+      <p className="text-sm text-fg-secondary mb-6 max-w-md">
         {canRetry ? t("tryAgain") : t("retryIn") + " " + remaining + "s"}
       </p>
       <button
         onClick={onRetry}
         disabled={!canRetry}
-        className="px-6 py-2 rounded-lg text-sm font-medium transition-colors bg-[#818CF8] text-[#0F172A] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-6 py-2 rounded-lg text-sm font-medium transition-colors bg-accent-indigo text-accent-indigo-foreground hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
         data-testid="rate-limited-retry"
       >
         {t("retry")}

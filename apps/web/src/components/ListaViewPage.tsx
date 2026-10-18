@@ -181,12 +181,13 @@ export function ListaViewPage({ slug }: { slug: string }) {
     }
   }
 
-  if (loading) return <p className="max-w-5xl mx-auto py-16 px-4 text-[#A0A0B8]">{t("loading")}</p>;
+  if (loading)
+    return <p className="max-w-5xl mx-auto py-16 px-4 text-fg-secondary">{t("loading")}</p>;
 
   if (naoEncontrada || !lista) {
     return (
       <div className="max-w-5xl mx-auto py-16 px-4 text-center">
-        <p className="text-[#A0A0B8] mb-4">{t("notFound")}</p>
+        <p className="text-fg-secondary mb-4">{t("notFound")}</p>
         <Link href="/listas" className="text-sm font-medium text-indigo hover:text-indigo-300">
           {t("backToListas")}
         </Link>
@@ -214,17 +215,17 @@ export function ListaViewPage({ slug }: { slug: string }) {
   return (
     <div className="max-w-5xl mx-auto py-16 px-4">
       {editMode ? (
-        <div className="mb-8 space-y-3 rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5">
+        <div className="mb-8 space-y-3 rounded-lg border border-surface-border bg-surface-card p-5">
           <input
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7]"
+            className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary"
           />
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
             rows={2}
-            className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7]"
+            className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary"
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={() => void salvar()}>
@@ -237,9 +238,11 @@ export function ListaViewPage({ slug }: { slug: string }) {
         </div>
       ) : (
         <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold text-[#F5F5F7]">{lista.titulo}</h1>
-          {lista.descricao && <p className="mt-1 text-sm text-[#A0A0B8]">{lista.descricao}</p>}
-          <p className="mt-2 text-xs text-[#85859F]">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+            {lista.titulo}
+          </h1>
+          {lista.descricao && <p className="mt-1 text-sm text-fg-secondary">{lista.descricao}</p>}
+          <p className="mt-2 text-xs text-fg-muted">
             {t("byOwner", { owner: lista.dono.nome ?? "—" })} ·{" "}
             {t("itemsCount", { count: lista.itens.length })}
           </p>
@@ -267,11 +270,11 @@ export function ListaViewPage({ slug }: { slug: string }) {
       )}
 
       {podeAdicionar && (
-        <div className="mb-8 rounded-lg border border-[#2A2A3D] bg-[#12121C] p-4">
+        <div className="mb-8 rounded-lg border border-surface-border bg-surface-card p-4">
           <button
             type="button"
             onClick={() => setAdding((v) => !v)}
-            className="text-sm font-semibold text-[#818CF8] hover:text-[#A5B4FC]"
+            className="text-sm font-semibold text-accent-indigo hover:text-accent-indigo-hover"
           >
             {adding ? t("cancel") : `+ ${t("addItem")}`}
           </button>
@@ -285,7 +288,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
                     if (e.key === "Enter") void buscar();
                   }}
                   placeholder={t("searchPlaceholder")}
-                  className="flex-1 rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                  className="flex-1 rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary placeholder-fg-muted focus:outline-none focus:ring-2 focus:ring-accent-indigo"
                 />
                 <Button size="sm" onClick={() => void buscar()}>
                   {t("search")}
@@ -294,17 +297,17 @@ export function ListaViewPage({ slug }: { slug: string }) {
               {resultados.length > 0 && (
                 <ul
                   role="list"
-                  className="max-h-64 overflow-y-auto divide-y divide-[#2A2A3D] rounded-md border border-[#2A2A3D]"
+                  className="max-h-64 overflow-y-auto divide-y divide-surface-border rounded-md border border-surface-border"
                 >
                   {resultados.slice(0, 10).map((r) => (
                     <li key={r.id}>
                       <button
                         type="button"
                         onClick={() => void adicionar(r.id)}
-                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-[#F5F5F7] hover:bg-[#1B1B2C]"
+                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-fg-primary hover:bg-surface-elevated"
                       >
                         <span className="truncate">{r.title ?? r.name ?? r.id}</span>
-                        <span className="ml-2 shrink-0 text-xs text-[#85859F]">+ {t("add")}</span>
+                        <span className="ml-2 shrink-0 text-xs text-fg-muted">+ {t("add")}</span>
                       </button>
                     </li>
                   ))}
@@ -316,8 +319,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
       )}
 
       {lista.itens.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[#2A2A3D] py-20 text-center">
-          <p className="text-sm text-[#85859F]">{t("emptyItems")}</p>
+        <div className="rounded-lg border border-dashed border-surface-border py-20 text-center">
+          <p className="text-sm text-fg-muted">{t("emptyItems")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -331,7 +334,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
                 <button
                   type="button"
                   onClick={() => void remover(item.id)}
-                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#E11D48] text-xs text-white shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs text-brand-foreground shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
                   aria-label={t("remove")}
                 >
                   ×
@@ -343,7 +346,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
       )}
 
       {authHydrated && !isAuthenticated && (
-        <p className="mt-8 text-center text-xs text-[#85859F]">
+        <p className="mt-8 text-center text-xs text-fg-muted">
           {t("loginToContribute")} {user ? "" : ""}
         </p>
       )}

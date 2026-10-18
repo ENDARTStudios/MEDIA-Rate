@@ -60,7 +60,7 @@ export function ScoreScale({
           >
             {f.faixa}
           </span>
-          <span className="text-[11px] leading-tight text-[#85859F]">{labels[f.key]}</span>
+          <span className="text-[11px] leading-tight text-fg-muted">{labels[f.key]}</span>
         </li>
       ))}
     </ul>

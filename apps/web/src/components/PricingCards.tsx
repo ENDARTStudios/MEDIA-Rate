@@ -55,12 +55,12 @@ export function PricingCards({
               }}
               aria-pressed={billing === b}
               disabled={unavailable}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                 unavailable
                   ? "cursor-not-allowed opacity-50"
                   : billing === b
-                    ? "bg-[#818CF8] text-[#0F172A]"
-                    : "bg-[#1B1B2C] text-[#A0A0B8] hover:text-[#F5F5F7]"
+                    ? "bg-accent-indigo text-accent-indigo-foreground"
+                    : "bg-surface-elevated text-fg-secondary hover:text-fg-primary"
               }`}
             >
               {b === "annual" ? t("year") : t("month")}
@@ -71,7 +71,7 @@ export function PricingCards({
                       ? "bg-black/20"
                       : billing === b
                         ? "bg-black/20"
-                        : "bg-[#34D399]/15 text-[#34D399]"
+                        : "bg-accent-emerald/15 text-accent-emerald"
                   }`}
                 >
                   {unavailable ? t("comingSoonShort") : "-15%"}
@@ -95,14 +95,14 @@ export function PricingCards({
               data-testid={`plan-card-${plan.id}`}
               className={`relative rounded-md border p-6 flex flex-col transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 ${
                 isPlus
-                  ? "bg-[#12121C] border-[rgba(129,140,248,0.2)]"
-                  : "bg-[#12121C] border-[#2A2A3D] hover:border-[rgba(129,140,248,0.3)]"
+                  ? "bg-surface-card border-[rgba(129,140,248,0.2)]"
+                  : "bg-surface-card border-surface-border hover:border-[rgba(129,140,248,0.3)]"
               }`}
             >
               {isPlus && (
                 <>
                   <GlowingEffect spread={40} proximity={64} borderWidth={3} glow />
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#818CF8] text-[#0F172A] text-xs font-semibold rounded-full z-10">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent-indigo text-accent-indigo-foreground text-xs font-semibold rounded-full z-10">
                     {t("mostPopular")}
                   </span>
                 </>
@@ -112,7 +112,7 @@ export function PricingCards({
                 {/* T210: era <h3> e a página (/pricing) só tem <h1> → pulava o
                     nível 2 (achado `skipped-heading` do detector de DOM).
                     O componente é usado APENAS nesta página. */}
-                <h2 className="text-lg font-heading font-bold text-[#F5F5F7] capitalize">
+                <h2 className="text-lg font-heading font-bold text-fg-primary capitalize">
                   {t(plan.id)}
                 </h2>
                 <div className="mt-3 flex items-baseline gap-1">
@@ -123,18 +123,18 @@ export function PricingCards({
                       animate={{ opacity: 1, y: 0 }}
                       exit={shouldReduce ? undefined : { opacity: 0, y: -8 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
-                      className="text-4xl font-heading font-bold text-[#F5F5F7] tabular-nums"
+                      className="text-4xl font-heading font-bold text-fg-primary tabular-nums"
                     >
                       {safeBilling === "annual" && plan.price > 0
                         ? formatPlanPrice(annualTotal, locale, currencySymbol)
                         : formatPlanPrice(price, locale, currencySymbol)}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="text-sm text-[#A0A0B8]">
+                  <span className="text-sm text-fg-secondary">
                     /{safeBilling === "annual" ? t("year") : t("month")}
                   </span>
                 </div>
-                <p className="text-xs text-[#85859F] mt-0.5">
+                <p className="text-xs text-fg-muted mt-0.5">
                   {plan.price === 0
                     ? t("noCard")
                     : safeBilling === "annual"
@@ -151,7 +151,7 @@ export function PricingCards({
                 {(t.raw(`${plan.id}Features`) as string[]).map((f: string, i: number) => (
                   <li key={i} className="flex items-start gap-2">
                     <svg
-                      className="w-4 h-4 mt-0.5 shrink-0 text-[#818CF8]"
+                      className="w-4 h-4 mt-0.5 shrink-0 text-accent-indigo"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -163,7 +163,7 @@ export function PricingCards({
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span className="text-[#A0A0B8]">{f}</span>
+                    <span className="text-fg-secondary">{f}</span>
                   </li>
                 ))}
               </ul>
@@ -174,20 +174,22 @@ export function PricingCards({
               <div className="mt-auto">
                 <div className="mb-3" data-testid={`plan-footer-${plan.id}`}>
                   {plan.price > 0 && (
-                    <p className="text-xs text-[#A0A0B8] text-center mt-3">{t("securePayment")}</p>
+                    <p className="text-xs text-fg-secondary text-center mt-3">
+                      {t("securePayment")}
+                    </p>
                   )}
 
                   {/* T418/D-395 + parecer jurídico: trial/renovação/cancelamento
                       explícitos ANTES do clique (nunca consequência escondida). */}
                   {plan.id === "plus" && plan.price > 0 && (
-                    <p className="text-xs text-[#85859F] text-center mt-2 leading-relaxed">
+                    <p className="text-xs text-fg-muted text-center mt-2 leading-relaxed">
                       {t("trialPlus", {
                         value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                       })}
                     </p>
                   )}
                   {plan.id === "premium" && (
-                    <p className="text-xs text-[#85859F] text-center mt-2 leading-relaxed">
+                    <p className="text-xs text-fg-muted text-center mt-2 leading-relaxed">
                       {t("renewInfo", {
                         value: `${formatPlanPrice(plan.price, locale, currencySymbol)}/${t("month")}`,
                       })}
@@ -202,8 +204,8 @@ export function PricingCards({
                   data-testid={`plan-cta-${plan.id}`}
                   className={`mt-3 block text-center py-2.5 rounded-lg text-sm font-semibold transition-[filter,background-color] duration-300 ${
                     isPlus
-                      ? "bg-[#818CF8] text-[#0F172A] hover:brightness-110"
-                      : "bg-[#1B1B2C] text-[#F5F5F7] hover:bg-[#2A2A3D]"
+                      ? "bg-accent-indigo text-accent-indigo-foreground hover:brightness-110"
+                      : "bg-surface-elevated text-fg-primary hover:bg-surface-border"
                   }`}
                 >
                   {plan.price === 0 ? t("startFree") : loggedIn ? t("upgrade") : t("subscribe")}

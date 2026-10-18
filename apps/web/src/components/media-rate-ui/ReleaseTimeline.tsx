@@ -17,11 +17,11 @@ export function ReleaseTimeline({ items, className }: ReleaseTimelineProps) {
   if (items.length === 0) {
     return (
       <div
-        className="rounded-lg border border-dashed border-[#2A2A3D] bg-[#12121C]/60 px-4 py-8 text-center"
+        className="rounded-lg border border-dashed border-surface-border bg-surface-card/60 px-4 py-8 text-center"
         role="status"
         data-testid="release-timeline-empty"
       >
-        <p className="text-sm text-[#85859F]">
+        <p className="text-sm text-fg-muted">
           Calendário de lançamentos chega quando houver datas de estreia no catálogo.
         </p>
       </div>
@@ -36,10 +36,10 @@ export function ReleaseTimeline({ items, className }: ReleaseTimelineProps) {
         {sorted.map((item) => (
           <li
             key={`${item.date}-${item.title}`}
-            className="flex-shrink-0 w-40 snap-start rounded-md border border-[#2A2A3D] bg-[#12121C] p-3"
+            className="flex-shrink-0 w-40 snap-start rounded-md border border-surface-border bg-surface-card p-3"
           >
-            <p className="text-xs font-medium text-[#818CF8]">{item.date}</p>
-            <p className="mt-1 truncate text-sm text-[#F5F5F7]">{item.title}</p>
+            <p className="text-xs font-medium text-accent-indigo">{item.date}</p>
+            <p className="mt-1 truncate text-sm text-fg-primary">{item.title}</p>
           </li>
         ))}
       </ol>

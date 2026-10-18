@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { colors } from "@/lib/design-tokens";
 
 const sizeMap = {
   sm: "w-4 h-4 border-2",
@@ -19,7 +20,7 @@ function Spinner({ size = "md", className }: SpinnerProps) {
   return (
     <div
       className={cn("animate-spin rounded-full border-transparent", sizeMap[size], className)}
-      style={{ borderTopColor: "#818CF8" }}
+      style={{ borderTopColor: colors.accent.indigo }}
       role="status"
       aria-label={t("loading")}
     />

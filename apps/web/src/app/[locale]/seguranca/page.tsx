@@ -55,7 +55,7 @@ export default async function SecurityPage({ params }: { params: Promise<{ local
   ];
 
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 [&_p]:max-w-[38rem] [&_li]:max-w-[38rem]">
+    <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 [&_p]:max-w-[38rem] [&_li]:max-w-[38rem]">
       <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
         {t("title")}
       </h1>
@@ -78,7 +78,7 @@ export default async function SecurityPage({ params }: { params: Promise<{ local
           <p className="mb-4">{t("reportBody")}</p>
           <a
             href="mailto:endart.studios+security@gmail.com?subject=Relato%20de%20seguran%C3%A7a%20—%20MEDIA%20Rate"
-            className="inline-block rounded-md bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110 focus-ring"
+            className="inline-block rounded-md bg-accent-indigo px-4 py-2 text-sm font-semibold text-accent-indigo-foreground transition-[filter] hover:brightness-110 focus-ring"
           >
             {t("reportCta")}
           </a>

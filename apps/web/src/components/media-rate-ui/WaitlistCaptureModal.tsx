@@ -44,18 +44,18 @@ export function WaitlistCaptureModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-modal bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-6 shadow-floating focus:outline-none"
+          className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-surface-border bg-surface-card p-6 shadow-floating focus:outline-none"
           aria-describedby={undefined}
         >
-          <Dialog.Title className="font-heading text-lg font-bold text-[#F5F5F7]">
+          <Dialog.Title className="font-heading text-lg font-bold text-fg-primary">
             {categoryLabel} — {t("noResults")}
           </Dialog.Title>
-          <Dialog.Description className="mt-1 text-sm text-[#A0A0B8]">
+          <Dialog.Description className="mt-1 text-sm text-fg-secondary">
             {t("comingSoonNotify")}
           </Dialog.Description>
 
           {sent ? (
-            <p className="mt-5 text-sm font-medium text-[#34D399]" role="status">
+            <p className="mt-5 text-sm font-medium text-accent-emerald" role="status">
               Cadastrado! Avisaremos quando chegar.
             </p>
           ) : (
@@ -70,20 +70,20 @@ export function WaitlistCaptureModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t("comingSoonEmailPlaceholder")}
-                className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+                className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary placeholder-fg-muted focus:outline-none focus:ring-2 focus:ring-accent-indigo"
               />
               <div className="flex gap-2">
                 <button
                   type="submit"
                   disabled={busy}
-                  className="flex-1 rounded-md bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] transition-opacity disabled:opacity-50"
+                  className="flex-1 rounded-md bg-accent-indigo px-4 py-2 text-sm font-semibold text-accent-indigo-foreground transition-opacity disabled:opacity-50"
                 >
                   {busy ? "..." : t("notifyButton")}
                 </button>
                 <Dialog.Close asChild>
                   <button
                     type="button"
-                    className="rounded-md border border-[#2A2A3D] px-4 py-2 text-sm text-[#A0A0B8] hover:text-[#F5F5F7] transition-colors"
+                    className="rounded-md border border-surface-border px-4 py-2 text-sm text-fg-secondary hover:text-fg-primary transition-colors"
                   >
                     {t("cancelar")}
                   </button>

@@ -21,11 +21,11 @@ export function MediaUnlockGrid() {
       <table className="w-full min-w-[560px] border-collapse text-sm">
         <thead>
           <tr>
-            <th className="text-left text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] py-3 pr-4">
+            <th className="text-left text-xs font-semibold uppercase tracking-wider text-fg-secondary py-3 pr-4">
               {t("media")}
             </th>
             {planos.map((p) => (
-              <th key={p} className="py-3 px-3 text-center text-xs font-semibold text-[#F5F5F7]">
+              <th key={p} className="py-3 px-3 text-center text-xs font-semibold text-fg-primary">
                 {t(p)}
               </th>
             ))}
@@ -36,9 +36,9 @@ export function MediaUnlockGrid() {
             const token = CATEGORY_TOKENS[media];
             const Icon = token.icon;
             return (
-              <tr key={media} className="border-t border-[#2A2A3D]">
+              <tr key={media} className="border-t border-surface-border">
                 <td className="py-3 pr-4">
-                  <span className="flex items-center gap-2 text-[#F5F5F7]">
+                  <span className="flex items-center gap-2 text-fg-primary">
                     <Icon className="h-4 w-4" style={{ color: token.color }} aria-hidden="true" />
                     {t(`media_${media}`)}
                   </span>

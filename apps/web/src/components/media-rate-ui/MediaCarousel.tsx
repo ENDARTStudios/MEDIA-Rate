@@ -116,12 +116,12 @@ export function MediaCarousel({
           </span>
           <h2
             id={`carousel-${type}`}
-            className="font-heading text-lg font-bold text-[#F5F5F7] uppercase tracking-wider"
+            className="font-heading text-lg font-bold text-fg-primary uppercase tracking-wider"
           >
             {title}
           </h2>
           {total != null && total > 0 && (
-            <span className="tabular-nums text-xs text-[#85859F]">{total}</span>
+            <span className="tabular-nums text-xs text-fg-muted">{total}</span>
           )}
           <CarouselControls
             listId={listId}
@@ -148,7 +148,7 @@ export function MediaCarousel({
               </div>
             ))}
             {items.length === 0 && (
-              <p className="py-12 text-sm text-[#85859F]">{tCatalog("noResults")}</p>
+              <p className="py-12 text-sm text-fg-muted">{tCatalog("noResults")}</p>
             )}
           </div>
         </CarouselInteractions>

@@ -47,10 +47,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
   if (!score) {
     return (
       <div
-        className="bg-[#12121C] rounded-2xl p-6 border border-[#2A2A3D]"
+        className="bg-surface-card rounded-2xl p-6 border border-surface-border"
         data-testid="score-empty"
       >
-        <p className="text-sm text-[#A0A0B8]">{t("scoreUnavailable")}</p>
+        <p className="text-sm text-fg-secondary">{t("scoreUnavailable")}</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
 
   return (
     <div
-      className="bg-[#12121C] rounded-2xl p-6 border border-[#2A2A3D] space-y-5"
+      className="bg-surface-card rounded-2xl p-6 border border-surface-border space-y-5"
       data-testid="score-module"
     >
       <div className="flex items-center gap-5">
@@ -162,7 +162,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             <h2 className="text-sm font-semibold text-fg-primary mb-1">MEDIA Score</h2>
             {emPreparacao && (
               <span
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-[#F59E0B] bg-[#F59E0B]/15 mb-1"
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-score-6 bg-score-6/15 mb-1"
                 data-testid="score-coming-soon"
               >
                 {t("scoreComingSoon")}
@@ -176,7 +176,7 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             />
             {confidence === "low" && (
               <span
-                className="inline-flex items-center text-[#F59E0B] cursor-help"
+                className="inline-flex items-center text-score-6 cursor-help"
                 title={t("fewSources")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,10 +191,10 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
             )}
           </div>
           {updatedAt && (
-            <p className="text-xs text-[#A0A0B8] mb-1" data-testid="last-updated">
+            <p className="text-xs text-fg-secondary mb-1" data-testid="last-updated">
               {t("updated")} {relativeTime(updatedAt, t)}
               {isStale && (
-                <span className="ml-1 px-1.5 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] rounded text-xs">
+                <span className="ml-1 px-1.5 py-0.5 bg-score-6/15 text-score-6 rounded text-xs">
                   {t("mayBeOutdated")}
                 </span>
               )}
@@ -206,14 +206,14 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         </div>
       </div>
 
-      <div className="pt-3 border-t border-[#2A2A3D]">
+      <div className="pt-3 border-t border-surface-border">
         <Bar criticsScore={criticos} audienceScore={publico} consensus={consenso} />
         {temAjusteBayesiano && (
-          <p className="mt-2 text-xs text-[#A0A0B8]" data-testid="bayes-note">
+          <p className="mt-2 text-xs text-fg-secondary" data-testid="bayes-note">
             {t("bayesNote")}{" "}
             <Link
               href="/methodology"
-              className="text-[#818CF8] underline underline-offset-2 hover:text-[#A5B4FC]"
+              className="text-accent-indigo underline underline-offset-2 hover:text-accent-indigo-hover"
             >
               {t("methodologyLink")}
             </Link>
@@ -221,12 +221,12 @@ export function MediaScoreModule({ score, mediaType }: MediaScoreModuleProps) {
         )}
       </div>
 
-      <div className="space-y-2 pt-3 border-t border-[#2A2A3D]">
-        <p className="text-xs text-[#A0A0B8] font-medium uppercase tracking-wider">
+      <div className="space-y-2 pt-3 border-t border-surface-border">
+        <p className="text-xs text-fg-secondary font-medium uppercase tracking-wider">
           {t("sources")}
         </p>
         {fontesUnicas.length === 0 ? (
-          <p className="text-xs text-[#A0A0B8]">{t("noReviews")}</p>
+          <p className="text-xs text-fg-secondary">{t("noReviews")}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {fontesUnicas.map((s) => {

@@ -59,7 +59,7 @@ export function StaticScoreDial({
       {onArtwork && (
         // Fundo do badge (atrás do anel): 85% de #05050A garante ≥ 4.5:1 para o
         // número mesmo sobre capa branca. Pinta antes do SVG → anel visível.
-        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#05050A]/85" />
+        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-surface-bg/85" />
       )}
       {/* D-650: o viewBox era 60x60, mas os raios de SCORE_DIAL_SIZE chegam a 38 (lg) e o
             traço a 6 — 44 > 30 (metade do viewBox), então o círculo era CORTADO e sobravam

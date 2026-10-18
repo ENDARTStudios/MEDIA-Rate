@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { BibliotecaClient } from "@/components/biblioteca/BibliotecaClient";
+import { PageShell } from "@/components/ui/page-shell";
+import { colors } from "@/lib/design-tokens";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 // T412 (D-390): página autenticada — nunca em cache ISR/CDN.
@@ -55,18 +57,20 @@ export default async function BibliotecaPage({
 
   return (
     <ProtectedPage>
-      {/* T174: mesmo container do Catálogo — espaçamento lateral simétrico. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* T388: faixa de identidade do plano (cor via --plan-accent). */}
-        <div
-          className="mb-6 h-1 w-24 rounded-full"
-          style={{ backgroundColor: "var(--plan-accent, #818CF8)" }}
-          aria-hidden="true"
-        />
-        <h1 className="mb-2 text-3xl font-bold text-[#F5F5F7]">{t("title")}</h1>
-        <p className="mb-6 max-w-2xl text-[#A0A0B8]">{t("subtitle")}</p>
+      <PageShell
+        top={
+          // T388: faixa de identidade do plano (cor via --plan-accent).
+          <div
+            className="h-1 w-24 rounded-full"
+            style={{ backgroundColor: `var(--plan-accent, ${colors.accent.indigo})` }}
+            aria-hidden="true"
+          />
+        }
+        title={t("title")}
+        intro={t("subtitle")}
+      >
         <BibliotecaClient initialStatus={initialStatus} initialTipo={initialTipo} />
-      </div>
+      </PageShell>
     </ProtectedPage>
   );
 }

@@ -124,12 +124,12 @@ export function HeroSection({
                 Efeito: H1 ~46px mais alto na dobra e zero texto decorativo. */}
             <h1
               id="hero-title"
-              className="max-w-[22ch] font-heading text-4xl font-bold leading-[1.05] tracking-tight text-[#F5F5F7] [text-wrap:balance] sm:text-5xl lg:max-w-[18ch] lg:text-[3.4rem]"
+              className="max-w-[22ch] font-heading text-4xl font-bold leading-[1.05] tracking-tight text-fg-primary [text-wrap:balance] sm:text-5xl lg:max-w-[18ch] lg:text-[3.4rem]"
             >
               {title}
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#A0A0B8] sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-secondary sm:text-lg">
               {subtitle}
             </p>
 
@@ -139,7 +139,7 @@ export function HeroSection({
               <Link
                 href={ctaSecondaryHref}
                 data-hero-cta="primary"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E11D48]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-[filter] duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 {ctaSecondary}
                 <svg
@@ -160,13 +160,13 @@ export function HeroSection({
               <Link
                 href={ctaHref}
                 data-hero-cta="secondary"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2A2A3D] px-8 py-3.5 text-sm font-semibold text-[#F5F5F7] transition-colors duration-200 hover:bg-[#12121C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-surface-border px-8 py-3.5 text-sm font-semibold text-fg-primary transition-colors duration-200 hover:bg-surface-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
               >
                 {cta}
               </Link>
             </div>
 
-            <p className="mt-4 text-xs text-[#85859F]">{ctaHint}</p>
+            <p className="mt-4 text-xs text-fg-muted">{ctaHint}</p>
 
             {/* D-646: o campo de busca do conceito. É um LINK para o catálogo (a busca real vive
                 lá e a paleta ⌘K já cobre o atalho): visualmente é o campo do desenho, sem inventar
@@ -175,10 +175,10 @@ export function HeroSection({
               <Link
                 href={ctaSecondaryHref}
                 data-hero-search=""
-                className="mt-7 flex w-full max-w-xl items-center justify-between gap-3 rounded-xl border border-[#2A2A3D] bg-[#12121C] px-5 py-3.5 text-left transition-colors hover:border-[#818CF8]"
+                className="mt-7 flex w-full max-w-xl items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface-card px-5 py-3.5 text-left transition-colors hover:border-accent-indigo"
               >
-                <span className="truncate text-sm text-[#85859F] sm:text-base">{searchLabel}</span>
-                <span className="shrink-0 rounded-lg bg-[#E11D48] px-4 py-1.5 text-sm font-semibold text-white">
+                <span className="truncate text-sm text-fg-muted sm:text-base">{searchLabel}</span>
+                <span className="shrink-0 rounded-lg bg-brand px-4 py-1.5 text-sm font-semibold text-brand-foreground">
                   {searchCta}
                 </span>
               </Link>
@@ -195,18 +195,18 @@ export function HeroSection({
               <StaticScoreDial value={topItem.score} size="lg" />
 
               <div className="text-center lg:text-left">
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#85859F]">
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-fg-muted">
                   {topItem.tipo}
                 </p>
 
-                <p className="mt-1 max-w-[22ch] font-heading text-base font-semibold text-[#F5F5F7]">
+                <p className="mt-1 max-w-[22ch] font-heading text-base font-semibold text-fg-primary">
                   {topItem.titulo}
                 </p>
 
-                <p className="mt-1 text-sm text-[#A0A0B8]">{topItem.faixa}</p>
+                <p className="mt-1 text-sm text-fg-secondary">{topItem.faixa}</p>
 
                 {scoreShowcaseLabel && (
-                  <p className="mt-1 text-[11px] text-[#85859F]">{scoreShowcaseLabel}</p>
+                  <p className="mt-1 text-[11px] text-fg-muted">{scoreShowcaseLabel}</p>
                 )}
 
                 {/* As fontes que alimentam o número são as MESMAS da faixa de prova (FONTES_ATIVAS),
@@ -219,7 +219,7 @@ export function HeroSection({
                     <li
                       key={nome}
 
-                      className="rounded-lg border border-[#2A2A3D] bg-[#12121C] px-2.5 py-1 text-[11px] text-[#A0A0B8]"
+                      className="rounded-lg border border-surface-border bg-surface-card px-2.5 py-1 text-[11px] text-fg-secondary"
                     >
                       {nome}
                     </li>
@@ -233,7 +233,7 @@ export function HeroSection({
             {/* D-644: os 6 ícones como elemento PRIMÁRIO, centralizados, com o efeito Dock sob o
               ponteiro. A forma orbital continua existindo no componente (variant="orbit"). */}
             <CategoryIconRow variant="row" />
-            <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-[#85859F]">
+            <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-fg-muted">
               {categoriesLabel}
             </p>
           </div>
@@ -242,10 +242,10 @@ export function HeroSection({
         {/* Prova — método do score + fontes REAIS que o alimentam */}
         <div className="mt-12 border-t border-[rgba(129,140,248,0.10)] pt-8 lg:mt-16">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="font-heading text-sm font-semibold uppercase tracking-[0.22em] text-[#A0A0B8]">
+            <h2 className="font-heading text-sm font-semibold uppercase tracking-[0.22em] text-fg-secondary">
               {proofTitle}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-[#A0A0B8]">{proofBody}</p>
+            <p className="mt-3 text-sm leading-relaxed text-fg-secondary">{proofBody}</p>
             <ul
               className="mt-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-3"
               role="list"
@@ -253,7 +253,7 @@ export function HeroSection({
               {PILLARS.map((pillar) => (
                 <li
                   key={pillar.key}
-                  className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-[#A0A0B8]"
+                  className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-fg-secondary"
                 >
                   <span
                     className="h-1.5 w-1.5 rounded-full"
@@ -266,7 +266,7 @@ export function HeroSection({
             </ul>
           </div>
 
-          <p className="mt-8 text-center text-xs text-[#85859F]">{sourcesLabel}</p>
+          <p className="mt-8 text-center text-xs text-fg-muted">{sourcesLabel}</p>
           {/* D-642: a régua entra na faixa de prova — a seção já é a do método, e
               a escala é a visualização dele. `ativa` fica pronto para o ciclo do selo. */}
           {/* D-643: o selo percorre as seis faixas (obras reais) e acende a faixa

@@ -81,12 +81,12 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
               className="bg-surface-card border border-surface-border rounded-lg p-6"
             >
               <h2
-                className="text-lg font-heading font-semibold text-[#F5F5F7] mb-3"
+                className="text-lg font-heading font-semibold text-fg-primary mb-3"
                 itemProp="name"
               >
                 {faq.question}
               </h2>
-              <p className="text-[#A0A0B8] leading-relaxed text-sm">{faq.answer}</p>
+              <p className="text-fg-secondary leading-relaxed text-sm">{faq.answer}</p>
             </section>
           ))}
         </div>

@@ -67,7 +67,7 @@ export function AgeRatingBadge({
       >
         {rating}
       </span>
-      <div className="text-xs leading-tight text-[#85859F]">
+      <div className="text-xs leading-tight text-fg-muted">
         {source === "sugerida" && <span>{t("suggestedByPublisher")}</span>}
         {perSeason && <span>{t("mayVaryBySeason")}</span>}
         {labels.length > 0 && (
@@ -75,7 +75,7 @@ export function AgeRatingBadge({
             {labels.map((label, i) => (
               <span
                 key={label}
-                className="mr-1.5 inline-flex items-center gap-0.5 rounded-full bg-[#1B1B2C] px-1.5 py-px text-xs text-[#A0A0B8]"
+                className="mr-1.5 inline-flex items-center gap-0.5 rounded-full bg-surface-elevated px-1.5 py-px text-xs text-fg-secondary"
               >
                 {label}
                 {i < labels.length - 1 ? "" : ""}

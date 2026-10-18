@@ -61,7 +61,7 @@ export default function WelcomePage() {
             removido da home em T209 (e o topo do "trio centralizado" proibido por
             D-065). O H1 com o nome do usuário já é o gancho desta tela. */}
         <h1
-          className="enter-rise mb-8 font-heading text-4xl font-bold leading-tight text-[#F5F5F7] sm:text-5xl"
+          className="enter-rise mb-8 font-heading text-4xl font-bold leading-tight text-fg-primary sm:text-5xl"
           style={delay(80)}
         >
           {nome ? t("titleWithName", { nome }) : t("title")}
@@ -71,10 +71,10 @@ export default function WelcomePage() {
           {STEPS.map((step, i) => (
             <div
               key={step.key}
-              className="enter-rise rounded-xl border border-[rgba(129,140,248,0.12)] bg-[#12121C] p-6 text-left"
+              className="enter-rise rounded-xl border border-[rgba(129,140,248,0.12)] bg-surface-card p-6 text-left"
               style={delay(150 + i * 150)}
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#818CF8]/15 text-[#818CF8]">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-indigo/15 text-accent-indigo">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -90,10 +90,10 @@ export default function WelcomePage() {
                   />
                 </svg>
               </div>
-              <h2 className="mb-1 font-heading text-base font-semibold text-[#F5F5F7]">
+              <h2 className="mb-1 font-heading text-base font-semibold text-fg-primary">
                 {t(step.key)}
               </h2>
-              <p className="text-sm text-[#A0A0B8]">{t(step.desc)}</p>
+              <p className="text-sm text-fg-secondary">{t(step.desc)}</p>
             </div>
           ))}
         </div>
@@ -101,7 +101,7 @@ export default function WelcomePage() {
         <div className="enter-fade mt-10" style={delay(600)}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-[filter] hover:brightness-110"
           >
             {t("cta")}
             <svg

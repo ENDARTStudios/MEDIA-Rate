@@ -59,7 +59,7 @@ export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
 
   return (
     <>
-      <div className="relative bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+      <div className="relative bg-surface-card rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div
           className="absolute inset-0 rounded-md overflow-hidden pointer-events-none"
           aria-hidden="true"
@@ -120,7 +120,7 @@ export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
               id="auth-login-email"
               {...register("email")}
               aria-invalid={!!errors.email}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-surface-bg border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-fg-primary placeholder-fg-secondary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/20 aria-[invalid=true]:border-red-500"
               placeholder={t("emailPlaceholder")}
             />
           </Field>
@@ -133,7 +133,7 @@ export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
           </Field>
           <Button
             type="submit"
-            className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]"
+            className="w-full hover:bg-gradient-to-r hover:from-accent-indigo hover:to-accent-sky"
             size="lg"
             disabled={isSubmitting}
           >
@@ -144,11 +144,11 @@ export function LoginForm({ onSwitch }: TrocaDeModo = {}) {
         {/* D-595: dentro do `AuthBladeCard` a troca de modo fica no cabeçalho do card
             (que troca junto com o painel); repetir aqui duplicaria a mesma frase. */}
         {onSwitch ? null : (
-          <p className="text-center text-sm text-[#A0A0B8] mt-6">
+          <p className="text-center text-sm text-fg-secondary mt-6">
             {t("noAccount")}{" "}
             <Link
               href="/register"
-              className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
+              className="font-medium text-accent-indigo underline-offset-4 transition-colors hover:text-accent-indigo-hover hover:underline"
             >
               {t("signUp")}
             </Link>
@@ -201,7 +201,7 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
 
   return (
     <>
-      <div className="relative bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
+      <div className="relative bg-surface-card rounded-md border border-[rgba(129,140,248,0.08)] p-8 overflow-hidden">
         <div
           className="absolute inset-0 rounded-md overflow-hidden pointer-events-none"
           aria-hidden="true"
@@ -262,7 +262,7 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
               id="auth-register-name"
               {...register("name")}
               aria-invalid={!!errors.name}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-surface-bg border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-fg-primary placeholder-fg-secondary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/20 aria-[invalid=true]:border-red-500"
               placeholder={t("namePlaceholder")}
             />
           </Field>
@@ -271,7 +271,7 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
               id="auth-register-email"
               {...register("email")}
               aria-invalid={!!errors.email}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-surface-bg border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-fg-primary placeholder-fg-secondary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/20 aria-[invalid=true]:border-red-500"
               placeholder={t("emailPlaceholder")}
             />
           </Field>
@@ -329,25 +329,25 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
               id="auth-register-invite-code"
               {...register("inviteCode")}
               aria-invalid={!!errors.inviteCode}
-              className="w-full px-3 py-2.5 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+              className="w-full px-3 py-2.5 bg-surface-bg border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-fg-primary placeholder-fg-secondary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/20 aria-[invalid=true]:border-red-500"
               placeholder={t("inviteCodePlaceholder")}
             />
           </Field>
-          <label className="flex items-start gap-2 text-xs text-[#A0A0B8] cursor-pointer">
+          <label className="flex items-start gap-2 text-xs text-fg-secondary cursor-pointer">
             <input
               type="checkbox"
               id="auth-register-accept-terms"
               aria-required="true"
               {...register("acceptTerms")}
-              className="mt-0.5 accent-[#818CF8]"
+              className="mt-0.5 accent-accent-indigo"
             />
             <span>
               {t("agreeTerms")}{" "}
-              <Link href="/terms" className="text-[#818CF8] underline" target="_blank">
+              <Link href="/terms" className="text-accent-indigo underline" target="_blank">
                 {t("termsLink")}
               </Link>{" "}
               {t("consentAnd")}{" "}
-              <Link href="/privacy" className="text-[#818CF8] underline" target="_blank">
+              <Link href="/privacy" className="text-accent-indigo underline" target="_blank">
                 {t("privacyLink")}
               </Link>
             </span>
@@ -359,7 +359,7 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
           )}
           <Button
             type="submit"
-            className="w-full hover:bg-gradient-to-r hover:from-[#818CF8] hover:to-[#38BDF8]"
+            className="w-full hover:bg-gradient-to-r hover:from-accent-indigo hover:to-accent-sky"
             size="lg"
             disabled={isSubmitting || !acceptTermsAccepted}
           >
@@ -368,11 +368,11 @@ export function RegisterForm({ onSwitch }: TrocaDeModo = {}) {
         </form>
 
         {onSwitch ? null : (
-          <p className="text-center text-sm text-[#A0A0B8] mt-6">
+          <p className="text-center text-sm text-fg-secondary mt-6">
             {t("hasAccount")}{" "}
             <Link
               href="/login"
-              className="font-medium text-[#818CF8] underline-offset-4 transition-colors hover:text-[#A5B4FC] hover:underline"
+              className="font-medium text-accent-indigo underline-offset-4 transition-colors hover:text-accent-indigo-hover hover:underline"
             >
               {t("signIn")}
             </Link>
@@ -396,7 +396,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs text-[#A0A0B8] mb-1">
+      <label htmlFor={id} className="block text-xs text-fg-secondary mb-1">
         {label}
       </label>
       {children}
@@ -430,13 +430,13 @@ function PasswordInput({
           register.onChange(e);
           onChange?.(e);
         }}
-        className="w-full px-3 py-2.5 pr-10 bg-[#09090F] border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-[#F5F5F7] placeholder-[#A0A0B8] focus:outline-none focus:border-[#818CF8] focus:ring-2 focus:ring-[#818CF8]/20 aria-[invalid=true]:border-red-500"
+        className="w-full px-3 py-2.5 pr-10 bg-surface-bg border border-[rgba(129,140,248,0.08)] rounded-lg text-base sm:text-sm text-fg-primary placeholder-fg-secondary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/20 aria-[invalid=true]:border-red-500"
         placeholder={t("passwordPlaceholder")}
       />
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A0A0B8] hover:text-[#F5F5F7]"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-secondary hover:text-fg-primary"
         aria-label={show ? t("hidePassword") : t("showPassword")}
       >
         {show ? (

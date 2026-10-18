@@ -243,12 +243,35 @@
     "previewBadge": "Previo",
     "previewBadgeTitle": "Previo — fuentes en preparación",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Novelas", "No ficción", "Clásicos", "Sagas", "Novedades"],
-    "variant_comic": ["Novelas gráficas", "Superhéroes", "Indie", "Novedades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novedades"],
-    "variant_movie": ["Películas"],
-    "variant_series": ["Series"],
-    "variant_game": ["Juegos"],
+    "variant_book": [
+      "Novelas",
+      "No ficción",
+      "Clásicos",
+      "Sagas",
+      "Novedades"
+    ],
+    "variant_comic": [
+      "Novelas gráficas",
+      "Superhéroes",
+      "Indie",
+      "Novedades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novedades"
+    ],
+    "variant_movie": [
+      "Películas"
+    ],
+    "variant_series": [
+      "Series"
+    ],
+    "variant_game": [
+      "Juegos"
+    ],
     "comingSoonEmailPlaceholder": "tu@email.com",
     "comingSoonEmailLabel": "Correo electrónico",
     "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
@@ -539,7 +562,12 @@
     "upgrade": "Mejorar",
     "subscribe": "Suscribirse",
     "features": "Funcionalidades",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendaciones/día"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendaciones/día"
+    ],
     "plusFeatures": [
       "Prueba gratis de 7 días",
       "Todo del Free",
@@ -600,7 +628,13 @@
     "atribuicao": "Datos de películas, series y games por TMDB e IGDB.com — este producto usa las APIs de TMDB e IGDB, sin endoso oficial de ellas.",
     "cookies": "Cookies",
     "manageCookies": "Gestionar cookies",
-    "security": "Seguridad"
+    "security": "Seguridad",
+    "groupProduct": "Producto",
+    "groupContent": "Contenido",
+    "status": "Estado",
+    "rightsReserved": "Todos los derechos reservados.",
+    "language": "Idioma",
+    "support": "Apoya y patrocina"
   },
   "auth": {
     "loginTitle": "Entrar",
@@ -1435,5 +1469,58 @@
     "anpdCta": "Sitio de la ANPD",
     "contactCta": "Hablar con el encargado"
   },
-  "search": {}
+  "search": {},
+  "status": {
+    "title": "Estado del servicio",
+    "intro": "Comprobación hecha ahora por el servidor contra la API del producto — no es un promedio histórico.",
+    "operational": "Operativo",
+    "degraded": "Degradado",
+    "unavailable": "No disponible",
+    "unverified": "No verificado",
+    "checkedAt": "Comprobado a las {time}",
+    "latency": "Respondió en {ms} ms",
+    "version": "Versión de la API: {version}",
+    "uptime": "En línea desde hace {hours}",
+    "explain": "El monitoreo externo se hace con sondas programadas; esta página solo muestra la comprobación del momento."
+  },
+  "support": {
+    "title": "Apoya MEDIA Rate",
+    "intro": "MEDIA Rate existe para responder una pregunta simple: ¿vale mi tiempo? La respuesta no puede depender de quién distribuye la obra — y eso es lo que buscamos financiar.",
+    "whyTitle": "Por qué apoyar",
+    "why1": "La nota no se compra: suscripción, alianza o patrocinio nunca cambian el MEDIA Score.",
+    "why2": "Metodología abierta: pesos, fuentes y cortes están documentados y son auditables.",
+    "why3": "Sin anuncios dentro del catálogo: decidir qué ver, leer o jugar no ocurre dentro de una subasta de atención.",
+    "apoiadorTitle": "Colaborador",
+    "apoiadorWho": "Para quien usa el producto y quiere que siga siendo independiente.",
+    "apoiadorHow": "Elige un plan: es el apoyo que sostiene la operación del día a día.",
+    "apoiadorExtra": "Apoyo puntual, de una persona o de un colectivo pequeño: habla con nosotros.",
+    "apoiadorCta": "Ver planes",
+    "apoiadorCtaSecondary": "Hablar de apoyo puntual",
+    "parceiroTitle": "Aliado",
+    "parceiroWho": "Para medios, escuelas, festivales, bibliotecas e instituciones culturales.",
+    "parceiroHow": "Licenciamos recortes del catálogo y del MEDIA Score para artículos, clases y programación — siempre citando metodología y fuente.",
+    "parceiroExtra": "Alianza de datos: quien produce o mantiene datos de obras puede proponer integración y correcciones.",
+    "parceiroCta": "Proponer una alianza",
+    "patrocinadorTitle": "Patrocinador",
+    "patrocinadorWho": "Para marcas que quieren hablar con quien decide qué consumir.",
+    "patrocinadorHow": "Patrocina una sección o un recorte del catálogo, siempre identificado como patrocinio.",
+    "patrocinadorExtra": "Lo que no está en venta: la nota, el orden de los rankings y la línea editorial.",
+    "patrocinadorCta": "Pedir el material",
+    "independenceTitle": "La regla que no cambia",
+    "independenceBody": "El patrocinio compra visibilidad, no nota. El día en que eso cambie, el producto pierde su razón de existir — y el financiamiento también.",
+    "contactApoiador": "Apoyo a MEDIA Rate",
+    "contactParceiro": "Propuesta de alianza — MEDIA Rate",
+    "contactPatrocinador": "Patrocinio — MEDIA Rate",
+    "recognition": "El reconocimiento es opcional: publicamos el nombre de quien lo autoriza.",
+    "humanNote": "Cada propuesta la lee una persona. Cuéntanos qué quieres hacer y por qué.",
+    "metaTitle": "Apoya, alíate o patrocina MEDIA Rate",
+    "metaDescription": "Tres formas de sostener un catálogo independiente: apoyar como persona, aliarse como institución o patrocinar una sección. La nota no está en venta.",
+    "sourcesLabel": "Fuentes",
+    "concentrationNote": "Tope de concentración: ningún patrocinador supera el 40% del financiamiento total. Por encima de eso, la independencia deja de ser verificable.",
+    "registryTitle": "Registro público de patrocinios",
+    "registryEmpty": "No hay patrocinio activo. Cuando lo haya, aparecerá aquí con el nombre autorizado, la sección y la fecha de inicio — y con la etiqueta que ves en la interfaz.",
+    "registrySponsor": "Patrocinador",
+    "registrySection": "Dónde aparece",
+    "registrySince": "Desde"
+  }
 }

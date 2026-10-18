@@ -63,7 +63,7 @@ export function VerifyEmailClient() {
         {status === "loading" && (
           <div role="status" aria-live="polite">
             <svg
-              className="mx-auto mb-4 h-10 w-10 animate-spin text-[#818CF8]"
+              className="mx-auto mb-4 h-10 w-10 animate-spin text-accent-indigo"
               viewBox="0 0 24 24"
               fill="none"
               aria-hidden="true"
@@ -82,14 +82,14 @@ export function VerifyEmailClient() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            <p className="text-sm text-[#A0A0B8]">{t("verifyTitle")}</p>
+            <p className="text-sm text-fg-secondary">{t("verifyTitle")}</p>
           </div>
         )}
 
         {status === "success" && (
           <div role="status" aria-live="polite" className="contents">
             <svg
-              className="mx-auto mb-4 h-12 w-12 text-[#34D399]"
+              className="mx-auto mb-4 h-12 w-12 text-accent-emerald"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -98,12 +98,12 @@ export function VerifyEmailClient() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <h2 className="mb-2 font-heading text-2xl font-bold text-[#F5F5F7]">
+            <h2 className="mb-2 font-heading text-2xl font-bold text-fg-primary">
               {t("verifySuccess")}
             </h2>
             <Link
               href="/login"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand px-8 py-3 text-sm font-semibold text-brand-foreground transition-[filter] hover:brightness-110"
             >
               {t("verifySuccessCta")}
             </Link>
@@ -113,7 +113,7 @@ export function VerifyEmailClient() {
         {status === "error" && (
           <div role="alert" aria-live="polite">
             <svg
-              className="mx-auto mb-4 h-12 w-12 text-[#F87171]"
+              className="mx-auto mb-4 h-12 w-12 text-score-low"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -126,15 +126,15 @@ export function VerifyEmailClient() {
                 d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <h2 className="mb-3 font-heading text-xl font-bold text-[#F5F5F7]">
+            <h2 className="mb-3 font-heading text-xl font-bold text-fg-primary">
               {t("verifyError")}
             </h2>
 
             {resendState === "sent" ? (
-              <p className="text-sm text-[#34D399]">{t("verifyResendSent")}</p>
+              <p className="text-sm text-accent-emerald">{t("verifyResendSent")}</p>
             ) : (
               <form onSubmit={handleResend} className="mt-4 space-y-3">
-                <p className="text-sm text-[#A0A0B8]">{t("verifyResendHint")}</p>
+                <p className="text-sm text-fg-secondary">{t("verifyResendHint")}</p>
                 <input
                   type="email"
                   value={email}
@@ -142,17 +142,17 @@ export function VerifyEmailClient() {
                   placeholder={t("emailPlaceholder")}
                   required
                   aria-label={t("emailLabel")}
-                  className="w-full rounded-lg border border-[#2A2A3D] bg-[#0D0D1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#85859F] outline-none focus:border-[#818CF8]"
+                  className="w-full rounded-lg border border-surface-border bg-surface-bg px-4 py-2.5 text-sm text-fg-primary placeholder-fg-muted outline-none focus:border-accent-indigo"
                 />
                 <button
                   type="submit"
                   disabled={resendState === "sending"}
-                  className="w-full rounded-lg bg-[#818CF8] px-6 py-2.5 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110 disabled:opacity-60"
+                  className="w-full rounded-lg bg-accent-indigo px-6 py-2.5 text-sm font-semibold text-accent-indigo-foreground transition-[filter] hover:brightness-110 disabled:opacity-60"
                 >
                   {resendState === "sending" ? "..." : t("verifyResendButton")}
                 </button>
                 {resendState === "error" && (
-                  <p className="text-xs text-[#F87171]">{t("verifyResendError")}</p>
+                  <p className="text-xs text-score-low">{t("verifyResendError")}</p>
                 )}
               </form>
             )}

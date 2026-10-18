@@ -226,11 +226,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
 
       <Link
         href={`/media/${media.slug ?? media.id}`}
-        className="relative z-10 block bg-[#12121C] rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F]"
+        className="relative z-10 block bg-surface-card rounded-md border border-[rgba(129,140,248,0.1)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent-indigo focus:ring-offset-2 focus:ring-offset-surface-bg"
         role="article"
         aria-label={`${tituloLocal} (${t(tipoLabel)}, ${media.ano_lancamento ?? "—"}, MEDIA Score ${scoreLabel})`}
       >
-        <div className={`${aspectRatio} bg-[#1C1C2E] relative overflow-hidden`}>
+        <div className={`${aspectRatio} bg-surface-elevated relative overflow-hidden`}>
           {/* Barra superior de accent da categoria (Parte 2.3 D-203). */}
           <div
             className="absolute top-0 left-0 right-0 h-[3px] z-20"
@@ -258,7 +258,7 @@ export function MediaCard({ media }: { media: MediaItem }) {
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-[#A0A0B8] bg-gradient-to-br from-[#1C1C2E] to-[#09090F]">
+            <div className="flex items-center justify-center h-full text-fg-secondary bg-gradient-to-br from-surface-elevated to-surface-bg">
               <svg
                 className="w-12 h-12 opacity-50"
                 fill="none"
@@ -286,17 +286,17 @@ export function MediaCard({ media }: { media: MediaItem }) {
             ref={overlayRef}
             className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-0 flex flex-col justify-end p-4"
           >
-            <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
+            <span className="text-xs font-semibold text-accent-indigo uppercase tracking-widest">
               {t(tipoLabel)}
             </span>
-            <span className="text-xs text-[#A0A0B8] mt-0.5">{media.ano_lancamento ?? "—"}</span>
+            <span className="text-xs text-fg-secondary mt-0.5">{media.ano_lancamento ?? "—"}</span>
           </div>
 
           {/* T272: selo de "prévia — fontes em preparação" para itens cujas
               fontes ainda não estão ativas (paridade com a ficha, D-230). */}
           {preview && (
             <span
-              className="absolute top-3 left-1/2 -translate-x-1/2 z-20 inline-flex items-center rounded-full border border-dashed border-[#F59E0B]/50 bg-[#09090F]/85 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-[#F59E0B] whitespace-nowrap"
+              className="absolute top-3 left-1/2 -translate-x-1/2 z-20 inline-flex items-center rounded-full border border-dashed border-score-6/50 bg-surface-bg/85 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-score-6 whitespace-nowrap"
               aria-label={t("previewBadge")}
               title={t("previewBadgeTitle")}
               data-testid="preview-badge"
@@ -317,11 +317,11 @@ export function MediaCard({ media }: { media: MediaItem }) {
           )}
         </div>
 
-        <div className="p-3 bg-[#12121C] rounded-b-md">
-          <h3 className="font-heading text-sm font-medium text-[#F5F5F7] truncate group-hover:text-[#F5F5F7] transition-colors">
+        <div className="p-3 bg-surface-card rounded-b-md">
+          <h3 className="font-heading text-sm font-medium text-fg-primary truncate group-hover:text-fg-primary transition-colors">
             {tituloLocal}
           </h3>
-          <p className="text-xs text-[#A0A0B8] mt-1">
+          <p className="text-xs text-fg-secondary mt-1">
             {t(tipoLabel)} &middot; {media.ano_lancamento ?? "—"}
           </p>
         </div>
@@ -355,7 +355,7 @@ function ImageWithFallback({
   if (error) {
     return (
       <div
-        className={`flex items-center justify-center bg-gradient-to-br from-[#1C1C2E] to-[#09090F] text-[#A0A0B8] ${className}`}
+        className={`flex items-center justify-center bg-gradient-to-br from-surface-elevated to-surface-bg text-fg-secondary ${className}`}
       >
         <svg className="w-10 h-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path

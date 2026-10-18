@@ -31,6 +31,7 @@ import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
+import { colors } from "@/lib/design-tokens";
 import { RelatedWorksBlock } from "./discovery/RelatedWorksBlock";
 import { StatusReactionControl } from "./interaction/StatusReactionControl";
 
@@ -64,9 +65,9 @@ export function MediaDetailClient({
     return (
       <div className="max-w-5xl mx-auto py-16 px-4">
         <div className="animate-pulse space-y-6">
-          <div className="h-64 bg-[#12121C] rounded-md" />
-          <div className="h-8 w-2/3 bg-[#12121C] rounded-lg" />
-          <div className="h-4 w-1/3 bg-[#12121C] rounded-lg" />
+          <div className="h-64 bg-surface-card rounded-md" />
+          <div className="h-8 w-2/3 bg-surface-card rounded-lg" />
+          <div className="h-4 w-1/3 bg-surface-card rounded-lg" />
         </div>
       </div>
     );
@@ -89,7 +90,7 @@ export function MediaDetailClient({
           action={
             <Link
               href="/catalog"
-              className="px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg text-sm font-medium hover:brightness-110 transition-colors"
+              className="px-6 py-2 bg-accent-indigo text-accent-indigo-foreground rounded-lg text-sm font-medium hover:brightness-110 transition-colors"
             >
               {t("exploreCatalog")}
             </Link>
@@ -135,15 +136,15 @@ export function MediaDetailClient({
     <article>
       {/* CTA de watchlist sempre visível: sticky em mobile, fixo no header em desktop. */}
       <div
-        className="fixed bottom-0 inset-x-0 z-sticky lg:hidden border-t border-[#2A2A3D] bg-[#05050A]/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+        className="fixed bottom-0 inset-x-0 z-sticky lg:hidden border-t border-surface-border bg-surface-bg/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         data-testid="watchlist-cta-sticky"
       >
         <div className="flex items-center justify-between gap-3 max-w-5xl mx-auto">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-[#F5F5F7] truncate">
+            <p className="text-sm font-medium text-fg-primary truncate">
               {titleForLocale(media, locale)}
             </p>
-            <p className="text-xs text-[#85859F]">
+            <p className="text-xs text-fg-muted">
               {tipoLabel} · {media.year}
             </p>
           </div>
@@ -152,7 +153,7 @@ export function MediaDetailClient({
       </div>
 
       {/* Hero */}
-      <div className="relative bg-[#12121C] overflow-hidden">
+      <div className="relative bg-surface-card overflow-hidden">
         {media.backdropUrl &&
           (() => {
             // T036: hero full-bleed; D-582/A8 (T211): o ramo de imagem crua (sem otimizador) usava o rung
@@ -182,25 +183,25 @@ export function MediaDetailClient({
               />
             );
           })()}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#12121C]/90 to-[#09090F]/90" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090F] via-[#09090F]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-surface-card/90 to-surface-bg/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface-bg via-surface-bg/60 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav
-            className="flex items-center gap-2 text-sm text-[#A0A0B8] mb-8"
+            className="flex items-center gap-2 text-sm text-fg-secondary mb-8"
             aria-label="Breadcrumb"
           >
-            <Link href="/catalog" className="hover:text-[#F5F5F7] transition-colors">
+            <Link href="/catalog" className="hover:text-fg-primary transition-colors">
               {t("title")}
             </Link>
             <span aria-hidden="true">/</span>
             <Link
               href={`/catalog?type=${media.type}`}
-              className="hover:text-[#F5F5F7] transition-colors"
+              className="hover:text-fg-primary transition-colors"
             >
               {tipoLabel}
             </Link>
             <span aria-hidden="true">/</span>
-            <span className="text-[#F5F5F7] truncate">{titleForLocale(media, locale)}</span>
+            <span className="text-fg-primary truncate">{titleForLocale(media, locale)}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -244,7 +245,7 @@ export function MediaDetailClient({
                   );
                 })()
               ) : (
-                <div className="w-full h-full bg-[#12121C] rounded-md flex items-center justify-center text-[#A0A0B8] shadow-surface-2">
+                <div className="w-full h-full bg-surface-card rounded-md flex items-center justify-center text-fg-secondary shadow-surface-2">
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -258,13 +259,13 @@ export function MediaDetailClient({
             </div>
             <div className="flex-1 min-w-0 space-y-4">
               <div>
-                <span className="text-xs font-semibold text-[#818CF8] uppercase tracking-widest">
+                <span className="text-xs font-semibold text-accent-indigo uppercase tracking-widest">
                   {tipoLabel}
                 </span>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#F5F5F7] mt-1 leading-tight">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-fg-primary mt-1 leading-tight">
                   {titleForLocale(media, locale)}
                 </h1>
-                <div className="flex items-center gap-3 mt-2 text-sm text-[#A0A0B8]">
+                <div className="flex items-center gap-3 mt-2 text-sm text-fg-secondary">
                   <span>{media.year}</span>
                   {media.duration && (
                     <>
@@ -284,7 +285,7 @@ export function MediaDetailClient({
 
               {media.streaming.length > 0 ? (
                 <div data-testid="platforms-section">
-                  <p className="text-xs text-[#A0A0B8] font-medium uppercase tracking-wider mb-2">
+                  <p className="text-xs text-fg-secondary font-medium uppercase tracking-wider mb-2">
                     {media.type === "game" ? t("whereToPlay") : t("whereToWatch")}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -293,9 +294,9 @@ export function MediaDetailClient({
                       return (
                         <span
                           key={s.name}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#12121C] border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-[#F5F5F7] font-medium"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-card border border-[rgba(129,140,248,0.08)] rounded-lg text-xs text-fg-primary font-medium"
                         >
-                          <Icon className="h-3.5 w-3.5 text-[#818CF8]" aria-hidden="true" />
+                          <Icon className="h-3.5 w-3.5 text-accent-indigo" aria-hidden="true" />
                           {s.name}
                         </span>
                       );
@@ -335,7 +336,7 @@ export function MediaDetailClient({
               <Tabs.Trigger
                 key={v}
                 value={v}
-                className="px-4 py-2.5 text-sm text-[#A0A0B8] border-b-2 border-transparent data-[state=active]:border-accent-500 data-[state=active]:text-[#F5F5F7] transition-colors"
+                className="px-4 py-2.5 text-sm text-fg-secondary border-b-2 border-transparent data-[state=active]:border-accent-500 data-[state=active]:text-fg-primary transition-colors"
               >
                 {l}
               </Tabs.Trigger>
@@ -351,7 +352,7 @@ export function MediaDetailClient({
               {/* Classificação indicativa (✅ — sempre quando houver dado). */}
               {media.classificacaoIndicativa && (
                 <div>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                     {tm("classification")}
                   </h2>
                   <AgeRatingBadge
@@ -377,20 +378,20 @@ export function MediaDetailClient({
                   <div className="space-y-6">
                     {media.origemEditorial && (
                       <div>
-                        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                        <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-2">
                           {tm("originTitle")}
                         </h2>
-                        <span className="inline-flex items-center rounded-full border border-[#2A2A3D] bg-[#1C1C2E] px-2.5 py-1 text-xs text-[#F5F5F7]">
+                        <span className="inline-flex items-center rounded-full border border-surface-border bg-surface-elevated px-2.5 py-1 text-xs text-fg-primary">
                           {tm(`origin_${media.origemEditorial.toLowerCase()}`)}
                         </span>
                       </div>
                     )}
                     {classificacaoLocal && (
                       <div>
-                        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-2">
+                        <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-2">
                           {tm("regionalRating")}
                         </h2>
-                        <p className="text-sm text-[#F5F5F7]">
+                        <p className="text-sm text-fg-primary">
                           <AgeRatingBadge
                             rating={
                               classificacaoLocal.valor as "L" | "10" | "12" | "14" | "16" | "18"
@@ -406,7 +407,7 @@ export function MediaDetailClient({
 
               {/* Gêneros (✅ — taxonomia dupla: narrativo compartilhado + específico). */}
               <div>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                   {tm("genres")}
                 </h2>
                 <GenreChipRow
@@ -419,7 +420,7 @@ export function MediaDetailClient({
               {/* Nota por unidade seriada (T163 — dado real de /temporadas). */}
               {media.type === "series" && (
                 <div>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                     {tm("seriatedScores")}
                   </h2>
                   <TemporadasSection midiaId={media.id} />
@@ -429,7 +430,7 @@ export function MediaDetailClient({
               {/* Origem da produção (⚠️ — só quando houver dado). */}
               {media.paisOrigem && (
                 <div>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                     {tm("origin")}
                   </h2>
                   <OriginBadge
@@ -447,14 +448,14 @@ export function MediaDetailClient({
               {/* Produtoras/estúdios/editoras (T164 — dado real da fonte). */}
               {(media.produtoras?.length ?? 0) > 0 && (
                 <div>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                     {tm("produtoras")}
                   </h2>
                   <div className="flex flex-wrap gap-2" data-testid="ficha-produtoras">
                     {(media.produtoras ?? []).map((e) => (
                       <span
                         key={`${e.papel}-${e.nome}`}
-                        className="px-3 py-1 rounded-full bg-[#818CF8]/10 text-[#C7CDFE] text-xs font-medium"
+                        className="px-3 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo-hover text-xs font-medium"
                       >
                         {e.nome}
                       </span>
@@ -465,7 +466,7 @@ export function MediaDetailClient({
 
               {/* Prêmios (T163 — dado real de premios; sem dado → "Não informado"). */}
               <div>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                   {tm("awards")}
                 </h2>
                 <AwardsShowcase
@@ -481,7 +482,7 @@ export function MediaDetailClient({
 
               {/* Sequências/conteúdo relacionado (✅ — franquia real quando houver). */}
               <div>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
                   {tm("franchise")}
                 </h2>
                 {media.franquias && media.franquias.length > 0 ? (
@@ -520,28 +521,28 @@ export function MediaDetailClient({
                 {media.cast.map((c) => (
                   <div
                     key={c.name}
-                    className="flex items-center gap-3 p-3 bg-[#12121C] rounded-md border border-surface-border/20"
+                    className="flex items-center gap-3 p-3 bg-surface-card rounded-md border border-surface-border/20"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#12121C] flex items-center justify-center text-[#A0A0B8] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-fg-secondary text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm text-[#F5F5F7] truncate font-medium">{c.name}</p>
-                      <p className="text-xs text-[#A0A0B8] truncate">{c.role}</p>
+                      <p className="text-sm text-fg-primary truncate font-medium">{c.name}</p>
+                      <p className="text-xs text-fg-secondary truncate">{c.role}</p>
                     </div>
                   </div>
                 ))}
                 {media.crew.map((c) => (
                   <div
                     key={c.name + c.role}
-                    className="flex items-center gap-3 p-3 bg-[#12121C] rounded-md border border-surface-border/20 opacity-60"
+                    className="flex items-center gap-3 p-3 bg-surface-card rounded-md border border-surface-border/20 opacity-60"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#12121C] flex items-center justify-center text-[#A0A0B8] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-fg-secondary text-sm font-medium">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm text-[#F5F5F7] truncate">{c.name}</p>
-                      <p className="text-xs text-[#A0A0B8] truncate">{c.role}</p>
+                      <p className="text-sm text-fg-primary truncate">{c.name}</p>
+                      <p className="text-xs text-fg-secondary truncate">{c.role}</p>
                     </div>
                   </div>
                 ))}
@@ -557,22 +558,23 @@ export function MediaDetailClient({
                 {media.reviews.map((r) => (
                   <div
                     key={r.author + r.date}
-                    className="p-4 bg-[#12121C] rounded-md border border-surface-border/20"
+                    className="p-4 bg-surface-card rounded-md border border-surface-border/20"
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm text-[#F5F5F7] font-medium">{r.author}</span>
+                      <span className="text-sm text-fg-primary font-medium">{r.author}</span>
                       <span
                         className="px-2 py-0.5 rounded text-xs font-bold"
                         style={{
-                          backgroundColor: r.rating >= 80 ? "#22C55E20" : "#EAB30820",
-                          color: r.rating >= 80 ? "#22C55E" : "#EAB308",
+                          backgroundColor:
+                            r.rating >= 80 ? `${colors.score.high}20` : `${colors.score.medium}20`,
+                          color: r.rating >= 80 ? colors.score.high : colors.score.medium,
                         }}
                       >
                         {r.rating}
                       </span>
-                      <span className="text-xs text-[#A0A0B8] ml-auto">{r.date}</span>
+                      <span className="text-xs text-fg-secondary ml-auto">{r.date}</span>
                     </div>
-                    <p className="text-sm text-[#F5F5F7] leading-relaxed">{r.text}</p>
+                    <p className="text-sm text-fg-primary leading-relaxed">{r.text}</p>
                   </div>
                 ))}
               </div>
@@ -599,14 +601,14 @@ function SynopsisBlock({ synopsis }: { synopsis: string }) {
   return (
     <div>
       <p
-        className={`text-[#F5F5F7] leading-relaxed text-base ${!expanded && longEnough ? "line-clamp-4" : ""}`}
+        className={`text-fg-primary leading-relaxed text-base ${!expanded && longEnough ? "line-clamp-4" : ""}`}
       >
         {synopsis}
       </p>
       {longEnough && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-[#818CF8] hover:underline mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#818CF8] focus:ring-offset-2 focus:ring-offset-[#09090F] rounded"
+          className="text-sm text-accent-indigo hover:underline mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-indigo focus:ring-offset-2 focus:ring-offset-surface-bg rounded"
         >
           {expanded ? t("readLess") : t("readMore")}
         </button>
@@ -650,9 +652,9 @@ function ShareButton() {
 
 function EmptySection({ message }: { message: string }) {
   return (
-    <div className="bg-[#12121C] rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
+    <div className="bg-surface-card rounded-lg border border-[rgba(129,140,248,0.08)] p-8 text-center">
       <svg
-        className="w-8 h-8 text-[#A0A0B8] mx-auto mb-3"
+        className="w-8 h-8 text-fg-secondary mx-auto mb-3"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -664,7 +666,7 @@ function EmptySection({ message }: { message: string }) {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <p className="text-sm text-[#A0A0B8]">{message}</p>
+      <p className="text-sm text-fg-secondary">{message}</p>
     </div>
   );
 }

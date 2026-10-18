@@ -90,18 +90,20 @@ export function ListasPage() {
 
   return (
     <ProtectedPage>
-      <div className="max-w-4xl mx-auto py-16 px-4">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-heading font-bold text-[#F5F5F7]">{t("title")}</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+            {t("title")}
+          </h1>
           <Button onClick={() => setShowCreate((v) => !v)}>{t("create")}</Button>
         </div>
 
         {premiumNeeded && (
-          <div className="mb-6 rounded-lg border border-[#FBBF24]/30 bg-[#FBBF24]/10 px-4 py-3">
-            <span className="text-sm text-[#FBBF24]">{t("premiumOnly")}</span>{" "}
+          <div className="mb-6 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-4 py-3">
+            <span className="text-sm text-accent-amber">{t("premiumOnly")}</span>{" "}
             <Link
               href="/pricing"
-              className="text-sm font-semibold text-[#818CF8] hover:text-[#A5B4FC]"
+              className="text-sm font-semibold text-accent-indigo hover:text-accent-indigo-hover"
             >
               {t("upgrade")}
             </Link>
@@ -109,8 +111,8 @@ export function ListasPage() {
         )}
 
         {showCreate && (
-          <div className="mb-6 rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5 space-y-3">
-            <label htmlFor="lista-titulo" className="block text-sm text-[#A0A0B8]">
+          <div className="mb-6 rounded-lg border border-surface-border bg-surface-card p-5 space-y-3">
+            <label htmlFor="lista-titulo" className="block text-sm text-fg-secondary">
               {t("titleLabel")}
             </label>
             <input
@@ -119,9 +121,9 @@ export function ListasPage() {
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               placeholder={t("titlePlaceholder")}
-              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary placeholder-fg-muted focus:outline-none focus:ring-2 focus:ring-accent-indigo"
             />
-            <label htmlFor="lista-descricao" className="block text-sm text-[#A0A0B8]">
+            <label htmlFor="lista-descricao" className="block text-sm text-fg-secondary">
               {t("descriptionLabel")}
             </label>
             <textarea
@@ -129,7 +131,7 @@ export function ListasPage() {
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               rows={2}
-              className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+              className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary placeholder-fg-muted focus:outline-none focus:ring-2 focus:ring-accent-indigo"
             />
             <div className="flex gap-2">
               <Button onClick={() => void criar()} disabled={creating || !titulo.trim()}>
@@ -143,7 +145,7 @@ export function ListasPage() {
         )}
 
         {naoEncontrada && (
-          <p className="mb-6 text-sm text-[#A0A0B8]" role="status">
+          <p className="mb-6 text-sm text-fg-secondary" role="status">
             {t("notFound")}
           </p>
         )}
@@ -161,11 +163,11 @@ export function ListasPage() {
           </div>
         )}
 
-        {loading && <p className="text-[#A0A0B8]">{t("loading")}</p>}
+        {loading && <p className="text-fg-secondary">{t("loading")}</p>}
 
         {!loading && listas.length === 0 && !showCreate && (
-          <div className="rounded-lg border border-dashed border-[#2A2A3D] py-20 text-center">
-            <p className="text-sm text-[#85859F]">{t("empty")}</p>
+          <div className="rounded-lg border border-dashed border-surface-border py-20 text-center">
+            <p className="text-sm text-fg-muted">{t("empty")}</p>
           </div>
         )}
 
@@ -174,13 +176,13 @@ export function ListasPage() {
             <li key={lista.id}>
               <Link
                 href={`/listas/${lista.slug}`}
-                className="block rounded-lg border border-[#2A2A3D] bg-[#12121C] p-5 hover:border-[#3A3A52] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                className="block rounded-lg border border-surface-border bg-surface-card p-5 hover:border-fg-disabled transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
               >
-                <h2 className="font-heading font-semibold text-[#F5F5F7]">{lista.titulo}</h2>
+                <h2 className="font-heading font-semibold text-fg-primary">{lista.titulo}</h2>
                 {lista.descricao && (
-                  <p className="mt-1 text-sm text-[#A0A0B8] line-clamp-2">{lista.descricao}</p>
+                  <p className="mt-1 text-sm text-fg-secondary line-clamp-2">{lista.descricao}</p>
                 )}
-                <p className="mt-3 text-xs text-[#85859F]">
+                <p className="mt-3 text-xs text-fg-muted">
                   {t("itemsCount", { count: lista.total_itens })} · /listas/{lista.slug}
                 </p>
               </Link>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { StatusGlyph } from "@/components/interaction/StatusIcons";
-import { CATEGORY_TOKENS } from "@/lib/design-tokens";
+import { CATEGORY_TOKENS, colors } from "@/lib/design-tokens";
 import { Link } from "@/lib/navigation";
 import {
   getInteracoes,
@@ -137,7 +137,7 @@ export function BibliotecaClient({
   const vazio = somaPorStatus === 0;
 
   if (loading) {
-    return <div className="py-8 text-[#A0A0B8]">{t("loading")}</div>;
+    return <div className="py-8 text-fg-secondary">{t("loading")}</div>;
   }
   if (error) {
     return (
@@ -159,7 +159,7 @@ export function BibliotecaClient({
       {/* Abas por status (4) com contagens GLOBAIS do servidor. */}
       <div
         data-testid="biblioteca-tabs"
-        className="flex flex-wrap items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-1"
+        className="flex flex-wrap items-center gap-2 rounded-xl border border-surface-border bg-surface-card p-1"
         role="tablist"
         aria-label={t("tabsAria")}
       >
@@ -168,7 +168,7 @@ export function BibliotecaClient({
           role="tab"
           aria-selected={filtros.status === null}
           onClick={() => trocarStatus(null)}
-          className={`rounded-lg px-3 py-2 text-[11px] font-semibold transition ${filtros.status === null ? "bg-[#8b7cff] text-[#0d0d14]" : "text-white/45 hover:text-white"}`}
+          className={`rounded-lg px-3 py-2 text-[11px] font-semibold transition ${filtros.status === null ? "bg-accent-indigo text-surface-bg" : "text-fg-muted hover:text-fg-primary"}`}
         >
           {t("tabAll")} · {somaPorStatus}
         </button>
@@ -179,7 +179,7 @@ export function BibliotecaClient({
             role="tab"
             aria-selected={filtros.status === s}
             onClick={() => trocarStatus(s)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold transition ${filtros.status === s ? "bg-[#8b7cff] text-[#0d0d14]" : "text-white/45 hover:text-white"}`}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold transition ${filtros.status === s ? "bg-accent-indigo text-surface-bg" : "text-fg-muted hover:text-fg-primary"}`}
           >
             <StatusGlyph status={s} size={12} />
             {tw(colunaNeutraLabelKey(consumoParaColuna(s)))} · {porStatus[s]}
@@ -196,7 +196,7 @@ export function BibliotecaClient({
         <button
           type="button"
           onClick={() => trocarTipo(null)}
-          className={`rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${filtros.tipo === null ? "border-white/25 bg-white/[0.08] text-white" : "border-white/[0.08] text-[#85859F] hover:text-white"}`}
+          className={`rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${filtros.tipo === null ? "border-accent-indigo/40 bg-accent-indigo/10 text-fg-primary" : "border-surface-border text-fg-muted hover:text-fg-primary"}`}
         >
           {t("filterAll")}
         </button>
@@ -210,11 +210,11 @@ export function BibliotecaClient({
               key={n}
               type="button"
               onClick={() => trocarTipo(selecionado ? null : tipoApi)}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${selecionado ? "text-white" : "text-[#85859F] hover:text-white"}`}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${selecionado ? "text-fg-primary" : "text-fg-muted hover:text-fg-primary"}`}
               style={
                 selecionado
                   ? { borderColor: `${token.color}66`, background: `${token.color}1a` }
-                  : { borderColor: "rgba(255,255,255,0.08)" }
+                  : { borderColor: colors.surface.border }
               }
             >
               <Icon size={12} style={{ color: token.color }} />
@@ -225,20 +225,20 @@ export function BibliotecaClient({
       </div>
 
       {vazio ? (
-        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-[#12121C] p-10 text-center">
-          <p className="text-lg font-medium text-[#F5F5F7]">{t("emptyTitle")}</p>
-          <p className="mt-1 text-sm text-[#85859F]">{t("emptyHint")}</p>
+        <div className="rounded-xl border border-accent-indigo/20 bg-gradient-to-br from-surface-elevated via-surface-card to-surface-card p-10 text-center">
+          <p className="text-lg font-medium text-fg-primary">{t("emptyTitle")}</p>
+          <p className="mt-1 text-sm text-fg-muted">{t("emptyHint")}</p>
           <Link
             href="/catalog"
-            className="mt-5 inline-flex rounded-xl bg-[#8b7cff] px-5 py-2.5 text-sm font-semibold text-[#0d0d14] transition hover:bg-[#a69cff]"
+            className="mt-5 inline-flex rounded-xl bg-accent-indigo px-5 py-2.5 text-sm font-semibold text-surface-bg transition hover:bg-accent-violet"
           >
             {t("emptyCta")}
           </Link>
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-white/[0.07] bg-[#11111b] p-10 text-center">
-          <p className="text-sm font-medium text-white/70">{t("filterEmptyTitle")}</p>
-          <p className="mt-1 text-[11px] text-[#85859F]">{t("filterEmptyHint")}</p>
+        <div className="rounded-xl border border-surface-border bg-surface-card p-10 text-center">
+          <p className="text-sm font-medium text-fg-secondary">{t("filterEmptyTitle")}</p>
+          <p className="mt-1 text-[11px] text-fg-muted">{t("filterEmptyHint")}</p>
         </div>
       ) : (
         <>
@@ -267,7 +267,7 @@ export function BibliotecaClient({
                         {tw(colunaLabelKey(i.midia.tipo, consumoParaColuna(i.status)) as never)}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[10px] text-[#85859F]">
+                    <span className="shrink-0 text-[10px] text-fg-muted">
                       {tc(nicheLabelKey(niche) as never)}
                     </span>
                     <button
@@ -277,7 +277,7 @@ export function BibliotecaClient({
                       data-testid={`biblioteca-remover-${i.midia.id}`}
                       title={t("removerAria")}
                       aria-label={t("removerAria")}
-                      className="ml-auto shrink-0 rounded-lg border border-white/[0.12] bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-white/45 transition hover:border-red-400/40 hover:text-red-300 disabled:opacity-40"
+                      className="ml-auto shrink-0 rounded-lg border border-surface-border bg-surface-card px-2 py-0.5 text-[10px] font-medium text-fg-muted transition hover:border-destructive/40 hover:text-destructive disabled:opacity-40"
                     >
                       {removendoId === i.midia.id ? "…" : t("remover")}
                     </button>
@@ -293,11 +293,11 @@ export function BibliotecaClient({
                 onClick={() => void carregar(filtros, nextCursor)}
                 disabled={carregandoMais}
                 data-testid="biblioteca-carregar-mais"
-                className="rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.09] disabled:opacity-50"
+                className="rounded-xl border border-surface-border bg-surface-card px-5 py-2.5 text-sm font-semibold text-fg-primary transition hover:bg-surface-elevated disabled:opacity-50"
               >
                 {carregandoMais ? t("loading") : t("loadMore")}
               </button>
-              <p className="text-[10px] text-[#85859F]">
+              <p className="text-[10px] text-fg-muted">
                 {t("mostrandoDe", { n: items.length, total: totalFiltrado })}
               </p>
             </div>

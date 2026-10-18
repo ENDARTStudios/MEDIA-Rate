@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
+import { colors } from "@/lib/design-tokens";
 
 import { useEffect, useRef, useId } from "react";
 import { animate } from "animejs/animation";
@@ -91,7 +92,7 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
         <path
           ref={diamondRef}
           d="M20 3L37 20L20 37L3 20Z"
-          stroke="#818CF8"
+          stroke={colors.accent.indigo}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -103,25 +104,25 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
           cx="20"
           cy="20"
           r="6.5"
-          stroke="#818CF8"
+          stroke={colors.accent.indigo}
           strokeWidth="1.5"
           strokeLinecap="round"
           transform="rotate(40 20 20)"
           opacity="0.85"
         />
 
-        <circle ref={dotRef} cx="20" cy="20" r="1.5" fill="#818CF8" opacity="0" />
+        <circle ref={dotRef} cx="20" cy="20" r="1.5" fill={colors.accent.indigo} opacity="0" />
       </svg>
 
       {variant === "full" && (
         <span className="flex flex-col items-start leading-tight" aria-hidden="true">
           <span
-            className={`font-heading font-bold text-[#F5F5F7] leading-none tracking-tight ${s.media}`}
+            className={`font-heading font-bold text-fg-primary leading-none tracking-tight ${s.media}`}
           >
             MEDIA
           </span>
           <span
-            className={`font-heading font-medium text-[#A0A0B8] leading-none tracking-wider ${s.rate}`}
+            className={`font-heading font-medium text-fg-secondary leading-none tracking-wider ${s.rate}`}
           >
             {" Rate"}
           </span>
@@ -131,9 +132,9 @@ export function Logo({ variant = "full", size = "md", className }: LogoProps) {
       {/* Variante inline: "MEDIA Rate" com espaço (fix do diagnóstico do header). */}
       {variant === "inline" && (
         <span
-          className={`font-heading font-bold text-[#F5F5F7] leading-none tracking-tight ${s.media}`}
+          className={`font-heading font-bold text-fg-primary leading-none tracking-tight ${s.media}`}
         >
-          MEDIA <span className="font-medium text-[#A0A0B8]">Rate</span>
+          MEDIA <span className="font-medium text-fg-secondary">Rate</span>
         </span>
       )}
     </span>

@@ -38,7 +38,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
         <div className="lg:hidden mb-8 text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
+            className="inline-flex items-center gap-2 text-xl font-bold text-accent-indigo"
           >
             <Logo variant="inline" />
           </Link>

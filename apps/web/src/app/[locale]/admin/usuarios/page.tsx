@@ -259,7 +259,7 @@ export default function AdminUsuariosPage() {
                       Banido
                     </span>
                   ) : (
-                    <span className="text-[#34D399]">Ativo</span>
+                    <span className="text-accent-emerald">Ativo</span>
                   )}
                   <button
                     type="button"
@@ -285,7 +285,7 @@ export default function AdminUsuariosPage() {
                       type="button"
                       onClick={() => void banir(u)}
                       data-testid={`admin-usuarios-banir-${u.id}`}
-                      className="rounded-lg bg-score-low px-3 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-score-low"
+                      className="rounded-lg bg-score-low px-3 py-1.5 text-xs font-semibold text-ink hover:bg-score-low"
                     >
                       Banir
                     </button>

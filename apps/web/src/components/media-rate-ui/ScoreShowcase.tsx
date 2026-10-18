@@ -98,13 +98,13 @@ export function ScoreShowcase({
       <div className="flex items-center gap-4">
         <ScoreDial value={item.score} scale={scale} size="md" />
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#85859F]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-fg-muted">
             {item.tipo}
           </p>
-          <p className="truncate font-heading text-sm font-semibold text-[#F5F5F7]">
+          <p className="truncate font-heading text-sm font-semibold text-fg-primary">
             {item.titulo}
           </p>
-          <p className="mt-0.5 text-[11px] text-[#85859F]">{label}</p>
+          <p className="mt-0.5 text-[11px] text-fg-muted">{label}</p>
         </div>
       </div>
       {children}

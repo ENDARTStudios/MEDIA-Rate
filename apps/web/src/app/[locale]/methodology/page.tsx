@@ -96,7 +96,7 @@ export default async function MethodologyPage({ params }: PageProps) {
   ];
 
   return (
-    <article className="container mx-auto max-w-4xl px-4 py-12">
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <StructuredData data={jsonLd} />
       <header className="mb-10 text-center">
         <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
@@ -106,7 +106,7 @@ export default async function MethodologyPage({ params }: PageProps) {
       </header>
 
       {/* T211: `prose` era inerte (plugin de typography ausente) → estilos explícitos por token. */}
-      <div className="max-w-[34rem] space-y-12 [&_a]:text-[#818CF8] [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#F5F5F7] [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[#A0A0B8]">
+      <div className="max-w-[34rem] space-y-12 [&_a]:text-accent-indigo [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-fg-primary [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-fg-secondary">
         <ScrollReveal>
           <section aria-labelledby="score-title">
             <h2 id="score-title">{copy.scoreTitle}</h2>
@@ -121,10 +121,10 @@ export default async function MethodologyPage({ params }: PageProps) {
             {copy.calculationItems.map((item) => (
               <div
                 key={item.label}
-                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
+                className="rounded-lg border border-surface-border/30 bg-surface-card p-5"
               >
-                <dt className="font-heading text-lg font-semibold text-[#F5F5F7]">{item.label}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">{item.body}</dd>
+                <dt className="font-heading text-lg font-semibold text-fg-primary">{item.label}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-fg-secondary">{item.body}</dd>
               </div>
             ))}
           </dl>
@@ -143,10 +143,10 @@ export default async function MethodologyPage({ params }: PageProps) {
             {FONTES_ATIVAS.map((fonte) => (
               <li
                 key={fonte.id}
-                className="flex items-center justify-between rounded-lg border border-surface-border/30 bg-[#12121C] px-4 py-2.5 text-sm"
+                className="flex items-center justify-between rounded-lg border border-surface-border/30 bg-surface-card px-4 py-2.5 text-sm"
               >
-                <span className="font-medium text-[#F5F5F7]">{fonte.nome}</span>
-                <span className="text-xs text-[#A0A0B8]">
+                <span className="font-medium text-fg-primary">{fonte.nome}</span>
+                <span className="text-xs text-fg-secondary">
                   {fonte.tipo === "critica" ? tScore("critic") : tScore("audience")} ·{" "}
                   {fonte.midias.map((m) => tCat(MIDIA_LABEL_KEY[m])).join(" · ")}
                 </span>
@@ -166,12 +166,12 @@ export default async function MethodologyPage({ params }: PageProps) {
             {copy.faqs.map((faq) => (
               <section
                 key={faq.question}
-                className="rounded-lg border border-surface-border/30 bg-[#12121C] p-5"
+                className="rounded-lg border border-surface-border/30 bg-surface-card p-5"
               >
-                <h3 className="font-heading text-lg font-semibold text-[#F5F5F7]">
+                <h3 className="font-heading text-lg font-semibold text-fg-primary">
                   {faq.question}
                 </h3>
-                <p className="mt-2 leading-relaxed text-[#A0A0B8]">{faq.answer}</p>
+                <p className="mt-2 leading-relaxed text-fg-secondary">{faq.answer}</p>
               </section>
             ))}
           </div>

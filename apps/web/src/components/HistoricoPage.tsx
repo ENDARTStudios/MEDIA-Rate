@@ -8,6 +8,7 @@ import { ProtectedPage } from "@/components/ProtectedPage";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
+import { PageContainer, PageTitle } from "@/components/ui/page-shell";
 import { useAuthStore } from "@/stores/use-auth-store";
 
 interface HistoricoItem {
@@ -79,21 +80,21 @@ export function HistoricoPage() {
 
   return (
     <ProtectedPage>
-      <div className="max-w-6xl mx-auto py-16 px-4">
-        <h1 className="text-3xl font-heading font-bold text-[#F5F5F7] mb-2">{t("title")}</h1>
+      <PageContainer className="max-w-6xl">
+        <PageTitle className="mb-2">{t("title")}</PageTitle>
 
         {loading && <CatalogSkeleton count={6} />}
 
         {!loading && error && (
           <div className="text-center py-16">
-            <p className="text-[#A0A0B8] mb-4">{error}</p>
+            <p className="text-fg-secondary mb-4">{error}</p>
             <Button onClick={() => window.location.reload()}>{t("retry")}</Button>
           </div>
         )}
 
         {!loading && data && data.items.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-[#A0A0B8] mb-4">{t("empty")}</p>
+            <p className="text-fg-secondary mb-4">{t("empty")}</p>
             <Link href="/catalog">
               <Button>{t("exploreCatalog")}</Button>
             </Link>
@@ -101,11 +102,13 @@ export function HistoricoPage() {
         )}
 
         {data?.limite_atingido && (
-          <div className="mt-4 mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-[#FBBF24]/30 bg-[#FBBF24]/10 px-4 py-3">
-            <span className="text-sm text-[#FBBF24]">{t("freeLimit", { count: data.limite })}</span>
+          <div className="mt-4 mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-4 py-3">
+            <span className="text-sm text-accent-amber">
+              {t("freeLimit", { count: data.limite })}
+            </span>
             <Link
               href="/pricing"
-              className="text-sm font-semibold text-[#818CF8] hover:text-[#A5B4FC]"
+              className="text-sm font-semibold text-accent-indigo hover:text-accent-indigo-hover"
             >
               {t("upgrade")}
             </Link>
@@ -122,7 +125,7 @@ export function HistoricoPage() {
             ))}
           </div>
         )}
-      </div>
+      </PageContainer>
     </ProtectedPage>
   );
 }

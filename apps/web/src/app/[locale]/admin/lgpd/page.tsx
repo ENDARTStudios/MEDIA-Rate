@@ -126,12 +126,15 @@ export default function AdminLgpdPage() {
             onClick={() => setConfirmarPurga(true)}
             disabled={ocupado}
             data-testid="admin-lgpd-purgar"
-            className="rounded-lg bg-score-low px-4 py-2 text-sm font-semibold text-[#0F172A] hover:bg-score-low disabled:opacity-40"
+            className="rounded-lg bg-score-low px-4 py-2 text-sm font-semibold text-ink hover:bg-score-low disabled:opacity-40"
           >
             {ocupado ? "Executando…" : "Executar purga agora"}
           </button>
           {purga && (
-            <p data-testid="admin-lgpd-purga-resultado" className="mt-2 text-sm text-[#34D399]">
+            <p
+              data-testid="admin-lgpd-purga-resultado"
+              className="mt-2 text-sm text-accent-emerald"
+            >
               Purga executada — verificados: {purga.verificados}, purgados: {purga.purgados},
               falhas: {purga.falhas}.
             </p>

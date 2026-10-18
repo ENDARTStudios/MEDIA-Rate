@@ -42,7 +42,7 @@ export function CatalogSkeleton({ count = 10 }: CatalogSkeletonProps) {
       aria-label={t("loadingCatalog")}
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-md bg-[#09090F] overflow-hidden shadow-surface-1">
+        <div key={i} className="rounded-md bg-surface-bg overflow-hidden shadow-surface-1">
           <div
             className="aspect-[2/3] sk-shimmer bg-[length:200%_100%]"
             style={{

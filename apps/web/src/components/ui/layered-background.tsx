@@ -14,7 +14,7 @@ export function LayeredBackground({
   return (
     <>
       {/* Base solid background */}
-      <div className="fixed inset-0 bg-[#09090F] pointer-events-none" aria-hidden="true" />
+      <div className="fixed inset-0 bg-surface-bg pointer-events-none" aria-hidden="true" />
 
       {/* Grain / noise overlay via SVG feTurbulence */}
       <svg

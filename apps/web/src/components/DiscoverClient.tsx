@@ -8,6 +8,7 @@ import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import type { MediaItem } from "./MediaCard";
 import { RateLimitedError } from "@/lib/http";
+import { Link } from "@/lib/navigation";
 import { RateLimited } from "@/components/ui/rate-limited";
 import { ErrorState } from "@/components/ui/error-state";
 
@@ -61,13 +62,13 @@ export function DiscoverClient({ initialData }: { initialData?: CatalogResponse 
   if (!data || data.items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="status">
-        <p className="text-[#A0A0B8]">{t("empty")}</p>
-        <a
+        <p className="text-fg-secondary">{t("empty")}</p>
+        <Link
           href="/catalog"
-          className="mt-4 inline-block px-6 py-2 bg-[#818CF8] text-[#0F172A] rounded-lg hover:brightness-110 transition-colors"
+          className="mt-4 inline-block rounded-lg bg-accent-indigo px-6 py-2 text-accent-indigo-foreground transition-colors hover:brightness-110"
         >
           {t("cta")}
-        </a>
+        </Link>
       </div>
     );
   }

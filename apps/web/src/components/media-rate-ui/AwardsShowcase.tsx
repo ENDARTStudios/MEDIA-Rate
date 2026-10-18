@@ -31,7 +31,7 @@ export function AwardsShowcase({ awards, className }: AwardsShowcaseProps) {
 
   if (awards.length === 0) {
     return (
-      <p className={`text-sm text-[#85859F] ${className ?? ""}`} role="status">
+      <p className={`text-sm text-fg-muted ${className ?? ""}`} role="status">
         {t("awardsNone")}
       </p>
     );
@@ -50,22 +50,22 @@ export function AwardsShowcase({ awards, className }: AwardsShowcaseProps) {
         {visiveis.map((award) => (
           <span
             key={`${award.name}-${award.year}-${award.category ?? ""}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#2A2A3D] bg-[#12121C] px-2.5 py-1 text-xs text-[#A0A0B8]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-card px-2.5 py-1 text-xs text-fg-secondary"
             title={`${award.organization} · ${award.name}${award.category ? ` · ${award.category}` : ""} · ${award.year} · ${award.won ? t("won") : t("nominated")}`}
           >
             <span aria-hidden="true">{award.won ? "🏆" : "🥈"}</span>
-            <span className="font-medium text-[#F5F5F7]">{award.name}</span>
+            <span className="font-medium text-fg-primary">{award.name}</span>
             {/* T177: organização visível — Emmy e Globo podem ter o mesmo nome
                 de categoria ("Melhor Série Dramática") e pareciam duplicados. */}
-            <span className="text-[#8B8BA0]">{award.organization}</span>
-            <span className="tabular-nums text-[#85859F]">{award.year}</span>
+            <span className="text-fg-muted">{award.organization}</span>
+            <span className="tabular-nums text-fg-muted">{award.year}</span>
           </span>
         ))}
         {ocultos > 0 && !expanded && (
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="rounded-full border border-[#2A2A3D] px-2.5 py-1 text-xs text-[#818CF8] hover:text-[#A5B4FC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+            className="rounded-full border border-surface-border px-2.5 py-1 text-xs text-accent-indigo hover:text-accent-indigo-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
           >
             +{ocultos} {t("moreAwards")}
           </button>

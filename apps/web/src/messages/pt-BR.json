@@ -243,12 +243,35 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
-    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
-    "variant_movie": ["Filmes"],
-    "variant_series": ["Séries"],
-    "variant_game": ["Games"],
+    "variant_book": [
+      "Romances",
+      "Não-ficção",
+      "Clássicos",
+      "Sagas",
+      "Novidades"
+    ],
+    "variant_comic": [
+      "HQs",
+      "Super-heróis",
+      "Indie",
+      "Novidades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novidades"
+    ],
+    "variant_movie": [
+      "Filmes"
+    ],
+    "variant_series": [
+      "Séries"
+    ],
+    "variant_game": [
+      "Games"
+    ],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -539,7 +562,12 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendações/dia"
+    ],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -600,7 +628,13 @@
     "atribuicao": "Dados de filmes, séries e games por TMDB e IGDB.com — este produto usa as APIs do TMDB e da IGDB, sem endosso oficial delas.",
     "cookies": "Cookies",
     "manageCookies": "Gerenciar cookies",
-    "security": "Segurança"
+    "security": "Segurança",
+    "groupProduct": "Produto",
+    "groupContent": "Conteúdo",
+    "status": "Status",
+    "rightsReserved": "Todos os direitos reservados.",
+    "language": "Idioma",
+    "support": "Apoie e patrocine"
   },
   "auth": {
     "loginTitle": "Entrar",
@@ -1435,5 +1469,58 @@
     "anpdCta": "Site da ANPD",
     "contactCta": "Falar com o encarregado"
   },
-  "search": {}
+  "search": {},
+  "status": {
+    "title": "Status do serviço",
+    "intro": "Verificação feita agora pelo servidor contra a API do produto — não é média histórica.",
+    "operational": "Operacional",
+    "degraded": "Degradado",
+    "unavailable": "Indisponível",
+    "unverified": "Não verificado",
+    "checkedAt": "Verificado em {time}",
+    "latency": "Resposta em {ms} ms",
+    "version": "Versão da API: {version}",
+    "uptime": "No ar há {hours}",
+    "explain": "O monitoramento externo é feito por sondas agendadas; esta página mostra apenas a consulta do momento."
+  },
+  "support": {
+    "title": "Apoie o MEDIA Rate",
+    "intro": "O MEDIA Rate existe para responder uma pergunta simples: vale o meu tempo? A resposta não pode depender de quem distribui a obra — e é isso que buscamos financiar.",
+    "whyTitle": "Por que apoiar",
+    "why1": "Nota não se compra: assinatura, parceria ou patrocínio não alteram o MEDIA Score.",
+    "why2": "Metodologia aberta: pesos, fontes e cortes estão documentados e auditáveis.",
+    "why3": "Sem anúncio no catálogo: a decisão de assistir, ler ou jogar não fica no meio de um leilão de atenção.",
+    "apoiadorTitle": "Apoiador",
+    "apoiadorWho": "Para quem usa o produto e quer que ele continue independente.",
+    "apoiadorHow": "Assine um plano — é o apoio que sustenta a operação no dia a dia.",
+    "apoiadorExtra": "Apoio pontual, de pessoa física ou de um coletivo pequeno: fale com a gente.",
+    "apoiadorCta": "Ver planos",
+    "apoiadorCtaSecondary": "Falar sobre apoio pontual",
+    "parceiroTitle": "Parceiro",
+    "parceiroWho": "Para veículos, escolas, festivais, bibliotecas e instituições culturais.",
+    "parceiroHow": "Licenciamos recortes do catálogo e do MEDIA Score para matérias, aulas e programação — sempre com metodologia e fonte citadas.",
+    "parceiroExtra": "Parceria de dados: quem produz ou mantém dados de obras pode propor integração e correção.",
+    "parceiroCta": "Propor uma parceria",
+    "patrocinadorTitle": "Patrocinador",
+    "patrocinadorWho": "Para marcas que querem falar com quem decide o que consumir.",
+    "patrocinadorHow": "Patrocine uma seção ou um recorte do catálogo, sempre identificado como patrocínio.",
+    "patrocinadorExtra": "O que não está à venda: a nota, a ordem dos rankings e a linha editorial.",
+    "patrocinadorCta": "Pedir o material",
+    "independenceTitle": "A regra que não muda",
+    "independenceBody": "Patrocínio compra visibilidade, não nota. No dia em que isso mudar, o produto perde a razão de existir — e o financiamento também.",
+    "contactApoiador": "Apoio ao MEDIA Rate",
+    "contactParceiro": "Proposta de parceria — MEDIA Rate",
+    "contactPatrocinador": "Patrocínio — MEDIA Rate",
+    "recognition": "Reconhecimento é opcional: publicamos o nome de quem autoriza.",
+    "humanNote": "Toda proposta é lida por uma pessoa. Escreva o que você quer fazer e por quê.",
+    "metaTitle": "Apoie, seja parceiro ou patrocine o MEDIA Rate",
+    "metaDescription": "Três formas de sustentar um catálogo independente: apoiar como pessoa física, ser parceiro institucional ou patrocinar uma seção. A nota não está à venda.",
+    "sourcesLabel": "Fontes",
+    "concentrationNote": "Teto de concentração: nenhum patrocinador passa de 40% do financiamento total. Acima disso a independência deixa de ser verificável.",
+    "registryTitle": "Registro público de patrocínios",
+    "registryEmpty": "Nenhum patrocínio ativo. Quando houver, ele aparece aqui com nome autorizado, seção e data de início — e com o rótulo que você vê na interface.",
+    "registrySponsor": "Patrocinador",
+    "registrySection": "Onde aparece",
+    "registrySince": "Desde"
+  }
 }

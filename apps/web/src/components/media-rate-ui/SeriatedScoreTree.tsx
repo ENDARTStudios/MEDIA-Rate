@@ -56,7 +56,7 @@ function Linha({ unit, depth }: { unit: SeriatedUnit; depth: number }) {
         className="flex items-center justify-between gap-3 py-1.5"
         style={{ paddingLeft: `${depth * 16}px` }}
       >
-        <span className="truncate text-sm text-[#A0A0B8]">{unit.label}</span>
+        <span className="truncate text-sm text-fg-secondary">{unit.label}</span>
         {score != null ? (
           <span
             className="shrink-0 text-sm font-bold tabular-nums"
@@ -66,11 +66,11 @@ function Linha({ unit, depth }: { unit: SeriatedUnit; depth: number }) {
             {formatarScoreLocale(score, locale)}
           </span>
         ) : (
-          <span className="shrink-0 text-xs text-[#85859F]">{t("noVotesYet")}</span>
+          <span className="shrink-0 text-xs text-fg-muted">{t("noVotesYet")}</span>
         )}
       </div>
       {temSub && (
-        <ul role="list" className="divide-y divide-[#1B1B2C]">
+        <ul role="list" className="divide-y divide-surface-elevated">
           {unit.subUnits?.map((sub, i) => (
             <Linha key={`${sub.label}-${i}`} unit={sub} depth={depth + 1} />
           ))}
@@ -84,22 +84,22 @@ export function SeriatedScoreTree({ unitLabel, units, className }: SeriatedScore
   const t = useTranslations("metadados");
   if (units.length === 0) {
     return (
-      <p className={cn("text-sm text-[#85859F]", className)} role="status">
+      <p className={cn("text-sm text-fg-muted", className)} role="status">
         {t("noUnits", { label: unitLabel })}
       </p>
     );
   }
   return (
-    <div className={cn("rounded-lg border border-[#2A2A3D] bg-[#12121C] p-4", className)}>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#A0A0B8]">
+    <div className={cn("rounded-lg border border-surface-border bg-surface-card p-4", className)}>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-fg-secondary">
         {unitLabel}
       </p>
-      <ul role="list" className="divide-y divide-[#1B1B2C]">
+      <ul role="list" className="divide-y divide-surface-elevated">
         {units.map((unit, i) => (
           <Linha key={`${unit.label}-${i}`} unit={unit} depth={0} />
         ))}
       </ul>
-      <p className="mt-2 text-xs text-[#85859F]">{t("unitNote")}</p>
+      <p className="mt-2 text-xs text-fg-muted">{t("unitNote")}</p>
     </div>
   );
 }

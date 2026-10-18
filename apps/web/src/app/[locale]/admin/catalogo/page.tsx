@@ -273,7 +273,7 @@ export default function AdminCatalogoPage() {
             onClick={() => void salvar()}
             disabled={ocupado}
             data-testid="admin-catalogo-salvar"
-            className="rounded-lg bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] hover:brightness-110 disabled:opacity-40"
+            className="rounded-lg bg-accent-indigo px-4 py-2 text-sm font-semibold text-ink hover:brightness-110 disabled:opacity-40"
           >
             {ocupado ? "Salvando…" : editandoId ? "Salvar alterações" : "Criar mídia"}
           </button>
@@ -291,7 +291,7 @@ export default function AdminCatalogoPage() {
           )}
         </div>
         {mensagem && (
-          <p data-testid="admin-catalogo-mensagem" className="mt-2 text-sm text-[#34D399]">
+          <p data-testid="admin-catalogo-mensagem" className="mt-2 text-sm text-accent-emerald">
             {mensagem}
           </p>
         )}
