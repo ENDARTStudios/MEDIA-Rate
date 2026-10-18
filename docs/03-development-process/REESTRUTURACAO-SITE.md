@@ -110,8 +110,55 @@ Artefatos em `.dsh-artifacts/visual-qa/` (não versionado).
 
 
 
+## Aberto (fora do escopo desta fase)
+
 - **Varredura do hex no admin/dashboard** — `design:hex` ainda lista 63 ocorrências (26 valores,
   incl. `#9CA3AF` e `#EDE7DC`); é a paleta legada do protótipo, congelada por D-586.
+
+### #603 (vitest 4.1.10 → 4.1.11): são DOIS problemas — medido, não suposto
+
+Reproduzido numa branch própria a partir de `origin/main` (nunca na branch do Dependabot, que
+carrega trabalho de outro agente).
+
+**1. Tipos — resolvido, código pronto.** O bump derruba a augmentação de `Assertion` e o
+`tsc --noEmit` acusa `Property 'toHaveStyle' does not exist on type 'Assertion<Element>'`
+(33 erros). Um `.d.ts` em `apps/web/test/` resolve:
+
+```ts
+import type { TestingLibraryMatchers } from "@testing-library/jest-dom/matchers";
+
+declare module "vitest" {
+  interface Assertion<T = any> extends TestingLibraryMatchers<any, T> {}
+  interface AsymmetricMatchersContaining extends TestingLibraryMatchers<any, any> {}
+}
+```
+
+Com ele, `tsc` vai de 33 erros para **0** — verificado.
+
+**2. Snapshots — em aberto.** Com os tipos resolvidos, a suíte falha em
+`test/image-policy.spec.ts` (2 testes):
+
+```
+Error: The snapshot state for 'image-policy.spec.ts' is not found.
+       Did you call 'SnapshotClient.setup()'?
+Snapshots  2 obsolete
+```
+
+O `.snap` existe e é lido, mas o 4.1.11 marca as entradas como obsoletas: é comportamento do
+bump, não do nosso código. **Não rodar `--update` sem antes comparar** o snapshot novo com o
+versionado. Caminho: conferir `snapshotFormat`/`resolveSnapshotPath` na config do vitest e como
+o spec monta o snapshot; só então corrigir a config ou aceitar o formato novo com justificativa.
+
+**Falso positivo de `tsc`:** um `.next/` de outra branch (ex.: a que tem `/status`) faz o
+`tsc` acusar `Cannot find module '...[locale]/status/page.js'`. Apague `apps/web/.next` antes de
+medir — não é regressão de código.
+
+### PR e branches
+
+- PR **#661** (este programa) está draft com CI verde; "ready for review" e merge são decisão do
+  Operador (`main` auto-deploya).
+- A branch `dependabot/npm_and_yarn/vitest-5.0.5` **não é nossa** — tem 19 commits de outro
+  agente. Não faça `push`, `reset` nem `branch -D` nela.
 - **Capturas 375/1024/1440** — executadas (ver "Evidência visual"); o overflow global de 768 px
   que elas acharam já está corrigido.
 - **PR da branch**: os commits estão empurrados; CI só roda em PR para `main` ou push em `main`.
