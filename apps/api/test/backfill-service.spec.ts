@@ -2599,7 +2599,9 @@ describe("T-DADOS-13A — refresh de provedores (30 dias)", () => {
     } finally {
       await db.close();
     }
-  });
+    // O import dinâmico + WASM do PGlite passa de 5s quando a suíte roda em
+    // paralelo (vitest 5); em isolamento leva ~4s.
+  }, 20_000);
 
   it("alvo do job usa a MESMA condição da contagem (não só provedores_em IS NULL)", async () => {
     process.env.TMDB_API_KEY = "chave-de-teste";

@@ -25,7 +25,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "20"
+  # vitest 5 exige Node ^22.12.0 || ^24.0.0.
+  NODE_VERSION: "22"
 
 jobs:
   # Job 1: Validação (lint + typecheck + test + audit na main)
