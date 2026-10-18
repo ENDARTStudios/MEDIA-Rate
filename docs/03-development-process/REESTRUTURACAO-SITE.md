@@ -93,12 +93,27 @@ antes/depois) · captura 375/1024/1440 quando houver mudança visual.
 - **Status do rodapé aponta para `/status`**, que mede na hora. Selo verde fixo seria promessa
   inventada (regra do `home-truthfulness`).
 
-## Aberto (fora do escopo desta fase)
+## Evidência visual (375/768/1024/1440)
+
+`node .zcode/skills/visual-qa/scripts/visual-qa.mjs --base-url http://127.0.0.1:3000 --path /<rota>`
+rodou em pt-BR sobre 10 rotas migradas. Dois achados:
+
+1. **Overflow horizontal de 865 px em TODA rota a 768 px** — causa medida no DOM: a barra
+   desktop da `Navbar` (`hidden md:flex`) tem 773 px de conteúdo e aparecia já em 768 px. Passou
+   a entrar em `lg` (menu hambúrguer abaixo disso). Depois da correção: `/`, `/about` e `/status`
+   fecham com "Visual QA OK — sem overflow, H1 presente e CTA acima da dobra".
+2. **`h1=AUSENTE` nas rotas que não são a home é falso positivo do harness**: ele procura
+   `#hero-title`, que só existe na hero. O h1 do `PageShell` está no DOM (o bot v2 conta
+   `PageShell`/`PageTitle` justamente por isso).
+
+Artefatos em `.dsh-artifacts/visual-qa/` (não versionado).
+
+
 
 - **Varredura do hex no admin/dashboard** — `design:hex` ainda lista 63 ocorrências (26 valores,
   incl. `#9CA3AF` e `#EDE7DC`); é a paleta legada do protótipo, congelada por D-586.
-- **Capturas 375/1024/1440** dos clusters migrados (`npm run design:visual`, exige dev server) —
-  a única verificação do checklist não executada nesta fase.
+- **Capturas 375/1024/1440** — executadas (ver "Evidência visual"); o overflow global de 768 px
+  que elas acharam já está corrigido.
 - **PR da branch**: os commits estão empurrados; CI só roda em PR para `main` ou push em `main`.
 - **#603** (`vitest` 4.1.10 → 4.1.11): falta declarar os tipos de `toHaveStyle`/
   `toBeInTheDocument` em `apps/web/test/`.
