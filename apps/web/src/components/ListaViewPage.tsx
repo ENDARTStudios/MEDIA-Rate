@@ -12,6 +12,8 @@ import { Link } from "@/lib/navigation";
 import { ErrorState } from "@/components/ui/error-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
+import { ShareLista } from "@/components/listas/ShareLista";
+import type { ListaResumo } from "@/lib/list-share";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
 
@@ -212,6 +214,21 @@ export function ListaViewPage({ slug }: { slug: string }) {
 
   const podeAdicionar = isAuthenticated;
 
+  // Forma normalizada para convite/PDF: o componente de compartilhar não conhece o
+  // vocabulário da API (`ano_lancamento`, `midia_id`).
+  const resumo: ListaResumo = {
+    titulo: lista.titulo,
+    descricao: lista.descricao,
+    slug: lista.slug,
+    donoNome: lista.dono.nome,
+    itens: lista.itens.map((i) => ({
+      titulo: i.titulo,
+      tipo: i.tipo,
+      ano: i.ano_lancamento,
+      score: i.score,
+    })),
+  };
+
   return (
     <div className="max-w-5xl mx-auto py-16 px-4">
       {editMode ? (
@@ -246,6 +263,13 @@ export function ListaViewPage({ slug }: { slug: string }) {
             {t("byOwner", { owner: lista.dono.nome ?? "—" })} ·{" "}
             {t("itemsCount", { count: lista.itens.length })}
           </p>
+          {/* Compartilhar está disponível para qualquer visitante: a lista já é
+              pública pelo slug. Quem recebe o link pode sugerir títulos. */}
+          <ShareLista
+            lista={resumo}
+            ehDono={lista.eh_dono}
+            onEditarRecado={() => setEditMode(true)}
+          />
           {lista.eh_dono && (
             <div className="mt-3 flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
