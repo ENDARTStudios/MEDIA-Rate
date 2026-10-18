@@ -28,6 +28,66 @@ export function extrairAggregateRatingJsonLd(html: string): number | null {
   return null;
 }
 
+export interface RatingAgregadoJsonLd {
+  ratingValue: number;
+  ratingCount?: number;
+}
+
+/**
+ * Extrai `aggregateRating` do bloco JSON-LD cujo `@type` é `Book` (o bloco do
+ * livro, não o primeiro bloco qualquer da página). Parse defensivo: cada bloco
+ * é `JSON.parse` individualmente e blocos inválidos são ignorados.
+ */
+export function extrairRatingLivroJsonLd(html: string): RatingAgregadoJsonLd | null {
+  const blocos = [...html.matchAll(JS_JSONLD)];
+  for (const bloco of blocos) {
+    const conteudo = bloco[1];
+    if (!conteudo) continue;
+    try {
+      const dado = JSON.parse(conteudo) as unknown;
+      const rating = buscarRatingDoLivro(dado);
+      if (rating != null) return rating;
+    } catch {
+      // bloco JSON-LD inválido — pula
+    }
+  }
+  return null;
+}
+
+function ehLivro(dado: Record<string, unknown>): boolean {
+  const tipo = dado["@type"];
+  if (tipo === "Book") return true;
+  return Array.isArray(tipo) && tipo.includes("Book");
+}
+
+function buscarRatingDoLivro(dado: unknown): RatingAgregadoJsonLd | null {
+  if (Array.isArray(dado)) {
+    for (const item of dado) {
+      const v = buscarRatingDoLivro(item);
+      if (v != null) return v;
+    }
+    return null;
+  }
+  if (typeof dado !== "object" || dado === null) return null;
+  const obj = dado as Record<string, unknown>;
+  if (Array.isArray(obj["@graph"])) {
+    const v = buscarRatingDoLivro(obj["@graph"]);
+    if (v != null) return v;
+  }
+  if (!ehLivro(obj)) return null;
+  const aggregate = obj["aggregateRating"];
+  if (!aggregate || typeof aggregate !== "object" || Array.isArray(aggregate)) return null;
+  const agregado = aggregate as Record<string, unknown>;
+  const ratingValue = parseNumero(agregado["ratingValue"]);
+  // Goodreads expõe 0–5; fora da faixa é bloco inválido, não nota.
+  if (ratingValue == null || ratingValue < 0 || ratingValue > 5) return null;
+  const ratingCount = parseNumero(agregado["ratingCount"]);
+  return {
+    ratingValue,
+    ...(ratingCount != null && ratingCount >= 0 ? { ratingCount: Math.trunc(ratingCount) } : {}),
+  };
+}
+
 function buscarRatingValue(dado: unknown): number | null {
   if (Array.isArray(dado)) {
     for (const item of dado) {
