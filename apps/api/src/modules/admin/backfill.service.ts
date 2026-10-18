@@ -399,6 +399,19 @@ function eh429(e: unknown): boolean {
   return status === 429 || String(e).includes("HTTP 429");
 }
 
+/**
+ * T-DADOS-24A: cota/limite do OMDb. O adapter sinaliza de duas formas:
+ * (a) `Error(ERRO_OMDB_COTA)` — "OMDb: limite de requisições atingido";
+ * (b) `ErroColeta` HTTP 401/429 na URL do omdbapi.com (cota/credencial).
+ * Insistir no lote só queima o tique e trava as outras filas do drain.
+ */
+function ehErroCotaOmdb(e: unknown): boolean {
+  const msg = String(e);
+  if (/limite de requisi[cç][õo]es/i.test(msg)) return true;
+  if (!/omdbapi\.com/i.test(msg)) return false;
+  return /\bHTTP\s+(401|429)\b/i.test(msg);
+}
+
 /** Primeira certificação não-vazia de um `results[]` do TMDB para a região. */
 function certificadoDoPais(results: any, iso: string): string | null {
   if (!Array.isArray(results)) return null;
@@ -1204,13 +1217,23 @@ export class BackfillService {
    * T-DADOS-10: títulos distintos que já consumiram a cota do dia
    * (OMDb/RT/Metacritic). Cada título processado grava ao menos uma linha em
    * avaliacao_fonte com `coletado_em` de hoje.
+   *
+   * T-DADOS-24A: o passe semanal apaga linhas de avaliacao_fonte e reabria a
+   * cota no mesmo dia. O teto passa a ser o MAIOR entre as linhas de hoje e os
+   * títulos tentados hoje (`critica_omdb_em::date = CURRENT_DATE`) — estes
+   * sobrevivem ao passe e incluem os que não geraram linha (sem nota).
    */
   private async queriesOmdbHoje(): Promise<number> {
     const r = await this.prisma.$queryRawUnsafe<{ usados: number | bigint }[]>(
-      `SELECT COUNT(DISTINCT a.midia_id)::int AS usados
-         FROM avaliacao_fonte a
-        WHERE a.fonte IN ('omdb','rottentomatoes','metacritic')
-          AND a.coletado_em::date = CURRENT_DATE`,
+      `SELECT GREATEST(
+         (SELECT COUNT(DISTINCT a.midia_id)::int
+            FROM avaliacao_fonte a
+           WHERE a.fonte IN ('omdb','rottentomatoes','metacritic')
+             AND a.coletado_em::date = CURRENT_DATE),
+         (SELECT COUNT(*)::int
+            FROM midia m
+           WHERE m.critica_omdb_em::date = CURRENT_DATE)
+       ) AS usados`,
     );
     return Number(r[0]?.usados ?? 0);
   }
@@ -2171,8 +2194,12 @@ export class BackfillService {
    * honesta — não gasta cota).
    *
    * Watermark `critica_omdb_em` gravado SEMPRE ao fim do título (com ou sem
-   * nota/imdb_id); exceção de rede/429 não marca (retenta amanhã). Nunca
-   * lança por título.
+   * nota/imdb_id); exceção de rede/429 não marca (retenta amanhã).
+   *
+   * T-DADOS-24A: se a fonte sinalizar cota/limite (OMDb `Request limit
+   * reached!` ou HTTP 401/429 do omdbapi.com), o lote para NA HORA — o título
+   * corrente conta como falha (sem watermark) e o drain segue para as outras
+   * filas em vez de queimar o tique em ~900 erros.
    */
   async enriquecerCriticaOmdb(limite: number): Promise<{
     processados: number;
@@ -2181,6 +2208,7 @@ export class BackfillService {
     semNota: number;
     falhas: number;
     queries: number;
+    interrompidoPorCota: boolean;
   }> {
     const chave = process.env.TMDB_API_KEY;
     if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
@@ -2202,7 +2230,15 @@ export class BackfillService {
       this.logger.log(
         `Backfill crítica OMDb: cota diária atingida (${usadosHoje}/${ORCAMENTO_OMDB_DIARIO}) — nada processado.`,
       );
-      return { processados: 0, ok: 0, semImdb: 0, semNota: 0, falhas: 0, queries: 0 };
+      return {
+        processados: 0,
+        ok: 0,
+        semImdb: 0,
+        semNota: 0,
+        falhas: 0,
+        queries: 0,
+        interrompidoPorCota: false,
+      };
     }
 
     const limiteEfetivo = Math.min(Math.max(Math.trunc(limite) || 1, 1), restante);
@@ -2225,6 +2261,7 @@ export class BackfillService {
     let semImdb = 0;
     let semNota = 0;
     let queries = 0;
+    let interrompidoPorCota = false;
     for (const m of alvo) {
       this.estado.criticaOmdb.processados++;
       this.estado.criticaOmdb.atual = m.titulo;
@@ -2289,12 +2326,21 @@ export class BackfillService {
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado.criticaOmdb.falhas++;
         this.logger.warn(`Backfill crítica OMDb falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+        // T-DADOS-24A: cota/limite da fonte — parar o lote e devolver o tique
+        // ao drain. Marcar os próximos como falha só repetiria o mesmo erro.
+        if (ehErroCotaOmdb(e)) {
+          interrompidoPorCota = true;
+          this.logger.warn(
+            `Backfill crítica OMDb: cota/limite da fonte atingido — lote interrompido (${this.estado.criticaOmdb.processados} processados).`,
+          );
+          break;
+        }
       }
     }
     this.estado.criticaOmdb.executando = false;
-    this.estado.criticaOmdb.atual = `fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}`;
+    this.estado.criticaOmdb.atual = `fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}${interrompidoPorCota ? " cota_interrompida" : ""}`;
     this.logger.log(
-      `Backfill crítica OMDb fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}.`,
+      `Backfill crítica OMDb fim: ok=${this.estado.criticaOmdb.ok} sem_imdb=${semImdb} sem_nota=${semNota} falhas=${this.estado.criticaOmdb.falhas} queries=${queries}${interrompidoPorCota ? " — interrompido por cota/limite da fonte" : ""}.`,
     );
     return {
       processados: this.estado.criticaOmdb.processados,
@@ -2303,6 +2349,7 @@ export class BackfillService {
       semNota,
       falhas: this.estado.criticaOmdb.falhas,
       queries,
+      interrompidoPorCota,
     };
   }
 
