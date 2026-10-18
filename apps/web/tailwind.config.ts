@@ -60,16 +60,16 @@ const config: Config = {
           manga: "#A78BFA",
         },
         surface: {
-          bg: "#05050A",
-          card: "#12121C",
-          elevated: "#1B1B2C",
-          overlay: "rgba(5,5,10,0.92)",
-          border: "#2A2A3D",
+          "bg": "#05050A",
+          "card": "#12121C",
+          "elevated": "#1B1B2C",
+          "overlay": "rgba(5,5,10,0.92)",
+          "border": "#2A2A3D",
           // Borda no estado hover (era #3A3A52 solto em 6 componentes). A chave é
           // kebab porque o Tailwind monta o nome do utilitário a partir dela:
           // `borderHover` geraria `border-surface-borderHover` (classe morta).
           "border-hover": "#3A3A52",
-          ring: "#818CF8",
+          "ring": "#818CF8",
         },
         // Tinta escura usada SOBRE fundo de acento (score, chip, badge). Os
         // `*-foreground` dos acentos têm este mesmo valor; o token existe para os
