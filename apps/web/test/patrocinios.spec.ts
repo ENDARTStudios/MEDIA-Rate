@@ -48,8 +48,10 @@ describe("registro público de patrocínios", () => {
     expect(PAGINA).toContain('from "@/lib/sponsorships"');
     expect(PAGINA).toContain("PATROCINIOS.length === 0");
     expect(PAGINA).toMatch(/<table/);
-    // Nenhuma lista digitada à mão: a página nunca importa dado de patrocínio de outro lugar.
-    expect(PAGINA).not.toMatch(/patrocinador:\s*"/);
+    // Nenhuma entrada digitada à mão na página: o formato de `Patrocinio`
+    // (`secao`/`rotulo`/`desde`) só pode existir no módulo de dados.
+    expect(PAGINA).not.toMatch(/\bsecao:\s*"/);
+    expect(PAGINA).not.toMatch(/\brotulo:\s*"/);
   });
 
   it("o estado vazio e o registro existem nas 3 locales", () => {

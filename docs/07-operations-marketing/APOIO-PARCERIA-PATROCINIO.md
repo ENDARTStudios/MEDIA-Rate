@@ -128,6 +128,19 @@ descoberta → convicção → conversa → acordo
 
 ## 7. Modelos de abordagem 1:1
 
+### Roteamento de contato (um alias por público)
+
+| Público | Endereço | Por quê |
+|---|---|---|
+| Apoiador | `endart.studios+contato@gmail.com` | alias geral, o mesmo do rodapé e do `/feedback`; apoio pontual não tem fila própria |
+| Parceiro | `endart.studios+parcerias@gmail.com` | proposta de licença/recorte e correção de dados |
+| Patrocinador | `endart.studios+patrocinio@gmail.com` | material, números do mês e contrato |
+
+O endereço por público é o que permite contar proposta por programa sem CRM e sem etiqueta
+manual. Um alias trocado manda patrocínio para a fila de parceria e some — por isso o par
+público → endereço é cobrado por teste (`apps/web/test/apoie.spec.ts`), não só por este
+documento.
+
 **Parceria (instituição/veículo) — assunto: "recorte de catálogo com metodologia para [veículo]"**
 
 > [Nome], vi que [publicação/aula/programação] usa [dado/lista de X]. O MEDIA Rate mantém um

@@ -24,9 +24,22 @@ import { localizedAlternates, localizedUrl } from "@/lib/seo";
  *   prometa prazo que não depende de nós.
  */
 
-const CONTATO = "endart.studios+contato@gmail.com";
+/**
+ * Um endereço por público — o mesmo e-mail institucional com alias de assunto, para a
+ * caixa de entrada já chegar triada e o contador de cada programa ser lido separado.
+ *
+ * `apoiador` continua no alias geral (`+contato`), que é o mesmo do rodapé e do
+ * /feedback: apoio pontual de pessoa física não tem fila própria, e um alias inventado
+ * aqui seria endereço que ninguém lê.
+ */
+const CONTATOS = {
+  apoiador: "endart.studios+contato@gmail.com",
+  parceiro: "endart.studios+parcerias@gmail.com",
+  patrocinador: "endart.studios+patrocinio@gmail.com",
+} as const;
 
-const mailto = (assunto: string) => `mailto:${CONTATO}?subject=${encodeURIComponent(assunto)}`;
+const mailto = (para: string, assunto: string) =>
+  `mailto:${para}?subject=${encodeURIComponent(assunto)}`;
 
 export async function generateMetadata({
   params,
@@ -81,7 +94,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
             {t("apoiadorCta")}
           </Link>
           <SupportCta
-            href={mailto(t("contactParceiro"))}
+            href={mailto(CONTATOS.parceiro, t("contactParceiro"))}
             audience="parceiro"
             className="inline-flex items-center justify-center rounded-lg border border-surface-border px-6 py-2.5 text-sm font-semibold text-fg-primary transition-colors hover:border-accent-indigo/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
           >
@@ -117,7 +130,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
             {t("apoiadorCta")}
           </Link>
           <SupportCta
-            href={mailto(t("contactApoiador"))}
+            href={mailto(CONTATOS.apoiador, t("contactApoiador"))}
             audience="apoiador"
             className="inline-flex items-center justify-center rounded-lg border border-surface-border px-6 py-2.5 text-sm font-semibold text-fg-primary transition-colors hover:border-accent-indigo/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
           >
@@ -134,7 +147,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
         <Marcadores itens={[t("parceiroExtra"), t("humanNote")]} />
         <div className="mt-6">
           <SupportCta
-            href={mailto(t("contactParceiro"))}
+            href={mailto(CONTATOS.parceiro, t("contactParceiro"))}
             audience="parceiro"
             className="inline-flex items-center justify-center rounded-lg bg-surface-elevated px-6 py-2.5 text-sm font-semibold text-fg-primary border border-surface-border transition-colors hover:border-accent-indigo/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
           >
@@ -153,7 +166,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
         <Marcadores itens={[t("patrocinadorExtra")]} />
         <div className="mt-6">
           <SupportCta
-            href={mailto(t("contactPatrocinador"))}
+            href={mailto(CONTATOS.patrocinador, t("contactPatrocinador"))}
             audience="patrocinador"
             className="inline-flex items-center justify-center rounded-lg bg-surface-elevated px-6 py-2.5 text-sm font-semibold text-fg-primary border border-surface-border transition-colors hover:border-accent-indigo/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
           >
