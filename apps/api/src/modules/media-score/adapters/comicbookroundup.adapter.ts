@@ -18,7 +18,9 @@ export class ComicBookRoundupAdapter implements FonteAdapter {
   }
 
   ativo(): boolean {
-    return process.env.MEDIA_PREPARACAO_ENABLED === "true";
+    // Endpoint /api/issues/search não existe — medido 2026-10-18 (HTTP 404).
+    // Desligado até haver uma fonte real (o site é HTML; sem API pública).
+    return false;
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {

@@ -53,7 +53,8 @@ export function dominioDoTipo(tipo: string): DominioMidia | null {
       return "game";
     case "LIVRO":
       return "livro";
-    case "HQ":
+    case "COMIC":
+    case "HQ": // alias legado: o enum TipoMidia atual usa COMIC
       return "hq";
     case "ANIME":
     case "MANGA":

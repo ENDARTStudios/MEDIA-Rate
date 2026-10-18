@@ -1,16 +1,7 @@
 import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
-import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
-import { fetchJson } from "./http.utils.js";
+import { dominioDoTipo } from "./fonte-adapter.interface.js";
 
-interface ComicVineVolume {
-  results?: { id: number; name: string; site_detail_url?: string }[];
-}
-
-interface ComicVineVolumeDetail {
-  results?: { count_of_issues?: number };
-}
-
-/** Comic Vine — key gratuita (COMICVINE_API_KEY); votos públicos somados 0–5. */
+/** Comic Vine — key gratuita (COMICVINE_API_KEY); sem nota agregada de volumes. */
 export class ComicVineAdapter implements FonteAdapter {
   readonly id = "comicvine";
 
@@ -26,28 +17,9 @@ export class ComicVineAdapter implements FonteAdapter {
     return Boolean(this.chave());
   }
 
-  async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
-    const base = `https://comicvine.gamespot.com/api`;
-    const busca = await fetchJson<ComicVineVolume>(
-      `${base}/volumes/?api_key=${this.chave() ?? ""}&format=json&filter=name:${encodeURIComponent(consulta.titulo)}&field_list=id,name,site_detail_url`,
-    );
-    const volume = busca.results?.[0];
-    if (!volume) return [];
-    const detalhe = await fetchJson<ComicVineVolumeDetail>(
-      `${base}/volume/4050-${volume.id}/?api_key=${this.chave() ?? ""}&format=json&field_list=count_of_issues`,
-    );
-    const total = detalhe.results?.count_of_issues;
-    if (!total || total <= 0) return [];
-    // Sem nota agregada exposta na API; proxy de audiência 0–5 (fase preparação).
-    const stats = estatisticas("0-5");
-    return [
-      {
-        fonte: this.id,
-        rating: stats.media,
-        media_fonte: stats.media,
-        desvio_fonte: stats.desvio,
-        url: volume.site_detail_url,
-      },
-    ];
+  async coletar(_consulta: ConsultaMedia): Promise<NotaColetada[]> {
+    // O ComicVine não expõe nota agregada (usuário/crítica) para volumes.
+    // Retornamos vazio para não inventar uma nota sintética.
+    return [];
   }
 }

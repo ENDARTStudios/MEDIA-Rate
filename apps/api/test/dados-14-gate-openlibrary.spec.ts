@@ -56,6 +56,12 @@ describe("T-DADOS-14A — gate de preparação", () => {
     }
   });
 
+  it("ComicBookRoundup fica inativo mesmo com a env de preparação", () => {
+    process.env.MEDIA_PREPARACAO_ENABLED = "true";
+    // T-DADOS-30A: /api/issues/search não existe (HTTP 404 medido em 2026-10-18).
+    expect(new ComicBookRoundupAdapter().ativo()).toBe(false);
+  });
+
   it("fila avaliacaoLivros conta pendências quando o adapter está ativo", async () => {
     const prisma = {
       $queryRawUnsafe: vi.fn(async (sql: string) => {
