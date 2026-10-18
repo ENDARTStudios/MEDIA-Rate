@@ -168,6 +168,8 @@ describe("MediaScoreService (T4.7)", () => {
   describe("recalcularEPersistir() — v3 com upsert (T4.7 + coleta admin)", () => {
     function mockPrisma(avaliacoes: unknown[], existingScore?: unknown, mediaCatalogo = 70) {
       const upsert = vi.fn().mockResolvedValue({});
+      const deleteMany = vi.fn().mockResolvedValue({ count: 0 });
+      const update = vi.fn().mockResolvedValue({});
       const prisma = {
         midia: {
           findUnique: vi.fn().mockResolvedValue({
@@ -177,14 +179,15 @@ describe("MediaScoreService (T4.7)", () => {
             avaliacoes_atualizadas_em: null,
             scores: existingScore ? [{ ...existingScore }] : [],
           }),
-          update: vi.fn().mockResolvedValue({}),
+          update,
         },
         mediaScore: {
           upsert,
+          deleteMany,
           aggregate: vi.fn().mockResolvedValue({ _avg: { score: mediaCatalogo } }),
         },
       };
-      return { prisma, upsert };
+      return { prisma, upsert, deleteMany, update };
     }
 
     it("retorna null quando mídia não existe", async () => {
@@ -234,29 +237,61 @@ describe("MediaScoreService (T4.7)", () => {
       );
     });
 
-    it("sem avaliações → upsert com prior C (score 70, num_fontes 0)", async () => {
-      const { prisma, upsert } = mockPrisma([]);
+    it("sem avaliações → remove media_score, desnormaliza score null e retorna null", async () => {
+      const { prisma, upsert, deleteMany, update } = mockPrisma([]);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      const result = await service.recalcularEPersistir("m1");
+
+      expect(result).toBeNull();
+      expect(upsert).not.toHaveBeenCalled();
+      expect(deleteMany).toHaveBeenCalledWith({ where: { midia_id: "m1" } });
+      expect(update).toHaveBeenCalledWith({
+        where: { id: "m1" },
+        data: { score: null },
+      });
+    });
+
+    it("obra que perdeu as fontes (tinha media_score) → linha removida", async () => {
+      const existente = {
+        midia_id: "m1",
+        score: 64.4418,
+        num_fontes: 0,
+        calculado_em: new Date("2026-01-01T00:00:00Z"),
+      };
+      const { prisma, upsert, deleteMany, update } = mockPrisma([], existente);
+      const service = new MediaScoreService(prisma as unknown as PrismaService);
+      const result = await service.recalcularEPersistir("m1");
+
+      expect(result).toBeNull();
+      expect(upsert).not.toHaveBeenCalled();
+      expect(deleteMany).toHaveBeenCalledWith({ where: { midia_id: "m1" } });
+      expect(update).toHaveBeenCalledWith({ where: { id: "m1" }, data: { score: null } });
+    });
+
+    it("uma fonte → upsert normal com score numérico (não regride)", async () => {
+      const { prisma, upsert, deleteMany } = mockPrisma([
+        { fonte: "metacritic", rating: 97, media_fonte: 70, desvio_fonte: 15, votos: 800 },
+      ]);
       const service = new MediaScoreService(prisma as unknown as PrismaService);
       const result = await service.recalcularEPersistir("m1");
 
       expect(result).not.toBeNull();
-      expect(result!.score).toBe(70);
-      expect(result!.num_fontes).toBe(0);
-      expect(result!.confianca).toBe(0);
-      expect(result!.criticosScore).toBeNull();
-      expect(result!.publicoScore).toBeNull();
-      expect(result!.indiceConsenso).toBeNull();
-      expect(result!.votosTotal).toBe(0);
-
-      const call = upsert.mock.calls[0]![0];
-      expect(call.update.score).toBe(70);
-      expect(call.update.num_fontes).toBe(0);
-      expect(call.update.votos_total).toBe(0);
-      expect(call.update.detalhes).toEqual([]);
+      expect(result!.num_fontes).toBe(1);
+      expect(typeof result!.score).toBe("number");
+      expect(Number.isFinite(result!.score)).toBe(true);
+      expect(deleteMany).not.toHaveBeenCalled();
+      expect(upsert).toHaveBeenCalledTimes(1);
+      expect(upsert.mock.calls[0]![0].update.score).toBe(result!.score);
     });
 
-    it("usa a média do catálogo da categoria como prior C", async () => {
-      const { prisma } = mockPrisma([], undefined, 55);
+    it("usa a média do catálogo da categoria como prior C quando ainda há linha de fonte", async () => {
+      // Uma única linha persistida mas fora do registro → S nulo (num_fontes 0);
+      // o prior C continua sendo usado nesse caso (comportamento anterior).
+      const { prisma } = mockPrisma(
+        [{ fonte: "fonte_inventada", rating: 99, media_fonte: 50, desvio_fonte: 10 }],
+        undefined,
+        55,
+      );
       const service = new MediaScoreService(prisma as unknown as PrismaService);
       const result = await service.recalcularEPersistir("m1");
       expect(result!.c).toBe(55);
