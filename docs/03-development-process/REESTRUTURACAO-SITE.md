@@ -146,7 +146,24 @@ Snapshots  2 obsolete
 
 O `.snap` existe e é lido, mas o 4.1.11 marca as entradas como obsoletas: é comportamento do
 bump, não do nosso código. **Não rodar `--update` sem antes comparar** o snapshot novo com o
-versionado. Caminho: conferir `snapshotFormat`/`resolveSnapshotPath` na config do vitest e como
+versionado.
+
+**Causa provável, já localizada (não é o conteúdo do snapshot).** O snapshot versionado está em
+`apps/web/test/__snapshots__/image-policy.spec.ts.snap`, mas o 4.1.11 procura o estado em
+`image-policy.spec.ts` (ao lado do spec) — o erro diz `The snapshot state for
+'image-policy.spec.ts' is not found`. Ou seja: mudou a **resolução de caminho** do snapshot, não
+o snapshot. O conserto é fixar o caminho legado na config (`apps/web/vitest.config.ts`), em vez
+de regerar o arquivo:
+
+```ts
+import { basename, dirname, join } from "node:path";
+// dentro de test: {}
+resolveSnapshotPath: (testPath, snapExtension) =>
+  join(dirname(testPath), "__snapshots__", basename(testPath) + snapExtension),
+```
+
+Conferir antes: `git ls-files | grep '\.snap$'` mostra o arquivo em `__snapshots__/`, e o
+`Test-Path` ao lado do spec dá `False`. Se a config resolver, `--update` nunca entra na história. Caminho: conferir `snapshotFormat`/`resolveSnapshotPath` na config do vitest e como
 o spec monta o snapshot; só então corrigir a config ou aceitar o formato novo com justificativa.
 
 **Falso positivo de `tsc`:** um `.next/` de outra branch (ex.: a que tem `/status`) faz o
