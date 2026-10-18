@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { jsPDF } from "jspdf";
 import {
   linhaDoItem,
   linhasDosItens,
@@ -165,5 +166,42 @@ describe("documento do PDF", () => {
       ),
     ).not.toThrow();
     expect(chamadas.join("|")).toContain("0 indicações");
+  });
+});
+
+describe("documento real (jsPDF, não dublê)", () => {
+  const ROTULOS_REAIS = {
+    byOwner: "por Maria",
+    itemsCount: "3 indicações",
+    footer: "MEDIA Rate · mediarate.app",
+  };
+
+  function bytes(doc: unknown): Buffer {
+    return Buffer.from((doc as { output: (t: string) => ArrayBuffer }).output("arraybuffer"));
+  }
+
+  it("produz um PDF válido com o conteúdo da lista", () => {
+    const doc = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
+    escreverDocumento(doc, LISTA, ROTULOS_REAIS);
+    const buf = bytes(doc);
+    expect(buf.slice(0, 5).toString()).toBe("%PDF-");
+    expect(buf.byteLength).toBeGreaterThan(1000);
+  });
+
+  it("lista maior produz arquivo maior (o conteúdo entra, não é template vazio)", () => {
+    const pequena = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
+    escreverDocumento(pequena, LISTA, ROTULOS_REAIS);
+    const grande: ListaResumo = {
+      ...LISTA,
+      itens: Array.from({ length: 60 }, (_, i) => ({
+        titulo: `Título ${i + 1}`,
+        tipo: "FILME",
+        ano: 2000 + (i % 20),
+        score: 7.5,
+      })),
+    };
+    const docGrande = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
+    escreverDocumento(docGrande, grande, { ...ROTULOS_REAIS, itemsCount: "60 indicações" });
+    expect(bytes(docGrande).byteLength).toBeGreaterThan(bytes(pequena).byteLength);
   });
 });
