@@ -466,6 +466,21 @@ export class MediaScoreService {
       desvio_fonte: a.desvio_fonte,
       votos: a.votos ?? undefined,
     }));
+
+    // T-DADOS-29A (decisão do Operador): obra SEM nenhuma fonte de avaliação
+    // não tem MEDIA Score — o prior Bayesiano de `calcularScoreV3` não é dado
+    // observado e não pode ser persistido/exibido como score. Remove a linha
+    // (score é Float obrigatório em media_score) e desnormaliza `midia.score`
+    // para null; rankings/ordenações já usam NULLS LAST e/ou filtram null.
+    if (avaliacoes.length === 0) {
+      await this.prisma.mediaScore.deleteMany({ where: { midia_id } });
+      await this.prisma.midia.update({
+        where: { id: midia_id },
+        data: { score: null },
+      });
+      return null;
+    }
+
     const votosTotal = avaliacoes.reduce((acc, a) => acc + (a.votos ?? 0), 0);
     const mediaCatalogo = await this.obterMediaCatalogoPublico(midia.tipo);
 
