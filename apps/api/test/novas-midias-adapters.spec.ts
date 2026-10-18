@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import type { ConsultaMedia } from "../src/modules/media-score/adapters/fonte-adapter.interface.js";
 import { JikanAdapter } from "../src/modules/media-score/adapters/jikan.adapter.js";
 import { MalAdapter } from "../src/modules/media-score/adapters/mal.adapter.js";
@@ -12,18 +12,18 @@ function consulta(titulo: string, tipo = "ANIME"): ConsultaMedia {
   return { titulo, tipo, ano: 2020 } as ConsultaMedia;
 }
 
-describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
-  beforeEach(() => {
-    vi.mock("node:https", () => ({}));
-    vi.mock("node:http", () => ({}));
-    vi.mock("https", () => ({}));
-    vi.mock("http", () => ({}));
-    vi.mock("../src/modules/media-score/adapters/http.utils.js", () => ({
-      fetchJson: vi.fn(),
-      postJson: vi.fn(),
-    }));
-  });
+// vitest 5 exige que vi.mock() esteja no topo do módulo (o hoisting já o
+// executava antes do beforeEach; a versão anterior só funcionava por acidente).
+vi.mock("node:https", () => ({}));
+vi.mock("node:http", () => ({}));
+vi.mock("https", () => ({}));
+vi.mock("http", () => ({}));
+vi.mock("../src/modules/media-score/adapters/http.utils.js", () => ({
+  fetchJson: vi.fn(),
+  postJson: vi.fn(),
+}));
 
+describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   afterEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
