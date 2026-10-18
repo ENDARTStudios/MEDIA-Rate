@@ -38,7 +38,7 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="rounded-full border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-1 text-xs text-[#A0A0B8] transition-colors hover:border-[#3A3A52] hover:text-[#F5F5F7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+      className="rounded-full border border-surface-border bg-surface-elevated px-3 py-1 text-xs text-fg-secondary transition-colors hover:border-surface-border-hover hover:text-fg-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
     >
       {label}
     </button>
@@ -55,7 +55,7 @@ export function GenreChipRow({
 
   if (sharedGenres.length === 0 && mediaSpecificGenres.length === 0) {
     return (
-      <p className={cn("text-sm text-[#85859F]", className)} role="status">
+      <p className={cn("text-sm text-fg-muted", className)} role="status">
         Não informado
       </p>
     );

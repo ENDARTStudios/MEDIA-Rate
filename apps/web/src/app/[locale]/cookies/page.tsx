@@ -81,7 +81,7 @@ export default async function CookiesPage({ params }: { params: Promise<{ locale
           <p className="mb-4">{t("changeBody")}</p>
           <Link
             href="/cookies/gerenciar"
-            className="inline-block rounded-md bg-[#818CF8] px-4 py-2 text-sm font-semibold text-[#0F172A] transition-[filter] hover:brightness-110 focus-ring"
+            className="inline-block rounded-md bg-accent-indigo px-4 py-2 text-sm font-semibold text-accent-indigo-foreground transition-[filter] hover:brightness-110 focus-ring"
           >
             {t("changeCta")}
           </Link>

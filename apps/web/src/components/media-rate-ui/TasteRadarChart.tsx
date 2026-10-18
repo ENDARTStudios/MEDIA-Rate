@@ -17,7 +17,7 @@ export interface TasteRadarChartProps {
 export function TasteRadarChart({ data, color = "#818CF8", className }: TasteRadarChartProps) {
   if (data.length === 0) {
     return (
-      <p className="text-sm text-[#85859F]" role="status">
+      <p className="text-sm text-fg-muted" role="status">
         Sem dados suficientes para o perfil de gosto.
       </p>
     );

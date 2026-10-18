@@ -46,7 +46,7 @@ export function CatalogTypeBar() {
 
   return (
     <div
-      className="sticky top-16 z-sticky -mx-4 mb-6 border-b border-[#2A2A3D] bg-[#05050A]/90 px-4 py-3 backdrop-blur-sm"
+      className="sticky top-16 z-sticky -mx-4 mb-6 border-b border-surface-border bg-surface-bg/90 px-4 py-3 backdrop-blur-sm"
       role="navigation"
       aria-label={t("typeFilterAria")}
     >

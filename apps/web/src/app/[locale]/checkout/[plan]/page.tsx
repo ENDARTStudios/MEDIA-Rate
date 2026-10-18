@@ -82,7 +82,7 @@ export default function CheckoutPage({
   if (!isValidPlan) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <h1 className="font-heading text-2xl font-bold text-[#F5F5F7]">{t("invalidPlan")}</h1>
+        <h1 className="font-heading text-2xl font-bold text-fg-primary">{t("invalidPlan")}</h1>
       </div>
     );
   }
@@ -93,32 +93,32 @@ export default function CheckoutPage({
           dark:bg-gray-800` — o app é dark-only (globals.css) e o Tailwind está em
           darkMode "media", então com o SO em modo claro o card ficava BRANCO e o
           texto escuro sobre fundo escuro. Tudo aqui passou a usar os tokens. */}
-      <h1 className="text-3xl font-heading font-bold text-center mb-8 text-[#F5F5F7]">
+      <h1 className="text-3xl font-heading font-bold text-center mb-8 text-fg-primary">
         {t("title")}
       </h1>
 
-      <div className="rounded-lg border border-[#2A2A3D] bg-[#12121C] p-8 shadow-surface-2">
-        <h2 className="text-2xl font-heading font-semibold mb-4 text-[#F5F5F7]">
+      <div className="rounded-lg border border-surface-border bg-surface-card p-8 shadow-surface-2">
+        <h2 className="text-2xl font-heading font-semibold mb-4 text-fg-primary">
           {planKey === "PLUS" ? t("plus") : t("premium")}
         </h2>
 
-        <ul role="list" className="space-y-2 mb-6 text-sm text-[#A0A0B8]">
+        <ul role="list" className="space-y-2 mb-6 text-sm text-fg-secondary">
           {planKey === "PLUS" && (
             <>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("plusB1")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("plusB2")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("plusB3")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("plusB4")}
               </li>
             </>
@@ -126,23 +126,23 @@ export default function CheckoutPage({
           {planKey === "PREMIUM" && (
             <>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("premB1")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("premB2")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("premB3")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("premB4")}
               </li>
               <li className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#34D399]" aria-hidden="true" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-emerald" aria-hidden="true" />
                 {t("premB5")}
               </li>
             </>
@@ -157,13 +157,13 @@ export default function CheckoutPage({
           type="button"
           onClick={handleCheckout}
           disabled={loading}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] duration-200 hover:brightness-110 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#818CF8]"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-[filter] duration-200 hover:brightness-110 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-indigo"
         >
           {loading ? t("redirecting") : t("subscribe", { plan: planKey })}
         </button>
 
         {error && (
-          <p role="alert" className="mt-4 text-sm text-[#F87171]">
+          <p role="alert" className="mt-4 text-sm text-score-low">
             {error}
           </p>
         )}

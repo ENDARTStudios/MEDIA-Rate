@@ -62,13 +62,13 @@ export function SourceMiniCard({
   const inner = (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 rounded-md border border-[#2A2A3D] bg-[#12121C] px-3 py-2.5 transition-colors hover:border-[#3A3A52]",
+        "flex items-center justify-between gap-3 rounded-md border border-surface-border bg-surface-card px-3 py-2.5 transition-colors hover:border-surface-border-hover",
         className,
       )}
       data-testid={`source-mini-card-${name.toLowerCase()}`}
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-[#F5F5F7]">{name}</p>
+        <p className="truncate text-sm font-medium text-fg-primary">{name}</p>
         <div className="mt-0.5 flex items-center gap-2">
           {classification ? (
             <span
@@ -82,7 +82,7 @@ export function SourceMiniCard({
             </span>
           ) : null}
           {notaNormalizada != null && (
-            <span className="text-xs text-[#85859F]">
+            <span className="text-xs text-fg-muted">
               {notaNormalizada}/{escalaMax}
             </span>
           )}
@@ -90,10 +90,10 @@ export function SourceMiniCard({
       </div>
 
       <div className="shrink-0 text-right">
-        <span className="block text-sm font-bold tabular-nums text-[#F5F5F7]">
+        <span className="block text-sm font-bold tabular-nums text-fg-primary">
           {ratingOriginal != null ? ratingOriginal : "—"}
         </span>
-        <span className="block text-xs text-[#85859F]">{t("orig")}</span>
+        <span className="block text-xs text-fg-muted">{t("orig")}</span>
       </div>
     </div>
   );
@@ -104,7 +104,7 @@ export function SourceMiniCard({
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#05050A]"
+        className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo focus-visible:ring-offset-2 focus-visible:ring-offset-surface-bg"
         aria-label={`${name} — ${t("sources")}`}
       >
         {inner}

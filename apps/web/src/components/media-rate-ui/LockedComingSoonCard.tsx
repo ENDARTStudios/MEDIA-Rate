@@ -55,11 +55,11 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className="group block w-full rounded-md border border-[#2A2A3D] bg-[#12121C] text-left overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+        className="group block w-full rounded-md border border-surface-border bg-surface-card text-left overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
         aria-label={`${categoria} — ${t("comingSoonTag")}`}
         data-testid={`locked-card-${type}`}
       >
-        <div className="aspect-[2/3] bg-[#1B1B2C] relative overflow-hidden">
+        <div className="aspect-[2/3] bg-surface-elevated relative overflow-hidden">
           {/* Simula capa genérica com o accent da categoria (ângulo varia por card). */}
           <div
             className="absolute inset-0 opacity-25 blur-[4px]"
@@ -78,20 +78,20 @@ export function LockedComingSoonCard({ type, variante = 0, onNotify }: LockedCom
             >
               <Lock className="h-4 w-4" />
             </span>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#A0A0B8]">
+            <span className="text-xs font-semibold uppercase tracking-widest text-fg-secondary">
               {/* T261: badge do cadeado usa copy coming-soon ('Em breve'/
                   'Coming soon'/'Próximamente'), nunca 'noResults' (copy de
                   busca vazia). */}
               {t("comingSoonTag")}
             </span>
-            <span className="rounded-full bg-black/30 px-2 py-0.5 text-xs text-[#F5F5F7]">
+            <span className="rounded-full bg-black/30 px-2 py-0.5 text-xs text-fg-primary">
               {rotulo}
             </span>
           </div>
         </div>
         <div className="p-3">
-          <h3 className="font-heading text-sm font-medium text-[#F5F5F7]">{categoria}</h3>
-          <p className="text-xs text-[#85859F] mt-0.5">{t("comingSoonTap")}</p>
+          <h3 className="font-heading text-sm font-medium text-fg-primary">{categoria}</h3>
+          <p className="text-xs text-fg-muted mt-0.5">{t("comingSoonTap")}</p>
         </div>
       </button>
 

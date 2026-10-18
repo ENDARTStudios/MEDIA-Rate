@@ -14,6 +14,7 @@ import { Clapperboard, Tv, Gamepad2, BookOpen, BookImage, BookMarked, Lock } fro
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { MediaType } from "@/lib/types";
+import { colors } from "@/lib/design-tokens";
 import { MEDIA_ACCENTS } from "./CategoryChip";
 
 const ICONS: Record<MediaType, typeof Clapperboard> = {
@@ -71,7 +72,7 @@ export function EmptyStateComingSoon({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-lg border border-dashed border-[#2A2A3D] bg-[#12121C]/60 px-6 py-12 text-center",
+        "flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-border bg-surface-card/60 px-6 py-12 text-center",
         compact && "py-8",
         className,
       )}
@@ -84,16 +85,16 @@ export function EmptyStateComingSoon({
       >
         <Icon className="h-7 w-7" aria-hidden="true" />
         <Lock
-          className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-[#05050A] p-0.5"
+          className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-surface-bg p-0.5"
           style={{ color: accent }}
           aria-hidden="true"
         />
       </div>
-      <p className="font-heading text-base font-semibold text-[#F5F5F7]">
+      <p className="font-heading text-base font-semibold text-fg-primary">
         {t(TIPO_KEY[type] as "filme" | "serie" | "game" | "livro" | "comic" | "manga")} —{" "}
         {t("emConstrucao")}
       </p>
-      <p className="mt-1 max-w-sm text-sm text-[#85859F]">{t("comingSoonSubscribe")}</p>
+      <p className="mt-1 max-w-sm text-sm text-fg-muted">{t("comingSoonSubscribe")}</p>
 
       {onNotify && !sent && (
         <form
@@ -111,7 +112,7 @@ export function EmptyStateComingSoon({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("comingSoonEmailPlaceholder")}
-            className="w-full rounded-md border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#85859F] focus:outline-none focus:ring-2 focus:ring-[#818CF8]"
+            className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary placeholder-fg-muted focus:outline-none focus:ring-2 focus:ring-accent-indigo"
           />
           <button
             type="submit"
@@ -124,7 +125,7 @@ export function EmptyStateComingSoon({
         </form>
       )}
       {sent && (
-        <p className="mt-4 text-sm font-medium" style={{ color: "#34D399" }} role="status">
+        <p className="mt-4 text-sm font-medium" style={{ color: colors.score.high }} role="status">
           {t("notifyDone")}
         </p>
       )}

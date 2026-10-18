@@ -38,12 +38,12 @@ export async function HomeStats() {
       <dl className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-12 gap-y-4">
         {stats.map((s) => (
           <div key={s.label} className="text-center">
-            <dd className="font-heading text-3xl font-bold tabular-nums text-[#818CF8]">
+            <dd className="font-heading text-3xl font-bold tabular-nums text-accent-indigo">
               <CountUpValue value={s.value} />
             </dd>
             {/* AA: #6B6B85 (3,99:1 sobre #05050A) reprovava para texto normal;
                 #85859F é o muted do design system (5,3:1) — ver design-tokens. */}
-            <dt className="text-xs uppercase tracking-widest text-[#85859F]">{s.label}</dt>
+            <dt className="text-xs uppercase tracking-widest text-fg-muted">{s.label}</dt>
           </div>
         ))}
       </dl>

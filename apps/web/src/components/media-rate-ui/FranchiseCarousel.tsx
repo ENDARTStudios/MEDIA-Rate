@@ -41,7 +41,7 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
 
   if (items.length === 0) {
     return (
-      <p className={`text-sm text-[#85859F] ${className ?? ""}`} role="status">
+      <p className={`text-sm text-fg-muted ${className ?? ""}`} role="status">
         {t("franchiseNone")}
       </p>
     );
@@ -62,7 +62,7 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
         {hasChronological ? (
           <FranchiseOrderToggle order={order} onChange={setOrder} />
         ) : (
-          <span className="text-xs text-[#85859F]">{t("orderRelease")}</span>
+          <span className="text-xs text-fg-muted">{t("orderRelease")}</span>
         )}
       </div>
       <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
@@ -91,12 +91,12 @@ export function FranchiseCarousel({ items, currentMediaId, className }: Franchis
             <div key={item.midiaId} className="relative flex-shrink-0 w-[160px] snap-start">
               <Link
                 href={`/media/${item.midiaId}`}
-                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] rounded-md"
+                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo rounded-md"
               >
                 <MediaCard media={media} />
               </Link>
               {atual && (
-                <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#E11D48] px-2 py-0.5 text-xs font-bold text-white shadow">
+                <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-brand-foreground shadow">
                   {t("youAreHere")}
                 </span>
               )}

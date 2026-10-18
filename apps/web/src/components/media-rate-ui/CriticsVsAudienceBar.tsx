@@ -13,6 +13,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatarScoreLocale } from "@/lib/score-utils";
+import { colors } from "@/lib/design-tokens";
 
 export interface CriticsVsAudienceBarProps {
   critics: number | null;
@@ -48,7 +49,7 @@ export function CriticsVsAudienceBar({
 
   if (c == null && a == null) {
     return (
-      <p className={cn("text-sm text-[#85859F]", className)} role="status">
+      <p className={cn("text-sm text-fg-muted", className)} role="status">
         {t("noRatingsYet")}
       </p>
     );
@@ -64,14 +65,14 @@ export function CriticsVsAudienceBar({
             {t("criticsBar")}
           </span>
           {c != null ? (
-            <span className="tabular-nums text-[#A0A0B8]">{formatarScoreLocale(c, locale)}</span>
+            <span className="tabular-nums text-fg-secondary">{formatarScoreLocale(c, locale)}</span>
           ) : (
-            <span className="text-[#85859F]" data-testid="sem-critica">
+            <span className="text-fg-muted" data-testid="sem-critica">
               {t("semCritica")}
             </span>
           )}
         </div>
-        <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden" role="presentation">
+        <div className="h-2 rounded-full bg-surface-elevated overflow-hidden" role="presentation">
           {c != null && (
             <div
               className="h-full rounded-full transition-[width] duration-700 ease-out"
@@ -87,10 +88,10 @@ export function CriticsVsAudienceBar({
             {t("audienceBar")}
           </span>
           {a != null && (
-            <span className="tabular-nums text-[#A0A0B8]">{formatarScoreLocale(a, locale)}</span>
+            <span className="tabular-nums text-fg-secondary">{formatarScoreLocale(a, locale)}</span>
           )}
         </div>
-        <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden" role="presentation">
+        <div className="h-2 rounded-full bg-surface-elevated overflow-hidden" role="presentation">
           {a != null && (
             <div
               className="h-full rounded-full transition-[width] duration-700 ease-out"
@@ -108,19 +109,23 @@ export function CriticsVsAudienceBar({
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium cursor-help",
-              highConsensus ? "bg-[#34D399]/10 text-[#34D399]" : "bg-[#F87171]/10 text-[#F87171]",
+              highConsensus
+                ? "bg-accent-emerald/10 text-accent-emerald"
+                : "bg-score-low/10 text-score-low",
             )}
             title={t("consensusTooltip")}
           >
             <span
               className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: highConsensus ? "#34D399" : "#F87171" }}
+              style={{
+                backgroundColor: highConsensus ? colors.score.high : colors.score.low,
+              }}
               aria-hidden="true"
             />
             {highConsensus ? t("highConsensus") : t("lowConsensus")}
           </span>
           {!compact && (
-            <span className="tabular-nums text-[#85859F]">
+            <span className="tabular-nums text-fg-muted">
               {formatarScoreLocale(gap, locale)}pts
             </span>
           )}

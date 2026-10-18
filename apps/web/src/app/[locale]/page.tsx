@@ -297,14 +297,14 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         <div className="mx-auto max-w-2xl text-center">
           <LazyAnimatedHeading
             as="h2"
-            className="mb-6 font-heading text-3xl font-bold text-[#F5F5F7]"
+            className="mb-6 font-heading text-3xl font-bold text-fg-primary"
           >
             {t("cta")}
           </LazyAnimatedHeading>
-          <p className="mb-8 leading-relaxed text-[#A0A0B8]">{th("ctaText")}</p>
+          <p className="mb-8 leading-relaxed text-fg-secondary">{th("ctaText")}</p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#E11D48] px-8 py-3.5 text-sm font-semibold text-white transition-[filter] hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-8 py-3.5 text-sm font-semibold text-brand-foreground transition-[filter] hover:brightness-110"
           >
             {tNav("register")}
             <svg

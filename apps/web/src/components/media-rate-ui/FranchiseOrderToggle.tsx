@@ -15,7 +15,7 @@ export function FranchiseOrderToggle({ order, onChange }: FranchiseOrderTogglePr
   const t = useTranslations("metadados");
   return (
     <div
-      className="inline-flex rounded-lg border border-[#2A2A3D] overflow-hidden"
+      className="inline-flex rounded-lg border border-surface-border overflow-hidden"
       role="group"
       aria-label={t("orderToggle")}
     >
@@ -27,8 +27,8 @@ export function FranchiseOrderToggle({ order, onChange }: FranchiseOrderTogglePr
           aria-pressed={order === o}
           className={`px-3 py-1.5 text-xs font-medium transition-colors ${
             order === o
-              ? "bg-[#818CF8] text-[#0F172A]"
-              : "bg-[#12121C] text-[#A0A0B8] hover:text-[#F5F5F7]"
+              ? "bg-accent-indigo text-accent-indigo-foreground"
+              : "bg-surface-card text-fg-secondary hover:text-fg-primary"
           }`}
         >
           {o === "lancamento" ? t("orderRelease") : t("orderChronological")}

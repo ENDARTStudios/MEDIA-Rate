@@ -90,18 +90,18 @@ export function OriginBadge({
     <>
       {flag && <span aria-hidden="true">{flag}</span>}
       {entityName ? (
-        <span className="text-[#A0A0B8]">
-          {roleLabel}: <span className="font-medium text-[#F5F5F7]">{entityName}</span>
+        <span className="text-fg-secondary">
+          {roleLabel}: <span className="font-medium text-fg-primary">{entityName}</span>
           {publisherName && (
-            <span className="text-[#A0A0B8]">
+            <span className="text-fg-secondary">
               {" "}
               · {t("publishedBy")}: {publisherName}
             </span>
           )}
         </span>
       ) : (
-        <span className="text-[#A0A0B8]">
-          {roleLabel}: <span className="font-medium text-[#F5F5F7]">{countryName ?? "—"}</span>
+        <span className="text-fg-secondary">
+          {roleLabel}: <span className="font-medium text-fg-primary">{countryName ?? "—"}</span>
         </span>
       )}
     </>
@@ -114,7 +114,7 @@ export function OriginBadge({
         className={className}
         aria-label={t("moreFrom", { entity: entityName ?? countryName ?? "—" })}
       >
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#2A2A3D] bg-[#12121C] px-3 py-1 text-xs transition-colors hover:border-[#3A3A52]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-card px-3 py-1 text-xs transition-colors hover:border-surface-border-hover">
           {conteudo}
         </span>
       </Link>
@@ -123,7 +123,7 @@ export function OriginBadge({
 
   return (
     <span className={className} data-testid="origin-badge">
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#2A2A3D] bg-[#12121C] px-3 py-1 text-xs">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-card px-3 py-1 text-xs">
         {conteudo}
       </span>
     </span>

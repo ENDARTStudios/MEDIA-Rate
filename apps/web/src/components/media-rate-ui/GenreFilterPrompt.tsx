@@ -50,21 +50,21 @@ export function GenreFilterPrompt({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-modal bg-black/50" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-xs -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[#2A2A3D] bg-[#12121C] p-5 shadow-floating focus:outline-none">
-          <Dialog.Title className="font-heading text-sm font-semibold text-[#F5F5F7]">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-xs -translate-x-1/2 -translate-y-1/2 rounded-xl border border-surface-border bg-surface-card p-5 shadow-floating focus:outline-none">
+          <Dialog.Title className="font-heading text-sm font-semibold text-fg-primary">
             {t("genrePrompt", { genre })}
           </Dialog.Title>
           <div className="mt-4 space-y-2">
             <Link
               href={`/catalog?type=${TYPE_PARAM[mediaType]}&genero=${slug}`}
-              className="block rounded-lg border border-[#2A2A3D] bg-[#1B1B2C] px-3 py-2 text-sm text-[#F5F5F7] transition-colors hover:border-[#3A3A52]"
+              className="block rounded-lg border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary transition-colors hover:border-surface-border-hover"
               onClick={() => onOpenChange(false)}
             >
               {t("sameMedia", { genre, media: mediaLabel })}
             </Link>
             <Link
               href={`/catalog?genero=${slug}`}
-              className="block rounded-lg border border-[#818CF8]/30 bg-[#818CF8]/10 px-3 py-2 text-sm text-[#A5B4FC] transition-colors hover:bg-[#818CF8]/15"
+              className="block rounded-lg border border-accent-indigo/30 bg-accent-indigo/10 px-3 py-2 text-sm text-accent-indigo-hover transition-colors hover:bg-accent-indigo/15"
               onClick={() => onOpenChange(false)}
             >
               {t("allMedia", { genre })}

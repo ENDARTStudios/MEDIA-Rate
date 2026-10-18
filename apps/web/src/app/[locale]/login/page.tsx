@@ -38,7 +38,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         <div className="lg:hidden mb-8 text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xl font-bold text-[#818CF8]"
+            className="inline-flex items-center gap-2 text-xl font-bold text-accent-indigo"
           >
             <LazyLogo className="w-8 h-8" /> MEDIA Rate
           </Link>

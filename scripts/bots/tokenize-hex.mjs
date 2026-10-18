@@ -60,6 +60,8 @@ const MAPA = new Map(
     "#1B1B2C": "surface-elevated",
     "#1C1C2E": "surface-elevated",
     "#2A2A3E": "surface-border",
+    "#3A3A52": "surface-border-hover",
+    "#8B8BA0": "fg-muted",
     "#09090F": "surface-bg",
     "#05050A": "surface-bg",
     "#0D0D14": "surface-bg",
@@ -77,6 +79,8 @@ const MAPA = new Map(
     "#818CF8": "accent-indigo",
     "#A5B4FC": "accent-indigo-hover",
     "#A5B0FF": "accent-indigo-hover",
+    "#C7CDFE": "accent-indigo-hover",
+    "#FB7185": "accent-audience",
     "#38BDF8": "accent-sky",
     "#E11D48": "brand",
     "#C31442": "brand-hover",
@@ -124,8 +128,7 @@ const materializar = (base) => {
 
 const resolver = (de, spec) => {
   if (spec.startsWith("@/")) return materializar(join(SRC, spec.slice(2)));
-  if (spec.startsWith("./") || spec.startsWith("../"))
-    return materializar(join(dirname(de), spec));
+  if (spec.startsWith("./") || spec.startsWith("../")) return materializar(join(dirname(de), spec));
   return null;
 };
 
@@ -139,7 +142,10 @@ const andar = (dir) => {
     }
     if (e.name !== "page.tsx") continue;
     const rel = asPosix(relative(APP, dir)) || "/";
-    const semLocale = rel.split("/").filter((p) => p !== "[locale]").join("/");
+    const semLocale = rel
+      .split("/")
+      .filter((p) => p !== "[locale]")
+      .join("/");
     if (/^(admin|dashboard)(\/|$)/.test(semLocale)) continue;
     rotas.push({ rota: "/" + semLocale.replace(/^\/+/, ""), abs });
   }
@@ -173,7 +179,9 @@ const arquivosDa = (pageAbs) => {
 
 // ---------- transformação ----------
 const seletor = ROTAS_FILTRO ? rotas.filter((r) => ROTAS_FILTRO.has(r.rota)) : rotas;
-const desconhecidas = ROTAS_FILTRO ? [...ROTAS_FILTRO].filter((r) => !rotas.some((x) => x.rota === r)) : [];
+const desconhecidas = ROTAS_FILTRO
+  ? [...ROTAS_FILTRO].filter((r) => !rotas.some((x) => x.rota === r))
+  : [];
 if (desconhecidas.length) {
   console.error(`  rotas inexistentes no filtro: ${desconhecidas.join(", ")}`);
   process.exit(2);
@@ -210,6 +218,8 @@ const transformar = (texto) => {
   const linhas = texto.split("\n").map((linha, i) => {
     let nova = linha.replace(RX_CLASSE, (m, hex) => {
       const chave = `#${hex.toUpperCase()}`;
+      // A tinta escura é resolvida pelo fundo da linha logo abaixo — não é sobra.
+      if (chave === TINTA) return m;
       const token = MAPA.get(chave);
       if (!token) {
         sobras.push({ linha: i + 1, hex: m, motivo: "fora do mapa" });
@@ -249,19 +259,33 @@ for (const [abs, rotasDoArquivo] of [...porArquivo.entries()].sort()) {
   const n = [...trocados.values()].reduce((s, x) => s + x, 0);
   totalTrocado += n;
   const rel = asPosix(relative(WEB, abs));
-  relatorio.push({ arquivo: rel, rotas: [...rotasDoArquivo].sort(), trocados: Object.fromEntries(trocados), total: n, sobras });
+  relatorio.push({
+    arquivo: rel,
+    rotas: [...rotasDoArquivo].sort(),
+    trocados: Object.fromEntries(trocados),
+    total: n,
+    sobras,
+  });
   if (WRITE && novo !== original) writeFileSync(abs, novo);
 }
 
 const sobrasTotais = relatorio.flatMap((r) => r.sobras.map((s) => ({ arquivo: r.arquivo, ...s })));
 
 if (JSON_OUT) {
-  console.log(JSON.stringify({ write: WRITE, rotas: seletor.map((r) => r.rota), totalTrocado, relatorio, sobrasTotais }, null, 2));
+  console.log(
+    JSON.stringify(
+      { write: WRITE, rotas: seletor.map((r) => r.rota), totalTrocado, relatorio, sobrasTotais },
+      null,
+      2,
+    ),
+  );
   process.exit(0);
 }
 
 const pad = (s, n) => String(s).padEnd(n);
-console.log(`\n  ${seletor.length} rota(s) · ${porArquivo.size} arquivo(s) · ${WRITE ? "ESCREVENDO" : "dry-run"}`);
+console.log(
+  `\n  ${seletor.length} rota(s) · ${porArquivo.size} arquivo(s) · ${WRITE ? "ESCREVENDO" : "dry-run"}`,
+);
 console.log(`  ${totalTrocado} valor(es) de classe trocado(s) por token\n`);
 for (const r of relatorio.filter((x) => x.total > 0 || x.sobras.length > 0)) {
   const pares = Object.entries(r.trocados)

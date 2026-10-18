@@ -13,7 +13,7 @@ function EmptyState() {
       role="status"
     >
       <svg
-        className="w-16 h-16 text-[#A0A0B8] mb-4"
+        className="w-16 h-16 text-fg-secondary mb-4"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -26,7 +26,7 @@ function EmptyState() {
           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
         />
       </svg>
-      <p className="text-[#A0A0B8] text-lg">{t("noResults")}</p>
+      <p className="text-fg-secondary text-lg">{t("noResults")}</p>
     </div>
   );
 }

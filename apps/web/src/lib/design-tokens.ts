@@ -68,7 +68,12 @@ export const colors = {
     overlay: "rgba(5, 5, 10, 0.92)",
     ring: "#818CF8",
     border: "#2A2A3D",
+    // Borda no hover (era #3A3A52 solto em 6 componentes).
+    borderHover: "#3A3A52",
   },
+  // Tinta escura sobre fundo de acento (score/chip/badge). Mesmo valor dos
+  // `*-foreground`; existe para fundos `score.*`, que não têm foreground próprio.
+  ink: "#0F172A",
 } as const;
 
 export function scoreColor(score: number, scale: "0-10" | "0-100" = "0-10"): string {

@@ -418,7 +418,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
             role={popover.kind === "watchlist" ? "menu" : "dialog"}
             aria-label={popover.kind === "watchlist" ? tWatch("moveTo") : tInter("updateStatus")}
             data-testid={popover.kind === "watchlist" ? "watchlist-popover" : "status-popover"}
-            className="w-48 rounded-xl border border-[#2A2A3D] bg-[#1B1B2C] p-2 shadow-floating"
+            className="w-48 rounded-xl border border-surface-border bg-surface-elevated p-2 shadow-floating"
             style={{
               position: "fixed",
               zIndex: 70,
@@ -434,7 +434,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                     type="button"
                     role="menuitem"
                     onClick={() => void selectColumn(popover.mediaId, c)}
-                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-[#A0A0B8] transition-colors hover:bg-[#2A2A3D] hover:text-[#F5F5F7] focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-fg-secondary transition-colors hover:bg-surface-border hover:text-fg-primary focus-visible:ring-2 focus-visible:ring-accent-indigo"
                   >
                     {tWatch(colunaLabelKey(popover.mediaType, c))}
                   </button>
@@ -443,7 +443,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                   type="button"
                   role="menuitem"
                   onClick={() => void removeFromWl(popover.mediaId)}
-                  className="mt-1 w-full rounded-md border-t border-[#2A2A3E] px-2 py-1.5 text-left text-xs text-red-400 transition-colors hover:bg-red-400/10 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                  className="mt-1 w-full rounded-md border-t border-surface-border px-2 py-1.5 text-left text-xs text-red-400 transition-colors hover:bg-red-400/10 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-accent-indigo"
                 >
                   {tWatch("removeFromWatchlist")}
                 </button>
@@ -465,12 +465,12 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                       onClick={() => void selectStatus(popover.mediaId, popover.mediaType, s)}
                       disabled={disabled}
                       aria-pressed={active}
-                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8] ${
+                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo ${
                         disabled
-                          ? "cursor-not-allowed text-[#4A4A60]"
+                          ? "cursor-not-allowed text-fg-disabled"
                           : active
-                            ? "bg-[#2A2A3D] text-[#F5F5F7]"
-                            : "text-[#A0A0B8] hover:bg-[#2A2A3D] hover:text-[#F5F5F7]"
+                            ? "bg-surface-border text-fg-primary"
+                            : "text-fg-secondary hover:bg-surface-border hover:text-fg-primary"
                       }`}
                     >
                       <StatusGlyph status={s} size={13} filled={active} />
@@ -490,16 +490,16 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
             data-testid="watchlist-cross-prompt"
             role="status"
             aria-live="polite"
-            className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-[#151524] p-4 shadow-floating"
+            className="fixed bottom-4 right-4 z-modal w-[min(92vw,22rem)] rounded-lg border border-[rgba(129,140,248,0.25)] bg-surface-elevated p-4 shadow-floating"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-heading font-semibold text-[#F5F5F7]">
+              <p className="text-sm font-heading font-semibold text-fg-primary">
                 {tDisc("crossPromptTitle")}
               </p>
               <button
                 onClick={() => setCrossPrompt(null)}
                 aria-label={tDisc("dismiss")}
-                className="rounded p-1 text-[#A0A0B8] hover:text-[#F5F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                className="rounded p-1 text-fg-secondary hover:text-fg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
               >
                 <svg
                   className="h-4 w-4"
@@ -525,11 +525,11 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                 return (
                   <li
                     key={r.id}
-                    className="flex items-center justify-between gap-2 rounded-md border border-[rgba(129,140,248,0.08)] bg-[#1C1C2E] px-3 py-2"
+                    className="flex items-center justify-between gap-2 rounded-md border border-[rgba(129,140,248,0.08)] bg-surface-elevated px-3 py-2"
                   >
                     <Link
                       href={`/media/${r.midia.slug}`}
-                      className="flex min-w-0 items-center gap-2 text-sm text-[#F5F5F7] hover:text-[#A5B4FC]"
+                      className="flex min-w-0 items-center gap-2 text-sm text-fg-primary hover:text-accent-indigo-hover"
                     >
                       <Icon
                         className="h-4 w-4 shrink-0"
@@ -541,7 +541,7 @@ export function CarouselInteractions({ children }: { children: ReactNode }) {
                     <button
                       onClick={() => void addRelated(r)}
                       disabled={jaAdicionado}
-                      className="shrink-0 rounded-md bg-[#818CF8] px-2.5 py-1 text-xs font-semibold text-[#0F172A] transition-colors hover:brightness-110 disabled:bg-[#2A2A3E] disabled:text-[#A0A0B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A5B4FC]"
+                      className="shrink-0 rounded-md bg-accent-indigo px-2.5 py-1 text-xs font-semibold text-accent-indigo-foreground transition-colors hover:brightness-110 disabled:bg-surface-border disabled:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo-hover"
                     >
                       {jaAdicionado ? tDisc("added") : tDisc("addToo")}
                     </button>

@@ -36,7 +36,7 @@ export function RelatedWorksBlock({ mediaId }: { mediaId: string }) {
     <section data-testid="related-works" aria-labelledby="related-works-title">
       <h3
         id="related-works-title"
-        className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3"
+        className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3"
       >
         {t("relatedWorksTitle")}
       </h3>

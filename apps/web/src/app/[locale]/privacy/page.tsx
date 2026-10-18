@@ -45,47 +45,47 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
       <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
         {t("h1")}
       </h1>
-      <p className="text-sm text-[#A0A0B8] mb-8">{t("lastUpdated")}</p>
-      <div className="space-y-8 text-[#A0A0B8] leading-relaxed">
+      <p className="text-sm text-fg-secondary mb-8">{t("lastUpdated")}</p>
+      <div className="space-y-8 text-fg-secondary leading-relaxed">
         {[1, 2, 3, 4, 5].map((n) => (
           <section key={n}>
-            <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+            <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
               {t("s" + n + "h")}
             </h2>
             <p className="whitespace-pre-line">{t("s" + n + "b")}</p>
           </section>
         ))}
         <section>
-          <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+          <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
             {t("sRetTableTitle")}
           </h2>
           <PipeTable source={t("sRetTable")} />
           <p className="mt-3 text-sm">{t("sRetNote")}</p>
         </section>
         <section>
-          <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">{t("sAiH")}</h2>
+          <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">{t("sAiH")}</h2>
           <p className="whitespace-pre-line">{t("sAiB")}</p>
         </section>
         <section>
-          <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">{t("sMinH")}</h2>
+          <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">{t("sMinH")}</h2>
           <p className="whitespace-pre-line">{t("sMinB")}</p>
         </section>
         <section>
-          <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+          <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
             {t("sCookTableTitle")}
           </h2>
           <PipeTable source={t("sCookTable")} />
         </section>
         {[6, 7, 8, 9].map((n) => (
           <section key={n}>
-            <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+            <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
               {t("s" + n + "h")}
             </h2>
             <p className="whitespace-pre-line">{t("s" + n + "b")}</p>
           </section>
         ))}
         <section>
-          <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+          <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
             {t("sTrTableTitle")}
           </h2>
           <PipeTable source={t("sTrTable")} />
@@ -93,7 +93,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         </section>
         {[10, 11, 12].map((n) => (
           <section key={n}>
-            <h2 className="text-xl font-heading font-semibold text-[#F5F5F7] mb-3">
+            <h2 className="text-xl font-heading font-semibold text-fg-primary mb-3">
               {t("s" + n + "h")}
             </h2>
             <p className="whitespace-pre-line">{t("s" + n + "b")}</p>
@@ -115,9 +115,9 @@ function PipeTable({ source }: { source: string }) {
   const [header, ...body] = rows;
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-xs border border-[#2A2A3D]">
+      <table className="w-full text-xs border border-surface-border">
         <thead>
-          <tr className="bg-[#12121C] text-left text-[#818CF8]">
+          <tr className="bg-surface-card text-left text-accent-indigo">
             {header.split("|").map((h, k) => (
               <th scope="col" key={k} className="px-2 py-2 font-semibold">
                 {h.trim()}
@@ -127,9 +127,9 @@ function PipeTable({ source }: { source: string }) {
         </thead>
         <tbody>
           {body.map((row, r) => (
-            <tr key={r} className="border-t border-[#2A2A3D]">
+            <tr key={r} className="border-t border-surface-border">
               {row.split("|").map((cell, k) => (
-                <td key={k} className="px-2 py-2 text-[#A0A0B8]">
+                <td key={k} className="px-2 py-2 text-fg-secondary">
                   {cell.trim()}
                 </td>
               ))}

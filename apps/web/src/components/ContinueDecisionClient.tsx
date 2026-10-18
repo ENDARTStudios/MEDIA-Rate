@@ -66,7 +66,7 @@ export function ContinueDecisionClient() {
       <div className="max-w-7xl mx-auto">
         <h2
           id="continue-decision-title"
-          className="font-heading text-xl font-bold text-[#F5F5F7] uppercase tracking-wider mb-5"
+          className="font-heading text-xl font-bold text-fg-primary uppercase tracking-wider mb-5"
         >
           {t("continueDecision")}
         </h2>
@@ -78,10 +78,10 @@ export function ContinueDecisionClient() {
             <li key={media.id} className="flex-shrink-0 w-[160px] sm:w-[180px] snap-start">
               <Link
                 href={`/media/${media.id}`}
-                className="group block rounded-md overflow-hidden border border-[#2A2A3D] bg-[#12121C] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#818CF8]"
+                className="group block rounded-md overflow-hidden border border-surface-border bg-surface-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
                 aria-label={`${media.title} — ${t("mediaScore")}`}
               >
-                <div className="aspect-[2/3] bg-[#1B1B2C] relative overflow-hidden">
+                <div className="aspect-[2/3] bg-surface-elevated relative overflow-hidden">
                   {media.posterUrl ? (
                     (() => {
                       // T031/T036: estático com ladder (local ou remota); sem
@@ -122,7 +122,7 @@ export function ContinueDecisionClient() {
                     })()
                   ) : (
                     <div
-                      className="flex h-full items-center justify-center text-[#85859F]"
+                      className="flex h-full items-center justify-center text-fg-muted"
                       aria-hidden="true"
                     >
                       <svg
@@ -142,13 +142,13 @@ export function ContinueDecisionClient() {
                   )}
                 </div>
                 <div className="p-3">
-                  <h3 className="font-heading text-sm font-medium text-[#F5F5F7] truncate">
+                  <h3 className="font-heading text-sm font-medium text-fg-primary truncate">
                     {media.title}
                   </h3>
                   <div className="mt-1 flex items-center gap-2">
-                    <p className="text-xs text-[#A0A0B8]">{media.year ?? "—"}</p>
+                    <p className="text-xs text-fg-secondary">{media.year ?? "—"}</p>
                     {media.score != null && (
-                      <span className="ml-auto rounded-full px-2 py-0.5 text-xs font-bold tabular-nums text-[#F5F5F7] bg-[#1B1B2C] border border-[#2A2A3D]">
+                      <span className="ml-auto rounded-full px-2 py-0.5 text-xs font-bold tabular-nums text-fg-primary bg-surface-elevated border border-surface-border">
                         {media.score >= 80 ? "🟢" : media.score >= 60 ? "🟡" : "🔴"}{" "}
                         {Math.round(media.score)}
                       </span>

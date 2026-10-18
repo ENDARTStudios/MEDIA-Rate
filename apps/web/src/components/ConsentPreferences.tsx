@@ -50,7 +50,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void }) {
       <div className="space-y-2 text-sm">
         <div className="flex items-center justify-between gap-4">
           <span>{t("necessary")}</span>
-          <span className="shrink-0 text-[#818CF8]">{t("alwaysOn")}</span>
+          <span className="shrink-0 text-accent-indigo">{t("alwaysOn")}</span>
         </div>
         <label className="flex items-center justify-between gap-4">
           <span>{t("analytics")}</span>
@@ -58,7 +58,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void }) {
             type="checkbox"
             checked={analyticsPref}
             onChange={(e) => setAnalyticsPref(e.target.checked)}
-            className="h-4 w-4 shrink-0 accent-[#818CF8]"
+            className="h-4 w-4 shrink-0 accent-accent-indigo"
             aria-label={t("analytics")}
           />
         </label>
@@ -68,7 +68,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void }) {
             type="checkbox"
             checked={monitoringPref}
             onChange={(e) => setMonitoringPref(e.target.checked)}
-            className="h-4 w-4 shrink-0 accent-[#818CF8]"
+            className="h-4 w-4 shrink-0 accent-accent-indigo"
             aria-label={t("monitoring")}
           />
         </label>
@@ -78,21 +78,21 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void }) {
         <button
           type="button"
           onClick={aceitarTodos}
-          className="rounded-md bg-[#818CF8] px-3 py-1.5 text-xs font-semibold text-[#0F172A] hover:brightness-110"
+          className="rounded-md bg-accent-indigo px-3 py-1.5 text-xs font-semibold text-accent-indigo-foreground hover:brightness-110"
         >
           {t("acceptAll")}
         </button>
         <button
           type="button"
           onClick={recusar}
-          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#A0A0B8] hover:text-[#F5F5F7]"
+          className="rounded-md border border-surface-border px-3 py-1.5 text-xs text-fg-secondary hover:text-fg-primary"
         >
           {t("decline")}
         </button>
         <button
           type="button"
           onClick={salvar}
-          className="rounded-md border border-[#2A2A3D] px-3 py-1.5 text-xs text-[#A0A0B8] hover:text-[#F5F5F7]"
+          className="rounded-md border border-surface-border px-3 py-1.5 text-xs text-fg-secondary hover:text-fg-primary"
         >
           {t("save")}
         </button>

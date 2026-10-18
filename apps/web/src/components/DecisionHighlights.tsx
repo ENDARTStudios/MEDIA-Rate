@@ -65,11 +65,11 @@ export function DecisionHighlights({
         <>
           <h2
             id="decision-title"
-            className="font-heading text-2xl font-bold text-[#F5F5F7] sm:text-3xl"
+            className="font-heading text-2xl font-bold text-fg-primary sm:text-3xl"
           >
             {title}
           </h2>
-          <p className="mt-3 max-w-[70ch] text-sm leading-relaxed text-[#A0A0B8] sm:text-base">
+          <p className="mt-3 max-w-[70ch] text-sm leading-relaxed text-fg-secondary sm:text-base">
             {sub}
           </p>
 
@@ -80,7 +80,7 @@ export function DecisionHighlights({
                 <article
                   key={b.faixa}
                   data-decision-block={b.faixa}
-                  className="flex min-w-0 flex-col rounded-xl border border-[#2A2A3D] bg-[#12121C] p-6"
+                  className="flex min-w-0 flex-col rounded-xl border border-surface-border bg-surface-card p-6"
                 >
                   <span
                     className="w-fit rounded-lg border px-3 py-1 text-xs font-bold"
@@ -88,17 +88,21 @@ export function DecisionHighlights({
                   >
                     {b.faixaLabel}
                   </span>
-                  <h3 className="mt-4 font-heading text-xl font-bold text-[#F5F5F7]">{b.titulo}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#A0A0B8]">{b.descricao}</p>
+                  <h3 className="mt-4 font-heading text-xl font-bold text-fg-primary">
+                    {b.titulo}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-fg-secondary">{b.descricao}</p>
 
                   <ul className="mt-5 flex flex-col gap-2">
                     {b.itens.map((it) => (
                       <li
                         key={`${b.faixa}-${it.titulo}`}
-                        className="flex items-center justify-between gap-3 rounded-lg bg-[#1B1B2C] px-3 py-2"
+                        className="flex items-center justify-between gap-3 rounded-lg bg-surface-elevated px-3 py-2"
                       >
-                        <span className="min-w-0 truncate text-sm text-[#F5F5F7]">{it.titulo}</span>
-                        <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-[#85859F]">
+                        <span className="min-w-0 truncate text-sm text-fg-primary">
+                          {it.titulo}
+                        </span>
+                        <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-fg-muted">
                           {it.tipo}
                         </span>
                       </li>
@@ -107,7 +111,7 @@ export function DecisionHighlights({
 
                   <Link
                     href="/catalog"
-                    className="mt-5 text-sm font-medium text-[#818CF8] transition-colors hover:text-[#F5F5F7]"
+                    className="mt-5 text-sm font-medium text-accent-indigo transition-colors hover:text-fg-primary"
                   >
                     {ctaLabel}
                   </Link>
@@ -121,17 +125,17 @@ export function DecisionHighlights({
       {/* Como o score nasce — o método em três passos. Sempre visível: é explicação, não dado. */}
       {stepsTitle && steps && steps.length > 0 && (
         <div className="mt-12">
-          <h2 className="font-heading text-2xl font-bold text-[#F5F5F7] sm:text-3xl">
+          <h2 className="font-heading text-2xl font-bold text-fg-primary sm:text-3xl">
             {stepsTitle}
           </h2>
           <ol className="mt-6 grid gap-5 md:grid-cols-3">
             {steps.map((s) => (
               <li key={s.n} className="flex flex-col gap-3">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#1B1B2C] text-sm font-bold text-[#818CF8]">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-surface-elevated text-sm font-bold text-accent-indigo">
                   {s.n}
                 </span>
-                <h3 className="font-heading text-base font-bold text-[#F5F5F7]">{s.titulo}</h3>
-                <p className="text-sm leading-relaxed text-[#A0A0B8]">{s.descricao}</p>
+                <h3 className="font-heading text-base font-bold text-fg-primary">{s.titulo}</h3>
+                <p className="text-sm leading-relaxed text-fg-secondary">{s.descricao}</p>
               </li>
             ))}
           </ol>
@@ -139,9 +143,9 @@ export function DecisionHighlights({
       )}
 
       {/* Fecho: a afirmação que sustenta a seção — vale com ou sem catálogo. */}
-      <div className="mt-10 rounded-xl border border-[#2A2A3D] bg-[#12121C] px-6 py-7 sm:px-8">
-        <h3 className="font-heading text-xl font-bold text-[#F5F5F7]">{notaTitulo}</h3>
-        <p className="mt-2 max-w-[80ch] text-sm leading-relaxed text-[#A0A0B8]">{notaTexto}</p>
+      <div className="mt-10 rounded-xl border border-surface-border bg-surface-card px-6 py-7 sm:px-8">
+        <h3 className="font-heading text-xl font-bold text-fg-primary">{notaTitulo}</h3>
+        <p className="mt-2 max-w-[80ch] text-sm leading-relaxed text-fg-secondary">{notaTexto}</p>
       </div>
     </section>
   );

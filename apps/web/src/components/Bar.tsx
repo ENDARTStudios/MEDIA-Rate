@@ -24,28 +24,28 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
   const highConsensus = gap !== null && gap <= 10;
 
   if (!hasCritics && !hasAudience) {
-    return <p className="text-sm text-[#A0A0B8]">{t("noRatingsYet")}</p>;
+    return <p className="text-sm text-fg-secondary">{t("noRatingsYet")}</p>;
   }
 
   return (
     <div className="space-y-3" data-testid="bar-dual">
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-[#A0A0B8]">{t("criticsBar")}</span>
+          <span className="text-fg-secondary">{t("criticsBar")}</span>
           {hasCritics ? (
-            <span className="text-[#38BDF8] tabular-nums font-medium">
+            <span className="text-accent-sky tabular-nums font-medium">
               {formatarScoreLocale(criticsScore, locale)}
             </span>
           ) : (
-            <span className="text-[#A0A0B8]" data-testid="sem-critica">
+            <span className="text-fg-secondary" data-testid="sem-critica">
               {t("semCritica")}
             </span>
           )}
         </div>
-        <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden">
+        <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
           {hasCritics && (
             <div
-              className="h-full rounded-full bg-[#38BDF8]"
+              className="h-full rounded-full bg-accent-sky"
               style={{ width: `${Math.round(((criticsScore as number) / maxScore) * 100)}%` }}
             />
           )}
@@ -53,28 +53,28 @@ export function Bar({ criticsScore, audienceScore, maxScore = 100 }: BarProps) {
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-[#A0A0B8]">{t("audienceBar")}</span>
+          <span className="text-fg-secondary">{t("audienceBar")}</span>
           {hasAudience ? (
-            <span className="text-[#FB7185] tabular-nums font-medium">
+            <span className="text-accent-audience tabular-nums font-medium">
               {formatarScoreLocale(audienceScore, locale)}
             </span>
           ) : (
-            <span className="text-[#A0A0B8]" data-testid="sem-publico">
+            <span className="text-fg-secondary" data-testid="sem-publico">
               {t("semPublico")}
             </span>
           )}
         </div>
-        <div className="h-2 rounded-full bg-[#1B1B2C] overflow-hidden">
+        <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
           {hasAudience && (
             <div
-              className="h-full rounded-full bg-[#E11D48]"
+              className="h-full rounded-full bg-brand"
               style={{ width: `${Math.round((audienceScore / maxScore) * 100)}%` }}
             />
           )}
         </div>
       </div>
       {gap !== null && (
-        <p className="text-xs text-[#A0A0B8] mt-1">
+        <p className="text-xs text-fg-secondary mt-1">
           {t("consensusLabel")}:{" "}
           {highConsensus
             ? t("highConsensus")

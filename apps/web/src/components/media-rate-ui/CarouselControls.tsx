@@ -22,7 +22,7 @@ export function CarouselControls({
   };
 
   const btnClass =
-    "flex h-8 w-8 items-center justify-center rounded-full border border-[#2A2A3D] text-[#A0A0B8] transition-colors hover:border-[#3A3A52] hover:text-[#F5F5F7]";
+    "flex h-8 w-8 items-center justify-center rounded-full border border-surface-border text-fg-secondary transition-colors hover:border-surface-border-hover hover:text-fg-primary";
 
   return (
     <div className="ml-auto hidden gap-2 lg:flex">

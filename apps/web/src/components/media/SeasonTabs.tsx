@@ -49,14 +49,15 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
     };
   }, [midiaId]);
 
-  if (carregando) return <div className="py-4 text-sm text-[#A0A0B8]">{t("loadingSeasons")}</div>;
+  if (carregando)
+    return <div className="py-4 text-sm text-fg-secondary">{t("loadingSeasons")}</div>;
   if (temporadas.length === 0) return null;
 
   const atual = temporadas[ativa] ?? temporadas[0];
 
   return (
     <div className="mt-8">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A0A0B8] mb-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary mb-3">
         {t("seasons")}
       </h3>
       <div className="mb-4 flex gap-2 overflow-x-auto" role="tablist" aria-label={t("seasons")}>
@@ -69,8 +70,8 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
             onClick={() => setAtiva(i)}
             className={`shrink-0 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
               i === ativa
-                ? "border-[#818CF8] bg-[#2A2A3D] text-[#F5F5F7]"
-                : "border-[#2A2A3D] text-[#A0A0B8] hover:bg-[#1C1C2E]"
+                ? "border-accent-indigo bg-surface-border text-fg-primary"
+                : "border-surface-border text-fg-secondary hover:bg-surface-elevated"
             }`}
           >
             {t("seasonLabel", { numero: temp.numero })}
@@ -80,7 +81,7 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
       {atual && (
         <ul
           role="list"
-          className="divide-y divide-[#2A2A3D] rounded-xl border border-[#2A2A3D] bg-[#12121C]"
+          className="divide-y divide-surface-border rounded-xl border border-surface-border bg-surface-card"
         >
           {atual.episodios.map((ep) => (
             <li
@@ -88,17 +89,17 @@ export function SeasonTabs({ midiaId }: { midiaId: string }) {
               className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm"
             >
               <div className="min-w-0">
-                <p className="truncate text-[#F5F5F7]">
-                  <span className="text-[#85859F]">{ep.numero}.</span> {ep.titulo}
+                <p className="truncate text-fg-primary">
+                  <span className="text-fg-muted">{ep.numero}.</span> {ep.titulo}
                 </p>
                 {ep.data_exibicao && (
-                  <p className="text-xs text-[#85859F]">
+                  <p className="text-xs text-fg-muted">
                     {new Date(ep.data_exibicao).toLocaleDateString(locale)}
                   </p>
                 )}
               </div>
               {ep.nota_publico != null && (
-                <span className="shrink-0 rounded-full bg-[#1C1C2E] px-2 py-0.5 text-xs font-medium text-[#F5F5F7]">
+                <span className="shrink-0 rounded-full bg-surface-elevated px-2 py-0.5 text-xs font-medium text-fg-primary">
                   {formatarScoreLocale(ep.nota_publico, locale)}
                 </span>
               )}
