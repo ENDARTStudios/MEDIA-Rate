@@ -1668,6 +1668,7 @@ describe("BackfillService.enriquecerCriticaOmdb (T-DADOS-10)", () => {
       semNota: 0,
       falhas: 0,
       queries: 0,
+      interrompidoPorCota: false,
     });
     expect(omdb.coletar).not.toHaveBeenCalled();
     expect(prisma.midia.update).not.toHaveBeenCalled();
@@ -1778,8 +1779,77 @@ describe("BackfillService.enriquecerCriticaOmdb (T-DADOS-10)", () => {
       semNota: 0,
       falhas: 1,
       queries: 1,
+      interrompidoPorCota: false,
     });
     expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("T-DADOS-24A: erro de rede comum no 1º e sucesso no 2º — continua e marca o 2º", async () => {
+    const dois = [
+      { id: "m-1", tipo: "FILME", fonte_id: "1", titulo: "Primeiro" },
+      { id: "m-2", tipo: "FILME", fonte_id: "2", titulo: "Segundo" },
+    ];
+    const { svc, prisma, omdb } = makeService({ alvo: dois });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+    omdb.coletar.mockRejectedValueOnce(new Error("fetch failed")).mockResolvedValueOnce([
+      {
+        fonte: "omdb",
+        rating: 7.5,
+        media_fonte: 7,
+        desvio_fonte: 1.5,
+        votos: 100,
+        url: "https://www.imdb.com/title/tt0274558",
+      },
+    ]);
+    const r = await svc.enriquecerCriticaOmdb(10);
+    expect(omdb.coletar).toHaveBeenCalledTimes(2);
+    expect(r).toMatchObject({ processados: 2, ok: 1, falhas: 1, interrompidoPorCota: false });
+    expect(prisma.midia.update).toHaveBeenCalledTimes(1);
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-2" },
+      data: { critica_omdb_em: expect.any(Date) },
+    });
+  });
+
+  it.each([
+    ["mensagem do adapter", new Error("OMDb: limite de requisições atingido")],
+    ["HTTP 401 do omdbapi.com", new ErroColeta("HTTP 401 em https://www.omdbapi.com/?i=tt1", 401)],
+    ["HTTP 429 do omdbapi.com", new ErroColeta("HTTP 429 em https://www.omdbapi.com/?i=tt1", 429)],
+  ])(
+    "T-DADOS-24A: cota (%s) no 1º título interrompe o lote sem watermark e sem tentar o 2º",
+    async (_rotulo, erro) => {
+      const dois = [
+        { id: "m-1", tipo: "FILME", fonte_id: "1", titulo: "Primeiro" },
+        { id: "m-2", tipo: "FILME", fonte_id: "2", titulo: "Segundo" },
+      ];
+      const { svc, prisma, omdb } = makeService({ alvo: dois });
+      (svc as any).pausa = vi.fn(async () => undefined);
+      (svc as any).tmdb = vi.fn(async () => ({ imdb_id: "tt0274558" }));
+      omdb.coletar.mockRejectedValue(erro);
+      const r = await svc.enriquecerCriticaOmdb(10);
+      // Prova do abort: a fonte foi chamada SÓ para o primeiro título.
+      expect(omdb.coletar).toHaveBeenCalledTimes(1);
+      expect((svc as any).tmdb).toHaveBeenCalledTimes(1);
+      expect(r).toMatchObject({
+        processados: 1,
+        falhas: 1,
+        queries: 1,
+        interrompidoPorCota: true,
+      });
+      // Sem watermark em nenhum dos dois (retentam amanhã).
+      expect(prisma.midia.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it("T-DADOS-24A: teto conta títulos tentados hoje (critica_omdb_em), além das linhas de avaliacao_fonte", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    prisma.$queryRawUnsafe.mockResolvedValueOnce([{ usados: 900 }]);
+    await expect((svc as any).queriesOmdbHoje()).resolves.toBe(900);
+    const sql = (prisma.$queryRawUnsafe as any).mock.calls.at(-1)[0] as string;
+    expect(sql).toMatch(/GREATEST/);
+    expect(sql).toMatch(/COUNT\(DISTINCT a\.midia_id\)/i);
+    expect(sql).toMatch(/critica_omdb_em::date = CURRENT_DATE/);
   });
 
   it("fonte inativa/ausente: fila 0 e drenarLote NÃO chama o job (dormente)", async () => {
@@ -1802,6 +1872,7 @@ describe("BackfillService.enriquecerCriticaOmdb (T-DADOS-10)", () => {
       semNota: 1,
       falhas: 0,
       queries: 1,
+      interrompidoPorCota: false,
     });
     mockContagens(prisma, { usados: 0, pendentes: 10, alvo: [] });
     const r = await svc.drenarLote(60_000);
