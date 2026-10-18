@@ -112,8 +112,27 @@ Artefatos em `.dsh-artifacts/visual-qa/` (não versionado).
 
 ## Aberto (fora do escopo desta fase)
 
-- **Varredura do hex no admin/dashboard** — `design:hex` ainda lista 63 ocorrências (26 valores,
-  incl. `#9CA3AF` e `#EDE7DC`); é a paleta legada do protótipo, congelada por D-586.
+### Varredura do hex no admin/dashboard — medida, parcialmente aplicada
+
+`scripts/bots/admin-hex-plan.mjs` percorre as 10 rotas de admin/dashboard (29 arquivos), agrupa
+por valor, aplica o mapa D-586 e mede a **diferença em RGB por canal** de cada consolidação —
+para a decisão de descongelar ser tomada com números, não com "é quase igual".
+
+| Faixa | Ocorrências | Situação |
+|---|---|---|
+| Δ = 0 (mesmo valor de um token existente) | **37** | **aplicado** (`--write-identity`): 30 trocas em 8 arquivos, zero mudança de pixel |
+| Δ 3–10 (sutil) | 3 | pendente — muda cor, precisa de decisão |
+| Δ 16–46 (visível) | 7 | pendente — `#8B7CFF`→indigo (16), `#A69CFF`→violet (17), `#62D7C5`→emerald (46; o "dash-teal" **não tem** token equivalente) |
+| Sem mapa | 10 | `#FFFFFF`(5), `#18152D`(2), `#C9C4FF`, `#111C2B`, `#D4AF37` |
+
+Duas lições de medição que ficaram registradas:
+
+1. **`design:hex` não se move** com a parte Δ = 0 (segue 63 ocorrências / 26 valores): ele só
+   acusa valor que **não existe** em fonte de token, e esses já existiam. O ganho é consistência,
+   não métrica.
+2. O hex do admin está em **classe arbitrária** (`text-[#F5F5F7]`), não em `style={{}}` — o que
+   torna a troca mecânica. O que não é mecânico é a **cor**: Δ 46 no `dash-teal` é decisão de
+   design (criar `accent-teal` ou aceitar o desvio), não de refactor.
 
 ### #603 (vitest 4.1.10 → 4.1.11): são DOIS problemas — medido, não suposto
 
