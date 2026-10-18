@@ -243,12 +243,35 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
-    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
-    "variant_movie": ["Filmes"],
-    "variant_series": ["Séries"],
-    "variant_game": ["Games"],
+    "variant_book": [
+      "Romances",
+      "Não-ficção",
+      "Clássicos",
+      "Sagas",
+      "Novidades"
+    ],
+    "variant_comic": [
+      "HQs",
+      "Super-heróis",
+      "Indie",
+      "Novidades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novidades"
+    ],
+    "variant_movie": [
+      "Filmes"
+    ],
+    "variant_series": [
+      "Séries"
+    ],
+    "variant_game": [
+      "Games"
+    ],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -539,7 +562,12 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendações/dia"
+    ],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -1487,6 +1515,12 @@
     "humanNote": "Toda proposta é lida por uma pessoa. Escreva o que você quer fazer e por quê.",
     "metaTitle": "Apoie, seja parceiro ou patrocine o MEDIA Rate",
     "metaDescription": "Três formas de sustentar um catálogo independente: apoiar como pessoa física, ser parceiro institucional ou patrocinar uma seção. A nota não está à venda.",
-    "sourcesLabel": "Fontes"
+    "sourcesLabel": "Fontes",
+    "concentrationNote": "Teto de concentração: nenhum patrocinador passa de 40% do financiamento total. Acima disso a independência deixa de ser verificável.",
+    "registryTitle": "Registro público de patrocínios",
+    "registryEmpty": "Nenhum patrocínio ativo. Quando houver, ele aparece aqui com nome autorizado, seção e data de início — e com o rótulo que você vê na interface.",
+    "registrySponsor": "Patrocinador",
+    "registrySection": "Onde aparece",
+    "registrySince": "Desde"
   }
 }

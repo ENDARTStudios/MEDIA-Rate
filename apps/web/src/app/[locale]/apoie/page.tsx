@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageShell, SectionBlock } from "@/components/ui/page-shell";
 import { SupportCta } from "@/components/support/SupportCta";
+import { PATROCINIOS } from "@/lib/sponsorships";
 import { Link } from "@/lib/navigation";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
@@ -165,6 +166,67 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
         <p className="max-w-[65ch] rounded-xl border border-accent-indigo/20 bg-surface-card p-6 text-sm leading-relaxed text-fg-secondary">
           {t("independenceBody")}
         </p>
+        <p className="mt-4 max-w-[65ch] text-xs leading-relaxed text-fg-muted">
+          {t("concentrationNote")}
+        </p>
+      </SectionBlock>
+
+      {/*
+        Registro público: a regra acima só é verificável com isto. Lista vazia é o estado
+        real de hoje — e "nenhum patrocínio ativo" é fato, não "em breve".
+      */}
+      <SectionBlock title={t("registryTitle")} id="registro">
+        {PATROCINIOS.length === 0 ? (
+          <p className="max-w-[65ch] text-sm leading-relaxed text-fg-secondary">
+            {t("registryEmpty")}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[32rem] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-surface-border">
+                  <th
+                    scope="col"
+                    className="py-2 pr-4 font-heading text-xs uppercase tracking-widest text-fg-muted"
+                  >
+                    {t("registrySponsor")}
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-2 pr-4 font-heading text-xs uppercase tracking-widest text-fg-muted"
+                  >
+                    {t("registrySection")}
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-2 pr-4 font-heading text-xs uppercase tracking-widest text-fg-muted"
+                  >
+                    {t("registrySince")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...PATROCINIOS]
+                  .sort((a, b) => b.desde.localeCompare(a.desde))
+                  .map((p) => (
+                    <tr
+                      key={`${p.patrocinador}-${p.desde}`}
+                      className="border-b border-surface-border/60"
+                    >
+                      <th scope="row" className="py-3 pr-4 font-medium text-fg-primary">
+                        {p.patrocinador}
+                      </th>
+                      <td className="py-3 pr-4 text-fg-secondary">
+                        {p.secao}
+                        <span className="mt-1 block text-xs text-fg-muted">{p.rotulo}</span>
+                      </td>
+                      <td className="py-3 pr-4 tabular-nums text-fg-secondary">{p.desde}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </SectionBlock>
     </PageShell>
   );

@@ -65,11 +65,15 @@ describe("/apoie — apoiadores, parceiros e patrocinadores", () => {
     }
   });
 
-  it("não digita número de marketing (percentual, multiplicador, valor)", () => {
+  it("não digita número de marketing — a única exceção é o teto de concentração", () => {
     for (const locale of LOCALES) {
       const m = mensagens(locale);
-      const texto = Object.values(m.support).join(" ");
+      // `concentrationNote` é compromisso de governança (teto declarado), não número de
+      // marketing: ele PRECISA do valor exato, e é o único que pode ter.
+      const { concentrationNote, ...resto } = m.support;
+      const texto = Object.values(resto).join(" ");
       expect(texto, `${locale}: percentual/número no copy`).not.toMatch(/\d+\s?%|\b\d{2,}\b/);
+      expect(concentrationNote, `${locale}: teto de concentração ausente`).toMatch(/\d+\s?%/);
     }
   });
 

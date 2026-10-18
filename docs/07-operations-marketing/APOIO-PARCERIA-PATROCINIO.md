@@ -186,16 +186,33 @@ ter volume é o mesmo erro de digitar número.
 6. **Teto de concentração:** nenhum patrocinador deve passar de ~40% do financiamento total;
    acima disso, a independência vira ficção contábil.
 
+### Registro público — implementado (`/apoie#registro`)
+
+O guardrail nº 1 só é verificável com registro aberto, então ele deixou de ser intenção:
+`apps/web/src/lib/sponsorships.ts` é a fonte única (`PATROCINIOS`, `TETO_CONCENTRACAO`) e a
+página renderiza tabela quando há entradas ou o estado honesto quando não há.
+
+Regras de entrada (cobradas por `test/patrocinios.spec.ts`, não só por este documento):
+nome **autorizado por escrito** (nada de "cliente confidencial"), `secao` que a pessoa reconhece
+na tela, `rotulo` descrevendo como o patrocínio aparece, e `desde` em ISO — data de início da
+veiculação, não de assinatura. Uma entrada que exija mexer em nota, ranking ou linha editorial
+não entra.
+
+Estado atual: **lista vazia**, e a página diz exatamente isso — "nenhum patrocínio ativo" é fato,
+não "em breve". O teto de 40% vive como constante e como texto publicado (único número que o
+copy pode ter).
+
+
 ## 11. O que falta construir
 
 - **Formulário** (hoje `mailto:`) — só quando o volume de e-mail justificar; `mailto:` tem a
   vantagem de não criar promessa de SLA.
-- **Página de reconhecimento** (opt-in, com autorização por escrito) — depende do primeiro
-  apoiador, não de código.
+- **Página de reconhecimento de apoiadores** (opt-in, com autorização por escrito) — depende do
+  primeiro apoiador, não de código. Diferente do registro de patrocínio, que já está no ar.
 - **Material de patrocínio** com números do mês — derivar de PostHog na hora de montar, nunca
   congelar número no texto.
-- **Registro público de patrocínios** (quem, em qual seção, desde quando) — é a prova que o
-  guardrail nº 1 precisa para ser verificável.
+- ~~Registro público de patrocínios~~ — **feito**: `/apoie#registro` + `src/lib/sponsorships.ts`,
+  com invariantes cobertas por `test/patrocinios.spec.ts`.
 
 ## 12. Riscos
 

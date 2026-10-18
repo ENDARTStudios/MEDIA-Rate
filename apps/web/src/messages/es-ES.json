@@ -243,12 +243,35 @@
     "previewBadge": "Previo",
     "previewBadgeTitle": "Previo — fuentes en preparación",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Novelas", "No ficción", "Clásicos", "Sagas", "Novedades"],
-    "variant_comic": ["Novelas gráficas", "Superhéroes", "Indie", "Novedades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novedades"],
-    "variant_movie": ["Películas"],
-    "variant_series": ["Series"],
-    "variant_game": ["Juegos"],
+    "variant_book": [
+      "Novelas",
+      "No ficción",
+      "Clásicos",
+      "Sagas",
+      "Novedades"
+    ],
+    "variant_comic": [
+      "Novelas gráficas",
+      "Superhéroes",
+      "Indie",
+      "Novedades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novedades"
+    ],
+    "variant_movie": [
+      "Películas"
+    ],
+    "variant_series": [
+      "Series"
+    ],
+    "variant_game": [
+      "Juegos"
+    ],
     "comingSoonEmailPlaceholder": "tu@email.com",
     "comingSoonEmailLabel": "Correo electrónico",
     "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
@@ -539,7 +562,12 @@
     "upgrade": "Mejorar",
     "subscribe": "Suscribirse",
     "features": "Funcionalidades",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendaciones/día"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendaciones/día"
+    ],
     "plusFeatures": [
       "Prueba gratis de 7 días",
       "Todo del Free",
@@ -1487,6 +1515,12 @@
     "humanNote": "Cada propuesta la lee una persona. Cuéntanos qué quieres hacer y por qué.",
     "metaTitle": "Apoya, alíate o patrocina MEDIA Rate",
     "metaDescription": "Tres formas de sostener un catálogo independiente: apoyar como persona, aliarse como institución o patrocinar una sección. La nota no está en venta.",
-    "sourcesLabel": "Fuentes"
+    "sourcesLabel": "Fuentes",
+    "concentrationNote": "Tope de concentración: ningún patrocinador supera el 40% del financiamiento total. Por encima de eso, la independencia deja de ser verificable.",
+    "registryTitle": "Registro público de patrocinios",
+    "registryEmpty": "No hay patrocinio activo. Cuando lo haya, aparecerá aquí con el nombre autorizado, la sección y la fecha de inicio — y con la etiqueta que ves en la interfaz.",
+    "registrySponsor": "Patrocinador",
+    "registrySection": "Dónde aparece",
+    "registrySince": "Desde"
   }
 }
