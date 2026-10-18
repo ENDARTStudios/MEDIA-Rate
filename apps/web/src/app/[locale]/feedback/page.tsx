@@ -27,7 +27,9 @@ export default function FeedbackPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
-      <h1 className="mb-4 font-heading text-3xl font-bold text-fg-primary">{t("h1")}</h1>
+      <h1 className="mb-4 font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
+        {t("h1")}
+      </h1>
       <p className="mb-8 text-fg-secondary">{t("lead")}</p>
 
       <fieldset className="mb-6">

@@ -65,12 +65,12 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
     "publisher": { "@type": "Organization", "name": "MEDIA Rate" },
   };
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 [&_p]:max-w-[38rem] [&_li]:max-w-[38rem]">
+    <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 [&_p]:max-w-[38rem] [&_li]:max-w-[38rem]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
+      <h1 className="mb-8 font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
         {t("h1")}
       </h1>
       <p className="text-sm text-fg-secondary mb-8">{t("lastUpdated")}</p>
