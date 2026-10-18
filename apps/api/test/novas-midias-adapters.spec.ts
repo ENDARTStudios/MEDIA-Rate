@@ -141,11 +141,11 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
     expect(notas[0].rating).toBe(4.7);
   });
 
-  it("comicvine: metadados públicos (rating 0–5)", async () => {
+  it("comicvine: nunca retorna nota sintética (sem rating na API)", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
-    vi.mocked(fetchJson).mockResolvedValue({ results: [{ count_of_reviews: 0 }] });
+    vi.mocked(fetchJson).mockResolvedValue({ results: [{ count_of_issues: 12 }] });
     const adapter = new ComicVineAdapter();
     const notas = await adapter.coletar(consulta("Watchmen", "COMIC"));
-    expect(Array.isArray(notas)).toBe(true);
+    expect(notas).toEqual([]);
   });
 });
