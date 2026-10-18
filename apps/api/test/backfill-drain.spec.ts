@@ -183,7 +183,8 @@ describe("BackfillDrainService (T179)", () => {
         generosGames: 0,
         arestasFranquia: 0,
       },
-      lotes: [{ tipo: "metadados", ok: 32, falhas: 0 }],
+      // T-DADOS-25A: nada processado com sucesso (ok: 0) = preso na fonte.
+      lotes: [{ tipo: "metadados", ok: 0, falhas: 32 }],
     }));
     const svc = new BackfillDrainService(backfill as any);
     await svc.tique(); // 1º tique: baseline (tolerado)
@@ -193,6 +194,181 @@ describe("BackfillDrainService (T179)", () => {
     await svc.tique(); // 3º: 2 sem progresso → espaça
     expect(svc.status().espacado).toBe(true);
     expect(svc.status().semProgresso).toBeGreaterThanOrEqual(2);
+  });
+
+  it("T-DADOS-25A: lote com ok > 0 e soma inalterada NÃO espaça (fila oscilando)", async () => {
+    // Cenário de produção: sinopseLivros avança 200 títulos, mas outra fila
+    // reabre e a soma continua igual. Houve trabalho efetivo → cadência normal.
+    const pendentes = {
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: 319,
+      sinopseMangaEn: 0,
+      sinopseLivros: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 0,
+    };
+    const backfill = makeBackfill({ pendentes: { criticaOmdb: 319 } });
+    backfill.drenarLote.mockImplementation(async () => ({
+      pendentesAntes: pendentes,
+      // Soma inalterada: sinopseLivros caiu 200 e criticaOmdb reabriu 200.
+      pendentesDepois: { ...pendentes },
+      lotes: [{ tipo: "sinopseLivros", ok: 200, falhas: 0 }],
+    }));
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    expect(svc.status().semProgresso).toBe(0);
+    await svc.tique();
+    expect(svc.status().semProgresso).toBe(0);
+    await svc.tique();
+    expect(svc.status().espacado).toBe(false);
+    expect(svc.status().semProgresso).toBe(0);
+  });
+
+  it("T-DADOS-25A: ok: 0 com soma igual espaça após o 2º tique (comportamento preservado)", async () => {
+    const pendentes = {
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: 319,
+      sinopseMangaEn: 0,
+      sinopseLivros: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 0,
+    };
+    const backfill = makeBackfill({ pendentes: { criticaOmdb: 319 } });
+    backfill.drenarLote.mockImplementation(async () => ({
+      pendentesAntes: pendentes,
+      pendentesDepois: { ...pendentes },
+      lotes: [{ tipo: "criticaOmdb", ok: 0, falhas: 200 }],
+    }));
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique(); // baseline
+    await svc.tique(); // 1 sem progresso
+    expect(svc.status().espacado).toBe(false);
+    await svc.tique(); // 2 sem progresso → espaça
+    expect(svc.status().espacado).toBe(true);
+    expect(svc.status().semProgresso).toBeGreaterThanOrEqual(2);
+  });
+
+  it("T-DADOS-25A: soma caindo NÃO espaça", async () => {
+    let n = 400;
+    const backfill = makeBackfill();
+    backfill.contarPendentes.mockImplementation(async () => ({
+      semElenco: 0,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: n,
+      sinopseMangaEn: 0,
+      sinopseLivros: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 0,
+    }));
+    backfill.drenarLote.mockImplementation(async () => {
+      n -= 50;
+      return {
+        pendentesAntes: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+          criticaOmdb: n + 50,
+          sinopseMangaEn: 0,
+          sinopseLivros: 0,
+          autoresLivros: 0,
+          autoresMangas: 0,
+          autoresComics: 0,
+        },
+        pendentesDepois: {
+          semElenco: 0,
+          seriesSemTemporada: 0,
+          filmesSemPais: 0,
+          metadadosRicos: 0,
+          provedores: 0,
+          criticaIgdb: 0,
+          generosGames: 0,
+          arestasFranquia: 0,
+          avaliacaoLivros: 0,
+          localizacao: 0,
+          criticaOmdb: n,
+          sinopseMangaEn: 0,
+          sinopseLivros: 0,
+          autoresLivros: 0,
+          autoresMangas: 0,
+          autoresComics: 0,
+        },
+        lotes: [{ tipo: "criticaOmdb", ok: 50, falhas: 0 }],
+      };
+    });
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    await svc.tique();
+    expect(svc.status().espacado).toBe(false);
+    expect(svc.status().semProgresso).toBe(0);
+  });
+
+  it("T-DADOS-25A: totalDepois === 0 NÃO espaça mesmo com ok: 0", async () => {
+    const pendentes = {
+      semElenco: 10,
+      seriesSemTemporada: 0,
+      filmesSemPais: 0,
+      metadadosRicos: 0,
+      provedores: 0,
+      criticaIgdb: 0,
+      generosGames: 0,
+      arestasFranquia: 0,
+      avaliacaoLivros: 0,
+      localizacao: 0,
+      criticaOmdb: 0,
+      sinopseMangaEn: 0,
+      sinopseLivros: 0,
+      autoresLivros: 0,
+      autoresMangas: 0,
+      autoresComics: 0,
+    };
+    const backfill = makeBackfill({ pendentes });
+    backfill.drenarLote.mockImplementation(async () => ({
+      pendentesAntes: pendentes,
+      pendentesDepois: { ...pendentes, semElenco: 0 },
+      lotes: [{ tipo: "continuidade", ok: 0, falhas: 0 }],
+    }));
+    const svc = new BackfillDrainService(backfill as any);
+    await svc.tique();
+    await svc.tique();
+    expect(svc.status().espacado).toBe(false);
+    expect(svc.status().semProgresso).toBe(0);
   });
 
   it("progresso (fila diminuindo) mantém cadência normal", async () => {

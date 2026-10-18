@@ -60,8 +60,8 @@ describe("TraktAdapter — regressão CRIT (rating aninhado em movie/show)", () 
   });
 });
 
-describe("ComicVineAdapter — regressão: campo count_of_issues (não count_of_issue_appearances)", () => {
-  it("usa count_of_issues do detalhe do volume", async () => {
+describe("ComicVineAdapter — sem nota agregada (não inventar)", () => {
+  it("retorna [] mesmo com volume encontrado (sem rating sintético)", async () => {
     vi.stubEnv("COMICVINE_API_KEY", "teste");
     mockFetch([
       {
@@ -76,9 +76,7 @@ describe("ComicVineAdapter — regressão: campo count_of_issues (não count_of_
       titulo: "Watchmen",
       ano: 1986,
     });
-    expect(notas).toHaveLength(1);
-    expect(notas[0].fonte).toBe("comicvine");
-    expect(notas[0].rating).toBe(3.5);
+    expect(notas).toEqual([]);
   });
 
   it("volta vazio quando volume não é encontrado", async () => {
