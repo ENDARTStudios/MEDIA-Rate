@@ -189,8 +189,17 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       );
       // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
       // 6h (fila provavelmente presa: título sem elenco/país na fonte).
+      // T-DADOS-25A: a SOMA de 9 filas pode não cair mesmo com trabalho
+      // efetivo (filas oscilam/reabrem — ex.: criticaOmdb por orçamento,
+      // provedores/localizacao com o tempo). Então também conta como progresso
+      // qualquer lote com ok > 0 e o esgotamento total, senão o drain se
+      // desliga por 6h com a fila avançando (medido em produção 2026-10-18).
       const totalDepois = this.total(r.pendentesDepois);
-      const progrediu = this.ultimoTotal < 0 || totalDepois < this.ultimoTotal;
+      const progrediu =
+        this.ultimoTotal < 0 ||
+        totalDepois < this.ultimoTotal ||
+        totalDepois === 0 ||
+        r.lotes.some((l) => l.ok > 0);
       this.ultimoTotal = totalDepois;
       if (progrediu || totalDepois === 0) {
         this.semProgresso = 0;
