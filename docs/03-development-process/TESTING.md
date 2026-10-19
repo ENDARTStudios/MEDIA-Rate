@@ -7,7 +7,7 @@ mutação e DAST no CI (`docs/06-devops-deployment/CI.md`).
 
 | Suíte | Comando | Guarda |
 |---|---|---|
-| API unit/e2e (supertest) | `cd apps/api && NODE_ENV=test npx vitest run` | ~900 testes/117 arqs (pós-T028) |
+| API unit/e2e (supertest) | `cd apps/api && NODE_ENV=test npx vitest run` | ~1.689 testes/175 arqs |
 | Web unit | `cd apps/web && NODE_ENV=test npx vitest run` | incl. guard i18n (chaves ausentes ×3 línguas) |
 | E2E Playwright | `E2E_FULL=1 npx playwright test` (web) | `apiLogin` via `context.request` + `dismissConsentIfPresent`; `--dns-result-order=ipv4first` |
 | Acessibilidade | `npm run test:a11y` (axe) | `apps/web/e2e/a11y.spec.ts` |
@@ -15,6 +15,9 @@ mutação e DAST no CI (`docs/06-devops-deployment/CI.md`).
 | Isolamento RLS | job CI `RLS Isolation` | Postgres service, migrate em DB virgem, casos A≠B (T290/299/301) |
 | Mutação | job CI `Stryker Mutation` | score de sobrevivência |
 | DAST | job CI `ZAP Baseline` | roda contra o preview do PR |
+
+Vitest 5 (raiz, `apps/api` e `apps/web`) exige **Node ^22.12.0 || ^24.0.0**; por
+isso o `NODE_VERSION` dos workflows de CI/deploy é `22`.
 
 ## Regras do projeto
 
