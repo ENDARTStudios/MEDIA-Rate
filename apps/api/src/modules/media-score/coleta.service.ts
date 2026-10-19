@@ -74,18 +74,20 @@ export class ColetaService {
   async coletarTudo(consulta: ConsultaMedia): Promise<ResultadoColeta[]> {
     const promessas = this.adaptadores
       .filter((a) => a.atendeTipo(consulta.tipo))
-      .map(async (a): Promise<ResultadoColeta> => {
-        if (!a.ativo()) return { fonte: a.id, status: "pulada", motivo: "inativa" };
+      .map(async (a): Promise<ResultadoColeta[]> => {
+        if (!a.ativo()) return [{ fonte: a.id, status: "pulada", motivo: "inativa" }];
         try {
           const notas = await a.coletar(consulta);
-          const nota = notas[0];
-          if (!nota) return { fonte: a.id, status: "pulada", motivo: "sem nota" };
-          return { fonte: a.id, status: "ok", nota };
+          if (notas.length === 0) return [{ fonte: a.id, status: "pulada", motivo: "sem nota" }];
+          // T-DADOS-41: um adapter pode alimentar mais de uma fonte (o OMDb
+          // devolve IMDb + Tomatometer + Metascore; o RT devolve crítica +
+          // público). Antes só a primeira nota sobrevivia.
+          return notas.map((nota) => ({ fonte: nota.fonte, status: "ok" as const, nota }));
         } catch (err) {
           this.logger.warn(`Falha em ${a.id}: ${String(err)}`);
-          return { fonte: a.id, status: "erro", motivo: String(err) };
+          return [{ fonte: a.id, status: "erro", motivo: String(err) }];
         }
       });
-    return Promise.all(promessas);
+    return (await Promise.all(promessas)).flat();
   }
 }
