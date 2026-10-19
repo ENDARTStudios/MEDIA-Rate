@@ -23,6 +23,10 @@ import { test, expect, type Page } from "@playwright/test";
 
 const ROTAS_PUBLICAS = [
   "/pt-BR",
+  // /apoie entra na lista porque é a única página pública com ilha client que lê
+  // `window` (o `SupportCta` monta o link absoluto da lista no efeito): se a
+  // hidratação divergir, é aqui que aparece.
+  "/pt-BR/apoie",
   "/pt-BR/welcome",
   "/pt-BR/about",
   "/pt-BR/faq",

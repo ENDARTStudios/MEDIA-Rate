@@ -12,6 +12,9 @@ import path from "node:path";
 const LOCALES = ["pt-BR", "en-US", "es-ES"];
 
 describe("guarda de chaves i18n (P1)", () => {
+  // `collectMissing()` varre src/ inteiro com fs (≈6 s sob carga): o default de 5 s do
+  // vitest estourava de forma intermitente na suíte completa, e o teste "flakeava" como
+  // se fosse bug de chave. Timeout explícito em vez de sorte.
   it("nenhuma chave referenciada em src/ está ausente nos 3 locales", () => {
     const missing = collectMissing();
     expect(
@@ -20,7 +23,7 @@ describe("guarda de chaves i18n (P1)", () => {
         .map((m) => `${m.key} — ausente em ${m.faltando.join(", ")} (${m.file})`)
         .join("\n")}`,
     ).toEqual([]);
-  });
+  }, 20_000);
 
   it("os 3 locales têm o MESMO conjunto de caminhos (paridade estrutural)", () => {
     const messages = loadMessages();

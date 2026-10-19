@@ -35,8 +35,21 @@ describe("/apoie — apoiadores, parceiros e patrocinadores", () => {
 
   it("cada público tem CTA de contato com assunto próprio (mailto, não formulário)", () => {
     for (const chave of ["contactApoiador", "contactParceiro", "contactPatrocinador"]) {
-      expect(PAGINA, `CTA de contato ausente: ${chave}`).toContain(`mailto(t("${chave}"))`);
+      expect(PAGINA, `CTA de contato ausente: ${chave}`).toContain(`t("${chave}")`);
     }
+    expect(PAGINA.match(/mailto\(CONTATOS\./g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+  });
+
+  it("cada público escreve para o alias certo, e o alias é literal (sem typo)", () => {
+    // O endereço é o que faz o programa funcionar: um alias trocado manda proposta de
+    // patrocínio para a fila de parceria e some. Por isso o teste cobra o par
+    // público → endereço, não só a existência de um mailto.
+    expect(PAGINA).toContain('parceiro: "endart.studios+parcerias@gmail.com"');
+    expect(PAGINA).toContain('patrocinador: "endart.studios+patrocinio@gmail.com"');
+    expect(PAGINA).toContain('apoiador: "endart.studios+contato@gmail.com"');
+    expect(PAGINA).toContain("mailto(CONTATOS.parceiro,");
+    expect(PAGINA).toContain("mailto(CONTATOS.patrocinador,");
+    expect(PAGINA).toContain("mailto(CONTATOS.apoiador,");
   });
 
   it("declara que a nota e o ranking não estão à venda", () => {

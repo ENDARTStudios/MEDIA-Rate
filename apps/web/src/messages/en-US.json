@@ -1256,7 +1256,24 @@
     "add": "Add",
     "remove": "Remove",
     "emptyItems": "No titles yet — add the first one!",
-    "loginToContribute": "Sign in to contribute to this list."
+    "loginToContribute": "Sign in to contribute to this list.",
+    "share": "Share",
+    "close": "Close",
+    "shareHint": "Anyone with the link can see the list and suggest titles. The list description is the note to your friend — write who it is for.",
+    "listLink": "List link",
+    "copyLink": "Copy link",
+    "copyInvite": "Copy invite",
+    "linkCopied": "Link copied",
+    "inviteCopied": "Invite copied",
+    "copyFailed": "Could not copy — select the text and copy it manually.",
+    "shareNative": "Share…",
+    "downloadPdf": "Download PDF",
+    "pdfPreparing": "Building PDF…",
+    "pdfError": "Could not build the PDF now. Try again.",
+    "pdfFooter": "MEDIA Rate · mediarate.app",
+    "noteLabel": "Note",
+    "seeList": "See the list:",
+    "addNote": "Write the note"
   },
   "metadados": {
     "title": "Metadata",
@@ -1487,9 +1504,9 @@
     "title": "Support MEDIA Rate",
     "intro": "MEDIA Rate exists to answer one simple question: is this worth my time? The answer cannot depend on who distributes the work — that is what we are funding.",
     "whyTitle": "Why support it",
-    "why1": "Ratings are not for sale: a subscription, partnership or sponsorship never changes the MEDIA Score.",
-    "why2": "Open methodology: weights, sources and cuts are documented and auditable.",
-    "why3": "No ads inside the catalog: deciding what to watch, read or play never happens inside an attention auction.",
+    "why1": "A subscription, partnership or sponsorship never changes the MEDIA Score — under any circumstance.",
+    "why2": "Weights, sources and cuts are documented and anyone can audit them.",
+    "why3": "Deciding what to watch, read or play never happens inside an attention auction.",
     "apoiadorTitle": "Supporter",
     "apoiadorWho": "For people who use the product and want it to stay independent.",
     "apoiadorHow": "Pick a plan — that is the support that keeps the day-to-day running.",
@@ -1521,6 +1538,10 @@
     "registryEmpty": "No active sponsorship. When there is one, it shows up here with an authorised name, section and start date — plus the label you see in the interface.",
     "registrySponsor": "Sponsor",
     "registrySection": "Where it appears",
-    "registrySince": "Since"
+    "registrySince": "Since",
+    "formasTitle": "Three ways to support",
+    "whyTitleNota": "The score is not for sale",
+    "whyTitleMetodologia": "Open methodology",
+    "whyTitleSemAnuncio": "No ads in the catalog"
   }
 }
