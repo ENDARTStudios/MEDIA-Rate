@@ -57,7 +57,7 @@ function paginaRt(opcoes: {
   </script></body></html>`;
 }
 
-describe("SteamAdapter — identidade do appid (T-DADOS-27)", () => {
+describe("SteamAdapter — identidade do appid (T-DADOS-41)", () => {
   it("não aceita o primeiro resultado quando o nome é outro produto", async () => {
     const fetchMock = mockFetch([
       { body: { total: 1, items: [{ id: 1127420, name: "Sim Racing Telemetry - F1 2019" }] } },
@@ -88,7 +88,7 @@ describe("SteamAdapter — identidade do appid (T-DADOS-27)", () => {
   });
 });
 
-describe("KitsuAdapter — URL de procedência (T-DADOS-27)", () => {
+describe("KitsuAdapter — URL de procedência (T-DADOS-41)", () => {
   it("usa o slug da obra na URL pública", async () => {
     mockFetch([
       {
@@ -119,7 +119,7 @@ describe("KitsuAdapter — URL de procedência (T-DADOS-27)", () => {
   });
 });
 
-describe("RottenTomatoesAdapter — métrica e identidade (T-DADOS-27)", () => {
+describe("RottenTomatoesAdapter — métrica e identidade (T-DADOS-41)", () => {
   it("rejeita página de outra obra por releaseYear", async () => {
     mockFetch([{ body: paginaRt({ ano: 2017, titulo: "Escape Room", critica: 50, publico: 19 }) }]);
     const notas = await new RottenTomatoesAdapter().coletar({

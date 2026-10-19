@@ -37,7 +37,7 @@ export class KitsuAdapter implements FonteAdapter {
     if (nota == null || nota === "") return [];
     const stats = estatisticas("0-100");
     const ratingCount = Number(media?.attributes?.ratingCount ?? 0);
-    // T-DADOS-27: página da obra (slug real da API; id como fallback) — antes a
+    // T-DADOS-41: página da obra (slug real da API; id como fallback) — antes a
     // nota ficava sem URL de procedência.
     const chave = media?.attributes?.slug || media?.id;
     return [

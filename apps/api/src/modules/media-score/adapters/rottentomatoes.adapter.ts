@@ -8,7 +8,7 @@ import { fetchTexto, UA_BROWSER } from "./http.utils.js";
  *  - `criticsScore` (Tomatometer, crítica);
  *  - `audienceScore` (Popcornmeter, público).
  *
- * T-DADOS-27: até aqui o adaptador lia o `ratingValue` do JSON-LD, que é o
+ * T-DADOS-41: até aqui o adaptador lia o `ratingValue` do JSON-LD, que é o
  * **AudienceScore**, e gravava como se fosse a nota de CRÍTICA. Agora cada
  * bloco alimenta a fonte correta do source-registry (`rottentomatoes` e
  * `rottentomatoes_audience`) e a página é conferida por identidade
@@ -151,7 +151,7 @@ export class RottenTomatoesAdapter implements FonteAdapter {
     let url = urlRottenTomatoes(consulta);
     let html = await fetchTexto(url, opcoes);
 
-    // T-DADOS-27: o slug é um palpite — só atribui nota quando a página é da
+    // T-DADOS-41: o slug é um palpite — só atribui nota quando a página é da
     // mesma obra. Ao bater em obra homônima de outro ano, tenta a variante
     // `/m/<slug>_<ano>` antes de desistir (é a convenção do próprio RT).
     if (!identidadeConfereRt(consulta, html)) {

@@ -14,7 +14,7 @@ export interface ConsultaMedia {
   titulo: string;
   ano?: number;
   /**
-   * T-DADOS-27: títulos alternativos para conferência de identidade em fontes
+   * T-DADOS-41: títulos alternativos para conferência de identidade em fontes
    * que exibem o nome em outro idioma (ex.: RT mostra o título em inglês).
    */
   tituloOriginal?: string;

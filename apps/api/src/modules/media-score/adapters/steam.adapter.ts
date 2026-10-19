@@ -11,7 +11,7 @@ interface SteamReviews {
 }
 
 /**
- * T-DADOS-27: nome para conferência de identidade — sem ™/®/©, sem acento e
+ * T-DADOS-41: nome para conferência de identidade — sem ™/®/©, sem acento e
  * com pontuação reduzida a espaço. O storesearch devolve produtos com nomes
  * PARECIDOS (ex.: "F1 2019" → "Sim Racing Telemetry - F1 2019"), então o
  * primeiro resultado não serve como fallback.
