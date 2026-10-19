@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { SteamAdapter, normalizarNomeSteam } from "../src/modules/media-score/adapters/steam.adapter.js";
+import {
+  SteamAdapter,
+  normalizarNomeSteam,
+} from "../src/modules/media-score/adapters/steam.adapter.js";
 import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
 import {
   RottenTomatoesAdapter,
@@ -142,9 +145,7 @@ describe("RottenTomatoesAdapter — métrica e identidade (T-DADOS-27)", () => {
   });
 
   it("separa Tomatometer (crítica) de Popcornmeter (público)", async () => {
-    mockFetch([
-      { body: paginaRt({ ano: 2019, titulo: "Escape Room", critica: 51, publico: 54 }) },
-    ]);
+    mockFetch([{ body: paginaRt({ ano: 2019, titulo: "Escape Room", critica: 51, publico: 54 }) }]);
     const notas = await new RottenTomatoesAdapter().coletar({
       tipo: "FILME",
       titulo: "Escape Room",

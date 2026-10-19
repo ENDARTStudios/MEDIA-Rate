@@ -5,7 +5,11 @@ import { fetchJson } from "./http.utils.js";
 interface KitsuMedia {
   data?: {
     id?: string;
-    attributes?: { slug?: string | null; averageRating?: string | null; ratingCount?: number | null };
+    attributes?: {
+      slug?: string | null;
+      averageRating?: string | null;
+      ratingCount?: number | null;
+    };
   }[];
 }
 

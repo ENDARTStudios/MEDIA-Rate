@@ -131,7 +131,7 @@ export function identidadeConfereRt(consulta: ConsultaMedia, html: string): bool
 function urlComAno(consulta: ConsultaMedia, url: string): string | null {
   if (consulta.tipo === "SERIE" || consulta.ano == null) return null;
   if (consulta.idsExternos?.rottentomatoes) return null;
-  if (new RegExp(`_${consulta.ano}$`).test(url)) return null;
+  if (url.endsWith(`_${consulta.ano}`)) return null;
   return `${url}_${consulta.ano}`;
 }
 
