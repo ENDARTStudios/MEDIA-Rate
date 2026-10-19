@@ -13,6 +13,12 @@ export interface ConsultaMedia {
   tipo: string; // FILME | SERIE | GAME | LIVRO | HQ | ANIME
   titulo: string;
   ano?: number;
+  /**
+   * T-DADOS-27: títulos alternativos para conferência de identidade em fontes
+   * que exibem o nome em outro idioma (ex.: RT mostra o título em inglês).
+   */
+  tituloOriginal?: string;
+  tituloEn?: string;
   /** IDs externos conhecidos (ex.: { steam_appid: "1234", imdb_id: "tt..." }). */
   idsExternos?: Record<string, string>;
 }

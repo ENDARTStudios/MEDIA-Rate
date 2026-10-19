@@ -10,7 +10,23 @@ interface SteamReviews {
   query_summary?: { total_positive: number; total_negative: number };
 }
 
-/** Steam Store — storesearch (appid) + appreviews. Ratio positivo ×100 (público). */
+/**
+ * T-DADOS-27: nome para conferência de identidade — sem ™/®/©, sem acento e
+ * com pontuação reduzida a espaço. O storesearch devolve produtos com nomes
+ * PARECIDOS (ex.: "F1 2019" → "Sim Racing Telemetry - F1 2019"), então o
+ * primeiro resultado não serve como fallback.
+ */
+export function normalizarNomeSteam(nome: string): string {
+  return String(nome ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[™®©]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Steam Store — storesearch (appid) + appreviews. Ratio positivo 0–1 (público). */
 export class SteamAdapter implements FonteAdapter {
   readonly id = "steam";
 
@@ -28,9 +44,10 @@ export class SteamAdapter implements FonteAdapter {
       const busca = await fetchJson<SteamStoreSearch>(
         `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(consulta.titulo)}&l=en&cc=us`,
       );
-      const item =
-        busca.items?.find((i) => i.name.toLowerCase() === consulta.titulo.toLowerCase()) ??
-        busca.items?.[0];
+      const alvo = normalizarNomeSteam(consulta.titulo);
+      const item = alvo
+        ? busca.items?.find((i) => normalizarNomeSteam(i.name) === alvo)
+        : undefined;
       appid = item ? String(item.id) : undefined;
     }
     if (!appid) return [];
