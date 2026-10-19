@@ -406,7 +406,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
     <div className="space-y-6" data-testid="dashboard-overview">
       {notice && (
         <div
-          className="mb-5 flex items-center justify-between rounded-xl border border-dash-indigo/20 bg-dash-indigo/10 px-4 py-3 text-[12px] text-[#c9c4ff]"
+          className="mb-5 flex items-center justify-between rounded-xl border border-dash-indigo/20 bg-dash-indigo/10 px-4 py-3 text-[12px] text-accent-indigo-hover"
           role="status"
         >
           <span className="flex items-center gap-2">
@@ -426,7 +426,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
       >
         <div>
           <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold text-dash-violet">
-            <span className="h-1.5 w-1.5 rounded-full bg-dash-teal shadow-[0_0_12px_#62d7c5]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-dash-teal shadow-[0_0_12px] shadow-accent-teal" />
             {t("overviewKicker")}
           </div>
           <h2 className="max-w-2xl text-[30px] font-bold leading-[1.05] tracking-[-0.055em] text-white sm:text-[42px]">
@@ -1211,7 +1211,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
 
         <aside
           data-testid="overview-trend-aside"
-          className="rounded-lg border border-dash-blue/15 bg-gradient-to-br from-[#111c2b] to-dash-surface p-5"
+          className="rounded-lg border border-dash-blue/15 bg-gradient-to-br from-surface-elevated to-dash-surface p-5"
         >
           <div className="flex items-center justify-between gap-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fg-muted">
@@ -1330,7 +1330,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
       <section className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
         <div
           data-testid="overview-profile"
-          className="relative overflow-hidden rounded-lg border border-dash-indigo/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-dash-surface p-5 sm:p-6"
+          className="relative overflow-hidden rounded-lg border border-dash-indigo/20 bg-gradient-to-br from-surface-elevated via-surface-card to-dash-surface p-5 sm:p-6"
         >
           <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-dash-indigo/15 blur-3xl" />
           <div className="relative">

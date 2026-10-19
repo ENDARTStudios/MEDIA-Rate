@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/http";
+import { colors } from "@/lib/design-tokens";
 import {
   Bar,
   BarChart,
@@ -144,7 +145,7 @@ export default function AdminMetricasPage() {
                   type="monotone"
                   dataKey="novos_usuarios"
                   name="Novos usuários"
-                  stroke="#818CF8"
+                  stroke={colors.accent.indigo}
                   strokeWidth={2}
                   dot={false}
                 />
@@ -152,7 +153,7 @@ export default function AdminMetricasPage() {
                   type="monotone"
                   dataKey="interacoes"
                   name="Interações"
-                  stroke="#34D399"
+                  stroke={colors.accent.emerald}
                   strokeWidth={2}
                   dot={false}
                 />
@@ -182,7 +183,7 @@ export default function AdminMetricasPage() {
                 <XAxis dataKey="tipo" tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="interacoes" fill="#34D399" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="interacoes" fill={colors.accent.emerald} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -209,7 +210,7 @@ export default function AdminMetricasPage() {
                 <XAxis dataKey="tipo" tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="titulos" fill="#818CF8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="titulos" fill={colors.accent.indigo} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

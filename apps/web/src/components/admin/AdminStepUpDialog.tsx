@@ -115,7 +115,7 @@ export default function AdminStepUpDialog() {
             onClick={() => void confirmar()}
             disabled={ocupado || senha.length === 0}
             data-testid="admin-stepup-confirmar"
-            className="rounded bg-[#818CF8] px-3 py-1.5 text-sm font-semibold text-[#0F172A] hover:brightness-110 disabled:opacity-40"
+            className="rounded bg-accent-indigo px-3 py-1.5 text-sm font-semibold text-accent-indigo-foreground hover:brightness-110 disabled:opacity-40"
           >
             {t("stepupConfirmar")}
           </button>

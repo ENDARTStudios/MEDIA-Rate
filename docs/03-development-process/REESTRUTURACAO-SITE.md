@@ -112,7 +112,7 @@ Artefatos em `.dsh-artifacts/visual-qa/` (não versionado).
 
 ## Aberto (fora do escopo desta fase)
 
-### Varredura do hex no admin/dashboard — medida, parcialmente aplicada
+### Varredura do hex no admin/dashboard — aplicada (Operador aprovou em 2026-10-19)
 
 `scripts/bots/admin-hex-plan.mjs` percorre as 10 rotas de admin/dashboard (29 arquivos), agrupa
 por valor, aplica o mapa D-586 e mede a **diferença em RGB por canal** de cada consolidação —
@@ -120,19 +120,28 @@ para a decisão de descongelar ser tomada com números, não com "é quase igual
 
 | Faixa | Ocorrências | Situação |
 |---|---|---|
-| Δ = 0 (mesmo valor de um token existente) | **37** | **aplicado** (`--write-identity`): 30 trocas em 8 arquivos, zero mudança de pixel |
-| Δ 3–10 (sutil) | 3 | pendente — muda cor, precisa de decisão |
-| Δ 16–46 (visível) | 7 | pendente — `#8B7CFF`→indigo (16), `#A69CFF`→violet (17), `#62D7C5`→emerald (46; o "dash-teal" **não tem** token equivalente) |
-| Sem mapa | 10 | `#FFFFFF`(5), `#18152D`(2), `#C9C4FF`, `#111C2B`, `#D4AF37` |
+| Δ = 0 | **37** | aplicado (`--write-identity`) |
+| Δ 3–16 | 9 | aplicado (`--write-all`, aprovado) |
+| Δ 22–36 | 2 | aplicado (`--write-all`, aprovado): `#0D0D14`→`accent-indigo-foreground` (22), `#C9C4FF`→`accent-indigo-hover` (36) |
+| `#62D7C5` (Δ 46 para emerald) | 1 | **não foi trocado por emerald**: virou token próprio `accent-teal` (Δ 0), como o D-586 já previa |
 
-Duas lições de medição que ficaram registradas:
+**Resultado:** `design:hex` caiu de **63 ocorrências / 26 valores** para **57 / 22**. Sobraram,
+de propósito, os hex que **não são UI renderizada**:
 
-1. **`design:hex` não se move** com a parte Δ = 0 (segue 63 ocorrências / 26 valores): ele só
-   acusa valor que **não existe** em fonte de token, e esses já existiam. O ganho é consistência,
-   não métrica.
+- `#FFFFFF`, `#A69CFF`, `#0B0B12`, `#171725` — dentro da **string de export** do dashboard
+  (`DashboardOverview` monta um HTML autossuficiente para exportar o relatório). Documento
+  gerado não usa token de app: ele precisa abrir fora do produto;
+- `#D4AF37` (dourado) — não existe token de ouro; o mesmo valor aparece no confete público.
+
+Lições que ficaram registradas:
+
+1. **`design:hex` não se move** com a parte Δ = 0: ele só acusa valor que **não existe** em fonte
+   de token. Só a criação de `accent-teal` e a troca das superfícies mexeram o número.
 2. O hex do admin está em **classe arbitrária** (`text-[#F5F5F7]`), não em `style={{}}` — o que
-   torna a troca mecânica. O que não é mecânico é a **cor**: Δ 46 no `dash-teal` é decisão de
-   design (criar `accent-teal` ou aceitar o desvio), não de refactor.
+   torna a troca mecânica. O que **não** é mecânico é a **cor**: no `dash-teal`, trocar por
+   emerald (Δ 46) mudaria a identidade; criar o token preserva o valor.
+3. Três arquivos (`AdminShell`, `AdminStepUpDialog`, o fallback `var(--plan-accent, …)`) **não
+   estão no grafo de páginas** — o bot não os alcança. Hex nesses arquivos precisa de olho humano.
 
 ### #603 (vitest 4.1.10 → 4.1.11): são DOIS problemas — medido, não suposto
 

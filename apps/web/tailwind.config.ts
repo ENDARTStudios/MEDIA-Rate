@@ -47,6 +47,11 @@ const config: Config = {
           amber: { DEFAULT: "#FBBF24", foreground: "#0F172A" },
           pink: { DEFAULT: "#F472B6", foreground: "#0F172A" },
           violet: { DEFAULT: "#A78BFA", foreground: "#0F172A" },
+          // Promovido do protótipo do dashboard (`dash-teal` #62D7C5), que o D-586 já
+          // apontava como "candidato a novo token". Sem ele, a varredura do admin tinha
+          // de escolher entre manter o literal ou trocar teal por esmeralda (Δ 46 — cor
+          // diferente). Com o token, o valor é preservado e a dívida fecha.
+          teal: { DEFAULT: "#62D7C5", foreground: "#0F172A" },
         },
         // `hover` é o rose escurecido que os CTAs de marca usavam como hex solto
         // (`hover:bg-[#C31442]`) — par de `brand` no mesmo espírito do indigo.
