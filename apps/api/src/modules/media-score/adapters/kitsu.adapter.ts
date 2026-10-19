@@ -3,7 +3,14 @@ import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
 import { fetchJson } from "./http.utils.js";
 
 interface KitsuMedia {
-  data?: { attributes?: { averageRating?: string | null; ratingCount?: number | null } }[];
+  data?: {
+    id?: string;
+    attributes?: {
+      slug?: string | null;
+      averageRating?: string | null;
+      ratingCount?: number | null;
+    };
+  }[];
 }
 
 /** Kitsu — API pública; averageRating "82.3" (0–100) → ÷10. */
@@ -30,6 +37,9 @@ export class KitsuAdapter implements FonteAdapter {
     if (nota == null || nota === "") return [];
     const stats = estatisticas("0-100");
     const ratingCount = Number(media?.attributes?.ratingCount ?? 0);
+    // T-DADOS-41: página da obra (slug real da API; id como fallback) — antes a
+    // nota ficava sem URL de procedência.
+    const chave = media?.attributes?.slug || media?.id;
     return [
       {
         fonte: this.id,
@@ -37,6 +47,7 @@ export class KitsuAdapter implements FonteAdapter {
         media_fonte: stats.media,
         desvio_fonte: stats.desvio,
         votos: ratingCount > 0 ? ratingCount : undefined,
+        url: chave ? `https://kitsu.io/${segmento}/${chave}` : undefined,
       },
     ];
   }

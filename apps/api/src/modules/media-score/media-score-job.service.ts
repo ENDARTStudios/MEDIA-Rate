@@ -10,7 +10,14 @@ import { MediaScoreService, type MediaScoreV3Result } from "./media-score.servic
 
 type MidiaParaColeta = Pick<
   Midia,
-  "id" | "tipo" | "titulo" | "ano_lancamento" | "fonte" | "fonte_id"
+  | "id"
+  | "tipo"
+  | "titulo"
+  | "titulo_original"
+  | "titulo_en"
+  | "ano_lancamento"
+  | "fonte"
+  | "fonte_id"
 >;
 
 // T-DADOS-18: o job não pode depender de um timer de 7 dias — cada deploy
@@ -159,6 +166,8 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
             id: true,
             tipo: true,
             titulo: true,
+            titulo_original: true,
+            titulo_en: true,
             ano_lancamento: true,
             fonte: true,
             fonte_id: true,
@@ -257,6 +266,8 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       tipo: midia.tipo,
       titulo: midia.titulo,
       ano: midia.ano_lancamento ?? undefined,
+      ...(midia.titulo_original ? { tituloOriginal: midia.titulo_original } : {}),
+      ...(midia.titulo_en ? { tituloEn: midia.titulo_en } : {}),
       ...(midia.fonte && midia.fonte_id ? { idsExternos: { [midia.fonte]: midia.fonte_id } } : {}),
     };
 
