@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { MediaCardShell } from "./MediaCardShell";
 import { CarouselControls } from "./CarouselControls";
 import { CarouselInteractions } from "./CarouselInteractions";
+import { AutoScrollTrack } from "./AutoScrollTrack";
 import type { MediaType, CatalogResponse } from "@/lib/types";
 import type { MediaItem } from "@/components/MediaCard";
 
@@ -101,11 +102,11 @@ export function MediaCarousel({
 
   return (
     <section
-      className={cn("py-8 px-4", className)}
+      className={cn("py-8", className)}
       aria-labelledby={`carousel-${type}`}
       data-testid={`carousel-${type}`}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="secao">
         <div className="mb-4 flex items-center gap-3">
           <span
             className="flex h-8 w-8 items-center justify-center rounded-lg"
@@ -131,10 +132,13 @@ export function MediaCarousel({
         </div>
 
         <CarouselInteractions>
-          <div
+          {/* Conceito v9 §4: auto-avanço de 1 card a cada 5 s, com pausa em
+              hover/focus, parada definitiva ao interagir e desligado em
+              `prefers-reduced-motion`. A trilha segue manual (snap) por cima. */}
+          <AutoScrollTrack
             id={listId}
+            rotulo={title}
             className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4"
-            aria-label={title}
           >
             {items.map((m) => (
               <div key={m.id} className="w-[160px] sm:w-[180px] flex-shrink-0 snap-start">
@@ -150,7 +154,7 @@ export function MediaCarousel({
             {items.length === 0 && (
               <p className="py-12 text-sm text-fg-muted">{tCatalog("noResults")}</p>
             )}
-          </div>
+          </AutoScrollTrack>
         </CarouselInteractions>
       </div>
     </section>
