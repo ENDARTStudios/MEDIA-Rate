@@ -335,7 +335,7 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
     });
   });
 
-  it("T-DADOS-41: duas notas da mesma fonte — mantém a primeira (UNIQUE midia+fonte)", async () => {
+  it("T-DADOS-41: duas notas da mesma fonte — fica a que traz votos (UNIQUE midia+fonte)", async () => {
     const { prisma, coleta, job } = mockDependencias();
     coleta.coletarTudo.mockResolvedValue([
       {
@@ -357,6 +357,7 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
           rating: 92,
           media_fonte: 70,
           desvio_fonte: 15,
+          votos: 250,
           url: "https://www.rottentomatoes.com/m/x",
         },
       },
@@ -368,7 +369,8 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       data: { fonte: string; rating: number }[];
     };
     expect(create.data).toHaveLength(1);
-    expect(create.data[0]!.rating).toBe(91);
+    expect(create.data[0]!.rating).toBe(92);
+    expect(create.data[0]!.votos).toBe(250);
   });
 
   it("T-DADOS-41: erro do OMDb preserva as fontes derivadas (RT/MC)", async () => {

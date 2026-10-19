@@ -280,7 +280,14 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     // do OMDb e do scraper do RT). A tabela tem UNIQUE(midia_id, fonte) —
     // mantém a primeira ocorrência (o OMDb vem antes do scraper).
     const porFonte = new Map<string, (typeof todas)[number]>();
-    for (const r of todas) if (!porFonte.has(r.nota.fonte)) porFonte.set(r.nota.fonte, r);
+    for (const r of todas) {
+      const atual = porFonte.get(r.nota.fonte);
+      // Sem duplicata: fica a primeira. Com duplicata: fica a que traz votos
+      // (o fator de volume da confiança usa `votos`; null = 0).
+      if (!atual || (atual.nota.votos == null && r.nota.votos != null)) {
+        porFonte.set(r.nota.fonte, r);
+      }
+    }
     const coletadas = [...porFonte.values()];
 
     // D-410/T426: falha graciosa — se a coleta não obteve NENHUMA fonte mas a
