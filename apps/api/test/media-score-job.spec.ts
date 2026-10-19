@@ -334,4 +334,61 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       expect(urls).toContain("https://cf.exemplo/api/revalidate");
     });
   });
+
+  it("T-DADOS-41: duas notas da mesma fonte — mantém a primeira (UNIQUE midia+fonte)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    coleta.coletarTudo.mockResolvedValue([
+      {
+        fonte: "omdb",
+        status: "ok",
+        nota: {
+          fonte: "rottentomatoes",
+          rating: 91,
+          media_fonte: 70,
+          desvio_fonte: 15,
+          url: "https://www.imdb.com/title/tt1",
+        },
+      },
+      {
+        fonte: "rottentomatoes",
+        status: "ok",
+        nota: {
+          fonte: "rottentomatoes",
+          rating: 92,
+          media_fonte: 70,
+          desvio_fonte: 15,
+          url: "https://www.rottentomatoes.com/m/x",
+        },
+      },
+    ]);
+
+    await job.coletarEPersistir(midia("m1"));
+
+    const create = prisma.avaliacaoFonte.createMany.mock.calls[0]![0] as {
+      data: { fonte: string; rating: number }[];
+    };
+    expect(create.data).toHaveLength(1);
+    expect(create.data[0]!.rating).toBe(91);
+  });
+
+  it("T-DADOS-41: erro do OMDb preserva as fontes derivadas (RT/MC)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "omdb", status: "erro", motivo: "cota" },
+      {
+        fonte: "tmdb",
+        status: "ok",
+        nota: { fonte: "tmdb", rating: 8, media_fonte: 7, desvio_fonte: 1.5 },
+      },
+    ]);
+
+    await job.coletarEPersistir(midia("m1"));
+
+    expect(prisma.avaliacaoFonte.deleteMany).toHaveBeenCalledWith({
+      where: {
+        midia_id: "m1",
+        fonte: { notIn: ["omdb", "rottentomatoes", "metacritic"] },
+      },
+    });
+  });
 });
