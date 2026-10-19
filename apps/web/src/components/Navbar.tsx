@@ -103,7 +103,7 @@ export function Navbar({
               conteudo + marca = 865 px de scrollWidth, overflow horizontal real
               medido pelo visual-qa em TODAS as rotas). O desktop entra em lg; abaixo
               disso o menu hamburguer assume. */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden xl:flex items-center space-x-4">
             <SearchCommand />
             <GradientMenu
               items={NAV_ITEMS.map((item) => ({
@@ -245,9 +245,20 @@ export function Navbar({
             <LocaleSwitcher />
           </div>
 
-          <div className="lg:hidden flex items-center gap-1">
+          <div className="xl:hidden flex items-center gap-1">
+            {/* Entre lg e xl a barra desktop não cabe (foi o overflow de 865 px a
+                768 px), mas perder o CTA de cadastro nessa faixa custa conversão em
+                notebook: o botão fica, o resto da navegação vai para o menu. */}
+            {!effectiveAuth && (
+              <Link
+                href="/register"
+                className="hidden md:inline-flex items-center rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground transition-[filter] hover:brightness-110"
+              >
+                {t("register")}
+              </Link>
+            )}
             {effectiveAuth && (
-              <div className="lg:hidden">
+              <div className="xl:hidden">
                 <NotificationBell />
               </div>
             )}
@@ -290,7 +301,7 @@ export function Navbar({
         {mobileOpen && (
           <motion.div
             id="mobile-menu"
-            className="lg:hidden"
+            className="xl:hidden"
             initial={reduce ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={reduce ? undefined : { opacity: 0, height: 0 }}

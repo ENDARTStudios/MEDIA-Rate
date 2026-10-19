@@ -1504,9 +1504,9 @@
     "title": "Apoya MEDIA Rate",
     "intro": "MEDIA Rate existe para responder una pregunta simple: ¿vale mi tiempo? La respuesta no puede depender de quién distribuye la obra — y eso es lo que buscamos financiar.",
     "whyTitle": "Por qué apoyar",
-    "why1": "La nota no se compra: suscripción, alianza o patrocinio nunca cambian el MEDIA Score.",
-    "why2": "Metodología abierta: pesos, fuentes y cortes están documentados y son auditables.",
-    "why3": "Sin anuncios dentro del catálogo: decidir qué ver, leer o jugar no ocurre dentro de una subasta de atención.",
+    "why1": "Suscripción, alianza o patrocinio nunca cambian el MEDIA Score — bajo ninguna circunstancia.",
+    "why2": "Pesos, fuentes y cortes están documentados y cualquiera puede auditarlos.",
+    "why3": "Decidir qué ver, leer o jugar no ocurre dentro de una subasta de atención.",
     "apoiadorTitle": "Colaborador",
     "apoiadorWho": "Para quien usa el producto y quiere que siga siendo independiente.",
     "apoiadorHow": "Elige un plan: es el apoyo que sostiene la operación del día a día.",
@@ -1538,6 +1538,10 @@
     "registryEmpty": "No hay patrocinio activo. Cuando lo haya, aparecerá aquí con el nombre autorizado, la sección y la fecha de inicio — y con la etiqueta que ves en la interfaz.",
     "registrySponsor": "Patrocinador",
     "registrySection": "Dónde aparece",
-    "registrySince": "Desde"
+    "registrySince": "Desde",
+    "formasTitle": "Tres formas de apoyar",
+    "whyTitleNota": "La nota no se compra",
+    "whyTitleMetodologia": "Metodología abierta",
+    "whyTitleSemAnuncio": "Sin anuncios en el catálogo"
   }
 }
