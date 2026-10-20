@@ -4,6 +4,7 @@ import {
   normalizarNomeSteam,
 } from "../src/modules/media-score/adapters/steam.adapter.js";
 import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
+import { TmdbAdapter } from "../src/modules/media-score/adapters/tmdb.adapter.js";
 import {
   RottenTomatoesAdapter,
   extrairAnoRt,
@@ -189,5 +190,49 @@ describe("RottenTomatoesAdapter — métrica e identidade (T-DADOS-41)", () => {
     expect(extrairAnoRt(html)).toBe(2020);
     expect(extrairNotaRt(html, "criticsScore")).toEqual({ score: 0, votos: 211 });
     expect(extrairNotaRt(html, "audienceScore")).toEqual({ score: 31, votos: 2500 });
+  });
+});
+
+describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
+  it("com id numérico, consulta /3/movie/{id} em 1 request", async () => {
+    vi.stubEnv("TMDB_API_KEY", "teste");
+    const fetchMock = mockFetch([
+      { body: { id: 238, title: "O Poderoso Chefão", vote_average: 8.7, vote_count: 20000 } },
+    ]);
+    const notas = await new TmdbAdapter().coletar({
+      tipo: "FILME",
+      titulo: "O Poderoso Chefão",
+      ano: 1972,
+      idsExternos: { tmdb: "238" },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/3/movie/238");
+    expect(url).not.toContain("/search/");
+    expect(notas[0].rating).toBe(8.7);
+    expect(notas[0].votos).toBe(20000);
+    expect(notas[0].url).toBe("https://www.themoviedb.org/movie/238");
+  });
+
+  it("série usa /3/tv/{id} (fonte tmdb_tv)", async () => {
+    vi.stubEnv("TMDB_API_KEY", "teste");
+    mockFetch([{ body: { id: 1396, name: "Breaking Bad", vote_average: 8.9, vote_count: 14000 } }]);
+    const notas = await new TmdbAdapter().coletar({
+      tipo: "SERIE",
+      titulo: "Breaking Bad",
+      idsExternos: { tmdb_tv: "1396" },
+    });
+    expect(notas[0].url).toBe("https://www.themoviedb.org/tv/1396");
+  });
+
+  it("sem id, mantém a busca por título (fallback)", async () => {
+    vi.stubEnv("TMDB_API_KEY", "teste");
+    const fetchMock = mockFetch([
+      { body: { results: [{ id: 5, title: "X", vote_average: 7.1, vote_count: 30 }] } },
+    ]);
+    const notas = await new TmdbAdapter().coletar({ tipo: "FILME", titulo: "X", ano: 2001 });
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/search/movie");
+    expect(notas[0].rating).toBe(7.1);
   });
 });
