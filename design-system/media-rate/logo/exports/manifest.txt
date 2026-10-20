@@ -7,6 +7,8 @@ png 06-light 24519b
 png 07-header 19417b
 png 08-brand-sheet 320020b
 png 09-mono-ink 23750b
+png 10-og 38318b
+png og-image 20801b
 pdf 52107b
 svg media-rate-logo-primary.svg 3811b
 svg media-rate-logo-stacked.svg 3678b
@@ -33,3 +35,4 @@ png media-rate-icon-180.png 3571b
 png favicon-48.png 983b
 png favicon-32.png 769b
 png favicon-16.png 468b
+png apple-icon-180.png 3383b

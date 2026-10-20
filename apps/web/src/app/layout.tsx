@@ -14,16 +14,24 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mediarate.app"),
-  icons: { icon: "/icon.svg" },
+  icons: {
+    icon: "/icon.svg",
+    // Marca: apple-touch-icon opaco 180×180 (gerado em
+    // design-system/media-rate/logo/exports/png/apple-icon-180.png).
+    apple: "/apple-icon.png",
+  },
 };
 
 // Display/hero (Parte 2.4 do redesign): Cabinet Grotesk/Clash Display não
 // estão disponíveis em next/font/google nem no Fontsource (E404) — mantido
-// Space Grotesk 600-700 como fonte display (geometrica, mesma familia de
-// estetica, ja aprovada). DECISAO registrada para validacao.
+// Space Grotesk como fonte display (geometrica, mesma familia de estetica,
+// ja aprovada). DECISAO registrada para validacao.
+// A variavel e 300–700; o range declarado cobre o Light 300 do wordmark
+// (RATE) e o Bold 700 das manchetes — antes ficava preso em 500–700 e o
+// RATE caia no 500.
 const spaceGrotesk = localFont({
   src: "./fonts/space-grotesk-latin.woff2",
-  weight: "500 700",
+  weight: "300 700",
   variable: "--font-heading",
   display: "swap",
 });
