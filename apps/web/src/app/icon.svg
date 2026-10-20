@@ -1,5 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#09090F"/>
-  <text x="16" y="22" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="bold" fill="#818CF8" text-anchor="middle">M</text>
-  <circle cx="16" cy="16" r="13" fill="none" stroke="#818CF8" stroke-width="1" opacity="0.6"/>
+  <!-- MEDIA Rate — símbolo sobre o tile escuro (mesma geometria de
+       design-system/media-rate/logo/exports/svg/media-rate-icon.svg). -->
+  <rect width="32" height="32" rx="7" fill="#05050A"/>
+  <g transform="translate(6.72 6.72) scale(0.29)">
+    <path d="M28.832 3.168Q32 0 35.168 3.168L60.832 28.832Q64 32 60.832 35.168L35.168 60.832Q32 64 28.832 60.832L3.168 35.168Q0 32 3.168 28.832L28.832 3.168Z" fill="#818CF8"/>
+    <path d="M51.584 32L24.704 44.288L24.704 19.712Z" fill="#E11D48"/>
+  </g>
 </svg>

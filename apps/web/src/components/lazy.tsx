@@ -35,10 +35,6 @@ export const LazyMediaScoreBadge = dynamic(
   { ssr: false },
 );
 
-export const LazyLogo = dynamic(() => import("./Logo").then((m) => ({ default: m.Logo })), {
-  ssr: false,
-});
-
 function CatalogSkeletonFallback() {
   // D-584 (T211): aria-label estava hardcoded em pt-BR.
   const t = useTranslations("common");

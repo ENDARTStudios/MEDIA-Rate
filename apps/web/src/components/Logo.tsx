@@ -1,15 +1,34 @@
-"use client";
-
-import { useReducedMotionPref } from "@/lib/useReducedMotionPref";
 import { colors } from "@/lib/design-tokens";
 
-import { useEffect, useRef, useId } from "react";
-import { animate } from "animejs/animation";
-
+/**
+ * Marca MEDIA Rate — o selo e o play.
+ *
+ * O símbolo é um losango de cantos suaves (o selo/nota) com um play no centro
+ * (a mídia). O indigo carrega a estrutura; o rose marca a nota. O wordmark usa
+ * o contraste de peso da Space Grotesk: MEDIA em 700 e RATE em 300 com
+ * entreletra ampla — o assunto e a ação.
+ *
+ * Construção (ver `design-system/media-rate/logo/README.md`):
+ * - símbolo = 1em do wordmark (≈ 1,42 × altura de caixa alta);
+ * - RATE entra com 0,42em de respiro e +0,1em de entreletra;
+ * - nada de sombra, gradiente ou terceira cor.
+ *
+ * Componente de servidor de propósito: a marca é estática (sem hidratação) e
+ * mantém o header fora do JS do cliente. O desenho anterior (traço do losango
+ * animado no mount) custava um chunk de animação para um efeito que só existia
+ * no primeiro paint.
+ */
 const SIZES = {
-  sm: { symbol: "h-7 w-7", media: "text-sm", rate: "text-xs", gap: "gap-1.5" },
-  md: { symbol: "h-9 w-9", media: "text-lg", rate: "text-[0.8125rem]", gap: "gap-2.5" },
-  lg: { symbol: "h-12 w-12", media: "text-2xl", rate: "text-base", gap: "gap-3" },
+  sm: { text: "text-[0.9375rem]", gap: "gap-[0.5em]" },
+  md: { text: "text-lg", gap: "gap-[0.55em]" },
+  lg: { text: "text-2xl", gap: "gap-[0.6em]" },
+} as const;
+
+/** Geometria do símbolo numa malha de 64 unidades (viewBox 0 0 64 64). */
+const SYMBOL = {
+  lozenge:
+    "M28.832 3.168Q32 0 35.168 3.168L60.832 28.832Q64 32 60.832 35.168L35.168 60.832Q32 64 28.832 60.832L3.168 35.168Q0 32 3.168 28.832L28.832 3.168Z",
+  play: "M51.584 32L24.704 44.288L24.704 19.712Z",
 } as const;
 
 interface LogoProps {
@@ -19,122 +38,32 @@ interface LogoProps {
 }
 
 export function Logo({ variant = "full", size = "md", className }: LogoProps) {
-  // D-584/M3 (T211): valor reativo (o matchMedia era lido uma vez dentro do efeito).
-  const prefersReduced = useReducedMotionPref();
-  const filterId = useId().replace(/:/g, "");
-  const diamondRef = useRef<SVGPathElement>(null);
-  const ringRef = useRef<SVGCircleElement>(null);
-  const dotRef = useRef<SVGCircleElement>(null);
-
-  useEffect(() => {
-    if (prefersReduced) return;
-
-    const diamond = diamondRef.current;
-    const ring = ringRef.current;
-
-    if (diamond) {
-      const len = diamond.getTotalLength();
-      diamond.style.strokeDasharray = String(len);
-      diamond.style.strokeDashoffset = String(len);
-      animate(diamond, {
-        strokeDashoffset: [len, 0],
-        duration: 700,
-        ease: "outCubic",
-      });
-    }
-
-    if (ring) {
-      const circumference = ring.getTotalLength();
-      ring.style.strokeDasharray = String(circumference);
-      ring.style.strokeDashoffset = String(circumference);
-      animate(ring, {
-        strokeDashoffset: [circumference, circumference * 0.25],
-        duration: 600,
-        delay: 180,
-        ease: "outCubic",
-      });
-    }
-
-    if (dotRef.current) {
-      animate(dotRef.current, {
-        opacity: [0, 0.9],
-        duration: 400,
-        delay: 550,
-        ease: "outCubic",
-      });
-    }
-  }, []);
-
   const s = SIZES[size];
+  const showSymbol = variant !== "inline";
+  const showWordmark = variant !== "compact";
 
   return (
     <span
-      className={`inline-flex items-center select-none ${variant === "full" ? s.gap : ""}`}
+      className={`inline-flex items-center ${showSymbol && showWordmark ? s.gap : ""} ${s.text} ${className ?? ""}`}
+      role="img"
       aria-label="MEDIA Rate"
     >
-      <svg
-        viewBox="0 0 40 40"
-        className={`${s.symbol} ${className ?? ""} shrink-0`}
-        fill="none"
-        aria-hidden="true"
-      >
-        <defs>
-          <filter id={`logo-neon-${filterId}`} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <path
-          ref={diamondRef}
-          d="M20 3L37 20L20 37L3 20Z"
-          stroke={colors.accent.indigo}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          filter={`url(#logo-neon-${filterId})`}
-        />
-
-        <circle
-          ref={ringRef}
-          cx="20"
-          cy="20"
-          r="6.5"
-          stroke={colors.accent.indigo}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          transform="rotate(40 20 20)"
-          opacity="0.85"
-        />
-
-        <circle ref={dotRef} cx="20" cy="20" r="1.5" fill={colors.accent.indigo} opacity="0" />
-      </svg>
-
-      {variant === "full" && (
-        <span className="flex flex-col items-start leading-tight" aria-hidden="true">
-          <span
-            className={`font-heading font-bold text-fg-primary leading-none tracking-tight ${s.media}`}
-          >
-            MEDIA
-          </span>
-          <span
-            className={`font-heading font-medium text-fg-secondary leading-none tracking-wider ${s.rate}`}
-          >
-            {" Rate"}
-          </span>
-        </span>
+      {showSymbol && (
+        <svg
+          viewBox="0 0 64 64"
+          className="h-[1em] w-[1em] shrink-0"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d={SYMBOL.lozenge} fill={colors.accent.indigo} />
+          <path d={SYMBOL.play} fill={colors.accent.brand} />
+        </svg>
       )}
 
-      {/* Variante inline: "MEDIA Rate" com espaço (fix do diagnóstico do header). */}
-      {variant === "inline" && (
-        <span
-          className={`font-heading font-bold text-fg-primary leading-none tracking-tight ${s.media}`}
-        >
-          MEDIA <span className="font-medium text-fg-secondary">Rate</span>
+      {showWordmark && (
+        <span className="font-heading leading-none whitespace-nowrap" aria-hidden="true">
+          <span className="font-bold tracking-[-0.02em] text-fg-primary">MEDIA</span>
+          <span className="ml-[0.42em] font-light tracking-[0.1em] text-fg-primary">RATE</span>
         </span>
       )}
     </span>
