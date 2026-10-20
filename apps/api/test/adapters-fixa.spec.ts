@@ -37,7 +37,12 @@ describe("TraktAdapter — regressão CRIT (rating aninhado em movie/show)", () 
         body: [
           {
             type: "movie",
-            movie: { ids: { slug: "the-godfather-1972" }, rating: 8.900876998901367 },
+            movie: {
+              title: "The Godfather",
+              year: 1972,
+              ids: { slug: "the-godfather-1972", tmdb: 238 },
+              rating: 8.900876998901367,
+            },
           },
         ],
       },
@@ -46,6 +51,7 @@ describe("TraktAdapter — regressão CRIT (rating aninhado em movie/show)", () 
       tipo: "FILME",
       titulo: "The Godfather",
       ano: 1972,
+      idsExternos: { tmdb: "238" },
     });
     expect(notas).toHaveLength(1);
     expect(notas[0].rating).toBeCloseTo(8.900876998901367, 5);
