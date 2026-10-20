@@ -142,8 +142,8 @@ A sidebar foi reescrita para o desenho: **todos os grupos visíveis** (antes ano
 | Elemento do mockup | Implementado como | Desvio |
 |---|---|---|
 | Cabeçalho "FILTROS" + "3 ativos" | `FILTROS` + `{count} ativos` em accent | — |
-| TIPO com caixas de seleção e contagem por tipo | **radio** com ícone da categoria e contagem | o mockup desenha checkbox; a URL/API aceita **um** tipo por vez (`?type=`), e checkbox que desmarca o anterior mentiria |
-| GÊNERO com lista e contagem | **radio** com `total_midias` do endpoint + "ver todos os N" | mesma razão (`?genero=`) |
+| TIPO com caixas de seleção e contagem por tipo | **checkbox** com ícone da categoria e contagem — CSV na URL (`?type=movie,book`) | — |
+| GÊNERO com lista e contagem | **checkbox** com `total_midias` do endpoint + "ver todos os N" (CSV em `?genero=`) | — |
 | ANO com dois campos | dois campos `de` / `até` | — |
 | NOTA MÍNIMA com slider e valor | slider 0–100 (passo 5) + valor; o **máximo** continua como campo compacto | o mockup não tem máximo; removê-lo perderia o recorte por faixa |
 | SÓ COM CRÍTICA como switch | `role="switch"` + `aria-checked` | — |

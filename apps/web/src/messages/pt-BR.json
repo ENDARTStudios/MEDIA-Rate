@@ -753,7 +753,7 @@
     "groupLabel": "Filtros do catálogo",
     "countLoading": "Contando títulos…",
     "liveNotice": "o recorte é ao vivo — sem botão aplicar",
-    "activeCount": "{count} ativos",
+    "activeCount": "{count, plural, one {# ativo} other {# ativos}}",
     "tipoLabel": "Tipo",
     "allTypes": "Todos os tipos",
     "showAll": "ver todos os {count}",

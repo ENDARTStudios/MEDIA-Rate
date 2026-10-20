@@ -26,6 +26,8 @@ import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
 import { useTotalDoRecorte } from "./catalog/TotalDoRecorte";
+import { listaDeValores } from "@/lib/api";
+import type { MediaType } from "@/lib/types";
 import { TIPOS_DO_CATALOGO, useTiposComContagem } from "./catalog/useTiposComContagem";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -69,6 +71,26 @@ export function CatalogFiltersClient() {
   // A ordenação agora vive na faixa acima dos chips; aqui ela só entra na CONTAGEM.
   const sort = sp.get("sort") ?? "";
 
+  // Listas em CSV na URL: `?type=movie,book` e `?genero=drama,acao`.
+  const tiposAtivos = listaDeValores(type) as MediaType[];
+  const generosAtivos = listaDeValores(genero);
+
+  /** Mantém a ordem canônica dos tipos, para a URL ficar estável e legível. */
+  const alternarTipo = (id: MediaType) => {
+    const proximo = tiposAtivos.includes(id)
+      ? tiposAtivos.filter((t) => t !== id)
+      : [...tiposAtivos, id];
+    const ordenado = TIPOS_DO_CATALOGO.filter((t) => proximo.includes(t.id)).map((t) => t.id);
+    setParam("type", ordenado.join(","));
+  };
+
+  const alternarGenero = (slug: string) => {
+    const proximo = generosAtivos.includes(slug)
+      ? generosAtivos.filter((g) => g !== slug)
+      : [...generosAtivos, slug];
+    setParam("genero", proximo.join(","));
+  };
+
   const { total } = useTotalDoRecorte();
   const contagensDeTipo = useTiposComContagem();
 
@@ -82,17 +104,17 @@ export function CatalogFiltersClient() {
     refetchOnWindowFocus: false,
   });
 
-  const activeCount = [
-    type,
-    sort,
-    query,
-    anoMin,
-    anoMax,
-    scoreMin,
-    scoreMax,
-    genero,
-    comCritica ? "critica" : "",
-  ].filter(Boolean).length;
+  // Conta VALORES selecionados, não parâmetros: dois tipos marcados são dois ativos.
+  const activeCount =
+    tiposAtivos.length +
+    generosAtivos.length +
+    (sort ? 1 : 0) +
+    (query.trim() ? 1 : 0) +
+    (anoMin ? 1 : 0) +
+    (anoMax ? 1 : 0) +
+    (scoreMin ? 1 : 0) +
+    (scoreMax ? 1 : 0) +
+    (comCritica ? 1 : 0);
 
   const listaGeneros = generos ?? [];
   const generosVisiveis = mostrarTodosGeneros
@@ -132,20 +154,10 @@ export function CatalogFiltersClient() {
         </p>
       )}
 
-      {/* ── TIPO — radio, porque a URL aceita UM tipo por vez ───────────────── */}
+      {/* ── TIPO — caixas de seleção; a URL aceita LISTA (CSV) ───────────────── */}
       <fieldset className="mt-4">
         <legend className={rotuloGrupo}>{tf("tipoLabel")}</legend>
         <div className="mt-2 space-y-1" data-testid="catalog-filter-tipo">
-          <label className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary">
-            <input
-              type="radio"
-              name="catalog-tipo"
-              checked={!type}
-              onChange={() => setParam("type", "")}
-              className="accent-accent-indigo"
-            />
-            <span className="flex-1">{tf("allTypes")}</span>
-          </label>
           {TIPOS_DO_CATALOGO.map((tipo) => {
             const Icone = CATEGORY_TOKENS[tipo.id].icon;
             const contagem = contagensDeTipo[tipo.id];
@@ -155,10 +167,9 @@ export function CatalogFiltersClient() {
                 className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary"
               >
                 <input
-                  type="radio"
-                  name="catalog-tipo"
-                  checked={type === tipo.id}
-                  onChange={() => setParam("type", tipo.id)}
+                  type="checkbox"
+                  checked={tiposAtivos.includes(tipo.id)}
+                  onChange={() => alternarTipo(tipo.id)}
                   data-testid={`catalog-filter-tipo-${tipo.id}`}
                   className="accent-accent-indigo"
                 />
@@ -187,28 +198,17 @@ export function CatalogFiltersClient() {
           data-testid="catalog-filter-genero"
           aria-disabled={buscaAtiva}
         >
-          <label className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary">
-            <input
-              type="radio"
-              name="catalog-genero"
-              checked={!genero}
-              onChange={() => setParam("genero", "")}
-              disabled={buscaAtiva}
-              className="accent-accent-indigo"
-            />
-            <span className="flex-1">{tf("todosGeneros")}</span>
-          </label>
           {generosVisiveis.map((g) => (
             <label
               key={g.id}
               className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary"
             >
               <input
-                type="radio"
-                name="catalog-genero"
-                checked={genero === g.slug}
-                onChange={() => setParam("genero", g.slug)}
+                type="checkbox"
+                checked={generosAtivos.includes(g.slug)}
+                onChange={() => alternarGenero(g.slug)}
                 disabled={buscaAtiva}
+                data-testid={`catalog-filter-genero-${g.slug}`}
                 className="accent-accent-indigo"
               />
               <span className="flex-1">{g.nome}</span>

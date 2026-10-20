@@ -20,6 +20,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { PrismaService } from "../../prisma/prisma.service.js";
 import { slugify, parseSlugDiscriminado } from "../../common/slugify.js";
 import { normalizarImagem } from "../../common/normalizar-imagem.js";
+import { condicaoGeneros, condicaoTipo, parseGeneros, parseTipos } from "./filtros-lista.js";
 import { CacheService, CacheInvalidationService } from "../../common/cache.service.js";
 import type { Prisma, TipoMidia } from "@prisma/client";
 import { AuditLogService } from "../../common/audit-log.service.js";
@@ -143,13 +144,11 @@ export class MediaController {
     // ficou deprecated (animação japonesa = SERIE, quadrinho japonês =
     // MANGA) e é mapeado para MANGA quando consultado — nunca exposto.
     // Qualquer outro valor é ignorado (lista completa).
-    const TIPO_ALIASES: Record<string, string> = { HQ: "COMIC", ANIME: "MANGA" };
-    if (
-      tipo &&
-      ["FILME", "SERIE", "GAME", "LIVRO", "ANIME", "MANGA", "COMIC", "HQ"].includes(tipo)
-    ) {
-      where.tipo = TIPO_ALIASES[tipo] ?? tipo;
-    }
+    // Multi-valor: `tipo=FILME,SERIE` filtra por qualquer um. Valor único segue
+    // igualdade simples; aliases legados (HQ/ANIME) são resolvidos pelo parser.
+    const tipos = parseTipos(tipo);
+    const condicaoTipos = condicaoTipo(tipos);
+    if (condicaoTipos !== undefined) where.tipo = condicaoTipos;
     // Filtros avançados do catálogo (Tarefa 4 do redesign): ano e faixa de
     // score — valores numéricos opcionais, ignorados quando inválidos.
     const anoMinNum = Number(anoMin);
@@ -177,15 +176,9 @@ export class MediaController {
         },
       };
     }
-    // Filtro por gênero (slug ou id numérico) — relação N:N midia_genero.
-    const generoNum = Number(genero);
-    if (genero !== undefined && genero !== "") {
-      where.generos = {
-        some: {
-          genero: Number.isFinite(generoNum) ? { id: generoNum } : { slug: genero },
-        },
-      };
-    }
+    // Filtro por gênero (slug ou id numérico), agora em lista — relação N:N.
+    const condicaoGenero = condicaoGeneros(parseGeneros(genero));
+    if (condicaoGenero) where.generos = condicaoGenero;
     // T186: "somente com crítica disponível" — score_critica != null
     // (classificação critic|audience do T179 persistida no media_score).
     // Merge com os filtros de score (where.scores.some é um único some AND).

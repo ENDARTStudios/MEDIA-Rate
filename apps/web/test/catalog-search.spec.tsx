@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CatalogFiltersClient } from "@/components/CatalogFiltersClient";
@@ -43,6 +43,11 @@ const messages = {
     semMinimo: "sem mínimo",
     scoreMaxHint: "nota máxima",
     somenteCriticaCurto: "Só com crítica",
+    groupLabel: "Filtros do catálogo",
+    anoMin: "De",
+    anoMax: "Até",
+    countLoading: "Contando títulos…",
+    liveNotice: "o recorte é ao vivo",
   },
   common: {},
 };
@@ -70,7 +75,13 @@ vi.mock("next-intl/navigation", () => ({
 
 // API de gêneros mockada (o componente consulta /api/v1/midias/generos).
 vi.mock("@/lib/http", () => ({
-  api: { get: vi.fn(async () => []) },
+  api: {
+    get: vi.fn(async (url: string) =>
+      String(url).includes("generos")
+        ? [{ id: 1, nome: "Drama", slug: "drama", total_midias: 10 }]
+        : [],
+    ),
+  },
   ApiError: class ApiError extends Error {
     status: number;
     constructor(status: number, message: string) {
@@ -192,7 +203,7 @@ describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
     expect(screen.getByTestId("catalog-clear-all")).toBeEnabled();
   });
 
-  it("busca ativa desabilita gênero/nota/crítica e mostra hint honesta", () => {
+  it("busca ativa desabilita gênero/nota/crítica e mostra hint honesta", async () => {
     paramsHolder.urlParams = new URLSearchParams("q=matrix");
     renderWithProviders(<CatalogFiltersClient />);
 
@@ -201,9 +212,10 @@ describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
 
     // Gênero: o grupo inteiro se declara indisponível e os radios ficam desabilitados.
     expect(screen.getByTestId("catalog-filter-genero")).toHaveAttribute("aria-disabled", "true");
-    const radios = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
-    expect(radios.length).toBeGreaterThan(0);
-    for (const radio of Array.from(radios)) expect(radio).toBeDisabled();
+    await screen.findByTestId("catalog-filter-genero-drama");
+    const caixas = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
+    expect(caixas.length).toBeGreaterThan(0);
+    for (const caixa of Array.from(caixas)) expect(caixa).toBeDisabled();
 
     // Nota: slider (mínimo) e campo (máximo) desabilitados.
     expect(screen.getByTestId("catalog-filter-score-min")).toBeDisabled();
@@ -213,24 +225,45 @@ describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
     expect(screen.getByTestId("catalog-filter-com-critica")).toBeDisabled();
   });
 
-  it("sem busca, gênero/nota/crítica ficam habilitados", () => {
+  it("sem busca, gênero/nota/crítica ficam habilitados", async () => {
     paramsHolder.urlParams = new URLSearchParams();
     renderWithProviders(<CatalogFiltersClient />);
     expect(screen.queryByTestId("catalog-advanced-search-hint")).toBeNull();
     expect(screen.getByTestId("catalog-filter-genero")).toHaveAttribute("aria-disabled", "false");
-    const radios = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
-    for (const radio of Array.from(radios)) expect(radio).toBeEnabled();
+    await screen.findByTestId("catalog-filter-genero-drama");
+    const caixas = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
+    for (const caixa of Array.from(caixas)) expect(caixa).toBeEnabled();
     expect(screen.getByTestId("catalog-filter-score-min")).toBeEnabled();
     expect(screen.getByTestId("catalog-filter-com-critica")).toBeEnabled();
   });
 
-  it("tipo é radio (um por vez) e escreve ?type= na URL", () => {
+  it("tipo é caixa de seleção e ACUMULA em CSV na URL", () => {
     paramsHolder.urlParams = new URLSearchParams();
     renderWithProviders(<CatalogFiltersClient />);
-    const grupo = screen.getByTestId("catalog-filter-tipo");
-    expect(grupo).toBeInTheDocument();
+    expect(screen.getByTestId("catalog-filter-tipo")).toBeInTheDocument();
+
     fireEvent.click(screen.getByTestId("catalog-filter-tipo-movie"));
-    expect(routerMock.replace).toHaveBeenCalledWith(expect.stringContaining("type=movie"));
+    expect(routerMock.replace).toHaveBeenLastCalledWith(expect.stringContaining("type=movie"));
+
+    // Segundo clique ACUMULA. O componente é controlado pela URL; como o router é um
+    // mock, a "navegação" não re-renderiza sozinha — então montamos de novo com o
+    // parâmetro aplicado, que é exatamente o estado que o navegador entregaria.
+    cleanup();
+    routerMock.replace.mockClear();
+    paramsHolder.urlParams = new URLSearchParams("type=movie");
+    renderWithProviders(<CatalogFiltersClient />);
+    fireEvent.click(screen.getByTestId("catalog-filter-tipo-book"));
+    expect(routerMock.replace).toHaveBeenLastCalledWith(
+      expect.stringContaining("type=movie%2Cbook"),
+    );
+  });
+
+  it("gênero também acumula em CSV", async () => {
+    paramsHolder.urlParams = new URLSearchParams();
+    renderWithProviders(<CatalogFiltersClient />);
+    // Gêneros chegam por consulta: espera o checkbox existir antes de clicar.
+    fireEvent.click(await screen.findByTestId("catalog-filter-genero-drama"));
+    expect(routerMock.replace).toHaveBeenLastCalledWith(expect.stringContaining("genero=drama"));
   });
 
   it("só com crítica é switch com estado anunciado", () => {

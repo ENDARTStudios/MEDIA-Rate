@@ -4,7 +4,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { getCatalog, waitlistNotify } from "@/lib/api";
+import { getCatalog, listaDeValores, waitlistNotify } from "@/lib/api";
 import type { MediaType, CatalogResponse } from "@/lib/types";
 import { mapToMediaItem } from "@/lib/catalog-item";
 import { CatalogGrid } from "./CatalogGrid";
@@ -21,6 +21,11 @@ import { RateLimitedError } from "@/lib/http";
 import { RateLimited } from "@/components/ui/rate-limited";
 
 type CatalogSort = "title" | "year" | "score";
+
+/** "movie,book" → ["movie","book"] — a sidebar manda lista em CSV. */
+function parseTiposUrl(valor: string | undefined): MediaType[] {
+  return listaDeValores(valor) as MediaType[];
+}
 
 const PAGE_SIZE = 12;
 
@@ -109,7 +114,7 @@ function CatalogContent({
     ],
     queryFn: () =>
       getCatalog({
-        type,
+        tipos: parseTiposUrl(type),
         search: query,
         sort: asCatalogSort(sort),
         limit: PAGE_SIZE,

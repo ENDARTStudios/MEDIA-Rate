@@ -9,6 +9,13 @@ import { serializeJsonLd } from "../../../lib/json-ld";
 
 type CatalogSort = "title" | "year" | "score";
 
+function asMediaTypeList(value: string | undefined): MediaType[] {
+  return (value ?? "")
+    .split(",")
+    .map((v) => asMediaType(v.trim()))
+    .filter((v): v is MediaType => Boolean(v));
+}
+
 function asMediaType(value: string | undefined): MediaType | undefined {
   switch (value) {
     case "movie":
@@ -80,7 +87,8 @@ export default async function CatalogPage({
   const t = await getTranslations("catalog");
 
   const sp = await searchParams;
-  const type = asMediaType(sp.type);
+  // CSV: `?type=movie,book`. A lista é validada item a item; valor único segue igual.
+  const tipos = asMediaTypeList(sp.type);
   const sort = asCatalogSort(sp.sort);
   const anoMin = asOptionalNumber(sp.anoMin);
   const anoMax = asOptionalNumber(sp.anoMax);
@@ -93,7 +101,7 @@ export default async function CatalogPage({
   const initialData = await getCatalog({
     page: 1,
     limit: 12,
-    type,
+    tipos,
     sort,
     search: sp.q,
     anoMin,
@@ -108,7 +116,7 @@ export default async function CatalogPage({
   // query com initialData quando os filtros correntes coincidem (evita
   // dados velhos quando o usuário muda filtros client-side).
   const initialDataKey = JSON.stringify({
-    type: type ?? null,
+    type: tipos.length > 0 ? tipos.join(",") : null,
     sort: sort ?? null,
     query: sp.q ?? null,
     anoMin: anoMin ?? null,
