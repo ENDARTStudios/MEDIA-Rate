@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 /**
  * Exports the MEDIA Rate logo asset set from the saved VectorCraft document.
  * Run: node export.mjs
@@ -6,7 +8,7 @@ import fs from "node:fs";
 import { VC } from "./vc.mjs";
 import { C } from "./lib.mjs";
 
-const ROOT = "D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\design-system\\media-rate\\logo";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = ROOT + "\\src\\media-rate-logo.vectorcraft";
 const OUT_PNG = ROOT + "\\exports\\png";
 const OUT_SVG = ROOT + "\\exports\\svg";
@@ -14,7 +16,7 @@ const OUT_PDF = ROOT + "\\exports\\pdf";
 
 for (const d of [OUT_PNG, OUT_SVG, OUT_PDF]) fs.mkdirSync(d, { recursive: true });
 
-const vc = new VC(7981);
+const vc = new VC();
 await vc.connect();
 
 /** Close every open document in this (isolated) instance so each run starts clean. */
@@ -49,13 +51,22 @@ const boards = [
   [8, "09-mono-ink"],
 ];
 for (const [i, name] of boards) {
-  const r = await vc.exec("document.export", { path: `${OUT_PNG}\\${name}@2x.png`, format: "png", artboard: i, scale: 2 });
+  const r = await vc.exec("document.export", {
+    path: `${OUT_PNG}\\${name}@2x.png`,
+    format: "png",
+    artboard: i,
+    scale: 2,
+  });
   log.push(`png ${name} ${r.bytes}b`);
 }
 
 /* 2 · brand sheet PDF */
 {
-  const r = await vc.exec("document.export", { path: `${OUT_PDF}\\media-rate-brand-sheet.pdf`, format: "pdf", artboards: [7] });
+  const r = await vc.exec("document.export", {
+    path: `${OUT_PDF}\\media-rate-brand-sheet.pdf`,
+    format: "pdf",
+    artboards: [7],
+  });
   log.push(`pdf ${r.bytes}b`);
 }
 
@@ -84,7 +95,11 @@ async function exportSvg(name, file) {
   const id = await findId(name);
   await vc.exec("select.set", { ids: [id] });
   const r = await vc.exec("document.export", {
-    path: `${OUT_SVG}\\${file}`, format: "svg", selectedOnly: true, useArtboards: false, decimals: 3,
+    path: `${OUT_SVG}\\${file}`,
+    format: "svg",
+    selectedOnly: true,
+    useArtboards: false,
+    decimals: 3,
   });
   log.push(`svg ${file} ${r.bytes}b`);
   return r;
@@ -93,8 +108,11 @@ async function exportPngRect(name, file, scale) {
   const id = await findId(name);
   const b = await boundsOf(id);
   const r = await vc.exec("document.export", {
-    path: `${OUT_PNG}\\${file}`, format: "png",
-    rect: [b.x, b.y, b.width, b.height], scale, background: "transparent",
+    path: `${OUT_PNG}\\${file}`,
+    format: "png",
+    rect: [b.x, b.y, b.width, b.height],
+    scale,
+    background: "transparent",
   });
   log.push(`png ${file} ${r.bytes}b`);
   return r;
@@ -113,7 +131,11 @@ for (const [name, file] of ASSETS) await exportSvg(name, file);
 
 /* 4 · transparent PNGs */
 // primary lockup (white type: dark backgrounds)
-for (const [suffix, scale] of [["@2x", 2], ["@3x", 3], ["@1x", 1]]) {
+for (const [suffix, scale] of [
+  ["@2x", 2],
+  ["@3x", 3],
+  ["@1x", 1],
+]) {
   await exportPngRect("Logo primary", `media-rate-logo-primary${suffix}.png`, scale);
 }
 // versions for light backgrounds and one-colour use
@@ -146,5 +168,3 @@ fs.writeFileSync(ROOT + "\\exports\\manifest.txt", log.join("\n") + "\n", "utf8"
 console.log(log.join("\n"));
 console.log(`\n${log.length} files`);
 vc.close();
-
-

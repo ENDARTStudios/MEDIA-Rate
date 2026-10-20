@@ -2,9 +2,13 @@
  * Installs the logo's typeface (Space Grotesk, OFL) into the VectorCraft profile
  * so live text in the document resolves. Run once before rebuilds: node install-font.mjs
  */
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { VC, sleep } from "./vc.mjs";
 
-const FONT_DIR = "D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\design-system\\media-rate\\logo\\fonts";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const FONT_DIR = path.join(ROOT, "fonts");
 
 const vc = new VC();
 await vc.connect();
@@ -19,5 +23,8 @@ for (let i = 0; i < 40; i++) {
 const files = (found.fonts || []).flatMap((f) => f.files || []);
 if (!files.length) throw new Error("Space Grotesk not found in " + FONT_DIR);
 console.log("installed:", JSON.stringify(await vc.exec("text.addFontFiles", { files })));
-console.log("styles:", JSON.stringify((await vc.exec("text.fontList", { family: "Space Grotesk" })).styles));
+console.log(
+  "styles:",
+  JSON.stringify((await vc.exec("text.fontList", { family: "Space Grotesk" })).styles),
+);
 vc.close();

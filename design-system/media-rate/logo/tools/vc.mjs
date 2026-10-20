@@ -3,7 +3,7 @@
 import net from "node:net";
 
 export class VC {
-  constructor(port = 7981) {
+  constructor(port = Number(process.env.VECTORCRAFT_CONTROL_PORT ?? 7981)) {
     this.port = port;
     this.id = 0;
     this.pending = new Map();
@@ -57,4 +57,3 @@ export class VC {
 }
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-

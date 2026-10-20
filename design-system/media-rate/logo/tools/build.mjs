@@ -1,3 +1,5 @@
+import nodePath from "node:path";
+import { fileURLToPath } from "node:url";
 /**
  * MEDIA Rate — logo system
  * Builds the identity document in VectorCraft Desktop (control channel, port 7979)
@@ -7,12 +9,12 @@ import { VC } from "./vc.mjs";
 import { C, triangleD } from "./lib.mjs";
 import fs from "node:fs";
 
-const ROOT = "D:\\PROJETOS\\MEDIA Rate\\MEDIA Rate\\design-system\\media-rate\\logo";
+const ROOT = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_PNG = ROOT + "\\exports\\png";
 const OUT_SVG = ROOT + "\\exports\\svg";
 const OUT_SRC = ROOT + "\\src";
 
-const vc = new VC(7979);
+const vc = new VC();
 await vc.connect();
 
 /* ------------------------------------------------------------------ geometry */
@@ -26,8 +28,10 @@ function roundedPolyD(pts, rho) {
     const [x, y] = pts[i];
     const [px, py] = pts[(i - 1 + n) % n];
     const [nx, ny] = pts[(i + 1) % n];
-    const v1 = [px - x, py - y], v2 = [nx - x, ny - y];
-    const l1 = Math.hypot(...v1), l2 = Math.hypot(...v2);
+    const v1 = [px - x, py - y],
+      v2 = [nx - x, ny - y];
+    const l1 = Math.hypot(...v1),
+      l2 = Math.hypot(...v2);
     const t = Math.min(rho, l1 * 0.45, l2 * 0.45);
     nodes.push({
       v: [x, y],
@@ -43,11 +47,27 @@ function roundedPolyD(pts, rho) {
   }
   return d + "Z";
 }
-const diamondPts = (cx, cy, r) => [[cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy]];
+const diamondPts = (cx, cy, r) => [
+  [cx, cy - r],
+  [cx + r, cy],
+  [cx, cy + r],
+  [cx - r, cy],
+];
 
 /* -------------------------------------------------------------- primitives */
 
-async function path(d, { fill = null, stroke = null, weight = 1, cap = "round", join = "round", dash = null, closed = true } = {}) {
+async function path(
+  d,
+  {
+    fill = null,
+    stroke = null,
+    weight = 1,
+    cap = "round",
+    join = "round",
+    dash = null,
+    closed = true,
+  } = {},
+) {
   const r = await vc.exec("path.create", { d, closed });
   if (fill) await vc.exec("paint.setFill", { ids: [r.id], color: fill });
   else await vc.exec("paint.setFill", { ids: [r.id], none: true });
@@ -60,7 +80,13 @@ async function path(d, { fill = null, stroke = null, weight = 1, cap = "round", 
   return r.id;
 }
 
-async function box(x, y, w, h, { fill = null, stroke = null, weight = 1, radius = 0, dash = null } = {}) {
+async function box(
+  x,
+  y,
+  w,
+  h,
+  { fill = null, stroke = null, weight = 1, radius = 0, dash = null } = {},
+) {
   const r = await vc.exec("shape.rectangle", { x, y, width: w, height: h, radius });
   if (fill) await vc.exec("paint.setFill", { ids: [r.id], color: fill });
   else await vc.exec("paint.setFill", { ids: [r.id], none: true });
@@ -73,7 +99,19 @@ async function box(x, y, w, h, { fill = null, stroke = null, weight = 1, radius 
   return r.id;
 }
 
-async function text(str, x, y, { size = 14, font = "Inter", style = "Regular", color = C.white, tracking = 0, justify = "left" } = {}) {
+async function text(
+  str,
+  x,
+  y,
+  {
+    size = 14,
+    font = "Inter",
+    style = "Regular",
+    color = C.white,
+    tracking = 0,
+    justify = "left",
+  } = {},
+) {
   const t = await vc.exec("text.create", { x, y, text: str, size, font, style, color, justify });
   if (tracking) await vc.exec("text.setStyle", { ids: [t.id], tracking });
   return t.id;
@@ -81,13 +119,15 @@ async function text(str, x, y, { size = 14, font = "Inter", style = "Regular", c
 
 /* ------------------------------------------------------------------- marks */
 
-const MARK = { radius: 0.14, play: 1.20 }; // corner radius (of r) and play scale
+const MARK = { radius: 0.14, play: 1.2 }; // corner radius (of r) and play scale
 
 async function symbol(cx, cy, S, { field = C.indigo, play = C.rose } = {}) {
   const r = S / 2;
   const lozenge = await path(roundedPolyD(diamondPts(cx, cy, r), r * MARK.radius), { fill: field });
   const k = MARK.play;
-  const tri = await path(triangleD(cx, cy, 0, S * 0.255 * k, S * -0.095 * k, S * 0.16 * k), { fill: play });
+  const tri = await path(triangleD(cx, cy, 0, S * 0.255 * k, S * -0.095 * k, S * 0.16 * k), {
+    fill: play,
+  });
   return (await vc.exec("object.group", { ids: [lozenge, tri] })).id;
 }
 
@@ -96,13 +136,16 @@ async function symbolMono(cx, cy, S, color) {
   const r = S / 2;
   const k = MARK.play;
   const lozenge = await path(roundedPolyD(diamondPts(cx, cy, r), r * MARK.radius), { fill: color });
-  const tri = await path(triangleD(cx, cy, 0, S * 0.255 * k, S * -0.095 * k, S * 0.16 * k), { fill: color });
+  const tri = await path(triangleD(cx, cy, 0, S * 0.255 * k, S * -0.095 * k, S * 0.16 * k), {
+    fill: color,
+  });
   await vc.exec("select.set", { ids: [lozenge, tri] });
   const res = await vc.exec("object.pathfinder.minusFront", {});
   return res.ids[0];
 }
 
-async function ink(id) {  const insp = await vc.exec("document.inspect", { ids: [id] });
+async function ink(id) {
+  const insp = await vc.exec("document.inspect", { ids: [id] });
   return insp.nodes[0].bounds;
 }
 async function moveBy(id, dx, dy) {
@@ -113,7 +156,15 @@ async function group(ids) {
 }
 
 async function outlined(str, { size, style, tracking, color, baseline = 0 }) {
-  const t = await vc.exec("text.create", { x: 0, y: baseline, text: str, size, font: "Space Grotesk", style, color });
+  const t = await vc.exec("text.create", {
+    x: 0,
+    y: baseline,
+    text: str,
+    size,
+    font: "Space Grotesk",
+    style,
+    color,
+  });
   await vc.exec("text.setStyle", { ids: [t.id], tracking });
   await vc.exec("tool.select", { tool: "selection" });
   await vc.exec("select.set", { ids: [t.id] });
@@ -125,7 +176,15 @@ async function outlined(str, { size, style, tracking, color, baseline = 0 }) {
 
 const CAP_RATIO = 0.7;
 
-async function lockupOneLine({ left = 0, baseline = 0, capH = 96, field = C.indigo, play = C.rose, textColor = C.white, mono = false } = {}) {
+async function lockupOneLine({
+  left = 0,
+  baseline = 0,
+  capH = 96,
+  field = C.indigo,
+  play = C.rose,
+  textColor = C.white,
+  mono = false,
+} = {}) {
   const size = capH / CAP_RATIO;
   const media = await outlined("MEDIA", { size, style: "Bold", tracking: -20, color: textColor });
   const mediaB = await ink(media);
@@ -145,12 +204,24 @@ async function lockupOneLine({ left = 0, baseline = 0, capH = 96, field = C.indi
   return { id: await group([mark, media, rate]) };
 }
 
-async function lockupStacked({ left = 0, baseline = 0, capH = 96, field = C.indigo, play = C.rose, textColor = C.white } = {}) {
+async function lockupStacked({
+  left = 0,
+  baseline = 0,
+  capH = 96,
+  field = C.indigo,
+  play = C.rose,
+  textColor = C.white,
+} = {}) {
   const size = capH / CAP_RATIO;
   const rateSize = size * 0.4;
   const media = await outlined("MEDIA", { size, style: "Bold", tracking: -20, color: textColor });
   const mediaB = await ink(media);
-  const rate = await outlined("RATE", { size: rateSize, style: "Light", tracking: 150, color: textColor });
+  const rate = await outlined("RATE", {
+    size: rateSize,
+    style: "Light",
+    tracking: 150,
+    color: textColor,
+  });
   const rateB = await ink(rate);
 
   const rateCap = rateSize * CAP_RATIO;
@@ -223,7 +294,15 @@ await vc.exec("tool.select", { tool: "selection" });
   }
 }
 for (let i = 0; i < ART.length; i++) {
-  await vc.exec("artboard.setProps", { index: i, name: ART[i].name, x: ART[i].x, y: ART[i].y, width: ART[i].w, height: ART[i].h, moveArt: true });
+  await vc.exec("artboard.setProps", {
+    index: i,
+    name: ART[i].name,
+    x: ART[i].x,
+    y: ART[i].y,
+    width: ART[i].w,
+    height: ART[i].h,
+    moveArt: true,
+  });
 }
 const boards = (await vc.exec("document.inspect", { depth: 0 })).artboards;
 console.log("artboards:", JSON.stringify(boards.map((b) => [b.name, b.x, b.y, b.width, b.height])));
@@ -269,8 +348,14 @@ let iconTile, iconSymbol;
 {
   const a = A(3);
   const T = 320;
-  const x = a.x + (a.w - T) / 2, y = a.y + (a.h - T) / 2;
-  iconTile = await box(x, y, T, T, { fill: "#111120", radius: T * 0.225, stroke: "#26263C", weight: 1.5 });
+  const x = a.x + (a.w - T) / 2,
+    y = a.y + (a.h - T) / 2;
+  iconTile = await box(x, y, T, T, {
+    fill: "#111120",
+    radius: T * 0.225,
+    stroke: "#26263C",
+    weight: 1.5,
+  });
   iconSymbol = await symbol(x + T / 2, y + T / 2, T * 0.58);
   const iconG = await group([iconTile, iconSymbol]);
   await vc.exec("object.setProps", { ids: [iconG], name: "Icone do app" });
@@ -280,7 +365,13 @@ let iconTile, iconSymbol;
 {
   await layerOf("05 mono");
   const a = A(4);
-  const lk = await lockupOneLine({ left: 0, baseline: 260, capH: 104, textColor: C.white, mono: true });
+  const lk = await lockupOneLine({
+    left: 0,
+    baseline: 260,
+    capH: 104,
+    textColor: C.white,
+    mono: true,
+  });
   await centerOn(lk.id, a.x + a.w / 2, a.y + a.h / 2);
   await vc.exec("object.setProps", { ids: [lk.id], name: "Logo mono" });
 }
@@ -304,11 +395,24 @@ let iconTile, iconSymbol;
   const nav = ["Catálogo", "Rankings", "Watchlist", "Sobre"];
   let nx = a.x + 660;
   for (const item of nav) {
-    await text(item, nx, a.y + 91, { size: 15, font: "Inter", style: "Medium", color: "#A0A0B8", tracking: 10 });
+    await text(item, nx, a.y + 91, {
+      size: 15,
+      font: "Inter",
+      style: "Medium",
+      color: "#A0A0B8",
+      tracking: 10,
+    });
     nx += 120;
   }
   await box(a.x + a.w - 172, a.y + 58, 124, 44, { fill: C.rose, radius: 10 });
-  await text("Avaliar", a.x + a.w - 110, a.y + 86, { size: 15, font: "Inter", style: "SemiBold", color: C.white, justify: "center", tracking: 10 });
+  await text("Avaliar", a.x + a.w - 110, a.y + 86, {
+    size: 15,
+    font: "Inter",
+    style: "SemiBold",
+    color: C.white,
+    justify: "center",
+    tracking: 10,
+  });
 }
 
 /* ------------------------------------------------------------- 08 · sheet */
@@ -317,27 +421,68 @@ let iconTile, iconSymbol;
   const a = A(7);
   const X = (v) => a.x + v;
   const Y = (v) => a.y + v;
-  const MUT = "#A0A0B8", DIM = "#6E6E88", LINE = "#1E1E30", CARD = "#0A0A12";
+  const MUT = "#A0A0B8",
+    DIM = "#6E6E88",
+    LINE = "#1E1E30",
+    CARD = "#0A0A12";
 
   // header
-  await text("IDENTIDADE VISUAL · 2026", X(80), Y(96), { size: 11.5, style: "Medium", color: DIM, tracking: 320 });
-  await text("MEDIA RATE", X(80), Y(176), { size: 46, font: "Space Grotesk", style: "Bold", color: C.white, tracking: -10 });
-  await text("sistema de logo", X(1620), Y(96), { size: 11.5, style: "Medium", color: DIM, tracking: 320, justify: "right" });
-  await text("símbolo · lockups · cores · tipografia", X(1620), Y(150), { size: 13, color: MUT, justify: "right", tracking: 10 });
+  await text("IDENTIDADE VISUAL · 2026", X(80), Y(96), {
+    size: 11.5,
+    style: "Medium",
+    color: DIM,
+    tracking: 320,
+  });
+  await text("MEDIA RATE", X(80), Y(176), {
+    size: 46,
+    font: "Space Grotesk",
+    style: "Bold",
+    color: C.white,
+    tracking: -10,
+  });
+  await text("sistema de logo", X(1620), Y(96), {
+    size: 11.5,
+    style: "Medium",
+    color: DIM,
+    tracking: 320,
+    justify: "right",
+  });
+  await text("símbolo · lockups · cores · tipografia", X(1620), Y(150), {
+    size: 13,
+    color: MUT,
+    justify: "right",
+    tracking: 10,
+  });
   await box(X(80), Y(210), 1540, 1, { fill: LINE });
 
   // hero
   const hero = await lockupOneLine({ left: 0, baseline: 0, capH: 66 });
   await centerOn(hero.id, X(850), Y(340));
-  await text("O selo do que você assiste.", X(850), Y(452), { size: 17, style: "Medium", color: "#BEBECF", justify: "center", tracking: 20 });
+  await text("O selo do que você assiste.", X(850), Y(452), {
+    size: 17,
+    style: "Medium",
+    color: "#BEBECF",
+    justify: "center",
+    tracking: 20,
+  });
   await box(X(80), Y(500), 1540, 1, { fill: LINE });
 
   // cards
-  const cardW = 370, cardH = 250, cardY = 520;
+  const cardW = 370,
+    cardH = 250,
+    cardY = 520;
   const cardX = [80, 470, 860, 1250];
-  for (const cx of cardX) await box(X(cx), Y(cardY), cardW, cardH, { fill: CARD, stroke: LINE, weight: 1, radius: 16 });
-  const cardTitle = (i, t) => text(t, X(cardX[i] + 24), Y(cardY + 40), { size: 13, style: "SemiBold", color: C.white, tracking: 10 });
-  const cardNote = (i, t) => text(t, X(cardX[i] + 24), Y(cardY + cardH - 22), { size: 10.5, color: DIM, tracking: 20 });
+  for (const cx of cardX)
+    await box(X(cx), Y(cardY), cardW, cardH, { fill: CARD, stroke: LINE, weight: 1, radius: 16 });
+  const cardTitle = (i, t) =>
+    text(t, X(cardX[i] + 24), Y(cardY + 40), {
+      size: 13,
+      style: "SemiBold",
+      color: C.white,
+      tracking: 10,
+    });
+  const cardNote = (i, t) =>
+    text(t, X(cardX[i] + 24), Y(cardY + cardH - 22), { size: 10.5, color: DIM, tracking: 20 });
 
   // 1 · symbol
   await cardTitle(0, "Símbolo");
@@ -347,10 +492,21 @@ let iconTile, iconSymbol;
   // 2 · construction
   await cardTitle(1, "Construção");
   {
-    const cx = X(cardX[1] + cardW / 2), cy = Y(cardY + 128), R = 50;
+    const cx = X(cardX[1] + cardW / 2),
+      cy = Y(cardY + 128),
+      R = 50;
     await box(cx - R, cy - R, R * 2, R * 2, { stroke: "#3A3A55", weight: 0.8, dash: [4, 4] });
-    const dia = await path(roundedPolyD(diamondPts(cx, cy, R), 0), { stroke: "#3A3A55", weight: 0.8, dash: [4, 4] });
-    const circ = await vc.exec("shape.ellipse", { x: cx - R, y: cy - R, width: R * 2, height: R * 2 });
+    const dia = await path(roundedPolyD(diamondPts(cx, cy, R), 0), {
+      stroke: "#3A3A55",
+      weight: 0.8,
+      dash: [4, 4],
+    });
+    const circ = await vc.exec("shape.ellipse", {
+      x: cx - R,
+      y: cy - R,
+      width: R * 2,
+      height: R * 2,
+    });
     await vc.exec("paint.setFill", { ids: [circ.id], none: true });
     await vc.exec("paint.setStroke", { ids: [circ.id], color: "#3A3A55" });
     await vc.exec("stroke.set", { ids: [circ.id], weight: 0.8, dash: [4, 4] });
@@ -361,8 +517,15 @@ let iconTile, iconSymbol;
   // 3 · protection
   await cardTitle(2, "Área de proteção");
   {
-    const cx = X(cardX[2] + cardW / 2), cy = Y(cardY + 128), S = 84, m = S / 2;
-    await box(cx - S / 2 - m, cy - S / 2 - m, S + m * 2, S + m * 2, { stroke: "#3A3A55", weight: 0.8, dash: [4, 4] });
+    const cx = X(cardX[2] + cardW / 2),
+      cy = Y(cardY + 128),
+      S = 84,
+      m = S / 2;
+    await box(cx - S / 2 - m, cy - S / 2 - m, S + m * 2, S + m * 2, {
+      stroke: "#3A3A55",
+      weight: 0.8,
+      dash: [4, 4],
+    });
     await symbol(cx, cy, S);
   }
   await cardNote(2, "margem mínima = ½ do símbolo");
@@ -374,7 +537,10 @@ let iconTile, iconSymbol;
     const sizes = [48, 32, 24, 16];
     let sx = X(cardX[3] + 30);
     for (const s of sizes) {
-      await symbol(sx + s / 2, base - s / 2, s, { field: s >= 24 ? C.indigo : C.indigo, play: C.rose });
+      await symbol(sx + s / 2, base - s / 2, s, {
+        field: s >= 24 ? C.indigo : C.indigo,
+        play: C.rose,
+      });
       await text(String(s), sx + s / 2, base + 22, { size: 9.5, color: DIM, justify: "center" });
       sx += s + 34;
     }
@@ -391,64 +557,160 @@ let iconTile, iconSymbol;
   ];
   let chipX = 80;
   for (const chip of chips) {
-    await box(X(chipX), Y(872), 128, 128, { fill: chip.hex, radius: 14, stroke: chip.border, weight: 1 });
+    await box(X(chipX), Y(872), 128, 128, {
+      fill: chip.hex,
+      radius: 14,
+      stroke: chip.border,
+      weight: 1,
+    });
     await text(chip.name, X(chipX), Y(1032), { size: 13, style: "SemiBold", color: C.white });
-    await text(chip.hex.toUpperCase(), X(chipX), Y(1052), { size: 10.5, font: "JetBrains Mono", color: MUT });
+    await text(chip.hex.toUpperCase(), X(chipX), Y(1052), {
+      size: 10.5,
+      font: "JetBrains Mono",
+      color: MUT,
+    });
     chipX += 148;
   }
-  await text("O indigo carrega o selo; o rose marca a nota.", X(80), Y(1100), { size: 12, color: MUT, tracking: 10 });
-  await text("Sobre fundo claro, o símbolo mantém as duas cores", X(80), Y(1120), { size: 12, color: MUT, tracking: 10 });
-  await text("e a tipografia passa a tinta (#0F172A).", X(80), Y(1140), { size: 12, color: MUT, tracking: 10 });
+  await text("O indigo carrega o selo; o rose marca a nota.", X(80), Y(1100), {
+    size: 12,
+    color: MUT,
+    tracking: 10,
+  });
+  await text("Sobre fundo claro, o símbolo mantém as duas cores", X(80), Y(1120), {
+    size: 12,
+    color: MUT,
+    tracking: 10,
+  });
+  await text("e a tipografia passa a tinta (#0F172A).", X(80), Y(1140), {
+    size: 12,
+    color: MUT,
+    tracking: 10,
+  });
 
-  await text("TIPOGRAFIA", X(900), Y(846), { size: 11.5, style: "Medium", color: DIM, tracking: 320 });
+  await text("TIPOGRAFIA", X(900), Y(846), {
+    size: 11.5,
+    style: "Medium",
+    color: DIM,
+    tracking: 320,
+  });
   {
-    const media = await outlined("MEDIA", { size: 48, style: "Bold", tracking: -20, color: C.white });
+    const media = await outlined("MEDIA", {
+      size: 48,
+      style: "Bold",
+      tracking: -20,
+      color: C.white,
+    });
     const mb = await ink(media);
     await moveBy(media, X(900) - mb.x, Y(940) - (mb.y + mb.height));
-    await text("Space Grotesk · Bold 700 · tracking −20", X(900), Y(962), { size: 10.5, font: "JetBrains Mono", color: DIM });
+    await text("Space Grotesk · Bold 700 · tracking −20", X(900), Y(962), {
+      size: 10.5,
+      font: "JetBrains Mono",
+      color: DIM,
+    });
 
-    const rate = await outlined("RATE", { size: 34, style: "Light", tracking: 170, color: C.white });
+    const rate = await outlined("RATE", {
+      size: 34,
+      style: "Light",
+      tracking: 170,
+      color: C.white,
+    });
     const rb = await ink(rate);
     await moveBy(rate, X(900) - rb.x, Y(1010) - (rb.y + rb.height));
-    await text("Space Grotesk · Light 300 · tracking +90", X(900), Y(1032), { size: 10.5, font: "JetBrains Mono", color: DIM });
+    await text("Space Grotesk · Light 300 · tracking +90", X(900), Y(1032), {
+      size: 10.5,
+      font: "JetBrains Mono",
+      color: DIM,
+    });
 
-    await text("MEDIA em peso 700, RATE em 300 com entreletra", X(900), Y(1080), { size: 12, color: MUT, tracking: 10 });
-    await text("ampla: o contraste de peso separa o assunto da ação.", X(900), Y(1100), { size: 12, color: MUT, tracking: 10 });
+    await text("MEDIA em peso 700, RATE em 300 com entreletra", X(900), Y(1080), {
+      size: 12,
+      color: MUT,
+      tracking: 10,
+    });
+    await text("ampla: o contraste de peso separa o assunto da ação.", X(900), Y(1100), {
+      size: 12,
+      color: MUT,
+      tracking: 10,
+    });
   }
 
   // versions
   await box(X(80), Y(1170), 1540, 1, { fill: LINE });
   await text("VERSÕES", X(80), Y(1208), { size: 11.5, style: "Medium", color: DIM, tracking: 320 });
   {
-    const py = 1230, ph = 180, pw = 370;
+    const py = 1230,
+      ph = 180,
+      pw = 370;
     const pxs = [80, 470, 860, 1250];
     const labels = ["lockup vertical", "mono positivo", "fundo claro", "ícone do app"];
     for (let i = 0; i < 4; i++) {
       const light = i === 2;
-      await box(X(pxs[i]), Y(py), pw, ph, { fill: light ? "#F7F8FB" : CARD, stroke: light ? null : LINE, weight: 1, radius: 16 });
-      const cxp = X(pxs[i] + pw / 2), cyp = Y(py + ph / 2);
-      if (i === 0) await centerOn((await lockupStacked({ left: 0, baseline: 0, capH: 32 })).id, cxp, cyp);
-      if (i === 1) await centerOn((await lockupOneLine({ left: 0, baseline: 0, capH: 28, textColor: C.white, mono: true })).id, cxp, cyp);
-      if (i === 2) await centerOn((await lockupOneLine({ left: 0, baseline: 0, capH: 28, textColor: C.ink })).id, cxp, cyp);
+      await box(X(pxs[i]), Y(py), pw, ph, {
+        fill: light ? "#F7F8FB" : CARD,
+        stroke: light ? null : LINE,
+        weight: 1,
+        radius: 16,
+      });
+      const cxp = X(pxs[i] + pw / 2),
+        cyp = Y(py + ph / 2);
+      if (i === 0)
+        await centerOn((await lockupStacked({ left: 0, baseline: 0, capH: 32 })).id, cxp, cyp);
+      if (i === 1)
+        await centerOn(
+          (await lockupOneLine({ left: 0, baseline: 0, capH: 28, textColor: C.white, mono: true }))
+            .id,
+          cxp,
+          cyp,
+        );
+      if (i === 2)
+        await centerOn(
+          (await lockupOneLine({ left: 0, baseline: 0, capH: 28, textColor: C.ink })).id,
+          cxp,
+          cyp,
+        );
       if (i === 3) {
         const T = 88;
-        await box(cxp - T / 2, cyp - T / 2, T, T, { fill: "#111120", radius: T * 0.225, stroke: "#26263C", weight: 1.2 });
+        await box(cxp - T / 2, cyp - T / 2, T, T, {
+          fill: "#111120",
+          radius: T * 0.225,
+          stroke: "#26263C",
+          weight: 1.2,
+        });
         await symbol(cxp, cyp, T * 0.58);
       }
-      await text(labels[i], X(pxs[i] + 24), Y(py + ph + 24), { size: 10.5, color: DIM, tracking: 20 });
+      await text(labels[i], X(pxs[i] + 24), Y(py + ph + 24), {
+        size: 10.5,
+        color: DIM,
+        tracking: 20,
+      });
     }
   }
 
   await box(X(80), Y(1462), 1540, 1, { fill: LINE });
-  await text("MEDIA Rate · identidade visual v1.0", X(80), Y(1488), { size: 11, color: DIM, tracking: 20 });
-  await text("construído no VectorCraft · 2026", X(1620), Y(1488), { size: 11, color: DIM, tracking: 20, justify: "right" });
+  await text("MEDIA Rate · identidade visual v1.0", X(80), Y(1488), {
+    size: 11,
+    color: DIM,
+    tracking: 20,
+  });
+  await text("construído no VectorCraft · 2026", X(1620), Y(1488), {
+    size: 11,
+    color: DIM,
+    tracking: 20,
+    justify: "right",
+  });
 }
 
 /* ---------------------------------------------------------- 09 · mono ink */
 {
   await layerOf("09 mono ink");
   const a = A(8);
-  const lk = await lockupOneLine({ left: 0, baseline: 260, capH: 104, textColor: C.ink, mono: true });
+  const lk = await lockupOneLine({
+    left: 0,
+    baseline: 260,
+    capH: 104,
+    textColor: C.ink,
+    mono: true,
+  });
   await centerOn(lk.id, a.x + a.w / 2, a.y + a.h / 2);
   await vc.exec("object.setProps", { ids: [lk.id], name: "Logo mono ink" });
 }
@@ -462,14 +724,3 @@ await vc.exec("document.save", { path: OUT_SRC + "\\media-rate-logo.vectorcraft"
 console.log("saved →", OUT_SRC + "\\media-rate-logo.vectorcraft");
 await vc.exec("file.close", {});
 vc.close();
-
-
-
-
-
-
-
-
-
-
-
