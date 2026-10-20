@@ -49,6 +49,7 @@ const boards = [
   [6, "07-header"],
   [7, "08-brand-sheet"],
   [8, "09-mono-ink"],
+  [9, "10-og"],
 ];
 for (const [i, name] of boards) {
   const r = await vc.exec("document.export", {
@@ -58,6 +59,17 @@ for (const [i, name] of boards) {
     scale: 2,
   });
   log.push(`png ${name} ${r.bytes}b`);
+}
+
+/* 1b · social card at its native 1200×630 (copy into apps/web/public/og-image.png) */
+{
+  const r = await vc.exec("document.export", {
+    path: `${OUT_PNG}\\og-image.png`,
+    format: "png",
+    artboard: 9,
+    scale: 1,
+  });
+  log.push(`png og-image ${r.bytes}b`);
 }
 
 /* 2 · brand sheet PDF */
@@ -104,7 +116,7 @@ async function exportSvg(name, file) {
   log.push(`svg ${file} ${r.bytes}b`);
   return r;
 }
-async function exportPngRect(name, file, scale) {
+async function exportPngRect(name, file, scale, background = "transparent") {
   const id = await findId(name);
   const b = await boundsOf(id);
   const r = await vc.exec("document.export", {
@@ -112,7 +124,7 @@ async function exportPngRect(name, file, scale) {
     format: "png",
     rect: [b.x, b.y, b.width, b.height],
     scale,
-    background: "transparent",
+    background,
   });
   log.push(`png ${file} ${r.bytes}b`);
   return r;
@@ -157,6 +169,11 @@ for (const px of [512, 384, 192, 180]) {
 for (const px of [48, 32, 16]) {
   const b = await boundsOf(await findId("Icone do app"));
   await exportPngRect("Icone do app", `favicon-${px}.png`, px / b.width);
+}
+// apple touch icon: 180×180 opaco (copy into apps/web/src/app/apple-icon.png)
+{
+  const b = await boundsOf(await findId("Icone do app"));
+  await exportPngRect("Icone do app", "apple-icon-180.png", 180 / b.width, "#05050A");
 }
 
 /* 5 · restore the background layer */

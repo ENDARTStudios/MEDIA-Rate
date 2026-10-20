@@ -255,6 +255,7 @@ const ART = [
   { name: "07 header", w: 1360, h: 160, bg: C.night },
   { name: "08 sheet", w: 1700, h: 1500, bg: C.night },
   { name: "09 mono ink", w: 1240, h: 380, bg: "#F7F8FB" },
+  { name: "10 og", w: 1200, h: 630, bg: C.night },
 ];
 const GAP = 120;
 let cursorX = 0;
@@ -713,6 +714,43 @@ let iconTile, iconSymbol;
   });
   await centerOn(lk.id, a.x + a.w / 2, a.y + a.h / 2);
   await vc.exec("object.setProps", { ids: [lk.id], name: "Logo mono ink" });
+}
+
+/* ------------------------------------------------------------------ 10 · og */
+{
+  await layerOf("10 og");
+  const a = A(9);
+  const lk = await lockupOneLine({ left: 0, baseline: 0, capH: 54 });
+  await centerOn(lk.id, a.x + a.w / 2, a.y + 258);
+  await vc.exec("object.setProps", { ids: [lk.id], name: "Logo og" });
+
+  await text("Descubra seu próximo título favorito com o MEDIA Score™", a.x + a.w / 2, a.y + 378, {
+    size: 28,
+    font: "Inter",
+    style: "Medium",
+    color: "#BEBECF",
+    justify: "center",
+  });
+  await text("FILMES · SÉRIES · GAMES · LIVROS", a.x + a.w / 2, a.y + 446, {
+    size: 12,
+    font: "JetBrains Mono",
+    color: "#6E6E88",
+    justify: "center",
+    tracking: 260,
+  });
+
+  await box(a.x + 80, a.y + 534, a.w - 160, 1, { fill: "#1E1E30" });
+  await text("mediarate.app", a.x + 80, a.y + 578, {
+    size: 13,
+    font: "JetBrains Mono",
+    color: "#6E6E88",
+  });
+  await text("MEDIA Rate · 2026", a.x + a.w - 80, a.y + 578, {
+    size: 13,
+    font: "JetBrains Mono",
+    color: "#6E6E88",
+    justify: "right",
+  });
 }
 
 await vc.exec("select.none", {});
