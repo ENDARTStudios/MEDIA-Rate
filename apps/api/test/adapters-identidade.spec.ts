@@ -10,6 +10,10 @@ import {
   escolherItemTrakt,
 } from "../src/modules/media-score/adapters/trakt.adapter.js";
 import {
+  TvmazeAdapter,
+  escolherShowTvmaze,
+} from "../src/modules/media-score/adapters/tvmaze.adapter.js";
+import {
   RottenTomatoesAdapter,
   extrairAnoRt,
   extrairNotaRt,
@@ -324,6 +328,50 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
         idsExternos: { tmdb: "4234" },
       });
       expect(notas).toEqual([]);
+    });
+  });
+
+  describe("TvmazeAdapter — identidade por ano de estreia (T-DADOS-46)", () => {
+    const resultados = [
+      {
+        show: {
+          name: "Vida",
+          premiered: "2018-05-02",
+          url: "https://www.tvmaze.com/shows/1/vida",
+          rating: { average: 7.1 },
+        },
+      },
+      {
+        show: {
+          name: "Vida",
+          premiered: "2009-05-10",
+          url: "https://www.tvmaze.com/shows/2/vida",
+          rating: { average: 7.6 },
+        },
+      },
+    ];
+
+    it("pula o homônimo do ano errado e pega a série certa", () => {
+      const show = escolherShowTvmaze(resultados, { tipo: "SERIE", titulo: "Vida", ano: 2009 });
+      expect(show?.url).toBe("https://www.tvmaze.com/shows/2/vida");
+    });
+
+    it("sem série com o ano do catálogo, não atribui", () => {
+      const show = escolherShowTvmaze(resultados, { tipo: "SERIE", titulo: "Vida", ano: 1999 });
+      expect(show).toBeNull();
+    });
+
+    it("sem ano no catálogo, mantém o primeiro com nota", () => {
+      const show = escolherShowTvmaze(resultados, { tipo: "SERIE", titulo: "Vida" });
+      expect(show?.url).toBe("https://www.tvmaze.com/shows/1/vida");
+    });
+
+    it("coletar grava o show.url (página pública), não o endpoint de busca", async () => {
+      mockFetch([{ body: resultados }]);
+      const notas = await new TvmazeAdapter().coletar({ tipo: "SERIE", titulo: "Vida", ano: 2009 });
+      expect(notas).toHaveLength(1);
+      expect(notas[0].rating).toBe(7.6);
+      expect(notas[0].url).toBe("https://www.tvmaze.com/shows/2/vida");
     });
   });
 });
