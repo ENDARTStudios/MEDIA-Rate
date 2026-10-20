@@ -11,6 +11,7 @@ import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
 import { CatalogTypeBar } from "./CatalogTypeBar";
+import { CatalogSearchBand } from "./catalog/CatalogSearchBand";
 import { CatalogTypeSections } from "./CatalogTypeSections";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { Button } from "@/components/ui/button";
@@ -402,6 +403,9 @@ export function CatalogPageClient({
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <CatalogSearchBand />
+      </Suspense>
       <Suspense fallback={null}>
         <CatalogTypeBar />
       </Suspense>
