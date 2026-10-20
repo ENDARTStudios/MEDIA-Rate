@@ -64,7 +64,7 @@ export default function AdminShell() {
               aria-current={ativo ? "page" : undefined}
               data-testid={`admin-nav-link-${item.href.replace("/admin/", "")}`}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-surface-elevated ${
-                ativo ? "bg-surface-elevated text-fg-primary" : "text-[#818CF8]"
+                ativo ? "bg-surface-elevated text-fg-primary" : "text-accent-indigo"
               }`}
             >
               {t(item.chave)}

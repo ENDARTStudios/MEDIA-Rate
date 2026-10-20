@@ -157,6 +157,8 @@ Máquina de estados completa e correta na paginação: `hasMore` + `loadMoreErro
 | P2 | Parágrafo do topo sem medida máxima de leitura | `catalog/page.tsx` (server) | eu | D-603 |
 | P2 | Novos itens do "carregar mais" entram sem animação | `CatalogPageClient.tsx:341-361` | eu | D-580 |
 | P2 | Sem atalho de teclado para filtros / limpar filtros | ausência | eu | — |
+| — | **Refutado:** "sem estado offline" — o produto TEM aviso global de conexão (src/providers/conexao-aviso.tsx lê 
+avigator.onLine e renderiza common.offline). A medição olhou só CatalogPageClient.tsx. Uma segunda faixa no catálogo seria ruído, não correção | conexao-aviso.tsx:49 | — | — |
 | — | **Refutado:** "filtros no fim da página" — é artefato do `fullPage` com elemento `sticky`; no DOM a sidebar é o **primeiro** bloco da coluna (`:411-419`) | medição + `:415` | — | — |
 | — | **Refutado:** "score com ponto" — o DOM serve `8,7`/`87,4` (vírgula, `formatarScoreLocale`) | probe do HTML servido | — | D-602 |
 

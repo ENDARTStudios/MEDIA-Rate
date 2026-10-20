@@ -1,3 +1,13 @@
+/**
+ * Rodapé no desenho literal do conceito v9 §5 / v10 §8.1: QUATRO colunas —
+ * Marca · PRODUTO · LEGAL · SOCIAL · CONTATO.
+ *
+ * O produto tinha 5 (Produto e Conteúdo separados). Conteúdo volta para dentro de
+ * PRODUTO, como no mockup; `Apoie e patrocine` fica no fim de PRODUTO porque é uma
+ * porta comercial que o mockup não tinha e que não pode ficar sem entrada. `Status` e
+ * `Contato` saem de LEGAL e vão para a coluna SOCIAL · CONTATO, que é onde o mockup
+ * os coloca e onde eles pertencem.
+ */
 import { Link } from "@/lib/navigation";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
@@ -7,12 +17,8 @@ const linkHover =
 
 /**
  * MotionFooter (T405/D-401 lote b) — SERVER COMPONENT estático: sem framer-motion e
- * sem hidratação (o fade-up/whileInView não justificava o custo de motion no shell
- * global). Conteúdo idêntico, renderizado como HTML.
- *
- * A faixa final (idioma · status · identificação legal) fecha o rodapé: o seletor de
- * idioma é o mesmo componente da Navbar, e `/status` mede o serviço na hora em vez de
- * exibir um selo verde fixo — promessa inventada é o que o `home-truthfulness` barra.
+ * sem hidratação. A faixa final (idioma · status · identificação legal) fecha o
+ * rodapé, e o seletor de idioma é o mesmo componente da Navbar.
  */
 export async function MotionFooter({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "footer" });
@@ -30,7 +36,8 @@ export async function MotionFooter({ locale }: { locale: string }) {
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 mb-12 md:grid-cols-3 lg:grid-cols-5">
+        {/* v10 §8.1: 4 colunas de 280 px com 32 de vão — a grade do produto. */}
+        <div className="grid grid-cols-2 gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
             <div className="text-lg font-heading font-bold text-fg-primary mb-2">MEDIA Rate</div>
             <p className="text-sm text-fg-secondary leading-relaxed">{t("tagline")}</p>
@@ -38,7 +45,7 @@ export async function MotionFooter({ locale }: { locale: string }) {
 
           <div>
             <h3 className="text-xs font-heading font-semibold text-fg-primary uppercase tracking-widest mb-4">
-              {tNav("catalog")}
+              {t("groupProduct")}
             </h3>
             <ul role="list" className="space-y-3">
               <li>
@@ -51,21 +58,6 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {tNav("pricing")}
                 </Link>
               </li>
-              {/* Entrada para apoiadores, parceiros e patrocinadores (a página
-                  /apoie não vive na Navbar de propósito: é conversa, não navegação). */}
-              <li>
-                <Link href="/apoie" className={linkHover}>
-                  {t("support")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-heading font-semibold text-fg-primary uppercase tracking-widest mb-4">
-              {t("groupContent")}
-            </h3>
-            <ul role="list" className="space-y-3">
               <li>
                 <Link href="/about" className={linkHover}>
                   {t("about")}
@@ -86,6 +78,13 @@ export async function MotionFooter({ locale }: { locale: string }) {
               <li>
                 <Link href="/sources" className={linkHover}>
                   {t("sources")}
+                </Link>
+              </li>
+              {/* Porta comercial: o mockup v9 não tinha /apoie, e sem esta linha a
+                  página de apoio/parceria/patrocínio fica sem entrada no site. */}
+              <li>
+                <Link href="/apoie" className={linkHover}>
+                  {t("support")}
                 </Link>
               </li>
             </ul>
@@ -134,48 +133,34 @@ export async function MotionFooter({ locale }: { locale: string }) {
                   {t("rights")}
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-heading font-semibold text-fg-primary uppercase tracking-widest mb-4">
+              {`${t("social")} · ${t("contact")}`}
+            </h3>
+            <ul role="list" className="space-y-3">
               <li>
-                <Link href="/status" className={linkHover}>
-                  {t("status")}
-                </Link>
+                <a
+                  href="https://t.me/MEDIARate2026"
+                  className="text-sm text-fg-secondary hover:text-accent-indigo transition-colors duration-200"
+                  aria-label={t("socialTelegram")}
+                >
+                  {t("socialTelegram")}
+                </a>
               </li>
               <li>
                 <Link href="mailto:endart.studios+contato@gmail.com" className={linkHover}>
                   {t("contact")}
                 </Link>
               </li>
+              <li>
+                <Link href="/status" className={linkHover}>
+                  {t("status")}
+                </Link>
+              </li>
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-heading font-semibold text-fg-primary uppercase tracking-widest mb-4">
-              {t("social")}
-            </h3>
-            <div className="flex flex-col gap-2">
-              {[
-                // Telegram: link real. Instagram: sem link ainda (placeholder).
-                { label: t("socialTelegram"), href: "https://t.me/MEDIARate2026" },
-              ].map((social) =>
-                social.href ? (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    className="text-sm text-fg-secondary hover:text-accent-indigo transition-colors duration-200"
-                    aria-label={social.label}
-                  >
-                    {social.label}
-                  </a>
-                ) : (
-                  <span
-                    key={social.label}
-                    className="text-sm text-fg-secondary"
-                    aria-label={social.label}
-                  >
-                    {social.label}
-                  </span>
-                ),
-              )}
-            </div>
           </div>
         </div>
 

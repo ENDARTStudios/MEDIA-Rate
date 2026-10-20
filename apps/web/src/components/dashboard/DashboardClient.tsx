@@ -99,12 +99,12 @@ export function DashboardClient() {
   if (stats.total === 0) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-[#8b7cff]/20 bg-gradient-to-br from-[#18152d] via-[#12121f] to-surface-card p-8 text-center">
+        <div className="rounded-2xl border border-accent-indigo/20 bg-gradient-to-br from-surface-elevated via-surface-card to-surface-card p-8 text-center">
           <p className="text-lg font-medium text-fg-primary">{t("emptyHint")}</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/catalog"
-              className="rounded-xl bg-[#8b7cff] px-5 py-2.5 text-sm font-semibold text-[#0d0d14] transition hover:bg-[#a69cff]"
+              className="rounded-xl bg-accent-indigo px-5 py-2.5 text-sm font-semibold text-accent-indigo-foreground transition hover:bg-accent-violet"
             >
               {t("exploreCatalog")}
             </Link>

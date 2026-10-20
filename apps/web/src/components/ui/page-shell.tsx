@@ -63,6 +63,7 @@ export function PageShell({
   intro,
   actions,
   top,
+  introClassName,
   children,
 }: {
   title: ReactNode;
@@ -70,6 +71,12 @@ export function PageShell({
   actions?: ReactNode;
   /** Elemento acima do título (faixa de identidade do plano, selo, breadcrumb). */
   top?: ReactNode;
+  /**
+   * Medida de leitura do lead. Páginas institucionais usam `max-w-[34rem]` (D-603):
+   * o padrão de 3xl (48rem) é confortável para um parágrafo curto e longo demais
+   * para um lead de duas linhas.
+   */
+  introClassName?: string;
   children: ReactNode;
 }) {
   return (
@@ -77,7 +84,11 @@ export function PageShell({
       {top ? <div className="mb-6">{top}</div> : null}
       <header className="max-w-3xl">
         <PageTitle>{title}</PageTitle>
-        {intro ? <p className="mt-4 text-base leading-relaxed text-fg-secondary">{intro}</p> : null}
+        {intro ? (
+          <p className={cn("mt-4 text-base leading-relaxed text-fg-secondary", introClassName)}>
+            {intro}
+          </p>
+        ) : null}
         {actions ? <div className="mt-8 flex flex-wrap items-center gap-3">{actions}</div> : null}
       </header>
       <div className="mt-12">{children}</div>

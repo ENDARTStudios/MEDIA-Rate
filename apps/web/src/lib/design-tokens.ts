@@ -16,6 +16,9 @@ export const colors = {
     // deixa de ser literal.
     indigoHover: "#A5B4FC",
     sky: "#38BDF8",
+    // Promovido do protótipo do dashboard (`dash-teal`), que o D-586 já listava como
+    // candidato a token. Preserva o valor em vez de trocar teal por esmeralda (Δ 46).
+    teal: "#62D7C5",
     emerald: "#34D399",
     amber: "#FBBF24",
     pink: "#F472B6",

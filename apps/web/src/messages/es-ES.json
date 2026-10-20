@@ -243,35 +243,12 @@
     "previewBadge": "Previo",
     "previewBadgeTitle": "Previo — fuentes en preparación",
     "exploreCategory": "Explorar {label}",
-    "variant_book": [
-      "Novelas",
-      "No ficción",
-      "Clásicos",
-      "Sagas",
-      "Novedades"
-    ],
-    "variant_comic": [
-      "Novelas gráficas",
-      "Superhéroes",
-      "Indie",
-      "Novedades"
-    ],
-    "variant_manga": [
-      "Shonen",
-      "Seinen",
-      "Slice of Life",
-      "Isekai",
-      "Novedades"
-    ],
-    "variant_movie": [
-      "Películas"
-    ],
-    "variant_series": [
-      "Series"
-    ],
-    "variant_game": [
-      "Juegos"
-    ],
+    "variant_book": ["Novelas", "No ficción", "Clásicos", "Sagas", "Novedades"],
+    "variant_comic": ["Novelas gráficas", "Superhéroes", "Indie", "Novedades"],
+    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novedades"],
+    "variant_movie": ["Películas"],
+    "variant_series": ["Series"],
+    "variant_game": ["Juegos"],
     "comingSoonEmailPlaceholder": "tu@email.com",
     "comingSoonEmailLabel": "Correo electrónico",
     "comingSoonDone": "¡Registrado! Te avisaremos cuando llegue.",
@@ -562,12 +539,7 @@
     "upgrade": "Mejorar",
     "subscribe": "Suscribirse",
     "features": "Funcionalidades",
-    "freeFeatures": [
-      "Catálogo completo",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recomendaciones/día"
-    ],
+    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendaciones/día"],
     "plusFeatures": [
       "Prueba gratis de 7 días",
       "Todo del Free",
@@ -775,7 +747,8 @@
     "todosGeneros": "Todos los géneros",
     "somenteCritica": "Solo con crítica disponible (división crítica/público del MEDIA Score)",
     "anoLabel": "Año",
-    "advancedUnavailableSearch": "Género, nota y crítica se aplican al catálogo sin búsqueda. Borra la búsqueda para usarlos."
+    "advancedUnavailableSearch": "Género, nota y crítica se aplican al catálogo sin búsqueda. Borra la búsqueda para usarlos.",
+    "close": "Cerrar filtros"
   },
   "watchlist": {
     "undo": "Deshacer",

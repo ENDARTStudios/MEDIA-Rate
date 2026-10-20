@@ -22,23 +22,16 @@ const MAPA = new Map(
   Object.entries({
     "#11111B": "surface-card",
     "#11111E": "surface-card",
-    "#12121F": "surface-card",
     "#151524": "surface-elevated",
-    "#171725": "surface-elevated",
     "#151522": "surface-elevated",
     "#181827": "surface-elevated",
     "#1A1A28": "surface-elevated",
     "#1C1C2E": "surface-elevated",
-    "#0D0D14": "surface-bg",
     "#0D0D1A": "surface-bg",
-    "#0B0B12": "surface-bg",
     "#09090F": "surface-bg",
     "#9693A8": "fg-muted",
     "#8B8BA0": "fg-muted",
-    "#62D7C5": "accent-emerald",
     "#F2C36B": "accent-amber",
-    "#8B7CFF": "accent-indigo",
-    "#A69CFF": "accent-violet",
     "#9B8CFF": "accent-violet",
     "#B9B0FF": "accent-violet",
     "#4DB6FF": "accent-sky",
@@ -55,6 +48,19 @@ const MAPA = new Map(
     "#38BDF8": "accent-sky",
     "#F87171": "score-low",
     "#FBBF24": "accent-amber",
+    // Aprovadas pelo Operador (2026-10-19) depois da tabela de Δ por canal. As de
+    // Δ > 0 estão aqui porque a troca foi autorizada explicitamente; as de Δ = 0
+    // já entraram na varredura mecânica.
+    "#8B7CFF": "accent-indigo",
+    "#A69CFF": "accent-violet",
+    "#C9C4FF": "accent-indigo-hover",
+    "#0D0D14": "accent-indigo-foreground",
+    "#0B0B12": "surface-bg",
+    "#171725": "surface-elevated",
+    "#18152D": "surface-elevated",
+    "#12121F": "surface-card",
+    "#111C2B": "surface-elevated",
+    "#62D7C5": "accent-teal",
   }).map(([h, t]) => [h.toUpperCase(), t]),
 );
 
@@ -78,6 +84,8 @@ const TOKEN_RGB = new Map(
     "ink": "#0F172A",
     "accent-indigo": "#818CF8",
     "accent-indigo-hover": "#A5B4FC",
+    "accent-indigo-foreground": "#0F172A",
+    "accent-teal": "#62D7C5",
     "accent-violet": "#A78BFA",
     "accent-sky": "#38BDF8",
     "accent-emerald": "#34D399",
@@ -194,18 +202,24 @@ const linhas = [...ocorrencias.entries()]
   .sort((a, b) => b.total - a.total);
 
 /**
- * `--write-identity` reescreve SÓ as trocas com Δ = 0 (o mesmo valor escrito como
- * literal). É dívida pura: nenhum pixel muda, então não precisa de decisão de design.
- * As trocas com Δ > 0 continuam só no relatório.
+ * Dois modos de escrita:
+ * - `--write-identity`: só as trocas com Δ = 0 (mesmo valor escrito como literal).
+ *   É dívida pura: nenhum pixel muda, então não precisa de decisão de design.
+ * - `--write-all`: todas as mapeadas, inclusive as de Δ > 0 — só depois de o
+ *   Operador aprovar a tabela de diferença por canal.
  */
-if (process.argv.includes("--write-identity")) {
-  const identidade = new Map(linhas.filter((l) => l.delta === 0).map((l) => [l.hex, l.token]));
+const modoIdentidade = process.argv.includes("--write-identity");
+const modoTodas = process.argv.includes("--write-all");
+if (modoIdentidade || modoTodas) {
+  const alvo = new Map(
+    linhas.filter((l) => l.token && (modoTodas || l.delta === 0)).map((l) => [l.hex, l.token]),
+  );
   let trocas = 0;
   let arquivosTocados = 0;
   for (const f of arquivos) {
     const original = readFileSync(f, "utf8");
     const novo = original.replace(/-\[#([0-9A-Fa-f]{6})\]/g, (m, hex) => {
-      const token = identidade.get(`#${hex.toUpperCase()}`);
+      const token = alvo.get(`#${hex.toUpperCase()}`);
       if (!token) return m;
       trocas += 1;
       return `-${token}`;
@@ -215,8 +229,9 @@ if (process.argv.includes("--write-identity")) {
       arquivosTocados += 1;
     }
   }
+  const escopo = modoTodas ? "Δ qualquer (aprovado)" : "só Δ = 0";
   console.log(
-    `\n  --write-identity: ${trocas} troca(s) em ${arquivosTocados} arquivo(s) — todas com Δ = 0 (mesmo valor, agora com token)\n`,
+    `\n  ${modoTodas ? "--write-all" : "--write-identity"}: ${trocas} troca(s) em ${arquivosTocados} arquivo(s) — ${escopo}\n`,
   );
 }
 

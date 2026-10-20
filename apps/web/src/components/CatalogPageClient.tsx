@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { getCatalog, waitlistNotify } from "@/lib/api";
 import type { MediaType, CatalogResponse } from "@/lib/types";
 import { mapToMediaItem } from "@/lib/catalog-item";
@@ -11,6 +11,7 @@ import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
 import { CatalogTypeBar } from "./CatalogTypeBar";
+import { CatalogSearchBand } from "./catalog/CatalogSearchBand";
 import { CatalogTypeSections } from "./CatalogTypeSections";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { Button } from "@/components/ui/button";
@@ -403,6 +404,9 @@ export function CatalogPageClient({
   return (
     <div>
       <Suspense fallback={null}>
+        <CatalogSearchBand />
+      </Suspense>
+      <Suspense fallback={null}>
         <CatalogTypeBar />
       </Suspense>
       <Suspense fallback={null}>
@@ -443,14 +447,62 @@ function MobileFilterBar({
   const tFilters = useTranslations("catalogFilters");
   const sp = useSearchParams();
   const activeCount = [...new URLSearchParams(sp.toString()).keys()].filter((k) => k !== "").length;
+  const painelRef = useRef<HTMLDivElement>(null);
+  const abridorRef = useRef<HTMLButtonElement>(null);
+
+  // Esc fecha e o foco volta para quem abriu; Tab circula dentro do painel.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const painel = painelRef.current;
+    const focaveis = () =>
+      painel
+        ? Array.from(
+            painel.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((el) => el.offsetParent !== null)
+        : [];
+
+    focaveis()[0]?.focus();
+
+    const aoTeclar = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") {
+        evento.preventDefault();
+        setDrawerOpen(false);
+        return;
+      }
+      if (evento.key !== "Tab") return;
+      const lista = focaveis();
+      if (lista.length === 0) return;
+      const primeiro = lista[0];
+      const ultimo = lista[lista.length - 1];
+      if (evento.shiftKey && document.activeElement === primeiro) {
+        evento.preventDefault();
+        ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault();
+        primeiro.focus();
+      }
+    };
+
+    document.addEventListener("keydown", aoTeclar);
+    return () => document.removeEventListener("keydown", aoTeclar);
+  }, [drawerOpen, setDrawerOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen) abridorRef.current?.focus();
+  }, [drawerOpen]);
 
   return (
     <>
       <div className="lg:hidden flex items-center justify-between">
         <Button
+          ref={abridorRef}
           variant="outline"
           size="sm"
           data-testid="catalog-filters-mobile-open"
+          aria-expanded={drawerOpen}
+          aria-controls="catalog-filters-drawer"
           onClick={() => setDrawerOpen(true)}
         >
           {tFilters("filters")}
@@ -460,12 +512,20 @@ function MobileFilterBar({
       {drawerOpen && (
         <div className="fixed inset-0 z-drawer lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-72 bg-surface-card shadow-floating p-5 overflow-y-auto">
+          <div
+            ref={painelRef}
+            id="catalog-filters-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label={tFilters("filters")}
+            className="absolute inset-y-0 left-0 w-72 bg-surface-card shadow-floating p-5 overflow-y-auto"
+          >
             <div className="flex items-center justify-between mb-4">
               <span className="font-semibold text-fg-primary text-sm">{tFilters("filters")}</span>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="text-fg-secondary hover:text-fg-primary text-lg leading-none"
+                aria-label={tFilters("close")}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-lg leading-none text-fg-secondary hover:text-fg-primary"
               >
                 &times;
               </button>

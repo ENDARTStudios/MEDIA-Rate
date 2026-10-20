@@ -502,3 +502,57 @@ body {
     }
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Sistema de alinhamento da home (conceito v9 §2, corrigido no v10 §8.1).
+ *
+ * A grade é a DO PRODUTO, não uma margem inventada: `max-w-7xl` (1280) centrado
+ * em 1440 com `lg:px-8` dá conteúdo de 112 a 1328. As constantes do mockup
+ * (M=64, CONTEUDO=1312) eram 48 px mais largas que o produto e por isso tudo
+ * parecia torto — aqui elas viram classes e o número real é este.
+ *
+ * `.secao`      container de toda seção da home
+ * `.grade-3`    três colunas (cartões de decisão, etapas do método)
+ * `.grade-6`    seis colunas (as faixas da régua, os seis tipos)
+ * ------------------------------------------------------------------------- */
+.secao {
+  margin-inline: auto;
+  max-width: 80rem; /* = max-w-7xl */
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .secao {
+    padding-inline: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .secao {
+    padding-inline: 2rem;
+  }
+}
+
+.grade-3 {
+  display: grid;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .grade-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.grade-6 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .grade-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .grade-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

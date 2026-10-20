@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CatalogFiltersClient } from "@/components/CatalogFiltersClient";
+import { CatalogSearchBand } from "@/components/catalog/CatalogSearchBand";
 
 /**
  * T237 — o filtro de busca do catálogo NÃO pode perder caracteres na
@@ -80,9 +81,9 @@ function renderWithProviders(ui: React.ReactElement) {
   );
 }
 
-describe("CatalogFiltersClient — Ordenar sem duplicata (feedback Operador)", () => {
+describe("CatalogSearchBand — Ordenar sem duplicata (feedback Operador)", () => {
   it("option padrão é Relevância; MEDIA Score aparece UMA única vez", () => {
-    const { container } = renderWithProviders(<CatalogFiltersClient />);
+    const { container } = renderWithProviders(<CatalogSearchBand />);
     const sortSelect = container.querySelector("#catalog-sort") as HTMLSelectElement;
     expect(sortSelect).toBeTruthy();
     const valores = [...(sortSelect as HTMLSelectElement).options].map((o) => o.value);
@@ -97,7 +98,7 @@ describe("CatalogFiltersClient — Ordenar sem duplicata (feedback Operador)", (
   });
 });
 
-describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
+describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     paramsHolder.urlParams = new URLSearchParams();
@@ -110,7 +111,7 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
   });
 
   it("digitação rápida (0ms entre teclas) preserva o texto caractere a caractere", async () => {
-    renderWithProviders(<CatalogFiltersClient />);
+    renderWithProviders(<CatalogSearchBand />);
     const input = screen.getByRole("searchbox");
 
     // Digita "liberdade" em uma rajada — o value do input é estado local,
@@ -138,7 +139,7 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
   });
 
   it("digitação contínua não gera chamada por tecla (só após pausa)", async () => {
-    renderWithProviders(<CatalogFiltersClient />);
+    renderWithProviders(<CatalogSearchBand />);
     const input = screen.getByRole("searchbox");
 
     // Rajada completa dentro do debounce: zero commits intermediários.
@@ -162,7 +163,7 @@ describe("CatalogFiltersClient (T237) — busca não perde digitação", () => {
   it("hidratação da URL não sobrescreve digitação em andamento", async () => {
     // URL já tem "cavaleiro" (navegação externa) → input hidrata no mount.
     paramsHolder.urlParams = new URLSearchParams("q=cavaleiro");
-    renderWithProviders(<CatalogFiltersClient />);
+    renderWithProviders(<CatalogSearchBand />);
     const input = screen.getByRole("searchbox");
     expect((input as HTMLInputElement).value).toBe("cavaleiro");
 

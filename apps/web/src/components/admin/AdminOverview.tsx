@@ -65,7 +65,7 @@ export function AdminOverview() {
   const planoCard = (label: string, valor: number, destaque: boolean) => (
     <div key={label} className="rounded-lg bg-surface-card p-6 shadow-sm bg-surface-card">
       <p className="text-sm text-fg-secondary">{label}</p>
-      <p className={`text-3xl font-bold ${destaque ? "text-[#8b7cff]" : "text-fg-primary"}`}>
+      <p className={`text-3xl font-bold ${destaque ? "text-accent-indigo" : "text-fg-primary"}`}>
         {valor}
       </p>
     </div>

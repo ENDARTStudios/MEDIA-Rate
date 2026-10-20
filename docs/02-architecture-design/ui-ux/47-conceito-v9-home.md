@@ -88,6 +88,22 @@ régua.
 3. **Auto-avanço dos carrosséis** — com pausa e reduced-motion, e um teste para o estado pausado;
 4. Rodapé: já está completo no produto; o mockup confirma que não falta peça.
 
+### 7.1 Estado da implementação (2026-10-19)
+
+| Item do conceito | Estado | Onde |
+|---|---|---|
+| §1 H1 a 42 px em três linhas | **feito** | `HeroSection.tsx` (`lg:text-[2.625rem] lg:max-w-md`) — medido no DOM: 42 px e 3 linhas em 1440 e 1024 |
+| §2 Sistema de alinhamento | **feito** | `.secao` / `.grade-3` / `.grade-6` em `globals.css`, aplicados no hero, no carrossel e nas seções da home |
+| §3 Seletor de idioma | **já existia** | `LocaleSwitcher` na `Navbar` (com `placement` para o rodapé) |
+| §4 SEIS carrosséis por tipo | **já existia** (v10) | `page.tsx` instancia os 6 na ordem canônica |
+| §4 auto-avanço 5 s | **feito** | `AutoScrollTrack.tsx` — 1 card/5 s, pausa em hover e focus, para de vez ao rolar, desliga em `prefers-reduced-motion`; spec `test/carousel-autoscroll.spec.tsx` (7 casos) |
+| §5 Rodapé | **feito com as 4 colunas do mockup** | `MotionFooter.tsx` — Marca · PRODUTO (catálogo, planos, sobre, metodologia, FAQ, fontes, **apoie**) · LEGAL (7) · SOCIAL · CONTATO (Telegram, contato, status); colunas em 112/424/736/1048, como a tabela do v10 §8.1. `Status` e `Contato` saíram de LEGAL para a coluna certa |
+| §6 ícones/Dock/selo/régua | **já existia** (D-643/D-644/D-646) | `CategoryIconRow.tsx`, régua e selo no `HeroSection` |
+
+Um defeito que o gate D-587 pegou durante a implementação: `data-autoscroll` era calculado no render a
+partir de `useReducedMotionPref()`, que devolve `false` no servidor e `true` no cliente sob `reduce` —
+hydration mismatch de atributo na home. O atributo passou a ser escrito no efeito, com valor constante no SSR.
+
 ## 8. Correção v10 — a grade é a do produto, e são SEIS carrosséis
 
 Dois apontamentos do Operador, ambos corretos.

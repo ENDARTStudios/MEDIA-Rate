@@ -245,7 +245,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           catálogo (as mesmas que alimentam os carrosséis). A seção não é montada se não houver
           item: caixa vazia e título inventado estão fora (D-583.4). */}
       <DecisionHighlights
-        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+        className="secao py-16"
         title={tHome("decisionTitle")}
         sub={tHome("decisionSub")}
         ctaLabel={tHome("decisionCta")}

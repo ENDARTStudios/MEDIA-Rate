@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DashboardClient } from "../../../components/dashboard/DashboardClient";
 import { PlanCelebration } from "../../../components/ui/PlanCelebration";
 import { localizedAlternates, localizedUrl } from "../../../lib/seo";
+import { colors } from "../../../lib/design-tokens";
 
 export async function generateMetadata({
   params,
@@ -34,7 +35,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       {/* T388: faixa de identidade do plano (cor via --plan-accent do provider). */}
       <div
         className="mb-6 h-1 w-24 rounded-full"
-        style={{ backgroundColor: "var(--plan-accent, #818CF8)" }}
+        style={{ backgroundColor: `var(--plan-accent, ${colors.accent.indigo})` }}
         aria-hidden="true"
       />
       <h1 className="text-3xl font-bold mb-2 text-fg-primary">{t("title")}</h1>

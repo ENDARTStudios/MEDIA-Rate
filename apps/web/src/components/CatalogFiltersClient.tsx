@@ -2,22 +2,11 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
 
-const SORT_OPTIONS = [
-  { value: "score", labelKey: "sortScore" },
-  { value: "year", labelKey: "sortAno" },
-  { value: "title", labelKey: "sortTitulo" },
-];
-
-/** Debounce da busca textual (T237): sem ele, cada tecla vira um
- * router.replace e a digitação rápida perde caracteres. */
-const SEARCH_DEBOUNCE_MS = 300;
-
 export function CatalogFiltersClient() {
-  const t = useTranslations("catalog");
   const tf = useTranslations("catalogFilters");
   const sp = useSearchParams();
   const router = useRouter();
@@ -25,7 +14,6 @@ export function CatalogFiltersClient() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const type = sp.get("type") ?? "";
-  const sort = sp.get("sort") ?? "";
   const query = sp.get("q") ?? "";
   const anoMin = sp.get("anoMin") ?? "";
   const anoMax = sp.get("anoMax") ?? "";
@@ -33,34 +21,6 @@ export function CatalogFiltersClient() {
   const scoreMax = sp.get("scoreMax") ?? "";
   const genero = sp.get("genero") ?? "";
   const comCritica = sp.get("com_critica") === "true";
-
-  // T237: o input de busca é 100% ESTADO LOCAL — nunca controlado pela URL
-  // diretamente (o router.replace é assíncrono e "voltaria" o valor a cada
-  // tecla). O estado local vira URL apenas após o debounce.
-  const [draftQuery, setDraftQuery] = useState(query);
-  const lastCommitted = useRef(query);
-
-  // Hidrata o draft quando a URL muda por fora (back/forward/link) — mas
-  // NUNCA sobrescreve digitação em andamento (draft ≠ último commitado).
-  useEffect(() => {
-    if (query !== lastCommitted.current) {
-      lastCommitted.current = query;
-      setDraftQuery(query);
-    }
-  }, [query]);
-
-  // Debounce: após pausa na digitação, commita o termo para a URL (que
-  // alimenta o react-query do catálogo). Atrasos extras (AbortController)
-  // não são necessários: a URL só muda após o debounce, então não há
-  // respostas fora de ordem sobrescrevendo o input.
-  useEffect(() => {
-    if (draftQuery === lastCommitted.current) return;
-    const timer = setTimeout(() => {
-      lastCommitted.current = draftQuery;
-      setParam("q", draftQuery);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [draftQuery]);
 
   const { data: generos } = useQuery({
     queryKey: ["generos"],
@@ -90,6 +50,10 @@ export function CatalogFiltersClient() {
   // hint honesta enquanto houver busca ativa.
   const buscaAtiva = query.trim().length > 0;
 
+  // A ordenação agora vive na faixa acima dos chips; aqui ela só entra na CONTAGEM
+  // de filtros ativos, porque para quem olha a tela ela é um recorte como os outros.
+  const sort = sp.get("sort") ?? "";
+
   const activeCount = [
     type,
     sort,
@@ -118,36 +82,6 @@ export function CatalogFiltersClient() {
             {tf("clearAll")}
           </button>
         )}
-      </div>
-
-      <div>
-        <label className="block text-xs text-fg-secondary mb-1.5">{t("search")}</label>
-        <input
-          type="search"
-          value={draftQuery}
-          onChange={(e) => setDraftQuery(e.target.value)}
-          placeholder={t("search")}
-          className="w-full px-3 py-2 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-indigo"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="catalog-sort" className="block text-xs text-fg-secondary mb-1.5">
-          {t("sort")}
-        </label>
-        <select
-          id="catalog-sort"
-          value={sort}
-          onChange={(e) => setParam("sort", e.target.value)}
-          className="w-full px-3 py-2 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary focus:outline-none focus:ring-2 focus:ring-accent-indigo"
-        >
-          <option value="">{t("sortRelevancia")}</option>
-          {SORT_OPTIONS.map(({ value, labelKey }) => (
-            <option key={value} value={value}>
-              {t(labelKey)}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Filtro avançado colapsável (Parte 3.2): ano + faixa de score. */}

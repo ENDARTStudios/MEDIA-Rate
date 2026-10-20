@@ -135,7 +135,7 @@ export default async function CatalogPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <PageShell title={t("title")} intro={t("catalogDesc")}>
+      <PageShell title={t("title")} intro={t("catalogDesc")} introClassName="max-w-[34rem]">
         <CatalogPageClient
           initialData={initialData}
           initialDataKey={initialDataKey}

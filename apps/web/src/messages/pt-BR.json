@@ -243,35 +243,12 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": [
-      "Romances",
-      "Não-ficção",
-      "Clássicos",
-      "Sagas",
-      "Novidades"
-    ],
-    "variant_comic": [
-      "HQs",
-      "Super-heróis",
-      "Indie",
-      "Novidades"
-    ],
-    "variant_manga": [
-      "Shonen",
-      "Seinen",
-      "Slice of Life",
-      "Isekai",
-      "Novidades"
-    ],
-    "variant_movie": [
-      "Filmes"
-    ],
-    "variant_series": [
-      "Séries"
-    ],
-    "variant_game": [
-      "Games"
-    ],
+    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
+    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
+    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
+    "variant_movie": ["Filmes"],
+    "variant_series": ["Séries"],
+    "variant_game": ["Games"],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -562,12 +539,7 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": [
-      "Catálogo completo",
-      "MEDIA Score™",
-      "Watchlist",
-      "3 recomendações/dia"
-    ],
+    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -775,7 +747,8 @@
     "todosGeneros": "Todos os gêneros",
     "somenteCritica": "Somente com crítica disponível (split crítica/público do MEDIA Score)",
     "anoLabel": "Ano",
-    "advancedUnavailableSearch": "Gênero, nota e crítica se aplicam ao catálogo sem busca. Limpe a busca para usá-los."
+    "advancedUnavailableSearch": "Gênero, nota e crítica se aplicam ao catálogo sem busca. Limpe a busca para usá-los.",
+    "close": "Fechar filtros"
   },
   "watchlist": {
     "undo": "Desfazer",

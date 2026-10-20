@@ -1,0 +1,972 @@
+{"command":"page.add","params":{"name":"Catálogo — 1440"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"shape.rectangle","params":{"x":0,"y":71,"width":1440,"height":1,"props":{"name":"Catálogo / 1440/nav/linha"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/linha","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":112,"y":20,"width":30,"height":30,"props":{"name":"Catálogo / 1440/nav/logo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/logo","fill":"#818CF8","cornerRadius":8}}
+{"command":"text.create","params":{"text":"MEDIA Rate","x":152,"y":26,"props":{"name":"Catálogo / 1440/nav/nome","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/nome","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Catálogo","x":350,"y":28,"props":{"name":"Catálogo / 1440/nav/Catálogo","fontSize":14,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/Catálogo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Rankings","x":466,"y":28,"props":{"name":"Catálogo / 1440/nav/Rankings","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/Rankings","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Descobertas","x":582,"y":28,"props":{"name":"Catálogo / 1440/nav/Descobertas","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/Descobertas","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Planos","x":698,"y":28,"props":{"name":"Catálogo / 1440/nav/Planos","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/Planos","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":1176,"y":18,"width":152,"height":36,"props":{"name":"Catálogo / 1440/nav/cta"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/cta","fill":"#E11D48","cornerRadius":8}}
+{"command":"text.create","params":{"text":"Criar conta grátis","x":1192,"y":28,"props":{"name":"Catálogo / 1440/nav/cta/t","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/nav/cta/t","fill":"#FFFFFF"}}
+{"command":"text.create","params":{"text":"Catálogo","x":112,"y":124,"width":600,"props":{"name":"h1","fontSize":42,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"h1","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Tudo o que já foi avaliado, por tipo de obra. Filtre por gênero, ano e nota — e leve o recorte por link.","x":112,"y":182,"width":544,"props":{"name":"lead","fontSize":16,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"lead","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"medida de leitura: max-w-[34rem]","x":112,"y":232,"props":{"name":"lead/nota","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"lead/nota","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":262,"width":560,"height":48,"props":{"name":"busca"}}}
+{"command":"node.set","params":{"name":"busca","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-busca-lupa.svg","x":138,"y":286,"center":true}}
+{"command":"node.set","params":{"name":"search.svg","width":16,"height":16}}
+{"command":"text.create","params":{"text":"Buscar título, gênero, ano…","x":158,"y":276,"props":{"name":"busca/hint","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"busca/hint","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1128,"y":262,"width":200,"height":48,"props":{"name":"ordem"}}}
+{"command":"node.set","params":{"name":"ordem","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Ordenar: ","x":1144,"y":276,"props":{"name":"ordem/rot","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"ordem/rot","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Nota ↓","x":1202,"y":275,"props":{"name":"ordem/val","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"ordem/val","fill":"#F5F5F7"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-ordem-chev.svg","x":1302,"y":286,"center":true}}
+{"command":"node.set","params":{"name":"chevron-down.svg","width":14,"height":14}}
+{"command":"text.create","params":{"text":"TIPO DE OBRA","x":112,"y":336,"props":{"name":"chips/rot","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"chips/rot","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":112,"y":356,"width":90,"height":44,"props":{"name":"Catálogo / 1440/chip/todos"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/todos","fill":"#191B30","strokes":["#5C64B1"],"strokeWeight":1.5,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-todos-i.svg","x":130,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"layout-grid.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Todos","x":144,"y":370,"props":{"name":"Catálogo / 1440/chip/todos/t","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/todos/t","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":206.8,"y":356,"width":97.2,"height":44,"props":{"name":"Catálogo / 1440/chip/movie"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/movie","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-movie-i.svg","x":224.8,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Filmes","x":238.8,"y":370,"props":{"name":"Catálogo / 1440/chip/movie/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/movie/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":316,"y":356,"width":97.2,"height":44,"props":{"name":"Catálogo / 1440/chip/series"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/series","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-series-i.svg","x":334,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Séries","x":348,"y":370,"props":{"name":"Catálogo / 1440/chip/series/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/series/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":425.2,"y":356,"width":90,"height":44,"props":{"name":"Catálogo / 1440/chip/game"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/game","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-game-i.svg","x":443.2,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Games","x":457.2,"y":370,"props":{"name":"Catálogo / 1440/chip/game/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/game/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":527.2,"y":356,"width":97.2,"height":44,"props":{"name":"Catálogo / 1440/chip/book"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/book","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-book-i.svg","x":545.2,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Livros","x":559.2,"y":370,"props":{"name":"Catálogo / 1440/chip/book/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/book/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":636.4000000000001,"y":356,"width":126,"height":44,"props":{"name":"Catálogo / 1440/chip/comic"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/comic","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-comic-i.svg","x":654.4000000000001,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":668.4000000000001,"y":370,"props":{"name":"Catálogo / 1440/chip/comic/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/comic/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":774.4000000000001,"y":356,"width":97.2,"height":44,"props":{"name":"Catálogo / 1440/chip/manga"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/manga","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-chip-manga-i.svg","x":792.4000000000001,"y":378,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":13,"height":13}}
+{"command":"text.create","params":{"text":"Mangás","x":806.4000000000001,"y":370,"props":{"name":"Catálogo / 1440/chip/manga/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/chip/manga/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":112,"y":428,"width":240,"height":880,"props":{"name":"side"}}}
+{"command":"node.set","params":{"name":"side","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"FILTROS","x":128,"y":446,"props":{"name":"side/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"3 ativos","x":290,"y":446,"props":{"name":"side/n","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/n","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":128,"y":470,"width":208,"height":1,"props":{"name":"side/div"}}}
+{"command":"node.set","params":{"name":"side/div","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"TIPO","x":128,"y":490,"props":{"name":"Catálogo / 1440/grupo/tipo/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":514,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c0","fill":"#818CF8","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-grupo-tipo-c0-ok.svg","x":136,"y":522,"center":true}}
+{"command":"node.set","params":{"name":"check.svg","width":11,"height":11}}
+{"command":"text.create","params":{"text":"Filmes","x":154,"y":515,"props":{"name":"Catálogo / 1440/grupo/tipo/l0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l0","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":515,"props":{"name":"Catálogo / 1440/grupo/tipo/n0","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n0","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":544,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Séries","x":154,"y":545,"props":{"name":"Catálogo / 1440/grupo/tipo/l1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":545,"props":{"name":"Catálogo / 1440/grupo/tipo/n1","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n1","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":574,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Games","x":154,"y":575,"props":{"name":"Catálogo / 1440/grupo/tipo/l2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":575,"props":{"name":"Catálogo / 1440/grupo/tipo/n2","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n2","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":604,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c3","fill":"#818CF8","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-grupo-tipo-c3-ok.svg","x":136,"y":612,"center":true}}
+{"command":"node.set","params":{"name":"check.svg","width":11,"height":11}}
+{"command":"text.create","params":{"text":"Livros","x":154,"y":605,"props":{"name":"Catálogo / 1440/grupo/tipo/l3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l3","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":605,"props":{"name":"Catálogo / 1440/grupo/tipo/n3","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n3","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":634,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":154,"y":635,"props":{"name":"Catálogo / 1440/grupo/tipo/l4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l4","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":635,"props":{"name":"Catálogo / 1440/grupo/tipo/n4","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n4","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":664,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/tipo/c5"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/c5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Mangás","x":154,"y":665,"props":{"name":"Catálogo / 1440/grupo/tipo/l5","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/l5","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":665,"props":{"name":"Catálogo / 1440/grupo/tipo/n5","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/tipo/n5","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":706,"width":208,"height":1,"props":{"name":"side/div2"}}}
+{"command":"node.set","params":{"name":"side/div2","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"GÊNERO","x":128,"y":722,"props":{"name":"Catálogo / 1440/grupo/genero/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":746,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/genero/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/c0","fill":"#818CF8","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-grupo-genero-c0-ok.svg","x":136,"y":754,"center":true}}
+{"command":"node.set","params":{"name":"check.svg","width":11,"height":11}}
+{"command":"text.create","params":{"text":"Drama","x":154,"y":747,"props":{"name":"Catálogo / 1440/grupo/genero/l0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/l0","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":747,"props":{"name":"Catálogo / 1440/grupo/genero/n0","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/n0","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":776,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/genero/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/c1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Ficção científica","x":154,"y":777,"props":{"name":"Catálogo / 1440/grupo/genero/l1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/l1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":777,"props":{"name":"Catálogo / 1440/grupo/genero/n1","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/n1","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":806,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/genero/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/c2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Comédia","x":154,"y":807,"props":{"name":"Catálogo / 1440/grupo/genero/l2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/l2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":807,"props":{"name":"Catálogo / 1440/grupo/genero/n2","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/n2","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":836,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/genero/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/c3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Documentário","x":154,"y":837,"props":{"name":"Catálogo / 1440/grupo/genero/l3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/l3","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":314,"y":837,"props":{"name":"Catálogo / 1440/grupo/genero/n3","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/n3","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":866,"width":16,"height":16,"props":{"name":"Catálogo / 1440/grupo/genero/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/c4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"ver todos os 24","x":154,"y":867,"props":{"name":"Catálogo / 1440/grupo/genero/l4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/grupo/genero/l4","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":128,"y":908,"width":208,"height":1,"props":{"name":"side/div3"}}}
+{"command":"node.set","params":{"name":"side/div3","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"ANO","x":128,"y":924,"props":{"name":"side/ano/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/ano/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":946,"width":96,"height":40,"props":{"name":"side/ano/min"}}}
+{"command":"node.set","params":{"name":"side/ano/min","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"de","x":140,"y":957,"props":{"name":"side/ano/min/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"side/ano/min/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":240,"y":946,"width":96,"height":40,"props":{"name":"side/ano/max"}}}
+{"command":"node.set","params":{"name":"side/ano/max","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"até","x":252,"y":957,"props":{"name":"side/ano/max/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"side/ano/max/t","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"NOTA MÍNIMA","x":128,"y":1002,"props":{"name":"side/score/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/score/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":128,"y":1034,"width":208,"height":4,"props":{"name":"side/score/trilho"}}}
+{"command":"node.set","params":{"name":"side/score/trilho","fill":"#2A2A3D","cornerRadius":2}}
+{"command":"shape.rectangle","params":{"x":128,"y":1034,"width":120,"height":4,"props":{"name":"side/score/preenchido"}}}
+{"command":"node.set","params":{"name":"side/score/preenchido","fill":"#818CF8","cornerRadius":2}}
+{"command":"shape.rectangle","params":{"x":240,"y":1026,"width":16,"height":16,"props":{"name":"side/score/pino"}}}
+{"command":"node.set","params":{"name":"side/score/pino","fill":"#818CF8","cornerRadius":8}}
+{"command":"text.create","params":{"text":"7,0","x":308,"y":1022,"props":{"name":"side/score/val","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/score/val","fill":"#F5F5F7"}}
+{"command":"shape.rectangle","params":{"x":128,"y":1064,"width":208,"height":1,"props":{"name":"side/div4"}}}
+{"command":"node.set","params":{"name":"side/div4","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"SÓ COM CRÍTICA","x":128,"y":1084,"props":{"name":"side/crit/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"side/crit/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":278,"y":1080,"width":44,"height":24,"props":{"name":"side/crit/trilho"}}}
+{"command":"node.set","params":{"name":"side/crit/trilho","fill":"#818CF8","cornerRadius":12}}
+{"command":"shape.rectangle","params":{"x":308,"y":1082,"width":20,"height":20,"props":{"name":"side/crit/pino"}}}
+{"command":"node.set","params":{"name":"side/crit/pino","fill":"#F5F5F7","cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":128,"y":1212,"width":208,"height":34,"props":{"name":"side/limpar"}}}
+{"command":"node.set","params":{"name":"side/limpar","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"Limpar filtros","x":156,"y":1224,"props":{"name":"side/limpar/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"side/limpar/t","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N títulos no recorte","x":128,"y":1252,"props":{"name":"side/contagem","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"side/contagem","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":128,"y":1270,"width":208,"height":4,"props":{"name":"side/contagem/barra"}}}
+{"command":"node.set","params":{"name":"side/contagem/barra","fill":"#2A2A3D","cornerRadius":2}}
+{"command":"shape.rectangle","params":{"x":128,"y":1270,"width":87,"height":4,"props":{"name":"side/contagem/barra/on"}}}
+{"command":"node.set","params":{"name":"side/contagem/barra/on","fill":"#818CF8","cornerRadius":2}}
+{"command":"text.create","params":{"text":"filtro ao vivo · sem botão aplicar","x":128,"y":1284,"props":{"name":"side/contagem/regra","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"side/contagem/regra","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"N títulos no recorte · 3 filtros ativos","x":384,"y":406,"props":{"name":"conteudo/recorte","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conteudo/recorte","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":428,"width":32,"height":32,"props":{"name":"sec/movie/tile"}}}
+{"command":"node.set","params":{"name":"sec/movie/tile","fill":"#1B1D35","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-movie-icon.svg","x":400,"y":444,"center":true}}
+{"command":"node.set","params":{"name":"clapperboard.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"FILMES","x":428,"y":434,"props":{"name":"sec/movie/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/movie/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":514,"y":440,"props":{"name":"sec/movie/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/movie/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":436,"props":{"name":"sec/movie/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/movie/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":476,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/movie/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":477,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/movie/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/poster","fill":"#252640","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-movie-c0-ph.svg","x":472,"y":598,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":614,"props":{"name":"Catálogo / 1440/sec/movie/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":484,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/movie/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/selo","fill":"#494F8D","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":495,"props":{"name":"Catálogo / 1440/sec/movie/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/selo/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":748,"props":{"name":"Catálogo / 1440/sec/movie/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":764,"props":{"name":"Catálogo / 1440/sec/movie/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":476,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/movie/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":477,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/movie/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c1/poster","fill":"#252640","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-movie-c1-ph.svg","x":664,"y":598,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":614,"props":{"name":"Catálogo / 1440/sec/movie/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":748,"props":{"name":"Catálogo / 1440/sec/movie/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":764,"props":{"name":"Catálogo / 1440/sec/movie/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":476,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/movie/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":477,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/movie/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c2/poster","fill":"#252640","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-movie-c2-ph.svg","x":856,"y":598,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":614,"props":{"name":"Catálogo / 1440/sec/movie/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":748,"props":{"name":"Catálogo / 1440/sec/movie/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":764,"props":{"name":"Catálogo / 1440/sec/movie/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":476,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/movie/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":477,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/movie/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/poster","fill":"#252640","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-movie-c3-ph.svg","x":1048,"y":598,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":614,"props":{"name":"Catálogo / 1440/sec/movie/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":484,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/movie/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/selo","fill":"#494F8D","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":495,"props":{"name":"Catálogo / 1440/sec/movie/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/selo/t","fill":"#818CF8"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":748,"props":{"name":"Catálogo / 1440/sec/movie/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":764,"props":{"name":"Catálogo / 1440/sec/movie/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":476,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/movie/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":477,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/movie/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c4/poster","fill":"#252640","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-movie-c4-ph.svg","x":1240,"y":598,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":614,"props":{"name":"Catálogo / 1440/sec/movie/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":748,"props":{"name":"Catálogo / 1440/sec/movie/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":764,"props":{"name":"Catálogo / 1440/sec/movie/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/movie/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":384,"y":768,"width":944,"height":1,"props":{"name":"sec/movie/div"}}}
+{"command":"node.set","params":{"name":"sec/movie/div","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":384,"y":788,"width":32,"height":32,"props":{"name":"sec/series/tile"}}}
+{"command":"node.set","params":{"name":"sec/series/tile","fill":"#0E2635","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-series-icon.svg","x":400,"y":804,"center":true}}
+{"command":"node.set","params":{"name":"tv.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"SÉRIES","x":428,"y":794,"props":{"name":"sec/series/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/series/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":514,"y":800,"props":{"name":"sec/series/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/series/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":796,"props":{"name":"sec/series/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/series/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":836,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/series/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":837,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/series/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/poster","fill":"#1E2B40","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-series-c0-ph.svg","x":472,"y":958,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":974,"props":{"name":"Catálogo / 1440/sec/series/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":844,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/series/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/selo","fill":"#216A8D","strokes":["#38BDF8"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":855,"props":{"name":"Catálogo / 1440/sec/series/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/selo/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":1108,"props":{"name":"Catálogo / 1440/sec/series/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":1124,"props":{"name":"Catálogo / 1440/sec/series/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":836,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/series/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":837,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/series/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c1/poster","fill":"#1E2B40","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-series-c1-ph.svg","x":664,"y":958,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":974,"props":{"name":"Catálogo / 1440/sec/series/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":1108,"props":{"name":"Catálogo / 1440/sec/series/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":1124,"props":{"name":"Catálogo / 1440/sec/series/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":836,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/series/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":837,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/series/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c2/poster","fill":"#1E2B40","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-series-c2-ph.svg","x":856,"y":958,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":974,"props":{"name":"Catálogo / 1440/sec/series/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":1108,"props":{"name":"Catálogo / 1440/sec/series/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":1124,"props":{"name":"Catálogo / 1440/sec/series/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":836,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/series/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":837,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/series/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/poster","fill":"#1E2B40","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-series-c3-ph.svg","x":1048,"y":958,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":974,"props":{"name":"Catálogo / 1440/sec/series/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":844,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/series/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/selo","fill":"#216A8D","strokes":["#38BDF8"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":855,"props":{"name":"Catálogo / 1440/sec/series/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/selo/t","fill":"#38BDF8"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":1108,"props":{"name":"Catálogo / 1440/sec/series/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":1124,"props":{"name":"Catálogo / 1440/sec/series/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":836,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/series/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":837,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/series/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c4/poster","fill":"#1E2B40","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-series-c4-ph.svg","x":1240,"y":958,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":974,"props":{"name":"Catálogo / 1440/sec/series/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":1108,"props":{"name":"Catálogo / 1440/sec/series/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":1124,"props":{"name":"Catálogo / 1440/sec/series/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/series/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1128,"width":944,"height":1,"props":{"name":"sec/series/div"}}}
+{"command":"node.set","params":{"name":"sec/series/div","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1148,"width":32,"height":32,"props":{"name":"sec/game/tile"}}}
+{"command":"node.set","params":{"name":"sec/game/tile","fill":"#0D2A24","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-game-icon.svg","x":400,"y":1164,"center":true}}
+{"command":"node.set","params":{"name":"gamepad-2.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"GAMES","x":428,"y":1154,"props":{"name":"sec/game/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/game/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":501,"y":1160,"props":{"name":"sec/game/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/game/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":1156,"props":{"name":"sec/game/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/game/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1196,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/game/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":1197,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/game/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/poster","fill":"#1E2D37","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-game-c0-ph.svg","x":472,"y":1318,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":1334,"props":{"name":"Catálogo / 1440/sec/game/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":1204,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/game/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/selo","fill":"#1F7659","strokes":["#34D399"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":1215,"props":{"name":"Catálogo / 1440/sec/game/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/selo/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":1468,"props":{"name":"Catálogo / 1440/sec/game/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":1484,"props":{"name":"Catálogo / 1440/sec/game/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":1196,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/game/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":1197,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/game/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c1/poster","fill":"#1E2D37","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-game-c1-ph.svg","x":664,"y":1318,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":1334,"props":{"name":"Catálogo / 1440/sec/game/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":1468,"props":{"name":"Catálogo / 1440/sec/game/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":1484,"props":{"name":"Catálogo / 1440/sec/game/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":1196,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/game/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":1197,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/game/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c2/poster","fill":"#1E2D37","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-game-c2-ph.svg","x":856,"y":1318,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":1334,"props":{"name":"Catálogo / 1440/sec/game/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":1468,"props":{"name":"Catálogo / 1440/sec/game/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":1484,"props":{"name":"Catálogo / 1440/sec/game/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":1196,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/game/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":1197,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/game/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/poster","fill":"#1E2D37","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-game-c3-ph.svg","x":1048,"y":1318,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":1334,"props":{"name":"Catálogo / 1440/sec/game/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":1204,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/game/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/selo","fill":"#1F7659","strokes":["#34D399"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":1215,"props":{"name":"Catálogo / 1440/sec/game/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/selo/t","fill":"#34D399"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":1468,"props":{"name":"Catálogo / 1440/sec/game/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":1484,"props":{"name":"Catálogo / 1440/sec/game/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":1196,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/game/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":1197,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/game/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c4/poster","fill":"#1E2D37","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-game-c4-ph.svg","x":1240,"y":1318,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":1334,"props":{"name":"Catálogo / 1440/sec/game/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":1468,"props":{"name":"Catálogo / 1440/sec/game/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":1484,"props":{"name":"Catálogo / 1440/sec/game/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/game/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1488,"width":944,"height":1,"props":{"name":"sec/game/div"}}}
+{"command":"node.set","params":{"name":"sec/game/div","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1508,"width":32,"height":32,"props":{"name":"sec/book/tile"}}}
+{"command":"node.set","params":{"name":"sec/book/tile","fill":"#31260F","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-book-icon.svg","x":400,"y":1524,"center":true}}
+{"command":"node.set","params":{"name":"book-open.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"LIVROS","x":428,"y":1514,"props":{"name":"sec/book/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/book/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":514,"y":1520,"props":{"name":"sec/book/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/book/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":1516,"props":{"name":"sec/book/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/book/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1556,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/book/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":1557,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/book/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/poster","fill":"#312B2B","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-book-c0-ph.svg","x":472,"y":1678,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":1694,"props":{"name":"Catálogo / 1440/sec/book/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":1564,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/book/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/selo","fill":"#8C6B18","strokes":["#FBBF24"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":1575,"props":{"name":"Catálogo / 1440/sec/book/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/selo/t","fill":"#FBBF24"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":1828,"props":{"name":"Catálogo / 1440/sec/book/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":1844,"props":{"name":"Catálogo / 1440/sec/book/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":1556,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/book/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":1557,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/book/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c1/poster","fill":"#312B2B","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-book-c1-ph.svg","x":664,"y":1678,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":1694,"props":{"name":"Catálogo / 1440/sec/book/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":1828,"props":{"name":"Catálogo / 1440/sec/book/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":1844,"props":{"name":"Catálogo / 1440/sec/book/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":1556,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/book/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":1557,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/book/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c2/poster","fill":"#312B2B","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-book-c2-ph.svg","x":856,"y":1678,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":1694,"props":{"name":"Catálogo / 1440/sec/book/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":1828,"props":{"name":"Catálogo / 1440/sec/book/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":1844,"props":{"name":"Catálogo / 1440/sec/book/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":1556,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/book/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":1557,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/book/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/poster","fill":"#312B2B","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-book-c3-ph.svg","x":1048,"y":1678,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":1694,"props":{"name":"Catálogo / 1440/sec/book/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":1564,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/book/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/selo","fill":"#8C6B18","strokes":["#FBBF24"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":1575,"props":{"name":"Catálogo / 1440/sec/book/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/selo/t","fill":"#FBBF24"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":1828,"props":{"name":"Catálogo / 1440/sec/book/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":1844,"props":{"name":"Catálogo / 1440/sec/book/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":1556,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/book/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":1557,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/book/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c4/poster","fill":"#312B2B","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-book-c4-ph.svg","x":1240,"y":1678,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":1694,"props":{"name":"Catálogo / 1440/sec/book/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":1828,"props":{"name":"Catálogo / 1440/sec/book/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":1844,"props":{"name":"Catálogo / 1440/sec/book/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/book/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1848,"width":944,"height":1,"props":{"name":"sec/book/div"}}}
+{"command":"node.set","params":{"name":"sec/book/div","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1868,"width":32,"height":32,"props":{"name":"sec/comic/tile"}}}
+{"command":"node.set","params":{"name":"sec/comic/tile","fill":"#301929","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-comic-icon.svg","x":400,"y":1884,"center":true}}
+{"command":"node.set","params":{"name":"book-image.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"QUADRINHOS","x":428,"y":1874,"props":{"name":"sec/comic/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/comic/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":566,"y":1880,"props":{"name":"sec/comic/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/comic/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":1876,"props":{"name":"sec/comic/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/comic/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":1916,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/comic/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":1917,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/comic/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/poster","fill":"#31243A","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-comic-c0-ph.svg","x":472,"y":2038,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":2054,"props":{"name":"Catálogo / 1440/sec/comic/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":1924,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/comic/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/selo","fill":"#884169","strokes":["#F472B6"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":1935,"props":{"name":"Catálogo / 1440/sec/comic/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/selo/t","fill":"#F472B6"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":2188,"props":{"name":"Catálogo / 1440/sec/comic/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":2204,"props":{"name":"Catálogo / 1440/sec/comic/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":1916,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/comic/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":1917,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/comic/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c1/poster","fill":"#31243A","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-comic-c1-ph.svg","x":664,"y":2038,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":2054,"props":{"name":"Catálogo / 1440/sec/comic/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":2188,"props":{"name":"Catálogo / 1440/sec/comic/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":2204,"props":{"name":"Catálogo / 1440/sec/comic/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":1916,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/comic/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":1917,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/comic/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c2/poster","fill":"#31243A","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-comic-c2-ph.svg","x":856,"y":2038,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":2054,"props":{"name":"Catálogo / 1440/sec/comic/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":2188,"props":{"name":"Catálogo / 1440/sec/comic/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":2204,"props":{"name":"Catálogo / 1440/sec/comic/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":1916,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/comic/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":1917,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/comic/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/poster","fill":"#31243A","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-comic-c3-ph.svg","x":1048,"y":2038,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":2054,"props":{"name":"Catálogo / 1440/sec/comic/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":1924,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/comic/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/selo","fill":"#884169","strokes":["#F472B6"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":1935,"props":{"name":"Catálogo / 1440/sec/comic/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/selo/t","fill":"#F472B6"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":2188,"props":{"name":"Catálogo / 1440/sec/comic/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":2204,"props":{"name":"Catálogo / 1440/sec/comic/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":1916,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/comic/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":1917,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/comic/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c4/poster","fill":"#31243A","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-comic-c4-ph.svg","x":1240,"y":2038,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":2054,"props":{"name":"Catálogo / 1440/sec/comic/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":2188,"props":{"name":"Catálogo / 1440/sec/comic/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":2204,"props":{"name":"Catálogo / 1440/sec/comic/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/comic/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":384,"y":2208,"width":944,"height":1,"props":{"name":"sec/comic/div"}}}
+{"command":"node.set","params":{"name":"sec/comic/div","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":384,"y":2228,"width":32,"height":32,"props":{"name":"sec/manga/tile"}}}
+{"command":"node.set","params":{"name":"sec/manga/tile","fill":"#221D35","cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-sec-manga-icon.svg","x":400,"y":2244,"center":true}}
+{"command":"node.set","params":{"name":"book-marked.svg","width":17,"height":17}}
+{"command":"text.create","params":{"text":"MANGÁS","x":428,"y":2234,"props":{"name":"sec/manga/h2","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/manga/h2","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N títulos","x":514,"y":2240,"props":{"name":"sec/manga/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"sec/manga/n","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"Ver todos →","x":1236,"y":2236,"props":{"name":"sec/manga/ver","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"sec/manga/ver","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":384,"y":2276,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/manga/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":385,"y":2277,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/manga/c0/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/poster","fill":"#292641","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-manga-c0-ph.svg","x":472,"y":2398,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":452,"y":2414,"props":{"name":"Catálogo / 1440/sec/manga/c0/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":518,"y":2284,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/manga/c0/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/selo","fill":"#5E4F8E","strokes":["#A78BFA"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":524.2,"y":2295,"props":{"name":"Catálogo / 1440/sec/manga/c0/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/selo/t","fill":"#A78BFA"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":386,"y":2548,"props":{"name":"Catálogo / 1440/sec/manga/c0/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":386,"y":2564,"props":{"name":"Catálogo / 1440/sec/manga/c0/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c0/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":576,"y":2276,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/manga/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":577,"y":2277,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/manga/c1/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c1/poster","fill":"#292641","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-manga-c1-ph.svg","x":664,"y":2398,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":644,"y":2414,"props":{"name":"Catálogo / 1440/sec/manga/c1/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c1/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":578,"y":2548,"props":{"name":"Catálogo / 1440/sec/manga/c1/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c1/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":578,"y":2564,"props":{"name":"Catálogo / 1440/sec/manga/c1/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c1/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":768,"y":2276,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/manga/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":769,"y":2277,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/manga/c2/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c2/poster","fill":"#292641","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-manga-c2-ph.svg","x":856,"y":2398,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":836,"y":2414,"props":{"name":"Catálogo / 1440/sec/manga/c2/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c2/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":770,"y":2548,"props":{"name":"Catálogo / 1440/sec/manga/c2/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c2/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":770,"y":2564,"props":{"name":"Catálogo / 1440/sec/manga/c2/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c2/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":960,"y":2276,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/manga/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":961,"y":2277,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/manga/c3/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/poster","fill":"#292641","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-manga-c3-ph.svg","x":1048,"y":2398,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1028,"y":2414,"props":{"name":"Catálogo / 1440/sec/manga/c3/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/phT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1094,"y":2284,"width":34,"height":34,"props":{"name":"Catálogo / 1440/sec/manga/c3/selo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/selo","fill":"#5E4F8E","strokes":["#A78BFA"],"strokeWeight":1.5,"cornerRadius":17}}
+{"command":"text.create","params":{"text":"8,7","x":1100.2,"y":2295,"props":{"name":"Catálogo / 1440/sec/manga/c3/selo/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/selo/t","fill":"#A78BFA"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":962,"y":2548,"props":{"name":"Catálogo / 1440/sec/manga/c3/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":962,"y":2564,"props":{"name":"Catálogo / 1440/sec/manga/c3/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c3/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":1152,"y":2276,"width":176,"height":264,"props":{"name":"Catálogo / 1440/sec/manga/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c4","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"shape.rectangle","params":{"x":1153,"y":2277,"width":174,"height":262,"props":{"name":"Catálogo / 1440/sec/manga/c4/poster"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c4/poster","fill":"#292641","cornerRadius":9}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---1440-sec-manga-c4-ph.svg","x":1240,"y":2398,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":22,"height":22}}
+{"command":"text.create","params":{"text":"pôster","x":1220,"y":2414,"props":{"name":"Catálogo / 1440/sec/manga/c4/phT","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c4/phT","fill":"#85859F"}}
+{"command":"text.create","params":{"text":"título no catálogo","x":1154,"y":2548,"props":{"name":"Catálogo / 1440/sec/manga/c4/titulo","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c4/titulo","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":1154,"y":2564,"props":{"name":"Catálogo / 1440/sec/manga/c4/meta","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 1440/sec/manga/c4/meta","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":766,"y":2604,"width":180,"height":44,"props":{"name":"mais"}}}
+{"command":"node.set","params":{"name":"mais","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Carregar mais","x":808,"y":2618,"props":{"name":"mais/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"mais/t","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"Contagens aparecem como N nestе desenho: o número vem da API. Grade de 5 colunas na coluna de conteúdo, sidebar w-60 sticky.","x":112,"y":2680,"width":1216,"props":{"name":"rodape/nota","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"rodape/nota","fill":"#85859F"}}
+{"command":"page.add","params":{"name":"Catálogo — 375"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"shape.rectangle","params":{"x":0,"y":71,"width":375,"height":1,"props":{"name":"Catálogo / 375/nav/linha"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375/nav/linha","fill":"#2A2A3D"}}
+{"command":"shape.rectangle","params":{"x":16,"y":20,"width":30,"height":30,"props":{"name":"Catálogo / 375/nav/logo"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375/nav/logo","fill":"#818CF8","cornerRadius":8}}
+{"command":"text.create","params":{"text":"MEDIA Rate","x":56,"y":26,"props":{"name":"Catálogo / 375/nav/nome","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 375/nav/nome","fill":"#F5F5F7"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---375-nav-menu.svg","x":340,"y":36,"center":true}}
+{"command":"node.set","params":{"name":"menu.svg","width":20,"height":20}}
+{"command":"text.create","params":{"text":"Catálogo","x":16,"y":96,"props":{"name":"h1/375","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"h1/375","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Filtre por gênero, ano e nota.","x":16,"y":138,"width":343,"props":{"name":"lead/375","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"lead/375","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":16,"y":176,"width":236,"height":44,"props":{"name":"busca/375"}}}
+{"command":"node.set","params":{"name":"busca/375","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-busca-375-lupa.svg","x":38,"y":198,"center":true}}
+{"command":"node.set","params":{"name":"search.svg","width":15,"height":15}}
+{"command":"text.create","params":{"text":"Buscar…","x":56,"y":188,"props":{"name":"busca/375/hint","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"busca/375/hint","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":260,"y":176,"width":99,"height":44,"props":{"name":"filtrosBtn"}}}
+{"command":"node.set","params":{"name":"filtrosBtn","fill":"#818CF8","cornerRadius":10}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-filtrosBtn-i.svg","x":278,"y":198,"center":true}}
+{"command":"node.set","params":{"name":"sliders-horizontal.svg","width":15,"height":15}}
+{"command":"text.create","params":{"text":"Filtros (3)","x":292,"y":188,"props":{"name":"filtrosBtn/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"filtrosBtn/t","fill":"#0F172A"}}
+{"command":"text.create","params":{"text":"TIPO DE OBRA","x":16,"y":240,"props":{"name":"chips/rot/375","fontSize":10,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"chips/rot/375","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":16,"y":258,"width":70,"height":44,"props":{"name":"chip/375/0"}}}
+{"command":"node.set","params":{"name":"chip/375/0","fill":"#191B30","strokes":["#5C64B1"],"strokeWeight":1.5,"cornerRadius":22}}
+{"command":"text.create","params":{"text":"Todos","x":32,"y":272,"props":{"name":"chip/375/0/t","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"chip/375/0/t","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":96,"y":258,"width":77.2,"height":44,"props":{"name":"chip/375/1"}}}
+{"command":"node.set","params":{"name":"chip/375/1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"text.create","params":{"text":"Filmes","x":112,"y":272,"props":{"name":"chip/375/1/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"chip/375/1/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":183.2,"y":258,"width":77.2,"height":44,"props":{"name":"chip/375/2"}}}
+{"command":"node.set","params":{"name":"chip/375/2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"text.create","params":{"text":"Séries","x":199.2,"y":272,"props":{"name":"chip/375/2/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"chip/375/2/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":270.4,"y":258,"width":70,"height":44,"props":{"name":"chip/375/3"}}}
+{"command":"node.set","params":{"name":"chip/375/3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":22}}
+{"command":"text.create","params":{"text":"Games","x":286.4,"y":272,"props":{"name":"chip/375/3/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"chip/375/3/t","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N títulos no recorte","x":16,"y":322,"props":{"name":"recorte/375","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"recorte/375","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":16,"y":348,"width":163,"height":245,"props":{"name":"c/375/0"}}}
+{"command":"node.set","params":{"name":"c/375/0","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-c-375-0-ph.svg","x":97.5,"y":460,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":20,"height":20}}
+{"command":"text.create","params":{"text":"título no catálogo","x":18,"y":601,"props":{"name":"c/375/0/t","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/0/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":18,"y":617,"props":{"name":"c/375/0/m","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/0/m","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":195,"y":348,"width":163,"height":245,"props":{"name":"c/375/1"}}}
+{"command":"node.set","params":{"name":"c/375/1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-c-375-1-ph.svg","x":276.5,"y":460,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":20,"height":20}}
+{"command":"text.create","params":{"text":"título no catálogo","x":197,"y":601,"props":{"name":"c/375/1/t","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/1/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":197,"y":617,"props":{"name":"c/375/1/m","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/1/m","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":322,"y":356,"width":28,"height":28,"props":{"name":"c/375/1/selo"}}}
+{"command":"node.set","params":{"name":"c/375/1/selo","fill":"#494F8D","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":14}}
+{"command":"text.create","params":{"text":"8,7","x":326,"y":362,"props":{"name":"c/375/1/selo/t","fontSize":10,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"c/375/1/selo/t","fill":"#818CF8"}}
+{"command":"shape.rectangle","params":{"x":16,"y":639,"width":163,"height":245,"props":{"name":"c/375/2"}}}
+{"command":"node.set","params":{"name":"c/375/2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-c-375-2-ph.svg","x":97.5,"y":751,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":20,"height":20}}
+{"command":"text.create","params":{"text":"título no catálogo","x":18,"y":892,"props":{"name":"c/375/2/t","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/2/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":18,"y":908,"props":{"name":"c/375/2/m","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/2/m","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":195,"y":639,"width":163,"height":245,"props":{"name":"c/375/3"}}}
+{"command":"node.set","params":{"name":"c/375/3","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-c-375-3-ph.svg","x":276.5,"y":751,"center":true}}
+{"command":"node.set","params":{"name":"image.svg","width":20,"height":20}}
+{"command":"text.create","params":{"text":"título no catálogo","x":197,"y":892,"props":{"name":"c/375/3/t","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/3/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"tipo · ano","x":197,"y":908,"props":{"name":"c/375/3/m","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"c/375/3/m","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":16,"y":940,"width":343,"height":44,"props":{"name":"mais/375"}}}
+{"command":"node.set","params":{"name":"mais/375","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Carregar mais","x":134,"y":954,"props":{"name":"mais/375/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"mais/375/t","fill":"#A0A0B8"}}
+{"command":"page.add","params":{"name":"Catálogo — filtros 375"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"shape.rectangle","params":{"x":0,"y":0,"width":375,"height":812,"props":{"name":"fundo"}}}
+{"command":"node.set","params":{"name":"fundo","fill":"#0A0A10"}}
+{"command":"text.create","params":{"text":"Catálogo","x":16,"y":96,"props":{"name":"fundo/h1","fontSize":30,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"fundo/h1","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":0,"y":0,"width":288,"height":812,"props":{"name":"drawer"}}}
+{"command":"node.set","params":{"name":"drawer","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Filtros","x":20,"y":28,"props":{"name":"drawer/t","fontSize":18,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"drawer/t","fill":"#F5F5F7"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-drawer-x.svg","x":260,"y":36,"center":true}}
+{"command":"node.set","params":{"name":"x.svg","width":18,"height":18}}
+{"command":"shape.rectangle","params":{"x":20,"y":60,"width":248,"height":1,"props":{"name":"drawer/div"}}}
+{"command":"node.set","params":{"name":"drawer/div","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"TIPO","x":20,"y":80,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":104,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c0","fill":"#818CF8","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---375---filtros-grupo-dTipo-c0-ok.svg","x":28,"y":112,"center":true}}
+{"command":"node.set","params":{"name":"check.svg","width":11,"height":11}}
+{"command":"text.create","params":{"text":"Filmes","x":46,"y":105,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l0","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":105,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n0","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n0","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":134,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Séries","x":46,"y":135,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":135,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n1","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n1","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":164,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Games","x":46,"y":165,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":165,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n2","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n2","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":194,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c3"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c3","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Livros","x":46,"y":195,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l3","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":195,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n3","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n3","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":224,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c4"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c4","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":46,"y":225,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l4","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":225,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n4","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n4","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":254,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c5"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/c5","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Mangás","x":46,"y":255,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l5","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/l5","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":255,"props":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n5","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dTipo/n5","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":288,"width":248,"height":1,"props":{"name":"drawer/div2"}}}
+{"command":"node.set","params":{"name":"drawer/div2","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"GÊNERO","x":20,"y":304,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/t","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":328,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c0"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c0","fill":"#818CF8","strokes":["#818CF8"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-Cat-logo---375---filtros-grupo-dGenero-c0-ok.svg","x":28,"y":336,"center":true}}
+{"command":"node.set","params":{"name":"check.svg","width":11,"height":11}}
+{"command":"text.create","params":{"text":"Drama","x":46,"y":329,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l0","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":329,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n0","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n0","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":358,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c1"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c1","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Ficção científica","x":46,"y":359,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l1","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":359,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n1","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n1","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":388,"width":16,"height":16,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c2"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/c2","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1.5,"cornerRadius":4}}
+{"command":"text.create","params":{"text":"Comédia","x":46,"y":389,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/l2","fill":"#A0A0B8"}}
+{"command":"text.create","params":{"text":"N","x":246,"y":389,"props":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n2","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"Catálogo / 375 — filtros/grupo/dGenero/n2","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":422,"width":248,"height":1,"props":{"name":"drawer/div3"}}}
+{"command":"node.set","params":{"name":"drawer/div3","fill":"#2A2A3D"}}
+{"command":"text.create","params":{"text":"ANO","x":20,"y":442,"props":{"name":"drawer/anoT","fontSize":11,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"drawer/anoT","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":20,"y":464,"width":116,"height":44,"props":{"name":"drawer/ano1"}}}
+{"command":"node.set","params":{"name":"drawer/ano1","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"de","x":32,"y":476,"props":{"name":"drawer/ano1/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"drawer/ano1/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":152,"y":464,"width":116,"height":44,"props":{"name":"drawer/ano2"}}}
+{"command":"node.set","params":{"name":"drawer/ano2","fill":"#1B1B2C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":8}}
+{"command":"text.create","params":{"text":"até","x":164,"y":476,"props":{"name":"drawer/ano2/t","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"drawer/ano2/t","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":0,"y":700,"width":288,"height":112,"props":{"name":"drawer/rodape"}}}
+{"command":"node.set","params":{"name":"drawer/rodape","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1}}
+{"command":"shape.rectangle","params":{"x":20,"y":724,"width":116,"height":48,"props":{"name":"drawer/limpar"}}}
+{"command":"node.set","params":{"name":"drawer/limpar","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Limpar tudo","x":40,"y":740,"props":{"name":"drawer/limpar/t","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"drawer/limpar/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":148,"y":724,"width":120,"height":48,"props":{"name":"drawer/aplicar"}}}
+{"command":"node.set","params":{"name":"drawer/aplicar","fill":"#818CF8","cornerRadius":10}}
+{"command":"text.create","params":{"text":"Ver N títulos","x":168,"y":740,"props":{"name":"drawer/aplicar/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"drawer/aplicar/t","fill":"#0F172A"}}
+{"command":"text.create","params":{"text":"Esc fecha · foco preso no painel · alvos de 48 px","x":20,"y":664,"width":248,"props":{"name":"drawer/nota","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"drawer/nota","fill":"#85859F"}}
+{"command":"page.add","params":{"name":"Catálogo — estados"}}
+{"command":"page.setBackground","params":{"color":"#05050A"}}
+{"command":"text.create","params":{"text":"Catálogo — estados obrigatórios","x":112,"y":28,"props":{"name":"est/t","fontSize":22,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/t","fill":"#F5F5F7"}}
+{"command":"shape.rectangle","params":{"x":112,"y":76,"width":584,"height":380,"props":{"name":"est/sk"}}}
+{"command":"node.set","params":{"name":"est/sk","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"1 · Carregando (skeleton com PAGE_SIZE itens)","x":132,"y":94,"props":{"name":"est/sk/t","fontSize":13,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/sk/t","fill":"#F5F5F7"}}
+{"command":"shape.rectangle","params":{"x":132,"y":122,"width":96,"height":144,"props":{"name":"est/sk/0"}}}
+{"command":"node.set","params":{"name":"est/sk/0","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":132,"y":276,"width":78,"height":8,"props":{"name":"est/sk/0/l1"}}}
+{"command":"node.set","params":{"name":"est/sk/0/l1","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":132,"y":292,"width":52,"height":8,"props":{"name":"est/sk/0/l2"}}}
+{"command":"node.set","params":{"name":"est/sk/0/l2","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":240,"y":122,"width":96,"height":144,"props":{"name":"est/sk/1"}}}
+{"command":"node.set","params":{"name":"est/sk/1","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":240,"y":276,"width":78,"height":8,"props":{"name":"est/sk/1/l1"}}}
+{"command":"node.set","params":{"name":"est/sk/1/l1","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":240,"y":292,"width":52,"height":8,"props":{"name":"est/sk/1/l2"}}}
+{"command":"node.set","params":{"name":"est/sk/1/l2","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":348,"y":122,"width":96,"height":144,"props":{"name":"est/sk/2"}}}
+{"command":"node.set","params":{"name":"est/sk/2","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":348,"y":276,"width":78,"height":8,"props":{"name":"est/sk/2/l1"}}}
+{"command":"node.set","params":{"name":"est/sk/2/l1","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":348,"y":292,"width":52,"height":8,"props":{"name":"est/sk/2/l2"}}}
+{"command":"node.set","params":{"name":"est/sk/2/l2","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":456,"y":122,"width":96,"height":144,"props":{"name":"est/sk/3"}}}
+{"command":"node.set","params":{"name":"est/sk/3","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":456,"y":276,"width":78,"height":8,"props":{"name":"est/sk/3/l1"}}}
+{"command":"node.set","params":{"name":"est/sk/3/l1","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":456,"y":292,"width":52,"height":8,"props":{"name":"est/sk/3/l2"}}}
+{"command":"node.set","params":{"name":"est/sk/3/l2","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":564,"y":122,"width":96,"height":144,"props":{"name":"est/sk/4"}}}
+{"command":"node.set","params":{"name":"est/sk/4","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":564,"y":276,"width":78,"height":8,"props":{"name":"est/sk/4/l1"}}}
+{"command":"node.set","params":{"name":"est/sk/4/l1","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"shape.rectangle","params":{"x":564,"y":292,"width":52,"height":8,"props":{"name":"est/sk/4/l2"}}}
+{"command":"node.set","params":{"name":"est/sk/4/l2","fill":"#1B1B2C","cornerRadius":4}}
+{"command":"text.create","params":{"text":"aria-busy=\"true\" · nenhuma altura muda quando os dados chegam (CLS)","x":132,"y":322,"width":540,"props":{"name":"est/sk/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"est/sk/n","fill":"#85859F"}}
+{"command":"shape.rectangle","params":{"x":728,"y":76,"width":584,"height":380,"props":{"name":"est/vz"}}}
+{"command":"node.set","params":{"name":"est/vz","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"2 · Sem resultado no recorte","x":748,"y":94,"props":{"name":"est/vz/t","fontSize":13,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/vz/t","fill":"#F5F5F7"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-est-vz-i.svg","x":1020,"y":168,"center":true}}
+{"command":"node.set","params":{"name":"search-x.svg","width":28,"height":28}}
+{"command":"text.create","params":{"text":"Nenhum título neste recorte","x":846,"y":196,"props":{"name":"est/vz/t","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/vz/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"Tire um filtro ou amplie o ano — o acervo tem outras portas.","x":768,"y":220,"width":504,"props":{"name":"est/vz/b","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"est/vz/b","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":930,"y":250,"width":180,"height":44,"props":{"name":"est/vz/cta"}}}
+{"command":"node.set","params":{"name":"est/vz/cta","fill":"#818CF8","cornerRadius":10}}
+{"command":"text.create","params":{"text":"Limpar filtros","x":968,"y":264,"props":{"name":"est/vz/cta/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/vz/cta/t","fill":"#0F172A"}}
+{"command":"shape.rectangle","params":{"x":112,"y":484,"width":584,"height":380,"props":{"name":"est/er"}}}
+{"command":"node.set","params":{"name":"est/er","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"3 · Erro de rede","x":132,"y":502,"props":{"name":"est/er/t","fontSize":13,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/er/t","fill":"#F5F5F7"}}
+{"command":"file.import","params":{"path":"C:\\Users\\edina\\AppData\\Local\\Temp\\media-rate-figcraft-catalogo/_i-est-er-i.svg","x":156,"y":528,"center":true}}
+{"command":"node.set","params":{"name":"wifi-off.svg","width":18,"height":18}}
+{"command":"text.create","params":{"text":"Não foi possível carregar o catálogo","x":172,"y":520,"props":{"name":"est/er/t","fontSize":13,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/er/t","fill":"#F5F5F7"}}
+{"command":"text.create","params":{"text":"O acervo continua aqui: tente de novo em instantes.","x":132,"y":552,"width":500,"props":{"name":"est/er/b","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"est/er/b","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":132,"y":584,"width":128,"height":44,"props":{"name":"est/er/cta"}}}
+{"command":"node.set","params":{"name":"est/er/cta","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Tentar de novo","x":148,"y":598,"props":{"name":"est/er/cta/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/er/cta/t","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":728,"y":484,"width":584,"height":380,"props":{"name":"est/of"}}}
+{"command":"node.set","params":{"name":"est/of","fill":"#12121C","strokes":["#2A2A3D"],"strokeWeight":1,"cornerRadius":12}}
+{"command":"text.create","params":{"text":"4 · Dados parciais e offline (A CRIAR)","x":748,"y":502,"props":{"name":"est/of/t","fontSize":13,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/of/t","fill":"#F5F5F7"}}
+{"command":"shape.rectangle","params":{"x":748,"y":528,"width":544,"height":56,"props":{"name":"est/of/aviso"}}}
+{"command":"node.set","params":{"name":"est/of/aviso","fill":"#22170A","strokes":["#7D520B"],"strokeWeight":1,"cornerRadius":10}}
+{"command":"text.create","params":{"text":"Sem conexão · mostrando o que já estava carregado","x":768,"y":550,"props":{"name":"est/of/aviso/t","fontSize":12,"fontFamily":"Inter","fontWeight":700}}}
+{"command":"node.set","params":{"name":"est/of/aviso/t","fill":"#F59E0B"}}
+{"command":"text.create","params":{"text":"O aviso volta a sumir sozinho quando a rede retorna.","x":768,"y":568,"props":{"name":"est/of/aviso/b","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"est/of/aviso/b","fill":"#A0A0B8"}}
+{"command":"shape.rectangle","params":{"x":748,"y":608,"width":96,"height":132,"props":{"name":"est/of/0"}}}
+{"command":"node.set","params":{"name":"est/of/0","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":856,"y":608,"width":96,"height":132,"props":{"name":"est/of/1"}}}
+{"command":"node.set","params":{"name":"est/of/1","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":964,"y":608,"width":96,"height":132,"props":{"name":"est/of/2"}}}
+{"command":"node.set","params":{"name":"est/of/2","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"shape.rectangle","params":{"x":1072,"y":608,"width":96,"height":132,"props":{"name":"est/of/3"}}}
+{"command":"node.set","params":{"name":"est/of/3","fill":"#1B1B2C","cornerRadius":8}}
+{"command":"text.create","params":{"text":"Regra: o aviso é estado, não erro — o conteúdo carregado nunca é descartado.","x":748,"y":762,"width":520,"props":{"name":"est/of/n","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"est/of/n","fill":"#85859F"}}

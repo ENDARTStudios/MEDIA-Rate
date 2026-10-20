@@ -112,7 +112,7 @@ export function HeroSection({
         <div className="absolute bottom-0 left-1/2 h-[280px] w-[520px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.07)_0%,transparent_70%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:px-8 lg:pb-16 lg:pt-14">
+      <div className="secao relative z-10 pb-12 pt-10 lg:pb-16 lg:pt-14">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
           {/* Coluna 1 — GANCHO + PROMESSA + AÇÃO */}
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
@@ -122,9 +122,12 @@ export function HeroSection({
                 centralizado de que ele fazia parte, e "MEDIA Score™" já aparece
                 duas vezes dentro do hero (hub da constelação e faixa de prova).
                 Efeito: H1 ~46px mais alto na dobra e zero texto decorativo. */}
+            {/* Conceito v9 §1: o H1 é a frase do produto a 42 px (2.625rem), quebrando
+                em três linhas no desktop. Antes estava em 3.4rem, e a frase de 63
+                caracteres caía em duas linhas apertadas. */}
             <h1
               id="hero-title"
-              className="max-w-[22ch] font-heading text-4xl font-bold leading-[1.05] tracking-tight text-fg-primary [text-wrap:balance] sm:text-5xl lg:max-w-[18ch] lg:text-[3.4rem]"
+              className="max-w-md font-heading text-[1.75rem] font-bold leading-[1.12] tracking-tight text-fg-primary [text-wrap:balance] sm:max-w-lg sm:text-4xl lg:max-w-md lg:text-[2.625rem]"
             >
               {title}
             </h1>
