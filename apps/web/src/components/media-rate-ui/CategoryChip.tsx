@@ -78,7 +78,7 @@ export function CategoryChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-bg",
+        "inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-bg sm:min-h-0 sm:py-1.5",
         active
           ? "border-transparent text-surface-bg"
           : "border-surface-border bg-transparent text-fg-secondary hover:text-fg-primary",

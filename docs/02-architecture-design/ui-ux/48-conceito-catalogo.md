@@ -123,6 +123,18 @@ node apps/web/scripts/figcraft-conceito-catalogo.mjs          # 992 comandos →
     -o docs\02-architecture-design\figcraft\conceito-catalogo\catalogo-1440.png --scale 1 --page "Catálogo — 1440"
 ```
 
+## 11.1 Estado da implementação (2026-10-19)
+
+| Item do conceito | Estado | Onde |
+|---|---|---|
+| Lead com `max-w-[34rem]` (D-603) | **feito** | `page-shell.tsx` ganhou `introClassName`; `/catalog` passa `max-w-[34rem]`. Medido no DOM: **544 px** em 1440 |
+| Chip com alvos de 44 px no 375 | **feito** | `CategoryChip.tsx`: `min-h-[44px]` até `sm`, 30 px no desktop. Medido: **44 px** em 375 e **30 px** em 1440 |
+| Chip anuncia estado | **já existia** | `aria-pressed={active}` — o "A CONFIRMAR" do P1 da spec está resolvido no código |
+| Drawer: `Esc`, foco preso, `aria-modal` | **feito** | `CatalogPageClient.tsx` `MobileFilterBar`: `role="dialog"`, `aria-modal`, Tab circula no painel, `Esc` fecha e devolve o foco ao botão que abriu (`aria-expanded`/`aria-controls`) |
+| Pitch entre seções | **feito** | `CatalogTypeSections.tsx`: `space-y-8` → `space-y-12` |
+| Faixa de offline | **não implementada, de propósito** | o produto **já tem** aviso global em `src/providers/conexao-aviso.tsx`; uma segunda faixa no catálogo seria ruído. Registrado como **Refutado** em `10-catalogo.md` §11 |
+| Faixa busca + ordenação acima dos chips | **pendente** | exige tirar busca/ordenação de `CatalogFiltersClient` (hoje só no drawer no mobile). Fazer pela metade criaria dois inputs escrevendo o mesmo param — pior que o estado atual |
+
 ## 12. Achados de ferramenta (para não repetir)
 
 1. **`parent` mudou de contrato no FigCraft**: `figcraft-cli commands` diz

@@ -60,7 +60,7 @@ export function CatalogTypeSections() {
   if (tiposComItens.length === 0) return null;
 
   return (
-    <div data-testid="catalog-type-sections" className="mb-10 space-y-8">
+    <div data-testid="catalog-type-sections" className="mb-10 space-y-12">
       {tiposComItens.map((type) => (
         <CatalogTypeRow key={type} type={type} />
       ))}
