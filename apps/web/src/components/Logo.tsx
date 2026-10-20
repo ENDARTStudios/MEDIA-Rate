@@ -22,6 +22,9 @@ const SIZES = {
   sm: { text: "text-[0.9375rem]", gap: "gap-[0.5em]" },
   md: { text: "text-lg", gap: "gap-[0.55em]" },
   lg: { text: "text-2xl", gap: "gap-[0.6em]" },
+  // Lockup de destaque (heróis institucionais): 36 px no mobile, 48 px a partir
+  // de sm — o lockup inteiro fica em ~255/340 px, dentro de qualquer coluna.
+  xl: { text: "text-4xl sm:text-5xl", gap: "gap-[0.6em]" },
 } as const;
 
 /** Geometria do símbolo numa malha de 64 unidades (viewBox 0 0 64 64). */
@@ -33,7 +36,7 @@ const SYMBOL = {
 
 interface LogoProps {
   variant?: "full" | "compact" | "inline";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
