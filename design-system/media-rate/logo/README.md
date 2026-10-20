@@ -81,6 +81,11 @@ Nunca uma terceira cor dentro do símbolo.
 | **Mono positivo / mono tinta** | uma cor só (impressão, gravação, fundos claros/escuros) |
 | **Ícone do app** | tile escuro com símbolo centralizado (52–58% do lado) |
 
+**No produto:** o lockup do header é caixa alta (`MEDIA RATE`), como nos assets; o nome em
+texto corrido (copy, metadados, rodapé) continua **“MEDIA Rate”**. O componente
+[`Logo.tsx`](../../../apps/web/src/components/Logo.tsx) implementa o lockup com o símbolo em
+SVG e o wordmark em Space Grotesk (700 / 300).
+
 ## 7. Arquivos
 
 ```
