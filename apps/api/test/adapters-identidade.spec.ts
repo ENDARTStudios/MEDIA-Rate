@@ -3,7 +3,10 @@ import {
   SteamAdapter,
   normalizarNomeSteam,
 } from "../src/modules/media-score/adapters/steam.adapter.js";
-import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
+import {
+  KitsuAdapter,
+  escolherMangaKitsu,
+} from "../src/modules/media-score/adapters/kitsu.adapter.js";
 import { TmdbAdapter } from "../src/modules/media-score/adapters/tmdb.adapter.js";
 import {
   TraktAdapter,
@@ -372,6 +375,51 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
       expect(notas).toHaveLength(1);
       expect(notas[0].rating).toBe(7.6);
       expect(notas[0].url).toBe("https://www.tvmaze.com/shows/2/vida");
+    });
+  });
+
+  describe("KitsuAdapter — identidade por ano de início (T-DADOS-47)", () => {
+    const itens = [
+      {
+        id: "1",
+        attributes: { slug: "kimino-iru-machi", startDate: "2008-01-01", averageRating: "78" },
+      },
+      {
+        id: "2",
+        attributes: {
+          slug: "suzuka",
+          startDate: "2004-01-01",
+          averageRating: "81.5",
+          ratingCount: 900,
+        },
+      },
+    ];
+
+    it("pula a obra de outro ano e pega a certa", () => {
+      const escolhido = escolherMangaKitsu(itens, { tipo: "MANGA", titulo: "Suzuka", ano: 2004 });
+      expect(escolhido?.id).toBe("2");
+    });
+
+    it("sem obra com o ano do catálogo, não atribui", () => {
+      const escolhido = escolherMangaKitsu(itens, { tipo: "MANGA", titulo: "Suzuka", ano: 1999 });
+      expect(escolhido).toBeNull();
+    });
+
+    it("sem ano no catálogo, mantém o primeiro", () => {
+      const escolhido = escolherMangaKitsu(itens, { tipo: "MANGA", titulo: "Suzuka" });
+      expect(escolhido?.id).toBe("1");
+    });
+
+    it("coletar usa a obra conferida", async () => {
+      mockFetch([{ body: { data: itens } }]);
+      const notas = await new KitsuAdapter().coletar({
+        tipo: "MANGA",
+        titulo: "Suzuka",
+        ano: 2004,
+      });
+      expect(notas).toHaveLength(1);
+      expect(notas[0].rating).toBe(81.5);
+      expect(notas[0].url).toBe("https://kitsu.io/manga/suzuka");
     });
   });
 });

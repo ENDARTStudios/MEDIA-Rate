@@ -85,10 +85,12 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   it("kitsu: averageRating 0–100 com ratingCount como votos", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
     vi.mocked(fetchJson).mockResolvedValue({
-      data: [{ attributes: { averageRating: "82.3", ratingCount: 12800 } }],
+      data: [
+        { attributes: { averageRating: "82.3", ratingCount: 12800, startDate: "1989-10-20" } },
+      ],
     });
     const adapter = new KitsuAdapter();
-    const notas = await adapter.coletar(consulta("Berserk"));
+    const notas = await adapter.coletar({ tipo: "MANGA", titulo: "Berserk", ano: 1989 });
     expect(notas[0].fonte).toBe("kitsu");
     expect(notas[0].rating).toBe(82.3);
     expect(notas[0].votos).toBe(12800);
@@ -97,10 +99,10 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   it("kitsu: votos indefinido quando ratingCount null", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
     vi.mocked(fetchJson).mockResolvedValue({
-      data: [{ attributes: { averageRating: "82.3", ratingCount: null } }],
+      data: [{ attributes: { averageRating: "82.3", ratingCount: null, startDate: "1989-10-20" } }],
     });
     const adapter = new KitsuAdapter();
-    const notas = await adapter.coletar(consulta("Berserk"));
+    const notas = await adapter.coletar({ tipo: "MANGA", titulo: "Berserk", ano: 1989 });
     expect(notas[0].rating).toBe(82.3);
     expect(notas[0].votos).toBeUndefined();
   });
