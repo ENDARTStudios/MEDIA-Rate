@@ -80,6 +80,7 @@ Nunca uma terceira cor dentro do símbolo.
 | **Símbolo** | favicon, app, marca d'água, elementos de UI |
 | **Mono positivo / mono tinta** | uma cor só (impressão, gravação, fundos claros/escuros) |
 | **Ícone do app** | tile escuro com símbolo centralizado (52–58% do lado) |
+| **Cartão social (1200×630)** | preview de link/OG: lockup + tagline + “FILMES · SÉRIES · GAMES · LIVROS” |
 
 **No produto:** o lockup do header é caixa alta (`MEDIA RATE`), como nos assets; o nome em
 texto corrido (copy, metadados, rodapé) continua **“MEDIA Rate”**. O componente
@@ -90,7 +91,7 @@ SVG e o wordmark em Space Grotesk (700 / 300).
 
 ```
 design-system/media-rate/logo/
-├─ src/media-rate-logo.vectorcraft   documento vetorial editável (9 pranchetas)
+├─ src/media-rate-logo.vectorcraft   documento vetorial editável (10 pranchetas)
 ├─ exports/svg/                      vetores finais (contornos, sem fonte)
 │  ├─ media-rate-logo-primary.svg
 │  ├─ media-rate-logo-stacked.svg
@@ -108,6 +109,8 @@ design-system/media-rate/logo/
 │  ├─ media-rate-symbol-128/256/512/1024.png
 │  ├─ media-rate-icon-512/384/192/180.png
 │  ├─ favicon-48/32/16.png
+│  ├─ og-image.png                                cartão social 1200×630
+│  ├─ apple-icon-180.png                          apple-touch-icon opaco 180×180
 │  ├─ 01-primary@2x.png … 09-mono-ink@2x.png   (pranchas de apresentação)
 │  └─ 08-brand-sheet@2x.png                     (folha de marca)
 ├─ exports/pdf/media-rate-brand-sheet.pdf
@@ -149,5 +152,10 @@ do documento. O perfil `.vc-profile/` (isolado) guarda a fonte instalada e é ig
 
 ---
 
-*MEDIA Rate · identidade visual v1.0 · 2026*
+**No app, os arquivos gerados daqui são:** `apps/web/public/og-image.png` (cópia de
+`exports/png/og-image.png`) e `apps/web/src/app/apple-icon.png` (cópia de
+`exports/png/apple-icon-180.png`).
+
+*MEDIA Rate · identidade visual v1.1 · 2026*
+
 
