@@ -1,11 +1,38 @@
 "use client";
 
+/**
+ * Sidebar de filtros do catálogo — agora no desenho do conceito v1.
+ *
+ * O que mudou e por quê:
+ *
+ *  - **Todos os grupos ficam visíveis.** Antes ano/nota/gênero/crítica viviam atrás de um
+ *    "Filtro avançado" recolhido: quem abria a página via "Filtros" e um chevron. O
+ *    conceito desenha Tipo · Gênero · Ano · Nota mínima · Só com crítica abertos.
+ *  - **Contagens ao lado de cada opção** (tipo pela contagem por categoria; gênero por
+ *    `total_midias` que o endpoint já devolve).
+ *  - **Tipo e Gênero como LISTA DE OPÇÕES**, não `<select>`. O conceito desenha caixas de
+ *    seleção; o contrato da URL/API aceita UM valor por filtro (`?type=`, `?genero=`),
+ *    então o desenho virou **radio**, não checkbox — caixa de marcar que desmarca a
+ *    anterior mentiria sobre poder escolher dois.
+ *  - **Nota mínima é slider** (0–100, passo 5) com o valor à direita; o máximo continua
+ *    como campo compacto, para não perder o recorte por faixa.
+ *  - **"Só com crítica" é switch** (`role="switch"`), como no desenho.
+ *  - **Cabeçalho** com "FILTROS" + contagem de ativos em accent; **rodapé** com a contagem
+ *    do recorte e "Limpar filtros" — no desktop o filtro é ao vivo, não há "aplicar".
+ */
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
 import { useTotalDoRecorte } from "./catalog/TotalDoRecorte";
+import { listaDeValores } from "@/lib/api";
+import type { MediaType } from "@/lib/types";
+import { TIPOS_DO_CATALOGO, useTiposComContagem } from "./catalog/useTiposComContagem";
+import { CATEGORY_TOKENS } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
+const GENEROS_VISIVEIS = 4;
 
 export function CatalogFiltersClient() {
   const t = useTranslations("catalog");
@@ -13,7 +40,7 @@ export function CatalogFiltersClient() {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [mostrarTodosGeneros, setMostrarTodosGeneros] = useState(false);
 
   const type = sp.get("type") ?? "";
   const query = sp.get("q") ?? "";
@@ -23,16 +50,6 @@ export function CatalogFiltersClient() {
   const scoreMax = sp.get("scoreMax") ?? "";
   const genero = sp.get("genero") ?? "";
   const comCritica = sp.get("com_critica") === "true";
-
-  const { data: generos } = useQuery({
-    queryKey: ["generos"],
-    queryFn: async () =>
-      (await api.get<{ id: number; nome: string; slug: string; total_midias: number }[]>(
-        "/api/v1/midias/generos",
-      )) ?? [],
-    staleTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -46,178 +63,290 @@ export function CatalogFiltersClient() {
 
   const clearAll = () => router.replace(pathname);
 
-  // BETA-GAP-10/T127: o catálogo textual (`/api/v1/search`) só casa título/
-  // sinopse — gênero/nota/crítica NÃO são aplicados nesse modo. Em vez de
-  // exibir um filtro que a request ignora (estado divergente), desabilita com
-  // hint honesta enquanto houver busca ativa.
+  // BETA-GAP-10/T127: o catálogo textual (`/api/v1/search`) só casa título/sinopse —
+  // gênero/nota/crítica NÃO são aplicados nesse modo. Em vez de exibir filtro que a
+  // request ignora, desabilita com hint honesta enquanto houver busca ativa.
   const buscaAtiva = query.trim().length > 0;
 
-  // Conceito §3 bloco 5: a contagem do recorte fica onde o olho está quando se
-  // mexe num filtro. `null` = primeira carga, e aí não mostramos "0".
-  const { total } = useTotalDoRecorte();
-
-  // A ordenação agora vive na faixa acima dos chips; aqui ela só entra na CONTAGEM
-  // de filtros ativos, porque para quem olha a tela ela é um recorte como os outros.
+  // A ordenação agora vive na faixa acima dos chips; aqui ela só entra na CONTAGEM.
   const sort = sp.get("sort") ?? "";
 
-  const activeCount = [
-    type,
-    sort,
-    query,
-    anoMin,
-    anoMax,
-    scoreMin,
-    scoreMax,
-    genero,
-    comCritica ? "critica" : "",
-  ].filter(Boolean).length;
+  // Listas em CSV na URL: `?type=movie,book` e `?genero=drama,acao`.
+  const tiposAtivos = listaDeValores(type) as MediaType[];
+  const generosAtivos = listaDeValores(genero);
+
+  /** Mantém a ordem canônica dos tipos, para a URL ficar estável e legível. */
+  const alternarTipo = (id: MediaType) => {
+    const proximo = tiposAtivos.includes(id)
+      ? tiposAtivos.filter((t) => t !== id)
+      : [...tiposAtivos, id];
+    const ordenado = TIPOS_DO_CATALOGO.filter((t) => proximo.includes(t.id)).map((t) => t.id);
+    setParam("type", ordenado.join(","));
+  };
+
+  const alternarGenero = (slug: string) => {
+    const proximo = generosAtivos.includes(slug)
+      ? generosAtivos.filter((g) => g !== slug)
+      : [...generosAtivos, slug];
+    setParam("genero", proximo.join(","));
+  };
+
+  const { total } = useTotalDoRecorte();
+  const contagensDeTipo = useTiposComContagem();
+
+  const { data: generos } = useQuery({
+    queryKey: ["generos"],
+    queryFn: async () =>
+      (await api.get<{ id: number; nome: string; slug: string; total_midias: number }[]>(
+        "/api/v1/midias/generos",
+      )) ?? [],
+    staleTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  // Conta VALORES selecionados, não parâmetros: dois tipos marcados são dois ativos.
+  const activeCount =
+    tiposAtivos.length +
+    generosAtivos.length +
+    (sort ? 1 : 0) +
+    (query.trim() ? 1 : 0) +
+    (anoMin ? 1 : 0) +
+    (anoMax ? 1 : 0) +
+    (scoreMin ? 1 : 0) +
+    (scoreMax ? 1 : 0) +
+    (comCritica ? 1 : 0);
+
+  const listaGeneros = generos ?? [];
+  const generosVisiveis = mostrarTodosGeneros
+    ? listaGeneros
+    : listaGeneros.slice(0, GENEROS_VISIVEIS);
+
+  const campoBase =
+    "w-full rounded-md border border-surface-border bg-surface-elevated px-2.5 py-2 text-sm text-fg-primary placeholder:text-fg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo disabled:opacity-50";
+
+  const rotuloGrupo = "text-[11px] font-semibold uppercase tracking-wider text-fg-muted";
 
   return (
-    <aside aria-label={tf("groupLabel")} className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
-      <div className="flex items-center justify-between">
-        <span className="font-semibold text-fg-primary">
+    <aside aria-label={tf("groupLabel")} className="w-full lg:w-60 shrink-0 text-sm">
+      {/* Cabeçalho: FILTROS + quantos estão ativos */}
+      <div className="flex items-baseline justify-between">
+        <span className="font-heading font-semibold uppercase tracking-wider text-fg-primary">
           {tf("filters")}
-          {activeCount > 0 ? ` (${activeCount})` : ""}
         </span>
         {activeCount > 0 && (
-          <button
-            onClick={clearAll}
-            data-testid="catalog-clear-all"
-            className="text-xs text-accent-indigo hover:text-accent-indigo-hover"
+          <span
+            className="text-[11px] font-semibold text-accent-indigo"
+            data-testid="catalog-active-count"
           >
-            {tf("clearAll")}
-          </button>
+            {tf("activeCount", { count: activeCount })}
+          </span>
         )}
       </div>
+      <div className="mt-3 h-px bg-surface-border" aria-hidden="true" />
 
-      {/* Filtro avançado colapsável (Parte 3.2): ano + faixa de score. */}
-      <div className="border-t border-surface-elevated pt-3">
+      {buscaAtiva && (
+        <p
+          id="catalog-advanced-search-hint"
+          data-testid="catalog-advanced-search-hint"
+          className="mt-3 rounded-md border border-accent-indigo/20 bg-accent-indigo/5 px-2 py-1.5 text-[11px] leading-4 text-fg-secondary"
+        >
+          {tf("advancedUnavailableSearch")}
+        </p>
+      )}
+
+      {/* ── TIPO — caixas de seleção; a URL aceita LISTA (CSV) ───────────────── */}
+      <fieldset className="mt-4">
+        <legend className={rotuloGrupo}>{tf("tipoLabel")}</legend>
+        <div className="mt-2 space-y-1" data-testid="catalog-filter-tipo">
+          {TIPOS_DO_CATALOGO.map((tipo) => {
+            const Icone = CATEGORY_TOKENS[tipo.id].icon;
+            const contagem = contagensDeTipo[tipo.id];
+            return (
+              <label
+                key={tipo.id}
+                className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary"
+              >
+                <input
+                  type="checkbox"
+                  checked={tiposAtivos.includes(tipo.id)}
+                  onChange={() => alternarTipo(tipo.id)}
+                  data-testid={`catalog-filter-tipo-${tipo.id}`}
+                  className="accent-accent-indigo"
+                />
+                <Icone
+                  className="h-3.5 w-3.5 shrink-0"
+                  style={{ color: CATEGORY_TOKENS[tipo.id].color }}
+                  aria-hidden="true"
+                />
+                <span className="flex-1">{tipo.rotulo}</span>
+                {contagem != null && (
+                  <span className="tabular-nums text-[11px] text-fg-muted">{contagem}</span>
+                )}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+
+      {/* ── GÊNERO — mesma regra: um gênero por vez ─────────────────────────── */}
+      <fieldset className="mt-4" disabled={buscaAtiva}>
+        <legend className={rotuloGrupo}>{tf("genero")}</legend>
+        <div
+          className="mt-2 space-y-1"
+          data-testid="catalog-filter-genero"
+          aria-disabled={buscaAtiva}
+        >
+          {generosVisiveis.map((g) => (
+            <label
+              key={g.id}
+              className="flex min-h-[32px] cursor-pointer items-center gap-2 text-fg-secondary hover:text-fg-primary"
+            >
+              <input
+                type="checkbox"
+                checked={generosAtivos.includes(g.slug)}
+                onChange={() => alternarGenero(g.slug)}
+                disabled={buscaAtiva}
+                data-testid={`catalog-filter-genero-${g.slug}`}
+                className="accent-accent-indigo"
+              />
+              <span className="flex-1">{g.nome}</span>
+              <span className="tabular-nums text-[11px] text-fg-muted">{g.total_midias}</span>
+            </label>
+          ))}
+          {listaGeneros.length > GENEROS_VISIVEIS && (
+            <button
+              type="button"
+              onClick={() => setMostrarTodosGeneros((v) => !v)}
+              aria-expanded={mostrarTodosGeneros}
+              data-testid="catalog-genero-ver-todos"
+              className="mt-1 text-[11px] text-accent-indigo hover:text-accent-indigo-hover"
+            >
+              {mostrarTodosGeneros
+                ? tf("showFewer")
+                : tf("showAll", { count: listaGeneros.length })}
+            </button>
+          )}
+        </div>
+      </fieldset>
+
+      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+
+      {/* ── ANO ─────────────────────────────────────────────────────────────── */}
+      <div className="mt-4">
+        <span className={rotuloGrupo}>{tf("anoLabel")}</span>
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="number"
+            value={anoMin}
+            onChange={(e) => setParam("anoMin", e.target.value)}
+            placeholder={tf("anoMin")}
+            aria-label={tf("anoMin")}
+            className={campoBase}
+          />
+          <span className="text-fg-secondary" aria-hidden="true">
+            –
+          </span>
+          <input
+            type="number"
+            value={anoMax}
+            onChange={(e) => setParam("anoMax", e.target.value)}
+            placeholder={tf("anoMax")}
+            aria-label={tf("anoMax")}
+            className={campoBase}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+
+      {/* ── NOTA MÍNIMA — slider com o valor à direita ──────────────────────── */}
+      <div className="mt-4">
+        <div className="flex items-baseline justify-between">
+          <span className={rotuloGrupo}>{tf("notaMinima")}</span>
+          <span className="tabular-nums text-[11px] font-semibold text-fg-primary">
+            {scoreMin ? t("scoreDe", { score: scoreMin }) : tf("semMinimo")}
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={5}
+          value={scoreMin || 0}
+          onChange={(e) => setParam("scoreMin", e.target.value === "0" ? "" : e.target.value)}
+          disabled={buscaAtiva}
+          aria-label={tf("notaMinima")}
+          aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+          data-testid="catalog-filter-score-min"
+          className="mt-2 w-full accent-accent-indigo disabled:opacity-50"
+        />
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="number"
+            value={scoreMax}
+            onChange={(e) => setParam("scoreMax", e.target.value)}
+            placeholder={tf("scoreMax")}
+            aria-label={tf("scoreMax")}
+            disabled={buscaAtiva}
+            aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+            data-testid="catalog-filter-score-max"
+            className={cn(campoBase, "max-w-[6.5rem]")}
+          />
+          <span className="text-[11px] text-fg-muted">{tf("scoreMaxHint")}</span>
+        </div>
+      </div>
+
+      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+
+      {/* ── SÓ COM CRÍTICA — switch ─────────────────────────────────────────── */}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span className={rotuloGrupo} id="catalog-critica-label">
+          {tf("somenteCriticaCurto")}
+        </span>
         <button
           type="button"
-          onClick={() => setAdvancedOpen((v) => !v)}
-          aria-expanded={advancedOpen}
-          data-testid="catalog-advanced-toggle"
-          className="flex w-full items-center justify-between text-xs font-semibold text-fg-secondary hover:text-fg-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo rounded"
+          role="switch"
+          aria-checked={comCritica}
+          aria-labelledby="catalog-critica-label"
+          aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
+          disabled={buscaAtiva}
+          onClick={() => setParam("com_critica", comCritica ? "" : "true")}
+          data-testid="catalog-filter-com-critica"
+          className={cn(
+            "relative h-6 w-11 shrink-0 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo disabled:opacity-50",
+            comCritica
+              ? "border-accent-indigo bg-accent-indigo"
+              : "border-surface-border bg-surface-elevated",
+          )}
         >
-          <span>{tf("advancedFilters")}</span>
-          <svg
-            className={`h-3.5 w-3.5 transition-transform ${advancedOpen ? "rotate-180" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {advancedOpen && (
-          <div className="mt-3 space-y-3">
-            {buscaAtiva && (
-              <p
-                id="catalog-advanced-search-hint"
-                data-testid="catalog-advanced-search-hint"
-                className="rounded-md border border-accent-indigo/20 bg-accent-indigo/5 px-2 py-1.5 text-[11px] leading-4 text-fg-secondary"
-              >
-                {tf("advancedUnavailableSearch")}
-              </p>
+          <span
+            className={cn(
+              "absolute top-0.5 h-[1.125rem] w-[1.125rem] rounded-full bg-fg-primary transition-[left]",
+              comCritica ? "left-[1.375rem]" : "left-0.5",
             )}
-            <div>
-              <span className="block text-xs text-fg-secondary mb-1.5">{tf("anoLabel")}</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={anoMin}
-                  onChange={(e) => setParam("anoMin", e.target.value)}
-                  placeholder={tf("anoMin")}
-                  aria-label={tf("anoMin")}
-                  className="w-full px-2 py-1.5 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-indigo"
-                />
-                <span className="text-fg-secondary">–</span>
-                <input
-                  type="number"
-                  value={anoMax}
-                  onChange={(e) => setParam("anoMax", e.target.value)}
-                  placeholder={tf("anoMax")}
-                  aria-label={tf("anoMax")}
-                  className="w-full px-2 py-1.5 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-indigo"
-                />
-              </div>
-            </div>
-
-            <div>
-              <span className="block text-xs text-fg-secondary mb-1.5">MEDIA Score (0–100)</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={scoreMin}
-                  onChange={(e) => setParam("scoreMin", e.target.value)}
-                  placeholder={tf("scoreMin")}
-                  aria-label={tf("scoreMin")}
-                  disabled={buscaAtiva}
-                  aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
-                  data-testid="catalog-filter-score-min"
-                  className="w-full px-2 py-1.5 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-indigo disabled:opacity-50"
-                />
-                <span className="text-fg-secondary">–</span>
-                <input
-                  type="number"
-                  value={scoreMax}
-                  onChange={(e) => setParam("scoreMax", e.target.value)}
-                  placeholder={tf("scoreMax")}
-                  aria-label={tf("scoreMax")}
-                  disabled={buscaAtiva}
-                  aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
-                  data-testid="catalog-filter-score-max"
-                  className="w-full px-2 py-1.5 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-indigo disabled:opacity-50"
-                />
-              </div>
-            </div>
-            <div>
-              <span className="block text-xs text-fg-secondary mb-1.5">{tf("genero")}</span>
-              <select
-                value={genero}
-                onChange={(e) => setParam("genero", e.target.value)}
-                aria-label={tf("genero")}
-                disabled={buscaAtiva}
-                aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
-                data-testid="catalog-filter-genero"
-                className="w-full px-2 py-1.5 bg-surface-card border-surface-elevated rounded-md text-sm text-fg-primary focus:outline-none focus:ring-2 focus:ring-accent-indigo disabled:opacity-50"
-              >
-                <option value="">{tf("todosGeneros")}</option>
-                {(generos ?? []).map((g) => (
-                  <option key={g.id} value={g.slug}>
-                    {g.nome} ({g.total_midias})
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1.5 text-xs text-fg-secondary">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={comCritica}
-                    onChange={(e) => setParam("com_critica", e.target.checked ? "true" : "")}
-                    disabled={buscaAtiva}
-                    aria-describedby={buscaAtiva ? "catalog-advanced-search-hint" : undefined}
-                    data-testid="catalog-filter-com-critica"
-                    className="mt-0.5 accent-accent-indigo"
-                  />
-                  <span>{tf("somenteCritica")}</span>
-                </label>
-              </p>
-            </div>
-          </div>
-        )}
+            aria-hidden="true"
+          />
+        </button>
       </div>
 
-      {/* Conceito §3 bloco 5: onde o olho está ao mexer no filtro. No desktop o
-          recorte é ao vivo (query string), então isto é LEITURA — não há botão
-          "aplicar". `null` significa primeira carga: nada de "0 títulos". */}
-      <div className="border-t border-surface-elevated pt-3">
+      {/* ── Rodapé: contagem do recorte + limpar ────────────────────────────── */}
+      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+      <div className="mt-3">
         <p className="text-xs text-fg-secondary" data-testid="catalog-recorte-total">
           {total == null ? tf("countLoading") : t("count", { count: total })}
         </p>
         <p className="mt-1 text-[11px] text-fg-muted">{tf("liveNotice")}</p>
+        <button
+          type="button"
+          onClick={clearAll}
+          data-testid="catalog-clear-all"
+          disabled={activeCount === 0}
+          className="mt-3 min-h-[36px] w-full rounded-md border border-surface-border bg-surface-card text-xs font-semibold text-fg-secondary transition-colors hover:border-accent-indigo hover:text-fg-primary disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {tf("clearAll")}
+        </button>
       </div>
     </aside>
   );

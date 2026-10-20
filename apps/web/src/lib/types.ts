@@ -176,7 +176,10 @@ export interface MediaSearchResult {
 
 export interface CatalogFilters {
   search?: string;
+  /** Um tipo (compatível com todo o código existente). */
   type?: MediaType;
+  /** Vários tipos — o que a sidebar com caixas de seleção envia. */
+  tipos?: MediaType[];
   genre?: string;
   sort?: "title" | "year" | "score";
   order?: "asc" | "desc";
@@ -192,7 +195,8 @@ export interface CatalogFilters {
   /** T186: somente obras com fonte de crítica disponível (score_critica != null). */
   comCritica?: boolean;
   /** Slug do gênero (ex.: "ficcao-cientifica"). */
-  genero?: string;
+  /** Um gênero ou vários (slug/id), também aceito como lista. */
+  genero?: string | string[];
 }
 
 export interface CatalogResponse {

@@ -274,7 +274,8 @@
     "discoverFullCatalog": "Catálogo completo",
     "discoverListTitle": "Lista de destacados",
     "discoverTitle": "Descubrir",
-    "paletaRelated": "Relacionados"
+    "paletaRelated": "Relacionados",
+    "scoreDe": "{score}/100"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -751,7 +752,16 @@
     "close": "Cerrar filtros",
     "groupLabel": "Filtros del catálogo",
     "countLoading": "Contando títulos…",
-    "liveNotice": "el recorte es en vivo — sin botón aplicar"
+    "liveNotice": "el recorte es en vivo — sin botón aplicar",
+    "activeCount": "{count, plural, one {# activo} other {# activos}}",
+    "tipoLabel": "Tipo",
+    "allTypes": "Todos los tipos",
+    "showAll": "ver los {count}",
+    "showFewer": "ver menos",
+    "notaMinima": "Nota mínima",
+    "semMinimo": "sin mínimo",
+    "scoreMaxHint": "nota máxima",
+    "somenteCriticaCurto": "Solo con crítica"
   },
   "watchlist": {
     "undo": "Deshacer",

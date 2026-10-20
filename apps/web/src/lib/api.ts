@@ -891,9 +891,23 @@ const MANUAL: Media[] = [
 const MOCK_MEDIA: Media[] = [...SEED_MEDIA, ...MANUAL] as Media[];
 export { MOCK_MEDIA };
 
+/** Normaliza `tipos`/`type` para lista — aceita as duas formas. */
+export function listaDeTipos(filters?: CatalogFilters): MediaType[] {
+  if (filters?.tipos?.length) return filters.tipos;
+  return filters?.type ? [filters.type] : [];
+}
+
+/** Normaliza um parâmetro que pode ser string CSV, lista ou vazio. */
+export function listaDeValores(valor?: string | string[]): string[] {
+  if (!valor) return [];
+  const bruto = Array.isArray(valor) ? valor : valor.split(",");
+  return bruto.map((v) => v.trim()).filter(Boolean);
+}
+
 function applyCatalogFilters(items: Media[], filters?: CatalogFilters) {
   let result = [...items];
-  if (filters?.type) result = result.filter((m) => m.type === filters.type);
+  const tipos = listaDeTipos(filters);
+  if (tipos.length > 0) result = result.filter((m) => tipos.includes(m.type));
   if (filters?.search) {
     const q = filters.search.toLowerCase();
     result = result.filter(
@@ -950,8 +964,9 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
       `/api/v1/search?q=${encodeURIComponent(filters.search)}&limit=100`,
     );
     if (data?.items) {
+      const tiposBuscados = listaDeTipos(filters);
       let items = data.items
-        .filter((it) => !filters.type || mapTipo(it.tipo) === filters.type)
+        .filter((it) => tiposBuscados.length === 0 || tiposBuscados.includes(mapTipo(it.tipo)))
         .map((it) => mediaFromSearchItem(it));
       // BETA-GAP-10/T127: o /search casa título/sinopse mas NÃO aplica
       // ano/ordem — aplicamos localmente os que os dados suportam (ano e
@@ -967,7 +982,11 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
     }
   } else {
     const params = new URLSearchParams();
-    if (filters?.type) params.set("tipo", TIPO_TO_API[filters.type]);
+    // Lista separada por vírgula: `?tipo=FILME,SERIE`. Valor único continua igual.
+    const tiposApi = listaDeTipos(filters)
+      .map((tipo) => TIPO_TO_API[tipo])
+      .filter(Boolean);
+    if (tiposApi.length > 0) params.set("tipo", tiposApi.join(","));
     if (filters?.sort && SORT_TO_API[filters.sort]) {
       params.set(
         "sort",
@@ -979,7 +998,8 @@ export async function getCatalog(filters?: CatalogFilters): Promise<CatalogRespo
     if (filters?.anoMax != null) params.set("ano_max", String(filters.anoMax));
     if (filters?.scoreMin != null) params.set("score_min", String(filters.scoreMin));
     if (filters?.scoreMax != null) params.set("score_max", String(filters.scoreMax));
-    if (filters?.genero) params.set("genero", filters.genero);
+    const generosApi = listaDeValores(filters?.genero);
+    if (generosApi.length > 0) params.set("genero", generosApi.join(","));
     if (filters?.comCritica) params.set("com_critica", "true");
     params.set("limit", String(Math.min(filters?.limit ?? 20, 100)));
     const data = await apiGet<{

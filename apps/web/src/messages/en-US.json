@@ -274,7 +274,8 @@
     "discoverFullCatalog": "Full catalog",
     "discoverListTitle": "Top picks",
     "discoverTitle": "Discover",
-    "paletaRelated": "Related"
+    "paletaRelated": "Related",
+    "scoreDe": "{score}/100"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -751,7 +752,16 @@
     "close": "Close filters",
     "groupLabel": "Catalog filters",
     "countLoading": "Counting titles…",
-    "liveNotice": "filters apply live — there is no apply button"
+    "liveNotice": "filters apply live — there is no apply button",
+    "activeCount": "{count, plural, one {# active} other {# active}}",
+    "tipoLabel": "Type",
+    "allTypes": "All types",
+    "showAll": "show all {count}",
+    "showFewer": "show fewer",
+    "notaMinima": "Minimum score",
+    "semMinimo": "no minimum",
+    "scoreMaxHint": "max score",
+    "somenteCriticaCurto": "Critics only"
   },
   "watchlist": {
     "undo": "Undo",
