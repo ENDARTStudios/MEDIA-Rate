@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
+import { SortDropdown } from "./SortDropdown";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -88,23 +89,15 @@ export function CatalogSearchBand() {
       </div>
 
       <div className="flex items-center gap-2">
-        <label htmlFor="catalog-sort" className="shrink-0 text-xs text-fg-secondary">
-          {t("sort")}
-        </label>
-        <select
-          id="catalog-sort"
-          value={sort}
-          onChange={(e) => setParam("sort", e.target.value)}
-          data-testid="catalog-sort"
-          className="min-h-[44px] rounded-lg border border-surface-border bg-surface-card px-3 py-2.5 text-sm text-fg-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
-        >
-          <option value="">{t("sortRelevancia")}</option>
-          {SORT_OPTIONS.map(({ value, labelKey }) => (
-            <option key={value} value={value}>
-              {t(labelKey)}
-            </option>
-          ))}
-        </select>
+        <SortDropdown
+          valor={sort}
+          rotulo={t("sort")}
+          opcoes={[
+            { value: "", label: t("sortRelevancia") },
+            ...SORT_OPTIONS.map(({ value, labelKey }) => ({ value, label: t(labelKey) })),
+          ]}
+          aoEscolher={(valor) => setParam("sort", valor)}
+        />
       </div>
     </div>
   );

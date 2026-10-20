@@ -10,7 +10,6 @@ import { mapToMediaItem } from "@/lib/catalog-item";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
-import { CatalogTypeBar } from "./CatalogTypeBar";
 import { CatalogSearchBand } from "./catalog/CatalogSearchBand";
 import { TotalDoRecorteProvider, useTotalDoRecorte } from "./catalog/TotalDoRecorte";
 import { CatalogTypeSections } from "./CatalogTypeSections";
@@ -419,9 +418,6 @@ export function CatalogPageClient({
       <div>
         <Suspense fallback={null}>
           <CatalogSearchBand />
-        </Suspense>
-        <Suspense fallback={null}>
-          <CatalogTypeBar />
         </Suspense>
         <Suspense fallback={null}>
           <CatalogTypeSections />

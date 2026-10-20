@@ -103,19 +103,36 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe("CatalogSearchBand — Ordenar sem duplicata (feedback Operador)", () => {
-  it("option padrão é Relevância; MEDIA Score aparece UMA única vez", () => {
-    const { container } = renderWithProviders(<CatalogSearchBand />);
-    const sortSelect = container.querySelector("#catalog-sort") as HTMLSelectElement;
-    expect(sortSelect).toBeTruthy();
-    const valores = [...(sortSelect as HTMLSelectElement).options].map((o) => o.value);
-    // valores distintos: score aparece UMA vez (antes: option vazia + score
-    // ambas rotuladas "MEDIA Score" — duplicata visível)
-    expect(valores.filter((v) => v === "score").length).toBe(1);
-    expect(valores).toEqual(["", "score", "year", "title"]);
-    // o option padrão renderiza o label Relevância (não MEDIA Score)
-    const opcoesTexto = [...(sortSelect as HTMLSelectElement).options].map((o) => o.textContent);
-    expect(opcoesTexto[0]).toBe("Relevância");
-    expect(opcoesTexto).not.toContain("MEDIA Score");
+  it("ordenação é dropdown do produto e Relevância é o padrão", () => {
+    renderWithProviders(<CatalogSearchBand />);
+
+    // Gatilho: botão com aria-haspopup, não um <select> nativo.
+    const gatilho = screen.getByTestId("catalog-sort");
+    expect(gatilho).toHaveAttribute("aria-haspopup", "listbox");
+    expect(gatilho).toHaveTextContent("Relevância");
+
+    fireEvent.click(gatilho);
+    const menu = screen.getByTestId("catalog-sort-menu");
+    expect(menu).toHaveAttribute("role", "listbox");
+
+    const opcoes = screen.getAllByRole("option");
+    expect(opcoes).toHaveLength(4);
+    expect(opcoes.map((o) => o.textContent?.trim())).toEqual([
+      "Relevância",
+      "Score",
+      "Ano",
+      "Título",
+    ]);
+    // "MEDIA Score" não entra como rótulo de option (a duplicata que o Operador viu).
+    expect(opcoes[0]).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("escolher no dropdown escreve ?sort= na URL e fecha o menu", () => {
+    renderWithProviders(<CatalogSearchBand />);
+    fireEvent.click(screen.getByTestId("catalog-sort"));
+    fireEvent.click(screen.getByTestId("catalog-sort-opcao-score"));
+    expect(routerMock.replace).toHaveBeenLastCalledWith(expect.stringContaining("sort=score"));
+    expect(screen.queryByTestId("catalog-sort-menu")).toBeNull();
   });
 });
 
@@ -237,25 +254,24 @@ describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
     expect(screen.getByTestId("catalog-filter-com-critica")).toBeEnabled();
   });
 
-  it("tipo é caixa de seleção e ACUMULA em CSV na URL", () => {
+  it("tipo é CHIP de seleção única: liga, troca e desliga", () => {
     paramsHolder.urlParams = new URLSearchParams();
     renderWithProviders(<CatalogFiltersClient />);
     expect(screen.getByTestId("catalog-filter-tipo")).toBeInTheDocument();
 
+    // Clicar liga o tipo.
     fireEvent.click(screen.getByTestId("catalog-filter-tipo-movie"));
     expect(routerMock.replace).toHaveBeenLastCalledWith(expect.stringContaining("type=movie"));
 
-    // Segundo clique ACUMULA. O componente é controlado pela URL; como o router é um
-    // mock, a "navegação" não re-renderiza sozinha — então montamos de novo com o
-    // parâmetro aplicado, que é exatamente o estado que o navegador entregaria.
+    // Já selecionado: o mesmo chip desliga (volta ao catálogo completo).
     cleanup();
     routerMock.replace.mockClear();
     paramsHolder.urlParams = new URLSearchParams("type=movie");
     renderWithProviders(<CatalogFiltersClient />);
-    fireEvent.click(screen.getByTestId("catalog-filter-tipo-book"));
-    expect(routerMock.replace).toHaveBeenLastCalledWith(
-      expect.stringContaining("type=movie%2Cbook"),
-    );
+    const chip = screen.getByTestId("catalog-filter-tipo-movie");
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(chip);
+    expect(routerMock.replace).toHaveBeenLastCalledWith(expect.not.stringContaining("type=movie"));
   });
 
   it("gênero também acumula em CSV", async () => {
