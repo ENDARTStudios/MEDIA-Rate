@@ -60,7 +60,7 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
         Media: {
           averageScore: 89,
           siteUrl: "https://anilist.co/anime/1",
-          statistics: { scoreDistribution: [{ amount: 160000 }, { amount: 100000 }] },
+          stats: { scoreDistribution: [{ amount: 160000 }, { amount: 100000 }] },
         },
       },
     });
