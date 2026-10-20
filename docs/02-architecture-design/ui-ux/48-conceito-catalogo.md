@@ -133,7 +133,23 @@ node apps/web/scripts/figcraft-conceito-catalogo.mjs          # 992 comandos →
 | Drawer: `Esc`, foco preso, `aria-modal` | **feito** | `CatalogPageClient.tsx` `MobileFilterBar`: `role="dialog"`, `aria-modal`, Tab circula no painel, `Esc` fecha e devolve o foco ao botão que abriu (`aria-expanded`/`aria-controls`) |
 | Pitch entre seções | **feito** | `CatalogTypeSections.tsx`: `space-y-8` → `space-y-12` |
 | Faixa de offline | **não implementada, de propósito** | o produto **já tem** aviso global em `src/providers/conexao-aviso.tsx`; uma segunda faixa no catálogo seria ruído. Registrado como **Refutado** em `10-catalogo.md` §11 |
-| Faixa busca + ordenação acima dos chips | **pendente** | exige tirar busca/ordenação de `CatalogFiltersClient` (hoje só no drawer no mobile). Fazer pela metade criaria dois inputs escrevendo o mesmo param — pior que o estado atual |
+| Faixa busca + ordenação acima dos chips | **feito** (commit b8dc5373) | exige tirar busca/ordenação de `CatalogFiltersClient` (hoje só no drawer no mobile). Fazer pela metade criaria dois inputs escrevendo o mesmo param — pior que o estado atual |
+
+### 11.2 Sidebar no desenho do conceito (2026-10-20)
+
+A sidebar foi reescrita para o desenho: **todos os grupos visíveis** (antes ano/nota/gênero/crítica viviam atrás de "Filtro avançado" recolhido), com contagem ao lado de cada opção e o rodapé com a contagem do recorte.
+
+| Elemento do mockup | Implementado como | Desvio |
+|---|---|---|
+| Cabeçalho "FILTROS" + "3 ativos" | `FILTROS` + `{count} ativos` em accent | — |
+| TIPO com caixas de seleção e contagem por tipo | **radio** com ícone da categoria e contagem | o mockup desenha checkbox; a URL/API aceita **um** tipo por vez (`?type=`), e checkbox que desmarca o anterior mentiria |
+| GÊNERO com lista e contagem | **radio** com `total_midias` do endpoint + "ver todos os N" | mesma razão (`?genero=`) |
+| ANO com dois campos | dois campos `de` / `até` | — |
+| NOTA MÍNIMA com slider e valor | slider 0–100 (passo 5) + valor; o **máximo** continua como campo compacto | o mockup não tem máximo; removê-lo perderia o recorte por faixa |
+| SÓ COM CRÍTICA como switch | `role="switch"` + `aria-checked` | — |
+| Rodapé com contagem e "Limpar filtros" | contagem do recorte + "Limpar todos" (desabilitado sem filtro) | — |
+
+Uma consulta, dois lugares: a contagem por tipo passou a viver em `catalog/useTiposComContagem.ts`, usado pela barra de chips e pela sidebar — o cache do react-query deduplica (chave `catalog-type-counts`), então não há requisição extra.
 
 ## 12. Achados de ferramenta (para não repetir)
 

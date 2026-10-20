@@ -21,6 +21,7 @@ const messages = {
     sortRelevancia: "Relevância",
     sortAno: "Ano",
     sortTitulo: "Título",
+    scoreDe: "{score}/100",
   },
   catalogFilters: {
     filters: "Filtros",
@@ -33,6 +34,15 @@ const messages = {
     somenteCritica: "Somente crítica",
     anoLabel: "Ano",
     advancedUnavailableSearch: "Indisponível com busca",
+    activeCount: "{count} ativos",
+    tipoLabel: "Tipo",
+    allTypes: "Todos os tipos",
+    showAll: "ver todos os {count}",
+    showFewer: "ver menos",
+    notaMinima: "Nota mínima",
+    semMinimo: "sem mínimo",
+    scoreMaxHint: "nota máxima",
+    somenteCriticaCurto: "Só com crítica",
   },
   common: {},
 };
@@ -174,38 +184,60 @@ describe("CatalogSearchBand (T237) — busca não perde digitação", () => {
 
   // ---------------- BETA-GAP-10/T127: contador e filtros honestos ----------------
 
-  it("contador de filtros inclui gênero e 'somente crítica' (não subconta)", () => {
+  it("cabeçalho mostra quantos filtros estão ativos (não subconta)", () => {
     paramsHolder.urlParams = new URLSearchParams("genero=acao&com_critica=true");
     renderWithProviders(<CatalogFiltersClient />);
-    expect(screen.getByText("Filtros (2)")).toBeTruthy();
-    expect(screen.getByTestId("catalog-clear-all")).toBeTruthy();
+    // Cabeçalho do conceito: "FILTROS" + "N ativos" em accent.
+    expect(screen.getByTestId("catalog-active-count")).toHaveTextContent("2 ativos");
+    expect(screen.getByTestId("catalog-clear-all")).toBeEnabled();
   });
 
   it("busca ativa desabilita gênero/nota/crítica e mostra hint honesta", () => {
     paramsHolder.urlParams = new URLSearchParams("q=matrix");
     renderWithProviders(<CatalogFiltersClient />);
-    fireEvent.click(screen.getByRole("button", { name: "Filtros avançados" }));
-    expect(screen.getByTestId("catalog-advanced-search-hint")).toBeTruthy();
-    expect((screen.getByTestId("catalog-filter-genero") as HTMLSelectElement).disabled).toBe(true);
-    expect((screen.getByTestId("catalog-filter-score-min") as HTMLInputElement).disabled).toBe(
-      true,
-    );
-    expect((screen.getByTestId("catalog-filter-score-max") as HTMLInputElement).disabled).toBe(
-      true,
-    );
-    expect((screen.getByTestId("catalog-filter-com-critica") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+
+    // Sem "Filtro avançado": a hint aparece direto, porque os grupos são visíveis.
+    expect(screen.getByTestId("catalog-advanced-search-hint")).toBeInTheDocument();
+
+    // Gênero: o grupo inteiro se declara indisponível e os radios ficam desabilitados.
+    expect(screen.getByTestId("catalog-filter-genero")).toHaveAttribute("aria-disabled", "true");
+    const radios = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
+    expect(radios.length).toBeGreaterThan(0);
+    for (const radio of Array.from(radios)) expect(radio).toBeDisabled();
+
+    // Nota: slider (mínimo) e campo (máximo) desabilitados.
+    expect(screen.getByTestId("catalog-filter-score-min")).toBeDisabled();
+    expect(screen.getByTestId("catalog-filter-score-max")).toBeDisabled();
+
+    // Crítica: switch desabilitado.
+    expect(screen.getByTestId("catalog-filter-com-critica")).toBeDisabled();
   });
 
   it("sem busca, gênero/nota/crítica ficam habilitados", () => {
     paramsHolder.urlParams = new URLSearchParams();
     renderWithProviders(<CatalogFiltersClient />);
-    fireEvent.click(screen.getByRole("button", { name: "Filtros avançados" }));
     expect(screen.queryByTestId("catalog-advanced-search-hint")).toBeNull();
-    expect((screen.getByTestId("catalog-filter-genero") as HTMLSelectElement).disabled).toBe(false);
-    expect((screen.getByTestId("catalog-filter-com-critica") as HTMLInputElement).disabled).toBe(
-      false,
-    );
+    expect(screen.getByTestId("catalog-filter-genero")).toHaveAttribute("aria-disabled", "false");
+    const radios = screen.getByTestId("catalog-filter-genero").querySelectorAll("input");
+    for (const radio of Array.from(radios)) expect(radio).toBeEnabled();
+    expect(screen.getByTestId("catalog-filter-score-min")).toBeEnabled();
+    expect(screen.getByTestId("catalog-filter-com-critica")).toBeEnabled();
+  });
+
+  it("tipo é radio (um por vez) e escreve ?type= na URL", () => {
+    paramsHolder.urlParams = new URLSearchParams();
+    renderWithProviders(<CatalogFiltersClient />);
+    const grupo = screen.getByTestId("catalog-filter-tipo");
+    expect(grupo).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("catalog-filter-tipo-movie"));
+    expect(routerMock.replace).toHaveBeenCalledWith(expect.stringContaining("type=movie"));
+  });
+
+  it("só com crítica é switch com estado anunciado", () => {
+    paramsHolder.urlParams = new URLSearchParams("com_critica=true");
+    renderWithProviders(<CatalogFiltersClient />);
+    const botao = screen.getByTestId("catalog-filter-com-critica");
+    expect(botao).toHaveAttribute("role", "switch");
+    expect(botao).toHaveAttribute("aria-checked", "true");
   });
 });
