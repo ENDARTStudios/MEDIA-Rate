@@ -748,7 +748,10 @@
     "somenteCritica": "Solo con crítica disponible (división crítica/público del MEDIA Score)",
     "anoLabel": "Año",
     "advancedUnavailableSearch": "Género, nota y crítica se aplican al catálogo sin búsqueda. Borra la búsqueda para usarlos.",
-    "close": "Cerrar filtros"
+    "close": "Cerrar filtros",
+    "groupLabel": "Filtros del catálogo",
+    "countLoading": "Contando títulos…",
+    "liveNotice": "el recorte es en vivo — sin botón aplicar"
   },
   "watchlist": {
     "undo": "Deshacer",
