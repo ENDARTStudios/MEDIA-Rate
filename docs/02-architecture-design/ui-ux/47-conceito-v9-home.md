@@ -97,7 +97,7 @@ régua.
 | §3 Seletor de idioma | **já existia** | `LocaleSwitcher` na `Navbar` (com `placement` para o rodapé) |
 | §4 SEIS carrosséis por tipo | **já existia** (v10) | `page.tsx` instancia os 6 na ordem canônica |
 | §4 auto-avanço 5 s | **feito** | `AutoScrollTrack.tsx` — 1 card/5 s, pausa em hover e focus, para de vez ao rolar, desliga em `prefers-reduced-motion`; spec `test/carousel-autoscroll.spec.tsx` (7 casos) |
-| §5 Rodapé | **feito, com 5 colunas** em vez de 4 | `MotionFooter.tsx` — Produto e Conteúdo separados (o v10 juntava), e acrescenta `Apoie e patrocine` e `Status` |
+| §5 Rodapé | **feito com as 4 colunas do mockup** | `MotionFooter.tsx` — Marca · PRODUTO (catálogo, planos, sobre, metodologia, FAQ, fontes, **apoie**) · LEGAL (7) · SOCIAL · CONTATO (Telegram, contato, status); colunas em 112/424/736/1048, como a tabela do v10 §8.1. `Status` e `Contato` saíram de LEGAL para a coluna certa |
 | §6 ícones/Dock/selo/régua | **já existia** (D-643/D-644/D-646) | `CategoryIconRow.tsx`, régua e selo no `HeroSection` |
 
 Um defeito que o gate D-587 pegou durante a implementação: `data-autoscroll` era calculado no render a
