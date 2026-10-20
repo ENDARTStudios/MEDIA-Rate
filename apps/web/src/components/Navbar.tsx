@@ -95,7 +95,7 @@ export function Navbar({
               className="flex items-center transition-colors"
               aria-label={t("homeAria")}
             >
-              <Logo variant="inline" size="sm" />
+              <Logo variant="full" size="sm" />
             </Link>
           </motion.div>
 

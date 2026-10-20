@@ -138,6 +138,10 @@ export default tseslint.config(
       "apps/web/playwright.visual.config.ts",
       "apps/web/playwright.auth.config.ts",
       ".zcode/skills/**/scripts/**/*.{mjs,js,ts}",
+      // Brand assets: scripts Node que dirigem o VectorCraft para reconstruir o
+      // documento da marca (design-system/media-rate/logo/README.md). Não é
+      // código do produto — mesmo caso dos scripts de skill acima.
+      "design-system/media-rate/logo/tools/**/*.{mjs,js,ts}",
     ],
     languageOptions: {
       globals: {
