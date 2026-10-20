@@ -128,3 +128,6 @@ docs/lighthouse-reports/s1-*.json
 .playwright-mcp/
 apps/web/auth/**-snapshots/
 apps/web/auth/.artifacts/
+
+# .tmp/ é rascunho de CLI (ex.: figcraft-cli escreve ids/comandos ali) — nunca versionar.
+.tmp/
