@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 // Isolamento: testes anteriores trocam o locale via cookie (NEXT_LOCALE) —
 // limpa por teste para o redirect de locale ser previsível.
@@ -11,7 +11,10 @@ test.describe("Navegacao e i18n", () => {
     await page.goto("/");
     const nav = page.locator("nav").first();
     await expect(nav).toBeVisible({ timeout: 10_000 });
-    await expect(nav.getByText("MEDIA Rate").first()).toBeVisible();
+    // A marca e o lockup (simbolo + wordmark em caixa alta); o nome acessivel
+    // continua "MEDIA Rate" — assertar pelo nome evita acoplar o teste ao texto
+    // visual do logotipo.
+    await expect(nav.getByRole("img", { name: "MEDIA Rate" }).first()).toBeVisible();
   });
 
   test("navbar contem links de navegacao", async ({ page }) => {
