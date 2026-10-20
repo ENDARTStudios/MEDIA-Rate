@@ -30,15 +30,15 @@ env:
 
 jobs:
   # Job 1: Validação (lint + typecheck + test + audit na main)
+  #
+  # Esta validação NÃO pede aprovação. Até 2026-10-20 ela carregava
+  # `environment: Production` e o efeito era um run "waiting" a cada merge:
+  # cinco dos seis últimos runs de Deploy foram cancelados exatamente ali,
+  # sem nunca validar nada. Agora quem pede aprovação é o job
+  # `deploy-production`, que verifica produção DEPOIS que ela sobe.
   validate:
     name: Validate (lint + test + audit)
     runs-on: ubuntu-latest
-    # T034/P012 (Opção A): gate humano via GitHub Environment. ADVERTÊNCIA
-    # HONESTA: o deploy NATIVO (Vercel/Railway) é disparado pelo push em `main`
-    # e NÃO é bloqueado por este environment — que apenas faz ESTE workflow
-    # aguardar aprovação (sinal + janela de reação). Trava de verdade exigiria
-    # staging (Opção B). Reversível: remover a linha restaura o fluxo.
-    environment: Production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,33 +82,57 @@ jobs:
         working-directory: apps/web
         run: npx next build
 
-  # Job 2: Health check pós-promoção (T9.5 — informativo; os deploys nativos
-  # Railway/Vercel rodam em paralelo a este workflow, com janelas próprias).
-  health-check:
-    name: Post-promotion Health Check
+  # Job 2: P012 — verificação de produção, com aprovação humana.
+  #
+  # O QUE ESTE GATE FAZ: só roda depois da aprovação no environment `Production`
+  # e, então, **verifica a produção de verdade** (API `/health`, web canônica e a
+  # rota do catálogo). Se produção não estiver saudável, o run fica VERMELHO —
+  # é isso que a aprovação libera e o que ela pode barrar.
+  #
+  # O QUE ELE NÃO FAZ (honestidade que já estava no comentário anterior e continua
+  # valendo): o deploy NATIVO (Railway/Vercel) é disparado pelo push em `main` e
+  # roda em paralelo, com janela própria. Aprovar aqui não autoriza nem impede o
+  # deploy — trava pré-deploy de verdade exigiria staging (P012, Opção B).
+  #
+  # Consequência prática: a aprovação deve ser dada DEPOIS que o deploy nativo
+  # termina (Railway ~1-2 min, Vercel ~2-3 min). Antes disso o job espera até
+  # 5 min pela API e falha se ela não responder — que é o comportamento correto:
+  # produção não verificada não vira run verde.
+  deploy-production:
+    name: Verify production (P012)
     runs-on: ubuntu-latest
     needs: [validate]
-    # T034/P012 (Opção A): aguarda aprovação no environment `Production`.
     environment: Production
     steps:
-      - name: Aguarda e checa API health
+      - name: API /health (espera até 5 min pelo deploy do Railway)
         run: |
-          for i in $(seq 1 30); do
-            sleep 10
+          for i in $(seq 1 20); do
+            sleep 15
             RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate-production.up.railway.app/health || echo "000")
             if [ "$RESPONSE" = "200" ]; then
-              echo "API health OK (200) após $((i * 10))s."
+              echo "API /health OK (200) após $((i * 15))s."
               exit 0
             fi
             echo "tentativa $i: $RESPONSE"
           done
-          echo "::warning::API health não chegou a 200 em 5 min — checar Railway dashboard."
+          echo "::error::API /health não respondeu 200 em 5 min — produção NÃO foi verificada. Checar Railway."
           exit 1
-      - name: Checa Web
+      - name: Web canônica responde
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://media-rate-web.vercel.app || echo "000")
-          if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "307" ]; then
-            echo "Web health check falhou! Status: $RESPONSE"
+          # Domínio canônico do produto (o alias antigo media-rate-web.vercel.app
+          # respondia 200 e mascarava erro; a verificação passou a usar o domínio
+          # que o usuário acessa).
+          RESPONSE=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 20 https://mediarate.app/pt-BR || echo "000")
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::Web (mediarate.app) respondeu $RESPONSE — deploy do Vercel não promoveu."
             exit 1
           fi
-          echo "Web health check OK ($RESPONSE)."
+          echo "Web OK (200)."
+      - name: Rota do catálogo responde
+        run: |
+          RESPONSE=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 20 https://mediarate.app/pt-BR/catalog || echo "000")
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::/pt-BR/catalog respondeu $RESPONSE — a rota mais pesada do site não está saudável."
+            exit 1
+          fi
+          echo "Catálogo OK (200)."

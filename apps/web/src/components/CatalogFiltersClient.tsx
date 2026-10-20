@@ -5,8 +5,10 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
+import { useTotalDoRecorte } from "./catalog/TotalDoRecorte";
 
 export function CatalogFiltersClient() {
+  const t = useTranslations("catalog");
   const tf = useTranslations("catalogFilters");
   const sp = useSearchParams();
   const router = useRouter();
@@ -50,6 +52,10 @@ export function CatalogFiltersClient() {
   // hint honesta enquanto houver busca ativa.
   const buscaAtiva = query.trim().length > 0;
 
+  // Conceito §3 bloco 5: a contagem do recorte fica onde o olho está quando se
+  // mexe num filtro. `null` = primeira carga, e aí não mostramos "0".
+  const { total } = useTotalDoRecorte();
+
   // A ordenação agora vive na faixa acima dos chips; aqui ela só entra na CONTAGEM
   // de filtros ativos, porque para quem olha a tela ela é um recorte como os outros.
   const sort = sp.get("sort") ?? "";
@@ -67,7 +73,7 @@ export function CatalogFiltersClient() {
   ].filter(Boolean).length;
 
   return (
-    <aside className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
+    <aside aria-label={tf("groupLabel")} className="w-full lg:w-60 shrink-0 space-y-5 text-sm">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-fg-primary">
           {tf("filters")}
@@ -202,6 +208,16 @@ export function CatalogFiltersClient() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Conceito §3 bloco 5: onde o olho está ao mexer no filtro. No desktop o
+          recorte é ao vivo (query string), então isto é LEITURA — não há botão
+          "aplicar". `null` significa primeira carga: nada de "0 títulos". */}
+      <div className="border-t border-surface-elevated pt-3">
+        <p className="text-xs text-fg-secondary" data-testid="catalog-recorte-total">
+          {total == null ? tf("countLoading") : t("count", { count: total })}
+        </p>
+        <p className="mt-1 text-[11px] text-fg-muted">{tf("liveNotice")}</p>
       </div>
     </aside>
   );

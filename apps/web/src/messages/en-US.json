@@ -748,7 +748,10 @@
     "somenteCritica": "Only with critic score available (MEDIA Score critic/audience split)",
     "anoLabel": "Year",
     "advancedUnavailableSearch": "Genre, score and critics apply to the catalog without a search term. Clear the search to use them.",
-    "close": "Close filters"
+    "close": "Close filters",
+    "groupLabel": "Catalog filters",
+    "countLoading": "Counting titles…",
+    "liveNotice": "filters apply live — there is no apply button"
   },
   "watchlist": {
     "undo": "Undo",

@@ -12,6 +12,7 @@ import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
 import { CatalogTypeBar } from "./CatalogTypeBar";
 import { CatalogSearchBand } from "./catalog/CatalogSearchBand";
+import { TotalDoRecorteProvider, useTotalDoRecorte } from "./catalog/TotalDoRecorte";
 import { CatalogTypeSections } from "./CatalogTypeSections";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
 import { Button } from "@/components/ui/button";
@@ -123,6 +124,13 @@ function CatalogContent({
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  // Publica o total do recorte para a sidebar (conceito §3 bloco 5). Fica ANTES
+  // dos retornos condicionais para não quebrar a ordem dos hooks.
+  const { definirTotal } = useTotalDoRecorte();
+  useEffect(() => {
+    definirTotal(data?.total ?? null);
+  }, [data?.total, definirTotal]);
 
   if (isLoading && !data) {
     return <CatalogSkeleton count={PAGE_SIZE} />;
@@ -402,38 +410,40 @@ export function CatalogPageClient({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div>
-      <Suspense fallback={null}>
-        <CatalogSearchBand />
-      </Suspense>
-      <Suspense fallback={null}>
-        <CatalogTypeBar />
-      </Suspense>
-      <Suspense fallback={null}>
-        <CatalogTypeSections />
-      </Suspense>
-      <div className="flex flex-col lg:flex-row gap-8">
+    <TotalDoRecorteProvider>
+      <div>
         <Suspense fallback={null}>
-          <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+          <CatalogSearchBand />
         </Suspense>
-        <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
+        <Suspense fallback={null}>
+          <CatalogTypeBar />
+        </Suspense>
+        <Suspense fallback={null}>
+          <CatalogTypeSections />
+        </Suspense>
+        <div className="flex flex-col lg:flex-row gap-8">
           <Suspense fallback={null}>
-            <CatalogFiltersClient />
+            <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
           </Suspense>
-        </aside>
-        <div className="flex-1 min-w-0">
-          <Suspense fallback={<CatalogSkeleton count={12} />}>
-            <CatalogContent
-              initialData={initialData}
-              initialDataKey={initialDataKey}
-              initialType={initialType}
-              initialSort={initialSort}
-              initialQuery={initialQuery}
-            />
-          </Suspense>
+          <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
+            <Suspense fallback={null}>
+              <CatalogFiltersClient />
+            </Suspense>
+          </aside>
+          <div className="flex-1 min-w-0">
+            <Suspense fallback={<CatalogSkeleton count={12} />}>
+              <CatalogContent
+                initialData={initialData}
+                initialDataKey={initialDataKey}
+                initialType={initialType}
+                initialSort={initialSort}
+                initialQuery={initialQuery}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
-    </div>
+    </TotalDoRecorteProvider>
   );
 }
 

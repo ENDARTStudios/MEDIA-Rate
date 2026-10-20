@@ -50,10 +50,22 @@ export function CatalogGrid({ medias }: { medias: MediaItem[] }) {
       role="feed"
       aria-label={t("catalogAria")}
     >
-      {medias.map((media) => (
-        <div key={media.id}>
+      {medias.map((media, i) => (
+        <motion.div
+          key={media.id}
+          /* `initial`/`animate` são CONSTANTES: ramificar por `shouldReduce` no render
+             produzia hydration mismatch de atributo (o servidor não conhece a preferência).
+             O respeito a reduced-motion fica na DURAÇÃO: 0 = salto direto ao estado final. */
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: shouldReduce ? 0 : 0.24,
+            delay: shouldReduce ? 0 : Math.min(i * 0.02, 0.2),
+            ease: "easeOut",
+          }}
+        >
           <MediaCard media={media} />
-        </div>
+        </motion.div>
       ))}
     </motion.div>
   );

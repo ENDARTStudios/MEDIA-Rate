@@ -12,8 +12,45 @@ da forma do merge). Duas pontas INDEPENDENTES disparam juntas:
    deploy` no boot** — migrations vão junto com o código, SEM estágio prévio.
 2. **Vercel (web)**: deploy de produção pela integração Git.
 
-O workflow `deploy.yml` do GitHub é **validação + health check pós-promoção**
-(com retries) — não é gate pré-deploy (staging = P012, pendência do Operador).
+O workflow `deploy.yml` do GitHub é **validação + verificação de produção** (com
+retries) — não é gate pré-deploy (staging = P012, pendência do Operador).
+
+### P012 — onde o gate humano vive (mudou em 2026-10-20)
+
+Até 2026-10-20 o `environment: Production` estava no job **`validate`**, que roda
+logo no push. O efeito medido: **cinco dos seis últimos runs de `deploy.yml`
+terminaram `cancelled`**, todos parados esperando aprovação no primeiro job —
+sem nunca validar nem verificar nada. O gate não travava deploy nenhum (a
+advertência honesta do próprio arquivo já dizia isso) e produzia um run fantasma
+por merge.
+
+Agora:
+
+| Job | Environment | O que faz |
+|---|---|---|
+| `validate` | **nenhum** | lint + typecheck (API/web) + testes da API + audit + `next build` na `main` |
+| `deploy-production` | **`Production`** (reviewer: `ENDARTStudios`) | espera o deploy nativo assentar e **verifica produção**: `/health` da API (até 5 min), web canônica (`mediarate.app/pt-BR`) e a rota `/pt-BR/catalog` |
+
+O que a aprovação **libera**: a verificação roda. O que ela **pode barrar**: o run
+fica **vermelho** se produção não estiver saudável — antes o job era "informativo"
+e usava `::warning::`, o que deixava o run verde com produção quebrada.
+
+O que ela **não** faz (continua valendo): não autoriza nem impede o deploy nativo.
+Railway/Vercel promovem sozinhos no push em `main`. Trava pré-deploy de verdade
+exige staging (P012, Opção B).
+
+**Ordem correta de operação**: merge → esperar o deploy nativo (Railway 1–2 min,
+Vercel 2–3 min) → **aprovar**. Aprovar antes só faz o job esperar (e, passados
+5 min, falhar por API fora do ar — que é o comportamento desejado).
+
+Aprovar por CLI (sem abrir o dashboard):
+
+```bash
+env -u GITHUB_TOKEN gh api -X POST \
+  repos/ENDARTStudios/MEDIA-Rate/actions/runs/<RUN_ID>/pending_deployments \
+  -F environment_ids[]=18724342308 -f state=approved -f comment="P012 aprovado"
+```
+
 
 ## Passo a passo (merge condicional autorizado)
 
