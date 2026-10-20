@@ -6,6 +6,10 @@ import {
 import { KitsuAdapter } from "../src/modules/media-score/adapters/kitsu.adapter.js";
 import { TmdbAdapter } from "../src/modules/media-score/adapters/tmdb.adapter.js";
 import {
+  TraktAdapter,
+  escolherItemTrakt,
+} from "../src/modules/media-score/adapters/trakt.adapter.js";
+import {
   RottenTomatoesAdapter,
   extrairAnoRt,
   extrairNotaRt,
@@ -234,5 +238,92 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
     const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain("/search/movie");
     expect(notas[0].rating).toBe(7.1);
+  });
+
+  describe("TraktAdapter — identidade na busca (T-DADOS-45)", () => {
+    const itens = [
+      {
+        type: "movie",
+        movie: {
+          title: "The Proposal",
+          year: 2009,
+          ids: { slug: "the-proposal-2009", tmdb: 18240 },
+          rating: 6.8,
+        },
+      },
+      {
+        type: "movie",
+        movie: {
+          title: "A Proposta",
+          year: 2005,
+          ids: { slug: "a-proposta-2005", tmdb: 99999 },
+          rating: 7.1,
+        },
+      },
+    ];
+
+    it("pula o primeiro resultado parecido e pega o id do TMDB correto", () => {
+      const alvo = escolherItemTrakt(itens, {
+        tipo: "FILME",
+        titulo: "A Proposta",
+        ano: 2005,
+        idsExternos: { tmdb: "99999" },
+      });
+      expect(alvo?.ids?.slug).toBe("a-proposta-2005");
+    });
+
+    it("sem nenhum id do TMDB que confira, não atribui", () => {
+      const alvo = escolherItemTrakt(itens, {
+        tipo: "FILME",
+        titulo: "A Proposta",
+        ano: 2005,
+        idsExternos: { tmdb: "123" },
+      });
+      expect(alvo).toBeNull();
+    });
+
+    it("sem ids externos, usa o ano ±1 como identidade", () => {
+      const alvo = escolherItemTrakt(itens, { tipo: "FILME", titulo: "A Proposta", ano: 2005 });
+      expect(alvo?.ids?.slug).toBe("a-proposta-2005");
+    });
+
+    it("coletar devolve a nota do item conferido (não do primeiro)", async () => {
+      vi.stubEnv("TRAKT_CLIENT_ID", "teste");
+      mockFetch([{ body: itens }]);
+      const notas = await new TraktAdapter().coletar({
+        tipo: "FILME",
+        titulo: "A Proposta",
+        ano: 2005,
+        idsExternos: { tmdb: "99999" },
+      });
+      expect(notas).toHaveLength(1);
+      expect(notas[0].url).toBe("https://trakt.tv/movie/a-proposta-2005");
+    });
+
+    it("Pânico 3: resultado errado sem o id do TMDB vira lacuna honesta", async () => {
+      vi.stubEnv("TRAKT_CLIENT_ID", "teste");
+      mockFetch([
+        {
+          body: [
+            {
+              type: "movie",
+              movie: {
+                title: "Three O'Clock High",
+                year: 1987,
+                ids: { slug: "three-o-clock-high-1987", tmdb: 101 },
+                rating: 7.2,
+              },
+            },
+          ],
+        },
+      ]);
+      const notas = await new TraktAdapter().coletar({
+        tipo: "FILME",
+        titulo: "Pânico 3",
+        ano: 2000,
+        idsExternos: { tmdb: "4234" },
+      });
+      expect(notas).toEqual([]);
+    });
   });
 });
