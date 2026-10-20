@@ -206,12 +206,12 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
       idsExternos: { tmdb: "238" },
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const url = String(fetchMock.mock.calls[0]![0]);
+    const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain("/3/movie/238");
     expect(url).not.toContain("/search/");
-    expect(notas[0]!.rating).toBe(8.7);
-    expect(notas[0]!.votos).toBe(20000);
-    expect(notas[0]!.url).toBe("https://www.themoviedb.org/movie/238");
+    expect(notas[0].rating).toBe(8.7);
+    expect(notas[0].votos).toBe(20000);
+    expect(notas[0].url).toBe("https://www.themoviedb.org/movie/238");
   });
 
   it("série usa /3/tv/{id} (fonte tmdb_tv)", async () => {
@@ -222,7 +222,7 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
       titulo: "Breaking Bad",
       idsExternos: { tmdb_tv: "1396" },
     });
-    expect(notas[0]!.url).toBe("https://www.themoviedb.org/tv/1396");
+    expect(notas[0].url).toBe("https://www.themoviedb.org/tv/1396");
   });
 
   it("sem id, mantém a busca por título (fallback)", async () => {
@@ -231,8 +231,8 @@ describe("TmdbAdapter — id exato no lugar da busca (D3f/T-DADOS-42)", () => {
       { body: { results: [{ id: 5, title: "X", vote_average: 7.1, vote_count: 30 }] } },
     ]);
     const notas = await new TmdbAdapter().coletar({ tipo: "FILME", titulo: "X", ano: 2001 });
-    const url = String(fetchMock.mock.calls[0]![0]);
+    const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain("/search/movie");
-    expect(notas[0]!.rating).toBe(7.1);
+    expect(notas[0].rating).toBe(7.1);
   });
 });
