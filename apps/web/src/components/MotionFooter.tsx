@@ -11,6 +11,7 @@
 import { Link } from "@/lib/navigation";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { Logo } from "@/components/Logo";
 
 const linkHover =
   "relative text-sm text-fg-secondary transition-colors duration-200 hover:text-accent-indigo after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-accent-indigo after:transition-transform after:duration-200 hover:after:w-full";
@@ -39,7 +40,13 @@ export async function MotionFooter({ locale }: { locale: string }) {
         {/* v10 §8.1: 4 colunas de 280 px com 32 de vão — a grade do produto. */}
         <div className="grid grid-cols-2 gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <div className="text-lg font-heading font-bold text-fg-primary mb-2">MEDIA Rate</div>
+            <Link
+              href="/"
+              className="mb-3 inline-flex items-center transition-opacity duration-200 hover:opacity-90"
+              aria-label={tNav("homeAria")}
+            >
+              <Logo variant="full" size="md" />
+            </Link>
             <p className="text-sm text-fg-secondary leading-relaxed">{t("tagline")}</p>
           </div>
 
