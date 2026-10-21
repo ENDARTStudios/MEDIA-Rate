@@ -761,7 +761,9 @@
     "notaMinima": "Nota mínima",
     "semMinimo": "sem mínimo",
     "scoreMaxHint": "nota máxima",
-    "somenteCriticaCurto": "Só com crítica"
+    "somenteCriticaCurto": "Só com crítica",
+    "pin": "Fixar aberto",
+    "unpin": "Desafixar"
   },
   "watchlist": {
     "undo": "Desfazer",

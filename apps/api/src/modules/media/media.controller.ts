@@ -642,6 +642,25 @@ export class MediaController {
     }));
   }
 
+  /**
+   * Totais por tipo de obra em UMA consulta (groupBy). A sidebar e os chips usavam
+   * seis requisições `?tipo=X&limit=1` só para descobrir contagem; agora é uma.
+   *
+   * Soft delete respeitado (`deleted_at: null`), igual à listagem.
+   */
+  @Get("totais")
+  @ApiOperation({ summary: "Total de títulos por tipo de obra (uma consulta)" })
+  async totaisPorTipo(): Promise<Record<string, number>> {
+    const grupos = await this.prisma.midia.groupBy({
+      by: ["tipo"],
+      where: { deleted_at: null },
+      _count: { _all: true },
+    });
+    return Object.fromEntries(
+      grupos.map((grupo) => [grupo.tipo, (grupo._count as { _all: number })._all]),
+    );
+  }
+
   @Post(":id/view")
   @HttpCode(200)
   @ApiOperation({ summary: "Registra uma visualização da ficha técnica (histórico do usuário)" })
