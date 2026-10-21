@@ -426,11 +426,11 @@ export function CatalogPageClient({
           <Suspense fallback={null}>
             <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
           </Suspense>
-          <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
-            <Suspense fallback={null}>
-              <CatalogFiltersClient />
-            </Suspense>
-          </aside>
+          {/* O sticky/altura agora vivem no próprio `CatalogFiltersClient`: o rail
+              recolhe para 3.5rem e a grade precisa GANHAR essa largura. */}
+          <Suspense fallback={null}>
+            <CatalogFiltersClient />
+          </Suspense>
           <div className="flex-1 min-w-0">
             <Suspense fallback={<CatalogSkeleton count={12} />}>
               <CatalogContent

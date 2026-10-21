@@ -22,7 +22,7 @@
  */
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/http";
 import { useTotalDoRecorte } from "./catalog/TotalDoRecorte";
@@ -30,6 +30,7 @@ import { listaDeValores } from "@/lib/api";
 import type { MediaType } from "@/lib/types";
 import { TIPOS_DO_CATALOGO, useTiposComContagem } from "./catalog/useTiposComContagem";
 import { CATEGORY_TOKENS } from "@/lib/design-tokens";
+import { Pin, PinOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const GENEROS_VISIVEIS = 4;
@@ -41,6 +42,33 @@ export function CatalogFiltersClient() {
   const router = useRouter();
   const pathname = usePathname();
   const [mostrarTodosGeneros, setMostrarTodosGeneros] = useState(false);
+  const [fixado, setFixado] = useState(false);
+
+  // Preferência do painel fixado. Lida no efeito para o SSR e o primeiro render do
+  // cliente serem idênticos (recolhido); só depois o estado aplica o que foi salvo.
+  const CHAVE_PIN = "catalog:sidebar-pinned";
+  useEffect(() => {
+    try {
+      setFixado(window.localStorage.getItem(CHAVE_PIN) === "1");
+    } catch {
+      // storage bloqueado (modo privado) — segue recolhido, sem quebrar a página
+    }
+  }, [CHAVE_PIN]);
+
+  const alternarPin = () => {
+    setFixado((atual) => {
+      const proximo = !atual;
+      try {
+        window.localStorage.setItem(CHAVE_PIN, proximo ? "1" : "0");
+      } catch {
+        // idem: preferência é conveniência, não requisito
+      }
+      return proximo;
+    });
+  };
+
+  // Classe dos rótulos: aparecem no hover/foco do rail — ou sempre, quando fixado.
+  const rotuloVisivel = fixado ? "inline" : "hidden group-hover:inline group-focus-within:inline";
 
   const type = sp.get("type") ?? "";
   const query = sp.get("q") ?? "";
@@ -121,11 +149,19 @@ export function CatalogFiltersClient() {
   return (
     <aside
       aria-label={tf("groupLabel")}
-      className="group w-full shrink-0 text-sm lg:w-14 lg:overflow-hidden lg:transition-[width] lg:duration-200 lg:ease-out lg:hover:w-60 lg:focus-within:w-60"
+      className={cn(
+        "group w-full shrink-0 text-sm lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
+        fixado ? "lg:w-60" : "lg:w-14 lg:hover:w-60 lg:focus-within:w-60",
+      )}
     >
       {/* Cabeçalho: FILTROS + quantos estão ativos */}
-      <div className="flex items-baseline justify-between">
-        <span className="font-heading font-semibold uppercase tracking-wider text-fg-primary hidden group-hover:inline group-focus-within:inline">
+      <div className="flex items-baseline justify-between gap-2">
+        <span
+          className={cn(
+            "font-heading font-semibold uppercase tracking-wider text-fg-primary whitespace-nowrap",
+            rotuloVisivel,
+          )}
+        >
           {tf("filters")}
         </span>
         {activeCount > 0 && (
@@ -137,6 +173,25 @@ export function CatalogFiltersClient() {
           </span>
         )}
       </div>
+      <div className="mt-2 hidden justify-end lg:flex">
+        <button
+          type="button"
+          onClick={alternarPin}
+          aria-pressed={fixado}
+          aria-label={fixado ? tf("unpin") : tf("pin")}
+          title={fixado ? tf("unpin") : tf("pin")}
+          data-testid="catalog-sidebar-pin"
+          className="inline-flex min-h-[28px] items-center gap-1 rounded-md px-1.5 text-[11px] text-fg-muted transition-colors hover:text-accent-indigo focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
+        >
+          {fixado ? (
+            <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+          ) : (
+            <PinOff className="h-3.5 w-3.5" aria-hidden="true" />
+          )}
+          <span className={rotuloVisivel}>{fixado ? tf("unpin") : tf("pin")}</span>
+        </button>
+      </div>
+
       <div className="mt-3 h-px bg-surface-border" aria-hidden="true" />
 
       {buscaAtiva && (
@@ -151,7 +206,12 @@ export function CatalogFiltersClient() {
 
       {/* ── TIPO — chips de seleção única (mesma função da barra que saiu do topo) ── */}
       <fieldset className="mt-4">
-        <legend className={cn(rotuloGrupo, "hidden group-hover:block group-focus-within:block")}>
+        <legend
+          className={cn(
+            rotuloGrupo,
+            fixado ? "block" : "hidden group-hover:block group-focus-within:block",
+          )}
+        >
           {tf("tipoLabel")}
         </legend>
         <div className="mt-2 flex flex-wrap gap-1.5" data-testid="catalog-filter-tipo">
