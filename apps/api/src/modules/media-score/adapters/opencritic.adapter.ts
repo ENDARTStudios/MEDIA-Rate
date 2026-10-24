@@ -28,6 +28,10 @@ function compacto(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+/**
+ * T-DADOS-49: sem correspondência de nome, NÃO atribui. O fallback cego ao
+ * `itens[0]` gravou nota de outro jogo (`Pole Position` → *PositronX*).
+ */
 function melhorCorrespondencia(
   titulo: string,
   itens: OpenCriticSearchItem[],
@@ -41,7 +45,7 @@ function melhorCorrespondencia(
       .sort((a, b) => compacto(a.name).length - compacto(b.name).length);
     if (parciais[0]) return parciais[0];
   }
-  return itens[0];
+  return undefined;
 }
 
 /** Retry/backoff (D-410/T426): re-tenta em ErroColeta (5xx/timeout) até
