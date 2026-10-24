@@ -44,8 +44,11 @@ export function CatalogFiltersClient() {
   const [mostrarTodosGeneros, setMostrarTodosGeneros] = useState(false);
   const [fixado, setFixado] = useState(false);
 
-  // Preferência do painel fixado. Lida no efeito para o SSR e o primeiro render do
-  // cliente serem idênticos (recolhido); só depois o estado aplica o que foi salvo.
+  // UAT-47: o rail fica FIXO RETRAÍDO — sem expandir no hover (o painel
+  // "abrindo sozinho" ao passar o mouse deslocava o grid e atrapalhava a
+  // leitura). Abrir é decisão explícita: o pino alterna recolhido/aberto e a
+  // preferência é lembrada. Preferência lida no efeito para o SSR e o primeiro
+  // render do cliente serem idênticos (recolhido).
   const CHAVE_PIN = "catalog:sidebar-pinned";
   useEffect(() => {
     try {
@@ -67,8 +70,8 @@ export function CatalogFiltersClient() {
     });
   };
 
-  // Classe dos rótulos: aparecem no hover/foco do rail — ou sempre, quando fixado.
-  const rotuloVisivel = fixado ? "inline" : "hidden group-hover:inline group-focus-within:inline";
+  // Rótulos visíveis apenas com o painel aberto (fixado) — nunca no hover.
+  const rotuloVisivel = fixado ? "inline" : "hidden";
 
   const type = sp.get("type") ?? "";
   const query = sp.get("q") ?? "";
@@ -152,7 +155,8 @@ export function CatalogFiltersClient() {
       aria-keyshortcuts="Alt+F"
       className={cn(
         "group w-full shrink-0 text-sm lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
-        fixado ? "lg:w-60" : "lg:w-14 lg:hover:w-60 lg:focus-within:w-60",
+        // UAT-47: largura só muda pelo pino — o rail não abre no hover.
+        fixado ? "lg:w-60" : "lg:w-14",
       )}
     >
       {/* Cabeçalho: FILTROS + quantos estão ativos */}
@@ -207,14 +211,7 @@ export function CatalogFiltersClient() {
 
       {/* ── TIPO — chips de seleção única (mesma função da barra que saiu do topo) ── */}
       <fieldset className="mt-4">
-        <legend
-          className={cn(
-            rotuloGrupo,
-            fixado ? "block" : "hidden group-hover:block group-focus-within:block",
-          )}
-        >
-          {tf("tipoLabel")}
-        </legend>
+        <legend className={cn(rotuloGrupo, fixado ? "block" : "hidden")}>{tf("tipoLabel")}</legend>
         <div className="mt-2 flex flex-wrap gap-1.5" data-testid="catalog-filter-tipo">
           {TIPOS_DO_CATALOGO.map((tipo) => {
             const Icone = CATEGORY_TOKENS[tipo.id].icon;
@@ -244,14 +241,12 @@ export function CatalogFiltersClient() {
                   style={{ color: ativo ? undefined : CATEGORY_TOKENS[tipo.id].color }}
                   aria-hidden="true"
                 />
-                <span
-                  className={ativo ? "" : "hidden group-hover:inline group-focus-within:inline"}
-                >
-                  {tipo.rotulo}
-                </span>
-                {contagem != null && (
-                  <span className="tabular-nums text-[10px] opacity-70">{contagem}</span>
-                )}
+                <span className={fixado ? "" : "hidden"}>{tipo.rotulo}</span>
+                {/* Sem opacity na contagem: no rail retraído ela é o único texto
+                    do chip e opacity-70 derrubava o contraste p/ 4.31:1 (abaixo
+                    do AA); as cores herdadas do chip passam nos dois estados
+                    (visual-qa/axe, UAT-47). */}
+                {contagem != null && <span className="tabular-nums text-[10px]">{contagem}</span>}
               </button>
             );
           })}

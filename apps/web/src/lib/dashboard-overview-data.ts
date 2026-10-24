@@ -338,19 +338,132 @@ export const RADAR_DEMO: RadarAxis[] = [
  * A série "anterior" não existe na API — derivada como demonstração (85% do
  * valor atual). Menos de 3 eixos → dataset de demonstração do protótipo.
  */
-/** T154 Opção A: teto de eixos do radar (legibilidade). */
+/** T154 Opção A: tete de eixos do radar (legibilidade). */
 export const MAX_EIXOS_RADAR = 12;
 
-export function radarFromStats(generos: Record<string, number>): RadarAxis[] {
+/**
+ * UAT-43: o tete é do plano Free ("mantenha os 12 já existentes"). Plus/
+ * Premium recebem gêneros E subgêneros — `teto: null` não trunca.
+ */
+export function radarFromStats(
+  generos: Record<string, number>,
+  teto: number | null = MAX_EIXOS_RADAR,
+): RadarAxis[] {
   const entradas = Object.entries(generos)
     .filter(([, v]) => v > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, MAX_EIXOS_RADAR); // T154 Opção A: teto 12, ordenado por peso
-  if (entradas.length < 3) return RADAR_DEMO;
-  const max = entradas[0][1];
-  return entradas.map(([label, v]) => ({
+    .sort((a, b) => b[1] - a[1]);
+  const recorte = teto == null ? entradas : entradas.slice(0, teto);
+  if (recorte.length < 3) return RADAR_DEMO;
+  const max = recorte[0][1];
+  return recorte.map(([label, v]) => ({
     label,
     value: Math.round((v / max) * 100),
     previous: Math.round((v / max) * 85),
   }));
+}
+
+/** UAT-43: recortes de radar por tipo — Plus enxerga 3 mídias, Premium as 6. */
+export const TIPOS_RADAR_PLUS: string[] = ["FILME", "SERIE", "GAME"];
+export const TIPOS_RADAR_PREMIUM: string[] = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"];
+
+/**
+ * UAT-44 — trilha de medalhas de um tipo de mídia. O volume desbloqueia os
+ * níveis (bronze/prata/ouro/platina) e o gênero dominante com peso mínimo
+ * desbloqueia a medalha de especialista. Tudo deriva de números reais.
+ */
+export interface TrilhaMedalhas {
+  niche: OverviewNiche;
+  /** Volume do tipo (interações em estado atual). */
+  volume: number;
+  /** Níveis de volume: [1, 10, 50, 200] — atingido quando volume >= meta. */
+  niveis: { meta: number; atingido: boolean }[];
+  /** Gênero dominante do tipo ( medalha de especialista exige >= 5). */
+  generoTop: { nome: string; total: number } | null;
+  especialista: boolean;
+}
+
+export const NIVEIS_MEDALHA = [1, 10, 50, 200] as const;
+export const MINIMO_ESPECIALISTA = 5;
+
+export function medalhasFromStats(
+  tipos: Record<string, number>,
+  generosPorTipo: { tipo: string; generos: Record<string, number> }[] = [],
+): TrilhaMedalhas[] {
+  const generosDo = (apiTipo: string) =>
+    generosPorTipo.find((g) => g.tipo === apiTipo)?.generos ?? {};
+  return NICHE_ORDER.map((niche) => {
+    const apiTipo = Object.entries(API_TIPO_TO_NICHE).find(([, n]) => n === niche)?.[0] ?? "FILME";
+    const volume = tipos[apiTipo] ?? 0;
+    const top = Object.entries(generosDo(apiTipo))
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])[0];
+    return {
+      niche,
+      volume,
+      niveis: NIVEIS_MEDALHA.map((meta) => ({ meta, atingido: volume >= meta })),
+      generoTop: top ? { nome: top[0], total: top[1] } : null,
+      especialista: (top?.[1] ?? 0) >= MINIMO_ESPECIALISTA,
+    };
+  });
+}
+
+/**
+ * UAT-42 — "definições que se completam": leituras independentes do perfil,
+ * cada uma derivada de um número real (sem inventar arquétipo).
+ */
+export interface TracoPerfil {
+  key: "explorador" | "concluidor" | "apreciador" | "constante" | "especialista" | "radar";
+  /** Valor exibido no card do traço (número real + sufixo da UI). */
+  valor: string | null;
+  nivel: 0 | 1 | 2 | 3;
+}
+
+export function tracosFromStats(stats: {
+  total: number;
+  concluidos: number;
+  streak: number;
+  tipos: Record<string, number>;
+  generos: Record<string, number>;
+  histograma: { faixa: string; total: number }[];
+}): TracoPerfil[] {
+  const nichosAtivos = Object.values(stats.tipos).filter((v) => v > 0).length;
+  const conclusao = stats.total > 0 ? Math.round((stats.concluidos / stats.total) * 100) : null;
+  const afinidade = affinityFromHistograma(stats.histograma);
+  const topGenero = Object.entries(stats.generos)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])[0];
+  return [
+    {
+      key: "explorador",
+      valor: nichosAtivos > 0 ? `${nichosAtivos}/6` : null,
+      nivel: nichosAtivos >= 5 ? 3 : nichosAtivos >= 3 ? 2 : nichosAtivos >= 1 ? 1 : 0,
+    },
+    {
+      key: "concluidor",
+      valor: conclusao == null ? null : `${conclusao}%`,
+      nivel:
+        conclusao == null ? 0 : conclusao >= 75 ? 3 : conclusao >= 50 ? 2 : conclusao > 0 ? 1 : 0,
+    },
+    {
+      key: "apreciador",
+      valor: afinidade == null ? null : afinidade.toFixed(1).replace(".", ","),
+      nivel:
+        afinidade == null ? 0 : afinidade >= 8 ? 3 : afinidade >= 7 ? 2 : afinidade > 0 ? 1 : 0,
+    },
+    {
+      key: "constante",
+      valor: stats.streak > 0 ? String(stats.streak) : null,
+      nivel: stats.streak >= 14 ? 3 : stats.streak >= 7 ? 2 : stats.streak >= 2 ? 1 : 0,
+    },
+    {
+      key: "especialista",
+      valor: topGenero ? topGenero[0] : null,
+      nivel: topGenero ? (topGenero[1] >= 20 ? 3 : topGenero[1] >= 10 ? 2 : 1) : 0,
+    },
+    {
+      key: "radar",
+      valor: stats.total > 0 ? String(stats.total) : null,
+      nivel: stats.total >= 100 ? 3 : stats.total >= 30 ? 2 : stats.total >= 5 ? 1 : 0,
+    },
+  ];
 }

@@ -119,6 +119,9 @@ export class AuthGuard implements CanActivate {
     }
     // Catálogo de leitura é público (frontend consome sem login).
     if (m === "GET" && url.startsWith("/api/v1/midias")) return true;
+    // UAT-46: registro público de patrocínios — leitura pública (a escrita é
+    // @Roles(ADMIN)); a transparência só vale se qualquer pessoa puder conferir.
+    if (m === "GET" && url.startsWith("/api/v1/patrocinios")) return true;
     // Busca/descoberta pública (frontend de catálogo).
     if (
       m === "GET" &&

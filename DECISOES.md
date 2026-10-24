@@ -5809,3 +5809,35 @@ exige chave de provider, que é segredo (só em `.env`/secret manager).
 **Se for adotado depois.** Instalar distro Linux no WSL, instalar o CLI dentro dela, subir o local
 mode em Docker, exportar a chave no WSL e **desligar o commit automático** (D-457/T459 proíbe push
 direto; `main` é auto-deployado). Avaliação completa em `docs/03-development-process/AGENT_TOOLING.md`.
+
+## D-655 — UAT 37–48: gating do dashboard revisado pelo Operador (radar vira de todos os planos) + registro público de patrocínios com gestão Admin
+
+**Contexto.** Rodada de ajustes UAT 37–48 (2026-10-24) pedida pelo Operador: radar de gosto com
+gêneros e subgêneros ("Free mantém os 12"), medalhas por tipo de mídia para acompanhar evolução,
+evolução de gosto considerando TODAS as mídias no gráfico, e um jeito do Admin alimentar o registro
+público de patrocínios que a página `/apoie` promete.
+
+**O que muda em relação ao D-378/T402 (gating real, não cosmético).** O gating continua REAL, só
+muda o escopo por plano, a pedido do dono do produto:
+
+- `tipos` (contagem por tipo de mídia) passa a ser de **todos os planos** — é a base das medalhas
+  (UAT-44), e gamificação de engajamento não é diferencial pago.
+- Radar de gosto (`generos`) deixa de ser Plus+: **Free** recebe os 12 gêneros NARRATIVOS de maior
+  peso (subgênero não entra); **Plus/Premium** recebem gêneros E subgêneros, sem teto, e o recorte
+  por tipo de mídia (`generos_por_tipo`) — Plus em 3 mídias (Filmes/Séries/Games), Premium nas 6.
+- Evolução temporal segue **Premium** (agora também quebrada por tipo — `evolucao_tipos`, UAT-45:
+  uma linha por mídia no gráfico, além do total).
+- Taxonomia/pulso seguem Plus+/Premium como antes (sem mudança).
+
+**Patrocínios (UAT-46).** Tabela nova `patrocinio` (migration `20261024120000_patrocinios`,
+aditiva; FK `usuario_id` ON DELETE SET NULL — o registro público sobrevive ao usuário). Leitura
+pública em `GET /api/v1/patrocinios` (liberada no AuthGuard para GET; transparência que não é
+conferível não é transparência); escrita admin (`POST/DELETE /api/v1/admin/patrocinios`) com
+@Roles(ADMIN) + AdminStepUpGuard, mesma régua da Gestão de Usuários, que ganhou o formulário.
+Remoção é soft delete (`removido_em`) — histórico de transparência não se apaga. A tabela não tem
+RLS owner-only: o conteúdo é público por natureza e a barreira está no RBAC da escrita.
+
+**Consequências.** Specs de gating do dashboard e do mapa de rotas da sidebar atualizados para o
+novo contrato (Free vê radar real + 3 previews; sidebar com seção de conta UAT-40). PDFs da lista
+e do relatório de perfil saem timbrados (`lib/pdf-brand.ts`: faixa de marca redesenhada em
+primitivas jsPDF, cores dos tokens; rodapé com site + link clicável) — sem asset binário.

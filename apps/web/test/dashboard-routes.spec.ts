@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { NAV_ITEMS, SHORTCUTS } from "@/components/dashboard/DashboardSidebar";
+import { ACCOUNT_ITEMS, NAV_ITEMS } from "@/components/dashboard/DashboardSidebar";
 
 /**
  * T460 (Thinker — "promessa morta é link morto"): toda href usada pela
@@ -20,6 +20,10 @@ const ROTAS_EXISTENTES: Record<string, string> = {
   "/historico": "historico/page.tsx",
   "/listas": "listas/page.tsx",
   "/catalog": "catalog/page.tsx",
+  // UAT-40: itens de conta da sidebar.
+  "/profile": "profile/page.tsx",
+  "/settings": "settings/page.tsx",
+  "/feedback": "feedback/page.tsx",
 };
 
 const ROTAS_DINAMICAS: Record<string, string> = {
@@ -28,12 +32,10 @@ const ROTAS_DINAMICAS: Record<string, string> = {
 };
 
 describe("mapa de rotas da dashboard (T460)", () => {
-  it("toda href da sidebar e dos atalhos existe como página", () => {
-    const hrefs = [...NAV_ITEMS.map((i) => i.href), ...SHORTCUTS.map((i) => i.href)];
-    expect(hrefs.length).toBeGreaterThanOrEqual(6);
-    for (const hrefBruta of hrefs) {
-      // Atalho "Quero ver" leva query (?status=QUERO_CONSUMIR) — o mapa é por path.
-      const href = hrefBruta.split("?")[0];
+  it("toda href da sidebar (navegação + conta) existe como página", () => {
+    const hrefs = [...NAV_ITEMS.map((i) => i.href), ...ACCOUNT_ITEMS.map((i) => i.href)];
+    expect(hrefs.length).toBeGreaterThanOrEqual(9);
+    for (const href of hrefs) {
       const pagina = ROTAS_EXISTENTES[href];
       expect(pagina, `href sem entrada no mapa: ${href}`).toBeTruthy();
       expect(existsSync(path.join(APP_DIR, pagina)), `página ausente: ${href}`).toBe(true);

@@ -11,7 +11,25 @@ import {
 } from "lucide-react";
 import { PageShell, SectionBlock } from "@/components/ui/page-shell";
 import { SupportCta } from "@/components/support/SupportCta";
-import { PATROCINIOS } from "@/lib/sponsorships";
+import { PATROCINIOS, type Patrocinio } from "@/lib/sponsorships";
+
+/**
+ * UAT-46 — registro público da API (Admin alimenta pela Gestão de Usuários).
+ * Revalidado a cada 5 min; qualquer falha cai na lista estática (vazia hoje).
+ */
+async function buscarPatrocinios(): Promise<Patrocinio[]> {
+  const base = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
+  try {
+    const res = await fetch(`${base}/api/v1/patrocinios`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return PATROCINIOS;
+    const dados = (await res.json()) as Patrocinio[];
+    return Array.isArray(dados) ? dados : PATROCINIOS;
+  } catch {
+    return PATROCINIOS;
+  }
+}
 import { Link } from "@/lib/navigation";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
@@ -142,6 +160,11 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "support" });
 
+  // UAT-46: o registro público vem da API (o Admin o alimenta pela Gestão de
+  // Usuários). Sem API/em build, a fonte é a lista estática — o estado vazio é
+  // o mesmo fato honesto de antes.
+  const patrocinios = await buscarPatrocinios();
+
   return (
     <PageShell
       title={t("title")}
@@ -253,7 +276,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
         real de hoje — e "nenhum patrocínio ativo" é fato, não "em breve".
       */}
       <SectionBlock title={t("registryTitle")} id="registro">
-        {PATROCINIOS.length === 0 ? (
+        {patrocinios.length === 0 ? (
           <div className="scroll-mt-24 rounded-xl border border-dashed border-surface-border bg-surface-card p-6">
             <p className="max-w-[65ch] text-sm leading-relaxed text-fg-secondary">
               {t("registryEmpty")}
@@ -285,7 +308,7 @@ export default async function ApoiePage({ params }: { params: Promise<{ locale: 
                 </tr>
               </thead>
               <tbody>
-                {[...PATROCINIOS]
+                {[...patrocinios]
                   .sort((a, b) => b.desde.localeCompare(a.desde))
                   .map((p) => (
                     <tr

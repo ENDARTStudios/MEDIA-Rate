@@ -4,7 +4,7 @@
  * Visualização de uma lista colaborativa (pública pelo link).
  * Qualquer usuário logado adiciona títulos; o dono edita/remove/exclui.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api, ApiError } from "@/lib/http";
@@ -13,7 +13,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { MediaCard, type MediaItem } from "@/components/MediaCard";
 import { ShareLista } from "@/components/listas/ShareLista";
-import type { ListaResumo } from "@/lib/list-share";
+import { nicheFromApiTipo, nicheLabelKey } from "@/lib/dashboard-overview-data";
+import { ordenarItens, type ListaResumo, type OrdemLista } from "@/lib/list-share";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
 
@@ -69,6 +70,7 @@ function toMediaItem(i: ListaItem): MediaItem {
 export function ListaViewPage({ slug }: { slug: string }) {
   const t = useTranslations("listas");
   const tCommon = useTranslations("common");
+  const tc = useTranslations("catalog");
   const { isAuthenticated, user, hydrated: authHydrated } = useAuthStore();
   const [lista, setLista] = useState<ListaResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,6 +85,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
   const [editMode, setEditMode] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
+  // UAT-38: ordem de exibição (e do PDF/convite) escolhida pelo usuário.
+  const [ordem, setOrdem] = useState<OrdemLista>("padrao");
 
   async function carregar() {
     try {
@@ -214,20 +218,37 @@ export function ListaViewPage({ slug }: { slug: string }) {
 
   const podeAdicionar = isAuthenticated;
 
-  // Forma normalizada para convite/PDF: o componente de compartilhar não conhece o
-  // vocabulário da API (`ano_lancamento`, `midia_id`).
-  const resumo: ListaResumo = {
-    titulo: lista.titulo,
-    descricao: lista.descricao,
-    slug: lista.slug,
-    donoNome: lista.dono.nome,
-    itens: lista.itens.map((i) => ({
+  // UAT-38: a ordem escolhida vale para a grade, o convite e o PDF. Ordena o
+  // resumo (campos da lib) carregando o item original junto, e devolve os itens
+  // da API na ordem escolhida — o grid e o `resumo` consomem o mesmo array.
+  const itensOrdenados = useMemo(() => {
+    if (!lista) return [] as ListaItem[];
+    const comOriginal = lista.itens.map((i) => ({
       titulo: i.titulo,
       tipo: i.tipo,
       ano: i.ano_lancamento,
       score: i.score,
-    })),
-  };
+      original: i,
+    }));
+    return ordenarItens(comOriginal, ordem).map((x) => x.original);
+  }, [lista, ordem]);
+
+  // Forma normalizada para convite/PDF: o componente de compartilhar não conhece o
+  // vocabulário da API (`ano_lancamento`, `midia_id`).
+  const resumo: ListaResumo | null = lista
+    ? {
+        titulo: lista.titulo,
+        descricao: lista.descricao,
+        slug: lista.slug,
+        donoNome: lista.dono.nome,
+        itens: itensOrdenados.map((i) => ({
+          titulo: i.titulo,
+          tipo: i.tipo,
+          ano: i.ano_lancamento,
+          score: i.score,
+        })),
+      }
+    : null;
 
   return (
     <div className="max-w-5xl mx-auto py-16 px-4">
@@ -241,7 +262,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            rows={2}
+            rows={4}
             className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary"
           />
           <div className="flex gap-2">
@@ -258,18 +279,42 @@ export function ListaViewPage({ slug }: { slug: string }) {
           <h1 className="font-heading text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl">
             {lista.titulo}
           </h1>
-          {lista.descricao && <p className="mt-1 text-sm text-fg-secondary">{lista.descricao}</p>}
-          <p className="mt-2 text-xs text-fg-muted">
-            {t("byOwner", { owner: lista.dono.nome ?? "—" })} ·{" "}
-            {t("itemsCount", { count: lista.itens.length })}
-          </p>
+          {/* UAT-38: a formatação que o usuário escreveu (quebras de linha) é
+              conteúdo — o HTML colapsa \n por padrão, daí o pre-line. */}
+          {lista.descricao && (
+            <p className="mt-1 whitespace-pre-line text-sm text-fg-secondary">{lista.descricao}</p>
+          )}
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <p className="text-xs text-fg-muted">
+              {t("byOwner", { owner: lista.dono.nome ?? "—" })} ·{" "}
+              {t("itemsCount", { count: lista.itens.length })}
+            </p>
+            {/* UAT-38: ordenação alfabética / ano de lançamento / tipo de mídia. */}
+            <label className="ml-auto flex items-center gap-1.5 text-xs text-fg-muted">
+              <span>{t("sortLabel")}</span>
+              <select
+                value={ordem}
+                onChange={(e) => setOrdem(e.target.value as OrdemLista)}
+                aria-label={t("sortLabel")}
+                data-testid="lista-ordem"
+                className="rounded-md border border-surface-border bg-surface-elevated px-2 py-1 text-xs text-fg-primary focus:outline-none focus:ring-2 focus:ring-accent-indigo"
+              >
+                <option value="padrao">{t("sortPadrao")}</option>
+                <option value="titulo">{t("sortTitulo")}</option>
+                <option value="ano">{t("sortAno")}</option>
+                <option value="tipo">{t("sortTipo")}</option>
+              </select>
+            </label>
+          </div>
           {/* Compartilhar está disponível para qualquer visitante: a lista já é
               pública pelo slug. Quem recebe o link pode sugerir títulos. */}
-          <ShareLista
-            lista={resumo}
-            ehDono={lista.eh_dono}
-            onEditarRecado={() => setEditMode(true)}
-          />
+          {resumo && (
+            <ShareLista
+              lista={resumo}
+              ehDono={lista.eh_dono}
+              onEditarRecado={() => setEditMode(true)}
+            />
+          )}
           {lista.eh_dono && (
             <div className="mt-3 flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
@@ -321,20 +366,36 @@ export function ListaViewPage({ slug }: { slug: string }) {
               {resultados.length > 0 && (
                 <ul
                   role="list"
+                  data-testid="lista-busca-resultados"
                   className="max-h-64 overflow-y-auto divide-y divide-surface-border rounded-md border border-surface-border"
                 >
-                  {resultados.slice(0, 10).map((r) => (
-                    <li key={r.id}>
-                      <button
-                        type="button"
-                        onClick={() => void adicionar(r.id)}
-                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-fg-primary hover:bg-surface-elevated"
-                      >
-                        <span className="truncate">{r.title ?? r.name ?? r.id}</span>
-                        <span className="ml-2 shrink-0 text-xs text-fg-muted">+ {t("add")}</span>
-                      </button>
-                    </li>
-                  ))}
+                  {resultados.slice(0, 10).map((r) => {
+                    // UAT-37: nome + ano + tipo — sem isso o usuário precisa
+                    // clicar às cegas para descobrir SE é o título procurado.
+                    const meta = [
+                      r.year != null ? String(r.year) : null,
+                      r.type ? tc(nicheLabelKey(nicheFromApiTipo(r.type)) as never) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ");
+                    return (
+                      <li key={r.id}>
+                        <button
+                          type="button"
+                          onClick={() => void adicionar(r.id)}
+                          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-fg-primary hover:bg-surface-elevated"
+                        >
+                          <span className="min-w-0 flex-1 truncate">
+                            {r.title ?? r.name ?? r.id}
+                            {meta && (
+                              <span className="ml-2 shrink-0 text-xs text-fg-muted">{meta}</span>
+                            )}
+                          </span>
+                          <span className="shrink-0 text-xs text-fg-muted">+ {t("add")}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -348,7 +409,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {lista.itens.map((item) => (
+          {itensOrdenados.map((item) => (
             <div key={item.id} className="relative">
               {/* D-582 (T211): o <MediaCard> já é um <a href="/media/...">; o
                   wrapper externo gerava <a> dentro de <a> (HTML inválido e dois

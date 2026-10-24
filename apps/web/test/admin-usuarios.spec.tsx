@@ -52,7 +52,12 @@ const ATIVIDADE = {
 
 vi.mock("@/lib/http", () => ({
   api: {
-    get: vi.fn(async (url: string) => (String(url).includes("/atividade") ? ATIVIDADE : USUARIOS)),
+    get: vi.fn(async (url: string) => {
+      const u = String(url);
+      if (u.includes("/atividade")) return ATIVIDADE;
+      if (u.includes("/patrocinios")) return [];
+      return USUARIOS;
+    }),
     patch: vi.fn(async () => ({ usuarioId: EDI_ID, plano: "PREMIUM", origem: "MANUAL" })),
     post: vi.fn(async () => ({ usuarioId: EDI_ID })),
     delete: vi.fn(async () => ({ ok: true })),
@@ -99,9 +104,13 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
         plano: "PREMIUM",
       });
     });
-    // recarrega a lista após a mudança
+    // recarrega a lista após a mudança (o mount também busca os patrocínios —
+    // a contagem aqui é só das chamadas de usuários)
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledTimes(2);
+      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(
+      ([u]) => String(u).includes('/admin/usuarios'),
+      );
+      expect(chamadasUsuarios.length).toBe(2);
     });
   });
 
@@ -115,7 +124,10 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
       });
     });
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledTimes(2);
+      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(
+      ([u]) => String(u).includes('/admin/usuarios'),
+      );
+      expect(chamadasUsuarios.length).toBe(2);
     });
   });
 
@@ -133,13 +145,24 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
   });
 
   it("403 da API vira mensagem de erro na página", async () => {
-    vi.mocked(api.get).mockRejectedValueOnce(
-      new Error("Você não tem permissão para acessar este recurso."),
-    );
-    renderPage();
-    await waitFor(() => {
-      expect(screen.getByTestId("admin-usuarios-erro").textContent).toContain("permissão");
+    // UAT-46: o mount também busca patrocínios (com catch próprio) — o 403
+    // precisa rejeitar a chamada de USUÁRIOS, não a primeira que chegar.
+    const original = vi.mocked(api.get).getMockImplementation();
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (String(url).includes("/admin/usuarios")) {
+        throw new Error("Você não tem permissão para acessar este recurso.");
+      }
+      return [];
     });
+    try {
+      renderPage();
+      await waitFor(() => {
+        expect(screen.getByTestId("admin-usuarios-erro").textContent).toContain("permissão");
+      });
+    } finally {
+      // a implementação é do mock do MÓDULO — sem restaurar, vaza p/ os próximos
+      vi.mocked(api.get).mockImplementation(original ?? (async () => ({})));
+    }
   });
 });
 
@@ -179,5 +202,29 @@ describe("AdminUsuariosPage (Onda 2 admin — P0b: atividade e moderação)", ()
       );
       expect(chamadasAtividade.length).toBeGreaterThanOrEqual(2);
     });
+  });
+
+  it("UAT-46: registra patrocínio do usuário no registro público", async () => {
+    renderPage();
+    fireEvent.click(await screen.findByTestId(`admin-usuarios-patrocinar-${EDI_ID}`));
+    expect(screen.getByTestId("admin-patrocinio-form")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("admin-patrocinio-secao"), {
+      target: { value: "Cinema" },
+    });
+    fireEvent.change(screen.getByTestId("admin-patrocinio-rotulo"), {
+      target: { value: "Conteúdo patrocinado — banner Cinema" },
+    });
+    fireEvent.click(screen.getByTestId("admin-patrocinio-salvar"));
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith("/api/v1/admin/patrocinios", {
+        usuario_id: EDI_ID,
+        patrocinador: "Edi",
+        secao: "Cinema",
+        rotulo: "Conteúdo patrocinado — banner Cinema",
+        desde: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      });
+    });
+    // o formulário fecha após registrar
+    expect(screen.queryByTestId("admin-patrocinio-form")).toBeNull();
   });
 });
