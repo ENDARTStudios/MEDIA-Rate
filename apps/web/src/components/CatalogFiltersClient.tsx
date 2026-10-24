@@ -242,9 +242,11 @@ export function CatalogFiltersClient() {
                   aria-hidden="true"
                 />
                 <span className={fixado ? "" : "hidden"}>{tipo.rotulo}</span>
-                {contagem != null && (
-                  <span className="tabular-nums text-[10px] opacity-70">{contagem}</span>
-                )}
+                {/* Sem opacity na contagem: no rail retraído ela é o único texto
+                    do chip e opacity-70 derrubava o contraste p/ 4.31:1 (abaixo
+                    do AA); as cores herdadas do chip passam nos dois estados
+                    (visual-qa/axe, UAT-47). */}
+                {contagem != null && <span className="tabular-nums text-[10px]">{contagem}</span>}
               </button>
             );
           })}
