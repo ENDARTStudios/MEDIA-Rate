@@ -135,10 +135,10 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
   it("googlebooks: rating 0–5 (público)", async () => {
     const { fetchJson } = await import("../src/modules/media-score/adapters/http.utils.js");
     vi.mocked(fetchJson).mockResolvedValue({
-      items: [{ volumeInfo: { averageRating: 4.7, ratingsCount: 9800 } }],
+      items: [{ volumeInfo: { title: "Dune", averageRating: 4.7, ratingsCount: 9800 } }],
     });
     const adapter = new GoogleBooksAdapter();
-    const notas = await adapter.coletar(consulta("Duna", "LIVRO"));
+    const notas = await adapter.coletar({ tipo: "LIVRO", titulo: "Duna", tituloOriginal: "Dune" });
     expect(notas[0].fonte).toBe("googlebooks");
     expect(notas[0].rating).toBe(4.7);
   });
