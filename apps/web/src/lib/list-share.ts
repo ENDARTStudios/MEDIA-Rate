@@ -20,6 +20,40 @@ export interface ListaItemResumo {
   score: number | null;
 }
 
+/** Ordenações da lista (UAT-38): inserção, alfabética, ano ou tipo de mídia. */
+export type OrdemLista = "padrao" | "titulo" | "ano" | "tipo";
+
+export const ORDENS_LISTA: OrdemLista[] = ["padrao", "titulo", "ano", "tipo"];
+
+/**
+ * Devolve NOVO array na ordem pedida (não muta o original — a ordem de
+ * inserção segue sendo a canônica da API). Genérica: campos extras do item
+ * (ex.: o item completo da API para renderizar o card) atravessam a ordenação.
+ * Sem ano, o item vai para o fim; por tipo, agrupa alfabeticamente.
+ */
+export function ordenarItens<T extends ListaItemResumo>(itens: T[], ordem: OrdemLista): T[] {
+  const copia = [...itens];
+  if (ordem === "titulo") {
+    return copia.sort((a, b) =>
+      (a.titulo ?? "").localeCompare(b.titulo ?? "", undefined, { sensitivity: "base" }),
+    );
+  }
+  if (ordem === "ano") {
+    return copia.sort((a, b) => {
+      if (a.ano == null && b.ano == null) return 0;
+      if (a.ano == null) return 1;
+      if (b.ano == null) return -1;
+      return a.ano - b.ano;
+    });
+  }
+  if (ordem === "tipo") {
+    return copia.sort((a, b) =>
+      (a.tipo ?? "").localeCompare(b.tipo ?? "", undefined, { sensitivity: "base" }),
+    );
+  }
+  return copia;
+}
+
 export interface ListaResumo {
   titulo: string;
   descricao: string | null;

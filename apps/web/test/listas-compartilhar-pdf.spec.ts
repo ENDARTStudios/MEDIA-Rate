@@ -5,7 +5,9 @@ import {
   linhasDosItens,
   montarConvite,
   nomeArquivoPdf,
+  ordenarItens,
   urlDaLista,
+  type ListaItemResumo,
   type ListaResumo,
 } from "../src/lib/list-share";
 import { escreverDocumento, type DocLike } from "../src/lib/list-pdf";
@@ -96,6 +98,48 @@ describe("nome do arquivo e link", () => {
   });
 });
 
+describe("ordenação da lista (UAT-38)", () => {
+  const ITENS: ListaItemResumo[] = [
+    { titulo: "Zack Snyder", tipo: "FILME", ano: 2021, score: null },
+    { titulo: "A Chegada", tipo: "SERIE", ano: null, score: null },
+    { titulo: "Midnight Gospel", tipo: "GAME", ano: 2019, score: null },
+    { titulo: "Avenida Brasil", tipo: "COMIC", ano: 2015, score: null },
+  ];
+
+  it("padrao devolve a ordem de inserção sem mutar o original", () => {
+    const ordenado = ordenarItens(ITENS, "padrao");
+    expect(ordenado.map((i) => i.titulo)).toEqual([
+      "Zack Snyder",
+      "A Chegada",
+      "Midnight Gospel",
+      "Avenida Brasil",
+    ]);
+    expect(ITENS[0].titulo).toBe("Zack Snyder");
+  });
+
+  it("titulo ordena alfabética ignorando acento/caixa", () => {
+    expect(ordenarItens(ITENS, "titulo").map((i) => i.titulo)).toEqual([
+      "A Chegada",
+      "Avenida Brasil",
+      "Midnight Gospel",
+      "Zack Snyder",
+    ]);
+  });
+
+  it("ano ordena crescente e deixa sem ano no fim", () => {
+    expect(ordenarItens(ITENS, "ano").map((i) => i.ano)).toEqual([2015, 2019, 2021, null]);
+  });
+
+  it("tipo agrupa alfabeticamente pelo tipo de mídia", () => {
+    expect(ordenarItens(ITENS, "tipo").map((i) => i.tipo)).toEqual([
+      "COMIC",
+      "FILME",
+      "GAME",
+      "SERIE",
+    ]);
+  });
+});
+
 /** Dublê do jsPDF: registra chamadas e simula quebra de página. */
 function docFalso(altura = 842) {
   const chamadas: string[] = [];
@@ -107,34 +151,65 @@ function docFalso(altura = 842) {
     setFont: (fonte, estilo) => chamadas.push(`font:${fonte}:${estilo ?? ""}`),
     setFontSize: (t) => chamadas.push(`size:${t}`),
     setTextColor: (r, g, b) => chamadas.push(`color:${r},${g ?? ""},${b ?? ""}`),
+    setFillColor: (r, g, b) => chamadas.push(`fill:${r},${g ?? ""},${b ?? ""}`),
+    setDrawColor: (r, g, b) => chamadas.push(`draw:${r},${g ?? ""},${b ?? ""}`),
+    setLineWidth: (l) => chamadas.push(`lineWidth:${l}`),
     text: (texto) => chamadas.push(`text:${texto}`),
-    splitTextToSize: (texto) => [texto],
+    textWithLink: (texto, _x, _y, opcoes) => chamadas.push(`link:${texto}:${opcoes.url}`),
+    splitTextToSize: (texto) => (texto.includes("\n") ? texto.split("\n") : [texto]),
     addPage: () => {
       paginas.total += 1;
       chamadas.push("addPage");
     },
-    setDrawColor: () => chamadas.push("draw"),
     line: () => chamadas.push("line"),
+    rect: (_x, _y, _w, _h, estilo) => chamadas.push(`rect:${estilo ?? ""}`),
+    circle: (_x, _y, _r, estilo) => chamadas.push(`circle:${estilo ?? ""}`),
     save: (nome) => chamadas.push(`save:${nome}`),
   };
   return { doc, chamadas, paginas };
 }
 
+const ROTULOS_PDF = {
+  byOwner: "por Maria",
+  itemsCount: "3 indicações",
+  tagline: "Listas colaborativas de filmes, séries e mais",
+  site: "mediarate.app",
+  verEm: "Veja a lista:",
+  url: "https://mediarate.app/pt-BR/listas/para-o-joao",
+};
+
 describe("documento do PDF", () => {
   it("escreve título, recado, contagem e os itens", () => {
     const { doc, chamadas } = docFalso();
-    escreverDocumento(doc, LISTA, {
-      byOwner: "por Maria",
-      itemsCount: "3 indicações",
-      footer: "MEDIA Rate · mediarate.app",
-    });
+    escreverDocumento(doc, LISTA, ROTULOS_PDF);
     const texto = chamadas.join("|");
     expect(texto).toContain("text:Para o João começar a ler");
     expect(texto).toContain("text:Comece por estes três");
     expect(texto).toContain("3 indicações");
     expect(texto).toContain("text:1. O Hobbit");
     expect(texto).toContain("text:3. Sem metadados");
-    expect(texto).toContain("mediarate.app");
+  });
+
+  it("sai timbrado: faixa de marca, wordmark e links de volta (UAT-39)", () => {
+    const { doc, chamadas } = docFalso();
+    escreverDocumento(doc, LISTA, ROTULOS_PDF);
+    const texto = chamadas.join("|");
+    // Faixa de marca no topo (retângulo preenchido) + wordmark + tagline.
+    expect(texto).toContain("rect:F");
+    expect(texto).toContain("text:MEDIA");
+    expect(texto).toContain(`text:${ROTULOS_PDF.tagline}`);
+    // Rodapé: site e link da lista, ambos linkados.
+    expect(texto).toContain(`link:${ROTULOS_PDF.site}:https://${ROTULOS_PDF.site}`);
+    expect(texto).toContain(`link:${ROTULOS_PDF.url}:${ROTULOS_PDF.url}`);
+    expect(texto).toContain(`text:${ROTULOS_PDF.verEm}`);
+  });
+
+  it("preserva as quebras de linha da descrição (UAT-38)", () => {
+    const { doc, chamadas } = docFalso();
+    escreverDocumento(doc, { ...LISTA, descricao: "linha 1\nlinha 2" }, ROTULOS_PDF);
+    const texto = chamadas.join("|");
+    expect(texto).toContain("text:linha 1");
+    expect(texto).toContain("text:linha 2");
   });
 
   it("quebra página quando a lista passa de uma página", () => {
@@ -148,11 +223,7 @@ describe("documento do PDF", () => {
       })),
     };
     const { doc, paginas } = docFalso(842);
-    escreverDocumento(doc, muitos, {
-      byOwner: "por Maria",
-      itemsCount: "120 indicações",
-      footer: "MEDIA Rate",
-    });
+    escreverDocumento(doc, muitos, { ...ROTULOS_PDF, itemsCount: "120 indicações" });
     expect(paginas.total).toBeGreaterThan(1);
   });
 
@@ -162,7 +233,10 @@ describe("documento do PDF", () => {
       escreverDocumento(
         doc,
         { ...LISTA, itens: [], descricao: null },
-        { byOwner: "por Maria", itemsCount: "0 indicações", footer: "MEDIA Rate" },
+        {
+          ...ROTULOS_PDF,
+          itemsCount: "0 indicações",
+        },
       ),
     ).not.toThrow();
     expect(chamadas.join("|")).toContain("0 indicações");
@@ -170,19 +244,13 @@ describe("documento do PDF", () => {
 });
 
 describe("documento real (jsPDF, não dublê)", () => {
-  const ROTULOS_REAIS = {
-    byOwner: "por Maria",
-    itemsCount: "3 indicações",
-    footer: "MEDIA Rate · mediarate.app",
-  };
-
   function bytes(doc: unknown): Buffer {
     return Buffer.from((doc as { output: (t: string) => ArrayBuffer }).output("arraybuffer"));
   }
 
   it("produz um PDF válido com o conteúdo da lista", () => {
     const doc = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
-    escreverDocumento(doc, LISTA, ROTULOS_REAIS);
+    escreverDocumento(doc, LISTA, ROTULOS_PDF);
     const buf = bytes(doc);
     expect(buf.slice(0, 5).toString()).toBe("%PDF-");
     expect(buf.byteLength).toBeGreaterThan(1000);
@@ -190,7 +258,7 @@ describe("documento real (jsPDF, não dublê)", () => {
 
   it("lista maior produz arquivo maior (o conteúdo entra, não é template vazio)", () => {
     const pequena = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
-    escreverDocumento(pequena, LISTA, ROTULOS_REAIS);
+    escreverDocumento(pequena, LISTA, ROTULOS_PDF);
     const grande: ListaResumo = {
       ...LISTA,
       itens: Array.from({ length: 60 }, (_, i) => ({
@@ -201,7 +269,7 @@ describe("documento real (jsPDF, não dublê)", () => {
       })),
     };
     const docGrande = new jsPDF({ unit: "pt", format: "a4" }) as unknown as DocLike;
-    escreverDocumento(docGrande, grande, { ...ROTULOS_REAIS, itemsCount: "60 indicações" });
+    escreverDocumento(docGrande, grande, { ...ROTULOS_PDF, itemsCount: "60 indicações" });
     expect(bytes(docGrande).byteLength).toBeGreaterThan(bytes(pequena).byteLength);
   });
 });

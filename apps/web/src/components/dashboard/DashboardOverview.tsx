@@ -24,6 +24,8 @@ import {
   ChevronRight,
   Sparkles,
   X,
+  Medal,
+  Lock,
 } from "lucide-react";
 import {
   Bar,
@@ -42,34 +44,41 @@ import { Link, useRouter } from "@/lib/navigation";
 import { getDiscoveries, type Discovery } from "@/lib/api-discoveries";
 import { getInteracoes, idadeEmDias, tempoRelativoKey, type Interacao } from "@/lib/api-interacoes";
 import {
-  ACHIEVEMENT_CATALOG,
   ACTIVITY_FEED,
   DEMO_DISCOVERIES,
+  MAX_EIXOS_RADAR,
   NICHE_ORDER,
   OVERVIEW_PERIODS,
   PERIOD_SERIES,
+  TIPOS_RADAR_PLUS,
+  TIPOS_RADAR_PREMIUM,
   TREND_SERIES,
   affinityFromHistograma,
   completionPct,
   formatScoreValue,
+  medalhasFromStats,
   nicheFromApiTipo,
   nicheLabelKey,
   pulseWeekFromEvolucao,
   radarFromStats,
   taxonomyFromStats,
-  unlockedNiches,
+  tracosFromStats,
   type OverviewNiche,
   type OverviewPeriod,
   type RadarAxis,
+  type TracoPerfil,
 } from "@/lib/dashboard-overview-data";
+import { baixarPerfilPdf } from "@/lib/profile-pdf";
 
-interface OverviewStats {
+export interface OverviewStats {
   plano: string;
   total: number;
   concluidos: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
+  generos_por_tipo: { tipo: string; generos: Record<string, number> }[];
   evolucao: { mes: string; total: number }[] | null;
+  evolucao_tipos: { mes: string; total: number; por_tipo: Record<string, number> }[] | null;
   streak: number;
   histograma: { faixa: string; total: number }[];
 }
@@ -132,6 +141,9 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   const [realDiscoveries, setRealDiscoveries] = useState<Discovery[] | null>(null);
   const [interacoes, setInteracoes] = useState<Interacao[] | null>(null);
   const [notice, setNotice] = useState("");
+  // UAT-43: recorte do radar por tipo de mídia ("todas" = agregado).
+  const [radarTipo, setRadarTipo] = useState<string>("todas");
+  const [baixandoPerfil, setBaixandoPerfil] = useState(false);
 
   // Descobertas reais (T201); sem API/dados → dataset de demonstração.
   useEffect(() => {
@@ -162,13 +174,47 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
   const ehPremium = stats.plano === "PREMIUM";
 
   const taxonomy = useMemo(() => taxonomyFromStats(stats.tipos), [stats.tipos]);
-  const unlocked = useMemo(() => unlockedNiches(stats.tipos), [stats.tipos]);
   const pulse = useMemo(() => pulseWeekFromEvolucao(stats.evolucao), [stats.evolucao]);
-  const radarAxes = useMemo(() => radarFromStats(stats.generos), [stats.generos]);
-  const radarDemo = Object.values(stats.generos).filter((v) => v > 0).length < 3;
+  // UAT-43: Free mantém os 12 gêneros; Plus/Premium veem gêneros + subgêneros
+  // (sem teto) e podem recortar o radar por tipo de mídia.
+  const tiposRadarPlus = ehPremium ? TIPOS_RADAR_PREMIUM : TIPOS_RADAR_PLUS;
+  const generosDoRadar = useMemo(() => {
+    if (!ehPlus || radarTipo === "todas") return stats.generos;
+    return stats.generos_por_tipo.find((g) => g.tipo === radarTipo)?.generos ?? {};
+  }, [ehPlus, radarTipo, stats.generos, stats.generos_por_tipo]);
+  const radarAxes = useMemo(
+    () => radarFromStats(generosDoRadar, ehPlus ? null : MAX_EIXOS_RADAR),
+    [generosDoRadar, ehPlus],
+  );
+  const radarDemo = Object.values(generosDoRadar).filter((v) => v > 0).length < 3;
   const topBar = taxonomy.find((b) => b.value > 0);
   const activeNichesCount = taxonomy.filter((b) => b.value > 0).length;
   const periodSeries = PERIOD_SERIES[period];
+
+  // UAT-44: trilhas de medalhas por tipo de mídia (níveis por volume +
+  // especialista por gênero dominante) — números reais da resposta.
+  const medalhas = useMemo(
+    () => medalhasFromStats(stats.tipos, stats.generos_por_tipo),
+    [stats.tipos, stats.generos_por_tipo],
+  );
+  const medalhasDesbloqueadas = medalhas.reduce(
+    (acc, m) => acc + m.niveis.filter((n) => n.atingido).length + (m.especialista ? 1 : 0),
+    0,
+  );
+
+  // UAT-42: definições que se completam — cada traço é uma leitura real.
+  const tracosPerfil = useMemo<TracoPerfil[]>(
+    () =>
+      tracosFromStats({
+        total: stats.total,
+        concluidos: stats.concluidos,
+        streak: stats.streak,
+        tipos: stats.tipos,
+        generos: stats.generos,
+        histograma: stats.histograma,
+      }),
+    [stats],
+  );
 
   // Métricas reais (auditoria S1): total/afinidade/conclusão derivam da
   // resposta REAL de /api/v1/user/stats; sem dado → "—", nunca inventado.
@@ -179,13 +225,35 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
 
   // Evolução REAL (Premium): série mensal 12m zero-preenchida da API.
   const evolucaoReal = ehPremium && stats.evolucao ? stats.evolucao : null;
-  const evolucaoData = evolucaoReal
-    ? evolucaoReal.map((p) => ({ label: p.mes.substring(2), atividades: p.total }))
-    : periodSeries.labels.map((label, index) => ({
-        label,
-        indice: periodSeries.taste[index],
-        atividades: periodSeries.activity[index],
-      }));
+  // UAT-45: a evolução do gosto considera TODAS as mídias — a série vem quebrada
+  // por tipo (uma linha por mídia com sinal, cores canônicas) além do total.
+  const evolucaoTipos = ehPremium && stats.evolucao_tipos ? stats.evolucao_tipos : null;
+  const nichesNaSerie = useMemo(() => {
+    if (!evolucaoTipos) return [];
+    const somaPorNiche = new Map<OverviewNiche, number>();
+    for (const ponto of evolucaoTipos) {
+      for (const [tipo, valor] of Object.entries(ponto.por_tipo)) {
+        const niche = nicheFromApiTipo(tipo);
+        somaPorNiche.set(niche, (somaPorNiche.get(niche) ?? 0) + valor);
+      }
+    }
+    return NICHE_ORDER.filter((n) => (somaPorNiche.get(n) ?? 0) > 0);
+  }, [evolucaoTipos]);
+  const evolucaoData: Record<string, string | number>[] = evolucaoTipos
+    ? evolucaoTipos.map((p) => ({
+        label: p.mes.substring(2),
+        total: p.total,
+        ...Object.fromEntries(
+          Object.entries(p.por_tipo).map(([tipo, valor]) => [nicheFromApiTipo(tipo), valor]),
+        ),
+      }))
+    : evolucaoReal
+      ? evolucaoReal.map((p) => ({ label: p.mes.substring(2), atividades: p.total }))
+      : periodSeries.labels.map((label, index) => ({
+          label,
+          indice: periodSeries.taste[index],
+          atividades: periodSeries.activity[index],
+        }));
   // Delta real do mês (último vs. anterior) p/ o box de curiosidade.
   const ultimos = evolucaoReal ? evolucaoReal.slice(-2) : [];
   const deltaReal =
@@ -287,10 +355,11 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
       : gap > 0
         ? t("trendPhraseUp", { genre: selectedNicheLabel, pct })
         : t("trendPhraseDown", { genre: selectedNicheLabel, pct });
-  const visibleAchievements = ACHIEVEMENT_CATALOG.filter((a) => {
+  // UAT-44: o filtro passa a agir sobre as trilhas de medalhas por mídia.
+  const medalhasVisiveis = medalhas.filter((m) => {
     if (achievementFilter === "all") return true;
-    if (achievementFilter === "unlocked") return unlocked.includes(a.niche);
-    return a.niche === achievementFilter;
+    if (achievementFilter === "unlocked") return m.volume > 0;
+    return m.niche === achievementFilter;
   });
 
   const mostrarAviso = (mensagem: string) => {
@@ -336,16 +405,66 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
     mostrarAviso(t("profileExportedImage"));
   };
 
-  const exportPdf = () => {
-    const win = window.open("", "_blank", "width=980,height=760");
-    if (!win) {
-      mostrarAviso(t("profilePopupBlocked"));
-      return;
+  // UAT-42: chaves i18n dos traços (definições que se completam).
+  const TRACO_KEYS: Record<TracoPerfil["key"], string> = {
+    explorador: "tracoExplorador",
+    concluidor: "tracoConcluidor",
+    apreciador: "tracoApreciador",
+    constante: "tracoConstante",
+    especialista: "tracoEspecialista",
+    radar: "tracoRadar",
+  };
+
+  // UAT-42: PDF do perfil timbrado com TODAS as estatísticas — jsPDF em import
+  // dinâmico (mesma política da lista), em vez do window.print.
+  const exportPerfilPdf = async () => {
+    setBaixandoPerfil(true);
+    try {
+      await baixarPerfilPdf(
+        {
+          titulos: {
+            principal: `${t("overviewTitleA")} ${t("overviewTitleB")}`,
+            subtitulo: t("profileTitle"),
+          },
+          kpis: [
+            { label: t("overviewRated"), value: String(stats.total) },
+            { label: t("overviewAffinity"), value: afinidadeLabel },
+            { label: t("overviewCompletion"), value: conclusaoLabel },
+            { label: t("streak"), value: String(stats.streak) },
+            { label: t("taxonomyActiveNiches"), value: `${activeNichesCount}/6` },
+            { label: t("radarStrongest"), value: strongest ? strongest.label : "—" },
+          ],
+          tracos: tracosPerfil.map((traco) => ({
+            label: t(TRACO_KEYS[traco.key] as never),
+            value: traco.valor,
+          })),
+          tipos: taxonomy.map((b) => ({
+            label: tc(nicheLabelKey(b.niche) as never),
+            total: b.value,
+          })),
+          radar: radarAxes.map((a) => ({ label: a.label, pct: a.value })),
+          histograma: stats.histograma,
+          evolucao: evolucaoReal,
+        },
+        {
+          tagline: t("profilePdfTagline"),
+          site: "mediarate.app",
+          verEm: t("profilePdfSeeDash"),
+          url: typeof window !== "undefined" ? window.location.href : "https://mediarate.app",
+          secKpis: t("profileNumbersTitle"),
+          secTracos: t("profileTraitsTitle"),
+          secTipos: t("taxonomyTitle"),
+          secRadar: t("radarTitle"),
+          secHistograma: t("scoreHistogram"),
+          secEvolucao: t("evoTitle"),
+        },
+      );
+      mostrarAviso(t("profilePdfDone"));
+    } catch {
+      mostrarAviso(t("profilePdfError"));
+    } finally {
+      setBaixandoPerfil(false);
     }
-    win.document.write(
-      `<html><head><title>MEDIA Rate</title><style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#0b0b12;color:#fff;padding:48px}h1{font-size:36px}p{color:#aaa}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0}.card{background:#171725;border-radius:16px;padding:24px}.value{font-size:34px;font-weight:700;margin-top:18px}</style></head><body><div style="color:#a69cff">MEDIA RATE</div><h1>${t("overviewTitleA")} ${t("overviewTitleB")}</h1><p>${t("overviewDesc")}</p><div class="grid"><div class="card">${t("overviewRated")}<div class="value">${stats.total}</div></div><div class="card">${t("overviewAffinity")}<div class="value">${afinidadeLabel}</div></div><div class="card">${t("overviewCompletion")}<div class="value">${conclusaoLabel}</div></div></div><div class="card"><h2>${t("radarTitle")}</h2><p style="color:#a69cff">${radarAxes.map((a) => `${a.label} ${a.value}%`).join(" · ")}</p><p>${trendSummary}</p><script>window.onload=()=>window.print()</script></body></html>`,
-    );
-    win.document.close();
   };
 
   // Cartões de métrica: valor REAL em primeiro lugar; spark/trend REAIS
@@ -546,55 +665,83 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
         </div>
       </section>
 
-      {/* Radar de gosto (Plus+) + evolução (Premium) — T402 coerente */}
+      {/* Radar de gosto (todos os planos; escopo por plano UAT-43) + evolução (Premium) */}
       <section className="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
-        {ehPlus ? (
-          <div
-            data-testid="overview-radar"
-            className="rounded-lg border border-white/[0.07] bg-dash-surface p-5 sm:p-6"
-          >
-            <SectionHead
-              icon={
-                <span className="grid h-7 w-7 place-items-center rounded-lg bg-dash-indigo/15 text-dash-indigo-light">
-                  <Target size={14} />
-                </span>
-              }
-              title={t("radarTitle")}
-              desc={t("radarDesc")}
-              badge={radarDemo ? <DemoBadge label={t("demoBadge")} /> : undefined}
-            />
-            <RadarGraphic axes={radarAxes} />
-            {!radarDemo && (
-              <p className="mt-2 text-[10px] text-fg-muted">{t("radarPreviousNote")}</p>
-            )}
-            <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
-              <div>
-                <p className="text-[11px] text-fg-muted">{t("radarStrongest")}</p>
-                <p className="mt-1 text-[15px] font-bold text-white">
-                  {strongest ? strongest.label : "—"}{" "}
-                  {strongest && <span className="ml-1 text-dash-violet">{strongest.value}%</span>}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] text-fg-muted">{t("radarBiggestJump")}</p>
-                <p className="mt-1 flex items-center justify-end gap-1 text-[15px] font-bold text-dash-teal">
-                  <TrendingUp size={14} />
-                  {biggestJump
-                    ? `${biggestJump.label} +${biggestJump.value - biggestJump.previous}%`
-                    : "—"}
-                </p>
-              </div>
+        <div
+          data-testid="overview-radar"
+          className="rounded-lg border border-white/[0.07] bg-dash-surface p-5 sm:p-6"
+        >
+          <SectionHead
+            icon={
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-dash-indigo/15 text-dash-indigo-light">
+                <Target size={14} />
+              </span>
+            }
+            title={t("radarTitle")}
+            desc={t("radarDesc")}
+            badge={radarDemo ? <DemoBadge label={t("demoBadge")} /> : undefined}
+          />
+          {ehPlus && (
+            <div
+              className="mb-3 flex flex-wrap gap-1"
+              role="group"
+              aria-label={t("radarByMedia")}
+              data-testid="radar-tipo-seletor"
+            >
+              <button
+                type="button"
+                onClick={() => setRadarTipo("todas")}
+                aria-pressed={radarTipo === "todas"}
+                className={`rounded-full border px-2 py-1 text-[9px] font-bold transition ${radarTipo === "todas" ? "border-dash-indigo/40 bg-dash-indigo/15 text-dash-violet-light" : "border-white/[0.08] text-fg-muted hover:text-white"}`}
+              >
+                {t("radarAllMedia")}
+              </button>
+              {tiposRadarPlus.map((apiTipo) => {
+                const niche = nicheFromApiTipo(apiTipo);
+                const token = CATEGORY_TOKENS[niche as MediaType];
+                const ativo = radarTipo === apiTipo;
+                return (
+                  <button
+                    key={apiTipo}
+                    type="button"
+                    onClick={() => setRadarTipo(apiTipo)}
+                    aria-pressed={ativo}
+                    className={`rounded-full border px-2 py-1 text-[9px] font-bold transition ${ativo ? "text-white" : "border-white/[0.08] text-fg-muted hover:text-white"}`}
+                    style={
+                      ativo ? { backgroundColor: token.color, borderColor: token.color } : undefined
+                    }
+                  >
+                    {tc(nicheLabelKey(niche) as never)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <RadarGraphic axes={radarAxes} />
+          {!radarDemo && (
+            <p className="mt-2 text-[10px] text-fg-muted">
+              {ehPlus ? t("radarSubNote") : t("radarPreviousNote")}
+            </p>
+          )}
+          <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
+            <div>
+              <p className="text-[11px] text-fg-muted">{t("radarStrongest")}</p>
+              <p className="mt-1 text-[15px] font-bold text-white">
+                {strongest ? strongest.label : "—"}{" "}
+                {strongest && <span className="ml-1 text-dash-violet">{strongest.value}%</span>}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] text-fg-muted">{t("radarBiggestJump")}</p>
+              <p className="mt-1 flex items-center justify-end gap-1 text-[15px] font-bold text-dash-teal">
+                <TrendingUp size={14} />
+                {biggestJump
+                  ? `${biggestJump.label} +${biggestJump.value - biggestJump.previous}%`
+                  : "—"}
+              </p>
             </div>
           </div>
-        ) : (
-          <PreviewCard
-            titulo={t("radarTitle")}
-            selo="Plus"
-            hint={t("upgradeHint")}
-            cta={t("upgrade")}
-            onCta={() => router.push("/pricing")}
-          />
-        )}
+        </div>
 
         {evolucaoReal ? (
           <div
@@ -611,10 +758,22 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                 title={t("evoTitle")}
                 desc={t("evoDesc")}
               />
-              <div className="flex items-center gap-3 text-[10px] text-fg-muted">
-                <span className="flex items-center gap-1.5">
-                  <i className="h-2 w-2 rounded-full bg-dash-teal" /> {t("evoLegendActivity")}
-                </span>
+              <div className="flex flex-wrap items-center gap-3 text-[10px] text-fg-muted">
+                {evolucaoTipos ? (
+                  nichesNaSerie.map((niche) => (
+                    <span key={niche} className="flex items-center gap-1.5">
+                      <i
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: CATEGORY_TOKENS[niche as MediaType].color }}
+                      />
+                      {tc(nicheLabelKey(niche) as never)}
+                    </span>
+                  ))
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <i className="h-2 w-2 rounded-full bg-dash-teal" /> {t("evoLegendActivity")}
+                  </span>
+                )}
               </div>
             </div>
             <div className="h-[310px] w-full">
@@ -644,14 +803,34 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                     }}
                     labelStyle={{ color: "rgba(255,255,255,.5)", marginBottom: 5 }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="atividades"
-                    stroke={DASH.teal}
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: DASH.teal, strokeWidth: 0 }}
-                    activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
-                  />
+                  {/* UAT-45: todas as mídias no gráfico — uma linha por tipo com
+                      sinal (cores canônicas); sem série por tipo, linha única. */}
+                  {evolucaoTipos && nichesNaSerie.length > 0 ? (
+                    nichesNaSerie.map((niche) => {
+                      const cor = CATEGORY_TOKENS[niche as MediaType].color;
+                      return (
+                        <Line
+                          key={niche}
+                          type="monotone"
+                          dataKey={niche}
+                          name={tc(nicheLabelKey(niche) as never)}
+                          stroke={cor}
+                          strokeWidth={2.5}
+                          dot={{ r: 3, fill: cor, strokeWidth: 0 }}
+                          activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Line
+                      type="monotone"
+                      dataKey="atividades"
+                      stroke={DASH.teal}
+                      strokeWidth={3}
+                      dot={{ r: 3, fill: DASH.teal, strokeWidth: 0 }}
+                      activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
+                    />
+                  )}
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -831,10 +1010,10 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
                 </span>
               }
               title={t("achvTitle")}
-              desc={t("achvDesc")}
+              desc={t("medalDesc")}
             />
             <span className="rounded-full border border-dash-amber/20 bg-dash-amber/10 px-2 py-1 text-[9px] font-bold text-dash-amber">
-              {unlocked.length} / 6
+              {t("medalCount", { unlocked: medalhasDesbloqueadas, total: medalhas.length * 5 })}
             </span>
           </div>
           <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
@@ -853,30 +1032,83 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {visibleAchievements.map((a) => {
-              const Icon = nicheIcon(a.niche);
-              const isUnlocked = unlocked.includes(a.niche);
-              const token = CATEGORY_TOKENS[a.niche as keyof typeof CATEGORY_TOKENS];
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid="overview-medalhas">
+            {medalhasVisiveis.map((trilha) => {
+              const Icon = nicheIcon(trilha.niche);
+              const token = CATEGORY_TOKENS[trilha.niche as keyof typeof CATEGORY_TOKENS];
+              const proximo = trilha.niveis.find((n) => !n.atingido);
+              const nomesNiveis = [
+                t("medalBronze"),
+                t("medalSilver"),
+                t("medalGold"),
+                t("medalPlatinum"),
+              ];
               return (
                 <div
-                  key={a.niche}
-                  className={`rounded-xl border p-3 transition duration-300 ${isUnlocked ? "border-white/[0.1] bg-white/[0.045] hover:-translate-y-0.5" : "border-white/[0.05] bg-white/[0.015] opacity-55"}`}
+                  key={trilha.niche}
+                  className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4"
                 >
-                  <div className="flex items-start justify-between">
-                    <span
-                      className="grid h-8 w-8 place-items-center rounded-lg"
-                      style={{
-                        background: `${token.color}${isUnlocked ? "22" : "0d"}`,
-                        color: token.color,
-                      }}
-                    >
-                      <Icon size={16} />
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="grid h-8 w-8 place-items-center rounded-lg"
+                        style={{ background: `${token.color}1f`, color: token.color }}
+                      >
+                        <Icon size={16} />
+                      </span>
+                      <span className="text-[12px] font-bold text-white">
+                        {tc(nicheLabelKey(trilha.niche) as never)}
+                      </span>
                     </span>
-                    {isUnlocked && <Check size={13} className="text-dash-teal" />}
+                    <span className="text-[10px] tabular-nums text-fg-muted">
+                      {t("medalVolume", { count: trilha.volume })}
+                    </span>
                   </div>
-                  <p className="mt-2 text-[12px] font-bold text-white">{t(a.titleKey as never)}</p>
-                  <p className="mt-0.5 text-[10px] text-fg-muted">{t(a.detailKey as never)}</p>
+                  {/* Trilha de níveis: círculos preenchem conforme o volume avança. */}
+                  <div className="mt-3 flex items-center gap-1.5">
+                    {trilha.niveis.map((nivel, i) => (
+                      <span
+                        key={nivel.meta}
+                        title={`${nomesNiveis[i]} · ${nivel.meta}`}
+                        className={`flex h-6 flex-1 items-center justify-center rounded-full text-[8px] font-bold transition ${nivel.atingido ? "text-[#0c0c12]" : "border border-white/[0.08] text-fg-muted"}`}
+                        style={nivel.atingido ? { backgroundColor: token.color } : undefined}
+                        aria-label={
+                          nivel.atingido
+                            ? `${nomesNiveis[i]} — ${t("medalUnlocked")}`
+                            : `${nomesNiveis[i]} — ${t("medalProgress", { count: trilha.volume, meta: nivel.meta })}`
+                        }
+                      >
+                        {nomesNiveis[i].slice(0, 1)}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[10px] text-fg-muted">
+                    {proximo
+                      ? t("medalProgress", { count: trilha.volume, meta: proximo.meta })
+                      : t("medalMaxLevel")}
+                  </p>
+                  {/* Medalha de especialista: gênero dominante da mídia. */}
+                  <p
+                    className={`mt-2 flex items-center gap-1.5 text-[10px] font-semibold ${trilha.especialista ? "text-dash-amber" : "text-fg-muted"}`}
+                  >
+                    {trilha.especialista ? (
+                      <>
+                        <Medal size={12} />{" "}
+                        {t("medalSpecialistOn", { genre: trilha.generoTop?.nome ?? "—" })}
+                      </>
+                    ) : (
+                      trilha.generoTop && (
+                        <>
+                          <Lock size={12} />
+                          {t("medalSpecialistOff", {
+                            genre: trilha.generoTop.nome,
+                            count: trilha.generoTop.total,
+                            min: 5,
+                          })}
+                        </>
+                      )
+                    )}
+                  </p>
                 </div>
               );
             })}
@@ -1347,7 +1579,36 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
               <span className="text-dash-indigo-light">{t("profileHeadlineB")}</span>
             </p>
             <p className="mt-3 max-w-sm text-[11px] leading-5 text-fg-muted">{t("profileDesc")}</p>
-            <div className="mb-2 mt-7 grid grid-cols-2 gap-3">
+            {/* UAT-42: definições que se completam — cada traço é uma leitura
+                real do perfil (nichos ativos, conclusão, afinidade, constância,
+                gênero dominante, volume) com nível visível. */}
+            <div
+              className="mb-2 mt-7 grid grid-cols-2 gap-2 sm:grid-cols-3"
+              data-testid="overview-profile-traits"
+            >
+              {tracosPerfil.map((traco) => (
+                <div
+                  key={traco.key}
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-3"
+                >
+                  <p className="text-[10px] leading-4 text-fg-muted">
+                    {t(TRACO_KEYS[traco.key] as never)}
+                  </p>
+                  <p className="mt-1 truncate text-[15px] font-bold text-white">
+                    {traco.valor ?? "—"}
+                  </p>
+                  <div className="mt-2 flex gap-1" aria-hidden="true">
+                    {[1, 2, 3].map((n) => (
+                      <span
+                        key={n}
+                        className={`h-1 flex-1 rounded-full ${traco.nivel >= n ? "bg-dash-indigo-light" : "bg-white/[0.08]"}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mb-2 mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-3">
                 <p className="text-[10px] text-fg-muted">{t("profileCompat")}</p>
                 <p className="mt-1 text-[21px] font-bold text-white">
@@ -1366,10 +1627,12 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={exportPdf}
-                className="flex items-center justify-center gap-2 rounded-xl bg-dash-indigo px-3 py-3 text-[11px] font-bold text-dash-deep transition hover:bg-dash-indigo-light active:scale-[.98]"
+                disabled={baixandoPerfil}
+                onClick={() => void exportPerfilPdf()}
+                className="flex items-center justify-center gap-2 rounded-xl bg-dash-indigo px-3 py-3 text-[11px] font-bold text-dash-deep transition hover:bg-dash-indigo-light active:scale-[.98] disabled:opacity-60"
               >
-                {t("profileExportPdf")} <ArrowUpRight size={14} />
+                {baixandoPerfil ? t("pdfPreparingPerfil") : t("profileExportPdf")}{" "}
+                <ArrowUpRight size={14} />
               </button>
               <button
                 type="button"

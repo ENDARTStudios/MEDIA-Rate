@@ -10,6 +10,7 @@ import { CatalogSkeleton } from "@/components/CatalogSkeleton";
 import { Button } from "@/components/ui/button";
 import { PageContainer, PageTitle } from "@/components/ui/page-shell";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { affinityFromHistograma } from "@/lib/dashboard-overview-data";
 
 interface HistoricoItem {
   midia_id: string;
@@ -26,6 +27,16 @@ interface HistoricoResponse {
   limite: number;
   limite_atingido: boolean;
   plano: string;
+}
+
+/** Resumo de evolução (/api/v1/user/stats) — UAT-41: o destino de "Metas e
+ *  evolução" precisa mostrar evolução, não só a lista de mídias vistas. */
+interface UserStatsResumo {
+  total: number;
+  concluidos: number;
+  streak: number;
+  histograma: { faixa: string; total: number }[];
+  evolucao: { mes: string; total: number }[] | null;
 }
 
 function toMediaItem(i: HistoricoItem): MediaItem {
@@ -53,6 +64,7 @@ export function HistoricoPage() {
   const [data, setData] = useState<HistoricoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumo, setResumo] = useState<UserStatsResumo | null>(null);
 
   useEffect(() => {
     // D-619: espera saber quem e antes de decidir (mantem o skeleton).
@@ -73,15 +85,81 @@ export function HistoricoPage() {
       .finally(() => {
         if (ativo) setLoading(false);
       });
+    // UAT-41: resumo de evolução — falha aqui não derruba a página (é bônus).
+    void api
+      .get<UserStatsResumo>("/api/v1/user/stats")
+      .then((r) => {
+        if (ativo) setResumo(r);
+      })
+      .catch(() => undefined);
     return () => {
       ativo = false;
     };
   }, [authHydrated, isAuthenticated]);
 
+  // Delta do mês (evolução Premium; sem série, o card fica de fora).
+  const ultimos = resumo?.evolucao?.slice(-2) ?? [];
+  const mesAtual = resumo?.evolucao?.[resumo.evolucao.length - 1]?.total ?? null;
+  const deltaMes =
+    ultimos.length === 2 && ultimos[0].total > 0 ? ultimos[1].total - ultimos[0].total : null;
+  const afinidade = resumo ? affinityFromHistograma(resumo.histograma) : null;
+
   return (
     <ProtectedPage>
       <PageContainer className="max-w-6xl">
         <PageTitle className="mb-2">{t("title")}</PageTitle>
+
+        {resumo && (
+          <section
+            data-testid="historico-resumo"
+            aria-label={t("summaryTitle")}
+            className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
+          >
+            {[
+              { label: t("summaryRated"), value: String(resumo.total) },
+              {
+                label: t("summaryCompleted"),
+                value:
+                  resumo.total > 0
+                    ? `${Math.round((resumo.concluidos / resumo.total) * 100)}%`
+                    : "—",
+              },
+              { label: t("summaryStreak"), value: String(resumo.streak) },
+              {
+                label: t("summaryAffinity"),
+                value: afinidade == null ? "—" : afinidade.toFixed(1).replace(".", ","),
+              },
+            ].map((card) => (
+              <div
+                key={card.label}
+                className="rounded-lg border border-surface-border bg-surface-card px-4 py-3"
+              >
+                <p className="text-xs text-fg-muted">{card.label}</p>
+                <p className="mt-1 text-2xl font-bold text-fg-primary tabular-nums">{card.value}</p>
+              </div>
+            ))}
+            {mesAtual != null && (
+              <div className="col-span-2 rounded-lg border border-surface-border bg-surface-card px-4 py-3 sm:col-span-4">
+                <p className="text-xs text-fg-muted">{t("summaryMonth")}</p>
+                <p className="mt-1 text-2xl font-bold text-fg-primary tabular-nums">
+                  {mesAtual}{" "}
+                  {deltaMes != null && (
+                    <span
+                      className={
+                        deltaMes >= 0
+                          ? "text-sm font-semibold text-accent-emerald"
+                          : "text-sm font-semibold text-accent-audience"
+                      }
+                    >
+                      {deltaMes >= 0 ? "+" : ""}
+                      {deltaMes} {t("summaryVsLast")}
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
+          </section>
+        )}
 
         {loading && <CatalogSkeleton count={6} />}
 

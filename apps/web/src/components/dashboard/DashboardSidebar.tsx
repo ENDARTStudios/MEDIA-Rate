@@ -7,12 +7,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
-  Heart,
   History,
   Home,
   Library,
-  MoreHorizontal,
+  ListChecks,
+  MessageSquareText,
+  Settings,
   Sparkles,
+  UserRound,
 } from "lucide-react";
 import { Link, usePathname } from "@/lib/navigation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
@@ -22,21 +24,26 @@ import { useAuthStore } from "@/stores/use-auth-store";
 /**
  * Mapas de navegação exportados para o teste de mapa de rotas
  * (T460/Thinker: toda href da sidebar precisa existir como página).
+ *
+ * UAT-40: Listas, Watchlist, Perfil, Configurações, Enviar feedback e
+ * Descobertas moram AQUI (o popup do usuário na barra superior ficou só com
+ * conta/navegação de conta — os destinos de produto são alcançados pela sidebar).
  */
 export const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "navOverview", icon: Home },
   { href: "/dashboard/discoveries", labelKey: "navDiscoveries", icon: Compass },
+  { href: "/listas", labelKey: "navListas", icon: ListChecks },
+  { href: "/watchlist", labelKey: "navWatchlist", icon: Bookmark },
   { href: "/biblioteca", labelKey: "navLibrary", icon: Library },
-  { href: "/historico", labelKey: "navGoals", icon: History },
+  // UAT-41: o destino é o histórico de mídias — o rótulo agora diz isso (o
+  // antigo "Metas e evolução" prometia uma página de metas que não existia).
+  { href: "/historico", labelKey: "navHistory", icon: History },
 ] as const;
 
-export const SHORTCUTS = [
-  {
-    href: "/biblioteca?status=QUERO_CONSUMIR",
-    labelKey: "navWantToSee",
-    icon: Bookmark,
-  },
-  { href: "/listas", labelKey: "navFavorites", icon: Heart },
+export const ACCOUNT_ITEMS = [
+  { href: "/profile", labelKey: "navProfile", icon: UserRound },
+  { href: "/settings", labelKey: "navSettings", icon: Settings },
+  { href: "/feedback", labelKey: "navFeedback", icon: MessageSquareText },
 ] as const;
 
 function iniciais(nome: string): string {
@@ -147,18 +154,25 @@ export function DashboardSidebar() {
           <>
             <div className="my-5 h-px bg-white/[0.07]" />
             <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-fg-muted">
-              {t("navShortcuts")}
+              {t("navAccount")}
             </p>
             <nav className="space-y-1">
-              {SHORTCUTS.map((item) => {
+              {ACCOUNT_ITEMS.map((item) => {
                 const Icon = item.icon;
+                const selected = pathname === item.href;
                 return (
                   <Link
-                    key={item.labelKey}
+                    key={item.href}
                     href={item.href}
-                    className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold text-white/45 transition hover:bg-white/[0.05] hover:text-white"
+                    aria-current={selected ? "page" : undefined}
+                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold transition ${selected ? "bg-dash-indigo/15 text-dash-violet-light" : "text-white/45 hover:bg-white/[0.05] hover:text-white"}`}
                   >
-                    <Icon size={17} className="text-fg-muted group-hover:text-white/70" />
+                    <Icon
+                      size={17}
+                      className={
+                        selected ? "text-dash-violet" : "text-fg-muted group-hover:text-white/70"
+                      }
+                    />
                     <span className="flex-1">{t(item.labelKey)}</span>
                   </Link>
                 );
@@ -184,7 +198,7 @@ export function DashboardSidebar() {
               </p>
               <p className="mt-0.5 text-[10px] text-fg-muted">{t(planKey)}</p>
             </div>
-            <MoreHorizontal size={16} className="text-fg-muted" />
+            <ChevronRight size={16} className="text-fg-muted" />
           </div>
         )}
       </div>

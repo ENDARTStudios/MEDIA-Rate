@@ -44,7 +44,7 @@ class ResizeObserverStub {
 }
 vi.stubGlobal("ResizeObserver", ResizeObserverStub);
 
-import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
+import { DashboardOverview, type OverviewStats } from "@/components/dashboard/DashboardOverview";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import {
   ACHIEVEMENT_CATALOG,
@@ -65,15 +65,23 @@ import {
   unlockedNiches,
 } from "@/lib/dashboard-overview-data";
 
-const STATS = {
+const STATS: OverviewStats = {
   plano: "PREMIUM",
   total: 10,
   concluidos: 7,
   tipos: { FILME: 6, SERIE: 3, GAME: 1, LIVRO: 0, COMIC: 0, MANGA: 0 },
   generos: { "Drama": 5, "Sci-fi": 3, "Crime": 2 },
+  generos_por_tipo: [
+    { tipo: "FILME", generos: { "Drama": 4, "Sci-fi": 2 } },
+    { tipo: "SERIE", generos: { Drama: 1, Crime: 2 } },
+  ],
   evolucao: [
     { mes: "2026-01", total: 2 },
     { mes: "2026-02", total: 5 },
+  ],
+  evolucao_tipos: [
+    { mes: "2026-01", total: 2, por_tipo: { FILME: 2 } },
+    { mes: "2026-02", total: 5, por_tipo: { FILME: 3, SERIE: 2 } },
   ],
   streak: 3,
   histograma: [
@@ -239,25 +247,31 @@ describe("DashboardOverview (T460 + auditoria S1)", () => {
     expect(screen.getAllByText("3").length).toBeGreaterThanOrEqual(1); // streak
   });
 
-  it("gating T402: Free vê 4 previews (radar/evolução/taxonomia/pulso)", () => {
+  it("gating UAT-43: Free vê radar real (12 gêneros) + 3 previews (evolução/taxonomia/pulso)", () => {
     renderOverview({ ...STATS, plano: "FREE" });
-    expect(screen.getAllByTestId("gated-preview")).toHaveLength(4);
+    // O radar deixou de ser preview para o Free — mantém os 12 gêneros.
+    expect(screen.getByTestId("overview-radar")).toBeTruthy();
+    expect(screen.getAllByTestId("gated-preview")).toHaveLength(3);
     // streak/histograma continuam visíveis para o Free (T396: todos os planos).
     expect(screen.getByTestId("overview-consistency")).toBeTruthy();
   });
 
-  it("gating T402: Plus vê 2 previews (evolução/pulso) e radar real", () => {
+  it("gating T402: Plus vê 2 previews (evolução/pulso), radar real e seletor por mídia", () => {
     renderOverview({ ...STATS, plano: "PLUS" });
     expect(screen.getAllByTestId("gated-preview")).toHaveLength(2);
     expect(screen.getByTestId("overview-radar")).toBeTruthy();
     expect(screen.getByTestId("overview-taxonomy")).toBeTruthy();
+    // UAT-43: Plus recorta o radar por FILME/SERIE/GAME (3 chips + "todas").
+    const seletor = screen.getByTestId("radar-tipo-seletor");
+    expect(seletor.querySelectorAll("button")).toHaveLength(4);
   });
 
-  it("mostra 3/6 desbloqueadas e filtra conquistas", () => {
+  it("UAT-44: trilhas de medalhas por tipo com níveis e filtro", () => {
     renderOverview();
-    expect(screen.getAllByText("3 / 6").length).toBeGreaterThanOrEqual(1);
+    // FILME=6 → Bronze(1) e Prata(10 não)… níveis: [1 ✓, 10 ✗, 50 ✗, 200 ✗].
+    expect(screen.getByTestId("overview-medalhas")).toBeTruthy();
     fireEvent.click(screen.getByText("achvUnlocked"));
-    expect(screen.getByText("achvMovieTitle")).toBeTruthy();
+    expect(screen.getByTestId("overview-medalhas")).toBeTruthy();
   });
 
   it("troca período do hero, período do gráfico e modo do gráfico de tendência", () => {
@@ -383,15 +397,19 @@ describe("DashboardSidebar (T460)", () => {
     );
   }
 
-  it("renderiza navegação, atalhos e card de usuário visitante", () => {
+  it("renderiza navegação UAT-40 (produto + conta) e card de usuário visitante", () => {
     renderSidebar();
     expect(screen.getByTestId("dashboard-sidebar")).toBeTruthy();
     expect(screen.getByText("navOverview")).toBeTruthy();
     expect(screen.getByText("navDiscoveries")).toBeTruthy();
+    expect(screen.getByText("navListas")).toBeTruthy();
+    expect(screen.getByText("navWatchlist")).toBeTruthy();
     expect(screen.getByText("navLibrary")).toBeTruthy();
-    expect(screen.getByText("navGoals")).toBeTruthy();
-    expect(screen.getByText("navWantToSee")).toBeTruthy();
-    expect(screen.getByText("navFavorites")).toBeTruthy();
+    expect(screen.getByText("navHistory")).toBeTruthy();
+    // Seção de conta (UAT-40: Perfil/Configurações/Enviar feedback).
+    expect(screen.getByText("navProfile")).toBeTruthy();
+    expect(screen.getByText("navSettings")).toBeTruthy();
+    expect(screen.getByText("navFeedback")).toBeTruthy();
     expect(screen.getByText("navGuest")).toBeTruthy();
     expect(screen.getByText("planFree")).toBeTruthy();
   });

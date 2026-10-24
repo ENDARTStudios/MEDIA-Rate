@@ -1,4 +1,7 @@
+import { cabecalhoDeMarca, MARCA_PDF, rodapeComLinks, type DocLike } from "./pdf-brand";
 import { linhasDosItens, nomeArquivoPdf, type ListaResumo } from "./list-share";
+
+export type { DocLike } from "./pdf-brand";
 
 /**
  * PDF da lista — gerado NO cliente, sob demanda.
@@ -8,34 +11,28 @@ import { linhasDosItens, nomeArquivoPdf, type ListaResumo } from "./list-share";
  * (D-380/T405). O `await import("jspdf")` dentro do clique mantém o caminho crítico
  * intacto — o custo só existe para quem clica em "Baixar PDF".
  *
- * Por que não imprimir a página: "imprimir" entrega o layout da tela (navbar, rodapé,
- * botões) e depende do diálogo do navegador. A pessoa pediu o arquivo.
+ * Conceito visual (UAT-39): a lista sai timbrada — faixa de marca no topo
+ * (`cabecalhoDeMarca`), corpo com título/recado/itens e rodapé com o site e o
+ * link público da lista, clicáveis (`rodapeComLinks`). O timbrado vive em
+ * `pdf-brand.ts` e é o mesmo do relatório de perfil.
  *
  * O documento é montado por `escreverDocumento`, que recebe um `DocLike` — assim o
  * layout é testável com um dublê, sem gerar binário no teste.
  */
 
-/** Subconjunto do jsPDF que o layout usa (permite dublê em teste). */
-export interface DocLike {
-  internal: { pageSize: { getWidth: () => number; getHeight: () => number } };
-  setFont: (fonte: string, estilo?: string) => void;
-  setFontSize: (tamanho: number) => void;
-  setTextColor: (r: number, g?: number, b?: number) => void;
-  text: (texto: string, x: number, y: number, opcoes?: { maxWidth?: number }) => void;
-  splitTextToSize: (texto: string, largura: number) => string[];
-  addPage: () => void;
-  setDrawColor: (r: number, g?: number, b?: number) => void;
-  line: (x1: number, y1: number, x2: number, y2: number) => void;
-  save: (nome: string) => void;
-}
-
 export interface RotulosPdf {
   byOwner: string;
   itemsCount: string;
-  /** Rodapé institucional (marca + domínio). */
-  footer: string;
   /** Rótulo do recado, quando houver descrição. */
   note?: string;
+  /** Tagline da marca na faixa (ex.: "Listas colaborativas de filmes e séries"). */
+  tagline: string;
+  /** Domínio de marca exibido/linkado no rodapé. */
+  site: string;
+  /** Rótulo antes do link da lista no rodapé (ex.: "Veja a lista:"). */
+  verEm: string;
+  /** URL pública da lista (link do rodapé). */
+  url: string;
 }
 
 const MARGEM = 48;
@@ -49,10 +46,10 @@ export function escreverDocumento(
   agora: Date = new Date(),
 ): number {
   const altura = doc.internal.pageSize.getHeight();
-  let y = MARGEM + 12;
+  let y = cabecalhoDeMarca(doc, rotulos.tagline, MARGEM);
 
   const garantirEspaco = (necessario: number) => {
-    if (y + necessario > altura - MARGEM) {
+    if (y + necessario > altura - 72) {
       doc.addPage();
       y = MARGEM + 12;
     }
@@ -60,30 +57,36 @@ export function escreverDocumento(
 
   // Título
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
+  doc.setFontSize(24);
+  doc.setTextColor(...MARCA_PDF.tinta);
   for (const linha of doc.splitTextToSize(lista.titulo, LARGURA_MAX)) {
-    garantirEspaco(24);
+    garantirEspaco(28);
     doc.text(linha, MARGEM, y);
-    y += 24;
+    y += 28;
   }
 
-  // Cabeçalho secundário: dono · quantidade
+  // Cabeçalho secundário: dono · quantidade · data de geração
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(110);
+  doc.setTextColor(...MARCA_PDF.tintaSuave);
   garantirEspaco(16);
-  doc.text(`${rotulos.byOwner} · ${rotulos.itemsCount}`, MARGEM, y);
+  const data = agora.toISOString().slice(0, 10);
+  doc.text(`${rotulos.byOwner} · ${rotulos.itemsCount} · ${data}`, MARGEM, y);
   y += 20;
 
-  // Recado para o amigo (a descrição da lista é o convite)
+  // Recado para o amigo (a descrição da lista é o convite). As quebras de linha
+  // que o usuário escreveu fazem parte do recado — cada bloco é quebrado por
+  // largura, mas o \n original é preservado (UAT-38).
   if (lista.descricao) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(11);
-    doc.setTextColor(60);
-    for (const linha of doc.splitTextToSize(lista.descricao, LARGURA_MAX)) {
-      garantirEspaco(16);
-      doc.text(linha, MARGEM, y);
-      y += 16;
+    doc.setTextColor(60, 60, 80);
+    for (const bloco of lista.descricao.split("\n")) {
+      for (const linha of doc.splitTextToSize(bloco, LARGURA_MAX)) {
+        garantirEspaco(16);
+        doc.text(linha, MARGEM, y);
+        y += 16;
+      }
     }
     y += 6;
   }
@@ -92,10 +95,10 @@ export function escreverDocumento(
   doc.setDrawColor(200);
   garantirEspaco(12);
   doc.line(MARGEM, y, MARGEM + LARGURA_MAX, y);
-  y += 18;
+  y += 20;
 
   // Itens
-  doc.setTextColor(20);
+  doc.setTextColor(...MARCA_PDF.tinta);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
   for (const linha of linhasDosItens(lista)) {
@@ -107,12 +110,7 @@ export function escreverDocumento(
     y += 4;
   }
 
-  // Rodapé
-  doc.setFontSize(8);
-  doc.setTextColor(130);
-  garantirEspaco(14);
-  const data = agora.toISOString().slice(0, 10);
-  doc.text(`${rotulos.footer} · ${data}`, MARGEM, altura - MARGEM / 2);
+  rodapeComLinks(doc, { site: rotulos.site, verEm: rotulos.verEm, url: rotulos.url }, MARGEM);
 
   return y;
 }
