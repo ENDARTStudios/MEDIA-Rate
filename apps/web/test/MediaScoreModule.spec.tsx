@@ -32,20 +32,30 @@ function renderWithProviders(ui: React.ReactElement) {
   );
 }
 
-describe("MediaScoreModule — P2 tipos em preparação", () => {
-  it("livro (preparação) mostra badge 'Em breve'", () => {
-    const { getByTestId, getByText } = renderWithProviders(
+describe("MediaScoreModule — badge 'Em breve' só para tipos sem fonte de nota", () => {
+  // 2026-10-24, pós-D3e: livros e mangás graduaram (notas reais em produção);
+  // só HQ/comic segue em preparação. O badge não pode contradizer um score
+  // consolidado de fontes reais (achado do relatório estratégico, pág. 2).
+  it("livro (graduado) NÃO mostra mais o badge", () => {
+    const { queryByTestId } = renderWithProviders(
       <MediaScoreModule score={SCORE} mediaType="book" />,
+    );
+    expect(queryByTestId("score-coming-soon")).toBeNull();
+  });
+
+  it("mangá (graduado) NÃO mostra o badge", () => {
+    const { queryByTestId } = renderWithProviders(
+      <MediaScoreModule score={SCORE} mediaType="manga" />,
+    );
+    expect(queryByTestId("score-coming-soon")).toBeNull();
+  });
+
+  it("HQ (única ainda em preparação) mostra o badge", () => {
+    const { getByTestId, getByText } = renderWithProviders(
+      <MediaScoreModule score={SCORE} mediaType="comic" />,
     );
     expect(getByTestId("score-coming-soon")).toBeTruthy();
     expect(getByText("Em breve — fontes em preparação")).toBeTruthy();
-  });
-
-  it("HQ (preparação) também mostra o badge", () => {
-    const { queryByTestId } = renderWithProviders(
-      <MediaScoreModule score={SCORE} mediaType="comic" />,
-    );
-    expect(queryByTestId("score-coming-soon")).toBeTruthy();
   });
 
   it("filme NÃO mostra o badge", () => {

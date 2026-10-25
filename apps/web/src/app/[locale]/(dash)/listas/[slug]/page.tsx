@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
-import { ListaViewPage } from "../../../../components/ListaViewPage";
+import { ListaViewPage } from "../../../../../components/ListaViewPage";
 
 export async function generateMetadata({
   params,

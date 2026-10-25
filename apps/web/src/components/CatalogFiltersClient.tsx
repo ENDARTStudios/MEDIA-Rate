@@ -35,7 +35,17 @@ import { cn } from "@/lib/utils";
 
 const GENEROS_VISIVEIS = 4;
 
-export function CatalogFiltersClient() {
+/**
+ * Rail de filtros do catálogo.
+ *
+ * `variante`:
+ *  - `"rail"` (default): coluna lateral do desktop — `lg:sticky lg:top-20`,
+ *    recolhida a 56px com pino para abrir (UAT-47). Em telas menores que `lg`
+ *    NÃO desenha no fluxo (ficava "no fim da página", atrás de busca e seções)
+ *    — o mobile usa o drawer.
+ *  - `"drawer"`: painel de dentro do drawer mobile — largura cheia, sem sticky.
+ */
+export function CatalogFiltersClient({ variante = "rail" }: { variante?: "rail" | "drawer" }) {
   const t = useTranslations("catalog");
   const tf = useTranslations("catalogFilters");
   const sp = useSearchParams();
@@ -70,8 +80,9 @@ export function CatalogFiltersClient() {
     });
   };
 
-  // Rótulos visíveis apenas com o painel aberto (fixado) — nunca no hover.
-  const rotuloVisivel = fixado ? "inline" : "hidden";
+  // Rótulos visíveis com o painel aberto (fixado no rail; sempre no drawer).
+  const rotuloVisivel = variante === "drawer" || fixado ? "inline" : "hidden";
+  const rotuloDeTipo = variante === "drawer" || fixado ? "block" : "hidden";
 
   const type = sp.get("type") ?? "";
   const query = sp.get("q") ?? "";
@@ -154,9 +165,11 @@ export function CatalogFiltersClient() {
       aria-label={tf("groupLabel")}
       aria-keyshortcuts="Alt+F"
       className={cn(
-        "group w-full shrink-0 text-sm lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
+        variante === "drawer" ? "w-full text-sm" : "hidden text-sm lg:block",
+        variante === "rail" &&
+          "group shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
         // UAT-47: largura só muda pelo pino — o rail não abre no hover.
-        fixado ? "lg:w-60" : "lg:w-14",
+        variante === "rail" && (fixado ? "lg:w-60" : "lg:w-14"),
       )}
     >
       {/* Cabeçalho: FILTROS + quantos estão ativos */}
@@ -211,7 +224,7 @@ export function CatalogFiltersClient() {
 
       {/* ── TIPO — chips de seleção única (mesma função da barra que saiu do topo) ── */}
       <fieldset className="mt-4">
-        <legend className={cn(rotuloGrupo, fixado ? "block" : "hidden")}>{tf("tipoLabel")}</legend>
+        <legend className={cn(rotuloGrupo, rotuloDeTipo)}>{tf("tipoLabel")}</legend>
         <div className="mt-2 flex flex-wrap gap-1.5" data-testid="catalog-filter-tipo">
           {TIPOS_DO_CATALOGO.map((tipo) => {
             const Icone = CATEGORY_TOKENS[tipo.id].icon;
@@ -241,7 +254,7 @@ export function CatalogFiltersClient() {
                   style={{ color: ativo ? undefined : CATEGORY_TOKENS[tipo.id].color }}
                   aria-hidden="true"
                 />
-                <span className={fixado ? "" : "hidden"}>{tipo.rotulo}</span>
+                <span className={rotuloDeTipo === "block" ? "" : "hidden"}>{tipo.rotulo}</span>
                 {/* Sem opacity na contagem: no rail retraído ela é o único texto
                     do chip e opacity-70 derrubava o contraste p/ 4.31:1 (abaixo
                     do AA); as cores herdadas do chip passam nos dois estados

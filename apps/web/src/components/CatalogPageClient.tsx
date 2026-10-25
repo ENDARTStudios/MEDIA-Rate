@@ -522,7 +522,11 @@ function MobileFilterBar({
 
   return (
     <>
-      <div className="lg:hidden flex items-center justify-between">
+      {/* Barra de filtros SEMPRE acessível: sticky abaixo da navbar (h-14 ao
+          rolar). O rail lateral só existe em lg+ — em telas menores este botão
+          é a porta de entrada dos filtros (antes o painel inteiro caía no fim
+          da página, atrás da busca e das seções de tipo). */}
+      <div className="sticky top-14 z-30 -mx-4 mb-1 flex items-center justify-between gap-2 bg-surface-bg/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:hidden">
         <Button
           ref={abridorRef}
           variant="outline"
@@ -558,7 +562,7 @@ function MobileFilterBar({
                 &times;
               </button>
             </div>
-            <CatalogFiltersClient />
+            <CatalogFiltersClient variante="drawer" />
           </div>
         </div>
       )}

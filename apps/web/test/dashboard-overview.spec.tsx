@@ -137,10 +137,13 @@ describe("dashboard-overview-data (T460)", () => {
     expect(eixos).toHaveLength(3);
     expect(eixos[0].label).toBe("Drama");
     expect(eixos[0].value).toBe(100);
-    expect(eixos[0].previous).toBeLessThanOrEqual(eixos[0].value);
+    // Fix 2026-10-25: dados reais NÃO fabricam leitura anterior — só o demo
+    // (declarado com badge) tem `previous` para o polígono de comparação.
+    for (const eixo of eixos) expect(eixo.previous).toBeUndefined();
     const demo = radarFromStats({ Drama: 2 });
     expect(demo).toHaveLength(6);
     expect(demo[0].label).toBe("Drama");
+    expect(demo[0].previous).toBeGreaterThan(0);
   });
 
   it("T154 Opção A — gêneros ativos ≤ teto passam inteiros (9 → 9 eixos)", () => {

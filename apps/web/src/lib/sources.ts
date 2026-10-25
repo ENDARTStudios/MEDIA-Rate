@@ -6,8 +6,9 @@
  * duplicada em texto. Home, About, /sources e /methodology mapeiam daqui —
  * Trakt.tv e toda fonte ativa aparecem em todos os lugares.
  *
- * Critério de "ativa": fonte usada nos pesos das categorias cobertas
- * (Filmes, Séries, Games) — mesmo cálculo do contador da Home.
+ * Critério de "ativa" (2026-10-24, pós-D3e): fonte com peso nas categorias
+ * E status "ativo" no registro (notas de fato coletadas em produção —
+ * livros e mangás graduaram; HQs seguem sem fonte de nota).
  */
 import { FONTES_WEB, PESOS_POR_TIPO_WEB } from "@/lib/source-registry";
 import type { MediaType } from "@/lib/types";
@@ -19,7 +20,7 @@ export interface FonteAtiva {
   midias: MediaType[];
 }
 
-const TIPOS_COBERTOS = ["movie", "series", "game"] as const;
+const TIPOS_COBERTOS = ["movie", "series", "game", "book", "comic", "manga"] as const;
 
 function fonteUsadaEm(tipo: (typeof TIPOS_COBERTOS)[number], fonteId: string): boolean {
   const bucket = PESOS_POR_TIPO_WEB[tipo];
@@ -35,6 +36,7 @@ function tipoDaFonte(
 
 /** Fontes ativas (ordenadas alfabeticamente) com nome, tipo e mídias cobertas. */
 export const FONTES_ATIVAS: FonteAtiva[] = Object.values(FONTES_WEB)
+  .filter((f) => f.status === "ativo")
   .filter((f) => TIPOS_COBERTOS.some((t) => fonteUsadaEm(t, f.id)))
   .map((f) => ({
     id: f.id,

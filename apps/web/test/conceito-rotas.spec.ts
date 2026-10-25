@@ -81,7 +81,8 @@ function rotasPublicas(): Pagina[] {
       const rel = path.relative(APP, dir).split(path.sep).join("/") || "/";
       const semLocale = rel
         .split("/")
-        .filter((p) => p !== "[locale]")
+        // Route groups ((dash) etc.) não entram na URL — tratar como [locale].
+        .filter((p) => p !== "[locale]" && !/^\(.+\)$/.test(p))
         .join("/");
       if (/^(admin|dashboard)(\/|$)/.test(semLocale)) continue;
       out.push({

@@ -231,7 +231,7 @@ export const FONTES: FonteMeta[] = [
     status: "ativo",
   },
 
-  // ── Livros (preparação — "em breve") ────────────────────────────────────
+  // ── Livros (notas em produção desde D3e; Coleta auditada com guarda de identidade) ──
   {
     id: "openlibrary",
     rotulo: "Open Library",
@@ -240,7 +240,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-5",
     fator100: 20,
     metodo: "api",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "googlebooks",
@@ -250,7 +250,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-5",
     fator100: 20,
     metodo: "api",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "librarything",
@@ -271,7 +271,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-5",
     fator100: 20,
     metodo: "scrape_numerico",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "amazon",
@@ -291,10 +291,12 @@ export const FONTES: FonteMeta[] = [
     escala: "0-10",
     fator100: 10,
     metodo: "scrape_numerico",
-    status: "preparacao",
+    // Client-rendered: a nota não está no HTML/server — coleta impossível sem
+    // browser; desativado após auditoria D3e (ledger do bot de dados).
+    status: "inativo",
   },
 
-  // ── HQs / Comics (preparação — "em breve") ─────────────────────────────
+  // ── HQs / Comics (ainda sem fonte de nota em produção — "em breve" segue verdadeiro) ──
   {
     id: "comicvine",
     rotulo: "Comic Vine",
@@ -303,7 +305,8 @@ export const FONTES: FonteMeta[] = [
     escala: "0-10",
     fator100: 10,
     metodo: "api",
-    status: "preparacao",
+    // Fabricava nota de placeholder (auditoria D3e) — coleta cortada.
+    status: "inativo",
     requerChave: true,
   },
   {
@@ -317,7 +320,7 @@ export const FONTES: FonteMeta[] = [
     status: "preparacao",
   },
 
-  // ── Mangás / Animes (preparação — "em breve") ──────────────────────────
+  // ── Mangás / Animes (notas em produção desde D3e, com guarda de identidade) ──
   {
     id: "mal",
     rotulo: "MyAnimeList (API oficial)",
@@ -326,7 +329,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-10",
     fator100: 10,
     metodo: "api",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "jikan",
@@ -336,6 +339,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-10",
     fator100: 10,
     metodo: "api",
+    // Proxy legado do MAL — a API oficial (id `mal`) é a via ativa.
     status: "preparacao",
   },
   {
@@ -346,7 +350,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-100",
     fator100: 1,
     metodo: "api",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "kitsu",
@@ -356,7 +360,7 @@ export const FONTES: FonteMeta[] = [
     escala: "0-100",
     fator100: 1,
     metodo: "api",
-    status: "preparacao",
+    status: "ativo",
   },
   {
     id: "mangadex",
