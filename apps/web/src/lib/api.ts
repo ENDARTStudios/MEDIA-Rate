@@ -222,7 +222,13 @@ function mapConfidence(c: number | null | undefined): Confidence {
   return "low";
 }
 
-const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["book", "comic", "manga"]);
+/**
+ * Tipos cujas fontes de nota AINDA estão em preparação (badge "Em breve").
+ * 2026-10-24, pós-D3e: livros e mangás graduaram (notas reais em produção
+ * via Open Library/Google Books/Goodreads e MAL/AniList/Kitsu) — só HQs
+ * seguem sem fonte de nota coletada.
+ */
+const TIPOS_PREPARACAO: ReadonlySet<MediaType> = new Set(["comic"]);
 
 /**
  * T272/D-230: flag única de "prévia — fontes em preparação", derivada na
