@@ -320,8 +320,10 @@ export interface RadarAxis {
   label: string;
   /** Afinidade atual (0-100). */
   value: number;
-  /** Afinidade na comparação anterior (0-100, demonstração). */
-  previous: number;
+  /** Leitura anterior — só existe em DADOS DE DEMONSTRAÇÃO. Dados reais não
+   *  têm série histórica por gênero, e derivar a comparação (85% do valor
+   *  atual) exibia um "avanço" que nunca aconteceu (fix 2026-10-25). */
+  previous?: number;
 }
 
 export const RADAR_DEMO: RadarAxis[] = [
@@ -334,9 +336,9 @@ export const RADAR_DEMO: RadarAxis[] = [
 ];
 
 /**
- * Radar a partir dos gêneros reais do usuário (T154 Opção A: todos com peso >0, teto de 12 eixos por legibilidade; acima disso trunca por relevância).
- * A série "anterior" não existe na API — derivada como demonstração (85% do
- * valor atual). Menos de 3 eixos → dataset de demonstração do protótipo.
+ * Radar a partir dos gêneros reais do usuário (T154 Opção A: todos com peso
+ * >0, teto de 12 eixos por legibilidade; acima disso trunca por relevância).
+ * Menos de 3 eixos → dataset de demonstração do protótipo (com badge Demo).
  */
 /** T154 Opção A: tete de eixos do radar (legibilidade). */
 export const MAX_EIXOS_RADAR = 12;
@@ -358,7 +360,6 @@ export function radarFromStats(
   return recorte.map(([label, v]) => ({
     label,
     value: Math.round((v / max) * 100),
-    previous: Math.round((v / max) * 85),
   }));
 }
 

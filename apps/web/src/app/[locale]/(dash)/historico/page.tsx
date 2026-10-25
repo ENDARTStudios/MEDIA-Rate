@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { HistoricoPage } from "../../../components/HistoricoPage";
+import { HistoricoPage } from "../../../../components/HistoricoPage";
 
 export async function generateMetadata({
   params,

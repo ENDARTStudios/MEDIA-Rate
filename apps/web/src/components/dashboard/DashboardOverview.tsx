@@ -267,11 +267,10 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
     (best, axis) => (best == null || axis.value > best.value ? axis : best),
     null,
   );
-  const biggestJump = radarAxes.reduce<RadarAxis | null>(
-    (best, axis) =>
-      best == null || axis.value - axis.previous > best.value - best.previous ? axis : best,
-    null,
-  );
+  // Volume REAL do eixo mais forte: quantas interações sustentam o gênero
+  // dominante (substitui o "maior avanço", que era derivado de uma leitura
+  // anterior fabricada — fix 2026-10-25).
+  const volumeTop = strongest ? (generosDoRadar[strongest.label] ?? null) : null;
 
   // Feed de atividades REAL: interações do usuário na janela selecionada.
   const feedDays = Number(feedPeriod);
@@ -720,7 +719,7 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
           <RadarGraphic axes={radarAxes} />
           {!radarDemo && (
             <p className="mt-2 text-[10px] text-fg-muted">
-              {ehPlus ? t("radarSubNote") : t("radarPreviousNote")}
+              {ehPlus ? t("radarSubNote") : t("radarFreeNote")}
             </p>
           )}
           <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
@@ -732,12 +731,9 @@ export function DashboardOverview({ stats }: { stats: OverviewStats }) {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-fg-muted">{t("radarBiggestJump")}</p>
-              <p className="mt-1 flex items-center justify-end gap-1 text-[15px] font-bold text-dash-teal">
-                <TrendingUp size={14} />
-                {biggestJump
-                  ? `${biggestJump.label} +${biggestJump.value - biggestJump.previous}%`
-                  : "—"}
+              <p className="text-[11px] text-fg-muted">{t("radarStrongestCount")}</p>
+              <p className="mt-1 text-[15px] font-bold text-dash-teal">
+                {volumeTop != null ? t("radarCountValue", { count: volumeTop }) : "—"}
               </p>
             </div>
           </div>

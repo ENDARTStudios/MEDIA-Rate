@@ -15,10 +15,13 @@ export function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
       y: center + Math.sin(angle) * distance,
     };
   };
+  // A "leitura anterior" só existe em dados de demonstração — dados reais
+  // não têm série histórica por gênero (nada de comparação fabricada).
+  const temAnterior = axes.some((a) => a.previous != null);
   const buildPolygon = (key: "value" | "previous") =>
     axes
       .map((point, index) => {
-        const next = pointFor(index, point[key]);
+        const next = pointFor(index, key === "previous" ? (point.previous ?? point.value) : point.value);
         return `${next.x.toFixed(1)},${next.y.toFixed(1)}`;
       })
       .join(" ");
@@ -71,13 +74,15 @@ export function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
             />
           );
         })}
-        <polygon
-          points={buildPolygon("previous")}
-          fill="rgba(255,255,255,0.05)"
-          stroke="rgba(255,255,255,0.28)"
-          strokeWidth="1.5"
-          strokeDasharray="4 4"
-        />
+        {temAnterior && (
+          <polygon
+            points={buildPolygon("previous")}
+            fill="rgba(255,255,255,0.05)"
+            stroke="rgba(255,255,255,0.28)"
+            strokeWidth="1.5"
+            strokeDasharray="4 4"
+          />
+        )}
         <polygon
           points={buildPolygon("value")}
           fill="rgba(139,124,255,0.28)"
@@ -124,10 +129,12 @@ export function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
         <span className="flex items-center gap-2">
           <i className="h-2 w-2 rounded-full bg-dash-violet" /> {t("radarNow")}
         </span>
-        <span className="flex items-center gap-2">
-          <i className="h-2 w-2 rounded-full border border-dashed border-white/40" />{" "}
-          {t("radarBefore")}
-        </span>
+        {temAnterior && (
+          <span className="flex items-center gap-2">
+            <i className="h-2 w-2 rounded-full border border-dashed border-white/40" />{" "}
+            {t("radarBefore")}
+          </span>
+        )}
       </div>
     </div>
   );

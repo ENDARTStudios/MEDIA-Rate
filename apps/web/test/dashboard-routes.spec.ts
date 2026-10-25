@@ -11,18 +11,22 @@ import { ACCOUNT_ITEMS, NAV_ITEMS } from "@/components/dashboard/DashboardSideba
 
 const APP_DIR = path.resolve(process.cwd(), "src/app/[locale]");
 
-/** href → arquivo de página esperado dentro de src/app/[locale]. */
+/** href → arquivo de página esperado dentro de src/app/[locale].
+ *
+ * As rotas do nav moram no route group `(dash)` (shell com sidebar em todas —
+ * fix 2026-10-25); o group NÃO entra na URL.
+ */
 const ROTAS_EXISTENTES: Record<string, string> = {
-  "/dashboard": "dashboard/page.tsx",
-  "/dashboard/discoveries": "dashboard/discoveries/page.tsx",
-  "/biblioteca": "biblioteca/page.tsx",
-  "/watchlist": "watchlist/page.tsx",
-  "/historico": "historico/page.tsx",
-  "/listas": "listas/page.tsx",
+  "/dashboard": "(dash)/dashboard/page.tsx",
+  "/dashboard/discoveries": "(dash)/dashboard/discoveries/page.tsx",
+  "/biblioteca": "(dash)/biblioteca/page.tsx",
+  "/watchlist": "(dash)/watchlist/page.tsx",
+  "/historico": "(dash)/historico/page.tsx",
+  "/listas": "(dash)/listas/page.tsx",
   "/catalog": "catalog/page.tsx",
   // UAT-40: itens de conta da sidebar.
-  "/profile": "profile/page.tsx",
-  "/settings": "settings/page.tsx",
+  "/profile": "(dash)/profile/page.tsx",
+  "/settings": "(dash)/settings/page.tsx",
   "/feedback": "feedback/page.tsx",
 };
 

@@ -1,9 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { DashboardClient } from "../../../components/dashboard/DashboardClient";
-import { PlanCelebration } from "../../../components/ui/PlanCelebration";
-import { localizedAlternates, localizedUrl } from "../../../lib/seo";
-import { colors } from "../../../lib/design-tokens";
+import { DashboardClient } from "../../../../components/dashboard/DashboardClient";
+import { PlanCelebration } from "../../../../components/ui/PlanCelebration";
+import { localizedAlternates, localizedUrl } from "../../../../lib/seo";
+import { colors } from "../../../../lib/design-tokens";
 
 export async function generateMetadata({
   params,
