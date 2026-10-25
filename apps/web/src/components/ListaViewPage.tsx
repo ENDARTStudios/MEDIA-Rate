@@ -88,6 +88,24 @@ export function ListaViewPage({ slug }: { slug: string }) {
   // UAT-38: ordem de exibição (e do PDF/convite) escolhida pelo usuário.
   const [ordem, setOrdem] = useState<OrdemLista>("padrao");
 
+  // UAT-38: a ordem escolhida vale para a grade, o convite e o PDF. Ordena o
+  // resumo (campos da lib) carregando o item original junto, e devolve os itens
+  // da API na ordem escolhida — o grid e o `resumo` consomem o mesmo array.
+  // IMPORTANTE: hook ANTES de qualquer return condicional — depois dele o
+  // número de hooks mudava entre renders (loading → dados) e o React derrubava
+  // a página com "Algo deu errado" (crash de /listas/[slug], 2026-10-25).
+  const itensOrdenados = useMemo(() => {
+    if (!lista) return [] as ListaItem[];
+    const comOriginal = lista.itens.map((i) => ({
+      titulo: i.titulo,
+      tipo: i.tipo,
+      ano: i.ano_lancamento,
+      score: i.score,
+      original: i,
+    }));
+    return ordenarItens(comOriginal, ordem).map((x) => x.original);
+  }, [lista, ordem]);
+
   async function carregar() {
     try {
       const data = await api.get<ListaResponse>(`/api/v1/listas/${slug}`);
@@ -217,21 +235,6 @@ export function ListaViewPage({ slug }: { slug: string }) {
   }
 
   const podeAdicionar = isAuthenticated;
-
-  // UAT-38: a ordem escolhida vale para a grade, o convite e o PDF. Ordena o
-  // resumo (campos da lib) carregando o item original junto, e devolve os itens
-  // da API na ordem escolhida — o grid e o `resumo` consomem o mesmo array.
-  const itensOrdenados = useMemo(() => {
-    if (!lista) return [] as ListaItem[];
-    const comOriginal = lista.itens.map((i) => ({
-      titulo: i.titulo,
-      tipo: i.tipo,
-      ano: i.ano_lancamento,
-      score: i.score,
-      original: i,
-    }));
-    return ordenarItens(comOriginal, ordem).map((x) => x.original);
-  }, [lista, ordem]);
 
   // Forma normalizada para convite/PDF: o componente de compartilhar não conhece o
   // vocabulário da API (`ano_lancamento`, `midia_id`).
