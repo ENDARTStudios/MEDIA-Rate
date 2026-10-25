@@ -1269,6 +1269,7 @@
     "itemAdded": "Elemento agregado a la lista",
     "itemRemoved": "Elemento quitado de la lista",
     "saved": "Lista actualizada",
+    "deleted": "Lista eliminada.",
     "created": "Lista creada",
     "title": "Listas",
     "create": "Nueva lista",
