@@ -138,8 +138,35 @@ model Usuario {
   usos_diarios         UsoDiario[]
   listas               ListaColaborativa[]
   lista_itens          ListaItem[]
+  patrocinios          Patrocinio[]
 
   @@map("usuario")
+}
+
+/// UAT-46 — registro público de patrocínios. A página `/apoie` publica o
+/// guardrail "patrocínio compra visibilidade, não nota"; sem registro, é
+/// promessa. Regras de entrada (docs/07-operations-marketing/APOIO-PARCERIA-
+/// PATROCINIO.md): autorização por escrito do patrocinador, `rotulo` = como
+/// aparece na interface, `desde` = início da veiculação. Nada aqui altera
+/// score/ranking/linha editorial. Inserção pelo Admin (Gestão de Usuários).
+model Patrocinio {
+  id           String    @id @default(uuid()) @db.Uuid
+  // Usuário patrocinador (opcional — o registro pode ser de não-usuário).
+  usuario_id   String?   @map("usuario_id") @db.Uuid
+  usuario      Usuario?  @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+  /// Nome público autorizado por escrito.
+  patrocinador String    @db.VarChar(128)
+  /// Onde o patrocínio aparece na interface.
+  secao        String    @db.VarChar(128)
+  /// Como está rotulado na interface.
+  rotulo       String    @db.VarChar(255)
+  /// Início da veiculação (data de exibição, não de assinatura).
+  desde        DateTime  @db.Date
+  criado_em    DateTime  @default(now()) @map("criado_em")
+  removido_em  DateTime? @map("removido_em")
+
+  @@index([usuario_id])
+  @@map("patrocinio")
 }
 
 /// T2.3: sessão via token opaco (não JWT). Apenas hash armazenado.

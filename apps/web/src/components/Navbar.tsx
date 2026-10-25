@@ -148,13 +148,44 @@ export function Navbar({
                       className="absolute top-full right-0 mt-1 w-48 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown"
                       onMouseLeave={() => setMenuOpen(false)}
                     >
-                      {/* T321: ordem de navegação termina em Configurações. */}
+                      {/* UAT-40: o popup é de CONTA — quem entra aqui quer saber o
+                          plano e agir sobre a sessão. Destinos de produto
+                          (listas, watchlist, descobertas, feedback) moram na
+                          sidebar do dashboard. */}
+                      <div className="px-3 py-2 border-b border-[rgba(129,140,248,0.08)] mb-1">
+                        <p className="text-sm font-semibold text-[#F5F5F7] truncate">
+                          {effectiveUser?.name ?? t("profile")}
+                        </p>
+                        {/* Tipo de conta (UAT-40): rótulo próprio do plano, sem
+                            tradução — mesmo vocabulário do PlanBadge do avatar. */}
+                        <p className="mt-0.5 text-xs text-[#A0A0B8]">
+                          {user?.plan === "PREMIUM"
+                            ? "Premium"
+                            : user?.plan === "PLUS"
+                              ? "Plus"
+                              : "Free"}
+                        </p>
+                      </div>
                       <Link
                         href="/dashboard"
                         onClick={() => setMenuOpen(false)}
                         className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
                       >
                         {t("dashboard")}
+                      </Link>
+                      <Link
+                        href="/profile"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
+                      >
+                        {t("profile")}
+                      </Link>
+                      <Link
+                        href="/settings"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
+                      >
+                        {t("settings")}
                       </Link>
                       {isAdmin && (
                         <Link
@@ -166,50 +197,6 @@ export function Navbar({
                           {t("admin")}
                         </Link>
                       )}
-                      <Link
-                        href="/watchlist"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("watchlist")}
-                      </Link>
-                      <Link
-                        href="/discoveries"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("descobertas") ?? "Descobertas"}
-                      </Link>
-                      <Link
-                        href="/listas"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("listas") ?? "Listas"}
-                      </Link>
-                      <Link
-                        href="/profile"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("profile")}
-                      </Link>
-                      {/* D-582.3 (T211): a rota /feedback existia, era privada e NÃO
-                          era linkada em lugar nenhum (inalcançável). */}
-                      <Link
-                        href="/feedback"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("feedback")}
-                      </Link>
-                      <Link
-                        href="/settings"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-3 py-2 text-sm text-[#A0A0B8] hover:bg-[#1C1C2E] hover:text-[#F5F5F7] transition-colors"
-                      >
-                        {t("settings")}
-                      </Link>
                       <hr className="my-1 border-[rgba(129,140,248,0.08)]" />
                       <button
                         onClick={() => {

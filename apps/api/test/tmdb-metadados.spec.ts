@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
 import { mapearMovie, mapearTv } from "../scripts/backfill-tmdb-metadados.mjs";
 

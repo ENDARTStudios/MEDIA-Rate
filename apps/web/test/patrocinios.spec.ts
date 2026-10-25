@@ -44,9 +44,12 @@ describe("registro público de patrocínios", () => {
     expect(exemplo.desde).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it("a página lê o registro e tem os dois estados (vazio e tabela)", () => {
+  it("a página lê o registro (API UAT-46, com fallback estático) e tem os dois estados", () => {
+    // UAT-46: a fonte passou a ser a API (o Admin alimenta pela Gestão de
+    // Usuários); a lista estática segue como fallback honesto.
     expect(PAGINA).toContain('from "@/lib/sponsorships"');
-    expect(PAGINA).toContain("PATROCINIOS.length === 0");
+    expect(PAGINA).toContain("/api/v1/patrocinios");
+    expect(PAGINA).toContain("patrocinios.length === 0");
     expect(PAGINA).toMatch(/<table/);
     // Nenhuma entrada digitada à mão na página: o formato de `Patrocinio`
     // (`secao`/`rotulo`/`desde`) só pode existir no módulo de dados.

@@ -3,15 +3,15 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { getCatalog, listaDeValores, waitlistNotify } from "@/lib/api";
 import type { MediaType, CatalogResponse } from "@/lib/types";
 import { mapToMediaItem } from "@/lib/catalog-item";
 import { CatalogGrid } from "./CatalogGrid";
 import { CatalogSkeleton } from "./CatalogSkeleton";
 import { CatalogFiltersClient } from "./CatalogFiltersClient";
-import { CatalogTypeBar } from "./CatalogTypeBar";
 import { CatalogSearchBand } from "./catalog/CatalogSearchBand";
+import { useAtalhosDeFiltros } from "./catalog/useAtalhosDeFiltros";
 import { TotalDoRecorteProvider, useTotalDoRecorte } from "./catalog/TotalDoRecorte";
 import { CatalogTypeSections } from "./CatalogTypeSections";
 import { EmptyStateComingSoon } from "@/components/media-rate-ui/EmptyStateComingSoon";
@@ -414,14 +414,26 @@ export function CatalogPageClient({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Atalhos de filtro (spec §11: "sem atalho de teclado para focar/limpar"):
+  //   Alt+F → foca o primeiro controle de filtro (no mobile abre o drawer);
+  //   Alt+L → limpa os filtros.
+  const router = useRouter();
+  const pathname = usePathname();
+  const focarFiltros = useCallback(() => {
+    const primeiro = document.querySelector<HTMLElement>(
+      '[data-testid="catalog-filter-tipo"] button, [data-testid="catalog-filter-tipo"] input',
+    );
+    if (primeiro && primeiro.offsetParent !== null) primeiro.focus();
+    else setDrawerOpen(true);
+  }, []);
+  const limparFiltros = useCallback(() => router.replace(pathname), [router, pathname]);
+  useAtalhosDeFiltros({ aoFocar: focarFiltros, aoLimpar: limparFiltros });
+
   return (
     <TotalDoRecorteProvider>
       <div>
         <Suspense fallback={null}>
           <CatalogSearchBand />
-        </Suspense>
-        <Suspense fallback={null}>
-          <CatalogTypeBar />
         </Suspense>
         <Suspense fallback={null}>
           <CatalogTypeSections />
@@ -430,11 +442,11 @@ export function CatalogPageClient({
           <Suspense fallback={null}>
             <MobileFilterBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
           </Suspense>
-          <aside className="hidden lg:block w-60 shrink-0 sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
-            <Suspense fallback={null}>
-              <CatalogFiltersClient />
-            </Suspense>
-          </aside>
+          {/* O sticky/altura agora vivem no próprio `CatalogFiltersClient`: o rail
+              recolhe para 3.5rem e a grade precisa GANHAR essa largura. */}
+          <Suspense fallback={null}>
+            <CatalogFiltersClient />
+          </Suspense>
           <div className="flex-1 min-w-0">
             <Suspense fallback={<CatalogSkeleton count={12} />}>
               <CatalogContent
@@ -518,6 +530,7 @@ function MobileFilterBar({
           data-testid="catalog-filters-mobile-open"
           aria-expanded={drawerOpen}
           aria-controls="catalog-filters-drawer"
+          aria-keyshortcuts="Alt+F"
           onClick={() => setDrawerOpen(true)}
         >
           {tFilters("filters")}

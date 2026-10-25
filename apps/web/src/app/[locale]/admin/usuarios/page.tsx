@@ -37,7 +37,18 @@ interface Atividade {
   watchlist: { id: string; midia_id: string; coluna: string }[];
 }
 
+/** UAT-46 — registro público de patrocínios (mesma forma da API/lib). */
+interface PatrocinioAdmin {
+  id: string;
+  patrocinador: string;
+  secao: string;
+  rotulo: string;
+  desde: string;
+}
+
 const PLANOS: PlanoAdmin[] = ["FREE", "PLUS", "PREMIUM"];
+
+const hojeISO = () => new Date().toISOString().slice(0, 10);
 
 /**
  * Onda 1 admin (P0) — gestão de usuários: busca por nome/email, filtro por
@@ -53,6 +64,64 @@ export default function AdminUsuariosPage() {
   const [carregando, setCarregando] = useState(true);
   const [atividade, setAtividade] = useState<Atividade | null>(null);
   const [carregandoAtividade, setCarregandoAtividade] = useState(false);
+  // UAT-46: registro público de patrocínios.
+  const [patrocinios, setPatrocinios] = useState<PatrocinioAdmin[] | null>(null);
+  const [patrocinarPara, setPatrocinarPara] = useState<UsuarioAdmin | null>(null);
+  const [patSecao, setPatSecao] = useState("");
+  const [patRotulo, setPatRotulo] = useState("");
+  const [patDesde, setPatDesde] = useState(hojeISO());
+
+  const carregarPatrocinios = useCallback(async () => {
+    try {
+      const lista = await api.get<PatrocinioAdmin[]>("/api/v1/patrocinios");
+      // Resposta inesperada (ex.: HTML de erro) não pode derrubar a página.
+      setPatrocinios(Array.isArray(lista) ? lista : []);
+    } catch {
+      setPatrocinios([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void carregarPatrocinios();
+  }, [carregarPatrocinios]);
+
+  async function registrarPatrocinio() {
+    if (!patrocinarPara) return;
+    if (!patSecao.trim() || !patRotulo.trim()) {
+      setErro("Seção e rótulo são obrigatórios no registro de patrocínio.");
+      return;
+    }
+    try {
+      await comStepUp(() =>
+        api.post("/api/v1/admin/patrocinios", {
+          usuario_id: patrocinarPara.id,
+          // Nome público: o do usuário (autorização por escrito rege o que entra).
+          patrocinador: patrocinarPara.nome?.trim() || patrocinarPara.email,
+          secao: patSecao.trim(),
+          rotulo: patRotulo.trim(),
+          desde: patDesde,
+        }),
+      );
+      setPatrocinarPara(null);
+      setPatSecao("");
+      setPatRotulo("");
+      setPatDesde(hojeISO());
+      setErro(null);
+      await carregarPatrocinios();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao registrar patrocínio.");
+    }
+  }
+
+  async function removerPatrocinio(id: string) {
+    try {
+      await comStepUp(() => api.delete(`/api/v1/admin/patrocinios/${id}`));
+      setErro(null);
+      await carregarPatrocinios();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao remover patrocínio.");
+    }
+  }
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -269,6 +338,17 @@ export default function AdminUsuariosPage() {
                   >
                     Atividade
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPatrocinarPara(u);
+                      setPatDesde(hojeISO());
+                    }}
+                    data-testid={`admin-usuarios-patrocinar-${u.id}`}
+                    className="ml-1 rounded-lg border border-surface-border px-2 py-1 text-xs hover:bg-surface-elevated"
+                  >
+                    Patrocínio
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   {u.banido ? (
@@ -303,6 +383,110 @@ export default function AdminUsuariosPage() {
           </tbody>
         </table>
       </div>
+
+      {patrocinarPara && (
+        <section
+          aria-labelledby="patrocinio-title"
+          className="mb-6 rounded-lg border border-surface-border bg-surface-card p-4"
+          data-testid="admin-patrocinio-form"
+        >
+          <div className="flex items-center justify-between">
+            <h2 id="patrocinio-title" className="text-lg font-semibold text-fg-primary">
+              Registrar patrocínio de {patrocinarPara.nome ?? patrocinarPara.email}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setPatrocinarPara(null)}
+              className="rounded-lg border border-surface-border px-2 py-1 text-xs"
+            >
+              Fechar
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-fg-secondary">
+            O registro público é a prova de que patrocínio compra visibilidade, não nota — só entre
+            com autorização por escrito do patrocinador.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <label className="text-xs text-fg-secondary">
+              Seção onde aparece
+              <input
+                value={patSecao}
+                onChange={(e) => setPatSecao(e.target.value)}
+                placeholder="Ex.: Cinema"
+                data-testid="admin-patrocinio-secao"
+                className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs text-fg-secondary">
+              Rótulo na interface
+              <input
+                value={patRotulo}
+                onChange={(e) => setPatRotulo(e.target.value)}
+                placeholder="Ex.: Conteúdo patrocinado — banner Cinema"
+                data-testid="admin-patrocinio-rotulo"
+                className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs text-fg-secondary">
+              Início da veiculação
+              <input
+                type="date"
+                value={patDesde}
+                onChange={(e) => setPatDesde(e.target.value)}
+                data-testid="admin-patrocinio-desde"
+                className="mt-1 w-full rounded-lg border border-surface-border bg-transparent px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={() => void registrarPatrocinio()}
+            data-testid="admin-patrocinio-salvar"
+            className="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground"
+          >
+            Registrar no registro público
+          </button>
+        </section>
+      )}
+
+      {/* UAT-46 — o registro que a página /apoie publica, gerido daqui. */}
+      <section
+        aria-labelledby="patrocinios-title"
+        className="mb-6 rounded-lg border border-surface-border bg-surface-card p-4"
+        data-testid="admin-patrocinios-registro"
+      >
+        <h2 id="patrocinios-title" className="text-lg font-semibold text-fg-primary">
+          Registro público de patrocínios ({patrocinios?.length ?? 0})
+        </h2>
+        {patrocinios === null ? (
+          <p className="mt-2 text-sm text-fg-secondary">Carregando registro…</p>
+        ) : patrocinios.length === 0 ? (
+          <p className="mt-2 text-sm text-fg-secondary">
+            Nenhum patrocínio ativo — é o estado real que a página /apoie publica.
+          </p>
+        ) : (
+          <ul className="mt-2 divide-y divide-surface-border">
+            {patrocinios.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 py-2 text-sm">
+                <span className="min-w-0 flex-1">
+                  <span className="font-medium">{p.patrocinador}</span>
+                  <span className="block text-xs text-fg-secondary">
+                    {p.secao} · desde {p.desde} — {p.rotulo}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void removerPatrocinio(p.id)}
+                  data-testid={`admin-patrocinio-remover-${p.id}`}
+                  className="shrink-0 rounded-lg border border-score-low/40 px-2 py-0.5 text-xs text-score-low hover:bg-score-low/10"
+                >
+                  Remover
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {carregandoAtividade && (
         <p className="text-sm text-fg-secondary" data-testid="admin-atividade-carregando">

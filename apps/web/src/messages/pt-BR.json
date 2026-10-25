@@ -243,12 +243,35 @@
     "previewBadge": "Prévia",
     "previewBadgeTitle": "Prévia — fontes em preparação",
     "exploreCategory": "Explorar {label}",
-    "variant_book": ["Romances", "Não-ficção", "Clássicos", "Sagas", "Novidades"],
-    "variant_comic": ["HQs", "Super-heróis", "Indie", "Novidades"],
-    "variant_manga": ["Shonen", "Seinen", "Slice of Life", "Isekai", "Novidades"],
-    "variant_movie": ["Filmes"],
-    "variant_series": ["Séries"],
-    "variant_game": ["Games"],
+    "variant_book": [
+      "Romances",
+      "Não-ficção",
+      "Clássicos",
+      "Sagas",
+      "Novidades"
+    ],
+    "variant_comic": [
+      "HQs",
+      "Super-heróis",
+      "Indie",
+      "Novidades"
+    ],
+    "variant_manga": [
+      "Shonen",
+      "Seinen",
+      "Slice of Life",
+      "Isekai",
+      "Novidades"
+    ],
+    "variant_movie": [
+      "Filmes"
+    ],
+    "variant_series": [
+      "Séries"
+    ],
+    "variant_game": [
+      "Games"
+    ],
     "comingSoonEmailPlaceholder": "seu@email.com",
     "comingSoonEmailLabel": "E-mail",
     "comingSoonDone": "Cadastrado! Avisaremos quando chegar.",
@@ -332,20 +355,7 @@
     "pulseTitle": "Pulso de consumo",
     "pulseDesc": "Quando você mais se permite descobrir.",
     "achvTitle": "Conquistas do radar",
-    "achvDesc": "Medalhas desbloqueadas por nicho com sinais.",
     "achvUnlocked": "Desbloqueadas",
-    "achvMovieTitle": "Primeira sessão",
-    "achvMovieDetail": "Conclua um filme",
-    "achvSeriesTitle": "Temporada fechada",
-    "achvSeriesDetail": "Conclua uma série",
-    "achvGameTitle": "Fase final",
-    "achvGameDetail": "Conclua um game",
-    "achvBookTitle": "Leitor voraz",
-    "achvBookDetail": "Conclua um livro",
-    "achvComicTitle": "Arco completo",
-    "achvComicDetail": "Conclua uma HQ",
-    "achvMangaTitle": "Painel a painel",
-    "achvMangaDetail": "Conclua um mangá",
     "period30": "30 dias",
     "period90": "90 dias",
     "period12": "12 meses",
@@ -424,7 +434,6 @@
     "profileShareLabel": "Compartilhar:",
     "profileShareCopied": "Resumo copiado — pronto para compartilhar.",
     "profileExportedImage": "Imagem do relatório exportada com sucesso.",
-    "profilePopupBlocked": "Permita pop-ups para exportar o PDF.",
     "shareIntro": "Meu radar de gosto no MEDIA Rate",
     "noticeDismiss": "Fechar aviso",
     "footerRadar": "MEDIA Rate · Radar pessoal de gosto",
@@ -433,10 +442,6 @@
     "navOverview": "Visão geral",
     "navDiscoveries": "Descobertas",
     "navLibrary": "Minha biblioteca",
-    "navGoals": "Metas e evolução",
-    "navShortcuts": "Atalhos",
-    "navWantToSee": "Quero ver",
-    "navFavorites": "Favoritos",
     "navCollapse": "Recolher menu",
     "navGuest": "Visitante",
     "planFree": "Plano Free",
@@ -446,7 +451,41 @@
     "radarPreviousNote": "A leitura anterior é uma estimativa derivada do gosto atual; a série comparativa real chega com a evolução por gênero.",
     "profileNumbersTitle": "Seus números",
     "profileWebShare": "Compartilhar na web",
-    "radarAriaEixos": "eixos"
+    "radarAriaEixos": "eixos",
+    "navListas": "Listas",
+    "navWatchlist": "Watchlist",
+    "navProfile": "Perfil",
+    "navSettings": "Configurações",
+    "navFeedback": "Enviar feedback",
+    "navHistory": "Histórico",
+    "navAccount": "Conta",
+    "radarAllMedia": "Todas as mídias",
+    "radarSubNote": "Inclui gêneros e subgêneros do seu histórico.",
+    "radarByMedia": "Radar por tipo de mídia",
+    "medalDesc": "Medalhas por tipo de mídia que se desbloqueiam conforme suas interações avançam.",
+    "medalCount": "{unlocked}/{total} medalhas",
+    "medalBronze": "Bronze",
+    "medalSilver": "Prata",
+    "medalGold": "Ouro",
+    "medalPlatinum": "Platina",
+    "medalVolume": "{count} títulos",
+    "medalProgress": "{count}/{meta} títulos",
+    "medalMaxLevel": "Nível máximo alcançado",
+    "medalUnlocked": "desbloqueada",
+    "medalSpecialistOn": "Especialista em {genre}",
+    "medalSpecialistOff": "Especialista em {genre} · {count}/{min} títulos",
+    "tracoExplorador": "Explorador de mídias",
+    "tracoConcluidor": "Concluidor",
+    "tracoApreciador": "Apreciador exigente (/10)",
+    "tracoConstante": "Constância (dias seguidos)",
+    "tracoEspecialista": "Gênero de especialidade",
+    "tracoRadar": "Títulos no radar",
+    "profileTraitsTitle": "Suas definições",
+    "profilePdfTagline": "Relatório de perfil · dashboard completo",
+    "profilePdfSeeDash": "Veja o dashboard:",
+    "profilePdfDone": "PDF do perfil gerado com sucesso.",
+    "profilePdfError": "Não foi possível gerar o PDF do perfil agora.",
+    "pdfPreparingPerfil": "Gerando PDF…"
   },
   "checkout": {
     "invalidPlan": "Plano inválido",
@@ -540,7 +579,12 @@
     "upgrade": "Fazer upgrade",
     "subscribe": "Assinar",
     "features": "Recursos",
-    "freeFeatures": ["Catálogo completo", "MEDIA Score™", "Watchlist", "3 recomendações/dia"],
+    "freeFeatures": [
+      "Catálogo completo",
+      "MEDIA Score™",
+      "Watchlist",
+      "3 recomendações/dia"
+    ],
     "plusFeatures": [
       "Trial de 7 dias grátis",
       "Tudo do Free",
@@ -761,7 +805,9 @@
     "notaMinima": "Nota mínima",
     "semMinimo": "sem mínimo",
     "scoreMaxHint": "nota máxima",
-    "somenteCriticaCurto": "Só com crítica"
+    "somenteCriticaCurto": "Só com crítica",
+    "pin": "Fixar aberto",
+    "unpin": "Desafixar"
   },
   "watchlist": {
     "undo": "Desfazer",
@@ -1180,7 +1226,14 @@
     "exploreCatalog": "Explorar catálogo",
     "freeLimit": "Plano Free: histórico limitado a {count} títulos. O Plus mostra todo o histórico.",
     "upgrade": "Fazer upgrade",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "summaryTitle": "Sua evolução",
+    "summaryRated": "Títulos no radar",
+    "summaryCompleted": "Concluídos",
+    "summaryStreak": "Dias seguidos",
+    "summaryAffinity": "Afinidade média",
+    "summaryMonth": "Atividades neste mês",
+    "summaryVsLast": "vs. mês anterior"
   },
   "dataExport": {
     "title": "Seus dados (LGPD)",
@@ -1259,7 +1312,13 @@
     "pdfFooter": "MEDIA Rate · mediarate.app",
     "noteLabel": "Recado",
     "seeList": "Veja a lista:",
-    "addNote": "Escrever o recado"
+    "addNote": "Escrever o recado",
+    "sortLabel": "Ordenar por",
+    "sortPadrao": "Ordem de adição",
+    "sortTitulo": "Título (A–Z)",
+    "sortAno": "Ano de lançamento",
+    "sortTipo": "Tipo de mídia",
+    "pdfTagline": "Listas colaborativas de filmes, séries e mais"
   },
   "metadados": {
     "title": "Metadados",

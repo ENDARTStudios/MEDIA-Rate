@@ -78,8 +78,12 @@ export function ShareLista({
       await baixarListaPdf(lista, {
         byOwner: t("byOwner", { owner: lista.donoNome ?? "—" }),
         itemsCount: t("itemsCount", { count: lista.itens.length }),
-        footer: t("pdfFooter"),
         note: t("noteLabel"),
+        // UAT-39: o PDF sai timbrado — tagline da marca, site e link da lista.
+        tagline: t("pdfTagline"),
+        site: "mediarate.app",
+        verEm: t("seeList"),
+        url,
       });
     } catch {
       toast.error(t("pdfError"));

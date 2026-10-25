@@ -29,6 +29,7 @@ import { QuotaModule } from "./modules/quota/quota.module.js";
 import { HistoricoModule } from "./modules/historico/historico.module.js";
 import { PerfilModule } from "./modules/perfil/perfil.module.js";
 import { ListasModule } from "./modules/listas/listas.module.js";
+import { PatrociniosModule } from "./modules/patrocinios/patrocinios.module.js";
 import { WatchlistModule } from "./modules/watchlist/watchlist.module.js";
 import { WaitlistNotifyModule } from "./modules/waitlist-notify/waitlist-notify.module.js";
 import { DiscoverModule } from "./modules/discover/discover.module.js";
@@ -84,6 +85,7 @@ const enableDebugRoutes =
     HistoricoModule,
     PerfilModule,
     ListasModule,
+    PatrociniosModule,
     WatchlistModule,
     WaitlistNotifyModule,
     DiscoverModule,

@@ -16,7 +16,11 @@ export interface UserStats {
   concluidos: number;
   tipos: Record<string, number>;
   generos: Record<string, number>;
+  /** UAT-43: gêneros por tipo de mídia p/ o radar recortado (Plus+). */
+  generos_por_tipo: { tipo: string; generos: Record<string, number> }[];
   evolucao: { mes: string; total: number }[] | null;
+  /** UAT-45: evolução 12m quebrada por tipo (Premium — todas as mídias). */
+  evolucao_tipos: { mes: string; total: number; por_tipo: Record<string, number> }[] | null;
   // T396: streak + histograma de scores (todos os planos).
   streak: number;
   histograma: { faixa: string; total: number }[];
