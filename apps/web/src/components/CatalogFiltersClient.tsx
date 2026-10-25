@@ -52,19 +52,19 @@ export function CatalogFiltersClient({ variante = "rail" }: { variante?: "rail" 
   const router = useRouter();
   const pathname = usePathname();
   const [mostrarTodosGeneros, setMostrarTodosGeneros] = useState(false);
-  const [fixado, setFixado] = useState(false);
+  // UAT-47 (rev. 2026-10-25, pedido do Operador): o rail fica ABERTO ao entrar
+  // (fixado = default) — quem prefere recolhido desafixa uma vez e a
+  // preferência é lembrada.
+  const [fixado, setFixado] = useState(true);
 
-  // UAT-47: o rail fica FIXO RETRAÍDO — sem expandir no hover (o painel
-  // "abrindo sozinho" ao passar o mouse deslocava o grid e atrapalhava a
-  // leitura). Abrir é decisão explícita: o pino alterna recolhido/aberto e a
-  // preferência é lembrada. Preferência lida no efeito para o SSR e o primeiro
-  // render do cliente serem idênticos (recolhido).
+  // Só a escolha GRAVADA ("0" = recolhido) vira estado; sem escolha, aberto.
+  // Leitura no efeito para o SSR e o primeiro render do cliente serem idênticos.
   const CHAVE_PIN = "catalog:sidebar-pinned";
   useEffect(() => {
     try {
-      setFixado(window.localStorage.getItem(CHAVE_PIN) === "1");
+      if (window.localStorage.getItem(CHAVE_PIN) === "0") setFixado(false);
     } catch {
-      // storage bloqueado (modo privado) — segue recolhido, sem quebrar a página
+      // storage bloqueado (modo privado) — segue aberto, sem quebrar a página
     }
   }, [CHAVE_PIN]);
 

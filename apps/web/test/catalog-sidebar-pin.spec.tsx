@@ -11,8 +11,9 @@ import { CatalogFiltersClient } from "@/components/CatalogFiltersClient";
  *
  * O que este spec protege:
  *  - o botão é um ALTERNADOR (`aria-pressed`), não uma ação;
+ *  - o padrão é ABERTO ao entrar (rev. 2026-10-25: o Operador pediu o painel
+ *    já posicionado à esquerda, sem clique para "surgir");
  *  - a preferência é gravada em `localStorage` e relida na visita seguinte;
- *  - desligado, o painel volta ao rail (as classes de hover voltam a mandar na largura);
  *  - `localStorage` indisponível não quebra a página (modo privado) — o pino apenas
  *    não persiste.
  */
@@ -50,32 +51,32 @@ describe("pin da sidebar", () => {
     window.localStorage.clear();
   });
 
-  it("começa recolhido e sem preferência gravada", () => {
+  it("começa aberto e sem preferência gravada", () => {
     renderizar();
     const pino = screen.getByTestId("catalog-sidebar-pin");
-    expect(pino).toHaveAttribute("aria-pressed", "false");
+    expect(pino).toHaveAttribute("aria-pressed", "true");
     expect(window.localStorage.getItem(CHAVE)).toBeNull();
   });
 
-  it("fixar grava a preferência e anuncia o estado", () => {
+  it("desafixar grava o recolhimento e anuncia o estado", () => {
     renderizar();
     const pino = screen.getByTestId("catalog-sidebar-pin");
     fireEvent.click(pino);
-    expect(window.localStorage.getItem(CHAVE)).toBe("1");
-    expect(screen.getByTestId("catalog-sidebar-pin")).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("relê a preferência na visita seguinte", () => {
-    window.localStorage.setItem(CHAVE, "1");
-    renderizar();
-    expect(screen.getByTestId("catalog-sidebar-pin")).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("desafixar volta ao rail e grava o desligamento", () => {
-    window.localStorage.setItem(CHAVE, "1");
-    renderizar();
-    fireEvent.click(screen.getByTestId("catalog-sidebar-pin"));
     expect(window.localStorage.getItem(CHAVE)).toBe("0");
     expect(screen.getByTestId("catalog-sidebar-pin")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("relê a preferência recolhida na visita seguinte", () => {
+    window.localStorage.setItem(CHAVE, "0");
+    renderizar();
+    expect(screen.getByTestId("catalog-sidebar-pin")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("relê a preferência aberta e fixar a partir do recolhido grava '1'", () => {
+    window.localStorage.setItem(CHAVE, "0");
+    renderizar();
+    fireEvent.click(screen.getByTestId("catalog-sidebar-pin"));
+    expect(window.localStorage.getItem(CHAVE)).toBe("1");
+    expect(screen.getByTestId("catalog-sidebar-pin")).toHaveAttribute("aria-pressed", "true");
   });
 });
