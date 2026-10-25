@@ -166,7 +166,8 @@ export function CatalogFiltersClient({ variante = "rail" }: { variante?: "rail" 
       aria-keyshortcuts="Alt+F"
       className={cn(
         variante === "drawer" ? "w-full text-sm" : "hidden text-sm lg:block",
-        variante === "rail" && "group shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
+        variante === "rail" &&
+          "group shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:transition-[width] lg:duration-200 lg:ease-out",
         // UAT-47: largura só muda pelo pino — o rail não abre no hover.
         variante === "rail" && (fixado ? "lg:w-60" : "lg:w-14"),
       )}

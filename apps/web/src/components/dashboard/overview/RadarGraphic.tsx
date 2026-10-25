@@ -21,7 +21,10 @@ export function RadarGraphic({ axes }: { axes: RadarAxis[] }) {
   const buildPolygon = (key: "value" | "previous") =>
     axes
       .map((point, index) => {
-        const next = pointFor(index, key === "previous" ? (point.previous ?? point.value) : point.value);
+        const next = pointFor(
+          index,
+          key === "previous" ? (point.previous ?? point.value) : point.value,
+        );
         return `${next.x.toFixed(1)},${next.y.toFixed(1)}`;
       })
       .join(" ");
