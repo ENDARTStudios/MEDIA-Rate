@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import type { FastifyRequest } from "fastify";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiNotFoundResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { z } from "zod";
 import { Roles } from "../../common/decorators/roles.decorator.js";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe.js";
@@ -56,6 +56,7 @@ export class PatrociniosController {
   @UseGuards(AdminStepUpGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Remove (soft delete) um patrocínio do registro público" })
+  @ApiNotFoundResponse({ description: "Patrocínio não encontrado" })
   async remover(@Req() req: PatrocinioRequest, @Param("id", UuidParamPipe) id: string) {
     const adminId = req.user?.id ?? "";
     return this.service.remover(adminId, id);
