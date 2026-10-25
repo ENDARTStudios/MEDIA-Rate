@@ -4,8 +4,11 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-/** Canal real de contato (o mesmo e-mail do rodapé). */
-const CONTATO = "endart.studios+contato@gmail.com";
+/**
+ * Canal da própria seção: feedback tem alias próprio (+feedback) — não despeja
+ * na caixa de contato geral.
+ */
+const CONTATO = "endart.studios+feedback@gmail.com";
 
 /**
  * D-582.3 (T211) — a página era 100% pt-BR, usava EMOJI como nota (D-065),
