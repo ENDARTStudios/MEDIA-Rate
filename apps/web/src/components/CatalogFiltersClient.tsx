@@ -409,22 +409,29 @@ export function CatalogFiltersClient({ variante = "rail" }: { variante?: "rail" 
         </button>
       </div>
 
-      {/* ── Rodapé: contagem do recorte + limpar ────────────────────────────── */}
-      <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
-      <div className="mt-3">
-        <p className="text-xs text-fg-secondary" data-testid="catalog-recorte-total">
-          {total == null ? tf("countLoading") : t("count", { count: total })}
-        </p>
-        <p className="mt-1 text-[11px] text-fg-muted">{tf("liveNotice")}</p>
-        <button
-          type="button"
-          onClick={clearAll}
-          data-testid="catalog-clear-all"
-          disabled={activeCount === 0}
-          className="mt-3 min-h-[36px] w-full rounded-md border border-surface-border bg-surface-card text-xs font-semibold text-fg-secondary transition-colors hover:border-accent-indigo hover:text-fg-primary disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {tf("clearAll")}
-        </button>
+      {/* ── Rodapé: contagem do recorte + limpar ──────────────────────────────
+          sticky bottom-0: o painel tem teto de viewport e rola por dentro
+          (868px de conteúdo em 804px visíveis, medição 2026-10-25) — sem isto,
+          o "Limpar filtros" e a contagem ficavam ocultos atrás de um scroll
+          sem indicador ("parte do sidebar oculta pelo design"). O fundo opaco
+          cobre o miolo ao rolar. */}
+      <div className="sticky bottom-0 -mx-1 bg-surface-bg px-1 pb-1">
+        <div className="mt-4 h-px bg-surface-border" aria-hidden="true" />
+        <div className="mt-3">
+          <p className="text-xs text-fg-secondary" data-testid="catalog-recorte-total">
+            {total == null ? tf("countLoading") : t("count", { count: total })}
+          </p>
+          <p className="mt-1 text-[11px] text-fg-muted">{tf("liveNotice")}</p>
+          <button
+            type="button"
+            onClick={clearAll}
+            data-testid="catalog-clear-all"
+            disabled={activeCount === 0}
+            className="mt-3 min-h-[36px] w-full rounded-md border border-surface-border bg-surface-card text-xs font-semibold text-fg-secondary transition-colors hover:border-accent-indigo hover:text-fg-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {tf("clearAll")}
+          </button>
+        </div>
       </div>
     </aside>
   );
