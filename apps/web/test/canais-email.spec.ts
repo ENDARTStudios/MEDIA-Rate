@@ -47,7 +47,9 @@ describe("aliases de e-mail — cada seção usa o SEU canal", () => {
   });
 
   it("security.txt (RFC 9116) aponta o canal +security", () => {
-    expect(fonte("public/.well-known/security.txt")).toContain(`Contact: mailto:${ALIASES.security}`);
+    expect(fonte("public/.well-known/security.txt")).toContain(
+      `Contact: mailto:${ALIASES.security}`,
+    );
   });
 
   it("rodapé usa +contato como canal geral", () => {

@@ -403,8 +403,8 @@ export default function AdminUsuariosPage() {
             </button>
           </div>
           <p className="mt-1 text-xs text-fg-secondary">
-            O registro público é a prova de que patrocínio compra visibilidade, não nota —
-            só entre com autorização por escrito do patrocinador.
+            O registro público é a prova de que patrocínio compra visibilidade, não nota — só entre
+            com autorização por escrito do patrocinador.
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             <label className="text-xs text-fg-secondary">

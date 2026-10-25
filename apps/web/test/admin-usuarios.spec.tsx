@@ -107,8 +107,8 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
     // recarrega a lista após a mudança (o mount também busca os patrocínios —
     // a contagem aqui é só das chamadas de usuários)
     await waitFor(() => {
-      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(
-      ([u]) => String(u).includes('/admin/usuarios'),
+      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(([u]) =>
+        String(u).includes("/admin/usuarios"),
       );
       expect(chamadasUsuarios.length).toBe(2);
     });
@@ -124,8 +124,8 @@ describe("AdminUsuariosPage (Onda 1 admin — P0)", () => {
       });
     });
     await waitFor(() => {
-      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(
-      ([u]) => String(u).includes('/admin/usuarios'),
+      const chamadasUsuarios = (api.get as ReturnType<typeof vi.fn>).mock.calls.filter(([u]) =>
+        String(u).includes("/admin/usuarios"),
       );
       expect(chamadasUsuarios.length).toBe(2);
     });

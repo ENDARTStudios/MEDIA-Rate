@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MediaController } from "../src/modules/media/media.controller.js";
 import { LgpdController } from "../src/modules/lgpd/lgpd.controller.js";
