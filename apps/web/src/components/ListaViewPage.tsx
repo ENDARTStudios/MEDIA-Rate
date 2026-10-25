@@ -87,6 +87,9 @@ export function ListaViewPage({ slug }: { slug: string }) {
   const [descricao, setDescricao] = useState("");
   // UAT-38: ordem de exibição (e do PDF/convite) escolhida pelo usuário.
   const [ordem, setOrdem] = useState<OrdemLista>("padrao");
+  // Murphy: mutações em andamento bloqueiam os gatilhos — duplo clique não
+  // pode duplicar POST nem disparar DELETE concorrente.
+  const [mutando, setMutando] = useState(false);
 
   // UAT-38: a ordem escolhida vale para a grade, o convite e o PDF. Ordena o
   // resumo (campos da lib) carregando o item original junto, e devolve os itens
@@ -158,6 +161,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
   }
 
   async function adicionar(midiaId: string) {
+    if (mutando) return;
+    setMutando(true);
     try {
       await api.post(`/api/v1/listas/${slug}/itens`, { midia_id: midiaId });
       setResultados([]);
@@ -168,10 +173,14 @@ export function ListaViewPage({ slug }: { slug: string }) {
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setMutando(false);
     }
   }
 
   async function remover(itemId: string) {
+    if (mutando) return;
+    setMutando(true);
     try {
       await api.delete(`/api/v1/listas/${slug}/itens/${itemId}`, {});
       // D-584/B4: remover item era silencioso e irreversível.
@@ -179,10 +188,14 @@ export function ListaViewPage({ slug }: { slug: string }) {
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setMutando(false);
     }
   }
 
   async function salvar() {
+    if (mutando) return;
+    setMutando(true);
     try {
       await api.patch(`/api/v1/listas/${slug}`, { titulo, descricao });
       setEditMode(false);
@@ -190,6 +203,8 @@ export function ListaViewPage({ slug }: { slug: string }) {
       await carregar();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setMutando(false);
     }
   }
 
@@ -197,11 +212,17 @@ export function ListaViewPage({ slug }: { slug: string }) {
     // D-619: sem `window.confirm` — diálogo nativo não segue o tema nem prende o foco
     // (P1 da spec de Listas, `23-listas.md` §11). A confirmação é o `ConfirmDialog` do repo.
     setConfirmarExclusao(false);
+    if (mutando) return;
+    setMutando(true);
     try {
       await api.delete(`/api/v1/listas/${slug}`, {});
+      // Pico-fim: o fim da jornada de "excluir" tem recompensa clara antes do
+      // redirecionamento (era só um salto brusco).
+      toast.success(t("deleted"));
       window.location.href = "/listas";
     } catch (e) {
       setError(e instanceof Error ? e.message : t("error"));
+      setMutando(false);
     }
   }
 
@@ -269,7 +290,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
             className="w-full rounded-md border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-fg-primary"
           />
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => void salvar()}>
+            <Button size="sm" disabled={mutando} onClick={() => void salvar()}>
               {t("save")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setEditMode(false)}>
@@ -323,7 +344,12 @@ export function ListaViewPage({ slug }: { slug: string }) {
               <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
                 {t("edit")}
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => setConfirmarExclusao(true)}>
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={mutando}
+                onClick={() => setConfirmarExclusao(true)}
+              >
                 {t("delete")}
               </Button>
               <ConfirmDialog
@@ -385,6 +411,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
                       <li key={r.id}>
                         <button
                           type="button"
+                          disabled={mutando}
                           onClick={() => void adicionar(r.id)}
                           className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-fg-primary hover:bg-surface-elevated"
                         >
@@ -421,6 +448,7 @@ export function ListaViewPage({ slug }: { slug: string }) {
               {lista.eh_dono && (
                 <button
                   type="button"
+                  disabled={mutando}
                   onClick={() => void remover(item.id)}
                   className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs text-brand-foreground shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-indigo"
                   aria-label={t("remove")}

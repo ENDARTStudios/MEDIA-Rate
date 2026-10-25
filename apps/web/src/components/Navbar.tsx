@@ -145,7 +145,7 @@ export function Navbar({
                           setMenuOpen(false);
                         }
                       }}
-                      className="absolute top-full right-0 mt-1 w-48 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown"
+                      className="absolute top-full right-0 w-48 bg-[#12121C] border border-[rgba(129,140,248,0.12)] rounded-md shadow-floating py-1 z-dropdown pt-1"
                       onMouseLeave={() => setMenuOpen(false)}
                     >
                       {/* UAT-40: o popup é de CONTA — quem entra aqui quer saber o
@@ -223,7 +223,7 @@ export function Navbar({
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-[#E11D48] text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-[filter]"
+                  className="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-[filter]"
                 >
                   {t("register")}
                 </Link>
@@ -318,6 +318,23 @@ export function Navbar({
               </Link>
               {effectiveAuth ? (
                 <>
+                  {/* UAT-40/jakob: o mobile precisa oferecer os MESMOS destinos
+                      de produto que o desktop (a sidebar do dashboard não existe
+                      aqui) — antes só Perfil/Watchlist/Sair. */}
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    {t("dashboard")}
+                  </Link>
+                  <Link
+                    href="/discoveries"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    {t("discoveries")}
+                  </Link>
                   <Link
                     href="/profile"
                     onClick={() => setMobileOpen(false)}
@@ -331,6 +348,13 @@ export function Navbar({
                     className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t("watchlist")}
+                  </Link>
+                  <Link
+                    href="/listas"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-[#A0A0B8] hover:text-[#F5F5F7] px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    {t("listas")}
                   </Link>
                   <button
                     onClick={() => {
