@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 import { AuthBladeCard } from "@/components/AuthBladeCard";
-import { LazyLogo } from "@/components/lazy";
+import { Logo } from "@/components/Logo";
 import { localizedAlternates, localizedUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -40,7 +40,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
             href="/"
             className="inline-flex items-center gap-2 text-xl font-bold text-accent-indigo"
           >
-            <LazyLogo className="w-8 h-8" /> MEDIA Rate
+            <Logo variant="full" size="lg" />
           </Link>
         </div>
 

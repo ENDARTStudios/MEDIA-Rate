@@ -10,7 +10,14 @@ import { MediaScoreService, type MediaScoreV3Result } from "./media-score.servic
 
 type MidiaParaColeta = Pick<
   Midia,
-  "id" | "tipo" | "titulo" | "ano_lancamento" | "fonte" | "fonte_id"
+  | "id"
+  | "tipo"
+  | "titulo"
+  | "titulo_original"
+  | "titulo_en"
+  | "ano_lancamento"
+  | "fonte"
+  | "fonte_id"
 >;
 
 // T-DADOS-18: o job não pode depender de um timer de 7 dias — cada deploy
@@ -159,6 +166,8 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
             id: true,
             tipo: true,
             titulo: true,
+            titulo_original: true,
+            titulo_en: true,
             ano_lancamento: true,
             fonte: true,
             fonte_id: true,
@@ -257,14 +266,29 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       tipo: midia.tipo,
       titulo: midia.titulo,
       ano: midia.ano_lancamento ?? undefined,
+      ...(midia.titulo_original ? { tituloOriginal: midia.titulo_original } : {}),
+      ...(midia.titulo_en ? { tituloEn: midia.titulo_en } : {}),
       ...(midia.fonte && midia.fonte_id ? { idsExternos: { [midia.fonte]: midia.fonte_id } } : {}),
     };
 
     const resultados = await this.coleta.coletarTudo(consulta);
-    const coletadas = resultados.filter(
+    const todas = resultados.filter(
       (r): r is typeof r & { nota: NonNullable<(typeof r)["nota"]> } =>
         r.status === "ok" && !!r.nota,
     );
+    // T-DADOS-41: mais de um adapter pode fornecer a MESMA fonte (Tomatometer
+    // do OMDb e do scraper do RT). A tabela tem UNIQUE(midia_id, fonte) —
+    // mantém a primeira ocorrência (o OMDb vem antes do scraper).
+    const porFonte = new Map<string, (typeof todas)[number]>();
+    for (const r of todas) {
+      const atual = porFonte.get(r.nota.fonte);
+      // Sem duplicata: fica a primeira. Com duplicata: fica a que traz votos
+      // (o fator de volume da confiança usa `votos`; null = 0).
+      if (!atual || (atual.nota.votos == null && r.nota.votos != null)) {
+        porFonte.set(r.nota.fonte, r);
+      }
+    }
+    const coletadas = [...porFonte.values()];
 
     // D-410/T426: falha graciosa — se a coleta não obteve NENHUMA fonte mas a
     // mídia JÁ tem avaliações, mantém o score anterior (não apaga nem regride
@@ -286,6 +310,17 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     const preservar = resultados
       .filter((r) => r.status === "erro" || (r.status === "pulada" && r.motivo === "inativa"))
       .map((r) => r.fonte);
+    // T-DADOS-41: erro de cota do OMDb (1 adapter → 3 fontes) apagava o
+    // Metascore/Tomatometer que ELE mesmo trouxe antes. Preserva as derivadas
+    // que este run não recoletou (evita conflito com o UNIQUE midia+fonte).
+    if (preservar.includes("omdb")) {
+      const coletadasFontes = new Set(coletadas.map((r) => r.nota.fonte));
+      for (const derivada of ["rottentomatoes", "metacritic"]) {
+        if (!coletadasFontes.has(derivada) && !preservar.includes(derivada)) {
+          preservar.push(derivada);
+        }
+      }
+    }
     if (preservar.length > 0) {
       this.logger.warn(
         `Fonte(s) preservada(s) por erro/inatividade em "${midia.titulo}" (${midia.id}): ${preservar.join(", ")}.`,

@@ -1,6 +1,6 @@
 import type { ConsultaMedia, FonteAdapter, NotaColetada } from "./fonte-adapter.interface.js";
 import { dominioDoTipo, estatisticas } from "./fonte-adapter.interface.js";
-import { fetchJson, fetchTexto, UA_BROWSER } from "./http.utils.js";
+import { ErroColeta, fetchJson, fetchTexto, UA_BROWSER } from "./http.utils.js";
 import { extrairRatingLivroJsonLd, parseNumero } from "./scrape-numerico.util.js";
 
 /**
@@ -194,8 +194,11 @@ export class GoodreadsAdapter implements FonteAdapter {
           url,
         },
       ];
-    } catch {
-      // Falha de rede/parse é ausência honesta: nunca lança.
+    } catch (erro) {
+      // D-cota/T-DADOS-43: fonte que NÃO respondeu (HTTP 403/429/5xx, timeout)
+      // não é "sem nota" — deixa o ColetaService marcar `erro` e preservar a
+      // linha existente. Falha de parse segue como lacuna honesta.
+      if (erro instanceof ErroColeta) throw erro;
       return [];
     }
   }
@@ -249,8 +252,15 @@ export class GoodreadsAdapter implements FonteAdapter {
         );
         const bookId = selecionarBookIdPorIsbn(resultado);
         if (bookId) return bookId;
-      } catch {
-        // ISBN não indexado/erro transitório: tenta o próximo.
+      } catch (erro) {
+        // Fonte bloqueada/fora do ar: não adianta tentar outro ISBN.
+        if (
+          erro instanceof ErroColeta &&
+          (erro.status === 403 || erro.status === 429 || (erro.status ?? 0) >= 500)
+        ) {
+          throw erro;
+        }
+        // ISBN não indexado: tenta o próximo.
       }
     }
     return null;

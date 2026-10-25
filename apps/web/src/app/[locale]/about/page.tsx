@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
+import { Logo } from "@/components/Logo";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { localeOpenGraph, localizedAlternates, localizedUrl, OG_IMAGE_PADRAO } from "@/lib/seo";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -63,11 +64,23 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <header className="mb-16">
-        <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-fg-primary mb-8">
+      <header className="mb-16 text-center">
+        {/* Marca em destaque: o lockup é o herói desta página — o mesmo desenho
+            do header/rodapé, na escala de abertura (36 px no mobile, 48 px em sm).
+            O halo é radial e decorativo (aria-hidden), sem custo de JS. */}
+        <div className="relative mb-8 inline-flex items-center">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-x-12 -inset-y-10 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(129,140,248,0.16)_0%,transparent_70%)]"
+          />
+          <Logo variant="full" size="xl" />
+        </div>
+        <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-fg-primary mb-8">
           {t("title")}
         </h1>
-        <p className="mt-4 max-w-[34rem] text-lg text-fg-secondary leading-relaxed">{t("lead")}</p>
+        <p className="mx-auto mt-4 max-w-[34rem] text-lg text-fg-secondary leading-relaxed">
+          {t("lead")}
+        </p>
       </header>
 
       <div className="space-y-16">

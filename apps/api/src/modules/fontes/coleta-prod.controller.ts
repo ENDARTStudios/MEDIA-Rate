@@ -74,6 +74,8 @@ export class ColetaProdController {
         id: true,
         tipo: true,
         titulo: true,
+        titulo_original: true,
+        titulo_en: true,
         ano_lancamento: true,
         fonte: true,
         fonte_id: true,
