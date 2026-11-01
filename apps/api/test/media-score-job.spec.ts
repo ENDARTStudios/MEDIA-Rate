@@ -20,6 +20,8 @@ function mockDependencias() {
     avaliacaoFonte: {
       // T038: contrato real (coletarEPersistir usa count p/ falha graciosa D-410).
       count: vi.fn().mockResolvedValue(0),
+      // T-DADOS-55: linha omdb anterior fornece o id IMDb para a re-coleta.
+      findFirst: vi.fn().mockResolvedValue(null),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
       createMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
@@ -392,5 +394,38 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
         fonte: { notIn: ["omdb", "rottentomatoes", "metacritic"] },
       },
     });
+  });
+
+  it("T-DADOS-55: reusa o id IMDb da linha omdb anterior (passe não destrói o drip)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findFirst.mockResolvedValue({
+      url: "https://www.imdb.com/title/tt0111161",
+    });
+    coleta.coletarTudo.mockResolvedValue([]);
+
+    await job.coletarEPersistir({
+      id: "m1",
+      tipo: "FILME",
+      titulo: "Um Sonho de Liberdade",
+      ano_lancamento: 1994,
+      fonte: "tmdb",
+      fonte_id: "278",
+    });
+
+    expect(coleta.coletarTudo).toHaveBeenCalledWith(
+      expect.objectContaining({ idsExternos: { tmdb: "278", omdb: "tt0111161" } }),
+    );
+  });
+
+  it("T-DADOS-55: linha omdb sem URL não injeta id (busca por texto segue)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findFirst.mockResolvedValue({ url: null });
+    coleta.coletarTudo.mockResolvedValue([]);
+
+    await job.coletarEPersistir(midia("m1"));
+
+    expect(coleta.coletarTudo).toHaveBeenCalledWith(
+      expect.objectContaining({ idsExternos: { tmdb: "ext-m1" } }),
+    );
   });
 });

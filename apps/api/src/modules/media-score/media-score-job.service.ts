@@ -262,13 +262,27 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
    * `avaliacao_fonte` (idempotente) e recalcula o MEDIA Score v3.
    */
   async coletarEPersistir(midia: MidiaParaColeta): Promise<ResultadoColetaEPersistir> {
+    const idsExternos: Record<string, string> = {};
+    if (midia.fonte && midia.fonte_id) idsExternos[midia.fonte] = midia.fonte_id;
+    // T-DADOS-55: o gotejamento da crítica coleta o OMDb pelo IMDb id (buscado
+    // no TMDB), mas o passe re-coleta só com os ids da fonte da mídia — o
+    // adapter do OMDb caía na busca por texto com o título pt-BR ("Movie not
+    // found!") e o deleteMany apagava omdb/rottentomatoes/metacritic (1.704
+    // títulos atingidos em 36 h). O id IMDb anterior está na URL da linha.
+    const omdbAnterior = await this.prisma.avaliacaoFonte.findFirst({
+      where: { midia_id: midia.id, fonte: "omdb" },
+      select: { url: true },
+    });
+    const imdbAnterior = omdbAnterior?.url?.match(/imdb\.com\/title\/(tt\d+)/)?.[1];
+    if (imdbAnterior) idsExternos.omdb = imdbAnterior;
+
     const consulta: ConsultaMedia = {
       tipo: midia.tipo,
       titulo: midia.titulo,
       ano: midia.ano_lancamento ?? undefined,
       ...(midia.titulo_original ? { tituloOriginal: midia.titulo_original } : {}),
       ...(midia.titulo_en ? { tituloEn: midia.titulo_en } : {}),
-      ...(midia.fonte && midia.fonte_id ? { idsExternos: { [midia.fonte]: midia.fonte_id } } : {}),
+      ...(Object.keys(idsExternos).length > 0 ? { idsExternos } : {}),
     };
 
     const resultados = await this.coleta.coletarTudo(consulta);

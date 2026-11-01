@@ -25,7 +25,12 @@ function midiaStub(over: Partial<Midia> = {}): Midia {
 describe("MediaScoreJobService — cadência semanal (D-410/T426)", () => {
   const prisma = {
     midia: { count: vi.fn(), findMany: vi.fn(), update: vi.fn() },
-    avaliacaoFonte: { count: vi.fn(), deleteMany: vi.fn(), createMany: vi.fn() },
+    avaliacaoFonte: {
+      count: vi.fn(),
+      findFirst: vi.fn().mockResolvedValue(null),
+      deleteMany: vi.fn(),
+      createMany: vi.fn(),
+    },
   };
   const coleta = { coletarTudo: vi.fn() };
   const mediaScore = { recalcularEPersistir: vi.fn() };
