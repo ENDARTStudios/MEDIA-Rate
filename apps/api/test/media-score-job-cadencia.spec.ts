@@ -27,7 +27,7 @@ describe("MediaScoreJobService — cadência semanal (D-410/T426)", () => {
     midia: { count: vi.fn(), findMany: vi.fn(), update: vi.fn() },
     avaliacaoFonte: {
       count: vi.fn(),
-      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
       deleteMany: vi.fn(),
       createMany: vi.fn(),
     },
@@ -38,6 +38,7 @@ describe("MediaScoreJobService — cadência semanal (D-410/T426)", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([]);
     // acelera o teste (delay entre mídias = 0)
     process.env.MEDIA_SCORE_JOB_DELAY_MS = "0";
     prisma.midia.count.mockResolvedValue(100);
