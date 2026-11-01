@@ -428,4 +428,40 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       expect.objectContaining({ idsExternos: { tmdb: "ext-m1" } }),
     );
   });
+
+  it("T-DADOS-56: OMDb 401 sem linha anterior NÃO marca fresco (retoma no próximo tique)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findFirst.mockResolvedValue(null);
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "omdb", status: "erro", motivo: "HTTP 401" },
+      {
+        fonte: "tmdb",
+        status: "ok",
+        nota: { fonte: "tmdb", rating: 7.5, media_fonte: 7, desvio_fonte: 1.5 },
+      },
+    ]);
+
+    await job.coletarEPersistir(midia("m1"));
+
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("T-DADOS-56: OMDb 401 COM linha anterior preserva e marca fresco (sem loop)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findFirst.mockResolvedValue({
+      url: "https://www.imdb.com/title/tt0111161",
+    });
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "omdb", status: "erro", motivo: "HTTP 401" },
+      {
+        fonte: "tmdb",
+        status: "ok",
+        nota: { fonte: "tmdb", rating: 7.5, media_fonte: 7, desvio_fonte: 1.5 },
+      },
+    ]);
+
+    await job.coletarEPersistir(midia("m1"));
+
+    expect(prisma.midia.update).toHaveBeenCalled();
+  });
 });

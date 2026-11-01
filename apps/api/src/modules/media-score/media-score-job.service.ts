@@ -359,10 +359,22 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         })),
       });
     }
-    await this.prisma.midia.update({
-      where: { id: midia.id },
-      data: { avaliacoes_atualizadas_em: new Date() },
-    });
+    // T-DADOS-56: título SEM linha `omdb` cuja fonte não respondeu (cota 401)
+    // não pode virar "fresco" — senão o reparo só voltaria em 7 dias e a cota
+    // do dia queimaria o lote inteiro. Mantém vencido para o próximo tique
+    // retomar quando a janela do provedor reabrir.
+    const omdbFalhou = resultados.some((r) => r.fonte === "omdb" && r.status === "erro");
+    const omdbFaltando = !omdbAnterior && coletadas.every((r) => r.nota.fonte !== "omdb");
+    if (omdbFalhou && omdbFaltando) {
+      this.logger.warn(
+        `OMDb indisponível e sem linha para "${midia.titulo}" (${midia.id}) — mantendo vencido para retomar.`,
+      );
+    } else {
+      await this.prisma.midia.update({
+        where: { id: midia.id },
+        data: { avaliacoes_atualizadas_em: new Date() },
+      });
+    }
 
     const score = await this.mediaScore.recalcularEPersistir(midia.id);
     return { coletadas: coletadas.map((r) => r.nota), score, resultados };
