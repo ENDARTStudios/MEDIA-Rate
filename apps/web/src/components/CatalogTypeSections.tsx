@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
-import { getCatalog } from "@/lib/api";
 import { mapToMediaItem } from "@/lib/catalog-item";
 import { CatalogGrid } from "./CatalogGrid";
+import { useTiposComContagem } from "./catalog/useTiposComContagem";
+import { usePreviewsPorTipo } from "./catalog/usePreviewsPorTipo";
 import type { MediaType } from "@/lib/types";
 
 /**
@@ -38,46 +38,39 @@ export function CatalogTypeSections() {
 
   // Hooks antes de qualquer early-return (regras de hooks). `enabled` evita
   // fetch desnecessário quando há filtro de tipo ativo.
-  const { data: counts } = useQuery({
-    queryKey: ["catalog-type-counts"],
-    queryFn: async () => {
-      const results = await Promise.all(
-        TYPES.map(async (type) => {
-          const data = await getCatalog({ type, limit: 1 });
-          return [type, data?.total ?? 0] as const;
-        }),
-      );
-      return Object.fromEntries(results) as Record<MediaType, number>;
-    },
-    enabled: !activeType,
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+  //
+  // As contagens vêm do MESMO hook que a sidebar e os chips usam — uma requisição
+  // (`/midias/totais`). Antes havia aqui um `useQuery` com a MESMA queryKey
+  // ("catalog-type-counts") e um fetcher DIFERENTE (seis `getCatalog({type, limit:1})`):
+  // o react-query cacheia por chave, então quem disparasse primeiro decidia quantas
+  // requisições aconteciam — e a versão de seis vencia quando as seções montavam antes.
+  const counts = useTiposComContagem();
 
   if (activeType) return null;
 
-  const tiposComItens = TYPES.filter((t) => (counts?.[t] ?? 0) > 0);
+  // Uma requisição para as seis fileiras (antes: uma por tipo).
+  const previews = usePreviewsPorTipo(ROW_LIMIT);
+
+  const tiposComItens = TYPES.filter((t) => (counts[t] ?? 0) > 0);
   if (tiposComItens.length === 0) return null;
 
   return (
     <div data-testid="catalog-type-sections" className="mb-10 space-y-12">
       {tiposComItens.map((type) => (
-        <CatalogTypeRow key={type} type={type} />
+        <CatalogTypeRow key={type} type={type} midias={previews[type] ?? []} />
       ))}
     </div>
   );
 }
 
-function CatalogTypeRow({ type }: { type: MediaType }) {
+function CatalogTypeRow({ type, midias }: { type: MediaType; midias: Record<string, unknown>[] }) {
   const t = useTranslations("catalog");
-  const { data, isLoading } = useQuery({
-    queryKey: ["catalog-type-row", type],
-    queryFn: () => getCatalog({ type, limit: ROW_LIMIT }),
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-
-  const items = (data?.items ?? []).map(mapToMediaItem);
+  // Sem consulta própria: os itens chegam do preview agregado. `isLoading` some com a
+  // busca da fileira; o estado de carregamento fica no agregado, que é um só.
+  const isLoading = midias.length === 0;
+  const items = midias.map((m) =>
+    mapToMediaItem(m as unknown as Parameters<typeof mapToMediaItem>[0]),
+  );
   // Seção vazia é OMITIDA (nunca header sem itens).
   if (!isLoading && items.length === 0) return null;
 

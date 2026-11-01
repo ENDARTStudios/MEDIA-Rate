@@ -661,6 +661,51 @@ export class MediaController {
     );
   }
 
+  /**
+   * Primeiros N cards de cada tipo — uma requisição em vez de seis (ver comentário do
+   * bloco). `limite` é clampado em 1..12: valor absurdo na URL não pode virar varredura.
+   */
+  @Get("preview-por-tipo")
+  @ApiOperation({ summary: "Primeiros títulos de cada tipo de obra (por tipo, em uma chamada)" })
+  @ApiQuery({ name: "limite", required: false, description: "Itens por tipo (1..12, padrão 8)" })
+  async previewPorTipo(
+    @Query("limite") limite: string | undefined,
+  ): Promise<Record<string, unknown[]>> {
+    const porTipo = Math.min(12, Math.max(1, Number.parseInt(limite ?? "8", 10) || 8));
+    const select = {
+      id: true,
+      slug: true,
+      titulo: true,
+      titulo_original: true,
+      titulo_en: true,
+      titulo_es: true,
+      tipo: true,
+      ano_lancamento: true,
+      imagem_url: true,
+      scores: {
+        select: { score: true, num_fontes: true },
+        take: 1,
+        orderBy: { calculado_em: "desc" },
+      },
+    } as const;
+
+    const tipos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
+    const listas = await Promise.all(
+      tipos.map((tipo) =>
+        this.prisma.midia.findMany({
+          where: { deleted_at: null, tipo },
+          // Mesma ordenação da listagem padrão: mais bem avaliados primeiro, com
+          // desempate estável por título para a fileira não "dançar" entre loads.
+          orderBy: [{ scores: { _count: "desc" } }, { titulo: "asc" }],
+          take: porTipo,
+          select,
+        }),
+      ),
+    );
+
+    return Object.fromEntries(tipos.map((tipo, i) => [tipo, listas[i] ?? []]));
+  }
+
   @Post(":id/view")
   @HttpCode(200)
   @ApiOperation({ summary: "Registra uma visualização da ficha técnica (histórico do usuário)" })
