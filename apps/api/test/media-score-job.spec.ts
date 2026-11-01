@@ -21,7 +21,7 @@ function mockDependencias() {
       // T038: contrato real (coletarEPersistir usa count p/ falha graciosa D-410).
       count: vi.fn().mockResolvedValue(0),
       // T-DADOS-55: linha omdb anterior fornece o id IMDb para a re-coleta.
-      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
       createMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
@@ -398,9 +398,9 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
 
   it("T-DADOS-55: reusa o id IMDb da linha omdb anterior (passe não destrói o drip)", async () => {
     const { prisma, coleta, job } = mockDependencias();
-    prisma.avaliacaoFonte.findFirst.mockResolvedValue({
-      url: "https://www.imdb.com/title/tt0111161",
-    });
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([
+      { fonte: "omdb", url: "https://www.imdb.com/title/tt0111161" },
+    ]);
     coleta.coletarTudo.mockResolvedValue([]);
 
     await job.coletarEPersistir({
@@ -419,7 +419,7 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
 
   it("T-DADOS-55: linha omdb sem URL não injeta id (busca por texto segue)", async () => {
     const { prisma, coleta, job } = mockDependencias();
-    prisma.avaliacaoFonte.findFirst.mockResolvedValue({ url: null });
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([{ fonte: "omdb", url: null }]);
     coleta.coletarTudo.mockResolvedValue([]);
 
     await job.coletarEPersistir(midia("m1"));
@@ -431,7 +431,7 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
 
   it("T-DADOS-56: OMDb 401 sem linha anterior NÃO marca fresco (retoma no próximo tique)", async () => {
     const { prisma, coleta, job } = mockDependencias();
-    prisma.avaliacaoFonte.findFirst.mockResolvedValue(null);
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([]);
     coleta.coletarTudo.mockResolvedValue([
       { fonte: "omdb", status: "erro", motivo: "HTTP 401" },
       {
@@ -448,9 +448,9 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
 
   it("T-DADOS-56: OMDb 401 COM linha anterior preserva e marca fresco (sem loop)", async () => {
     const { prisma, coleta, job } = mockDependencias();
-    prisma.avaliacaoFonte.findFirst.mockResolvedValue({
-      url: "https://www.imdb.com/title/tt0111161",
-    });
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([
+      { fonte: "omdb", url: "https://www.imdb.com/title/tt0111161" },
+    ]);
     coleta.coletarTudo.mockResolvedValue([
       { fonte: "omdb", status: "erro", motivo: "HTTP 401" },
       {
@@ -463,5 +463,22 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
     await job.coletarEPersistir(midia("m1"));
 
     expect(prisma.midia.update).toHaveBeenCalled();
+  });
+
+  it("T-DADOS-57: Goodreads 503 sem linha anterior também mantém vencido", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([]);
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "goodreads", status: "erro", motivo: "HTTP 503" },
+      {
+        fonte: "openlibrary",
+        status: "ok",
+        nota: { fonte: "openlibrary", rating: 4, media_fonte: 3.5, desvio_fonte: 0.6 },
+      },
+    ]);
+
+    await job.coletarEPersistir({ ...midia("m9"), tipo: "LIVRO" });
+
+    expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 });

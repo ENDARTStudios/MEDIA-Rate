@@ -24,6 +24,13 @@ type MidiaParaColeta = Pick<
 // reiniciava o container e re-armava o intervalo inteiro, então o passe nunca
 // disparava. Ticks curtos + filtro de vencimento (REFRESH_INTERVAL_DAYS) no
 // `where` de `executar()` é que governam a cadência semanal.
+/**
+ * T-DADOS-56/57: fontes com falha intermitente conhecida (cota/anti-bot). Se a
+ * linha está faltando e a fonte respondeu erro, o título fica vencido para
+ * retomar no tique seguinte em vez de esperar 7 dias.
+ */
+const FONTES_VOLATEIS = new Set(["omdb", "goodreads"]);
+
 const FIRST_TICK_MS_PADRAO = 120_000; // 2 min após o boot
 const FIRST_TICK_MS_MINIMO = 30_000; // 30 s
 const INTERVAL_MS_PADRAO = 3_600_000; // 1 h
@@ -269,12 +276,15 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
     // adapter do OMDb caía na busca por texto com o título pt-BR ("Movie not
     // found!") e o deleteMany apagava omdb/rottentomatoes/metacritic (1.704
     // títulos atingidos em 36 h). O id IMDb anterior está na URL da linha.
-    const omdbAnterior = await this.prisma.avaliacaoFonte.findFirst({
-      where: { midia_id: midia.id, fonte: "omdb" },
-      select: { url: true },
+    const anteriores = await this.prisma.avaliacaoFonte.findMany({
+      where: { midia_id: midia.id, fonte: { in: [...FONTES_VOLATEIS] } },
+      select: { fonte: true, url: true },
     });
-    const imdbAnterior = omdbAnterior?.url?.match(/imdb\.com\/title\/(tt\d+)/)?.[1];
+    const imdbAnterior = anteriores
+      .find((a) => a.fonte === "omdb")
+      ?.url?.match(/imdb\.com\/title\/(tt\d+)/)?.[1];
     if (imdbAnterior) idsExternos.omdb = imdbAnterior;
+    const comLinhaAnterior = new Set(anteriores.map((a) => a.fonte));
 
     const consulta: ConsultaMedia = {
       tipo: midia.tipo,
@@ -359,15 +369,21 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         })),
       });
     }
-    // T-DADOS-56: título SEM linha `omdb` cuja fonte não respondeu (cota 401)
-    // não pode virar "fresco" — senão o reparo só voltaria em 7 dias e a cota
-    // do dia queimaria o lote inteiro. Mantém vencido para o próximo tique
-    // retomar quando a janela do provedor reabrir.
-    const omdbFalhou = resultados.some((r) => r.fonte === "omdb" && r.status === "erro");
-    const omdbFaltando = !omdbAnterior && coletadas.every((r) => r.nota.fonte !== "omdb");
-    if (omdbFalhou && omdbFaltando) {
+    // T-DADOS-56/57: fonte VOLÁTIL (OMDb por cota, Goodreads por anti-bot) que
+    // respondeu erro e cuja linha está faltando não pode virar "fresco" — o
+    // título voltaria só em 7 dias e o reparo se perderia. Mantém vencido para
+    // o próximo tique retomar quando a fonte voltar a responder.
+    const coletadasFontes = new Set(coletadas.map((r) => r.nota.fonte));
+    const pendenteDeFonteVolatil = resultados.some(
+      (r) =>
+        FONTES_VOLATEIS.has(r.fonte) &&
+        r.status === "erro" &&
+        !coletadasFontes.has(r.fonte) &&
+        !comLinhaAnterior.has(r.fonte),
+    );
+    if (pendenteDeFonteVolatil) {
       this.logger.warn(
-        `OMDb indisponível e sem linha para "${midia.titulo}" (${midia.id}) — mantendo vencido para retomar.`,
+        `Fonte volátil indisponível e sem linha para "${midia.titulo}" (${midia.id}) — mantendo vencido para retomar.`,
       );
     } else {
       await this.prisma.midia.update({
