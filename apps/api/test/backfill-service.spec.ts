@@ -2,6 +2,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import {
+  mapearCreditosTmdb,
+  mapearCreditosIgdb,
+  mapearEditoraOpenLibrary,
+  mapearEditoraComicVine,
+  mapearRevistaMal,
   BackfillService,
   truncarCampo,
   LIMITES,
@@ -552,6 +557,8 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       expect(sql).toContain("m.tipo = 'MANGA' AND m.fonte IN ('jikan','kitsu')");
       // T-DADOS-17: fila de autores de COMIC no ComicVine.
       expect(sql).toContain("m.tipo = 'COMIC' AND m.fonte = 'comicvine'");
+      // T-DADOS-60: fila dos créditos de entidade por mídia.
+      expect(sql).toContain("creditos_em IS NULL");
       // T-DADOS-13A: provedores entram na fila de novo após 30 dias.
       expect(sql).toContain(SQL_PROVEDORES_PENDENTES);
       // T-DADOS-06: a fila de arestas é a MESMA condição de "franquia
@@ -576,6 +583,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           autores_livros: 600,
           autores_mangas: 501,
           autores_comics: 31,
+          creditos_midia: 17217,
         },
       ];
     });
@@ -596,6 +604,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresLivros: 600,
       autoresMangas: 501,
       autoresComics: 31,
+      creditosMidia: 17217,
     });
   });
 
@@ -622,6 +631,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresLivros: 0,
       autoresMangas: 0,
       autoresComics: 0,
+      creditosMidia: 0,
     });
   });
 
@@ -3782,5 +3792,76 @@ describe("BackfillService — fonte_id inválido não chama a fonte (T-DADOS-16)
       "https://openlibrary.org/works/OL471932W.json",
     );
     expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+  });
+});
+
+describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)', () => {
+  it("TMDB filme: produtoras com chave prefixada c", () => {
+    const c = mapearCreditosTmdb(
+      {
+        production_companies: [
+          { id: 1, name: "A24" },
+          { id: 2, name: "Plan B" },
+        ],
+      },
+      "FILME",
+    );
+    expect(c).toEqual([
+      { fonte: "tmdb", fonte_id: "c1", nome: "A24", papel: "Produtora" },
+      { fonte: "tmdb", fonte_id: "c2", nome: "Plan B", papel: "Produtora" },
+    ]);
+  });
+
+  it("TMDB série: emissoras (n) + produtoras (c), sem colidir ids", () => {
+    const c = mapearCreditosTmdb(
+      {
+        networks: [{ id: 213, name: "Netflix" }],
+        production_companies: [{ id: 213, name: "Netflix Studios" }],
+      },
+      "SERIE",
+    );
+    expect(c.map((x) => x.fonte_id)).toEqual(["n213", "c213"]);
+    expect(c.map((x) => x.papel)).toEqual(["Emissora", "Produtora"]);
+  });
+
+  it("IGDB: empresa com os dois papéis vira uma linha só", () => {
+    const c = mapearCreditosIgdb([
+      {
+        involved_companies: [
+          { company: { id: 10, name: "Rockstar" }, developer: true, publisher: true },
+          { company: { id: 11, name: "Take-Two" }, developer: false, publisher: true },
+        ],
+      },
+    ]);
+    expect(c).toEqual([
+      { fonte: "igdb", fonte_id: "c10", nome: "Rockstar", papel: "Desenvolvedora e Publicadora" },
+      { fonte: "igdb", fonte_id: "c11", nome: "Take-Two", papel: "Publicadora" },
+    ]);
+  });
+
+  it("OpenLibrary: editoras das edições, chave por slug e sem duplicata", () => {
+    const c = mapearEditoraOpenLibrary({
+      entries: [
+        { publishers: ["Companhia das Letras"] },
+        { publishers: ["Companhia das Letras", "Seguinte"] },
+      ],
+    });
+    expect(c.map((x) => [x.fonte_id, x.nome])).toEqual([
+      ["pcompanhia-das-letras", "Companhia das Letras"],
+      ["pseguinte", "Seguinte"],
+    ]);
+    expect(c[0]?.papel).toBe("Editora");
+  });
+
+  it("ComicVine: editora do volume; sem editora devolve []", () => {
+    expect(
+      mapearEditoraComicVine({ results: { publisher: { id: 4, name: "DC Comics" } } }),
+    ).toEqual([{ fonte: "comicvine", fonte_id: "p4", nome: "DC Comics", papel: "Editora" }]);
+    expect(mapearEditoraComicVine({ results: {} })).toEqual([]);
+  });
+
+  it("MAL: revista de serialização do mangá", () => {
+    const c = mapearRevistaMal({ serialization: [{ mal_id: 83, name: "Young Animal" }] });
+    expect(c).toEqual([{ fonte: "mal", fonte_id: "s83", nome: "Young Animal", papel: "Revista" }]);
   });
 });

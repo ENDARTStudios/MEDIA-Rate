@@ -140,6 +140,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
     autoresMangas: number;
     // T-DADOS-17: fila de autores de COMIC (ComicVine por busca com guarda).
     autoresComics: number;
+    // T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo).
+    creditosMidia: number;
   }): number {
     return (
       p.semElenco +
@@ -157,7 +159,8 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       (p.sinopseLivros ?? 0) +
       (p.autoresLivros ?? 0) +
       (p.autoresMangas ?? 0) +
-      (p.autoresComics ?? 0)
+      (p.autoresComics ?? 0) +
+      (p.creditosMidia ?? 0)
     );
   }
 
