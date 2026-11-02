@@ -41,28 +41,28 @@ function media(id: string, title: string, type: string, slug: string) {
   };
 }
 
-// getCatalog mockado: `total` real por tipo (limit<=1 = contagem); itens p/ linha.
-const DATA: Record<string, { total: number; items: unknown[] }> = {
-  movie: { total: 2, items: [media("m1", "Filme A", "movie", "filme-a")] },
-  series: { total: 1, items: [media("s1", "Série A", "series", "serie-a")] },
-  game: { total: 0, items: [] },
-  book: { total: 0, items: [] },
-  comic: { total: 0, items: [] },
-  manga: { total: 0, items: [] },
+// Endpoints agregados: contagens (totais) e itens (preview-por-tipo), um de cada.
+const TOTAIS = { FILME: 2, SERIE: 1 };
+
+const PREVIEWS: Record<string, unknown[]> = {
+  FILME: [media("m1", "Filme A", "movie", "filme-a")],
+  SERIE: [media("s1", "Série A", "series", "serie-a")],
+  GAME: [],
+  LIVRO: [],
+  COMIC: [],
+  MANGA: [],
 };
 
-vi.mock("@/lib/api", () => ({
-  getCatalog: vi.fn(async (f?: { type?: string }) => {
-    const d = f?.type ? DATA[f.type] : undefined;
-    return {
-      items: d?.items ?? [],
-      total: d?.total ?? 0,
-      page: 1,
-      limit: 12,
-      hasMore: false,
-      nextCursor: null,
-    };
-  }),
+vi.mock("@/lib/http", () => ({
+  api: {
+    get: vi.fn(async (url: string) => {
+      const alvo = String(url);
+      if (alvo.includes("/midias/totais")) return TOTAIS;
+      if (alvo.includes("/midias/preview-por-tipo")) return PREVIEWS;
+      return [];
+    }),
+  },
+  ApiError: class ApiError extends Error {},
 }));
 
 const spHolder = vi.hoisted(() => ({ params: new URLSearchParams() }));
