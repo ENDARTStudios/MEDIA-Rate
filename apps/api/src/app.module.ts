@@ -46,6 +46,7 @@ import { QueueModule } from "./common/queue.module.js";
 import { UploadModule } from "./modules/upload/upload.module.js";
 import { CacheModule } from "./common/cache.module.js";
 import { InviteModule } from "./modules/invite/invite.module.js";
+import { CatalogoIngestaoModule } from "./modules/catalogo-ingestao/catalogo-ingestao.module.js";
 
 /**
  * Módulo de debug (rotas _force-error) — apenas para teste do exception
@@ -102,6 +103,8 @@ const enableDebugRoutes =
     UploadModule,
     CacheModule.forRoot(),
     InviteModule,
+    // T-DADOS-63: ingestão em escala por mídia (motor in-process + rota admin).
+    CatalogoIngestaoModule,
   ],
   providers: [
     // Interceptor global de idempotência (mutante + autenticado + Idempotency-Key).

@@ -1077,6 +1077,36 @@ model Fatura {
   @@map("fatura")
 }
 
+/// T-DADOS-63 — cursor do motor de ingestão em ESCALA por mídia.
+///
+/// Uma linha por (tipo, fonte): guarda o ponto de retomada da paginação da
+/// fonte, os contadores medidos e o estado de pausa. O motor roda DENTRO da
+/// API (mesmo padrão do drain D-576) — não depende de automação de chat, então
+/// continua avançando com o processo, sobrevive a redeploy (o cursor está no
+/// banco) e respeita um alvo por tipo.
+model IngestaoCursor {
+  tipo             TipoMidia
+  /// Chave da fonte no registro de dados ('tmdb', 'tmdb_tv', 'igdb', …).
+  fonte            String    @db.VarChar(32)
+  /// Ponto de retomada opaco do adaptador (ano/página, id, offset…).
+  cursor           Json?
+  /// Itens recebidos da fonte (inclui os que já existiam no catálogo).
+  vistos           Int       @default(0)
+  /// Itens criados no catálogo por este motor.
+  inseridos        Int       @default(0)
+  /// Pausa manual (rota admin) — o cursor não é apagado.
+  pausado          Boolean   @default(false)
+  /// Marcado quando o tipo alcança o alvo: o motor para de paginar a fonte.
+  concluido_em     DateTime? @map("concluido_em")
+  ultimo_erro      String?   @map("ultimo_erro") @db.Text
+  ultima_rodada_em DateTime? @map("ultima_rodada_em")
+  created_at       DateTime  @default(now()) @map("created_at")
+  updated_at       DateTime  @updatedAt @map("updated_at")
+
+  @@id([tipo, fonte])
+  @@map("ingestao_cursor")
+}
+
 /// Leads de categorias futuras (T185 — captura pública de e-mail).
 model WaitlistNotify {
   id        Int      @id @default(autoincrement())
