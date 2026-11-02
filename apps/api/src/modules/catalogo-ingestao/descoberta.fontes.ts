@@ -39,6 +39,12 @@ export interface ItemDescoberta {
   tituloOriginal?: string | null;
   sinopse?: string | null;
   ano?: number | null;
+  /**
+   * País de origem (ISO 3166-1 alfa-2). Só é preenchido quando a LISTAGEM da
+   * fonte já traz o dado — hoje o `/discover/tv` do TMDB traz
+   * `origin_country[0]`. Sem isso na listagem fica `null` (o drain preenche).
+   */
+  paisOrigem?: string | null;
   imagemUrl?: string | null;
   nota?: NotaDescoberta | null;
 }
@@ -175,6 +181,18 @@ const TMDB_IMG = "https://image.tmdb.org/t/p/w780";
 const PAGINAS_POR_ANO_TMDB = 50;
 const ANO_MIN_TMDB = 1900;
 
+/**
+ * Puro (testado): país de origem direto da listagem. Só o `/discover/tv`
+ * expõe `origin_country`; o `/discover/movie` não tem o campo, então filme
+ * continua `null` e o país vem do job de continuidade (mesma regra do
+ * backfill: `origin_country[0]`).
+ */
+export function paisOrigemTmdb(r: any, tipo: "FILME" | "SERIE"): string | null {
+  if (tipo !== "SERIE") return null;
+  const codigo = Array.isArray(r?.origin_country) ? String(r.origin_country[0] ?? "").trim() : "";
+  return /^[A-Z]{2}$/.test(codigo) ? codigo : null;
+}
+
 export function mapearTmdbItem(r: any, tipo: "FILME" | "SERIE"): ItemDescoberta | null {
   const id = inteiro(r?.id);
   const titulo = String(r?.title ?? r?.name ?? "").trim();
@@ -191,6 +209,7 @@ export function mapearTmdbItem(r: any, tipo: "FILME" | "SERIE"): ItemDescoberta 
     tituloOriginal: r?.original_title ?? r?.original_name ?? null,
     sinopse: limparTexto(r?.overview),
     ano: Number.isFinite(ano) ? ano : null,
+    paisOrigem: paisOrigemTmdb(r, tipo),
     imagemUrl: typeof r?.poster_path === "string" ? `${TMDB_IMG}${r.poster_path}` : null,
     nota:
       rating > 0 && votos > 0
