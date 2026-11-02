@@ -99,7 +99,11 @@ export type BackfillTipo =
   | "autoresMangas"
   // T-DADOS-17: autores de COMIC (ComicVine por busca de volume, com guarda
   // de título+ano e desempate por editora).
-  | "autoresComics";
+  | "autoresComics"
+  // T-DADOS-60: créditos de ENTIDADE por mídia — o que corresponde ao "elenco"
+  // em cada tipo (produtora/emissora, desenvolvedora/publicadora, editora,
+  // revista), sempre da fonte da própria mídia.
+  | "creditosMidia";
 
 interface BackfillEstado {
   executando: boolean;
@@ -131,6 +135,110 @@ function estadoVazio(): BackfillEstado {
  * com até ~300 chars (créditos multi-papel: "A / B / C / ...") — sem
  * truncar, o upsert falha com P2000 e o título fica preso na fila.
  */
+/** T-DADOS-60: crédito de ENTIDADE (empresa/instituição) de uma mídia. */
+export interface CreditoEntidade {
+  fonte: string;
+  fonte_id: string;
+  nome: string;
+  papel: string;
+}
+
+/** TMDB: produtoras (filme/série) e emissoras (série). */
+export function mapearCreditosTmdb(payload: any, tipo: "FILME" | "SERIE"): CreditoEntidade[] {
+  const itens: CreditoEntidade[] = [];
+  const vistos = new Set<string>();
+  const push = (prefixo: string, papel: string, lista: any[] | undefined) => {
+    for (const c of lista ?? []) {
+      const id = c?.id;
+      const nome = String(c?.name ?? "").trim();
+      if (id == null || !nome) continue;
+      const fonte_id = `${prefixo}${id}`;
+      if (vistos.has(fonte_id)) continue;
+      vistos.add(fonte_id);
+      itens.push({ fonte: "tmdb", fonte_id, nome, papel });
+    }
+  };
+  if (tipo === "SERIE") push("n", "Emissora", payload?.networks);
+  push("c", "Produtora", payload?.production_companies);
+  return itens;
+}
+
+/** IGDB: desenvolvedora/publicadora (o dado que corresponde ao elenco em games). */
+export function mapearCreditosIgdb(payload: any[] | undefined): CreditoEntidade[] {
+  const jogo = payload?.[0];
+  const saida: CreditoEntidade[] = [];
+  for (const ic of jogo?.involved_companies ?? []) {
+    const empresa = ic?.company;
+    const id = empresa?.id;
+    const nome = String(empresa?.name ?? "").trim();
+    if (id == null || !nome) continue;
+    const papeis = [ic?.developer ? "Desenvolvedora" : null, ic?.publisher ? "Publicadora" : null]
+      .filter(Boolean)
+      .join(" e ");
+    if (!papeis) continue;
+    saida.push({ fonte: "igdb", fonte_id: `c${id}`, nome, papel: papeis });
+  }
+  return saida;
+}
+
+/** OpenLibrary (edições): editoras — sem id estável, chave pelo slug do nome. */
+export function mapearEditoraOpenLibrary(payload: any): CreditoEntidade[] {
+  const edicoes = Array.isArray(payload?.entries) ? payload.entries : [];
+  const saida: CreditoEntidade[] = [];
+  const vistos = new Set<string>();
+  for (const edicao of edicoes) {
+    for (const bruto of Array.isArray(edicao?.publishers) ? edicao.publishers : []) {
+      const nome = String(bruto ?? "").trim();
+      if (!nome) continue;
+      const slug = nome
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 56);
+      if (!slug) continue;
+      const fonte_id = `p${slug}`;
+      if (vistos.has(fonte_id)) continue;
+      vistos.add(fonte_id);
+      saida.push({
+        fonte: "openlibrary",
+        fonte_id,
+        nome: truncarCampo(nome, 120) ?? nome,
+        papel: "Editora",
+      });
+    }
+  }
+  return saida;
+}
+
+/** ComicVine: editora do volume. */
+export function mapearEditoraComicVine(payload: any): CreditoEntidade[] {
+  const editora = payload?.results?.publisher;
+  const id = editora?.id;
+  const nome = String(editora?.name ?? "").trim();
+  if (id == null || !nome) return [];
+  return [{ fonte: "comicvine", fonte_id: `p${id}`, nome, papel: "Editora" }];
+}
+
+/** MAL: revista de serialização do mangá (o "veículo", não a editora). */
+export function mapearRevistaMal(payload: any): CreditoEntidade[] {
+  const lista = Array.isArray(payload?.serialization) ? payload.serialization : [];
+  const saida: CreditoEntidade[] = [];
+  for (const item of lista) {
+    const id = item?.mal_id ?? item?.id;
+    const nome = String(item?.name ?? "").trim();
+    if (id == null || !nome) continue;
+    saida.push({
+      fonte: "mal",
+      fonte_id: `s${id}`,
+      nome: truncarCampo(nome, 120) ?? nome,
+      papel: "Revista",
+    });
+  }
+  return saida;
+}
+
 export function truncarCampo(valor: string | null | undefined, max: number): string | null {
   if (valor == null) return null;
   const s = String(valor).trim();
@@ -1155,6 +1263,7 @@ export class BackfillService {
     autoresLivros: estadoVazio(),
     autoresMangas: estadoVazio(),
     autoresComics: estadoVazio(),
+    creditosMidia: estadoVazio(),
   };
 
   constructor(
@@ -2898,6 +3007,146 @@ export class BackfillService {
   }
 
   /** T-DADOS-13B/15B: autores do MANGA pelo id exato (MAL ou Kitsu). */
+  /**
+   * T-DADOS-60 — ingestão especializada por mídia (o "bot" de cada tipo):
+   * grava os créditos de ENTIDADE que correspondem ao elenco em cada mídia.
+   *  - FILME  (tmdb)      → Produtora
+   *  - SERIE  (tmdb_tv)   → Emissora + Produtora
+   *  - GAME   (igdb)      → Desenvolvedora / Publicadora
+   *  - LIVRO  (openlibrary) → Editora
+   *  - COMIC  (comicvine) → Editora
+   *  - MANGA  (jikan/MAL) → Revista de serialização
+   * Watermark `creditos_em` SEMPRE (mesmo sem crédito): a fonte não ter o
+   * dado é lacuna honesta, não erro de coleta.
+   */
+  async enriquecerCreditosMidia(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semCredito: number;
+    creditos: number;
+    falhas: number;
+  }> {
+    if (this.estado.creditosMidia.executando) {
+      throw new BadRequestException("Job créditos por mídia já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.creditosMidia = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; tipo: string; fonte: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.tipo::text AS tipo, m.fonte, m.fonte_id, m.titulo
+         FROM midia m
+        WHERE m.deleted_at IS NULL AND m.creditos_em IS NULL
+          AND m.tipo IN ('FILME','SERIE','GAME','LIVRO','COMIC','MANGA')
+        ORDER BY m.id
+        LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
+    )) as any[];
+    this.logger.log(`Backfill créditos por mídia: ${alvo.length} títulos alvo.`);
+    const chaveTmdb = process.env.TMDB_API_KEY;
+    let semCredito = 0;
+    let gravados = 0;
+    for (const m of alvo) {
+      this.estado.creditosMidia.processados++;
+      this.estado.creditosMidia.atual = m.titulo;
+      try {
+        const creditos = await this.creditosDaMidia(m, chaveTmdb);
+        if (creditos.length === 0) semCredito++;
+        for (const [i, credito] of creditos.entries()) {
+          await this.prisma.midiaElenco.upsert({
+            where: {
+              midia_id_fonte_fonte_id: {
+                midia_id: m.id,
+                fonte: credito.fonte,
+                fonte_id: credito.fonte_id,
+              },
+            },
+            create: {
+              midia_id: m.id,
+              fonte: credito.fonte,
+              fonte_id: credito.fonte_id,
+              nome: credito.nome,
+              personagem: credito.papel,
+              ordem: i,
+              foto_url: null,
+            },
+            update: { nome: credito.nome, personagem: credito.papel, ordem: i },
+          });
+          gravados++;
+        }
+        await this.prisma.midia.update({ where: { id: m.id }, data: { creditos_em: new Date() } });
+        this.estado.creditosMidia.ok++;
+      } catch (e) {
+        this.estado.creditosMidia.falhas++;
+        this.logger.warn(`Backfill créditos falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+      }
+    }
+    this.estado.creditosMidia.executando = false;
+    this.estado.creditosMidia.atual = `fim: ok=${this.estado.creditosMidia.ok} sem_credito=${semCredito} creditos=${gravados} falhas=${this.estado.creditosMidia.falhas}`;
+    this.logger.log(
+      `Backfill créditos por mídia fim: ok=${this.estado.creditosMidia.ok} sem_credito=${semCredito} creditos=${gravados} falhas=${this.estado.creditosMidia.falhas}.`,
+    );
+    return {
+      processados: this.estado.creditosMidia.processados,
+      ok: this.estado.creditosMidia.ok,
+      semCredito,
+      creditos: gravados,
+      falhas: this.estado.creditosMidia.falhas,
+    };
+  }
+
+  /** Fonte específica de cada tipo: o crédito que FAZ SENTIDO naquela mídia. */
+  private async creditosDaMidia(
+    m: { tipo: string; fonte: string; fonte_id: string },
+    chaveTmdb: string | undefined,
+  ): Promise<CreditoEntidade[]> {
+    const fonteId = String(m.fonte_id ?? "").trim();
+    if (m.tipo === "FILME" && m.fonte === "tmdb" && /^\d+$/.test(fonteId)) {
+      if (!chaveTmdb) throw new Error("TMDB_API_KEY ausente.");
+      return mapearCreditosTmdb(await this.tmdb(`/movie/${fonteId}`, chaveTmdb), "FILME");
+    }
+    if (m.tipo === "SERIE" && m.fonte === "tmdb_tv" && /^\d+$/.test(fonteId)) {
+      if (!chaveTmdb) throw new Error("TMDB_API_KEY ausente.");
+      return mapearCreditosTmdb(await this.tmdb(`/tv/${fonteId}`, chaveTmdb), "SERIE");
+    }
+    if (m.tipo === "GAME" && m.fonte === "igdb") {
+      const payload = await this.igdbPorId(
+        fonteId,
+        "name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher",
+      );
+      return mapearCreditosIgdb(payload);
+    }
+    if (m.tipo === "LIVRO" && m.fonte === "openlibrary") {
+      if (!openLibraryIdUtilizavel(fonteId)) return [];
+      const payload = await this.getJsonComThrottle<any>(
+        `https://openlibrary.org/works/${encodeURIComponent(fonteId)}/editions.json?limit=5&fields=publishers`,
+        PAUSA_AUTORES_MS,
+        { Accept: "application/json" },
+      );
+      return mapearEditoraOpenLibrary(payload);
+    }
+    if (m.tipo === "COMIC" && m.fonte === "comicvine" && /^\d+$/.test(fonteId)) {
+      const payload = await this.getJsonComicVine<any>(
+        `${COMICVINE_BASE}/volume/4050-${fonteId}/?api_key=${encodeURIComponent(this.chaveComicVine())}&format=json&field_list=publisher`,
+      );
+      return mapearEditoraComicVine(payload);
+    }
+    if (m.tipo === "MANGA" && m.fonte === "jikan" && /^\d+$/.test(fonteId)) {
+      const clientId = process.env.MAL_CLIENT_ID;
+      if (!clientId) throw new Error("MAL_CLIENT_ID ausente.");
+      const payload = await this.getJsonComThrottle<any>(
+        `${MAL_BASE}/manga/${encodeURIComponent(fonteId)}?fields=serialization`,
+        PAUSA_AUTORES_MS,
+        { "Accept": "application/json", "X-MAL-CLIENT-ID": clientId },
+      );
+      return mapearRevistaMal(payload);
+    }
+    return [];
+  }
+
   private async autoresManga(
     fonte: string,
     fonteId: string,
@@ -3499,6 +3748,8 @@ export class BackfillService {
     autoresMangas: number;
     // T-DADOS-17: autores de COMIC (ComicVine por busca com guarda).
     autoresComics: number;
+    // T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo).
+    creditosMidia: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -3518,6 +3769,7 @@ export class BackfillService {
         autores_livros: number;
         autores_mangas: number;
         autores_comics: number;
+        creditos_midia: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -3571,6 +3823,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'COMIC' AND m.fonte = 'comicvine'
             AND m.autores_em IS NULL) AS autores_comics,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.creditos_em IS NULL
+            AND m.tipo IN ('FILME','SERIE','GAME','LIVRO','COMIC','MANGA')) AS creditos_midia,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -3611,6 +3866,7 @@ export class BackfillService {
       autoresLivros: Number(row?.autores_livros ?? 0),
       autoresMangas: Number(row?.autores_mangas ?? 0),
       autoresComics: Number(row?.autores_comics ?? 0),
+      creditosMidia: Number(row?.creditos_midia ?? 0),
     };
   }
 
@@ -3726,6 +3982,13 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresComics ?? 0) > 0) {
         const r = await this.enriquecerAutoresComics(200);
         lotes.push({ tipo: "autoresComics", ok: r.ok, falhas: r.falhas });
+      }
+      // T-DADOS-60: créditos de ENTIDADE por mídia (produtora/emissora,
+      // desenvolvedora/publicadora, editora, revista). `ok` soma sem_crédito:
+      // a fonte não ter a entidade é lacuna honesta — o watermark avança.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.creditosMidia ?? 0) > 0) {
+        const r = await this.enriquecerCreditosMidia(800);
+        lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
