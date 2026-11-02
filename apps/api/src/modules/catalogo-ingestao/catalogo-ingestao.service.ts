@@ -285,8 +285,11 @@ export class CatalogoIngestaoService {
     for (const item of itens) {
       if (!item?.titulo || !item.fonteId) continue;
       const chave = item.fonte;
-      if (!porFonte.has(chave)) porFonte.set(chave, new Map());
-      const mapa = porFonte.get(chave)!;
+      let mapa = porFonte.get(chave);
+      if (!mapa) {
+        mapa = new Map<string, ItemDescoberta>();
+        porFonte.set(chave, mapa);
+      }
       if (!mapa.has(item.fonteId)) mapa.set(item.fonteId, item);
     }
     let criadosTotal = 0;
