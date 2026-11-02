@@ -315,6 +315,7 @@ export class CatalogoIngestaoService {
             titulo_original: item.tituloOriginal ?? null,
             sinopse: truncar(item.sinopse, SINOPSE_MAX),
             ano_lancamento: item.ano ?? null,
+            pais_origem: item.paisOrigem ?? null,
             imagem_url: item.imagemUrl ?? null,
             slug: slugs[indice],
             score: item.nota != null ? normalizarScore(item.nota.rating, item.nota.escala) : null,

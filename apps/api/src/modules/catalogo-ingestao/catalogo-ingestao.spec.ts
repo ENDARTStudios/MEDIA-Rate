@@ -10,6 +10,7 @@ import {
   mapearOpenLibraryItem,
   mapearTmdbItem,
   normalizarScore,
+  paisOrigemTmdb,
   slugifyCatalogo,
   sufixoSlug,
   type ItemDescoberta,
@@ -73,6 +74,35 @@ describe("descoberta por mídia (T-DADOS-63)", () => {
       expect(item.fonte).toBe("tmdb_tv");
       expect(item.ano).toBe(2011);
       expect(item.tituloOriginal).toBeNull();
+    });
+
+    it("série aproveita origin_country da listagem (país sem request extra)", () => {
+      const item = exigir(
+        mapearTmdbItem(
+          {
+            id: 1399,
+            name: "Game of Thrones",
+            first_air_date: "2011-04-17",
+            origin_country: ["US"],
+          },
+          "SERIE",
+        ),
+      );
+      expect(item.paisOrigem).toBe("US");
+    });
+
+    it("filme não recebe país da listagem (discover/movie não traz o campo)", () => {
+      const item = exigir(
+        mapearTmdbItem({ id: 603, title: "Matrix", origin_country: ["US"] }, "FILME"),
+      );
+      expect(item.paisOrigem).toBeNull();
+      expect(paisOrigemTmdb({ origin_country: ["US"] }, "FILME")).toBeNull();
+    });
+
+    it("série com país inválido/ausente fica null (não inventa ISO-2)", () => {
+      expect(paisOrigemTmdb({ origin_country: [] }, "SERIE")).toBeNull();
+      expect(paisOrigemTmdb({ origin_country: ["us"] }, "SERIE")).toBeNull();
+      expect(paisOrigemTmdb({}, "SERIE")).toBeNull();
     });
 
     it("sem voto/votos não inventa nota", () => {
