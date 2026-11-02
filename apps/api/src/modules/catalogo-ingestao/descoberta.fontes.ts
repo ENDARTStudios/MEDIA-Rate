@@ -224,7 +224,10 @@ function tmdbDescoberta(tipo: "FILME" | "SERIE"): FonteDescoberta {
     rotulo: `TMDB ${tipo}`,
     env: ["TMDB_API_KEY"],
     pausaMs: 220,
-    paginasPorTick: 12,
+    // 50 páginas × 20 = 1.000 títulos/tique (~11 s de requisições a 220 ms).
+    // O TMDB não impõe limite publicado desde 2019; segue educado e cabe nos
+    // 5 min de orçamento do tique.
+    paginasPorTick: 50,
     ativo: () => Boolean(process.env.TMDB_API_KEY),
     async proximaPagina(cursor) {
       const ano = lerNumero(cursor, "ano", new Date().getUTCFullYear());
@@ -451,7 +454,8 @@ function anilistDescoberta(): FonteDescoberta {
     rotulo: "AniList (ids MAL)",
     env: [],
     pausaMs: 800,
-    paginasPorTick: 8,
+    // AniList tem limite de ~90 req/min: 16 páginas × 50 = 800/tique, com folga.
+    paginasPorTick: 16,
     ativo: () => true,
     async proximaPagina(cursor) {
       const page = lerNumero(cursor, "pagina", 1);
