@@ -36,6 +36,7 @@ import {
   // T-DADOS-12: sinopse em inglês de mangás (Kitsu/Jikan por id exato).
   mapearSynopsisKitsu,
   mapearSynopsisJikan,
+  mapearSynopsisMal,
   // T-DADOS-13A/B: refresh de provedores (30d) e autores (OpenLibrary/Jikan/Kitsu).
   SQL_PROVEDORES_PENDENTES,
   chaveWorkOpenLibrary,
@@ -2774,7 +2775,8 @@ describe("mapearSynopsisKitsu / mapearSynopsisJikan (T-DADOS-12)", () => {
 describe("BackfillService.enriquecerSinopseMangaEn (T-DADOS-12)", () => {
   const URL_KITSU_MANGA = "https://kitsu.io/api/edge/manga/40005";
   const URL_KITSU_ANIME = "https://kitsu.io/api/edge/anime/40005";
-  const URL_JIKAN_MANGA = "https://api.jikan.moe/v4/manga/13";
+  // T-DADOS-74: `jikan` usa a API OFICIAL do MAL (jikan.moe é bloqueado no egress).
+  const URL_MAL_MANGA = "https://api.myanimelist.net/v2/manga/13?fields=synopsis";
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -2857,20 +2859,47 @@ describe("BackfillService.enriquecerSinopseMangaEn (T-DADOS-12)", () => {
     );
   });
 
-  it("Jikan por id exato: usa data.synopsis e Accept application/json", async () => {
+  it("jikan por id exato usa a API OFICIAL do MAL (não o jikan.moe bloqueado)", async () => {
     const alvo = [{ id: "m-4", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
-    mockFetchJson([{ data: { synopsis: "  A young pirate crew sets sail.  " } }]);
-    const r = await svc.enriquecerSinopseMangaEn(10);
-    expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
-    expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([URL_JIKAN_MANGA]);
-    expect((fetchJson as any).mock.calls[0][1].headers).toMatchObject({
-      Accept: "application/json",
-    });
-    expect((prisma.midia.update as any).mock.calls[0][0].data.sinopse_en).toBe(
-      "A young pirate crew sets sail.",
-    );
+    const anterior = process.env.MAL_CLIENT_ID;
+    process.env.MAL_CLIENT_ID = "client-id-de-teste";
+    try {
+      mockFetchJson([{ synopsis: "  A young pirate crew sets sail.  " }]);
+      const r = await svc.enriquecerSinopseMangaEn(10);
+      expect(r).toEqual({ processados: 1, ok: 1, semSynopsis: 0, falhas: 0 });
+      expect((fetchJson as any).mock.calls.map((c: any[]) => c[0])).toEqual([URL_MAL_MANGA]);
+      // Nenhuma chamada ao host bloqueado.
+      expect(
+        (fetchJson as any).mock.calls.some((c: any[]) => String(c[0]).includes("jikan.moe")),
+      ).toBe(false);
+      expect((fetchJson as any).mock.calls[0][1].headers).toMatchObject({
+        "Accept": "application/json",
+        "X-MAL-CLIENT-ID": "client-id-de-teste",
+      });
+      expect((prisma.midia.update as any).mock.calls[0][0].data.sinopse_en).toBe(
+        "A young pirate crew sets sail.",
+      );
+    } finally {
+      if (anterior === undefined) delete process.env.MAL_CLIENT_ID;
+      else process.env.MAL_CLIENT_ID = anterior;
+    }
+  });
+
+  it("jikan SEM credencial do MAL: falha sem marcar watermark (não grava lacuna falsa)", async () => {
+    const alvo = [{ id: "m-7", fonte: "jikan", fonte_id: "13", titulo: "One Piece" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const anterior = process.env.MAL_CLIENT_ID;
+    delete process.env.MAL_CLIENT_ID;
+    try {
+      const r = await svc.enriquecerSinopseMangaEn(10);
+      expect(r.falhas).toBe(1);
+      expect(prisma.midia.update).not.toHaveBeenCalled();
+    } finally {
+      if (anterior !== undefined) process.env.MAL_CLIENT_ID = anterior;
+    }
   });
 
   it("sem synopsis na fonte: marca sinopse_en_em mesmo assim (sai da fila) e não escreve texto", async () => {
@@ -4258,5 +4287,19 @@ describe("cota do ComicVine (T-DADOS-73)", () => {
     expect(r.falhas).toBe(1);
     expect((svc as any).buscarVolumesComicVine).toHaveBeenCalledTimes(1);
     expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("mapearSynopsisMal (T-DADOS-74)", () => {
+  it("lê o shape plano da API oficial do MAL e normaliza vazio", () => {
+    expect(mapearSynopsisMal({ synopsis: "  Guts, a former mercenary…  " })).toBe(
+      "Guts, a former mercenary…",
+    );
+    expect(mapearSynopsisMal({ synopsis: "" })).toBeNull();
+    expect(mapearSynopsisMal({ synopsis: 42 })).toBeNull();
+    expect(mapearSynopsisMal({})).toBeNull();
+    expect(mapearSynopsisMal(null)).toBeNull();
+    // Shape do Jikan (data.synopsis) NÃO é o do MAL — não confundir.
+    expect(mapearSynopsisMal({ data: { synopsis: "x" } })).toBeNull();
   });
 });
