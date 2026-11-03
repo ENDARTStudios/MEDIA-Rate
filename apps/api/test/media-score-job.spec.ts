@@ -122,6 +122,75 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
     expect(await primeira).toEqual({ processadas: 0, comErro: 0 });
   });
 
+  it("coletarEPersistir marca critica_omdb_em quando o passe coletou OMDb (T-DADOS-75)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    coleta.coletarTudo.mockResolvedValue([
+      {
+        fonte: "omdb",
+        status: "ok",
+        nota: {
+          fonte: "omdb",
+          rating: 8.7,
+          media_fonte: 7,
+          desvio_fonte: 1.5,
+          votos: 100,
+          url: "https://www.imdb.com/title/tt0068646/",
+        },
+      },
+    ]);
+
+    await job.coletarEPersistir({
+      id: "m1",
+      tipo: "FILME",
+      titulo: "The Godfather",
+      ano_lancamento: 1972,
+      fonte: "tmdb",
+      fonte_id: "238",
+      critica_omdb_em: null,
+    } as never);
+
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m1" },
+      data: {
+        avaliacoes_atualizadas_em: expect.any(Date),
+        critica_omdb_em: expect.any(Date),
+      },
+    });
+  });
+
+  it("coletarEPersistir NÃO remexe critica_omdb_em de quem o gotejamento já visitou", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    coleta.coletarTudo.mockResolvedValue([
+      {
+        fonte: "omdb",
+        status: "ok",
+        nota: {
+          fonte: "omdb",
+          rating: 8.7,
+          media_fonte: 7,
+          desvio_fonte: 1.5,
+          votos: 100,
+          url: "https://www.imdb.com/title/tt0068646/",
+        },
+      },
+    ]);
+
+    await job.coletarEPersistir({
+      id: "m2",
+      tipo: "FILME",
+      titulo: "The Godfather II",
+      ano_lancamento: 1974,
+      fonte: "tmdb",
+      fonte_id: "240",
+      critica_omdb_em: new Date("2026-10-31T00:00:00Z"),
+    } as never);
+
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m2" },
+      data: { avaliacoes_atualizadas_em: expect.any(Date) },
+    });
+  });
+
   it("coletarEPersistir: consulta com idsExternos, persistência idempotente e recálculo v3", async () => {
     const { prisma, coleta, mediaScore, job } = mockDependencias();
     coleta.coletarTudo.mockResolvedValue([
