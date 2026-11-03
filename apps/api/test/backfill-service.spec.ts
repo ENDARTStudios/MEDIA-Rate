@@ -2521,6 +2521,107 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     expect(r.lotes).toEqual([{ tipo: "generosGames", ok: 3, falhas: 0 }]);
     expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(400);
   });
+
+  it("drenarCauda serve as filas do fim com os tetos por fonte (T-DADOS-67)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 5,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 5,
+            autores_mangas: 0,
+            autores_comics: 0,
+            creditos_midia: 5,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerGenerosGames").mockResolvedValue({
+      processados: 5,
+      ok: 4,
+      semGenero: 1,
+      vinculos: 2,
+      franquias: 3,
+      falhas: 0,
+    } as any);
+    vi.spyOn(svc, "enriquecerAutoresLivros").mockResolvedValue({
+      processados: 5,
+      ok: 5,
+      falhas: 0,
+    } as any);
+    vi.spyOn(svc, "enriquecerCreditosMidia").mockResolvedValue({
+      processados: 5,
+      ok: 4,
+      semCredito: 1,
+      creditos: 7,
+      falhas: 0,
+    } as any);
+
+    const r = await svc.drenarCauda(60_000);
+    expect(r.lotes).toEqual([
+      { tipo: "generosGames", ok: 5, falhas: 0 },
+      { tipo: "autoresLivros", ok: 5, falhas: 0 },
+      { tipo: "creditosMidia", ok: 5, falhas: 0 },
+    ]);
+    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(400);
+    expect(svc.enriquecerAutoresLivros).toHaveBeenCalledWith(800);
+    expect(svc.enriquecerCreditosMidia).toHaveBeenCalledWith(800);
+  });
+
+  it("drenarCauda não chama job de fila zerada", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 0,
+            autores_mangas: 0,
+            autores_comics: 0,
+            creditos_midia: 0,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerGenerosGames");
+    vi.spyOn(svc, "enriquecerAutoresLivros");
+    vi.spyOn(svc, "enriquecerCreditosMidia");
+
+    const r = await svc.drenarCauda(60_000);
+    expect(r.lotes).toEqual([]);
+    expect(svc.enriquecerGenerosGames).not.toHaveBeenCalled();
+    expect(svc.enriquecerAutoresLivros).not.toHaveBeenCalled();
+    expect(svc.enriquecerCreditosMidia).not.toHaveBeenCalled();
+  });
 });
 
 // ===========================================================================
