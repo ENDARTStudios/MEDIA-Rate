@@ -1307,6 +1307,21 @@ const LOTE_CONTINUIDADE = 400;
 const LOTE_TMDB = 800;
 /** IGDB por id: throttle de 300ms por título. */
 const LOTE_IGDB = 400;
+/**
+ * T-DADOS-71: a continuidade (temporadas/episódios) faz 1 + N requisições por
+ * série e consumia sozinha o tique inteiro. O teto por TEMPO a mantém dentro
+ * de uma fatia previsível, sem alterar o que ela coleta.
+ */
+const PRAZO_CONTINUIDADE_MS = 4 * 60 * 1000;
+
+/** Puro (testado): o prazo da fatia do job estourou? */
+export function prazoEsgotado(
+  inicio: number,
+  prazoMs: number | undefined,
+  agora: number = Date.now(),
+): boolean {
+  return prazoMs != null && agora - inicio >= prazoMs;
+}
 
 @Injectable()
 export class BackfillService {
@@ -3532,7 +3547,12 @@ export class BackfillService {
    * T178: continuidade em escala — coleções de filmes (franquia + país) e
    * temporadas/episódios de séries que AINDA NÃO têm temporada — retomável.
    */
-  async continuidade(limite: number): Promise<{ processados: number; ok: number; falhas: number }> {
+  async continuidade(
+    limite: number,
+    /** Fatia de tempo (T-DADOS-71); sem ela comporta-se como antes. */
+    prazoMs?: number,
+  ): Promise<{ processados: number; ok: number; falhas: number }> {
+    const inicioJob = Date.now();
     const chave = process.env.TMDB_API_KEY;
     if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
     if (this.estado.continuidade.executando) {
@@ -3562,6 +3582,12 @@ export class BackfillService {
     this.logger.log(`Backfill continuidade: ${series.length} séries sem temporada.`);
     let seasonsBuscadas = 0;
     for (const s of series) {
+      if (prazoEsgotado(inicioJob, prazoMs)) {
+        this.logger.log(
+          `Backfill continuidade: fatia de ${Math.round((prazoMs ?? 0) / 1000)}s esgotada nas séries — o resto fica para o próximo tique.`,
+        );
+        break;
+      }
       this.estado.continuidade.processados++;
       this.estado.continuidade.atual = s.titulo;
       try {
@@ -3632,6 +3658,12 @@ export class BackfillService {
     const porColecao = new Map<string, { id: string; ano: number | null }[]>();
     let filmesOk = 0;
     for (const f of filmes) {
+      if (prazoEsgotado(inicioJob, prazoMs)) {
+        this.logger.log(
+          `Backfill continuidade: fatia de ${Math.round((prazoMs ?? 0) / 1000)}s esgotada nos filmes — o resto fica para o próximo tique.`,
+        );
+        break;
+      }
       this.estado.continuidade.processados++;
       this.estado.continuidade.atual = f.titulo;
       try {
@@ -4000,7 +4032,7 @@ export class BackfillService {
     try {
       // Continuidade primeiro (temporadas/episódios = maior valor visível).
       if (pendentesAntes.seriesSemTemporada > 0 || pendentesAntes.filmesSemPais > 0) {
-        const r = await this.continuidade(LOTE_CONTINUIDADE);
+        const r = await this.continuidade(LOTE_CONTINUIDADE, PRAZO_CONTINUIDADE_MS);
         lotes.push({ tipo: "continuidade", ok: r.ok, falhas: r.falhas });
       }
       // T-DADOS-65: créditos por mídia roda LOGO APÓS a continuidade. Com o
