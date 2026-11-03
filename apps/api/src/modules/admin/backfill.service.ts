@@ -4108,9 +4108,11 @@ export class BackfillService {
    * tique principal. Com o motor de ingestão enchendo o catálogo, o tique
    * principal passou a durar ~40 min e as últimas filas nunca eram
    * alcançadas — medido em 03/11: `autores_em` e `sinopse_livro_em` parados
-   * desde 17/18 de outubro com **19.967 livros** esperando. O agendador
-   * intercala esta cauda em tiques alternados, então toda fila é servida em
-   * no máximo dois tiques.
+   * desde 17/18 de outubro com **19.967 livros** esperando.
+   *
+   * Cada fila roda ISOLADA: uma falha de fonte (cota, 429, credencial) não
+   * aborta as seguintes — era exatamente isso que deixava `autores` e
+   * `sinopse` sem rodar quando um job anterior lançava.
    */
   async drenarCauda(orçamentoMs: number): Promise<{
     pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
@@ -4121,67 +4123,104 @@ export class BackfillService {
     const inicio = Date.now();
     const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
     const pendentesAntes = await this.contarPendentes();
-    let erro: string | undefined;
-    try {
-      // IGDB por id (gêneros + franquia por coleção).
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.generosGames > 0) {
-        const r = await this.enriquecerGenerosGames(LOTE_IGDB);
-        lotes.push({ tipo: "generosGames", ok: r.ok + r.semGenero, falhas: r.falhas });
+    const p = pendentesAntes;
+    /** Executa um job da cauda isolando falhas (ver docstring). */
+    const job = async <T extends { ok: number; falhas: number }>(
+      tipo: BackfillTipo,
+      executar: () => Promise<T>,
+      okDe: (r: T) => number,
+    ): Promise<void> => {
+      if (Date.now() - inicio >= orçamentoMs) return;
+      try {
+        const r = await executar();
+        lotes.push({ tipo, ok: okDe(r), falhas: r.falhas });
+      } catch (e) {
+        this.logger.warn(
+          `Drain cauda ${tipo}: ${String((e as Error)?.message ?? e).slice(0, 160)}`,
+        );
+        lotes.push({ tipo, ok: 0, falhas: 1 });
       }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.arestasFranquia > 0) {
-        const r = await this.enriquecerArestasFranquia(2000);
-        lotes.push({ tipo: "arestasFranquia", ok: r.ok, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.avaliacaoLivros > 0) {
-        const r = await this.enriquecerAvaliacaoLivros(800);
-        lotes.push({ tipo: "avaliacaoLivros", ok: r.ok + r.semAvaliacao, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.localizacao > 0) {
-        const r = await this.enriquecerLocalizacao(LOTE_TMDB);
-        lotes.push({ tipo: "localizacao", ok: r.ok, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.sinopseMangaEn > 0) {
-        const r = await this.enriquecerSinopseMangaEn(800);
-        lotes.push({ tipo: "sinopseMangaEn", ok: r.ok + r.semSynopsis, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.sinopseLivros > 0) {
-        const r = await this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
-        lotes.push({
-          tipo: "sinopseLivros",
-          ok: r.ok + r.semMatch + r.semIdioma + r.semDescricao,
-          falhas: r.falhas,
-        });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresLivros > 0) {
-        const r = await this.enriquecerAutoresLivros(800);
-        lotes.push({ tipo: "autoresLivros", ok: r.ok, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresMangas > 0) {
-        const r = await this.enriquecerAutoresMangas(800);
-        lotes.push({ tipo: "autoresMangas", ok: r.ok, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresComics > 0) {
-        const r = await this.enriquecerAutoresComics(200);
-        lotes.push({ tipo: "autoresComics", ok: r.ok, falhas: r.falhas });
-      }
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.creditosMidia > 0) {
-        const r = await this.enriquecerCreditosMidia(800);
-        lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
-      }
-      // T-DADOS-10: OMDb por último — cota diária de 900, aborta o lote.
-      if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaOmdb > 0) {
-        const r = await this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO);
-        lotes.push({
-          tipo: "criticaOmdb",
-          ok: r.ok + r.semImdb + r.semNota,
-          falhas: r.falhas,
-        });
-      }
-    } catch (e) {
-      erro = String((e as Error)?.message ?? e).slice(0, 200);
-      this.logger.warn(`Drain cauda: ${erro}`);
+    };
+
+    if (p.generosGames > 0) {
+      await job(
+        "generosGames",
+        () => this.enriquecerGenerosGames(LOTE_IGDB),
+        (r) => r.ok + r.semGenero,
+      );
+    }
+    if (p.arestasFranquia > 0) {
+      await job(
+        "arestasFranquia",
+        () => this.enriquecerArestasFranquia(2000),
+        (r) => r.ok,
+      );
+    }
+    if (p.avaliacaoLivros > 0) {
+      await job(
+        "avaliacaoLivros",
+        () => this.enriquecerAvaliacaoLivros(800),
+        (r) => r.ok + r.semAvaliacao,
+      );
+    }
+    if (p.localizacao > 0) {
+      await job(
+        "localizacao",
+        () => this.enriquecerLocalizacao(LOTE_TMDB),
+        (r) => r.ok,
+      );
+    }
+    if (p.sinopseMangaEn > 0) {
+      await job(
+        "sinopseMangaEn",
+        () => this.enriquecerSinopseMangaEn(800),
+        (r) => r.ok + r.semSynopsis,
+      );
+    }
+    if (p.sinopseLivros > 0) {
+      await job(
+        "sinopseLivros",
+        () => this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO),
+        (r) => r.ok + r.semMatch + r.semIdioma + r.semDescricao,
+      );
+    }
+    if (p.autoresLivros > 0) {
+      await job(
+        "autoresLivros",
+        () => this.enriquecerAutoresLivros(800),
+        (r) => r.ok,
+      );
+    }
+    if (p.autoresMangas > 0) {
+      await job(
+        "autoresMangas",
+        () => this.enriquecerAutoresMangas(800),
+        (r) => r.ok,
+      );
+    }
+    if (p.autoresComics > 0) {
+      await job(
+        "autoresComics",
+        () => this.enriquecerAutoresComics(200),
+        (r) => r.ok,
+      );
+    }
+    if (p.creditosMidia > 0) {
+      await job(
+        "creditosMidia",
+        () => this.enriquecerCreditosMidia(800),
+        (r) => r.ok + r.semCredito,
+      );
+    }
+    // OMDb por último — cota diária de 900, aborta o lote.
+    if (p.criticaOmdb > 0) {
+      await job(
+        "criticaOmdb",
+        () => this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO),
+        (r) => r.ok + r.semImdb + r.semNota,
+      );
     }
     const pendentesDepois = await this.contarPendentes();
-    return { pendentesAntes, pendentesDepois, lotes, ...(erro ? { erro } : {}) };
+    return { pendentesAntes, pendentesDepois, lotes };
   }
 }
