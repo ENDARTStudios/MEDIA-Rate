@@ -4091,8 +4091,11 @@ export class BackfillService {
       // T-DADOS-60: créditos de ENTIDADE por mídia (produtora/emissora,
       // desenvolvedora/publicadora, editora, revista). `ok` soma sem_crédito:
       // a fonte não ter a entidade é lacuna honesta — o watermark avança.
+      // T-DADOS-64: o catálogo foi multiplicado por 5,5 no import de 02/11;
+      // a 800/tique a fila levaria ~1 semana. O job é barato (1 GET por título
+      // com o throttle da própria fonte) e cabe no orçamento de 45 min.
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.creditosMidia ?? 0) > 0) {
-        const r = await this.enriquecerCreditosMidia(800);
+        const r = await this.enriquecerCreditosMidia(3000);
         lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
       }
     } catch (e) {
