@@ -771,6 +771,55 @@ export function generosDoPayload(jogo: any): { slug: string }[] {
   return saida;
 }
 
+export interface ColecaoIgdb {
+  nome: string;
+  slug: string;
+  /** Membros da coleção com o ano (para a ordem de lançamento). */
+  membros: { id: number; ano: number | null }[];
+}
+
+/**
+ * T-DADOS-66: `collection` do IGDB (a "série de jogos", equivalente à
+ * coleção do TMDB para filme) → franquia do catálogo. Só a coleção é usada:
+ * `franchise` é um agrupamento mais amplo e não tem membros comparáveis.
+ * Payload estranho/ausente devolve `null` e NUNCA lança.
+ */
+export function colecaoDoPayloadIgdb(jogo: any): ColecaoIgdb | null {
+  const item = Array.isArray(jogo) ? jogo[0] : jogo;
+  const colecao = item?.collection;
+  const nome = typeof colecao?.name === "string" ? colecao.name.trim() : "";
+  if (!nome) return null;
+  const slugBruto = typeof colecao?.slug === "string" ? colecao.slug.trim() : "";
+  const membros: { id: number; ano: number | null }[] = [];
+  if (Array.isArray(colecao?.games)) {
+    for (const g of colecao.games) {
+      const id = Number(g?.id);
+      if (!Number.isInteger(id) || id <= 0) continue;
+      const data = Number(g?.first_release_date);
+      const ano = Number.isFinite(data) && data > 0 ? new Date(data * 1000).getUTCFullYear() : null;
+      membros.push({ id, ano });
+    }
+  }
+  return { nome, slug: slugBruto || slugBaseFranquia(nome), membros };
+}
+
+/**
+ * Ordem de lançamento (1-based) do jogo dentro da coleção, derivada das datas
+ * que o PRÓPRIO IGDB devolveu — nunca inferida. Jogo fora da lista (payload
+ * parcial) fica depois dos membros conhecidos.
+ */
+export function ordemDoJogoNaColecao(colecao: ColecaoIgdb, idJogo: string | number): number {
+  const alvo = Number(idJogo);
+  const ordenados = [...colecao.membros].sort((a, b) => {
+    const an = a.ano ?? Number.POSITIVE_INFINITY;
+    const bn = b.ano ?? Number.POSITIVE_INFINITY;
+    if (an !== bn) return an - bn;
+    return a.id - b.id;
+  });
+  const indice = ordenados.findIndex((m) => m.id === alvo);
+  return indice >= 0 ? indice + 1 : ordenados.length + 1;
+}
+
 interface TokenTwitch {
   access_token?: string;
   expires_in?: number;
@@ -2091,6 +2140,8 @@ export class BackfillService {
     ok: number;
     semGenero: number;
     vinculos: number;
+    /** T-DADOS-66: títulos vinculados a uma franquia (coleção do IGDB). */
+    franquias: number;
     falhas: number;
   }> {
     if (!credenciaisIgdb()) {
@@ -2121,13 +2172,19 @@ export class BackfillService {
     this.logger.log(`Backfill generos IGDB: ${alvo.length} títulos alvo.`);
     let semGenero = 0;
     let vinculos = 0;
+    let franquias = 0;
     for (const m of alvo) {
       this.estado.generosGames.processados++;
       this.estado.generosGames.atual = m.titulo;
       try {
-        const generos = generosDoPayload(
-          await this.igdbPorId(m.fonte_id, "name, genres.name, genres.slug"),
+        // T-DADOS-66: a mesma requisição que traz gêneros traz a coleção do
+        // jogo (série) e os membros com data — franquia sem fila nova.
+        const payload = await this.igdbPorId(
+          m.fonte_id,
+          "name, genres.name, genres.slug, collection.name, collection.slug, " +
+            "collection.games.id, collection.games.first_release_date",
         );
+        const generos = generosDoPayload(payload);
         let vinculosTitulo = 0;
         for (const { slug } of generos) {
           const genero = await this.resolverGeneroIgdb(MAPA_GENEROS_IGDB[slug] ?? slug);
@@ -2140,6 +2197,38 @@ export class BackfillService {
           vinculosTitulo++;
         }
         vinculos += vinculosTitulo;
+        // T-DADOS-66: franquia a partir da coleção do IGDB. `ordem_lancamento`
+        // vem das datas dos membros; `ordem_cronologica` fica nula (nunca
+        // inferir ordem de história).
+        const colecao = colecaoDoPayloadIgdb(payload);
+        if (colecao) {
+          const slug = truncarCampo(colecao.slug, LIMITES.franquiaSlug);
+          if (slug) {
+            const franquia = await this.prisma.franquia.upsert({
+              where: { slug },
+              // Slug existente com outro nome → mantém o existente (curadoria).
+              update: {},
+              create: {
+                nome: truncarCampo(colecao.nome, LIMITES.franquiaNome) ?? colecao.nome,
+                slug,
+              },
+              select: { id: true },
+            });
+            await this.prisma.midiaFranquia.upsert({
+              where: {
+                midia_id_franquia_id: { midia_id: m.id, franquia_id: franquia.id },
+              },
+              create: {
+                midia_id: m.id,
+                franquia_id: franquia.id,
+                ordem_lancamento: ordemDoJogoNaColecao(colecao, m.fonte_id),
+                ordem_cronologica: null,
+              },
+              update: {},
+            });
+            franquias++;
+          }
+        }
         if (generos.length === 0) {
           // Jogo existe mas o IGDB não devolve gênero — ausência honesta,
           // não erro: marca o watermark e segue.
@@ -2160,15 +2249,16 @@ export class BackfillService {
       }
     }
     this.estado.generosGames.executando = false;
-    this.estado.generosGames.atual = `fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} falhas=${this.estado.generosGames.falhas}`;
+    this.estado.generosGames.atual = `fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} franquias=${franquias} falhas=${this.estado.generosGames.falhas}`;
     this.logger.log(
-      `Backfill generos IGDB fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} falhas=${this.estado.generosGames.falhas}.`,
+      `Backfill generos IGDB fim: ok=${this.estado.generosGames.ok} sem_genero=${semGenero} vinculos=${vinculos} franquias=${franquias} falhas=${this.estado.generosGames.falhas}.`,
     );
     return {
       processados: this.estado.generosGames.processados,
       ok: this.estado.generosGames.ok,
       semGenero,
       vinculos,
+      franquias,
       falhas: this.estado.generosGames.falhas,
     };
   }
