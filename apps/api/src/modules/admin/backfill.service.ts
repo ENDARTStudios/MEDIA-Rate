@@ -1296,6 +1296,18 @@ export function mapearAutoresComicVine(payload: any): (AutorFonte & { ordem: num
 // Serviço
 // ===========================================================================
 
+/**
+ * T-DADOS-66/67: teto POR FILA. Cada tique recebe lotes limitados para que
+ * nenhuma fila morra de fome, e o agendador intercala uma "cauda" com as
+ * filas que ficam no fim da sequência (ver `drenarCauda`).
+ */
+/** Cada item pede 1+N requests (série + temporadas). */
+const LOTE_CONTINUIDADE = 400;
+/** TMDB por id: ~1 request por título. */
+const LOTE_TMDB = 800;
+/** IGDB por id: throttle de 300ms por título. */
+const LOTE_IGDB = 400;
+
 @Injectable()
 export class BackfillService {
   private readonly logger = new Logger(BackfillService.name);
@@ -3977,17 +3989,6 @@ export class BackfillService {
   }> {
     const inicio = Date.now();
     const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
-    // T-DADOS-66: teto POR FILA. O tique é sequencial e uma fila cara consumia
-    // o orçamento inteiro, então as filas do fim nunca rodavam — medido em
-    // 03/11: `generos_igdb_em` parado em 6.996 por >20 min com 19.381
-    // pendentes (as franquias de GAME dependem dessa fila). Estes tetos
-    // garantem que TODA fila com pendência avance em todo tique.
-    /** Cada item pede 1+N requests (série + temporadas). */
-    const LOTE_CONTINUIDADE = 400;
-    /** TMDB por id: ~1 request por título. */
-    const LOTE_TMDB = 800;
-    /** IGDB por id: throttle de 300ms por título. */
-    const LOTE_IGDB = 400;
     const pendentesAntes = await this.contarPendentes();
     let erro: string | undefined;
     try {
@@ -4097,6 +4098,88 @@ export class BackfillService {
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
       this.logger.warn(`Drain: ${erro}`);
+    }
+    const pendentesDepois = await this.contarPendentes();
+    return { pendentesAntes, pendentesDepois, lotes, ...(erro ? { erro } : {}) };
+  }
+
+  /**
+   * T-DADOS-67 — CAUDA do drain: as filas que ficam no FIM da sequência do
+   * tique principal. Com o motor de ingestão enchendo o catálogo, o tique
+   * principal passou a durar ~40 min e as últimas filas nunca eram
+   * alcançadas — medido em 03/11: `autores_em` e `sinopse_livro_em` parados
+   * desde 17/18 de outubro com **19.967 livros** esperando. O agendador
+   * intercala esta cauda em tiques alternados, então toda fila é servida em
+   * no máximo dois tiques.
+   */
+  async drenarCauda(orçamentoMs: number): Promise<{
+    pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
+    pendentesDepois: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
+    erro?: string;
+  }> {
+    const inicio = Date.now();
+    const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
+    const pendentesAntes = await this.contarPendentes();
+    let erro: string | undefined;
+    try {
+      // IGDB por id (gêneros + franquia por coleção).
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.generosGames > 0) {
+        const r = await this.enriquecerGenerosGames(LOTE_IGDB);
+        lotes.push({ tipo: "generosGames", ok: r.ok + r.semGenero, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.arestasFranquia > 0) {
+        const r = await this.enriquecerArestasFranquia(2000);
+        lotes.push({ tipo: "arestasFranquia", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.avaliacaoLivros > 0) {
+        const r = await this.enriquecerAvaliacaoLivros(800);
+        lotes.push({ tipo: "avaliacaoLivros", ok: r.ok + r.semAvaliacao, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.localizacao > 0) {
+        const r = await this.enriquecerLocalizacao(LOTE_TMDB);
+        lotes.push({ tipo: "localizacao", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.sinopseMangaEn > 0) {
+        const r = await this.enriquecerSinopseMangaEn(800);
+        lotes.push({ tipo: "sinopseMangaEn", ok: r.ok + r.semSynopsis, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.sinopseLivros > 0) {
+        const r = await this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO);
+        lotes.push({
+          tipo: "sinopseLivros",
+          ok: r.ok + r.semMatch + r.semIdioma + r.semDescricao,
+          falhas: r.falhas,
+        });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresLivros > 0) {
+        const r = await this.enriquecerAutoresLivros(800);
+        lotes.push({ tipo: "autoresLivros", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresMangas > 0) {
+        const r = await this.enriquecerAutoresMangas(800);
+        lotes.push({ tipo: "autoresMangas", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.autoresComics > 0) {
+        const r = await this.enriquecerAutoresComics(200);
+        lotes.push({ tipo: "autoresComics", ok: r.ok, falhas: r.falhas });
+      }
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.creditosMidia > 0) {
+        const r = await this.enriquecerCreditosMidia(800);
+        lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
+      }
+      // T-DADOS-10: OMDb por último — cota diária de 900, aborta o lote.
+      if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaOmdb > 0) {
+        const r = await this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO);
+        lotes.push({
+          tipo: "criticaOmdb",
+          ok: r.ok + r.semImdb + r.semNota,
+          falhas: r.falhas,
+        });
+      }
+    } catch (e) {
+      erro = String((e as Error)?.message ?? e).slice(0, 200);
+      this.logger.warn(`Drain cauda: ${erro}`);
     }
     const pendentesDepois = await this.contarPendentes();
     return { pendentesAntes, pendentesDepois, lotes, ...(erro ? { erro } : {}) };

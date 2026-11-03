@@ -180,7 +180,15 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
       this.logger.log(
         `Drain: pendentes elenco=${antes.semElenco} seriesSemTemp=${antes.seriesSemTemporada} filmesSemPais=${antes.filmesSemPais} metadadosRicos=${antes.metadadosRicos} provedores=${antes.provedores} criticaIgdb=${antes.criticaIgdb} generosGames=${antes.generosGames} arestasFranquia=${antes.arestasFranquia} avaliacaoLivros=${antes.avaliacaoLivros} localizacao=${antes.localizacao} criticaOmdb=${antes.criticaOmdb} sinopseMangaEn=${antes.sinopseMangaEn} sinopseLivros=${antes.sinopseLivros} autoresLivros=${antes.autoresLivros} autoresMangas=${antes.autoresMangas} autoresComics=${antes.autoresComics}`,
       );
-      const r = await this.backfill.drenarLote(orcamentoMs());
+      // T-DADOS-67: tiques ALTERNADOS — um para as filas do topo da sequência
+      // (continuidade/metadados/provedores/crítica IGDB) e outro para a CAUDA
+      // (gêneros+franquias/autores/sinopses/créditos/OMDb). Antes, com o
+      // catálogo cheio, o tique do topo consumia o orçamento e a cauda ficava
+      // parada (medido: `autores_em` sem andar com 19.967 livros na fila).
+      const usarCauda = this.ticks % 2 === 0;
+      const r = usarCauda
+        ? await this.backfill.drenarCauda(orcamentoMs())
+        : await this.backfill.drenarLote(orcamentoMs());
       this.ultimoResumo = {
         quando: new Date().toISOString(),
         lotes: r.lotes,
@@ -188,7 +196,7 @@ export class BackfillDrainService implements OnModuleInit, OnModuleDestroy {
         ...(r.erro ? { erro: r.erro } : {}),
       };
       this.logger.log(
-        `Drain fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} generosGames=${r.pendentesDepois.generosGames} arestasFranquia=${r.pendentesDepois.arestasFranquia} avaliacaoLivros=${r.pendentesDepois.avaliacaoLivros} localizacao=${r.pendentesDepois.localizacao} criticaOmdb=${r.pendentesDepois.criticaOmdb} sinopseMangaEn=${r.pendentesDepois.sinopseMangaEn} sinopseLivros=${r.pendentesDepois.sinopseLivros} autoresLivros=${r.pendentesDepois.autoresLivros} autoresMangas=${r.pendentesDepois.autoresMangas} autoresComics=${r.pendentesDepois.autoresComics}`,
+        `Drain${usarCauda ? " (cauda)" : ""} fim do lote: ${r.lotes.map((l) => `${l.tipo}=${l.ok}ok/${l.falhas}err`).join(" ")} | restam elenco=${r.pendentesDepois.semElenco} temp=${r.pendentesDepois.seriesSemTemporada} pais=${r.pendentesDepois.filmesSemPais} ricos=${r.pendentesDepois.metadadosRicos} provedores=${r.pendentesDepois.provedores} criticaIgdb=${r.pendentesDepois.criticaIgdb} generosGames=${r.pendentesDepois.generosGames} arestasFranquia=${r.pendentesDepois.arestasFranquia} avaliacaoLivros=${r.pendentesDepois.avaliacaoLivros} localizacao=${r.pendentesDepois.localizacao} criticaOmdb=${r.pendentesDepois.criticaOmdb} sinopseMangaEn=${r.pendentesDepois.sinopseMangaEn} sinopseLivros=${r.pendentesDepois.sinopseLivros} autoresLivros=${r.pendentesDepois.autoresLivros} autoresMangas=${r.pendentesDepois.autoresMangas} autoresComics=${r.pendentesDepois.autoresComics}`,
       );
       // T179: progresso = a fila diminuiu. Sem progresso por 2 tiques, espaça
       // 6h (fila provavelmente presa: título sem elenco/país na fonte).
