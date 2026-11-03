@@ -79,6 +79,7 @@ export class ColetaProdController {
         ano_lancamento: true,
         fonte: true,
         fonte_id: true,
+        critica_omdb_em: true,
       },
     });
     if (!midia) {
