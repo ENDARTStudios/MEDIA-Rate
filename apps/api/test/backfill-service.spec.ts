@@ -2194,7 +2194,7 @@ describe("BackfillService.enriquecerLocalizacao (T-DADOS-08)", () => {
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "localizacao", ok: 3, falhas: 0 }]);
-    expect(svc.enriquecerLocalizacao).toHaveBeenCalledWith(2000);
+    expect(svc.enriquecerLocalizacao).toHaveBeenCalledWith(800);
   });
 });
 
@@ -2515,7 +2515,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "generosGames", ok: 3, falhas: 0 }]);
-    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(2000);
+    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(400);
   });
 });
 

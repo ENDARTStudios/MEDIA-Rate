@@ -3974,39 +3974,50 @@ export class BackfillService {
   }> {
     const inicio = Date.now();
     const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
+    // T-DADOS-66: teto POR FILA. O tique é sequencial e uma fila cara consumia
+    // o orçamento inteiro, então as filas do fim nunca rodavam — medido em
+    // 03/11: `generos_igdb_em` parado em 6.996 por >20 min com 19.381
+    // pendentes (as franquias de GAME dependem dessa fila). Estes tetos
+    // garantem que TODA fila com pendência avance em todo tique.
+    /** Cada item pede 1+N requests (série + temporadas). */
+    const LOTE_CONTINUIDADE = 400;
+    /** TMDB por id: ~1 request por título. */
+    const LOTE_TMDB = 800;
+    /** IGDB por id: throttle de 300ms por título. */
+    const LOTE_IGDB = 400;
     const pendentesAntes = await this.contarPendentes();
     let erro: string | undefined;
     try {
       // Continuidade primeiro (temporadas/episódios = maior valor visível).
       if (pendentesAntes.seriesSemTemporada > 0 || pendentesAntes.filmesSemPais > 0) {
-        const r = await this.continuidade(2000);
+        const r = await this.continuidade(LOTE_CONTINUIDADE);
         lotes.push({ tipo: "continuidade", ok: r.ok, falhas: r.falhas });
       }
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
-        const r = await this.enriquecerMetadados(2000);
+        const r = await this.enriquecerMetadados(LOTE_TMDB);
         lotes.push({ tipo: "metadados", ok: r.ok, falhas: r.falhas });
       }
       // T-DADOS-01: por último a fila mais nova (duração/gêneros/franquia).
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.metadadosRicos > 0) {
-        const r = await this.enriquecerMetadadosRicos(2000);
+        const r = await this.enriquecerMetadadosRicos(LOTE_TMDB);
         lotes.push({ tipo: "metadadosRicos", ok: r.ok, falhas: r.falhas });
       }
       // T-DADOS-02: fecho com os provedores de streaming (ficha "Onde assistir").
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.provedores > 0) {
-        const r = await this.enriquecerProvedores(2000);
+        const r = await this.enriquecerProvedores(LOTE_TMDB);
         lotes.push({ tipo: "provedores", ok: r.ok, falhas: r.falhas });
       }
       // T-DADOS-03: por último a crítica de games (IGDB por id, com throttle —
       // é a fila mais lenta: 300ms por título, ~10min num lote de 2000).
       // `ok` soma os títulos SEM crítica: eles saíram da fila (watermark).
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.criticaIgdb > 0) {
-        const r = await this.enriquecerCriticaIgdb(2000);
+        const r = await this.enriquecerCriticaIgdb(LOTE_IGDB);
         lotes.push({ tipo: "criticaIgdb", ok: r.ok + r.semCritica, falhas: r.falhas });
       }
       // T-DADOS-09: gêneros de games no IGDB (mesmo throttle da crítica).
       // `ok` soma os títulos SEM gênero: eles saíram da fila (watermark).
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.generosGames > 0) {
-        const r = await this.enriquecerGenerosGames(2000);
+        const r = await this.enriquecerGenerosGames(LOTE_IGDB);
         lotes.push({ tipo: "generosGames", ok: r.ok + r.semGenero, falhas: r.falhas });
       }
       // T-DADOS-06: fecha as arestas SEQUENCIA_DE que faltam nas franquias
@@ -4024,7 +4035,7 @@ export class BackfillService {
       }
       // T-DADOS-08: localização en/es + classificação (TMDB por id).
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.localizacao > 0) {
-        const r = await this.enriquecerLocalizacao(2000);
+        const r = await this.enriquecerLocalizacao(LOTE_TMDB);
         lotes.push({ tipo: "localizacao", ok: r.ok, falhas: r.falhas });
       }
       // T-DADOS-10: crítica de FILME/SERIE via OMDb (throttle 300ms, teto
