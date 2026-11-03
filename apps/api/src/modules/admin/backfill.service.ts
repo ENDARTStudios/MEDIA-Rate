@@ -49,7 +49,8 @@ const PAUSA_OMDB_MS = 300;
 const PAUSA_SINOPSE_MANGA_MS = 350;
 const ESPERA_429_SINOPSE_MS = 2000;
 const KITSU_BASE = "https://kitsu.io/api/edge";
-const JIKAN_BASE = "https://api.jikan.moe/v4";
+// T-DADOS-74: `api.jikan.moe` está bloqueado no egress — o mangá `jikan`
+// consulta a API oficial do MAL (`MAL_BASE`) pelo MESMO id (Jikan é wrapper).
 // T-DADOS-15B: api.jikan.moe está bloqueado no egress do Railway; a API
 // oficial do MAL (mesmo id, pois o Jikan é wrapper do MAL) resolve os autores.
 const MAL_BASE = "https://api.myanimelist.net/v2";
@@ -935,6 +936,17 @@ export function mapearSynopsisKitsu(payload: any): string | null {
  * T-DADOS-12: `GET https://api.jikan.moe/v4/manga/<fonte_id>` →
  * `data.synopsis`. Mesma semântica de trim/null do mapper do Kitsu.
  */
+/**
+ * T-DADOS-74: `synopsis` da **API oficial do MAL** (v2, `fields=synopsis`) —
+ * shape plano (`payload.synopsis`), diferente do Jikan (`data.synopsis`).
+ */
+export function mapearSynopsisMal(payload: any): string | null {
+  const bruto = payload?.synopsis;
+  if (typeof bruto !== "string") return null;
+  const sinopse = bruto.trim();
+  return sinopse || null;
+}
+
 export function mapearSynopsisJikan(payload: any): string | null {
   const bruto = payload?.data?.synopsis;
   if (typeof bruto !== "string") return null;
@@ -2918,7 +2930,19 @@ export class BackfillService {
       });
     }
     if (fonte === "jikan") {
-      return this.getSinopse(`${JIKAN_BASE}/manga/${id}`, { Accept: "application/json" });
+      // T-DADOS-74: `api.jikan.moe` está BLOQUEADO no egress do Railway (o
+      // mesmo já aconteceu com autores — T-DADOS-15B). O `fonte_id` de um
+      // mangá `jikan` É o id do MAL (o Jikan é wrapper dele), então a API
+      // oficial resolve pelo mesmo id. Sem credencial o erro propaga e o
+      // watermark NÃO avança (retenta), em vez de marcar lacuna falsa.
+      const clientId = process.env.MAL_CLIENT_ID;
+      if (!clientId) {
+        throw new Error("MAL_CLIENT_ID ausente: sem credencial para a sinopse de mangá (jikan).");
+      }
+      return this.getSinopse(`${MAL_BASE}/manga/${id}?fields=synopsis`, {
+        "Accept": "application/json",
+        "X-MAL-CLIENT-ID": clientId,
+      });
     }
     return null;
   }
@@ -2936,9 +2960,9 @@ export class BackfillService {
           headers: { "User-Agent": UA_BROWSER, ...headers },
           timeoutMs: 20000,
         });
-        return url.startsWith(KITSU_BASE)
-          ? mapearSynopsisKitsu(payload)
-          : mapearSynopsisJikan(payload);
+        if (url.startsWith(KITSU_BASE)) return mapearSynopsisKitsu(payload);
+        if (url.startsWith(MAL_BASE)) return mapearSynopsisMal(payload);
+        return mapearSynopsisJikan(payload);
       } catch (e) {
         const status = (e as { status?: number } | null)?.status;
         const eh429 = status === 429 || String(e).includes("HTTP 429");
