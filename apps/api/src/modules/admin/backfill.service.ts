@@ -4003,6 +4003,20 @@ export class BackfillService {
         const r = await this.continuidade(LOTE_CONTINUIDADE);
         lotes.push({ tipo: "continuidade", ok: r.ok, falhas: r.falhas });
       }
+      // T-DADOS-65: créditos por mídia roda LOGO APÓS a continuidade. Com o
+      // catálogo em ~138 mil títulos, as filas anteriores (elo/país/metadados)
+      // consomem o orçamento de 45 min e o job de créditos — último na ordem —
+      // nunca era alcançado (~1,6 mil títulos/h contra fila de 116 mil).
+      // T-DADOS-60: créditos de ENTIDADE por mídia (produtora/emissora,
+      // desenvolvedora/publicadora, editora, revista). `ok` soma sem_crédito:
+      // a fonte não ter a entidade é lacuna honesta — o watermark avança.
+      // T-DADOS-64: o catálogo foi multiplicado por 5,5 no import de 02/11;
+      // a 800/tique a fila levaria ~1 semana. O job é barato (1 GET por título
+      // com o throttle da própria fonte) e cabe no orçamento de 45 min.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.creditosMidia ?? 0) > 0) {
+        const r = await this.enriquecerCreditosMidia(3000);
+        lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
+      }
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
         const r = await this.enriquecerMetadados(LOTE_TMDB);
         lotes.push({ tipo: "metadados", ok: r.ok, falhas: r.falhas });
@@ -4093,16 +4107,6 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.autoresComics ?? 0) > 0) {
         const r = await this.enriquecerAutoresComics(200);
         lotes.push({ tipo: "autoresComics", ok: r.ok, falhas: r.falhas });
-      }
-      // T-DADOS-60: créditos de ENTIDADE por mídia (produtora/emissora,
-      // desenvolvedora/publicadora, editora, revista). `ok` soma sem_crédito:
-      // a fonte não ter a entidade é lacuna honesta — o watermark avança.
-      // T-DADOS-64: o catálogo foi multiplicado por 5,5 no import de 02/11;
-      // a 800/tique a fila levaria ~1 semana. O job é barato (1 GET por título
-      // com o throttle da própria fonte) e cabe no orçamento de 45 min.
-      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.creditosMidia ?? 0) > 0) {
-        const r = await this.enriquecerCreditosMidia(3000);
-        lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
       }
     } catch (e) {
       erro = String((e as Error)?.message ?? e).slice(0, 200);
