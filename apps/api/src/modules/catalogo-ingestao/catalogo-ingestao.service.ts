@@ -314,6 +314,7 @@ export class CatalogoIngestaoService {
             titulo: item.titulo,
             titulo_original: item.tituloOriginal ?? null,
             sinopse: truncar(item.sinopse, SINOPSE_MAX),
+            sinopse_en: truncar(item.sinopseEn, SINOPSE_MAX),
             ano_lancamento: item.ano ?? null,
             pais_origem: item.paisOrigem ?? null,
             imagem_url: item.imagemUrl ?? null,

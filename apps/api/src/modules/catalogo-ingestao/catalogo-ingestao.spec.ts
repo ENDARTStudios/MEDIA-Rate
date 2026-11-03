@@ -10,6 +10,7 @@ import {
   mapearOpenLibraryItem,
   mapearTmdbItem,
   normalizarScore,
+  avancarCursorAnilist,
   paisOrigemTmdb,
   slugifyCatalogo,
   sufixoSlug,
@@ -183,12 +184,24 @@ describe("descoberta por mídia (T-DADOS-63)", () => {
       expect(item.fonte).toBe("jikan");
       expect(item.fonteId).toBe("2");
       expect(item.nota).toMatchObject({ fonte: "anilist", escala: "0-100", rating: 88 });
-      expect(item.sinopse).toBe("Berserk é um mangá de fantasia.");
+      // AniList descreve em inglês: o texto NÃO vai para o campo pt-BR.
+      expect(item.sinopse).toBeUndefined();
+      expect(item.sinopseEn).toBe("Berserk é um mangá de fantasia.");
       expect(item.tituloOriginal).toBe("ベルセルク");
     });
 
     it("descarta entrada sem idMal (sem id canônico não há identidade)", () => {
       expect(mapearAnilistItem({ id: 1, title: { romaji: "X" } })).toBeNull();
+    });
+
+    it("cursor avança por página, troca de ano e encerra no ano corrente", () => {
+      expect(avancarCursorAnilist(1990, 1, true)).toEqual({ ano: 1990, pagina: 2 });
+      // teto de 5.000 resultados por consulta (100 páginas de 50).
+      expect(avancarCursorAnilist(1990, 100, true)).toEqual({ ano: 1991, pagina: 1 });
+      // fonte esgotada no ano → próximo ano.
+      expect(avancarCursorAnilist(1990, 7, false)).toEqual({ ano: 1991, pagina: 1 });
+      const anoAtual = new Date().getUTCFullYear();
+      expect(avancarCursorAnilist(anoAtual, 100, true)).toBeNull();
     });
   });
 

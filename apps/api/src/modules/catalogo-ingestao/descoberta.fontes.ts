@@ -38,6 +38,8 @@ export interface ItemDescoberta {
   titulo: string;
   tituloOriginal?: string | null;
   sinopse?: string | null;
+  /** Sinopse em INGLÊS (fonte que descreve nessa língua, ex.: AniList). */
+  sinopseEn?: string | null;
   ano?: number | null;
   /**
    * País de origem (ISO 3166-1 alfa-2). Só é preenchido quando a LISTAGEM da
@@ -424,10 +426,18 @@ function igdbDescoberta(): FonteDescoberta {
 
 const ANILIST_URL = "https://graphql.anilist.co";
 const ANILIST_POR_PAGINA = 50;
-const ANILIST_QUERY = `query ($page: Int) {
+/** AniList devolve no máximo 5.000 resultados por consulta: 100 × 50. */
+const PAGINAS_POR_ANO_ANILIST = 100;
+/** Primeiro ano varrido (mangá moderno; anos anteriores são poucos e entram no 1950). */
+const ANO_MIN_MANGA = 1950;
+// T-DADOS-69: o AniList trava a paginação por Page em 5.000 resultados (o
+// tipo parava em ~4,8 mil mangás). A partição é por ANO de início
+// (`startDate_greater/lesser`, FuzzyDateInt), que cabe no teto; o cursor é
+// { ano, pagina }. `sort: ID` mantém a ordem estável entre páginas.
+const ANILIST_QUERY = `query ($page: Int, $de: FuzzyDateInt, $ate: FuzzyDateInt) {
   Page(page: $page, perPage: ${ANILIST_POR_PAGINA}) {
     pageInfo { hasNextPage }
-    media(type: MANGA, sort: POPULARITY_DESC, isAdult: false) {
+    media(type: MANGA, sort: ID, startDate_greater: $de, startDate_lesser: $ate, isAdult: false) {
       id
       idMal
       meanScore
@@ -457,7 +467,9 @@ export function mapearAnilistItem(m: any): ItemDescoberta | null {
     fonteId: String(idMal),
     titulo,
     tituloOriginal: typeof m?.title?.native === "string" ? m.title.native : null,
-    sinopse: limparTexto(m?.description),
+    // `description` do AniList é em inglês: vai para `sinopse_en`, nunca para o
+    // campo pt-BR (`sinopse`) — misturar idioma na ficha é defeito de dado.
+    sinopseEn: limparTexto(m?.description),
     ano: Number.isInteger(Number(m?.startDate?.year)) ? Number(m.startDate.year) : null,
     imagemUrl: typeof m?.coverImage?.large === "string" ? m.coverImage.large : null,
     nota:
@@ -473,6 +485,20 @@ export function mapearAnilistItem(m: any): ItemDescoberta | null {
   };
 }
 
+/**
+ * Puro (testado): cursor por ID do AniList. Devolve `null` quando a fonte
+ * esgotou; caso contrário o MAIOR id da página (a query ordena por ID).
+ */
+export function avancarCursorAnilist(
+  ano: number,
+  pagina: number,
+  temProxima: boolean,
+): Record<string, unknown> | null {
+  if (temProxima && pagina < PAGINAS_POR_ANO_ANILIST) return { ano, pagina: pagina + 1 };
+  const proximoAno = ano + 1;
+  return proximoAno <= new Date().getUTCFullYear() ? { ano: proximoAno, pagina: 1 } : null;
+}
+
 function anilistDescoberta(): FonteDescoberta {
   return {
     tipo: "MANGA",
@@ -484,10 +510,14 @@ function anilistDescoberta(): FonteDescoberta {
     paginasPorTick: 16,
     ativo: () => true,
     async proximaPagina(cursor) {
-      const page = lerNumero(cursor, "pagina", 1);
+      const ano = lerNumero(cursor, "ano", ANO_MIN_MANGA);
+      const pagina = lerNumero(cursor, "pagina", 1);
+      if (ano > new Date().getUTCFullYear()) return { itens: [], proximo: null };
+      const de = ano * 10000 + 101;
+      const ate = (ano + 1) * 10000 + 101;
       const dados = await postJson<any>(
         ANILIST_URL,
-        JSON.stringify({ query: ANILIST_QUERY, variables: { page } }),
+        JSON.stringify({ query: ANILIST_QUERY, variables: { page: pagina, de, ate } }),
         {
           headers: {
             "User-Agent": UA_BROWSER,
@@ -502,7 +532,7 @@ function anilistDescoberta(): FonteDescoberta {
         .map(mapearAnilistItem)
         .filter((i): i is ItemDescoberta => i !== null);
       const temProxima = Boolean(dados?.data?.Page?.pageInfo?.hasNextPage);
-      return { itens, proximo: temProxima ? { pagina: page + 1 } : null };
+      return { itens, proximo: avancarCursorAnilist(ano, pagina, temProxima) };
     },
   };
 }
