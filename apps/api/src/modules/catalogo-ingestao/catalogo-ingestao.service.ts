@@ -319,6 +319,10 @@ export class CatalogoIngestaoService {
             imagem_url: item.imagemUrl ?? null,
             slug: slugs[indice],
             score: item.nota != null ? normalizarScore(item.nota.rating, item.nota.escala) : null,
+            // T-DADOS-68: entidade que veio na própria listagem (editora do
+            // ComicVine) entra já com o watermark — o drain não gasta uma
+            // chamada por título para redescobrir o mesmo dado.
+            creditos_em: item.creditoEntidade ? new Date() : null,
           })),
           select: { id: true, fonte_id: true },
         });
@@ -371,6 +375,26 @@ export class CatalogoIngestaoService {
           score_critica: classe === "critica" ? score : null,
           votos_total: Number.isFinite(item.nota.votos) ? item.nota.votos : 0,
         });
+      }
+      // Créditos de entidade da listagem (editora do ComicVine).
+      const elenco = novos.flatMap((item) => {
+        const credito = item.creditoEntidade;
+        const midiaId = idPorFonteId.get(item.fonteId.slice(0, 64));
+        if (!credito || !midiaId) return [];
+        return [
+          {
+            midia_id: midiaId,
+            fonte: credito.fonte,
+            fonte_id: credito.fonteId.slice(0, 64),
+            nome: credito.nome,
+            personagem: credito.papel,
+            ordem: 0,
+            foto_url: null,
+          },
+        ];
+      });
+      if (elenco.length) {
+        await this.prisma.midiaElenco.createMany({ data: elenco, skipDuplicates: true });
       }
       if (avaliacoes.length) {
         await this.prisma.avaliacaoFonte.createMany({ data: avaliacoes, skipDuplicates: true });
