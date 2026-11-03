@@ -1331,8 +1331,13 @@ export function mapearAutoresComicVine(payload: any): (AutorFonte & { ordem: num
 const LOTE_CONTINUIDADE = 400;
 /** TMDB por id: ~1 request por título. */
 const LOTE_TMDB = 800;
-/** IGDB por id: throttle de 300ms por título. */
-const LOTE_IGDB = 400;
+/**
+ * IGDB por id: throttle de 320ms por título. T-DADOS-77: 400 → 600 — as duas
+ * filas do IGDB (crítica e gêneros+franquia) são hoje as maiores da cauda
+ * (21.414 e 14.814 em 03/11) e 600 cabe folgado no orçamento do tique
+ * (600 × 320 ms ≈ 3,2 min), com o IGDB aceitando ~4 req/s.
+ */
+const LOTE_IGDB = 600;
 /**
  * T-DADOS-71: a continuidade (temporadas/episódios) faz 1 + N requisições por
  * série e consumia sozinha o tique inteiro. O teto por TEMPO a mantém dentro
