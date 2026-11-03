@@ -2622,6 +2622,59 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     expect(svc.enriquecerAutoresLivros).not.toHaveBeenCalled();
     expect(svc.enriquecerCreditosMidia).not.toHaveBeenCalled();
   });
+
+  it("drenarCauda isola falha de uma fila — as seguintes continuam (T-DADOS-67)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 5,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 5,
+            autores_mangas: 0,
+            autores_comics: 0,
+            creditos_midia: 5,
+          },
+        ];
+      }
+      return [];
+    });
+    // A fonte do IGDB falha (429) e, antes, isso abortava a cauda inteira.
+    vi.spyOn(svc, "enriquecerGenerosGames").mockRejectedValue(new Error("HTTP 429 IGDB"));
+    vi.spyOn(svc, "enriquecerAutoresLivros").mockResolvedValue({
+      processados: 5,
+      ok: 5,
+      falhas: 0,
+    } as any);
+    vi.spyOn(svc, "enriquecerCreditosMidia").mockResolvedValue({
+      processados: 5,
+      ok: 5,
+      semCredito: 0,
+      creditos: 9,
+      falhas: 0,
+    } as any);
+
+    const r = await svc.drenarCauda(60_000);
+    expect(r.lotes).toEqual([
+      { tipo: "generosGames", ok: 0, falhas: 1 },
+      { tipo: "autoresLivros", ok: 5, falhas: 0 },
+      { tipo: "creditosMidia", ok: 5, falhas: 0 },
+    ]);
+    expect(svc.enriquecerAutoresLivros).toHaveBeenCalledWith(800);
+  });
 });
 
 // ===========================================================================
