@@ -2247,15 +2247,17 @@ describe("colecaoDoPayloadIgdb e ordemDoJogoNaColecao (T-DADOS-66)", () => {
   }
 
   const payload = {
-    collection: {
-      name: "The Witcher",
-      slug: "the-witcher",
-      games: [
-        { id: 1027, first_release_date: 1266969600 }, // 2010
-        { id: 1942, first_release_date: 1411948800 }, // 2014
-        { id: 1029, first_release_date: 1690848000 }, // 2023
-      ],
-    },
+    collections: [
+      {
+        name: "The Witcher",
+        slug: "the-witcher",
+        games: [
+          { id: 1027, first_release_date: 1266969600 }, // 2010
+          { id: 1942, first_release_date: 1411948800 }, // 2014
+          { id: 1029, first_release_date: 1690848000 }, // 2023
+        ],
+      },
+    ],
   };
 
   it("mapeia nome, slug e membros com ano", () => {
@@ -2267,7 +2269,7 @@ describe("colecaoDoPayloadIgdb e ordemDoJogoNaColecao (T-DADOS-66)", () => {
   });
 
   it("deriva o slug do nome quando a fonte não manda slug", () => {
-    const colecao = colecaoDoPayloadIgdb({ collection: { name: "Final Fantasy" } });
+    const colecao = colecaoDoPayloadIgdb({ collections: [{ name: "Final Fantasy" }] });
     expect(colecao?.slug).toBe("final-fantasy");
     expect(colecao?.membros).toEqual([]);
   });
@@ -2276,7 +2278,7 @@ describe("colecaoDoPayloadIgdb e ordemDoJogoNaColecao (T-DADOS-66)", () => {
     expect(colecaoDoPayloadIgdb({ name: "Jogo solo" })).toBeNull();
     expect(colecaoDoPayloadIgdb({})).toBeNull();
     expect(colecaoDoPayloadIgdb(null)).toBeNull();
-    expect(colecaoDoPayloadIgdb([{ collection: { name: "  " } }])).toBeNull();
+    expect(colecaoDoPayloadIgdb([{ collections: [{ name: "  " }] }])).toBeNull();
   });
 
   it("ordem de lançamento é 1-based pelas datas; sem ano vai para o fim", () => {
@@ -2353,7 +2355,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     });
     const chamadaIgdb = (postJson as any).mock.calls.find((c: any[]) => c[0] === URL_IGDB_GAMES);
     expect(chamadaIgdb[1]).toBe(
-      "fields name, genres.name, genres.slug, collection.name, collection.slug, collection.games.id, collection.games.first_release_date; where id = 7346; limit 1;",
+      "fields name, genres.name, genres.slug, collections.name, collections.slug, collections.games.id, collections.games.first_release_date; where id = 7346; limit 1;",
     );
     expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
   });
@@ -2367,14 +2369,16 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
         {
           name: "Baldur's Gate 3",
           genres: [],
-          collection: {
-            name: "Baldur's Gate",
-            slug: "baldurs-gate",
-            games: [
-              { id: 1029, first_release_date: 1690848000 }, // 2023
-              { id: 9, first_release_date: 946684800 }, // 2000
-            ],
-          },
+          collections: [
+            {
+              name: "Baldur's Gate",
+              slug: "baldurs-gate",
+              games: [
+                { id: 1029, first_release_date: 1690848000 }, // 2023
+                { id: 9, first_release_date: 946684800 }, // 2000
+              ],
+            },
+          ],
         },
       ],
     ]);

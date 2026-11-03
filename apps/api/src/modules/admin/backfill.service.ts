@@ -786,7 +786,10 @@ export interface ColecaoIgdb {
  */
 export function colecaoDoPayloadIgdb(jogo: any): ColecaoIgdb | null {
   const item = Array.isArray(jogo) ? jogo[0] : jogo;
-  const colecao = item?.collection;
+  // O IGDB devolve `collections` (PLURAL). O singular `collection` não existe
+  // no /v4/games e é ignorado em silêncio (200 sem o campo) — medido em 03/11.
+  const bruto = item?.collections ?? item?.collection;
+  const colecao = Array.isArray(bruto) ? bruto[0] : bruto;
   const nome = typeof colecao?.name === "string" ? colecao.name.trim() : "";
   if (!nome) return null;
   const slugBruto = typeof colecao?.slug === "string" ? colecao.slug.trim() : "";
@@ -2181,8 +2184,8 @@ export class BackfillService {
         // jogo (série) e os membros com data — franquia sem fila nova.
         const payload = await this.igdbPorId(
           m.fonte_id,
-          "name, genres.name, genres.slug, collection.name, collection.slug, " +
-            "collection.games.id, collection.games.first_release_date",
+          "name, genres.name, genres.slug, collections.name, collections.slug, " +
+            "collections.games.id, collections.games.first_release_date",
         );
         const generos = generosDoPayload(payload);
         let vinculosTitulo = 0;
