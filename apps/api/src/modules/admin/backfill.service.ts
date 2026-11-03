@@ -1363,6 +1363,13 @@ export class BackfillService {
    * autores, OMDb) nunca rodavam. Cada chamada começa na fila seguinte.
    */
   private caudaCursor = 0;
+  /**
+   * T-DADOS-68: rotação por TIPO dos créditos. A cauda rotativa dava ao job
+   * 800 títulos a cada ~10 tiques com fila de 124 mil (watermark parado em
+   * 15:54 por 7 h em 5 dos 6 tipos). Agora ele roda TODO tique da cauda, com
+   * um tipo por vez e lote de 3.000 — cobre os 6 tipos em ~6 tiques.
+   */
+  private creditosCursor = 0;
   private readonly logger = new Logger(BackfillService.name);
   private estado: Record<BackfillTipo, BackfillEstado> = {
     metadados: estadoVazio(),
@@ -3189,7 +3196,10 @@ export class BackfillService {
    * Watermark `creditos_em` SEMPRE (mesmo sem crédito): a fonte não ter o
    * dado é lacuna honesta, não erro de coleta.
    */
-  async enriquecerCreditosMidia(limite: number): Promise<{
+  async enriquecerCreditosMidia(
+    limite: number,
+    tipoDaVez?: "FILME" | "SERIE" | "GAME" | "LIVRO" | "COMIC" | "MANGA",
+  ): Promise<{
     processados: number;
     ok: number;
     semCredito: number;
@@ -3211,7 +3221,9 @@ export class BackfillService {
       `SELECT m.id::text, m.tipo::text AS tipo, m.fonte, m.fonte_id, m.titulo
          FROM midia m
         WHERE m.deleted_at IS NULL AND m.creditos_em IS NULL
-          AND m.tipo IN ('FILME','SERIE','GAME','LIVRO','COMIC','MANGA')
+          AND m.tipo IN (${
+            tipoDaVez ? `'${tipoDaVez}'` : "'FILME','SERIE','GAME','LIVRO','COMIC','MANGA'"
+          })
         ORDER BY m.id
         LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
     )) as any[];
@@ -4247,6 +4259,21 @@ export class BackfillService {
       }
     };
 
+    // T-DADOS-68: créditos por mídia roda em TODO tique da cauda, com um tipo
+    // por vez (rotação própria) e lote de 3.000. Antes ele disputava a rotação
+    // com outras 9 filas: com 124 mil pendentes, recebia 800 títulos a cada
+    // ~10 tiques e o watermark ficou 7 h parado em 5 dos 6 tipos.
+    if (p.creditosMidia > 0) {
+      const tipos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
+      const tipoDaVez = tipos[this.creditosCursor % tipos.length];
+      this.creditosCursor = (this.creditosCursor + 1) % tipos.length;
+      await job(
+        "creditosMidia",
+        () => this.enriquecerCreditosMidia(3000, tipoDaVez),
+        (r: any) => r.ok + r.semCredito,
+      );
+    }
+
     // Fila → executor → soma de `ok`. Só entram as com pendência; a ordem de
     // partida rotaciona (ver `caudaCursor`).
     const filas: {
@@ -4308,12 +4335,6 @@ export class BackfillService {
         tem: p.autoresComics > 0,
         executar: () => this.enriquecerAutoresComics(200),
         okDe: (r: any) => r.ok,
-      },
-      {
-        tipo: "creditosMidia",
-        tem: p.creditosMidia > 0,
-        executar: () => this.enriquecerCreditosMidia(800),
-        okDe: (r: any) => r.ok + r.semCredito,
       },
       {
         tipo: "criticaOmdb",
