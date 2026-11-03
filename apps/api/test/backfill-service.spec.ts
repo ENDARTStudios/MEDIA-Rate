@@ -22,6 +22,7 @@ import {
   mapearCriticaIgdb,
   generosDoPayload,
   colecaoDoPayloadIgdb,
+  prazoEsgotado,
   ordemDoJogoNaColecao,
   MAPA_GENEROS_IGDB,
   mapearLocalizacao,
@@ -4214,5 +4215,14 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
   it("MAL: revista de serialização do mangá", () => {
     const c = mapearRevistaMal({ serialization: [{ mal_id: 83, name: "Young Animal" }] });
     expect(c).toEqual([{ fonte: "mal", fonte_id: "s83", nome: "Young Animal", papel: "Revista" }]);
+  });
+});
+
+describe("prazoEsgotado (T-DADOS-71)", () => {
+  it("sem prazo nunca esgota; com prazo, compara o relógio injetado", () => {
+    expect(prazoEsgotado(1000, undefined, 999999)).toBe(false);
+    expect(prazoEsgotado(1000, 4000, 4999)).toBe(false);
+    expect(prazoEsgotado(1000, 4000, 5000)).toBe(true);
+    expect(prazoEsgotado(1000, 0, 1000)).toBe(true);
   });
 });
