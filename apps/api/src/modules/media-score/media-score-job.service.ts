@@ -395,9 +395,18 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         `Fonte volátil indisponível e sem linha para "${midia.titulo}" (${midia.id}) — mantendo vencido para retomar.`,
       );
     } else {
+      // T-DADOS-75: se ESTE passe acabou de coletar o OMDb de um título que o
+      // gotejamento ainda não visitou (`critica_omdb_em` nulo), marca o
+      // watermark. Medido em 03/11: 307 coletas do dia foram TODAS de títulos
+      // na fila do drain e nenhuma marcou — o drain recoletaria os mesmos
+      // títulos, gastando duas vezes a cota de 1.000/dia do OMDb.
+      const marcoOmdb = coletadasFontes.has("omdb") && midia.critica_omdb_em == null;
       await this.prisma.midia.update({
         where: { id: midia.id },
-        data: { avaliacoes_atualizadas_em: new Date() },
+        data: {
+          avaliacoes_atualizadas_em: new Date(),
+          ...(marcoOmdb ? { critica_omdb_em: new Date() } : {}),
+        },
       });
     }
 
