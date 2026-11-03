@@ -23,6 +23,7 @@ import {
   generosDoPayload,
   colecaoDoPayloadIgdb,
   prazoEsgotado,
+  ehCotaComicVine,
   ordemDoJogoNaColecao,
   MAPA_GENEROS_IGDB,
   mapearLocalizacao,
@@ -4224,5 +4225,38 @@ describe("prazoEsgotado (T-DADOS-71)", () => {
     expect(prazoEsgotado(1000, 4000, 4999)).toBe(false);
     expect(prazoEsgotado(1000, 4000, 5000)).toBe(true);
     expect(prazoEsgotado(1000, 0, 1000)).toBe(true);
+  });
+});
+
+describe("cota do ComicVine (T-DADOS-73)", () => {
+  it("reconhece 420 e 429 (status numérico e texto do ErroColeta)", () => {
+    expect(ehCotaComicVine({ status: 420 })).toBe(true);
+    expect(ehCotaComicVine({ status: 429 })).toBe(true);
+    expect(ehCotaComicVine(new Error("HTTP 420 em comicvine"))).toBe(true);
+    expect(ehCotaComicVine(new Error("HTTP 429 em comicvine"))).toBe(true);
+    expect(ehCotaComicVine({ status: 404 })).toBe(false);
+    expect(ehCotaComicVine(new Error("timeout"))).toBe(false);
+    expect(ehCotaComicVine(null)).toBe(false);
+  });
+
+  it("autores de comics abortam o lote na cota (não insiste no resto)", async () => {
+    const alvo = [
+      { id: "c-1", titulo: "Volume 1", ano_lancamento: 1990, editoras: "Marvel" },
+      { id: "c-2", titulo: "Volume 2", ano_lancamento: 1991, editoras: "Marvel" },
+      { id: "c-3", titulo: "Volume 3", ano_lancamento: 1992, editoras: "Marvel" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).buscarVolumesComicVine = vi.fn(async () => {
+      const erro = new Error("HTTP 420 em comicvine") as Error & { status?: number };
+      erro.status = 420;
+      throw erro;
+    });
+    const r = await svc.enriquecerAutoresComics(10);
+    // Só o primeiro título foi tentado: o lote parou na cota.
+    expect(r.processados).toBe(1);
+    expect(r.falhas).toBe(1);
+    expect((svc as any).buscarVolumesComicVine).toHaveBeenCalledTimes(1);
+    expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 });
