@@ -222,6 +222,7 @@ describe("descoberta por mídia (T-DADOS-63)", () => {
           deck: "Volume do morcego",
           start_year: "1940",
           image: { original_url: "https://cv/batman.jpg" },
+          publisher: { id: 10, name: "DC Comics" },
         }),
       );
       expect(item.fonte).toBe("comicvine");
@@ -229,6 +230,18 @@ describe("descoberta por mídia (T-DADOS-63)", () => {
       expect(item.ano).toBe(1940);
       expect(item.nota).toBeNull();
       expect(item.imagemUrl).toBe("https://cv/batman.jpg");
+      // T-DADOS-68: editora vem da própria listagem (convenção p<id>).
+      expect(item.creditoEntidade).toEqual({
+        fonte: "comicvine",
+        fonteId: "p10",
+        nome: "DC Comics",
+        papel: "Editora",
+      });
+    });
+
+    it("volume sem publisher não inventa editora", () => {
+      const item = exigir(mapearComicVineItem({ id: 77, name: "Sem editora", publisher: null }));
+      expect(item.creditoEntidade).toBeNull();
     });
   });
 

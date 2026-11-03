@@ -47,6 +47,13 @@ export interface ItemDescoberta {
   paisOrigem?: string | null;
   imagemUrl?: string | null;
   nota?: NotaDescoberta | null;
+  /**
+   * Crédito de ENTIDADE que a própria listagem já traz — hoje só o ComicVine
+   * (volume.publisher). Grava `midia_elenco` e marca `creditos_em` na inserção,
+   * evitando uma chamada por título no drain (mesma convenção de fonte_id do
+   * `mapearEditoraComicVine`: `p<id>`).
+   */
+  creditoEntidade?: { fonte: string; fonteId: string; nome: string; papel: string } | null;
 }
 
 export interface PaginaDescoberta {
@@ -616,6 +623,8 @@ export function mapearComicVineItem(v: any): ItemDescoberta | null {
       : typeof v?.image?.medium_url === "string"
         ? v.image.medium_url
         : null;
+  const editoraId = inteiro(v?.publisher?.id);
+  const editoraNome = String(v?.publisher?.name ?? "").trim();
   return {
     fonte: "comicvine",
     fonteId: String(id),
@@ -623,6 +632,15 @@ export function mapearComicVineItem(v: any): ItemDescoberta | null {
     sinopse: limparTexto(v?.deck),
     ano: Number.isFinite(ano) ? ano : null,
     imagemUrl: imagem,
+    creditoEntidade:
+      editoraId && editoraNome
+        ? {
+            fonte: "comicvine",
+            fonteId: `p${editoraId}`,
+            nome: editoraNome,
+            papel: "Editora",
+          }
+        : null,
     // ComicVine não publica nota de público: a nota de COMIC precisa de outra
     // fonte (decisão do Operador) — inventar aqui violaria a regra do projeto.
     nota: null,
