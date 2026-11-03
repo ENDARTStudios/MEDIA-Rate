@@ -2522,7 +2522,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     });
     const r = await svc.drenarLote(60_000);
     expect(r.lotes).toEqual([{ tipo: "generosGames", ok: 3, falhas: 0 }]);
-    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(400);
+    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(600);
   });
 
   it("drenarCauda serve as filas do fim com os tetos por fonte (T-DADOS-67)", async () => {
@@ -2582,7 +2582,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       { tipo: "generosGames", ok: 5, falhas: 0 },
       { tipo: "autoresLivros", ok: 5, falhas: 0 },
     ]);
-    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(400);
+    expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(600);
     expect(svc.enriquecerAutoresLivros).toHaveBeenCalledWith(800);
     expect(svc.enriquecerCreditosMidia).toHaveBeenCalledWith(3000, "FILME");
   });
