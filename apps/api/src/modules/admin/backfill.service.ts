@@ -1336,9 +1336,15 @@ const LOTE_IGDB = 400;
 /**
  * T-DADOS-71: a continuidade (temporadas/episódios) faz 1 + N requisições por
  * série e consumia sozinha o tique inteiro. O teto por TEMPO a mantém dentro
- * de uma fatia previsível, sem alterar o que ela coleta.
+ * de uma faixa previsível, sem alterar o que ela coleta.
+ *
+ * T-DADOS-76: 4 min → 8 min. Medido em 03/11 com a fatia de 4 min: ~125
+ * séries/h (13.828 sem grade, ETA ~4,6 dias). As demais filas já andam por
+ * mérito próprio desde a cauda rotativa (#801) e o isolamento por fila
+ * (#793), então dobrar esta fatia dobra o rendimento de SERIE sem voltar a
+ * afogar as seguintes — o tique de topo segue limitado por orçamento.
  */
-const PRAZO_CONTINUIDADE_MS = 4 * 60 * 1000;
+const PRAZO_CONTINUIDADE_MS = 8 * 60 * 1000;
 
 /** Puro (testado): o prazo da fatia do job estourou? */
 export function prazoEsgotado(
