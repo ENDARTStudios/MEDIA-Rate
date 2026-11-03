@@ -1310,6 +1310,12 @@ const LOTE_IGDB = 400;
 
 @Injectable()
 export class BackfillService {
+  /**
+   * T-DADOS-70: índice rotativo da cauda. A cauda tem 11 filas e o orçamento
+   * do tique não cobre todas — sem rotação, as últimas (créditos de entidade,
+   * autores, OMDb) nunca rodavam. Cada chamada começa na fila seguinte.
+   */
+  private caudaCursor = 0;
   private readonly logger = new Logger(BackfillService.name);
   private estado: Record<BackfillTipo, BackfillEstado> = {
     metadados: estadoVazio(),
@@ -4145,83 +4151,88 @@ export class BackfillService {
       }
     };
 
-    if (p.generosGames > 0) {
-      await job(
-        "generosGames",
-        () => this.enriquecerGenerosGames(LOTE_IGDB),
-        (r) => r.ok + r.semGenero,
-      );
-    }
-    if (p.arestasFranquia > 0) {
-      await job(
-        "arestasFranquia",
-        () => this.enriquecerArestasFranquia(2000),
-        (r) => r.ok,
-      );
-    }
-    if (p.avaliacaoLivros > 0) {
-      await job(
-        "avaliacaoLivros",
-        () => this.enriquecerAvaliacaoLivros(800),
-        (r) => r.ok + r.semAvaliacao,
-      );
-    }
-    if (p.localizacao > 0) {
-      await job(
-        "localizacao",
-        () => this.enriquecerLocalizacao(LOTE_TMDB),
-        (r) => r.ok,
-      );
-    }
-    if (p.sinopseMangaEn > 0) {
-      await job(
-        "sinopseMangaEn",
-        () => this.enriquecerSinopseMangaEn(800),
-        (r) => r.ok + r.semSynopsis,
-      );
-    }
-    if (p.sinopseLivros > 0) {
-      await job(
-        "sinopseLivros",
-        () => this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO),
-        (r) => r.ok + r.semMatch + r.semIdioma + r.semDescricao,
-      );
-    }
-    if (p.autoresLivros > 0) {
-      await job(
-        "autoresLivros",
-        () => this.enriquecerAutoresLivros(800),
-        (r) => r.ok,
-      );
-    }
-    if (p.autoresMangas > 0) {
-      await job(
-        "autoresMangas",
-        () => this.enriquecerAutoresMangas(800),
-        (r) => r.ok,
-      );
-    }
-    if (p.autoresComics > 0) {
-      await job(
-        "autoresComics",
-        () => this.enriquecerAutoresComics(200),
-        (r) => r.ok,
-      );
-    }
-    if (p.creditosMidia > 0) {
-      await job(
-        "creditosMidia",
-        () => this.enriquecerCreditosMidia(800),
-        (r) => r.ok + r.semCredito,
-      );
-    }
-    // OMDb por último — cota diária de 900, aborta o lote.
-    if (p.criticaOmdb > 0) {
-      await job(
-        "criticaOmdb",
-        () => this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO),
-        (r) => r.ok + r.semImdb + r.semNota,
-      );
+    // Fila → executor → soma de `ok`. Só entram as com pendência; a ordem de
+    // partida rotaciona (ver `caudaCursor`).
+    const filas: {
+      tipo: BackfillTipo;
+      tem: boolean;
+      executar: () => Promise<unknown>;
+      okDe: (r: any) => number;
+    }[] = [
+      {
+        tipo: "generosGames",
+        tem: p.generosGames > 0,
+        executar: () => this.enriquecerGenerosGames(LOTE_IGDB),
+        okDe: (r: any) => r.ok + r.semGenero,
+      },
+      {
+        tipo: "arestasFranquia",
+        tem: p.arestasFranquia > 0,
+        executar: () => this.enriquecerArestasFranquia(2000),
+        okDe: (r: any) => r.ok,
+      },
+      {
+        tipo: "avaliacaoLivros",
+        tem: p.avaliacaoLivros > 0,
+        executar: () => this.enriquecerAvaliacaoLivros(800),
+        okDe: (r: any) => r.ok + r.semAvaliacao,
+      },
+      {
+        tipo: "localizacao",
+        tem: p.localizacao > 0,
+        executar: () => this.enriquecerLocalizacao(LOTE_TMDB),
+        okDe: (r: any) => r.ok,
+      },
+      {
+        tipo: "sinopseMangaEn",
+        tem: p.sinopseMangaEn > 0,
+        executar: () => this.enriquecerSinopseMangaEn(800),
+        okDe: (r: any) => r.ok + r.semSynopsis,
+      },
+      {
+        tipo: "sinopseLivros",
+        tem: p.sinopseLivros > 0,
+        executar: () => this.enriquecerSinopseLivros(ORCAMENTO_GOOGLE_BOOKS_DIARIO),
+        okDe: (r: any) => r.ok + r.semMatch + r.semIdioma + r.semDescricao,
+      },
+      {
+        tipo: "autoresLivros",
+        tem: p.autoresLivros > 0,
+        executar: () => this.enriquecerAutoresLivros(800),
+        okDe: (r: any) => r.ok,
+      },
+      {
+        tipo: "autoresMangas",
+        tem: p.autoresMangas > 0,
+        executar: () => this.enriquecerAutoresMangas(800),
+        okDe: (r: any) => r.ok,
+      },
+      {
+        tipo: "autoresComics",
+        tem: p.autoresComics > 0,
+        executar: () => this.enriquecerAutoresComics(200),
+        okDe: (r: any) => r.ok,
+      },
+      {
+        tipo: "creditosMidia",
+        tem: p.creditosMidia > 0,
+        executar: () => this.enriquecerCreditosMidia(800),
+        okDe: (r: any) => r.ok + r.semCredito,
+      },
+      {
+        tipo: "criticaOmdb",
+        tem: p.criticaOmdb > 0,
+        executar: () => this.enriquecerCriticaOmdb(ORCAMENTO_OMDB_DIARIO),
+        okDe: (r: any) => r.ok + r.semImdb + r.semNota,
+      },
+    ];
+    const ativos = filas.filter((f) => f.tem);
+    const partida = ativos.length ? this.caudaCursor % ativos.length : 0;
+    this.caudaCursor = ativos.length ? (partida + 1) % ativos.length : 0;
+    const ordem = [...ativos.slice(partida), ...ativos.slice(0, partida)];
+    for (const fila of ordem) {
+      await job(fila.tipo, fila.executar, fila.okDe as (r: any) => number);
+      if (Date.now() - inicio >= orçamentoMs) break;
     }
     const pendentesDepois = await this.contarPendentes();
     return { pendentesAntes, pendentesDepois, lotes };

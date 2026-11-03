@@ -2675,6 +2675,63 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     ]);
     expect(svc.enriquecerAutoresLivros).toHaveBeenCalledWith(800);
   });
+
+  it("drenarCauda ROTACIONA o ponto de partida (toda fila é servida) — T-DADOS-70", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 1,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 1,
+            autores_mangas: 0,
+            autores_comics: 0,
+            creditos_midia: 1,
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(svc, "enriquecerGenerosGames").mockResolvedValue({
+      ok: 1,
+      semGenero: 0,
+      falhas: 0,
+    } as any);
+    vi.spyOn(svc, "enriquecerAutoresLivros").mockResolvedValue({ ok: 1, falhas: 0 } as any);
+    vi.spyOn(svc, "enriquecerCreditosMidia").mockResolvedValue({
+      ok: 1,
+      semCredito: 0,
+      falhas: 0,
+    } as any);
+
+    const primeira = await svc.drenarCauda(60_000);
+    expect(primeira.lotes.map((l) => l.tipo)).toEqual([
+      "generosGames",
+      "autoresLivros",
+      "creditosMidia",
+    ]);
+
+    const segunda = await svc.drenarCauda(60_000);
+    // Começa na fila seguinte e dá a volta: nenhuma fila fica eternamente no fim.
+    expect(segunda.lotes.map((l) => l.tipo)).toEqual([
+      "autoresLivros",
+      "creditosMidia",
+      "generosGames",
+    ]);
+  });
 });
 
 // ===========================================================================
