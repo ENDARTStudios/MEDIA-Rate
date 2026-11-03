@@ -21,6 +21,8 @@ import {
   mapearProvedores,
   mapearCriticaIgdb,
   generosDoPayload,
+  colecaoDoPayloadIgdb,
+  ordemDoJogoNaColecao,
   MAPA_GENEROS_IGDB,
   mapearLocalizacao,
   classificacaoDeCertificado,
@@ -2237,6 +2239,69 @@ describe("MAPA_GENEROS_IGDB e generosDoPayload (T-DADOS-09)", () => {
   });
 });
 
+describe("colecaoDoPayloadIgdb e ordemDoJogoNaColecao (T-DADOS-66)", () => {
+  function exigirColecao(jogo: unknown) {
+    const colecao = colecaoDoPayloadIgdb(jogo);
+    if (!colecao) throw new Error("coleção esperada, veio null");
+    return colecao;
+  }
+
+  const payload = {
+    collection: {
+      name: "The Witcher",
+      slug: "the-witcher",
+      games: [
+        { id: 1027, first_release_date: 1266969600 }, // 2010
+        { id: 1942, first_release_date: 1411948800 }, // 2014
+        { id: 1029, first_release_date: 1690848000 }, // 2023
+      ],
+    },
+  };
+
+  it("mapeia nome, slug e membros com ano", () => {
+    const colecao = colecaoDoPayloadIgdb(payload);
+    expect(colecao?.nome).toBe("The Witcher");
+    expect(colecao?.slug).toBe("the-witcher");
+    expect(colecao?.membros.map((m) => m.id)).toEqual([1027, 1942, 1029]);
+    expect(colecao?.membros[0]?.ano).toBe(2010);
+  });
+
+  it("deriva o slug do nome quando a fonte não manda slug", () => {
+    const colecao = colecaoDoPayloadIgdb({ collection: { name: "Final Fantasy" } });
+    expect(colecao?.slug).toBe("final-fantasy");
+    expect(colecao?.membros).toEqual([]);
+  });
+
+  it("sem collection devolve null (nem todo jogo tem série)", () => {
+    expect(colecaoDoPayloadIgdb({ name: "Jogo solo" })).toBeNull();
+    expect(colecaoDoPayloadIgdb({})).toBeNull();
+    expect(colecaoDoPayloadIgdb(null)).toBeNull();
+    expect(colecaoDoPayloadIgdb([{ collection: { name: "  " } }])).toBeNull();
+  });
+
+  it("ordem de lançamento é 1-based pelas datas; sem ano vai para o fim", () => {
+    const colecao = exigirColecao(payload);
+    expect(ordemDoJogoNaColecao(colecao, 1027)).toBe(1);
+    expect(ordemDoJogoNaColecao(colecao, "1942")).toBe(2);
+    expect(ordemDoJogoNaColecao(colecao, 1029)).toBe(3);
+    const comSemAno = {
+      nome: "X",
+      slug: "x",
+      membros: [
+        { id: 1, ano: null },
+        { id: 2, ano: 2001 },
+      ],
+    };
+    expect(ordemDoJogoNaColecao(comSemAno, 2)).toBe(1);
+    expect(ordemDoJogoNaColecao(comSemAno, 1)).toBe(2);
+  });
+
+  it("jogo fora da lista devolve a última posição (payload parcial)", () => {
+    const colecao = exigirColecao(payload);
+    expect(ordemDoJogoNaColecao(colecao, 999)).toBe(4);
+  });
+});
+
 describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -2268,7 +2333,14 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     });
     mockIgdb([[{ name: "Zelda", genres: [{ slug: "adventure", name: "Adventure" }] }]]);
     const r = await svc.enriquecerGenerosGames(100);
-    expect(r).toEqual({ processados: 1, ok: 1, semGenero: 0, vinculos: 1, falhas: 0 });
+    expect(r).toEqual({
+      processados: 1,
+      ok: 1,
+      semGenero: 0,
+      vinculos: 1,
+      franquias: 0,
+      falhas: 0,
+    });
     expect(prisma.genero.findUnique).toHaveBeenCalledWith({
       where: { slug: "aventura" },
       select: { id: true },
@@ -2280,8 +2352,50 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       update: {},
     });
     const chamadaIgdb = (postJson as any).mock.calls.find((c: any[]) => c[0] === URL_IGDB_GAMES);
-    expect(chamadaIgdb[1]).toBe("fields name, genres.name, genres.slug; where id = 7346; limit 1;");
+    expect(chamadaIgdb[1]).toBe(
+      "fields name, genres.name, genres.slug, collection.name, collection.slug, collection.games.id, collection.games.first_release_date; where id = 7346; limit 1;",
+    );
     expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
+  });
+
+  it("vincula franquia pela coleção do IGDB com ordem por data (T-DADOS-66)", async () => {
+    const alvo = [{ id: "m-3", fonte_id: "1029", titulo: "Baldur's Gate 3" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    mockIgdb([
+      [
+        {
+          name: "Baldur's Gate 3",
+          genres: [],
+          collection: {
+            name: "Baldur's Gate",
+            slug: "baldurs-gate",
+            games: [
+              { id: 1029, first_release_date: 1690848000 }, // 2023
+              { id: 9, first_release_date: 946684800 }, // 2000
+            ],
+          },
+        },
+      ],
+    ]);
+    const r = await svc.enriquecerGenerosGames(100);
+    expect(r.franquias).toBe(1);
+    expect(prisma.franquia.upsert).toHaveBeenCalledWith({
+      where: { slug: "baldurs-gate" },
+      update: {},
+      create: { nome: "Baldur's Gate", slug: "baldurs-gate" },
+      select: { id: true },
+    });
+    expect(prisma.midiaFranquia.upsert).toHaveBeenCalledWith({
+      where: { midia_id_franquia_id: { midia_id: "m-3", franquia_id: "f1" } },
+      create: {
+        midia_id: "m-3",
+        franquia_id: "f1",
+        ordem_lancamento: 2,
+        ordem_cronologica: null,
+      },
+      update: {},
+    });
   });
 
   it("cria quando não existe e sobrevive a colisão de unique", async () => {
@@ -2301,7 +2415,14 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     (prisma.genero.create as any).mockRejectedValue(new Error("P2002 unique"));
     mockIgdb([[{ name: "Shooter", genres: [{ name: "Shooter" }] }]]);
     const r = await svc.enriquecerGenerosGames(10);
-    expect(r).toEqual({ processados: 1, ok: 1, semGenero: 0, vinculos: 1, falhas: 0 });
+    expect(r).toEqual({
+      processados: 1,
+      ok: 1,
+      semGenero: 0,
+      vinculos: 1,
+      franquias: 0,
+      falhas: 0,
+    });
     expect(prisma.genero.create).toHaveBeenCalledWith({
       data: { nome: "Tiro", slug: "tiro" },
       select: { id: true },
@@ -2320,7 +2441,14 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     (svc as any).pausa = vi.fn(async () => undefined);
     mockIgdb([[{ name: "Sem gênero" }]]);
     const r = await svc.enriquecerGenerosGames(10);
-    expect(r).toEqual({ processados: 1, ok: 0, semGenero: 1, vinculos: 0, falhas: 0 });
+    expect(r).toEqual({
+      processados: 1,
+      ok: 0,
+      semGenero: 1,
+      vinculos: 0,
+      franquias: 0,
+      falhas: 0,
+    });
     expect(prisma.midiaGenero.upsert).not.toHaveBeenCalled();
     expect((prisma.midia.update as any).mock.calls[0][0].data.generos_igdb_em).toBeInstanceOf(Date);
   });
@@ -2331,7 +2459,14 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     (svc as any).pausa = vi.fn(async () => undefined);
     mockIgdb([new ErroColeta("HTTP 429 em https://api.igdb.com/v4/games", 429)]);
     const r = await svc.enriquecerGenerosGames(10);
-    expect(r).toEqual({ processados: 1, ok: 0, semGenero: 0, vinculos: 0, falhas: 1 });
+    expect(r).toEqual({
+      processados: 1,
+      ok: 0,
+      semGenero: 0,
+      vinculos: 0,
+      franquias: 0,
+      falhas: 1,
+    });
     expect((postJson as any).mock.calls.filter((c: any[]) => c[0] === URL_IGDB_GAMES)).toHaveLength(
       2,
     );
@@ -2375,6 +2510,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       ok: 2,
       semGenero: 1,
       vinculos: 4,
+      franquias: 0,
       falhas: 0,
     });
     const r = await svc.drenarLote(60_000);
