@@ -501,6 +501,20 @@ function textoVazio(valor: unknown): boolean {
   return textoOuNulo(valor) === null;
 }
 
+/**
+ * T-DADOS-73: o ComicVine sinaliza cota esgotada com **HTTP 420** (e às vezes
+ * 429). O helper só tratava 429, então cada título batia na porta fechada em
+ * todo tique: 166 de 25.131 quadrinhos com autores, queimando a cota de
+ * 200 req/h em retentativas inúteis.
+ */
+export function ehCotaComicVine(e: unknown): boolean {
+  const status = (e as { status?: number } | null)?.status;
+  const texto = String(e);
+  return (
+    status === 420 || status === 429 || texto.includes("HTTP 420") || texto.includes("HTTP 429")
+  );
+}
+
 /** T-DADOS-14B: erro HTTP 429 (cota esgotada) — `ErroColeta` traz `status`. */
 function eh429(e: unknown): boolean {
   const status = (e as { status?: number } | null)?.status;
@@ -3208,6 +3222,12 @@ export class BackfillService {
       } catch (e) {
         this.estado.creditosMidia.falhas++;
         this.logger.warn(`Backfill créditos falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
+        if (ehCotaComicVine(e)) {
+          this.logger.warn(
+            "Backfill créditos: cota do ComicVine esgotada — lote abortado, retoma no próximo tique.",
+          );
+          break;
+        }
       }
     }
     this.estado.creditosMidia.executando = false;
@@ -3430,6 +3450,14 @@ export class BackfillService {
         this.logger.warn(
           `Backfill autores de comics falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
         );
+        // Cota do ComicVine é POR HORA (200 req/h): insistir no resto do lote
+        // só queima a janela seguinte — aborta (regra das filas com cota).
+        if (ehCotaComicVine(e)) {
+          this.logger.warn(
+            "Backfill autores de comics: cota do ComicVine esgotada — lote abortado, retoma no próximo tique.",
+          );
+          break;
+        }
       }
     }
     this.estado.autoresComics.executando = false;
@@ -3490,6 +3518,8 @@ export class BackfillService {
         });
       } catch (e) {
         const status = (e as { status?: number } | null)?.status;
+        // 420 = cota da HORA fechada: retentar em 3s é desperdício (T-DADOS-73).
+        if (status === 420 || String(e).includes("HTTP 420")) throw e;
         const eh429 = status === 429 || String(e).includes("HTTP 429");
         if (eh429 && tentativa === 0) {
           this.logger.warn(
