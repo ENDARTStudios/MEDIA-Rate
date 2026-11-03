@@ -441,7 +441,10 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
       },
     ]);
 
-    await job.coletarEPersistir(midia("m1"));
+    await job.coletarEPersistir({
+      ...midia("m1"),
+      critica_omdb_em: new Date("2026-10-20T00:00:00Z"),
+    });
 
     expect(prisma.midia.update).not.toHaveBeenCalled();
   });
@@ -480,5 +483,22 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
     await job.coletarEPersistir({ ...midia("m9"), tipo: "LIVRO" });
 
     expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("T-DADOS-67: título NOVO (gotejamento nunca passou) marca fresco mesmo com OMDb 401", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.findMany.mockResolvedValue([]);
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "omdb", status: "erro", motivo: "HTTP 401" },
+      {
+        fonte: "tmdb",
+        status: "ok",
+        nota: { fonte: "tmdb", rating: 7.5, media_fonte: 7, desvio_fonte: 1.5 },
+      },
+    ]);
+
+    await job.coletarEPersistir({ ...midia("m2"), critica_omdb_em: null });
+
+    expect(prisma.midia.update).toHaveBeenCalled();
   });
 });

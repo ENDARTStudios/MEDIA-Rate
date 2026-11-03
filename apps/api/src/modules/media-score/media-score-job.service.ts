@@ -18,6 +18,9 @@ type MidiaParaColeta = Pick<
   | "ano_lancamento"
   | "fonte"
   | "fonte_id"
+  // T-DADOS-67: distingue "linha omdb perdida" (reparo) de "título novo, o
+  // gotejamento ainda não passou" — o segundo não pode ficar preso na fila.
+  | "critica_omdb_em"
 >;
 
 // T-DADOS-18: o job não pode depender de um timer de 7 dias — cada deploy
@@ -178,6 +181,7 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
             ano_lancamento: true,
             fonte: true,
             fonte_id: true,
+            critica_omdb_em: true,
           },
         });
         for (const midia of pagina) {
@@ -379,7 +383,12 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
         FONTES_VOLATEIS.has(r.fonte) &&
         r.status === "erro" &&
         !coletadasFontes.has(r.fonte) &&
-        !comLinhaAnterior.has(r.fonte),
+        !comLinhaAnterior.has(r.fonte) &&
+        // T-DADOS-67: no OMDb a regra só vale para quem o GOTEJAMENTO já
+        // visitou (watermark `critica_omdb_em`) e perdeu a linha. Título novo
+        // (watermark NULL) tem a cota de 900/dia como gargalo natural — mantê-lo
+        // vencido travava 38 mil FILME/SERIE para sempre (watermark parado 12 h).
+        (r.fonte !== "omdb" || midia.critica_omdb_em != null),
     );
     if (pendenteDeFonteVolatil) {
       this.logger.warn(
