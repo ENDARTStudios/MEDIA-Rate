@@ -1396,6 +1396,15 @@ const LOTE_IGDB = 600;
 const JANELA_ROTACAO_CAUDA_MS = 30 * 60 * 1000;
 /** Janela da rotação de TIPO dos créditos de entidade (mais rápida). */
 const JANELA_ROTACAO_CREDITOS_MS = 10 * 60 * 1000;
+/**
+ * T-DADOS-82: teto por fila da CAUDA para que TODAS caibam no orçamento do
+ * tique. Medido em 04/11: créditos a 3.000 levavam ~12 min e o work do
+ * OpenLibrary a 1.500 ~7 min — somados aos outros 10 jobs, o total passava de
+ * 50 min e as últimas filas (autores de quadrinho, OMDb) nunca eram invocadas
+ * (nenhuma linha de log em 15 h, com 24.900 títulos na fila).
+ */
+const LOTE_CREDITOS = 800;
+const LOTE_SINOPSE_OPENLIBRARY = 600;
 
 /** Puro (testado): índice da fila que inicia a cauda nesta janela de tempo. */
 export function indiceRotacaoCauda(
@@ -4329,7 +4338,7 @@ export class BackfillService {
       // porque a cauda rotativa não é alcançada todos os tiques (medido: job
       // pronto no build e 23.797 livros na fila, zero processados em 1 h).
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseOpenLibrary ?? 0) > 0) {
-        const r = await this.enriquecerSinopseOpenLibrary(1500);
+        const r = await this.enriquecerSinopseOpenLibrary(LOTE_SINOPSE_OPENLIBRARY);
         lotes.push({
           tipo: "sinopseOpenLibrary",
           ok: r.ok + r.semDescricao,
@@ -4344,7 +4353,7 @@ export class BackfillService {
       // a 800/tique a fila levaria ~1 semana. O job é barato (1 GET por título
       // com o throttle da própria fonte) e cabe no orçamento de 45 min.
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.creditosMidia ?? 0) > 0) {
-        const r = await this.enriquecerCreditosMidia(3000);
+        const r = await this.enriquecerCreditosMidia(LOTE_CREDITOS);
         lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
       }
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
@@ -4495,7 +4504,7 @@ export class BackfillService {
     if (p.sinopseOpenLibrary > 0) {
       await job(
         "sinopseOpenLibrary",
-        () => this.enriquecerSinopseOpenLibrary(1500),
+        () => this.enriquecerSinopseOpenLibrary(LOTE_SINOPSE_OPENLIBRARY),
         (r: any) => r.ok + r.semDescricao,
       );
     }
@@ -4509,7 +4518,7 @@ export class BackfillService {
         tipos[indiceRotacaoCauda(Date.now(), tipos.length, JANELA_ROTACAO_CREDITOS_MS)];
       await job(
         "creditosMidia",
-        () => this.enriquecerCreditosMidia(3000, tipoDaVez),
+        () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
         (r: any) => r.ok + r.semCredito,
       );
     }
