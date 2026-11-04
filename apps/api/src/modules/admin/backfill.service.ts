@@ -1405,8 +1405,6 @@ const LOTE_IGDB = 600;
  * uma fila a cada janela.
  */
 const JANELA_ROTACAO_CAUDA_MS = 30 * 60 * 1000;
-/** Janela da rotação de TIPO dos créditos de entidade (mais rápida). */
-const JANELA_ROTACAO_CREDITOS_MS = 10 * 60 * 1000;
 /**
  * T-DADOS-82: teto por fila da CAUDA para que TODAS caibam no orçamento do
  * tique. Medido em 04/11: créditos a 3.000 levavam ~12 min e o work do
