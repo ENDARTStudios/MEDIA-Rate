@@ -3630,15 +3630,15 @@ export class BackfillService {
       this.estado.autoresComics.processados++;
       this.estado.autoresComics.atual = m.titulo;
       try {
-        const editoras = String(m.editoras ?? "")
-          .split("||")
-          .filter(Boolean);
-        const candidatos = await this.buscarVolumesComicVine(m.titulo);
-        const volume = escolherVolumeComicVine(candidatos, m.titulo, m.ano_lancamento, editoras);
-        if (!volume) {
+        // T-DADOS-79: o `fonte_id` de um quadrinho É o id do volume no
+        // ComicVine, e o detalhe por id devolve `people` (medido: volume 796
+        // "Batman" = 457 pessoas). A busca textual (2+ requisições por título,
+        // com guarda de identidade) era desperdício de cota — agora é UMA
+        // requisição por título, por id exato e sem ambiguidade.
+        const autores = await this.autoresVolumeComicVine(m.fonte_id);
+        if (autores.length === 0) {
           semMatch++;
         } else {
-          const autores = await this.autoresVolumeComicVine(volume.id);
           for (const a of autores) {
             await this.prisma.midiaElenco.upsert({
               // Chave por fonte: linhas de TMDB/MANGA/LIVRO são inalcançáveis.
