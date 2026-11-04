@@ -1,1 +1,5 @@
-{ "framework": "nextjs" }
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "ignoreCommand": "ROOT=$(git rev-parse --show-toplevel) || exit 1; git -C \"$ROOT\" diff --quiet HEAD^ HEAD -- apps/web package.json package-lock.json || exit 1"
+}
