@@ -4318,6 +4318,18 @@ export class BackfillService {
         const r = await this.enriquecerCreditosMidia(3000);
         lotes.push({ tipo: "creditosMidia", ok: r.ok + r.semCredito, falhas: r.falhas });
       }
+      // T-DADOS-71: sinopse de LIVRO pelo `description` do OpenLibrary — fonte
+      // gratuita, sem cota, 1 GET por título (~250 ms). Fica no TIQUE PRINCIPAL
+      // porque a cauda rotativa não é alcançada todos os tiques (medido: job
+      // pronto no build e 23.797 livros na fila, zero processados em 1 h).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseOpenLibrary ?? 0) > 0) {
+        const r = await this.enriquecerSinopseOpenLibrary(1500);
+        lotes.push({
+          tipo: "sinopseOpenLibrary",
+          ok: r.ok + r.semDescricao,
+          falhas: r.falhas,
+        });
+      }
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.semElenco > 0) {
         const r = await this.enriquecerMetadados(LOTE_TMDB);
         lotes.push({ tipo: "metadados", ok: r.ok, falhas: r.falhas });
