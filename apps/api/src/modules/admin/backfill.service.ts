@@ -65,7 +65,11 @@ const COMICVINE_BASE = "https://comicvine.gamespot.com/api";
 const PAUSA_COMICVINE_MS = 1100;
 const ESPERA_429_COMICVINE_MS = 3000;
 const COMICVINE_CAMPOS_BUSCA = "id,name,start_year,publisher";
-const COMICVINE_CAMPOS_VOLUME = "id,name,people";
+// T-DADOS-85: o detalhe do volume já traz `deck`/`description` na MESMA
+// requisição usada para `people` — sinopse sem custo adicional.
+const COMICVINE_CAMPOS_VOLUME = "id,name,people,deck,description";
+/** Teto de texto para sinopse de volume (descrição do ComicVine é wiki, longa). */
+const SINOPSE_VOLUME_MAX = 2000;
 /**
  * T-DADOS-14B: teto diário do job de sinopse de livros. A cota gratuita do
  * Google Books é de 1.000/dia e compartilhada com o resto do projeto — o teto
@@ -1361,6 +1365,25 @@ export function escolherVolumeComicVine(
 }
 
 /** `results.people[]` do volume → autores (id + nome, ordem 0-based, sem dupes). */
+/**
+ * T-DADOS-85: sinopse do volume a partir de `deck` (resumo curto) ou, na
+ * falta dele, da `description` (wiki, com HTML) limpa e truncada. `deck` vazio
+ * e descrição vazia devolvem `null` — ausência honesta, nada inventado.
+ */
+export function sinopseDoVolumeComicVine(payload: any): string | null {
+  const volume = payload?.results ?? {};
+  const limpar = (texto: unknown): string =>
+    String(texto ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/\s+([.,;:!?)\]])/g, "$1")
+      .trim();
+  const deck = limpar(volume?.deck);
+  if (deck) return deck.slice(0, SINOPSE_VOLUME_MAX);
+  const descricao = limpar(volume?.description);
+  return descricao ? descricao.slice(0, SINOPSE_VOLUME_MAX) : null;
+}
+
 export function mapearAutoresComicVine(payload: any): (AutorFonte & { ordem: number })[] {
   const pessoas = Array.isArray(payload?.results?.people) ? payload.results.people : [];
   const saida: (AutorFonte & { ordem: number })[] = [];
@@ -3749,7 +3772,7 @@ export class BackfillService {
     const alvo = (await this.prisma.$queryRawUnsafe<
       { id: string; titulo: string; ano_lancamento: number | null; editoras: string | null }[]
     >(
-      `SELECT m.id::text, m.titulo, m.ano_lancamento,
+      `SELECT m.id::text, m.titulo, m.ano_lancamento, m.sinopse,
               string_agg(DISTINCT p.nome, '||') AS editoras
        FROM midia m
        LEFT JOIN midia_produtora p ON p.midia_id = m.id
@@ -3771,7 +3794,7 @@ export class BackfillService {
         // "Batman" = 457 pessoas). A busca textual (2+ requisições por título,
         // com guarda de identidade) era desperdício de cota — agora é UMA
         // requisição por título, por id exato e sem ambiguidade.
-        const autores = await this.autoresVolumeComicVine(m.fonte_id);
+        const { autores, sinopse } = await this.autoresVolumeComicVine(m.fonte_id);
         if (autores.length === 0) {
           semMatch++;
         } else {
@@ -3799,10 +3822,15 @@ export class BackfillService {
             pessoasGravadas++;
           }
         }
+        // T-DADOS-85: a MESMA resposta traz `deck`/`description` — grava a
+        // sinopse quando vazia (nunca sobrescreve) sem requisição extra.
         // Watermark SEMPRE (mesmo sem match): a lacuna honesta sai da fila.
         await this.prisma.midia.update({
           where: { id: m.id },
-          data: { autores_em: new Date() },
+          data: {
+            autores_em: new Date(),
+            ...(sinopse && !m.sinopse ? { sinopse } : {}),
+          },
         });
         this.estado.autoresComics.ok++;
       } catch (e) {
@@ -3847,14 +3875,17 @@ export class BackfillService {
 
   private async autoresVolumeComicVine(
     volumeId: number | string | undefined,
-  ): Promise<(AutorFonte & { ordem: number })[]> {
+  ): Promise<{ autores: (AutorFonte & { ordem: number })[]; sinopse: string | null }> {
     const id = String(volumeId ?? "").trim();
-    if (!/^\d+$/.test(id)) return [];
+    if (!/^\d+$/.test(id)) return { autores: [], sinopse: null };
     const chave = this.chaveComicVine();
     const payload = await this.getJsonComicVine<any>(
       `${COMICVINE_BASE}/volume/4050-${id}/?api_key=${encodeURIComponent(chave)}&format=json&field_list=${COMICVINE_CAMPOS_VOLUME}`,
     );
-    return mapearAutoresComicVine(payload);
+    return {
+      autores: mapearAutoresComicVine(payload),
+      sinopse: sinopseDoVolumeComicVine(payload),
+    };
   }
 
   private chaveComicVine(): string {

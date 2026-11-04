@@ -26,6 +26,7 @@ import {
   colecaoDoPayloadIgdb,
   prazoEsgotado,
   ehCotaComicVine,
+  sinopseDoVolumeComicVine,
   ordemDoJogoNaColecao,
   MAPA_GENEROS_IGDB,
   mapearLocalizacao,
@@ -3509,7 +3510,7 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
   // sem busca textual e sem ambiguidade de identidade.
   const urlVolume = (id: number | string) =>
     `https://comicvine.gamespot.com/api/volume/4050-${id}/?api_key=${CHAVE}` +
-    `&format=json&field_list=id,name,people`;
+    `&format=json&field_list=id,name,people,deck,description`;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -3564,14 +3565,17 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
   it("volume sem people: marca autores_em (lacuna honesta) e não grava elenco", async () => {
     const { svc, prisma } = makeService({ alvo: [comic({ id: "m-2", fonte_id: "1794" })] });
     (svc as any).pausa = vi.fn(async () => undefined);
-    (fetchJson as any).mockImplementation(async () => ({ results: { id: 1794, people: [] } }));
+    (fetchJson as any).mockImplementation(async () => ({
+      results: { id: 1794, people: [], deck: "  Resumo.  " },
+    }));
 
     const r = await svc.enriquecerAutoresComics(10);
     expect(r).toMatchObject({ processados: 1, ok: 1, semMatch: 1, pessoas: 0, falhas: 0 });
     expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
     expect(prisma.midia.update).toHaveBeenCalledWith({
       where: { id: "m-2" },
-      data: { autores_em: expect.any(Date) },
+      // T-DADOS-85: o mesmo payload traz o deck → sinopse entra junto.
+      data: { autores_em: expect.any(Date), sinopse: "Resumo." },
     });
   });
 
@@ -4331,10 +4335,13 @@ describe("autores de comics por id do volume (T-DADOS-79)", () => {
     const alvo = [{ id: "c-9", fonte_id: "796", titulo: "Batman", ano_lancamento: 1940 }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
-    const porId = vi.fn(async () => [
-      { fonte: "comicvine", fonte_id: "111", nome: "Dennis O'Neil", ordem: 0 },
-      { fonte: "comicvine", fonte_id: "222", nome: "Adrienne Roy", ordem: 1 },
-    ]);
+    const porId = vi.fn(async () => ({
+      autores: [
+        { fonte: "comicvine", fonte_id: "111", nome: "Dennis O'Neil", ordem: 0 },
+        { fonte: "comicvine", fonte_id: "222", nome: "Adrienne Roy", ordem: 1 },
+      ],
+      sinopse: "Resumo do volume.",
+    }));
     (svc as any).autoresVolumeComicVine = porId;
     (svc as any).buscarVolumesComicVine = vi.fn(async () => {
       throw new Error("busca textual não deve ser usada");
@@ -4348,7 +4355,7 @@ describe("autores de comics por id do volume (T-DADOS-79)", () => {
     // Watermark marcado: o título sai da fila.
     expect(prisma.midia.update).toHaveBeenCalledWith({
       where: { id: "c-9" },
-      data: { autores_em: expect.any(Date) },
+      data: { autores_em: expect.any(Date), sinopse: "Resumo do volume." },
     });
   });
 });
@@ -4490,5 +4497,19 @@ describe("T-DADOS-74: overview do TMDB (en-US) → sinopse_en", () => {
     expect(mapearOverviewTmdb({ overview: "" })).toBeNull();
     expect(mapearOverviewTmdb({})).toBeNull();
     expect(mapearOverviewTmdb(null)).toBeNull();
+  });
+});
+
+describe("sinopseDoVolumeComicVine (T-DADOS-85)", () => {
+  it("prefere o deck e cai para a description limpa e truncada", () => {
+    expect(sinopseDoVolumeComicVine({ results: { deck: "  <b>Resumo</b> curto.  " } })).toBe(
+      "Resumo curto.",
+    );
+    const longa = "x".repeat(5000);
+    const r = sinopseDoVolumeComicVine({ results: { deck: "", description: longa } });
+    expect(r).not.toBeNull();
+    expect((r ?? "").length).toBe(2000);
+    expect(sinopseDoVolumeComicVine({ results: {} })).toBeNull();
+    expect(sinopseDoVolumeComicVine(null)).toBeNull();
   });
 });
