@@ -88,6 +88,30 @@ sem mudança de web (números recentes mostram maioria de commits `fix(api)`/`ch
 e o bloqueio de Dependabot remove ~10–20 previews/mês. Estimativa conservadora: **30–40%
 dos builds do MEDIA Rate**, sem perda de qualidade.
 
+## 3.1 Verificação depois da retomada (2026-11-04)
+
+O Operador atualizou o limite e o projeto foi **retomado por API** — o `PATCH` do projeto
+não aceita `paused`, o endpoint correto é:
+
+```powershell
+vercel api -X POST "/v1/projects/<PROJECT_ID>/unpause?teamId=<TEAM_ID>"
+# conferir:  vercel api "/v9/projects/<PROJECT_ID>?teamId=<TEAM_ID>"  → "paused": false
+```
+
+Com o projeto retomado, o filtro foi exercitado ponta a ponta:
+
+| Commit | Toca `apps/web`? | Deployment | Custo |
+|---|---|---|---|
+| `docs(web)` (README) | sim | **BUILDING → READY**, check "Vercel" **pass** | build normal |
+| `chore(deploy)` (vazio) | não | **CANCELED** | **zero** Build CPU |
+| doc fora de `apps/web` | não | **CANCELED** | **zero** Build CPU |
+
+É a prova de que o `ignoreCommand` corta exatamente o que deveria cortar e que o caminho
+de build continua saudável depois da retomada.
+
+**Efeito colateral esperado e documentado**: em PR que não toca `apps/web`, o check
+"Vercel" aparece como *canceled/blocked*. Não é falha — é o filtro. A explicação ficou
+também em `apps/web/README.md` para quem abre o PR sem esse contexto.
 ## 4. Opções que ficaram para decisão do Operador (com o número na mesa)
 
 | Opção | Economia estimada | Custo / risco |
