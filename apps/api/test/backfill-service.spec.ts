@@ -37,6 +37,8 @@ import {
   mapearSynopsisKitsu,
   mapearSynopsisJikan,
   mapearSynopsisMal,
+  sinopseDoWorkOpenLibrary,
+  workTemEdicaoEmIngles,
   // T-DADOS-13A/B: refresh de provedores (30d) e autores (OpenLibrary/Jikan/Kitsu).
   SQL_PROVEDORES_PENDENTES,
   chaveWorkOpenLibrary,
@@ -3825,6 +3827,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     const alvo = [{ ...alvoBase, autores: ["Frank Herbert", "Brian Herbert", "Terceiro Autor"] }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({ items: [] });
     const r = await svc.enriquecerSinopseLivros(10);
     expect(r).toMatchObject({ processados: 1, ok: 0, semMatch: 1, falhas: 0 });
@@ -3845,6 +3850,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: título igual + autor casando → aceito", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({ items: [itemDuna()] });
     const r = await svc.enriquecerSinopseLivros(10);
     expect(r).toMatchObject({ processados: 1, ok: 1, semMatch: 0, falhas: 0 });
@@ -3857,6 +3865,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: título igual com autor DIFERENTE → rejeitado (homônimo)", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [itemDuna({ authors: ["Brian Herbert"] })],
     });
@@ -3869,6 +3880,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: título diferente → rejeitado", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [itemDuna({ title: "Duna Messiah" })],
     });
@@ -3882,6 +3896,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     const alvo = [{ ...alvoBase, autores: [] }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [itemDuna({ authors: ["Qualquer Pessoa"] })],
     });
@@ -3896,6 +3913,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: roteia en/pt/es e ignora fr", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [
         itemDuna({ language: "fr", description: "Texte français" }),
@@ -3920,6 +3940,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: duas edições (en + pt) preenchem as DUAS colunas", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [
         itemDuna({ language: "en", description: "English text" }),
@@ -3937,6 +3960,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     const alvo = [{ ...alvoBase, sinopse_en: "Tradução curada" }];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [
         itemDuna({ language: "en", description: "Texto novo da fonte" }),
@@ -3957,6 +3983,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     ];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockRejectedValueOnce(
       new ErroColeta("HTTP 429 em https://www.googleapis.com/books/v1/volumes", 429),
     );
@@ -3970,6 +3999,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
   it("T-DADOS-23A: sem item com descrição → watermark sem texto", async () => {
     const { svc, prisma } = makeService({ alvo: [alvoBase] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.mocked(fetchJson).mockResolvedValueOnce({
       items: [itemDuna({ description: undefined })],
     });
@@ -3983,6 +4015,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 700 });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 700 }];
@@ -3999,6 +4034,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     vi.stubEnv("MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED", "true");
     const { svc, prisma } = makeService({ alvo: [], usadosGoogle: 690 });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 690 }];
@@ -4019,6 +4057,9 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
     delete process.env.MEDIA_GOOGLE_BOOKS_SINOPSE_ENABLED;
     const { svc, prisma } = makeService({ alvo: [] });
     (svc as any).pausa = vi.fn(async () => undefined);
+    // T-DADOS-78: estes casos testam o caminho do Google Books; o work do
+    // OpenLibrary é exercitado nos testes próprios abaixo.
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
     vi.spyOn(svc, "enriquecerSinopseLivros").mockResolvedValue({
       processados: 3,
       ok: 1,
@@ -4306,5 +4347,79 @@ describe("mapearSynopsisMal (T-DADOS-74)", () => {
     expect(mapearSynopsisMal(null)).toBeNull();
     // Shape do Jikan (data.synopsis) NÃO é o do MAL — não confundir.
     expect(mapearSynopsisMal({ data: { synopsis: "x" } })).toBeNull();
+  });
+});
+
+describe("sinopse de livro pelo work do OpenLibrary (T-DADOS-78)", () => {
+  it("extrai description em string e em { value }; vazio vira null", () => {
+    expect(sinopseDoWorkOpenLibrary({ description: "  Texto do livro.  " })).toBe(
+      "Texto do livro.",
+    );
+    expect(sinopseDoWorkOpenLibrary({ description: { value: " Texto objeto. " } })).toBe(
+      "Texto objeto.",
+    );
+    expect(sinopseDoWorkOpenLibrary({ description: "   " })).toBeNull();
+    expect(sinopseDoWorkOpenLibrary({})).toBeNull();
+    expect(sinopseDoWorkOpenLibrary(null)).toBeNull();
+  });
+
+  it("guarda de idioma exige edição em inglês (fato do catálogo)", () => {
+    expect(workTemEdicaoEmIngles({ entries: [{ languages: [{ key: "/languages/eng" }] }] })).toBe(
+      true,
+    );
+    expect(workTemEdicaoEmIngles({ entries: [{ languages: [{ key: "/languages/jpn" }] }] })).toBe(
+      false,
+    );
+    expect(workTemEdicaoEmIngles({ entries: [] })).toBe(false);
+    expect(workTemEdicaoEmIngles({})).toBe(false);
+    expect(workTemEdicaoEmIngles(null)).toBe(false);
+  });
+
+  it("work com descrição grava sinopse_en SEM gastar cota do Google", async () => {
+    const alvo = [
+      {
+        id: "l-1",
+        fonte_id: "OL123W",
+        titulo: "Livro",
+        sinopse: null,
+        sinopse_en: null,
+        sinopse_es: null,
+        autores: ["Autor"],
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).sinopseDoWork = vi.fn(async () => "Descrição vinda do work.");
+    vi.spyOn(svc as any, "googleBooksBusca");
+
+    const r = await svc.enriquecerSinopseLivros(10);
+    expect(r.ok).toBe(1);
+    expect((svc as any).googleBooksBusca).not.toHaveBeenCalled();
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "l-1" },
+      data: { sinopse_livro_em: expect.any(Date), sinopse_en: "Descrição vinda do work." },
+    });
+  });
+
+  it("sem cota do Google e sem work: adia SEM marcar watermark (não vira lacuna)", async () => {
+    const alvo = [
+      {
+        id: "l-2",
+        fonte_id: "OL999W",
+        titulo: "Livro",
+        sinopse: null,
+        sinopse_en: null,
+        sinopse_es: null,
+        autores: [],
+      },
+    ];
+    const { svc, prisma } = makeService({ alvo, usadosGoogle: 99_999 });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (svc as any).sinopseDoWork = vi.fn(async () => null);
+
+    const r = await svc.enriquecerSinopseLivros(10);
+    expect(r.processados).toBe(1);
+    expect(r.interrompidoPorCota).toBe(true);
+    expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 });

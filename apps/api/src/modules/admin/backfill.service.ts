@@ -940,6 +940,33 @@ export function mapearSynopsisKitsu(payload: any): string | null {
  * T-DADOS-74: `synopsis` da **API oficial do MAL** (v2, `fields=synopsis`) —
  * shape plano (`payload.synopsis`), diferente do Jikan (`data.synopsis`).
  */
+/**
+ * T-DADOS-78: `description` do WORK do OpenLibrary (string ou `{ value }`).
+ * É a única fonte de sinopse de livro SEM cota (a Google Books tem 700/dia).
+ */
+export function sinopseDoWorkOpenLibrary(payload: any): string | null {
+  const bruto = payload?.description;
+  const texto =
+    typeof bruto === "string" ? bruto : typeof bruto?.value === "string" ? bruto.value : "";
+  const limpo = texto.trim();
+  return limpo ? limpo : null;
+}
+
+/**
+ * Guarda de idioma: só gravamos em `sinopse_en` quando o work tem **edição em
+ * inglês** (fato do catálogo, não detecção de texto). Os registros do
+ * OpenLibrary são majoritariamente anglófonos, mas sem essa corroboração o
+ * texto poderia ir para a coluna errada.
+ */
+export function workTemEdicaoEmIngles(payload: any): boolean {
+  const entradas = Array.isArray(payload?.entries) ? payload.entries : [];
+  return entradas.some((e: any) =>
+    (Array.isArray(e?.languages) ? e.languages : []).some(
+      (l: any) => String(l?.key ?? l) === "/languages/eng",
+    ),
+  );
+}
+
 export function mapearSynopsisMal(payload: any): string | null {
   const bruto = payload?.synopsis;
   if (typeof bruto !== "string") return null;
@@ -2778,24 +2805,21 @@ export class BackfillService {
 
     const usadosHoje = await this.titulosSinopseLivroHoje();
     const restante = orcamentoGoogleBooksRestante(usadosHoje);
-    if (restante <= 0) {
-      this.estado.sinopseLivros.executando = false;
-      this.estado.sinopseLivros.atual = "fim: cota diária do Google Books atingida";
+    // T-DADOS-78: cota do Google esgotada NÃO bloqueia mais o job — o caminho
+    // do próprio work do OpenLibrary não consome cota. Antes, com a cota em
+    // zero, o job retornava sem processar nada e a fila de 23 mil ficava
+    // parada até o dia seguinte.
+    const podeGoogle = restante > 0;
+    if (!podeGoogle) {
       this.logger.log(
-        `Backfill sinopse de livros: cota diária atingida (${usadosHoje}/${ORCAMENTO_GOOGLE_BOOKS_DIARIO}) — nada processado.`,
+        `Backfill sinopse de livros: cota do Google Books esgotada (${usadosHoje}/${ORCAMENTO_GOOGLE_BOOKS_DIARIO}) — rodada só com o work do OpenLibrary.`,
       );
-      return {
-        processados: 0,
-        ok: 0,
-        semMatch: 0,
-        semIdioma: 0,
-        semDescricao: 0,
-        falhas: 0,
-        interrompidoPorCota: false,
-      };
     }
 
-    const limiteEfetivo = Math.min(Math.max(Math.trunc(limite) || 1, 1), restante);
+    const limiteEfetivo = Math.min(
+      Math.max(Math.trunc(limite) || 1, 1),
+      podeGoogle ? Math.max(restante, 1) : Math.max(Math.trunc(limite) || 1, 1),
+    );
     const alvoBruto = (await this.prisma.$queryRawUnsafe<
       {
         id: string;
@@ -2836,6 +2860,24 @@ export class BackfillService {
       this.estado.sinopseLivros.atual = m.titulo;
       try {
         const autores = Array.isArray(m.autores) ? m.autores : [];
+        // T-DADOS-78: caminho SEM COTA — descrição do próprio work. Cobre a
+        // maioria dos livros e libera a cota do Google para os que faltarem.
+        const doWork = await this.sinopseDoWork(m.fonte_id);
+        if (doWork) {
+          const dataWork: { sinopse_livro_em: Date; sinopse_en?: string } = {
+            sinopse_livro_em: new Date(),
+          };
+          if (textoVazio(m.sinopse_en)) dataWork.sinopse_en = doWork;
+          await this.prisma.midia.update({ where: { id: m.id }, data: dataWork });
+          this.estado.sinopseLivros.ok++;
+          continue;
+        }
+        if (!podeGoogle) {
+          // Sem cota e sem descrição no work: NÃO marca watermark (retoma
+          // amanhã, quando a cota reabrir). O título não é lacuna honesta.
+          interrompidoPorCota = true;
+          continue;
+        }
         const payload = await this.googleBooksBusca(m.titulo, autores, chave);
         // Uma coluna por idioma: várias edições podem preencher pt/en/es na
         // mesma rodada. O título/autores filtram homônimos e edições erradas.
@@ -2906,6 +2948,29 @@ export class BackfillService {
       falhas: this.estado.sinopseLivros.falhas,
       interrompidoPorCota,
     };
+  }
+
+  /**
+   * T-DADOS-78: sinopse de LIVRO pelo PRÓPRIO work do OpenLibrary — sem cota.
+   * 2 requisições (work + idiomas das edições) com throttle; devolve `null`
+   * quando o work não tem descrição ou não comprova edição em inglês.
+   */
+  private async sinopseDoWork(fonteId: string): Promise<string | null> {
+    const work = chaveWorkOpenLibrary(fonteId);
+    if (!work) return null;
+    await this.pausa(PAUSA_SINOPSE_LIVRO_MS);
+    const payloadWork = await fetchJson<any>(`${OL_BASE}/works/${encodeURIComponent(work)}.json`, {
+      headers: { "User-Agent": UA_BROWSER, "Accept": "application/json" },
+      timeoutMs: 20000,
+    });
+    const sinopse = sinopseDoWorkOpenLibrary(payloadWork);
+    if (!sinopse) return null;
+    await this.pausa(PAUSA_SINOPSE_LIVRO_MS);
+    const edicoes = await fetchJson<any>(
+      `${OL_BASE}/works/${encodeURIComponent(work)}/editions.json?limit=8&fields=languages`,
+      { headers: { "User-Agent": UA_BROWSER, "Accept": "application/json" }, timeoutMs: 20000 },
+    );
+    return workTemEdicaoEmIngles(edicoes) ? sinopse : null;
   }
 
   /**
