@@ -458,6 +458,8 @@ model Midia {
   // editions → Google Books por ISBN, roteada por idioma).
   // NULL = nunca tentado; marcado SEMPRE (evita fila presa).
   sinopse_livro_em DateTime? @map("sinopse_livro_em")
+  /// T-DADOS-69: watermark do job de sinopse pelo `description` do OpenLibrary.
+  sinopse_ol_em DateTime? @map("sinopse_ol_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
