@@ -3081,8 +3081,10 @@ export class BackfillService {
        FROM midia m
        WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
          AND m.sinopse_livro_em IS NULL
+         -- T-DADOS-84: o INGLÊS não entra mais nesta fila — ele é resolvido
+         -- SEM cota pelo work do OpenLibrary (sinopseOpenLibrary). Gastar a
+         -- cota de 700/dia do Google repetindo o en tirava a chance de pt/es.
          AND (m.sinopse IS NULL OR btrim(m.sinopse) = ''
-              OR m.sinopse_en IS NULL OR btrim(m.sinopse_en) = ''
               OR m.sinopse_es IS NULL OR btrim(m.sinopse_es) = '')
        ORDER BY m.id
        LIMIT ${limiteEfetivo}`,
@@ -3102,7 +3104,9 @@ export class BackfillService {
         const autores = Array.isArray(m.autores) ? m.autores : [];
         // T-DADOS-78: caminho SEM COTA — descrição do próprio work. Cobre a
         // maioria dos livros e libera a cota do Google para os que faltarem.
-        const doWork = await this.sinopseDoWork(m.fonte_id);
+        // Sem `sinopse_en` já preenchida, o work não tem o que acrescentar:
+        // pular a consulta evita 2 requisições inúteis (T-DADOS-84).
+        const doWork = textoVazio(m.sinopse_en) ? await this.sinopseDoWork(m.fonte_id) : null;
         if (doWork) {
           const dataWork: { sinopse_livro_em: Date; sinopse_en?: string } = {
             sinopse_livro_em: new Date(),
@@ -4348,7 +4352,6 @@ export class BackfillService {
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.sinopse_livro_em IS NULL
             AND (m.sinopse IS NULL OR btrim(m.sinopse) = ''
-                 OR m.sinopse_en IS NULL OR btrim(m.sinopse_en) = ''
                  OR m.sinopse_es IS NULL OR btrim(m.sinopse_es) = '')) AS sinopse_livros,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
