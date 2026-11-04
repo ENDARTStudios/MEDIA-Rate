@@ -1,0 +1,765 @@
+{"command":"page.add","params":{"name":"Conta — Dashboard (v2)"}}
+{"command":"page.setBackground","params":{"color":"#08080C"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":1100,"name":"Conta — Dashboard (v2)"}}
+{"command":"node.set","params":{"name":"Conta — Dashboard (v2)","fill":"#08080C"}}
+{"command":"shape.rectangle","params":{"x":0,"y":72,"width":1440,"height":1,"props":{"name":"conta-dashboard/chrome/linha"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/linha","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":33,"width":7,"height":7,"props":{"name":"conta-dashboard/chrome/marca"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/marca","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"MEDIA RATE","x":136,"y":23,"props":{"name":"conta-dashboard/chrome/marca-txt","fontSize":15,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/marca-txt","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/marca-txt","letterSpacing":1.6}}
+{"command":"text.create","params":{"text":"Descobrir","x":470,"y":27,"props":{"name":"conta-dashboard/chrome/nav0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/nav0","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Catálogo","x":571,"y":27,"props":{"name":"conta-dashboard/chrome/nav1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/nav1","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Rankings","x":665,"y":27,"props":{"name":"conta-dashboard/chrome/nav2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/nav2","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Descobertas","x":759,"y":27,"props":{"name":"conta-dashboard/chrome/nav3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/nav3","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Fontes","x":874,"y":27,"props":{"name":"conta-dashboard/chrome/nav4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/nav4","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"PLANO FREE","x":1052,"y":29,"width":200,"props":{"name":"conta-dashboard/chrome/plano","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/plano","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/plano","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/plano","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1276,"y":22,"width":28,"height":28,"props":{"name":"conta-dashboard/chrome/avatar"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/avatar","fill":"#14141C","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"N","x":1284,"y":27,"props":{"name":"conta-dashboard/chrome/avatar-ini","fontSize":12,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/chrome/avatar-ini","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"CONTA / DASHBOARD","x":120,"y":104,"props":{"name":"conta-dashboard/kicker","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/kicker","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/kicker","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"ATUALIZADO AGORA","x":1080,"y":104,"width":240,"props":{"name":"conta-dashboard/kicker-dir","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/kicker-dir","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/kicker-dir","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/kicker-dir","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Dashboard","x":120,"y":128,"props":{"name":"conta-dashboard/h1","fontSize":44,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"conta-dashboard/h1","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-dashboard/h1","letterSpacing":-0.9}}
+{"command":"text.create","params":{"text":"Seu radar de gosto e a evolução do seu consumo.","x":120,"y":192,"width":560,"props":{"name":"conta-dashboard/sub","fontSize":16,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/sub","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-dashboard/sub","lineHeight":25}}
+{"command":"shape.rectangle","params":{"x":120,"y":232,"width":1200,"height":1,"props":{"name":"conta-dashboard/regra-topo"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regra-topo","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"SEU ESPAÇO","x":120,"y":264,"width":400,"props":{"name":"conta-dashboard/rail/rot","fontSize":11,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/rot","letterSpacing":0.88}}
+{"command":"text.create","params":{"text":"Visão geral","x":120,"y":292,"props":{"name":"conta-dashboard/rail/i0","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i0","fill":"#E8543F"}}
+{"command":"shape.rectangle","params":{"x":120,"y":312,"width":79,"height":2,"props":{"name":"conta-dashboard/rail/ativo"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/ativo","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"Descobertas","x":120,"y":330,"props":{"name":"conta-dashboard/rail/i1","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i1","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Minha biblioteca","x":120,"y":368,"props":{"name":"conta-dashboard/rail/i2","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i2","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Histórico","x":120,"y":406,"props":{"name":"conta-dashboard/rail/i3","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i3","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Listas","x":120,"y":444,"props":{"name":"conta-dashboard/rail/i4","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i4","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Watchlist","x":120,"y":482,"props":{"name":"conta-dashboard/rail/i5","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i5","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Perfil","x":120,"y":520,"props":{"name":"conta-dashboard/rail/i6","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i6","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Configurações","x":120,"y":558,"props":{"name":"conta-dashboard/rail/i7","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/i7","fill":"#A8A49C"}}
+{"command":"shape.rectangle","params":{"x":120,"y":620,"width":180,"height":1,"props":{"name":"conta-dashboard/rail/sep"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/sep","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"PLANO","x":120,"y":640,"props":{"name":"conta-dashboard/rail/plano","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/plano","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/plano","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Free","x":120,"y":660,"props":{"name":"conta-dashboard/rail/plano-valor","fontSize":17,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/plano-valor","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"comparar planos →","x":120,"y":690,"props":{"name":"conta-dashboard/rail/plano-link","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/rail/plano-link","fill":"#E8543F"}}
+{"command":"shape.rectangle","params":{"x":426,"y":264,"width":894,"height":176,"props":{"name":"conta-dashboard/cont/bloco"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/bloco","fill":"#14141C"}}
+{"command":"text.create","params":{"text":"CONTINUAR · EXEMPLO","x":450,"y":280,"props":{"name":"conta-dashboard/cont/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":450,"y":304,"width":68,"height":100,"props":{"name":"conta-dashboard/cont/poster"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/poster","fill":"#0E0E14","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"PÔSTER","x":452,"y":348,"width":64,"props":{"name":"conta-dashboard/cont/poster-txt","fontSize":9,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/poster-txt","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/poster-txt","textAlign":"center"}}
+{"command":"text.create","params":{"text":"Piranesi","x":542,"y":300,"props":{"name":"conta-dashboard/cont/titulo","fontSize":26,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/titulo","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"LIVRO · 2020","x":542,"y":340,"props":{"name":"conta-dashboard/cont/meta","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/meta","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/meta","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":542,"y":372,"width":420,"height":2,"props":{"name":"conta-dashboard/cont/trilha"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/trilha","fill":"#34343E"}}
+{"command":"shape.rectangle","params":{"x":542,"y":371,"width":264,"height":3,"props":{"name":"conta-dashboard/cont/progresso"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/progresso","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"RETOME A LEITURA","x":542,"y":388,"props":{"name":"conta-dashboard/cont/prog-txt","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/prog-txt","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/prog-txt","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1176,"y":304,"width":120,"height":40,"props":{"name":"conta-dashboard/cont/retomar/bg"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/retomar/bg","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"RETOMAR","x":1188,"y":316,"width":96,"props":{"name":"conta-dashboard/cont/retomar/rot","fontSize":10,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/retomar/rot","fill":"#1A0E0B"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/retomar/rot","textAlign":"center"}}
+{"command":"text.create","params":{"text":"ver ficha →","x":1156,"y":356,"width":140,"props":{"name":"conta-dashboard/cont/ficha","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/ficha","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-dashboard/cont/ficha","textAlign":"right"}}
+{"command":"text.create","params":{"text":"WATCHLIST · N TÍTULOS","x":426,"y":488,"props":{"name":"conta-dashboard/wl/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":426,"y":516,"width":40,"height":56,"props":{"name":"conta-dashboard/wl/thumb0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/thumb0","fill":"#14141C","strokes":["#26262E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"O Conto da Aia","x":482,"y":520,"props":{"name":"conta-dashboard/wl/titulo0","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/titulo0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"SÉRIE · 2017","x":482,"y":544,"props":{"name":"conta-dashboard/wl/meta0","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta0","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"→","x":826,"y":532,"width":20,"props":{"name":"conta-dashboard/wl/seta0","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta0","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":426,"y":574,"width":420,"height":1,"props":{"name":"conta-dashboard/wl/sep0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/sep0","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":426,"y":584,"width":40,"height":56,"props":{"name":"conta-dashboard/wl/thumb1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/thumb1","fill":"#14141C","strokes":["#26262E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Hades","x":482,"y":588,"props":{"name":"conta-dashboard/wl/titulo1","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/titulo1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"GAME · 2020","x":482,"y":612,"props":{"name":"conta-dashboard/wl/meta1","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta1","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"→","x":826,"y":600,"width":20,"props":{"name":"conta-dashboard/wl/seta1","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta1","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":426,"y":642,"width":420,"height":1,"props":{"name":"conta-dashboard/wl/sep1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/sep1","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":426,"y":652,"width":40,"height":56,"props":{"name":"conta-dashboard/wl/thumb2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/thumb2","fill":"#14141C","strokes":["#26262E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Ruptura","x":482,"y":656,"props":{"name":"conta-dashboard/wl/titulo2","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/titulo2","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"SÉRIE · 2022","x":482,"y":680,"props":{"name":"conta-dashboard/wl/meta2","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/meta2","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"→","x":826,"y":668,"width":20,"props":{"name":"conta-dashboard/wl/seta2","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/seta2","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":426,"y":710,"width":420,"height":1,"props":{"name":"conta-dashboard/wl/sep2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/sep2","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"ver toda a watchlist →","x":426,"y":728,"props":{"name":"conta-dashboard/wl/link","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/wl/link","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"ÚLTIMAS NOTAS · EXEMPLO","x":894,"y":488,"props":{"name":"conta-dashboard/notas/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Piranesi","x":894,"y":518,"props":{"name":"conta-dashboard/notas/t0","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/t0","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":1228,"y":520,"width":3,"height":13,"props":{"name":"conta-dashboard/notas/tick0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/tick0","fill":"#3FA9F5"}}
+{"command":"text.create","params":{"text":"8,7","x":1268,"y":516,"width":52,"props":{"name":"conta-dashboard/notas/n0","fontSize":17,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n0","fill":"#3FA9F5"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n0","textAlign":"right"}}
+{"command":"text.create","params":{"text":"MUITO BOM","x":1180,"y":540,"width":140,"props":{"name":"conta-dashboard/notas/f0","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f0","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":894,"y":560,"width":426,"height":1,"props":{"name":"conta-dashboard/notas/sep0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/sep0","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Ruptura","x":894,"y":570,"props":{"name":"conta-dashboard/notas/t1","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/t1","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":1228,"y":572,"width":3,"height":13,"props":{"name":"conta-dashboard/notas/tick1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/tick1","fill":"#2FD3A0"}}
+{"command":"text.create","params":{"text":"9,1","x":1268,"y":568,"width":52,"props":{"name":"conta-dashboard/notas/n1","fontSize":17,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n1","fill":"#2FD3A0"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n1","textAlign":"right"}}
+{"command":"text.create","params":{"text":"EXCEPCIONAL","x":1180,"y":592,"width":140,"props":{"name":"conta-dashboard/notas/f1","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f1","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":894,"y":612,"width":426,"height":1,"props":{"name":"conta-dashboard/notas/sep1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/sep1","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Hades","x":894,"y":622,"props":{"name":"conta-dashboard/notas/t2","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/t2","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":1228,"y":624,"width":3,"height":13,"props":{"name":"conta-dashboard/notas/tick2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/tick2","fill":"#8B8CF0"}}
+{"command":"text.create","params":{"text":"7,4","x":1268,"y":620,"width":52,"props":{"name":"conta-dashboard/notas/n2","fontSize":17,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n2","fill":"#8B8CF0"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n2","textAlign":"right"}}
+{"command":"text.create","params":{"text":"BOM","x":1180,"y":644,"width":140,"props":{"name":"conta-dashboard/notas/f2","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f2","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f2","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":894,"y":664,"width":426,"height":1,"props":{"name":"conta-dashboard/notas/sep2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/sep2","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"O Conto da Aia","x":894,"y":674,"props":{"name":"conta-dashboard/notas/t3","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/t3","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":1228,"y":676,"width":3,"height":13,"props":{"name":"conta-dashboard/notas/tick3"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/tick3","fill":"#E8B44A"}}
+{"command":"text.create","params":{"text":"6,8","x":1268,"y":672,"width":52,"props":{"name":"conta-dashboard/notas/n3","fontSize":17,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n3","fill":"#E8B44A"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/n3","textAlign":"right"}}
+{"command":"text.create","params":{"text":"RAZOÁVEL","x":1180,"y":696,"width":140,"props":{"name":"conta-dashboard/notas/f3","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f3","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f3","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/f3","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":894,"y":716,"width":426,"height":1,"props":{"name":"conta-dashboard/notas/sep3"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/notas/sep3","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":800,"width":1200,"height":1,"props":{"name":"conta-dashboard/regra-meio"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regra-meio","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"SUA RÉGUA","x":426,"y":824,"props":{"name":"conta-dashboard/regua/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":426,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg0","fill":"#2FD3A0"}}
+{"command":"text.create","params":{"text":"N","x":426,"y":872,"props":{"name":"conta-dashboard/regua/n0","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"9 A 10","x":426,"y":906,"props":{"name":"conta-dashboard/regua/f0","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":496,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg1","fill":"#3FA9F5"}}
+{"command":"text.create","params":{"text":"N","x":496,"y":872,"props":{"name":"conta-dashboard/regua/n1","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"8","x":496,"y":906,"props":{"name":"conta-dashboard/regua/f1","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":566,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg2","fill":"#8B8CF0"}}
+{"command":"text.create","params":{"text":"N","x":566,"y":872,"props":{"name":"conta-dashboard/regua/n2","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n2","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"7","x":566,"y":906,"props":{"name":"conta-dashboard/regua/f2","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f2","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":636,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg3"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg3","fill":"#E8B44A"}}
+{"command":"text.create","params":{"text":"N","x":636,"y":872,"props":{"name":"conta-dashboard/regua/n3","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n3","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"6","x":636,"y":906,"props":{"name":"conta-dashboard/regua/f3","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f3","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f3","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":706,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg4"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg4","fill":"#E8853F"}}
+{"command":"text.create","params":{"text":"N","x":706,"y":872,"props":{"name":"conta-dashboard/regua/n4","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n4","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"5","x":706,"y":906,"props":{"name":"conta-dashboard/regua/f4","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f4","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f4","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":776,"y":856,"width":62,"height":4,"props":{"name":"conta-dashboard/regua/seg5"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/seg5","fill":"#E05A55"}}
+{"command":"text.create","params":{"text":"N","x":776,"y":872,"props":{"name":"conta-dashboard/regua/n5","fontSize":22,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/n5","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"ABAIXO","x":776,"y":906,"props":{"name":"conta-dashboard/regua/f5","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f5","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/regua/f5","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"ATALHOS","x":894,"y":824,"props":{"name":"conta-dashboard/atalhos/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":894,"y":844,"width":426,"height":1,"props":{"name":"conta-dashboard/atalhos/sep0"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/sep0","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Quero ver","x":894,"y":856,"props":{"name":"conta-dashboard/atalhos/t0","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/t0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"→","x":1075,"y":857,"width":20,"props":{"name":"conta-dashboard/atalhos/seta0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta0","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":894,"y":844,"width":426,"height":1,"props":{"name":"conta-dashboard/atalhos/sep1"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/sep1","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Descobertas","x":1119,"y":856,"props":{"name":"conta-dashboard/atalhos/t1","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/t1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"→","x":1300,"y":857,"width":20,"props":{"name":"conta-dashboard/atalhos/seta1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta1","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":894,"y":892,"width":426,"height":1,"props":{"name":"conta-dashboard/atalhos/sep2"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/sep2","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Minhas listas","x":894,"y":904,"props":{"name":"conta-dashboard/atalhos/t2","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/t2","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"→","x":1075,"y":905,"width":20,"props":{"name":"conta-dashboard/atalhos/seta2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta2","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":894,"y":892,"width":426,"height":1,"props":{"name":"conta-dashboard/atalhos/sep3"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/sep3","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Meu perfil","x":1119,"y":904,"props":{"name":"conta-dashboard/atalhos/t3","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/t3","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"→","x":1300,"y":905,"width":20,"props":{"name":"conta-dashboard/atalhos/seta3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta3","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/atalhos/seta3","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":120,"y":1004,"width":1200,"height":1,"props":{"name":"conta-dashboard/conta-dashboard/regra"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/regra","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"MECÂNICA:","x":120,"y":1028,"width":400,"props":{"name":"conta-dashboard/conta-dashboard/rot","fontSize":11,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/rot","letterSpacing":0.88}}
+{"command":"text.create","params":{"text":"A ordem da coluna é a decisão: continuar (1 ação), watchlist (fila) e últimas notas (memória) — o dashboard retoma antes de descobrir.","x":232,"y":1024,"width":860,"props":{"name":"conta-dashboard/conta-dashboard/txt","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/txt","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/txt","lineHeight":19}}
+{"command":"text.create","params":{"text":"CONCEITO V2 · CONTA · 01/03","x":920,"y":1030,"width":400,"props":{"name":"conta-dashboard/conta-dashboard/meta","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/meta","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/meta","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-dashboard/conta-dashboard/meta","letterSpacing":0.8}}
+{"command":"page.add","params":{"name":"Conta — Perfil (v2)"}}
+{"command":"page.setBackground","params":{"color":"#08080C"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":1320,"name":"Conta — Perfil (v2)"}}
+{"command":"node.set","params":{"name":"Conta — Perfil (v2)","fill":"#08080C"}}
+{"command":"shape.rectangle","params":{"x":0,"y":72,"width":1440,"height":1,"props":{"name":"conta-perfil/chrome/linha"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/linha","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":33,"width":7,"height":7,"props":{"name":"conta-perfil/chrome/marca"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/marca","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"MEDIA RATE","x":136,"y":23,"props":{"name":"conta-perfil/chrome/marca-txt","fontSize":15,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/marca-txt","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/marca-txt","letterSpacing":1.6}}
+{"command":"text.create","params":{"text":"Descobrir","x":470,"y":27,"props":{"name":"conta-perfil/chrome/nav0","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/nav0","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Catálogo","x":571,"y":27,"props":{"name":"conta-perfil/chrome/nav1","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/nav1","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Rankings","x":665,"y":27,"props":{"name":"conta-perfil/chrome/nav2","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/nav2","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Descobertas","x":759,"y":27,"props":{"name":"conta-perfil/chrome/nav3","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/nav3","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Fontes","x":874,"y":27,"props":{"name":"conta-perfil/chrome/nav4","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/nav4","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"PLANO FREE","x":1052,"y":29,"width":200,"props":{"name":"conta-perfil/chrome/plano","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/plano","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/plano","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/plano","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1276,"y":22,"width":28,"height":28,"props":{"name":"conta-perfil/chrome/avatar"}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/avatar","fill":"#14141C","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"N","x":1284,"y":27,"props":{"name":"conta-perfil/chrome/avatar-ini","fontSize":12,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/chrome/avatar-ini","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"CONTA / PERFIL","x":120,"y":104,"props":{"name":"conta-perfil/kicker","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/kicker","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/kicker","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"VER PERFIL PÚBLICO →","x":1060,"y":104,"width":260,"props":{"name":"conta-perfil/kicker-dir","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/kicker-dir","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-perfil/kicker-dir","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/kicker-dir","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Perfil","x":120,"y":128,"props":{"name":"conta-perfil/h1","fontSize":44,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"conta-perfil/h1","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/h1","letterSpacing":-0.9}}
+{"command":"text.create","params":{"text":"Usuário · Plano Free · membro desde N","x":120,"y":192,"width":520,"props":{"name":"conta-perfil/sub","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/sub","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-perfil/sub","lineHeight":21}}
+{"command":"shape.rectangle","params":{"x":120,"y":236,"width":1200,"height":1,"props":{"name":"conta-perfil/regra-topo"}}}
+{"command":"node.set","params":{"name":"conta-perfil/regra-topo","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"GOSTO DECLARADO","x":120,"y":264,"props":{"name":"conta-perfil/dec/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"EXEMPLO","x":526,"y":264,"width":80,"props":{"name":"conta-perfil/dec/tag","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tag","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tag","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tag","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"O que você escolheu","x":120,"y":288,"props":{"name":"conta-perfil/dec/h2","fontSize":26,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/h2","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/h2","letterSpacing":-0.4}}
+{"command":"text.create","params":{"text":"Declarado é o que você afirma querer; observado é o que o histórico mostra.","x":120,"y":328,"width":486,"props":{"name":"conta-perfil/dec/sub","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sub","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sub","lineHeight":21}}
+{"command":"shape.rectangle","params":{"x":120,"y":395,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box0","fill":"#E8543F","strokes":["#E8543F"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Filmes","x":148,"y":392,"props":{"name":"conta-perfil/dec/tipo0","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"SELECIONADO","x":466,"y":396,"width":140,"props":{"name":"conta-perfil/dec/on0","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on0","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on0","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":426,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep0","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":439,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box1","fill":"#E8543F","strokes":["#E8543F"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Séries","x":148,"y":436,"props":{"name":"conta-perfil/dec/tipo1","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"SELECIONADO","x":466,"y":440,"width":140,"props":{"name":"conta-perfil/dec/on1","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on1","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on1","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":470,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep1","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":483,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box2","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Games","x":148,"y":480,"props":{"name":"conta-perfil/dec/tipo2","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo2","fill":"#A8A49C"}}
+{"command":"shape.rectangle","params":{"x":120,"y":514,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep2","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":527,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box3","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Livros","x":148,"y":524,"props":{"name":"conta-perfil/dec/tipo3","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo3","fill":"#A8A49C"}}
+{"command":"shape.rectangle","params":{"x":120,"y":558,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep3","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":571,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box4","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":148,"y":568,"props":{"name":"conta-perfil/dec/tipo4","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo4","fill":"#A8A49C"}}
+{"command":"shape.rectangle","params":{"x":120,"y":602,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep4","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":615,"width":12,"height":12,"props":{"name":"conta-perfil/dec/box5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/box5","fill":"#E8543F","strokes":["#E8543F"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Mangás","x":148,"y":612,"props":{"name":"conta-perfil/dec/tipo5","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/tipo5","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"SELECIONADO","x":466,"y":616,"width":140,"props":{"name":"conta-perfil/dec/on5","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on5","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on5","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/on5","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":646,"width":486,"height":1,"props":{"name":"conta-perfil/dec/sep5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/dec/sep5","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"GOSTO OBSERVADO","x":732,"y":264,"props":{"name":"conta-perfil/obs/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"O que o histórico mostra","x":732,"y":288,"props":{"name":"conta-perfil/obs/h2","fontSize":26,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/h2","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/h2","letterSpacing":-0.4}}
+{"command":"text.create","params":{"text":"Derivado de N interações de consumo (quero + consumindo + concluído).","x":732,"y":328,"width":588,"props":{"name":"conta-perfil/obs/sub","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sub","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sub","lineHeight":21}}
+{"command":"text.create","params":{"text":"Filmes","x":732,"y":392,"props":{"name":"conta-perfil/obs/tipo0","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo0","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":401,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha0","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":399,"width":300,"height":4,"props":{"name":"conta-perfil/obs/barra0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra0","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":392,"width":60,"props":{"name":"conta-perfil/obs/n0","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n0","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n0","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":426,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep0","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Séries","x":732,"y":436,"props":{"name":"conta-perfil/obs/tipo1","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo1","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":445,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha1","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":443,"width":246,"height":4,"props":{"name":"conta-perfil/obs/barra1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra1","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":436,"width":60,"props":{"name":"conta-perfil/obs/n1","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n1","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n1","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":470,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep1","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Games","x":732,"y":480,"props":{"name":"conta-perfil/obs/tipo2","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo2","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":489,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha2","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":487,"width":150,"height":4,"props":{"name":"conta-perfil/obs/barra2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra2","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":480,"width":60,"props":{"name":"conta-perfil/obs/n2","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n2","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n2","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":514,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep2","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Livros","x":732,"y":524,"props":{"name":"conta-perfil/obs/tipo3","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo3","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":533,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha3","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":531,"width":108,"height":4,"props":{"name":"conta-perfil/obs/barra3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra3","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":524,"width":60,"props":{"name":"conta-perfil/obs/n3","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n3","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n3","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":558,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep3","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Quadrinhos","x":732,"y":568,"props":{"name":"conta-perfil/obs/tipo4","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo4","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":577,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha4","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":575,"width":66,"height":4,"props":{"name":"conta-perfil/obs/barra4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra4","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":568,"width":60,"props":{"name":"conta-perfil/obs/n4","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n4","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n4","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":602,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep4","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"Mangás","x":732,"y":612,"props":{"name":"conta-perfil/obs/tipo5","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/tipo5","fill":"#F2F0EB"}}
+{"command":"shape.rectangle","params":{"x":882,"y":621,"width":300,"height":1,"props":{"name":"conta-perfil/obs/trilha5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/trilha5","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":882,"y":619,"width":186,"height":4,"props":{"name":"conta-perfil/obs/barra5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/barra5","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"N","x":1260,"y":612,"width":60,"props":{"name":"conta-perfil/obs/n5","fontSize":13,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n5","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/n5","textAlign":"right"}}
+{"command":"shape.rectangle","params":{"x":732,"y":646,"width":588,"height":1,"props":{"name":"conta-perfil/obs/sep5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/obs/sep5","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":676,"width":1200,"height":104,"props":{"name":"conta-perfil/div/faixa"}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/faixa","fill":"#0E0E14"}}
+{"command":"text.create","params":{"text":"DIVERGÊNCIA · DECLARADO ≠ OBSERVADO","x":144,"y":692,"props":{"name":"conta-perfil/div/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/div/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Games","x":144,"y":718,"props":{"name":"conta-perfil/div/tipo","fontSize":17,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/tipo","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"declarado, mas N títulos no histórico — o gosto observado não confirma a escolha.","x":240,"y":720,"width":620,"props":{"name":"conta-perfil/div/txt","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/txt","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-perfil/div/txt","lineHeight":21}}
+{"command":"text.create","params":{"text":"explorar games da faixa 8+ →","x":916,"y":720,"width":380,"props":{"name":"conta-perfil/div/acao","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/acao","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-perfil/div/acao","textAlign":"right"}}
+{"command":"text.create","params":{"text":"O PERFIL NOMEIA A DIVERGÊNCIA EM VEZ DE DESENHAR UM GRÁFICO GENÉRICO","x":144,"y":752,"props":{"name":"conta-perfil/div/nota","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/div/nota","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/div/nota","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"RÉGUA DO PERFIL · AS NOTAS QUE VOCÊ DEU","x":120,"y":824,"props":{"name":"conta-perfil/reg/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"ESCALA 0–10 · N NOTAS","x":1000,"y":824,"width":320,"props":{"name":"conta-perfil/reg/n","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg0","fill":"#2FD3A0"}}
+{"command":"text.create","params":{"text":"N","x":120,"y":884,"props":{"name":"conta-perfil/reg/n0","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"EXCEPCIONAL","x":120,"y":924,"props":{"name":"conta-perfil/reg/f0","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f0","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"9 A 10","x":120,"y":940,"props":{"name":"conta-perfil/reg/faixa0","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa0","fill":"#2FD3A0"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":320,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg1","fill":"#3FA9F5"}}
+{"command":"text.create","params":{"text":"N","x":320,"y":884,"props":{"name":"conta-perfil/reg/n1","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"MUITO BOM","x":320,"y":924,"props":{"name":"conta-perfil/reg/f1","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f1","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"8","x":320,"y":940,"props":{"name":"conta-perfil/reg/faixa1","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa1","fill":"#3FA9F5"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":520,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg2","fill":"#8B8CF0"}}
+{"command":"text.create","params":{"text":"N","x":520,"y":884,"props":{"name":"conta-perfil/reg/n2","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n2","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"BOM","x":520,"y":924,"props":{"name":"conta-perfil/reg/f2","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f2","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"7","x":520,"y":940,"props":{"name":"conta-perfil/reg/faixa2","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa2","fill":"#8B8CF0"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa2","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":720,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg3"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg3","fill":"#E8B44A"}}
+{"command":"text.create","params":{"text":"N","x":720,"y":884,"props":{"name":"conta-perfil/reg/n3","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n3","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"RAZOÁVEL","x":720,"y":924,"props":{"name":"conta-perfil/reg/f3","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f3","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f3","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"6","x":720,"y":940,"props":{"name":"conta-perfil/reg/faixa3","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa3","fill":"#E8B44A"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa3","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":920,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg4"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg4","fill":"#E8853F"}}
+{"command":"text.create","params":{"text":"N","x":920,"y":884,"props":{"name":"conta-perfil/reg/n4","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n4","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"FRACO","x":920,"y":924,"props":{"name":"conta-perfil/reg/f4","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f4","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f4","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"5","x":920,"y":940,"props":{"name":"conta-perfil/reg/faixa4","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa4","fill":"#E8853F"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa4","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1120,"y":872,"width":198,"height":4,"props":{"name":"conta-perfil/reg/seg5"}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/seg5","fill":"#E05A55"}}
+{"command":"text.create","params":{"text":"N","x":1120,"y":884,"props":{"name":"conta-perfil/reg/n5","fontSize":26,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/n5","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"EVITE","x":1120,"y":924,"props":{"name":"conta-perfil/reg/f5","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f5","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/f5","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"ABAIXO","x":1120,"y":940,"props":{"name":"conta-perfil/reg/faixa5","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa5","fill":"#E05A55"}}
+{"command":"node.set","params":{"name":"conta-perfil/reg/faixa5","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":1000,"width":1200,"height":1,"props":{"name":"conta-perfil/regra-meio"}}}
+{"command":"node.set","params":{"name":"conta-perfil/regra-meio","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"SEU SCORE MÉDIO","x":120,"y":1024,"props":{"name":"conta-perfil/media/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/media/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/media/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"N,N","x":120,"y":1044,"props":{"name":"conta-perfil/media/valor","fontSize":38,"fontFamily":"Cascadia Mono","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/media/valor","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"/10","x":216,"y":1056,"props":{"name":"conta-perfil/media/de","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/media/de","fill":"#6E6A64"}}
+{"command":"shape.rectangle","params":{"x":120,"y":1090,"width":64,"height":3,"props":{"name":"conta-perfil/media/tick"}}}
+{"command":"node.set","params":{"name":"conta-perfil/media/tick","fill":"#3FA9F5"}}
+{"command":"text.create","params":{"text":"FAIXA N · N NOTAS","x":196,"y":1086,"props":{"name":"conta-perfil/media/f","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/media/f","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/media/f","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"CONQUISTAS","x":732,"y":1024,"props":{"name":"conta-perfil/badges/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":732,"y":1055,"width":10,"height":10,"props":{"name":"conta-perfil/badges/box0"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/box0","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Explorador","x":754,"y":1052,"props":{"name":"conta-perfil/badges/t0","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/t0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"5+ títulos na watchlist","x":892,"y":1053,"props":{"name":"conta-perfil/badges/r0","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/r0","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"N","x":1240,"y":1052,"width":80,"props":{"name":"conta-perfil/badges/n0","fontSize":11,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n0","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n0","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":732,"y":1095,"width":10,"height":10,"props":{"name":"conta-perfil/badges/box1"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/box1","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Maratonista","x":754,"y":1092,"props":{"name":"conta-perfil/badges/t1","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/t1","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"3+ séries completas","x":892,"y":1093,"props":{"name":"conta-perfil/badges/r1","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/r1","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"N","x":1240,"y":1092,"width":80,"props":{"name":"conta-perfil/badges/n1","fontSize":11,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n1","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":732,"y":1135,"width":10,"height":10,"props":{"name":"conta-perfil/badges/box2"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/box2","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"Ativo","x":754,"y":1132,"props":{"name":"conta-perfil/badges/t2","fontSize":14,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/t2","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"assistindo 1+ título","x":892,"y":1133,"props":{"name":"conta-perfil/badges/r2","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/r2","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"N","x":1240,"y":1132,"width":80,"props":{"name":"conta-perfil/badges/n2","fontSize":11,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n2","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/badges/n2","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":1224,"width":1200,"height":1,"props":{"name":"conta-perfil/conta-perfil/regra"}}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/regra","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"MECÂNICA:","x":120,"y":1248,"width":400,"props":{"name":"conta-perfil/conta-perfil/rot","fontSize":11,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/rot","letterSpacing":0.88}}
+{"command":"text.create","params":{"text":"O perfil põe declarado e observado lado a lado e nomeia a divergência; a régua do perfil usa a mesma escala da ficha e do catálogo.","x":232,"y":1244,"width":860,"props":{"name":"conta-perfil/conta-perfil/txt","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/txt","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/txt","lineHeight":19}}
+{"command":"text.create","params":{"text":"CONCEITO V2 · CONTA · 02/03","x":920,"y":1250,"width":400,"props":{"name":"conta-perfil/conta-perfil/meta","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/meta","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/meta","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-perfil/conta-perfil/meta","letterSpacing":0.8}}
+{"command":"page.add","params":{"name":"Conta — Login e Registro (v2)"}}
+{"command":"page.setBackground","params":{"color":"#08080C"}}
+{"command":"frame.create","params":{"x":0,"y":0,"width":1440,"height":1000,"name":"Conta — Login e Registro (v2)"}}
+{"command":"node.set","params":{"name":"Conta — Login e Registro (v2)","fill":"#08080C"}}
+{"command":"shape.rectangle","params":{"x":0,"y":72,"width":1440,"height":1,"props":{"name":"conta-login/chrome/linha"}}}
+{"command":"node.set","params":{"name":"conta-login/chrome/linha","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":120,"y":33,"width":7,"height":7,"props":{"name":"conta-login/chrome/marca"}}}
+{"command":"node.set","params":{"name":"conta-login/chrome/marca","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"MEDIA RATE","x":136,"y":23,"props":{"name":"conta-login/chrome/marca-txt","fontSize":15,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-login/chrome/marca-txt","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-login/chrome/marca-txt","letterSpacing":1.6}}
+{"command":"text.create","params":{"text":"voltar ao site →","x":1120,"y":27,"width":200,"props":{"name":"conta-login/chrome/voltar","fontSize":12,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/chrome/voltar","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/chrome/voltar","textAlign":"right"}}
+{"command":"text.create","params":{"text":"CONCEITO V2 / CONTA","x":120,"y":176,"props":{"name":"conta-login/esq/kicker","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/esq/kicker","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/esq/kicker","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Uma decisão por tela.","x":120,"y":204,"props":{"name":"conta-login/esq/tese","fontSize":26,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-login/esq/tese","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-login/esq/tese","letterSpacing":-0.4}}
+{"command":"node.set","params":{"name":"conta-login/esq/tese","lineHeight":32}}
+{"command":"text.create","params":{"text":"O fluxo não pede tudo de uma vez: entrar, criar e verificar são telas separadas. Cada uma decide uma coisa só — e o desenho não muda entre elas.","x":120,"y":272,"width":268,"props":{"name":"conta-login/esq/txt","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/esq/txt","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-login/esq/txt","lineHeight":21}}
+{"command":"shape.rectangle","params":{"x":120,"y":396,"width":268,"height":1,"props":{"name":"conta-login/esq/sep"}}}
+{"command":"node.set","params":{"name":"conta-login/esq/sep","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"O QUE ESTA TELA DECIDE","x":120,"y":416,"props":{"name":"conta-login/esq/decide","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/esq/decide","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/esq/decide","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Identificar quem já tem conta.","x":120,"y":438,"width":268,"props":{"name":"conta-login/esq/decide-valor","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/esq/decide-valor","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-login/esq/decide-valor","lineHeight":23}}
+{"command":"text.create","params":{"text":"CONTA / ENTRAR","x":480,"y":140,"props":{"name":"conta-login/form/kicker","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/kicker","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/kicker","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Entrar","x":480,"y":172,"props":{"name":"conta-login/form/h1","fontSize":44,"fontFamily":"Space Grotesk","fontWeight":700}}}
+{"command":"node.set","params":{"name":"conta-login/form/h1","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-login/form/h1","letterSpacing":-0.9}}
+{"command":"text.create","params":{"text":"Bem-vindo de volta.","x":480,"y":236,"width":480,"props":{"name":"conta-login/form/sub","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/sub","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-login/form/sub","lineHeight":24}}
+{"command":"text.create","params":{"text":"EMAIL","x":480,"y":296,"props":{"name":"conta-login/form/email/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/email/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/email/rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"seu@email.com","x":480,"y":317,"props":{"name":"conta-login/form/email/ph","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/email/ph","fill":"#6E6A64"}}
+{"command":"shape.rectangle","params":{"x":480,"y":340,"width":480,"height":1,"props":{"name":"conta-login/form/email/regra"}}}
+{"command":"node.set","params":{"name":"conta-login/form/email/regra","fill":"#34343E"}}
+{"command":"text.create","params":{"text":"SENHA","x":480,"y":370,"props":{"name":"conta-login/form/senha-rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-rot","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"MOSTRAR","x":840,"y":370,"width":120,"props":{"name":"conta-login/form/senha-ver","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-ver","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-ver","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-ver","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Sua senha","x":480,"y":391,"props":{"name":"conta-login/form/senha-ph","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-ph","fill":"#6E6A64"}}
+{"command":"shape.rectangle","params":{"x":480,"y":414,"width":480,"height":1,"props":{"name":"conta-login/form/senha-regra"}}}
+{"command":"node.set","params":{"name":"conta-login/form/senha-regra","fill":"#34343E"}}
+{"command":"shape.rectangle","params":{"x":480,"y":452,"width":480,"height":48,"props":{"name":"conta-login/form/entrar/bg"}}}
+{"command":"node.set","params":{"name":"conta-login/form/entrar/bg","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"ENTRAR","x":492,"y":468,"width":456,"props":{"name":"conta-login/form/entrar/rot","fontSize":10,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-login/form/entrar/rot","fill":"#1A0E0B"}}
+{"command":"node.set","params":{"name":"conta-login/form/entrar/rot","textAlign":"center"}}
+{"command":"shape.rectangle","params":{"x":480,"y":540,"width":200,"height":1,"props":{"name":"conta-login/form/ou-esq"}}}
+{"command":"node.set","params":{"name":"conta-login/form/ou-esq","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"OU","x":700,"y":531,"width":40,"props":{"name":"conta-login/form/ou","fontSize":10,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/ou","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/ou","textAlign":"center"}}
+{"command":"shape.rectangle","params":{"x":760,"y":540,"width":200,"height":1,"props":{"name":"conta-login/form/ou-dir"}}}
+{"command":"node.set","params":{"name":"conta-login/form/ou-dir","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":480,"y":572,"width":480,"height":44,"props":{"name":"conta-login/form/google/bg"}}}
+{"command":"node.set","params":{"name":"conta-login/form/google/bg","fill":"none","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"CONTINUAR COM GOOGLE","x":492,"y":586,"width":456,"props":{"name":"conta-login/form/google/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/google/rot","fill":"#F2F0EB"}}
+{"command":"node.set","params":{"name":"conta-login/form/google/rot","textAlign":"center"}}
+{"command":"text.create","params":{"text":"G","x":502,"y":584,"props":{"name":"conta-login/form/google-g","fontSize":14,"fontFamily":"Space Grotesk","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-login/form/google-g","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"CONTINUAR COM APPLE","x":492,"y":646,"width":456,"props":{"name":"conta-login/form/apple/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/apple/rot","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-login/form/apple/rot","textAlign":"center"}}
+{"command":"text.create","params":{"text":"EM BREVE","x":860,"y":648,"width":100,"props":{"name":"conta-login/form/apple-breve","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/apple-breve","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/apple-breve","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-login/form/apple-breve","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Não tem conta?","x":480,"y":716,"props":{"name":"conta-login/form/nova","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/nova","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"Cadastre-se →","x":610,"y":716,"props":{"name":"conta-login/form/nova-link","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/nova-link","fill":"#E8543F"}}
+{"command":"text.create","params":{"text":"AO CONTINUAR, VOCÊ ACEITA","x":480,"y":782,"props":{"name":"conta-login/form/legal","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/form/legal","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/form/legal","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"TERMOS · POLÍTICA DE PRIVACIDADE","x":480,"y":800,"props":{"name":"conta-login/form/legal-links","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/form/legal-links","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-login/form/legal-links","letterSpacing":0.4}}
+{"command":"text.create","params":{"text":"TRILHA DO FLUXO","x":1040,"y":176,"props":{"name":"conta-login/trilha/rot","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/rot","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1039,"y":220,"width":1,"height":236,"props":{"name":"conta-login/trilha/linha"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/linha","fill":"#26262E"}}
+{"command":"shape.rectangle","params":{"x":1035,"y":213,"width":9,"height":9,"props":{"name":"conta-login/trilha/ponto0"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/ponto0","fill":"#E8543F","strokes":["#E8543F"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"01","x":1064,"y":208,"props":{"name":"conta-login/trilha/n0","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n0","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n0","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Entrar","x":1064,"y":224,"props":{"name":"conta-login/trilha/t0","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/t0","fill":"#F2F0EB"}}
+{"command":"text.create","params":{"text":"identificar quem já tem conta","x":1064,"y":248,"width":256,"props":{"name":"conta-login/trilha/d0","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/d0","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"NESTA TELA","x":1064,"y":268,"props":{"name":"conta-login/trilha/e0","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e0","fill":"#E8543F"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e0","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1035,"y":301,"width":9,"height":9,"props":{"name":"conta-login/trilha/ponto1"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/ponto1","fill":"#08080C","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"02","x":1064,"y":296,"props":{"name":"conta-login/trilha/n1","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n1","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Criar conta","x":1064,"y":312,"props":{"name":"conta-login/trilha/t1","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/t1","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"nome, email e senha — uma vez","x":1064,"y":336,"width":256,"props":{"name":"conta-login/trilha/d1","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/d1","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"PRÓXIMA","x":1064,"y":356,"props":{"name":"conta-login/trilha/e1","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e1","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e1","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":1035,"y":389,"width":9,"height":9,"props":{"name":"conta-login/trilha/ponto2"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/ponto2","fill":"#08080C","strokes":["#34343E"],"strokeWeight":1}}
+{"command":"text.create","params":{"text":"03","x":1064,"y":384,"props":{"name":"conta-login/trilha/n2","fontSize":9,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/n2","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"Verificar email","x":1064,"y":400,"props":{"name":"conta-login/trilha/t2","fontSize":15,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/t2","fill":"#A8A49C"}}
+{"command":"text.create","params":{"text":"confirmar o endereço pelo link","x":1064,"y":424,"width":256,"props":{"name":"conta-login/trilha/d2","fontSize":11,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/d2","fill":"#6E6A64"}}
+{"command":"text.create","params":{"text":"PRÓXIMA","x":1064,"y":444,"props":{"name":"conta-login/trilha/e2","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e2","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/e2","letterSpacing":0.8}}
+{"command":"text.create","params":{"text":"O LAYOUT NÃO MUDA ENTRE AS TELAS — MUDA A DECISÃO","x":1040,"y":500,"props":{"name":"conta-login/trilha/nota","fontSize":8,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/trilha/nota","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/trilha/nota","letterSpacing":0.8}}
+{"command":"shape.rectangle","params":{"x":120,"y":904,"width":1200,"height":1,"props":{"name":"conta-login/conta-login/regra"}}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/regra","fill":"#26262E"}}
+{"command":"text.create","params":{"text":"MECÂNICA:","x":120,"y":928,"width":400,"props":{"name":"conta-login/conta-login/rot","fontSize":11,"fontFamily":"Inter","fontWeight":600}}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/rot","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/rot","letterSpacing":0.88}}
+{"command":"text.create","params":{"text":"Fluxo centrado com uma decisão por tela: entrar, criar e verificar compartilham o desenho; o que muda é a pergunta, não o formulário.","x":232,"y":924,"width":860,"props":{"name":"conta-login/conta-login/txt","fontSize":13,"fontFamily":"Inter"}}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/txt","fill":"#A8A49C"}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/txt","lineHeight":19}}
+{"command":"text.create","params":{"text":"CONCEITO V2 · CONTA · 03/03","x":920,"y":930,"width":400,"props":{"name":"conta-login/conta-login/meta","fontSize":10,"fontFamily":"Inter","fontWeight":500}}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/meta","fill":"#6E6A64"}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/meta","textAlign":"right"}}
+{"command":"node.set","params":{"name":"conta-login/conta-login/meta","letterSpacing":0.8}}
+{"command":"page.select","params":{"index":0}}
+{"command":"page.delete","params":{}}
