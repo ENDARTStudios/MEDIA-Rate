@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import {
+  mapearOverviewTmdb,
   mapearDescricaoOpenLibrary,
   mapearCreditosTmdb,
   mapearCreditosIgdb,
@@ -593,6 +594,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           autores_comics: 31,
           creditos_midia: 17217,
           sinopse_ol: 25000,
+          sinopse_tmdb: 18000,
         },
       ];
     });
@@ -615,6 +617,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresComics: 31,
       creditosMidia: 17217,
       sinopseOpenLibrary: 25000,
+      sinopseEnTmdb: 18000,
     });
   });
 
@@ -643,6 +646,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresComics: 0,
       creditosMidia: 0,
       sinopseOpenLibrary: 0,
+      sinopseEnTmdb: 0,
     });
   });
 
@@ -2555,6 +2559,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_mangas: 0,
             autores_comics: 0,
             sinopse_ol: 0,
+            sinopse_tmdb: 0,
             creditos_midia: 5,
           },
         ];
@@ -2626,6 +2631,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_mangas: 0,
             autores_comics: 0,
             sinopse_ol: 0,
+            sinopse_tmdb: 0,
             creditos_midia: 0,
           },
         ];
@@ -2667,6 +2673,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_mangas: 0,
             autores_comics: 0,
             sinopse_ol: 0,
+            sinopse_tmdb: 0,
             creditos_midia: 5,
           },
         ];
@@ -2728,6 +2735,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_mangas: 0,
             autores_comics: 0,
             sinopse_ol: 0,
+            sinopse_tmdb: 0,
             creditos_midia: 1,
           },
         ];
@@ -4451,5 +4459,20 @@ describe("prioridade de autores de COMIC sobre créditos (T-DADOS-80)", () => {
       .map((c: any[]) => String(c[0]))
       .join(" ");
     expect(sqls).toContain("AND NOT (m.tipo = 'COMIC' AND m.autores_em IS NULL)");
+  });
+});
+
+describe("T-DADOS-74: overview do TMDB (en-US) → sinopse_en", () => {
+  it("aceita overview com tamanho útil", () => {
+    expect(mapearOverviewTmdb({ overview: "A long enough English overview about a film." })).toBe(
+      "A long enough English overview about a film.",
+    );
+  });
+
+  it("vazio/curto/ausente → null (lacuna honesta)", () => {
+    expect(mapearOverviewTmdb({ overview: "curto" })).toBeNull();
+    expect(mapearOverviewTmdb({ overview: "" })).toBeNull();
+    expect(mapearOverviewTmdb({})).toBeNull();
+    expect(mapearOverviewTmdb(null)).toBeNull();
   });
 });

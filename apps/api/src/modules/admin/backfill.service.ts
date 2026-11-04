@@ -107,7 +107,9 @@ export type BackfillTipo =
   | "creditosMidia"
   // T-DADOS-69: sinopse em INGLÊS do livro pelo `description` do OpenLibrary
   // (fonte gratuita, sem cota diária) — complementa o Google Books.
-  | "sinopseOpenLibrary";
+  | "sinopseOpenLibrary"
+  // T-DADOS-74: sinopse em INGLÊS de FILME/SERIE pelo `overview` en-US do TMDB.
+  | "sinopseEnTmdb";
 
 interface BackfillEstado {
   executando: boolean;
@@ -248,6 +250,15 @@ export function mapearRevistaMal(payload: any): CreditoEntidade[] {
  * É texto da própria ficha (normalmente em inglês) e vai para `sinopse_en`,
  * nunca para a coluna PT.
  */
+/**
+ * T-DADOS-74: `overview` do TMDB — usado em `en-US` para preencher
+ * `sinopse_en` de quem não tem sinopse em PT (o pt-BR não existe na fonte).
+ */
+export function mapearOverviewTmdb(payload: any): string | null {
+  const texto = String(payload?.overview ?? "").trim();
+  return texto.length >= 40 ? texto : null;
+}
+
 export function mapearDescricaoOpenLibrary(payload: any): string | null {
   const bruto = payload?.description;
   const texto =
@@ -1467,6 +1478,7 @@ export class BackfillService {
     autoresComics: estadoVazio(),
     creditosMidia: estadoVazio(),
     sinopseOpenLibrary: estadoVazio(),
+    sinopseEnTmdb: estadoVazio(),
   };
 
   constructor(
@@ -1564,8 +1576,8 @@ export class BackfillService {
     return Number(r[0]?.usados ?? 0);
   }
 
-  private async tmdb(caminho: string, chave: string): Promise<any> {
-    const url = `${TMDB_BASE}${caminho}${caminho.includes("?") ? "&" : "?"}api_key=${chave}&language=pt-BR`;
+  private async tmdb(caminho: string, chave: string, idioma = "pt-BR"): Promise<any> {
+    const url = `${TMDB_BASE}${caminho}${caminho.includes("?") ? "&" : "?"}api_key=${chave}&language=${idioma}`;
     await this.pausa(PAUSA_MS);
     return fetchJson<any>(url, {
       headers: { "User-Agent": UA_BROWSER, "Accept": "application/json" },
@@ -2837,6 +2849,98 @@ export class BackfillService {
    * para os 25 mil livros novos). Grava em `sinopse_en` (texto da ficha é em
    * inglês; a coluna PT nunca é tocada) e marca `sinopse_ol_em` sempre.
    */
+  /**
+   * T-DADOS-74 — sinopse EN de FILME/SERIE pelo `overview` do TMDB em en-US.
+   * Medido: para os títulos SEM sinopse em PT, o pt-BR não existe na fonte,
+   * mas o en-US existe em 5/5 filmes e 4/5 séries. Grava em `sinopse_en`
+   * (a coluna PT nunca é tocada) e marca `sinopse_tmdb_em` sempre.
+   */
+  async enriquecerSinopseEnTmdb(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semOverview: number;
+    gravadas: number;
+    falhas: number;
+  }> {
+    if (this.estado.sinopseEnTmdb.executando) {
+      throw new BadRequestException("Job sinopse EN (TMDB) já em execução.");
+    }
+    const chave = process.env.TMDB_API_KEY;
+    if (!chave) throw new BadRequestException("TMDB_API_KEY ausente no ambiente.");
+    await this.guardaDisco();
+    this.estado.sinopseEnTmdb = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; tipo: string; fonte: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.tipo::text AS tipo, m.fonte, m.fonte_id, m.titulo
+         FROM midia m
+        WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
+          AND m.fonte IN ('tmdb','tmdb_tv')
+          AND m.sinopse_tmdb_em IS NULL
+          AND (m.sinopse IS NULL OR btrim(m.sinopse) = '')
+          AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')
+        ORDER BY m.id
+        LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
+    )) as any[];
+    this.logger.log(`Backfill sinopse EN (TMDB): ${alvo.length} títulos alvo.`);
+    let semOverview = 0;
+    let gravadas = 0;
+    for (const m of alvo) {
+      this.estado.sinopseEnTmdb.processados++;
+      this.estado.sinopseEnTmdb.atual = m.titulo;
+      try {
+        const fonteId = String(m.fonte_id ?? "").trim();
+        if (!/^\d+$/.test(fonteId)) {
+          semOverview++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_tmdb_em: new Date() },
+          });
+          this.estado.sinopseEnTmdb.ok++;
+          continue;
+        }
+        const seg = m.tipo === "SERIE" ? "tv" : "movie";
+        const payload = await this.tmdb(`/${seg}/${fonteId}`, chave, "en-US");
+        const sinopse = mapearOverviewTmdb(payload);
+        if (!sinopse) {
+          semOverview++;
+        } else {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_en: truncarCampo(sinopse, 20000) },
+          });
+          gravadas++;
+        }
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { sinopse_tmdb_em: new Date() },
+        });
+        this.estado.sinopseEnTmdb.ok++;
+      } catch (e) {
+        this.estado.sinopseEnTmdb.falhas++;
+        this.logger.warn(
+          `Backfill sinopse EN (TMDB) falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.sinopseEnTmdb.executando = false;
+    this.estado.sinopseEnTmdb.atual = `fim: ok=${this.estado.sinopseEnTmdb.ok} sem_overview=${semOverview} sinopses=${gravadas} falhas=${this.estado.sinopseEnTmdb.falhas}`;
+    this.logger.log(
+      `Backfill sinopse EN (TMDB) fim: ok=${this.estado.sinopseEnTmdb.ok} sem_overview=${semOverview} sinopses=${gravadas} falhas=${this.estado.sinopseEnTmdb.falhas}.`,
+    );
+    return {
+      processados: this.estado.sinopseEnTmdb.processados,
+      ok: this.estado.sinopseEnTmdb.ok,
+      semOverview,
+      gravadas,
+      falhas: this.estado.sinopseEnTmdb.falhas,
+    };
+  }
+
   async enriquecerSinopseOpenLibrary(limite: number): Promise<{
     processados: number;
     ok: number;
@@ -4180,6 +4284,8 @@ export class BackfillService {
     creditosMidia: number;
     // T-DADOS-69: sinopse EN de LIVRO pelo `description` do OpenLibrary.
     sinopseOpenLibrary: number;
+    // T-DADOS-74: sinopse EN de FILME/SERIE pelo `overview` en-US do TMDB.
+    sinopseEnTmdb: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -4201,6 +4307,7 @@ export class BackfillService {
         autores_comics: number;
         creditos_midia: number;
         sinopse_ol: number;
+        sinopse_tmdb: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -4262,6 +4369,12 @@ export class BackfillService {
             AND m.sinopse_ol_em IS NULL
             AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')
             AND (m.sinopse IS NULL OR btrim(m.sinopse) = '')) AS sinopse_ol,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
+            AND m.fonte IN ('tmdb','tmdb_tv')
+            AND m.sinopse_tmdb_em IS NULL
+            AND (m.sinopse IS NULL OR btrim(m.sinopse) = '')
+            AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')) AS sinopse_tmdb,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -4304,6 +4417,7 @@ export class BackfillService {
       autoresComics: Number(row?.autores_comics ?? 0),
       creditosMidia: Number(row?.creditos_midia ?? 0),
       sinopseOpenLibrary: Number(row?.sinopse_ol ?? 0),
+      sinopseEnTmdb: Number(row?.sinopse_tmdb ?? 0),
     };
   }
 
@@ -4333,6 +4447,13 @@ export class BackfillService {
       // catálogo em ~138 mil títulos, as filas anteriores (elo/país/metadados)
       // consomem o orçamento de 45 min e o job de créditos — último na ordem —
       // nunca era alcançado (~1,6 mil títulos/h contra fila de 116 mil).
+      // T-DADOS-74: sinopse EN de FILME/SERIE pelo `overview` en-US do TMDB
+      // (o pt-BR não existe na fonte para esses títulos). 1 GET por título.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.sinopseEnTmdb ?? 0) > 0) {
+        const r = await this.enriquecerSinopseEnTmdb(1500);
+        lotes.push({ tipo: "sinopseEnTmdb", ok: r.ok + r.semOverview, falhas: r.falhas });
+      }
+
       // T-DADOS-71: sinopse de LIVRO pelo `description` do OpenLibrary — fonte
       // gratuita, sem cota, 1 GET por título (~250 ms). Fica no TIQUE PRINCIPAL
       // porque a cauda rotativa não é alcançada todos os tiques (medido: job
