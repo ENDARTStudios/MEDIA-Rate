@@ -4455,6 +4455,17 @@ export class BackfillService {
     // por vez (rotação própria) e lote de 3.000. Antes ele disputava a rotação
     // com outras 9 filas: com 124 mil pendentes, recebia 800 títulos a cada
     // ~10 tiques e o watermark ficou 7 h parado em 5 dos 6 tipos.
+    // T-DADOS-70: a sinopse pelo OpenLibrary é gratuita e sem cota — roda em
+    // TODO tique da cauda, junto com os créditos, senão a rotação (10 filas
+    // × ~40 min) só a alcançaria em ~7 h com 25 mil livros esperando.
+    if (p.sinopseOpenLibrary > 0) {
+      await job(
+        "sinopseOpenLibrary",
+        () => this.enriquecerSinopseOpenLibrary(1500),
+        (r: any) => r.ok + r.semDescricao,
+      );
+    }
+
     if (p.creditosMidia > 0) {
       const tipos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
       const tipoDaVez = tipos[this.creditosCursor % tipos.length];
@@ -4503,12 +4514,6 @@ export class BackfillService {
         tem: p.sinopseMangaEn > 0,
         executar: () => this.enriquecerSinopseMangaEn(800),
         okDe: (r: any) => r.ok + r.semSynopsis,
-      },
-      {
-        tipo: "sinopseOpenLibrary",
-        tem: p.sinopseOpenLibrary > 0,
-        executar: () => this.enriquecerSinopseOpenLibrary(1500),
-        okDe: (r: any) => r.ok + r.semDescricao,
       },
       {
         tipo: "sinopseLivros",
