@@ -2599,7 +2599,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     ]);
     expect(svc.enriquecerGenerosGames).toHaveBeenCalledWith(600);
     expect(svc.enriquecerAutoresLivros).toHaveBeenCalledWith(800);
-    expect(svc.enriquecerCreditosMidia).toHaveBeenCalledWith(3000, "FILME");
+    expect(svc.enriquecerCreditosMidia).toHaveBeenCalledWith(800, "FILME");
   });
 
   it("drenarCauda não chama job de fila zerada", async () => {
@@ -2757,7 +2757,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
         "autoresLivros",
       ]);
       // T-DADOS-68: créditos alternam o TIPO; janela de 10 min começa em FILME.
-      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(1, 3000, "FILME");
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(1, 800, "FILME");
 
       // 30 min depois: a cauda começa na fila seguinte e o TIPO de créditos avança.
       vi.setSystemTime(new Date(30 * 60 * 1000));
@@ -2767,7 +2767,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
         "autoresLivros",
         "generosGames",
       ]);
-      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 3000, "LIVRO");
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 800, "LIVRO");
     } finally {
       vi.useRealTimers();
     }
