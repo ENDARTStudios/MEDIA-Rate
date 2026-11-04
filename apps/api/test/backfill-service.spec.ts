@@ -2582,7 +2582,15 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       falhas: 0,
     } as any);
 
-    const r = await svc.drenarCauda(60_000);
+    // T-DADOS-81: a ordem restante vem do relógio — fixo a janela 0.
+    vi.useFakeTimers();
+    let r;
+    try {
+      vi.setSystemTime(new Date(0));
+      r = await svc.drenarCauda(60_000);
+    } finally {
+      vi.useRealTimers();
+    }
     // T-DADOS-68: créditos rodam SEMPRE, primeiro, com um tipo por vez.
     expect(r.lotes).toEqual([
       { tipo: "creditosMidia", ok: 5, falhas: 0 },
@@ -2680,7 +2688,14 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       falhas: 0,
     } as any);
 
-    const r = await svc.drenarCauda(60_000);
+    vi.useFakeTimers();
+    let r;
+    try {
+      vi.setSystemTime(new Date(0));
+      r = await svc.drenarCauda(60_000);
+    } finally {
+      vi.useRealTimers();
+    }
     expect(r.lotes).toEqual([
       { tipo: "creditosMidia", ok: 5, falhas: 0 },
       { tipo: "generosGames", ok: 0, falhas: 1 },
@@ -2731,24 +2746,31 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       falhas: 0,
     } as any);
 
-    const primeira = await svc.drenarCauda(60_000);
-    expect(primeira.lotes.map((l) => l.tipo)).toEqual([
-      "creditosMidia",
-      "generosGames",
-      "autoresLivros",
-    ]);
+    // T-DADOS-81: rotação vem do RELÓGIO (sobrevive a deploy) — fixo o tempo.
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(0));
+      const primeira = await svc.drenarCauda(60_000);
+      expect(primeira.lotes.map((l) => l.tipo)).toEqual([
+        "creditosMidia",
+        "generosGames",
+        "autoresLivros",
+      ]);
+      // T-DADOS-68: créditos alternam o TIPO; janela de 10 min começa em FILME.
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(1, 3000, "FILME");
 
-    const segunda = await svc.drenarCauda(60_000);
-    // Créditos rodam sempre primeiro (T-DADOS-68); a rotação vale para o resto:
-    // começa na fila seguinte e dá a volta.
-    expect(segunda.lotes.map((l) => l.tipo)).toEqual([
-      "creditosMidia",
-      "autoresLivros",
-      "generosGames",
-    ]);
-    // T-DADOS-68: créditos alternam o TIPO a cada tique (FILME → SERIE …).
-    expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(1, 3000, "FILME");
-    expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 3000, "SERIE");
+      // 30 min depois: a cauda começa na fila seguinte e o TIPO de créditos avança.
+      vi.setSystemTime(new Date(30 * 60 * 1000));
+      const segunda = await svc.drenarCauda(60_000);
+      expect(segunda.lotes.map((l) => l.tipo)).toEqual([
+        "creditosMidia",
+        "autoresLivros",
+        "generosGames",
+      ]);
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 3000, "LIVRO");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

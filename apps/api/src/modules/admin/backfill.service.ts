@@ -1387,6 +1387,28 @@ const LOTE_TMDB = 800;
  */
 const LOTE_IGDB = 600;
 /**
+ * T-DADOS-81: janela da rotação da cauda. O cursor era um contador EM MEMÓRIA
+ * e zerava a cada deploy — com deploys frequentes, as filas do fim (autores de
+ * COMIC é a 9ª de 11) ficavam horas sem a vez e pareciam "travadas". Agora o
+ * índice vem do RELÓGIO: sobrevive a redeploy, não precisa de estado e avança
+ * uma fila a cada janela.
+ */
+const JANELA_ROTACAO_CAUDA_MS = 30 * 60 * 1000;
+/** Janela da rotação de TIPO dos créditos de entidade (mais rápida). */
+const JANELA_ROTACAO_CREDITOS_MS = 10 * 60 * 1000;
+
+/** Puro (testado): índice da fila que inicia a cauda nesta janela de tempo. */
+export function indiceRotacaoCauda(
+  agoraMs: number,
+  total: number,
+  janelaMs: number = JANELA_ROTACAO_CAUDA_MS,
+): number {
+  if (!Number.isFinite(total) || total <= 0) return 0;
+  const janela = Number.isFinite(janelaMs) && janelaMs > 0 ? janelaMs : JANELA_ROTACAO_CAUDA_MS;
+  const indice = Math.floor(agoraMs / janela) % total;
+  return indice >= 0 ? indice : 0;
+}
+/**
  * T-DADOS-71: a continuidade (temporadas/episódios) faz 1 + N requisições por
  * série e consumia sozinha o tique inteiro. O teto por TEMPO a mantém dentro
  * de uma faixa previsível, sem alterar o que ela coleta.
@@ -1411,18 +1433,12 @@ export function prazoEsgotado(
 @Injectable()
 export class BackfillService {
   /**
-   * T-DADOS-70: índice rotativo da cauda. A cauda tem 11 filas e o orçamento
-   * do tique não cobre todas — sem rotação, as últimas (créditos de entidade,
-   * autores, OMDb) nunca rodavam. Cada chamada começa na fila seguinte.
-   */
-  private caudaCursor = 0;
-  /**
    * T-DADOS-68: rotação por TIPO dos créditos. A cauda rotativa dava ao job
    * 800 títulos a cada ~10 tiques com fila de 124 mil (watermark parado em
    * 15:54 por 7 h em 5 dos 6 tipos). Agora ele roda TODO tique da cauda, com
    * um tipo por vez e lote de 3.000 — cobre os 6 tipos em ~6 tiques.
    */
-  private creditosCursor = 0;
+
   private readonly logger = new Logger(BackfillService.name);
   private estado: Record<BackfillTipo, BackfillEstado> = {
     metadados: estadoVazio(),
@@ -4486,8 +4502,11 @@ export class BackfillService {
 
     if (p.creditosMidia > 0) {
       const tipos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
-      const tipoDaVez = tipos[this.creditosCursor % tipos.length];
-      this.creditosCursor = (this.creditosCursor + 1) % tipos.length;
+      // T-DADOS-81: o cursor era em memória e zerava a cada deploy — com
+      // deploys frequentes, créditos de FILME rodavam sempre e os outros tipos
+      // nunca chegavam. Agora o tipo vem do relógio.
+      const tipoDaVez =
+        tipos[indiceRotacaoCauda(Date.now(), tipos.length, JANELA_ROTACAO_CREDITOS_MS)];
       await job(
         "creditosMidia",
         () => this.enriquecerCreditosMidia(3000, tipoDaVez),
@@ -4496,7 +4515,7 @@ export class BackfillService {
     }
 
     // Fila → executor → soma de `ok`. Só entram as com pendência; a ordem de
-    // partida rotaciona (ver `caudaCursor`).
+    // partida rotaciona pelo relógio (ver `indiceRotacaoCauda`).
     const filas: {
       tipo: BackfillTipo;
       tem: boolean;
@@ -4565,8 +4584,7 @@ export class BackfillService {
       },
     ];
     const ativos = filas.filter((f) => f.tem);
-    const partida = ativos.length ? this.caudaCursor % ativos.length : 0;
-    this.caudaCursor = ativos.length ? (partida + 1) % ativos.length : 0;
+    const partida = indiceRotacaoCauda(Date.now(), ativos.length);
     const ordem = [...ativos.slice(partida), ...ativos.slice(0, partida)];
     for (const fila of ordem) {
       await job(fila.tipo, fila.executar, fila.okDe as (r: any) => number);
