@@ -4310,9 +4310,9 @@ describe("cota do ComicVine (T-DADOS-73)", () => {
 
   it("autores de comics abortam o lote na cota (não insiste no resto)", async () => {
     const alvo = [
-      { id: "c-1", titulo: "Volume 1", ano_lancamento: 1990, editoras: "Marvel" },
-      { id: "c-2", titulo: "Volume 2", ano_lancamento: 1991, editoras: "Marvel" },
-      { id: "c-3", titulo: "Volume 3", ano_lancamento: 1992, editoras: "Marvel" },
+      { id: "c-1", fonte_id: "111", titulo: "Volume 1", ano_lancamento: 1990 },
+      { id: "c-2", fonte_id: "222", titulo: "Volume 2", ano_lancamento: 1991 },
+      { id: "c-3", fonte_id: "333", titulo: "Volume 3", ano_lancamento: 1992 },
     ];
     const { svc, prisma } = makeService({ alvo });
     (svc as any).pausa = vi.fn(async () => undefined);
@@ -4511,5 +4511,32 @@ describe("sinopseDoVolumeComicVine (T-DADOS-85)", () => {
     expect((r ?? "").length).toBe(2000);
     expect(sinopseDoVolumeComicVine({ results: {} })).toBeNull();
     expect(sinopseDoVolumeComicVine(null)).toBeNull();
+  });
+});
+
+describe("fila de autores de comics seleciona o fonte_id (T-DADOS-86)", () => {
+  it("a consulta do alvo precisa trazer m.fonte_id (senão o job conclui sem gravar)", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    await svc.enriquecerAutoresComics(10);
+    const sqls = (prisma.$queryRawUnsafe as any).mock.calls.map((c: any[]) => String(c[0]));
+    const consultaAlvo = sqls.find((q: string) => q.includes("autores_em IS NULL")) ?? "";
+    expect(consultaAlvo).toContain("m.fonte_id");
+  });
+
+  it("título sem fonte_id não grava autor e NÃO marca watermark (retenta)", async () => {
+    const alvo = [{ id: "c-x", titulo: "Sem id", ano_lancamento: 1990 }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    const porId = vi.fn(async () => ({ autores: [], sinopse: null }));
+    (svc as any).autoresVolumeComicVine = porId;
+
+    const r = await svc.enriquecerAutoresComics(10);
+    // Sem id NÃO consulta a fonte e NÃO marca watermark: marcar "sem_match"
+    // seria declarar lacuna da fonte sem ter perguntado a ela.
+    expect(porId).not.toHaveBeenCalled();
+    expect(r.processados).toBe(1);
+    expect(r.falhas).toBe(1);
+    expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 });
