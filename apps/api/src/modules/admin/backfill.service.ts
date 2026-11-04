@@ -3770,9 +3770,17 @@ export class BackfillService {
       iniciadoEm: new Date().toISOString(),
     };
     const alvo = (await this.prisma.$queryRawUnsafe<
-      { id: string; titulo: string; ano_lancamento: number | null; editoras: string | null }[]
+      {
+        id: string;
+        // T-DADOS-86: o id do VOLUME é o que identifica o quadrinho na fonte.
+        fonte_id: string;
+        titulo: string;
+        ano_lancamento: number | null;
+        sinopse: string | null;
+        editoras: string | null;
+      }[]
     >(
-      `SELECT m.id::text, m.titulo, m.ano_lancamento, m.sinopse,
+      `SELECT m.id::text, m.fonte_id, m.titulo, m.ano_lancamento, m.sinopse,
               string_agg(DISTINCT p.nome, '||') AS editoras
        FROM midia m
        LEFT JOIN midia_produtora p ON p.midia_id = m.id
@@ -3794,6 +3802,16 @@ export class BackfillService {
         // "Batman" = 457 pessoas). A busca textual (2+ requisições por título,
         // com guarda de identidade) era desperdício de cota — agora é UMA
         // requisição por título, por id exato e sem ambiguidade.
+        // T-DADOS-86: sem o id do volume não há como consultar a fonte. Antes,
+        // o job seguia com `undefined`, recebia lista vazia e marcava o
+        // watermark — 200 títulos processados e 0 com autor em 3 h.
+        if (!m.fonte_id) {
+          this.estado.autoresComics.falhas++;
+          this.logger.warn(
+            `Backfill autores de comics sem fonte_id [${m.titulo}]: título não marca watermark.`,
+          );
+          continue;
+        }
         const { autores, sinopse } = await this.autoresVolumeComicVine(m.fonte_id);
         if (autores.length === 0) {
           semMatch++;
