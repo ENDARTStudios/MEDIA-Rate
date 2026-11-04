@@ -4419,3 +4419,15 @@ describe("T-DADOS-69: descrição do OpenLibrary → sinopse_en", () => {
     expect(mapearDescricaoOpenLibrary(null)).toBeNull();
   });
 });
+
+describe("prioridade de autores de COMIC sobre créditos (T-DADOS-80)", () => {
+  it("a fila de créditos pula quadrinho que ainda não tem autores", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    await svc.enriquecerCreditosMidia(10);
+    const sqls = (prisma.$queryRawUnsafe as any).mock.calls
+      .map((c: any[]) => String(c[0]))
+      .join(" ");
+    expect(sqls).toContain("AND NOT (m.tipo = 'COMIC' AND m.autores_em IS NULL)");
+  });
+});
