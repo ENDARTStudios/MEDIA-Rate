@@ -104,7 +104,10 @@ export type BackfillTipo =
   // T-DADOS-60: créditos de ENTIDADE por mídia — o que corresponde ao "elenco"
   // em cada tipo (produtora/emissora, desenvolvedora/publicadora, editora,
   // revista), sempre da fonte da própria mídia.
-  | "creditosMidia";
+  | "creditosMidia"
+  // T-DADOS-69: sinopse em INGLÊS do livro pelo `description` do OpenLibrary
+  // (fonte gratuita, sem cota diária) — complementa o Google Books.
+  | "sinopseOpenLibrary";
 
 interface BackfillEstado {
   executando: boolean;
@@ -238,6 +241,24 @@ export function mapearRevistaMal(payload: any): CreditoEntidade[] {
     });
   }
   return saida;
+}
+
+/**
+ * T-DADOS-69: `description` do work no OpenLibrary — string ou `{ value }`.
+ * É texto da própria ficha (normalmente em inglês) e vai para `sinopse_en`,
+ * nunca para a coluna PT.
+ */
+export function mapearDescricaoOpenLibrary(payload: any): string | null {
+  const bruto = payload?.description;
+  const texto =
+    typeof bruto === "string" ? bruto : bruto && typeof bruto.value === "string" ? bruto.value : "";
+  const limpo = String(texto)
+    .replace(/\r\n?/g, "\n")
+    .replace(/\[\[[^\]|]*\|([^\]]*)\]\]/g, "$1")
+    .replace(/\[\[([^\]]*)\]\]/g, "$1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return limpo.length >= 40 ? limpo : null;
 }
 
 export function truncarCampo(valor: string | null | undefined, max: number): string | null {
@@ -1420,6 +1441,7 @@ export class BackfillService {
     autoresMangas: estadoVazio(),
     autoresComics: estadoVazio(),
     creditosMidia: estadoVazio(),
+    sinopseOpenLibrary: estadoVazio(),
   };
 
   constructor(
@@ -2784,6 +2806,97 @@ export class BackfillService {
    * as próximas rodadas retomam. Erro de rede não marca watermark. Nunca lança
    * por título.
    */
+  /**
+   * T-DADOS-69 — sinopse de LIVRO pelo `description` do OpenLibrary.
+   * Fonte gratuita e sem cota (o Google Books é 700/dia e levava ~36 dias
+   * para os 25 mil livros novos). Grava em `sinopse_en` (texto da ficha é em
+   * inglês; a coluna PT nunca é tocada) e marca `sinopse_ol_em` sempre.
+   */
+  async enriquecerSinopseOpenLibrary(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semDescricao: number;
+    falhas: number;
+  }> {
+    if (this.estado.sinopseOpenLibrary.executando) {
+      throw new BadRequestException("Job sinopse OpenLibrary já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.sinopseOpenLibrary = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+         FROM midia m
+        WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
+          AND m.sinopse_ol_em IS NULL
+          AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')
+          AND (m.sinopse IS NULL OR btrim(m.sinopse) = '')
+        ORDER BY m.id
+        LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
+    )) as any[];
+    this.logger.log(`Backfill sinopse OpenLibrary: ${alvo.length} títulos alvo.`);
+    let semDescricao = 0;
+    let gravadas = 0;
+    for (const m of alvo) {
+      this.estado.sinopseOpenLibrary.processados++;
+      this.estado.sinopseOpenLibrary.atual = m.titulo;
+      try {
+        const fonteId = String(m.fonte_id ?? "").trim();
+        if (!openLibraryIdUtilizavel(fonteId)) {
+          // Id em formato de slug nunca resolve: lacuna honesta, sem HTTP.
+          semDescricao++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_ol_em: new Date() },
+          });
+          this.estado.sinopseOpenLibrary.ok++;
+          continue;
+        }
+        const payload = await this.getJsonComThrottle<any>(
+          `https://openlibrary.org/works/${encodeURIComponent(fonteId)}.json`,
+          250,
+          { Accept: "application/json" },
+        );
+        const sinopse = mapearDescricaoOpenLibrary(payload);
+        if (!sinopse) {
+          semDescricao++;
+        } else {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_en: truncarCampo(sinopse, 20000) },
+          });
+          gravadas++;
+        }
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { sinopse_ol_em: new Date() },
+        });
+        this.estado.sinopseOpenLibrary.ok++;
+      } catch (e) {
+        this.estado.sinopseOpenLibrary.falhas++;
+        this.logger.warn(
+          `Backfill sinopse OpenLibrary falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.sinopseOpenLibrary.executando = false;
+    this.estado.sinopseOpenLibrary.atual = `fim: ok=${this.estado.sinopseOpenLibrary.ok} sem_descricao=${semDescricao} sinopses=${gravadas} falhas=${this.estado.sinopseOpenLibrary.falhas}`;
+    this.logger.log(
+      `Backfill sinopse OpenLibrary fim: ok=${this.estado.sinopseOpenLibrary.ok} sem_descricao=${semDescricao} sinopses=${gravadas} falhas=${this.estado.sinopseOpenLibrary.falhas}.`,
+    );
+    return {
+      processados: this.estado.sinopseOpenLibrary.processados,
+      ok: this.estado.sinopseOpenLibrary.ok,
+      semDescricao,
+      falhas: this.estado.sinopseOpenLibrary.falhas,
+    };
+  }
+
   async enriquecerSinopseLivros(limite: number): Promise<{
     processados: number;
     ok: number;
@@ -4035,6 +4148,8 @@ export class BackfillService {
     autoresComics: number;
     // T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo).
     creditosMidia: number;
+    // T-DADOS-69: sinopse EN de LIVRO pelo `description` do OpenLibrary.
+    sinopseOpenLibrary: number;
   }> {
     const r = await this.prisma.$queryRawUnsafe<
       {
@@ -4055,6 +4170,7 @@ export class BackfillService {
         autores_mangas: number;
         autores_comics: number;
         creditos_midia: number;
+        sinopse_ol: number;
       }[]
     >(`SELECT
         (SELECT COUNT(*)::int FROM midia m
@@ -4111,6 +4227,11 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.creditos_em IS NULL
             AND m.tipo IN ('FILME','SERIE','GAME','LIVRO','COMIC','MANGA')) AS creditos_midia,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
+            AND m.sinopse_ol_em IS NULL
+            AND (m.sinopse_en IS NULL OR btrim(m.sinopse_en) = '')
+            AND (m.sinopse IS NULL OR btrim(m.sinopse) = '')) AS sinopse_ol,
         (WITH ${SQL_FRANQUIAS_FALTANDO_ARESTA}
           SELECT COUNT(*)::int ${SQL_SELECT_FRANQUIAS_INCOMPLETAS}) AS arestas_franquia`);
     const row = r[0];
@@ -4152,6 +4273,7 @@ export class BackfillService {
       autoresMangas: Number(row?.autores_mangas ?? 0),
       autoresComics: Number(row?.autores_comics ?? 0),
       creditosMidia: Number(row?.creditos_midia ?? 0),
+      sinopseOpenLibrary: Number(row?.sinopse_ol ?? 0),
     };
   }
 
@@ -4381,6 +4503,12 @@ export class BackfillService {
         tem: p.sinopseMangaEn > 0,
         executar: () => this.enriquecerSinopseMangaEn(800),
         okDe: (r: any) => r.ok + r.semSynopsis,
+      },
+      {
+        tipo: "sinopseOpenLibrary",
+        tem: p.sinopseOpenLibrary > 0,
+        executar: () => this.enriquecerSinopseOpenLibrary(1500),
+        okDe: (r: any) => r.ok + r.semDescricao,
       },
       {
         tipo: "sinopseLivros",

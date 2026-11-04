@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 import {
+  mapearDescricaoOpenLibrary,
   mapearCreditosTmdb,
   mapearCreditosIgdb,
   mapearEditoraOpenLibrary,
@@ -591,6 +592,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           autores_mangas: 501,
           autores_comics: 31,
           creditos_midia: 17217,
+          sinopse_ol: 25000,
         },
       ];
     });
@@ -612,6 +614,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresMangas: 501,
       autoresComics: 31,
       creditosMidia: 17217,
+      sinopseOpenLibrary: 25000,
     });
   });
 
@@ -639,6 +642,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       autoresMangas: 0,
       autoresComics: 0,
       creditosMidia: 0,
+      sinopseOpenLibrary: 0,
     });
   });
 
@@ -2550,6 +2554,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_livros: 5,
             autores_mangas: 0,
             autores_comics: 0,
+            sinopse_ol: 0,
             creditos_midia: 5,
           },
         ];
@@ -2612,6 +2617,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_livros: 0,
             autores_mangas: 0,
             autores_comics: 0,
+            sinopse_ol: 0,
             creditos_midia: 0,
           },
         ];
@@ -2652,6 +2658,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_livros: 5,
             autores_mangas: 0,
             autores_comics: 0,
+            sinopse_ol: 0,
             creditos_midia: 5,
           },
         ];
@@ -2705,6 +2712,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
             autores_livros: 1,
             autores_mangas: 0,
             autores_comics: 0,
+            sinopse_ol: 0,
             creditos_midia: 1,
           },
         ];
@@ -4421,5 +4429,30 @@ describe("sinopse de livro pelo work do OpenLibrary (T-DADOS-78)", () => {
     expect(r.processados).toBe(1);
     expect(r.interrompidoPorCota).toBe(true);
     expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("T-DADOS-69: descrição do OpenLibrary → sinopse_en", () => {
+  it("aceita string direta e remove sobras de marcação", () => {
+    const d = mapearDescricaoOpenLibrary({
+      description: "A young wizard discovers [[Harry Potter|his powers]] and goes to school.",
+    });
+    expect(d).toContain("his powers");
+    expect(d).not.toContain("[[");
+  });
+
+  it("aceita o formato { value }", () => {
+    const d = mapearDescricaoOpenLibrary({
+      description: {
+        value: "Texto suficientemente longo para passar do limite mínimo de quarenta.",
+      },
+    });
+    expect(d).toContain("Texto suficientemente longo");
+  });
+
+  it("descrição curta/ausente → null (lacuna honesta, sem inventar)", () => {
+    expect(mapearDescricaoOpenLibrary({ description: "curta" })).toBeNull();
+    expect(mapearDescricaoOpenLibrary({})).toBeNull();
+    expect(mapearDescricaoOpenLibrary(null)).toBeNull();
   });
 });
