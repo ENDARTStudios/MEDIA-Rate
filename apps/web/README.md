@@ -34,3 +34,13 @@ O frontend **nunca** carrega segredos de backend — princípio do menor privil�
 - Notas: games 0–100; demais (incl. mangá) 0–10; **sem arredondamento** na exibição (trunca 1 casa) — use o pipeline de `score-utils`.
 - Rotas canônicas de smoke: `/pt-BR/catalog` (nunca `/catalogo`).
 - Qualquer mudança passa pelo fluxo PR→merge do [`AGENTS.md`](../../AGENTS.md) — CI com Docs Gate, lint, testes e Vercel preview.
+
+## Custo de build (Build CPU Minutes)
+
+O `vercel.json` daqui tem um `ignoreCommand`: commit que **não** toca `apps/web` (nem
+`package.json`/`package-lock.json` na raiz) **não** dispara build — a Vercel marca o
+deployment como *skipped* e não consome Build CPU Minutes. Consequência prática: em PR só
+de API/docs, o check "Vercel" aparece como *canceled/blocked* — é o filtro funcionando, não
+falha de build. Diagnóstico completo e as alavancas de custo em
+[`docs/06-devops-deployment/VERCEL-CUSTO-BUILD.md`](../../docs/06-devops-deployment/VERCEL-CUSTO-BUILD.md).
+
