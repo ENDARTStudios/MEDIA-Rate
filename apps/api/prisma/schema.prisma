@@ -460,6 +460,8 @@ model Midia {
   sinopse_livro_em DateTime? @map("sinopse_livro_em")
   /// T-DADOS-69: watermark do job de sinopse pelo `description` do OpenLibrary.
   sinopse_ol_em DateTime? @map("sinopse_ol_em")
+  /// T-DADOS-74: watermark do job de sinopse EN via TMDB (`overview` en-US).
+  sinopse_tmdb_em DateTime? @map("sinopse_tmdb_em")
 
   @@unique([fonte, fonte_id])
   @@index([tipo])
