@@ -1405,8 +1405,6 @@ const LOTE_IGDB = 600;
  * uma fila a cada janela.
  */
 const JANELA_ROTACAO_CAUDA_MS = 30 * 60 * 1000;
-/** Janela da rotação de TIPO dos créditos de entidade (mais rápida). */
-const JANELA_ROTACAO_CREDITOS_MS = 10 * 60 * 1000;
 /**
  * T-DADOS-82: teto por fila da CAUDA para que TODAS caibam no orçamento do
  * tique. Medido em 04/11: créditos a 3.000 levavam ~12 min e o work do
@@ -4587,6 +4585,34 @@ export class BackfillService {
    * aborta as seguintes — era exatamente isso que deixava `autores` e
    * `sinopse` sem rodar quando um job anterior lançava.
    */
+  /**
+   * T-DADOS-83: tipo de mídia com mais créditos de entidade pendentes (mesmo
+   * filtro da fila, inclusive a prioridade de autores de COMIC do T-DADOS-80).
+   * Devolve `undefined` quando não há pendência ou a consulta falha — aí o job
+   * cai no comportamento antigo (qualquer tipo).
+   */
+  private async tipoComMaisCreditosPendentes(): Promise<
+    "FILME" | "SERIE" | "GAME" | "LIVRO" | "COMIC" | "MANGA" | undefined
+  > {
+    try {
+      const linhas = await this.prisma.$queryRawUnsafe<{ tipo: string; n: number }[]>(
+        `SELECT m.tipo::text AS tipo, COUNT(*)::int AS n
+           FROM midia m
+          WHERE m.deleted_at IS NULL AND m.creditos_em IS NULL
+            AND m.tipo IN ('FILME','SERIE','GAME','LIVRO','COMIC','MANGA')
+            AND NOT (m.tipo = 'COMIC' AND m.autores_em IS NULL)
+          GROUP BY 1
+          ORDER BY n DESC
+          LIMIT 1`,
+      );
+      const tipo = String(linhas?.[0]?.tipo ?? "").toUpperCase();
+      const validos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
+      return validos.find((t) => t === tipo);
+    } catch {
+      return undefined;
+    }
+  }
+
   async drenarCauda(orçamentoMs: number): Promise<{
     pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
     pendentesDepois: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
@@ -4631,12 +4657,11 @@ export class BackfillService {
     }
 
     if (p.creditosMidia > 0) {
-      const tipos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
-      // T-DADOS-81: o cursor era em memória e zerava a cada deploy — com
-      // deploys frequentes, créditos de FILME rodavam sempre e os outros tipos
-      // nunca chegavam. Agora o tipo vem do relógio.
-      const tipoDaVez =
-        tipos[indiceRotacaoCauda(Date.now(), tipos.length, JANELA_ROTACAO_CREDITOS_MS)];
+      // T-DADOS-83: o tipo da vez vem da MAIOR pendência (não de sorteio).
+      // Com o sorteio por relógio (#836) o tipo podia não ter fila e o job
+      // processava 0 — parecia "travado" sem erro. Maior-pendência é
+      // determinístico, não depende de estado e drena as filas grandes antes.
+      const tipoDaVez = await this.tipoComMaisCreditosPendentes();
       await job(
         "creditosMidia",
         () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),

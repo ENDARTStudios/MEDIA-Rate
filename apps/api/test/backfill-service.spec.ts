@@ -957,6 +957,7 @@ describe("BackfillService.enriquecerProvedores (T-DADOS-02)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           { sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 5, critica_igdb: 0 },
@@ -1197,6 +1198,7 @@ describe("BackfillService.enriquecerCriticaIgdb (T-DADOS-03)", () => {
     (svc as any).pausa = vi.fn(async () => undefined);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           { sem_elenco: 0, sem_temp: 0, sem_pais: 0, ricos: 0, provedores: 0, critica_igdb: 3 },
@@ -1365,6 +1367,7 @@ describe("BackfillService.enriquecerArestasFranquia (T-DADOS-06)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -1493,6 +1496,7 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     const { svc, prisma } = makeService();
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -1517,6 +1521,7 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     openlibrary.ativo.mockReturnValue(false);
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -1556,6 +1561,7 @@ describe("BackfillService.enriquecerAvaliacaoLivros (T-DADOS-07)", () => {
     });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2183,6 +2189,7 @@ describe("BackfillService.enriquecerLocalizacao (T-DADOS-08)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2504,6 +2511,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2539,6 +2547,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2611,6 +2620,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2653,6 +2663,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2715,6 +2726,7 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     const { svc, prisma } = makeService({ alvo: [] });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -2775,7 +2787,8 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
         "autoresLivros",
         "generosGames",
       ]);
-      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 800, "LIVRO");
+      // T-DADOS-83: o tipo vem da maior pendência (mock → FILME nos dois tiques).
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 800, "FILME");
     } finally {
       vi.useRealTimers();
     }
@@ -2979,6 +2992,7 @@ describe("BackfillService.enriquecerSinopseMangaEn (T-DADOS-12)", () => {
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -3608,6 +3622,7 @@ describe("drenarLote — filas de autores (T-DADOS-13B/17)", () => {
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [
           {
@@ -4047,6 +4062,7 @@ describe("BackfillService.enriquecerSinopseLivros (T-DADOS-23A)", () => {
       if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
       if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) return [{ usados: 0 }];
       if (/COUNT\(DISTINCT a\.midia_id\)/i.test(sql)) return [{ usados: 0 }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 10 }];
       if (/sem_elenco/.test(sql)) {
         return [{ sem_elenco: 0, sinopse_livros: 3 }];
       }
