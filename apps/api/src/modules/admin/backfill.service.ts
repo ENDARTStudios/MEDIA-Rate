@@ -3407,6 +3407,11 @@ export class BackfillService {
           AND m.tipo IN (${
             tipoDaVez ? `'${tipoDaVez}'` : "'FILME','SERIE','GAME','LIVRO','COMIC','MANGA'"
           })
+          -- T-DADOS-80: COMIC tem UMA cota de 200 req/h para dois jobs. Com
+          -- Editora em 44% e autores em 0,66%, os créditos de quem ainda não
+          -- tem autores esperam: libera a janela para o job de autores.
+          -- Auto-balanceado: quadrinho com autores volta para esta fila.
+          AND NOT (m.tipo = 'COMIC' AND m.autores_em IS NULL)
         ORDER BY m.id
         LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
     )) as any[];
