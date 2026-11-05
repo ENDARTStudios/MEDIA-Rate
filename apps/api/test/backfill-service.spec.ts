@@ -2647,8 +2647,8 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
     }
     // T-DADOS-68: créditos rodam SEMPRE, primeiro, com um tipo por vez.
     expect(r.lotes).toEqual([
-      { tipo: "creditosMidia", ok: 5, falhas: 0 },
-      { tipo: "creditosMidia", ok: 5, falhas: 0 },
+      { tipo: "creditosMidia", ok: 5, falhas: 0, detalhe: "FILME" },
+      { tipo: "creditosMidia", ok: 5, falhas: 0, detalhe: "SERIE" },
       { tipo: "generosGames", ok: 5, falhas: 0 },
       { tipo: "autoresLivros", ok: 5, falhas: 0 },
     ]);
@@ -2765,8 +2765,8 @@ describe("BackfillService.enriquecerGenerosGames (T-DADOS-09)", () => {
       vi.useRealTimers();
     }
     expect(r.lotes).toEqual([
-      { tipo: "creditosMidia", ok: 5, falhas: 0 },
-      { tipo: "creditosMidia", ok: 5, falhas: 0 },
+      { tipo: "creditosMidia", ok: 5, falhas: 0, detalhe: "FILME" },
+      { tipo: "creditosMidia", ok: 5, falhas: 0, detalhe: "SERIE" },
       { tipo: "generosGames", ok: 0, falhas: 1 },
       { tipo: "autoresLivros", ok: 5, falhas: 0 },
     ]);

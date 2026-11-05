@@ -4482,11 +4482,11 @@ export class BackfillService {
   async drenarLote(orçamentoMs: number): Promise<{
     pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
     pendentesDepois: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
-    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number; detalhe?: string }[];
     erro?: string;
   }> {
     const inicio = Date.now();
-    const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
+    const lotes: { tipo: BackfillTipo; ok: number; falhas: number; detalhe?: string }[] = [];
     const pendentesAntes = await this.contarPendentes();
     let erro: string | undefined;
     try {
@@ -4677,7 +4677,7 @@ export class BackfillService {
   private async registrarExecucao(
     caminho: "topo" | "cauda",
     inicio: number,
-    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[],
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number; detalhe?: string }[],
     erro?: string,
   ): Promise<void> {
     try {
@@ -4700,11 +4700,11 @@ export class BackfillService {
   async drenarCauda(orçamentoMs: number): Promise<{
     pendentesAntes: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
     pendentesDepois: Awaited<ReturnType<BackfillService["contarPendentes"]>>;
-    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[];
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number; detalhe?: string }[];
     erro?: string;
   }> {
     const inicio = Date.now();
-    const lotes: { tipo: BackfillTipo; ok: number; falhas: number }[] = [];
+    const lotes: { tipo: BackfillTipo; ok: number; falhas: number; detalhe?: string }[] = [];
     const pendentesAntes = await this.contarPendentes();
     const p = pendentesAntes;
     /** Executa um job da cauda isolando falhas (ver docstring). */
@@ -4712,16 +4712,19 @@ export class BackfillService {
       tipo: BackfillTipo,
       executar: () => Promise<T>,
       okDe: (r: T) => number,
+      /** T-DADOS-90: contexto do lote (ex.: tipo de mídia dos créditos). */
+      detalhe?: string,
     ): Promise<void> => {
       if (Date.now() - inicio >= orçamentoMs) return;
+      const base = detalhe ? { tipo, detalhe } : { tipo };
       try {
         const r = await executar();
-        lotes.push({ tipo, ok: okDe(r), falhas: r.falhas });
+        lotes.push({ ...base, ok: okDe(r), falhas: r.falhas });
       } catch (e) {
         this.logger.warn(
-          `Drain cauda ${tipo}: ${String((e as Error)?.message ?? e).slice(0, 160)}`,
+          `Drain cauda ${tipo}${detalhe ? ` (${detalhe})` : ""}: ${String((e as Error)?.message ?? e).slice(0, 160)}`,
         );
-        lotes.push({ tipo, ok: 0, falhas: 1 });
+        lotes.push({ ...base, ok: 0, falhas: 1 });
       }
     };
 
@@ -4765,6 +4768,7 @@ export class BackfillService {
             "creditosMidia",
             () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
             (r: any) => r.ok + r.semCredito,
+            tipoDaVez,
           );
         }
       }
