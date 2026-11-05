@@ -4625,6 +4625,7 @@ export class BackfillService {
       this.logger.warn(`Drain: ${erro}`);
     }
     const pendentesDepois = await this.contarPendentes();
+    await this.registrarExecucao("topo", inicio, lotes, erro);
     return { pendentesAntes, pendentesDepois, lotes, ...(erro ? { erro } : {}) };
   }
 
@@ -4666,6 +4667,33 @@ export class BackfillService {
       return tipos.slice(0, Math.max(1, Math.trunc(quantidade) || 1));
     } catch {
       return [];
+    }
+  }
+
+  /**
+   * T-DADOS-89: grava o heartbeat do tique (nunca lança — observabilidade não
+   * pode derrubar a coleta). Mantém as 500 linhas mais recentes.
+   */
+  private async registrarExecucao(
+    caminho: "topo" | "cauda",
+    inicio: number,
+    lotes: { tipo: BackfillTipo; ok: number; falhas: number }[],
+    erro?: string,
+  ): Promise<void> {
+    try {
+      await this.prisma.drainExecucao.create({
+        data: {
+          caminho,
+          duracao_ms: Date.now() - inicio,
+          lotes: lotes as unknown as object,
+          erro: erro ?? null,
+        },
+      });
+      await this.prisma.$executeRawUnsafe(
+        `DELETE FROM drain_execucao WHERE id <= (SELECT MAX(id) - 500 FROM drain_execucao)`,
+      );
+    } catch (e) {
+      this.logger.warn(`Drain heartbeat falhou: ${String(e).slice(0, 120)}`);
     }
   }
 
@@ -4819,6 +4847,7 @@ export class BackfillService {
       if (Date.now() - inicio >= orçamentoMs) break;
     }
     const pendentesDepois = await this.contarPendentes();
+    await this.registrarExecucao("cauda", inicio, lotes);
     return { pendentesAntes, pendentesDepois, lotes };
   }
 }

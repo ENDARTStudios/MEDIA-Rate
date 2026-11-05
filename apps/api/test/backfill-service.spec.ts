@@ -101,6 +101,9 @@ function makeService(over: any = {}) {
       return over.alvo ?? [];
     }),
     midiaElenco: { upsert: vi.fn(async ({ create }: any) => create) },
+    // T-DADOS-89: heartbeat do drain.
+    drainExecucao: { create: vi.fn(async ({ data }: any) => ({ id: 1n, ...data })) },
+    $executeRawUnsafe: vi.fn(async () => 0),
     midiaProdutora: { upsert: vi.fn(async ({ create }: any) => create) },
     midia: {
       update: vi.fn(async () => ({})),
@@ -4676,5 +4679,59 @@ describe("janela rotativa dos tipos de crédito (T-DADOS-88)", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("heartbeat do drain (T-DADOS-89)", () => {
+  it("cada método grava uma linha com caminho, duração e lotes", async () => {
+    const { svc, prisma } = makeService({ alvo: [] });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) return [{ tipo: "FILME", n: 5 }];
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 1,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 0,
+            autores_mangas: 0,
+            autores_comics: 0,
+            sinopse_ol: 0,
+            creditos_midia: 5,
+          },
+        ];
+      }
+      return [];
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.spyOn(svc, "enriquecerGenerosGames").mockResolvedValue({
+      ok: 1,
+      semGenero: 0,
+      falhas: 0,
+    } as any);
+    vi.spyOn(svc, "enriquecerCreditosMidia").mockResolvedValue({
+      ok: 1,
+      semCredito: 0,
+      falhas: 0,
+    } as any);
+
+    await svc.drenarCauda(60_000);
+
+    const chamada = (prisma.drainExecucao.create as any).mock.calls[0][0];
+    expect(chamada.data.caminho).toBe("cauda");
+    expect(typeof chamada.data.duracao_ms).toBe("number");
+    expect(Array.isArray(chamada.data.lotes)).toBe(true);
+    expect(chamada.data.lotes.length).toBeGreaterThan(0);
   });
 });
