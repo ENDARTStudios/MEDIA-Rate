@@ -1428,6 +1428,8 @@ const LOTE_IGDB = 600;
  * uma fila a cada janela.
  */
 const JANELA_ROTACAO_CAUDA_MS = 30 * 60 * 1000;
+/** Janela da janela rotativa dos TIPOS de crédito (mais rápida que a cauda). */
+const JANELA_ROTACAO_CREDITOS_MS = 15 * 60 * 1000;
 /**
  * T-DADOS-82: teto por fila da CAUDA para que TODAS caibam no orçamento do
  * tique. Medido em 04/11: créditos a 3.000 levavam ~12 min e o work do
@@ -4719,12 +4721,24 @@ export class BackfillService {
       // backlog (#843), o tipo gigante (COMIC, 24 mil) monopolizava e FILME
       // ficou 18 h sem crédito (watermark parado em 07:17). Dois lotes de 800
       // cabem no orçamento (~7 min).
-      for (const tipoDaVez of await this.tiposComCreditosPendentes(2)) {
-        await job(
-          "creditosMidia",
-          () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
-          (r: any) => r.ok + r.semCredito,
-        );
+      // T-DADOS-88: janela ROTATIVA sobre a lista ordenada por pendência.
+      // Só os dois maiores (#863) ainda deixavam o 3º de fora para sempre —
+      // medido: FILME ficou 20 h sem crédito enquanto COMIC e SERIE andavam.
+      // A janela de 2 avança a cada 15 min (relógio, sobrevive a deploy), então
+      // todo tipo com fila é servido e os maiores aparecem com mais frequência.
+      const pendentes = await this.tiposComCreditosPendentes(6);
+      if (pendentes.length > 0) {
+        const inicio = indiceRotacaoCauda(Date.now(), pendentes.length, JANELA_ROTACAO_CREDITOS_MS);
+        const escolhidos = [0, 1]
+          .map((k) => pendentes[(inicio + k) % pendentes.length])
+          .filter((t): t is (typeof pendentes)[number] => Boolean(t));
+        for (const tipoDaVez of new Set(escolhidos)) {
+          await job(
+            "creditosMidia",
+            () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
+            (r: any) => r.ok + r.semCredito,
+          );
+        }
       }
     }
 
