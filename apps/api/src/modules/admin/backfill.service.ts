@@ -4643,9 +4643,9 @@ export class BackfillService {
    * Devolve `undefined` quando não há pendência ou a consulta falha — aí o job
    * cai no comportamento antigo (qualquer tipo).
    */
-  private async tipoComMaisCreditosPendentes(): Promise<
-    "FILME" | "SERIE" | "GAME" | "LIVRO" | "COMIC" | "MANGA" | undefined
-  > {
+  private async tiposComCreditosPendentes(
+    quantidade = 2,
+  ): Promise<("FILME" | "SERIE" | "GAME" | "LIVRO" | "COMIC" | "MANGA")[]> {
     try {
       const linhas = await this.prisma.$queryRawUnsafe<{ tipo: string; n: number }[]>(
         `SELECT m.tipo::text AS tipo, COUNT(*)::int AS n
@@ -4655,13 +4655,15 @@ export class BackfillService {
             AND NOT (m.tipo = 'COMIC' AND m.autores_em IS NULL)
           GROUP BY 1
           ORDER BY n DESC
-          LIMIT 1`,
+          LIMIT ${Math.min(Math.max(Math.trunc(quantidade) || 1, 1), 6)}`,
       );
-      const tipo = String(linhas?.[0]?.tipo ?? "").toUpperCase();
       const validos = ["FILME", "SERIE", "GAME", "LIVRO", "COMIC", "MANGA"] as const;
-      return validos.find((t) => t === tipo);
+      const tipos = (Array.isArray(linhas) ? linhas : [])
+        .map((l) => String(l?.tipo ?? "").toUpperCase())
+        .filter((t): t is (typeof validos)[number] => validos.some((v) => v === t));
+      return tipos.slice(0, Math.max(1, Math.trunc(quantidade) || 1));
     } catch {
-      return undefined;
+      return [];
     }
   }
 
@@ -4713,12 +4715,17 @@ export class BackfillService {
       // Com o sorteio por relógio (#836) o tipo podia não ter fila e o job
       // processava 0 — parecia "travado" sem erro. Maior-pendência é
       // determinístico, não depende de estado e drena as filas grandes antes.
-      const tipoDaVez = await this.tipoComMaisCreditosPendentes();
-      await job(
-        "creditosMidia",
-        () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
-        (r: any) => r.ok + r.semCredito,
-      );
+      // T-DADOS-87: DOIS tipos por tique. Com a escolha só pelo maior
+      // backlog (#843), o tipo gigante (COMIC, 24 mil) monopolizava e FILME
+      // ficou 18 h sem crédito (watermark parado em 07:17). Dois lotes de 800
+      // cabem no orçamento (~7 min).
+      for (const tipoDaVez of await this.tiposComCreditosPendentes(2)) {
+        await job(
+          "creditosMidia",
+          () => this.enriquecerCreditosMidia(LOTE_CREDITOS, tipoDaVez),
+          (r: any) => r.ok + r.semCredito,
+        );
+      }
     }
 
     // Fila → executor → soma de `ok`. Só entram as com pendência; a ordem de
