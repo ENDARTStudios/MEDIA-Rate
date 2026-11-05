@@ -325,9 +325,22 @@ export class MediaScoreJobService implements OnModuleInit, OnModuleDestroy {
       where: { midia_id: midia.id },
     });
     if (coletadas.length === 0 && existentes > 0) {
+      // T-DADOS-77: distinguir queda transitória de ausência de dado. Se ALGUMA
+      // fonte respondeu `erro`, mantém vencido e retenta (D-410 — não regride
+      // score numa queda de API). Se todas responderam "sem nota"/inativa, as
+      // linhas antigas vêm de fonte que não existe mais: marcar fresco evita o
+      // loop infinito (medido em 05/11: 79 mil títulos com timestamp NULL e o
+      // passe reprocessando os mesmos títulos para sempre).
+      const teveErro = resultados.some((r) => r.status === "erro");
       this.logger.warn(
-        `Coleta sem fontes para "${midia.titulo}" (${midia.id}) — mantendo score anterior.`,
+        `Coleta sem fontes para "${midia.titulo}" (${midia.id}) — mantendo score anterior${teveErro ? "" : " e marcando como coletado"}.`,
       );
+      if (!teveErro) {
+        await this.prisma.midia.update({
+          where: { id: midia.id },
+          data: { avaliacoes_atualizadas_em: new Date() },
+        });
+      }
       return { coletadas: [], score: null, resultados };
     }
 

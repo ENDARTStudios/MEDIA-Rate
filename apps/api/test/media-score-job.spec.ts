@@ -570,4 +570,30 @@ describe("MediaScoreJobService — job diário (T4.7)", () => {
 
     expect(prisma.midia.update).toHaveBeenCalled();
   });
+
+  it("T-DADOS-77: sem fontes e SEM erro → marca coletado (evita loop infinito)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.count.mockResolvedValue(3); // tem avaliações antigas
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "kitsu", status: "pulada", motivo: "sem nota" },
+      { fonte: "comicvine", status: "pulada", motivo: "inativa" },
+    ]);
+
+    await job.coletarEPersistir(midia("m7"));
+
+    expect(prisma.midia.update).toHaveBeenCalled();
+  });
+
+  it("T-DADOS-77: sem fontes COM erro → mantém vencido (D-410 preservado)", async () => {
+    const { prisma, coleta, job } = mockDependencias();
+    prisma.avaliacaoFonte.count.mockResolvedValue(3);
+    coleta.coletarTudo.mockResolvedValue([
+      { fonte: "tmdb", status: "erro", motivo: "HTTP 503" },
+      { fonte: "kitsu", status: "pulada", motivo: "sem nota" },
+    ]);
+
+    await job.coletarEPersistir(midia("m8"));
+
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
 });
