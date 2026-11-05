@@ -1088,6 +1088,24 @@ model Fatura {
 /// API (mesmo padrão do drain D-576) — não depende de automação de chat, então
 /// continua avançando com o processo, sobrevive a redeploy (o cursor está no
 /// banco) e respeita um alvo por tipo.
+/// T-DADOS-89 — heartbeat do drain: uma linha por tique executado, com o
+/// caminho (topo/cauda), a duração e o resumo dos lotes. Existe porque o log
+/// do Railway não é confiável para diagnóstico (janela curta) e três rodadas
+/// seguidas ficaram cegas sobre "quais jobs rodaram".
+model DrainExecucao {
+  id         BigInt   @id @default(autoincrement())
+  quando     DateTime @default(now())
+  /// "topo" | "cauda"
+  caminho    String   @db.VarChar(16)
+  duracao_ms Int      @map("duracao_ms")
+  /// [{ tipo, ok, falhas }] na ordem em que rodaram.
+  lotes      Json
+  erro       String?  @db.Text
+
+  @@index([quando])
+  @@map("drain_execucao")
+}
+
 model IngestaoCursor {
   tipo             TipoMidia
   /// Chave da fonte no registro de dados ('tmdb', 'tmdb_tv', 'igdb', …).
