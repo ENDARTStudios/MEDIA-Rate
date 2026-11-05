@@ -4608,3 +4608,73 @@ describe("fila de autores de comics seleciona o fonte_id (T-DADOS-86)", () => {
     expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 });
+
+describe("janela rotativa dos tipos de crédito (T-DADOS-88)", () => {
+  it("a janela de 2 avança pelo relógio e nenhum tipo fica de fora", async () => {
+    const alvo: unknown[] = [];
+    const { svc, prisma } = makeService({ alvo });
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/ORDER BY n DESC/.test(sql)) {
+        return [
+          { tipo: "COMIC", n: 30 },
+          { tipo: "SERIE", n: 20 },
+          { tipo: "FILME", n: 10 },
+        ];
+      }
+      if (/sem_elenco/.test(sql)) {
+        return [
+          {
+            sem_elenco: 0,
+            sem_temp: 0,
+            sem_pais: 0,
+            ricos: 0,
+            provedores: 0,
+            critica_igdb: 0,
+            generos_games: 0,
+            arestas_franquia: 0,
+            avaliacao_livros: 0,
+            localizacao: 0,
+            critica_omdb: 0,
+            sinopse_manga_en: 0,
+            sinopse_livros: 0,
+            autores_livros: 0,
+            autores_mangas: 0,
+            autores_comics: 0,
+            sinopse_ol: 0,
+            creditos_midia: 3,
+          },
+        ];
+      }
+      return [];
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    vi.spyOn(svc, "enriquecerCreditosMidia").mockResolvedValue({
+      ok: 1,
+      semCredito: 0,
+      falhas: 0,
+    } as any);
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(0));
+      await svc.drenarCauda(60_000);
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(1, 800, "COMIC");
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(2, 800, "SERIE");
+
+      // 15 min depois a janela anda: SERIE + FILME (o 3º deixa de ficar de fora).
+      vi.setSystemTime(new Date(15 * 60 * 1000));
+      await svc.drenarCauda(60_000);
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(3, 800, "SERIE");
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(4, 800, "FILME");
+
+      // 30 min: FILME + COMIC (dá a volta).
+      vi.setSystemTime(new Date(30 * 60 * 1000));
+      await svc.drenarCauda(60_000);
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(5, 800, "FILME");
+      expect(svc.enriquecerCreditosMidia).toHaveBeenNthCalledWith(6, 800, "COMIC");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
