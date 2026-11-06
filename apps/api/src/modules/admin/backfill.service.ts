@@ -2006,6 +2006,16 @@ export class BackfillService {
         });
         this.estado.provedores.ok++;
       } catch (e) {
+        // T-DADOS-92: 404 do TMDB = recurso removido na fonte (mesma série
+        // órfã presa nesta fila). Lacuna honesta: marca e sai da fila.
+        if (ehIdInexistenteNaFonte(e)) {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { provedores_em: new Date() },
+          });
+          this.estado.provedores.ok++;
+          continue;
+        }
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado.provedores.falhas++;
         this.logger.warn(`Backfill provedores falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
@@ -2125,6 +2135,17 @@ export class BackfillService {
         if (mapa.cert_br || mapa.cert_us) comCertificado++;
         this.estado.localizacao.ok++;
       } catch (e) {
+        // T-DADOS-92: 404 do TMDB = recurso REMOVIDO na fonte. Medido: a série
+        // 312724 não existe mais no TMDB e era a ÚNICA pendente da fila — o job
+        // rodava 48×/6 h com `ok=0 falhas=1` sem nunca drenar. Lacuna honesta.
+        if (ehIdInexistenteNaFonte(e)) {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { localizacao_em: new Date() },
+          });
+          this.estado.localizacao.ok++;
+          continue;
+        }
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado.localizacao.falhas++;
         this.logger.warn(`Backfill localização falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
@@ -2986,6 +3007,16 @@ export class BackfillService {
         });
         this.estado.sinopseEnTmdb.ok++;
       } catch (e) {
+        // T-DADOS-92: 404 do TMDB = recurso removido na fonte (mesma série
+        // órfã presa nesta fila). Lacuna honesta: marca e sai da fila.
+        if (ehIdInexistenteNaFonte(e)) {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_tmdb_em: new Date() },
+          });
+          this.estado.sinopseEnTmdb.ok++;
+          continue;
+        }
         this.estado.sinopseEnTmdb.falhas++;
         this.logger.warn(
           `Backfill sinopse EN (TMDB) falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
