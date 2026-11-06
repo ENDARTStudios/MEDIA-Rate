@@ -14,8 +14,18 @@ export class JikanAdapter implements FonteAdapter {
     return dominioDoTipo(tipo) === "anime_manga";
   }
 
+  /**
+   * T-DADOS-79: fonte APOSENTADA. O host `api.jikan.moe` está bloqueado no
+   * egress de produção (`fetch failed` em 100% das chamadas, medido no log do
+   * passe); além disso é um proxy não oficial do **mesmo** dado que o
+   * `MalAdapter` já coleta na API oficial (e o `fonte_id` dos mangás é o id
+   * do MAL). Manter ativa custava um timeout por título e, pior, marcava
+   * `status: "erro"` em todo mangá — o passe então nunca marcava o título como
+   * coletado e girava indefinidamente (11.331 mangás, 1,5 mil títulos/h sem
+   * nenhum avanço). Ligável por env se um dia o host voltar.
+   */
   ativo(): boolean {
-    return true;
+    return process.env.MEDIA_JIKAN_ENABLED === "true";
   }
 
   async coletar(consulta: ConsultaMedia): Promise<NotaColetada[]> {
