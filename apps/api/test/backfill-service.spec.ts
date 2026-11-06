@@ -25,6 +25,8 @@ import {
   mapearProvedores,
   mapearCriticaIgdb,
   generosDoPayload,
+  generosDoPayloadMal,
+  MAPA_GENEROS_MAL,
   colecaoDoPayloadIgdb,
   prazoEsgotado,
   ehCotaComicVine,
@@ -589,6 +591,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           provedores: 17230,
           critica_igdb: 4946,
           generos_games: 4995,
+          generos_manga: 24000,
           arestas_franquia: 260,
           avaliacao_livros: 600,
           localizacao: 10570,
@@ -612,6 +615,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       provedores: 17230,
       criticaIgdb: 4946,
       generosGames: 4995,
+      generosManga: 24000,
       arestasFranquia: 260,
       avaliacaoLivros: 600,
       localizacao: 10570,
@@ -641,6 +645,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       provedores: 0,
       criticaIgdb: 0,
       generosGames: 0,
+      generosManga: 0,
       arestasFranquia: 0,
       avaliacaoLivros: 0,
       localizacao: 0,
@@ -2316,6 +2321,46 @@ describe("MAPA_GENEROS_IGDB e generosDoPayload (T-DADOS-09)", () => {
     expect(generosDoPayload(undefined)).toEqual([]);
     expect(generosDoPayload([])).toEqual([]);
     expect(generosDoPayload({ genres: [null, 42, {}] })).toEqual([]);
+  });
+});
+
+describe("MAPA_GENEROS_MAL e generosDoPayloadMal (T-DADOS-80)", () => {
+  it("todos os nomes cabem em genero.nome (VarChar 64) e são pt-BR únicos", () => {
+    const chaves = Object.keys(MAPA_GENEROS_MAL);
+    expect(chaves.length).toBeGreaterThan(60);
+    expect(new Set(chaves).size).toBe(chaves.length);
+    const nomes = Object.values(MAPA_GENEROS_MAL);
+    for (const nome of nomes) {
+      expect(nome.length).toBeLessThanOrEqual(LIMITES.generoNome);
+    }
+    // Dois slugs MAL distintos não podem produzir o mesmo nome.
+    expect(new Set(nomes).size).toBe(nomes.length);
+    // Amostra do vocabulário real medido em produção (45 mangás).
+    expect(MAPA_GENEROS_MAL["slice-of-life"]).toBe("Cotidiano");
+    expect(MAPA_GENEROS_MAL["boys-love"]).toBe("Boys Love");
+    expect(MAPA_GENEROS_MAL.shounen).toBe("Shounen");
+    expect(MAPA_GENEROS_MAL["sci-fi"]).toBe("Ficção científica");
+  });
+
+  it("traduz o payload real do MAL, filtra fora do mapa e deduplica", () => {
+    expect(
+      generosDoPayloadMal({
+        genres: [
+          { id: 1, name: "Romance" },
+          { id: 2, name: "School" },
+          { id: 3, name: "Eligible Titles for You Should Read This" },
+          { id: 4, name: "Romance" },
+        ],
+      }),
+    ).toEqual(["Romance", "Escolar"]);
+  });
+
+  it("payload vazio/estranho devolve [] e nunca lança", () => {
+    expect(generosDoPayloadMal({})).toEqual([]);
+    expect(generosDoPayloadMal(null)).toEqual([]);
+    expect(generosDoPayloadMal(undefined)).toEqual([]);
+    expect(generosDoPayloadMal({ genres: [null, 42, {}, { name: "   " }] })).toEqual([]);
+    expect(generosDoPayloadMal({ genres: "Romance" })).toEqual([]);
   });
 });
 

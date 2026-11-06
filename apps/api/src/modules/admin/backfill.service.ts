@@ -34,6 +34,8 @@ const ESPERA_429_MS = 1500;
 // T-DADOS-13B: OpenLibrary/Kitsu/Jikan — throttle de 300ms por chamada
 // (mesma política do IGDB) e uma única retentativa em 429.
 const PAUSA_AUTORES_MS = 300;
+// T-DADOS-80: gêneros de mangá no MAL (1 req/título; mesma cota dos autores).
+const PAUSA_GENEROS_MANGA_MS = 350;
 const ESPERA_429_AUTORES_MS = 2000;
 const OL_BASE = "https://openlibrary.org";
 // T-DADOS-13A (D2c): streaming muda todo mês — o watermark completo só é
@@ -91,6 +93,8 @@ export type BackfillTipo =
   | "avaliacaoLivros"
   // T-DADOS-09: gêneros de games no IGDB (por id; 23 slugs do /v4/genres).
   | "generosGames"
+  // T-DADOS-80: gêneros de MANGA no MAL (por id; vocabulário fechado).
+  | "generosManga"
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
   | "localizacao"
   // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
@@ -814,6 +818,126 @@ export const MAPA_GENEROS_IGDB: Readonly<Record<string, string>> = {
 };
 
 /**
+ * T-DADOS-80: `genres[]` do MAL (vocabulário FECHADO, devolvido no endpoint
+ * `/v2/manga/<id>?fields=genres`) → nome canônico em pt-BR da tabela `genero`.
+ * Mesma decisão editorial do `MAPA_GENEROS_IGDB`: tradução de lista fechada,
+ * sem heurística. Valores fora do mapa são **descartados** (ex.: a tag de
+ * campanha "Eligible Titles for You Should Read This", que não é gênero) e o
+ * título NÃO é penalizado — sai da fila pelo watermark.
+ *
+ * Medição que justifica a fatia (sonda de 45 mangás sem gênero): **44/45**
+ * devolvem gêneros (98%), 36 nomes distintos, ~3,3 por título. É o maior gap
+ * do catálogo com fonte legítima: 25.040 dos 25.081 MANGA não têm gênero.
+ *
+ * As categorias demográficas (`Shounen`, `Seinen`, `Shoujo`, `Josei`) e as
+ * temáticas (`School`, `Mecha`, `Isekai`) vêm no MESMO campo `genres` da fonte
+ * e entram como gênero — é como a fonte as publica; nada é inferido.
+ */
+export const MAPA_GENEROS_MAL: Readonly<Record<string, string>> = {
+  "action": "Ação",
+  "adventure": "Aventura",
+  "avant-garde": "Vanguarda",
+  "award-winning": "Premiado",
+  "boys-love": "Boys Love",
+  "comedy": "Comédia",
+  "drama": "Drama",
+  "ecchi": "Ecchi",
+  "erotica": "Erótica",
+  "fantasy": "Fantasia",
+  "girls-love": "Girls Love",
+  "gourmet": "Gastronomia",
+  "horror": "Terror",
+  "mystery": "Mistério",
+  "romance": "Romance",
+  "sci-fi": "Ficção científica",
+  "slice-of-life": "Cotidiano",
+  "sports": "Esporte",
+  "supernatural": "Sobrenatural",
+  "suspense": "Suspense",
+  "adult-cast": "Elenco adulto",
+  "anthropomorphic": "Antropomórfico",
+  "child-care": "Puericultura",
+  "combat-sports": "Esportes de combate",
+  "crossdressing": "Crossdressing",
+  "delinquents": "Delinquentes",
+  "detective": "Detetive",
+  "educational": "Educacional",
+  "gag-humor": "Humor pastelão",
+  "gore": "Gore",
+  "harem": "Harém",
+  "historical": "Histórico",
+  "idols-female": "Ídolos (feminino)",
+  "idols-male": "Ídolos (masculino)",
+  "isekai": "Isekai",
+  "iyashikei": "Iyashikei",
+  "josei": "Josei",
+  "kids": "Infantil",
+  "love-polygon": "Triângulo amoroso",
+  "love-status-quo": "Status quo amoroso",
+  "magical-sex-shift": "Troca de sexo mágica",
+  "mahou-shoujo": "Mahou Shoujo",
+  "martial-arts": "Artes marciais",
+  "mecha": "Mecha",
+  "medical": "Médico",
+  "meme": "Meme",
+  "military": "Militar",
+  "music": "Música",
+  "mythology": "Mitologia",
+  "organized-crime": "Crime organizado",
+  "otaku-culture": "Cultura otaku",
+  "parody": "Paródia",
+  "performing-arts": "Artes cênicas",
+  "pets": "Animais de estimação",
+  "psychological": "Psicológico",
+  "racing": "Corrida",
+  "reincarnation": "Reencarnação",
+  "reverse-harem": "Harém reverso",
+  "romantic-subtext": "Subtexto romântico",
+  "samurai": "Samurai",
+  "school": "Escolar",
+  "seinen": "Seinen",
+  "shoujo-ai": "Shoujo Ai",
+  "shoujo": "Shoujo",
+  "shounen-ai": "Shounen Ai",
+  "shounen": "Shounen",
+  "showbiz": "Show business",
+  "space": "Espaço",
+  "strategy-game": "Jogo de estratégia",
+  "super-power": "Superpoderes",
+  "survival": "Sobrevivência",
+  "team-sports": "Esportes coletivos",
+  "time-travel": "Viagem no tempo",
+  "vampire": "Vampiro",
+  "video-game": "Videogame",
+  "villainess": "Vilã",
+  "visual-arts": "Artes visuais",
+  "workplace": "Trabalho",
+};
+
+/**
+ * T-DADOS-80: `genres[]` do MAL → nomes pt-BR do mapa curado. O nome do item
+ * é a chave (via `slugifyBasico`); o `id` da fonte é ignorado (não é estável
+ * entre mídias). Duplicatas removidas, fora do mapa descartado. Payload
+ * estranho/ausente devolve `[]` e NUNCA lança.
+ */
+export function generosDoPayloadMal(payload: any): string[] {
+  const brutos = Array.isArray(payload?.genres) ? payload.genres : [];
+  const vistos = new Set<string>();
+  const saida: string[] = [];
+  for (const g of brutos) {
+    const nome = typeof g?.name === "string" ? g.name.trim() : "";
+    if (!nome) continue;
+    const chave = slugifyBasico(nome).toLowerCase();
+    if (!Object.prototype.hasOwnProperty.call(MAPA_GENEROS_MAL, chave)) continue;
+    const canonico = MAPA_GENEROS_MAL[chave];
+    if (!canonico || vistos.has(canonico)) continue;
+    vistos.add(canonico);
+    saida.push(canonico);
+  }
+  return saida;
+}
+
+/**
  * T-DADOS-09: `genres[]` do jogo do IGDB → slugs do mapa curado. O `slug` do
  * item é preferido; sem ele, deriva de `name` via `slugifyBasico`. Slugs fora
  * do mapa são descartados, duplicatas removidas. Payload estranho/ausente
@@ -1524,6 +1648,7 @@ export class BackfillService {
     avaliacaoLivros: estadoVazio(),
     localizacao: estadoVazio(),
     generosGames: estadoVazio(),
+    generosManga: estadoVazio(),
     criticaOmdb: estadoVazio(),
     sinopseMangaEn: estadoVazio(),
     sinopseLivros: estadoVazio(),
@@ -2331,7 +2456,7 @@ export class BackfillService {
    * último caso devolve null e o título segue sem aquele gênero (a regra é não
    * deixar o título falhar por unique).
    */
-  private async resolverGeneroIgdb(nome: string): Promise<{ id: number } | null> {
+  private async resolverGeneroPorNome(nome: string): Promise<{ id: number } | null> {
     const slugFinal = truncarCampo(slugifyBasico(nome), LIMITES.generoSlug);
     const nomeFinal = truncarCampo(nome, LIMITES.generoNome);
     if (!slugFinal || !nomeFinal) return null;
@@ -2428,7 +2553,7 @@ export class BackfillService {
         const generos = generosDoPayload(payload);
         let vinculosTitulo = 0;
         for (const { slug } of generos) {
-          const genero = await this.resolverGeneroIgdb(MAPA_GENEROS_IGDB[slug] ?? slug);
+          const genero = await this.resolverGeneroPorNome(MAPA_GENEROS_IGDB[slug] ?? slug);
           if (!genero) continue;
           await this.prisma.midiaGenero.upsert({
             where: { midia_id_genero_id: { midia_id: m.id, genero_id: genero.id } },
@@ -2501,6 +2626,120 @@ export class BackfillService {
       vinculos,
       franquias,
       falhas: this.estado.generosGames.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-80: gêneros de MANGA no MAL **por id** (`/v2/manga/<id>?fields=genres`).
+   *
+   * Por que existe: **25.040 dos 25.081 MANGA não têm nenhum gênero** — e sem
+   * gênero o filtro do catálogo, o dashboard e o radar ficam vazios para a
+   * mídia. O MAL é fonte legítima e fechada: sonda de 45 títulos sem gênero →
+   * **44 devolveram gêneros** (98%), ~3,3 por título. O `fonte_id` dos registros
+   * `jikan` É o id do MAL (o Jikan é wrapper), então só `fonte = 'jikan'` entra
+   * — usar id de `kitsu` aqui consultaria OUTRA obra (risco de identidade).
+   *
+   * Watermark `generos_mal_em` gravado SEMPRE ao fim do título (mesmo sem
+   * gênero ou sem id numérico) para a fila drenar; erro de rede/429 não marca
+   * (retenta na próxima rodada). Nunca lança por título.
+   */
+  async enriquecerGenerosManga(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semGenero: number;
+    semId: number;
+    vinculos: number;
+    falhas: number;
+  }> {
+    const clientId = process.env.MAL_CLIENT_ID;
+    if (!clientId) {
+      throw new BadRequestException("MAL_CLIENT_ID ausente: sem credencial para gêneros de mangá.");
+    }
+    if (this.estado.generosManga.executando) {
+      throw new BadRequestException("Job gêneros de mangá (MAL) já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.generosManga = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte = 'jikan'
+         AND m.generos_mal_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 5000)}`,
+    )) as any[];
+    this.logger.log(`Backfill generos manga (MAL): ${alvo.length} títulos alvo.`);
+    let semGenero = 0;
+    let semId = 0;
+    let vinculos = 0;
+    for (const m of alvo) {
+      this.estado.generosManga.processados++;
+      this.estado.generosManga.atual = m.titulo;
+      try {
+        const fonteId = String(m.fonte_id ?? "").trim();
+        if (!idNumericoUtilizavel(fonteId)) {
+          // Slug não resolve em /manga/<id> (404 eterno). Lacuna honesta, sem
+          // chamada HTTP.
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { generos_mal_em: new Date() },
+          });
+          continue;
+        }
+        const payload = await this.getJsonComThrottle<any>(
+          `${MAL_BASE}/manga/${encodeURIComponent(fonteId)}?fields=genres`,
+          PAUSA_GENEROS_MANGA_MS,
+          { "Accept": "application/json", "X-MAL-CLIENT-ID": clientId },
+        );
+        const generos = generosDoPayloadMal(payload);
+        for (const nome of generos) {
+          const genero = await this.resolverGeneroPorNome(nome);
+          if (!genero) continue;
+          await this.prisma.midiaGenero.upsert({
+            where: { midia_id_genero_id: { midia_id: m.id, genero_id: genero.id } },
+            create: { midia_id: m.id, genero_id: genero.id },
+            update: {},
+          });
+          vinculos++;
+        }
+        if (generos.length === 0) {
+          // Mangá existe mas a fonte não devolve gênero mapeável — ausência
+          // honesta, não erro: marca o watermark e segue.
+          semGenero++;
+        } else {
+          this.estado.generosManga.ok++;
+        }
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { generos_mal_em: new Date() },
+        });
+      } catch (e) {
+        // Sem watermark: o título volta na próxima execução (retentável).
+        this.estado.generosManga.falhas++;
+        this.logger.warn(
+          `Backfill generos manga (MAL) falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+    this.estado.generosManga.executando = false;
+    this.estado.generosManga.atual = `fim: ok=${this.estado.generosManga.ok} sem_genero=${semGenero} sem_id=${semId} vinculos=${vinculos} falhas=${this.estado.generosManga.falhas}`;
+    this.logger.log(
+      `Backfill generos manga (MAL) fim: ok=${this.estado.generosManga.ok} sem_genero=${semGenero} sem_id=${semId} vinculos=${vinculos} falhas=${this.estado.generosManga.falhas}.`,
+    );
+    return {
+      processados: this.estado.generosManga.processados,
+      ok: this.estado.generosManga.ok,
+      semGenero,
+      semId,
+      vinculos,
+      falhas: this.estado.generosManga.falhas,
     };
   }
 
@@ -4463,6 +4702,8 @@ export class BackfillService {
     criticaIgdb: number;
     // T-DADOS-09: fila de gêneros de games (IGDB por id).
     generosGames: number;
+    // T-DADOS-80: fila de gêneros de MANGA (MAL por id).
+    generosManga: number;
     arestasFranquia: number;
     avaliacaoLivros: number;
     // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
@@ -4494,6 +4735,7 @@ export class BackfillService {
         provedores: number;
         critica_igdb: number;
         generos_games: number;
+        generos_manga: number;
         arestas_franquia: number;
         avaliacao_livros: number;
         localizacao: number;
@@ -4529,6 +4771,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'GAME' AND m.fonte = 'igdb'
             AND m.generos_igdb_em IS NULL) AS generos_games,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte = 'jikan'
+            AND m.generos_mal_em IS NULL) AS generos_manga,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
@@ -4601,6 +4846,7 @@ export class BackfillService {
       provedores: Number(row?.provedores ?? 0),
       criticaIgdb: Number(row?.critica_igdb ?? 0),
       generosGames: Number(row?.generos_games ?? 0),
+      generosManga: Number(row?.generos_manga ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
@@ -4700,6 +4946,16 @@ export class BackfillService {
       if (Date.now() - inicio < orçamentoMs && pendentesAntes.generosGames > 0) {
         const r = await this.enriquecerGenerosGames(LOTE_IGDB);
         lotes.push({ tipo: "generosGames", ok: r.ok + r.semGenero, falhas: r.falhas });
+      }
+      // T-DADOS-80: gêneros de MANGA no MAL (1 req/título, throttle 350ms).
+      // `ok` soma os títulos SEM gênero: eles saíram da fila (watermark).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.generosManga ?? 0) > 0) {
+        const r = await this.enriquecerGenerosManga(1200);
+        lotes.push({
+          tipo: "generosManga",
+          ok: r.ok + r.semGenero + r.semId,
+          falhas: r.falhas,
+        });
       }
       // T-DADOS-06: fecha as arestas SEQUENCIA_DE que faltam nas franquias
       // incompletas. Deriva do próprio grafo (zero chamada externa) e é
@@ -4932,6 +5188,12 @@ export class BackfillService {
         tem: p.generosGames > 0,
         executar: () => this.enriquecerGenerosGames(LOTE_IGDB),
         okDe: (r: any) => r.ok + r.semGenero,
+      },
+      {
+        tipo: "generosManga",
+        tem: (p.generosManga ?? 0) > 0,
+        executar: () => this.enriquecerGenerosManga(1200),
+        okDe: (r: any) => r.ok + r.semGenero + r.semId,
       },
       {
         tipo: "arestasFranquia",
