@@ -3898,16 +3898,20 @@ export class BackfillService {
         }
         // T-DADOS-85: a MESMA resposta traz `deck`/`description` — grava a
         // sinopse quando vazia (nunca sobrescreve) sem requisição extra.
-        // T-DADOS-90: `creditos_em` só é marcado quando a fonte respondeu de
-        // fato (payload de volume presente). Sem isso o crédito seria dado como
-        // "consultado" sem consulta — a classe de bug do T-DADOS-86.
+        // T-DADOS-90: `creditos_em` só é marcado quando a editora VEIO nesta
+        // resposta (`editoraConsultada` E crédito gravável). Não consigo provar
+        // ao vivo que o `field_list` combinado devolve `publisher` (a cota fecha
+        // com HTTP 420) — e marcar sem ter o dado criaria 13 mil lacunas falsas,
+        // a classe de bug do T-DADOS-86. Volume sem `publisher` volta para a
+        // fila de créditos, que consulta o campo sozinho (caminho já provado) e
+        // marca a lacuna honesta.
         // Watermark SEMPRE (mesmo sem match): a lacuna honesta sai da fila.
         await this.prisma.midia.update({
           where: { id: m.id },
           data: {
             autores_em: new Date(),
             ...(sinopse && !m.sinopse ? { sinopse } : {}),
-            ...(editoraConsultada ? { creditos_em: new Date() } : {}),
+            ...(editoraConsultada && editora.length > 0 ? { creditos_em: new Date() } : {}),
           },
         });
         this.estado.autoresComics.ok++;

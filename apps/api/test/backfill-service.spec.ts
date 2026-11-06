@@ -3640,12 +3640,9 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
     expect(prisma.midia.update).toHaveBeenCalledWith({
       where: { id: "m-2" },
       // T-DADOS-85: o mesmo payload traz o deck → sinopse entra junto.
-      // T-DADOS-90: volume consultado também fecha a fila de crédito.
-      data: {
-        autores_em: expect.any(Date),
-        sinopse: "Resumo.",
-        creditos_em: expect.any(Date),
-      },
+      // T-DADOS-90: sem `publisher` na resposta, o crédito NÃO é fechado — o
+      // título volta para a fila de créditos (nada de lacuna fabricada).
+      data: { autores_em: expect.any(Date), sinopse: "Resumo." },
     });
   });
 
