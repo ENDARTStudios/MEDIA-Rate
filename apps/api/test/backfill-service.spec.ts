@@ -875,6 +875,19 @@ describe("BackfillService.enriquecerProvedores (T-DADOS-02)", () => {
     expect(data.provedores_em).toBeInstanceOf(Date);
   });
 
+  it("404 do TMDB (recurso removido): marca provedores_em e NÃO conta falha (T-DADOS-92)", async () => {
+    const alvo = [
+      { id: "m-orph", tipo: "SERIE", fonte: "tmdb_tv", fonte_id: "312724", titulo: "Serie orfa" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.themoviedb.org", 404));
+    const r = await svc.enriquecerProvedores(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.provedores_em).toBeInstanceOf(Date);
+    expect(prisma.midiaStreaming.upsert).not.toHaveBeenCalled();
+  });
+
   it("serviço existente por tmdb_provider_id é reusado (não recria)", async () => {
     const alvo = [{ id: "m-3", tipo: "FILME", fonte: "tmdb", fonte_id: "11", titulo: "F1" }];
     const { svc, prisma } = makeService({ alvo });
@@ -2204,6 +2217,19 @@ describe("BackfillService.enriquecerLocalizacao (T-DADOS-08)", () => {
     expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 
+  it("404 do TMDB (recurso removido): marca localizacao_em e NÃO conta falha (T-DADOS-92)", async () => {
+    // Caso real: série 312724 removida do TMDB era a ÚNICA pendente da fila e
+    // fazia o job rodar 48×/6 h com ok=0 falhas=1.
+    const { svc, prisma } = makeService({ alvo: alvo({ tipo: "SERIE", fonte_id: "312724" }) });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.themoviedb.org", 404));
+    const r = await svc.enriquecerLocalizacao(10);
+    expect(r).toEqual({ processados: 1, ok: 1, falhas: 0 });
+    const data = (prisma.midia.update as any).mock.calls[0][0].data;
+    expect(data.localizacao_em).toBeInstanceOf(Date);
+    expect(prisma.classificacaoRegiao.upsert).not.toHaveBeenCalled();
+  });
+
   it("guard de disco bloqueia (D-574) e job em execução não re-entra", async () => {
     const { svc, prisma } = makeService({ alvo: alvo() });
     (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
@@ -3489,6 +3515,37 @@ describe("ehIdInexistenteNaFonte (T-DADOS-91)", () => {
 // ===========================================================================
 // T-DADOS-17 — autores de COMIC (ComicVine por busca com guarda)
 // ===========================================================================
+
+describe("enriquecerSinopseEnTmdb — 404 do TMDB (T-DADOS-92)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.TMDB_API_KEY = "chave-de-teste";
+  });
+
+  it("recurso removido na fonte: marca sinopse_tmdb_em e NÃO conta falha", async () => {
+    const alvo = [
+      { id: "m-orph", tipo: "SERIE", fonte: "tmdb_tv", fonte_id: "312724", titulo: "Serie orfa" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.themoviedb.org", 404));
+
+    const r = await svc.enriquecerSinopseEnTmdb(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, falhas: 0 });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.sinopse_tmdb_em).toBeInstanceOf(Date);
+  });
+
+  it("5xx continua retentável (sem watermark)", async () => {
+    const alvo = [{ id: "m-5xx", tipo: "FILME", fonte: "tmdb", fonte_id: "1", titulo: "Filme" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new Error("TMDB 503"));
+
+    const r = await svc.enriquecerSinopseEnTmdb(10);
+    expect(r).toMatchObject({ processados: 1, ok: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
 
 describe("escolherVolumeComicVine (T-DADOS-17)", () => {
   const sandman = {
