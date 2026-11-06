@@ -67,7 +67,9 @@ const ESPERA_429_COMICVINE_MS = 3000;
 const COMICVINE_CAMPOS_BUSCA = "id,name,start_year,publisher";
 // T-DADOS-85: o detalhe do volume já traz `deck`/`description` na MESMA
 // requisição usada para `people` — sinopse sem custo adicional.
-const COMICVINE_CAMPOS_VOLUME = "id,name,people,deck,description";
+// T-DADOS-90: `publisher` entra no mesmo `field_list` — a editora que o job de
+// créditos buscava em uma SEGUNDA requisição no mesmo volume.
+const COMICVINE_CAMPOS_VOLUME = "id,name,people,deck,description,publisher";
 /** Teto de texto para sinopse de volume (descrição do ComicVine é wiki, longa). */
 const SINOPSE_VOLUME_MAX = 2000;
 /**
@@ -229,6 +231,17 @@ export function mapearEditoraComicVine(payload: any): CreditoEntidade[] {
   const nome = String(editora?.name ?? "").trim();
   if (id == null || !nome) return [];
   return [{ fonte: "comicvine", fonte_id: `p${id}`, nome, papel: "Editora" }];
+}
+
+/**
+ * T-DADOS-90: o payload É de um volume? Só então a ausência de editora é
+ * lacuna honesta (volume sem `publisher` existe). Payload sem `results` não
+ * consultou nada — marcar `creditos_em` ali seria declarar lacuna sem
+ * perguntar à fonte (a classe de bug do T-DADOS-86).
+ */
+export function editoraDoVolumeConsultada(payload: any): boolean {
+  const results = payload?.results;
+  return !!results && typeof results === "object";
 }
 
 /** MAL: revista de serialização do mangá (o "veículo", não a editora). */
@@ -3760,6 +3773,7 @@ export class BackfillService {
     ok: number;
     semMatch: number;
     pessoas: number;
+    editoras: number;
     falhas: number;
   }> {
     if (this.estado.autoresComics.executando) {
@@ -3780,9 +3794,15 @@ export class BackfillService {
         ano_lancamento: number | null;
         sinopse: string | null;
         editoras: string | null;
+        // T-DADOS-90: já existe crédito de Editora? (evita linha duplicada)
+        tem_editora: boolean;
       }[]
     >(
       `SELECT m.id::text, m.fonte_id, m.titulo, m.ano_lancamento, m.sinopse,
+              EXISTS (
+                SELECT 1 FROM midia_elenco e
+                 WHERE e.midia_id = m.id AND e.personagem = 'Editora'
+              ) AS tem_editora,
               string_agg(DISTINCT p.nome, '||') AS editoras
        FROM midia m
        LEFT JOIN midia_produtora p ON p.midia_id = m.id
@@ -3795,6 +3815,7 @@ export class BackfillService {
     this.logger.log(`Backfill autores de comics: ${alvo.length} títulos alvo.`);
     let semMatch = 0;
     let pessoasGravadas = 0;
+    let editorasGravadas = 0;
     for (const m of alvo) {
       this.estado.autoresComics.processados++;
       this.estado.autoresComics.atual = m.titulo;
@@ -3814,7 +3835,12 @@ export class BackfillService {
           );
           continue;
         }
-        const { autores, sinopse } = await this.autoresVolumeComicVine(m.fonte_id);
+        const {
+          autores,
+          sinopse,
+          editora = [],
+          editoraConsultada = false,
+        } = await this.autoresVolumeComicVine(m.fonte_id);
         if (autores.length === 0) {
           semMatch++;
         } else {
@@ -3842,14 +3868,50 @@ export class BackfillService {
             pessoasGravadas++;
           }
         }
+        // T-DADOS-90: a MESMA resposta traz `publisher` (o `field_list` agora
+        // pede o campo). Antes, o job de créditos fazia uma SEGUNDA requisição
+        // no mesmo volume só para ler a editora — com cota de 200 req/h, isso
+        // dobrava o custo por quadrinho e adiava as duas filas.
+        if (editoraConsultada && !m.tem_editora) {
+          for (const credito of editora) {
+            await this.prisma.midiaElenco.upsert({
+              where: {
+                midia_id_fonte_fonte_id: {
+                  midia_id: m.id,
+                  fonte: credito.fonte,
+                  fonte_id: credito.fonte_id,
+                },
+              },
+              create: {
+                midia_id: m.id,
+                fonte: credito.fonte,
+                fonte_id: credito.fonte_id,
+                nome: credito.nome,
+                personagem: credito.papel,
+                ordem: 0,
+                foto_url: null,
+              },
+              update: { nome: credito.nome, personagem: credito.papel },
+            });
+            editorasGravadas++;
+          }
+        }
         // T-DADOS-85: a MESMA resposta traz `deck`/`description` — grava a
         // sinopse quando vazia (nunca sobrescreve) sem requisição extra.
+        // T-DADOS-90: `creditos_em` só é marcado quando a editora VEIO nesta
+        // resposta (`editoraConsultada` E crédito gravável). Não consigo provar
+        // ao vivo que o `field_list` combinado devolve `publisher` (a cota fecha
+        // com HTTP 420) — e marcar sem ter o dado criaria 13 mil lacunas falsas,
+        // a classe de bug do T-DADOS-86. Volume sem `publisher` volta para a
+        // fila de créditos, que consulta o campo sozinho (caminho já provado) e
+        // marca a lacuna honesta.
         // Watermark SEMPRE (mesmo sem match): a lacuna honesta sai da fila.
         await this.prisma.midia.update({
           where: { id: m.id },
           data: {
             autores_em: new Date(),
             ...(sinopse && !m.sinopse ? { sinopse } : {}),
+            ...(editoraConsultada && editora.length > 0 ? { creditos_em: new Date() } : {}),
           },
         });
         this.estado.autoresComics.ok++;
@@ -3870,15 +3932,16 @@ export class BackfillService {
       }
     }
     this.estado.autoresComics.executando = false;
-    this.estado.autoresComics.atual = `fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} falhas=${this.estado.autoresComics.falhas}`;
+    this.estado.autoresComics.atual = `fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} editoras=${editorasGravadas} falhas=${this.estado.autoresComics.falhas}`;
     this.logger.log(
-      `Backfill autores de comics fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} falhas=${this.estado.autoresComics.falhas}.`,
+      `Backfill autores de comics fim: ok=${this.estado.autoresComics.ok} sem_match=${semMatch} pessoas=${pessoasGravadas} editoras=${editorasGravadas} falhas=${this.estado.autoresComics.falhas}.`,
     );
     return {
       processados: this.estado.autoresComics.processados,
       ok: this.estado.autoresComics.ok,
       semMatch,
       pessoas: pessoasGravadas,
+      editoras: editorasGravadas,
       falhas: this.estado.autoresComics.falhas,
     };
   }
@@ -3893,11 +3956,18 @@ export class BackfillService {
     return Array.isArray(payload?.results) ? payload.results : [];
   }
 
-  private async autoresVolumeComicVine(
-    volumeId: number | string | undefined,
-  ): Promise<{ autores: (AutorFonte & { ordem: number })[]; sinopse: string | null }> {
+  private async autoresVolumeComicVine(volumeId: number | string | undefined): Promise<{
+    autores: (AutorFonte & { ordem: number })[];
+    sinopse: string | null;
+    /** T-DADOS-90: editora do volume vinda da MESMA resposta (`publisher`). */
+    editora: CreditoEntidade[];
+    /** `false` quando o payload não é de um volume (nada foi consultado). */
+    editoraConsultada: boolean;
+  }> {
     const id = String(volumeId ?? "").trim();
-    if (!/^\d+$/.test(id)) return { autores: [], sinopse: null };
+    if (!/^\d+$/.test(id)) {
+      return { autores: [], sinopse: null, editora: [], editoraConsultada: false };
+    }
     const chave = this.chaveComicVine();
     const payload = await this.getJsonComicVine<any>(
       `${COMICVINE_BASE}/volume/4050-${id}/?api_key=${encodeURIComponent(chave)}&format=json&field_list=${COMICVINE_CAMPOS_VOLUME}`,
@@ -3905,6 +3975,8 @@ export class BackfillService {
     return {
       autores: mapearAutoresComicVine(payload),
       sinopse: sinopseDoVolumeComicVine(payload),
+      editora: mapearEditoraComicVine(payload),
+      editoraConsultada: editoraDoVolumeConsultada(payload),
     };
   }
 

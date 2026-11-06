@@ -8,6 +8,7 @@ import {
   mapearCreditosIgdb,
   mapearEditoraOpenLibrary,
   mapearEditoraComicVine,
+  editoraDoVolumeConsultada,
   mapearRevistaMal,
   BackfillService,
   truncarCampo,
@@ -3571,9 +3572,10 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
   const CHAVE = "chave-teste";
   // T-DADOS-79: o job consulta o volume PELO ID (fonte_id) — uma requisição,
   // sem busca textual e sem ambiguidade de identidade.
+  // T-DADOS-90: `publisher` entra no MESMO field_list do volume.
   const urlVolume = (id: number | string) =>
     `https://comicvine.gamespot.com/api/volume/4050-${id}/?api_key=${CHAVE}` +
-    `&format=json&field_list=id,name,people,deck,description`;
+    `&format=json&field_list=id,name,people,deck,description,publisher`;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -3614,7 +3616,7 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
       throw new Error(`URL inesperada: ${url}`);
     });
     const r = await svc.enriquecerAutoresComics(10);
-    expect(r).toEqual({ processados: 1, ok: 1, semMatch: 0, pessoas: 2, falhas: 0 });
+    expect(r).toEqual({ processados: 1, ok: 1, semMatch: 0, pessoas: 2, editoras: 0, falhas: 0 });
     expect(prisma.midiaElenco.upsert).toHaveBeenCalledTimes(2);
     const primeira = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
     expect(primeira.create).toMatchObject({
@@ -3638,8 +3640,61 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
     expect(prisma.midia.update).toHaveBeenCalledWith({
       where: { id: "m-2" },
       // T-DADOS-85: o mesmo payload traz o deck → sinopse entra junto.
+      // T-DADOS-90: sem `publisher` na resposta, o crédito NÃO é fechado — o
+      // título volta para a fila de créditos (nada de lacuna fabricada).
       data: { autores_em: expect.any(Date), sinopse: "Resumo." },
     });
+  });
+
+  it("editora vem na MESMA requisição: grava Editora e fecha a fila de crédito (T-DADOS-90)", async () => {
+    const { svc, prisma } = makeService({ alvo: [comic({ id: "m-3", fonte_id: "4208" })] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async () => ({
+      results: {
+        id: 4208,
+        people: [{ id: 7, name: "Alan Moore" }],
+        publisher: { id: 10, name: "DC Comics" },
+      },
+    }));
+
+    const r = await svc.enriquecerAutoresComics(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, editoras: 1, falhas: 0 });
+    const chamadas = (prisma.midiaElenco.upsert as any).mock.calls.map((c: any[]) => c[0].create);
+    expect(chamadas).toContainEqual(
+      expect.objectContaining({ fonte_id: "p10", nome: "DC Comics", personagem: "Editora" }),
+    );
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-3" },
+      data: { autores_em: expect.any(Date), creditos_em: expect.any(Date) },
+    });
+  });
+
+  it("quadrinho que já tem Editora: não duplica a linha, mas fecha a fila (T-DADOS-90)", async () => {
+    const { svc, prisma } = makeService({
+      alvo: [comic({ id: "m-4", fonte_id: "4209", tem_editora: true })],
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async () => ({
+      results: { id: 4209, people: [], publisher: { id: 10, name: "DC Comics" } },
+    }));
+
+    await svc.enriquecerAutoresComics(10);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+    expect(prisma.midia.update).toHaveBeenCalledWith({
+      where: { id: "m-4" },
+      data: { autores_em: expect.any(Date), creditos_em: expect.any(Date) },
+    });
+  });
+
+  it("payload sem `results`: NÃO marca creditos_em (nada foi consultado) (T-DADOS-90)", async () => {
+    const { svc, prisma } = makeService({ alvo: [comic({ id: "m-5", fonte_id: "4210" })] });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockImplementation(async () => ({}));
+
+    await svc.enriquecerAutoresComics(10);
+    const update = (prisma.midia.update as any).mock.calls[0][0];
+    expect(update.data).not.toHaveProperty("creditos_em");
+    expect(update.data.autores_em).toBeInstanceOf(Date);
   });
 
   it("429: espera ~3s e repete UMA vez (sucesso na segunda)", async () => {
@@ -4351,6 +4406,15 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
       mapearEditoraComicVine({ results: { publisher: { id: 4, name: "DC Comics" } } }),
     ).toEqual([{ fonte: "comicvine", fonte_id: "p4", nome: "DC Comics", papel: "Editora" }]);
     expect(mapearEditoraComicVine({ results: {} })).toEqual([]);
+  });
+
+  it("ComicVine: só marca crédito consultado quando o payload é de um volume (T-DADOS-90)", () => {
+    expect(editoraDoVolumeConsultada({ results: { id: 1 } })).toBe(true);
+    // Volume sem publisher: lacuna honesta → pode marcar.
+    expect(editoraDoVolumeConsultada({ results: { id: 1, publisher: null } })).toBe(true);
+    // Payload sem results: nada foi consultado → NÃO marca.
+    expect(editoraDoVolumeConsultada({})).toBe(false);
+    expect(editoraDoVolumeConsultada(null)).toBe(false);
   });
 
   it("MAL: revista de serialização do mangá", () => {
