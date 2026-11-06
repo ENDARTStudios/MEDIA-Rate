@@ -9,6 +9,7 @@ import {
   mapearEditoraOpenLibrary,
   mapearEditoraComicVine,
   editoraDoVolumeConsultada,
+  ehIdInexistenteNaFonte,
   mapearRevistaMal,
   BackfillService,
   truncarCampo,
@@ -3436,6 +3437,23 @@ describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B/15B)", () => {
     expect(prisma.midia.update).not.toHaveBeenCalled();
   });
 
+  it("404 da fonte: id não existe → lacuna honesta, marca e NÃO conta falha (T-DADOS-91)", async () => {
+    const alvo = [
+      { id: "m-404-1", fonte: "jikan", fonte_id: "29749", titulo: "Koukai no Naraku" },
+      { id: "m-404-2", fonte: "jikan", fonte_id: "57341", titulo: "Bunny Cafe" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.myanimelist.net", 404));
+
+    const r = await svc.enriquecerAutoresMangas(10);
+    // Sem isso eram 37 falhas por tique, para sempre (1.813 em 8 h).
+    expect(r).toEqual({ processados: 2, ok: 2, semAutores: 0, falhas: 0 });
+    expect(prisma.midia.update).toHaveBeenCalledTimes(2);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.autores_em).toBeInstanceOf(Date);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+  });
+
   it("Kitsu: /manga/<id>/staff?include=person → autores com fonte kitsu", async () => {
     const alvo = [{ id: "m-manga-2", fonte: "kitsu", fonte_id: "40005", titulo: "Manga" }];
     const { svc, prisma } = makeService({ alvo });
@@ -3451,6 +3469,20 @@ describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B/15B)", () => {
     const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
     expect(chamada.where.midia_id_fonte_fonte_id.fonte).toBe("kitsu");
     expect(chamada.create).toMatchObject({ personagem: "Autor", ordem: 0 });
+  });
+});
+
+describe("ehIdInexistenteNaFonte (T-DADOS-91)", () => {
+  it("404 é lacuna honesta; 429/5xx/timeout continuam retentáveis", () => {
+    expect(ehIdInexistenteNaFonte(new ErroColeta("HTTP 404 em api.myanimelist.net", 404))).toBe(
+      true,
+    );
+    expect(ehIdInexistenteNaFonte({ status: 404 })).toBe(true);
+    expect(ehIdInexistenteNaFonte(new Error("not_found"))).toBe(true);
+    expect(ehIdInexistenteNaFonte(new ErroColeta("HTTP 429", 429))).toBe(false);
+    expect(ehIdInexistenteNaFonte(new ErroColeta("HTTP 500", 500))).toBe(false);
+    expect(ehIdInexistenteNaFonte(new Error("timeout"))).toBe(false);
+    expect(ehIdInexistenteNaFonte(null)).toBe(false);
   });
 });
 

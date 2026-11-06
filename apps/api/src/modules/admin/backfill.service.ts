@@ -1196,6 +1196,24 @@ export function idNumericoUtilizavel(id: string | null | undefined): id is strin
   return typeof id === "string" && /^\d+$/.test(id.trim());
 }
 
+/**
+ * T-DADOS-91: a fonte respondeu **404 = o id não existe nela**.
+ *
+ * Não é falha de rede: retentar não muda o resultado. Medido em produção: os
+ * 37 mangás restantes da fila de autores têm `fonte_id` numérico (id herdado do
+ * `idMal` do AniList) e o MAL devolve `404 not_found` para todos — 37 falhas por
+ * tique, **1.813 em 8 h**, sem nunca drenar. Aqui a lacuna é honesta: a fonte
+ * foi consultada e disse que não tem a obra.
+ *
+ * 429/5xx/timeout continuam retentáveis (o título volta no próximo tique).
+ */
+export function ehIdInexistenteNaFonte(e: unknown): boolean {
+  const status = (e as { status?: number } | null)?.status;
+  if (status === 404) return true;
+  const texto = String(e);
+  return texto.includes("HTTP 404") || texto.includes("not_found");
+}
+
 /** Chave do work OpenLibrary sem o prefixo `/works/` (fonte_id = `OL…W`). */
 export function chaveWorkOpenLibrary(fonteId: string): string {
   return String(fonteId ?? "")
@@ -2834,6 +2852,17 @@ export class BackfillService {
         if (sinopse) data.sinopse_en = sinopse;
         await this.prisma.midia.update({ where: { id: m.id }, data });
       } catch (e) {
+        // T-DADOS-91: 404 = id inexistente na fonte (mesmo caso dos autores de
+        // mangá). Lacuna honesta: marca e sai da fila em vez de retentar para
+        // sempre. Rede/429/5xx continuam retentáveis.
+        if (ehIdInexistenteNaFonte(e)) {
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { sinopse_en_em: new Date() },
+          });
+          continue;
+        }
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado.sinopseMangaEn.falhas++;
         this.logger.warn(
@@ -3481,6 +3510,19 @@ export class BackfillService {
         });
         this.estado[job].ok++;
       } catch (e) {
+        // T-DADOS-91: 404 é a fonte dizendo que o id não existe — lacuna
+        // honesta, não falha. Marca o watermark para o título sair da fila
+        // (senão ele volta a cada tique, para sempre: 37 mangás = 1.813
+        // falhas em 8 h). Erro de rede/429/5xx continua retentável.
+        if (ehIdInexistenteNaFonte(e)) {
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { autores_em: new Date() },
+          });
+          this.estado[job].ok++;
+          continue;
+        }
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado[job].falhas++;
         this.logger.warn(`Backfill ${rotulo} falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
