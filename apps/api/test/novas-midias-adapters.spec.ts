@@ -107,8 +107,11 @@ describe("T181 — adaptadores de novas mídias (HTTP mockado)", () => {
     expect(notas[0].votos).toBeUndefined();
   });
 
-  it("jikan/anilist: ativos sem gate e atendem anime/mangá (tipos ANIME e MANGA)", () => {
-    expect(new JikanAdapter().ativo()).toBe(true);
+  it("jikan/anilist: atendem anime/mangá (tipos ANIME e MANGA); jikan aposentada (T-DADOS-79)", () => {
+    // T-DADOS-79: o host do Jikan está bloqueado no egress de produção
+    // (`fetch failed` em 100% das chamadas) e ele é proxy do mesmo dado que o
+    // MAL oficial entrega — segue no registry, mas inativo.
+    expect(new JikanAdapter().ativo()).toBe(false);
     expect(new AniListAdapter().ativo()).toBe(true);
     expect(new JikanAdapter().atendeTipo("ANIME")).toBe(true);
     expect(new AniListAdapter().atendeTipo("ANIME")).toBe(true);
