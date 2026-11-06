@@ -3692,6 +3692,19 @@ export class BackfillService {
         await this.prisma.midia.update({ where: { id: m.id }, data: { creditos_em: new Date() } });
         this.estado.creditosMidia.ok++;
       } catch (e) {
+        // T-DADOS-92: 404 da fonte = recurso removido (medido: o único
+        // pendente de FILME e de SERIE é a obra que saiu do TMDB; os 37 do
+        // MANGA são os mesmos 404 do MAL). Lacuna honesta: marca e sai da
+        // fila em vez de falhar em todo tique. Cota do ComicVine continua
+        // abortando o lote inteiro (o resto da fila é retentável).
+        if (ehIdInexistenteNaFonte(e)) {
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { creditos_em: new Date() },
+          });
+          this.estado.creditosMidia.ok++;
+          continue;
+        }
         this.estado.creditosMidia.falhas++;
         this.logger.warn(`Backfill créditos falha [${m.titulo}]: ${String(e).slice(0, 120)}`);
         if (ehCotaComicVine(e)) {

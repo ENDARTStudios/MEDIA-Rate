@@ -4512,6 +4512,44 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
   });
 });
 
+describe("enriquecerCreditosMidia — 404 da fonte (T-DADOS-92)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.TMDB_API_KEY = "chave-de-teste";
+  });
+
+  afterEach(() => {
+    delete process.env.TMDB_API_KEY;
+  });
+
+  it("recurso removido no TMDB: marca creditos_em e NÃO conta falha", async () => {
+    // Caso real: o único pendente de SERIE (e de FILME) é a obra que o TMDB
+    // removeu — o job falhava 1× por tique para sempre.
+    const alvo = [
+      { id: "m-orfa", tipo: "SERIE", fonte: "tmdb_tv", fonte_id: "312724", titulo: "Serie orfa" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.themoviedb.org", 404));
+
+    const r = await svc.enriquecerCreditosMidia(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, falhas: 0 });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.creditos_em).toBeInstanceOf(Date);
+    expect(prisma.midiaElenco.upsert).not.toHaveBeenCalled();
+  });
+
+  it("5xx do TMDB segue retentável (sem watermark)", async () => {
+    const alvo = [{ id: "m-5xx", tipo: "FILME", fonte: "tmdb", fonte_id: "1", titulo: "Filme" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new Error("TMDB 503"));
+
+    const r = await svc.enriquecerCreditosMidia(10);
+    expect(r).toMatchObject({ processados: 1, ok: 0, falhas: 1 });
+    expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+});
+
 describe("prazoEsgotado (T-DADOS-71)", () => {
   it("sem prazo nunca esgota; com prazo, compara o relógio injetado", () => {
     expect(prazoEsgotado(1000, undefined, 999999)).toBe(false);
