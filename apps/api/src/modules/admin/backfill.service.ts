@@ -2922,7 +2922,7 @@ export class BackfillService {
        WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
          AND m.fonte IN ('tmdb','tmdb_tv') AND m.premios_em IS NULL
        ORDER BY m.id
-       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 3000)}`,
     )) as any[];
     this.logger.log(`Backfill prêmios (Wikidata): ${alvo.length} títulos alvo.`);
     let semImdb = 0;
@@ -5324,8 +5324,11 @@ export class BackfillService {
       }
       // T-DADOS-84: prêmios (Wikidata por IMDb id; 220ms por título sem id
       // conhecido + 1 SPARQL por lote de 80). `ok` soma os sem IMDb id.
+      // T-DADOS-86: 2.500/tique — medido 600 em 53 s (11 títulos/s), então o
+      // lote novo custa ~4 min dos 45 de orçamento e encurta a fila de 45 mil
+      // de ~12 h para ~3 h.
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.premios ?? 0) > 0) {
-        const r = await this.enriquecerPremios(600);
+        const r = await this.enriquecerPremios(2500);
         lotes.push({ tipo: "premios", ok: r.ok + r.semImdb, falhas: r.falhas });
       }
       // T-DADOS-12: sinopse em inglês dos mangás (Kitsu/Jikan por id, 350ms por
@@ -5541,7 +5544,7 @@ export class BackfillService {
       {
         tipo: "premios",
         tem: (p.premios ?? 0) > 0,
-        executar: () => this.enriquecerPremios(600),
+        executar: () => this.enriquecerPremios(2500),
         okDe: (r: any) => r.ok + r.semImdb,
       },
       {
