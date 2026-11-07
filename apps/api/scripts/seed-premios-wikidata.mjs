@@ -174,8 +174,11 @@ async function main() {
     // T-DADOS-81: o id IMDb de quem já passou pela fila do OMDb está na URL da
     // linha (`https://www.imdb.com/title/tt…`) — usar antes de gastar uma
     // chamada do TMDB. Medido em produção: 11.714 de 50.399 títulos (23%).
+    // Atenção: NÃO filtrar por `midia_id: { in: [...] }` — 50.399 ids estouram
+    // o limite de 32.767 bind variables do Postgres (erro visto em produção).
+    // As linhas do OMDb são poucas (~12 mil) e vêm inteiras.
     const comImdbNaUrl = await prisma.avaliacaoFonte.findMany({
-      where: { fonte: "omdb", midia_id: { in: midiasTs.map((m) => m.id) } },
+      where: { fonte: "omdb" },
       select: { midia_id: true, url: true },
     });
     const imdbPorMidia = new Map();
