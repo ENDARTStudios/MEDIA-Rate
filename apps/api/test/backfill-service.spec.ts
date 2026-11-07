@@ -4551,9 +4551,18 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
     expect(editoraDoVolumeConsultada(null)).toBe(false);
   });
 
-  it("MAL: revista de serialização do mangá", () => {
-    const c = mapearRevistaMal({ serialization: [{ mal_id: 83, name: "Young Animal" }] });
+  it("MAL: revista de serialização do mangá (shape REAL com `node`)", () => {
+    // T-DADOS-93: a API devolve [{ node: { id, name } }] — medido ao vivo em
+    // /v2/manga/19196?fields=serialization. Ler o item no nível de cima
+    // devolvia [] para TODO mangá (25.081 fichas marcadas sem gravar nada).
+    const c = mapearRevistaMal({ serialization: [{ node: { id: 83, name: "Young Animal" } }] });
     expect(c).toEqual([{ fonte: "mal", fonte_id: "s83", nome: "Young Animal", papel: "Revista" }]);
+    // Compatibilidade: shape plano antigo continua aceito.
+    expect(mapearRevistaMal({ serialization: [{ mal_id: 83, name: "Young Animal" }] })).toEqual([
+      { fonte: "mal", fonte_id: "s83", nome: "Young Animal", papel: "Revista" },
+    ]);
+    // Nó sem nome (acontece na fonte) não vira crédito vazio.
+    expect(mapearRevistaMal({ serialization: [{ node: { id: 5 } }] })).toEqual([]);
   });
 });
 
@@ -4592,6 +4601,32 @@ describe("enriquecerCreditosMidia — 404 da fonte (T-DADOS-92)", () => {
     const r = await svc.enriquecerCreditosMidia(10);
     expect(r).toMatchObject({ processados: 1, ok: 0, falhas: 1 });
     expect(prisma.midia.update).not.toHaveBeenCalled();
+  });
+
+  it("MANGA: grava a Revista com o payload REAL do MAL (shape `node`) (T-DADOS-93)", async () => {
+    process.env.MAL_CLIENT_ID = "mal-client-id-de-teste";
+    try {
+      const alvo = [
+        { id: "m-manga-1", tipo: "MANGA", fonte: "jikan", fonte_id: "19196", titulo: "Manga" },
+      ];
+      const { svc, prisma } = makeService({ alvo });
+      (svc as any).pausa = vi.fn(async () => undefined);
+      (fetchJson as any).mockResolvedValue({
+        serialization: [{ node: { id: 83, name: "Young Animal" } }],
+      });
+
+      const r = await svc.enriquecerCreditosMidia(10);
+      expect(r).toMatchObject({ processados: 1, ok: 1, creditos: 1, semCredito: 0 });
+      const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
+      expect(chamada.create).toMatchObject({
+        fonte: "mal",
+        fonte_id: "s83",
+        nome: "Young Animal",
+        personagem: "Revista",
+      });
+    } finally {
+      delete process.env.MAL_CLIENT_ID;
+    }
   });
 });
 
