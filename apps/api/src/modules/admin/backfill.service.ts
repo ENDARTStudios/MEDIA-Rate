@@ -248,11 +248,21 @@ export function editoraDoVolumeConsultada(payload: any): boolean {
   return !!results && typeof results === "object";
 }
 
-/** MAL: revista de serialização do mangá (o "veículo", não a editora). */
+/**
+ * MAL: revista de serialização do mangá (o "veículo", não a editora).
+ *
+ * T-DADOS-93: a API oficial devolve `serialization` como `[{ node: { id, name } }]`
+ * — medido ao vivo (`GET /v2/manga/19196?fields=serialization` →
+ * `[{node:{id,name}}]`). O mapper lia `item.mal_id`/`item.name` no NÍVEL DO ITEM,
+ * então devolvia `[]` para todo mangá: as 25.081 fichas foram marcadas como
+ * "consultadas, sem revista" sem gravar uma única linha. Aceita os dois shapes
+ * (`node` primeiro, item direto como fallback).
+ */
 export function mapearRevistaMal(payload: any): CreditoEntidade[] {
   const lista = Array.isArray(payload?.serialization) ? payload.serialization : [];
   const saida: CreditoEntidade[] = [];
-  for (const item of lista) {
+  for (const bruto of lista) {
+    const item = bruto?.node ?? bruto;
     const id = item?.mal_id ?? item?.id;
     const nome = String(item?.name ?? "").trim();
     if (id == null || !nome) continue;
