@@ -161,15 +161,42 @@ async function main() {
   const prisma = new PrismaClient();
   try {
     // 1) IMDb IDs via TMDB (filmes/séries) — 1 req por título
+    // T-DADOS-81: `PREMIOS_LIMITE=n` processa só os primeiros n títulos — serve
+    // de smoke test do fluxo inteiro (TMDB + SPARQL + gravação) em segundos.
+    const limite = Number(process.env.PREMIOS_LIMITE ?? 0);
     const midiasTs = await prisma.midia.findMany({
       where: { deleted_at: null, fonte: { in: ["tmdb", "tmdb_tv"] } },
       select: { id: true, titulo: true, tipo: true, fonte_id: true },
       orderBy: { id: "asc" },
+      ...(Number.isFinite(limite) && limite > 0 ? { take: limite } : {}),
     });
+    if (limite > 0) saida(`LIMITE ${limite} títulos (smoke test)`);
+    // T-DADOS-81: o id IMDb de quem já passou pela fila do OMDb está na URL da
+    // linha (`https://www.imdb.com/title/tt…`) — usar antes de gastar uma
+    // chamada do TMDB. Medido em produção: 11.714 de 50.399 títulos (23%).
+    const comImdbNaUrl = await prisma.avaliacaoFonte.findMany({
+      where: { fonte: "omdb", midia_id: { in: midiasTs.map((m) => m.id) } },
+      select: { midia_id: true, url: true },
+    });
+    const imdbPorMidia = new Map();
+    for (const a of comImdbNaUrl) {
+      const id = a.url?.match(/imdb\.com\/title\/(tt\d+)/)?.[1];
+      if (id) imdbPorMidia.set(a.midia_id, id);
+    }
     const midiaPorId = new Map();
     let imdbOk = 0;
     let imdbFalha = 0;
+    let imdbDaUrl = 0;
+    let resolvidos = 0;
     for (const m of midiasTs) {
+      const jaConhecido = imdbPorMidia.get(m.id);
+      if (jaConhecido) {
+        midiaPorId.set(jaConhecido, { midiaId: m.id, titulo: m.titulo });
+        imdbDaUrl++;
+        imdbOk++;
+        resolvidos++;
+        continue;
+      }
       const caminho = m.tipo === "SERIE" ? "tv" : "movie";
       try {
         await esperar(220);
@@ -183,43 +210,37 @@ async function main() {
       } catch {
         imdbFalha++;
       }
+      resolvidos++;
+      // T-DADOS-81: sem saída incremental o run fica ~4 h sem sinal nenhum no
+      // log (e um deploy derruba tudo sem deixar registro do andamento).
+      if (resolvidos % 500 === 0) {
+        saida(
+          `  … ${resolvidos}/${midiasTs.length} títulos (imdb ok=${imdbOk} falha=${imdbFalha})`,
+        );
+      }
     }
-    saida(`IMDB_IDS ok=${imdbOk} falha=${imdbFalha}`);
+    saida(`IMDB_IDS ok=${imdbOk} (da URL do OMDb: ${imdbDaUrl}) falha=${imdbFalha}`);
 
-    // Games: IGDB id direto (P5732)
-    const jogos = await prisma.midia.findMany({
-      where: { deleted_at: null, fonte: "igdb", tipo: "GAME" },
-      select: { id: true, titulo: true, fonte_id: true },
-    });
+    // Games: IGDB id direto (P5732).
+    // T-DADOS-81: DESLIGADO por padrão. A propriedade P5732 do Wikidata não é
+    // indexada com IGDB id (medido no T-DADOS-11: devolve ZERO para todo lote),
+    // e cada run gastava ~330 consultas ao WDQS (26.377 jogos ÷ 80, 1,5 s de
+    // espera entre elas — ~13 min) para não gravar nada. `PREMIOS_IGDB=1`
+    // religa se a fonte um dia passar a indexar.
+    const incluirIgdb = process.env.PREMIOS_IGDB === "1";
+    const jogos = incluirIgdb
+      ? await prisma.midia.findMany({
+          where: { deleted_at: null, fonte: "igdb", tipo: "GAME" },
+          select: { id: true, titulo: true, fonte_id: true },
+        })
+      : [];
+    if (!incluirIgdb)
+      saida("GAMES: pulados (P5732 do Wikidata não indexa IGDB; PREMIOS_IGDB=1 religa)");
     for (const j of jogos) midiaPorId.set(String(j.fonte_id), { midiaId: j.id, titulo: j.titulo });
 
-    // 2) SPARQL em lotes
-    const imdbIds = [...midiaPorId.keys()].filter((k) => k.startsWith("tt"));
-    const igdbIds = jogos.map((j) => String(j.fonte_id));
-    let bindings = [];
-    for (let i = 0; i < imdbIds.length; i += TAM_LOTE) {
-      const lote = imdbIds.slice(i, i + TAM_LOTE);
-      await esperar(1500); // cortesia com o WDQS
-      try {
-        bindings = bindings.concat(await sparqlLote("imdb", lote));
-      } catch (e) {
-        saida(`  lote imdb ${i}: ${e.message}`);
-      }
-    }
-    if (igdbIds.length) {
-      for (let i = 0; i < igdbIds.length; i += TAM_LOTE) {
-        const lote = igdbIds.slice(i, i + TAM_LOTE);
-        await esperar(1500);
-        try {
-          bindings = bindings.concat(await sparqlLote("igdb", lote));
-        } catch (e) {
-          saida(`  lote igdb ${i}: ${e.message}`);
-        }
-      }
-    }
-    saida(`BINDINGS ${bindings.length}`);
-
-    // 3) Plano com dedupe editorial
+    // 2) SPARQL em lotes — T-DADOS-81: aplica CADA lote antes do próximo.
+    // Antes, os `bindings` eram acumulados em memória e os prêmios só eram
+    // gravados no fim: um deploy no meio (ou timeout do WDQS) perdia tudo.
     const premiosExistentes = await prisma.premio.findMany({
       select: { midia_id: true, organizacao: true },
     });
@@ -229,20 +250,9 @@ async function main() {
       conjunto.add(normalizarOrg(p.organizacao));
       premiosPorMidia.set(p.midia_id, conjunto);
     }
-    const mapeados = mapearBindings(bindings);
-    const { plano, puladosOrg } = planear(mapeados, midiaPorId, premiosPorMidia);
-    saida(
-      `PLANO: ${plano.length} prêmios novos (dedupe de cerimônia existente: ${puladosOrg}; sem ano/label fora do mapeamento: ${bindings.length - mapeados.length})`,
-    );
-    const porTitulo = new Map();
-    for (const p of plano.slice(0, 12)) {
-      const m = [...midiaPorId.values()].find((v) => v.midiaId === p.midiaId);
-      porTitulo.set(m?.titulo ?? "?", (porTitulo.get(m?.titulo ?? "?") ?? 0) + 1);
-    }
-    for (const [titulo, n] of porTitulo) saida(`  ex.: ${titulo} +${n}`);
-    if (dryRun) {
-      saida("DRY_RUN — nada foi escrito (DRY_RUN=0 aplica).");
-    } else {
+    const aplicarLote = async (bindings) => {
+      const mapeados = mapearBindings(bindings);
+      const { plano, puladosOrg } = planear(mapeados, midiaPorId, premiosPorMidia);
       let criados = 0;
       for (const p of plano) {
         const existe = await prisma.premio.findFirst({
@@ -265,9 +275,57 @@ async function main() {
             organizacao: p.organizacao,
           },
         });
+        // Mantém o dedupe em memória coerente entre lotes.
+        const conjunto = premiosPorMidia.get(p.midiaId) ?? new Set();
+        conjunto.add(normalizarOrg(p.organizacao));
+        premiosPorMidia.set(p.midiaId, conjunto);
         criados++;
       }
-      saida(`APLICADO ${criados} prêmios.`);
+      return { criados, plano: plano.length, puladosOrg };
+    };
+
+    const imdbIds = [...midiaPorId.keys()].filter((k) => k.startsWith("tt"));
+    const igdbIds = jogos.map((j) => String(j.fonte_id));
+    saida(`SPARQL ids: imdb=${imdbIds.length} igdb=${igdbIds.length} (lotes de ${TAM_LOTE})`);
+    let totalBindings = 0;
+    let totalPlano = 0;
+    let totalCriados = 0;
+    for (const [variavel, ids] of [
+      ["imdb", imdbIds],
+      ["igdb", igdbIds],
+    ]) {
+      for (let i = 0; i < ids.length; i += TAM_LOTE) {
+        const lote = ids.slice(i, i + TAM_LOTE);
+        await esperar(1500); // cortesia com o WDQS
+        let bindings = [];
+        try {
+          bindings = await sparqlLote(variavel, lote);
+        } catch (e) {
+          saida(`  lote ${variavel} ${i}: ${e.message}`);
+          continue;
+        }
+        totalBindings += bindings.length;
+        if (bindings.length === 0) continue;
+        if (dryRun) {
+          const mapeados = mapearBindings(bindings);
+          const { plano } = planear(mapeados, midiaPorId, premiosPorMidia);
+          totalPlano += plano.length;
+          continue;
+        }
+        const { criados, plano } = await aplicarLote(bindings);
+        totalPlano += plano;
+        totalCriados += criados;
+        saida(
+          `  lote ${variavel} ${i}/${ids.length}: bindings=${bindings.length} plano=${plano} criados=${criados} (total ${totalCriados})`,
+        );
+      }
+    }
+    saida(`BINDINGS ${totalBindings}`);
+    saida(`PLANO: ${totalPlano} prêmios (dedupe de cerimônia existente aplicado por lote)`);
+    if (dryRun) {
+      saida("DRY_RUN — nada foi escrito (DRY_RUN=0 aplica).");
+    } else {
+      saida(`APLICADO ${totalCriados} prêmios.`);
     }
   } finally {
     await prisma.$disconnect();
