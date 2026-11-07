@@ -36,6 +36,9 @@ const ESPERA_429_MS = 1500;
 const PAUSA_AUTORES_MS = 300;
 // T-DADOS-80: gêneros de mangá no MAL (1 req/título; mesma cota dos autores).
 const PAUSA_GENEROS_MANGA_MS = 350;
+// T-DADOS-84: prêmios no Wikidata (SPARQL P166 por IMDb id).
+const WDQS_URL = "https://query.wikidata.org/sparql";
+const PAUSA_PREMIOS_MS = 220;
 const ESPERA_429_AUTORES_MS = 2000;
 const OL_BASE = "https://openlibrary.org";
 // T-DADOS-13A (D2c): streaming muda todo mês — o watermark completo só é
@@ -95,6 +98,8 @@ export type BackfillTipo =
   | "generosGames"
   // T-DADOS-80: gêneros de MANGA no MAL (por id; vocabulário fechado).
   | "generosManga"
+  // T-DADOS-84: prêmios no Wikidata (P166 por IMDb id).
+  | "premios"
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
   | "localizacao"
   // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
@@ -313,6 +318,10 @@ export const LIMITES = {
   // T-DADOS-02: streaming_service.nome/slug são VarChar(128) UNIQUE.
   provedorNome: 128,
   provedorSlug: 128,
+  // T-DADOS-84: premio.nome é VarChar(160) e organizacao VarChar(120) — trunca
+  // o label do WDQS (labels de cerimônia em pt são longos).
+  premioNome: 160,
+  premioOrg: 120,
 } as const;
 
 export function slugifyBasico(titulo: string): string {
@@ -935,6 +944,113 @@ export function generosDoPayloadMal(payload: any): string[] {
     saida.push(canonico);
   }
   return saida;
+}
+
+/**
+ * T-DADOS-84: normaliza a cerimônia/instituição para o DEDUPE editorial dos
+ * prêmios (mesma regra do script `seed-premios-wikidata.mjs`, T169/T167): a
+ * curadoria humana vence e a linha do Wikidata para a mesma cerimônia é pulada.
+ */
+export function normalizarOrganizacaoPremio(org: string | null | undefined): string {
+  const x = String(org ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (/oscar|academy award|academy of motion/.test(x)) return "oscar";
+  if (/emmy/.test(x)) return "emmy";
+  // "Globo de Ouro" é o label pt que existe no banco: sem esta variante o
+  // dedupe trataria a MESMA cerimônia como duas.
+  if (/golden globe|globo de ouro/.test(x)) return "goldenglobe";
+  if (/bafta/.test(x)) return "bafta";
+  if (/game awards/.test(x)) return "tga";
+  if (/hugo/.test(x)) return "hugo";
+  if (/nebula/.test(x)) return "nebula";
+  if (/pulitzer/.test(x)) return "pulitzer";
+  if (/eisner/.test(x)) return "eisner";
+  if (/palma/.test(x)) return "palma";
+  return x.replace(/[^a-z0-9]+/g, "").slice(0, 24) || "outros";
+}
+
+/** Teto de prêmios gravados por mídia numa rodada (mesmo CAP do script). */
+export const CAP_PREMIOS_POR_MIDIA = 25;
+
+/** T-DADOS-84: consulta SPARQL (Wikidata P166) para um lote de IMDb ids. */
+export function consultaSparqlPremios(imdbIds: readonly string[]): string {
+  // Só ids no formato IMDb entram: nada de conteúdo arbitrário no VALUES.
+  const ids = imdbIds.filter((i) => /^tt\d{5,9}$/.test(String(i)));
+  return `SELECT ?imdb ?awardLabel ?ano ?parteDeLabel WHERE {
+  VALUES ?imdb { ${ids.map((i) => `'${i}'`).join(" ")} }
+  ?item wdt:P345 ?imdb ; p:P166 ?st .
+  ?st ps:P166 ?award .
+  OPTIONAL { ?st pq:P585 ?data . BIND(YEAR(?data) AS ?ano) }
+  OPTIONAL { ?award wdt:P361 ?parteDe }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language 'pt,en'. }
+} LIMIT 4000`;
+}
+
+export interface PremioWikidata {
+  imdbId: string;
+  nome: string;
+  organizacao: string;
+  ano: number;
+}
+
+/**
+ * T-DADOS-84: `bindings` do SPARQL → prêmios. Só linhas COM ano (a cerimônia de
+ * muitos prêmios não tem data na fonte e um prêmio sem ano é dado incompleto) e
+ * com label resolvido (Q-id cru = label ausente na fonte). Dedupe por
+ * imdb+prêmio+ano. Payload estranho devolve `[]` e NUNCA lança.
+ */
+export function mapearPremiosWikidata(bindings: any): PremioWikidata[] {
+  const lista = Array.isArray(bindings) ? bindings : [];
+  const vistos = new Set<string>();
+  const saida: PremioWikidata[] = [];
+  for (const b of lista) {
+    const imdbId = typeof b?.imdb?.value === "string" ? b.imdb.value : "";
+    const nome = typeof b?.awardLabel?.value === "string" ? b.awardLabel.value : "";
+    if (!imdbId || !nome || nome.startsWith("Q")) continue;
+    const ano = b?.ano?.value ? Number.parseInt(String(b.ano.value), 10) : null;
+    if (!ano || !Number.isFinite(ano)) continue;
+    const chave = `${imdbId}::${nome}::${ano}`;
+    if (vistos.has(chave)) continue;
+    vistos.add(chave);
+    saida.push({
+      imdbId,
+      nome: truncarCampo(nome, LIMITES.premioNome) ?? nome,
+      organizacao: truncarCampo(b?.parteDeLabel?.value || "Outros", LIMITES.premioOrg) ?? "Outros",
+      ano,
+    });
+  }
+  return saida;
+}
+
+/**
+ * T-DADOS-84: plano de gravação — casa IMDb id com a mídia, aplica o dedupe por
+ * cerimônia (`premiosPorMidia` vem do banco) e o teto por mídia na rodada.
+ * Puro: devolve o que deve ser criado e quantos foram pulados.
+ */
+export function planejarPremios(
+  premios: readonly PremioWikidata[],
+  midiaPorImdb: ReadonlyMap<string, { midiaId: string }>,
+  premiosPorMidia: ReadonlyMap<string, ReadonlySet<string>>,
+): { plano: { midiaId: string; premio: PremioWikidata }[]; puladosPorCerimonia: number } {
+  const plano: { midiaId: string; premio: PremioWikidata }[] = [];
+  let puladosPorCerimonia = 0;
+  const porMidia = new Map<string, number>();
+  for (const p of premios) {
+    const midia = midiaPorImdb.get(p.imdbId);
+    if (!midia) continue;
+    const jaTem = premiosPorMidia.get(midia.midiaId) ?? new Set<string>();
+    if (jaTem.has(normalizarOrganizacaoPremio(p.organizacao))) {
+      puladosPorCerimonia++;
+      continue;
+    }
+    const n = (porMidia.get(midia.midiaId) ?? 0) + 1;
+    if (n > CAP_PREMIOS_POR_MIDIA) continue;
+    porMidia.set(midia.midiaId, n);
+    plano.push({ midiaId: midia.midiaId, premio: p });
+  }
+  return { plano, puladosPorCerimonia };
 }
 
 /**
@@ -1649,6 +1765,7 @@ export class BackfillService {
     localizacao: estadoVazio(),
     generosGames: estadoVazio(),
     generosManga: estadoVazio(),
+    premios: estadoVazio(),
     criticaOmdb: estadoVazio(),
     sinopseMangaEn: estadoVazio(),
     sinopseLivros: estadoVazio(),
@@ -2740,6 +2857,173 @@ export class BackfillService {
       semId,
       vinculos,
       falhas: this.estado.generosManga.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-84: prêmios de FILME/SERIE no **Wikidata** (P166), casados por
+   * IMDb id, como job do drain.
+   *
+   * Por que virou job: o script `seed-premios-wikidata.mjs` (T169) só cobriu os
+   * 10.998 títulos do seed — 1.910 mídias com prêmio. Rodá-lo para os 50.399
+   * atuais leva ~4 h num processo de `/app`, que **morre a cada deploy** (o
+   * container reinicia em todo merge de `main`): dois runs perdidos, zero
+   * escrita (a versão anterior só gravava no fim). O job é retomável por
+   * watermark e grava a cada lote.
+   *
+   * Custo por título: 0 requisição quando o IMDb id já está na URL da linha do
+   * OMDb (medido: 11.714 de 50.399) e 1 (`/external_ids`) quando não;
+   * SPARQL é 1 consulta por lote de 80. Watermark `premios_em` marcado SÓ
+   * depois do lote SPARQL responder — falha do WDQS volta na próxima rodada.
+   */
+  async enriquecerPremios(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semImdb: number;
+    criados: number;
+    falhas: number;
+  }> {
+    if (this.estado.premios.executando) {
+      throw new BadRequestException("Job de prêmios já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.premios = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; tipo: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.tipo::text AS tipo, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
+         AND m.fonte IN ('tmdb','tmdb_tv') AND m.premios_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+    )) as any[];
+    this.logger.log(`Backfill prêmios (Wikidata): ${alvo.length} títulos alvo.`);
+    let semImdb = 0;
+    let criados = 0;
+
+    // IMDb id já conhecido (URL da linha do OMDb). Uma consulta para o
+    // conjunto inteiro (~12 mil linhas) — nunca um `IN` com os 50 mil ids do
+    // catálogo: o Postgres estoura em 32.767 bind variables (T-DADOS-83).
+    const comImdbNaUrl = await this.prisma.$queryRawUnsafe<
+      { midia_id: string; url: string | null }[]
+    >(
+      `SELECT midia_id::text, url FROM avaliacao_fonte
+       WHERE fonte = 'omdb' AND url LIKE '%imdb.com/title/%'`,
+    );
+    const imdbPorMidia = new Map<string, string>();
+    for (const a of comImdbNaUrl ?? []) {
+      const id = a.url?.match(/imdb\.com\/title\/(tt\d+)/)?.[1];
+      if (id) imdbPorMidia.set(a.midia_id, id);
+    }
+
+    const porLote = new Map<string, { midiaId: string; imdbId: string }[]>();
+    const pendentes: string[] = [];
+    for (const m of alvo) {
+      this.estado.premios.processados++;
+      this.estado.premios.atual = m.titulo;
+      try {
+        let imdbId = imdbPorMidia.get(m.id);
+        if (!imdbId) {
+          const caminho = m.tipo === "SERIE" ? "tv" : "movie";
+          await this.pausa(PAUSA_PREMIOS_MS);
+          const ext = await fetchJson<{ imdb_id?: string | null }>(
+            `https://api.themoviedb.org/3/${caminho}/${encodeURIComponent(m.fonte_id)}/external_ids?api_key=${encodeURIComponent(process.env.TMDB_API_KEY ?? "")}`,
+            { timeoutMs: 15000 },
+          );
+          imdbId = ext?.imdb_id ?? undefined;
+        }
+        if (!imdbId) {
+          // Sem IMDb id não há como casar no Wikidata: lacuna honesta, marca e
+          // segue (senão o título volta para sempre).
+          semImdb++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { premios_em: new Date() },
+          });
+          continue;
+        }
+        const chave = String(Math.floor(pendentes.length / 80));
+        const loteAtual = porLote.get(chave) ?? [];
+        loteAtual.push({ midiaId: m.id, imdbId });
+        porLote.set(chave, loteAtual);
+        pendentes.push(imdbId);
+      } catch (e) {
+        // Sem watermark: volta na próxima rodada.
+        this.estado.premios.falhas++;
+        this.logger.warn(`Backfill prêmios falha [${m.titulo}]: ${String(e).slice(0, 100)}`);
+      }
+    }
+
+    // Dedupe editorial: cerimônias que a mídia já tem (curadoria vence).
+    const existentes = await this.prisma.premio.findMany({
+      select: { midia_id: true, organizacao: true },
+    });
+    const premiosPorMidia = new Map<string, Set<string>>();
+    for (const p of existentes) {
+      const set = premiosPorMidia.get(p.midia_id) ?? new Set<string>();
+      set.add(normalizarOrganizacaoPremio(p.organizacao));
+      premiosPorMidia.set(p.midia_id, set);
+    }
+
+    for (const lote of porLote.values()) {
+      if (lote.length === 0) continue;
+      try {
+        const midiaPorImdb = new Map(lote.map((l) => [l.imdbId, { midiaId: l.midiaId }]));
+        const consulta = consultaSparqlPremios(lote.map((l) => l.imdbId));
+        const url = `${WDQS_URL}?query=${encodeURIComponent(consulta)}&format=json`;
+        const dados = await fetchJson<{ results?: { bindings?: unknown[] } }>(url, {
+          headers: { Accept: "application/json" },
+          timeoutMs: 30000,
+        });
+        const premios = mapearPremiosWikidata(dados?.results?.bindings);
+        const { plano } = planejarPremios(premios, midiaPorImdb, premiosPorMidia);
+        for (const item of plano) {
+          await this.prisma.premio.create({
+            data: {
+              midia_id: item.midiaId,
+              nome: item.premio.nome,
+              categoria: "",
+              ano: item.premio.ano,
+              venceu: true,
+              organizacao: item.premio.organizacao,
+            },
+          });
+          // Mantém o dedupe coerente DENTRO do mesmo lote/rodada.
+          const set = premiosPorMidia.get(item.midiaId) ?? new Set<string>();
+          set.add(normalizarOrganizacaoPremio(item.premio.organizacao));
+          premiosPorMidia.set(item.midiaId, set);
+          criados++;
+        }
+        // Marca o watermark do lote SÓ depois do WDQS responder.
+        for (const l of lote) {
+          await this.prisma.midia.update({
+            where: { id: l.midiaId },
+            data: { premios_em: new Date() },
+          });
+          this.estado.premios.ok++;
+        }
+      } catch (e) {
+        this.estado.premios.falhas += lote.length;
+        this.logger.warn(`Backfill prêmios: lote SPARQL falhou (${String(e).slice(0, 100)})`);
+      }
+    }
+
+    this.estado.premios.executando = false;
+    this.estado.premios.atual = `fim: ok=${this.estado.premios.ok} sem_imdb=${semImdb} criados=${criados} falhas=${this.estado.premios.falhas}`;
+    this.logger.log(
+      `Backfill prêmios fim: ok=${this.estado.premios.ok} sem_imdb=${semImdb} criados=${criados} falhas=${this.estado.premios.falhas}.`,
+    );
+    return {
+      processados: this.estado.premios.processados,
+      ok: this.estado.premios.ok,
+      semImdb,
+      criados,
+      falhas: this.estado.premios.falhas,
     };
   }
 
@@ -4717,6 +5001,8 @@ export class BackfillService {
     generosGames: number;
     // T-DADOS-80: fila de gêneros de MANGA (MAL por id).
     generosManga: number;
+    // T-DADOS-84: fila de prêmios (Wikidata por IMDb id).
+    premios: number;
     arestasFranquia: number;
     avaliacaoLivros: number;
     // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
@@ -4749,6 +5035,7 @@ export class BackfillService {
         critica_igdb: number;
         generos_games: number;
         generos_manga: number;
+        premios: number;
         arestas_franquia: number;
         avaliacao_livros: number;
         localizacao: number;
@@ -4787,6 +5074,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte = 'jikan'
             AND m.generos_mal_em IS NULL) AS generos_manga,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
+            AND m.fonte IN ('tmdb','tmdb_tv') AND m.premios_em IS NULL) AS premios,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
@@ -4860,6 +5150,7 @@ export class BackfillService {
       criticaIgdb: Number(row?.critica_igdb ?? 0),
       generosGames: Number(row?.generos_games ?? 0),
       generosManga: Number(row?.generos_manga ?? 0),
+      premios: Number(row?.premios ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
@@ -4997,6 +5288,12 @@ export class BackfillService {
           ok: r.ok + r.semImdb + r.semNota,
           falhas: r.falhas,
         });
+      }
+      // T-DADOS-84: prêmios (Wikidata por IMDb id; 220ms por título sem id
+      // conhecido + 1 SPARQL por lote de 80). `ok` soma os sem IMDb id.
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.premios ?? 0) > 0) {
+        const r = await this.enriquecerPremios(600);
+        lotes.push({ tipo: "premios", ok: r.ok + r.semImdb, falhas: r.falhas });
       }
       // T-DADOS-12: sinopse em inglês dos mangás (Kitsu/Jikan por id, 350ms por
       // requisição). `ok` soma os títulos SEM synopsis: saíram da fila.
@@ -5207,6 +5504,12 @@ export class BackfillService {
         tem: (p.generosManga ?? 0) > 0,
         executar: () => this.enriquecerGenerosManga(1200),
         okDe: (r: any) => r.ok + r.semGenero + r.semId,
+      },
+      {
+        tipo: "premios",
+        tem: (p.premios ?? 0) > 0,
+        executar: () => this.enriquecerPremios(600),
+        okDe: (r: any) => r.ok + r.semImdb,
       },
       {
         tipo: "arestasFranquia",

@@ -27,6 +27,11 @@ import {
   generosDoPayload,
   generosDoPayloadMal,
   MAPA_GENEROS_MAL,
+  normalizarOrganizacaoPremio,
+  consultaSparqlPremios,
+  mapearPremiosWikidata,
+  planejarPremios,
+  CAP_PREMIOS_POR_MIDIA,
   colecaoDoPayloadIgdb,
   prazoEsgotado,
   ehCotaComicVine,
@@ -592,6 +597,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           critica_igdb: 4946,
           generos_games: 4995,
           generos_manga: 24000,
+          premios: 49000,
           arestas_franquia: 260,
           avaliacao_livros: 600,
           localizacao: 10570,
@@ -616,6 +622,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       criticaIgdb: 4946,
       generosGames: 4995,
       generosManga: 24000,
+      premios: 49000,
       arestasFranquia: 260,
       avaliacaoLivros: 600,
       localizacao: 10570,
@@ -646,6 +653,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       criticaIgdb: 0,
       generosGames: 0,
       generosManga: 0,
+      premios: 0,
       arestasFranquia: 0,
       avaliacaoLivros: 0,
       localizacao: 0,
@@ -2361,6 +2369,84 @@ describe("MAPA_GENEROS_MAL e generosDoPayloadMal (T-DADOS-80)", () => {
     expect(generosDoPayloadMal(undefined)).toEqual([]);
     expect(generosDoPayloadMal({ genres: [null, 42, {}, { name: "   " }] })).toEqual([]);
     expect(generosDoPayloadMal({ genres: "Romance" })).toEqual([]);
+  });
+});
+
+describe("prêmios no Wikidata (T-DADOS-84)", () => {
+  it("normaliza a cerimônia para o dedupe editorial", () => {
+    expect(normalizarOrganizacaoPremio("Academy Awards")).toBe("oscar");
+    expect(normalizarOrganizacaoPremio("Óscar")).toBe("oscar");
+    expect(normalizarOrganizacaoPremio("Prémios Emmy do Primetime")).toBe("emmy");
+    expect(normalizarOrganizacaoPremio("Prêmios Globo de Ouro")).toBe("goldenglobe");
+    expect(normalizarOrganizacaoPremio("")).toBe("outros");
+  });
+
+  it("SPARQL usa VALUES com os IMDb ids e só aceita o formato tt…", () => {
+    const q = consultaSparqlPremios(["tt0111161", "lixo'; DROP", "tt0137523"]);
+    expect(q).toContain("'tt0111161'");
+    expect(q).toContain("'tt0137523'");
+    expect(q).not.toContain("DROP");
+    expect(q).toContain("wdt:P345");
+    expect(q).toContain("P166");
+  });
+
+  it("mapeia bindings: exige ano e label resolvido, deduplica por prêmio+ano", () => {
+    const bindings = [
+      {
+        imdb: { value: "tt1" },
+        awardLabel: { value: "Óscar de melhor filme" },
+        ano: { value: "1995" },
+        parteDeLabel: { value: "Óscar" },
+      },
+      {
+        imdb: { value: "tt1" },
+        awardLabel: { value: "Óscar de melhor filme" },
+        ano: { value: "1995" },
+      },
+      { imdb: { value: "tt1" }, awardLabel: { value: "Q12345" }, ano: { value: "2000" } },
+      { imdb: { value: "tt1" }, awardLabel: { value: "Sem data" } },
+      {
+        imdb: { value: "tt2" },
+        awardLabel: { value: "BAFTA" },
+        ano: { value: "2001" },
+        parteDeLabel: { value: "BAFTA" },
+      },
+    ];
+    const out = mapearPremiosWikidata(bindings);
+    expect(out).toHaveLength(2);
+    expect(out[0]).toMatchObject({
+      imdbId: "tt1",
+      nome: "Óscar de melhor filme",
+      ano: 1995,
+      organizacao: "Óscar",
+    });
+    expect(out[1]).toMatchObject({ imdbId: "tt2", ano: 2001 });
+    expect(mapearPremiosWikidata(null)).toEqual([]);
+    expect(mapearPremiosWikidata([null, 42, {}])).toEqual([]);
+  });
+
+  it("plano pula a cerimônia que a mídia já tem e respeita o teto por mídia", () => {
+    const midiaPorImdb = new Map([["tt1", { midiaId: "m1" }]]);
+    const existentes = new Map([["m1", new Set([normalizarOrganizacaoPremio("Academy Awards")])]]);
+    const premios = [
+      { imdbId: "tt1", nome: "Óscar de melhor filme", organizacao: "Academy Awards", ano: 1995 },
+      { imdbId: "tt1", nome: "BAFTA de melhor filme", organizacao: "BAFTA", ano: 1996 },
+      { imdbId: "tt9", nome: "Sem mídia", organizacao: "BAFTA", ano: 2000 },
+    ];
+    const { plano, puladosPorCerimonia } = planejarPremios(premios, midiaPorImdb, existentes);
+    expect(puladosPorCerimonia).toBe(1);
+    expect(plano).toHaveLength(1);
+    expect(plano[0].premio.nome).toBe("BAFTA de melhor filme");
+
+    const muitos = Array.from({ length: CAP_PREMIOS_POR_MIDIA + 5 }, (_, i) => ({
+      imdbId: "tt1",
+      nome: `Prêmio ${i}`,
+      organizacao: `Cerimônia ${i}`,
+      ano: 2000 + i,
+    }));
+    expect(planejarPremios(muitos, midiaPorImdb, new Map()).plano).toHaveLength(
+      CAP_PREMIOS_POR_MIDIA,
+    );
   });
 });
 
