@@ -107,6 +107,8 @@ function makeService(over: any = {}) {
       if (/sinopse_livro_em::date = CURRENT_DATE/i.test(sql)) {
         return [{ usados: over.usadosGoogle ?? 0 }];
       }
+      // T-DADOS-84: linhas do OMDb com IMDb id na URL (tabela pequena, sem IN).
+      if (/avaliacao_fonte/.test(sql) && /url LIKE/.test(sql)) return over.imdbNaUrl ?? [];
       return over.alvo ?? [];
     }),
     midiaElenco: { upsert: vi.fn(async ({ create }: any) => create) },
@@ -144,6 +146,12 @@ function makeService(over: any = {}) {
     midiaStreaming: { upsert: vi.fn(async ({ create }: any) => create) },
     // T-DADOS-03: crítica do IGDB em avaliacao_fonte (chave { midia_id, fonte }).
     avaliacaoFonte: { upsert: vi.fn(async ({ create }: any) => create) },
+    // T-DADOS-84: prêmios (dedupe lê o que já existe; create grava).
+    premio: {
+      findMany: vi.fn(async () => []),
+      findFirst: vi.fn(async () => null),
+      create: vi.fn(async ({ data }: any) => data),
+    },
     // T-DADOS-08: certificado regional BR/US (upsert por { midia_id, regiao }).
     classificacaoRegiao: { upsert: vi.fn(async ({ create }: any) => create) },
     relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
@@ -3626,6 +3634,72 @@ describe("BackfillService.enriquecerAutoresMangas (T-DADOS-13B/15B)", () => {
     const chamada = (prisma.midiaElenco.upsert as any).mock.calls[0][0];
     expect(chamada.where.midia_id_fonte_fonte_id.fonte).toBe("kitsu");
     expect(chamada.create).toMatchObject({ personagem: "Autor", ordem: 0 });
+  });
+});
+
+describe("404 da fonte marca watermark nos jobs por id (T-DADOS-91/92, regressão)", () => {
+  it("generosManga: 404 do MAL → lacuna honesta, marca generos_mal_em e NÃO falha", async () => {
+    const alvo = [
+      { id: "mg-1", fonte_id: "25601", titulo: "Gekkou Romance" },
+      { id: "mg-2", fonte_id: "70815", titulo: "L FILE No. 15" },
+    ];
+    const { svc, prisma } = makeService({ alvo });
+    process.env.MAL_CLIENT_ID = "teste";
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(
+      new ErroColeta("HTTP 404 em https://api.myanimelist.net/v2/manga/25601", 404),
+    );
+    const r = await svc.enriquecerGenerosManga(10);
+    // Sem isso eram 37 falhas por tique, para sempre (log de produção).
+    expect(r).toEqual({ processados: 2, ok: 2, semGenero: 0, semId: 2, vinculos: 0, falhas: 0 });
+    expect(prisma.midia.update).toHaveBeenCalledTimes(2);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.generos_mal_em).toBeInstanceOf(Date);
+    expect(prisma.midiaGenero.upsert).not.toHaveBeenCalled();
+    delete process.env.MAL_CLIENT_ID;
+  });
+
+  it("premios: 404 do external_ids do TMDB → marca premios_em e NÃO falha", async () => {
+    const alvo = [{ id: "mp-1", fonte_id: "999999", tipo: "FILME", titulo: "Filme removido" }];
+    const { svc, prisma } = makeService({ alvo });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockRejectedValue(new ErroColeta("HTTP 404 em api.themoviedb.org", 404));
+    const r = await svc.enriquecerPremios(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semImdb: 1, criados: 0, falhas: 0 });
+    expect(prisma.midia.update).toHaveBeenCalledTimes(1);
+    expect((prisma.midia.update as any).mock.calls[0][0].data.premios_em).toBeInstanceOf(Date);
+    expect(prisma.premio.create).not.toHaveBeenCalled();
+  });
+
+  it("premios: imdb id da URL do OMDb é usado e o lote SPARQL grava", async () => {
+    const alvo = [{ id: "mp-2", fonte_id: "27205", tipo: "FILME", titulo: "Inception" }];
+    const { svc, prisma } = makeService({
+      alvo,
+      imdbNaUrl: [{ midia_id: "mp-2", url: "https://www.imdb.com/title/tt1375666/" }],
+    });
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({
+      results: {
+        bindings: [
+          {
+            imdb: { value: "tt1375666" },
+            awardLabel: { value: "Óscar de melhor fotografia" },
+            ano: { value: "2011" },
+            parteDeLabel: { value: "Óscar" },
+          },
+        ],
+      },
+    });
+    const r = await svc.enriquecerPremios(10);
+    expect(r).toEqual({ processados: 1, ok: 1, semImdb: 0, criados: 1, falhas: 0 });
+    // Nenhuma chamada ao TMDB: o id veio da URL.
+    expect(fetchJson).toHaveBeenCalledTimes(1);
+    expect(String((fetchJson as any).mock.calls[0][0])).toContain("query.wikidata.org");
+    expect((prisma.premio.create as any).mock.calls[0][0].data).toMatchObject({
+      midia_id: "mp-2",
+      ano: 2011,
+      organizacao: "Óscar",
+    });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.premios_em).toBeInstanceOf(Date);
   });
 });
 

@@ -2848,6 +2848,18 @@ export class BackfillService {
           data: { generos_mal_em: new Date() },
         });
       } catch (e) {
+        // T-DADOS-91: 404 é a fonte dizendo que o id não existe — lacuna
+        // honesta, não falha. Sem isso os ~37 mangás com id do MAL removido
+        // voltam a cada tique para sempre (1.813 falhas em 8 h de log).
+        if (ehIdInexistenteNaFonte(e)) {
+          semId++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { generos_mal_em: new Date() },
+          });
+          this.estado.generosManga.ok++;
+          continue;
+        }
         // Sem watermark: o título volta na próxima execução (retentável).
         this.estado.generosManga.falhas++;
         this.logger.warn(
@@ -2963,6 +2975,17 @@ export class BackfillService {
         porLote.set(chave, loteAtual);
         pendentes.push(imdbId);
       } catch (e) {
+        // T-DADOS-91: 404 do TMDB = título removido da fonte, sem IMDb id —
+        // lacuna honesta (marca e sai da fila); rede/429/5xx volta a tentar.
+        if (ehIdInexistenteNaFonte(e)) {
+          semImdb++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { premios_em: new Date() },
+          });
+          this.estado.premios.ok++;
+          continue;
+        }
         // Sem watermark: volta na próxima rodada.
         this.estado.premios.falhas++;
         this.logger.warn(`Backfill prêmios falha [${m.titulo}]: ${String(e).slice(0, 100)}`);
