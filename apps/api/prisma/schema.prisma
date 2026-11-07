@@ -445,6 +445,10 @@ model Midia {
   // T-DADOS-80: watermark da coleta de gêneros de MANGA no MAL (por id).
   // NULL = nunca tentado; marcado SEMPRE (mesmo sem gênero: evita fila presa).
   generos_mal_em            DateTime? @map("generos_mal_em")
+  // T-DADOS-84: watermark da coleta de prêmios no Wikidata (P166 casado por
+  // IMDb id). NULL = nunca tentado; marcado SÓ quando o lote SPARQL respondeu
+  // (falha de rede do WDQS volta na próxima rodada).
+  premios_em                DateTime? @map("premios_em")
   // T-DADOS-10: watermark da coleta de crítica via OMDb (por id IMDb).
   // NULL = nunca tentado; marcado SEMPRE (evita fila presa).
   critica_omdb_em           DateTime? @map("critica_omdb_em")

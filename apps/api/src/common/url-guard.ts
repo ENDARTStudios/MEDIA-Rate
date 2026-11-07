@@ -38,6 +38,9 @@ export const HOSTS_EXTERNOS_PERMITIDOS: readonly string[] = [
   "opencritic-api.p.rapidapi.com",
   "opencritic.com",
   "openlibrary.org",
+  // T-DADOS-84: Wikidata (SPARQL P166 → prêmios casados por IMDb id). Antes só
+  // o script offline usava este host (node:https direto, fora do url-guard).
+  "query.wikidata.org",
   "steamspy.com",
   "store.steampowered.com",
   "trakt.tv",

@@ -60,7 +60,7 @@ export function normalizarOrg(org) {
     .replace(/[\u0300-\u036f]/g, "");
   if (/oscar|academy award|academy of motion/.test(x)) return "oscar";
   if (/emmy/.test(x)) return "emmy";
-  if (/golden globe/.test(x)) return "goldenglobe";
+  if (/golden globe|globo de ouro/.test(x)) return "goldenglobe";
   if (/bafta/.test(x)) return "bafta";
   if (/game awards/.test(x)) return "tga";
   if (/hugo/.test(x)) return "hugo";
