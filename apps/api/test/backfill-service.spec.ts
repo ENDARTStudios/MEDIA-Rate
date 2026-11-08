@@ -4667,6 +4667,25 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
     expect(c.map((x) => x.papel)).toEqual(["Emissora", "Produtora"]);
   });
 
+  it("TMDB série: criadores do `created_by` como papel 'Criador' (T-DADOS-97)", () => {
+    const c = mapearCreditosTmdb(
+      {
+        created_by: [{ id: 9813, name: "Vince Gilligan" }],
+        networks: [{ id: 174, name: "AMC" }],
+        production_companies: [],
+      },
+      "SERIE",
+    );
+    expect(c).toEqual([
+      { fonte: "tmdb", fonte_id: "n174", nome: "AMC", papel: "Emissora" },
+      { fonte: "tmdb", fonte_id: "p9813", nome: "Vince Gilligan", papel: "Criador" },
+    ]);
+    // Filme não tem `created_by`: lista vazia não inventa papel.
+    expect(mapearCreditosTmdb({ created_by: [{ id: 1, name: "X" }] }, "FILME")).toEqual([]);
+    // Criador sem nome/id é descartado.
+    expect(mapearCreditosTmdb({ created_by: [{ id: null, name: "Y" }] }, "SERIE")).toEqual([]);
+  });
+
   it("IGDB: empresa com os dois papéis vira uma linha só", () => {
     const c = mapearCreditosIgdb([
       {
