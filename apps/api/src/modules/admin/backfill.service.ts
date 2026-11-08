@@ -74,7 +74,9 @@ const COMICVINE_CAMPOS_BUSCA = "id,name,start_year,publisher";
 // requisição usada para `people` — sinopse sem custo adicional.
 // T-DADOS-90: `publisher` entra no mesmo `field_list` — a editora que o job de
 // créditos buscava em uma SEGUNDA requisição no mesmo volume.
-const COMICVINE_CAMPOS_VOLUME = "id,name,people,deck,description,publisher";
+// T-DADOS-96: `start_year` idem — 243 quadrinhos ficaram sem `ano_lancamento`
+// mesmo tendo o ano disponível no volume.
+const COMICVINE_CAMPOS_VOLUME = "id,name,people,deck,description,publisher,start_year";
 /** Teto de texto para sinopse de volume (descrição do ComicVine é wiki, longa). */
 const SINOPSE_VOLUME_MAX = 2000;
 /**
@@ -251,6 +253,21 @@ export function mapearEditoraComicVine(payload: any): CreditoEntidade[] {
 export function editoraDoVolumeConsultada(payload: any): boolean {
   const results = payload?.results;
   return !!results && typeof results === "object";
+}
+
+/**
+ * T-DADOS-96: ano de início do volume (`start_year` do ComicVine).
+ *
+ * Medido em produção: 243 quadrinhos sem `ano_lancamento` — todos com id de
+ * volume numérico. O campo vem na MESMA resposta que já busca `people` (o
+ * `field_list` do volume agora pede `start_year`), então não custa requisição.
+ * Valor fora de faixa plausível é descartado (não inventa ano).
+ */
+export function anoDoVolumeComicVine(payload: any): number | null {
+  const bruto = Number(payload?.results?.start_year);
+  if (!Number.isFinite(bruto)) return null;
+  const ano = Math.trunc(bruto);
+  return ano >= 1900 && ano <= 2100 ? ano : null;
 }
 
 /**
@@ -4482,6 +4499,7 @@ export class BackfillService {
           sinopse,
           editora = [],
           editoraConsultada = false,
+          ano = null,
         } = await this.autoresVolumeComicVine(m.fonte_id);
         if (autores.length === 0) {
           semMatch++;
@@ -4553,6 +4571,8 @@ export class BackfillService {
           data: {
             autores_em: new Date(),
             ...(sinopse && !m.sinopse ? { sinopse } : {}),
+            // T-DADOS-96: ano do volume quando a ficha está sem ano (nunca sobrescreve).
+            ...(ano && !m.ano_lancamento ? { ano_lancamento: ano } : {}),
             ...(editoraConsultada && editora.length > 0 ? { creditos_em: new Date() } : {}),
           },
         });
@@ -4605,10 +4625,12 @@ export class BackfillService {
     editora: CreditoEntidade[];
     /** `false` quando o payload não é de um volume (nada foi consultado). */
     editoraConsultada: boolean;
+    /** T-DADOS-96: `start_year` do volume (mesma resposta). */
+    ano: number | null;
   }> {
     const id = String(volumeId ?? "").trim();
     if (!/^\d+$/.test(id)) {
-      return { autores: [], sinopse: null, editora: [], editoraConsultada: false };
+      return { autores: [], sinopse: null, editora: [], editoraConsultada: false, ano: null };
     }
     const chave = this.chaveComicVine();
     const payload = await this.getJsonComicVine<any>(
@@ -4619,6 +4641,7 @@ export class BackfillService {
       sinopse: sinopseDoVolumeComicVine(payload),
       editora: mapearEditoraComicVine(payload),
       editoraConsultada: editoraDoVolumeConsultada(payload),
+      ano: anoDoVolumeComicVine(payload),
     };
   }
 

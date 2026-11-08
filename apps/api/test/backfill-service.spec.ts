@@ -9,6 +9,7 @@ import {
   mapearEditoraOpenLibrary,
   mapearEditoraComicVine,
   editoraDoVolumeConsultada,
+  anoDoVolumeComicVine,
   ehIdInexistenteNaFonte,
   mapearRevistaMal,
   BackfillService,
@@ -3869,7 +3870,7 @@ describe("BackfillService.enriquecerAutoresComics (T-DADOS-17/79)", () => {
   // T-DADOS-90: `publisher` entra no MESMO field_list do volume.
   const urlVolume = (id: number | string) =>
     `https://comicvine.gamespot.com/api/volume/4050-${id}/?api_key=${CHAVE}` +
-    `&format=json&field_list=id,name,people,deck,description,publisher`;
+    `&format=json&field_list=id,name,people,deck,description,publisher,start_year`;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -4709,6 +4710,16 @@ describe('T-DADOS-60: créditos de entidade por mídia (o "elenco" de cada tipo)
     // Payload sem results: nada foi consultado → NÃO marca.
     expect(editoraDoVolumeConsultada({})).toBe(false);
     expect(editoraDoVolumeConsultada(null)).toBe(false);
+  });
+
+  it("ComicVine: ano do volume vem do start_year e fora de faixa é descartado (T-DADOS-96)", () => {
+    expect(anoDoVolumeComicVine({ results: { start_year: 1989 } })).toBe(1989);
+    expect(anoDoVolumeComicVine({ results: { start_year: "2000" } })).toBe(2000);
+    expect(anoDoVolumeComicVine({ results: {} })).toBeNull();
+    expect(anoDoVolumeComicVine({ results: { start_year: null } })).toBeNull();
+    expect(anoDoVolumeComicVine({ results: { start_year: 0 } })).toBeNull();
+    expect(anoDoVolumeComicVine({ results: { start_year: 1800 } })).toBeNull();
+    expect(anoDoVolumeComicVine(null)).toBeNull();
   });
 
   it("MAL: revista de serialização do mangá (shape REAL com `node`)", () => {
