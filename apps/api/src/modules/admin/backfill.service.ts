@@ -181,7 +181,14 @@ export function mapearCreditosTmdb(payload: any, tipo: "FILME" | "SERIE"): Credi
       itens.push({ fonte: "tmdb", fonte_id, nome, papel });
     }
   };
-  if (tipo === "SERIE") push("n", "Emissora", payload?.networks);
+  if (tipo === "SERIE") {
+    push("n", "Emissora", payload?.networks);
+    // T-DADOS-97: `created_by` do `/tv/{id}` — medido em produção: só 8 séries
+    // tinham "Criador" em `midia_elenco` (de 25.066). O payload já traz a lista
+    // (o job consulta o mesmo endpoint para Emissora/Produtora); usa prefixo `p`
+    // para não colidir com emissora (`n<id>`) nem produtora (`c<id>`).
+    push("p", "Criador", payload?.created_by);
+  }
   push("c", "Produtora", payload?.production_companies);
   return itens;
 }
