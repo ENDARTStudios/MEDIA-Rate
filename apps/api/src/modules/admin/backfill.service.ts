@@ -36,8 +36,13 @@ const ESPERA_429_MS = 1500;
 const PAUSA_AUTORES_MS = 300;
 // T-DADOS-80: gêneros de mangá no MAL (1 req/título; mesma cota dos autores).
 const PAUSA_GENEROS_MANGA_MS = 350;
-// T-DADOS-92: relações de mangá no MAL (`related_manga`).
-const PAUSA_RELACOES_MANGA_MS = 350;
+// T-DADOS-92/93: relações de mangá no MAL (`related_manga`).
+// 350ms (≈2,9 req/s) somado ao passe do score (≈0,4/s) saturava o rate limit do
+// MAL e o job ficava em `AbortError` sem marcar nada (medido: 9 falhas em um
+// tique, zero avanço). 1.100ms mantém ~0,9 req/s — sozinho, abaixo do limite.
+const PAUSA_RELACOES_MANGA_MS = 1100;
+// Falha do MAL custa 12s (não 20s): o título volta na próxima rodada.
+const TIMEOUT_RELACOES_MANGA_MS = 12000;
 // T-DADOS-84: prêmios no Wikidata (SPARQL P166 por IMDb id).
 const WDQS_URL = "https://query.wikidata.org/sparql";
 const PAUSA_PREMIOS_MS = 220;
@@ -3210,6 +3215,7 @@ export class BackfillService {
           `${MAL_BASE}/manga/${encodeURIComponent(fonteId)}?fields=related_manga`,
           PAUSA_RELACOES_MANGA_MS,
           { "Accept": "application/json", "X-MAL-CLIENT-ID": clientId },
+          TIMEOUT_RELACOES_MANGA_MS,
         );
         const relacoes = relacoesDoPayloadMal(payload, fonteId);
         if (relacoes.length === 0) semRelacao++;
@@ -4607,13 +4613,14 @@ export class BackfillService {
     url: string,
     pausaMs: number,
     headers: Record<string, string>,
+    timeoutMs = 20000,
   ): Promise<T> {
     for (let tentativa = 0; ; tentativa++) {
       await this.pausa(pausaMs);
       try {
         return await fetchJson<T>(url, {
           headers: { "User-Agent": UA_BROWSER, ...headers },
-          timeoutMs: 20000,
+          timeoutMs,
         });
       } catch (e) {
         const status = (e as { status?: number } | null)?.status;
@@ -5541,7 +5548,7 @@ export class BackfillService {
       // T-DADOS-92: relações (sequência/spin-off) de MANGA no MAL — 1 req/título.
       // `ok` soma os títulos SEM relação: saíram da fila (watermark).
       if (Date.now() - inicio < orçamentoMs && (pendentesAntes.relacoesManga ?? 0) > 0) {
-        const r = await this.enriquecerRelacoesManga(800);
+        const r = await this.enriquecerRelacoesManga(400);
         lotes.push({
           tipo: "relacoesManga",
           ok: r.ok + r.semRelacao,
@@ -5804,7 +5811,7 @@ export class BackfillService {
       {
         tipo: "relacoesManga",
         tem: (p.relacoesManga ?? 0) > 0,
-        executar: () => this.enriquecerRelacoesManga(800),
+        executar: () => this.enriquecerRelacoesManga(400),
         okDe: (r: any) => r.ok + r.semRelacao,
       },
       {
