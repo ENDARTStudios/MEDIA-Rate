@@ -33,6 +33,7 @@ import {
   mapearPremiosWikidata,
   planejarPremios,
   CAP_PREMIOS_POR_MIDIA,
+  relacoesDoPayloadMal,
   colecaoDoPayloadIgdb,
   prazoEsgotado,
   ehCotaComicVine,
@@ -155,7 +156,11 @@ function makeService(over: any = {}) {
     },
     // T-DADOS-08: certificado regional BR/US (upsert por { midia_id, regiao }).
     classificacaoRegiao: { upsert: vi.fn(async ({ create }: any) => create) },
-    relacaoObra: { findFirst: vi.fn(async () => null), create: vi.fn() },
+    relacaoObra: {
+      findFirst: vi.fn(async () => null),
+      create: vi.fn(),
+      upsert: vi.fn(async ({ create }: any) => create),
+    },
   };
   const mediaScore = { recalcularEPersistir: vi.fn(async () => ({ score: 82 })) };
   // T-DADOS-07: adapter real do ColetaService (mockado — nenhuma rede).
@@ -607,6 +612,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
           generos_games: 4995,
           generos_manga: 24000,
           premios: 49000,
+          relacoes_manga: 24000,
           arestas_franquia: 260,
           avaliacao_livros: 600,
           localizacao: 10570,
@@ -632,6 +638,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       generosGames: 4995,
       generosManga: 24000,
       premios: 49000,
+      relacoesManga: 24000,
       arestasFranquia: 260,
       avaliacaoLivros: 600,
       localizacao: 10570,
@@ -663,6 +670,7 @@ describe("contarPendentes inclui as filas metadadosRicos/provedores/criticaIgdb/
       generosGames: 0,
       generosManga: 0,
       premios: 0,
+      relacoesManga: 0,
       arestasFranquia: 0,
       avaliacaoLivros: 0,
       localizacao: 0,
@@ -3701,6 +3709,79 @@ describe("404 da fonte marca watermark nos jobs por id (T-DADOS-91/92, regressã
       organizacao: "Óscar",
     });
     expect((prisma.midia.update as any).mock.calls[0][0].data.premios_em).toBeInstanceOf(Date);
+  });
+});
+
+describe("relações de mangá no MAL (T-DADOS-92)", () => {
+  it("mapeia sequel/prequel/parent_story/spin_off com origem = obra mais antiga", () => {
+    const payload = {
+      related_manga: [
+        { relation_type: "sequel", node: { id: 200 } },
+        { relation_type: "prequel", node: { id: 100 } },
+        { relation_type: "parent_story", node: { id: 50 } },
+        { relation_type: "spin_off", node: { id: 300 } },
+      ],
+    };
+    expect(relacoesDoPayloadMal(payload, "1000")).toEqual([
+      { origem: "1000", destino: "200", tipo: "SEQUENCIA_DE" },
+      { origem: "100", destino: "1000", tipo: "SEQUENCIA_DE" },
+      { origem: "50", destino: "1000", tipo: "SEQUENCIA_DE" },
+      { origem: "300", destino: "1000", tipo: "SPINOFF_DE" },
+    ]);
+  });
+
+  it("descarta tipos ambíguos, auto-relação e duplicatas", () => {
+    const payload = {
+      related_manga: [
+        { relation_type: "alternative", node: { id: 1 } },
+        { relation_type: "side_story", node: { id: 2 } },
+        { relation_type: "adaptation", node: { id: 3 } },
+        { relation_type: "sequel", node: { id: 4 } },
+        { relation_type: "sequel", node: { id: 4 } },
+        { relation_type: "sequel", node: { id: 9 } },
+      ],
+    };
+    const out = relacoesDoPayloadMal(payload, "9");
+    expect(out).toEqual([{ origem: "9", destino: "4", tipo: "SEQUENCIA_DE" }]);
+  });
+
+  it("payload vazio/estranho e id inválido devolvem [] sem lançar", () => {
+    expect(relacoesDoPayloadMal(null, "1")).toEqual([]);
+    expect(relacoesDoPayloadMal({}, "1")).toEqual([]);
+    expect(relacoesDoPayloadMal({ related_manga: "x" }, "1")).toEqual([]);
+    expect(relacoesDoPayloadMal({ related_manga: [null, 42, {}] }, "1")).toEqual([]);
+    expect(relacoesDoPayloadMal({ related_manga: [] }, "slug")).toEqual([]);
+  });
+
+  it("job grava a aresta só quando as DUAS pontas existem no catálogo", async () => {
+    const alvo = [{ id: "m-1", fonte_id: "1000", titulo: "Manga A" }];
+    const { svc, prisma } = makeService({ alvo });
+    process.env.MAL_CLIENT_ID = "teste";
+    (svc as any).pausa = vi.fn(async () => undefined);
+    (fetchJson as any).mockResolvedValue({
+      related_manga: [
+        { relation_type: "sequel", node: { id: 200 } },
+        { relation_type: "prequel", node: { id: 999 } },
+      ],
+    });
+    // Só 1000 e 200 estão no catálogo; 999 não.
+    (prisma.$queryRawUnsafe as any).mockImplementation(async (sql: string) => {
+      if (/pg_database_size/.test(sql)) return [{ bytes: 100000000n }];
+      if (/FROM midia\s+WHERE deleted_at IS NULL AND tipo = 'MANGA'\s+AND fonte_id IN/.test(sql)) {
+        return [
+          { id: "m-1", fonte_id: "1000" },
+          { id: "m-2", fonte_id: "200" },
+        ];
+      }
+      return alvo;
+    });
+    const r = await svc.enriquecerRelacoesManga(10);
+    expect(r).toMatchObject({ processados: 1, ok: 1, arestas: 1, falhas: 0 });
+    expect(prisma.relacaoObra.upsert).toHaveBeenCalledTimes(1);
+    const chamada = (prisma.relacaoObra.upsert as any).mock.calls[0][0];
+    expect(chamada.create).toEqual({ origem_id: "m-1", destino_id: "m-2", tipo: "SEQUENCIA_DE" });
+    expect((prisma.midia.update as any).mock.calls[0][0].data.relacoes_mal_em).toBeInstanceOf(Date);
+    delete process.env.MAL_CLIENT_ID;
   });
 });
 

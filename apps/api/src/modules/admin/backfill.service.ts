@@ -36,6 +36,8 @@ const ESPERA_429_MS = 1500;
 const PAUSA_AUTORES_MS = 300;
 // T-DADOS-80: gêneros de mangá no MAL (1 req/título; mesma cota dos autores).
 const PAUSA_GENEROS_MANGA_MS = 350;
+// T-DADOS-92: relações de mangá no MAL (`related_manga`).
+const PAUSA_RELACOES_MANGA_MS = 350;
 // T-DADOS-84: prêmios no Wikidata (SPARQL P166 por IMDb id).
 const WDQS_URL = "https://query.wikidata.org/sparql";
 const PAUSA_PREMIOS_MS = 220;
@@ -102,6 +104,8 @@ export type BackfillTipo =
   | "generosManga"
   // T-DADOS-84: prêmios no Wikidata (P166 por IMDb id).
   | "premios"
+  // T-DADOS-92: relações (sequência/spin-off) de MANGA no MAL.
+  | "relacoesManga"
   // T-DADOS-08: localização (sinopse/título en/es) e classificação do TMDB.
   | "localizacao"
   // T-DADOS-10: crítica (RT/Metacritic/IMDb) via OMDb por id IMDb.
@@ -1087,6 +1091,59 @@ export function planejarPremios(
   return { plano, puladosPorCerimonia };
 }
 
+/** T-DADOS-92: aresta derivada do `related_manga` do MAL (ids do MAL). */
+export interface RelacaoMal {
+  origem: string;
+  destino: string;
+  tipo: "SEQUENCIA_DE" | "SPINOFF_DE";
+}
+
+/**
+ * T-DADOS-92: `related_manga` do MAL → arestas do grafo, com a convenção do
+ * catálogo (**origem = a obra mais antiga / a principal**).
+ *
+ * MEDIÇÃO QUE ORIENTOU: o campo certo é **`related_manga`** — `relations`
+ * responde HTTP 200 e **vazio** (a classe de bug do T-DADOS-58: campo errado em
+ * API não dá erro). Sonda com 14 mangás sem nenhuma relação: **4 (29%)** têm
+ * `related_manga`, ~1 item cada, e 3 dos 4 apontam para obra que JÁ está no
+ * catálogo — projeção de ~5 mil arestas sobre os 25.073 sem relação.
+ *
+ * Só tipos com semântica inequívoca entram (`sequel`, `prequel`,
+ * `parent_story`, `spin_off`); `alternative`, `side_story`, `character`,
+ * `adaptation` e `summary` são descartados — mapear esses seria inventar
+ * direção/tipo. Payload estranho devolve `[]` e NUNCA lança.
+ */
+export function relacoesDoPayloadMal(payload: any, idAtual: string): RelacaoMal[] {
+  const atual = String(idAtual ?? "").trim();
+  if (!/^\d+$/.test(atual)) return [];
+  const itens = Array.isArray(payload?.related_manga) ? payload.related_manga : [];
+  const vistos = new Set<string>();
+  const saida: RelacaoMal[] = [];
+  for (const item of itens) {
+    const node = item?.node ?? item;
+    const idRelacionado = String(node?.id ?? "").trim();
+    if (!/^\d+$/.test(idRelacionado) || idRelacionado === atual) continue;
+    const tipo = String(item?.relation_type ?? node?.relation_type ?? "").toLowerCase();
+    let aresta: RelacaoMal | null = null;
+    if (tipo === "sequel") {
+      // A obra relacionada é a CONTINUAÇÃO: a atual é a mais antiga.
+      aresta = { origem: atual, destino: idRelacionado, tipo: "SEQUENCIA_DE" };
+    } else if (tipo === "prequel" || tipo === "parent_story") {
+      // A obra relacionada é anterior (prequela/história principal).
+      aresta = { origem: idRelacionado, destino: atual, tipo: "SEQUENCIA_DE" };
+    } else if (tipo === "spin_off") {
+      // A relacionada é derivada da atual.
+      aresta = { origem: idRelacionado, destino: atual, tipo: "SPINOFF_DE" };
+    }
+    if (!aresta) continue;
+    const chave = `${aresta.origem}::${aresta.destino}`;
+    if (vistos.has(chave)) continue;
+    vistos.add(chave);
+    saida.push(aresta);
+  }
+  return saida;
+}
+
 /**
  * T-DADOS-09: `genres[]` do jogo do IGDB → slugs do mapa curado. O `slug` do
  * item é preferido; sem ele, deriva de `name` via `slugifyBasico`. Slugs fora
@@ -1800,6 +1857,7 @@ export class BackfillService {
     generosGames: estadoVazio(),
     generosManga: estadoVazio(),
     premios: estadoVazio(),
+    relacoesManga: estadoVazio(),
     criticaOmdb: estadoVazio(),
     sinopseMangaEn: estadoVazio(),
     sinopseLivros: estadoVazio(),
@@ -3081,6 +3139,155 @@ export class BackfillService {
       semImdb,
       criados,
       falhas: this.estado.premios.falhas,
+    };
+  }
+
+  /**
+   * T-DADOS-92: RELAÇÕES de MANGA no MAL (`related_manga`) → arestas do grafo
+   * (`relacao_obra`), fechando o gap de "Sequências e relacionados": **25.073
+   * dos 25.081 MANGA não têm nenhuma relação** (o D1b só cobriu franquias TMDB).
+   *
+   * Fonte: `related_manga` (NÃO `relations` — esse responde 200 e vazio).
+   * Rendimento medido: 29% dos mangás têm relação e ~75% delas apontam para
+   * obra que já está no catálogo. Só entram tipos inequívocos (sequel,
+   * prequel, parent_story, spin_off) e **as duas pontas precisam existir** no
+   * catálogo — criar mídia nova está fora da missão.
+   *
+   * Watermark `relacoes_mal_em` marcado SEMPRE (mesmo sem relação); 404 e id
+   * inválido são lacuna honesta; erro de rede/429 não marca (retenta).
+   */
+  async enriquecerRelacoesManga(limite: number): Promise<{
+    processados: number;
+    ok: number;
+    semRelacao: number;
+    arestas: number;
+    falhas: number;
+  }> {
+    const clientId = process.env.MAL_CLIENT_ID;
+    if (!clientId) {
+      throw new BadRequestException(
+        "MAL_CLIENT_ID ausente: sem credencial para relações de mangá.",
+      );
+    }
+    if (this.estado.relacoesManga.executando) {
+      throw new BadRequestException("Job de relações de mangá já em execução.");
+    }
+    await this.guardaDisco();
+    this.estado.relacoesManga = {
+      ...estadoVazio(),
+      executando: true,
+      iniciadoEm: new Date().toISOString(),
+    };
+    const alvo = (await this.prisma.$queryRawUnsafe<
+      { id: string; fonte_id: string; titulo: string }[]
+    >(
+      `SELECT m.id::text, m.fonte_id, m.titulo
+       FROM midia m
+       WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte = 'jikan'
+         AND m.relacoes_mal_em IS NULL
+       ORDER BY m.id
+       LIMIT ${Math.min(Math.max(Math.trunc(limite) || 1, 1), 800)}`,
+    )) as any[];
+    this.logger.log(`Backfill relações de manga (MAL): ${alvo.length} títulos alvo.`);
+    let semRelacao = 0;
+    // (malId da origem, malId do destino, tipo, id da mídia de origem)
+    const pares: { origem: string; destino: string; tipo: string; midiaOrigem: string }[] = [];
+    for (const m of alvo) {
+      this.estado.relacoesManga.processados++;
+      this.estado.relacoesManga.atual = m.titulo;
+      const fonteId = String(m.fonte_id ?? "").trim();
+      try {
+        if (!idNumericoUtilizavel(fonteId)) {
+          semRelacao++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { relacoes_mal_em: new Date() },
+          });
+          this.estado.relacoesManga.ok++;
+          continue;
+        }
+        const payload = await this.getJsonComThrottle<any>(
+          `${MAL_BASE}/manga/${encodeURIComponent(fonteId)}?fields=related_manga`,
+          PAUSA_RELACOES_MANGA_MS,
+          { "Accept": "application/json", "X-MAL-CLIENT-ID": clientId },
+        );
+        const relacoes = relacoesDoPayloadMal(payload, fonteId);
+        if (relacoes.length === 0) semRelacao++;
+        for (const r of relacoes) {
+          pares.push({ ...r, midiaOrigem: m.id });
+        }
+        this.estado.relacoesManga.ok++;
+        await this.prisma.midia.update({
+          where: { id: m.id },
+          data: { relacoes_mal_em: new Date() },
+        });
+      } catch (e) {
+        // T-DADOS-91: 404 = id removido da fonte; lacuna honesta.
+        if (ehIdInexistenteNaFonte(e)) {
+          semRelacao++;
+          await this.prisma.midia.update({
+            where: { id: m.id },
+            data: { relacoes_mal_em: new Date() },
+          });
+          this.estado.relacoesManga.ok++;
+          continue;
+        }
+        this.estado.relacoesManga.falhas++;
+        this.logger.warn(
+          `Backfill relações de manga falha [${m.titulo}]: ${String(e).slice(0, 120)}`,
+        );
+      }
+    }
+
+    // Resolve as DUAS pontas de uma vez (um `IN` por lote, nunca por aresta).
+    let arestas = 0;
+    if (pares.length > 0) {
+      const ids = [...new Set(pares.flatMap((p) => [p.origem, p.destino]))].filter((i) =>
+        /^\d+$/.test(i),
+      );
+      const encontrados = (await this.prisma.$queryRawUnsafe<{ id: string; fonte_id: string }[]>(
+        `SELECT id::text, fonte_id FROM midia
+         WHERE deleted_at IS NULL AND tipo = 'MANGA'
+           AND fonte_id IN (${ids.map((i) => `'${i}'`).join(",")})`,
+      )) as { id: string; fonte_id: string }[];
+      const midiaPorMalId = new Map((encontrados ?? []).map((r) => [String(r.fonte_id), r.id]));
+      for (const p of pares) {
+        const origemId = midiaPorMalId.get(p.origem);
+        const destinoId = midiaPorMalId.get(p.destino);
+        // As duas pontas precisam existir: sem isso a aresta apontaria para o vazio.
+        if (!origemId || !destinoId || origemId === destinoId) continue;
+        try {
+          await this.prisma.relacaoObra.upsert({
+            where: { origem_id_destino_id: { origem_id: origemId, destino_id: destinoId } },
+            // Curadoria/O grafo existente vence: nunca sobrescreve tipo.
+            update: {},
+            create: {
+              origem_id: origemId,
+              destino_id: destinoId,
+              tipo: p.tipo as "SEQUENCIA_DE" | "SPINOFF_DE",
+            },
+          });
+          arestas++;
+        } catch (e) {
+          this.estado.relacoesManga.falhas++;
+          this.logger.warn(
+            `Backfill relações de manga: aresta ${p.origem}→${p.destino} falhou (${String(e).slice(0, 80)})`,
+          );
+        }
+      }
+    }
+
+    this.estado.relacoesManga.executando = false;
+    this.estado.relacoesManga.atual = `fim: ok=${this.estado.relacoesManga.ok} sem_relacao=${semRelacao} arestas=${arestas} falhas=${this.estado.relacoesManga.falhas}`;
+    this.logger.log(
+      `Backfill relações de manga (MAL) fim: ok=${this.estado.relacoesManga.ok} sem_relacao=${semRelacao} arestas=${arestas} falhas=${this.estado.relacoesManga.falhas}.`,
+    );
+    return {
+      processados: this.estado.relacoesManga.processados,
+      ok: this.estado.relacoesManga.ok,
+      semRelacao,
+      arestas,
+      falhas: this.estado.relacoesManga.falhas,
     };
   }
 
@@ -5066,6 +5273,8 @@ export class BackfillService {
     generosManga: number;
     // T-DADOS-84: fila de prêmios (Wikidata por IMDb id).
     premios: number;
+    // T-DADOS-92: fila de relações de MANGA (MAL related_manga).
+    relacoesManga: number;
     arestasFranquia: number;
     avaliacaoLivros: number;
     // T-DADOS-08: fila de localização (en/es) + classificação do TMDB.
@@ -5099,6 +5308,7 @@ export class BackfillService {
         generos_games: number;
         generos_manga: number;
         premios: number;
+        relacoes_manga: number;
         arestas_franquia: number;
         avaliacao_livros: number;
         localizacao: number;
@@ -5140,6 +5350,9 @@ export class BackfillService {
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo IN ('FILME','SERIE')
             AND m.fonte IN ('tmdb','tmdb_tv') AND m.premios_em IS NULL) AS premios,
+        (SELECT COUNT(*)::int FROM midia m
+          WHERE m.deleted_at IS NULL AND m.tipo = 'MANGA' AND m.fonte = 'jikan'
+            AND m.relacoes_mal_em IS NULL) AS relacoes_manga,
         (SELECT COUNT(*)::int FROM midia m
           WHERE m.deleted_at IS NULL AND m.tipo = 'LIVRO' AND m.fonte = 'openlibrary'
             AND m.avaliacoes_atualizadas_em IS NULL) AS avaliacao_livros,
@@ -5214,6 +5427,7 @@ export class BackfillService {
       generosGames: Number(row?.generos_games ?? 0),
       generosManga: Number(row?.generos_manga ?? 0),
       premios: Number(row?.premios ?? 0),
+      relacoesManga: Number(row?.relacoes_manga ?? 0),
       arestasFranquia: Number(row?.arestas_franquia ?? 0),
       avaliacaoLivros: filaAvaliacaoLivros,
       localizacao: Number(row?.localizacao ?? 0),
@@ -5321,6 +5535,16 @@ export class BackfillService {
         lotes.push({
           tipo: "generosManga",
           ok: r.ok + r.semGenero + r.semId,
+          falhas: r.falhas,
+        });
+      }
+      // T-DADOS-92: relações (sequência/spin-off) de MANGA no MAL — 1 req/título.
+      // `ok` soma os títulos SEM relação: saíram da fila (watermark).
+      if (Date.now() - inicio < orçamentoMs && (pendentesAntes.relacoesManga ?? 0) > 0) {
+        const r = await this.enriquecerRelacoesManga(800);
+        lotes.push({
+          tipo: "relacoesManga",
+          ok: r.ok + r.semRelacao,
           falhas: r.falhas,
         });
       }
@@ -5576,6 +5800,12 @@ export class BackfillService {
         tem: (p.premios ?? 0) > 0,
         executar: () => this.enriquecerPremios(2500),
         okDe: (r: any) => r.ok + r.semImdb,
+      },
+      {
+        tipo: "relacoesManga",
+        tem: (p.relacoesManga ?? 0) > 0,
+        executar: () => this.enriquecerRelacoesManga(800),
+        okDe: (r: any) => r.ok + r.semRelacao,
       },
       {
         tipo: "arestasFranquia",
