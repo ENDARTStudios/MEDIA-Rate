@@ -131,3 +131,8 @@ apps/web/auth/.artifacts/
 
 # .tmp/ é rascunho de CLI (ex.: figcraft-cli escreve ids/comandos ali) — nunca versionar.
 .tmp/
+
+# SVG temporario dos geradores do conceito v2 (a lib escreve no cwd).
+.v2-*.svg
+.v2-*.txt
+.tmp/

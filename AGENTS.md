@@ -112,7 +112,10 @@ You may only prompt the human operator regarding external platforms if:
   `media-rate-ui-ux` (contrato visual: tokens, anti-padrões D-065, server-first/LCP,
   funil de marketing, playbook da hero — com `references/`), `ux-copywriting` (voz e
   regras de copy nos 3 locales), `design-review` (+ `scripts/contrast-audit.mjs`),
-  `visual-qa` (+ `scripts/visual-qa.mjs`). Complementam
+  `visual-qa` (+ `scripts/visual-qa.mjs`), `logo-design` (processo de marca: brief →
+  clichês → word map → 8–12 conceitos → construção SVG → teste 16/24/32 px → kit; com
+  `references/` e `scripts/logo-audit.mjs` + `logo-render.mjs` — fonte externa MIT, ver
+  `docs/07-operations-marketing/LOGO-DESIGN-SKILL.md`). Complementam
   `.agents/skills/media-rate-conventions` (política) e `.agents/skills/motion-design`
   (animação) — leia a skill ANTES do domínio.
 - **Mudança visual (UI/UX)**: ler `media-rate-ui-ux` + `motion-design` antes de
